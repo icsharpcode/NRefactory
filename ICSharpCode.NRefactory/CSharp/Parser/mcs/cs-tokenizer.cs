@@ -2630,6 +2630,7 @@ namespace Mono.CSharp
 		{
 			int c;
 			string_builder.Length = 0;
+			int start_col = Location.Column;
 
 			while (true){
 				c = get_char ();
@@ -2640,7 +2641,7 @@ namespace Mono.CSharp
 						continue;
 					}
 
-					val = new StringLiteral (string_builder.ToString (), Location);
+					val = new StringLiteral (string_builder.ToString (), new Location(ref_line, start_col));
 					return Token.LITERAL;
 				}
 
@@ -3508,4 +3509,3 @@ namespace Mono.CSharp
 		Error
 	}
 }
-
