@@ -412,9 +412,10 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			if (embeddedStatement.IsNull)
 				return;
-			BlockStatement block = embeddedStatement as BlockStatement;
-			if (block != null)
-				VisitBlockStatement(block, null);
+			if (embeddedStatement is BlockStatement)
+				VisitBlockStatement(embeddedStatement as BlockStatement, null);
+			else if (embeddedStatement is ExpressionStatement)
+				VisitExpressionStatement(embeddedStatement as ExpressionStatement, null);
 			else
 				throw new NotImplementedException();
 		}
