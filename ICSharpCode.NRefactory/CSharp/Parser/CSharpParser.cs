@@ -2407,11 +2407,13 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				var result = new ArrayInitializerExpression();
 				var location = LocationsBag.GetLocations(arrayInitializer);
+				result.AddChild(new CSharpTokenNode(Convert(arrayInitializer.Location), "{".Length), ArrayInitializerExpression.Roles.LBrace);
 				var commaLocations = LocationsBag.GetLocations(arrayInitializer.Elements);
 				for (int i = 0; i < arrayInitializer.Count; i++)
 				{
 					result.AddChild((Expression)arrayInitializer[i].Accept(this), ArrayInitializerExpression.Roles.Expression);
 				}
+
 				return result;
 			}
 
