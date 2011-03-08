@@ -1,4 +1,4 @@
-﻿// 
+// 
 // CSharpParser.cs
 //
 // Author:
@@ -1994,20 +1994,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					result.AddChild (new CSharpTokenNode (Convert (location[1]), 1), ArrayCreateExpression.Roles.RBracket);
 				
 				if (arrayCreationExpression.Initializers != null && arrayCreationExpression.Initializers.Count != 0) {
-					throw new NotImplementedException();
-					/* TODO: use ArrayInitializerExpression
-					var initLocation = LocationsBag.GetLocations (arrayCreationExpression.Initializers);
-					result.AddChild (new CSharpTokenNode (Convert (arrayCreationExpression.Initializers.Location), 1), ArrayCreateExpression.Roles.LBrace);
-					var commaLocations = LocationsBag.GetLocations (arrayCreationExpression.Initializers.Elements);
-					for (int i = 0; i < arrayCreationExpression.Initializers.Count; i++) {
-						result.AddChild ((AstNode)arrayCreationExpression.Initializers[i].Accept (this), ObjectCreateExpression.Roles.Variable);
-						if (commaLocations != null && i > 0) {
-							result.AddChild (new CSharpTokenNode (Convert (commaLocations [commaLocations.Count - i]), 1), IndexerExpression.Roles.Comma);
-						}
-					}
-					
-					if (initLocation != null)
-						result.AddChild (new CSharpTokenNode (Convert (initLocation[initLocation.Count - 1]), 1), ArrayCreateExpression.Roles.RBrace); */
+					result.AddChild((ArrayInitializerExpression)arrayCreationExpression.Initializers.Accept(this), ArrayCreateExpression.InitializerRole);
 				}
 				
 				return result;
@@ -2244,19 +2231,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				var result = new ArrayInitializerExpression ();
 				var location = LocationsBag.GetLocations (arrayInitializer);
-				result.AddChild (new CSharpTokenNode (Convert (arrayInitializer.Location), "{".Length), ArrayInitializerExpression.Roles.LBrace);
 				var commaLocations = LocationsBag.GetLocations (arrayInitializer.Elements);
 				for (int i = 0; i < arrayInitializer.Count; i++) {
-					result.AddChild ((Expression)arrayInitializer[i].Accept (this), ArrayInitializerExpression.Roles.Expression);
-					if (commaLocations != null && i < commaLocations.Count)
-						result.AddChild (new CSharpTokenNode (Convert (commaLocations[i]), ",".Length), ArrayInitializerExpression.Roles.Comma);
+					result.AddChild((Expression)arrayInitializer[i].Accept(this), ArrayInitializerExpression.Roles.Expression);
 				}
 				
-				if (location != null) {
-					if (location.Count == 2) // optional comma
-						result.AddChild (new CSharpTokenNode (Convert (location[1]), ",".Length), ArrayInitializerExpression.Roles.Comma);
-					result.AddChild (new CSharpTokenNode (Convert (location[location.Count - 1]), "}".Length), ArrayInitializerExpression.Roles.RBrace);
-				}
 				return result;
 			}
 			
