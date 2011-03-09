@@ -1,4 +1,4 @@
-﻿// 
+// 
 // CSharpParser.cs
 //
 // Author:
@@ -748,6 +748,16 @@ namespace ICSharpCode.NRefactory.CSharp
 				AddParameter (newConstructor, c.ParameterInfo);
 				if (location != null)
 					newConstructor.AddChild (new CSharpTokenNode (Convert (location[1]), 1), MethodDeclaration.Roles.RPar);
+
+				if (c.Initializer != null)
+				{
+					newConstructor.Initializer = new ConstructorInitializer();
+					if (c.Initializer is ConstructorBaseInitializer)
+						newConstructor.Initializer.ConstructorInitializerType = ConstructorInitializerType.Base;
+					if (c.Initializer is ConstructorThisInitializer)
+						newConstructor.Initializer.ConstructorInitializerType = ConstructorInitializerType.This;
+					AddArguments(newConstructor.Initializer, location, c.Initializer.Arguments);
+				}
 				
 				if (c.Block != null)
 					newConstructor.AddChild ((BlockStatement)c.Block.Accept (this), ConstructorDeclaration.Roles.Body);
