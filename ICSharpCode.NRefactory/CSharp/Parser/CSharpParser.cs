@@ -1,4 +1,4 @@
-// 
+﻿// 
 // CSharpParser.cs
 //
 // Author:
@@ -229,6 +229,9 @@ namespace ICSharpCode.NRefactory.CSharp
 					if (typeArgLocation != null)
 						newType.AddChild (new CSharpTokenNode (Convert (typeArgLocation[1]), 1), TypeDeclaration.Roles.RChevron);
 					AddConstraints (newType, c);
+				}
+				if (c.TypeBaseExpressions != null) {
+					AddBaseTypes(newType, c);
 				}
 				if (location != null && location.Count > 1)
 					newType.AddChild (new CSharpTokenNode (Convert (location[1]), 1), AstNode.Roles.LBrace);
@@ -1865,6 +1868,15 @@ namespace ICSharpCode.NRefactory.CSharp
 					if (arg == null)
 						continue;
 					parent.AddChild (ConvertToType (arg), InvocationExpression.Roles.TypeArgument);
+				}
+			}
+
+			void AddBaseTypes(TypeDeclaration parent, Class c)
+			{
+				if (c == null || c.TypeBaseExpressions == null)
+					return;
+				foreach (var expr in c.TypeBaseExpressions) {
+					parent.BaseTypes.Add(ConvertToType(expr));
 				}
 			}
 			
