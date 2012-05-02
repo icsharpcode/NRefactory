@@ -3,3 +3,4 @@
 _ReSharper*/*
 *.pidb
 *.userprefs
+*/test-results
