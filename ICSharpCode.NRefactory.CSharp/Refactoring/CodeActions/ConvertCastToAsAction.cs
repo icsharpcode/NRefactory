@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			var castExpr = GetCastExpression (context);
 			if (castExpr != null) {
-				yield return new CodeAction ("Convert cast to 'as'.", script => 
+				yield return new CodeAction (context.TranslateString ("Convert cast to 'as'."), script =>
 					script.Replace (castExpr, new AsExpression (castExpr.Expression.Clone (), castExpr.Type.Clone ())));
 			}
 		}
