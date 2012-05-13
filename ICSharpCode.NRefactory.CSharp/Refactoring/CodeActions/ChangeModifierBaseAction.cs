@@ -6,7 +6,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public abstract class ChangeModifierBaseAction
 	{
 		protected abstract Modifiers Modifier {get;}
-		protected abstract string Name {get;}
 		protected abstract CodeAction GetReplaceAction (RefactoringContext context);
 		protected abstract bool tryGetImplicitPrivateAction(RefactoringContext context, out CodeAction privateAction);
 		protected CSharpModifierToken modifierNode;
