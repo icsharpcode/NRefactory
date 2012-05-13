@@ -140,7 +140,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var startOffset = GetCurrentOffset(new TextLocation(node.StartLocation.Line, 1));
 			var output = OutputNode (GetIndentLevelAt (startOffset), insertNode);
 			string text = output.Text;
-			if (!(insertNode is Expression || insertNode is AstType))
+			if (insertNode is CSharpModifierToken)
+				text += " ";
+			else if (!(insertNode is Expression || insertNode is AstType))
 				text += eolMarker;
 			InsertText(startOffset, text);
 			output.RegisterTrackedSegments(this, startOffset);
