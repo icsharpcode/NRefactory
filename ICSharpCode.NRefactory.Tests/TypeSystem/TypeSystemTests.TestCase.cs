@@ -244,4 +244,8 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 	public class ClassWithVirtualProperty {
 		public virtual int Prop { get; set; }
 	}
+
+	public class ClassThatImplementsProperty : IInterfaceWithProperty {
+		public int Prop { get; set; }
+	}
 }

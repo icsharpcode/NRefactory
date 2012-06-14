@@ -867,5 +867,15 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			Assert.That(prop.Setter.IsOverride, Is.False);
 			Assert.That(prop.Setter.IsOverridable, Is.True);
 		}
+
+		[Test]
+		public void PropertyAccessorsShouldBeReportedAsImplementingInterfaceAccessors() {
+			ITypeDefinition type = GetTypeDefinition(typeof(ClassThatImplementsProperty));
+			var prop = type.Properties.Single(p => p.Name == "Prop");
+			Assert.That(prop.ImplementedInterfaceMembers.Select(p => p.ReflectionName).ToList(), Is.EqualTo(new[] { "ICSharpCode.NRefactory.TypeSystem.TestCase.IInterfaceWithProperty.Prop" }));
+			Assert.That(prop.Getter.ImplementedInterfaceMembers.Select(p => p.ReflectionName).ToList(), Is.EqualTo(new[] { "ICSharpCode.NRefactory.TypeSystem.TestCase.IInterfaceWithProperty.get_Prop" }));
+			Assert.That(prop.Setter.ImplementedInterfaceMembers.Select(p => p.ReflectionName).ToList(), Is.EqualTo(new[] { "ICSharpCode.NRefactory.TypeSystem.TestCase.IInterfaceWithProperty.set_Prop" }));
+		}
 	}
+
 }
