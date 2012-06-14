@@ -27,7 +27,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 	/// <summary>
 	/// Anonymous type.
 	/// </summary>
-	public class AnonymousType : AbstractType
+	public class AnonymousType : AbstractType, ITypeReference
 	{
 		ICompilation compilation;
 		IUnresolvedProperty[] unresolvedProperties;
@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var context = new SimpleTypeResolveContext(compilation.MainAssembly);
 			this.resolvedProperties = new ProjectedList<ITypeResolveContext, IUnresolvedProperty, IProperty>(context, unresolvedProperties, (c, p) => new AnonymousTypeProperty(p, c, this));
 		}
-		
+
 		sealed class AnonymousTypeProperty : DefaultResolvedProperty, IEntity
 		{
 			readonly AnonymousType declaringType;
@@ -73,7 +73,11 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		
 		public override ITypeReference ToTypeReference()
 		{
-			throw new NotSupportedException();
+			return this;
+		}
+
+		IType ITypeReference.Resolve(ITypeResolveContext context) {
+			return this;
 		}
 		
 		public override string Name {
