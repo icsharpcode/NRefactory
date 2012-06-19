@@ -1257,7 +1257,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		{
 			if (c == Conversion.IdentityConversion)
 				return rr;
-			else if (rr.IsCompileTimeConstant && c != Conversion.None)
+			else if (rr.IsCompileTimeConstant && c != Conversion.None && !c.IsUserDefined)
 				return ResolveCast(targetType, rr);
 			else
 				return new ConversionResolveResult(targetType, rr, c, checkForOverflow);
