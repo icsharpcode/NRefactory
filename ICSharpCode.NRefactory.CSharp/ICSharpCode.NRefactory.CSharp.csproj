@@ -472,6 +472,7 @@
     <Compile Include="Refactoring\CodeActions\IterateViaForeachAction.cs" />
     <Compile Include="Refactoring\CodeActions\ExtractFieldAction.cs" />
     <Compile Include="Completion\ICompletionContextProvider.cs" />
+    <Compile Include="Refactoring\CodeIssues\UnresolvedTypeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ValueParameterUnusedIssue.cs" />
     <Compile Include="Refactoring\NamingHelper.cs" />
     <Compile Include="Refactoring\CodeActions\ConvertToInitializer\ConvertToInitializerAction.cs" />
