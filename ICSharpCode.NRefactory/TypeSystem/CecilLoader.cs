@@ -1633,7 +1633,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					bool getterVisible = property.GetMethod != null && IsVisible(property.GetMethod.Attributes);
 					bool setterVisible = property.SetMethod != null && IsVisible(property.SetMethod.Attributes);
 					if (getterVisible || setterVisible) {
-						EntityType type = property.Name == defaultMemberName ? EntityType.Indexer : EntityType.Property;
+						EntityType type = property.Parameters.Count != 0 ? EntityType.Indexer : EntityType.Property;
 						td.Members.Add(ReadProperty(property, td, type));
 					}
 				}
