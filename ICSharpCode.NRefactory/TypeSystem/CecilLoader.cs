@@ -73,6 +73,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		
 		ModuleDefinition currentModule;
 		CecilUnresolvedAssembly currentAssembly;
+		IAssemblyReference currentAssemblyReference;
 		
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.TypeSystem.CecilLoader"/> class.
@@ -99,6 +100,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		{
 			if (assemblyDefinition == null)
 				throw new ArgumentNullException("assemblyDefinition");
+
+			this.currentAssemblyReference = DefaultAssemblyReference.CurrentAssembly(assemblyDefinition.Name.Name);
 			
 			this.currentModule = assemblyDefinition.MainModule;
 			
@@ -113,7 +116,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				moduleAttributes = this.InterningProvider.InternList(moduleAttributes);
 			}
 			
-			this.currentAssembly = new CecilUnresolvedAssembly(assemblyDefinition.Name.Name, this.DocumentationProvider);
+			var references = assemblyDefinition.Modules.SelectMany(m => m.AssemblyReferences).Select(r => r.Name).Distinct().Select(name => (IAssemblyReference)new DefaultAssemblyReference(name)).ToList();
+			this.currentAssembly = new CecilUnresolvedAssembly(assemblyDefinition.Name.Name, this.DocumentationProvider, references);
 			currentAssembly.AssemblyAttributes.AddRange(assemblyAttributes);
 			currentAssembly.ModuleAttributes.AddRange(assemblyAttributes);
 			
@@ -158,6 +162,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var result = this.currentAssembly;
 			this.currentAssembly = null;
 			this.currentModule = null;
+			this.currentAssemblyReference = null;
 			return result;
 		}
 		
@@ -193,8 +198,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		{
 			readonly IDocumentationProvider documentationProvider;
 			
-			public CecilUnresolvedAssembly(string assemblyName, IDocumentationProvider documentationProvider)
-				: base(assemblyName)
+			public CecilUnresolvedAssembly(string assemblyName, IDocumentationProvider documentationProvider, IList<IAssemblyReference> assemblyReferences)
+				: base(assemblyName, assemblyReferences)
 			{
 				Debug.Assert(assemblyName != null);
 				this.documentationProvider = documentationProvider;
@@ -332,7 +337,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		IAssemblyReference GetAssemblyReference(IMetadataScope scope)
 		{
 			if (scope == null || scope == currentModule)
-				return DefaultAssemblyReference.CurrentAssembly;
+				return currentAssemblyReference;
 			else
 				return new DefaultAssemblyReference(scope.Name);
 		}

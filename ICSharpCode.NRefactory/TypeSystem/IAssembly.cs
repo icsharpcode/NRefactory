@@ -27,9 +27,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 	public interface IUnresolvedAssembly : IAssemblyReference
 	{
 		/// <summary>
-		/// Gets the assembly name (short name).
+		/// Gets the referenced assemblies.
 		/// </summary>
-		string AssemblyName { get; }
+		IEnumerable<IAssemblyReference> AssemblyReferences { get; }
 		
 		/// <summary>
 		/// Gets the list of all assembly attributes in the project.
@@ -49,6 +49,11 @@ namespace ICSharpCode.NRefactory.TypeSystem
 	
 	public interface IAssemblyReference
 	{
+		/// <summary>
+		/// Gets the assembly name (short name).
+		/// </summary>
+		string AssemblyName { get; }
+
 		/// <summary>
 		/// Resolves this assembly.
 		/// </summary>

@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			return new SimpleCompilation(new DefaultSolutionSnapshot(), this);
 		}
 		
-		private MinimalCorlib() : base("corlib")
+		private MinimalCorlib() : base("corlib", null)
 		{
 			var types = new DefaultUnresolvedTypeDefinition[KnownTypeReference.KnownTypeCodeCount];
 			for (int i = 0; i < types.Length; i++) {

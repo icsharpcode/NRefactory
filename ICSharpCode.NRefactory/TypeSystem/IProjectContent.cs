@@ -38,11 +38,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		IEnumerable<IParsedFile> Files { get; }
 		
 		/// <summary>
-		/// Gets the referenced assemblies.
-		/// </summary>
-		IEnumerable<IAssemblyReference> AssemblyReferences { get; }
-		
-		/// <summary>
 		/// Gets the compiler settings object.
 		/// The concrete type of the settings object depends on the programming language used to implement this project.
 		/// </summary>

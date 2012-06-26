@@ -26,7 +26,10 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 	[Serializable]
 	public sealed class DefaultAssemblyReference : IAssemblyReference, ISupportsInterning
 	{
-		public static readonly IAssemblyReference CurrentAssembly = new CurrentAssemblyReference();
+		public static IAssemblyReference CurrentAssembly(string assemblyName) {
+			 return new CurrentAssemblyReference(assemblyName);
+		}
+
 		public static readonly IAssemblyReference Corlib = new DefaultAssemblyReference("mscorlib");
 		
 		string shortName;
@@ -56,6 +59,10 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		{
 			return shortName;
 		}
+
+		public string AssemblyName {
+			get { return shortName; }
+		}
 		
 		void ISupportsInterning.PrepareForInterning(IInterningProvider provider)
 		{
@@ -78,12 +85,22 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		[Serializable]
 		sealed class CurrentAssemblyReference : IAssemblyReference
 		{
+			private string assemblyName;
+
 			public IAssembly Resolve(ITypeResolveContext context)
 			{
 				IAssembly asm = context.CurrentAssembly;
 				if (asm == null)
 					throw new ArgumentException("A reference to the current assembly cannot be resolved in the compilation's global type resolve context.");
 				return asm;
+			}
+
+			public string AssemblyName {
+				get { return assemblyName; }
+			}
+
+			public CurrentAssemblyReference(string assemblyName) {
+				this.assemblyName = assemblyName;
 			}
 		}
 	}

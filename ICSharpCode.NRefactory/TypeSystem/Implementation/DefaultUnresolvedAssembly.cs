@@ -38,6 +38,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		string assemblyName;
 		IList<IUnresolvedAttribute> assemblyAttributes;
 		IList<IUnresolvedAttribute> moduleAttributes;
+		IList<IAssemblyReference> assemblyReferences;
 		Dictionary<FullNameAndTypeParameterCount, IUnresolvedTypeDefinition> typeDefinitions = new Dictionary<FullNameAndTypeParameterCount, IUnresolvedTypeDefinition>(FullNameAndTypeParameterCountComparer.Ordinal);
 		Dictionary<FullNameAndTypeParameterCount, ITypeReference> typeForwarders = new Dictionary<FullNameAndTypeParameterCount, ITypeReference>(FullNameAndTypeParameterCountComparer.Ordinal);
 		
@@ -51,13 +52,18 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			}
 		}
 		
-		public DefaultUnresolvedAssembly(string assemblyName)
+		public DefaultUnresolvedAssembly(string assemblyName, IList<IAssemblyReference> assemblyReferences)
 		{
 			if (assemblyName == null)
 				throw new ArgumentNullException("assemblyName");
 			this.assemblyName = assemblyName;
 			this.assemblyAttributes = new List<IUnresolvedAttribute>();
 			this.moduleAttributes = new List<IUnresolvedAttribute>();
+			this.assemblyReferences = FreezableHelper.FreezeList(assemblyReferences);
+		}
+
+		public IEnumerable<IAssemblyReference> AssemblyReferences {
+			get { return assemblyReferences; }
 		}
 		
 		public string AssemblyName {
