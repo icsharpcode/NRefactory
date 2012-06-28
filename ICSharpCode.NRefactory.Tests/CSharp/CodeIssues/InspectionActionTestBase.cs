@@ -45,8 +45,17 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 
 		protected static void CheckFix (TestRefactoringContext ctx, CodeIssue issue, string expectedOutput, int fixIndex = 0)
 		{
+			CheckFix(ctx, issue, expectedOutput, s => { }, fixIndex);
+		}
+
+		protected static void CheckFix(TestRefactoringContext ctx, CodeIssue issue, string expectedOutput, Action<Script> scriptConfigAction, int fixIndex = 0)
+		{
 			using (var script = ctx.StartScript ())
-				issue.Actions[fixIndex].Run (script);
+			{
+				scriptConfigAction(script);
+				issue.Actions.[fixIndex].Run(script);
+			}
+
 			Assert.AreEqual (expectedOutput, ctx.Text);
 		}
 

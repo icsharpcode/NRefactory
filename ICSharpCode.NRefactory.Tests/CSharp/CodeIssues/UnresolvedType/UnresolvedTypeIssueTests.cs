@@ -4,7 +4,7 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues.UnresolvedType
 {
 	[TestFixture]
 	public class UnresolvedTypeIssueTests : InspectionActionTestBase
@@ -304,6 +304,35 @@ class Foo : List<INotifyPropertyChanged>
 	void Bar (object bigObject)
 	{
 		var str = bigObject as string;
+	}
+}");
+		}
+		#endregion
+
+		#region Member Access
+		[Test]
+		public void ShouldReturnIssueIfEnumValueIsNotResolvable()
+		{
+			this.ShouldNotBeAbleToResolve(
+@"class Foo
+{
+	void Bar ()
+	{
+		var support = AttributeTargets.Assembly;
+	}
+}");
+		}
+
+		[Test]
+		public void ShouldNotReturnIssueIfEnumValueIsResolvable()
+		{
+			this.ShouldBeAbleToResolve(
+@"using System;
+class Foo
+{
+	void Bar ()
+	{
+		var support = AttributeTargets.Assembly;
 	}
 }");
 		}

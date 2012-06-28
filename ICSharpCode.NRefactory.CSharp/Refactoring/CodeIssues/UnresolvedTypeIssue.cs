@@ -1,6 +1,9 @@
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using System.Linq;
+using System;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -75,12 +78,34 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				this.AddIssueIfUnresolvable(asExpression.Type);
 			}
 
-			private void AddIssueIfUnresolvable(AstType type)
+			public override void VisitMemberReferenceExpression(MemberReferenceExpression expression)
+			{
+				base.VisitMemberReferenceExpression(expression);
+
+				this.AddIssueIfUnresolvable(expression.Target);
+			}
+
+			private void AddIssueIfUnresolvable(AstNode type)
 			{
 				var result = ctx.Resolve(type);
+
 				if (result is UnknownIdentifierResolveResult)
 				{
-					this.AddIssue(type, ctx.TranslateString("Unknown identifier"), s =>  { });
+					var possibleType = GetPossibleTypes((UnknownIdentifierResolveResult)result).FirstOrDefault();
+					this.AddIssue(type, ctx.TranslateString("Unknown identifier"), s =>
+					              {
+						var usingDeclaration = new UsingDeclaration(possibleType.Namespace);
+						var existingUsings = ctx.RootNode.Children.OfType<UsingDeclaration>();
+
+						if (existingUsings.Count() > 0)
+						{
+							AddAfterExistingUsings(s, existingUsings, usingDeclaration);
+						}
+						else
+						{
+							AddAtRoot(s, usingDeclaration);
+						}
+					});
 				}
 
 				var simpleType = type as SimpleType;
@@ -91,6 +116,58 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						this.AddIssueIfUnresolvable(typeArgument);
 					}
 				}
+			}
+
+			private void AddAfterExistingUsings(Script s, IEnumerable<UsingDeclaration> existingUsings, UsingDeclaration newUsing)
+			{
+				var lastUsing = existingUsings.Last();
+				var nextNode = lastUsing.NextSibling;
+
+				s.InsertAfter(lastUsing, newUsing);
+				this.InsertBlankLines(s, lastUsing, nextNode, s.FormattingOptions.BlankLinesAfterUsings);
+			}
+
+			private void AddAtRoot(Script s, UsingDeclaration newUsing)
+			{
+				var rootNode = ctx.RootNode;
+
+				var addNode = rootNode.FirstChild;
+				var prevNode = addNode;
+				while (addNode is Comment)
+				{
+					addNode = addNode.NextSibling;
+					prevNode = addNode;
+				}
+
+				this.InsertBlankLines(s, prevNode, addNode, s.FormattingOptions.BlankLinesBeforeUsings);
+				s.InsertBefore(addNode, newUsing);
+				this.InsertBlankLines(s, prevNode, addNode, s.FormattingOptions.BlankLinesAfterUsings);
+			}
+
+			private IEnumerable<IType> GetPossibleTypes(UnknownIdentifierResolveResult result)
+			{
+				return ctx.Compilation.GetAllTypeDefinitions()
+					.Where(t => t.Name == result.Identifier &&
+					       t.TypeParameterCount == result.TypeArgumentCount);
+			}
+
+			private void InsertBlankLines(Script s, AstNode insertAfter, AstNode insertBefore, int numberOfLines)
+			{
+				int linesToAdd = numberOfLines - GetLinesBetween(insertAfter, insertBefore);
+				for (int i = 0; i < linesToAdd; i++)
+				{
+					s.InsertBefore(insertBefore, new TextNode(s.Options.EolMarker));
+				}
+			}
+
+			private int GetLinesBetween(AstNode startNode, AstNode endNode)
+			{
+				if (startNode == endNode)
+				{
+					return 0;
+				}
+
+				return endNode.StartLocation.Line - startNode.EndLocation.Line - 1;
 			}
 		}
 	}
