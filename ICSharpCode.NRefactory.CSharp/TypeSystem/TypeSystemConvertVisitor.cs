@@ -206,7 +206,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 					break;
 			}
 			
-			ConvertAttributes(td.Attributes, typeDeclaration.Attributes);
+			ConvertEntityAttributes(td.Attributes, typeDeclaration.Attributes);
 			
 			ConvertTypeParameters(td.TypeParameters, typeDeclaration.TypeParameters, typeDeclaration.Constraints, EntityType.TypeDefinition);
 			
@@ -343,7 +343,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 				
 				field.Region = isSingleField ? MakeRegion(fieldDeclaration) : MakeRegion(vi);
 				field.BodyRegion = MakeRegion(vi);
-				ConvertAttributes(field.Attributes, fieldDeclaration.Attributes);
+				ConvertEntityAttributes(field.Attributes, fieldDeclaration.Attributes);
 				AddXmlDocumentation(field, fieldDeclaration);
 				
 				ApplyModifiers(field, modifiers);
@@ -375,7 +375,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 		{
 			DefaultUnresolvedField field = new DefaultUnresolvedField(currentTypeDefinition, enumMemberDeclaration.Name);
 			field.Region = field.BodyRegion = MakeRegion(enumMemberDeclaration);
-			ConvertAttributes(field.Attributes, enumMemberDeclaration.Attributes);
+			ConvertEntityAttributes(field.Attributes, enumMemberDeclaration.Attributes);
 			AddXmlDocumentation(field, enumMemberDeclaration);
 			
 			if (currentTypeDefinition.TypeParameters.Count == 0) {
@@ -422,7 +422,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 				foreach (TypeParameterDeclaration tpDecl in methodDeclaration.TypeParameters) {
 					var tp = new MethodTypeParameterWithInheritedConstraints(index++, tpDecl.Name);
 					tp.Region = MakeRegion(tpDecl);
-					ConvertAttributes(tp.Attributes, tpDecl.Attributes);
+					ConvertEntityAttributes(tp.Attributes, tpDecl.Attributes);
 					tp.Variance = tpDecl.Variance;
 					m.TypeParameters.Add(tp);
 				}
@@ -430,8 +430,8 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 				ConvertTypeParameters(m.TypeParameters, methodDeclaration.TypeParameters, methodDeclaration.Constraints, EntityType.Method);
 			}
 			m.ReturnType = methodDeclaration.ReturnType.ToTypeReference();
-			ConvertAttributes(m.Attributes, methodDeclaration.Attributes.Where(s => s.AttributeTarget != "return"));
-			ConvertAttributes(m.ReturnTypeAttributes, methodDeclaration.Attributes.Where(s => s.AttributeTarget == "return"));
+			ConvertEntityAttributes(m.Attributes, methodDeclaration.Attributes.Where(s => s.AttributeTarget != "return"));
+			ConvertEntityAttributes(m.ReturnTypeAttributes, methodDeclaration.Attributes.Where(s => s.AttributeTarget == "return"));
 			
 			ApplyModifiers(m, methodDeclaration.Modifiers);
 			if (methodDeclaration.IsExtensionMethod) {
@@ -490,7 +490,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			foreach (TypeParameterDeclaration tpDecl in typeParameters) {
 				DefaultUnresolvedTypeParameter tp = new DefaultUnresolvedTypeParameter(ownerType, index++, tpDecl.Name);
 				tp.Region = MakeRegion(tpDecl);
-				ConvertAttributes(tp.Attributes, tpDecl.Attributes);
+				ConvertEntityAttributes(tp.Attributes, tpDecl.Attributes);
 				tp.Variance = tpDecl.Variance;
 				list.Add(tp);
 				output.Add(tp); // tp must be added to list here so that it can be referenced by constraints
@@ -549,8 +549,8 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			AddXmlDocumentation(m, operatorDeclaration);
 			
 			m.ReturnType = operatorDeclaration.ReturnType.ToTypeReference();
-			ConvertAttributes(m.Attributes, operatorDeclaration.Attributes.Where(s => s.AttributeTarget != "return"));
-			ConvertAttributes(m.ReturnTypeAttributes, operatorDeclaration.Attributes.Where(s => s.AttributeTarget == "return"));
+			ConvertEntityAttributes(m.Attributes, operatorDeclaration.Attributes.Where(s => s.AttributeTarget != "return"));
+			ConvertEntityAttributes(m.ReturnTypeAttributes, operatorDeclaration.Attributes.Where(s => s.AttributeTarget == "return"));
 			
 			ApplyModifiers(m, operatorDeclaration.Modifiers);
 			
@@ -579,7 +579,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			}
 			ctor.ReturnType = KnownTypeReference.Void;
 			
-			ConvertAttributes(ctor.Attributes, constructorDeclaration.Attributes);
+			ConvertEntityAttributes(ctor.Attributes, constructorDeclaration.Attributes);
 			ConvertParameters(ctor.Parameters, constructorDeclaration.Parameters);
 			AddXmlDocumentation(ctor, constructorDeclaration);
 			
@@ -607,7 +607,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			dtor.IsOverride = true;
 			dtor.ReturnType = KnownTypeReference.Void;
 			
-			ConvertAttributes(dtor.Attributes, destructorDeclaration.Attributes);
+			ConvertEntityAttributes(dtor.Attributes, destructorDeclaration.Attributes);
 			AddXmlDocumentation(dtor, destructorDeclaration);
 			
 			currentTypeDefinition.Members.Add(dtor);
@@ -626,7 +626,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			p.BodyRegion = MakeBraceRegion(propertyDeclaration);
 			ApplyModifiers(p, propertyDeclaration.Modifiers);
 			p.ReturnType = propertyDeclaration.ReturnType.ToTypeReference();
-			ConvertAttributes(p.Attributes, propertyDeclaration.Attributes);
+			ConvertEntityAttributes(p.Attributes, propertyDeclaration.Attributes);
 			AddXmlDocumentation(p, propertyDeclaration);
 			if (!propertyDeclaration.PrivateImplementationType.IsNull) {
 				p.Accessibility = Accessibility.None;
@@ -651,7 +651,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			p.BodyRegion = MakeBraceRegion(indexerDeclaration);
 			ApplyModifiers(p, indexerDeclaration.Modifiers);
 			p.ReturnType = indexerDeclaration.ReturnType.ToTypeReference();
-			ConvertAttributes(p.Attributes, indexerDeclaration.Attributes);
+			ConvertEntityAttributes(p.Attributes, indexerDeclaration.Attributes);
 			AddXmlDocumentation(p, indexerDeclaration);
 			
 			ConvertParameters(p.Parameters, indexerDeclaration.Parameters);
@@ -789,7 +789,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			e.BodyRegion = MakeBraceRegion(eventDeclaration);
 			ApplyModifiers(e, eventDeclaration.Modifiers);
 			e.ReturnType = eventDeclaration.ReturnType.ToTypeReference();
-			ConvertAttributes(e.Attributes, eventDeclaration.Attributes);
+			ConvertEntityAttributes(e.Attributes, eventDeclaration.Attributes);
 			AddXmlDocumentation(e, eventDeclaration);
 			
 			if (!eventDeclaration.PrivateImplementationType.IsNull) {
@@ -868,10 +868,11 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			return null;
 		}
 		
-		void ConvertAttributes(IList<IUnresolvedAttribute> outputList, IEnumerable<AttributeSection> attributes)
+		void ConvertEntityAttributes(IList<IUnresolvedAttribute> outputList, IEnumerable<AttributeSection> attributes)
 		{
 			foreach (AttributeSection section in attributes) {
-				ConvertAttributes(outputList, section);
+				if (section.AttributeTarget != "assembly" && section.AttributeTarget != "module")
+					ConvertAttributes(outputList, section);
 			}
 		}
 		
@@ -1133,7 +1134,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			foreach (ParameterDeclaration pd in parameters) {
 				DefaultUnresolvedParameter p = new DefaultUnresolvedParameter(pd.Type.ToTypeReference(), pd.Name);
 				p.Region = MakeRegion(pd);
-				ConvertAttributes(p.Attributes, pd.Attributes);
+				ConvertEntityAttributes(p.Attributes, pd.Attributes);
 				switch (pd.ParameterModifier) {
 					case ParameterModifier.Ref:
 						p.IsRef = true;
