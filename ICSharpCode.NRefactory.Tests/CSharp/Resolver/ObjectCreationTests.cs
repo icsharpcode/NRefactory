@@ -275,5 +275,25 @@ class Test<T> where T : new() {
 			Assert.AreEqual(TypeKind.TypeParameter, rr.Type.Kind);
 			Assert.AreEqual(TypeKind.TypeParameter, rr.Member.DeclaringType.Kind);
 		}
+
+		[Test]
+		public void CreateDelegate()
+		{
+			string program = @"using System;
+delegate void D1(int i);
+delegate void D2(int i);
+class C {
+	void M() {
+		D1 d1 = i => {};
+		D2 d2 = $new D2(d1)$;
+	}
+}";
+			var rr = Resolve<ConversionResolveResult>(program);
+			Assert.IsFalse(rr.IsError);
+			Assert.IsTrue(rr.Conversion.IsIdentityConversion);
+			Assert.IsInstanceOf<ConversionResolveResult>(rr.Input);
+			var realInput = (ConversionResolveResult)rr.Input;
+			Assert.IsFalse(realInput.IsError);
+		}
 	}
 }
