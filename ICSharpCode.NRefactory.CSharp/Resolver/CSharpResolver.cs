@@ -1896,6 +1896,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			// C# 4.0 spec: §7.6.5
 			
 			if (target.Type.Kind == TypeKind.Dynamic) {
+				for (int i = 0; i < arguments.Length; i++) {
+					arguments[i] = Convert(arguments[i], SpecialType.Dynamic);
+				}
 				return new DynamicInvocationResolveResult(target, false, arguments.Select((a, i) => new DynamicInvocationArgument(argumentNames != null ? argumentNames[i] : null, a)).ToList().AsReadOnly());
 			}
 			

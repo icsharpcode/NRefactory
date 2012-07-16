@@ -44,9 +44,9 @@ class TestClass {
 			Assert.That(dynamicMember.Member, Is.EqualTo("SomeMethod"));
 			Assert.That(rr.Arguments.Count, Is.EqualTo(2));
 			Assert.That(rr.Arguments[0].Name, Is.Null);
-			Assert.That(rr.Arguments[0].Value is LocalResolveResult && ((LocalResolveResult)rr.Arguments[0].Value).Variable.Name == "a");
+			Assert.That(rr.Arguments[0].Value is ConversionResolveResult && ((ConversionResolveResult)rr.Arguments[0].Value).Input is LocalResolveResult && ((LocalResolveResult)((ConversionResolveResult)rr.Arguments[0].Value).Input).Variable.Name == "a");
 			Assert.That(rr.Arguments[1].Name, Is.Null);
-			Assert.That(rr.Arguments[1].Value is LocalResolveResult && ((LocalResolveResult)rr.Arguments[1].Value).Variable.Name == "b");
+			Assert.That(rr.Arguments[1].Value is ConversionResolveResult && ((ConversionResolveResult)rr.Arguments[1].Value).Input is LocalResolveResult && ((LocalResolveResult)((ConversionResolveResult)rr.Arguments[1].Value).Input).Variable.Name == "b");
 		}
 
 		[Test]
@@ -69,11 +69,11 @@ class TestClass {
 			Assert.That(dynamicMember.Member, Is.EqualTo("SomeMethod"));
 			Assert.That(rr.Arguments.Count, Is.EqualTo(3));
 			Assert.That(rr.Arguments[0].Name, Is.Null);
-			Assert.That(rr.Arguments[0].Value is LocalResolveResult && ((LocalResolveResult)rr.Arguments[0].Value).Variable.Name == "x");
+			Assert.That(rr.Arguments[0].Value is ConversionResolveResult && ((ConversionResolveResult)rr.Arguments[0].Value).Input is LocalResolveResult && ((LocalResolveResult)((ConversionResolveResult)rr.Arguments[0].Value).Input).Variable.Name == "x");
 			Assert.That(rr.Arguments[1].Name, Is.EqualTo("param1"));
-			Assert.That(rr.Arguments[1].Value is LocalResolveResult && ((LocalResolveResult)rr.Arguments[1].Value).Variable.Name == "a");
+			Assert.That(rr.Arguments[1].Value is ConversionResolveResult && ((ConversionResolveResult)rr.Arguments[1].Value).Input is LocalResolveResult && ((LocalResolveResult)((ConversionResolveResult)rr.Arguments[1].Value).Input).Variable.Name == "a");
 			Assert.That(rr.Arguments[2].Name, Is.EqualTo("param2"));
-			Assert.That(rr.Arguments[2].Value is LocalResolveResult && ((LocalResolveResult)rr.Arguments[2].Value).Variable.Name == "b");
+			Assert.That(rr.Arguments[2].Value is ConversionResolveResult && ((ConversionResolveResult)rr.Arguments[2].Value).Input is LocalResolveResult && ((LocalResolveResult)((ConversionResolveResult)rr.Arguments[2].Value).Input).Variable.Name == "b");
 		}
 
 		[Test]
@@ -98,10 +98,10 @@ class TestClass {
 			Assert.That(innerInvocation.IsIndexing, Is.False);
 			Assert.That(innerInvocation.Arguments.Count, Is.EqualTo(1));
 			Assert.That(innerInvocation.Arguments[0].Name, Is.Null);
-			Assert.That(innerInvocation.Arguments[0].Value is LocalResolveResult && ((LocalResolveResult)innerInvocation.Arguments[0].Value).Variable.Name == "a");
+			Assert.That(innerInvocation.Arguments[0].Value is ConversionResolveResult && ((ConversionResolveResult)innerInvocation.Arguments[0].Value).Input is LocalResolveResult && ((LocalResolveResult)((ConversionResolveResult)innerInvocation.Arguments[0].Value).Input).Variable.Name == "a");
 			Assert.That(rr.Arguments.Count, Is.EqualTo(1));
 			Assert.That(rr.Arguments[0].Name, Is.Null);
-			Assert.That(rr.Arguments[0].Value is LocalResolveResult && ((LocalResolveResult)rr.Arguments[0].Value).Variable.Name == "b");
+			Assert.That(rr.Arguments[0].Value is ConversionResolveResult && ((ConversionResolveResult)rr.Arguments[0].Value).Input is LocalResolveResult && ((LocalResolveResult)((ConversionResolveResult)rr.Arguments[0].Value).Input).Variable.Name == "b");
 		}
 
 		[Test]
