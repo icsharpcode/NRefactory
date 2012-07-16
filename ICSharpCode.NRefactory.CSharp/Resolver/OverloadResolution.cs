@@ -129,6 +129,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		//List<Candidate> candidates = new List<Candidate>();
 		Candidate bestCandidate;
 		Candidate bestCandidateAmbiguousWith;
+		List<Candidate> bestCandidateAmbiguousWithAll;
 		IType[] explicitlyGivenTypeArguments;
 		
 		#region Constructor
@@ -704,10 +705,14 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						// detect the set of all ambiguous methods if they look at
 						// bestCandidateAmbiguousWith after each step.
 						bestCandidateAmbiguousWith = candidate;
+						bestCandidateAmbiguousWithAll = bestCandidateAmbiguousWithAll ?? new List<Candidate>();
+						bestCandidateAmbiguousWithAll.Add(candidate);
 						break;
 					case 1:
 						bestCandidate = candidate;
 						bestCandidateAmbiguousWith = null;
+						bestCandidateAmbiguousWithAll = bestCandidateAmbiguousWithAll ?? new List<Candidate>();
+						bestCandidateAmbiguousWithAll.Clear();
 						break;
 						// case 2: best candidate stays best
 				}
@@ -736,6 +741,10 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		
 		public IParameterizedMember BestCandidateAmbiguousWith {
 			get { return bestCandidateAmbiguousWith != null ? bestCandidateAmbiguousWith.Member : null; }
+		}
+
+		public IList<IParameterizedMember> BestCandidateAmbiguousWithAll {
+			get { return bestCandidateAmbiguousWithAll != null && bestCandidateAmbiguousWithAll.Count > 0 ? bestCandidateAmbiguousWithAll.Select(c => c.Member).ToList() : (IList<IParameterizedMember>)EmptyList<IParameterizedMember>.Instance; }
 		}
 		
 		public bool BestCandidateIsExpandedForm {

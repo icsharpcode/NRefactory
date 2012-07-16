@@ -1903,7 +1903,21 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			if (mgrr != null) {
 				OverloadResolution or = mgrr.PerformOverloadResolution(compilation, arguments, argumentNames, checkForOverflow: checkForOverflow, conversions: conversions);
 				if (or.BestCandidate != null) {
-					if (or.BestCandidate.IsStatic && !or.IsExtensionMethodInvocation && !(mgrr.TargetResult is TypeResolveResult))
+					if (or.BestCandidateAmbiguousWith != null && arguments.Any(a => a.Type.Kind == TypeKind.Dynamic)) {
+						for (int i = 0; i < arguments.Length; i++) {
+							arguments[i] = Convert(arguments[i], SpecialType.Dynamic);
+						}
+						ResolveResult actualTarget;
+						if (or.BestCandidate.IsStatic && (or.BestCandidateAmbiguousWithAll.All(m => m.IsStatic)) && !(mgrr.TargetResult is TypeResolveResult))
+							actualTarget = new TypeResolveResult(mgrr.TargetResult.Type);
+						else
+							actualTarget = mgrr.TargetResult;
+
+						var methodsListsByDeclaringType = (from m in new[] { or.BestCandidate }.Concat(or.BestCandidateAmbiguousWithAll) group m by m.DeclaringType into g select new MethodListWithDeclaringType(g.Key, g)).ToList();
+						methodsListsByDeclaringType.Sort((a, b) => { var ba = a.DeclaringType.GetAllBaseTypes(); var bb = b.DeclaringType.GetAllBaseTypes(); if (bb.Contains(a.DeclaringType)) return -1; else if (ba.Contains(b.DeclaringType)) return 1; else return 0; });
+						return new DynamicInvocationResolveResult(new MethodGroupResolveResult(actualTarget, mgrr.MethodName, methodsListsByDeclaringType, mgrr.TypeArguments), false, arguments.Select((a, i) => new DynamicInvocationArgument(argumentNames != null ? argumentNames[i] : null, a)).ToList().AsReadOnly());
+					}
+					else if (or.BestCandidate.IsStatic && !or.IsExtensionMethodInvocation && !(mgrr.TargetResult is TypeResolveResult))
 						return or.CreateResolveResult(new TypeResolveResult(mgrr.TargetResult.Type));
 					else
 						return or.CreateResolveResult(mgrr.TargetResult);
@@ -2042,7 +2056,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					for (int i = 0; i < arguments.Length; i++) {
 						arguments[i] = Convert(arguments[i], SpecialType.Dynamic);
 					}
-					return new ArrayAccessResolveResult(SpecialType.Dynamic, target, arguments);
+					return new DynamicInvocationResolveResult(target, true, arguments.Select((a, i) => new DynamicInvocationArgument(argumentNames != null ? argumentNames[i] : null, a)).ToList().AsReadOnly());
 					
 				case TypeKind.Array:
 				case TypeKind.Pointer:
@@ -2057,6 +2071,15 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			var indexers = lookup.LookupIndexers(target.Type);
 			or.AddMethodLists(indexers);
 			if (or.BestCandidate != null) {
+				if (arguments.Any(a => a.Type.Kind == TypeKind.Dynamic)) {
+					if (or.BestCandidateAmbiguousWith != null) {
+						for (int i = 0; i < arguments.Length; i++) {
+							arguments[i] = Convert(arguments[i], SpecialType.Dynamic);
+						}
+						return new DynamicInvocationResolveResult(target, true, arguments.Select((a, i) => new DynamicInvocationArgument(argumentNames != null ? argumentNames[i] : null, a)).ToList().AsReadOnly());
+					}
+				}
+
 				return or.CreateResolveResult(target);
 			} else {
 				return ErrorResult;
