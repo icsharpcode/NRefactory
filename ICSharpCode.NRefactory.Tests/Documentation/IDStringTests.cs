@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.Documentation
 	{
 		class IDStringTestProjectContent : DefaultUnresolvedAssembly, IDocumentationProvider
 		{
-			public IDStringTestProjectContent() : base("Test") {}
+			public IDStringTestProjectContent() : base("Test", null) {}
 			
 			public DocumentationComment GetDocumentation(IEntity entity)
 			{
