@@ -56,13 +56,19 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		public readonly ResolveResult Target;
 
 		/// <summary>
+		/// True if the invocation is an indexing ( 'a[b]' ), false if it is a normal invocation ( 'a(b)' ).
+		/// </summary>
+		public readonly bool IsIndexing;
+
+		/// <summary>
 		/// Arguments for the call.
 		/// </summary>
 		public readonly IList<DynamicInvocationArgument> Arguments; 
 
-		public DynamicInvocationResolveResult(ResolveResult target, IList<DynamicInvocationArgument> arguments) : base(SpecialType.Dynamic) {
-			this.Target    = target;
-			this.Arguments = arguments ?? EmptyList<DynamicInvocationArgument>.Instance;
+		public DynamicInvocationResolveResult(ResolveResult target, bool isIndexing, IList<DynamicInvocationArgument> arguments) : base(SpecialType.Dynamic) {
+			this.Target     = target;
+			this.IsIndexing = isIndexing;
+			this.Arguments  = arguments ?? EmptyList<DynamicInvocationArgument>.Instance;
 		}
 
 		public override string ToString()
