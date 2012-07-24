@@ -218,6 +218,14 @@ select new { c.Name, o.OrderID, o.Total }",
 		}
 
 		[Test]
+		public void LocationOfOrderBy()
+		{
+			var expr = ParseUtilCSharp.ParseExpression<QueryExpression>("from c in customers orderby c.City select c");
+			var where = expr.Clauses.ElementAt(1);
+			Assert.That(where.StartLocation, Is.EqualTo(new TextLocation(1, 21)));
+		}
+
+		[Test]
 		public void ExpressionWithOrderByAndLet()
 		{
 			ParseUtilCSharp.AssertExpression(
