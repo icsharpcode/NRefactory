@@ -19,7 +19,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using ICSharpCode.NRefactory.CSharp.Analysis;
@@ -65,6 +67,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// <remarks>We do not have to put this into the stored state (resolver) because
 		/// query expressions are always resolved in a single operation.</remarks>
 		ResolveResult currentQueryResult;
+		IVariable activeRangeVariable;
 		readonly CSharpParsedFile parsedFile;
 		readonly Dictionary<AstNode, ResolveResult> resolveResultCache = new Dictionary<AstNode, ResolveResult>();
 		readonly Dictionary<AstNode, CSharpResolver> resolverBeforeDict = new Dictionary<AstNode, CSharpResolver>();
@@ -134,16 +137,19 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			var oldResolverEnabled = this.resolverEnabled;
 			var oldResolver = this.resolver;
 			var oldQueryResult = this.currentQueryResult;
+			var oldRangeVariable = this.activeRangeVariable;
 			try {
 				this.resolverEnabled = false;
 				this.resolver = storedContext;
 				this.currentQueryResult = null;
+				this.activeRangeVariable = null;
 				
 				action();
 			} finally {
 				this.resolverEnabled = oldResolverEnabled;
 				this.resolver = oldResolver;
 				this.currentQueryResult = oldQueryResult;
+				this.activeRangeVariable = oldRangeVariable;
 			}
 		}
 		#endregion
@@ -3280,10 +3286,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		#endregion
 		
 		#region Query Expressions
+
 		ResolveResult IAstVisitor<ResolveResult>.VisitQueryExpression(QueryExpression queryExpression)
 		{
 			resolver = resolver.PushBlock();
 			var oldQueryResult = currentQueryResult;
+			var oldRangeVariable = activeRangeVariable;
 			var oldCancellationToken = cancellationToken;
 			try {
 				// Because currentQueryResult isn't part of the stored state,
@@ -3291,12 +3299,14 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				// This means we can't allow cancellation within the query expression.
 				cancellationToken = CancellationToken.None;
 				currentQueryResult = null;
+				activeRangeVariable = null;
 				foreach (var clause in queryExpression.Clauses) {
 					currentQueryResult = Resolve(clause);
 				}
 				return WrapResult(currentQueryResult);
 			} finally {
 				currentQueryResult = oldQueryResult;
+				activeRangeVariable = oldRangeVariable;
 				cancellationToken = oldCancellationToken;
 				resolver = resolver.PopBlock();
 			}
@@ -3309,91 +3319,101 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			bool? isGeneric;
 			return GetElementTypeFromIEnumerable(type, resolver.Compilation, false, out isGeneric);
 		}
+
+		class TransparentType : AnonymousType {
+			internal readonly IProperty prevMember;
+
+			public TransparentType(ICompilation compilation, IType prev, IList<IVariable> variables) : base(compilation, CreateProperties(prev, variables))
+			{
+				//memberMap = variables.ToDictionary(v => v, v => Properties.Single(p => p.Name == v.Name));
+				if (prev != null) {
+					string prevName = DeterminePrevMemberName(variables);
+					prevMember = Properties.Single(p => p.Name == prevName);
+				}
+			}
+
+			public TransparentType(ICompilation compilation, IList<IUnresolvedProperty> properties, string prevMemberName) : base(compilation, properties)
+			{
+				prevMember = (prevMemberName != null ? Properties.Single(p => p.Name == prevMemberName) : null);
+			}
+
+			private static string DeterminePrevMemberName(IList<IVariable> variables)
+			{
+				int i = 0;
+				while (variables.Any(v => v.Name == "x" + i.ToString(CultureInfo.InvariantCulture))) {
+					i++;
+				}
+				return "x" + i.ToString(CultureInfo.InvariantCulture);
+			}
+
+			private static IList<IUnresolvedProperty> CreateProperties(IType prev, IList<IVariable> variables)
+			{
+				var result = new List<IUnresolvedProperty>();
+				foreach (var v in variables) {
+					result.Add(new DefaultUnresolvedProperty { Name = v.Name, ReturnType = v.Type.ToTypeReference() });
+				}
+				if (prev != null) {
+					result.Add(new DefaultUnresolvedProperty { Name = DeterminePrevMemberName(variables), ReturnType = prev.ToTypeReference() });
+				}
+				return result;
+			}
+
+			public IProperty GetPropertyForVariable(IVariable v) {
+				return GetProperties().Single(p => p.Name == v.Name);
+			}
+
+			public IDictionary<IVariable, ResolveResult> GetRangeVariableMap(CSharpResolver resolver, ResolveResult parameter)
+			{
+				var result = new Dictionary<IVariable, ResolveResult>();
+				foreach (var kvp in (from v in resolver.LocalVariables join p in Properties on v.Name equals p.Name select new { v, p })) {
+					result.Add(kvp.v, new MemberResolveResult(parameter.ShallowClone(), kvp.p));
+				}
+				if (prevMember != null && prevMember.ReturnType is TransparentType) {
+					foreach (var kvp in ((TransparentType)prevMember.ReturnType).GetRangeVariableMap(resolver, new MemberResolveResult(parameter.ShallowClone(), prevMember)))
+						result.Add(kvp.Key, kvp.Value);
+				}
+				return result;
+			}
+
+			public override ITypeReference ToTypeReference() {
+				return new TransparentTypeReference(GetUnresolvedProperties().ToArray(), prevMember != null ? prevMember.Name : null);
+			}
+		}
 		
+		[Serializable]
+		public class TransparentTypeReference : ITypeReference
+		{
+			readonly IUnresolvedProperty[] unresolvedProperties;
+			readonly string prevMemberName;
+		
+			public TransparentTypeReference(IUnresolvedProperty[] properties, string prevMemberName)
+			{
+				if (properties == null)
+					throw new ArgumentNullException("properties");
+				this.unresolvedProperties = properties;
+				this.prevMemberName = prevMemberName;
+			}
+		
+			public IType Resolve(ITypeResolveContext context)
+			{
+				return new TransparentType(context.Compilation, unresolvedProperties, prevMemberName);
+			}
+		}
+
+		IDictionary<IVariable, ResolveResult> GetRangeVariableMap(ResolveResult parameter) {
+			if (activeRangeVariable.Type is TransparentType) {
+				return ((TransparentType)activeRangeVariable.Type).GetRangeVariableMap(resolver, parameter);
+			}
+			else {
+				return new Dictionary<IVariable, ResolveResult> { { activeRangeVariable, parameter } };
+			}
+		}
+
 		ResolveResult MakeTransparentIdentifierResolveResult()
 		{
 			return new ResolveResult(new AnonymousType(resolver.Compilation, EmptyList<IUnresolvedProperty>.Instance));
 		}
-		
-		sealed class QueryExpressionLambdaConversion : Conversion
-		{
-			internal readonly IType[] ParameterTypes;
-			
-			public QueryExpressionLambdaConversion(IType[] parameterTypes)
-			{
-				this.ParameterTypes = parameterTypes;
-			}
-			
-			public override bool IsImplicit {
-				get { return true; }
-			}
-			
-			public override bool IsAnonymousFunctionConversion {
-				get { return true; }
-			}
-		}
-		
-		sealed class QueryExpressionLambda : LambdaResolveResult
-		{
-			readonly IParameter[] parameters;
-			readonly ResolveResult bodyExpression;
-			
-			internal IType[] inferredParameterTypes;
-			
-			public QueryExpressionLambda(int parameterCount, ResolveResult bodyExpression)
-			{
-				this.parameters = new IParameter[parameterCount];
-				for (int i = 0; i < parameterCount; i++) {
-					parameters[i] = new DefaultParameter(SpecialType.UnknownType, "x" + i);
-				}
-				this.bodyExpression = bodyExpression;
-			}
-			
-			public override IList<IParameter> Parameters {
-				get { return parameters; }
-			}
-			
-			public override Conversion IsValid(IType[] parameterTypes, IType returnType, CSharpConversions conversions)
-			{
-				if (parameterTypes.Length == parameters.Length) {
-					this.inferredParameterTypes = parameterTypes;
-					return new QueryExpressionLambdaConversion(parameterTypes);
-				} else {
-					return Conversion.None;
-				}
-			}
-			
-			public override bool IsAsync {
-				get { return false; }
-			}
-			
-			public override bool IsImplicitlyTyped {
-				get { return true; }
-			}
-			
-			public override bool IsAnonymousMethod {
-				get { return false; }
-			}
-			
-			public override bool HasParameterList {
-				get { return true; }
-			}
-			
-			public override ResolveResult Body {
-				get { return bodyExpression; }
-			}
-			
-			public override IType GetInferredReturnType(IType[] parameterTypes)
-			{
-				return bodyExpression.Type;
-			}
-			
-			public override string ToString()
-			{
-				return string.Format("[QueryExpressionLambda ({0}) => {1}]", string.Join(",", parameters.Select(p => p.Name)), bodyExpression);
-			}
-		}
-		
+
 		QueryClause GetPreviousQueryClause(QueryClause clause)
 		{
 			for (AstNode node = clause.PrevSibling; node != null; node = node.PrevSibling) {
@@ -3450,6 +3470,10 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				};
 				result = resolver.ResolveInvocation(methodGroup, arguments);
 			}
+			else {
+				activeRangeVariable = v;
+			}
+
 			if (result == expr)
 				return WrapResult(result);
 			else
@@ -3476,6 +3500,19 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			StoreResult(queryContinuationClause.IdentifierToken, new LocalResolveResult(v));
 			return WrapResult(rr);
 		}
+
+		QueryExpressionLambda.Parameter CreateRangeParameter() {
+			if (activeRangeVariable != null) {
+				if (activeRangeVariable.Type is TransparentType) {
+					return new QueryExpressionLambda.Parameter("x0", activeRangeVariable.Type);
+				}
+				else {
+					return new QueryExpressionLambda.Parameter(activeRangeVariable.Name, activeRangeVariable.Type);
+				}
+			}
+			else
+				return new QueryExpressionLambda.Parameter("x", SpecialType.UnknownType);
+		}
 		
 		ResolveResult IAstVisitor<ResolveResult>.VisitQueryLetClause(QueryLetClause queryLetClause)
 		{
@@ -3487,8 +3524,21 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			if (currentQueryResult != null) {
 				// resolve the .Select() call
 				ResolveResult methodGroup = resolver.ResolveMemberAccess(currentQueryResult, "Select", EmptyList<IType>.Instance, NameLookupMode.InvocationTarget);
-				ResolveResult[] arguments = { new QueryExpressionLambda(1, MakeTransparentIdentifierResolveResult()) };
-				return resolver.ResolveInvocation(methodGroup, arguments);
+				
+				var p = CreateRangeParameter();
+				var resultType = new TransparentType(resolver.Compilation, activeRangeVariable.Type, new[] { v });
+				var resultCtor = DefaultResolvedMethod.GetDummyConstructor(resolver.Compilation, resultType);
+				var initStatements = new[] { new OperatorResolveResult(currentQueryResult.Type, ExpressionType.Assign, new MemberResolveResult(new InitializedObjectResolveResult(resultType), resultType.prevMember), new LocalResolveResult(p)),
+											 new OperatorResolveResult(v.Type, ExpressionType.Assign, new MemberResolveResult(new InitializedObjectResolveResult(resultType), resultType.GetPropertyForVariable(v)), expr),
+										   };
+
+				var lambda = new QueryExpressionLambda(new[] { p }, new InvocationResolveResult(null, resultCtor, initializerStatements: initStatements), resultType.GetRangeVariableMap(resolver, new LocalResolveResult((p))));
+				var result = resolver.ResolveInvocation(methodGroup, new ResolveResult[] { lambda });
+				UpdateQueryExpressionParameters(lambda, result, 1);
+
+				activeRangeVariable = new SimpleVariable(DomRegion.Empty, resultType, "<range variable>");
+
+				return result;
 			} else {
 				return errorResult;
 			}
@@ -3618,8 +3668,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				IType[] inferredParameterTypes = null;
 				if (invocationRR != null && invocationRR.Arguments.Count > 0) {
 					ConversionResolveResult crr = invocationRR.Arguments[invocationRR.Arguments.Count - 1] as ConversionResolveResult;
-					if (crr != null && crr.Conversion is QueryExpressionLambdaConversion) {
-						inferredParameterTypes = ((QueryExpressionLambdaConversion)crr.Conversion).ParameterTypes;
+					if (crr != null && crr.Conversion is QueryExpressionLambda.QueryExpressionLambdaConversion) {
+						inferredParameterTypes = ((QueryExpressionLambda.QueryExpressionLambdaConversion)crr.Conversion).ParameterTypes;
 					}
 				}
 				if (inferredParameterTypes == null)
@@ -3645,18 +3695,24 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		
 		ResolveResult IAstVisitor<ResolveResult>.VisitQueryWhereClause(QueryWhereClause queryWhereClause)
 		{
-			ResolveResult condition = Resolve(queryWhereClause.Condition);
 			IType boolType = resolver.Compilation.FindType(KnownTypeCode.Boolean);
+
+			ResolveResult condition = Resolve(queryWhereClause.Condition);
 			Conversion conversionToBool = resolver.conversions.ImplicitConversion(condition, boolType);
+			QueryExpressionLambda.Parameter p = CreateRangeParameter();
+
 			ProcessConversion(queryWhereClause.Condition, condition, conversionToBool, boolType);
-			if (currentQueryResult != null) {
+
+			if (activeRangeVariable != null) {
 				if (conversionToBool != Conversion.IdentityConversion && conversionToBool != Conversion.None) {
 					condition = new ConversionResolveResult(boolType, condition, conversionToBool, resolver.CheckForOverflow);
 				}
 				
 				var methodGroup = resolver.ResolveMemberAccess(currentQueryResult, "Where", EmptyList<IType>.Instance);
-				ResolveResult[] arguments = { new QueryExpressionLambda(1, condition) };
-				return resolver.ResolveInvocation(methodGroup, arguments);
+				var lambda = new QueryExpressionLambda(new[] { p }, condition, GetRangeVariableMap(new LocalResolveResult(p)));
+				var result = resolver.ResolveInvocation(methodGroup, new[] { lambda });
+				UpdateQueryExpressionParameters(lambda, result, 1);
+				return result;
 			} else {
 				return errorResult;
 			}
@@ -3698,10 +3754,18 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			
 			ResolveResult expr = Resolve(querySelectClause.Expression);
 			var methodGroup = resolver.ResolveMemberAccess(currentQueryResult, "Select", EmptyList<IType>.Instance);
-			ResolveResult[] arguments = { new QueryExpressionLambda(1, expr) };
-			return resolver.ResolveInvocation(methodGroup, arguments);
+			var p = CreateRangeParameter();
+			var lambda = new QueryExpressionLambda(new[] { p }, expr, GetRangeVariableMap(new LocalResolveResult(p)));
+			var result = resolver.ResolveInvocation(methodGroup, new ResolveResult[] { lambda });
+			UpdateQueryExpressionParameters(lambda, result, 1);
+			return result;
 		}
-		
+
+		void UpdateQueryExpressionParameters(QueryExpressionLambda lambda, ResolveResult rr, int argIndex) {
+			var irr = (InvocationResolveResult)rr;
+			lambda.UpdateParametersFrom((QueryExpressionLambda.QueryExpressionLambdaConversion)((ConversionResolveResult)irr.Arguments[argIndex]).Conversion);
+		}
+
 		/// <summary>
 		/// Gets the name of the range variable in the specified query.
 		/// If the query has multiple range variables, this method returns null.

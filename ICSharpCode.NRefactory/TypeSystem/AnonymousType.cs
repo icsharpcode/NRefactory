@@ -70,6 +70,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				return declaringType.GetHashCode() ^ unchecked(27 * this.Name.GetHashCode());
 			}
 		}
+
+		public IEnumerable<IUnresolvedProperty> GetUnresolvedProperties() {
+			return unresolvedProperties.Select(x => x);
+		}
 		
 		public override ITypeReference ToTypeReference()
 		{

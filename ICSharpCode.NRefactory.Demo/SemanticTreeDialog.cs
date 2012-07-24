@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
@@ -63,6 +64,13 @@ namespace ICSharpCode.NRefactory.Demo
 					if (child != null)
 						t.Nodes.Add(child);
 				}
+				return t;
+			} else if (obj.GetType().IsGenericType && obj.GetType().GetGenericTypeDefinition() == typeof(KeyValuePair<,>)) {
+				var t = new TreeNode(prefix + obj.ToString());
+				var key = obj.GetType().GetProperty("Key").GetValue(obj, null);
+				var value = obj.GetType().GetProperty("Value").GetValue(obj, null);
+				t.Nodes.Add(MakePropertyNode("Key", key.GetType(), key));
+				t.Nodes.Add(MakePropertyNode("Value", value.GetType(), value));
 				return t;
 			} else {
 				return new TreeNode(prefix + obj.ToString());
