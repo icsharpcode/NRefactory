@@ -509,5 +509,21 @@ class C {
 			Assert.IsTrue(rr.Conversion.IsUserDefined);
 			Assert.AreEqual("b", rr.Conversion.Method.Parameters.Single().Name);
 		}
+
+		[Test]
+		public void ExplicitArrayToGenericIList() {
+			var rr = Resolve<ConversionResolveResult>(@"
+using System.Collections.Generic;
+
+class B {}
+class D : B {}
+public class C {
+	public void M() {
+		B[] src = null;
+		IList<D> l = $(IList<D>)src$;
+	}
+}");
+			Assert.IsFalse(rr.IsError);
+		}
 	}
 }
