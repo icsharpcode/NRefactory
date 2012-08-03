@@ -228,6 +228,35 @@ namespace TestNamespace
 
 			CheckFix(context, issue, expectedOutput);
 		}
+
+		[Test]
+		public void ShouldBeAbleToFixAttributeWithShortName()
+		{
+			TestRefactoringContext context;
+			string testCode =
+@"namespace TestNamespace
+{
+	[Serializable]
+	class TestClass
+	{
+	}
+}";
+
+			string expectedOutput = 
+@"using System;
+
+namespace TestNamespace
+{
+	[Serializable]
+	class TestClass
+	{
+	}
+}";
+
+			var issue = GetIssues(new UnresolvedTypeIssue(), testCode, out context).Single();
+
+			CheckFix(context, issue, expectedOutput);
+		}
 	}
 }
 

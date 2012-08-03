@@ -85,17 +85,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				this.AddIssueIfUnresolvable(expression.Target);
 			}
 
-			private void AddIssueIfUnresolvable(AstNode type)
+			public override void VisitAttribute(Attribute attribute)
+			{
+				base.VisitAttribute(attribute);
+
+				this.AddIssueIfUnresolvable(attribute.Type, true);
+			}
+
+			private void AddIssueIfUnresolvable(AstNode type, bool isAttribute = false)
 			{
 				var result = ctx.Resolve(type);
 
 				if (result is UnknownIdentifierResolveResult)
 				{
-					var possibleType = GetPossibleTypes((UnknownIdentifierResolveResult)result).FirstOrDefault();
-					this.AddIssue(type, ctx.TranslateString("Unknown identifier"), s =>
+					var possibleType = GetPossibleTypes((UnknownIdentifierResolveResult)result, isAttribute).FirstOrDefault();
+					this.AddIssue(type, ctx.TranslateString("using " + possibleType.Namespace), s =>
 					              {
 						var usingDeclaration = new UsingDeclaration(possibleType.Namespace);
-						var existingUsings = ctx.RootNode.Children.OfType<UsingDeclaration>();
+						var existingUsings = GetExistingUsings(s, type);
 
 						if (existingUsings.Count() > 0)
 						{
@@ -103,7 +110,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 						else
 						{
-							AddAtRoot(s, usingDeclaration);
+							AddAtRoot(s, usingDeclaration, type);
 						}
 					});
 				}
@@ -118,6 +125,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
+			IEnumerable<UsingDeclaration> GetExistingUsings(Script s, AstNode currentNode)
+			{
+				if (s.FormattingOptions.UsingPlacement == UsingPlacement.TopOfFile)
+				{
+					return ctx.RootNode.Children.OfType<UsingDeclaration>();
+				}
+
+				return currentNode.Ancestors.OfType<NamespaceDeclaration>().First().Children.OfType<UsingDeclaration>();
+			}
+
 			private void AddAfterExistingUsings(Script s, IEnumerable<UsingDeclaration> existingUsings, UsingDeclaration newUsing)
 			{
 				var lastUsing = existingUsings.Last();
@@ -127,27 +144,49 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				this.InsertBlankLines(s, lastUsing, nextNode, s.FormattingOptions.BlankLinesAfterUsings);
 			}
 
-			private void AddAtRoot(Script s, UsingDeclaration newUsing)
+			private void AddAtRoot(Script s, UsingDeclaration newUsing, AstNode currentNode)
 			{
-				var rootNode = ctx.RootNode;
-
-				var addNode = rootNode.FirstChild;
-				var prevNode = addNode;
-				while (addNode is Comment)
+				if (s.FormattingOptions.UsingPlacement == UsingPlacement.TopOfFile)
 				{
-					addNode = addNode.NextSibling;
-					prevNode = addNode;
-				}
+					var rootNode = ctx.RootNode;
 
-				this.InsertBlankLines(s, prevNode, addNode, s.FormattingOptions.BlankLinesBeforeUsings);
-				s.InsertBefore(addNode, newUsing);
-				this.InsertBlankLines(s, prevNode, addNode, s.FormattingOptions.BlankLinesAfterUsings);
+					var addNode = rootNode.FirstChild;
+					var prevNode = addNode;
+					while (addNode is Comment) {
+						addNode = addNode.NextSibling;
+						prevNode = addNode;
+					}
+
+					this.InsertBlankLines(s, prevNode, addNode, s.FormattingOptions.BlankLinesBeforeUsings);
+					s.InsertBefore(addNode, newUsing);
+					this.InsertBlankLines(s, prevNode, addNode, s.FormattingOptions.BlankLinesAfterUsings);
+				}
+				else
+				{
+					var declaration = currentNode.Ancestors.OfType<NamespaceDeclaration>().First();
+					var type = declaration.Children.OfType<TypeDeclaration>().First();
+
+					this.InsertBlankLines(s, type.PrevSibling, type, s.FormattingOptions.BlankLinesBeforeUsings);
+					s.InsertBefore(type, newUsing);
+					this.InsertBlankLines(s, type.PrevSibling, type, s.FormattingOptions.BlankLinesAfterUsings);
+				}
 			}
 
-			private IEnumerable<IType> GetPossibleTypes(UnknownIdentifierResolveResult result)
+			private IEnumerable<IType> GetPossibleTypes(UnknownIdentifierResolveResult result, bool isAttribute = false)
 			{
+				string targetName;
+
+				if (isAttribute && !result.Identifier.EndsWith("Attribute"))
+				{
+					targetName = result.Identifier + "Attribute";
+				}
+				else
+				{
+					targetName = result.Identifier;
+				}
+
 				return ctx.Compilation.GetAllTypeDefinitions()
-					.Where(t => t.Name == result.Identifier &&
+					.Where(t => t.Name == targetName &&
 					       t.TypeParameterCount == result.TypeArgumentCount);
 			}
 

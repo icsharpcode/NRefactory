@@ -21,7 +21,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues.UnresolvedType
 	{
 		textWriter.WriteLine();
 	}
-}");
+}", "System.IO");
 		}
 
 		[Test]
@@ -48,8 +48,8 @@ class Foo
 
 class Foo
 {
-	private List<INotifyPropertyChanged> notifiers;
-}");
+	private List<AttributeTargets> targets;
+}", "System");
 		}
 
 		[Test]
@@ -76,7 +76,7 @@ class Foo
 	{
 		return null;
 	}
-}");
+}", "System.IO");
 		}
 
 		[Test]
@@ -101,11 +101,11 @@ class Foo
 @"using System.Collections.Generic;
 class Foo
 {
-	List<INotifyPropertyChanged> GetNotifiers()
+	List<AttributeTargets> GetTargets()
 	{
 		return null;
 	}
-}");
+}", "System");
 		}
 
 		[Test]
@@ -134,7 +134,7 @@ class Foo
 	{
 		TextWriter writer;
 	}
-}");
+}", "System.IO");
 		}
 
 		[Test]
@@ -162,9 +162,9 @@ class Foo
 {
 	void Bar ()
 	{
-		List<INotifyPropertyChanged> notifiers;
+		List<AttributeTargets> targets;
 	}
-}");
+}", "System");
 		}
 		#endregion
 
@@ -178,8 +178,7 @@ class Foo
 	void Bar (TextWriter writer)
 	{
 	}
-}"
-			);
+}", "System.IO");
 		}
 
 		[Test]
@@ -203,10 +202,10 @@ class Foo
 @"using System.Collections.Generic;
 class Foo
 {
-	void Bar (List<INotifyPropertyChanged> notifiers)
+	void Bar (List<AttributeTargets> targets)
 	{
 	}
-}");
+}", "System");
 		}
 
 		[Test]
@@ -230,7 +229,7 @@ class Foo
 			this.ShouldNotBeAbleToResolve(
 @"class Foo : List<string>
 {
-}");
+}", "System.Collections.Generic");
 		}
 
 		[Test]
@@ -249,9 +248,9 @@ class Foo : List<string>
 		{
 			this.ShouldNotBeAbleToResolve(
 @"using System.Collections.Generic;
-class Foo : List<INotifyPropertyChanged>
+class Foo : List<AttributeTargets>
 {
-}");
+}", "System");
 		}
 		#endregion
 
@@ -264,9 +263,9 @@ class Foo : List<INotifyPropertyChanged>
 {
 	void Bar (object bigObject)
 	{
-		var notifier = (INotifyPropertyChanged)bigObject;
+		var notifier = (AttributeTargets)bigObject;
 	}
-}");
+}", "System");
 		}
 
 		[Test]
@@ -290,9 +289,9 @@ class Foo : List<INotifyPropertyChanged>
 {
 	void Bar (object bigObject)
 	{
-		var notifier = bigObject as INotifyPropertyChanged;
+		var writer = bigObject as TextWriter;
 	}
-}");
+}", "System.IO");
 		}
 
 		[Test]
@@ -320,7 +319,7 @@ class Foo : List<INotifyPropertyChanged>
 	{
 		var support = AttributeTargets.Assembly;
 	}
-}");
+}", "System");
 		}
 
 		[Test]
@@ -338,7 +337,29 @@ class Foo
 		}
 		#endregion
 
-		private void ShouldNotBeAbleToResolve(string testInput)
+		[Test]
+		public void ShouldReturnIssueIfAttributeIsNotResolvable()
+		{
+			this.ShouldNotBeAbleToResolve(
+@"[Serializable]
+class Foo
+{
+}", "System");
+		}
+
+		[Test]
+		public void ShouldNotReturnIssueIfAttributeIsResolvable()
+		{
+			this.ShouldBeAbleToResolve(
+@"using System;
+
+[Serializable]
+class Foo
+{
+}");
+		}
+
+		private void ShouldNotBeAbleToResolve(string testInput, string newNamespace)
 		{
 			// Arrange
 			TestRefactoringContext context;
@@ -347,7 +368,7 @@ class Foo
 			var issue = GetIssues(new UnresolvedTypeIssue(), testInput, out context).Single();
 
 			// Assert
-			Assert.AreEqual("Unknown identifier", issue.Description);
+			Assert.AreEqual("using " + newNamespace, issue.Description);
 		}
 
 		private void ShouldBeAbleToResolve(string testInput)
