@@ -344,6 +344,7 @@
     <Compile Include="CSharp\CodeIssues\UnresolvedType\UnresolvedTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnresolvedType\UnresolvedTypeActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnresolvedType\UnresolvedTypeActionInsideNamespaceTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnresolvedType\UnresolvedTypeActionAlphabeticalTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReferenceToStaticMemberViaDerivedTypeTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\IsTypeCriterionTests.cs" />
     <Compile Include="Utils\CompositeFormatStringParser\CompositeFormatStringParserTests.cs" />

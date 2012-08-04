@@ -869,6 +869,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			get;
 			set;
 		}
+
+		public bool SortUsingsAlphabetically {
+			get;
+			set;
+		}
 		#endregion
 
 		internal CSharpFormattingOptions()

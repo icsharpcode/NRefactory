@@ -99,14 +99,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (result is UnknownIdentifierResolveResult)
 				{
 					var possibleType = GetPossibleTypes((UnknownIdentifierResolveResult)result, isAttribute).FirstOrDefault();
-					this.AddIssue(type, ctx.TranslateString("using " + possibleType.Namespace), s =>
+					this.AddIssue(type, ctx.TranslateString("using " + possibleType.Namespace + ";"), s =>
 					              {
 						var usingDeclaration = new UsingDeclaration(possibleType.Namespace);
 						var existingUsings = GetExistingUsings(s, type);
 
 						if (existingUsings.Count() > 0)
 						{
-							AddAfterExistingUsings(s, existingUsings, usingDeclaration);
+							if (s.FormattingOptions.SortUsingsAlphabetically)
+							{
+								InsertIntoUsingsAlphabetically(s, existingUsings, usingDeclaration);
+							}
+							else
+							{
+								AddAfterExistingUsings(s, existingUsings, usingDeclaration);
+							}
 						}
 						else
 						{
@@ -135,8 +142,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return currentNode.Ancestors.OfType<NamespaceDeclaration>().First().Children.OfType<UsingDeclaration>();
 			}
 
+			private void InsertIntoUsingsAlphabetically(Script s, IEnumerable<UsingDeclaration> existingUsings, UsingDeclaration newUsing)
+			{
+				var nextUsing = existingUsings.FirstOrDefault(u => u.Namespace.CompareTo(newUsing.Namespace) >= 0);
+
+				if (nextUsing != null)
+				{
+					s.InsertBefore(nextUsing, newUsing);
+				}
+				else
+				{
+					var lastUsing = existingUsings.Last();
+
+					s.InsertAfter(lastUsing, newUsing);
+					this.InsertBlankLines(s, lastUsing, lastUsing.NextSibling, s.FormattingOptions.BlankLinesAfterUsings);
+				}
+			}
+
 			private void AddAfterExistingUsings(Script s, IEnumerable<UsingDeclaration> existingUsings, UsingDeclaration newUsing)
 			{
+				// TODO: Update this to find the using to insert before / after
 				var lastUsing = existingUsings.Last();
 				var nextNode = lastUsing.NextSibling;
 

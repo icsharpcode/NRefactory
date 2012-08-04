@@ -368,7 +368,7 @@ class Foo
 			var issue = GetIssues(new UnresolvedTypeIssue(), testInput, out context).Single();
 
 			// Assert
-			Assert.AreEqual("using " + newNamespace, issue.Description);
+			Assert.AreEqual("using " + newNamespace + ";", issue.Description);
 		}
 
 		private void ShouldBeAbleToResolve(string testInput)
