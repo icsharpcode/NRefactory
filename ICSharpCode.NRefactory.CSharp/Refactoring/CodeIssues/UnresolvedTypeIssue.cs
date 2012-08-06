@@ -26,58 +26,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-			{
-				base.VisitFieldDeclaration(fieldDeclaration);
-
-				this.AddIssueIfUnresolvable(fieldDeclaration.ReturnType);
-			}
-
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				base.VisitMethodDeclaration(methodDeclaration);
-
-				this.AddIssueIfUnresolvable(methodDeclaration.ReturnType);
-			}
-
-			public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)
-			{
-				base.VisitVariableDeclarationStatement(variableDeclarationStatement);
-
-				this.AddIssueIfUnresolvable(variableDeclarationStatement.Type);
-			}
-
-			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
-			{
-				base.VisitParameterDeclaration(parameterDeclaration);
-
-				this.AddIssueIfUnresolvable(parameterDeclaration.Type);
-			}
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				base.VisitTypeDeclaration(typeDeclaration);
-
-				foreach (var node in typeDeclaration.BaseTypes)
-				{
-					this.AddIssueIfUnresolvable(node);
-				}
-			}
-
-			public override void VisitCastExpression(CastExpression castExpression)
-			{
-				base.VisitCastExpression(castExpression);
-
-				this.AddIssueIfUnresolvable(castExpression.Type);
-			}
-
-			public override void VisitAsExpression(AsExpression asExpression)
-			{
-				base.VisitAsExpression(asExpression);
-
-				this.AddIssueIfUnresolvable(asExpression.Type);
-			}
-
 			public override void VisitMemberReferenceExpression(MemberReferenceExpression expression)
 			{
 				base.VisitMemberReferenceExpression(expression);
@@ -85,20 +33,45 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				this.AddIssueIfUnresolvable(expression.Target);
 			}
 
-			public override void VisitAttribute(Attribute attribute)
+			public override void VisitSimpleType(SimpleType simpleType)
 			{
-				base.VisitAttribute(attribute);
+				base.VisitSimpleType(simpleType);
 
-				this.AddIssueIfUnresolvable(attribute.Type, true);
+				if (simpleType.Role == Roles.Type || simpleType.Role == Roles.TypeArgument ||
+				    simpleType.Role == Roles.BaseType)
+				{
+					if (simpleType.Parent.Parent is AttributeSection)
+					{
+						this.AddIssueIfUnresolvable(simpleType, true);
+					}
+					else
+					{
+						this.AddIssueIfUnresolvable(simpleType);
+					}
+				}
+			}
+
+			private static string GetIdentifier(AstNode node)
+			{
+				if (node is SimpleType) {
+					return ((SimpleType)node).Identifier;
+				}
+
+				if (node is IdentifierExpression) {
+					return ((IdentifierExpression)node).Identifier;
+				}
+
+				return null;
 			}
 
 			private void AddIssueIfUnresolvable(AstNode type, bool isAttribute = false)
 			{
 				var result = ctx.Resolve(type);
+				var unknownIdResult = result as UnknownIdentifierResolveResult;
 
-				if (result is UnknownIdentifierResolveResult)
+				if (unknownIdResult != null && unknownIdResult.Identifier == GetIdentifier(type))
 				{
-					var possibleType = GetPossibleTypes((UnknownIdentifierResolveResult)result, isAttribute).FirstOrDefault();
+					var possibleType = GetPossibleTypes(unknownIdResult, isAttribute).FirstOrDefault();
 					this.AddIssue(type, ctx.TranslateString("using " + possibleType.Namespace + ";"), s =>
 					              {
 						var usingDeclaration = new UsingDeclaration(possibleType.Namespace);
@@ -120,15 +93,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							AddAtRoot(s, usingDeclaration, type);
 						}
 					});
-				}
-
-				var simpleType = type as SimpleType;
-				if (simpleType != null)
-				{
-					foreach (var typeArgument in simpleType.TypeArguments)
-					{
-						this.AddIssueIfUnresolvable(typeArgument);
-					}
 				}
 			}
 
@@ -161,7 +125,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			private void AddAfterExistingUsings(Script s, IEnumerable<UsingDeclaration> existingUsings, UsingDeclaration newUsing)
 			{
-				// TODO: Update this to find the using to insert before / after
 				var lastUsing = existingUsings.Last();
 				var nextNode = lastUsing.NextSibling;
 

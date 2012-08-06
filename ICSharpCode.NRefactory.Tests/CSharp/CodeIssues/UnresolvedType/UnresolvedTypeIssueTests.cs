@@ -359,6 +359,21 @@ class Foo
 }");
 		}
 
+		[Test]
+		public void ShouldReturnIssueIfTypeArgumentIsNotResolvable()
+		{
+			this.ShouldNotBeAbleToResolve(
+@"using System.Collections.Generic;
+
+class Test
+{
+	void TestMethod()
+	{
+		var list = new List<Stream>();
+	}
+}", "System.IO");
+		}
+
 		private void ShouldNotBeAbleToResolve(string testInput, string newNamespace)
 		{
 			// Arrange
