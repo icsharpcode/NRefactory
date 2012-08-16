@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
-using System;
+using System.Text.RegularExpressions;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -79,18 +79,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						if (existingUsings.Count() > 0)
 						{
-							if (s.FormattingOptions.SortUsingsAlphabetically)
-							{
-								InsertIntoUsingsAlphabetically(s, existingUsings, usingDeclaration);
-							}
-							else
-							{
-								AddAfterExistingUsings(s, existingUsings, usingDeclaration);
-							}
+							this.InsertIntoUsings(s, existingUsings, usingDeclaration);
 						}
 						else
 						{
-							AddAtRoot(s, usingDeclaration, type);
+							this.AddAtRoot(s, usingDeclaration, type);
 						}
 					});
 				}
@@ -106,9 +99,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return currentNode.Ancestors.OfType<NamespaceDeclaration>().First().Children.OfType<UsingDeclaration>();
 			}
 
-			private void InsertIntoUsingsAlphabetically(Script s, IEnumerable<UsingDeclaration> existingUsings, UsingDeclaration newUsing)
+			private void InsertIntoUsings(Script s, IEnumerable<UsingDeclaration> existingUsings, UsingDeclaration newUsing)
 			{
-				var nextUsing = existingUsings.FirstOrDefault(u => u.Namespace.CompareTo(newUsing.Namespace) >= 0);
+				var comparer = new NamespaceComparer(s.FormattingOptions);
+				var nextUsing = existingUsings.FirstOrDefault(u => comparer.Compare(u.Namespace, newUsing.Namespace) >= 0);
 
 				if (nextUsing != null)
 				{
@@ -121,15 +115,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					s.InsertAfter(lastUsing, newUsing);
 					this.InsertBlankLines(s, lastUsing, lastUsing.NextSibling, s.FormattingOptions.BlankLinesAfterUsings);
 				}
-			}
-
-			private void AddAfterExistingUsings(Script s, IEnumerable<UsingDeclaration> existingUsings, UsingDeclaration newUsing)
-			{
-				var lastUsing = existingUsings.Last();
-				var nextNode = lastUsing.NextSibling;
-
-				s.InsertAfter(lastUsing, newUsing);
-				this.InsertBlankLines(s, lastUsing, nextNode, s.FormattingOptions.BlankLinesAfterUsings);
 			}
 
 			private void AddAtRoot(Script s, UsingDeclaration newUsing, AstNode currentNode)
@@ -195,6 +180,36 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				return endNode.StartLocation.Line - startNode.EndLocation.Line - 1;
+			}
+		}
+
+		private class NamespaceComparer : IComparer<string>
+		{
+			private static readonly Regex systemMatcher = new Regex(@"^System$|^System\..+$");
+			private readonly CSharpFormattingOptions options;
+
+			public NamespaceComparer(CSharpFormattingOptions options)
+			{
+				this.options = options;
+			}
+
+			public int Compare(string first, string second)
+			{
+				if (this.options.PlaceSystemNamespacesFirst) {
+					if (systemMatcher.IsMatch(first) && !systemMatcher.IsMatch(second)) {
+						return -1;
+					}
+
+					if (!systemMatcher.IsMatch(first) && systemMatcher.IsMatch(second)) {
+						return 1;
+					}
+				}
+
+				if (this.options.SortUsingsAlphabetically) {
+					return first.CompareTo(second);
+				}
+
+				return -1;
 			}
 		}
 	}

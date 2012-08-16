@@ -374,16 +374,32 @@ class Test
 }", "System.IO");
 		}
 
-		private void ShouldNotBeAbleToResolve(string testInput, string newNamespace)
+		[Test]
+		public void ShouldSupportMultipleIssues()
+		{
+			this.ShouldNotBeAbleToResolve(
+@"class TestAttribute : Attribute
+{
+	private List<Stream> streams;
+}", "System", "System.Collections.Generic", "System.IO");
+		}
+
+		// TODO: Add a test where a type can be resolved to multiple namespaces. I think I may have to pull the code into a CodeAction before doing that.
+
+		private void ShouldNotBeAbleToResolve(string testInput, params string[] newNamespaces)
 		{
 			// Arrange
 			TestRefactoringContext context;
 
 			// Act
-			var issue = GetIssues(new UnresolvedTypeIssue(), testInput, out context).Single();
+			var issues = GetIssues(new UnresolvedTypeIssue(), testInput, out context);
 
 			// Assert
-			Assert.AreEqual("using " + newNamespace + ";", issue.Description);
+			foreach (var issueNamespace in newNamespaces)
+			{
+				var foundIssue = issues.FirstOrDefault(i => i.Description == "using " + issueNamespace + ";");
+				Assert.NotNull(foundIssue, "Could not find an issue for " + issueNamespace);
+			}
 		}
 
 		private void ShouldBeAbleToResolve(string testInput)

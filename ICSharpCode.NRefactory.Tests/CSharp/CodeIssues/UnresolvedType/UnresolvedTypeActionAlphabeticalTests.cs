@@ -10,6 +10,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues.UnresolvedType
 	[TestFixture]
 	public class UnresolvedTypeActionAlphabeticalTests : InspectionActionTestBase
 	{
+
 		[Test]
 		public void ShouldAddUsingAtStartIfItIsTheFirstAlphabetically()
 		{
@@ -175,6 +176,135 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues.UnresolvedType
 				s.FormattingOptions.BlankLinesAfterUsings = 1;
 			});
 		}
+
+		#region System Namespaces
+		
+		[Test]
+		public void ShouldBeAbleToPlaceSystemNamespacesFirst()
+		{
+			TestRefactoringContext context;
+			string testCode =
+@"namespace OuterNamespace
+{
+	using ANamespace;
+
+	class TestClass
+	{
+		private TextWriter writer;
+	}
+}";
+
+			string expectedOutput = 
+@"namespace OuterNamespace
+{
+	using System.IO;
+	using ANamespace;
+
+	class TestClass
+	{
+		private TextWriter writer;
+	}
+}";
+
+			var issue = GetIssues(new UnresolvedTypeIssue(), testCode, out context).Single();
+
+			CheckFix(
+				context,
+				issue,
+				expectedOutput,
+				s =>
+				{
+				s.FormattingOptions.UsingPlacement = UsingPlacement.InsideNamespace;
+				s.FormattingOptions.SortUsingsAlphabetically = true;
+				s.FormattingOptions.PlaceSystemNamespacesFirst = true;
+			});
+		}
+
+		[Test]
+		public void ShouldNotPlaceNonSystemNamespacesStartingWithSystemFirst()
+		{
+			TestRefactoringContext context;
+			string testCode =
+@"namespace A { class B { } }
+namespace OuterNamespace
+{
+	using SystemA;
+
+	class TestClass
+	{
+		private B b;
+	}
+}";
+
+			string expectedOutput = 
+@"namespace A { class B { } }
+namespace OuterNamespace
+{
+	using A;
+	using SystemA;
+
+	class TestClass
+	{
+		private B b;
+	}
+}";
+
+			var issue = GetIssues(new UnresolvedTypeIssue(), testCode, out context).Single();
+
+			CheckFix(
+				context,
+				issue,
+				expectedOutput,
+				s =>
+				{
+				s.FormattingOptions.UsingPlacement = UsingPlacement.InsideNamespace;
+				s.FormattingOptions.SortUsingsAlphabetically = true;
+				s.FormattingOptions.PlaceSystemNamespacesFirst = true;
+			});
+		}
+
+		[Test]
+		public void ShouldPlaceSystemBeforeOtherNamespaces()
+		{
+			TestRefactoringContext context;
+			string testCode =
+@"namespace OuterNamespace
+{
+	using System.Collections.Generic;
+
+	class TestClass
+	{
+		private List<DateTime> dates;
+	}
+}";
+
+			string expectedOutput = 
+@"namespace OuterNamespace
+{
+	using System;
+	using System.Collections.Generic;
+
+	class TestClass
+	{
+		private List<DateTime> dates;
+	}
+}";
+
+			var issue = GetIssues(new UnresolvedTypeIssue(), testCode, out context).Single();
+
+			CheckFix(
+				context,
+				issue,
+				expectedOutput,
+				s =>
+				{
+				s.FormattingOptions.UsingPlacement = UsingPlacement.InsideNamespace;
+				s.FormattingOptions.SortUsingsAlphabetically = true;
+				s.FormattingOptions.PlaceSystemNamespacesFirst = true;
+			});
+		}
+
+		#endregion
 	}
 }
 

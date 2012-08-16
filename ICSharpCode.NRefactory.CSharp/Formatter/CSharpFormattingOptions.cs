@@ -874,6 +874,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			get;
 			set;
 		}
+
+		public bool PlaceSystemNamespacesFirst {
+			get;
+			set;
+		}
 		#endregion
 
 		internal CSharpFormattingOptions()
