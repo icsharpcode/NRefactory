@@ -274,6 +274,7 @@
     <Compile Include="CSharp\CodeCompletion\DocumentationContextTests.cs" />
     <Compile Include="CSharp\CodeCompletion\BrowsableAttributeTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateBackingStoreTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantWhereWithPredicateIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Mono.Cecil\Mono.Cecil.csproj">
