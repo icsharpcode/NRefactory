@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			using (var script = ctx.StartScript ())
 			{
 				scriptConfigAction(script);
-				issue.Actions.[fixIndex].Run(script);
+				issue.Actions[fixIndex].Run(script);
 			}
 
 			Assert.AreEqual (expectedOutput, ctx.Text);
