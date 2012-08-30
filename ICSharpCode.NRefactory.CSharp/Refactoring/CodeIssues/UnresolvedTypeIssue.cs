@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitMemberReferenceExpression(expression);
 
-				this.AddIssueIfUnresolvable(expression.Target);
+				this.AddIssueIfUnresolvable(expression);
 			}
 
 			public override void VisitSimpleType(SimpleType simpleType)
@@ -69,27 +69,33 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var result = ctx.Resolve(type);
 				var unknownIdResult = result as UnknownIdentifierResolveResult;
 
-				if (unknownIdResult != null && unknownIdResult.Identifier == GetIdentifier(type))
+				if ((unknownIdResult != null && unknownIdResult.Identifier == GetIdentifier(type)) ||
+				    result is UnknownMemberResolveResult || result is UnknownMethodResolveResult)
 				{
-					var possibleType = GetPossibleTypes(unknownIdResult, isAttribute).FirstOrDefault();
-					this.AddIssue(type, ctx.TranslateString("using " + possibleType.Namespace + ";"), s =>
-					              {
-						var usingDeclaration = new UsingDeclaration(possibleType.Namespace);
-						var existingUsings = GetExistingUsings(s, type);
+					foreach (var possibleType in GetPossibleTypes(type, result, isAttribute))
+					{
+						if (possibleType != null)
+						{
+							this.AddIssue(type, ctx.TranslateString("using " + possibleType.Namespace + ";"), s =>
+							              {
+								var usingDeclaration = new UsingDeclaration(possibleType.Namespace);
+								var existingUsings = GetExistingUsings(s, type);
 
-						if (existingUsings.Count() > 0)
-						{
-							this.InsertIntoUsings(s, existingUsings, usingDeclaration);
+								if (existingUsings.Count() > 0)
+								{
+									this.InsertIntoUsings(s, existingUsings, usingDeclaration);
+								}
+								else
+								{
+									this.AddAtRoot(s, usingDeclaration, type);
+								}
+							});
 						}
-						else
-						{
-							this.AddAtRoot(s, usingDeclaration, type);
-						}
-					});
+					}
 				}
 			}
 
-			IEnumerable<UsingDeclaration> GetExistingUsings(Script s, AstNode currentNode)
+			private IEnumerable<UsingDeclaration> GetExistingUsings(Script s, AstNode currentNode)
 			{
 				if (s.FormattingOptions.UsingPlacement == UsingPlacement.TopOfFile)
 				{
@@ -145,22 +151,38 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			private IEnumerable<IType> GetPossibleTypes(UnknownIdentifierResolveResult result, bool isAttribute = false)
+			private IEnumerable<IType> GetPossibleTypes(AstNode node, ResolveResult result, bool isAttribute = false)
 			{
-				string targetName;
+				string targetName = null;
+				int typeArgumentCount = 0;
 
-				if (isAttribute && !result.Identifier.EndsWith("Attribute"))
-				{
-					targetName = result.Identifier + "Attribute";
+				if (result is UnknownIdentifierResolveResult) {
+					var identifierResult = (UnknownIdentifierResolveResult)result;
+					if (isAttribute && !identifierResult.Identifier.EndsWith("Attribute")) {
+						targetName = identifierResult.Identifier + "Attribute";
+					} else {
+						targetName = identifierResult.Identifier;
+					}
+
+					typeArgumentCount = identifierResult.TypeArgumentCount;
 				}
-				else
-				{
-					targetName = result.Identifier;
+
+				if (result is UnknownMemberResolveResult) {
+					var memberResult = (UnknownMemberResolveResult)result;
+
+					if (memberResult.TargetType.Kind != TypeKind.Unknown) {
+						return ctx.Compilation.GetAllTypeDefinitions()
+							.Where(t => t.IsStatic && t.HasExtensionMethods &&
+						       t.Methods.Any(m => m.Name == memberResult.MemberName));
+					}
+
+					var memberExpression = (MemberReferenceExpression)node;
+					targetName = GetIdentifier(memberExpression.Target);
 				}
 
 				return ctx.Compilation.GetAllTypeDefinitions()
 					.Where(t => t.Name == targetName &&
-					       t.TypeParameterCount == result.TypeArgumentCount);
+					       t.TypeParameterCount == typeArgumentCount);
 			}
 
 			private void InsertBlankLines(Script s, AstNode insertAfter, AstNode insertBefore, int numberOfLines)

@@ -309,6 +309,8 @@ class Foo : List<AttributeTargets>
 		#endregion
 
 		#region Member Access
+		// TODO Debug me!!!
+
 		[Test]
 		public void ShouldReturnIssueIfEnumValueIsNotResolvable()
 		{
@@ -384,7 +386,36 @@ class Test
 }", "System", "System.Collections.Generic", "System.IO");
 		}
 
-		// TODO: Add a test where a type can be resolved to multiple namespaces. I think I may have to pull the code into a CodeAction before doing that.
+		[Test]
+		public void ShouldReturnIssueForUnresolvedExtensionMethod()
+		{
+			this.ShouldNotBeAbleToResolve(
+@"using System.Collections.Generic;
+
+class Test
+{
+	void TestMethod()
+	{
+		var list = new List<string>();
+		var first = list.First();
+	}
+}", "System.Linq");
+		}
+
+		[Test]
+		public void ShouldReturnMultipleNamespaceSuggestions()
+		{
+			this.ShouldNotBeAbleToResolve(
+@"namespace A { public class TestClass { } }
+namespace B { public class TestClass { } }
+namespace C
+{
+	public class Test
+	{
+		private TestClass testClass;
+	}
+}", "A", "B");
+		}
 
 		private void ShouldNotBeAbleToResolve(string testInput, params string[] newNamespaces)
 		{
