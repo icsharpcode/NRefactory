@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{63D3B27A-D966-4902-90B3-30290E1692F1}</ProjectGuid>
@@ -58,6 +58,26 @@
     <DefineConstants>TRACE;NET_4_5</DefineConstants>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_4_5_Debug|AnyCPU' ">
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_4_5_Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_4_5_Debug|x86' ">
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_4_5_Release|x86' ">
+    <DebugType>none</DebugType>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -341,6 +361,10 @@
     <Compile Include="CSharp\CodeIssues\VariableDeclaredInWideScopeTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\ParameterCanBeDemotedTests.cs" />
     <Compile Include="CSharp\CodeCompletion\DocumentationContextTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnresolvedType\UnresolvedTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnresolvedType\UnresolvedTypeActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnresolvedType\UnresolvedTypeActionInsideNamespaceTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnresolvedType\UnresolvedTypeActionAlphabeticalTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReferenceToStaticMemberViaDerivedTypeTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\IsTypeCriterionTests.cs" />
     <Compile Include="Utils\CompositeFormatStringParser\CompositeFormatStringParserTests.cs" />
@@ -360,13 +384,9 @@
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\SupportsIndexingCriterionTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateBackingStoreTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantWhereWithPredicateIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\NoDefaultConstructorIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Mono.Cecil\Mono.Cecil.csproj">
-      <Project>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</Project>
-      <Name>Mono.Cecil</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory.CSharp\ICSharpCode.NRefactory.CSharp.csproj">
       <Project>{53DCA265-3C3C-42F9-B647-F72BA678122B}</Project>
       <Name>ICSharpCode.NRefactory.CSharp</Name>
@@ -381,6 +401,10 @@
       <Name>ICSharpCode.NRefactory</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\Mono.Cecil\Mono.Cecil.csproj">
+      <Project>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</Project>
+      <Name>Mono.Cecil</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CSharp\" />
@@ -392,13 +416,14 @@
     <Folder Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\" />
     <Folder Include="Utils\CompositeFormatStringParser\" />
     <Folder Include="CSharp\CodeIssues\FormatStringIssues\" />
+    <Folder Include="CSharp\CodeIssues\UnresolvedType\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
         <Policies>
-          <TextStylePolicy TabWidth="4" EolMarker="Unix" inheritsSet="Mono" inheritsScope="text/plain" scope="text/plain" />
+          <TextStylePolicy TabsToSpaces="False" EolMarker="Unix" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/plain" />
           <TextStylePolicy FileWidth="120" TabWidth="4" EolMarker="Unix" inheritsSet="Mono" inheritsScope="text/plain" scope="text/x-csharp" />
           <CSharpFormattingPolicy IndentSwitchBody="True" IfElseBraceForcement="AddBraces" ForBraceForcement="AddBraces" ForEachBraceForcement="AddBraces" WhileBraceForcement="AddBraces" UsingBraceForcement="AddBraces" FixedBraceForcement="AddBraces" BeforeMethodDeclarationParentheses="False" BeforeMethodCallParentheses="False" BeforeConstructorDeclarationParentheses="False" BeforeDelegateDeclarationParentheses="False" NewParentheses="False" inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp" />
         </Policies>

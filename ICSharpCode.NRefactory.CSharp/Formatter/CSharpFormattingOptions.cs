@@ -68,6 +68,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		SameLine
 	}
 
+	public enum UsingPlacement {
+		TopOfFile,
+		InsideNamespace
+	}
+
 	public class CSharpFormattingOptions
 	{
 		public string Name {
@@ -854,6 +859,23 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		public bool IndexerDeclarationClosingBracketOnNewLine {
+			get;
+			set;
+		}
+		#endregion
+
+		#region Using Statements
+		public UsingPlacement UsingPlacement {
+			get;
+			set;
+		}
+
+		public bool SortUsingsAlphabetically {
+			get;
+			set;
+		}
+
+		public bool PlaceSystemNamespacesFirst {
 			get;
 			set;
 		}
