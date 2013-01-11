@@ -1045,7 +1045,25 @@ class Test {
 			Assert.IsTrue(c.IsUserDefined);
 			Assert.AreEqual("ui", c.Method.Parameters[0].Name);
 		}
-		
+
+		[Test]
+		public void UserDefinedImplicitConversion_NullableUIntConstant() {
+			string program = @"using System;
+class Convertible {
+	public static implicit operator Convertible(long? l) {return new Convertible(); }
+	public static implicit operator Convertible(uint? ui) {return new Convertible(); }
+}
+class Test {
+	public void M() {
+		Convertible a = $33$;
+	}
+}";
+			var c = GetConversion(program);
+			Assert.IsTrue(c.IsValid);
+			Assert.IsTrue(c.IsUserDefined);
+			Assert.AreEqual("ui", c.Method.Parameters[0].Name);
+		}
+
 		[Test]
 		public void UserDefinedImplicitConversion_UseShortResult_BecauseNullableCannotBeUnpacked()
 		{
@@ -1126,7 +1144,7 @@ class Program {
 			Assert.AreEqual("i", c.Method.Parameters[0].Name);
 		}
 		
-		[Test, Ignore("This is currently broken; not sure why csc sees this case as ambiguous (but not most others)")]
+		[Test]
 		public void UserDefinedImplicitConversion_NullableInt_Or_Long_Source()
 		{
 			string program = @"using System;
@@ -1145,6 +1163,23 @@ class Program {
 			Assert.IsTrue(c.IsUserDefined);
 		}
 		
+		[Test]
+		public void UserDefinedImplicitConversion_NullableInt_Or_Long_Constant_Source() {
+			string program = @"using System;
+class Test {
+	public static implicit operator Test(int? i) { return new Test(); }
+	public static implicit operator Test(long l) { return new Test(); }
+}
+class Program {
+	static void Main() {
+		Test t = $1$;
+	}
+}";
+			var c = GetConversion(program);
+			Assert.IsFalse(c.IsValid);
+			Assert.IsTrue(c.IsUserDefined);
+		}
+
 		[Test]
 		public void UserDefinedImplicitConversion_NullableInt_Or_NullableLong_Source()
 		{
