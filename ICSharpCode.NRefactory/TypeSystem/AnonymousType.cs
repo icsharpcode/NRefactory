@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				if (result != null) {
 					return result;
 				} else {
-					return LazyInit.GetOrSet(ref accessorField, new AnonymousTypeAccessor(unresolvedAccessor, parentContext, declaringType));
+					return LazyInit.GetOrSet(ref accessorField, new AnonymousTypeAccessor(unresolvedAccessor, parentContext, this));
 				}
 			}
 
@@ -93,28 +93,36 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			}
 		}
 		
-		sealed class AnonymousTypeAccessor : DefaultResolvedMethod, IEntity
+		sealed class AnonymousTypeAccessor : DefaultResolvedMethod, IMethod
 		{
-			readonly AnonymousType declaringType;
+			readonly IMember accessorOwner;
 			
-			public AnonymousTypeAccessor(IUnresolvedMethod unresolvedMethod, ITypeResolveContext context, AnonymousType declaringType) : base(unresolvedMethod, context, false)
+			public AnonymousTypeAccessor(IUnresolvedMethod unresolvedMethod, ITypeResolveContext context, IMember accessorOwner) : base(unresolvedMethod, context, false)
 			{
-				this.declaringType = declaringType;
+				this.accessorOwner = accessorOwner;
 			}
 			
 			IType IEntity.DeclaringType {
-				get { return declaringType; }
+				get { return accessorOwner.DeclaringType; }
+			}
+
+			bool IMethod.IsAccessor {
+				get { return true; }
+			}
+
+			IMember IMethod.AccessorOwner {
+				get { return accessorOwner; }
 			}
 
 			public override bool Equals(object obj)
 			{
 				AnonymousTypeAccessor p = obj as AnonymousTypeAccessor;
-				return p != null && this.Name == p.Name && declaringType.Equals(p.declaringType);
+				return p != null && this.Name == p.Name && accessorOwner.Equals(p.accessorOwner);
 			}
 			
 			public override int GetHashCode()
 			{
-				return declaringType.GetHashCode() ^ unchecked(27 * this.Name.GetHashCode());
+				return accessorOwner.GetHashCode() ^ unchecked(27 * this.Name.GetHashCode());
 			}
 		}
 

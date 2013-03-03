@@ -110,6 +110,8 @@ class TestClass {
 			var prop = result.Type.GetProperties().Single();
 			Assert.That(prop.DeclaringType, Is.SameAs(result.Type));
 			Assert.That(prop.Getter.DeclaringType, Is.SameAs(result.Type));
+			Assert.That(prop.Getter.IsAccessor, Is.True);
+			Assert.That(prop.Getter.AccessorOwner, Is.SameAs(prop));
 			Assert.That(prop.Setter, Is.Null);
 		}
 	}
