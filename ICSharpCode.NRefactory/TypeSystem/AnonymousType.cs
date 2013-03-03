@@ -45,9 +45,11 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			this.resolvedProperties = new ProjectedList<ITypeResolveContext, IUnresolvedProperty, IProperty>(context, unresolvedProperties, (c, p) => new AnonymousTypeProperty(p, c, this));
 		}
 		
-		sealed class AnonymousTypeProperty : DefaultResolvedProperty, IEntity
+		sealed class AnonymousTypeProperty : DefaultResolvedProperty, IProperty
 		{
 			readonly AnonymousType declaringType;
+			IMethod getter;
+			IMethod setter;
 			
 			public AnonymousTypeProperty(IUnresolvedProperty unresolved, ITypeResolveContext parentContext, AnonymousType declaringType)
 				: base(unresolved, parentContext)
@@ -58,7 +60,27 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			IType IEntity.DeclaringType {
 				get { return declaringType; }
 			}
-			
+
+			IMethod IProperty.Getter {
+				get { return GetAccessor(ref getter, unresolved.Getter); }
+			}
+
+			IMethod IProperty.Setter {
+				get { return GetAccessor(ref setter, unresolved.Setter); }
+			}
+
+			internal new IMethod GetAccessor(ref IMethod accessorField, IUnresolvedMethod unresolvedAccessor)
+			{
+				if (unresolvedAccessor == null)
+					return null;
+				IMethod result = LazyInit.VolatileRead(ref accessorField);
+				if (result != null) {
+					return result;
+				} else {
+					return LazyInit.GetOrSet(ref accessorField, new AnonymousTypeAccessor(unresolvedAccessor, parentContext, this));
+				}
+			}
+
 			public override bool Equals(object obj)
 			{
 				AnonymousTypeProperty p = obj as AnonymousTypeProperty;
@@ -71,6 +93,39 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			}
 		}
 		
+		sealed class AnonymousTypeAccessor : DefaultResolvedMethod, IMethod
+		{
+			readonly IMember accessorOwner;
+			
+			public AnonymousTypeAccessor(IUnresolvedMethod unresolvedMethod, ITypeResolveContext context, IMember accessorOwner) : base(unresolvedMethod, context, false)
+			{
+				this.accessorOwner = accessorOwner;
+			}
+			
+			IType IEntity.DeclaringType {
+				get { return accessorOwner.DeclaringType; }
+			}
+
+			bool IMethod.IsAccessor {
+				get { return true; }
+			}
+
+			IMember IMethod.AccessorOwner {
+				get { return accessorOwner; }
+			}
+
+			public override bool Equals(object obj)
+			{
+				AnonymousTypeAccessor p = obj as AnonymousTypeAccessor;
+				return p != null && this.Name == p.Name && accessorOwner.Equals(p.accessorOwner);
+			}
+			
+			public override int GetHashCode()
+			{
+				return accessorOwner.GetHashCode() ^ unchecked(27 * this.Name.GetHashCode());
+			}
+		}
+
 		public override ITypeReference ToTypeReference()
 		{
 			return new AnonymousTypeReference(unresolvedProperties);

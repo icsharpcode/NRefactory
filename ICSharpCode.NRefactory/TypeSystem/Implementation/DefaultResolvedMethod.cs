@@ -261,7 +261,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			StringBuilder b = new StringBuilder("[");
 			b.Append(this.EntityType);
 			b.Append(' ');
-			b.Append(this.DeclaringType.ReflectionName);
+			b.Append(((IMethod)this).DeclaringType.ReflectionName);
 			b.Append('.');
 			b.Append(this.Name);
 			if (this.TypeParameters.Count > 0) {

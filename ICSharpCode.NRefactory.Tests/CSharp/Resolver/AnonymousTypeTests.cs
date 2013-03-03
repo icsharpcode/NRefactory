@@ -96,5 +96,23 @@ class TestClass {
 			Assert.That(result.Type.GetProperties().Select(p => p.Name), Is.EquivalentTo(new[] { "a", "b", "c" }));
 			Assert.That(result.Type.GetProperties().Single(p => p.Name == "c").ReturnType.GetProperties().Select(p => p.Name), Is.EquivalentTo(new[] { "d", "e", "f" }));
 		}
+
+		[Test]
+		public void DeclaringTypeIsSetCorrectlyForMembersOfAnonymousType()
+		{
+			string program = @"using System;
+class TestClass {
+	void F() {
+		var o = $new { Prop = 0 }$;
+	}
+}";
+			var result = Resolve<InvocationResolveResult>(program);
+			var prop = result.Type.GetProperties().Single();
+			Assert.That(prop.DeclaringType, Is.SameAs(result.Type));
+			Assert.That(prop.Getter.DeclaringType, Is.SameAs(result.Type));
+			Assert.That(prop.Getter.IsAccessor, Is.True);
+			Assert.That(prop.Getter.AccessorOwner, Is.SameAs(prop));
+			Assert.That(prop.Setter, Is.Null);
+		}
 	}
 }
