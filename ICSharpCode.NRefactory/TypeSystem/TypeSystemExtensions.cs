@@ -549,5 +549,27 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			return assembly.GetTypeDefinition (new TopLevelTypeName (namespaceName, name, typeParameterCount));
 		}
 		#endregion
+
+		#region IEntity.FindConditionalSymbols()
+		/// <summary>
+		/// Gets all symbols applied to an entity through the use of [ConditionalAttribute]
+		/// </summary>
+		public static IList<string> FindConditionalSymbols(this IEntity entity)
+		{
+			var result = new List<string>();
+			foreach (var a in entity.Attributes)
+			{
+				var type = a.AttributeType.GetDefinition();
+				if (type != null && type.FullName.Equals("System.Diagnostics.ConditionalAttribute", StringComparison.Ordinal)) {
+					if (a.PositionalArguments.Count > 0) {
+						var symbol = a.PositionalArguments[0].ConstantValue as string;
+						if (symbol != null)
+							result.Add(symbol);
+					}
+				}
+			}
+			return result;
+		}
+		#endregion
 	}
 }
