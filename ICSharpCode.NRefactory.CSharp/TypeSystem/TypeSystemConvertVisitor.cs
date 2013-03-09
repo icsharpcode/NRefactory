@@ -916,7 +916,10 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 					}
 				}
 			}
-			return new CSharpAttribute(type, region, interningProvider.InternList(positionalArguments), namedCtorArguments, namedArguments);
+			var syntaxTree = attr.GetParent<SyntaxTree>();
+			var conditionalSymbols = syntaxTree != null ? syntaxTree.ConditionalSymbols : null;
+
+			return new CSharpAttribute(type, region, interningProvider.InternList(positionalArguments), namedCtorArguments, namedArguments, conditionalSymbols);
 		}
 		#endregion
 		

@@ -271,6 +271,10 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				get { return context.Compilation; }
 			}
 			
+			bool IAttribute.IsConditionallyRemoved {
+				get { return false; }
+			}
+			
 			public override string ToString()
 			{
 				if (positionalArguments.Count == 0)

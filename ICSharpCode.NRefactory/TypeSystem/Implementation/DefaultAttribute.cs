@@ -93,5 +93,9 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		public IList<KeyValuePair<IMember, ResolveResult>> NamedArguments {
 			get { return namedArguments; }
 		}
+
+		bool IAttribute.IsConditionallyRemoved {
+			get { return false; }
+		}
 	}
 }

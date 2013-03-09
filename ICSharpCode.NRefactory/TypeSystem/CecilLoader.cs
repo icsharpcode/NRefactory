@@ -1022,6 +1022,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 						namedArguments.Add(namedArg);
 				}
 			}
+			
+			bool IAttribute.IsConditionallyRemoved {
+				get { return false; }
+			}
 		}
 		#endregion
 		

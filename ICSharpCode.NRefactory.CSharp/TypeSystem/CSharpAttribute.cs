@@ -37,11 +37,13 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 		IList<IConstantValue> positionalArguments;
 		IList<KeyValuePair<string, IConstantValue>> namedCtorArguments;
 		IList<KeyValuePair<string, IConstantValue>> namedArguments;
+		IList<string> definedConditionalSymbols;
 		
 		public CSharpAttribute(ITypeReference attributeType, DomRegion region,
 		                       IList<IConstantValue> positionalArguments,
 		                       IList<KeyValuePair<string, IConstantValue>> namedCtorArguments,
-		                       IList<KeyValuePair<string, IConstantValue>> namedArguments)
+		                       IList<KeyValuePair<string, IConstantValue>> namedArguments,
+		                       IList<string> definedConditionalSymbols)
 		{
 			if (attributeType == null)
 				throw new ArgumentNullException("attributeType");
@@ -50,6 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			this.positionalArguments = positionalArguments ?? EmptyList<IConstantValue>.Instance;
 			this.namedCtorArguments = namedCtorArguments ?? EmptyList<KeyValuePair<string, IConstantValue>>.Instance;
 			this.namedArguments = namedArguments ?? EmptyList<KeyValuePair<string, IConstantValue>>.Instance;
+			this.definedConditionalSymbols = definedConditionalSymbols ?? EmptyList<string>.Instance;
 		}
 		
 		public DomRegion Region {
@@ -64,7 +67,15 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 		{
 			return new CSharpResolvedAttribute((CSharpTypeResolveContext)context, this);
 		}
-		
+
+		/// <summary>
+		/// Gets the set of conditional symbols defined at the point of the attribute instantiation.
+		/// </summary>
+		public IList<string> DefinedConditionalSymbols
+		{
+			get { return definedConditionalSymbols; }
+		}
+
 		sealed class CSharpResolvedAttribute : IAttribute
 		{
 			readonly CSharpTypeResolveContext context;
@@ -72,6 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			readonly IType attributeType;
 			
 			IList<KeyValuePair<IMember, ResolveResult>> namedArguments;
+			bool? isConditionallyRemoved;
 			
 			public CSharpResolvedAttribute(CSharpTypeResolveContext context, CSharpAttribute unresolved)
 			{
@@ -162,6 +174,24 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 						}
 						return LazyInit.GetOrSet(ref this.namedArguments, namedArgs);
 					}
+				}
+			}
+			
+			bool IAttribute.IsConditionallyRemoved {
+				get {
+					if (isConditionallyRemoved == null) {
+						var typeDef = attributeType.GetDefinition();
+						if (typeDef != null) {
+							var symbols = typeDef.FindConditionalSymbols();
+							if (symbols.Count > 0)
+								isConditionallyRemoved = !symbols.Intersect(unresolved.DefinedConditionalSymbols).Any();
+							else
+								isConditionallyRemoved = false;
+						}
+						else
+							isConditionallyRemoved = false;
+					}
+					return isConditionallyRemoved.Value;
 				}
 			}
 		}
