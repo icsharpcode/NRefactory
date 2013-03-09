@@ -798,5 +798,60 @@ public class B<T> {
 			Assert.IsFalse(rr.IsError);
 			Assert.AreEqual("System.Int32", rr.Member.ReturnType.FullName);
 		}
+
+		[Test]
+		public void ConditionallyRemovedInvocations()
+		{
+			string program = @"
+#define THE_SYMBOL
+using System.Diagnostics;
+public class C {
+	[Conditional(""THE_SYMBOL"")]
+	public static void Other() {}
+	public void M() {
+		$Other()$;
+	}
+}";
+			var rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.IsFalse(rr.IsConditionallyRemoved);
+
+			program = @"
+#define THE_SYMBOL
+using System.Diagnostics;
+public class C {
+	[Conditional(""THE_SYMBOL""), Conditional(""OTHER_SYMBOL"")]
+	public static void Other() {}
+	public void M() {
+		$Other()$;
+	}
+}";
+			rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.IsFalse(rr.IsConditionallyRemoved);
+
+			program = @"
+#define THE_SYMBOL
+using System.Diagnostics;
+public class C {
+	[Conditional(""OTHER_SYMBOL"")]
+	public static void Other() {}
+	public void M() {
+		$Other()$;
+	}
+}";
+			rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.IsTrue(rr.IsConditionallyRemoved);
+
+			program = @"
+#define THE_SYMBOL
+using System.Diagnostics;
+public class C {
+	public static void Other() {}
+	public void M() {
+		$Other()$;
+	}
+}";
+			rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.IsFalse(rr.IsConditionallyRemoved);
+		}
 	}
 }

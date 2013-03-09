@@ -72,9 +72,10 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			bool isDelegateInvocation = false,
 			IList<int> argumentToParameterMap = null,
 			IList<ResolveResult> initializerStatements = null,
-			IType returnTypeOverride = null
+			IType returnTypeOverride = null,
+			bool isConditionallyRemoved = false
 		)
-			: base(targetResult, member, arguments, initializerStatements, returnTypeOverride)
+			: base(targetResult, member, arguments, initializerStatements, returnTypeOverride, isConditionallyRemoved)
 		{
 			this.OverloadResolutionErrors = overloadResolutionErrors;
 			this.IsExtensionMethodInvocation = isExtensionMethodInvocation;

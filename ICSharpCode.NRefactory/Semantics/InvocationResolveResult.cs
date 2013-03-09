@@ -41,15 +41,22 @@ namespace ICSharpCode.NRefactory.Semantics
 		/// to refer to the result of this invocation.
 		/// </summary>
 		public readonly IList<ResolveResult> InitializerStatements;
+
+		/// <summary>
+		/// True if the invocation is removed due to a conditional symbol (specified on the method via ConditionalAttribute) not being defined.
+		/// </summary>
+		public readonly bool IsConditionallyRemoved;
 		
 		public InvocationResolveResult(ResolveResult targetResult, IParameterizedMember member,
 		                               IList<ResolveResult> arguments = null,
 		                               IList<ResolveResult> initializerStatements = null,
-		                               IType returnTypeOverride = null)
+		                               IType returnTypeOverride = null,
+		                               bool isConditionallyRemoved = false)
 			: base(targetResult, member, returnTypeOverride)
 		{
 			this.Arguments = arguments ?? EmptyList<ResolveResult>.Instance;
 			this.InitializerStatements = initializerStatements ?? EmptyList<ResolveResult>.Instance;
+			this.IsConditionallyRemoved = isConditionallyRemoved;
 		}
 		
 		public new IParameterizedMember Member {
