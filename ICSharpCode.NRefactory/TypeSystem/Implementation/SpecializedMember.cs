@@ -208,7 +208,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			for (int i = 0; i < result.Length; i++) {
 				result[i] = definitionImplementations[i].Specialize(substitution);
 			}
-			return result;
+			return Array.AsReadOnly(result);
 		}
 		
 		public bool IsExplicitInterfaceImplementation {

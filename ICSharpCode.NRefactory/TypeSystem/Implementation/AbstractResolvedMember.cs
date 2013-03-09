@@ -75,18 +75,16 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					if (member != null)
 						result.Add(member);
 				}
-				return result.ToArray();
+				return result.AsReadOnly();
 			} else if (unresolved.IsStatic || !unresolved.IsPublic || DeclaringTypeDefinition == null || DeclaringTypeDefinition.Kind == TypeKind.Interface) {
 				return EmptyList<IMember>.Instance;
 			} else {
 				// TODO: implement interface member mappings correctly
 				var result = InheritanceHelper.GetBaseMembers(this, true)
 					.Where(m => m.DeclaringTypeDefinition != null && m.DeclaringTypeDefinition.Kind == TypeKind.Interface)
-					.ToArray();
+					.Where(item => !DeclaringTypeDefinition.Members.Any(m => m.IsExplicitInterfaceImplementation && m.ImplementedInterfaceMembers.Contains(item)));
 
-				result = result.Where(item => !DeclaringTypeDefinition.Members.Any(m => m.IsExplicitInterfaceImplementation && m.ImplementedInterfaceMembers.Contains(item))).ToArray();
-
-				return result;
+				return result.ToList().AsReadOnly();
 			}
 		}
 		
