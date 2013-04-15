@@ -374,4 +374,23 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 		public const int SObl = sizeof(bool);
 		public const int SOe  = sizeof(MyEnum);
 	}
+
+	public interface IExplicitImplementationTests {
+		void M(int a);
+		int P { get; set; }
+		event Action E;
+		int this[int x] { get; set; }
+	}
+
+	public class ExplicitImplementationTests : IExplicitImplementationTests {
+		public void M(int a) {}
+		public int P { get; set; }
+		public event Action E;
+		public int this[int x] { get { return 0; } set {} }
+
+		void IExplicitImplementationTests.M(int a) {}
+		int IExplicitImplementationTests.P { get; set; }
+		event Action IExplicitImplementationTests.E { add {} remove {} }
+		int IExplicitImplementationTests.this[int x] { get { return 0; } set {} }
+	}
 }
