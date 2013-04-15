@@ -84,7 +84,8 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					.Where(m => m.DeclaringTypeDefinition != null && m.DeclaringTypeDefinition.Kind == TypeKind.Interface)
 					.ToArray();
 
-				result = result.Where(item => !DeclaringTypeDefinition.Members.Any(m => m.IsExplicitInterfaceImplementation && m.ImplementedInterfaceMembers.Contains(item))).ToArray();
+				var otherMembers = EntityType == EntityType.Accessor ? DeclaringType.GetAccessors() : DeclaringType.GetMembers();
+				result = result.Where(item => !otherMembers.Any(m => m.IsExplicitInterfaceImplementation && m.ImplementedInterfaceMembers.Contains(item))).ToArray();
 
 				return result;
 			}
