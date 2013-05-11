@@ -71,5 +71,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// Gets the named arguments passed to the attribute.
 		/// </summary>
 		IList<KeyValuePair<IMember, ResolveResult>> NamedArguments { get; }
+
+		/// <summary>
+		/// Returns whether the attribute is conditionally removed due to none of its conditional symbols being defined.
+		/// </summary>
+		bool IsConditionallyRemoved { get; }
 	}
 }

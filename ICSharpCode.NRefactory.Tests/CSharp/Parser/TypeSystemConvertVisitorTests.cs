@@ -99,6 +99,34 @@ namespace ICSharpCode.NRefactory.CSharp.Parser
 			Assert.IsTrue (field.IsConst);
 			Assert.IsNull (field.ConstantValue);
 		}
+
+		[Test]
+		public void ConditionallyRemovedAttributes()
+		{
+			var syntaxTree = SyntaxTree.Parse (
+@"#define THE_SYMBOL
+using System;
+using System.Diagnostics;
+[Conditional(""THE_SYMBOL"")] class A1Attribute : Attribute {}
+[Conditional(""THE_SYMBOL""), Conditional(""OTHER_SYMBOL"")] class A2Attribute : Attribute{}
+[Conditional(""OTHER_SYMBOL"")] class A3Attribute : Attribute{}
+class A4Attribute : Attribute{}
+
+[A1, A2, A3, A4] class Test {}");
+			syntaxTree.FileName = "a.cs";
+			var content = CreateContent(syntaxTree.ToTypeSystem());
+			var testType = content.CreateCompilation().MainAssembly.GetTypeDefinition ("", "Test");
+			Assert.NotNull(testType);
+
+			var a1 = testType.Attributes.Single(a => a.AttributeType.Name == "A1Attribute");
+			var a2 = testType.Attributes.Single(a => a.AttributeType.Name == "A2Attribute");
+			var a3 = testType.Attributes.Single(a => a.AttributeType.Name == "A3Attribute");
+			var a4 = testType.Attributes.Single(a => a.AttributeType.Name == "A4Attribute");
+			Assert.That(a1.IsConditionallyRemoved, Is.False);
+			Assert.That(a2.IsConditionallyRemoved, Is.False);
+			Assert.That(a3.IsConditionallyRemoved, Is.True);
+			Assert.That(a4.IsConditionallyRemoved, Is.False);
+		}
 	}
 	
 	[TestFixture]

@@ -935,15 +935,25 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// <param name="initializerStatements">
 		/// Statements for Objects/Collections initializer.
 		/// <see cref="InvocationResolveResult.InitializerStatements"/>
+		/// </param>
 		/// <param name="returnTypeOverride">
 		/// If not null, use this instead of the ReturnType of the member as the type of the created resolve result.
 		/// </param>
+		/// <param name="definedConditionalSymbols">
+		/// If not null, all conditional symbols defined at the call site (used to determine whether the call is conditionally removed).
 		/// </param>
-		public CSharpInvocationResolveResult CreateResolveResult(ResolveResult targetResolveResult, IList<ResolveResult> initializerStatements = null, IType returnTypeOverride = null)
+		public CSharpInvocationResolveResult CreateResolveResult(ResolveResult targetResolveResult, IList<ResolveResult> initializerStatements = null, IType returnTypeOverride = null, IEnumerable<string> definedConditionalSymbols = null)
 		{
 			IParameterizedMember member = GetBestCandidateWithSubstitutedTypeArguments();
 			if (member == null)
 				throw new InvalidOperationException();
+
+			bool isConditionallyRemoved = false;
+			if (member is IMethod && definedConditionalSymbols != null) {
+				var symbols = member.FindConditionalSymbols();
+				if (symbols.Count > 0)
+					isConditionallyRemoved = !symbols.Intersect(definedConditionalSymbols).Any();
+			}
 
 			return new CSharpInvocationResolveResult(
 				this.IsExtensionMethodInvocation ? new TypeResolveResult(member.DeclaringType) : targetResolveResult,
@@ -955,7 +965,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				isDelegateInvocation: false,
 				argumentToParameterMap: this.GetArgumentToParameterMap(),
 				initializerStatements: initializerStatements,
-				returnTypeOverride: returnTypeOverride);
+				returnTypeOverride: returnTypeOverride,
+				isConditionallyRemoved: isConditionallyRemoved);
 		}
 		#endregion
 	}

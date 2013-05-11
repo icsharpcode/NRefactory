@@ -1916,7 +1916,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		{
 			string[] argumentNames;
 			ResolveResult[] arguments = GetArguments(invocationExpression.Arguments, out argumentNames);
-			ResolveResult rr = resolver.ResolveInvocation(target, arguments, argumentNames);
+			var syntaxTree = invocationExpression.GetParent<SyntaxTree>();
+			ResolveResult rr = resolver.ResolveInvocation(target, arguments, argumentNames, syntaxTree != null ? syntaxTree.ConditionalSymbols : EmptyList<string>.Instance);
 			ProcessInvocationResult(invocationExpression.Target, invocationExpression.Arguments, rr);
 			return rr;
 		}

@@ -383,7 +383,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						return UnaryOperatorResolveResult(new PointerType(expression.Type), op, expression);
 					case UnaryOperatorType.Await: {
 						ResolveResult getAwaiterMethodGroup = ResolveMemberAccess(expression, "GetAwaiter", EmptyList<IType>.Instance, NameLookupMode.InvocationTarget);
-						ResolveResult getAwaiterInvocation = ResolveInvocation(getAwaiterMethodGroup, new ResolveResult[0], argumentNames: null, allowOptionalParameters: false);
+						ResolveResult getAwaiterInvocation = ResolveInvocation(getAwaiterMethodGroup, new ResolveResult[0], argumentNames: null, allowOptionalParameters: false, definedConditionalSymbols: null);
 
 						var lookup = CreateMemberLookup();
 						IMethod getResultMethod;
@@ -1925,7 +1925,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			}
 		}
 
-		private ResolveResult ResolveInvocation(ResolveResult target, ResolveResult[] arguments, string[] argumentNames, bool allowOptionalParameters)
+		private ResolveResult ResolveInvocation(ResolveResult target, ResolveResult[] arguments, string[] argumentNames, bool allowOptionalParameters, IEnumerable<string> definedConditionalSymbols)
 		{
 			// C# 4.0 spec: §7.6.5
 			
@@ -1961,9 +1961,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				OverloadResolution or = mgrr.PerformOverloadResolution(compilation, arguments, argumentNames, checkForOverflow: checkForOverflow, conversions: conversions, allowOptionalParameters: allowOptionalParameters);
 				if (or.BestCandidate != null) {
 					if (or.BestCandidate.IsStatic && !or.IsExtensionMethodInvocation && !(mgrr.TargetResult is TypeResolveResult))
-						return or.CreateResolveResult(new TypeResolveResult(mgrr.TargetType), returnTypeOverride: isDynamic ? SpecialType.Dynamic : null);
+						return or.CreateResolveResult(new TypeResolveResult(mgrr.TargetType), returnTypeOverride: isDynamic ? SpecialType.Dynamic : null, definedConditionalSymbols: definedConditionalSymbols);
 					else
-						return or.CreateResolveResult(mgrr.TargetResult, returnTypeOverride: isDynamic ? SpecialType.Dynamic : null);
+						return or.CreateResolveResult(mgrr.TargetResult, returnTypeOverride: isDynamic ? SpecialType.Dynamic : null, definedConditionalSymbols: definedConditionalSymbols);
 				} else {
 					// No candidate found at all (not even an inapplicable one).
 					// This can happen with empty method groups (as sometimes used with extension methods)
@@ -2005,10 +2005,13 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// <param name="argumentNames">
 		/// The argument names. Pass the null string for positional arguments.
 		/// </param>
+		/// <param name="definedConditionalSymbols">
+		/// All conditional symbols defined at the call site.
+		/// </param>
 		/// <returns>InvocationResolveResult or UnknownMethodResolveResult</returns>
-		public ResolveResult ResolveInvocation(ResolveResult target, ResolveResult[] arguments, string[] argumentNames = null)
+		public ResolveResult ResolveInvocation(ResolveResult target, ResolveResult[] arguments, string[] argumentNames = null, IEnumerable<string> definedConditionalSymbols = null)
 		{
-			return ResolveInvocation(target, arguments, argumentNames, allowOptionalParameters: true);
+			return ResolveInvocation(target, arguments, argumentNames, allowOptionalParameters: true, definedConditionalSymbols: definedConditionalSymbols);
 		}
 		
 		List<IParameter> CreateParameters(ResolveResult[] arguments, string[] argumentNames)
