@@ -375,7 +375,7 @@ class TestClass
 using System.Runtime.CompilerServices;
 class TestClass
 {
-	[MethodImpl(MethodImplOptions.Synchronized)]
+	[MethodImpl (MethodImplOptions.Synchronized)]
 	void TestMethod ()
 	{
 	}
@@ -403,7 +403,7 @@ class TestClass
 using System.Runtime.CompilerServices;
 class TestClass
 {
-	[MethodImpl(Value = MethodImplOptions.Synchronized)]
+	[MethodImpl (Value = MethodImplOptions.Synchronized)]
 	void TestMethod ()
 	{
 	}
@@ -431,7 +431,7 @@ class TestClass
 using System.Runtime.CompilerServices;
 class TestClass
 {
-	[MethodImpl(MethodImplOptions.Synchronized | MethodImplOptions.NoInlining)]
+	[MethodImpl (MethodImplOptions.Synchronized | MethodImplOptions.NoInlining)]
 	void TestMethod ()
 	{
 	}
@@ -442,7 +442,7 @@ using System.Runtime.CompilerServices;
 class TestClass
 {
 	object locker = new object ();
-	[MethodImpl(MethodImplOptions.NoInlining)]
+	[MethodImpl (MethodImplOptions.NoInlining)]
 	void TestMethod ()
 	{
 		lock (locker) {
@@ -460,13 +460,34 @@ class TestClass
 using System.Runtime.CompilerServices;
 class TestClass
 {
-	[MethodImpl(MethodImplOptions.NoInlining)]
+	[MethodImpl (MethodImplOptions.NoInlining)]
 	void TestMethod ()
 	{
 	}
 }";
 
 			Test<LockThisIssue> (input, 0);
+		}
+
+		[Test]
+		public void TestAbstractSynchronized ()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+abstract class TestClass
+{
+	[MethodImpl (MethodImplOptions.Synchronized)]
+	public abstract void TestMethod ();
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+abstract class TestClass
+{
+	public abstract void TestMethod ();
+}";
+
+			Test<LockThisIssue> (input, 1, output);
 		}
 	}
 }

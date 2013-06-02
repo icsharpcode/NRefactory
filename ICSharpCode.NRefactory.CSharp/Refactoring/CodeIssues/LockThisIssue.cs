@@ -34,8 +34,8 @@ using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Use of lock (this) is discouraged",
-	                  Description = "Warns about using lock (this).",
+	[IssueDescription("Use of lock (this) or MethodImplOptions.Synchronized is discouraged",
+	                  Description = "Warns about using lock (this) or MethodImplOptions.Synchronized.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning)]
 	public class LockThisIssue : ICodeIssueProvider
@@ -94,23 +94,53 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void FixLockThisIssue(Script script, AstNode containerEntity, TypeDeclaration containerType)
 			{
-				var objectType = new PrimitiveType("object");
+				var synchronizedStatements = FixMethodsWithMethodImplAttribute(script, containerType);
 
-				var lockerFieldDeclaration = new FieldDeclaration() {
-					ReturnType = objectType.Clone()
-				};
+				List<AstNode> linkNodes = new List<AstNode>();
 
-				var lockerVariable = new VariableInitializer("locker", new ObjectCreateExpression(objectType.Clone()));
-				lockerFieldDeclaration.Variables.Add(lockerVariable);
-				script.InsertBefore(containerEntity, lockerFieldDeclaration);
+				foreach (var lockToModify in LocksInType(containerType)) {
+					if (IsThisReference (lockToModify.Expression)) {
+						var identifier = new IdentifierExpression ("locker");
+						script.Replace(lockToModify.Expression, identifier);
 
-				var synchronizedMethods = FixMethodsWithMethodImplAttribute(script, containerType);
-				FixLocks(script, containerType, lockerVariable, synchronizedMethods);
+						linkNodes.Add(identifier);
+					}
+				}
+
+				foreach (var synchronizedStatement in synchronizedStatements) {
+					var lockStatement = new LockStatement();
+					var identifier = new IdentifierExpression ("locker");
+					lockStatement.Expression = identifier;
+					lockStatement.EmbeddedStatement = synchronizedStatement.Clone();
+
+					var newBlock = new BlockStatement();
+					newBlock.Statements.Add(lockStatement);
+
+					script.Replace(synchronizedStatement, newBlock);
+
+					linkNodes.Add(identifier);
+				}
+
+				if (linkNodes.Any()) {
+					var objectType = new PrimitiveType("object");
+
+					var lockerFieldDeclaration = new FieldDeclaration() {
+						ReturnType = objectType.Clone()
+					};
+
+					var lockerVariable = new VariableInitializer("locker", new ObjectCreateExpression(objectType.Clone()));
+					lockerFieldDeclaration.Variables.Add(lockerVariable);
+					script.InsertBefore(containerEntity, lockerFieldDeclaration);
+
+					linkNodes.Add(lockerVariable.NameToken);
+
+					script.Link(linkNodes.ToArray());
+				}
 			}
 
-			IEnumerable<Statement> FixMethodsWithMethodImplAttribute(Script script, TypeDeclaration containerType)
+			IEnumerable<BlockStatement> FixMethodsWithMethodImplAttribute(Script script, TypeDeclaration containerType)
 			{
-				var bodies = new List<Statement>();
+				var bodies = new List<BlockStatement>();
 
 				foreach (var entityDeclarationToModify in EntitiesInType(containerType)) {
 					var methodDeclaration = entityDeclarationToModify as MethodDeclaration;
@@ -119,16 +149,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 					}
 
-					if (entityDeclarationToModify.Modifiers.HasFlag(Modifiers.Abstract)) {
-						continue;
-					}
-
 					var attributes = entityDeclarationToModify.Attributes.SelectMany(attributeSection => attributeSection.Attributes);
 					var methodSynchronizedAttribute = attributes.FirstOrDefault(IsMethodSynchronizedAttribute);
 					if (methodSynchronizedAttribute != null) {
 						short methodImplValue = GetMethodImplValue(methodSynchronizedAttribute);
-						if (methodImplValue != 0) {
-							short newValue = (short)(methodImplValue & ~((short)MethodImplOptions.Synchronized));
+						short newValue = (short)(methodImplValue & ~((short)MethodImplOptions.Synchronized));
+						if (newValue != 0) {
 							InsertNewAttribute(script, methodSynchronizedAttribute, newValue);
 						} else {
 							var section = methodSynchronizedAttribute.GetParent<AttributeSection>();
@@ -138,10 +164,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								script.Remove(methodSynchronizedAttribute);
 							}
 						}
-					
-						var body = methodDeclaration == null ? accessor.Body : methodDeclaration.Body;
 
-						bodies.Add(body);
+						bool isAbstract = entityDeclarationToModify.Modifiers.HasFlag(Modifiers.Abstract);
+						if (!isAbstract) {
+							var body = methodDeclaration == null ? accessor.Body : methodDeclaration.Body;
+							bodies.Add(body);
+						}
 					}
 				}
 
@@ -149,16 +177,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 
 			void InsertNewAttribute(Script script, Attribute attribute, short newValue) {
-				var options = (MethodImplOptions[]) Enum.GetValues(typeof(MethodImplOptions));
+				var availableValues = (MethodImplOptions[]) Enum.GetValues(typeof(MethodImplOptions));
+				var activeValues = availableValues.Where(value => (newValue & (short)value) != 0).ToList();
 
 				var astBuilder = ctx.CreateTypeSytemAstBuilder(attribute);
 				var methodImplOptionsType = astBuilder.ConvertType(new FullTypeName(typeof(MethodImplOptions).FullName));
 
-				Expression expression = CreateMethodImplReferenceNode(options[0], methodImplOptionsType);
-				for (int optionIndex = 1; optionIndex < options.Length; ++optionIndex) {
+				Expression expression = CreateMethodImplReferenceNode(activeValues[0], methodImplOptionsType);
+				for (int optionIndex = 1; optionIndex < activeValues.Count; ++optionIndex) {
 					expression = new BinaryOperatorExpression(expression,
 					                                          BinaryOperatorType.BitwiseOr,
-					                                          CreateMethodImplReferenceNode(options [optionIndex], methodImplOptionsType));
+					                                          CreateMethodImplReferenceNode(activeValues [optionIndex], methodImplOptionsType));
 				}
 
 				var newAttribute = new Attribute();
@@ -212,7 +241,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return methodImpl;
 			}
 
-			short? GetMethodImplOptionsAsShort(Expression argument)
+			short? GetMethodImplOptionsAsShort(AstNode argument)
 			{
 				//Returns null if the value could not be guessed
 
@@ -226,34 +255,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				return null;
-			}
-
-			Task FixLocks(Script script, TypeDeclaration containerType, VariableInitializer lockerVariable, IEnumerable<Statement> synchronizedStatements)
-			{
-				List<AstNode> linkNodes = new List<AstNode>();
-				linkNodes.Add(lockerVariable.NameToken);
-
-				foreach (var lockToModify in LocksInType(containerType)) {
-					if (IsThisReference (lockToModify.Expression)) {
-						var identifier = new IdentifierExpression ("locker");
-						script.Replace(lockToModify.Expression, identifier);
-
-						linkNodes.Add(identifier);
-					}
-				}
-
-				foreach (var synchronizedStatement in synchronizedStatements) {
-					var lockStatement = new LockStatement();
-					var identifier = new IdentifierExpression ("locker");
-					lockStatement.Expression = identifier;
-					lockStatement.EmbeddedStatement = synchronizedStatement.Clone();
-
-					script.Replace(synchronizedStatement, lockStatement);
-
-					linkNodes.Add(identifier);
-				}
-
-				return script.Link(linkNodes.ToArray());
 			}
 
 			static IEnumerable<EntityDeclaration> EntitiesInType(TypeDeclaration containerType)
