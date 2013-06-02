@@ -590,7 +590,7 @@ abstract class TestClass
 	public void TestMethod ()
 	{
 		lock (locker) {
-			Action action = () =>  {
+			Action action = () => {
 				lock (locker) {
 				}
 			};

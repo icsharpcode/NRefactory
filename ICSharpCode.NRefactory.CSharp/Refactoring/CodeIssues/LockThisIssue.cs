@@ -99,6 +99,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				List<AstNode> linkNodes = new List<AstNode>();
 
 				foreach (var lockToModify in LocksInType(containerType)) {
+					if (lockToModify.Ancestors.OfType<BlockStatement>()
+					    .Any(ancestor => synchronizedStatements.Contains(ancestor))) {
+
+						//These will be modified separately
+						continue;
+					}
+
 					if (!IsThisReference (lockToModify.Expression)) {
 						continue;
 					}
