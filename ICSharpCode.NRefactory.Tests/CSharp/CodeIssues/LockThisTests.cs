@@ -44,7 +44,18 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1);
+			var output = @"
+class TestClass
+{
+	object locker = new object ();
+	void TestMethod ()
+	{
+		lock (locker) {
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
 		}
 
 		[Test]
@@ -62,7 +73,20 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1);
+			var output = @"
+class TestClass
+{
+	object locker = new object ();
+	int MyProperty {
+		get {
+			lock (locker) {
+				return 0;
+			}
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
 		}
 
 		[Test]
@@ -79,7 +103,19 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1);
+			var output = @"
+class TestClass
+{
+	object locker = new object ();
+	int MyProperty {
+		set {
+			lock (locker) {
+			}
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
 		}
 
 		[Test]
@@ -95,7 +131,18 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1);
+			var output = @"
+class TestClass
+{
+	object locker = new object ();
+	TestClass()
+	{
+		lock (locker) {
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
 		}
 
 		[Test]
@@ -114,7 +161,21 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1);
+			var output = @"
+class TestClass
+{
+	object locker = new object ();
+	TestClass()
+	{
+		Action lockThis = delegate ()
+		{
+			lock (locker) {
+			}
+		};
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
 		}
 
 		[Test]
@@ -133,7 +194,22 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1);
+			var output = @"
+class TestClass
+{
+	object locker = new object ();
+
+	TestClass()
+	{
+		Action lockThis = () =>
+		{
+			lock (locker) {
+			}
+		};
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
 		}
 
 		[Test]
@@ -149,7 +225,97 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1);
+			var output = @"
+class TestClass
+{
+	object locker = new object ();
+	void TestMethod ()
+	{
+		lock (locker) {
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
+		}
+
+		[Test]
+		public void TestFixMultipleLockThis ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		lock (this) {
+		}
+	}
+
+	void TestMethod2 ()
+	{
+		lock (this) {
+		}
+	}
+}";
+
+			var output = @"
+class TestClass
+{
+	object locker = new object ();
+	void TestMethod ()
+	{
+		lock (locker) {
+		}
+	}
+
+	void TestMethod2 ()
+	{
+		lock (locker) {
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 2, output);
+		}
+		[Test]
+		public void TestFixMixedLocks ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		lock (this) {
+		}
+	}
+
+	object locker2 = new object ();
+	void TestMethod2 ()
+	{
+		lock (locker2) {
+		}
+	}
+}";
+
+			var output = @"
+class TestClass
+{
+	object locker = new object ();
+	void TestMethod ()
+	{
+		lock (locker) {
+		}
+	}
+
+	object locker2 = new object ();
+	void TestMethod2 ()
+	{
+		lock (locker2) {
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
 		}
 
 		[Test]
@@ -158,7 +324,7 @@ class TestClass
 			var input = @"
 class TestClass
 {
-	object locker = new object();
+	object locker = new object ();
 
 	TestClass()
 	{

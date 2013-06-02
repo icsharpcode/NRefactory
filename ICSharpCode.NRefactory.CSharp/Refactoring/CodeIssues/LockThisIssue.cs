@@ -25,8 +25,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.Refactoring;
+using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -54,8 +56,50 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var expression = lockStatement.Expression;
 
 				if (IsThisReference(expression)) {
-					AddIssue(lockStatement, ctx.TranslateString("Found lock (this)"));
+					var fixAction = new CodeAction(ctx.TranslateString("Create private locker field"), script => {
+						var containerEntity = lockStatement.GetParent<EntityDeclaration>();
+						var containerType = containerEntity.GetParent<TypeDeclaration>();
+
+						var objectType = new PrimitiveType("object");
+
+						var lockerDefinition = new FieldDeclaration() { ReturnType = objectType.Clone() };
+						var lockerVariable = new VariableInitializer("locker",
+						                                             new ObjectCreateExpression(objectType.Clone()));
+						lockerDefinition.Variables.Add(lockerVariable);
+
+						script.InsertBefore(containerEntity, lockerDefinition);
+
+						FixLocks(script, containerType, lockerVariable);
+					}, lockStatement);
+
+					AddIssue(lockStatement, ctx.TranslateString("Found lock (this)"), fixAction);
 				}
+			}
+
+			static Task FixLocks(Script script, TypeDeclaration containerType, VariableInitializer lockerVariable)
+			{
+				List<AstNode> linkNodes = new List<AstNode>();
+				linkNodes.Add(lockerVariable.NameToken);
+
+				foreach (var lockToModify in LocksInType(containerType)) {
+					if (IsThisReference(lockToModify.Expression)) {
+						var identifier = new IdentifierExpression("locker");
+						script.Replace(lockToModify.Expression, identifier);
+
+						linkNodes.Add(identifier);
+					}
+				}
+
+				return script.Link(linkNodes.ToArray());
+			}
+
+			static IEnumerable<LockStatement> LocksInType(TypeDeclaration containerType)
+			{
+				return containerType.Descendants.OfType<LockStatement>().Where(lockStatement => {
+					var childContainerType = lockStatement.GetParent<TypeDeclaration>();
+
+					return childContainerType == containerType;
+				});
 			}
 
 			static bool IsThisReference (Expression expression)
