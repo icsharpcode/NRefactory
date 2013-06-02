@@ -58,16 +58,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (IsThisReference(expression)) {
 					var fixAction = new CodeAction(ctx.TranslateString("Create private locker field"), script => {
 						var containerEntity = lockStatement.GetParent<EntityDeclaration>();
+						if (containerEntity is Accessor) {
+							containerEntity = containerEntity.GetParent<EntityDeclaration>();
+						}
 						var containerType = containerEntity.GetParent<TypeDeclaration>();
 
 						var objectType = new PrimitiveType("object");
 
-						var lockerDefinition = new FieldDeclaration() { ReturnType = objectType.Clone() };
+						var lockerFieldDeclaration = new FieldDeclaration() { ReturnType = objectType.Clone() };
 						var lockerVariable = new VariableInitializer("locker",
 						                                             new ObjectCreateExpression(objectType.Clone()));
-						lockerDefinition.Variables.Add(lockerVariable);
+						lockerFieldDeclaration.Variables.Add(lockerVariable);
 
-						script.InsertBefore(containerEntity, lockerDefinition);
+						script.InsertBefore(containerEntity, lockerFieldDeclaration);
 
 						FixLocks(script, containerType, lockerVariable);
 					}, lockStatement);
@@ -76,14 +79,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			static Task FixLocks(Script script, TypeDeclaration containerType, VariableInitializer lockerVariable)
+			Task FixLocks(Script script, TypeDeclaration containerType, VariableInitializer lockerVariable)
 			{
 				List<AstNode> linkNodes = new List<AstNode>();
 				linkNodes.Add(lockerVariable.NameToken);
 
 				foreach (var lockToModify in LocksInType(containerType)) {
-					if (IsThisReference(lockToModify.Expression)) {
-						var identifier = new IdentifierExpression("locker");
+					if (IsThisReference (lockToModify.Expression)) {
+						var identifier = new IdentifierExpression ("locker");
 						script.Replace(lockToModify.Expression, identifier);
 
 						linkNodes.Add(identifier);

@@ -198,7 +198,6 @@ class TestClass
 class TestClass
 {
 	object locker = new object ();
-
 	TestClass()
 	{
 		Action lockThis = () =>
@@ -275,7 +274,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 2, output);
+			Test<LockThisIssue> (input, 2, output, 0);
 		}
 		[Test]
 		public void TestFixMixedLocks ()
@@ -334,6 +333,39 @@ class TestClass
 }";
 
 			Test<LockThisIssue> (input, 0);
+		}
+
+		[Test]
+		public void TestNestedTypeLock ()
+		{
+			var input = @"
+class TestClass
+{
+	class Nested
+	{
+		Nested()
+		{
+			lock (this) {
+			}
+		}
+	}
+}";
+
+			var output = @"
+class TestClass
+{
+	class Nested
+	{
+		object locker = new object ();
+		Nested()
+		{
+			lock (locker) {
+			}
+		}
+	}
+}";
+
+			Test<LockThisIssue>(input, 1, output);
 		}
 	}
 }
