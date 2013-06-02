@@ -99,26 +99,43 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				List<AstNode> linkNodes = new List<AstNode>();
 
 				foreach (var lockToModify in LocksInType(containerType)) {
-					if (IsThisReference (lockToModify.Expression)) {
-						var identifier = new IdentifierExpression ("locker");
-						script.Replace(lockToModify.Expression, identifier);
-
-						linkNodes.Add(identifier);
+					if (!IsThisReference (lockToModify.Expression)) {
+						continue;
 					}
+
+					var identifier = new IdentifierExpression ("locker");
+					script.Replace(lockToModify.Expression, identifier);
+
+					linkNodes.Add(identifier);
 				}
 
 				foreach (var synchronizedStatement in synchronizedStatements) {
-					var lockStatement = new LockStatement();
-					var identifier = new IdentifierExpression ("locker");
-					lockStatement.Expression = identifier;
-					lockStatement.EmbeddedStatement = synchronizedStatement.Clone();
+					var newBody = synchronizedStatement.Clone();
 
-					var newBlock = new BlockStatement();
-					newBlock.Statements.Add(lockStatement);
+					foreach (var childLock in newBody.Descendants.OfType<LockStatement>()) {
+						if (IsThisReference(childLock.Expression)) {
+							var identifier = new IdentifierExpression ("locker");
+							childLock.Expression.ReplaceWith(identifier);
 
-					script.Replace(synchronizedStatement, newBlock);
+							linkNodes.Add(identifier);
+						}
+					}
 
-					linkNodes.Add(identifier);
+					var outerLock = new LockStatement();
+					var outerLockIdentifier = new IdentifierExpression ("locker");
+					outerLock.Expression = outerLockIdentifier;
+					outerLock.EmbeddedStatement = newBody;
+
+					if (synchronizedStatement.Statements.Count > 0) {
+
+						linkNodes.Add(outerLockIdentifier);
+
+						script.InsertBefore(synchronizedStatement.Statements.First(), outerLock);
+
+						foreach (var stmt in synchronizedStatement.Statements) {
+							script.Remove(stmt);
+						}
+					}
 				}
 
 				if (linkNodes.Any()) {

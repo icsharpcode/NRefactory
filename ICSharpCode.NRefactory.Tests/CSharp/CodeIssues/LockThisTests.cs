@@ -378,6 +378,7 @@ class TestClass
 	[MethodImpl (MethodImplOptions.Synchronized)]
 	void TestMethod ()
 	{
+		System.Console.WriteLine (""Foo"");
 	}
 }";
 
@@ -389,6 +390,7 @@ class TestClass
 	void TestMethod ()
 	{
 		lock (locker) {
+			System.Console.WriteLine (""Foo"");
 		}
 	}
 }";
@@ -406,6 +408,7 @@ class TestClass
 	[MethodImpl (Value = MethodImplOptions.Synchronized)]
 	void TestMethod ()
 	{
+		System.Console.WriteLine (""Foo"");
 	}
 }";
 
@@ -417,6 +420,7 @@ class TestClass
 	void TestMethod ()
 	{
 		lock (locker) {
+			System.Console.WriteLine (""Foo"");
 		}
 	}
 }";
@@ -434,6 +438,7 @@ class TestClass
 	[MethodImpl (MethodImplOptions.Synchronized | MethodImplOptions.NoInlining)]
 	void TestMethod ()
 	{
+		System.Console.WriteLine (""Foo"");
 	}
 }";
 
@@ -446,6 +451,7 @@ class TestClass
 	void TestMethod ()
 	{
 		lock (locker) {
+			System.Console.WriteLine (""Foo"");
 		}
 	}
 }";
@@ -463,6 +469,7 @@ class TestClass
 	[MethodImpl (MethodImplOptions.NoInlining)]
 	void TestMethod ()
 	{
+		System.Console.WriteLine (""Foo"");
 	}
 }";
 
@@ -488,6 +495,110 @@ abstract class TestClass
 }";
 
 			Test<LockThisIssue> (input, 1, output);
+		}
+
+		[Test]
+		public void TestDoubleLocking ()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+abstract class TestClass
+{
+	[MethodImpl (MethodImplOptions.Synchronized)]
+	public void TestMethod ()
+	{
+		lock (this) {
+		}
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+abstract class TestClass
+{
+	object locker = new object ();
+	public void TestMethod ()
+	{
+		lock (locker) {
+			lock (locker) {
+			}
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 2, output, 0);
+		}
+
+		[Test]
+		public void TestDelegateLocking ()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+abstract class TestClass
+{
+	[MethodImpl (MethodImplOptions.Synchronized)]
+	public void TestMethod ()
+	{
+		Action action = delegate {
+			lock (this) {
+			}
+		};
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+abstract class TestClass
+{
+	object locker = new object ();
+	public void TestMethod ()
+	{
+		lock (locker) {
+			Action action = delegate {
+				lock (locker) {
+				}
+			};
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 2, output, 0);
+		}
+
+		[Test]
+		public void TestLambdaLocking ()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+abstract class TestClass
+{
+	[MethodImpl (MethodImplOptions.Synchronized)]
+	public void TestMethod ()
+	{
+		Action action = () => {
+			lock (this) {
+			}
+		};
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+abstract class TestClass
+{
+	object locker = new object ();
+	public void TestMethod ()
+	{
+		lock (locker) {
+			Action action = () =>  {
+				lock (locker) {
+				}
+			};
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 2, output, 0);
 		}
 	}
 }
