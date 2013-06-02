@@ -367,5 +367,106 @@ class TestClass
 
 			Test<LockThisIssue>(input, 1, output);
 		}
+
+		[Test]
+		public void TestMethodSynchronized ()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	[MethodImpl(MethodImplOptions.Synchronized)]
+	void TestMethod ()
+	{
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	object locker = new object ();
+	void TestMethod ()
+	{
+		lock (locker) {
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
+		}
+
+		[Test]
+		public void TestMethodWithSynchronizedValue ()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	[MethodImpl(Value = MethodImplOptions.Synchronized)]
+	void TestMethod ()
+	{
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	object locker = new object ();
+	void TestMethod ()
+	{
+		lock (locker) {
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
+		}
+
+		[Test]
+		public void TestMethodHasSynchronized ()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	[MethodImpl(MethodImplOptions.Synchronized | MethodImplOptions.NoInlining)]
+	void TestMethod ()
+	{
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	object locker = new object ();
+	[MethodImpl(MethodImplOptions.NoInlining)]
+	void TestMethod ()
+	{
+		lock (locker) {
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
+		}
+
+		[Test]
+		public void TestMethodNotSynchronized ()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	[MethodImpl(MethodImplOptions.NoInlining)]
+	void TestMethod ()
+	{
+	}
+}";
+
+			Test<LockThisIssue> (input, 0);
+		}
 	}
 }

@@ -29,6 +29,8 @@ using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.Refactoring;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -49,6 +51,25 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
+			public override void VisitAttribute(Attribute attribute)
+			{
+				base.VisitAttribute(attribute);
+
+				if (IsMethodSynchronizedAttribute(attribute)) {
+					var fixAction = new CodeAction(ctx.TranslateString("Create private locker field"), script => {
+						var containerEntity = attribute.GetParent<EntityDeclaration>();
+						if (containerEntity is Accessor) {
+							containerEntity = attribute.GetParent<EntityDeclaration>();
+						}
+						var containerType = containerEntity.GetParent<TypeDeclaration>();
+
+						FixLockThisIssue(script, containerEntity, containerType);
+					}, attribute);
+
+					AddIssue(attribute, ctx.TranslateString("Found [MethodImpl(MethodImplOptions.Synchronized)]"), fixAction);
+				}
+			}
+
 			public override void VisitLockStatement(LockStatement lockStatement)
 			{
 				base.VisitLockStatement(lockStatement);
@@ -63,23 +84,151 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 						var containerType = containerEntity.GetParent<TypeDeclaration>();
 
-						var objectType = new PrimitiveType("object");
+						FixLockThisIssue(script, containerEntity, containerType);
 
-						var lockerFieldDeclaration = new FieldDeclaration() { ReturnType = objectType.Clone() };
-						var lockerVariable = new VariableInitializer("locker",
-						                                             new ObjectCreateExpression(objectType.Clone()));
-						lockerFieldDeclaration.Variables.Add(lockerVariable);
-
-						script.InsertBefore(containerEntity, lockerFieldDeclaration);
-
-						FixLocks(script, containerType, lockerVariable);
 					}, lockStatement);
 
 					AddIssue(lockStatement, ctx.TranslateString("Found lock (this)"), fixAction);
 				}
 			}
 
-			Task FixLocks(Script script, TypeDeclaration containerType, VariableInitializer lockerVariable)
+			void FixLockThisIssue(Script script, AstNode containerEntity, TypeDeclaration containerType)
+			{
+				var objectType = new PrimitiveType("object");
+
+				var lockerFieldDeclaration = new FieldDeclaration() {
+					ReturnType = objectType.Clone()
+				};
+
+				var lockerVariable = new VariableInitializer("locker", new ObjectCreateExpression(objectType.Clone()));
+				lockerFieldDeclaration.Variables.Add(lockerVariable);
+				script.InsertBefore(containerEntity, lockerFieldDeclaration);
+
+				var synchronizedMethods = FixMethodsWithMethodImplAttribute(script, containerType);
+				FixLocks(script, containerType, lockerVariable, synchronizedMethods);
+			}
+
+			IEnumerable<Statement> FixMethodsWithMethodImplAttribute(Script script, TypeDeclaration containerType)
+			{
+				var bodies = new List<Statement>();
+
+				foreach (var entityDeclarationToModify in EntitiesInType(containerType)) {
+					var methodDeclaration = entityDeclarationToModify as MethodDeclaration;
+					var accessor = entityDeclarationToModify as Accessor;
+					if (methodDeclaration == null && accessor == null) {
+						continue;
+					}
+
+					if (entityDeclarationToModify.Modifiers.HasFlag(Modifiers.Abstract)) {
+						continue;
+					}
+
+					var attributes = entityDeclarationToModify.Attributes.SelectMany(attributeSection => attributeSection.Attributes);
+					var methodSynchronizedAttribute = attributes.FirstOrDefault(IsMethodSynchronizedAttribute);
+					if (methodSynchronizedAttribute != null) {
+						short methodImplValue = GetMethodImplValue(methodSynchronizedAttribute);
+						if (methodImplValue != 0) {
+							short newValue = (short)(methodImplValue & ~((short)MethodImplOptions.Synchronized));
+							InsertNewAttribute(script, methodSynchronizedAttribute, newValue);
+						} else {
+							var section = methodSynchronizedAttribute.GetParent<AttributeSection>();
+							if (section.Attributes.Count == 1) {
+								script.Remove(section);
+							} else {
+								script.Remove(methodSynchronizedAttribute);
+							}
+						}
+					
+						var body = methodDeclaration == null ? accessor.Body : methodDeclaration.Body;
+
+						bodies.Add(body);
+					}
+				}
+
+				return bodies;
+			}
+
+			void InsertNewAttribute(Script script, Attribute attribute, short newValue) {
+				var options = (MethodImplOptions[]) Enum.GetValues(typeof(MethodImplOptions));
+
+				var astBuilder = ctx.CreateTypeSytemAstBuilder(attribute);
+				var methodImplOptionsType = astBuilder.ConvertType(new FullTypeName(typeof(MethodImplOptions).FullName));
+
+				Expression expression = CreateMethodImplReferenceNode(options[0], methodImplOptionsType);
+				for (int optionIndex = 1; optionIndex < options.Length; ++optionIndex) {
+					expression = new BinaryOperatorExpression(expression,
+					                                          BinaryOperatorType.BitwiseOr,
+					                                          CreateMethodImplReferenceNode(options [optionIndex], methodImplOptionsType));
+				}
+
+				var newAttribute = new Attribute();
+				newAttribute.Type = attribute.Type.Clone();
+				newAttribute.Arguments.Add(expression);
+
+				script.Replace(attribute, newAttribute);
+			}
+
+			static MemberReferenceExpression CreateMethodImplReferenceNode(MethodImplOptions option, AstType methodImplOptionsType)
+			{
+				return new MemberReferenceExpression(new TypeReferenceExpression(methodImplOptionsType.Clone()), Enum.GetName(typeof(MethodImplOptions), option));
+			}
+
+			bool IsMethodSynchronizedAttribute(Attribute attribute)
+			{
+				var unresolvedType = attribute.Type;
+				var resolvedType = ctx.ResolveType(unresolvedType);
+
+				if (resolvedType.FullName != typeof(MethodImplAttribute).FullName) {
+					return false;
+				}
+
+				short methodImpl = GetMethodImplValue(attribute);
+
+				return (methodImpl & (short) MethodImplOptions.Synchronized) != 0;
+			}
+
+			short GetMethodImplValue(Attribute attribute)
+			{
+				short methodImpl = 0;
+				foreach (var argument in attribute.Arguments) {
+					var namedExpression = argument as NamedExpression;
+
+					if (namedExpression == null) {
+						short? implValue = GetMethodImplOptionsAsShort(argument);
+
+						if (implValue != null) {
+							methodImpl = (short)implValue;
+						}
+
+					} else if (namedExpression.Name == "Value") {
+						short? implValue = GetMethodImplOptionsAsShort(namedExpression.Expression);
+
+						if (implValue != null) {
+							methodImpl = (short)implValue;
+						}
+					}
+				}
+
+				return methodImpl;
+			}
+
+			short? GetMethodImplOptionsAsShort(Expression argument)
+			{
+				//Returns null if the value could not be guessed
+
+				var result = ctx.Resolve(argument);
+				if (!result.IsCompileTimeConstant) {
+					return null;
+				}
+
+				if (result.Type.FullName == typeof(MethodImplOptions).FullName) {
+					return (short)(MethodImplOptions)result.ConstantValue;
+				}
+
+				return null;
+			}
+
+			Task FixLocks(Script script, TypeDeclaration containerType, VariableInitializer lockerVariable, IEnumerable<Statement> synchronizedStatements)
 			{
 				List<AstNode> linkNodes = new List<AstNode>();
 				linkNodes.Add(lockerVariable.NameToken);
@@ -93,7 +242,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				}
 
+				foreach (var synchronizedStatement in synchronizedStatements) {
+					var lockStatement = new LockStatement();
+					var identifier = new IdentifierExpression ("locker");
+					lockStatement.Expression = identifier;
+					lockStatement.EmbeddedStatement = synchronizedStatement.Clone();
+
+					script.Replace(synchronizedStatement, lockStatement);
+
+					linkNodes.Add(identifier);
+				}
+
 				return script.Link(linkNodes.ToArray());
+			}
+
+			static IEnumerable<EntityDeclaration> EntitiesInType(TypeDeclaration containerType)
+			{
+				return containerType.Descendants.OfType<EntityDeclaration>().Where(entityDeclaration => {
+					var childContainerType = entityDeclaration.GetParent<TypeDeclaration>();
+
+					return childContainerType == containerType;
+				});
 			}
 
 			static IEnumerable<LockStatement> LocksInType(TypeDeclaration containerType)
