@@ -46,7 +46,11 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 		public ParamsAttribute(params object[] x) {}
 		
 		[Params(Property = new string[] { "a", "b" })]
-		public string[] Property { get; set; }
+		public string[] Property { 
+			[return: Params("Attribute on return type of getter")]
+			get { return null; }
+			set { }
+		}
 	}
 	
 	[Double(1)]

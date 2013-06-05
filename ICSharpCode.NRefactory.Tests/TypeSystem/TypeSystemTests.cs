@@ -875,6 +875,15 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		}
 		
 		[Test]
+		public void ParamsAttribute_Getter_ReturnType()
+		{
+			ITypeDefinition type = GetTypeDefinition(typeof(ParamsAttribute));
+			IProperty prop = type.Properties.Single(p => p.Name == "Property");
+			Assert.AreEqual(0, prop.Getter.Attributes.Count);
+			Assert.AreEqual(1, prop.Getter.ReturnTypeAttributes.Count);
+		}
+		
+		[Test]
 		public void DoubleAttribute_ImplicitNumericConversion()
 		{
 			ITypeDefinition type = GetTypeDefinition(typeof(DoubleAttribute));
