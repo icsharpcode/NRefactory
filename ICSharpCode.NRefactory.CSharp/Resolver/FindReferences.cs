@@ -230,7 +230,6 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					return new[] { GetSearchScopeForNamespace((INamespace)symbol) };
 				case SymbolKind.TypeParameter:
 					return new[] { GetSearchScopeForTypeParameter((ITypeParameter)symbol) };
-					// TODO: IVariable etc.
 			}
 			IEntity entity = symbol as IEntity;
 			if (entity == null)
