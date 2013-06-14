@@ -600,5 +600,77 @@ abstract class TestClass
 
 			Test<LockThisIssue> (input, 2, output, 0);
 		}
+
+		[Test]
+		public void TestStaticMethod()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	[MethodImpl (MethodImplOptions.Synchronized)]
+	public static void TestMethod ()
+	{
+		Console.WriteLine ();
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	static object locker = new object ();
+	public static void TestMethod ()
+	{
+		lock (locker) {
+			Console.WriteLine ();
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
+		}
+
+		[Test]
+		public void TestMixedStaticMethod()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	[MethodImpl (MethodImplOptions.Synchronized)]
+	public void TestMethod ()
+	{
+		Console.WriteLine ();
+	}
+
+	[MethodImpl (MethodImplOptions.Synchronized)]
+	public static void TestStaticMethod ()
+	{
+		Console.WriteLine ();
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	object locker = new object ();
+	public void TestMethod ()
+	{
+		lock (locker) {
+			Console.WriteLine ();
+		}
+	}
+
+	[MethodImpl (MethodImplOptions.Synchronized)]
+	public static void TestStaticMethod ()
+	{
+		Console.WriteLine ();
+	}
+}";
+
+			Test<LockThisIssue> (input, 2, output, 0);
+		}
 	}
 }

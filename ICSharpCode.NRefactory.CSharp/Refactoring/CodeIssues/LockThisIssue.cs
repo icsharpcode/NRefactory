@@ -57,10 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (IsMethodSynchronizedAttribute(attribute)) {
 					var fixAction = new CodeAction(ctx.TranslateString("Create private locker field"), script => {
-						var containerEntity = attribute.GetParent<EntityDeclaration>();
-						if (containerEntity is Accessor) {
-							containerEntity = attribute.GetParent<EntityDeclaration>();
-						}
+						var containerEntity = GetParentMethodOrProperty(attribute);
 						var containerType = containerEntity.GetParent<TypeDeclaration>();
 
 						FixLockThisIssue(script, containerEntity, containerType);
@@ -68,6 +65,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					AddIssue(attribute, ctx.TranslateString("Found [MethodImpl(MethodImplOptions.Synchronized)]"), fixAction);
 				}
+			}
+
+			static EntityDeclaration GetParentMethodOrProperty(AstNode node)
+			{
+				var containerEntity = node.GetParent<EntityDeclaration>();
+				if (containerEntity is Accessor) {
+					containerEntity = containerEntity.GetParent<EntityDeclaration>();
+				}
+
+				return containerEntity;
 			}
 
 			public override void VisitLockStatement(LockStatement lockStatement)
@@ -78,10 +85,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (IsThisReference(expression)) {
 					var fixAction = new CodeAction(ctx.TranslateString("Create private locker field"), script => {
-						var containerEntity = lockStatement.GetParent<EntityDeclaration>();
-						if (containerEntity is Accessor) {
-							containerEntity = containerEntity.GetParent<EntityDeclaration>();
-						}
+						var containerEntity = GetParentMethodOrProperty(lockStatement);
+
 						var containerType = containerEntity.GetParent<TypeDeclaration>();
 
 						FixLockThisIssue(script, containerEntity, containerType);
@@ -92,13 +97,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			void FixLockThisIssue(Script script, AstNode containerEntity, TypeDeclaration containerType)
+			static bool IsEntityStatic(EntityDeclaration containerEntity)
 			{
-				var synchronizedStatements = FixMethodsWithMethodImplAttribute(script, containerType);
+				return containerEntity.Modifiers.HasFlag(Modifiers.Static);
+			}
+
+			void FixLockThisIssue(Script script, EntityDeclaration containerEntity, TypeDeclaration containerType)
+			{
+				bool isStatic = IsEntityStatic(containerEntity);
+
+				var synchronizedStatements = FixMethodsWithMethodImplAttribute(script, containerType, isStatic);
 
 				List<AstNode> linkNodes = new List<AstNode>();
 
 				foreach (var lockToModify in LocksInType(containerType)) {
+					//Check if it is static
+					var lockEntity = GetParentMethodOrProperty(lockToModify);
+					if (IsEntityStatic(lockEntity) != isStatic) {
+						//These will require a separate lock field.
+						continue;
+					}
+
 					if (lockToModify.Ancestors.OfType<BlockStatement>()
 					    .Any(ancestor => synchronizedStatements.Contains(ancestor))) {
 
@@ -149,6 +168,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var objectType = new PrimitiveType("object");
 
 					var lockerFieldDeclaration = new FieldDeclaration() {
+						Modifiers = isStatic ? Modifiers.Static : Modifiers.None,
 						ReturnType = objectType.Clone()
 					};
 
@@ -162,7 +182,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			IEnumerable<BlockStatement> FixMethodsWithMethodImplAttribute(Script script, TypeDeclaration containerType)
+			IEnumerable<BlockStatement> FixMethodsWithMethodImplAttribute(Script script, TypeDeclaration containerType, bool isStatic)
 			{
 				var bodies = new List<BlockStatement>();
 
@@ -170,6 +190,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var methodDeclaration = entityDeclarationToModify as MethodDeclaration;
 					var accessor = entityDeclarationToModify as Accessor;
 					if (methodDeclaration == null && accessor == null) {
+						continue;
+					}
+
+					if ((methodDeclaration != null && IsEntityStatic(methodDeclaration) != isStatic) ||
+					    (accessor != null && IsEntityStatic(accessor.GetParent<EntityDeclaration>()) != isStatic)) {
+						//These will need a separate lock and therefore will not be changed.
 						continue;
 					}
 
