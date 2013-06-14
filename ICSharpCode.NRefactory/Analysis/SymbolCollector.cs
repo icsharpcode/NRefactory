@@ -118,36 +118,38 @@ namespace ICSharpCode.NRefactory.Analysis
 			case SymbolKind.Indexer:
 			case SymbolKind.Event:
 			case SymbolKind.Property:
-				return new ISymbol[] { m };
-
-			case SymbolKind.Method:
-				var method = (IMethod)m;
+			case SymbolKind.Method: {
+				var member = (IMember)m;
 				List<ISymbol> symbols = new List<ISymbol> ();
-				if (method.ImplementedInterfaceMembers.Count > 0) {
-					foreach (var m2 in method.ImplementedInterfaceMembers) {
+				if (member.ImplementedInterfaceMembers.Count > 0) {
+					foreach (var m2 in member.ImplementedInterfaceMembers) {
 						symbols.AddRange (GetRelatedSymbols (g, m2));
 					}
 				} else {
-					symbols.Add (method);
+					symbols.Add (member);
 				}
 
-				if (method.DeclaringType.Kind == TypeKind.Interface) {
-					foreach (var derivedType in g.GetNode (method.DeclaringTypeDefinition).DerivedTypes) {
-						var member = SearchMember (derivedType.TypeDefinition, method);
-						if (member != null)
-							symbols.Add (member);
+				if (member.DeclaringType.Kind == TypeKind.Interface) {
+					foreach (var derivedType in g.GetNode (member.DeclaringTypeDefinition).DerivedTypes) {
+						var mem = SearchMember (derivedType.TypeDefinition, member);
+						if (mem != null)
+							symbols.Add (mem);
 					}
 				}
 
 
 				if (IncludeOverloads) {
 					IncludeOverloads = false;
-					foreach (var m3 in CollectOverloads (g, method)) {
-						symbols.AddRange (GetRelatedSymbols (g, m3));
+					if (member is IMethod) {
+						foreach (var m3 in CollectOverloads (g, (IMethod)member)) {
+							symbols.AddRange (GetRelatedSymbols (g, m3));
+						}
+					} else if (member.SymbolKind == SymbolKind.Indexer) {
+						symbols.AddRange (member.DeclaringTypeDefinition.GetProperties (p => p.IsIndexer));
 					}
 				}
 				return MakeUnique (symbols);
-			
+			}
 			case SymbolKind.Namespace:
 				// TODO?
 				return new ISymbol[] { m };
