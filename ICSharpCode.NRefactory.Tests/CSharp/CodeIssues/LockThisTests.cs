@@ -632,6 +632,40 @@ class TestClass
 		}
 
 		[Test]
+		public void TestStaticProperty()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	public static int TestProperty
+	{
+		[MethodImpl (MethodImplOptions.Synchronized)]
+		set {
+			Console.WriteLine (value);
+		}
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	static object locker = new object ();
+	public static int TestProperty
+	{
+		set {
+			lock (locker) {
+				Console.WriteLine (value);
+			}
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
+		}
+
+		[Test]
 		public void TestMixedStaticMethod()
 		{
 			var input = @"
