@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 			
 			Assert.AreEqual(new Role[] {
 			                	Roles.NamespaceKeyword,
-			                	Roles.Identifier,
+			                	NamespaceDeclaration.NamespaceNameRole,
 			                	Roles.LBrace,
 			                	Roles.PreProcessorDirective,
 			                	Roles.Comment,
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 			
 			Assert.AreEqual(new Role[] {
 			                	Roles.NamespaceKeyword,
-			                	Roles.Identifier,
+			                	NamespaceDeclaration.NamespaceNameRole,
 			                	Roles.LBrace,
 			                	Roles.PreProcessorDirective,
 			                	Roles.Comment,

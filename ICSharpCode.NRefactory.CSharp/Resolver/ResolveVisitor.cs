@@ -582,12 +582,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					// For all but the last identifier:
 					UsingScope usingScope;
 					for (int i = 0; i < identifiers.Count - 1; i++) {
-						usingScope = new UsingScope(resolver.CurrentUsingScope.UnresolvedUsingScope, identifiers[i].Name);
+						usingScope = new UsingScope(resolver.CurrentUsingScope.UnresolvedUsingScope, identifiers[i]);
 						usingScope.Region = region;
 						PushUsingScope(usingScope);
 					}
 					// Last using scope:
-					usingScope = new UsingScope(resolver.CurrentUsingScope.UnresolvedUsingScope, identifiers.Last().Name);
+					usingScope = new UsingScope(resolver.CurrentUsingScope.UnresolvedUsingScope, identifiers.Last());
 					usingScope.Region = region;
 					var cv = new TypeSystemConvertVisitor(new CSharpUnresolvedFile(), usingScope);
 					ApplyVisitorToUsings(cv, namespaceDeclaration.Children);

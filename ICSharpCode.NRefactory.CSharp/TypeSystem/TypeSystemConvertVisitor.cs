@@ -170,8 +170,8 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 		{
 			DomRegion region = MakeRegion(namespaceDeclaration);
 			UsingScope previousUsingScope = usingScope;
-			foreach (Identifier ident in namespaceDeclaration.Identifiers) {
-				usingScope = new UsingScope(usingScope, ident.Name);
+			foreach (var ident in namespaceDeclaration.Identifiers) {
+				usingScope = new UsingScope(usingScope, ident);
 				usingScope.Region = region;
 			}
 			base.VisitNamespaceDeclaration(namespaceDeclaration);

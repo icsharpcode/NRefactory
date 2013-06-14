@@ -1459,7 +1459,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			StartNode(namespaceDeclaration);
 			WriteKeyword(Roles.NamespaceKeyword);
-			WriteQualifiedIdentifier(namespaceDeclaration.Identifiers);
+			namespaceDeclaration.NamespaceName.AcceptVisitor (this);
 			OpenBrace(policy.NamespaceBraceStyle);
 			foreach (var member in namespaceDeclaration.Members) {
 				member.AcceptVisitor(this);

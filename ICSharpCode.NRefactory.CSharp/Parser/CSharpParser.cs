@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						if (loc != null) {
 							nDecl.AddChild(new CSharpTokenNode (Convert(loc [0]), Roles.NamespaceKeyword), Roles.NamespaceKeyword);
 						}
-						ConvertNamespaceName(nspace.RealMemberName, nDecl);
+						nDecl.AddChild (ConvertNamespaceName(nspace.RealMemberName), NamespaceDeclaration.NamespaceNameRole);
 						if (loc != null && loc.Count > 1) {
 							nDecl.AddChild(new CSharpTokenNode (Convert(loc [1]), Roles.LBrace), Roles.LBrace);
 						}
@@ -380,10 +380,11 @@ namespace ICSharpCode.NRefactory.CSharp
 					if (loc != null) {
 						nDecl.AddChild(new CSharpTokenNode (Convert(loc [0]), Roles.NamespaceKeyword), Roles.NamespaceKeyword);
 					}
-					ConvertNamespaceName(nspace.RealMemberName, nDecl);
+					nDecl.AddChild (ConvertNamespaceName(nspace.RealMemberName), NamespaceDeclaration.NamespaceNameRole);
 					if (loc != null && loc.Count > 1) {
 						nDecl.AddChild(new CSharpTokenNode (Convert(loc [1]), Roles.LBrace), Roles.LBrace);
 					}
+
 					AddToNamespace(nDecl);
 					namespaceStack.Push(nDecl);
 				}
@@ -419,24 +420,12 @@ namespace ICSharpCode.NRefactory.CSharp
 //
 //			}
 //
-			void ConvertNamespaceName (MemberName memberName, NamespaceDeclaration namespaceDecl)
+			AstType ConvertNamespaceName (MemberName memberName)
 			{
-				AstNode insertPos = null;
-				while (memberName != null) {
-					Identifier newIdent = Identifier.Create (memberName.Name, Convert (memberName.Location));
-					// HACK for a parser 'bug' - sometimes it generates "<invalid>" identifiers in namespace names (on certain bugs in the input file)
-					if (newIdent.Name != "<invalid>") {
-						namespaceDecl.InsertChildBefore (insertPos, newIdent, Roles.Identifier);
-						insertPos = newIdent;
-						var loc = LocationsBag.GetLocations (memberName);
-						if (loc != null) {
-							var dotToken = new CSharpTokenNode (Convert (loc[0]), Roles.Dot);
-							namespaceDecl.InsertChildBefore (insertPos, dotToken, Roles.Dot);
-							insertPos = dotToken;
-						}
-					}
-					memberName = memberName.Left;
-				}
+				// HACK for a parser 'bug' - sometimes it generates "<invalid>" identifiers in namespace names (on certain bugs in the input file)
+				if (memberName.Name == "<invalid>")
+					return AstType.Null;
+				return ConvertToType(memberName);
 			}
 			
 			public override void Visit (UsingNamespace un)

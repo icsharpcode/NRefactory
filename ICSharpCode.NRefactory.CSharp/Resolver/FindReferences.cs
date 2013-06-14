@@ -1487,12 +1487,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					return true;
 
 				var st = node as SimpleType;
-				if (st != null && st.Identifier == ns.Name)
-					return true;
+				if (st != null && st.Identifier == ns.Name) 
+					return !st.AncestorsAndSelf.TakeWhile (n => n is AstType).Any (m => m.Role == NamespaceDeclaration.NamespaceNameRole);
 
 				var mt = node as MemberType;
 				if (mt != null && mt.MemberName == ns.Name)
-					return true;
+					return !mt.AncestorsAndSelf.TakeWhile (n => n is AstType).Any (m => m.Role == NamespaceDeclaration.NamespaceNameRole);
 
 				var identifer = node as IdentifierExpression;
 				if (identifer != null && identifer.Identifier == ns.Name)

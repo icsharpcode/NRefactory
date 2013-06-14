@@ -240,6 +240,13 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				return null;
 			}
 			if (expr.Node is AstType) {
+
+				// check for namespace names
+				if (expr.Node.AncestorsAndSelf
+				    .TakeWhile (n => n is AstType)
+				    .Any (m => m.Role == NamespaceDeclaration.NamespaceNameRole))
+					return null;
+
 				// need to look at paren.parent because of "catch (<Type>.A" expression
 				if (expr.Node.Parent != null && expr.Node.Parent.Parent is CatchClause)
 					return HandleCatchClauseType(expr);
@@ -1229,7 +1236,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			// namespace name case
 			var ns = node as NamespaceDeclaration;
 			if (ns != null) {
-				var last = ns.Identifiers.LastOrDefault ();
+				var last = ns.NamespaceName;
 				if (last != null && location < last.EndLocation)
 					return null;
 			}

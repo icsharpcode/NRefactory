@@ -192,9 +192,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
 			{
 				base.VisitNamespaceDeclaration(namespaceDeclaration);
-				foreach (var id in namespaceDeclaration.Identifiers) {
-					CheckNamedResolveResult(null, namespaceDeclaration, AffectedEntity.Namespace, id, Modifiers.None);
+				var type = namespaceDeclaration.NamespaceName;
+				while (type is MemberType) {
+					var mt = (MemberType)type;
+					CheckNamedResolveResult(null, namespaceDeclaration, AffectedEntity.Namespace, mt.MemberNameToken, Modifiers.None);
+					type = mt.Target;
 				}
+				if (type is SimpleType)
+					CheckNamedResolveResult(null, namespaceDeclaration, AffectedEntity.Namespace, ((SimpleType)type).IdentifierToken, Modifiers.None);
 			}
 
 			Modifiers GetAccessibiltiy(EntityDeclaration decl, Modifiers defaultModifier)
