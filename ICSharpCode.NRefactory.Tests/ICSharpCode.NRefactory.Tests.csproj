@@ -418,6 +418,7 @@
     <Compile Include="CSharp\CodeIssues\UseBlockInsteadColonIssueTests.cs" />
     <Compile Include="CSharp\AstTests.cs" />
     <Compile Include="Analysis\SymbolCollectorTests.cs" />
+    <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
