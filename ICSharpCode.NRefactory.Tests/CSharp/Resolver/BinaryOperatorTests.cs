@@ -702,7 +702,7 @@ class Test {
 			Assert.IsFalse(irr.IsError);
 			Assert.IsTrue(irr.IsLiftedOperator);
 		}
-
+		
 		[Test]
 		public void IsLiftedProperty2()
 		{
@@ -717,5 +717,33 @@ class Test {
 			Assert.IsFalse(irr.IsError);
 			Assert.IsTrue(irr.IsLiftedOperator);
 		}
+
+		[Ignore("Resolver bug. Fixme!")]
+		[Test]
+		public void TestLiftedOperatorBug()
+		{
+			string program = @"
+using System;
+
+struct C<T>
+{
+	public static C<T> operator+(C<T> u, C<T> u2)
+	{
+		return u;
+	}
+
+	public C ()
+	{
+		int? foo = 4;
+		var a = $new C<int> () + foo$;
+	}
+}";
+			var irr = Resolve<OperatorResolveResult>(program);
+			Assert.IsFalse(irr.IsError);
+			Assert.IsTrue(irr.IsLiftedOperator);
+		}
+
+
+
 	}
 }
