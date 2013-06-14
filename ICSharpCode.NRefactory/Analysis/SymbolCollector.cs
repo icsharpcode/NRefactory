@@ -85,7 +85,6 @@ namespace ICSharpCode.NRefactory.Analysis
 		/// <returns>The related symbols.</returns>
 		/// <param name="g">The type graph.</param>
 		/// <param name="m">The symbol to search</param>
-		/// <param name="includeOverloads">If set to <c>true</c> overloads are included in the rename.</param>
 		public IEnumerable<ISymbol> GetRelatedSymbols(TypeGraph g, ISymbol m)
 		{
 			switch (m.SymbolKind) {

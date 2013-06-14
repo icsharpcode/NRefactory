@@ -1073,6 +1073,24 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		}
 		
 		/// <summary>
+		/// Gets whether a <paramref name="method"/> is compatible with a delegate type.
+		/// §15.2 Delegate compatibility
+		/// </summary>
+		/// <param name="method">The method to test for compatibility</param>
+		/// <param name="delegateType">The delegate type</param>
+		public bool IsDelegateCompatible(IMethod method, IType delegateType)
+		{
+			if (method == null)
+				throw new ArgumentNullException("method");
+			if (delegateType == null)
+				throw new ArgumentNullException("delegateType");
+			IMethod invoke = delegateType.GetDelegateInvokeMethod();
+			if (invoke == null)
+				return false;
+			return IsDelegateCompatible(method, invoke, false);
+		}
+		
+		/// <summary>
 		/// Gets whether a method <paramref name="m"/> is compatible with a delegate type.
 		/// §15.2 Delegate compatibility
 		/// </summary>
