@@ -1,10 +1,12 @@
+using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ExpressionOfCompatibleTypeCastIssueTests : InspectionActionTestBase
+	public class CS0029InvalidConversionIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestConversion()
@@ -29,8 +31,33 @@ enum Enum{ };
 		x = (int)i;
 	}
 }";
-			Test<ExpressionOfCompatibleTypeCastIssue>(input, output);
+			Test<CS0029InvalidConversionIssue>(input, output);
 		}
+		
+		[Test]
+		public void TestConversionInInitializer()
+		{
+			var input = @"
+class TestClass
+{
+enum Enum{ };
+	void TestMethod (Enum i)
+	{
+		int x = i;
+	}
+}";
+			var output = @"
+class TestClass
+{
+enum Enum{ };
+	void TestMethod (Enum i)
+	{
+		int x = (int)i;
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, output);
+		}
+		
 		[Test]
 		public void TestClassConversion()
 		{
@@ -45,7 +72,7 @@ class TestClass
 		x = i;
 	}
 }";
-			Test<ExpressionOfCompatibleTypeCastIssue>(input, 0);
+			Test<CS0029InvalidConversionIssue>(input, 0);
 		}
 
 		[Test]
@@ -70,7 +97,7 @@ class Foo
 	}
 }";
 
-			Test<ExpressionOfCompatibleTypeCastIssue>(input, output);
+			Test<CS0029InvalidConversionIssue>(input, output);
 		}
 
 		[Test]
@@ -96,7 +123,7 @@ class Foo
 		val = (int)e;
 	}
 }";
-			Test<ExpressionOfCompatibleTypeCastIssue>(input, output);
+			Test<CS0029InvalidConversionIssue>(input, output);
 		}
 
 		[Test]
@@ -112,7 +139,7 @@ class TestClass
 		$x = i;
 	}
 }";
-			Test<ExpressionOfCompatibleTypeCastIssue>(input, 0);
+			Test<CS0029InvalidConversionIssue>(input, 0);
 		}
 		
 		[Test]
@@ -133,7 +160,7 @@ class TestClass
 		$p += new Vector();
 	}
 }";
-			Test<ExpressionOfCompatibleTypeCastIssue>(input, 0);
+			Test<CS0029InvalidConversionIssue>(input, 0);
 		}
 
 		[Test]
@@ -156,7 +183,59 @@ class TestClass
 		p = new Vector ();
 	}
 }";
-			Test<ExpressionOfCompatibleTypeCastIssue>(input, 0);
+			Test<CS0029InvalidConversionIssue>(input, 0);
+		}
+		
+		[Test]
+		public void TestAssignZeroToEnum()
+		{
+			var input = @"using System;
+class TestClass
+{
+	void TestMethod ()
+	{
+		StringComparison c = 0;
+		c = 0;
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, 0);
+		}
+		
+		[Test]
+		public void AssignCustomClassToString()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		string x = this;
+	}
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+			Assert.IsFalse(issues[0].Actions.Any());
+		}
+
+		/// <summary>
+		/// Bug 12490 - Cast warnings with literals 
+		/// </summary>
+		[Test]
+		public void TestBug12490()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		uint t;
+		t = 6;
+	}
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
 		}
 	}
 }

@@ -36,7 +36,8 @@ namespace ICSharpCode.NRefactory.CSharp
 	public class NamespaceDeclaration : AstNode
 	{
 		public static readonly Role<AstNode> MemberRole = SyntaxTree.MemberRole;
-		
+		public static readonly Role<AstType> NamespaceNameRole = new Role<AstType> ("NamespaceName");
+
 		public override NodeType NodeType {
 			get {
 				return NodeType.Unknown;
@@ -46,26 +47,21 @@ namespace ICSharpCode.NRefactory.CSharp
 		public CSharpTokenNode NamespaceToken {
 			get { return GetChildByRole (Roles.NamespaceKeyword); }
 		}
-		
+
+		public AstType NamespaceName {
+			get { return GetChildByRole (NamespaceNameRole) ?? AstType.Null; }
+			set { SetChildByRole(NamespaceNameRole, value); }
+		}
+
 		public string Name {
 			get {
-				StringBuilder builder = new StringBuilder ();
-				foreach (Identifier identifier in GetChildrenByRole (Roles.Identifier)) {
-					if (builder.Length > 0)
-						builder.Append ('.');
-					builder.Append (identifier.Name);
-				}
-				return builder.ToString ();
+				return NamespaceName.ToString ();
 			}
 			set {
-				GetChildrenByRole(Roles.Identifier).ReplaceWith(value.Split('.').Select(ident => Identifier.Create (ident)));
+
 			}
 		}
-		
-		public AstNodeCollection<Identifier> Identifiers {
-			get { return GetChildrenByRole (Roles.Identifier); }
-		}
-		
+
 		/// <summary>
 		/// Gets the full namespace name (including any parent namespaces)
 		/// </summary>
@@ -75,6 +71,21 @@ namespace ICSharpCode.NRefactory.CSharp
 				if (parentNamespace != null)
 					return BuildQualifiedName (parentNamespace.FullName, Name);
 				return Name;
+			}
+		}
+
+		public IEnumerable<string> Identifiers {
+			get {
+				var result = new Stack<string>();
+				AstType type = NamespaceName;
+				while (type is MemberType) {
+					var mt = (MemberType)type;
+					result.Push(mt.MemberName);
+					type = mt.Target;
+				}
+				if (type is SimpleType)
+					result.Push(((SimpleType)type).Identifier);
+				return result;
 			}
 		}
 		

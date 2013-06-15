@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						if (loc != null) {
 							nDecl.AddChild(new CSharpTokenNode (Convert(loc [0]), Roles.NamespaceKeyword), Roles.NamespaceKeyword);
 						}
-						ConvertNamespaceName(nspace.RealMemberName, nDecl);
+						nDecl.AddChild (ConvertNamespaceName(nspace.RealMemberName), NamespaceDeclaration.NamespaceNameRole);
 						if (loc != null && loc.Count > 1) {
 							nDecl.AddChild(new CSharpTokenNode (Convert(loc [1]), Roles.LBrace), Roles.LBrace);
 						}
@@ -380,10 +380,11 @@ namespace ICSharpCode.NRefactory.CSharp
 					if (loc != null) {
 						nDecl.AddChild(new CSharpTokenNode (Convert(loc [0]), Roles.NamespaceKeyword), Roles.NamespaceKeyword);
 					}
-					ConvertNamespaceName(nspace.RealMemberName, nDecl);
+					nDecl.AddChild (ConvertNamespaceName(nspace.RealMemberName), NamespaceDeclaration.NamespaceNameRole);
 					if (loc != null && loc.Count > 1) {
 						nDecl.AddChild(new CSharpTokenNode (Convert(loc [1]), Roles.LBrace), Roles.LBrace);
 					}
+
 					AddToNamespace(nDecl);
 					namespaceStack.Push(nDecl);
 				}
@@ -419,24 +420,12 @@ namespace ICSharpCode.NRefactory.CSharp
 //
 //			}
 //
-			void ConvertNamespaceName (MemberName memberName, NamespaceDeclaration namespaceDecl)
+			AstType ConvertNamespaceName (MemberName memberName)
 			{
-				AstNode insertPos = null;
-				while (memberName != null) {
-					Identifier newIdent = Identifier.Create (memberName.Name, Convert (memberName.Location));
-					// HACK for a parser 'bug' - sometimes it generates "<invalid>" identifiers in namespace names (on certain bugs in the input file)
-					if (newIdent.Name != "<invalid>") {
-						namespaceDecl.InsertChildBefore (insertPos, newIdent, Roles.Identifier);
-						insertPos = newIdent;
-						var loc = LocationsBag.GetLocations (memberName);
-						if (loc != null) {
-							var dotToken = new CSharpTokenNode (Convert (loc[0]), Roles.Dot);
-							namespaceDecl.InsertChildBefore (insertPos, dotToken, Roles.Dot);
-							insertPos = dotToken;
-						}
-					}
-					memberName = memberName.Left;
-				}
+				// HACK for a parser 'bug' - sometimes it generates "<invalid>" identifiers in namespace names (on certain bugs in the input file)
+				if (memberName.Name == "<invalid>")
+					return AstType.Null;
+				return ConvertToType(memberName);
 			}
 			
 			public override void Visit (UsingNamespace un)
@@ -1466,11 +1455,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				return result;
 			}
 			
-			public override object Visit (Mono.CSharp.EmptyExpression emptyExpression)
-			{
-				return new ICSharpCode.NRefactory.CSharp.EmptyExpression (Convert (emptyExpression.Location));
-			}
-			
 			public override object Visit (Mono.CSharp.ErrorExpression emptyExpression)
 			{
 				return new ICSharpCode.NRefactory.CSharp.ErrorExpression (Convert (emptyExpression.Location));
@@ -1478,7 +1462,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			
 			public override object Visit (EmptyExpressionStatement emptyExpressionStatement)
 			{
-				return new EmptyExpression (Convert (emptyExpressionStatement.Location));
+				// Should never happen.
+				throw new NotSupportedException();
 			}
 			
 			public override object Visit (If ifStatement)
@@ -2703,7 +2688,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						direction.AddChild ((Expression)arg.Expr.Accept (this), Roles.Expression);
 						newArg.AddChild (direction, Roles.Expression);
 					} else {
-						newArg.AddChild ((Expression)na.Expr.Accept (this), Roles.Expression);
+						newArg.AddChild (na.Expr != null ? (Expression)na.Expr.Accept (this) : new ErrorExpression ("Named argument expression parse error"), Roles.Expression);
 					}
 					return newArg;
 				}
@@ -3573,7 +3558,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				DocumentationReference result = new DocumentationReference();
 				if (doc.ParsedName != null) {
 					if (doc.ParsedName.Name == "<this>") {
-						result.EntityType = EntityType.Indexer;
+						result.SymbolKind = SymbolKind.Indexer;
 					} else {
 						result.MemberName = doc.ParsedName.Name;
 					}
@@ -3588,7 +3573,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						}
 					}
 				} else if (doc.ParsedBuiltinType != null) {
-					result.EntityType = EntityType.TypeDefinition;
+					result.SymbolKind = SymbolKind.TypeDefinition;
 					result.DeclaringType = ConvertToType(doc.ParsedBuiltinType);
 				}
 				if (doc.ParsedParameters != null) {
@@ -3596,7 +3581,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					result.Parameters.AddRange(doc.ParsedParameters.Select(ConvertXmlDocParameter));
 				}
 				if (doc.ParsedOperator != null) {
-					result.EntityType = EntityType.Operator;
+					result.SymbolKind = SymbolKind.Operator;
 					result.OperatorType = (OperatorType)doc.ParsedOperator;
 					if (result.OperatorType == OperatorType.Implicit || result.OperatorType == OperatorType.Explicit) {
 						var returnTypeParam = result.Parameters.LastOrNullObject();

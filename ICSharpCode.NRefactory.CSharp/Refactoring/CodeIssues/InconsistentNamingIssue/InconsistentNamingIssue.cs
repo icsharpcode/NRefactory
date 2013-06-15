@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				
 				if (resolveResult is MemberResolveResult) {
 					var member = ((MemberResolveResult)resolveResult).Member;
-					if (member.EntityType == EntityType.Method && member.Attributes.Any(attr => attr.AttributeType.FullName == "NUnit.Framework.TestAttribute")) {
+					if (member.SymbolKind == SymbolKind.Method && member.Attributes.Any(attr => attr.AttributeType.FullName == "NUnit.Framework.TestAttribute")) {
 						if (CheckNamedResolveResult(resolveResult, node, AffectedEntity.TestMethod, identifier, accessibilty)) {
 							return;
 						}
@@ -147,11 +147,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							if (resolveResult is MemberResolveResult) {
 								script.Rename(((MemberResolveResult)resolveResult).Member, n);
 							} else if (resolveResult is TypeResolveResult) {
-								var def = ((TypeResolveResult)resolveResult).Type.GetDefinition();
+								var def = resolveResult.Type.GetDefinition();
 								if (def != null) {
 									script.Rename(def, n);
-								} else {
-									script.RenameTypeParameter(((TypeResolveResult)resolveResult).Type, n);
+								} else if (resolveResult.Type.Kind == TypeKind.TypeParameter) {
+									script.Rename((ITypeParameter)resolveResult.Type, n);
 								}
 							} else if (resolveResult is LocalResolveResult) {
 								script.Rename(((LocalResolveResult)resolveResult).Variable, n);
@@ -169,11 +169,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								if (resolveResult is MemberResolveResult) {
 									script.Rename(((MemberResolveResult)resolveResult).Member);
 								} else if (resolveResult is TypeResolveResult) {
-									var def = ((TypeResolveResult)resolveResult).Type.GetDefinition();
+									var def = resolveResult.Type.GetDefinition();
 									if (def != null) {
 										script.Rename(def);
-									} else {
-										script.RenameTypeParameter(((TypeResolveResult)resolveResult).Type);
+									} else if (resolveResult.Type.Kind == TypeKind.TypeParameter) {
+										script.Rename((ITypeParameter)resolveResult.Type);
 									}
 								} else if (resolveResult is LocalResolveResult) {
 									script.Rename(((LocalResolveResult)resolveResult).Variable);
@@ -192,9 +192,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
 			{
 				base.VisitNamespaceDeclaration(namespaceDeclaration);
-				foreach (var id in namespaceDeclaration.Identifiers) {
-					CheckNamedResolveResult(null, namespaceDeclaration, AffectedEntity.Namespace, id, Modifiers.None);
+				var type = namespaceDeclaration.NamespaceName;
+				while (type is MemberType) {
+					var mt = (MemberType)type;
+					CheckNamedResolveResult(null, namespaceDeclaration, AffectedEntity.Namespace, mt.MemberNameToken, Modifiers.None);
+					type = mt.Target;
 				}
+				if (type is SimpleType)
+					CheckNamedResolveResult(null, namespaceDeclaration, AffectedEntity.Namespace, ((SimpleType)type).IdentifierToken, Modifiers.None);
 			}
 
 			Modifiers GetAccessibiltiy(EntityDeclaration decl, Modifiers defaultModifier)
