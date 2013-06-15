@@ -237,5 +237,177 @@ class TestClass
 			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
+		
+		[Test]
+		public void TestReturnInMethod()
+		{
+			var input = @"
+class TestClass
+{
+	enum Enum{ };
+	int TestMethod (Enum i)
+	{
+		return i;
+	}
+}";
+			var output = @"
+class TestClass
+{
+	enum Enum{ };
+	int TestMethod (Enum i)
+	{
+		return (int)i;
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, output);
+		}
+
+		
+		[Test]
+		public void TestReturnInAnonymousMethod()
+		{
+			var input = @"using System;
+
+class TestClass
+{
+	enum Enum{ };
+	void TestMethod (Enum i)
+	{
+		Func<int> foo = delegate {
+			return i;
+		};
+	}
+}";
+			var output = @"using System;
+
+class TestClass
+{
+	enum Enum{ };
+	void TestMethod (Enum i)
+	{
+		Func<int> foo = delegate {
+			return (int)i;
+		};
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, output);
+		}
+
+
+		[Test]
+		public void TestReturnInProperty()
+		{
+			var input = @"
+class TestClass
+{
+	enum Enum{ A };
+	int Test {
+		get {
+			return Enum.A;
+		}
+	}
+}";
+			var output = @"
+class TestClass
+{
+	enum Enum{ A };
+	int Test {
+		get {
+			return (int)Enum.A;
+		}
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, output);
+		}
+
+		[Test]
+		public void TestCall()
+		{
+			var input = @"
+class TestClass
+{
+	enum Enum{ };
+	void Foo(string s, int i) {}
+	void TestMethod (Enum i)
+	{
+		Foo (""Bar"", i);
+	}
+}";
+			var output = @"
+class TestClass
+{
+	enum Enum{ };
+	void Foo(string s, int i) {}
+	void TestMethod (Enum i)
+	{
+		Foo (""Bar"", (int)i);
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, output);
+		}
+
+
+		[Test]
+		public void TestCallWithOverloads()
+		{
+			var input = @"
+class TestClass
+{
+	enum Enum{ };
+	void Foo(string s, object o) {}
+	void Foo(string s, int i) {}
+	void TestMethod (Enum i)
+	{
+		Foo (""Bar"", i);
+	}
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
+		}
+
+		[Test]
+		public void TestCallWithOverloads2()
+		{
+			var input = @"
+class TestClass
+{
+	enum Enum{ };
+	void Foo(string s, string o) {}
+	void Foo(string s, int i) {}
+	void TestMethod (Enum i)
+	{
+		Foo (""Bar"", i);
+	}
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+		}
+
+		[Test]
+		public void TestArrayInitializer()
+		{
+			var input = @"
+class TestClass
+{
+	enum Enum{ A }
+	public static void Main (string[] args)
+	{
+		System.Console.WriteLine (new int[] { Enum.A });
+	}
+}";
+			var output = @"
+class TestClass
+{
+	enum Enum{ A }
+	public static void Main (string[] args)
+	{
+		System.Console.WriteLine (new int[] { (int)Enum.A });
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, output);
+		}
+
 	}
 }
