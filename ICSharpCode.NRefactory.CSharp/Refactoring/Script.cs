@@ -197,7 +197,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				endOffset = GetCurrentOffset(entity.ModifierTokens.Last ().GetNextSibling (s => s.Role != Roles.NewLine && s.Role != Roles.Whitespace).StartLocation);
 			} else {
 				var child = entity.FirstChild;
-				while (child.Role == Roles.Comment || child.Role == Roles.NewLine || child.Role == Roles.Whitespace || child.Role == Roles.Attribute)
+				while (child.NodeType == NodeType.Whitespace || child.Role == Roles.Attribute)
 					child = child.NextSibling;
 				offset = endOffset = GetCurrentOffset(entity.StartLocation);
 			}
@@ -210,7 +210,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			Replace(offset, endOffset - offset, sb.ToString());
 		}
-		
+
+
+		/// <summary>
+		/// Adds an attribute section to a given entity.
+		/// </summary>
+		/// <param name="entity">The entity to add the attribute to.</param>
+		/// <param name="Attribute">The attribute to add.</param>
+		public void AddAttribute(EntityDeclaration entity, AttributeSection attr)
+		{
+			var node = entity.FirstChild;
+			while (node.NodeType == NodeType.Whitespace || node.Role == Roles.Attribute) {
+				node = node.NextSibling;
+			}
+			InsertBefore(node, attr);
+		}
+
+
 		public virtual Task Link (params AstNode[] nodes)
 		{
 			// Default implementation: do nothing
