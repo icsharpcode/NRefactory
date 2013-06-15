@@ -29,6 +29,8 @@ using System.IO;
 using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading.Tasks;
+using System.Linq;
+using System.Text;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -175,6 +177,38 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			InsertText(startOffset, output.Text);
 			output.RegisterTrackedSegments(this, startOffset);
 			CorrectFormatting (null, newNode);
+		}
+
+		/// <summary>
+		/// Changes the modifier of a given entity declaration.
+		/// </summary>
+		/// <param name="entity">The entity.</param>
+		/// <param name="modifiers">The new modifiers.</param>
+		public void ChangeModifier(EntityDeclaration entity, Modifiers modifiers)
+		{
+			var dummyEntity = new MethodDeclaration ();
+			dummyEntity.Modifiers = modifiers;
+
+			int offset;
+			int endOffset;
+
+			if (entity.ModifierTokens.Any ()) {
+				offset = GetCurrentOffset(entity.ModifierTokens.First ().StartLocation);
+				endOffset = GetCurrentOffset(entity.ModifierTokens.Last ().GetNextSibling (s => s.Role != Roles.NewLine && s.Role != Roles.Whitespace).StartLocation);
+			} else {
+				var child = entity.FirstChild;
+				while (child.Role == Roles.Comment || child.Role == Roles.NewLine || child.Role == Roles.Whitespace || child.Role == Roles.Attribute)
+					child = child.NextSibling;
+				offset = endOffset = GetCurrentOffset(entity.StartLocation);
+			}
+
+			var sb = new StringBuilder();
+			foreach (var modifier in dummyEntity.ModifierTokens) {
+				sb.Append(modifier.ToString());
+				sb.Append(' ');
+			}
+
+			Replace(offset, endOffset - offset, sb.ToString());
 		}
 		
 		public virtual Task Link (params AstNode[] nodes)
