@@ -707,6 +707,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 							yield return attr;
 					}
 				}
+				yield break;
 			}
 			IMember member = entity as IMember;
 			if (member != null) {
@@ -722,6 +723,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 							yield return attr;
 					}
 				} while (member.IsOverride && (member = InheritanceHelper.GetBaseMember(member)) != null);
+				yield break;
 			}
 			throw new NotSupportedException("Unknown entity type");
 		}

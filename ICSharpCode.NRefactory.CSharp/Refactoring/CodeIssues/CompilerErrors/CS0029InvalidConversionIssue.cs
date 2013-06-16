@@ -1,10 +1,10 @@
 // 
-// ExpressionOfCompatibleTypeCastIssue.cs
+// CS0029InvalidConversionIssue.cs
 // 
 // Author:
-//      Ciprian Khlud <ciprian.mustiata@yahoo.com>
+//      Daniel Grunwald <daniel@danielgrunwald.de>
 // 
-// Copyright (c) 2013 Ciprian Khlud <ciprian.mustiata@yahoo.com>
+// Copyright (c) 2013 Daniel Grunwald <daniel@danielgrunwald.de>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				
 				var foundConversion = conversion.ExplicitConversion(rr, variableType);
 				
-				var builder = ctx.CreateTypeSytemAstBuilder(expression);
+				var builder = ctx.CreateTypeSystemAstBuilder(expression);
 				AstType variableTypeNode = builder.ConvertType(variableType);
 				AstType expressionTypeNode = builder.ConvertType(rr.Type);
 				
