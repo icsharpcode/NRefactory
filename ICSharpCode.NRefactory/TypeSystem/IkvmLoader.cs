@@ -380,7 +380,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		static readonly IUnresolvedAttribute inAttribute = new DefaultUnresolvedAttribute(typeof(InAttribute).ToTypeReference());
 		static readonly IUnresolvedAttribute outAttribute = new DefaultUnresolvedAttribute(typeof(OutAttribute).ToTypeReference());
 
-		void AddAttributes(ParameterInfo parameter, DefaultUnresolvedParameter targetParameter)
+		void AddAttributes(ParameterInfo parameter, DefaultUnresolvedParameter targetParameter, IEnumerable<CustomAttributeData> customAttributes)
 		{
 			if (!targetParameter.IsOut) {
 				if (parameter.IsIn)
@@ -388,7 +388,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				if (parameter.IsOut)
 					targetParameter.Attributes.Add(outAttribute);
 			}
-			AddCustomAttributes(parameter.CustomAttributes, targetParameter.Attributes);
+			AddCustomAttributes(customAttributes, targetParameter.Attributes);
 
 			FieldMarshal marshalInfo;
 			if (parameter.__TryGetFieldMarshal (out marshalInfo)) {
@@ -1217,23 +1217,25 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		{
 			if (parameter == null)
 				throw new ArgumentNullException("parameter");
-			var type = ReadTypeReference(parameter.ParameterType, typeAttributes: parameter.CustomAttributes);
+			var customAttributes = parameter.CustomAttributes;
+			var parameterType = parameter.ParameterType;
+			var type = ReadTypeReference(parameterType, typeAttributes: customAttributes);
 			var p = new DefaultUnresolvedParameter(type, interningProvider.Intern(parameter.Name ?? "index"));
 
-			if (parameter.ParameterType.IsByRef) {
+			if (parameterType.IsByRef) {
 				if (!parameter.IsIn && parameter.IsOut)
 					p.IsOut = true;
 				else
 					p.IsRef = true;
 			}
-			AddAttributes(parameter, p);
+			AddAttributes(parameter, p, customAttributes);
 
 			if (parameter.IsOptional) {
 				p.DefaultValue = CreateSimpleConstantValue(type, parameter.RawDefaultValue);
 			}
 
-			if (parameter.ParameterType.IsArray) {
-				foreach (var att in parameter.CustomAttributes) {
+			if (parameterType.IsArray) {
+				foreach (var att in customAttributes) {
 					var dt = att.Constructor.DeclaringType;
 					if (dt.__Name == "ParamArrayAttribute" && dt.Namespace == "System") {
 						p.IsParams = true;
