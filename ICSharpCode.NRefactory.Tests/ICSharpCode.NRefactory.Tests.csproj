@@ -417,6 +417,7 @@
     <Compile Include="CSharp\CodeIssues\DuplicateIfInIfChainIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseBlockInsteadColonIssueTests.cs" />
     <Compile Include="CSharp\AstTests.cs" />
+    <Compile Include="CSharp\CodeIssues\LockThisTests.cs" />
     <Compile Include="Analysis\SymbolCollectorTests.cs" />
     <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
   </ItemGroup>
