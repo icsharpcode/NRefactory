@@ -30,11 +30,7 @@ using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 {
-	/// <summary>
-	/// This class becomes internal - use at your own risk.
-	/// </summary>
-	[System.ComponentModel.EditorBrowsable (System.ComponentModel.EditorBrowsableState.Never)]
-	public sealed class BlobReader
+	sealed class BlobReader
 	{
 		internal static int GetBlobHashCode(byte[] blob)
 		{

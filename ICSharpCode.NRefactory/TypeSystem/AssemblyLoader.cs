@@ -51,6 +51,10 @@ namespace ICSharpCode.NRefactory
 		}
 
 		public abstract IUnresolvedAssembly LoadAssemblyFile(string fileName);
+
+		internal AssemblyLoader ()
+		{
+		}
 	}
 }
 

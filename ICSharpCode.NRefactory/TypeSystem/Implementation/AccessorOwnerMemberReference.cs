@@ -22,11 +22,9 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 {
 	/// <summary>
 	/// Given a reference to an accessor, returns the accessor's owner.
-	/// This class becomes internal - use at your own risk.
 	/// </summary>
-	[System.ComponentModel.EditorBrowsable (System.ComponentModel.EditorBrowsableState.Never)]
 	[Serializable]
-	public sealed class AccessorOwnerMemberReference : IMemberReference
+	sealed class AccessorOwnerMemberReference : IMemberReference
 	{
 		readonly IMemberReference accessorReference;
 		
