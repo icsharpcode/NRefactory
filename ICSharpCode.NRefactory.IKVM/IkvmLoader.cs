@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 	/// </summary>
 	/// <remarks>Instance methods are not thread-safe; you need to create multiple instances of CecilLoader
 	/// if you want to load multiple project contents in parallel.</remarks>
-	public class IkvmLoader 
+	public sealed class IkvmLoader : AssemblyLoader
 	{
 		/// <summary>
 		/// Version number of the ikvm loader.
@@ -109,7 +109,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 		#region Load Assembly From Disk
 
-		public IUnresolvedAssembly LoadAssemblyFile(string fileName)
+		public override IUnresolvedAssembly LoadAssemblyFile(string fileName)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException("fileName");
@@ -329,7 +329,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			name = ReflectionHelper.SplitTypeParameterCountFromReflectionName (name, out typeParameterCount);
 			name = interningProvider.Intern (name);
 			if (currentAssembly != null) {
-				IUnresolvedTypeDefinition c = currentAssembly.GetTypeDefinition (ns, name, typeParameterCount);
+				var c = currentAssembly.GetTypeDefinition (ns, name, typeParameterCount);
 				if (c != null)
 					return c;
 			}

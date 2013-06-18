@@ -41,31 +41,31 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		// 1 byte per enum + 2 bytes for flags
 		SymbolKind symbolKind;
 		Accessibility accessibility;
-		internal BitVector16 flags;
+		internal protected BitVector16 flags;
 		
 		// flags for AbstractUnresolvedEntity:
-		internal const ushort FlagFrozen    = 0x0001;
-		internal const ushort FlagSealed    = 0x0002;
-		internal const ushort FlagAbstract  = 0x0004;
-		internal const ushort FlagShadowing = 0x0008;
-		internal const ushort FlagSynthetic = 0x0010;
-		internal const ushort FlagStatic    = 0x0020;
+		internal protected const ushort FlagFrozen    = 0x0001;
+		internal protected const ushort FlagSealed    = 0x0002;
+		internal protected const ushort FlagAbstract  = 0x0004;
+		internal protected const ushort FlagShadowing = 0x0008;
+		internal protected const ushort FlagSynthetic = 0x0010;
+		internal protected const ushort FlagStatic    = 0x0020;
 		// flags for DefaultUnresolvedTypeDefinition/LazyCecilTypeDefinition
-		internal const ushort FlagAddDefaultConstructorIfRequired = 0x0040;
-		internal const ushort FlagHasExtensionMethods = 0x0080;
-		internal const ushort FlagHasNoExtensionMethods = 0x0100;
+		internal protected const ushort FlagAddDefaultConstructorIfRequired = 0x0040;
+		internal protected const ushort FlagHasExtensionMethods = 0x0080;
+		internal protected const ushort FlagHasNoExtensionMethods = 0x0100;
 		// flags for AbstractUnresolvedMember:
-		internal const ushort FlagExplicitInterfaceImplementation = 0x0040;
-		internal const ushort FlagVirtual = 0x0080;
-		internal const ushort FlagOverride = 0x0100;
+		internal protected const ushort FlagExplicitInterfaceImplementation = 0x0040;
+		internal protected const ushort FlagVirtual = 0x0080;
+		internal protected const ushort FlagOverride = 0x0100;
 		// flags for DefaultField:
-		internal const ushort FlagFieldIsReadOnly = 0x1000;
-		internal const ushort FlagFieldIsVolatile = 0x2000;
+		internal protected const ushort FlagFieldIsReadOnly = 0x1000;
+		internal protected const ushort FlagFieldIsVolatile = 0x2000;
 		// flags for DefaultMethod:
-		internal const ushort FlagExtensionMethod = 0x1000;
-		internal const ushort FlagPartialMethod = 0x2000;
-		internal const ushort FlagHasBody = 0x4000;
-		internal const ushort FlagAsyncMethod = 0x8000;
+		internal protected const ushort FlagExtensionMethod = 0x1000;
+		internal protected const ushort FlagPartialMethod = 0x2000;
+		internal protected const ushort FlagHasBody = 0x4000;
+		internal protected const ushort FlagAsyncMethod = 0x8000;
 		
 		public bool IsFrozen {
 			get { return flags[FlagFrozen]; }
