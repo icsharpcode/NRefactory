@@ -730,7 +730,7 @@ class TestClass
 	object locker1 = new object ();
 	public void TestMethod ()
 	{
-		lock (locker) {
+		lock (locker1) {
 			Console.WriteLine ();
 		}
 	}
