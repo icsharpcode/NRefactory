@@ -331,8 +331,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			if (attributeProvider == null)
 				return false;
 			foreach (var a in attributeProvider) {
-				var type = a.AttributeType;
-				if (type.Name == "DynamicAttribute" && type.Namespace == "System.Runtime.CompilerServices") {
+				var declaringType = a.Constructor.DeclaringType;
+				if (declaringType.__Name == "DynamicAttribute" && declaringType.__Namespace == "System.Runtime.CompilerServices") {
 					if (a.ConstructorArguments.Count == 1) {
 						var values = a.ConstructorArguments[0].Value as CustomAttributeTypedArgument[];
 						if (values != null && typeIndex < values.Length && values[typeIndex].Value is bool) {
@@ -729,11 +729,11 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		void AddCustomAttributes(IEnumerable<CustomAttributeData> attributes, ICollection<IUnresolvedAttribute> targetCollection)
 		{
 			foreach (var cecilAttribute in attributes) {
-				var type = cecilAttribute.AttributeType;
-				if (type.Namespace == "System.Runtime.CompilerServices") {
-					if (type.Name == "DynamicAttribute" || type.Name == "ExtensionAttribute" || type.Name == "DecimalConstantAttribute")
+				var type = cecilAttribute.Constructor.DeclaringType;
+				if (type.__Namespace == "System.Runtime.CompilerServices") {
+					if (type.__Name == "DynamicAttribute" || type.__Name == "ExtensionAttribute" || type.__Name == "DecimalConstantAttribute")
 						continue;
-				} else if (type.Name == "ParamArrayAttribute" && type.Namespace == "System") {
+				} else if (type.__Name == "ParamArrayAttribute" && type.__Namespace == "System") {
 					continue;
 				}
 				targetCollection.Add(ReadAttribute(cecilAttribute));
@@ -943,8 +943,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		static bool IsModule(IKVM.Reflection.Type type)
 		{
 			foreach (var att in type.CustomAttributes) {
-				if (att.AttributeType.FullName == "Microsoft.VisualBasic.CompilerServices.StandardModuleAttribute"
-				    || att.AttributeType.FullName == "System.Runtime.CompilerServices.CompilerGlobalScopeAttribute")
+				var dt = att.Constructor.DeclaringType;
+				if (dt.__Name == "StandardModuleAttribute" && dt.__Namespace == "Microsoft.VisualBasic.CompilerServices" 
+				    || dt.__Name == "CompilerGlobalScopeAttribute" && dt.__Namespace == "System.Runtime.CompilerServices")
 				{
 					return true;
 				}
@@ -980,7 +981,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			string defaultMemberName = null;
 			var defaultMemberAttribute = typeDefinition.CustomAttributes.FirstOrDefault(
-				a => a.AttributeType.FullName == typeof(System.Reflection.DefaultMemberAttribute).FullName);
+				a => {
+					var dt = a.Constructor.DeclaringType;
+					return dt.__Name == "DefaultMemberAttribute" && dt.Namespace == "System.Reflection";
+				});
 			if (defaultMemberAttribute != null && defaultMemberAttribute.ConstructorArguments.Count == 1) {
 				defaultMemberName = defaultMemberAttribute.ConstructorArguments[0].Value as string;
 			}
@@ -1095,7 +1099,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		static bool HasExtensionAttribute(MemberInfo provider)
 		{
 			foreach (var attr in provider.CustomAttributes) {
-				if (attr.AttributeType.Name == "ExtensionAttribute" && attr.AttributeType.Namespace == "System.Runtime.CompilerServices")
+				var attributeType = attr.Constructor.DeclaringType;
+				if (attributeType.__Name == "ExtensionAttribute" && attributeType.__Namespace == "System.Runtime.CompilerServices")
 					return true;
 			}
 			return false;
@@ -1224,7 +1229,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			if (parameter.ParameterType.IsArray) {
 				foreach (var att in parameter.CustomAttributes) {
-					if (att.AttributeType.FullName == typeof(ParamArrayAttribute).FullName) {
+					var dt = att.Constructor.DeclaringType;
+					if (dt.__Name == "ParamArrayAttribute" && dt.Namespace == "System") {
 						p.IsParams = true;
 						break;
 					}
@@ -1298,7 +1304,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				f.ConstantValue = CreateSimpleConstantValue(f.ReturnType, field.GetRawConstantValue ());
 			}
 			else {
-				var decConstant = field.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.DecimalConstantAttribute");
+				var decConstant = field.CustomAttributes.FirstOrDefault(a => {
+					var dt = a.Constructor.DeclaringType;
+					return dt.__Name == "DecimalConstantAttribute" && dt.__Namespace == "System.Runtime.CompilerServices";
+				});
 				if (decConstant != null) {
 					var constValue = TryDecodeDecimalConstantAttribute(decConstant);
 					if (constValue != null)
