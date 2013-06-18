@@ -706,5 +706,37 @@ class TestClass
 
 			Test<LockThisIssue> (input, 2, output, 0);
 		}
+
+		[Test]
+		public void TestNewNameLock()
+		{
+			var input = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	int locker;
+	[MethodImpl (MethodImplOptions.Synchronized)]
+	public void TestMethod ()
+	{
+		Console.WriteLine ();
+	}
+}";
+
+			var output = @"
+using System.Runtime.CompilerServices;
+class TestClass
+{
+	int locker;
+	object locker1 = new object ();
+	public void TestMethod ()
+	{
+		lock (locker) {
+			Console.WriteLine ();
+		}
+	}
+}";
+
+			Test<LockThisIssue> (input, 1, output);
+		}
 	}
 }

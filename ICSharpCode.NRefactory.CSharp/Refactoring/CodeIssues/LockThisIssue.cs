@@ -31,6 +31,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.CSharp.Resolver;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -108,53 +109,47 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var synchronizedStatements = FixMethodsWithMethodImplAttribute(script, containerType, isStatic);
 
-				List<AstNode> linkNodes = new List<AstNode>();
+				List<Identifier> linkNodes = new List<Identifier>();
+				List<AstNode> nodeContexts = new List<AstNode>();
 
-				foreach (var lockToModify in LocksInType(containerType)) {
-					//Check if it is static
-					var lockEntity = GetParentMethodOrProperty(lockToModify);
-					if (IsEntityStatic(lockEntity) != isStatic) {
-						//These will require a separate lock field.
-						continue;
+				string proposedName = "locker";
+
+				if (!isStatic) {
+					foreach (var lockToModify in LocksToModify(containerType, synchronizedStatements)) {
+						nodeContexts.Add(lockToModify);
+
+						var identifier = new IdentifierExpression (proposedName);
+						script.Replace(lockToModify.Expression, identifier);
+
+						linkNodes.Add(identifier.IdentifierToken);
 					}
-
-					if (lockToModify.Ancestors.OfType<BlockStatement>()
-					    .Any(ancestor => synchronizedStatements.Contains(ancestor))) {
-
-						//These will be modified separately
-						continue;
-					}
-
-					if (!IsThisReference (lockToModify.Expression)) {
-						continue;
-					}
-
-					var identifier = new IdentifierExpression ("locker");
-					script.Replace(lockToModify.Expression, identifier);
-
-					linkNodes.Add(identifier);
 				}
 
 				foreach (var synchronizedStatement in synchronizedStatements) {
-					var newBody = synchronizedStatement.Clone();
-
-					foreach (var childLock in newBody.Descendants.OfType<LockStatement>()) {
-						if (IsThisReference(childLock.Expression)) {
-							var identifier = new IdentifierExpression ("locker");
-							childLock.Expression.ReplaceWith(identifier);
-
-							linkNodes.Add(identifier);
-						}
-					}
-
-					var outerLock = new LockStatement();
-					var outerLockIdentifier = new IdentifierExpression ("locker");
-					outerLock.Expression = outerLockIdentifier;
-					outerLock.EmbeddedStatement = newBody;
-
 					if (synchronizedStatement.Statements.Count > 0) {
+						nodeContexts.Add(synchronizedStatement.Statements.First());
 
-						linkNodes.Add(outerLockIdentifier);
+						var newBody = synchronizedStatement.Clone();
+
+						if (!isStatic) {
+							foreach (var childLock in newBody.Descendants.OfType<LockStatement>()) {
+								if (IsThisReference(childLock.Expression)) {
+									var identifier = new IdentifierExpression (proposedName);
+									childLock.Expression.ReplaceWith(identifier);
+
+									linkNodes.Add(identifier.IdentifierToken);
+
+									nodeContexts.Add(childLock);
+								}
+							}
+						}
+
+						var outerLock = new LockStatement();
+						var outerLockIdentifier = new IdentifierExpression (proposedName);
+						outerLock.Expression = outerLockIdentifier;
+						outerLock.EmbeddedStatement = newBody;
+
+						linkNodes.Add(outerLockIdentifier.IdentifierToken);
 
 						script.InsertBefore(synchronizedStatement.Statements.First(), outerLock);
 
@@ -172,13 +167,57 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						ReturnType = objectType.Clone()
 					};
 
-					var lockerVariable = new VariableInitializer("locker", new ObjectCreateExpression(objectType.Clone()));
+					var lockerVariable = new VariableInitializer(proposedName, new ObjectCreateExpression(objectType.Clone()));
 					lockerFieldDeclaration.Variables.Add(lockerVariable);
 					script.InsertBefore(containerEntity, lockerFieldDeclaration);
 
 					linkNodes.Add(lockerVariable.NameToken);
 
+					SelectProposedName(linkNodes, nodeContexts, proposedName);
+
 					script.Link(linkNodes.ToArray());
+				}
+			}
+
+			void SelectProposedName(List<Identifier> linkNodes, List<AstNode> nodeContexts, string baseName)
+			{
+				var nameProposal = GetNameProposal(nodeContexts, baseName);
+
+				foreach (var node in linkNodes) {
+					node.Name = nameProposal;
+				}
+			}
+
+			string GetNameProposal(List<AstNode> nodeContexts, string baseName)
+			{
+				var resolverStates = nodeContexts.Select(ctx.GetResolverStateBefore).ToList();
+				string nameProposal;
+				int n = 0;
+				do {
+					nameProposal = baseName + (n == 0 ? string.Empty : n.ToString());
+				}
+				while (resolverStates.Any(resolverState => resolverState.LookupSimpleNameOrTypeName(nameProposal, null, NameLookupMode.Expression) != null));
+				return nameProposal;
+			}
+
+			IEnumerable<LockStatement> LocksToModify(TypeDeclaration containerType, IEnumerable<BlockStatement> synchronizedStatements)
+			{
+				foreach (var lockToModify in LocksInType(containerType)) {
+					//Check if it is static
+					var lockEntity = GetParentMethodOrProperty(lockToModify);
+
+					if (lockToModify.Ancestors.OfType<BlockStatement>()
+					    .Any(ancestor => synchronizedStatements.Contains(ancestor))) {
+
+						//These will be modified separately
+						continue;
+					}
+
+					if (!IsThisReference (lockToModify.Expression)) {
+						continue;
+					}
+
+					yield return lockToModify;
 				}
 			}
 
