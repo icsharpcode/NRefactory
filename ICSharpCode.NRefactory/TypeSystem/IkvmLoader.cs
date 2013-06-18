@@ -38,6 +38,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Utils;
 using IKVM.Reflection;
+using System.IO;
 
 namespace ICSharpCode.NRefactory.TypeSystem
 {
@@ -112,15 +113,31 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		{
 			if (fileName == null)
 				throw new ArgumentNullException("fileName");
-		
+
 			using (var universe = new Universe (UniverseOptions.DisablePseudoCustomAttributeRetrieval | UniverseOptions.SupressReferenceTypeIdentityConversion)) {
 				universe.AssemblyResolve += delegate(object sender, IKVM.Reflection.ResolveEventArgs args) {
 					return universe.CreateMissingAssembly(args.Name);
 				};
+
 				return LoadAssembly (universe.LoadFile (fileName));
 			}
 		}
 
+		public IUnresolvedAssembly LoadAssemblyFile(string fileName, Stream stream)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException("fileName");
+
+			using (var universe = new Universe (UniverseOptions.DisablePseudoCustomAttributeRetrieval | UniverseOptions.SupressReferenceTypeIdentityConversion)) {
+				universe.AssemblyResolve += delegate(object sender, IKVM.Reflection.ResolveEventArgs args) {
+					return universe.CreateMissingAssembly(args.Name);
+				};
+				using (RawModule module = universe.OpenRawModule (stream, fileName)) {
+					return LoadAssembly (universe.LoadAssembly (module));
+				}
+
+			}
+		}
 		#endregion
 
 		IkvmUnresolvedAssembly currentAssembly;
