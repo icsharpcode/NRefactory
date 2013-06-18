@@ -489,7 +489,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 						default:
 							throw new NotSupportedException("unknown calling convention");
 					}
-					if ((flags & ImplMapFlags.CallConvWinapi) == 0)
+					if (callingConvention != CallingConvention.Winapi)
 						dllImport.AddNamedFieldArgument("CallingConvention", CreateSimpleConstantValue(callingConventionTypeRef, (int)callingConvention));
 
 					CharSet charSet = CharSet.None;
