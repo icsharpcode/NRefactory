@@ -408,22 +408,22 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 		static bool HasAnyAttributes(MethodInfo methodDefinition)
 		{
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.PinvokeImpl))
+			if ((methodDefinition.Attributes & MethodAttributes.PinvokeImpl) != 0)
 				return true;
 
-			if (methodDefinition.MethodImplementationFlags.HasFlag (MethodImplAttributes.CodeTypeMask))
+			if ((methodDefinition.MethodImplementationFlags & MethodImplAttributes.CodeTypeMask) != 0)
 				return true;
-			if (methodDefinition.ReturnParameter.Attributes.HasFlag (ParameterAttributes.HasFieldMarshal))
+			if ((methodDefinition.ReturnParameter.Attributes & ParameterAttributes.HasFieldMarshal) != 0)
 				return true;
 			return methodDefinition.CustomAttributes.Any ();
 		}
 
 		static bool HasAnyAttributes(ConstructorInfo methodDefinition)
 		{
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.PinvokeImpl))
+			if ((methodDefinition.Attributes & MethodAttributes.PinvokeImpl) != 0)
 				return true;
 
-			if (methodDefinition.MethodImplementationFlags.HasFlag (MethodImplAttributes.CodeTypeMask))
+			if ((methodDefinition.MethodImplementationFlags & MethodImplAttributes.CodeTypeMask) != 0)
 				return true;
 			return methodDefinition.CustomAttributes.Any ();
 		}
@@ -433,7 +433,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var implAttributes = methodDefinition.MethodImplementationFlags;
 
 			#region DllImportAttribute
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.PinvokeImpl)) {
+			if ((methodDefinition.Attributes & MethodAttributes.PinvokeImpl) != 0) {
 
 				ImplMapFlags flags;
 				string importName;
@@ -443,9 +443,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					dllImport.PositionalArguments.Add(CreateSimpleConstantValue(KnownTypeReference.String, importScope));
 
 					
-					if (flags.HasFlag (ImplMapFlags.BestFitOff))
+					if ((flags & ImplMapFlags.BestFitOff) != 0)
 						dllImport.AddNamedFieldArgument("BestFitMapping", falseValue);
-					if (flags.HasFlag (ImplMapFlags.BestFitOn))
+					if ((flags & ImplMapFlags.BestFitOn) != 0)
 						dllImport.AddNamedFieldArgument("BestFitMapping", trueValue);
 
 					CallingConvention callingConvention;
@@ -472,7 +472,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 						default:
 							throw new NotSupportedException("unknown calling convention");
 					}
-					if (!flags.HasFlag (ImplMapFlags.CallConvWinapi))
+					if ((flags & ImplMapFlags.CallConvWinapi) == 0)
 						dllImport.AddNamedFieldArgument("CallingConvention", CreateSimpleConstantValue(callingConventionTypeRef, (int)callingConvention));
 
 					CharSet charSet = CharSet.None;
@@ -493,7 +493,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					if (!string.IsNullOrEmpty(importName) && importName != methodDefinition.Name)
 						dllImport.AddNamedFieldArgument("EntryPoint", CreateSimpleConstantValue(KnownTypeReference.String, importName));
 
-					if (flags.HasFlag (ImplMapFlags.NoMangle))
+					if ((flags & ImplMapFlags.NoMangle) != 0)
 						dllImport.AddNamedFieldArgument("ExactSpelling", trueValue);
 
 					if ((implAttributes & MethodImplAttributes.PreserveSig) == MethodImplAttributes.PreserveSig)
@@ -501,12 +501,12 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					else
 						dllImport.AddNamedFieldArgument("PreserveSig", falseValue);
 
-					if (flags.HasFlag (ImplMapFlags.SupportsLastError))
+					if ((flags & ImplMapFlags.SupportsLastError) != 0)
 						dllImport.AddNamedFieldArgument("SetLastError", trueValue);
 
-					if (flags.HasFlag (ImplMapFlags.CharMapErrorOff))
+					if ((flags & ImplMapFlags.CharMapErrorOff) != 0)
 						dllImport.AddNamedFieldArgument("ThrowOnUnmappableChar", falseValue);
-					if (flags.HasFlag (ImplMapFlags.CharMapErrorOn))
+					if ((flags & ImplMapFlags.CharMapErrorOn) != 0)
 						dllImport.AddNamedFieldArgument("ThrowOnUnmappableChar", trueValue);
 
 					attributes.Add(interningProvider.Intern(dllImport));
@@ -532,7 +532,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var customAttributes = methodDefinition.CustomAttributes;
 			AddCustomAttributes (customAttributes, attributes);
 
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.HasSecurity)) {
+			if ((methodDefinition.Attributes & MethodAttributes.HasSecurity) != 0) {
 				AddSecurityAttributes(CustomAttributeData.__GetDeclarativeSecurity (methodDefinition), attributes);
 			}
 
@@ -565,7 +565,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			AddCustomAttributes(methodDefinition.CustomAttributes, attributes);
 
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.HasSecurity)) {
+			if ((methodDefinition.Attributes & MethodAttributes.HasSecurity) != 0) {
 				AddSecurityAttributes(CustomAttributeData.__GetDeclarativeSecurity (methodDefinition), attributes);
 			}
 		}
@@ -635,7 +635,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			AddCustomAttributes(typeDefinition.CustomAttributes, targetEntity.Attributes);
 
-			if (typeDefinition.Attributes.HasFlag (TypeAttributes.HasSecurity)) {
+			if ((typeDefinition.Attributes & TypeAttributes.HasSecurity) != 0) {
 				AddSecurityAttributes(CustomAttributeData.__GetDeclarativeSecurity(typeDefinition), targetEntity.Attributes);
 			}
 		}
@@ -1040,6 +1040,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			return ReadMethod((MethodInfo)method, parentType, methodType, null);
 		}
 
+		const MethodAttributes nonBodyAttr = MethodAttributes.Abstract | MethodAttributes.PinvokeImpl;
+		const MethodImplAttributes nonBodyImplAttr = MethodImplAttributes.InternalCall | MethodImplAttributes.Native | MethodImplAttributes.Unmanaged;
+
 		IUnresolvedMethod ReadMethod(MethodInfo method, IUnresolvedTypeDefinition parentType, SymbolKind methodType, IUnresolvedMember accessorOwner)
 		{
 			if (method == null)
@@ -1047,19 +1050,21 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var m = new DefaultUnresolvedMethod(parentType, method.Name);
 			m.SymbolKind = methodType;
 			m.AccessorOwner = accessorOwner;
-			m.HasBody = !method.DeclaringType.IsInterface && (method.GetMethodImplementationFlags () & MethodImplAttributes.CodeTypeMask) == MethodImplAttributes.IL;
-			var genericArguments = method.GetGenericArguments ();
-			if (genericArguments != null) {
-				for (int i = 0; i < genericArguments.Length; i++) {
-					if (genericArguments[i].GenericParameterPosition != i)
-						throw new InvalidOperationException("g.Position != i");
-					m.TypeParameters.Add(new DefaultUnresolvedTypeParameter(
-						SymbolKind.Method, i, genericArguments[i].Name));
-				}
-				for (int i = 0; i < genericArguments.Length; i++) {
-					var tp = (DefaultUnresolvedTypeParameter)m.TypeParameters[i];
-					AddConstraints(tp, genericArguments[i]);
-					tp.ApplyInterningProvider(interningProvider);
+			m.HasBody = (method.Attributes & nonBodyAttr) == 0 && (method.GetMethodImplementationFlags () & nonBodyImplAttr) == 0;
+			if (method.IsGenericMethodDefinition) {
+				var genericArguments = method.GetGenericArguments ();
+				if (genericArguments != null) {
+					for (int i = 0; i < genericArguments.Length; i++) {
+						if (genericArguments[i].GenericParameterPosition != i)
+							throw new InvalidOperationException("g.Position != i");
+						m.TypeParameters.Add(new DefaultUnresolvedTypeParameter(
+							SymbolKind.Method, i, genericArguments[i].Name));
+					}
+					for (int i = 0; i < genericArguments.Length; i++) {
+						var tp = (DefaultUnresolvedTypeParameter)m.TypeParameters[i];
+						AddConstraints(tp, genericArguments[i]);
+						tp.ApplyInterningProvider(interningProvider);
+					}
 				}
 			}
 
@@ -1143,14 +1148,14 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				m.Accessibility = GetAccessibility(method.Attributes);
 				if (method.IsAbstract) {
 					m.IsAbstract = true;
-					m.IsOverride = !method.Attributes.HasFlag (MethodAttributes.NewSlot);
+					m.IsOverride = (method.Attributes & MethodAttributes.NewSlot) == 0;
 				} else if (method.IsFinal) {
-					if (!method.Attributes.HasFlag (MethodAttributes.NewSlot)) {
+					if ((method.Attributes & MethodAttributes.NewSlot) == 0) {
 						m.IsSealed = true;
 						m.IsOverride = true;
 					}
 				} else if (method.IsVirtual) {
-					if (method.Attributes.HasFlag (MethodAttributes.NewSlot))
+					if ((method.Attributes & MethodAttributes.NewSlot) != 0)
 						m.IsVirtual = true;
 					else
 						m.IsOverride = true;
@@ -1300,7 +1305,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			f.IsStatic = field.IsStatic;
 			f.ReturnType = ReadTypeReference(field.FieldType, typeAttributes: field.CustomAttributes);
 
-			if (field.Attributes.HasFlag (FieldAttributes.HasDefault)) {
+			if ((field.Attributes & FieldAttributes.HasDefault) != 0) {
 				f.ConstantValue = CreateSimpleConstantValue(f.ReturnType, field.GetRawConstantValue ());
 			}
 			else {
@@ -1346,15 +1351,16 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		#region Type Parameter Constraints
 		void AddConstraints(DefaultUnresolvedTypeParameter tp, IKVM.Reflection.Type g)
 		{
-			if (g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.Contravariant)) {
+			var attr = g.GenericParameterAttributes;
+			if ((attr & GenericParameterAttributes.Contravariant) != 0) {
 				tp.Variance = VarianceModifier.Contravariant;
-			} else if (g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.Covariant)) {
+			} else if ((attr & GenericParameterAttributes.Covariant) != 0) {
 				tp.Variance = VarianceModifier.Covariant;
 			}
 
-			tp.HasReferenceTypeConstraint = g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.ReferenceTypeConstraint);
-			tp.HasValueTypeConstraint = g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.NotNullableValueTypeConstraint);
-			tp.HasDefaultConstructorConstraint = g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.DefaultConstructorConstraint);
+			tp.HasReferenceTypeConstraint = (attr & GenericParameterAttributes.ReferenceTypeConstraint) != 0;
+			tp.HasValueTypeConstraint = (attr & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0;
+			tp.HasDefaultConstructorConstraint = (attr & GenericParameterAttributes.DefaultConstructorConstraint) != 0;
 
 			foreach (var constraint in g.GetGenericParameterConstraints ()) {
 				tp.Constraints.Add(ReadTypeReference(constraint));
