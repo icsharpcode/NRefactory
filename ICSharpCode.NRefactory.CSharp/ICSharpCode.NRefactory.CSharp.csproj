@@ -542,6 +542,7 @@
     <Compile Include="Refactoring\CodeIssues\DuplicateIfInIfChainIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\UseBlockInsteadColonIssue.cs" />
     <Compile Include="Refactoring\ImplementNotImplementedProperty.cs" />
+    <Compile Include="Refactoring\CodeActions\ConvertToNewLineAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
