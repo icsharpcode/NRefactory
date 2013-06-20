@@ -36,10 +36,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Convert loop to Linq expression", Description = "Converts a loop to a Linq expression")]
 	public class AutoLinqSum : ICodeActionProvider
 	{
+		// Disabled for nullables, since int? x = 3; x += null; has result x = null,
+		// but LINQ Sum behaves differently : nulls are treated as zero
 		static readonly IEnumerable<string> LinqSummableTypes = new string[] {
+			"System.UInt16",
 			"System.Int16",
+			"System.UInt32",
 			"System.Int32",
-			"System.Int64"
+			"System.UInt64",
+			"System.Int64",
+			"System.Single",
+			"System.Double",
+			"System.Decimal"
 		};
 
 		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
@@ -67,18 +75,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			Statement statement = foreachStatement.EmbeddedStatement;
 
-			bool isValid;
-			AssignmentExpression expression = GetSingleAssignmentExpression(statement, out isValid);
-			if (expression == null || !isValid) {
+			Expression leftExpression, rightExpression;
+			if (!ExtractExpression(statement, out leftExpression, out rightExpression)) {
+				return null;
+			}
+			if (leftExpression == null || rightExpression == null) {
 				return null;
 			}
 
-			var type = context.Resolve(expression.Left).Type;
+			var type = context.Resolve(leftExpression).Type;
 			if (!IsLinqSummableType(type)) {
 				return null;
 			}
 
-			if (expression.Right.DescendantsAndSelf.OfType<AssignmentExpression>().Any()) {
+			if (rightExpression.DescendantsAndSelf.OfType<AssignmentExpression>().Any()) {
 				// Reject loops such as
 				// int k = 0;
 				// foreach (var x in y) { k += (z = 2); }
@@ -86,57 +96,96 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			}
 
-			var rightSide = new InvocationExpression(new MemberReferenceExpression(enumerableToIterate, "Sum"));
+			var arguments = new List<Expression>();
+			if (!IsIdentifier(rightExpression, foreachStatement.VariableName)) {
+				var lambda = new LambdaExpression();
+				lambda.Parameters.Add(new ParameterDeclaration() { Name = foreachStatement.VariableName });
+				lambda.Body = rightExpression.Clone();
+				arguments.Add(lambda);
+			}
 
-			return new AssignmentExpression(expression.Left.Clone(), AssignmentOperatorType.Add, rightSide);
+			var rightSide = new InvocationExpression(new MemberReferenceExpression(enumerableToIterate, "Sum"), arguments);
+
+			return new AssignmentExpression(leftExpression.Clone(), AssignmentOperatorType.Add, rightSide);
+		}
+
+		bool IsIdentifier(Expression expr, string variableName)
+		{
+			var identifierExpr = expr as IdentifierExpression;
+			if (identifierExpr != null) {
+				return identifierExpr.Identifier == variableName;
+			}
+
+			var parenthesizedExpr = expr as ParenthesizedExpression;
+			if (parenthesizedExpr != null) {
+				return IsIdentifier(parenthesizedExpr.Expression, variableName);
+			}
+
+			return false;
 		}
 
 		bool IsLinqSummableType(IType type) {
 			return LinqSummableTypes.Contains(type.FullName);
 		}
 
-		AssignmentExpression GetSingleAssignmentExpression (Statement statement, out bool isValid) {
+		bool ExtractExpression (Statement statement, out Expression leftSide, out Expression rightSide) {
 			ExpressionStatement expression = statement as ExpressionStatement;
 			if (expression != null) {
 				AssignmentExpression assignment = expression.Expression as AssignmentExpression;
 				if (assignment != null) {
-					if (assignment.Operator != AssignmentOperatorType.Add) {
-						isValid = false;
-						return null;
+					if (assignment.Operator == AssignmentOperatorType.Add) {
+						leftSide = assignment.Left;
+						rightSide = assignment.Right;
+						return true;
+					}
+					if (assignment.Operator == AssignmentOperatorType.Subtract) {
+						leftSide = assignment.Left;
+						rightSide = new UnaryOperatorExpression(UnaryOperatorType.Minus, assignment.Right.Clone());
+						return true;
 					}
 
-					isValid = true;
-					return assignment;
+					leftSide = null;
+					rightSide = null;
+					return false;
 				}
 
-				isValid = false;
-				return null;
+				leftSide = null;
+				rightSide = null;
+				return false;
 			}
 
 			BlockStatement block = statement as BlockStatement;
 			if (block != null) {
-				AssignmentExpression assignment = null;
+				leftSide = null;
+				rightSide = null;
+
 				foreach (Statement child in block.Statements) {
-					var newAssignment = GetSingleAssignmentExpression(child, out isValid);
-					if (!isValid) {
-						return null;
+					Expression newLeft, newRight;
+					if (!ExtractExpression(child, out newLeft, out newRight)) {
+						leftSide = null;
+						rightSide = null;
+						return false;
 					}
 
-					if (assignment == null) {
-						assignment = newAssignment;
+					if (newLeft == null) {
+						continue;
+					}
+
+					if (leftSide == null) {
+						leftSide = newLeft;
+						rightSide = newRight;
 					} else {
 						//TODO
-						isValid = false;
-						return null;
+						return false;
 					}
 				}
 
-				isValid = true;
-				return assignment;
+				return true;
 			}
 
-			isValid = false;
-			return null;
+			leftSide = null;
+			rightSide = null;
+			return false;
 		}
 
 		ForeachStatement GetForeachStatement (RefactoringContext context)

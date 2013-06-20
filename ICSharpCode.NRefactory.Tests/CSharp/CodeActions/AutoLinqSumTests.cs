@@ -94,6 +94,37 @@ class TestClass
 		}
 
 		[Test]
+		public void TestExpression() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		$foreach (var x in list) {
+			result += x * 2;
+		}
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		result += list.Sum (x => x * 2);
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+		}
+
+		[Test]
 		public void TestDisabledForStrings() {
 			string source = @"
 using System.Linq;
@@ -165,6 +196,157 @@ class TestClass
 		long result = 0;
 		var list = new long[] { 1, 2, 3 };
 		result += list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+		}
+
+		[Test]
+		public void TestUnsignedLong() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		ulong result = 0;
+		var list = new ulong[] { 1, 2, 3 };
+		$foreach (var x in list)
+			result += x;
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		ulong result = 0;
+		var list = new ulong[] { 1, 2, 3 };
+		result += list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+		}
+
+		[Test]
+		public void TestFloat() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		float result = 0;
+		var list = new float[] { 1, 2, 3 };
+		$foreach (var x in list)
+			result += x;
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		float result = 0;
+		var list = new float[] { 1, 2, 3 };
+		result += list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+		}
+
+		[Test]
+		public void TestDouble() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		double result = 0;
+		var list = new double[] { 1, 2, 3 };
+		$foreach (var x in list)
+			result += x;
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		double result = 0;
+		var list = new double[] { 1, 2, 3 };
+		result += list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+		}
+
+		[Test]
+		public void TestDecimal() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		decimal result = 0;
+		var list = new decimal[] { 1, 2, 3 };
+		$foreach (var x in list)
+			result += x;
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		decimal result = 0;
+		var list = new decimal[] { 1, 2, 3 };
+		result += list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+		}
+
+		[Test]
+		public void TestMinus() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		$foreach (var x in list) {
+			result -= x;
+		}
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		result += list.Sum (x => -x);
 	}
 }";
 
