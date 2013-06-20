@@ -51,7 +51,31 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				"{" + Environment.NewLine +
 				"	void Test ()" + Environment.NewLine +
 				"	{" + Environment.NewLine +
-				"		string str = Environment.NewLine;" + Environment.NewLine +
+				"		string str = System.Environment.NewLine;" + Environment.NewLine +
+				"	}" + Environment.NewLine +
+				"}", result);
+		}
+
+		[Test()]
+		public void TestSimpleString2()
+		{
+			string result = RunContextAction(
+				new ConvertToNewLineAction(),
+				"class TestClass" + Environment.NewLine +
+				"{" + Environment.NewLine +
+				"	void Test ()" + Environment.NewLine +
+				"	{" + Environment.NewLine +
+				"		string str = $\"\\r\\n\";" + Environment.NewLine +
+				"	}" + Environment.NewLine +
+				"}"
+				);
+			
+			Assert.AreEqual(
+				"class TestClass" + Environment.NewLine +
+				"{" + Environment.NewLine +
+				"	void Test ()" + Environment.NewLine +
+				"	{" + Environment.NewLine +
+				"		string str = System.Environment.NewLine;" + Environment.NewLine +
 				"	}" + Environment.NewLine +
 				"}", result);
 		}

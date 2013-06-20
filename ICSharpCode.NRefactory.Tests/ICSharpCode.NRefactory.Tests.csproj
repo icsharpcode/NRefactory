@@ -419,7 +419,7 @@
     <Compile Include="CSharp\AstTests.cs" />
     <Compile Include="Analysis\SymbolCollectorTests.cs" />
     <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
-    <Compile Include="CSharp\CodeActions\CovertToNewLineTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertToNewLineTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

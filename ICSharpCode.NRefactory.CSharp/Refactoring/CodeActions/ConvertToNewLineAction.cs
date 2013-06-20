@@ -42,22 +42,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (expr == null) {
 				yield break;
 			}
+		
 			yield return new CodeAction(context.TranslateString("Use System.Environment.NewLine"), script => {
-				script.Replace(expr, new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("Environment")), "NewLine"));
+				script.Replace(expr, 
+				               new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("System.Environment")), "NewLine"));
 			}, expr);
 		}
 		
 		static PrimitiveExpression GetNewLineString(RefactoringContext context)
 		{
 			var node = context.GetNode<PrimitiveExpression>();
-			if (node == null || !(node.Value is string)) {
+
+			string value;
+			if (node == null || (value = node.Value as string) == null)
 				return null;
-			} else {
-				if (node.Value.ToString() == "\n" || node.Value.ToString() == "\r" || node.Value.ToString() == "\r\n") {
-					return node;
-				} else 
-					return null;
-			}
+			if (value == "\n" || value == "\r" || value == "\r\n")
+				return node;
+			return null;
 		}
 	}
 }
