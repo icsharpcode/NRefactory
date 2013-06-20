@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -34,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Convers a loop to a Linq expression.
 	/// </summary>
 	[ContextAction("Convert loop to Linq expression", Description = "Converts a loop to a Linq expression")]
-	public class AutoLinqSum : ICodeActionProvider
+	public class AutoLinqSumAction : ICodeActionProvider
 	{
 		// Disabled for nullables, since int? x = 3; x += null; has result x = null,
 		// but LINQ Sum behaves differently : nulls are treated as zero
@@ -96,17 +97,53 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			}
 
+			var zeroLiteral = new PrimitiveExpression(0);
+
+			Expression baseExpression = enumerableToIterate;
+			for (;;) {
+				ConditionalExpression condition = rightExpression as ConditionalExpression;
+				if (condition == null) {
+					break;
+				}
+
+				if (SameNode(zeroLiteral, condition.TrueExpression)) {
+					baseExpression = new InvocationExpression(new MemberReferenceExpression(baseExpression.Clone(), "Where"),
+					                                          BuildLambda(foreachStatement.VariableName, CSharpUtil.InvertCondition(condition.Condition)));
+					rightExpression = condition.FalseExpression.Clone();
+
+					continue;
+				}
+
+				if (SameNode(zeroLiteral, condition.FalseExpression)) {
+					baseExpression = new InvocationExpression(new MemberReferenceExpression(baseExpression.Clone(), "Where"),
+					                                          BuildLambda(foreachStatement.VariableName, condition.Condition.Clone()));
+					rightExpression = condition.TrueExpression.Clone();
+
+					continue;
+				}
+
+				break;
+			}
+
 			var arguments = new List<Expression>();
 			if (!IsIdentifier(rightExpression, foreachStatement.VariableName)) {
-				var lambda = new LambdaExpression();
-				lambda.Parameters.Add(new ParameterDeclaration() { Name = foreachStatement.VariableName });
-				lambda.Body = rightExpression.Clone();
+				var lambda = BuildLambda(foreachStatement.VariableName, rightExpression);
 				arguments.Add(lambda);
 			}
 
-			var rightSide = new InvocationExpression(new MemberReferenceExpression(enumerableToIterate, "Sum"), arguments);
+			var rightSide = new InvocationExpression(new MemberReferenceExpression(baseExpression, "Sum"), arguments);
 
 			return new AssignmentExpression(leftExpression.Clone(), AssignmentOperatorType.Add, rightSide);
+		}
+
+		static LambdaExpression BuildLambda(string variableName, Expression expression)
+		{
+			var lambda = new LambdaExpression();
+			lambda.Parameters.Add(new ParameterDeclaration() {
+				Name = variableName
+			});
+			lambda.Body = expression.Clone();
+			return lambda;
 		}
 
 		bool IsIdentifier(Expression expr, string variableName)
@@ -154,6 +191,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return false;
 			}
 
+			if (statement is EmptyStatement || statement.IsNull) {
+				leftSide = null;
+				rightSide = null;
+				return true;
+			}
+
 			BlockStatement block = statement as BlockStatement;
 			if (block != null) {
 				leftSide = null;
@@ -174,8 +217,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (leftSide == null) {
 						leftSide = newLeft;
 						rightSide = newRight;
+					} else if (SameNode(leftSide, newLeft)) {
+						rightSide = new BinaryOperatorExpression(ParenthesizeIfNeeded(rightSide).Clone(),
+						                                         BinaryOperatorType.Add,
+						                                         ParenthesizeIfNeeded(newRight).Clone());
 					} else {
-						//TODO
 						return false;
 					}
 				}
@@ -183,9 +229,70 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return true;
 			}
 
+			IfElseStatement condition = statement as IfElseStatement;
+			if (condition != null) {
+				Expression ifLeft, ifRight;
+				if (!ExtractExpression(condition.TrueStatement, out ifLeft, out ifRight)) {
+					leftSide = null;
+					rightSide = null;
+					return false;
+				}
+
+				Expression elseLeft, elseRight;
+				if (!ExtractExpression(condition.FalseStatement, out elseLeft, out elseRight)) {
+					leftSide = null;
+					rightSide = null;
+					return false;
+				}
+
+				if (ifLeft == null && elseLeft == null) {
+					leftSide = null;
+					rightSide = null;
+					return true;
+				}
+
+				if (ifLeft != null && elseLeft != null && !SameNode(ifLeft, elseLeft)) {
+					leftSide = null;
+					rightSide = null;
+					return false;
+				}
+
+				ifRight = ifRight ?? new PrimitiveExpression(0);
+				elseRight = elseRight ?? new PrimitiveExpression(0);
+
+				leftSide = ifLeft ?? elseLeft;
+				rightSide = new ConditionalExpression(condition.Condition.Clone(), ifRight.Clone(), elseRight.Clone());
+				return true;
+			}
+
 			leftSide = null;
 			rightSide = null;
 			return false;
+		}
+
+		Expression ParenthesizeIfNeeded(Expression expr)
+		{
+			if (expr is ConditionalExpression) {
+				return new ParenthesizedExpression(expr.Clone());
+			}
+
+			var binaryExpression = expr as BinaryOperatorExpression;
+			if (binaryExpression != null) {
+				if (binaryExpression.Operator != BinaryOperatorType.Multiply &&
+					binaryExpression.Operator != BinaryOperatorType.Divide &&
+					binaryExpression.Operator != BinaryOperatorType.Modulus) {
+
+					return new ParenthesizedExpression(expr.Clone());
+				}
+			}
+
+			return expr;
+		}
+
+		bool SameNode(INode expr1, INode expr2)
+		{
+			Match m = expr1.Match(expr2);
+			return m.Success;
 		}
 
 		ForeachStatement GetForeachStatement (RefactoringContext context)

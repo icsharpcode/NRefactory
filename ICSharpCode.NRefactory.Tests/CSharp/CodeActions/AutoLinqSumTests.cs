@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
 	[TestFixture]
-	public class AutoLinqSumTests : ContextActionTestBase
+	public class AutoLinqSumActionTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestSimpleIntegerLoop() {
@@ -59,7 +59,7 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
 		}
 
 		[Test]
@@ -90,7 +90,7 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
 		}
 
 		[Test]
@@ -121,7 +121,7 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
 		}
 
 		[Test]
@@ -139,7 +139,7 @@ class TestClass
 		}
 	}
 }";
-			TestWrongContext<AutoLinqSum>(source);
+			TestWrongContext<AutoLinqSumAction>(source);
 		}
 
 		[Test]
@@ -169,7 +169,7 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
 		}
 
 		[Test]
@@ -199,7 +199,7 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
 		}
 
 		[Test]
@@ -229,7 +229,7 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
 		}
 
 		[Test]
@@ -259,7 +259,7 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
 		}
 
 		[Test]
@@ -289,7 +289,7 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
 		}
 
 		[Test]
@@ -319,7 +319,7 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
 		}
 
 		[Test]
@@ -350,7 +350,241 @@ class TestClass
 	}
 }";
 
-			Assert.AreEqual(result, RunContextAction(new AutoLinqSum(), source));
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestCombined() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		$foreach (var x in list) {
+			result += x;
+			result += 2 * x;
+		}
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		result += list.Sum (x => x + 2 * x);
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestCombinedPrecedence() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		$foreach (var x in list) {
+			result += x;
+			result += x << 1;
+		}
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		result += list.Sum (x => x + (x << 1));
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestEmptyStatements() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		$foreach (var x in list) {
+			result += x;
+			;
+		}
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		result += list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestSimpleConditional() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		$foreach (var x in list) {
+			if (x > 0)
+				result += x;
+		}
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		result += list.Where (x => x > 0).Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestInvertedConditional() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		$foreach (var x in list) {
+			if (x > 0)
+				;
+			else
+				result += x;
+		}
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		result += list.Where (x => x <= 0).Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestCompleteConditional() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		$foreach (var x in list) {
+			if (x > 0)
+				result += x * 2;
+			else
+				result += x;
+		}
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		result += list.Sum (x => x > 0 ? x * 2 : x);
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestDisabledForSideEffects() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		string result = string.Empty;
+		var list = new string[] { ""a"", ""b"" };
+		$foreach (var x in list) {
+			TestMethod();
+			result += x;
+		}
+	}
+}";
+			TestWrongContext<AutoLinqSumAction>(source);
+		}
+
+		[Test]
+		public void TestDisabledForInnerAssignments() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		string result = string.Empty;
+		var list = new string[] { ""a"", ""b"" };
+		int p = 0;
+		$foreach (var x in list) {
+			result += (p = x);
+		}
+	}
+}";
+			TestWrongContext<AutoLinqSumAction>(source);
 		}
 	}
 }
