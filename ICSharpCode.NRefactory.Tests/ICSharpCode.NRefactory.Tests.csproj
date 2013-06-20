@@ -403,8 +403,6 @@
     <Compile Include="CSharp\CodeIssues\NoDefaultConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertIfAndSimplifyTests.cs" />
     <Compile Include="FormattingTests\TestExpressionFormatting.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantNullCheckTests.cs">
-    </Compile>
     <Compile Include="CSharp\CodeIssues\StaticConstructorAccessModifierTest.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantConstructorTests.cs" />
@@ -420,6 +418,8 @@
     <Compile Include="Analysis\SymbolCollectorTests.cs" />
     <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertToNewLineTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantNullCheckTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantOverridedMethodTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

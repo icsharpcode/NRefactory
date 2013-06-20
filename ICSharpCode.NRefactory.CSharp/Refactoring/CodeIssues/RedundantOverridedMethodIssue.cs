@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Category = IssueCategories.Redundancies,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut, 
-	                   ResharperDisableKeyword = "RedundantOveridedMethod")]
+	                   ResharperDisableKeyword = "RedundantOverridedMethod")]
 	public class RedundantOverridedMethodIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
@@ -47,7 +47,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				: base (ctx)
 			{
 			}
-
 		
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
@@ -59,18 +58,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (methodDeclaration.Body.Statements.Count != 1)
 					return;
 
-				if (methodDeclaration.Body.Statements[0] is ExpressionStatement)
-				{
-					Expression expr = methodDeclaration.Body.Statements.FirstOrNullObject();
-					if(!(expr is InvocationExpression))
-						return;
-					Expression memberReferenceExpression = (expr as InvocationExpression).Target;
-					if(memberReferenceExpression == null || memberReferenceExpression.Member != methodDeclaration.Name ||
-					   !(memberReferenceExpression is BaseReferenceExpression))
-						return;
-					var title = ctx.TranslateString("");
-					AddIssue(methodDeclaration, title, null);
-				}
+				var expr = methodDeclaration.Body.Statements.FirstOrNullObject();
+
+				if (expr == null || !(expr.FirstChild is InvocationExpression))
+					return;
+
+				Expression memberReferenceExpression = (expr.FirstChild as InvocationExpression).Target;
+				if (memberReferenceExpression == null || 
+					(memberReferenceExpression as MemberReferenceExpression).MemberName != methodDeclaration.Name ||
+					!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
+					return;
+				var title = ctx.TranslateString("Remove overrided methods that just call the base class methods");
+				AddIssue(methodDeclaration, title, script => {
+					script.Remove(methodDeclaration);
+				});
 			}
 		}
 	}

@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				"		string str = $\"\\r\\n\";" + Environment.NewLine +
 				"	}" + Environment.NewLine +
 				"}"
-				);
+			);
 			
 			Assert.AreEqual(
 				"class TestClass" + Environment.NewLine +
