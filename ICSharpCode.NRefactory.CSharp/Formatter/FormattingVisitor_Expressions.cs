@@ -523,11 +523,13 @@ namespace ICSharpCode.NRefactory.CSharp
 						continue;
 					}
 					if (child.Role == Roles.Expression) {
-						if (child.PrevSibling.Role == Roles.NewLine)
-							FixIndentation(child);
-						if (child.PrevSibling.Role == Roles.Comma)
-							ForceSpaceBefore(child, true);
-						if (child.NextSibling.Role == Roles.Comma)
+						if (child.PrevSibling != null) {
+							if (child.PrevSibling.Role == Roles.NewLine)
+								FixIndentation(child);
+							if (child.PrevSibling.Role == Roles.Comma)
+								ForceSpaceBefore(child, true);
+						}
+						if (child.NextSibling != null && child.NextSibling.Role == Roles.Comma)
 							ForceSpacesAfter(child, false);
 						continue;
 					}
