@@ -63,6 +63,124 @@ class TestClass
 		}
 
 		[Test]
+		public void TestMergedIntegerLoop() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		var list = new int[] { 1, 2, 3 };
+		int result = 0;
+		$foreach (var x in list)
+			result += x;
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		var list = new int[] { 1, 2, 3 };
+		int result = list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestNonZeroMergedIntegerLoop() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		var list = new int[] { 1, 2, 3 };
+		int result = 1;
+		$foreach (var x in list)
+			result += x;
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		var list = new int[] { 1, 2, 3 };
+		int result = 1 + list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestMergedAssignmentIntegerLoop() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		var list = new int[] { 1, 2, 3 };
+		int result;
+		result = 1;
+		$foreach (var x in list)
+			result += x;
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		var list = new int[] { 1, 2, 3 };
+		int result;
+		result = 1 + list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
+		public void TestMergedDecimal() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		var list = new int[] { 1, 2, 3 };
+		decimal result = 0.0m;
+		$foreach (var x in list)
+			result += x;
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		var list = new int[] { 1, 2, 3 };
+		decimal result = list.Sum ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
 		public void TestIntegerLoopInBlock() {
 			string source = @"
 using System.Linq;

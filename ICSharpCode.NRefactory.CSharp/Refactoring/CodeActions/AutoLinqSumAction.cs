@@ -65,9 +65,98 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			yield return new CodeAction(context.TranslateString("Convert foreach loop to LINQ expression"), script => {
 
-				script.Replace(loop, new ExpressionStatement(outputStatement));
+				var prevSibling = loop.GetPrevSibling(node => node is Statement);
+
+				Expression leftSide = outputStatement.Left;
+				Expression rightSide = outputStatement.Right;
+
+				Expression expressionToReplace = GetExpressionToReplace(prevSibling, leftSide);
+
+				if (expressionToReplace != null) {
+					Expression replacementExpression = rightSide.Clone();
+					if (!IsZeroPrimitive(expressionToReplace)) {
+						replacementExpression = new BinaryOperatorExpression(ParenthesizeIfNeeded(expressionToReplace).Clone(),
+						                                                     BinaryOperatorType.Add,
+						                                                     replacementExpression);
+					}
+
+					script.Replace(expressionToReplace, replacementExpression);
+					script.Remove(loop);
+				}
+				else {
+					script.Replace(loop, new ExpressionStatement(outputStatement));
+				}
 
 			}, loop);
+		}
+
+		bool IsZeroPrimitive(Expression expr)
+		{
+			//We want a very simple check -- no looking at constants, no constant folding, etc.
+			//So 1+1 should return false, but (0) should return true
+
+			var parenthesizedExpression = expr as ParenthesizedExpression;
+			if (parenthesizedExpression != null) {
+				return IsZeroPrimitive(parenthesizedExpression.Expression);
+			}
+
+			var zeroLiteralInteger = new PrimitiveExpression(0);
+			var zeroLiteralFloat = new PrimitiveExpression(0.0f);
+			var zeroLiteralDouble = new PrimitiveExpression(0.0);
+			var zeroLiteralDecimal = new PrimitiveExpression(0.0m);
+
+			return SameNode(zeroLiteralInteger, expr) ||
+				SameNode(zeroLiteralFloat, expr) ||
+				SameNode(zeroLiteralDouble, expr) ||
+				SameNode(zeroLiteralDecimal, expr);
+		}
+
+		Expression GetExpressionToReplace(AstNode prevSibling, Expression requiredLeftSide)
+		{
+			if (prevSibling == null) {
+				return null;
+			}
+
+			var declarationStatement = prevSibling as VariableDeclarationStatement;
+			if (declarationStatement != null)
+			{
+				if (declarationStatement.Variables.Count != 1) {
+					return null;
+				}
+
+				var identifierExpr = requiredLeftSide as IdentifierExpression;
+				if (identifierExpr == null) {
+					return null;
+				}
+
+				var variableDecl = declarationStatement.Variables.First();
+
+				if (!SameNode(identifierExpr.IdentifierToken, variableDecl.NameToken)) {
+					return null;
+				}
+
+				return variableDecl.Initializer;
+			}
+
+			var exprStatement = prevSibling as ExpressionStatement;
+			if (exprStatement != null) {
+				var assignment = exprStatement.Expression as AssignmentExpression;
+				if (assignment != null) {
+					if (assignment.Operator != AssignmentOperatorType.Assign &&
+						assignment.Operator != AssignmentOperatorType.Add) {
+
+						return null;
+					}
+
+					if (!SameNode(requiredLeftSide, assignment.Left)) {
+						return null;
+					}
+
+					return assignment.Right;
+				}
+			}
+
+			return null;
 		}
 
 		AssignmentExpression GetTransformedAssignmentExpression (RefactoringContext context, ForeachStatement foreachStatement)
