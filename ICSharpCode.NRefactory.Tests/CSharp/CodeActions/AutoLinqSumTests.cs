@@ -634,6 +634,37 @@ class TestClass
 		}
 
 		[Test]
+		public void TestIncrement() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		$foreach (var x in list) {
+			result++;
+		}
+	}
+}";
+
+			string result = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2, 3 };
+		result += list.Count ();
+	}
+}";
+
+			Assert.AreEqual(result, RunContextAction(new AutoLinqSumAction(), source));
+		}
+
+		[Test]
 		public void TestCompleteConditional() {
 			string source = @"
 using System.Linq;
@@ -694,11 +725,30 @@ using System.Linq;
 class TestClass
 {
 	void TestMethod() {
-		string result = string.Empty;
-		var list = new string[] { ""a"", ""b"" };
+		int result = 0;
+		var list = new int[] { 1, 2 };
 		int p = 0;
 		$foreach (var x in list) {
 			result += (p = x);
+		}
+	}
+}";
+			TestWrongContext<AutoLinqSumAction>(source);
+		}
+
+		[Test]
+		public void TestDisabledForInnerIncrements() {
+			string source = @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2 };
+		int p = 0;
+		$foreach (var x in list) {
+			result += (p++);
 		}
 	}
 }";

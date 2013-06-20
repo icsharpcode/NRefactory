@@ -159,6 +159,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 
+		bool IsUnaryModifierExpression(UnaryOperatorExpression expr)
+		{
+			return expr.Operator == UnaryOperatorType.Increment || expr.Operator == UnaryOperatorType.PostIncrement || expr.Operator == UnaryOperatorType.Decrement || expr.Operator == UnaryOperatorType.PostDecrement;
+		}
+
 		AssignmentExpression GetTransformedAssignmentExpression (RefactoringContext context, ForeachStatement foreachStatement)
 		{
 			var enumerableToIterate = foreachStatement.InExpression.Clone();
@@ -182,6 +187,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				// Reject loops such as
 				// int k = 0;
 				// foreach (var x in y) { k += (z = 2); }
+
+				return null;
+			}
+
+			if (rightExpression.DescendantsAndSelf.OfType<UnaryOperatorExpression>().Any(IsUnaryModifierExpression)) {
+				// int k = 0;
+				// foreach (var x in y) { k += (z++); }
 
 				return null;
 			}
@@ -214,13 +226,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				break;
 			}
 
+			var primitiveOne = new PrimitiveExpression(1);
+			bool isPrimitiveOne = SameNode(primitiveOne, rightExpression);
+
 			var arguments = new List<Expression>();
-			if (!IsIdentifier(rightExpression, foreachStatement.VariableName)) {
+
+			string method = isPrimitiveOne ? "Count" : "Sum";
+
+			if (!isPrimitiveOne && !IsIdentifier(rightExpression, foreachStatement.VariableName)) {
 				var lambda = BuildLambda(foreachStatement.VariableName, rightExpression);
+
 				arguments.Add(lambda);
 			}
 
-			var rightSide = new InvocationExpression(new MemberReferenceExpression(baseExpression, "Sum"), arguments);
+			var rightSide = new InvocationExpression(new MemberReferenceExpression(baseExpression, method), arguments);
 
 			return new AssignmentExpression(leftExpression.Clone(), AssignmentOperatorType.Add, rightSide);
 		}
@@ -275,9 +294,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return false;
 				}
 
-				leftSide = null;
-				rightSide = null;
-				return false;
+				UnaryOperatorExpression unary = expression.Expression as UnaryOperatorExpression;
+				if (unary != null) {
+					leftSide = unary.Expression;
+					if (unary.Operator == UnaryOperatorType.Increment || unary.Operator == UnaryOperatorType.PostIncrement) {
+						rightSide = new PrimitiveExpression(1);
+						return true;
+					} else if (unary.Operator == UnaryOperatorType.Decrement || unary.Operator == UnaryOperatorType.PostDecrement) {
+						rightSide = new PrimitiveExpression(-1);
+						return true;
+					} else {
+						leftSide = null;
+						rightSide = null;
+						return false;
+					}
+				}
 			}
 
 			if (statement is EmptyStatement || statement.IsNull) {
