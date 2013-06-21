@@ -754,6 +754,22 @@ class TestClass
 }";
 			TestWrongContext<AutoLinqSumAction>(source);
 		}
+
+		[Test]
+		public void TestDisabledForNoLinq() {
+			string source = @"
+class TestClass
+{
+	void TestMethod() {
+		int result = 0;
+		var list = new int[] { 1, 2 };
+		$foreach (var x in list) {
+			result += x;
+		}
+	}
+}";
+			TestWrongContext<AutoLinqSumAction>(source);
+		}
 	}
 }
 

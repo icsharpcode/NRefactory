@@ -58,6 +58,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			}
 
+			if (context.GetResolverStateBefore(loop)
+			    .LookupSimpleNameOrTypeName("Enumerable", new List<IType>(), NameLookupMode.Type)
+			    .Type.FullName != "System.Linq.Enumerable") {
+
+				yield break;
+			}
+
 			var outputStatement = GetTransformedAssignmentExpression (context, loop);
 			if (outputStatement == null) {
 				yield break;
