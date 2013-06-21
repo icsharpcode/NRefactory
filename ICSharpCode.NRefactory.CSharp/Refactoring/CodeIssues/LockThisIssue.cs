@@ -274,7 +274,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var availableValues = (MethodImplOptions[]) Enum.GetValues(typeof(MethodImplOptions));
 				var activeValues = availableValues.Where(value => (newValue & (short)value) != 0).ToList();
 
-				var astBuilder = ctx.CreateTypeSytemAstBuilder(attribute);
+				var astBuilder = ctx.CreateTypeSystemAstBuilder(attribute);
 				var methodImplOptionsType = astBuilder.ConvertType(new FullTypeName(typeof(MethodImplOptions).FullName));
 
 				Expression expression = CreateMethodImplReferenceNode(activeValues[0], methodImplOptionsType);
