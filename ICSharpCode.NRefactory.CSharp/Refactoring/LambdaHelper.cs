@@ -43,6 +43,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var invocation = (InvocationExpression)parent;
 				var argIndex = invocation.Arguments.TakeWhile (arg => !arg.Contains (lambda.StartLocation)).Count ();
 				var resolveResult = (CSharpInvocationResolveResult)context.Resolve (invocation);
+				if (resolveResult.IsExtensionMethodInvocation) {
+					++argIndex;
+				}
 				delegateTypeDef = resolveResult.Arguments [argIndex].Type.GetDefinition ();
 			} else {
 				delegateTypeDef = context.Resolve (parent).Type.GetDefinition ();
