@@ -2006,7 +2006,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			bool isEndpointUnreachable;
 			
 			// The actual return type is set when the lambda is applied by the conversion.
-			// For async lambdas, this is the unpacked task type
+			// For async lambdas, this includes the task type
 			IType actualReturnType;
 			
 			internal override bool IsUndecided {
@@ -2030,10 +2030,13 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						Analyze();
 						if (returnValues.Count == 1) {
 							bodyRR = returnValues[0];
-							if (actualReturnType.Kind != TypeKind.Void) {
-								var conv = storedContext.conversions.ImplicitConversion(bodyRR, actualReturnType);
-								if (!conv.IsIdentityConversion)
-									bodyRR = new ConversionResolveResult(actualReturnType, bodyRR, conv, storedContext.CheckForOverflow);
+							if (actualReturnType != null) {
+								IType unpackedActualReturnType = isAsync ? visitor.UnpackTask(actualReturnType) : actualReturnType;
+								if (unpackedActualReturnType.Kind != TypeKind.Void) {
+									var conv = storedContext.conversions.ImplicitConversion(bodyRR, unpackedActualReturnType);
+									if (!conv.IsIdentityConversion)
+										bodyRR = new ConversionResolveResult(unpackedActualReturnType, bodyRR, conv, storedContext.CheckForOverflow);
+								}
 							}
 							return bodyRR;
 						}
@@ -2103,6 +2106,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				return inferredReturnType;
 			}
 			
+			public override IType ReturnType {
+				get {
+					return actualReturnType ?? SpecialType.UnknownType;
+				}
+			}
+			
 			public override bool IsImplicitlyTyped {
 				get { return false; }
 			}
@@ -2132,8 +2141,6 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					// Explicitly typed lambdas do not use a nested visitor
 					throw new InvalidOperationException();
 				}
-				if (isAsync)
-					returnType = parentVisitor.UnpackTask(returnType);
 				if (actualReturnType != null) {
 					if (actualReturnType.Equals(returnType))
 						return; // return type already set
@@ -2142,10 +2149,11 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				actualReturnType = returnType;
 				visitor.undecidedLambdas.Remove(this);
 				Analyze();
-				Log.WriteLine("Applying return type {0} to explicitly-typed lambda {1}", returnType, this.LambdaExpression);
-				if (returnType.Kind != TypeKind.Void) {
+				IType unpackedReturnType = isAsync ? visitor.UnpackTask(returnType) : returnType;
+				Log.WriteLine("Applying return type {0} to explicitly-typed lambda {1}", unpackedReturnType, this.LambdaExpression);
+				if (unpackedReturnType.Kind != TypeKind.Void) {
 					for (int i = 0; i < returnExpressions.Count; i++) {
-						visitor.ProcessConversion(returnExpressions[i], returnValues[i], returnType);
+						visitor.ProcessConversion(returnExpressions[i], returnValues[i], unpackedReturnType);
 					}
 				}
 			}
@@ -2188,6 +2196,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			readonly List<LambdaTypeHypothesis> hypotheses = new List<LambdaTypeHypothesis>();
 			internal IList<IParameter> parameters = new List<IParameter>();
 			
+			internal IType actualReturnType;
 			internal LambdaTypeHypothesis winningHypothesis;
 			internal ResolveResult bodyResult;
 			internal readonly ResolveVisitor parentVisitor;
@@ -2333,6 +2342,10 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				GetAnyHypothesis().MergeInto(parentVisitor, SpecialType.UnknownType);
 			}
 			
+			public override IType ReturnType {
+				get { return actualReturnType ?? SpecialType.UnknownType; }
+			}
+			
 			public override bool IsImplicitlyTyped {
 				get { return true; }
 			}
@@ -2461,6 +2474,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				else if (lambda.winningHypothesis != null)
 					throw new InvalidOperationException("Trying to merge conflicting hypotheses");
 				
+				lambda.actualReturnType = returnType;
 				if (lambda.IsAsync)
 					returnType = parentVisitor.UnpackTask(returnType);
 				
@@ -2468,7 +2482,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				lambda.parameters = lambdaParameters; // replace untyped parameters with typed parameters
 				if (lambda.BodyExpression is Expression && returnValues.Count == 1) {
 					lambda.bodyResult = returnValues[0];
-					if (!returnType.IsKnownType(KnownTypeCode.Void)) {
+					if (returnType.Kind != TypeKind.Void) {
 						var conv = storedContext.conversions.ImplicitConversion(lambda.bodyResult, returnType);
 						if (!conv.IsIdentityConversion)
 							lambda.bodyResult = new ConversionResolveResult(returnType, lambda.bodyResult, conv, storedContext.CheckForOverflow);
@@ -2624,7 +2638,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						inferredReturnType = resolver.Compilation.FindType(KnownTypeCode.Task);
 						Log.WriteLine("Lambda return type was inferred to: " + inferredReturnType);
 						return;
-					} 
+					}
 
 					TypeInference ti = new TypeInference(resolver.Compilation, resolver.conversions);
 					bool tiSuccess;
@@ -3469,6 +3483,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			public override IType GetInferredReturnType(IType[] parameterTypes)
 			{
 				return bodyExpression.Type;
+			}
+			
+			public override IType ReturnType {
+				get {
+					return bodyExpression.Type;
+				}
 			}
 			
 			public override string ToString()

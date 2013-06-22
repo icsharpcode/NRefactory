@@ -26,6 +26,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.CSharp.Resolver;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
@@ -93,8 +94,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (noReturnValue) {
 				method.ReturnType = new PrimitiveType ("void"); 
 			} else {
-				var type = lambda.GetInferredReturnType (lambda.Parameters.Select (p => p.Type).ToArray ());
-				method.ReturnType = type.Name == "?" ? new PrimitiveType ("void") : context.CreateShortType (type);
+				var type = lambda.ReturnType;
+				method.ReturnType = type.Kind == TypeKind.Unknown ? new PrimitiveType ("void") : context.CreateShortType (type);
 			}
 
 			foreach (var param in lambda.Parameters)

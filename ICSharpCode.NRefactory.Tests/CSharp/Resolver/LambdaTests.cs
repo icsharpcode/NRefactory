@@ -680,6 +680,8 @@ class Test {
 			var rr = Resolve<LambdaResolveResult>(program);
 			Assert.IsInstanceOf<ConversionResolveResult>(rr.Body);
 			Assert.That(((ConversionResolveResult)rr.Body).Conversion.IsNullLiteralConversion);
+			Assert.AreEqual("System.String", rr.ReturnType.ReflectionName);
+			Assert.AreEqual("System.String", rr.Body.Type.ReflectionName);
 		}
 
 		[Test]
@@ -693,6 +695,8 @@ class Test {
 			var rr = Resolve<LambdaResolveResult>(program);
 			Assert.IsInstanceOf<ConversionResolveResult>(rr.Body);
 			Assert.That(((ConversionResolveResult)rr.Body).Conversion.IsNullLiteralConversion);
+			Assert.AreEqual("System.String", rr.ReturnType.ReflectionName);
+			Assert.AreEqual("System.String", rr.Body.Type.ReflectionName);
 		}
 
 		[Test]
@@ -705,6 +709,8 @@ class Test {
 }";
 			var rr = Resolve<LambdaResolveResult>(program);
 			Assert.IsInstanceOf<OperatorResolveResult>(rr.Body);
+			Assert.AreEqual("System.Void", rr.ReturnType.ReflectionName);
+			Assert.AreEqual("System.Int32", rr.Body.Type.ReflectionName);
 		}
 
 		[Test]
@@ -717,6 +723,8 @@ class Test {
 }";
 			var rr = Resolve<LambdaResolveResult>(program);
 			Assert.IsInstanceOf<OperatorResolveResult>(rr.Body);
+			Assert.AreEqual("System.Void", rr.ReturnType.ReflectionName);
+			Assert.AreEqual("System.Int32", rr.Body.Type.ReflectionName);
 		}
 		
 		[Test]

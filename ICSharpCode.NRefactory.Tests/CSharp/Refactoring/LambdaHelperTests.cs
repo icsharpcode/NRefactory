@@ -49,15 +49,16 @@ using System.Linq;
 class Test
 {
 	void Method() {
-		System.Enumerable<Empty> ().Where(<-i => i > 0->);
+		System.Linq.Enumerable.Empty<int> ().Where(<-i => i > 0->);
 	}
 }
 ";
 
 			var context = MakeContext(input);
 			var lambda = context.GetSelectedNodes().OfType<LambdaExpression>().First();
-
-			Assert.IsNotNull(LambdaHelper.GetLambdaReturnType(context, lambda));
+			var type = LambdaHelper.GetLambdaReturnType(context, lambda);
+			
+			Assert.AreEqual("System.Boolean", type.ReflectionName);
 		}
 	}
 }
