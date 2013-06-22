@@ -216,7 +216,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// Adds an attribute section to a given entity.
 		/// </summary>
 		/// <param name="entity">The entity to add the attribute to.</param>
-		/// <param name="Attribute">The attribute to add.</param>
+		/// <param name="attr">The attribute to add.</param>
 		public void AddAttribute(EntityDeclaration entity, AttributeSection attr)
 		{
 			var node = entity.FirstChild;

@@ -57,35 +57,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		const int ikvmLoaderVersion = 1;
 
 		#region Options
-		/// <summary>
-		/// Specifies whether to include internal members. The default is false.
-		/// </summary>
-		public bool IncludeInternalMembers { get; set; }
-
-		/// <summary>
-		/// Gets/Sets the documentation provider that is used to retrieve the XML documentation for all members.
-		/// </summary>
-		public IDocumentationProvider DocumentationProvider { get; set; }
-
-		InterningProvider interningProvider;
-
-		/// <summary>
-		/// Gets/Sets the interning provider.
-		/// </summary>
-		public InterningProvider InterningProvider {
-			get { return interningProvider; }
-			set {
-				if (value == null)
-					throw new ArgumentNullException();
-				interningProvider = value;
-			}
-		}
-
-		/// <summary>
-		/// Gets/Sets the cancellation token used by the cecil loader.
-		/// </summary>
-		public CancellationToken CancellationToken { get; set; }
-
+		// Most options are defined in the AssemblyLoader base class
+		
 		/// <summary>
 		/// This delegate gets executed whenever an entity was loaded.
 		/// </summary>
@@ -103,8 +76,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// </summary>
 		public IkvmLoader()
 		{
-			// Enable interning by default.
-			this.InterningProvider = new SimpleInterningProvider();
 		}
 
 		#region Load Assembly From Disk

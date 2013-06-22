@@ -47,10 +47,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		const int cecilLoaderVersion = 1;
 		
 		#region Options
-		/// <summary>
-		/// Specifies whether to include internal members. The default is false.
-		/// </summary>
-		public bool IncludeInternalMembers { get; set; }
+		// Most options are defined in the AssemblyLoader base class
 		
 		/// <summary>
 		/// Specifies whether to use lazy loading. The default is false.
@@ -67,30 +64,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// If you access the Cecil objects directly in your application, you may need to take the same lock.
 		/// </remarks>
 		public bool LazyLoad { get; set; }
-		
-		/// <summary>
-		/// Gets/Sets the documentation provider that is used to retrieve the XML documentation for all members.
-		/// </summary>
-		public IDocumentationProvider DocumentationProvider { get; set; }
-		
-		InterningProvider interningProvider;
-		
-		/// <summary>
-		/// Gets/Sets the interning provider.
-		/// </summary>
-		public InterningProvider InterningProvider {
-			get { return interningProvider; }
-			set {
-				if (value == null)
-					throw new ArgumentNullException();
-				interningProvider = value;
-			}
-		}
-		
-		/// <summary>
-		/// Gets/Sets the cancellation token used by the cecil loader.
-		/// </summary>
-		public CancellationToken CancellationToken { get; set; }
 		
 		/// <summary>
 		/// This delegate gets executed whenever an entity was loaded.
@@ -120,8 +93,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// </summary>
 		public CecilLoader()
 		{
-			// Enable interning by default.
-			this.InterningProvider = new SimpleInterningProvider();
 		}
 		
 		/// <summary>
