@@ -49,7 +49,7 @@ using System.Linq;
 class Test
 {
 	void Method() {
-		System.Enumerable<Empty> ().Where(<-i => i > 0->);
+		System.Enumerable.Empty<int> ().Where(<-i => i > 0->);
 	}
 }
 ";
