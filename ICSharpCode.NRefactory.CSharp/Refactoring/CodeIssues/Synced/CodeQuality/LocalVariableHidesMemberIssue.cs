@@ -60,6 +60,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (!(ctx.Resolve (variableInitializer) is LocalResolveResult))
 					return;
+				var mre = variableInitializer.Initializer as MemberReferenceExpression;
+				if (mre != null && mre.MemberName == variableInitializer.Name && mre.Target is ThisReferenceExpression) {
+					// Special case: the variable is initialized from the member it is hiding
+					// In this case, the hiding is obviously intentional and we shouldn't show a warning.
+					return;
+				}
                 CheckLocal(variableInitializer, variableInitializer.Name, variableInitializer.NameToken);
 			}
 
