@@ -544,6 +544,8 @@
     <Compile Include="Refactoring\CodeActions\ConvertToNewLineAction.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantBaseConstructorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantOverridedMethodIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\CopyCommentsFromBase.cs" />
+    <Compile Include="Refactoring\CodeActions\CopyCommentsFromInterface.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

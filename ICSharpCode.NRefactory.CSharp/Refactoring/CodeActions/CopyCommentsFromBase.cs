@@ -1,5 +1,5 @@
 ﻿// 
-// ConvertToNewLineAction.cs
+// CopyCommentsFromBase.cs
 //  
 // Author:
 //       Ji Kun <jikun.nus0@gmail.com>
@@ -24,41 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	/// <summary>
-	/// Replace literals \n, \r or \r\n with System.Environment.NewLine property
+	///  Copies documented comments from base to overriding methods.
 	/// </summary>
 	using System;
 	using System.Collections.Generic;
-
-	[ContextAction("Use System.Environment.NewLine", Description = "Replace \n, \r or \r\n with System.Environment.NewLine")]
-	public class ConvertToNewLineAction: ICodeActionProvider
+	
+	[ContextAction("Copy comments from base", Description = "Copies documented comments from base to overriding methods.")]
+	public class CopyCommentsFromBase: SpecializedCodeAction <MethodDeclaration>
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		protected override CodeAction GetAction(RefactoringContext context, MethodDeclaration node)
 		{
-			var expr = GetNewLineString(context);
-			if (expr == null) {
-				yield break;
-			}
-		
-			yield return new CodeAction(context.TranslateString("Use System.Environment.NewLine"), script => {
-				script.Replace(expr, 
-				               new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("System.Environment")), "NewLine"));
-			}, expr);
-		}
-		
-		static PrimitiveExpression GetNewLineString(RefactoringContext context)
-		{
-			var node = context.GetNode<PrimitiveExpression>();
-
-			string value;
-			if (node == null || (value = node.Value as string) == null)
+			if (node == null || !node.HasModifier(Modifiers.Override))
 				return null;
-			if (value == "\n" || value == "\r" || value == "\r\n")
-				return node;
-			return null;
+			
+			IMethod resolvedMember = (IMethod)(context.Resolve(node) as MemberResolveResult).Member;
+			
+			if (resolvedMember == null)
+				return null;
+			
+			IMethod originalMember = (IMethod)InheritanceHelper.GetBaseMember(resolvedMember);
+			
+			string comments = "";
+			if (originalMember.Documentation == null)
+				return null;
+			else {
+				comments = originalMember.Documentation.ToString();
+			}
+			
+			if (comments == "")
+				return null;
+			
+			string[] lines = comments.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+			return new CodeAction(context.TranslateString("Copy comments from base"), script => {
+				foreach (string co in lines) {
+					script.InsertBefore(node, new Comment(co, CommentType.Documentation));
+				}
+			}, node);
 		}
 	}
 }
