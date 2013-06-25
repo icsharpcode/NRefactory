@@ -66,10 +66,62 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					continue;
 				}
 
+				QueryWhereClause whereClause = clause as QueryWhereClause;
+				if (whereClause != null) {
+					HandleWhereClause (conversionContext, whereClause);
+					continue;
+				}
+
+				QueryOrderClause orderClause = clause as QueryOrderClause;
+				if (orderClause != null) {
+					HandleOrderClause (conversionContext, orderClause);
+					continue;
+				}
+
 				throw new NotImplementedException("Unknown clause");
 			}
 
 			script.Replace(query, conversionContext.Expression);
+		}
+
+		static void HandleOrderClause(ConversionContext conversionContext, QueryOrderClause orderClause)
+		{
+			bool isFirstOrdering = true;
+
+			foreach (var ordering in orderClause.Orderings) {
+				var lambda = new LambdaExpression();
+				CreateLambdaParameters(conversionContext, lambda);
+
+				lambda.Body = ConvertBodyToNewParameters(conversionContext, ordering.Expression);
+
+				string methodName = (isFirstOrdering ?
+				                     ordering.Direction == QueryOrderingDirection.Descending ? "OrderByDescending" : "OrderBy" :
+				                     ordering.Direction == QueryOrderingDirection.Descending ? "ThenByDescending" : "ThenBy");
+
+				var orderMember = new MemberReferenceExpression(conversionContext.Expression,
+				                                                 methodName);
+
+				var invocation = new InvocationExpression(orderMember, new List<Expression> { lambda });
+
+				conversionContext.Expression = invocation;
+
+				isFirstOrdering = false;
+			}
+		}
+
+		static void HandleWhereClause(ConversionContext conversionContext, QueryWhereClause whereClause)
+		{
+			var lambda = new LambdaExpression();
+			CreateLambdaParameters(conversionContext, lambda);
+
+			lambda.Body = ConvertBodyToNewParameters(conversionContext, whereClause.Condition);
+
+			var whereMember = new MemberReferenceExpression(conversionContext.Expression,
+			                                                 "Where");
+
+			var invocation = new InvocationExpression(whereMember, new List<Expression> { lambda });
+
+			conversionContext.Expression = invocation;
 		}
 
 		static void HandleLetClause(ConversionContext conversionContext, QueryLetClause letClause)
@@ -92,10 +144,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			lambda.Body = returnedData;
 
-			var selectMember = new MemberReferenceExpression(conversionContext.Expression,
+			var letMember = new MemberReferenceExpression(conversionContext.Expression,
 			                                                 "Select");
 
-			var invocation = new InvocationExpression(selectMember, new List<Expression> { lambda });
+			var invocation = new InvocationExpression(letMember, new List<Expression> { lambda });
 
 			conversionContext.Expression = invocation;
 			conversionContext.Variables.Add(letClause.Identifier);
