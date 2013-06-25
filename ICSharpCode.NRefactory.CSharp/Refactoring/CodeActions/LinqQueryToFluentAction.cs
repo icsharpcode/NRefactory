@@ -35,25 +35,68 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		protected override CodeAction GetAction(RefactoringContext context, QueryExpression node)
 		{
+			AstNode currentNode = node;
+			for (;;) {
+				QueryContinuationClause continuationParent = currentNode.Parent as QueryContinuationClause;
+				if (continuationParent != null) {
+					currentNode = continuationParent;
+					continue;
+				}
+				QueryExpression exprParent = currentNode.Parent as QueryExpression;
+				if (exprParent != null) {
+					currentNode = exprParent;
+					continue;
+				}
+
+				break;
+			}
+
+			node = (QueryExpression)currentNode;
+
 			return new CodeAction(context.TranslateString("Convert LINQ query to fluent syntax"),
 			                      script => ConvertQueryToFluent(script, node),
 			                      node);
 		}
 
-		static void ConvertQueryToFluent (Script script, QueryExpression query)
+		static void ConvertQueryToFluent(Script script, QueryExpression query) {
+			script.Replace(query, GetFluentFromQuery(query));
+		}
+
+		static Expression GetFluentFromQuery (QueryExpression query)
 		{
 			var conversionContext = new ConversionContext ();
 
-			QueryFromClause fromClause = (QueryFromClause) query.Clauses.FirstOrNullObject();
-			conversionContext.Expression = fromClause.Expression.Clone();
-			conversionContext.Variables.Add(fromClause.Identifier);
+			QueryClause firstClause = query.Clauses.FirstOrNullObject();
+			QueryFromClause firstFromClause = firstClause as QueryFromClause;
+			if (firstFromClause != null) {
+				conversionContext.Expression = firstFromClause.Expression.Clone();
+				conversionContext.Variables.Add(firstFromClause.Identifier);
 
-			if (!fromClause.Type.IsNull) {
-				CastToType(conversionContext, fromClause.Type);
+				if (!firstFromClause.Type.IsNull) {
+					conversionContext.Expression = CastToType(conversionContext.Expression, firstFromClause.Type);
+				}
+			} else {
+				QueryContinuationClause intoClause = firstClause as QueryContinuationClause;
+				var precedingExpression = GetFluentFromQuery(intoClause.PrecedingQuery);
+
+				conversionContext.Expression = precedingExpression;
+				conversionContext.Variables.Add(intoClause.Identifier);
 			}
 
+			bool skipNext = false;
 			foreach (QueryClause clause in query.Clauses.Skip(1))
 			{
+				if (skipNext) {
+					skipNext = false;
+					continue;
+				}
+
+				QueryFromClause fromClause = clause as QueryFromClause;
+				if (fromClause != null) {
+					HandleFromClause (conversionContext, fromClause, out skipNext);
+					continue;
+				}
+
 				QuerySelectClause selectClause = clause as QuerySelectClause;
 				if (selectClause != null) {
 					HandleSelectClause (conversionContext, selectClause);
@@ -78,10 +121,127 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					continue;
 				}
 
+				QueryGroupClause groupClause = clause as QueryGroupClause;
+				if (groupClause != null) {
+					HandleGroupClause (conversionContext, groupClause);
+					continue;
+				}
+
+				QueryJoinClause joinClause = clause as QueryJoinClause;
+				if (joinClause != null) {
+					HandleJoinClause (conversionContext, joinClause);
+					continue;
+				}
+
 				throw new NotImplementedException("Unknown clause");
 			}
 
-			script.Replace(query, conversionContext.Expression);
+			return conversionContext.Expression;
+		}
+
+		static void HandleJoinClause(ConversionContext conversionContext, QueryJoinClause joinClause)
+		{
+			Expression inExpression = joinClause.InExpression;
+			if (!joinClause.Type.IsNull) {
+				inExpression = CastToType(inExpression, joinClause.Type);
+			}
+
+			Expression outerExpression = joinClause.OnExpression;
+			Expression innerExpression = joinClause.EqualsExpression;
+
+			LambdaExpression outerLambda = new LambdaExpression();
+			CreateLambdaParameters(conversionContext, outerLambda);
+			outerLambda.Body = ConvertBodyToNewParameters(conversionContext, outerExpression);
+
+			LambdaExpression innerLambda = new LambdaExpression();
+			innerLambda.Parameters.Add(new ParameterDeclaration { Name = joinClause.JoinIdentifier });
+			innerLambda.Body = innerExpression.Clone();
+
+			LambdaExpression resultLambda = new LambdaExpression();
+			CreateLambdaParameters(conversionContext, resultLambda);
+			resultLambda.Parameters.Add(new ParameterDeclaration { Name = joinClause.JoinIdentifier });
+			resultLambda.Body = CreateAnonymousDataReturn(conversionContext, joinClause.JoinIdentifier, new IdentifierExpression(joinClause.JoinIdentifier));
+
+			var joinMember = new MemberReferenceExpression(conversionContext.Expression,
+			                                               "Join");
+
+			var arguments = new List<Expression>();
+			arguments.Add(inExpression.Clone());
+			arguments.Add(outerLambda);
+			arguments.Add(innerLambda);
+			arguments.Add(resultLambda);
+			var invocation = new InvocationExpression(joinMember, arguments);
+
+			conversionContext.Expression = invocation;
+			conversionContext.Variables.Add(joinClause.JoinIdentifier);
+		}
+
+		static void HandleFromClause(ConversionContext conversionContext, QueryFromClause fromClause, out bool skipNext)
+		{
+			LambdaExpression collectionLambda = new LambdaExpression();
+			CreateLambdaParameters(conversionContext, collectionLambda);
+			var fromExpression = fromClause.Expression.Clone();
+			if (!fromClause.Type.IsNull) {
+				fromExpression = CastToType(fromExpression, fromClause.Type);
+			}
+			collectionLambda.Body = ConvertBodyToNewParameters(conversionContext, fromExpression);
+
+			LambdaExpression resultLambda = new LambdaExpression();
+			CreateLambdaParameters(conversionContext, resultLambda);
+			resultLambda.Parameters.Add(new ParameterDeclaration { Name = fromClause.Identifier });
+
+			var nextSelect = fromClause.GetNextSibling(node => node is QueryClause) as QuerySelectClause;
+			if (nextSelect != null) {
+				skipNext = true;
+				resultLambda.Body = ConvertBodyToNewParameters(conversionContext, nextSelect.Expression);
+			} else {
+				skipNext = false;
+				resultLambda.Body = CreateAnonymousDataReturn(conversionContext, fromClause.Identifier, new IdentifierExpression(fromClause.Identifier));
+			}
+
+			var selectManyMember = new MemberReferenceExpression(conversionContext.Expression,
+			                                                     "SelectMany");
+
+			var arguments = new List<Expression>();
+			arguments.Add(collectionLambda);
+			arguments.Add(resultLambda);
+			var invocation = new InvocationExpression(selectManyMember, arguments);
+
+			conversionContext.Expression = invocation;
+			conversionContext.Variables.Add(fromClause.Identifier);
+		}
+
+		static void HandleGroupClause(ConversionContext conversionContext, QueryGroupClause groupClause)
+		{
+			var projection = groupClause.Projection;
+			var key = groupClause.Key;
+
+			LambdaExpression keyLambda = new LambdaExpression();
+			CreateLambdaParameters(conversionContext, keyLambda);
+			keyLambda.Body = ConvertBodyToNewParameters(conversionContext, key);
+
+			LambdaExpression projectionLambda = null;
+			IdentifierExpression projectionIdentifierExpression = projection as IdentifierExpression;
+			if (conversionContext.Variables.Count != 1 ||
+			    projectionIdentifierExpression == null ||
+			    projectionIdentifierExpression.Identifier != conversionContext.Variables[0]) {
+
+				projectionLambda = new LambdaExpression();
+				CreateLambdaParameters(conversionContext, projectionLambda);
+				projectionLambda.Body = ConvertBodyToNewParameters(conversionContext, projection);
+			}
+
+			var groupMember = new MemberReferenceExpression(conversionContext.Expression,
+			                                                "GroupBy");
+
+			var arguments = new List<Expression>();
+			arguments.Add(keyLambda);
+			if (projectionLambda != null) {
+				arguments.Add(projectionLambda);
+			}
+			var invocation = new InvocationExpression(groupMember, arguments);
+
+			conversionContext.Expression = invocation;
 		}
 
 		static void HandleOrderClause(ConversionContext conversionContext, QueryOrderClause orderClause)
@@ -117,10 +277,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			lambda.Body = ConvertBodyToNewParameters(conversionContext, whereClause.Condition);
 
 			var whereMember = new MemberReferenceExpression(conversionContext.Expression,
-			                                                 "Where");
+			                                                "Where");
 
 			var invocation = new InvocationExpression(whereMember, new List<Expression> { lambda });
-
+			
 			conversionContext.Expression = invocation;
 		}
 
@@ -129,28 +289,32 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var lambda = new LambdaExpression();
 			CreateLambdaParameters(conversionContext, lambda);
 
-			var arguments = conversionContext.Variables
-				.Select (name => (Expression) new IdentifierExpression(name)).ToList ();
-
-			var newVariableValue = ConvertBodyToNewParameters(conversionContext, letClause.Expression);
-			var newIdentifierValue = newVariableValue as IdentifierExpression;
-			if (newIdentifierValue != null && newIdentifierValue.Identifier == letClause.Identifier) {
-				arguments.Add(new IdentifierExpression(letClause.Identifier));
-			} else {
-				arguments.Add(new NamedExpression(letClause.Identifier, (Expression)newVariableValue));
-			}
-
-			var returnedData = new AnonymousTypeCreateExpression(arguments);
+			var returnedData = CreateAnonymousDataReturn(conversionContext, letClause.Identifier, letClause.Expression);
 
 			lambda.Body = returnedData;
 
 			var letMember = new MemberReferenceExpression(conversionContext.Expression,
-			                                                 "Select");
+			                                              "Select");
 
 			var invocation = new InvocationExpression(letMember, new List<Expression> { lambda });
 
 			conversionContext.Expression = invocation;
 			conversionContext.Variables.Add(letClause.Identifier);
+		}
+
+		static AnonymousTypeCreateExpression CreateAnonymousDataReturn(ConversionContext conversionContext, string newName, Expression newExpression)
+		{
+			var arguments = conversionContext.Variables.Select(name => (Expression)new IdentifierExpression(name)).ToList();
+			var newVariableValue = ConvertBodyToNewParameters(conversionContext, newExpression);
+			var newIdentifierValue = newVariableValue as IdentifierExpression;
+			if (newIdentifierValue != null && newIdentifierValue.Identifier == newName) {
+				arguments.Add(new IdentifierExpression(newName));
+			}
+			else {
+				arguments.Add(new NamedExpression(newName, (Expression)newVariableValue));
+			}
+			var returnedData = new AnonymousTypeCreateExpression(arguments);
+			return returnedData;
 		}
 
 		static void HandleSelectClause(ConversionContext conversionContext, QuerySelectClause selectClause)
@@ -165,7 +329,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var invocation = new InvocationExpression(selectMember, new List<Expression> { lambda });
 
 			conversionContext.Expression = invocation;
-			conversionContext.Variables.Clear();
 		}
 
 		static AstNode ConvertBodyToNewParameters(ConversionContext conversionContext, Expression expression)
@@ -201,14 +364,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		static void CastToType(ConversionContext conversionContext, AstType type)
+		static Expression CastToType(Expression expression, AstType type)
 		{
-			var castMember = new MemberReferenceExpression (conversionContext.Expression,
+			var castMember = new MemberReferenceExpression (expression.Clone(),
 			                                                "Cast",
 			                                                new List<AstType> { type.Clone() });
 			var invocation = new InvocationExpression (castMember, Enumerable.Empty<Expression>());
 
-			conversionContext.Expression = invocation;
+			return invocation;
 		}
 
 		class ConversionContext

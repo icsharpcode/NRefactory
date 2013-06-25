@@ -155,6 +155,38 @@ public class TestClass
 		}
 
 		[Test]
+		public void TestDoubleFromWithCastQuery()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var newEnumerable = System.Enumerable.Empty<int> ();
+		var data = $from x in System.Enumerable.Empty<int> ()
+                   from float y in newEnumerable
+                   select x * y;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var newEnumerable = System.Enumerable.Empty<int> ();
+		var data = System.Enumerable.Empty<int> ().SelectMany (x => newEnumerable.Cast<float> (), (x, y) => x * y);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
 		public void TestDoubleFromWithIntermediateQuery()
 		{
 			string input = @"
@@ -261,9 +293,10 @@ public class TestClass
 {
 	public void TestMethod()
 	{
+		var newEnumerable = new int[] { 4, 5, 6 };
 		var data = $from x in System.Enumerable.Empty<int> ()
-                   join float y in new int[] { 4, 5, 6 } on x * 2 equals y
-                   select x * y;
+                   join float yy in newEnumerable on x * 2 equals yy
+                   select x * yy;
 	}
 }
 ";
@@ -274,7 +307,8 @@ public class TestClass
 {
 	public void TestMethod()
 	{
-		var data = System.Enumerable.Empty<int> ().Join (new int[] { 4, 5, 6 }.Cast<float> (), x => x * 2, y => y, (x, y) => x * y);
+		var newEnumerable = new int[] { 4, 5, 6 };
+		var data = System.Enumerable.Empty<int> ().Join (newEnumerable.Cast<float> (), x => x * 2, yy => yy, (x, yy) => x * yy);
 	}
 }
 ";
@@ -291,8 +325,9 @@ public class TestClass
 {
 	public void TestMethod()
 	{
+		var newEnumerable = new int[] { 4, 5, 6 };
 		var data = $from x in System.Enumerable.Empty<int> ()
-                   join float y in new int[] { 4, 5, 6 } on x * 2 equals y
+                   join float y in newEnumerable on x * 2 equals y
                    where x == 2
                    select x * y;
 	}
@@ -305,7 +340,11 @@ public class TestClass
 {
 	public void TestMethod()
 	{
-		var data = System.Enumerable.Empty<int> ().Join (new int[] { 4, 5, 6 }.Cast<float> (), x => x * 2, y => y, (x, y) => new { x, y }).Where (_ => _.x == 2).Select (_ => _.x * _.y);
+		var newEnumerable = new int[] { 4, 5, 6 };
+		var data = System.Enumerable.Empty<int> ().Join (newEnumerable.Cast<float> (), x => x * 2, y => y, (x, y) => new {
+	x,
+	y
+}).Where (_ => _.x == 2).Select (_ => _.x * _.y);
 	}
 }
 ";
@@ -322,8 +361,9 @@ public class TestClass
 {
 	public void TestMethod()
 	{
+		var newEnumerable = new int[] { 1, 2, 3 };
 		var data = $from x in System.Enumerable.Empty<int> ()
-                   join y in new int[] { 4, 5, 6 } on x * 2 equals y
+                   join y in newEnumerable on x * 2 equals y
                    into g
                    select g;
 	}
@@ -336,7 +376,8 @@ public class TestClass
 {
 	public void TestMethod()
 	{
-		var data = System.Enumerable.Empty<int> ().GroupJoin (new int[] { 4, 5, 6 }, x => x * 2, y => y, (x, g) => g);
+		var newEnumerable = new int[] { 1, 2, 3 };
+		var data = System.Enumerable.Empty<int> ().GroupJoin (newEnumerable, x => x * 2, y => y, (x, g) => g);
 	}
 }
 ";
