@@ -179,7 +179,10 @@ public class TestClass
 	public void TestMethod()
 	{
 		var newEnumerable = System.Enumerable.Empty<int> ();
-		var data = System.Enumerable.Empty<int> ().SelectMany (x => newEnumerable, (x, y) => new { x, y }).Where (_ => _.x > _.y).Select (_ => _.x * _.y);
+		var data = System.Enumerable.Empty<int> ().SelectMany (x => newEnumerable, (x, y) => new {
+	x,
+	y
+}).Where (_ => _.x > _.y).Select (_ => _.x * _.y);
 	}
 }
 ";
@@ -334,6 +337,94 @@ public class TestClass
 	public void TestMethod()
 	{
 		var data = System.Enumerable.Empty<int> ().GroupJoin (new int[] { 4, 5, 6 }, x => x * 2, y => y, (x, g) => g);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
+		public void TestSimpleGroup()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = $from x in System.Enumerable.Empty<int> ()
+                   group x by x % 10;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = System.Enumerable.Empty<int> ().GroupBy (x => x % 10);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
+		public void TestDifferentGroup()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = $from x in System.Enumerable.Empty<int> ()
+                   group x / 10 by x % 10;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = System.Enumerable.Empty<int> ().GroupBy (x => x % 10, x => x / 10);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
+		public void TestInto()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = $from x in System.Enumerable.Empty<int> ()
+                   select x * 2 into y
+                   select y * 3;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = System.Enumerable.Empty<int> ().Select (x => x * 2).Select (y => y * 3);
 	}
 }
 ";
