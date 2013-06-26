@@ -122,8 +122,8 @@ namespace ICSharpCode.NRefactory.CSharp {
 			}
 
 			internal static IEnumerable<string> FallbackTransparentIdentifierNamePicker() {
-				const string TransparentParameterNameTemplate = "<>{0}";
-				int currentTransparentParameter = 1;
+				const string TransparentParameterNameTemplate = "x{0}";
+				int currentTransparentParameter = 0;
 				for (;;) {
 					yield return string.Format(CultureInfo.InvariantCulture, TransparentParameterNameTemplate, currentTransparentParameter++);
 				}
@@ -140,6 +140,7 @@ namespace ICSharpCode.NRefactory.CSharp {
 				} else {
 					if (!TransparentIdentifierNamePicker.MoveNext()) {
 						TransparentIdentifierNamePicker = FallbackTransparentIdentifierNamePicker().GetEnumerator();
+						TransparentIdentifierNamePicker.MoveNext();
 					}
 					string name = TransparentIdentifierNamePicker.Current;
 					param.AddChild(Identifier.Create(name), Roles.Identifier);
