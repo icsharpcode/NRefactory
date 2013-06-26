@@ -723,9 +723,9 @@ attribute_section_cont
 
 		lbag.InsertLocation ($$, 0, PopLocation ());
 		if ($5 != null) {
-			lbag.AddLocation ($$, GetLocation ($2), GetLocation ($5), GetLocation ($6));
+			lbag.AddLocation ($$, GetLocation ($1), GetLocation ($2), GetLocation ($5), GetLocation ($6));
 		} else {
-			lbag.AddLocation ($$, GetLocation ($2), GetLocation ($6));
+			lbag.AddLocation ($$, GetLocation ($1), GetLocation ($2), GetLocation ($6));
 		}
 
 		current_attr_target = null;
