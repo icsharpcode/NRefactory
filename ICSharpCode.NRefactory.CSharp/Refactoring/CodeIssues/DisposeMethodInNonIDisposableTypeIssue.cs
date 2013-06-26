@@ -76,6 +76,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return true;
 			}
 
+			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+			{
+				if (typeDeclaration.ClassType != ClassType.Class && typeDeclaration.ClassType != ClassType.Struct) {
+					//Disabled for interfaces, because the method could be
+					//explicitly implemented
+					//Also, does not apply to enums because enums have no methods
+					return;
+				}
+
+				var resolve = (TypeResolveResult)ctx.Resolve(typeDeclaration);
+				if (Implements(resolve.Type, "System.IDisposable")) {
+					return;
+				}
+
+				base.VisitTypeDeclaration(typeDeclaration);
+			}
+
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
 				if (!IsDisposeMethod(methodDeclaration)) {
@@ -84,17 +101,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var type = methodDeclaration.GetParent<TypeDeclaration>();
 				if (type == null) {
-					return;
-				}
-
-				if (type.ClassType == ClassType.Interface) {
-					//Disabled for interfaces, because the method could be
-					//explicitly implemented
-					return;
-				}
-
-				var resolve = (TypeResolveResult)ctx.Resolve(type);
-				if (Implements(resolve.Type, "System.IDisposable")) {
 					return;
 				}
 
@@ -136,6 +142,43 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			static bool Implements(IType type, string fullName)
 			{
 				return type.GetAllBaseTypes ().Any (baseType => baseType.FullName == fullName);
+			}
+
+			//Ignore entities that are not methods -- don't visit children
+			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+			{
+			}
+
+			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
+			{
+			}
+
+			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+			{
+			}
+
+			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
+			{
+			}
+
+			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+			{
+			}
+
+			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
+			{
+			}
+
+			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
+			{
+			}
+
+			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
+			{
+			}
+
+			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
+			{
 			}
 		}
 	}
