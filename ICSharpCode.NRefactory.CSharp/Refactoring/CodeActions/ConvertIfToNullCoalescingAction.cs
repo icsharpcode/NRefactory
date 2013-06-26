@@ -35,34 +35,36 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                Description = "Convert 'if' statement to '??' expression.")]
 	public class ConvertIfToNullCoalescingAction : SpecializedCodeAction <IfElseStatement>
 	{
+		const string expressionGroupName = "expression";
+		const string comparedNodeGroupName = "comparedNode";
+		const string valueOnNullGroupName = "valueOnNull";
+
+		Expression ActionPattern;
+
+		public ConvertIfToNullCoalescingAction()
+		{
+			var leftPattern = PatternHelper.OptionalParentheses(new AnyNode(comparedNodeGroupName));
+			var rightPattern = PatternHelper.OptionalParentheses(new NullReferenceExpression());
+			var choicePattern = new Choice();
+			var equalityPattern = PatternHelper.CommutativeOperator(leftPattern, BinaryOperatorType.Equality, rightPattern);
+			var inequalityPattern = PatternHelper.CommutativeOperator(leftPattern.Clone(), BinaryOperatorType.InEquality, rightPattern.Clone());
+			choicePattern.Add(equalityPattern);
+			choicePattern.Add(inequalityPattern);
+			var namedChoicePattern = new NamedNode(expressionGroupName, choicePattern);
+			ActionPattern = PatternHelper.OptionalParentheses(namedChoicePattern);
+		}
+
 		protected override CodeAction GetAction (RefactoringContext context, IfElseStatement node)
 		{
-			Expression condition = RemoveParenthesis(node.Condition);
-
-			var conditionExpression = condition as BinaryOperatorExpression;
-			if (conditionExpression == null) {
+			var match = ActionPattern.Match(node.Condition);
+			if (!match.Success) {
 				return null;
 			}
 
+			var conditionExpression = match.Get(expressionGroupName).Single() as BinaryOperatorExpression;
 			bool isEqualityComparison = conditionExpression.Operator == BinaryOperatorType.Equality;
-			if (!isEqualityComparison && conditionExpression.Operator != BinaryOperatorType.InEquality) {
-				return null;
-			}
 
-			Expression leftExpression = RemoveParenthesis(conditionExpression.Left);
-			Expression rightExpression = RemoveParenthesis(conditionExpression.Right);
-
-			var nullExpression = new NullReferenceExpression();
-			Expression comparedNode;
-			if (nullExpression.IsMatch(leftExpression)) {
-				comparedNode = rightExpression;
-			} else if (nullExpression.IsMatch(rightExpression)) {
-				comparedNode = leftExpression;
-			} else {
-				return null;
-			}
-
-			comparedNode = RemoveParenthesis(comparedNode);
+			Expression comparedNode = (Expression)match.Get(comparedNodeGroupName).Single();
 
 			Statement contentStatement;
 			if (isEqualityComparison) {
@@ -82,24 +84,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			}
 
-			ExpressionStatement expressionStatement = contentStatement as ExpressionStatement;
-			if (expressionStatement == null) {
+			var leftExpressionPattern = PatternHelper.OptionalParentheses(comparedNode);
+			var expressionPattern = new AssignmentExpression(leftExpressionPattern, AssignmentOperatorType.Assign, new AnyNode(valueOnNullGroupName));
+			var statementPattern = new ExpressionStatement(PatternHelper.OptionalParentheses(expressionPattern));
+
+			var statementMatch = statementPattern.Match(contentStatement);
+			if (!statementMatch.Success) {
 				return null;
 			}
 
-			var expression = RemoveParenthesis(expressionStatement.Expression);
-			var assignment = expression as AssignmentExpression;
-			if (assignment == null) {
-				return null;
-			}
-
-			if (assignment.Operator != AssignmentOperatorType.Assign) {
-				return null;
-			}
-
-			if (!comparedNode.IsMatch(RemoveParenthesis(assignment.Left))) {
-				return null;
-			}
+			var rightSide = (Expression)statementMatch.Get(valueOnNullGroupName).Single();
 
 			return new CodeAction(context.TranslateString("Convert if statement to ?? expression"),
 			                      script => {
@@ -116,7 +110,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						script.Replace(variable.Initializer, new BinaryOperatorExpression(variable.Initializer.Clone(),
 						                                                                  BinaryOperatorType.NullCoalescing,
-						                                                                  assignment.Right.Clone()));
+						                                                                  rightSide.Clone()));
 						script.Remove(node);
 
 						return;
@@ -132,7 +126,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						var newExpression = new BinaryOperatorExpression(previousAssignment.Right.Clone(),
 						                                                 BinaryOperatorType.NullCoalescing,
-						                                                 assignment.Right.Clone());
+						                                                 rightSide.Clone());
 
 						script.Replace(previousAssignment.Right, newExpression);
 						script.Remove(node);
@@ -142,7 +136,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var coalescedExpression = new BinaryOperatorExpression(comparedNode.Clone(),
 				                                                       BinaryOperatorType.NullCoalescing,
-				                                                       assignment.Right.Clone());
+				                                                       rightSide.Clone());
 
 				var newAssignment = new ExpressionStatement(new AssignmentExpression(comparedNode.Clone(), coalescedExpression));
 				script.Replace(node, newAssignment);
