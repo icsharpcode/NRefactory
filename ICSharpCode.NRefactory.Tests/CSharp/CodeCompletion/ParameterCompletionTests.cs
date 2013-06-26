@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 				this.ctx = ctx;
 			}
 			
-			class Provider : IParameterDataProvider
+			internal class Provider : IParameterDataProvider
 			{
 				public IEnumerable<IMethod> Data { get; set; }
 				#region IParameterDataProvider implementation
@@ -1225,6 +1225,30 @@ class NUnitTestClass {
     }
 }");
 			Assert.AreEqual (1, provider.Count);
+		}
+
+		/// <summary>
+		/// Bug 12824 - Invalid argument intellisense inside lambda
+		/// </summary>
+		[Ignore("Parser bug.")]
+		[Test]
+		public void TestBug12824 ()
+		{
+			var provider = (TestFactory.Provider)CreateProvider (
+				@"using System.Threading.Tasks;
+using System;
+
+public class MyEventArgs 
+{
+	public static void Main (string[] args)
+	{
+		Task.Factory.StartNew (() => {
+				$throw new Exception ($
+		});
+	}
+}");
+			string name = provider.Data.First().FullName;
+			Assert.AreEqual ("System.Exception..ctor", name);
 		}
 	}
 }
