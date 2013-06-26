@@ -422,6 +422,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantNullCheckTests.cs" />
     <Compile Include="CSharp\CodeActions\CopyCommentsFromIntefaceTests.cs" />
     <Compile Include="CSharp\Parser\Statements\TryCatchStatementTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantBaseIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

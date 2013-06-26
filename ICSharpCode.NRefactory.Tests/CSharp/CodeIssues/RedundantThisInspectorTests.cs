@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
@@ -35,45 +34,112 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	public class RedundantThisInspectorTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestInspectorCase1 ()
+		public void TestInspectorCase1()
 		{
 			var input = @"class Foo
 {
-	void Bar (string str)
-	{
-		this.Bar (str);
-	}
+    void Bar (string str)
+    {
+        this.Bar (str);
+    }
 }";
-
+			
 			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantThisIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+			var issues = GetIssues(new RedundantThisIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+			CheckFix(context, issues, @"class Foo
 {
-	void Bar (string str)
-	{
-		Bar (str);
-	}
+    void Bar (string str)
+    {
+        Bar (str);
+    }
 }");
 		}
-
+		
 		[Test]
-		public void TestResharperDisableRestore ()
+		public void TestInspectorCase2()
+		{
+			var input = @"    using System;
+ 
+    namespace Application
+    {
+        public class BaseClass
+        {
+            public int a;
+            public virtual void print()
+            {
+                Console.Write(Environment.NewLine);
+            }
+        }
+
+        class Program : BaseClass
+        {
+            public void print1()
+            {
+                base.a = 1;
+                this.print();
+                this.a = 1;
+            }
+            public override void print()
+            {
+                this.print();
+            }
+            public new int a;
+        }
+    }
+";
+			
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantThisIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+			CheckFix(context, issues, @"    using System;
+ 
+    namespace Application
+    {
+        public class BaseClass
+        {
+            public int a;
+            public virtual void print()
+            {
+                Console.Write(Environment.NewLine);
+            }
+        }
+
+        class Program : BaseClass
+        {
+            public void print1()
+            {
+                base.a = 1;
+                print();
+                a = 1;
+            }
+            public override void print()
+            {
+                print();
+            }
+            public new int a;
+        }
+    }
+");
+		}
+		
+		[Test]
+		public void TestResharperDisableRestore()
 		{
 			var input = @"class Foo
 {
-	void Bar (string str)
-	{
-		// ReSharper disable RedundantThisQualifier
-		this.Bar (str);
-		// ReSharper restore RedundantThisQualifier
-		this.Bar (str);
-	}
+    void Bar (string str)
+    {
+        // ReSharper disable RedundantThisQualifier
+        this.Bar (str);
+        // ReSharper restore RedundantThisQualifier
+        this.Bar (str);
+    }
 }";
-
+			
 			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantThisIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+			var issues = GetIssues(new RedundantThisIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
 		}
 	}
 }
