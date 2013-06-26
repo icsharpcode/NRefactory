@@ -4553,9 +4553,9 @@ void case_58()
 
 		lbag.InsertLocation (yyVal, 0, PopLocation ());
 		if (yyVals[-1+yyTop] != null) {
-			lbag.AddLocation (yyVal, GetLocation (yyVals[-4+yyTop]), GetLocation (yyVals[-1+yyTop]), GetLocation (yyVals[0+yyTop]));
+			lbag.AddLocation (yyVal, GetLocation (yyVals[-5+yyTop]), GetLocation (yyVals[-4+yyTop]), GetLocation (yyVals[-1+yyTop]), GetLocation (yyVals[0+yyTop]));
 		} else {
-			lbag.AddLocation (yyVal, GetLocation (yyVals[-4+yyTop]), GetLocation (yyVals[0+yyTop]));
+			lbag.AddLocation (yyVal, GetLocation (yyVals[-5+yyTop]), GetLocation (yyVals[-4+yyTop]), GetLocation (yyVals[0+yyTop]));
 		}
 
 		current_attr_target = null;

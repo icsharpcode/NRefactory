@@ -59,6 +59,30 @@ namespace ICSharpCode.NRefactory.CSharp
 			});
 		}
 
+		public override void VisitAttributeSection(AttributeSection attributeSection)
+		{
+			VisitChildrenToFormat(attributeSection, child => {
+				child.AcceptVisitor(this);
+				if (child.NextSibling != null && child.NextSibling.Role == Roles.RBracket) {
+					ForceSpacesAfter(child, false);
+				}
+			});
+		}
+
+		public override void VisitAttribute(Attribute attribute)
+		{
+			if (attribute.HasArgumentList) {
+				ForceSpacesBefore(attribute.LParToken, policy.SpaceBeforeMethodCallParentheses);
+				if (attribute.Arguments.Any()) {
+					ForceSpacesAfter(attribute.LParToken, policy.SpaceWithinMethodCallParentheses);
+				} else {
+					ForceSpacesAfter(attribute.LParToken, policy.SpaceBetweenEmptyMethodCallParentheses);
+					ForceSpacesBefore(attribute.RParToken, policy.SpaceBetweenEmptyMethodCallParentheses);
+				}
+				FormatArguments(attribute);
+			}
+		}
+
 		public override void VisitUsingDeclaration(UsingDeclaration usingDeclaration)
 		{
 			ForceSpacesAfter(usingDeclaration.UsingToken, true);

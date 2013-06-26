@@ -423,6 +423,8 @@
     <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
     <Compile Include="CSharp\CodeActions\AutoLinqSumTests.cs" />
     <Compile Include="CSharp\CodeIssues\DisposeMethodInNonIDisposableTypeTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertIfToNullCoalescingTests.cs" />
+    <Compile Include="FormattingTests\TestGlobalLevelFormatting.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
