@@ -76,15 +76,21 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public IEnumerable<string> Identifiers {
 			get {
-				var result = new Stack<string>();
+				return IdentifierTokens.Select(token => token.Name);
+			}
+		}
+
+		public IEnumerable<Identifier> IdentifierTokens {
+			get {
+				var result = new Stack<Identifier>();
 				AstType type = NamespaceName;
 				while (type is MemberType) {
 					var mt = (MemberType)type;
-					result.Push(mt.MemberName);
+					result.Push(mt.MemberNameToken);
 					type = mt.Target;
 				}
 				if (type is SimpleType)
-					result.Push(((SimpleType)type).Identifier);
+					result.Push(((SimpleType)type).IdentifierToken);
 				return result;
 			}
 		}
