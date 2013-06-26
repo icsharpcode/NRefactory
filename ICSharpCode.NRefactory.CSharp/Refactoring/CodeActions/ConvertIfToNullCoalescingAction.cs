@@ -61,10 +61,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			}
 
-			var conditionExpression = match.Get(expressionGroupName).Single() as BinaryOperatorExpression;
+			var conditionExpression = match.Get<BinaryOperatorExpression>(expressionGroupName).Single();
 			bool isEqualityComparison = conditionExpression.Operator == BinaryOperatorType.Equality;
 
-			Expression comparedNode = (Expression)match.Get(comparedNodeGroupName).Single();
+			Expression comparedNode = match.Get<Expression>(comparedNodeGroupName).Single();
 
 			Statement contentStatement;
 			if (isEqualityComparison) {
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			}
 
-			var rightSide = (Expression)statementMatch.Get(valueOnNullGroupName).Single();
+			var rightSide = statementMatch.Get<Expression>(valueOnNullGroupName).Single();
 
 			return new CodeAction(context.TranslateString("Convert if statement to ?? expression"),
 			                      script => {
