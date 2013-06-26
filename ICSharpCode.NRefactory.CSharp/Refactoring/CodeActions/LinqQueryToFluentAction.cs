@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			QueryClause firstClause = query.Clauses.FirstOrNullObject();
 			QueryFromClause firstFromClause = firstClause as QueryFromClause;
 			if (firstFromClause != null) {
-				conversionContext.Expression = firstFromClause.Expression.Clone();
+				conversionContext.Expression = ParenthesizeIfNeeded(firstFromClause.Expression.Clone());
 				conversionContext.Variables.Add(firstFromClause.Identifier);
 
 				if (!firstFromClause.Type.IsNull) {
@@ -78,6 +78,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			} else {
 				QueryContinuationClause intoClause = firstClause as QueryContinuationClause;
 				var precedingExpression = GetFluentFromQuery(intoClause.PrecedingQuery);
+
+				precedingExpression = ParenthesizeIfNeeded(precedingExpression);
 
 				conversionContext.Expression = precedingExpression;
 				conversionContext.Variables.Add(intoClause.Identifier);
@@ -129,7 +131,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				QueryJoinClause joinClause = clause as QueryJoinClause;
 				if (joinClause != null) {
-					HandleJoinClause (conversionContext, joinClause);
+					HandleJoinClause (conversionContext, joinClause, out skipNext);
 					continue;
 				}
 
@@ -139,7 +141,29 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return conversionContext.Expression;
 		}
 
-		static void HandleJoinClause(ConversionContext conversionContext, QueryJoinClause joinClause)
+		static bool NeedsToBeParenthesized(Expression expr)
+		{
+			UnaryOperatorExpression unary = expr as UnaryOperatorExpression;
+			if (unary != null) {
+				if (unary.Operator == UnaryOperatorType.PostIncrement || unary.Operator == UnaryOperatorType.PostDecrement) {
+					return false;
+				}
+				return true;
+			}
+
+			if (expr is BinaryOperatorExpression || expr is ConditionalExpression || expr is AssignmentExpression) {
+				return true;
+			}
+
+			return false;
+		}
+
+		static Expression ParenthesizeIfNeeded(Expression expr)
+		{
+			return NeedsToBeParenthesized(expr) ? new ParenthesizedExpression(expr) : expr;
+		}
+
+		static void HandleJoinClause(ConversionContext conversionContext, QueryJoinClause joinClause, out bool skipNext)
 		{
 			Expression inExpression = joinClause.InExpression;
 			if (!joinClause.Type.IsNull) {
@@ -157,13 +181,25 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			innerLambda.Parameters.Add(new ParameterDeclaration { Name = joinClause.JoinIdentifier });
 			innerLambda.Body = innerExpression.Clone();
 
+			bool isGroupJoin = !joinClause.IntoIdentifierToken.IsNull;
+
+			string resultIdentifier = isGroupJoin ? joinClause.IntoIdentifier : joinClause.JoinIdentifier;
+
 			LambdaExpression resultLambda = new LambdaExpression();
 			CreateLambdaParameters(conversionContext, resultLambda);
-			resultLambda.Parameters.Add(new ParameterDeclaration { Name = joinClause.JoinIdentifier });
-			resultLambda.Body = CreateAnonymousDataReturn(conversionContext, joinClause.JoinIdentifier, new IdentifierExpression(joinClause.JoinIdentifier));
+			resultLambda.Parameters.Add(new ParameterDeclaration { Name = resultIdentifier });
+
+			var nextSelect = joinClause.GetNextSibling(node => node is QueryClause) as QuerySelectClause;
+			if (nextSelect != null) {
+				skipNext = true;
+				resultLambda.Body = ConvertBodyToNewParameters(conversionContext, nextSelect.Expression);
+			} else {
+				skipNext = false;
+				resultLambda.Body = CreateAnonymousDataReturn(conversionContext, resultIdentifier, new IdentifierExpression(resultIdentifier));
+			}
 
 			var joinMember = new MemberReferenceExpression(conversionContext.Expression,
-			                                               "Join");
+			                                               isGroupJoin ? "GroupJoin" : "Join");
 
 			var arguments = new List<Expression>();
 			arguments.Add(inExpression.Clone());
@@ -173,7 +209,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var invocation = new InvocationExpression(joinMember, arguments);
 
 			conversionContext.Expression = invocation;
-			conversionContext.Variables.Add(joinClause.JoinIdentifier);
+			conversionContext.Variables.Add(resultIdentifier);
 		}
 
 		static void HandleFromClause(ConversionContext conversionContext, QueryFromClause fromClause, out bool skipNext)
@@ -304,17 +340,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		static AnonymousTypeCreateExpression CreateAnonymousDataReturn(ConversionContext conversionContext, string newName, Expression newExpression)
 		{
-			var arguments = conversionContext.Variables.Select(name => (Expression)new IdentifierExpression(name)).ToList();
+			var arguments = conversionContext.Variables.Select(name => CreateVariableInAnonymousType(conversionContext, name, new IdentifierExpression(name))).ToList();
+			arguments.Add(CreateVariableInAnonymousType(conversionContext, newName, newExpression));
+			var returnedData = new AnonymousTypeCreateExpression(arguments);
+			return returnedData;
+		}
+
+		static Expression CreateVariableInAnonymousType(ConversionContext conversionContext, string newName, Expression newExpression)
+		{
 			var newVariableValue = ConvertBodyToNewParameters(conversionContext, newExpression);
 			var newIdentifierValue = newVariableValue as IdentifierExpression;
 			if (newIdentifierValue != null && newIdentifierValue.Identifier == newName) {
-				arguments.Add(new IdentifierExpression(newName));
+				return new IdentifierExpression(newName);
 			}
 			else {
-				arguments.Add(new NamedExpression(newName, (Expression)newVariableValue));
+				return new NamedExpression(newName, (Expression)newVariableValue);
 			}
-			var returnedData = new AnonymousTypeCreateExpression(arguments);
-			return returnedData;
 		}
 
 		static void HandleSelectClause(ConversionContext conversionContext, QuerySelectClause selectClause)
@@ -340,6 +381,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					.OfType<IdentifierExpression> ();
 
 				foreach (var identifier in identifiers) {
+					if (!conversionContext.Variables.Contains(identifier.Identifier)) {
+						continue;
+					}
+
 					var replacement = new MemberReferenceExpression(
 						new IdentifierExpression("_"), identifier.Identifier);
 

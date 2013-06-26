@@ -63,6 +63,35 @@ public class TestClass
 		}
 
 		[Test]
+		public void TestPrecedence()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = $from x in true ? System.Enumerable.Empty<int> () : null
+                   select x;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = (true ? System.Enumerable.Empty<int> () : null).Select (x => x);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
 		public void TestWhereQuery()
 		{
 			string input = @"
@@ -353,7 +382,7 @@ public class TestClass
 		}
 
 		[Test]
-		public void TestJoinWithIntoQuery()
+		public void TestJoinWithIntoSelectQuery()
 		{
 			string input = @"
 using System.Linq;
@@ -378,6 +407,43 @@ public class TestClass
 	{
 		var newEnumerable = new int[] { 1, 2, 3 };
 		var data = System.Enumerable.Empty<int> ().GroupJoin (newEnumerable, x => x * 2, y => y, (x, g) => g);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
+		public void TestJoinWithIntoIntermediateQuery()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var newEnumerable = new int[] { 1, 2, 3 };
+		var data = $from x in System.Enumerable.Empty<int> ()
+                   join y in newEnumerable on x * 2 equals y
+                   into g
+                   where true
+                   select g;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var newEnumerable = new int[] { 1, 2, 3 };
+		var data = System.Enumerable.Empty<int> ().GroupJoin (newEnumerable, x => x * 2, y => y, (x, g) => new {
+	x,
+	g
+}).Where (_ => true).Select (_ => _.g);
 	}
 }
 ";
@@ -466,6 +532,82 @@ public class TestClass
 	public void TestMethod()
 	{
 		var data = System.Enumerable.Empty<int> ().Select (x => x * 2).Select (y => y * 3);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
+		public void TestDoubleFromWithLet()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var src = System.Enumerable.Empty<int> ();
+		var data = $from x in src
+                   from y in src
+                   let k = x * y
+                   select k;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var src = System.Enumerable.Empty<int> ();
+		var data = src.SelectMany (x => src, (x, y) => new {
+	x,
+	y
+}).Select (_ => new {
+	x = _.x,
+	y = _.y,
+	k = _.x * _.y
+}).Select (_ => _.k);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
+		public void TestDoubleFromWithMidLet()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var src = System.Enumerable.Empty<int> ();
+		var data = $from x in src
+                   let k = x * x
+                   from y in src
+                   select k * y;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var src = System.Enumerable.Empty<int> ();
+		var data = src.Select (x => new {
+	x,
+	k = x * x
+}).SelectMany (_ => src, (_, y) => _.k * y);
 	}
 }
 ";
