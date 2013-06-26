@@ -63,6 +63,41 @@ public class TestClass
 		}
 
 		[Test]
+		public void TestName()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		int _;
+		var _2 = $from x in System.Enumerable.Empty<int> ()
+                 let _1 = x
+                 select x;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		int _;
+		var _2 = System.Enumerable.Empty<int> ().Select (x => new {
+	x,
+	_1 = x
+}).Select (_3 => _3.x);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
 		public void TestPrecedence()
 		{
 			string input = @"

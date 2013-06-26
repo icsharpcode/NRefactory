@@ -26,6 +26,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -54,17 +57,60 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			node = (QueryExpression)currentNode;
 
 			return new CodeAction(context.TranslateString("Convert LINQ query to fluent syntax"),
-			                      script => ConvertQueryToFluent(script, node),
+			                      script => ConvertQueryToFluent(context, script, node),
 			                      node);
 		}
 
-		static void ConvertQueryToFluent(Script script, QueryExpression query) {
-			script.Replace(query, GetFluentFromQuery(query));
+		static void ConvertQueryToFluent(RefactoringContext context, Script script, QueryExpression query) {
+			string underscoreIdentifier = GetNameProposal (context, query, "_");
+			Expression newExpression = GetFluentFromQuery (query, underscoreIdentifier);
+			script.Replace (query, newExpression);
+			var nodesToLink = newExpression.Descendants.OfType<Identifier> ()
+				.Where (identifier => identifier.Name == underscoreIdentifier).ToArray();
 		}
 
-		static Expression GetFluentFromQuery (QueryExpression query)
+		static string GetNameProposal(RefactoringContext context, QueryExpression query, string baseName)
+		{
+			var resolver = context.GetResolverStateBefore(query);
+			int current = -1;
+			string nameProposal;
+			do {
+				++current;
+				nameProposal = baseName + (current == 0 ? string.Empty : current.ToString());
+			} while (IsNameUsed (resolver, query, nameProposal));
+
+			return nameProposal;
+		}
+
+		static bool IsNameUsed(CSharpResolver resolver, QueryExpression query, string name)
+		{
+			if (resolver.ResolveSimpleName(name, new List<IType>()) is LocalResolveResult) {
+				return true;
+			}
+
+			if (query.Ancestors.OfType <VariableInitializer>().Any(variable => variable.Name == name)) {
+				return true;
+			}
+			
+			if (query.Ancestors.OfType <BlockStatement>()
+			    .Any(blockStatement => DeclaresLocalVariable(blockStatement, name))) {
+
+				return true;
+			}
+
+			return query.Descendants.OfType<Identifier> ().Any (identifier => identifier.Name == name);
+		}
+
+		static bool DeclaresLocalVariable(BlockStatement blockStatement, string name) {
+			return blockStatement.Descendants.OfType <VariableInitializer>()
+				.Any(variable => variable.Name == name &&
+				     variable.Ancestors.OfType<BlockStatement>().First() == blockStatement);
+		}
+
+		static Expression GetFluentFromQuery (QueryExpression query, string underscoreIdentifier)
 		{
 			var conversionContext = new ConversionContext ();
+			conversionContext.UnderscoreIdentifier = underscoreIdentifier;
 
 			QueryClause firstClause = query.Clauses.FirstOrNullObject();
 			QueryFromClause firstFromClause = firstClause as QueryFromClause;
@@ -77,7 +123,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			} else {
 				QueryContinuationClause intoClause = firstClause as QueryContinuationClause;
-				var precedingExpression = GetFluentFromQuery(intoClause.PrecedingQuery);
+				var precedingExpression = GetFluentFromQuery(intoClause.PrecedingQuery, underscoreIdentifier);
 
 				precedingExpression = ParenthesizeIfNeeded(precedingExpression);
 
@@ -385,8 +431,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 					}
 
+					var underscoreIdentifier = new IdentifierExpression(conversionContext.UnderscoreIdentifier);
+
 					var replacement = new MemberReferenceExpression(
-						new IdentifierExpression("_"), identifier.Identifier);
+						underscoreIdentifier, identifier.Identifier);
 
 					if (identifier.Parent == null) {
 						//Is Root Node
@@ -405,7 +453,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (conversionContext.Variables.Count == 1) {
 				lambda.Parameters.Add(new ParameterDeclaration { Name = conversionContext.Variables[0] });
 			} else {
-				lambda.Parameters.Add(new ParameterDeclaration { Name = "_" });
+				lambda.Parameters.Add(new ParameterDeclaration { Name = conversionContext.UnderscoreIdentifier });
 			}
 		}
 
@@ -427,6 +475,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			/// </summary>
 			internal Expression Expression;
 			internal List<string> Variables = new List<string>();
+			internal string UnderscoreIdentifier;
 		}
 	}
 }
