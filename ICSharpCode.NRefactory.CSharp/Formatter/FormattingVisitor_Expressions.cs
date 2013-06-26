@@ -262,6 +262,20 @@ namespace ICSharpCode.NRefactory.CSharp
 				rParToken = oce.RParToken;
 				lParToken = oce.LParToken;
 				arguments = oce.Arguments.Cast<AstNode> ().ToList ();
+			} else if (node is Attribute) {
+				var oce = node as Attribute;
+				methodCallArgumentWrapping = policy.MethodCallArgumentWrapping;
+				newLineAferMethodCallOpenParentheses = policy.NewLineAferMethodCallOpenParentheses;
+				doAlignToFirstArgument = policy.AlignToFirstMethodCallArgument;
+				methodClosingParenthesesOnNewLine = policy.MethodCallClosingParenthesesOnNewLine;
+				spaceWithinMethodCallParentheses = policy.SpacesWithinNewParentheses;
+				spaceAfterMethodCallParameterComma = policy.SpaceAfterNewParameterComma;
+				spaceBeforeMethodCallParameterComma = policy.SpaceBeforeNewParameterComma;
+				spaceWithinEmptyParentheses = policy.SpacesBetweenEmptyNewParentheses;
+
+				rParToken = oce.RParToken;
+				lParToken = oce.LParToken;
+				arguments = oce.Arguments.Cast<AstNode> ().ToList ();
 			} else {
 				InvocationExpression invocationExpression = node as InvocationExpression;
 				methodCallArgumentWrapping = policy.MethodCallArgumentWrapping;
