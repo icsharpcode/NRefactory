@@ -422,6 +422,7 @@
     <Compile Include="Analysis\SymbolCollectorTests.cs" />
     <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
     <Compile Include="CSharp\CodeActions\AutoLinqSumTests.cs" />
+    <Compile Include="CSharp\CodeIssues\DisposeMethodInNonIDisposableTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertIfToNullCoalescingTests.cs" />
     <Compile Include="FormattingTests\TestGlobalLevelFormatting.cs" />
   </ItemGroup>

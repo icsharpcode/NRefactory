@@ -544,6 +544,7 @@
     <Compile Include="Refactoring\CodeIssues\LockThisIssue.cs" />
     <Compile Include="Refactoring\ImplementNotImplementedProperty.cs" />
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="Refactoring\CodeActions\ConvertIfToNullCoalescingAction.cs" />
   </ItemGroup>
   <ItemGroup>
