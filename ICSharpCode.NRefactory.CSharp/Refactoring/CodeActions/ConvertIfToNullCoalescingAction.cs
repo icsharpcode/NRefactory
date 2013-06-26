@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				{
 					var previousAssignment = previousExpressionStatement.Expression as AssignmentExpression;
 					if (previousAssignment != null &&
-					    comparedNode.IsMatch(RemoveParenthesis(previousAssignment.Left))) {
+					    comparedNode.IsMatch(previousAssignment.Left)) {
 
 						var newExpression = new BinaryOperatorExpression(previousAssignment.Right.Clone(),
 						                                                 BinaryOperatorType.NullCoalescing,
@@ -166,16 +166,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			return !statement.DescendantsAndSelf.OfType<Statement>()
 				.Any(descendant => !(descendant is EmptyStatement || descendant is BlockStatement));
-		}
-
-		Expression RemoveParenthesis (Expression expression)
-		{
-			ParenthesizedExpression parenthesizedExpression;
-			while ((parenthesizedExpression = expression as ParenthesizedExpression) != null) {
-				expression = parenthesizedExpression.Expression;
-			}
-
-			return expression;
 		}
 	}
 }
