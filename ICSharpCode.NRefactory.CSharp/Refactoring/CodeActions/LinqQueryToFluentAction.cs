@@ -65,8 +65,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			string underscoreIdentifier = GetNameProposal (context, query, "_");
 			Expression newExpression = GetFluentFromQuery (query, underscoreIdentifier);
 			script.Replace (query, newExpression);
-			var nodesToLink = newExpression.Descendants.OfType<Identifier> ()
-				.Where (identifier => identifier.Name == underscoreIdentifier).ToArray();
 		}
 
 		static string GetNameProposal(RefactoringContext context, QueryExpression query, string baseName)
