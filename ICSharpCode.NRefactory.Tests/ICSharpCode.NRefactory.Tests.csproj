@@ -423,6 +423,7 @@
     <Compile Include="CSharp\CodeActions\CopyCommentsFromIntefaceTests.cs" />
     <Compile Include="CSharp\Parser\Statements\TryCatchStatementTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantEmptyDefaultInSwitchTests.cs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

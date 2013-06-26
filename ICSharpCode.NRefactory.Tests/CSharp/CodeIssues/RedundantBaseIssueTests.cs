@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
@@ -31,14 +30,14 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-    [TestFixture]
-    public class RedundantBaseIssueTests : InspectionActionTestBase
-    {
+	[TestFixture]
+	public class RedundantBaseIssueTests : InspectionActionTestBase
+	{
 
-        [Test]
-        public void TestInspectorCase1()
-        {
-            var input = @"    using System;
+		[Test]
+		public void TestInspectorCase1()
+		{
+			var input = @"    using System;
  
     namespace Application
     {
@@ -70,10 +69,10 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
     }
 ";
 
-            TestRefactoringContext context;
-            var issues = GetIssues(new RedundantBaseIssue(), input, out context);
-            Assert.AreEqual(2, issues.Count);
-            CheckFix(context, issues, @"    using System;
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantBaseIssue(), input, out context);
+			Assert.AreEqual(2, issues.Count);
+			CheckFix(context, issues, @"    using System;
  
     namespace Application
     {
@@ -104,12 +103,12 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
         }
     }
 ");
-        }
+		}
 
-        [Test]
-        public void TestInspectorCase2()
-        {
-            var input = @"    using System;
+		[Test]
+		public void TestInspectorCase2()
+		{
+			var input = @"    using System;
  
     namespace Application
     {
@@ -141,16 +140,15 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
         }
     }
 ";
-            TestRefactoringContext context;
-            var issues = GetIssues(new RedundantBaseIssue(), input, out context);
-            Assert.AreEqual(0, issues.Count);
-        }
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantBaseIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
+		}
 
-
-        [Test]
-        public void TestResharperDisableRestore()
-        {
-            var input = @"    using System;
+		[Test]
+		public void TestResharperDisableRestore()
+		{
+			var input = @"    using System;
  
     namespace Application
     {
@@ -184,9 +182,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
         }
     }";
 
-            TestRefactoringContext context;
-            var issues = GetIssues(new RedundantBaseIssue(), input, out context);
-            Assert.AreEqual(2, issues.Count);
-        }
-    }
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantBaseIssue(), input, out context);
+			Assert.AreEqual(2, issues.Count);
+		}
+	}
 }
