@@ -148,7 +148,7 @@ public class TestClass
 {
 	public void TestMethod()
 	{
-		var data = System.Enumerable.Empty<int> ().Where (x => x > 1).Select (x => x);
+		var data = System.Enumerable.Empty<int> ().Where (x => x > 1);
 	}
 }
 ";
@@ -178,7 +178,7 @@ public class TestClass
 {
 	public void TestMethod()
 	{
-		var data = System.Enumerable.Empty<int> ().OrderBy (x => x).ThenByDescending (x => x * 2).Select (x => x);
+		var data = System.Enumerable.Empty<int> ().OrderBy (x => x).ThenByDescending (x => x * 2);
 	}
 }
 ";
@@ -278,7 +278,7 @@ public class TestClass
 		var data = System.Enumerable.Empty<int> ().SelectMany (x => newEnumerable, (x, y) => new {
 	x,
 	y
-}).Where (_ => _.x > _.y).Select (_ => _.x * _.y);
+}).Where (_ => _.x > _.y).Select (_1 => _1.x * _1.y);
 	}
 }
 ";
@@ -312,6 +312,43 @@ public class TestClass
 	x,
 	y = x * 2
 }).Select (_ => _.x * _.y);
+	}
+}
+";
+
+			Assert.AreEqual(output, RunContextAction(new LinqQueryToFluentAction(), input));
+		}
+
+		[Test]
+		public void TestLongChainQuery()
+		{
+			string input = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = $from x in System.Enumerable.Empty<int> ()
+                   let y = x * 2
+                   let z = x * y * 2
+                   select x * y * z;
+	}
+}
+";
+
+			string output = @"
+using System.Linq;
+public class TestClass
+{
+	public void TestMethod()
+	{
+		var data = System.Enumerable.Empty<int> ().Select (x => new {
+	x,
+	y = x * 2
+}).Select (_ => new {
+	_,
+	z = _.x * _.y * 2
+}).Select (_1 => _1._.x * _1._.y * _1.z);
 	}
 }
 ";
@@ -408,7 +445,7 @@ public class TestClass
 		var data = System.Enumerable.Empty<int> ().Join (newEnumerable.Cast<float> (), x => x * 2, y => y, (x, y) => new {
 	x,
 	y
-}).Where (_ => _.x == 2).Select (_ => _.x * _.y);
+}).Where (_ => _.x == 2).Select (_1 => _1.x * _1.y);
 	}
 }
 ";
@@ -478,7 +515,7 @@ public class TestClass
 		var data = System.Enumerable.Empty<int> ().GroupJoin (newEnumerable, x => x * 2, y => y, (x, g) => new {
 	x,
 	g
-}).Where (_ => true).Select (_ => _.g);
+}).Where (_ => true).Select (_1 => _1.g);
 	}
 }
 ";
@@ -603,10 +640,9 @@ public class TestClass
 	x,
 	y
 }).Select (_ => new {
-	x = _.x,
-	y = _.y,
+	_,
 	k = _.x * _.y
-}).Select (_ => _.k);
+}).Select (_1 => _1.k);
 	}
 }
 ";
@@ -642,7 +678,7 @@ public class TestClass
 		var data = src.Select (x => new {
 	x,
 	k = x * x
-}).SelectMany (_ => src, (_, y) => _.k * y);
+}).SelectMany (_ => src, (_1, y) => _1.k * y);
 	}
 }
 ";
