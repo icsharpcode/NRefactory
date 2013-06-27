@@ -548,6 +548,7 @@
     <Compile Include="Refactoring\CodeActions\CopyCommentsFromInterface.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantBaseIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantEmptyDefaultInSwitchIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\RedundantExplicitTypeSpecificationInLambdaIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
