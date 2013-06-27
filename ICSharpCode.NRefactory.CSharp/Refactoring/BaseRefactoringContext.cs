@@ -85,10 +85,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Gets all compilations that reference this Compilation main assembly.
+		/// Gets the type graph for the current compilation.
 		/// </summary>
-		public virtual IEnumerable<ICompilation> DerivedCompilations {
-			get { yield break; }
+		public virtual TypeGraph TypeGraph {
+			get { return new TypeGraph(Compilation.Assemblies); }
 		}
 		
 		public BaseRefactoringContext (ICSharpCode.NRefactory.CSharp.Resolver.CSharpAstResolver resolver, System.Threading.CancellationToken cancellationToken)
