@@ -84,6 +84,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			get { return resolver.Compilation; }
 		}
 
+		/// <summary>
+		/// Gets all compilations that reference this Compilation main assembly.
+		/// </summary>
+		public virtual IEnumerable<ICompilation> DerivedCompilations {
+			get { yield break; }
+		}
+		
 		public BaseRefactoringContext (ICSharpCode.NRefactory.CSharp.Resolver.CSharpAstResolver resolver, System.Threading.CancellationToken cancellationToken)
 		{
 			this.resolver = resolver;
