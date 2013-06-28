@@ -30,6 +30,7 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 using System.Threading;
 using System.Linq;
 using System.Text;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
@@ -48,11 +49,10 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			var sb = new StringBuilder ();
 			for (int i = 0; i < str.Length; i++) {
 				var ch = str [i];
-				if (ch == '\n' || ch == (char)8232) {
+				var possibleNewline = NewLine.GetDelimiterLength(ch, i + 1 < str.Length ? str [i + 1] : '\0');
+				if (possibleNewline > 0) {
 					sb.AppendLine ();
-				} else if (ch == '\r') {
-					sb.AppendLine ();
-					if (i + 1 < str.Length && str [i + 1] == '\n')
+					if (possibleNewline == 2)
 						i++;
 				} else {
 					sb.Append (ch);

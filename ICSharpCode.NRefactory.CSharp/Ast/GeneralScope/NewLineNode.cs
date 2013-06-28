@@ -1,11 +1,6 @@
 using System;
 namespace ICSharpCode.NRefactory.CSharp
 {
-	public enum NewLineType {
-		Unix,
-		Windows,
-		Mac
-	}
 
 	/// <summary>
 	/// A New line node represents a line break in the text.
@@ -18,7 +13,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
-		public abstract NewLineType NewLineType {
+		public abstract UnicodeNewline NewLineType {
 			get;
 		}
 
@@ -44,6 +39,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.startLocation = startLocation;
 		}
 
+		public sealed override string ToString(CSharpFormattingOptions formattingOptions)
+		{
+			return NewLine.GetString (NewLineType);
+		}
+
 		public override void AcceptVisitor(IAstVisitor visitor)
 		{
 			visitor.VisitNewLine (this);
@@ -60,11 +60,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 	}
 
-	public class UnixNewLine : NewLineNode
+	class UnixNewLine : NewLineNode
 	{
-		public override NewLineType NewLineType {
+		public override UnicodeNewline NewLineType {
 			get {
-				return NewLineType.Unix;
+				return UnicodeNewline.LF;
 			}
 		}
 
@@ -76,11 +76,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 		}
 
-		public override string ToString(CSharpFormattingOptions formattingOptions)
-		{
-			return "\n";
-		}
-
 		protected internal override bool DoMatch(AstNode other, PatternMatching.Match match)
 		{
 			var o = other as UnixNewLine;
@@ -88,11 +83,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 	}
 
-	public class WindowsNewLine : NewLineNode
+	class WindowsNewLine : NewLineNode
 	{
-		public override NewLineType NewLineType {
+		public override UnicodeNewline NewLineType {
 			get {
-				return NewLineType.Windows;
+				return UnicodeNewline.CRLF;
 			}
 		}
 
@@ -104,11 +99,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 		}
 
-		public override string ToString(CSharpFormattingOptions formattingOptions)
-		{
-			return "\r\n";
-		}
-
 		protected internal override bool DoMatch(AstNode other, PatternMatching.Match match)
 		{
 			var o = other as WindowsNewLine;
@@ -116,11 +106,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 	}
 
-	public class MacNewLine : NewLineNode
+	class MacNewLine : NewLineNode
 	{
-		public override NewLineType NewLineType {
+		public override UnicodeNewline NewLineType {
 			get {
-				return NewLineType.Mac;
+				return UnicodeNewline.CR;
 			}
 		}
 
@@ -130,11 +120,6 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public MacNewLine(TextLocation startLocation) : base (startLocation)
 		{
-		}
-
-		public override string ToString(CSharpFormattingOptions formattingOptions)
-		{
-			return "\r";
 		}
 
 		protected internal override bool DoMatch(AstNode other, PatternMatching.Match match)

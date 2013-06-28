@@ -444,36 +444,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					currentIndent.Append('\t');
 					offset++;
 					return;
-				case '\r':
-				case (char)8232:
 
-					if (readPreprocessorExpression) {
-						if (!eval(wordBuf.ToString()))
-							inside |= Inside.PreProcessorComment;
-					}
-
-					inside &= ~(Inside.Comment | Inside.String | Inside.CharLiteral | Inside.PreProcessor);
-					CheckKeyword(wordBuf.ToString());
-					wordBuf.Length = 0;
-					indent.Push(indentDelta);
-					indentDelta = new Indent(textEditorOptions);
-
-
-					if (addContinuation) {
-						indent.Push(IndentType.Continuation);
-					}
-					thisLineindent = indent.Clone();
-					addContinuation = false;
-					IsLineStart = true;
-					readPreprocessorExpression = false;
-					col = 1;
-					line++;
-					currentIndent.Length = 0;
-					break;
-				case '\n':
-					if (pc == '\r')
-						break;
-					goto case '\r';
 				case '"':
 					if (IsInComment || IsInPreProcessorComment)
 						break;
@@ -558,6 +529,36 @@ namespace ICSharpCode.NRefactory.CSharp
 						inside &= Inside.CharLiteral;
 					}
 					break;
+				default:
+					var nl = NewLine.GetDelimiterLength(ch, pc);
+					if (nl == 2)
+						break;
+					if (nl == 1) {
+						if (readPreprocessorExpression) {
+							if (!eval(wordBuf.ToString()))
+								inside |= Inside.PreProcessorComment;
+						}
+
+						inside &= ~(Inside.Comment | Inside.String | Inside.CharLiteral | Inside.PreProcessor);
+						CheckKeyword(wordBuf.ToString());
+						wordBuf.Length = 0;
+						indent.Push(indentDelta);
+						indentDelta = new Indent(textEditorOptions);
+
+
+						if (addContinuation) {
+							indent.Push(IndentType.Continuation);
+						}
+						thisLineindent = indent.Clone();
+						addContinuation = false;
+						IsLineStart = true;
+						readPreprocessorExpression = false;
+						col = 1;
+						line++;
+						currentIndent.Length = 0;
+					}
+					break;
+
 			}
 
 			if (!IsInComment && !IsInStringOrChar && !readPreprocessorExpression) {
@@ -583,9 +584,9 @@ namespace ICSharpCode.NRefactory.CSharp
 				indent.Push(IndentType.Continuation);
 				addContinuation = false;
 			}
-			IsLineStart &= ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == (char)8232;
+			IsLineStart &= ch == ' ' || ch == '\t' || NewLine.IsNewLine (ch);
 			pc = ch;
-			if (ch != '\n' && ch != '\r' && ch != (char)8232)
+			if (!NewLine.IsNewLine (ch))
 				col++;
 			offset++;
 		}

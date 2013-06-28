@@ -284,6 +284,7 @@
     <Compile Include="Refactoring\Severity.cs" />
     <Compile Include="Analysis\SymbolCollector.cs" />
     <Compile Include="TypeSystem\AssemblyLoader.cs" />
+    <Compile Include="Editor\UnicodeNewline.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Completion\" />
