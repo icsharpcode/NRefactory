@@ -511,6 +511,23 @@ namespace Mono.CSharp {
 			return e;
 		}
 
+		public Constant ResolveLabelConstant (ResolveContext rc)
+		{
+			var expr = Resolve (rc);
+			if (expr == null)
+				return null;
+
+			Constant c = expr as Constant;
+			if (c == null) {
+				if (c.type != InternalType.ErrorType)
+					rc.Report.Error (150, StartLocation, "A constant value is expected");
+
+				return null;
+			}
+
+			return c;
+		}
+
 		public virtual void EncodeAttributeValue (IMemberContext rc, AttributeEncoder enc, TypeSpec targetType)
 		{
 			rc.Module.Compiler.Report.Error (182, loc,
@@ -1253,8 +1270,20 @@ namespace Mono.CSharp {
 		public static Expression Create (Expression child, TypeSpec type)
 		{
 			Constant c = child as Constant;
-			if (c != null)
-				return new EmptyConstantCast (c, type);
+			if (c != null) {
+				var enum_constant = c as EnumConstant;
+				if (enum_constant != null)
+					c = enum_constant.Child;
+
+				if (!(c is ReducedExpression.ReducedConstantExpression)) {
+					if (c.Type == type)
+						return c;
+
+					var res = c.ConvertImplicitly (type);
+					if (res != null)
+						return res;
+				}
+			}
 
 			EmptyCast e = child as EmptyCast;
 			if (e != null)
@@ -1680,7 +1709,11 @@ namespace Mono.CSharp {
 		public override void Emit (EmitContext ec)
 		{
 			base.Emit (ec);
+			Emit (ec, mode);
+		}
 
+		public static void Emit (EmitContext ec, Mode mode)
+		{
 			if (ec.HasSet (EmitContext.Options.CheckedScope)) {
 				switch (mode){
 				case Mode.I1_U1: ec.Emit (OpCodes.Conv_Ovf_U1); break;
@@ -1949,7 +1982,7 @@ namespace Mono.CSharp {
 	//
 	public class ReducedExpression : Expression
 	{
-		sealed class ReducedConstantExpression : EmptyConstantCast
+		public sealed class ReducedConstantExpression : EmptyConstantCast
 		{
 			readonly Expression orig_expr;
 

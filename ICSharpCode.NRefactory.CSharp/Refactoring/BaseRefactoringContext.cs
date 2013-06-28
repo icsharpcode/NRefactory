@@ -37,6 +37,7 @@ using System.ComponentModel.Design;
 using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.Utils;
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.Analysis;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {

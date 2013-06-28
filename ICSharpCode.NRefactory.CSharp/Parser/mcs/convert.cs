@@ -1103,7 +1103,7 @@ namespace Mono.CSharp {
 				if (implicitOnly && !TypeSpec.IsReferenceType (target_type) && !target_type.IsNullableType) {
 					source_type_expr = source;
 				} else {
-					source_type_expr = Nullable.Unwrap.Create (source);
+					source_type_expr = Nullable.Unwrap.CreateUnwrapped (source);
 					source_type = source_type_expr.Type;
 				}
 			} else {
@@ -1414,6 +1414,9 @@ namespace Mono.CSharp {
 				Expression am = ame.Compatible (ec, target_type);
 				if (am != null)
 					return am.Resolve (ec);
+
+				// Avoid CS1503 after CS1661
+				return ErrorExpression.Instance;
 			}
 
 			if (expr_type == InternalType.Arglist && target_type == ec.Module.PredefinedTypes.ArgIterator.TypeSpec)

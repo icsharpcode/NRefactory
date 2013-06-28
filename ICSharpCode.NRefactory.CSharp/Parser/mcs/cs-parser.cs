@@ -4513,7 +4513,7 @@ void case_54()
 			lbag.AddLocation (sect, locationListStack.Pop ());
 		if (attrs == null)
 			attrs = new Attributes (sect);
-		else
+		else if (sect != null)
 			attrs.AddAttributes (sect);
 		yyVal = attrs;
 	  }
@@ -4591,7 +4591,7 @@ void case_60()
 void case_61()
 #line 757 "cs-parser.jay"
 {
- 		yyVal = CheckAttributeTarget (GetTokenName (yyToken), GetLocation (yyVals[0+yyTop])); 
+ 		CheckAttributeTarget (GetTokenName (yyToken), GetLocation (yyVals[0+yyTop])); 
  		yyVal = null;
 	  }
 
