@@ -445,6 +445,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					offset++;
 					return;
 				case '\r':
+				case (char)8232:
 
 					if (readPreprocessorExpression) {
 						if (!eval(wordBuf.ToString()))
@@ -582,9 +583,9 @@ namespace ICSharpCode.NRefactory.CSharp
 				indent.Push(IndentType.Continuation);
 				addContinuation = false;
 			}
-			IsLineStart &= ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
+			IsLineStart &= ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == (char)8232;
 			pc = ch;
-			if (ch != '\n' && ch != '\r')
+			if (ch != '\n' && ch != '\r' && ch != (char)8232)
 				col++;
 			offset++;
 		}

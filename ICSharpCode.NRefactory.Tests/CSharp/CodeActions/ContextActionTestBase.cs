@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			var sb = new StringBuilder ();
 			for (int i = 0; i < str.Length; i++) {
 				var ch = str [i];
-				if (ch == '\n') {
+				if (ch == '\n' || ch == (char)8232) {
 					sb.AppendLine ();
 				} else if (ch == '\r') {
 					sb.AppendLine ();

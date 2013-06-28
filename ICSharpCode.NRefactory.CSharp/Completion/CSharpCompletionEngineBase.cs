@@ -281,6 +281,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						break;
 					case '\n':
 					case '\r':
+					case (char)8232:
 						inSingleComment = false;
 						inString = false;
 						inChar = false;
@@ -605,6 +606,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					break;
 				case '\n':
 				case '\r':
+				case (char)8232:
 					inSingleComment = false;
 					inString = false;
 					inChar = false;

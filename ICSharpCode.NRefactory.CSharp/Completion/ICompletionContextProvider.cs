@@ -151,6 +151,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						break;
 					case '\r':
 					case '\n':
+					case (char)8232:
 						isInLineComment = false;
 						break;
 					case '/':

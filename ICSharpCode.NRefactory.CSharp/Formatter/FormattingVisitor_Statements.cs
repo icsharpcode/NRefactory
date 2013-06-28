@@ -177,7 +177,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			for (int offset = startOffset - 1; offset >= 0; offset--) {
 				char ch = document.GetCharAt(offset);
 				if (ch != ' ' && ch != '\t') {
-					return ch == '\n' || ch == '\r';
+					return ch == '\n' || ch == '\r' || ch == (char)8232;
 				}
 			}
 			return true;

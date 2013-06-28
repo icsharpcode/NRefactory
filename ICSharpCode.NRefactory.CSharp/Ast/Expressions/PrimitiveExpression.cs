@@ -123,6 +123,7 @@ namespace ICSharpCode.NRefactory.CSharp
 								p++;
 							goto case '\n';
 						case '\n':
+						case (char)8232:
 							line++;
 							col = 1;
 							break;
