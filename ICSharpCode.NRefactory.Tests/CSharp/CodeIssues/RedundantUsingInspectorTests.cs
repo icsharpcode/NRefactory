@@ -135,7 +135,6 @@ class Bar
 			var issues = GetIssues (new RedundantUsingIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
-
 		[Test]
 		public void TestResharperDisableRestore ()
 		{
@@ -151,6 +150,23 @@ class Foo
 			TestRefactoringContext context;
 			var issues = GetIssues (new RedundantUsingIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
+		}
+
+		[Test]
+		public void TestResharperDisableOnce ()
+		{
+			var input = @"using System;
+// ReSharper disable once RedundantUsingDirective
+using System.IO;
+using System.Text;
+
+class Foo
+{
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new RedundantUsingIssue (), input, out context);
+			Assert.AreEqual (2, issues.Count);
 		}
 	}
 }

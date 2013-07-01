@@ -44,11 +44,15 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		protected readonly BaseRefactoringContext ctx;
 		bool isDisabled;
+		bool isDisabledOnce;
 		bool isGloballySuppressed;
 		List<DomRegion> suppressedRegions =new List<DomRegion> ();
 
 		[SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
 		static string disableString;
+
+		[SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
+		static string disableOnceString;
 
 		[SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
 		static string restoreString;
@@ -62,6 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		static void SetDisableKeyword(string disableKeyword)
 		{
 			disableString = "disable " + disableKeyword;
+			disableOnceString = "disable once " + disableKeyword;
 			restoreString = "restore " + disableKeyword;
 		}
 
@@ -137,6 +142,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					isDisabled &= txt.IndexOf(restoreString, StringComparison.InvariantCulture) < 0;
 				} else {
 					isDisabled |= txt.IndexOf(disableString, StringComparison.InvariantCulture) > 0;
+					isDisabledOnce |= txt.IndexOf(disableOnceString, StringComparison.InvariantCulture) > 0;
 				}
 			}
 		}
@@ -162,6 +168,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		protected bool IsSuppressed(TextLocation location)
 		{
+			if (isDisabledOnce) {
+				isDisabledOnce = false;
+				return true;
+			}
 			return isDisabled || isGloballySuppressed || suppressedRegions.Any(r => r.IsInside(location));
 		}
 
