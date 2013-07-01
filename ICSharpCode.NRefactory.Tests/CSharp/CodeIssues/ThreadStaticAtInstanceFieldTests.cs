@@ -1,5 +1,5 @@
 //
-// ConditionalTernaryEqualBranchTests.cs
+// ThreadStaticAtInstanceFieldTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,85 +31,82 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ConditionalTernaryEqualBranchTests : InspectionActionTestBase
+	public class ThreadStaticAtInstanceFieldTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			var input = @"class Foo
+			var input = @"using System;
+class Foo
 {
-	void Bar (string str)
-	{
-		string c = str != null ? ""default"" : ""default"";
-	}
+	[ThreadStatic]
+	int bar;
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues (new ConditionalTernaryEqualBranchIssue (), input, out context);
+			var issues = GetIssues (new ThreadStaticAtInstanceFieldIssue (), input, out context);
+			Assert.AreEqual (1, issues.Count);
+
+			CheckFix (context, issues [0], @"using System;
+class Foo
+{
+	int bar;
+}");
+		}
+
+		[Test]
+		public void TestInspectorCase2 ()
+		{
+			var input = @"using System;
+class Foo
+{
+	[Serializable, ThreadStatic]
+	int bar;
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues (new ThreadStaticAtInstanceFieldIssue (), input, out context);
+			Assert.AreEqual (1, issues.Count);
+
+			CheckFix (context, issues [0], @"using System;
+class Foo
+{
+	[Serializable]
+	int bar;
+}");
+		}
+
+		[Test]
+		public void TestInspectorCase3 ()
+		{
+			var input = @"class Foo
+{
+	[System.ThreadStatic, System.Serializable]
+	int bar;
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues (new ThreadStaticAtInstanceFieldIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 
 			CheckFix (context, issues [0], @"class Foo
 {
-	void Bar (string str)
-	{
-		string c = ""default"";
-	}
+	[System.Serializable]
+	int bar;
 }");
-
 		}
 
-		[Test]
-		public void TestMoreComplexBranch ()
-		{
-			var input = @"class Foo
-{
-	void Bar (string str)
-	{
-		var c = str != null ? 3 + (3 * 4) - 12 * str.Length : 3 + (3 * 4) - 12 * str.Length;
-	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ConditionalTernaryEqualBranchIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
 
-			CheckFix (context, issues [0], @"class Foo
-{
-	void Bar (string str)
-	{
-		var c = 3 + (3 * 4) - 12 * str.Length;
-	}
-}");
-
-		}
-
-		[Test]
-		public void TestNotEqualBranches ()
-		{
-			var input = @"class Foo
-{
-	void Bar (string str)
-	{
-		string c = str != null ? ""default"" : ""default2"";
-	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ConditionalTernaryEqualBranchIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
-
-		}
 
 		[Test]
 		public void TestResharperSuppression ()
 		{
-			var input = @"class Foo
+			var input = @"using System;
+class Foo
 {
-	void Bar (string str)
-	{
-// ReSharper disable once ConditionalTernaryEqualBranch
-		string c = str != null ? ""default"" : ""default"";
-	}
+// ReSharper disable once ThreadStaticAtInstanceField
+	[ThreadStatic]
+	int bar;
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues (new ConditionalTernaryEqualBranchIssue (), input, out context);
+			var issues = GetIssues (new ThreadStaticAtInstanceFieldIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 
 		}

@@ -426,6 +426,7 @@
     <Compile Include="CSharp\CodeActions\ConvertIfToNullCoalescingTests.cs" />
     <Compile Include="FormattingTests\TestGlobalLevelFormatting.cs" />
     <Compile Include="CSharp\CodeIssues\ConditionalTernaryEqualBranchTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ThreadStaticAtInstanceFieldTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

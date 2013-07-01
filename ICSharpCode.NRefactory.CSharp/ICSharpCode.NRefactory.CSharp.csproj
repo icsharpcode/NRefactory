@@ -546,7 +546,8 @@
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
     <Compile Include="Refactoring\CodeIssues\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="Refactoring\CodeActions\ConvertIfToNullCoalescingAction.cs" />
-    <Compile Include="Refactoring\CodeIssues\ConditionalTernaryEqualBranch.cs" />
+    <Compile Include="Refactoring\CodeIssues\ConditionalTernaryEqualBranchIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\ThreadStaticAtInstanceFieldIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

@@ -266,6 +266,29 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 		
 		public abstract void Remove (AstNode node, bool removeEmptyLine = true);
+
+		/// <summary>
+		/// Safely removes an attribue from it's section (removes empty sections).
+		/// </summary>
+		/// <param name="attr">The attribute to be removed.</param>
+		public void RemoveAttribute(Attribute attr)
+		{
+			AttributeSection section = (AttributeSection)attr.Parent;
+			if (section.Attributes.Count == 1) {
+				Remove(section);
+				return;
+			}
+
+			var newSection = (AttributeSection)section.Clone();
+			int i = 0;
+			foreach (var a in section.Attributes) {
+				if (a == attr)
+					break;
+				i++;
+			}
+			newSection.Attributes.Remove (newSection.Attributes.ElementAt (i));
+			Replace(section, newSection);
+		}
 		
 		public abstract void FormatText (IEnumerable<AstNode> nodes);
 
