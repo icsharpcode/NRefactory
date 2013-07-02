@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.Documentation;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory
+namespace ICSharpCode.NRefactory.TypeSystem
 {
 	public enum AssemblyLoaderBackend {
 		Auto,
