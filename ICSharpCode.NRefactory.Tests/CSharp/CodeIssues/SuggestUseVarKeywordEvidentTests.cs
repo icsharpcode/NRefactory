@@ -1,5 +1,5 @@
-// 
-// IssueCategories.cs
+﻿// 
+// UseVarKeywordInspectorTests.cs
 //  
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,21 +23,32 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+using System;
+using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
+
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	public class IssueCategories
+	[TestFixture]
+	public class UseVarKeywordInspectorTests : InspectionActionTestBase
 	{
-		public const string CodeQualityIssues = "Code Quality Issues";
-		public const string ConstraintViolations = "Constraint Violations";
-        public const string PracticesAndImprovements = "Common Practices and Code Improvements";
-		public const string Redundancies = "Redundancies";
-		public const string Opportunities = "Language Usage Opportunities";
-		public const string Notifications = "Code Notifications";
-		public const string CompilerWarnings = "Compiler Warnings";
-		public const string CompilerErrors = "Compiler Errors";
+		[Test]
+		public void TestInspectorCase1 ()
+		{
+			var input = @"class Foo
+{
+	void Bar (object o)
+	{
+		Foo foo = (Foo)o;
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new SuggestUseVarKeywordEvidentIssue (), input, out context);
+			Assert.AreEqual (1, issues.Count);
+			// Fix is done by code action.
+		}
 	}
 }
-
-

@@ -1,10 +1,10 @@
+﻿// 
+// DoubleNegationIssueTests.cs
 // 
-// IssueCategories.cs
-//  
 // Author:
-//       Mike Krüger <mkrueger@xamarin.com>
+//      Mansheng Yang <lightyang0@gmail.com>
 // 
-// Copyright (c) 2012 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2012 Mansheng Yang <lightyang0@gmail.com>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,21 +23,41 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using NUnit.Framework;
+
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	public class IssueCategories
+	[TestFixture]
+	public class DoubleNegationIssueTests : InspectionActionTestBase
 	{
-		public const string CodeQualityIssues = "Code Quality Issues";
-		public const string ConstraintViolations = "Constraint Violations";
-        public const string PracticesAndImprovements = "Common Practices and Code Improvements";
-		public const string Redundancies = "Redundancies";
-		public const string Opportunities = "Language Usage Opportunities";
-		public const string Notifications = "Code Notifications";
-		public const string CompilerWarnings = "Compiler Warnings";
-		public const string CompilerErrors = "Compiler Errors";
+		[Test]
+		public void Test ()
+		{
+			var input = @"
+class TestClass
+{
+	bool GetBool () { }
+
+	void TestMethod ()
+	{
+		var x = !!GetBool ();
+		x = !(!(GetBool ()));
+	}
+}";
+			var output = @"
+class TestClass
+{
+	bool GetBool () { }
+
+	void TestMethod ()
+	{
+		var x = GetBool ();
+		x = GetBool ();
+	}
+}";
+			Test<DoubleNegationOperatorIssue> (input, 2, output);
+		}
 	}
 }
-
-
