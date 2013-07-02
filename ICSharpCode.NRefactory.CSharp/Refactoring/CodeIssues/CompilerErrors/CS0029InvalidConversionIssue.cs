@@ -104,7 +104,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			void CheckConversion(IType variableType, Expression expression)
 			{
-				Console.WriteLine(variableType);
 				if (variableType.Kind == TypeKind.Unknown)
 					return; // ignore error if the variable type is unknown
 				if (ctx.GetConversion(expression).IsValid)
