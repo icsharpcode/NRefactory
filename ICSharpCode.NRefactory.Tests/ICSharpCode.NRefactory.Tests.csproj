@@ -307,8 +307,8 @@
     <Compile Include="CSharp\CodeIssues\RedundantInternalInspectorTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantNamespaceUsageInspectorTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantPrivateInspectorTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantThisInspectorTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantUsingInspectorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantThisQualifierIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantUsingDirectiveIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\StringIsNullOrEmptyInspectorTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseVarKeywordInspectorTests.cs" />
     <Compile Include="CSharp\CodeActions\UseVarKeywordTests.cs" />
@@ -375,7 +375,7 @@
     <Compile Include="Utils\CompositeFormatStringParser\CompositeFormatStringParserTests.cs" />
     <Compile Include="CSharp\CodeIssues\OptionalParameterCouldBeSkippedTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCatchTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantToStringTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantToStringCallIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CallToObjectEqualsViaBaseTests.cs" />
     <Compile Include="CSharp\CodeIssues\IncorrectCallToGetHashCodeTests.cs" />
     <Compile Include="CSharp\CodeIssues\FormatStringIssues\FormatStringTests.cs" />

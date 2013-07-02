@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantInternalIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantInternalIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor (BaseRefactoringContext ctx, RedundantInternalIssue qualifierDirectiveIssueProvider) : base (ctx, qualifierDirectiveIssueProvider)
 			{
 			}
 

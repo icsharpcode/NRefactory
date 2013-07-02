@@ -1,4 +1,4 @@
-// 
+﻿// 
 // UseVarKeywordInspector.cs
 //  
 // Author:
@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<UseVarKeywordIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, UseVarKeywordIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor (BaseRefactoringContext ctx, UseVarKeywordIssue qualifierDirectiveIssueProvider) : base (ctx, qualifierDirectiveIssueProvider)
 			{
 			}
 

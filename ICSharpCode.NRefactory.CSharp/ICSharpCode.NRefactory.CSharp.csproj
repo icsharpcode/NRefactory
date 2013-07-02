@@ -310,7 +310,7 @@
     <Compile Include="Refactoring\CodeIssues\NegativeRelationalExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ExplicitConversionInForEachIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ForControlVariableNotModifiedIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\IdenticalConditionalBranchIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\ConditionalTernaryEqualBranchIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\MultipleEnumerationIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantArrayInitializerCommaIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantAssignmentIssue.cs" />
@@ -411,8 +411,8 @@
     <Compile Include="Refactoring\CodeIssues\RedundantInternalIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantNamespaceUsageIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantPrivateIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\RedundantThisIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\RedundantUsingIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Redundancies\RedundantThisQualifierIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Redundancies\RedundantUsingDirectiveIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\StringIsNullOrEmptyIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\UseVarKeywordIssue.cs" />
     <Compile Include="Refactoring\CodeActions\UseVarKeywordAction.cs" />
@@ -491,7 +491,7 @@
     <Compile Include="Refactoring\CodeIssues\ParameterCanBeDemotedIssue\IsTypeCriterion.cs" />
     <Compile Include="Refactoring\CodeIssues\OptionalParameterCouldBeSkippedIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantCatchIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\RedundantToStringIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Redundancies\RedundantToStringCallIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\CallToObjectEqualsViaBaseIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\IncorrectCallToObjectGetHashCodeIssue.cs" />
     <Compile Include="Refactoring\CodeActions\ExtractMethod\VariableUsageAnalyzation.cs" />
@@ -556,7 +556,9 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Refactoring\CodeIssues\Synced\CompilerErrors\" />
+  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>

@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			readonly BaseRefactoringContext context;
 			
-			public GatherVisitor(BaseRefactoringContext context, VariableDeclaredInWideScopeIssue issueProvider) : base (context, issueProvider)
+			public GatherVisitor(BaseRefactoringContext context, VariableDeclaredInWideScopeIssue qualifierDirectiveIssueProvider) : base (context, qualifierDirectiveIssueProvider)
 			{
 				this.context = context;
 			}

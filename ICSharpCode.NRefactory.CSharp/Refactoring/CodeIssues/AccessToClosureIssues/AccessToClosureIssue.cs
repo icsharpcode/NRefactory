@@ -76,10 +76,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			string title;
 
 			public GatherVisitor (BaseRefactoringContext context, SyntaxTree unit,
-								  AccessToClosureIssue issueProvider)
-				: base (context, issueProvider)
+								  AccessToClosureIssue qualifierDirectiveIssueProvider)
+				: base (context, qualifierDirectiveIssueProvider)
 			{
-				this.title = context.TranslateString (issueProvider.Title);
+				this.title = context.TranslateString (qualifierDirectiveIssueProvider.Title);
 			}
 
 			public override void VisitVariableInitializer (VariableInitializer variableInitializer)
@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void CheckVariable(IVariable variable, Statement env)
 			{
-				if (!IssueProvider.IsTargetVariable(variable))
+				if (!QualifierDirectiveIssueProvider.IsTargetVariable(variable))
 					return;
 
 				var root = new Environment (env, env);
@@ -131,7 +131,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				envLookup [env] = root;
 
 				foreach (var result in ctx.FindReferences(env, variable)) {
-					AddNode(envLookup, new Node(result.Node, IssueProvider.GetNodeKind(result.Node)));
+					AddNode(envLookup, new Node(result.Node, QualifierDirectiveIssueProvider.GetNodeKind(result.Node)));
 				}
 
 				root.SortChildren ();
@@ -144,7 +144,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				IDictionary<Statement, IList<Node>> modifications = null;
 
 				if (env.Body != null) {
-					cfg = IssueProvider.cfgBuilder.BuildControlFlowGraph (env.Body);
+					cfg = QualifierDirectiveIssueProvider.cfgBuilder.BuildControlFlowGraph (env.Body);
 					modifications = new Dictionary<Statement, IList<Node>> ();
 					foreach (var node in env.Children) {
 						if (node.Kind == NodeKind.Modification || node.Kind == NodeKind.ReferenceAndModification) {
@@ -167,7 +167,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void CollectAllIssues (Environment env, string variableName)
 			{
-				var fixes = IssueProvider.GetFixes (ctx, env, variableName).ToArray ();
+				var fixes = QualifierDirectiveIssueProvider.GetFixes (ctx, env, variableName).ToArray ();
 				env.IssueCollected = true;
 
 				foreach (var child in env.Children) {
@@ -228,7 +228,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var visitedNodes = new HashSet<ControlFlowNode> (stack);
 				while (stack.Count > 0) {
 					var node = stack.Pop ();
-					if (IssueProvider.CanReachModification (node, start, modifications))
+					if (QualifierDirectiveIssueProvider.CanReachModification (node, start, modifications))
 						return true;
 					foreach (var edge in node.Outgoing) {
 						if (visitedNodes.Add (edge.To))

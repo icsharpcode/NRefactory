@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantNamespaceUsageIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantNamespaceUsageIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor (BaseRefactoringContext ctx, RedundantNamespaceUsageIssue qualifierDirectiveIssueProvider) : base (ctx, qualifierDirectiveIssueProvider)
 			{
 			}
 

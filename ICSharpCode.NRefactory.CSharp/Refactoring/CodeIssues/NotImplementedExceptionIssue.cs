@@ -1,4 +1,4 @@
-// 
+﻿// 
 // NotImplementedExceptionInspector.cs
 //  
 // Author:
@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<NotImplementedExceptionIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, NotImplementedExceptionIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor (BaseRefactoringContext ctx, NotImplementedExceptionIssue qualifierDirectiveIssueProvider) : base (ctx, qualifierDirectiveIssueProvider)
 			{
 			}
 

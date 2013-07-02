@@ -1,4 +1,4 @@
-// 
+﻿// 
 // RedundantPrivateInspector.cs
 //  
 // Author:
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantPrivateIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantPrivateIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor (BaseRefactoringContext ctx, RedundantPrivateIssue qualifierDirectiveIssueProvider) : base (ctx, qualifierDirectiveIssueProvider)
 			{
 			}
 
