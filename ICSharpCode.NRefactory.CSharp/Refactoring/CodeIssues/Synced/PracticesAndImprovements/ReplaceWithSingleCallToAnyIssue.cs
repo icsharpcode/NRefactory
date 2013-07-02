@@ -44,8 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
         static void Main(string[] args)
         {
             /*				switch (member.Name) {
-                                case "First":
-                                case "FirstOrDefault":
+
                                 case "Last":
                                 case "LastOrDefault":
                                 case "LongCount":
@@ -55,9 +54,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                                 default:
                                     return false;
                             }*/
-            // ReSharper disable ReplaceWithSingleCallToCount
-            Console.WriteLine(args.Where(a => a.Length == 2).Count());
-// ReSharper restore ReplaceWithSingleCallToCount
+
+            // ReSharper disable once ReplaceWithSingleCallToLastOrDefault
+            // ReSharper disable once ReplaceWithSingleCallToSingle
+            // ReSharper disable once ReplaceWithSingleCallToSingleOrDefault
+            // ReSharper disable once ReplaceWithSingleCallToLast
+            Console.WriteLine(args.Where(a => a.Length == 2).Last());
         }
 
 		static readonly AstNode pattern =

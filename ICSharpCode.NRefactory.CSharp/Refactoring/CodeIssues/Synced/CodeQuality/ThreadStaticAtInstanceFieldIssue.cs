@@ -1,5 +1,5 @@
 //
-// ThreadStaticOnInstanceFieldIssue.cs
+// ThreadStaticAtInstanceFieldIssue.cs
 //
 // Author:
 //       Simon Lindgren <simon.n.lindgren@gmail.com>
@@ -36,14 +36,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
                       ResharperDisableKeyword = "ThreadStaticAtInstanceField")]
-	public class ThreadStaticOnInstanceFieldIssue : ICodeIssueProvider
+	public class ThreadStaticAtInstanceFieldIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}
 		
-		class GatherVisitor : GatherVisitorBase<ThreadStaticOnInstanceFieldIssue>
+		class GatherVisitor : GatherVisitorBase<ThreadStaticAtInstanceFieldIssue>
 		{
 			ITypeDefinition threadStaticDefinition;
 

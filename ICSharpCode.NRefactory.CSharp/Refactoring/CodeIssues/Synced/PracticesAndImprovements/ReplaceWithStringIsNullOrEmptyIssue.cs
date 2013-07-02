@@ -35,12 +35,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Checks for str == null &amp;&amp; str == " "
 	/// Converts to: string.IsNullOrEmpty (str)
 	/// </summary>
-	[IssueDescription("Use string.IsNullOrEmpty",
+	[IssueDescription("Use 'String.IsNullOrEmpty'",
 	       Description = "Uses shorter string.IsNullOrEmpty call instead of a longer condition.",
            Category = IssueCategories.PracticesAndImprovements,
 	       Severity = Severity.Suggestion,
            ResharperDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
-	public class StringIsNullOrEmptyIssue : ICodeIssueProvider
+    public class ReplaceWithStringIsNullOrEmptyIssue : ICodeIssueProvider
 	{
 		static readonly Pattern pattern = new Choice {
 			// str == null || str == ""
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context).GetIssues();
 		}
 		
-		class GatherVisitor : GatherVisitorBase<StringIsNullOrEmptyIssue>
+		class GatherVisitor : GatherVisitorBase<ReplaceWithStringIsNullOrEmptyIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{

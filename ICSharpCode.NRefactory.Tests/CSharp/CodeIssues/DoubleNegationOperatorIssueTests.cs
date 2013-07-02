@@ -1,5 +1,5 @@
 ﻿// 
-// DoubleNegationIssueTests.cs
+// DoubleNegationOperatorIssueTests.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class DoubleNegationIssueTests : InspectionActionTestBase
+	public class DoubleNegationOperatorIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void Test ()

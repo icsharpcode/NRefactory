@@ -1,5 +1,5 @@
 ﻿// 
-// UseVarKeywordInspectorTests.cs
+// SuggestUseVarKeywordEvidentTests.cs
 //  
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class UseVarKeywordInspectorTests : InspectionActionTestBase
+	public class SuggestUseVarKeywordEvidentTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestInspectorCase1 ()

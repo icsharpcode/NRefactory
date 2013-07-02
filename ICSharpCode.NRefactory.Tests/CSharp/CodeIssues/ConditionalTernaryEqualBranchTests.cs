@@ -109,10 +109,34 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues (new ConditionalTernaryEqualBranchIssue (), input, out context);
+            var issues = GetIssues(new ConditionalTernaryEqualBranchIssue(), input, out context);
 			Assert.AreEqual (0, issues.Count);
 
 		}
+
+        [Test]
+        public void Test()
+        {
+            var input = @"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		var a = i > 0 ? 1 + 1 : 1 + 1;
+		var b = i > 1 ? 1 : 2;
+	}
+}";
+            var output = @"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		var a = 1 + 1;
+		var b = i > 1 ? 1 : 2;
+	}
+}";
+            Test<ConditionalTernaryEqualBranchIssue>(input, 1, output);
+        }
 	}
 }
 

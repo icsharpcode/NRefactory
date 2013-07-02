@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantThisQualifierIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveIssueProvider) : base (ctx, qualifierDirectiveIssueProvider)
+			public GatherVisitor (BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 			}
 
@@ -86,7 +86,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
-				if (QualifierDirectiveIssueProvider.IgnoreConstructors)
+				if (QualifierDirectiveEvidentIssueProvider.IgnoreConstructors)
 					return;
 				base.VisitConstructorDeclaration(constructorDeclaration);
 			}

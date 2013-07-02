@@ -1,5 +1,5 @@
 ﻿// 
-// StringIsNullOrEmptyInspectorTests.cs
+// ReplaceWithStringIsNullOrEmptyIssueTests.cs
 //  
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -33,7 +33,7 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class StringIsNullOrEmptyInspectorTests : InspectionActionTestBase
+	public class ReplaceWithStringIsNullOrEmptyIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestInspectorCaseNS1 ()

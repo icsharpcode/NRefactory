@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantTypeCastIssue.cs
+// RedundantCastIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
@@ -33,20 +34,20 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Redundant type cast",
-						Description = "Redundant type cast.",
+	[IssueDescription ("Redundant cast",
+						Description = "Type cast can be safely removed.",
 						Category = IssueCategories.Redundancies,
 						Severity = Severity.Warning,
 						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantCast")]
-	public class RedundantTypeCastIssue : ICodeIssueProvider
+	public class RedundantCastIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantTypeCastIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantCastIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base (ctx)
@@ -132,6 +133,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (exprType.GetAllBaseTypes ().Any (t => t.Equals(expectedType)))
 					AddIssue (typeCastNode, expr, castStart, castEnd);
 			}
+
+		    static void Main(string[] args)
+		    {
+// ReSharper disable ReplaceWithSingleCallToFirst
+		        Console.WriteLine(args.Where(a => a.Length == 2).First());
+// ReSharper restore ReplaceWithSingleCallToFirst
+		    }
 		}
 	}
 }

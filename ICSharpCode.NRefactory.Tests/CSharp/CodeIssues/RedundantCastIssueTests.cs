@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantTypeCastIssueTests.cs
+// RedundantCastIssueTests.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantTypeCastIssueTests : InspectionActionTestBase
+	public class RedundantCastIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestSameType ()

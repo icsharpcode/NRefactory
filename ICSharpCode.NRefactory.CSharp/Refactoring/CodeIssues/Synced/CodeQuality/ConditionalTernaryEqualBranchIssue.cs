@@ -37,14 +37,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.Underline,
                        ResharperDisableKeyword = "ConditionalTernaryEqualBranch")]
-	public class ConditionalTernaryEqualBranchIssue : ICodeIssueProvider
+    public class ConditionalTernaryEqualBranchIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}
 
-		class GatherVisitor : GatherVisitorBase<IdenticalConditionalBranchIssue>
+        class GatherVisitor : GatherVisitorBase<ConditionalTernaryEqualBranchIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base (ctx)

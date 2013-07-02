@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Dictionary<UsingDeclaration, bool> isInUse = new Dictionary<UsingDeclaration, bool>();
 			Dictionary<string, UsingDeclaration> namespaceToUsingDecl = new Dictionary<string, UsingDeclaration>();
 			
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantUsingDirectiveIssue qualifierDirectiveIssueProvider) : base (ctx, qualifierDirectiveIssueProvider)
+			public GatherVisitor (BaseRefactoringContext ctx, RedundantUsingDirectiveIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 			}
 
@@ -94,7 +94,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				var nrr = ctx.Resolve(usingDeclaration.Import) as NamespaceResolveResult;
 				if (nrr != null) {
-					isInUse[usingDeclaration] = QualifierDirectiveIssueProvider.namespacesToKeep.Contains(nrr.NamespaceName);
+					isInUse[usingDeclaration] = QualifierDirectiveEvidentIssueProvider.namespacesToKeep.Contains(nrr.NamespaceName);
 					namespaceToUsingDecl[nrr.NamespaceName] = usingDeclaration;
 				}
 			}

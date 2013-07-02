@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	/// <summary>
+    /// <summary>
 	/// Finds redundant internal modifiers.
 	/// </summary>
 	[IssueDescription("Remove redundant 'private' modifier",

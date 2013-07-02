@@ -110,6 +110,72 @@ class Foo
 			Assert.AreEqual (0, issues.Count);
 
 		}
+
+
+        [Test]
+        public void InstanceField()
+        {
+            var input = @"
+using System;
+class TestClass
+{
+	[ThreadStatic]
+	string field;
+}";
+            TestRefactoringContext context;
+            var issues = GetIssues(new ThreadStaticAtInstanceFieldIssue(), input, out context);
+            Assert.AreEqual(1, issues.Count);
+            var issue = issues[0];
+            Assert.AreEqual(2, issue.Actions.Count);
+
+            CheckFix(context, issues[0], @"
+using System;
+class TestClass
+{
+	string field;
+}");
+        }
+
+        [Ignore]
+        [Test]
+        public void InstanceFieldWithMultiAttributeSection()
+        {
+            var input = @"
+using System;
+class TestClass
+{
+	[field: ThreadStatic, ContextStatic]
+	string field;
+}";
+            TestRefactoringContext context;
+            var issues = GetIssues(new ThreadStaticAtInstanceFieldIssue(), input, out context);
+            Assert.AreEqual(1, issues.Count);
+            var issue = issues[0];
+            Assert.AreEqual(2, issue.Actions.Count);
+
+            CheckFix(context, issues[0], @"
+using System;
+class TestClass
+{
+	[field: ContextStatic]
+	string field;
+}");
+        }
+
+        [Test]
+        public void StaticField()
+        {
+            var input = @"
+using System;
+class TestClass
+{
+	[ThreadStatic]
+	static string field;
+}";
+            TestRefactoringContext context;
+            var issues = GetIssues(new ThreadStaticAtInstanceFieldIssue(), input, out context);
+            Assert.AreEqual(0, issues.Count);
+        }
 	}
 }
 
