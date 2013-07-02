@@ -700,7 +700,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			}
 
 			if (marshalInfo.UnmanagedType == UnmanagedType.CustomMarshaler) {
-				attr.AddNamedFieldArgument("MarshalType", CreateSimpleConstantValue(KnownTypeReference.String, marshalInfo.MarshalTypeRef.FullName));
+				attr.AddNamedFieldArgument("MarshalType", CreateSimpleConstantValue(KnownTypeReference.String, marshalInfo.MarshalType));
 				if (!string.IsNullOrEmpty(marshalInfo.MarshalCookie))
 					attr.AddNamedFieldArgument("MarshalCookie", CreateSimpleConstantValue(KnownTypeReference.String, marshalInfo.MarshalCookie));
 			}
