@@ -425,6 +425,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantEmptyDefaultInSwitchTests.cs.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantExplicitTypeSpecificationInLambdaTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithIsOperatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

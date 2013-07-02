@@ -2,7 +2,7 @@
 // ConvertToNewLineAction.cs
 //  
 // Author:
-//       Ji Kun <jikun.nus0@gmail.com>
+//       Ji Kun <jikun.nus@gmail.com>
 // 
 // Copyright (c) 2013 Ji Kun <jikun.nus@gmail.com>
 // 
