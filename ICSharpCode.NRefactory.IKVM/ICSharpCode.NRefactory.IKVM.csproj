@@ -42,7 +42,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\..\ikvm-fork\reflect\IKVM.Reflection.csproj">
+    <ProjectReference Include="..\..\ikvm\reflect\IKVM.Reflection.csproj">
       <Project>{4CB170EF-DFE6-4A56-9E1B-A85449E827A7}</Project>
       <Name>IKVM.Reflection</Name>
     </ProjectReference>
