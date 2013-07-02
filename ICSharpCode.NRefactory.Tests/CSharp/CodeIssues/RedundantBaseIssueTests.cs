@@ -169,9 +169,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
         {
             public void print2()
             {
-//Reshaper disable RedundantBaseQualifier
+//Resharper disable RedundantBaseQualifier
                 base.a = 1;
-//Reshaper restore RedundantBaseQualifier
+//Resharper restore RedundantBaseQualifier
                 base.a = 1;
             }
             public override void print()
