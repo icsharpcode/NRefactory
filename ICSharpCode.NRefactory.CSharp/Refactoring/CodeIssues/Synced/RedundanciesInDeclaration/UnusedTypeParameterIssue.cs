@@ -1,5 +1,5 @@
 ﻿// 
-// TypeParameterNotUsedIssue.cs
+// UnusedTypeParameterIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Resolver;
@@ -39,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
                        ResharperDisableKeyword = "UnusedTypeParameter")]
-	public class TypeParameterNotUsedIssue : ICodeIssueProvider
+	public class UnusedTypeParameterIssue : ICodeIssueProvider
 	{
 		static FindReferences refFinder = new FindReferences ();
 
@@ -65,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return found;
 		}
 
-		class GatherVisitor : GatherVisitorBase<TypeParameterNotUsedIssue>
+		class GatherVisitor : GatherVisitorBase<UnusedTypeParameterIssue>
 		{
 			SyntaxTree unit;
 

@@ -30,8 +30,8 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("A catch clause containing a single empty throw is redundant",
-	                  Description = "Warns about catch clauses that only rethrows the exception.",
+	[IssueDescription("Redundant catch clause",
+                      Description = "Catch clause with a single 'throw' statement is redundant.",
 	                  Category = IssueCategories.Redundancies,
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.GrayOut,
@@ -70,14 +70,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddIssuesForClauses(AstNode node, List<CatchClause> redundantCatchClauses)
 			{
-				var allCatchClausesMessage = ctx.TranslateString("Remove all '{0}' redundant catches");
+				var allCatchClausesMessage = ctx.TranslateString("Remove all '{0}' redundant 'catch' clauses");
 				var removeAllRedundantClausesAction = new CodeAction(allCatchClausesMessage, script => {
 					foreach (var redundantCatchClause in redundantCatchClauses) {
 						script.Remove(redundantCatchClause);
 					}
 				}, node);
-				var singleCatchClauseMessage = ctx.TranslateString("Remove redundant catch clause");
-				var redundantCatchClauseMessage = ctx.TranslateString("A catch clause containing a single empty throw statement is redundant.");
+				var singleCatchClauseMessage = ctx.TranslateString("Remove 'catch'");
+                var redundantCatchClauseMessage = ctx.TranslateString("Catch clause with a single 'throw' statement is redundant.");
 				foreach (var redundantCatchClause in redundantCatchClauses) {
 					var closureLocalCatchClause = redundantCatchClause;
 					var removeRedundantClauseAction = new CodeAction(singleCatchClauseMessage, script => {
@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (lastCatch.IsNull)
 					return;
 
-				var removeTryCatchMessage = ctx.TranslateString("Remove try statement");
+				var removeTryCatchMessage = ctx.TranslateString("Remove 'try' statement");
 
 				var removeTryStatementAction = new CodeAction(removeTryCatchMessage, script => {
 					var statements = tryCatchStatement.TryBlock.Statements;

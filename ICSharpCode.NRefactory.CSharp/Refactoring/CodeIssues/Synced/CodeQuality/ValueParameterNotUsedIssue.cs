@@ -33,31 +33,32 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("The value parameter is not used in a context where is should be",
+	[IssueDescription("'value' parameter not used",
 	       Description = "Warns about property or indexer setters and event adders or removers that do not use the value parameter.",
 	       Category = IssueCategories.CodeQualityIssues,
-	       Severity = Severity.Warning)]
-	public class ValueParameterUnusedIssue : ICodeIssueProvider
+	       Severity = Severity.Warning,
+           ResharperDisableKeyword = "ValueParameterNotUsed")]
+	public class ValueParameterNotUsedIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}
 		
-		class GatherVisitor : GatherVisitorBase<ValueParameterUnusedIssue>
+		class GatherVisitor : GatherVisitorBase<ValueParameterNotUsedIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext context, ValueParameterUnusedIssue inspector) : base (context)
+			public GatherVisitor(BaseRefactoringContext context, ValueParameterNotUsedIssue inspector) : base (context)
 			{
 			}
 
 			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
 			{
-				FindIssuesInAccessor(indexerDeclaration.Setter);
+                FindIssuesInAccessor(indexerDeclaration.Setter, ctx.TranslateString("The setter does not use the 'value' parameter"));
 			}
 
 			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
 			{
-				FindIssuesInAccessor(propertyDeclaration.Setter);
+                FindIssuesInAccessor(propertyDeclaration.Setter, ctx.TranslateString("The setter does not use the 'value' parameter"));
 			}
 
 			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
@@ -67,11 +68,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				// don't warn on empty custom events
 				if (addAccessor.Body.Statements.Count == 0 && removeAccessor.Body.Statements.Count == 0)
 					return;
-				FindIssuesInAccessor(addAccessor, "add accessor");
-				FindIssuesInAccessor(removeAccessor, "remove accessor");
+                FindIssuesInAccessor(addAccessor, ctx.TranslateString("The add accessor does not use the 'value' parameter"));
+                FindIssuesInAccessor(removeAccessor, ctx.TranslateString("The remove accessor does not use the 'value' parameter"));
 			}
 
-			void FindIssuesInAccessor(Accessor accessor, string accessorName = "setter")
+			void FindIssuesInAccessor(Accessor accessor, string accessorName)
 			{
 				var body = accessor.Body;
 				if (!IsEligible(body))
@@ -92,7 +93,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if(!referenceFound)
-					AddIssue(accessor.Keyword, ctx.TranslateString("The " + accessorName + " does not use the 'value' parameter"));
+					AddIssue(accessor.Keyword, accessorName);
 			}
 
 			static bool IsEligible(BlockStatement body)

@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantElseIssue.cs
+// RedundantIfElseBlockIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -35,14 +35,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Severity = Severity.Warning,
 						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantIfElseBlock")]
-	public class RedundantElseIssue : ICodeIssueProvider
+	public class RedundantIfElseBlockIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantElseIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantIfElseBlockIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base(ctx)

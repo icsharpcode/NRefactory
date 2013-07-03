@@ -32,10 +32,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Call to static member via a derived class",
 	                   Description = "Suggests using the class declaring a static function when calling it.",
-	                   Category = IssueCategories.CodeQualityIssues,
-	                   Severity = Severity.Suggestion,
+	                   Category = IssueCategories.PracticesAndImprovements,
+	                   Severity = Severity.Warning,
                        ResharperDisableKeyword = "AccessToStaticMemberViaDerivedType")]
-	public class ReferenceToStaticMemberViaDerivedTypeIssue : ICodeIssueProvider
+    public class AccessToStaticMemberViaDerivedTypeIssue : ICodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context).GetIssues();
 		}
 
-		class GatherVisitor : GatherVisitorBase<ReferenceToStaticMemberViaDerivedTypeIssue>
+		class GatherVisitor : GatherVisitorBase<AccessToStaticMemberViaDerivedTypeIssue>
 		{
 			readonly BaseRefactoringContext context;
 			
@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				var builder = context.CreateTypeSystemAstBuilder(targetExpression);
 				var newType = builder.ConvertType(member.DeclaringType);
-				string description = string.Format("{0} '{1}'", context.TranslateString("Use base class"), newType.ToString());
+				string description = string.Format("{0} '{1}'", context.TranslateString("Use base qualifier"), newType.ToString());
 				return new CodeAction(description, script => {
 					script.Replace(targetExpression, newType);
 				}, targetExpression);

@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantCaseLabelIssue.cs
+// RedundantObjectOrCollectionInitializerIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -29,42 +29,37 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Redundant 'case' label",
-						Description = "Redundant 'case' label",
-						Category = IssueCategories.Redundancies,
-						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.GrayOut,
-                        ResharperDisableKeyword = "RedundantCaseLabel")]
-	public class RedundantCaseLabelIssue : ICodeIssueProvider
+	[IssueDescription ("Redundant empty object or collection initializer",
+					   Description = "Redundant empty object or collection initializer.",
+					   Category = IssueCategories.Redundancies,
+					   Severity = Severity.Warning,
+					   IssueMarker = IssueMarker.GrayOut,
+                       ResharperDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
+	public class RedundantObjectOrCollectionInitializerIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantCaseLabelIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantObjectOrCollectionInitializerIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor (BaseRefactoringContext ctx)
 				: base (ctx)
 			{
 			}
 
-			public override void VisitSwitchSection (SwitchSection switchSection)
+			public override void VisitObjectCreateExpression (ObjectCreateExpression objectCreateExpression)
 			{
-				base.VisitSwitchSection (switchSection);
-
-				if (switchSection.CaseLabels.Count <2)
+				base.VisitObjectCreateExpression (objectCreateExpression);
+				if (objectCreateExpression.Initializer.IsNull || objectCreateExpression.Initializer.Elements.Count > 0)
 					return;
 
-				var lastLabel = switchSection.CaseLabels.LastOrNullObject ();
-				if (!lastLabel.Expression.IsNull)
-					return;
-				AddIssue (switchSection.FirstChild.StartLocation, lastLabel.StartLocation,
-					ctx.TranslateString ("Remove redundant 'case' label"), scipt => {
-						foreach (var label in switchSection.CaseLabels) {
-							if (label != lastLabel)
-								scipt.Remove (label);
-						}
+				AddIssue (objectCreateExpression.Initializer, ctx.TranslateString ("Remove initializer"),
+					script => {
+						var expr = (ObjectCreateExpression)objectCreateExpression.Clone ();
+						expr.Initializer = ArrayInitializerExpression.Null;
+						script.Replace (objectCreateExpression, expr);
 					});
 			}
 		}
