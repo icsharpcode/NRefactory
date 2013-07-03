@@ -364,7 +364,7 @@
     <Compile Include="CSharp\CodeActions\RemoveRedundantCatchTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\AddCatchTypeTests.cs" />
     <Compile Include="CSharp\CodeIssues\IncorrectExceptionParameterOrderingTests.cs" />
-    <Compile Include="CSharp\CodeIssues\CallToVirtualFunctionFromConstructorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\DoNotCallOverridableMethodsInConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\StaticMethodInvocationToExtensionMethodInvocationTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationTests.cs" />
     <Compile Include="CSharp\CodeActions\IterateViaForeachTests.cs" />

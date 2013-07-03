@@ -32,7 +32,6 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	[TestFixture]
 	public class LocalVariableHidesMemberIssueTests : InspectionActionTestBase
 	{
-	    private string input;
 		[Test]
 		public void TestField ()
 		{

@@ -333,8 +333,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToCountIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\UnreachableCodeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\LocalVariableHidesMemberIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\VariableHidesMemberIssue\ParameterHidesMemberIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\VariableHidesMemberIssue\VariableHidesMemberIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\ParameterHidesMemberIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\VariableNotUsedIssues\LocalVariableNotUsedIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\VariableNotUsedIssues\ParameterNotUsedIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\TypeParameterNotUsedIssue.cs" />
@@ -479,7 +478,7 @@
     <Compile Include="Refactoring\CodeActions\RemoveRedundantCatchTypeAction.cs" />
     <Compile Include="Refactoring\CodeActions\AddCatchTypeAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\IncorrectExceptionParameterOrderingIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\CallToVirtualFunctionFromConstructorIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\DoNotCallOverridableMethodsInConstructorIssue.cs" />
     <Compile Include="Refactoring\CodeActions\StaticMethodInvocationToExtensionMethodInvocationAction.cs" />
     <Compile Include="Refactoring\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationAction.cs" />
     <Compile Include="Refactoring\CodeActions\IterateViaForeachAction.cs" />

@@ -1,5 +1,5 @@
 //
-// CallToVirtualFunctionFromConstructorIssue.cs
+// DoNotCallOverridableMethodsInConstructorIssue.cs
 //
 // Author:
 //       Simon Lindgren <simon.n.lindgren@gmail.com>
@@ -30,21 +30,31 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Constructors should not call virtual members",
+	[IssueDescription("Virtual member call in constructor",
 	                  Description = "Warns about calls to virtual member functions occuring in the constructor.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
                       ResharperDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
-	public class CallToVirtualFunctionFromConstructorIssue : ICodeIssueProvider
+	public class DoNotCallOverridableMethodsInConstructorIssue : ICodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+	    public DoNotCallOverridableMethodsInConstructorIssue()
+	    {
+	        FooBar();
+	    }
+
+	    public virtual void FooBar()
+	    {
+	        throw new System.NotImplementedException();
+	    }
+
+	    public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			var gv = new GatherVisitor(context);
 			context.RootNode.AcceptVisitor(gv);
 			return gv.CallFinder.FoundIssues;
 		}
 		
-		class GatherVisitor : GatherVisitorBase<CallToVirtualFunctionFromConstructorIssue>
+		class GatherVisitor : GatherVisitorBase<DoNotCallOverridableMethodsInConstructorIssue>
 		{
 			internal readonly VirtualCallFinderVisitor CallFinder;
 
@@ -61,6 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				bool oldIsSealedType = isSealedType;
 				isSealedType = typeDeclaration.Modifiers.HasFlag(Modifiers.Sealed);
+			    CallFinder.CurrentType = typeDeclaration;
 				base.VisitTypeDeclaration(typeDeclaration);
 				isSealedType = oldIsSealedType;
 			}
@@ -111,16 +122,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		class VirtualCallFinderVisitor: GatherVisitorBase<CallToVirtualFunctionFromConstructorIssue>
+		class VirtualCallFinderVisitor: GatherVisitorBase<DoNotCallOverridableMethodsInConstructorIssue>
 		{
 			readonly BaseRefactoringContext context;
-
+            public TypeDeclaration CurrentType;
 			public VirtualCallFinderVisitor(BaseRefactoringContext context) : base(context)
 			{
 				this.context = context;
 			}
 
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+		    
+
+		    public override void VisitInvocationExpression(InvocationExpression invocationExpression)
 			{
 				base.VisitInvocationExpression(invocationExpression);
 				if (!IsCallDependentOnCurrentInstance(invocationExpression))
@@ -131,7 +144,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				if (targetMethod.IsVirtualCall) {
 					AddIssue(invocationExpression,
-					         context.TranslateString("Constructors should not call virtual members"));
+                             context.TranslateString("Virtual member call in constructor"),
+                             new CodeAction(string.Format(context.TranslateString("Make class '{0}' sealed"), CurrentType.Name),
+                             script => script.ChangeModifier(CurrentType, CurrentType.Modifiers | Modifiers.Sealed)));
 				}
 			}
 

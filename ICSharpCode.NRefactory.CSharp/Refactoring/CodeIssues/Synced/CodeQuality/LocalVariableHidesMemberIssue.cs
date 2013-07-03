@@ -25,9 +25,11 @@
 // THE SOFTWARE.
 
 using System;
+using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -63,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                 CheckLocal(variableInitializer, variableInitializer.Name, variableInitializer.NameToken);
 			}
 
-            private void CheckLocal(AstNode node, string name, AstNode token)
+            void CheckLocal(AstNode node, string name, AstNode token)
 		    {
 		        IMember member;
                 if (HidesMember(ctx, node, name, out member)) {
@@ -85,19 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                             msg = ctx.TranslateString("Local variable '{0}' hides member '{1}'");
                             break;
                     }
-                    var resolveResult = ctx.Resolve(node);
-                    if (resolveResult is LocalResolveResult)
-                    {
-                        var lr = resolveResult as LocalResolveResult;
-                        AddIssue(token, string.Format(msg, name, member.FullName),
-                            new CodeAction(ctx.TranslateString("Rename local"), script => script.Rename(lr.Variable), token));
-                    } else if (resolveResult is ForEachResolveResult) {
-                        var lr = resolveResult as ForEachResolveResult;
-                        AddIssue(token, string.Format(msg, name, member.FullName),
-                            new CodeAction(ctx.TranslateString("Rename loop variable"), script => script.Rename(lr.ElementVariable), token));
-                    } else  {
-                        AddIssue(token, string.Format(msg, name, member.FullName));
-                    }
+                    AddIssue(token, string.Format(msg, name, member.FullName));
                 }
 		    }
 
@@ -109,4 +99,81 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 	}
+
+    public abstract class VariableHidesMemberIssue : ICodeIssueProvider
+    {
+        public abstract IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context);
+
+        protected static bool HidesMember(BaseRefactoringContext ctx, AstNode node, string variableName)
+        {
+            IMember member;
+            return HidesMember(ctx, node, variableName, out member);
+        }
+
+        protected static bool HidesMember(BaseRefactoringContext ctx, AstNode node, string variableName, out IMember member)
+        {
+            var typeDecl = node.GetParent<TypeDeclaration>();
+            member = null;
+            if (typeDecl == null)
+                return false;
+            var entityDecl = node.GetParent<EntityDeclaration>();
+            var memberResolveResult = ctx.Resolve(entityDecl) as MemberResolveResult;
+            if (memberResolveResult == null)
+                return false;
+            var typeResolveResult = ctx.Resolve(typeDecl) as TypeResolveResult;
+            if (typeResolveResult == null)
+                return false;
+
+            var sourceMember = memberResolveResult.Member;
+
+            member = typeResolveResult.Type.GetMembers(m => m.Name == variableName).FirstOrDefault(m2 => IsAccessible(sourceMember, m2));
+            return member != null;
+        }
+
+        static bool IsAccessible(IMember sourceMember, IMember targetMember)
+        {
+            if (sourceMember.IsStatic != targetMember.IsStatic)
+                return false;
+
+            var sourceType = sourceMember.DeclaringType;
+            var targetType = targetMember.DeclaringType;
+            switch (targetMember.Accessibility)
+            {
+                case Accessibility.None:
+                    return false;
+                case Accessibility.Private:
+                    // check for members of outer classes (private members of outer classes can be accessed)
+                    var targetTypeDefinition = targetType.GetDefinition();
+                    for (var t = sourceType.GetDefinition(); t != null; t = t.DeclaringTypeDefinition)
+                    {
+                        if (t.Equals(targetTypeDefinition))
+                            return true;
+                    }
+                    return false;
+                case Accessibility.Public:
+                    return true;
+                case Accessibility.Protected:
+                    return IsProtectedAccessible(sourceType, targetType);
+                case Accessibility.Internal:
+                    return IsInternalAccessible(sourceMember.ParentAssembly, targetMember.ParentAssembly);
+                case Accessibility.ProtectedOrInternal:
+                    return IsInternalAccessible(sourceMember.ParentAssembly, targetMember.ParentAssembly) || IsProtectedAccessible(sourceType, targetType);
+                case Accessibility.ProtectedAndInternal:
+                    return IsInternalAccessible(sourceMember.ParentAssembly, targetMember.ParentAssembly) && IsProtectedAccessible(sourceType, targetType);
+                default:
+                    throw new Exception("Invalid value for Accessibility");
+            }
+        }
+
+        static bool IsProtectedAccessible(IType sourceType, IType targetType)
+        {
+            return sourceType.GetAllBaseTypes().Any(type => targetType.Equals(type));
+        }
+
+        static bool IsInternalAccessible(IAssembly sourceAssembly, IAssembly targetAssembly)
+        {
+            return sourceAssembly.InternalsVisibleTo(targetAssembly);
+        }
+
+    }
 }

@@ -46,6 +46,24 @@ class TestClass
 			Test<ParameterHidesMemberIssue> (input, 1);
 		}
 
+        [Test]
+		public void TestDisable ()
+		{
+			var input = @"
+class TestClass
+{
+	int i;
+// ReSharper disable once ParameterHidesMember
+	void TestMethod (int i, int j)
+	{
+	}
+}";
+			TestWrongContext<ParameterHidesMemberIssue> (input);
+		}
+
+
+        
+
 		[Test]
 		public void TestMethod ()
 		{
