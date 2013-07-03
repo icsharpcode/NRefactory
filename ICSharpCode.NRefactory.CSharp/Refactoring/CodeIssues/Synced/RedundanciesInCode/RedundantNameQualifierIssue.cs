@@ -37,22 +37,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// <summary>
 	/// Finds redundant namespace usages.
 	/// </summary>
-	[IssueDescription("Remove redundant namespace usages",
+	[IssueDescription("Redundant name qualifier",
 	                  Description = "Removes namespace usages that are obsolete.",
 	                  Category = IssueCategories.Redundancies,
-	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantNamespaceUsageIssue : ICodeIssueProvider
+	                  Severity = Severity.Warning,
+	                  IssueMarker = IssueMarker.GrayOut,
+                      ResharperDisableKeyword = "RedundantNameQualifier")]
+	public class RedundantNameQualifierIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantNamespaceUsageIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantNameQualifierIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantNamespaceUsageIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor (BaseRefactoringContext ctx, RedundantNameQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
+			    System.Console.WriteLine("evlevl");
 			}
 
 			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
@@ -91,7 +93,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var lookupName = state.LookupSimpleNameOrTypeName(memberName.Name, resolvedTypeArguments, mode);
 				
 				if (lookupName is TypeResolveResult && !lookupName.IsError && wholeResult.Type.Equals(lookupName.Type)) {
-					AddIssue(wholeNode.StartLocation, memberName.StartLocation, ctx.TranslateString("Remove redundant namespace usage"), action);
+                    AddIssue(wholeNode.StartLocation, memberName.StartLocation, ctx.TranslateString("Remove redundant qualifier"), action);
 				}
 			}
 		}

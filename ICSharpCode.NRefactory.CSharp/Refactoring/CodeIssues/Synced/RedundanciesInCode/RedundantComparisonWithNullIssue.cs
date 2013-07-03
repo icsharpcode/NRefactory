@@ -1,5 +1,5 @@
 //
-// RedundantNullCheckIssue.cs
+// RedundantComparisonWithNullIssue.cs
 //
 // Author:
 //	   Ji Kun <jikun.nus@gmail.com>
@@ -23,24 +23,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.using System;
+
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PatternMatching;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Redundant null check",
+	[IssueDescription("Redundant comparison with 'null'",
 	                  Description = "When 'is' keyword is used, which implicitly check null.",
 	                  Category = IssueCategories.Redundancies,
-	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "RedundantNullCheck",
+	                  Severity = Severity.Warning,
+                      ResharperDisableKeyword = "RedundantComparisonWithNull",
 	                  IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantNullCheckIssue : ICodeIssueProvider
+	public class RedundantComparisonWithNullIssue : ICodeIssueProvider
 	{
 		private static readonly Pattern pattern1
 			= new Choice {
@@ -79,7 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context).GetIssues();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantNullCheckIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantComparisonWithNullIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
@@ -91,7 +88,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
 				Match m1 = pattern1.Match(binaryOperatorExpression);
 				if (m1.Success) {
-					AddIssue(binaryOperatorExpression, ctx.TranslateString("Remove redundant IsNULL check"), script => {
+					AddIssue(binaryOperatorExpression, ctx.TranslateString("Remove expression"), script => {
 					         	var isExpr = m1.Get<AstType>("t").Single().Parent;
 					         	script.Replace(binaryOperatorExpression, isExpr);
 					         });

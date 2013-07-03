@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Suggestion,
                       ResharperDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
-	public class ConditionalToNullCoalescingIssue : ICodeIssueProvider
+    public class ConvertConditionalTernaryToNullCoalescingIssue : ICodeIssueProvider
 	{
 		static readonly Pattern pattern = new Choice {
 			// a != null ? a : other
@@ -62,11 +62,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context, this).GetIssues();
 		}
 		
-		class GatherVisitor : GatherVisitorBase<ConditionalToNullCoalescingIssue>
+		class GatherVisitor : GatherVisitorBase<ConvertConditionalTernaryToNullCoalescingIssue>
 		{
-//			readonly ConditionalToNullCoalescingIssue inspector;
+//			readonly ConvertConditionalTernaryToNullCoalescingIssue inspector;
 			
-			public GatherVisitor (BaseRefactoringContext ctx, ConditionalToNullCoalescingIssue inspector) : base (ctx)
+			public GatherVisitor (BaseRefactoringContext ctx, ConvertConditionalTernaryToNullCoalescingIssue inspector) : base (ctx)
 			{
 //				this.inspector = inspector;
 			}

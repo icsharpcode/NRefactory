@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantArrayInitializerCommaIssue.cs
+// RedundantCommaInArrayInitializerIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -32,16 +32,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Redundant comma in array initializer",
 						Description = "Redundant comma in array initializer.",
 						Category = IssueCategories.Redundancies,
-						Severity = Severity.Suggestion,
-						IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantArrayInitializerCommaIssue : ICodeIssueProvider
+						Severity = Severity.Warning,
+						IssueMarker = IssueMarker.GrayOut,
+                        ResharperDisableKeyword = "RedundantCommaInArrayInitializer")]
+	public class RedundantCommaInArrayInitializerIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantArrayInitializerCommaIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantCommaInArrayInitializerIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base (ctx)
@@ -61,15 +62,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				string initializerType;
 				if (arrayInitializerExpression.Parent is ObjectCreateExpression) {
 					if (arrayInitializerExpression.Elements.FirstOrNullObject () is NamedExpression) {
-						initializerType = "object";
+                        initializerType = ctx.TranslateString("Remove redundant comma in object initializer");
 					} else {
-						initializerType = "collection";
+                        initializerType = ctx.TranslateString("Remove redundant comma in collection initializer");
 					}
 				} else {
-					initializerType = "array";
+                    initializerType = ctx.TranslateString("Remove redundant comma in array initializer");
 				}
-				AddIssue (commaToken, 
-					ctx.TranslateString (string.Format("Remove redundant comma in {0} initializer", initializerType)),
+				AddIssue (commaToken,
+                    initializerType,
 					script => script.Remove (commaToken));
 			}
 		}

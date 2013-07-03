@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantFieldInitializerIssue.cs
+// RedundantDefaultFieldInitializerIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.TypeSystem;
@@ -31,20 +32,20 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Initializing field with default value is redundant",
+	[IssueDescription ("Redundant field initializer",
 						Description = "Initializing field with default value is redundant.",
 						Category = IssueCategories.Redundancies,
 						Severity = Severity.Hint,
 						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantDefaultFieldInitializer")]
-	public class RedundantFieldInitializerIssue : ICodeIssueProvider
+    public class RedundantDefaultFieldInitializerIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantFieldInitializerIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantDefaultFieldInitializerIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
@@ -65,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (!defaultValueExpr.Match (variable.Initializer).Success)
 						continue;
 
-					AddIssue (variable.Initializer, ctx.TranslateString ("Remove redundant field initializer"),
+					AddIssue (variable.Initializer, ctx.TranslateString ("Remove field initializer"),
 						script => script.Replace (variable, new VariableInitializer (variable.Name)));
 				}
 			}

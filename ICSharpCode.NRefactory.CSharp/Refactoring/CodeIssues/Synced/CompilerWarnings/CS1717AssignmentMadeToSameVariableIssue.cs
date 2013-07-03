@@ -1,5 +1,5 @@
 ﻿// 
-// AssignmentMadeToSameVariableIssue.cs
+// CS1717AssignmentMadeToSameVariableIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -34,19 +34,21 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("CS1717:Assignment made to same variable",
+    [IssueDescription("CS1717:Assignment made to same variable",
 					   Description = "CS1717:Assignment made to same variable.",
 					   Category = IssueCategories.CompilerWarnings,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.GrayOut)]
-	public class AssignmentMadeToSameVariableIssue : ICodeIssueProvider
+					   IssueMarker = IssueMarker.GrayOut,
+                       PragmaWarning = 1717,
+                       ResharperDisableKeyword = "CSharpWarnings::CS1717")]
+    public class CS1717AssignmentMadeToSameVariableIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}
 
-		class GatherVisitor : GatherVisitorBase<AssignmentMadeToSameVariableIssue>
+		class GatherVisitor : GatherVisitorBase<CS1717AssignmentMadeToSameVariableIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base (ctx)

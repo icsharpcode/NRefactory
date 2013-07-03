@@ -33,11 +33,12 @@ using System.Diagnostics.CodeAnalysis;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Static field in generic type",
-	                   Description = "Warns about static fields in generic types.",
-	                   Category = IssueCategories.Notifications,
-	                   Severity = Severity.Warning,
+	                  Description = "Warns about static fields in generic types.",
+	                  Category = IssueCategories.CodeQualityIssues,
+	                  Severity = Severity.Warning,
 	                  SuppressMessageCategory = "Microsoft.Design",
-	                  SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes"
+	                  SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes",
+                      ResharperDisableKeyword = "StaticFieldInGenericType"
 	                  )]
 	public class StaticFieldInGenericTypeIssue : ICodeIssueProvider
 	{

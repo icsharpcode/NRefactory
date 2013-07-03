@@ -122,7 +122,7 @@
     <Compile Include="CSharp\CodeActions\UseStringFormatTests.cs" />
     <Compile Include="CSharp\CodeIssues\AccessToDisposedClosureTests.cs" />
     <Compile Include="CSharp\CodeIssues\AccessToModifiedClosureTests.cs" />
-    <Compile Include="CSharp\CodeIssues\AssignmentMadeToSameVariableIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CS1717AssignmentMadeToSameVariableIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\BitwiseOperationOnNonFlagsEnumIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CastExpressionOfIncompatibleTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CompareFloatWithEqualityOperatorIssueTests.cs" />
@@ -131,7 +131,7 @@
     <Compile Include="CSharp\CodeIssues\ExplicitConversionInForEachIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ExpressionIsAlwaysOfProvidedTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ExpressionIsNeverOfProvidedTypeIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\ForControlVariableNotModifiedIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ForControlVariableIsNeverModifiedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LocalVariableHidesMemberIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LocalVariableNotUsedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MethodNeverReturnsIssueTests.cs" />
@@ -142,13 +142,13 @@
     <Compile Include="CSharp\CodeIssues\ParameterHidesMemberIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterNotUsedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterOnlyAssignedIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantArrayInitializerCommaIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantCommaInArrayInitializerIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantAssignmentIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CompareBooleanWithTrueOrFalseIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantAttributeParenthesesIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCaseLabelIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantElseIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantFieldInitializerIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantDefaultFieldInitializerIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantObjectCreationArgumentListIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantObjectOrCollectionInitializerIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCastIssueTests.cs" />
@@ -308,11 +308,11 @@
     <Compile Include="CSharp\CodeCompletion\TestBase.cs" />
     <Compile Include="CSharp\CodeCompletion\VariableDeclarationStatementTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NameContextTests.cs" />
-    <Compile Include="CSharp\CodeIssues\ConditionalToNullCoalescingInspectorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertConditionalTernaryToNullCoalescingIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\InspectionActionTestBase.cs" />
     <Compile Include="CSharp\CodeIssues\NotImplementedExceptionInspectorTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantInternalInspectorTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantNamespaceUsageInspectorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantNameQualifierIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantPrivateInspectorTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantThisQualifierIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantUsingDirectiveIssueTests.cs" />
@@ -410,11 +410,11 @@
     <Compile Include="CSharp\CodeIssues\NoDefaultConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertIfAndSimplifyTests.cs" />
     <Compile Include="FormattingTests\TestExpressionFormatting.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantNullCheckTests.cs">
+    <Compile Include="CSharp\CodeIssues\RedundantComparisonWithNullIssueTests.cs">
     </Compile>
     <Compile Include="CSharp\CodeIssues\StaticConstructorAccessModifierTest.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseConstructorIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantConstructorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\EmptyConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PublicConstructorInAbstractClassIssueTest.cs" />
     <Compile Include="CSharp\CodeIssues\CS0029InvalidConversionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertToStaticMethodIssueTests.cs" />

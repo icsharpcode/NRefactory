@@ -1,5 +1,5 @@
 ﻿// 
-// ForControlVariableNotModifiedIssue.cs
+// ForControlVariableIsNeverModifiedIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
@@ -36,15 +37,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "'for' loop control variable is never modified.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
-	public class ForControlVariableNotModifiedIssue : ICodeIssueProvider
+					   IssueMarker = IssueMarker.Underline,
+                       ResharperDisableKeyword = "ForControlVariableIsNeverModified")]
+    public class ForControlVariableIsNeverModifiedIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}
 
-		class GatherVisitor : GatherVisitorBase<ForControlVariableNotModifiedIssue>
+		class GatherVisitor : GatherVisitorBase<ForControlVariableIsNeverModifiedIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base (ctx)

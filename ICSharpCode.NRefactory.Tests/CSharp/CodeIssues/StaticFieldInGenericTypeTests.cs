@@ -131,6 +131,7 @@ class Foo<T>
 			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 		}
+
 		[Test]
 		public void TestAssemblyMicrosoftSuppressMessage()
 		{
@@ -148,6 +149,20 @@ class Foo<T>
 			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
+
+        [Test]
+        public void TestDisable()
+        {
+            var input = @"using System.Diagnostics.CodeAnalysis;
+
+class Foo<T>
+{
+    // ReSharper disable once StaticFieldInGenericType
+	static string Data;
+}";
+            TestWrongContext<StaticFieldInGenericTypeIssue>(input);
+        }
+
 	}
 }
 

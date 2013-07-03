@@ -34,10 +34,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public abstract class VariableHidesMemberIssue : ICodeIssueProvider
 	{
 		public abstract IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context);
-		
-		protected static bool HidesMember(BaseRefactoringContext ctx, AstNode node, string variableName)
+
+	    protected static bool HidesMember(BaseRefactoringContext ctx, AstNode node, string variableName)
+	    {
+	        IMember member;
+	        return HidesMember(ctx, node, variableName, out member);
+	    }
+
+        protected static bool HidesMember(BaseRefactoringContext ctx, AstNode node, string variableName, out IMember member)
 		{
 			var typeDecl = node.GetParent<TypeDeclaration>();
+            member = null;
 			if (typeDecl == null)
 				return false;
 			var entityDecl = node.GetParent<EntityDeclaration>();
@@ -49,8 +56,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return false;
 
 			var sourceMember = memberResolveResult.Member;
-
-			return typeResolveResult.Type.GetMembers(m => m.Name == variableName).Any(m2 => IsAccessible(sourceMember, m2));
+            
+            member = typeResolveResult.Type.GetMembers(m => m.Name == variableName).FirstOrDefault(m2 => IsAccessible(sourceMember, m2));
+		    return member != null;
 		}
 
 		static bool IsAccessible(IMember sourceMember, IMember targetMember)

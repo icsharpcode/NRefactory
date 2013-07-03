@@ -32,10 +32,11 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	[TestFixture]
 	public class LocalVariableHidesMemberIssueTests : InspectionActionTestBase
 	{
+	    private string input;
 		[Test]
 		public void TestField ()
 		{
-			var input = @"
+		    const string input = @"
 class TestClass
 {
 	int i;
@@ -44,8 +45,22 @@ class TestClass
 		int i, j;
 	}
 }";
-			Test<LocalVariableHidesMemberIssue> (input, 1);
+		    Test<LocalVariableHidesMemberIssue>(input, 1);
 		}
+
+	    public void TestDisable()
+	    {
+	        var input = @"class TestClass
+{
+    int i;
+    void TestMethod()
+    {
+// ReSharper disable once LocalVariableHidesMember
+        int i, j;
+    }
+}";
+            TestWrongContext<LocalVariableHidesMemberIssue>(input);
+	    }
 
 		[Test]
 		public void TestMethod ()
