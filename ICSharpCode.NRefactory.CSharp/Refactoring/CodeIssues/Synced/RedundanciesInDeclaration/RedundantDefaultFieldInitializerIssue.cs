@@ -42,10 +42,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
+		    Console.WriteLine(u1++);
 			return new GatherVisitor (context).GetIssues ();
 		}
-
-		class GatherVisitor : GatherVisitorBase<RedundantDefaultFieldInitializerIssue>
+	    class GatherVisitor : GatherVisitorBase<RedundantDefaultFieldInitializerIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
@@ -66,8 +66,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (!defaultValueExpr.Match (variable.Initializer).Success)
 						continue;
 
-					AddIssue (variable.Initializer, ctx.TranslateString ("Remove field initializer"),
-						script => script.Replace (variable, new VariableInitializer (variable.Name)));
+					AddIssue (variable.Initializer, ctx.TranslateString ("Initializing field by default value is redundant"),
+                        new CodeAction(ctx.TranslateString ("Remove field initializer"),
+                            script => script.Replace (variable, new VariableInitializer (variable.Name)),
+                            variable.Initializer));
 				}
 			}
 
