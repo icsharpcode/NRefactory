@@ -151,6 +151,78 @@ namespace Demo
 		}
 
 		[Test]
+		public void TestInspectorCase4()
+		{
+			var input = @"
+using System;
+using System.Reflection;
+
+namespace Demo
+{
+    public sealed class TestClass
+    {
+    }
+    public class BaseClass 
+    {
+        public static void main(string[] args)
+        {
+            BaseClass b = new BaseClass();if (typeof (TestClass) == b.GetType()){}}}}
+";
+			TestRefactoringContext context;
+			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+			
+			
+			CheckFix(context, issues, @"
+using System;
+using System.Reflection;
+
+namespace Demo
+{
+    public sealed class TestClass
+    {
+    }
+    public class BaseClass 
+    {
+        public static void main(string[] args)
+        {
+            BaseClass b = new BaseClass();
+			if (b is TestClass) {
+			}}}}
+");
+		}
+
+		[Test]
+		public void TestInspectorCase5()
+		{
+			var input = @"
+using System;
+using System.Reflection;
+
+namespace Demo
+{
+    public class TestClass
+    {
+    }
+    public class BaseClass : TestClass
+    {
+        public static void main(string[] args)
+        {
+            BaseClass b = new BaseClass();
+            if ((typeof (TestClass) == b.GetType()))
+            {
+
+            }
+        }
+    }
+}
+";
+			TestRefactoringContext context;
+			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
+		}
+
+		[Test]
 		public void TestResharperDisable()
 		{
 			var input = @"using System;

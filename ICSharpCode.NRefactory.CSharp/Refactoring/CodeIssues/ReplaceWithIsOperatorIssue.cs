@@ -99,6 +99,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (identifier == null || type == null)
 					return;
 
+				var typeResolved = ctx.Resolve(type) as TypeResolveResult; 
+
+				if (typeResolved.Type.Kind == TypeKind.Class){
+					if (!typeResolved.Type.GetDefinition().IsSealed){
+						return;
+					}
+				}
+
+
 				AddIssue(binaryOperatorExpression, ctx.TranslateString("Replace with Is operator"), script => {
 					var isExpr = new IsExpression();
 					isExpr.Type = type.Clone();
