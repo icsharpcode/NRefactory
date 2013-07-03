@@ -55,7 +55,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
             public override void VisitAccessor(Accessor accessor)
 		    {
-                Console.WriteLine(accessor.Role);
 		        if (accessor.Role == PropertyDeclaration.SetterRole) {
                     FindIssuesInAccessor(accessor, ctx.TranslateString("The setter does not use the 'value' parameter"));
                 } else if (accessor.Role == CustomEventDeclaration.AddAccessorRole) {
