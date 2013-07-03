@@ -54,7 +54,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			public GatherVisitor (BaseRefactoringContext ctx, RedundantNameQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
-			    System.Console.WriteLine("evlevl");
 			}
 
 			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)

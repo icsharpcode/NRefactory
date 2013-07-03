@@ -44,8 +44,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	    private string ctx = "evlelv";
 	    public override System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 	    {
-	        var ctx = context;
-	        Console.WriteLine(  ctx);
 			return new GatherVisitor (context).GetIssues ();
 		}
 

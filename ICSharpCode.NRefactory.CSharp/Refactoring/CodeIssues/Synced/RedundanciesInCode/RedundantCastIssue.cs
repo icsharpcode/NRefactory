@@ -133,13 +133,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (exprType.GetAllBaseTypes ().Any (t => t.Equals(expectedType)))
 					AddIssue (typeCastNode, expr, castStart, castEnd);
 			}
-
-		    static void Main(string[] args)
-		    {
-// ReSharper disable ReplaceWithSingleCallToFirst
-		        Console.WriteLine(args.Where(a => a.Length == 2).First());
-// ReSharper restore ReplaceWithSingleCallToFirst
-		    }
 		}
 	}
 }

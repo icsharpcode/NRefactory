@@ -41,27 +41,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       ResharperDisableKeyword = "ReplaceWithSingleCallToAny")]
     public class ReplaceWithSingleCallToAnyIssue : ICodeIssueProvider
 	{
-        static void Main(string[] args)
-        {
-            /*				switch (member.Name) {
-
-                                case "Last":
-                                case "LastOrDefault":
-                                case "LongCount":
-                                case "Single":
-                                case "SingleOrDefault":
-                                    return true;
-                                default:
-                                    return false;
-                            }*/
-
-            // ReSharper disable once ReplaceWithSingleCallToLastOrDefault
-            // ReSharper disable once ReplaceWithSingleCallToSingle
-            // ReSharper disable once ReplaceWithSingleCallToSingleOrDefault
-            // ReSharper disable once ReplaceWithSingleCallToLast
-            Console.WriteLine(args.Where(a => a.Length == 2).Last());
-        }
-
 		static readonly AstNode pattern =
 			new InvocationExpression (
 				new MemberReferenceExpression (
