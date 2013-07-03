@@ -159,30 +159,30 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			script.Replace(root, newRoot);
 
-			foreach (VariableInitializer variable in variables) {
-				ReplaceVariableReferences(context, root, baseType, prefix, script, newNames, variable);
-			}
+			ReplaceVariableReferences(context, root, baseType, prefix, script, newNames, variables);
 		}
 
-		static void ReplaceVariableReferences(RefactoringContext context, AstNode root, AstType baseType, string prefix, Script script, Dictionary<string, string> newNames, VariableInitializer variable)
+		static void ReplaceVariableReferences(RefactoringContext context, AstNode root, AstType baseType, string prefix, Script script, Dictionary<string, string> newNames, IEnumerable<VariableInitializer> variables)
 		{
-			var resolveResult = (MemberResolveResult)context.Resolve(variable);
-			var resolvedField = resolveResult.Member;
-			script.DoGlobalOperationOn(resolvedField, (newCtx, newScript, foundNode) =>  {
-				TypeDeclaration newContainerType = foundNode.GetParent<TypeDeclaration>();
-				if (root.Descendants.OfType<TypeDeclaration>().Select(type => ((TypeResolveResult)context.Resolve(type)).Type.FullName).ToList().Contains(((TypeResolveResult)newCtx.Resolve(newContainerType)).Type.FullName)) {
-					//This file has already been fixed
-					return;
-				}
-				var identifierExpr = foundNode as IdentifierExpression;
-				if (identifierExpr != null) {
-					newScript.Replace(identifierExpr, CreateIdentifierReplacement(prefix, baseType, newNames, identifierExpr));
-					return;
-				}
-				var memberRef = foundNode as MemberReferenceExpression;
-				if (memberRef != null) {
-					var replacement = CreateReplacementMemberReference(prefix, baseType, newNames, memberRef);
-					newScript.Replace(memberRef, replacement);
+			var resolveResults = variables.Select(variable => (MemberResolveResult)context.Resolve(variable));
+			var resolvedFields = resolveResults.Select(resolveResult => resolveResult.Member);
+			script.DoGlobalOperationOn(resolvedFields, (newCtx, newScript, foundNodes) =>  {
+				foreach (var foundNode in foundNodes) {
+					TypeDeclaration newContainerType = foundNode.GetParent<TypeDeclaration>();
+					if (root.Descendants.OfType<TypeDeclaration>().Select(type => ((TypeResolveResult)context.Resolve(type)).Type.FullName).ToList().Contains(((TypeResolveResult)newCtx.Resolve(newContainerType)).Type.FullName)) {
+						//This file has already been fixed
+						return;
+					}
+					var identifierExpr = foundNode as IdentifierExpression;
+					if (identifierExpr != null) {
+						newScript.Replace(identifierExpr, CreateIdentifierReplacement(prefix, baseType, newNames, identifierExpr));
+						continue;
+					}
+					var memberRef = foundNode as MemberReferenceExpression;
+					if (memberRef != null) {
+						var replacement = CreateReplacementMemberReference(prefix, baseType, newNames, memberRef);
+						newScript.Replace(memberRef, replacement);
+					}
 				}
 			});
 		}
