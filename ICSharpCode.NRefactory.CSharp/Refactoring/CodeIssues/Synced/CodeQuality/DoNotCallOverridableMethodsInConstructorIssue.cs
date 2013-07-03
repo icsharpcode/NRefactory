@@ -146,7 +146,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					AddIssue(invocationExpression,
                              context.TranslateString("Virtual member call in constructor"),
                              new CodeAction(string.Format(context.TranslateString("Make class '{0}' sealed"), CurrentType.Name),
-                             script => script.ChangeModifier(CurrentType, CurrentType.Modifiers | Modifiers.Sealed)));
+                             script => script.ChangeModifier(CurrentType, CurrentType.Modifiers | Modifiers.Sealed), 
+                             invocationExpression));
 				}
 			}
 

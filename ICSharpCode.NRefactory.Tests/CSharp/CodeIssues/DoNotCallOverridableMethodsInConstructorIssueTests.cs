@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	[TestFixture]
 	public class DoNotCallOverridableMethodsInConstructorIssueTests : InspectionActionTestBase
 	{
-
+        
 		[Test]
 		public void CatchesBadCase()
 		{
@@ -50,9 +50,29 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new DoNotCallOverridableMethodsInConstructorIssue(), input, out context);
+            var issues = GetIssues(new DoNotCallOverridableMethodsInConstructorIssue(), input, out context);
 			Assert.AreEqual(2, issues.Count);
 		}
+
+		[Test]
+		public void TestDisable()
+		{
+            var input = @"class Foo
+{
+	Foo()
+	{
+// ReSharper disable once DoNotCallOverridableMethodsInConstructor
+		Bar();
+	}
+
+	virtual void Bar ()
+	{
+	}
+}";
+            TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(input);
+		}
+
+
 
 		[Test]
 		public void IgnoresGoodCase()
