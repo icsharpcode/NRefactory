@@ -478,7 +478,6 @@
     <Compile Include="Refactoring\CodeActions\RemoveRedundantCatchTypeAction.cs" />
     <Compile Include="Refactoring\CodeActions\AddCatchTypeAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\IncorrectExceptionParameterOrderingIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\DoNotCallOverridableMethodsInConstructorIssue.cs" />
     <Compile Include="Refactoring\CodeActions\StaticMethodInvocationToExtensionMethodInvocationAction.cs" />
     <Compile Include="Refactoring\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationAction.cs" />
     <Compile Include="Refactoring\CodeActions\IterateViaForeachAction.cs" />
@@ -553,6 +552,7 @@
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="Refactoring\CodeActions\ConvertIfToNullCoalescingAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\DoNotCallOverridableMethodsInConstructorIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
