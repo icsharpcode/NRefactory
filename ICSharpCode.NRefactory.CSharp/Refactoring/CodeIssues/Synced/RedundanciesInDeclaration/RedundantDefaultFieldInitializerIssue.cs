@@ -42,7 +42,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
-		    Console.WriteLine(u1++);
 			return new GatherVisitor (context).GetIssues ();
 		}
 	    class GatherVisitor : GatherVisitorBase<RedundantDefaultFieldInitializerIssue>
