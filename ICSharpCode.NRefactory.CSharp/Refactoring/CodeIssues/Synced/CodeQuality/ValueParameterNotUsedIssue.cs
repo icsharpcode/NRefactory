@@ -23,6 +23,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
@@ -51,28 +53,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-			{
-                FindIssuesInAccessor(indexerDeclaration.Setter, ctx.TranslateString("The setter does not use the 'value' parameter"));
-			}
+            public override void VisitAccessor(Accessor accessor)
+		    {
+                Console.WriteLine(accessor.Role);
+		        if (accessor.Role == PropertyDeclaration.SetterRole) {
+                    FindIssuesInAccessor(accessor, ctx.TranslateString("The setter does not use the 'value' parameter"));
+                } else if (accessor.Role == CustomEventDeclaration.AddAccessorRole) {
+                    FindIssuesInAccessor(accessor, ctx.TranslateString("The add accessor does not use the 'value' parameter"));
+                } else if (accessor.Role == CustomEventDeclaration.RemoveAccessorRole) {
+                    FindIssuesInAccessor(accessor, ctx.TranslateString("The remove accessor does not use the 'value' parameter"));
+                }
+		    }
 
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-			{
-                FindIssuesInAccessor(propertyDeclaration.Setter, ctx.TranslateString("The setter does not use the 'value' parameter"));
-			}
+		    public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
+		    {
+                if (eventDeclaration.AddAccessor.Body.Statements.Count == 0 && eventDeclaration.RemoveAccessor.Body.Statements.Count == 0)
+                    return;
+		        
+		        base.VisitCustomEventDeclaration(eventDeclaration);
+		    }
 
-			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-			{
-				var addAccessor = eventDeclaration.AddAccessor;
-				var removeAccessor = eventDeclaration.RemoveAccessor;
-				// don't warn on empty custom events
-				if (addAccessor.Body.Statements.Count == 0 && removeAccessor.Body.Statements.Count == 0)
-					return;
-                FindIssuesInAccessor(addAccessor, ctx.TranslateString("The add accessor does not use the 'value' parameter"));
-                FindIssuesInAccessor(removeAccessor, ctx.TranslateString("The remove accessor does not use the 'value' parameter"));
-			}
-
-			void FindIssuesInAccessor(Accessor accessor, string accessorName)
+		    void FindIssuesInAccessor(Accessor accessor, string accessorName)
 			{
 				var body = accessor.Body;
 				if (!IsEligible(body))

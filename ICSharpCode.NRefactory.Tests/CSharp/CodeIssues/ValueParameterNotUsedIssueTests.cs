@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Mono.CSharp;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.CSharp.CodeActions;
@@ -186,13 +187,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
-		
-		[Test]
-		public void DoesNotWarnOnEmptyCustomEvent()
-		{
-			// Empty custom events are often used when the event can never be raised
-			// by a class (but the event is required e.g. due to an interface).
-			var input = @"class A	
+
+        [Test]
+        public void DoesNotWarnOnEmptyCustomEvent()
+        {
+            // Empty custom events are often used when the event can never be raised
+            // by a class (but the event is required e.g. due to an interface).
+            var input = @"class A	
 {
 	delegate void TestEventHandler ();
 	event TestEventHandler EventTested
@@ -201,10 +202,31 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		remove { }
 	}
 }";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
-		}
+            TestRefactoringContext context;
+            var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
+            Assert.AreEqual(0, issues.Count);
+        }
+        
+        [Ignore("Implement me.")]
+        [Test]
+        public void DoesNotWarnOnNotImplementedCustomEvent()
+        {
+            
+            // Empty custom events are often used when the event can never be raised
+            // by a class (but the event is required e.g. due to an interface).
+            var input = @"class A	
+{
+	delegate void TestEventHandler ();
+	event TestEventHandler EventTested
+	{
+		add { throw new System.NotImplementedException(); }
+		remove { throw new System.NotImplementedException(); }
+	}
+}";
+            TestRefactoringContext context;
+            var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
+            Assert.AreEqual(0, issues.Count);
+        }
 	}
 }
 
