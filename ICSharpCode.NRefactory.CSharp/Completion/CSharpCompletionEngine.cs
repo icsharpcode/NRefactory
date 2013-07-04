@@ -1587,6 +1587,15 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			if (node is AstType && node.Parent is Constraint) {
 				wrapper.AddCustom ("new()");
 			}
+			var globalState = GetState();
+			foreach (var type in Compilation.GetAllTypeDefinitions ()) {
+				if (!lookup.IsAccessible (type, false))
+					continue;
+				var resolveResult = globalState.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression);
+				if (resolveResult.Type == type)
+					continue;
+				wrapper.AddTypeImport(type, !resolveResult.IsError || !state.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression).IsError);
+			}
 		}
 		
 		IEnumerable<ICompletionData> HandleKeywordCompletion(int wordStart, string word)

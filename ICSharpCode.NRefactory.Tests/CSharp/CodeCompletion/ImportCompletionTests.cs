@@ -127,6 +127,59 @@ class Test
 			Assert.NotNull(data);
 			Assert.True(data.UseFullName);
 		}
+
+
+		[Test]
+		public void TestAutomaticImport ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider(@"class Test
+{
+	public static void Main (string[] args)
+	{
+		$c$
+	}
+}");
+			var data = provider.Find ("Console") as CodeCompletionBugTests.TestFactory.ImportCompletionData;
+			Assert.NotNull(data);
+			Assert.False(data.UseFullName);
+
+		}
+
+		[Test]
+		public void TestAutomaticImportClash1 ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider(@"class Console {}
+
+class Test
+{
+	public static void Main (string[] args)
+	{
+		$c$
+	}
+}");
+			var data = provider.Data.OfType<CodeCompletionBugTests.TestFactory.ImportCompletionData>().Single(d => d.DisplayText == "Console");
+			Assert.NotNull(data);
+			Assert.True(data.UseFullName);
+
+		}
+
+		[Test]
+		public void TestAutomaticImportLocalClash ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider(@"
+class Test
+{
+	public static void Main (string[] args)
+	{
+		int Console = 12;
+		$c$
+	}
+}");
+			var data = provider.Data.OfType<CodeCompletionBugTests.TestFactory.ImportCompletionData>().Single(d => d.DisplayText == "Console");
+			Assert.NotNull(data);
+			Assert.True(data.UseFullName);
+
+		}
 	}
 }
 

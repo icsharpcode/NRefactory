@@ -155,6 +155,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			result.Add (Factory.CreateVariableCompletionData (variable));
 		}
 
+		public void AddTypeImport(ITypeDefinition type, bool useFullName)
+		{
+			result.Add(Factory.CreateImportCompletionData(type, useFullName));
+		}
+
 		public ICompletionData AddMember (IMember member)
 		{
 			var newData = Factory.CreateEntityCompletionData (member);
