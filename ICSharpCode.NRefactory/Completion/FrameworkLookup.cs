@@ -31,7 +31,6 @@ using System.Text;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using System.Collections;
 
 namespace ICSharpCode.NRefactory.Completion
 {
@@ -60,39 +59,13 @@ namespace ICSharpCode.NRefactory.Completion
 			4   // #Assembly
 			/*+ 4*/;
 
-		public static readonly Version CurrentVersion = new Version (2, 0, 3);
+		public static readonly Version CurrentVersion = new Version (2, 0, 1);
 		public static readonly FrameworkLookup Empty = new FrameworkLookup ();
 
 		string fileName;
 		int[] assemblyListTable;
 		int[] typeLookupTable;
 		int[] extLookupTable;
-//		uint typeListOffset;
-
-//		/// <summary>
-//		/// Gets all known types in the framework.
-//		/// </summary>
-//		public IEnumerable<Tuple<TypeKind, string, int, Lazy<AssemblyLookup>>> GetAllTypes ()
-//		{
-//			using (var reader = new BinaryReader (File.Open (fileName, FileMode.Open, FileAccess.Read, FileShare.Read), Encoding.UTF8)) {
-//				reader.BaseStream.Seek (typeListOffset, SeekOrigin.Begin);
-//				for (int i = 0; i < typeLookupTable.Length; i++) {
-//					var kind = (TypeKind)reader.ReadByte ();
-//					var name = reader.ReadString ();
-//					var typeParameters = reader.ReadByte ();
-//					var assembly = reader.ReadUInt16 ();
-//					yield return Tuple.Create (kind, name, (int)typeParameters, new Lazy<AssemblyLookup>(() => {
-//						using (var br = new BinaryReader (File.Open (fileName, FileMode.Open, FileAccess.Read, FileShare.Read), Encoding.UTF8)) {
-//							br.BaseStream.Seek (assemblyListTable [assembly], SeekOrigin.Begin);
-//							var package = br.ReadString ();
-//							var fullName = br.ReadString ();
-//							var ns = br.ReadString ();
-//							return new AssemblyLookup (package, fullName, ns);
-//						}
-//					}));
-//				}
-//			}
-//		}
 
 		/// <summary>
 		/// This method tries to get a matching extension method.
@@ -136,7 +109,6 @@ namespace ICSharpCode.NRefactory.Completion
 					yield return lookup;
 			}
 		}
-
 
 		/// <summary>
 		/// The assembly lookup determines where a type might be defined.
@@ -254,7 +226,7 @@ namespace ICSharpCode.NRefactory.Completion
 				int typeLookupListCount = reader.ReadInt32 ();
 				int extLookupListCount = reader.ReadInt32 ();
 				int assemblyLookupCount = reader.ReadInt32 ();
-//				result.typeListOffset = reader.ReadUInt32 ();
+
 				result.assemblyListTable = new int[assemblyLookupCount];
 				for (int i = 0; i < assemblyLookupCount; i++) {
 					result.assemblyListTable[i] = reader.ReadInt32 ();
@@ -344,7 +316,6 @@ namespace ICSharpCode.NRefactory.Completion
 			List<AssemblyLookup> assemblyLookups = new List<AssemblyLookup> ();
 			Dictionary<int, string> methodCheck = new Dictionary<int, string> ();
 			Dictionary<int, string> typeCheck = new Dictionary<int, string> ();
-//			List<Tuple<TypeKind, string, byte, ushort>> typeList = new List<Tuple<TypeKind, string, byte, ushort>> ();
 
 			internal FrameworkBuilder (string fileName)
 			{
@@ -404,15 +375,12 @@ namespace ICSharpCode.NRefactory.Completion
 
 					var typeBuffer = typeLookupMemory.ToArray ();
 					var extMethodBuffer = extMethodLookupMemory.ToArray ();
-					var assemblyLookupBuffer = assemblyLookupMemory.ToArray ();
 
 					int dataOffset = 
 						headerSize + 
 							assemblyLookups.Count * 4 + 
 							typeLookupList.Count * (4 + 4) + 
 							extMethodLookuplist.Count * (4 + 4);
-
-					stream.Write ((uint)(dataOffset + typeBuffer.Length + extMethodBuffer.Length + assemblyLookupBuffer.Length));
 
 					for (int i = 0; i < assemblyLookups.Count; i++) {
 						stream.Write ((int)(dataOffset + typeBuffer.Length + extMethodBuffer.Length + assemblyPositionTable[i]));
@@ -430,14 +398,7 @@ namespace ICSharpCode.NRefactory.Completion
 
 					stream.Write (typeBuffer);
 					stream.Write (extMethodBuffer);
-					stream.Write (assemblyLookupBuffer);
-
-//					foreach (var type in typeList) {
-//						stream.Write ((byte)type.Item1);
-//						stream.Write (type.Item2);
-//						stream.Write (type.Item3);
-//						stream.Write (type.Item4);
-//					}
+					stream.Write (assemblyLookupMemory.ToArray ());
 					stream.Flush ();
 				}
 			}
@@ -459,11 +420,6 @@ namespace ICSharpCode.NRefactory.Completion
 				frameworkLookupTable.Add (id, (ushort)index);
 				return (ushort)index;
 			}
-
-//			void AddToTypeList (TypeKind kind, string name, byte typeParameters, ushort assemblyLookup)
-//			{
-//				typeList.Add (Tuple.Create (kind, name, typeParameters, assemblyLookup));
-//			}
 
 			bool AddToTable (string packageName, string assemblyName, Dictionary<int, List<ushort>> table, Dictionary<int, string> checkTable, string id, string ns)
 			{
@@ -504,7 +460,6 @@ namespace ICSharpCode.NRefactory.Completion
 					throw new ArgumentNullException ("type");
 				var id = GetIdentifier (type.Name, type.TypeParameters.Count);
 				if (AddToTable (packageName, fullAssemblyName, typeLookup, typeCheck, id, type.Namespace)) {
-//					AddToTypeList (type.Kind, type.Name, (byte)type.TypeParameters.Count, GetLookup (packageName, fullAssemblyName, type.Namespace));
 					if (type.IsSealed || type.IsStatic) {
 						foreach (var method in type.Methods) {
 							var m = method as DefaultUnresolvedMethod;
