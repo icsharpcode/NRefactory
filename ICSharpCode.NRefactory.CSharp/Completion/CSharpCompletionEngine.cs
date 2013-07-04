@@ -1592,7 +1592,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				if (!lookup.IsAccessible (type, false))
 					continue;
 				var resolveResult = globalState.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression);
-				if (resolveResult.Type == type)
+				if (resolveResult.Type.GetDefinition () == type)
 					continue;
 				wrapper.AddTypeImport(type, !resolveResult.IsError || !state.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression).IsError);
 			}

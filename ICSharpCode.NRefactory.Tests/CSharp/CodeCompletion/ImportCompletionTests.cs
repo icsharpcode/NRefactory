@@ -180,6 +180,23 @@ class Test
 			Assert.True(data.UseFullName);
 
 		}
+
+		[Test]
+		public void TestAutomaticHiding ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider(@"using System.Collections.Generic;
+
+class Test
+{
+	public static void Main (string[] args)
+	{
+		$D$
+	}
+}");
+			var data = provider.Data.OfType<CodeCompletionBugTests.TestFactory.ImportCompletionData>().FirstOrDefault(d => d.DisplayText == "Dictionary");
+			Assert.IsNull(data);
+
+		}
 	}
 }
 
