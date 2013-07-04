@@ -1587,14 +1587,14 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			if (node is AstType && node.Parent is Constraint) {
 				wrapper.AddCustom ("new()");
 			}
-			var globalState = GetState();
+			state = GetState();
 			foreach (var type in Compilation.GetAllTypeDefinitions ()) {
 				if (!lookup.IsAccessible (type, false))
 					continue;
-				var resolveResult = globalState.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression);
+				var resolveResult = state.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression);
 				if (resolveResult.Type.GetDefinition () == type)
 					continue;
-				wrapper.AddTypeImport(type, !resolveResult.IsError || !state.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression).IsError);
+				wrapper.AddTypeImport(type, !resolveResult.IsError);
 			}
 		}
 		

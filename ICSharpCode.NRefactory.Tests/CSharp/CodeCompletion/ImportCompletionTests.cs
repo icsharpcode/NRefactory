@@ -163,6 +163,7 @@ class Test
 
 		}
 
+		[Ignore("Too slow atm :(")]
 		[Test]
 		public void TestAutomaticImportLocalClash ()
 		{
