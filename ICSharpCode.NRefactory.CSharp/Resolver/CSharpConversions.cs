@@ -1007,7 +1007,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						IParameter pF = f.Parameters[i];
 						if (pD.IsRef != pF.IsRef || pD.IsOut != pF.IsOut)
 							return Conversion.None;
-						if (!dParamTypes[i].Equals(pF.Type))
+						if (!IdentityConversion(dParamTypes[i], pF.Type))
 							return Conversion.None;
 					}
 				}

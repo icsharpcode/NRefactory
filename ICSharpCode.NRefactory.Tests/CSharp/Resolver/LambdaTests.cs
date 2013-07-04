@@ -841,5 +841,55 @@ class Test {
 			Assert.IsTrue(c.IsValid);
 			Assert.IsTrue(c.IsAnonymousFunctionConversion);
 		}
+
+		[Test]
+		public void AnonymousMethodConversionObjectToDynamic() {
+			string program = @"using System;
+class Test {
+	public void M() {
+		Action<dynamic> x = $delegate(object z) { z = null; }$;
+	}
+}";
+			var c = GetConversion(program);
+			Assert.IsTrue(c.IsValid);
+		}
+
+		[Test]
+		public void AnonymousMethodConversionObjectToDynamicGenericArgument() {
+			string program = @"using System;
+using System.Collections.Generic;
+class Test {
+	public void M() {
+		Action<List<dynamic>> x = $delegate(List<object> z) { z = null; }$;
+	}
+}";
+			var c = GetConversion(program);
+			Assert.IsTrue(c.IsValid);
+		}
+
+		[Test]
+		public void AnonymousMethodConversionDynamicToObject() {
+			string program = @"using System;
+class Test {
+	public void M() {
+		Action<object> x = $delegate(dynamic z) { z = null; }$;
+	}
+}";
+			var c = GetConversion(program);
+			Assert.IsTrue(c.IsValid);
+		}
+
+		[Test]
+		public void AnonymousMethodConversionDynamicToObjectGenericArgument() {
+			string program = @"using System;
+using System.Collections.Generic;
+class Test {
+	public void M() {
+		Action<List<object>> x = $delegate(List<dynamic> z) { z = null; }$;
+	}
+}";
+			var c = GetConversion(program);
+			Assert.IsTrue(c.IsValid);
+		}
 	}
 }
