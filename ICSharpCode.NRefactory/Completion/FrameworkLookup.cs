@@ -443,19 +443,20 @@ namespace ICSharpCode.NRefactory.Completion
 			}
 			#endregion
 
+			Dictionary<ulong, ushort> frameworkLookupTable = new Dictionary<ulong, ushort> ();
 			ushort GetLookup (string packageName, string assemblyName, string ns)
 			{
-				for (int i = 0; i < assemblyLookups.Count; i++) {
-					var lookup = assemblyLookups [i];
-					if (lookup.FullName == assemblyName && lookup.Namespace == ns)
-						return (ushort)i;
-				}
+				var id = (ulong)ns.GetHashCode () << 32 | (ulong)assemblyName.GetHashCode ();
+				ushort value;
+				if (frameworkLookupTable.TryGetValue (id, out value))
+					return value;
 
 				var result = new AssemblyLookup (packageName, assemblyName, ns);
 				assemblyLookups.Add (result);
 				var index = assemblyLookups.Count - 1;
 				if (index > ushort.MaxValue)
 					throw new InvalidOperationException ("Assembly lookup list overflow > " + ushort.MaxValue + " assemblies.");
+				frameworkLookupTable.Add (id, (ushort)index);
 				return (ushort)index;
 			}
 
