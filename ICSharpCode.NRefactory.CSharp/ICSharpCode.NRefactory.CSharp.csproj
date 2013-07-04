@@ -550,6 +550,7 @@
     <Compile Include="Refactoring\CodeIssues\RedundantEmptyDefaultInSwitchIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantExplicitTypeSpecificationInLambdaIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ReplaceWithIsOperatorIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\ConvertToStaticTypeIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
