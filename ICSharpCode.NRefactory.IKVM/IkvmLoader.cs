@@ -746,7 +746,14 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				}
 				ctorParameterTypes = interningProvider.InternList(ctorParameterTypes);
 			}
-			return interningProvider.Intern(new UnresolvedAttributeBlob(attributeType, ctorParameterTypes, attribute.__GetBlob ()));
+			byte[] blob;
+			try {
+				blob = attribute.__GetBlob ();
+			} catch (Exception e) {
+				blob = null;
+				Console.Error.WriteLine ("IKVM error while getting blob:" + e);
+			}
+			return interningProvider.Intern(new UnresolvedAttributeBlob(attributeType, ctorParameterTypes, blob));
 		}
 		#endregion
 
