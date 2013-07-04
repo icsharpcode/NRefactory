@@ -285,6 +285,7 @@
     <Compile Include="Analysis\SymbolCollector.cs" />
     <Compile Include="TypeSystem\AssemblyLoader.cs" />
     <Compile Include="Editor\UnicodeNewline.cs" />
+    <Compile Include="Completion\FrameworkLookup.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Completion\" />
