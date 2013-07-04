@@ -353,6 +353,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 		IConstantValue CreateSimpleConstantValue(ITypeReference type, object value)
 		{
+			if (ReferenceEquals (value, Missing.Value))
+				return null;
 			return interningProvider.Intern(new SimpleConstantValue(type, interningProvider.InternValue(value)));
 		}
 		#endregion
