@@ -554,7 +554,6 @@
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="Refactoring\CodeActions\ConvertIfToNullCoalescingAction.cs" />
-    <Compile Include="Refactoring\CodeActions\ConvertToEnumAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
