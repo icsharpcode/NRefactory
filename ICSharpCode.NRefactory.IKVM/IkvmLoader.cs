@@ -750,7 +750,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			try {
 				blob = attribute.__GetBlob ();
 			} catch (Exception e) {
-				blob = null;
+				blob = new byte[0];
 				Console.Error.WriteLine ("IKVM error while getting blob:" + e);
 			}
 			return interningProvider.Intern(new UnresolvedAttributeBlob(attributeType, ctorParameterTypes, blob));
