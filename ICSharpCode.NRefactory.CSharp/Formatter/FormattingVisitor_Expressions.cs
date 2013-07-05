@@ -358,7 +358,7 @@ namespace ICSharpCode.NRefactory.CSharp
 								if (arg.PrevSibling.StartLocation.Line == arg.StartLocation.Line) {
 									ForceSpacesBefore(arg, spaceAfterMethodCallParameterComma && arg.GetPrevSibling(NoWhitespacePredicate).Role == Roles.Comma);
 								} else {
-									int extraSpaces = arguments.First().StartLocation.Column - 1 - curIndent.IndentString.Length;
+									int extraSpaces = Math.Max (0, arguments.First().StartLocation.Column - 1 - curIndent.IndentString.Length);
 									curIndent.ExtraSpaces += extraSpaces;
 									FixStatementIndentation(arg.StartLocation);
 									curIndent.ExtraSpaces -= extraSpaces;
