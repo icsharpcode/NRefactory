@@ -358,7 +358,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						case '/':
 							if (IsInString || IsInChar || IsInVerbatimString || IsInSingleComment)
 								break;
-							if (nextCh == '/') {
+							if (nextCh == '/' && !IsInMultiLineComment) {
 								i++;
 								IsInSingleComment = true;
 								IsInPreprocessorDirective = false;
