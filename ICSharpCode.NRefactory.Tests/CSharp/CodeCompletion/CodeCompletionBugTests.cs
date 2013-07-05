@@ -6100,5 +6100,21 @@ public class Test
 				Assert.IsNotNull(provider.Find("l"));
 			});
 		}
+
+		[Test]
+		public void TestLexerBug ()
+		{
+			CompletionDataList provider = CreateProvider (
+				@"
+public class TestMe : System.Object
+{
+/*
+
+	//*/
+	$override $
+}");
+			Assert.IsNotNull (provider, "provider not found.");
+			Assert.IsNotNull (provider.Find ("Equals"), "method 'Equals' not found.");
+		}
 	}
 }

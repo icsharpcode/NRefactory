@@ -72,12 +72,12 @@ class Test
 }
 ");
 			
-			var data = provider.Find ("AppDomain") as CodeCompletionBugTests.TestFactory.ImportCompletionData;
+			var data = provider.Find ("AppDomain", true) as CodeCompletionBugTests.TestFactory.ImportCompletionData;
 			Assert.NotNull(data);
 			Assert.AreEqual("System", data.Type.Namespace);
 			Assert.False(data.UseFullName);
 
-			data = provider.Find ("File") as CodeCompletionBugTests.TestFactory.ImportCompletionData;
+			data = provider.Find ("File", true) as CodeCompletionBugTests.TestFactory.ImportCompletionData;
 			Assert.NotNull(data);
 			Assert.AreEqual("System.IO", data.Type.Namespace);
 			Assert.False(data.UseFullName);
@@ -96,10 +96,10 @@ class Test
 }
 ");
 			
-			var data = provider.Find ("AppDomain") as CodeCompletionBugTests.TestFactory.ImportCompletionData;
+			var data = provider.Find ("AppDomain", true) as CodeCompletionBugTests.TestFactory.ImportCompletionData;
 			Assert.IsNull(data);
 			
-			data = provider.Find ("File") as CodeCompletionBugTests.TestFactory.ImportCompletionData;
+			data = provider.Find ("File", true) as CodeCompletionBugTests.TestFactory.ImportCompletionData;
 			Assert.NotNull(data);
 			Assert.AreEqual("System.IO", data.Type.Namespace);
 			Assert.False(data.UseFullName);
@@ -123,7 +123,7 @@ class Test
 }
 ");
 			
-			var data = provider.Find ("AppDomain") as CodeCompletionBugTests.TestFactory.ImportCompletionData;
+			var data = provider.Find ("AppDomain", true) as CodeCompletionBugTests.TestFactory.ImportCompletionData;
 			Assert.NotNull(data);
 			Assert.True(data.UseFullName);
 		}
@@ -139,7 +139,7 @@ class Test
 		$c$
 	}
 }");
-			var data = provider.Find ("Console") as CodeCompletionBugTests.TestFactory.ImportCompletionData;
+			var data = provider.Find ("Console", true) as CodeCompletionBugTests.TestFactory.ImportCompletionData;
 			Assert.NotNull(data);
 			Assert.False(data.UseFullName);
 
