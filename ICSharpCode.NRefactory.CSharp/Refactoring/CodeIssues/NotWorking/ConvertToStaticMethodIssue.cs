@@ -94,9 +94,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				//var method = (IMethod)rr.Member;
 				//method.ImplementedInterfaceMembers.Any(m => methodGroupResolveResult.Methods.Contains((IMethod)m));
 
-				script.DoGlobalOperationOn(rr.Member,
+				/*script.DoGlobalOperationOn(rr.Member,
 				                                       (fctx, fscript, fnode) => {
-					DoStaticMethodGlobalOperation(fnode, fctx, rr, fscript); });
+					DoStaticMethodGlobalOperation(fnode, fctx, rr, fscript); });*/
 			}
 
 			static void DoStaticMethodGlobalOperation(AstNode fnode, RefactoringContext fctx, MemberResolveResult rr,
