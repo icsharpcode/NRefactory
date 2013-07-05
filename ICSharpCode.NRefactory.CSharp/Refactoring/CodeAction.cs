@@ -63,6 +63,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			get;
 			private set;
 		}
+		
+		/// <summary>
+		/// This property is used to identify which actions are "siblings", ie which actions
+		/// are the same kind of fix. This is useful when supporting batch fixing of issues that
+		/// have more than one possible action to choose from.
+		/// </summary>
+		/// <value>The sibling key.</value>
+		public object SiblingKey {
+			get;
+			private set;
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeAction"/> class.
@@ -76,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name='astNode'>
 		/// A node that specifies the start/end positions for the code action.
 		/// </param>
-		public CodeAction (string description, Action<Script> action, AstNode astNode)
+		public CodeAction (string description, Action<Script> action, AstNode astNode, object siblingKey = null)
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
@@ -88,6 +99,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Run = action;
 			Start = astNode.StartLocation;
 			End = astNode.EndLocation;
+			// The default sibling key.
+			SiblingKey = siblingKey ?? "none";
 		}
 
 		/// <summary>
@@ -101,7 +114,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// </param>
 		/// <param name='start'>Start position for the code action.</param>
 		/// <param name='end'>End position for the code action.</param>
-		public CodeAction (string description, Action<Script> action, TextLocation start, TextLocation end)
+		public CodeAction (string description, Action<Script> action, TextLocation start, TextLocation end, object siblingKey = null)
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
@@ -111,6 +124,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Run = action;
 			this.Start = start;
 			this.End = end;
+			SiblingKey = siblingKey ?? "none";
 		}
 	}
 }

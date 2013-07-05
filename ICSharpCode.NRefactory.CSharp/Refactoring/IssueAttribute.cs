@@ -48,12 +48,15 @@ namespace ICSharpCode.NRefactory.CSharp
 		public Severity Severity { get; set; }
 
 		public IssueMarker IssueMarker { get; set; }
+		
+		public bool SupportsBatchFixing { get; set; }
 
 		public IssueDescriptionAttribute (string title)
 		{
 			Title = title;
 			Severity = Severity.Suggestion;
 			IssueMarker = IssueMarker.Underline;
+			SupportsBatchFixing = true;
 		}
 	}
 }
