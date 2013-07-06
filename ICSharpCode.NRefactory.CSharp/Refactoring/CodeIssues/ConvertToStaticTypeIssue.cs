@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (members.Any(f => !f.HasModifier(Modifiers.Static)))
 					return;
 			
-				AddIssue(typedeclaration, ctx.TranslateString("This class is recommended to be defined as to static."));
+				AddIssue(typedeclaration, ctx.TranslateString("This class is recommended to be defined as static."));
 			}
 		}
 	}
