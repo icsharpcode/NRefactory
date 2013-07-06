@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantBaseIssue.cs
+// ConvertToStaticTypeIssue.cs
 //  
 // Author:
 //       Ji Kun <jikun.nus@gmail.com>
@@ -34,90 +34,43 @@ using ICSharpCode.NRefactory.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	/// <summary>
-	/// Finds redundant base qualifier 
+	/// Type declaration can be converted to static.
 	/// </summary>
-	[IssueDescription("Remove redundant 'base.'",
-		   Description= "Removes 'base.' references that are not required.",
-		   Category = IssueCategories.Redundancies,
+	[IssueDescription("Type declaration can be converted to static",
+	                  Description= "If all fields, properties and methods members are static, the type declaration can be made static.",
+		   Category = IssueCategories.Opportunities,
 		   Severity = Severity.Hint,
-		   IssueMarker = IssueMarker.GrayOut,
-		   ResharperDisableKeyword = "RedundantBaseQualifier")]
-	public class RedundantBaseIssue : ICodeIssueProvider
+		   IssueMarker = IssueMarker.Underline,
+		   ResharperDisableKeyword = "ConvertToStaticType")]
+	public class ConvertToStaticTypeIssue : ICodeIssueProvider
 	{
-		bool ignoreConstructors = true;
-
-		/// <summary>
-		/// Specifies whether to ignore redundant 'base' in constructors.
-		/// "base.Name = name;"
-		/// </summary>
-		public bool IgnoreConstructors {
-			get {
-				return ignoreConstructors;
-			}
-			set {
-				ignoreConstructors = value;
-			}
-		}
-		
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantBaseIssue>
+		class GatherVisitor : GatherVisitorBase<ConvertToStaticTypeIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx, RedundantBaseIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseRefactoringContext ctx, ConvertToStaticTypeIssue issueProvider) : base (ctx, issueProvider)
 			{
 			}
 
-			static IMember GetMember(ResolveResult result)
+			public override void VisitTypeDeclaration(TypeDeclaration typedeclaration)
 			{
-				if (result is MemberResolveResult) {
-					return ((MemberResolveResult)result).Member;
-				} else if (result is MethodGroupResolveResult) {
-					return ((MethodGroupResolveResult)result).Methods.FirstOrDefault();
-				}
+				base.VisitTypeDeclaration(typedeclaration);
 
-				return null;
-			}
+				if (typedeclaration == null || typedeclaration.HasModifier(Modifiers.Static))
+					return;
+
+				var members = typedeclaration.GetChildrenByRole(Roles.TypeMemberRole);
+
+				if (members.Count == 0)
+					return;
+
+				if (members.Any(f => !f.HasModifier(Modifiers.Static)))
+					return;
 			
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-				if (IssueProvider.IgnoreConstructors)
-					return;
-				base.VisitConstructorDeclaration(constructorDeclaration);
-			}
-
-			public override void VisitBaseReferenceExpression(BaseReferenceExpression baseReferenceExpression)
-			{
-				base.VisitBaseReferenceExpression(baseReferenceExpression);
-				var memberReference = baseReferenceExpression.Parent as MemberReferenceExpression;
-				if (memberReference == null) {
-					return;
-				}
-
-				var state = ctx.GetResolverStateAfter(baseReferenceExpression);
-				var wholeResult = ctx.Resolve(memberReference);
-
-				IMember member = GetMember(wholeResult);
-				if (member == null || member.IsOverridable) { 
-					return;
-				}
-
-				if (state.CurrentTypeDefinition.DirectBaseTypes == null)
-					return;
-
-				var basicMembers = state.CurrentTypeDefinition.DirectBaseTypes.First().GetMembers();
-				var extendedMembers = state.CurrentTypeDefinition.GetMembers().Except(basicMembers);
-
-				bool isRedundant = !extendedMembers.Any(f => f.Name.Equals(member.Name));
-
-				if (isRedundant) {
-					AddIssue(baseReferenceExpression.StartLocation, memberReference.MemberNameToken.StartLocation, ctx.TranslateString("Remove redundant 'base.'"), script => {
-						script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
-					}
-					);
-				}
+				AddIssue(typedeclaration, ctx.TranslateString("This class is recommended to be defined as to static."));
 			}
 		}
 	}
