@@ -551,6 +551,7 @@
     <Compile Include="Refactoring\CodeIssues\RedundantExplicitTypeSpecificationInLambdaIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ReplaceWithIsOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ConvertToStaticTypeIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\OverrideVirtualMethodAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

@@ -427,6 +427,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantBaseIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithIsOperatorTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertToStaticTypeTests.cs" />
+    <Compile Include="CSharp\CodeActions\OverrideVirtualMethodsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
