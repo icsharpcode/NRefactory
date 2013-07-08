@@ -83,7 +83,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitReturnStatement(ReturnStatement returnStatement)
 			{
 				base.VisitReturnStatement(returnStatement);
-				CheckConversion(ctx.GetExpectedType (returnStatement.Expression), returnStatement.Expression);			
+				if (!returnStatement.Expression.IsNull)
+					CheckConversion(ctx.GetExpectedType (returnStatement.Expression), returnStatement.Expression);			
 			}
 
 			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
