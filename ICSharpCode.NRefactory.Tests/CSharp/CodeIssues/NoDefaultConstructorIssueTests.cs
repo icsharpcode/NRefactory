@@ -164,6 +164,65 @@ class A : B {
 			Assert.AreEqual("CS1729: The type 'B' does not contain a constructor that takes '0' arguments", issues.ElementAt(1).Description);
 			Assert.AreEqual("CS1729: The type 'D' does not contain a constructor that takes '0' arguments", issues.ElementAt(0).Description);
 		}
+		
+		[Test]
+		[Ignore("Fix me")]
+		public void ShouldNotReturnIssueIfBaseClassCtorHasOptionalParameters()
+		{
+			var testInput =
+@"class BaseClass
+{
+	public BaseClass(int i = 0)
+	{
+	}
+}
+
+class ChildClass : BaseClass
+{
+}";
+
+			Test<NoDefaultConstructorIssue>(testInput, 0);
+		}
+		
+		[Test]
+		[Ignore("Fix me")]
+		public void ShouldNotReturnIssueIfBaseClassCtorHasVariadicParameters()
+		{
+			var testInput =
+@"class BaseClass
+{
+	public BaseClass(params string[] str)
+	{
+	}
+}
+
+class ChildClass : BaseClass
+{
+}";
+
+			Test<NoDefaultConstructorIssue>(testInput, 0);
+		}
+		
+		[Test]
+		public void ShouldNotReturnIssueForStaticConstructor()
+		{
+			var testInput =
+@"class BaseClass
+{
+	public BaseClass(string text)
+	{
+	}
+}
+
+class ChildClass : BaseClass
+{
+	public ChildClass() : base(""text"") {}
+	
+	static ChildClass() {}
+}";
+
+			Test<NoDefaultConstructorIssue>(testInput, 0);
+		}
 	}
 }
 

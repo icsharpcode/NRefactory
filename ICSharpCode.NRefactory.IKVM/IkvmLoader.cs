@@ -442,7 +442,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					switch (flags & ImplMapFlags.CallConvMask) {
 						case (ImplMapFlags)0:
 							Debug.WriteLine ("P/Invoke calling convention not set on:" + methodDefinition.Name);
-							callingConvention = CallingConvention.StdCall;
+							callingConvention = 0;
 							break;
 						case ImplMapFlags.CallConvCdecl:
 							callingConvention = CallingConvention.Cdecl;

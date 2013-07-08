@@ -57,6 +57,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var result = ctx.Resolve(declaration) as MemberResolveResult;
 				if (result == null || result.IsError)
 					return;
+				if (result.Member.IsStatic)
+					return; // ignore static ctor
 
 				var baseType = result.Member.DeclaringType.DirectBaseTypes.FirstOrDefault(t => !t.IsKnownType(KnownTypeCode.Object) && t.Kind != TypeKind.Interface);
 
