@@ -147,6 +147,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var resolveResult = ctx.Resolve (parameterDeclaration) as LocalResolveResult;
 				if (resolveResult == null)
 					return;
+				if (resolveResult.Type.Name == "StreamingContext" && resolveResult.Type.Namespace == "System.Runtime.Serialization") {
+					// commonly unused parameter in constructors associated with ISerializable
+					return;
+				}
 
 				if (ctx.FindReferences (parameterDeclaration.Parent, resolveResult.Variable).Any(r => r.Node != parameterDeclaration))
 					return;

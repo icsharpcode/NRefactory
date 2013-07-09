@@ -55,7 +55,7 @@ class TestClass
 			Test<CS1717AssignmentMadeToSameVariableIssue> (input, 1, output);
 		}
 
-        [Ignore("Parser/AST generation error")]
+        [Ignore("Parser/AST generation error - WarningList is empty")]
         [Test]
         public void TestPragmaSuppression()
         {

@@ -408,6 +408,21 @@ class TestClass
 }";
 			Test<CS0029InvalidConversionIssue>(input, output);
 		}
+		
+		// TODO: create resolver unit tests for this issue
+		[Test, Ignore("Resolver bug - GetConversion() returns the explicit conversion instead of the expected identity conversion")]
+		public void ExplicitConversionFromUnknownType()
+		{
+			string input = @"
+class Test {
+	void M(MissingInterface m) {
+		this.Project = (Project)m;
+	}
+	public Project Project { get; set; }
+}
+class Project : MissingInterface {}";
+			TestWrongContext<CS0029InvalidConversionIssue>(input);
+		}
 
 	}
 }

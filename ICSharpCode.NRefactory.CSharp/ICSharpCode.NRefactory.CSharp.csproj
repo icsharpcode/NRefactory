@@ -283,6 +283,7 @@
     <Compile Include="Refactoring\CodeActions\ConvertSwitchToIfAction.cs" />
     <Compile Include="Refactoring\CodeActions\CreateCustomEventImplementationAction.cs" />
     <Compile Include="Refactoring\CodeActions\CreateOverloadWithoutParameterAction.cs" />
+    <Compile Include="Refactoring\CodeActions\ImplementNotImplementedProperty.cs" />
     <Compile Include="Refactoring\CodeActions\JoinDeclarationAndAssignmentAction.cs" />
     <Compile Include="Refactoring\CodeActions\JoinStringAction.cs" />
     <Compile Include="Refactoring\CodeActions\MergeNestedIfAction.cs" />
@@ -548,7 +549,6 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicateIfInIfChainIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\UseBlockInsteadColonIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\LockThisIssue.cs" />
-    <Compile Include="Refactoring\ImplementNotImplementedProperty.cs" />
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="Refactoring\CodeActions\ConvertIfToNullCoalescingAction.cs" />
