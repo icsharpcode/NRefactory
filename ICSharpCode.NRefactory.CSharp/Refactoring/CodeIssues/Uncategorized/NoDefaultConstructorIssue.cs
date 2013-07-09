@@ -8,10 +8,10 @@ using ICSharpCode.NRefactory.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("CS1729: Base class does not contain a 0 argument constructor",
-					   Description = "CS1729: Base class does not contain a 0 argument constructor",
-					   Category = IssueCategories.CompilerErrors,
-					   Severity = Severity.Error,
-					   IssueMarker = IssueMarker.Underline)]
+	                   Description = "CS1729: Base class does not contain a 0 argument constructor",
+	                   Category = IssueCategories.CompilerErrors,
+	                   Severity = Severity.Error,
+	                   IssueMarker = IssueMarker.Underline)]
 	public class NoDefaultConstructorIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
@@ -21,9 +21,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		private class GatherVisitor : GatherVisitorBase<NoDefaultConstructorIssue>
 		{
-			private bool initializerInvoked;
-			private ConstructorInitializer initializer;
-
+			IType currentType;
+			IType baseType;
+			
 			public GatherVisitor(BaseRefactoringContext context)
 				: base(context)
 			{
@@ -31,72 +31,68 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration declaration)
 			{
-				base.VisitTypeDeclaration(declaration);
+				IType outerType = currentType;
+				IType outerBaseType = baseType;
+				
 				var result = ctx.Resolve(declaration) as TypeResolveResult;
-				if (result == null || result.IsError)
-					return;
-				var baseType = result.Type.DirectBaseTypes.FirstOrDefault(t => !t.IsKnownType(KnownTypeCode.Object) && t.Kind != TypeKind.Interface);
-
-				if (baseType != null) {
-					var baseConstructor = baseType.GetConstructors(c => c.Parameters.Count == 0).FirstOrDefault();
-					var memberLookup = new MemberLookup(result.Type.GetDefinition(), ctx.Compilation.MainAssembly, false);
-
-					if (baseConstructor == null || !memberLookup.IsAccessible(baseConstructor, true)) {
-						var constructor = result.Type.GetConstructors(f => !f.IsSynthetic).FirstOrDefault();
-
-						if (constructor == null) {
-							// If there are no constructors declared then the base constructor isn't being invoked
-							this.AddIssue(declaration, baseType);
-						}
+				currentType = result != null ? result.Type : SpecialType.UnknownType;
+				baseType = currentType.DirectBaseTypes.FirstOrDefault(t => t.Kind != TypeKind.Interface) ?? SpecialType.UnknownType;
+				
+				base.VisitTypeDeclaration(declaration);
+				
+				if (currentType.Kind == TypeKind.Class && currentType.GetConstructors().All(ctor => ctor.IsSynthetic)) {
+					// current type only has the compiler-provided default ctor
+					if (!BaseTypeHasUsableParameterlessConstructor()) {
+						AddIssue(declaration.NameToken, GetIssueText(baseType));
 					}
 				}
+				
+				currentType = outerType;
+				baseType = outerBaseType;
 			}
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration declaration)
 			{
-				var result = ctx.Resolve(declaration) as MemberResolveResult;
-				if (result == null || result.IsError)
+				if (declaration.HasModifier(Modifiers.Static))
 					return;
-				if (result.Member.IsStatic)
-					return; // ignore static ctor
-
-				var baseType = result.Member.DeclaringType.DirectBaseTypes.FirstOrDefault(t => !t.IsKnownType(KnownTypeCode.Object) && t.Kind != TypeKind.Interface);
-
-				if (baseType != null) {
-					var baseConstructor = baseType.GetConstructors(c => c.Parameters.Count == 0).FirstOrDefault();
-					var memberLookup = new MemberLookup(result.Member.DeclaringType.GetDefinition(), ctx.Compilation.MainAssembly, false);
-
-					if (baseConstructor == null || !memberLookup.IsAccessible(baseConstructor, true)) {
-						this.initializerInvoked = false;
-						this.initializer = null;
 				
-						base.VisitConstructorDeclaration(declaration);
-
-						if (!this.initializerInvoked) {
-							int argumentCount = initializer != null ? initializer.Arguments.Count : 0;
-							this.AddIssue(declaration, baseType, argumentCount);
-						}
+				var initializer = declaration.Initializer;
+				if (initializer.IsNull) {
+					// Check if parameterless ctor is available:
+					if (!BaseTypeHasUsableParameterlessConstructor()) {
+						AddIssue(declaration.NameToken, GetIssueText(baseType));
+					}
+				} else {
+					const OverloadResolutionErrors errorsIndicatingWrongNumberOfArguments =
+						OverloadResolutionErrors.MissingArgumentForRequiredParameter
+						| OverloadResolutionErrors.TooManyPositionalArguments
+						| OverloadResolutionErrors.Inaccessible;
+					
+					// Check if existing initializer is valid:
+					var rr = ctx.Resolve(initializer) as CSharpInvocationResolveResult;
+					if (rr != null && (rr.OverloadResolutionErrors & errorsIndicatingWrongNumberOfArguments) != 0) {
+						IType targetType = initializer.ConstructorInitializerType == ConstructorInitializerType.Base ? baseType : currentType;
+						AddIssue(declaration.NameToken, GetIssueText(targetType, initializer.Arguments.Count));
 					}
 				}
 			}
 
-			public override void VisitConstructorInitializer(ConstructorInitializer initializer)
+			bool BaseTypeHasUsableParameterlessConstructor()
 			{
-				var result = ctx.Resolve(initializer);
-
-				if (!result.IsError) {
-					this.initializerInvoked = true;
-				} else {
-					this.initializer = initializer;
+				var memberLookup = new MemberLookup(currentType.GetDefinition(), ctx.Compilation.MainAssembly);
+				OverloadResolution or = new OverloadResolution(ctx.Compilation, new ResolveResult[0]);
+				foreach (var ctor in baseType.GetConstructors()) {
+					if (memberLookup.IsAccessible(ctor, allowProtectedAccess: true)) {
+						if (or.AddCandidate(ctor) == OverloadResolutionErrors.None)
+							return true;
+					}
 				}
+				return false;
 			}
-
-			private void AddIssue(AstNode node, IType baseType, int argumentCount = 0)
+			
+			string GetIssueText(IType targetType, int argumentCount = 0)
 			{
-				var identifier = node.GetChildByRole(Roles.Identifier);
-				this.AddIssue(
-					identifier,
-					string.Format(ctx.TranslateString("CS1729: The type '{0}' does not contain a constructor that takes '{1}' arguments"), baseType.Name, argumentCount));
+				return string.Format(ctx.TranslateString("CS1729: The type '{0}' does not contain a constructor that takes '{1}' arguments"), targetType.Name, argumentCount);
 			}
 		}
 	}

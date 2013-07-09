@@ -58,23 +58,6 @@ class ChildClass : BaseClass
 		}
 
 		[Test]
-		public void ShouldReturnIssueIfInvalidArgumentsArePassedToBaseConstructor()
-		{
-			var testInput =
-@"class BaseClass
-{
-	public BaseClass(string input) {}
-}
-
-class ChildClass : BaseClass
-{
-	public ChildClass() : base(123) {}
-}";
-
-			Test<NoDefaultConstructorIssue>(testInput, 1);
-		}
-
-		[Test]
 		public void ShouldIgnoreInterfaces()
 		{
 			var testInput =
@@ -141,6 +124,23 @@ class ChildClass : BaseClass
 		}
 
 		[Test]
+		public void ShouldReturnAnIssueIfBaseConstructorIsPrivate_ExplicitInitializer()
+		{
+			var testInput =
+@"class BaseClass
+{
+	private BaseClass() {}
+}
+
+class ChildClass : BaseClass
+{
+	public ChildClass() : base() {}
+}";
+
+			Test<NoDefaultConstructorIssue>(testInput, 1);
+		}
+
+		[Test]
 		public void ShouldReturnIssuesForNestedTypes()
 		{
 			TestRefactoringContext context;
@@ -166,7 +166,6 @@ class A : B {
 		}
 		
 		[Test]
-		[Ignore("Fix me")]
 		public void ShouldNotReturnIssueIfBaseClassCtorHasOptionalParameters()
 		{
 			var testInput =
@@ -185,7 +184,6 @@ class ChildClass : BaseClass
 		}
 		
 		[Test]
-		[Ignore("Fix me")]
 		public void ShouldNotReturnIssueIfBaseClassCtorHasVariadicParameters()
 		{
 			var testInput =
