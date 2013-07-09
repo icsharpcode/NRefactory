@@ -378,13 +378,15 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 			engine.FormattingPolicy = FormattingOptionsFactory.CreateMono();
 			return engine;
 		}
-
-		public static CompletionDataList CreateProvider(string text, bool isCtrlSpace, params IUnresolvedAssembly[] references)
+		
+		public static CompletionDataList CreateProvider(string text, bool isCtrlSpace, Action<CSharpCompletionEngine> engineCallback, params IUnresolvedAssembly[] references)
 		{
 			int cursorPosition;
 			var engine = CreateEngine(text, out cursorPosition, references);
+			if (engineCallback != null)
+				engineCallback(engine);
 			var data = engine.GetCompletionData (cursorPosition, isCtrlSpace);
-			
+
 			return new CompletionDataList () {
 				Data = data,
 				AutoCompleteEmptyMatch = engine.AutoCompleteEmptyMatch,
@@ -393,6 +395,11 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 			};
 		}
 		
+		public static CompletionDataList CreateProvider(string text, bool isCtrlSpace, params IUnresolvedAssembly[] references)
+		{
+			return CreateProvider(text, isCtrlSpace, null, references);
+		}
+
 		Tuple<ReadOnlyDocument, CSharpCompletionEngine> GetContent(string text, SyntaxTree syntaxTree)
 		{
 			var doc = new ReadOnlyDocument(text);

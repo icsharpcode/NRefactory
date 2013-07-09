@@ -38,6 +38,13 @@ using ICSharpCode.NRefactory.CSharp.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Completion
 {
+	public enum EditorBrowsableBehavior
+	{
+		Ignore,
+		Normal,
+		IncludeAdvanced
+	}
+
 	public class CSharpCompletionEngine : CSharpCompletionEngineBase
 	{
 		internal ICompletionDataFactory factory;
@@ -48,6 +55,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		public string EolMarker { get; set; }
 		
 		public string IndentString { get; set; }
+
+		public bool AutomaticallyAddImports { get; set; }
+		public bool IncludeKeywordsInCompletionList { get; set; }
+		public EditorBrowsableBehavior EditorBrowsableBehavior { get; set; }
 		#endregion
 		
 		#region Result properties
@@ -76,6 +87,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			// Set defaults for additional input properties
 			this.FormattingPolicy = FormattingOptionsFactory.CreateMono();
 			this.EolMarker = Environment.NewLine;
+			this.IncludeKeywordsInCompletionList = true;
+			EditorBrowsableBehavior = EditorBrowsableBehavior.IncludeAdvanced;
 			this.IndentString = "\t";
 		}
 		
@@ -779,7 +792,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						var prev = n.GetPrevNode() as ForeachStatement;
 						if (prev != null && prev.InExpression.IsNull) {
 							if (controlSpace) {
-								contextList.AddCustom("in");
+								if (IncludeKeywordsInCompletionList)
+									contextList.AddCustom("in");
 								return contextList.Result;
 							}
 							return null;
@@ -1137,12 +1151,16 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			}
 			var contextList = new CompletionDataWrapper(this);
 			if (node is PropertyDeclaration || node is IndexerDeclaration) {
-				contextList.AddCustom("get");
-				contextList.AddCustom("set");
-				AddKeywords(contextList, accessorModifierKeywords);
+				if (IncludeKeywordsInCompletionList) {
+					contextList.AddCustom("get");
+					contextList.AddCustom("set");
+					AddKeywords(contextList, accessorModifierKeywords);
+				}
 			} else if (node is CustomEventDeclaration) {
-				contextList.AddCustom("add");
-				contextList.AddCustom("remove");
+				if (IncludeKeywordsInCompletionList) {
+					contextList.AddCustom("add");
+					contextList.AddCustom("remove");
+				}
 			} else {
 				return null;
 			}
@@ -1406,7 +1424,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				} 
 				
 				if (IsInSwitchContext(node)) {
-					wrapper.AddCustom("case"); 
+					if (IncludeKeywordsInCompletionList)
+						wrapper.AddCustom("case"); 
 				}
 			} else {
 				if (((AstType)node).Parent is ParameterDeclaration) {
@@ -1417,8 +1436,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			if (node != null || state.CurrentTypeDefinition != null || isInGlobalDelegate)
 				AddKeywords(wrapper, primitiveTypesKeywords);
 			if (currentMember != null && (node is IdentifierExpression || node is SimpleType) && (node.Parent is ExpressionStatement || node.Parent is ForeachStatement || node.Parent is UsingStatement)) {
-				wrapper.AddCustom("var");
-				wrapper.AddCustom("dynamic");
+				if (IncludeKeywordsInCompletionList) {
+					wrapper.AddCustom("var");
+					wrapper.AddCustom("dynamic");
+				}
 			} 
 			wrapper.Result.AddRange(factory.CreateCodeTemplateCompletionData());
 			if (node != null && node.Role == Roles.Argument) {
@@ -1457,7 +1478,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			
 			// Add 'this' keyword for first parameter (extension method case)
 			if (node != null && node.Parent is ParameterDeclaration && 
-			    node.Parent.PrevSibling != null && node.Parent.PrevSibling.Role == Roles.LPar) {
+			    node.Parent.PrevSibling != null && node.Parent.PrevSibling.Role == Roles.LPar && IncludeKeywordsInCompletionList) {
 				wrapper.AddCustom("this");
 			}
 		}
@@ -1584,17 +1605,20 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				}
 			}
 
-			if (node is AstType && node.Parent is Constraint) {
+			if (node is AstType && node.Parent is Constraint && IncludeKeywordsInCompletionList) {
 				wrapper.AddCustom ("new()");
 			}
-			state = GetState();
-			foreach (var type in Compilation.GetAllTypeDefinitions ()) {
-				if (!lookup.IsAccessible (type, false))
-					continue;
-				var resolveResult = state.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression);
-				if (resolveResult.Type.GetDefinition () == type)
-					continue;
-				wrapper.AddTypeImport(type, !resolveResult.IsError);
+
+			if (AutomaticallyAddImports) {
+				state = GetState();
+				foreach (var type in Compilation.GetAllTypeDefinitions ()) {
+					if (!lookup.IsAccessible (type, false))
+						continue;
+					var resolveResult = state.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression);
+					if (resolveResult.Type.GetDefinition () == type)
+						continue;
+					wrapper.AddTypeImport(type, !resolveResult.IsError);
+				}
 			}
 		}
 		
@@ -1845,8 +1869,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				case "yield":
 					var yieldDataList = new CompletionDataWrapper(this);
 					DefaultCompletionString = "return";
-					yieldDataList.AddCustom("break");
-					yieldDataList.AddCustom("return");
+					if (IncludeKeywordsInCompletionList) {
+						yieldDataList.AddCustom("break");
+						yieldDataList.AddCustom("return");
+					}
 					return yieldDataList.Result;
 				case "in":
 					var inList = new CompletionDataWrapper(this);
@@ -2132,8 +2158,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			}
 		}
 		
-		static void AddKeywords(CompletionDataWrapper wrapper, IEnumerable<string> keywords)
+		void AddKeywords(CompletionDataWrapper wrapper, IEnumerable<string> keywords)
 		{
+			if (!IncludeKeywordsInCompletionList)
+				return;
 			foreach (string keyword in keywords) {
 				if (wrapper.Result.Any(data => data.DisplayText == keyword))
 					continue;
