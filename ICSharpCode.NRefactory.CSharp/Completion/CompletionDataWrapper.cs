@@ -107,7 +107,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 
 			var def = type.GetDefinition();
 			if (def != null && def.ParentAssembly != completion.ctx.CurrentAssembly) {
-				Console.WriteLine(completion.EditorBrowsableBehavior);
 				switch (completion.EditorBrowsableBehavior) {
 					case EditorBrowsableBehavior.Ignore:
 						break;
