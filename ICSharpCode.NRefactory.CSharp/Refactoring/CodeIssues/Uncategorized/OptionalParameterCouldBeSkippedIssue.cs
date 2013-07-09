@@ -37,7 +37,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Finds calls to functions where optional parameters are used and the passed argument is the same as the default.",
 	                  Category = IssueCategories.Redundancies,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.GrayOut)]
+	                  IssueMarker = IssueMarker.GrayOut,
+	                  SupportsBatchFixing = false)]
 	public class OptionalParameterCouldBeSkippedIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)

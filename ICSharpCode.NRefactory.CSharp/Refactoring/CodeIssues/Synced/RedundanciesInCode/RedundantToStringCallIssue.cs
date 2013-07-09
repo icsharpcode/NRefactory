@@ -39,6 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.Redundancies,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
+	                  SupportsBatchFixing = false,
                       ResharperDisableKeyword = "RedundantToStringCall")]
 	public class RedundantToStringCallIssue : ICodeIssueProvider
 	{
