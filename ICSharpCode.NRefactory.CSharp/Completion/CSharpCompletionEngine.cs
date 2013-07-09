@@ -48,6 +48,9 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		public string EolMarker { get; set; }
 		
 		public string IndentString { get; set; }
+
+		public bool AutomaticallyAddImports { get; set; }
+
 		#endregion
 		
 		#region Result properties
@@ -1587,14 +1590,17 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			if (node is AstType && node.Parent is Constraint) {
 				wrapper.AddCustom ("new()");
 			}
-			state = GetState();
-			foreach (var type in Compilation.GetAllTypeDefinitions ()) {
-				if (!lookup.IsAccessible (type, false))
-					continue;
-				var resolveResult = state.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression);
-				if (resolveResult.Type.GetDefinition () == type)
-					continue;
-				wrapper.AddTypeImport(type, !resolveResult.IsError);
+
+			if (AutomaticallyAddImports) {
+				state = GetState();
+				foreach (var type in Compilation.GetAllTypeDefinitions ()) {
+					if (!lookup.IsAccessible (type, false))
+						continue;
+					var resolveResult = state.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression);
+					if (resolveResult.Type.GetDefinition () == type)
+						continue;
+					wrapper.AddTypeImport(type, !resolveResult.IsError);
+				}
 			}
 		}
 		
