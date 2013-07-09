@@ -7,7 +7,7 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
     [TestFixture]
-	public class NoDefaultConstructorIssueTests : InspectionActionTestBase
+	public class CS1729TypeHasNoConstructorWithNArgumentsIssueTests : InspectionActionTestBase
 	{
 		[Test]
         public void ShouldReturnIssueIfBaseConstructorNotInvoked()
@@ -22,7 +22,7 @@ class ChildClass : BaseClass
 {
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 1);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 1);
         }
 
 		[Test]
@@ -37,7 +37,7 @@ class ChildClass : BaseClass
 {
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 0);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 0);
 		}
 
 		[Test]
@@ -54,7 +54,7 @@ class ChildClass : BaseClass
 	public ChildClass() : base(""test"") {}
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 0);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 0);
 		}
 
 		[Test]
@@ -65,7 +65,7 @@ class ChildClass : BaseClass
 {
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 0);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 0);
 		}
 
 		[Test]
@@ -83,7 +83,7 @@ class ChildClass : BaseClass
 	public ChildClass(string test) {}
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 1);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 1);
 		}
 
 		[Test]
@@ -104,7 +104,7 @@ class ChildClass : BaseClass
 {
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 0);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 0);
 		}
 
 		[Test]
@@ -120,7 +120,7 @@ class ChildClass : BaseClass
 {
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 1);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 1);
 		}
 
 		[Test]
@@ -137,7 +137,7 @@ class ChildClass : BaseClass
 	public ChildClass() : base() {}
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 1);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 1);
 		}
 
 		[Test]
@@ -159,7 +159,7 @@ class A : B {
 	public A() {}
 }";
 
-			var issues = GetIssues(new NoDefaultConstructorIssue(), testInput, out context, false);
+			var issues = GetIssues(new CS1729TypeHasNoConstructorWithNArgumentsIssue(), testInput, out context, false);
 
 			Assert.AreEqual("CS1729: The type 'B' does not contain a constructor that takes '0' arguments", issues.ElementAt(1).Description);
 			Assert.AreEqual("CS1729: The type 'D' does not contain a constructor that takes '0' arguments", issues.ElementAt(0).Description);
@@ -180,7 +180,7 @@ class ChildClass : BaseClass
 {
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 0);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 0);
 		}
 		
 		[Test]
@@ -198,7 +198,7 @@ class ChildClass : BaseClass
 {
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 0);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 0);
 		}
 		
 		[Test]
@@ -219,7 +219,24 @@ class ChildClass : BaseClass
 	static ChildClass() {}
 }";
 
-			Test<NoDefaultConstructorIssue>(testInput, 0);
+			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 0);
+		}
+		
+		[Test]
+		public void ShowIssueForObjectCreateExpression()
+		{
+			var testInput =
+@"class Test {
+	public void M() {
+		new Test(1);
+	}
+}
+";
+
+			TestRefactoringContext context;
+			var issues = GetIssues(new CS1729TypeHasNoConstructorWithNArgumentsIssue(), testInput, out context);
+
+			Assert.AreEqual("CS1729: The type 'Test' does not contain a constructor that takes '1' arguments", issues.Single().Description);
 		}
 	}
 }

@@ -300,6 +300,7 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompareBooleanWithTrueOrFalseIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompareFloatWithEqualityOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0029InvalidConversionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS1729TypeHasNoConstructorWithNArgumentsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ConstantConditionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\DoubleNegationOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
@@ -526,7 +527,6 @@
     <Compile Include="Refactoring\CreateChangedEvent.cs" />
     <Compile Include="Refactoring\CodeActions\SimplifyIfFlowAction.cs" />
     <Compile Include="Refactoring\CodeActions\SimplifyIfInLoopsFlowAction.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\NoDefaultConstructorIssue.cs" />
     <Compile Include="Refactoring\CodeActions\InvertIfAndSimplify.cs" />
     <Compile Include="Formatter\CSharpFormatter.cs" />
     <Compile Include="Formatter\FormattingVisitor.cs" />
