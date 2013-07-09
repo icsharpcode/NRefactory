@@ -41,7 +41,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        ResharperDisableKeyword = "LocalVariableHidesMember")]
 	public class LocalVariableHidesMemberIssue : VariableHidesMemberIssue
 	{
-	    private string ctx = "evlelv";
 	    public override System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 	    {
 			return new GatherVisitor (context).GetIssues ();

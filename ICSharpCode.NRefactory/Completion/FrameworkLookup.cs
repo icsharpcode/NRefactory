@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory.Completion
 
 		/// <summary>
 		/// The assembly lookup determines where a type might be defined.
-		/// It contains the assembly & the namespace.
+		/// It contains the assembly &amp; the namespace.
 		/// </summary>
 		public struct AssemblyLookup
 		{
@@ -148,8 +148,7 @@ namespace ICSharpCode.NRefactory.Completion
 			}
 
 			/// <summary>
-			/// Initializes a new instance of the
-			/// <see cref="MonoDevelop.Ide.TypeSystem.TypeSystemService+FrameworkLookup+AssemblyLookup"/> struct.
+			/// Initializes a new instance of the <see cref="AssemblyLookup"/> struct.
 			/// </summary>
 			/// <param name="package">The package name.</param>
 			/// <param name="fullName">The full name of the assembly.</param>
