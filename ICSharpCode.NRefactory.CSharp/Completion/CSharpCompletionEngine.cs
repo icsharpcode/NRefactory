@@ -38,6 +38,13 @@ using ICSharpCode.NRefactory.CSharp.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Completion
 {
+	public enum EditorBrowsableBehavior
+	{
+		Ignore,
+		Normal,
+		IncludeAdvanced
+	}
+
 	public class CSharpCompletionEngine : CSharpCompletionEngineBase
 	{
 		internal ICompletionDataFactory factory;
@@ -51,6 +58,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 
 		public bool AutomaticallyAddImports { get; set; }
 		public bool IncludeKeywordsInCompletionList { get; set; }
+		public EditorBrowsableBehavior EditorBrowsableBehavior { get; set; }
 		#endregion
 		
 		#region Result properties
@@ -80,6 +88,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			this.FormattingPolicy = FormattingOptionsFactory.CreateMono();
 			this.EolMarker = Environment.NewLine;
 			this.IncludeKeywordsInCompletionList = true;
+			EditorBrowsableBehavior = EditorBrowsableBehavior.IncludeAdvanced;
 			this.IndentString = "\t";
 		}
 		

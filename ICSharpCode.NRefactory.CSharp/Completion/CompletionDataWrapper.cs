@@ -106,8 +106,24 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				return addedTypes[type];
 
 			var def = type.GetDefinition();
-			if (def != null && def.ParentAssembly != completion.ctx.CurrentAssembly && !def.IsBrowsable())
-				return null;
+			if (def != null && def.ParentAssembly != completion.ctx.CurrentAssembly) {
+				Console.WriteLine(completion.EditorBrowsableBehavior);
+				switch (completion.EditorBrowsableBehavior) {
+					case EditorBrowsableBehavior.Ignore:
+						break;
+					case EditorBrowsableBehavior.Normal:
+						var state = def.GetEditorBrowsableState();
+						if (state != System.ComponentModel.EditorBrowsableState.Always)
+							return null;
+						break;
+					case EditorBrowsableBehavior.IncludeAdvanced:
+						if (!def.IsBrowsable())
+							return null;
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
 			ICompletionData usedType;
 			var data = Factory.CreateTypeCompletionData(type, showFullName, isInAttributeContext);
 			var text = data.DisplayText;
@@ -164,9 +180,23 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		{
 			var newData = Factory.CreateEntityCompletionData (member);
 			
-			if (member.ParentAssembly != completion.ctx.CurrentAssembly && !member.IsBrowsable ())
-				return null;
-
+			if (member.ParentAssembly != completion.ctx.CurrentAssembly) {
+				switch (completion.EditorBrowsableBehavior) {
+					case EditorBrowsableBehavior.Ignore:
+						break;
+					case EditorBrowsableBehavior.Normal:
+						var state = member.GetEditorBrowsableState();
+						if (state != System.ComponentModel.EditorBrowsableState.Always)
+							return null;
+						break;
+					case EditorBrowsableBehavior.IncludeAdvanced:
+						if (!member.IsBrowsable())
+							return null;
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
 			string memberKey = newData.DisplayText;
 			if (memberKey == null)
 				return null;
