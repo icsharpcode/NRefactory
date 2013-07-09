@@ -407,7 +407,7 @@ namespace ICSharpCode.NRefactory.Completion
 			Dictionary<ulong, ushort> frameworkLookupTable = new Dictionary<ulong, ushort> ();
 			ushort GetLookup (string packageName, string assemblyName, string ns)
 			{
-				var id = (ulong)ns.GetHashCode () << 32 | (ulong)assemblyName.GetHashCode ();
+				var id = unchecked ((ulong)ns.GetHashCode () << 32 | (ulong)assemblyName.GetHashCode ());
 				ushort value;
 				if (frameworkLookupTable.TryGetValue (id, out value))
 					return value;
