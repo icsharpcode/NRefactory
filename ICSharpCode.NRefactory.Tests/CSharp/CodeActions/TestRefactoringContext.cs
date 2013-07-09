@@ -31,13 +31,10 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory.CSharp.TypeSystem;
 using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.CSharp.FormattingTests;
-using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework.Constraints;
 using ICSharpCode.NRefactory.CSharp;
 using System.Collections.Generic;
 
@@ -180,23 +177,26 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 
 				foreach (var fileContext in context.projectContexts)
 				{
-					refFinder.FindReferencesInFile (refFinder.GetSearchScopes (symbol), 
-					                                fileContext.UnresolvedFile, 
-					                                fileContext.RootNode as SyntaxTree, 
-					                                fileContext.Compilation,
-					                                (n, r) => Rename (n, name), 
-					                                context.CancellationToken);
+					using (var newScript = (TestScript) fileContext.StartScript()) {
+						refFinder.FindReferencesInFile(refFinder.GetSearchScopes(symbol), 
+						                               fileContext.UnresolvedFile, 
+						                               fileContext.RootNode as SyntaxTree, 
+						                               fileContext.Compilation,
+						                               (n, r) => newScript.Rename(n, name), 
+						                               context.CancellationToken);
+					}
 				}
 			}
 
 			void Rename (IVariable variable, string name)
 			{
 				FindReferences refFinder = new FindReferences ();
-				refFinder.FindLocalReferences (variable, 
-				                               context.UnresolvedFile, 
-				                               context.RootNode as SyntaxTree, 
-				                               context.Compilation, (n, r) => Rename (n, name), 
-				                               context.CancellationToken);
+
+				refFinder.FindLocalReferences(variable, 
+				                              context.UnresolvedFile, 
+				                              context.RootNode as SyntaxTree, 
+				                              context.Compilation, (n, r) => Rename(n, name), 
+				                              context.CancellationToken);
 			}
 			
 			public override void CreateNewType (AstNode newType, NewTypeContext context)
