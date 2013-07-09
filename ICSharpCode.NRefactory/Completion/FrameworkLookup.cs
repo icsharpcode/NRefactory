@@ -404,11 +404,21 @@ namespace ICSharpCode.NRefactory.Completion
 			}
 			#endregion
 
-			Dictionary<ulong, ushort> frameworkLookupTable = new Dictionary<ulong, ushort> ();
+			struct FrameworkLookupId 
+			{
+				public string PackageName;
+				public string AssemblyName;
+				public string NameSpace;
+			}
+
+			Dictionary<FrameworkLookupId, ushort> frameworkLookupTable = new Dictionary<FrameworkLookupId, ushort> ();
 			ushort GetLookup (string packageName, string assemblyName, string ns)
 			{
-				var id = unchecked ((ulong)ns.GetHashCode () << 32 | 
-				                    (ulong)(uint)assemblyName.GetHashCode ());
+				var id = new FrameworkLookupId {
+					PackageName = packageName,
+					AssemblyName = assemblyName,
+					NameSpace = ns
+				};
 				ushort value;
 				if (frameworkLookupTable.TryGetValue (id, out value))
 					return value;
