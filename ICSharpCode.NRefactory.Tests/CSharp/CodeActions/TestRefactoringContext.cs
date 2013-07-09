@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		internal readonly IDocument doc;
 		readonly TextLocation location;
 		
-		public TestRefactoringContext (IDocument document, TextLocation location, CSharpAstResolver resolver) : base(resolver, CancellationToken.None)
+		public TestRefactoringContext (IDocument document, TextLocation location, CSharpAstResolver resolver, List<Error> errorsAndWarnings) : base(resolver, errorsAndWarnings, CancellationToken.None)
 		{
 			this.doc = document;
 			this.location = location;
@@ -284,7 +284,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			TextLocation location = TextLocation.Empty;
 			if (idx >= 0)
 				location = doc.GetLocation (idx);
-			return new TestRefactoringContext(doc, location, resolver) {
+			return new TestRefactoringContext(doc, location, resolver, parser.ErrorsAndWarnings.ToList()) {
 				selectionStart = selectionStart,
 				selectionEnd = selectionEnd
 			};

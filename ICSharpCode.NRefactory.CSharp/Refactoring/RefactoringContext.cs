@@ -39,8 +39,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	public abstract class RefactoringContext : BaseRefactoringContext
 	{
-		public RefactoringContext(CSharpAstResolver resolver, CancellationToken cancellationToken) : base  (resolver, cancellationToken)
+		public RefactoringContext(CSharpAstResolver resolver, List<Error> errorsAndWarnings, CancellationToken cancellationToken) : base  (resolver, errorsAndWarnings, cancellationToken)
 		{
+
 		}
 
 		public abstract TextLocation Location { get; }
