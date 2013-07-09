@@ -37,6 +37,9 @@ using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
 using System.Threading;
 using System.Threading.Tasks;
+using NUnit.Framework.Constraints;
+using ICSharpCode.NRefactory.CSharp;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
@@ -49,6 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 
 		internal readonly IDocument doc;
 		readonly TextLocation location;
+		List<TestRefactoringContext> projectContexts;
 		
 		public TestRefactoringContext (IDocument document, TextLocation location, CSharpAstResolver resolver) : base(resolver, CancellationToken.None)
 		{
@@ -68,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				}
 			}
 		}
-		
+
 		public override bool Supports(Version version)
 		{
 			return true;
@@ -171,12 +175,18 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 					Rename(symbol as IVariable, name);
 					return;
 				}
+
 				FindReferences refFinder = new FindReferences ();
-				refFinder.FindReferencesInFile (refFinder.GetSearchScopes (symbol), 
-				                               context.UnresolvedFile, 
-				                               context.RootNode as SyntaxTree, 
-				                               context.Compilation, (n, r) => Rename (n, name), 
-				                               context.CancellationToken);
+
+				foreach (var fileContext in context.projectContexts)
+				{
+					refFinder.FindReferencesInFile (refFinder.GetSearchScopes (symbol), 
+					                                fileContext.UnresolvedFile, 
+					                                fileContext.RootNode as SyntaxTree, 
+					                                fileContext.Compilation,
+					                                (n, r) => Rename (n, name), 
+					                                context.CancellationToken);
+				}
 			}
 
 			void Rename (IVariable variable, string name)
@@ -193,6 +203,31 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			{
 				var output = OutputNode (0, newType, true);
 				InsertText (0, output.Text);
+			}
+
+			public override void DoGlobalOperationOn(IEnumerable<IEntity> entities, Action<RefactoringContext, Script, IEnumerable<AstNode>> callback, string operationDescripton)
+			{
+				foreach (var projectContext in context.projectContexts) {
+					DoLocalOperationOn(projectContext, entities, callback);
+				}
+			}
+
+			void DoLocalOperationOn(TestRefactoringContext localContext, IEnumerable<IEntity> entities, Action<RefactoringContext, Script, IEnumerable<AstNode>> callback)
+			{
+				List<AstNode> nodes = new List<AstNode>();
+				FindReferences refFinder = new FindReferences();
+				refFinder.FindReferencesInFile(refFinder.GetSearchScopes(entities),
+				                               localContext.UnresolvedFile,
+				                               localContext.RootNode as SyntaxTree,
+				                               localContext.Compilation,
+				                               (node, result) => {
+					                               nodes.Add(node);
+				                               },
+				                               CancellationToken.None);
+
+				using (var script = localContext.StartScript()) {
+					callback(localContext, script, nodes);
+				}
 			}
 		}
 
@@ -238,56 +273,92 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				return doc.Text;
 			}
 		}
+
 		public static TestRefactoringContext Create (string content, bool expectErrors = false)
 		{
-			int idx = content.IndexOf ("$");
-			if (idx >= 0)
-				content = content.Substring (0, idx) + content.Substring (idx + 1);
-			int idx1 = content.IndexOf ("<-");
-			int idx2 = content.IndexOf ("->");
-			
-			int selectionStart = 0;
-			int selectionEnd = 0;
-			if (0 <= idx1 && idx1 < idx2) {
-				content = content.Substring (0, idx2) + content.Substring (idx2 + 2);
-				content = content.Substring (0, idx1) + content.Substring (idx1 + 2);
-				selectionStart = idx1;
-				selectionEnd = idx2 - 2;
-				idx = selectionEnd;
+			return Create(new List<string>() { content }, 0, expectErrors);
+		}
+
+		public static TestRefactoringContext Create (List<string> contents, int mainIndex, bool expectErrors = false)
+		{
+			List<int> indexes = new List<int>();
+			List<int> selectionStarts = new List<int>();
+			List<int> selectionEnds = new List<int>();
+			List<IDocument> documents = new List<IDocument>();
+			List<CSharpUnresolvedFile> unresolvedFiles = new List<CSharpUnresolvedFile>();
+			List<SyntaxTree> units = new List<SyntaxTree>();
+
+			for (int i = 0; i < contents.Count; i++) {
+				string content = contents[i];
+				int idx = content.IndexOf("$");
+				if (idx >= 0)
+					content = content.Substring(0, idx) + content.Substring(idx + 1);
+				int idx1 = content.IndexOf("<-");
+				int idx2 = content.IndexOf("->");
+				int selectionStart = 0;
+				int selectionEnd = 0;
+				if (0 <= idx1 && idx1 < idx2) {
+					content = content.Substring(0, idx2) + content.Substring(idx2 + 2);
+					content = content.Substring(0, idx1) + content.Substring(idx1 + 2);
+					selectionStart = idx1;
+					selectionEnd = idx2 - 2;
+					idx = selectionEnd;
+				}
+				indexes.Add(idx);
+				selectionStarts.Add(selectionStart);
+				selectionEnds.Add(selectionEnd);
+				var doc = new StringBuilderDocument(content);
+				var parser = new CSharpParser();
+				var unit = parser.Parse(content, "program_" + i + ".cs");
+				if (!expectErrors) {
+					if (parser.HasErrors) {
+						Console.WriteLine(content);
+						Console.WriteLine("----");
+					}
+					foreach (var error in parser.Errors) {
+						Console.WriteLine(error.Message);
+					}
+					Assert.IsFalse(parser.HasErrors, "The file contains unexpected parsing errors.");
+				}
+				else {
+					Assert.IsTrue(parser.HasErrors, "Expected parsing errors, but the file doesn't contain any.");
+				}
+				unit.Freeze();
+				CSharpUnresolvedFile unresolvedFile = unit.ToTypeSystem();
+				units.Add(unit);
+				documents.Add(doc);
+				unresolvedFiles.Add(unresolvedFile);
 			}
 
-			var doc = new StringBuilderDocument(content);
-			var parser = new CSharpParser();
-			var unit = parser.Parse(content, "program.cs");
-			if (!expectErrors) {
-				if (parser.HasErrors) {
-					Console.WriteLine (content);
-					Console.WriteLine ("----");
-				}
-				foreach (var error in parser.Errors) {
-					Console.WriteLine(error.Message);
-				}
-				Assert.IsFalse(parser.HasErrors, "The file contains unexpected parsing errors.");
-			} else {
-				Assert.IsTrue(parser.HasErrors, "Expected parsing errors, but the file doesn't contain any.");
-			}
-
-			unit.Freeze ();
-			var unresolvedFile = unit.ToTypeSystem ();
-			
 			IProjectContent pc = new CSharpProjectContent ();
-			pc = pc.AddOrUpdateFiles (unresolvedFile);
+			pc = pc.AddOrUpdateFiles (unresolvedFiles);
 			pc = pc.AddAssemblyReferences (new[] { CecilLoaderTests.Mscorlib, CecilLoaderTests.SystemCore });
-			
+
 			var compilation = pc.CreateCompilation ();
-			var resolver = new CSharpAstResolver (compilation, unit, unresolvedFile);
-			TextLocation location = TextLocation.Empty;
-			if (idx >= 0)
-				location = doc.GetLocation (idx);
-			return new TestRefactoringContext(doc, location, resolver) {
-				selectionStart = selectionStart,
-				selectionEnd = selectionEnd
-			};
+			List<TestRefactoringContext> contexts = new List<TestRefactoringContext>();
+
+			for (int documentIndex = 0; documentIndex < documents.Count; ++documentIndex)
+			{
+				var doc = documents [documentIndex];
+				var resolver = new CSharpAstResolver (compilation, units[documentIndex], unresolvedFiles[documentIndex]);
+				TextLocation location = TextLocation.Empty;
+				if (indexes[documentIndex] >= 0)
+					location = doc.GetLocation (indexes[documentIndex]);
+				var context = new TestRefactoringContext(doc, location, resolver) {
+					selectionStart = selectionStarts[documentIndex],
+					selectionEnd = selectionEnds[documentIndex],
+					projectContexts = contexts
+				};
+
+				contexts.Add(context);
+			}
+
+			return contexts [mainIndex];
+		}
+
+		public string GetSideDocumentText(int index)
+		{
+			return projectContexts [index].Text;
 		}
 		
 		internal static void Print (AstNode node)
@@ -296,4 +367,6 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			node.AcceptVisitor (v);
 		}
 	}
+
+
 }
