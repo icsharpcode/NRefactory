@@ -80,14 +80,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}
 						} else {
 							var index = IndexOf (arguments, item);
+
+                            Expression myItem = item;
+                            string itemFormatStr = DetermineItemFormatString(ref myItem);
+
 							if (index == -1) {
 								// new item
-								formatInvocation.Arguments.Add (item.Clone ());
+								formatInvocation.Arguments.Add (myItem.Clone ());
 								arguments.Add (item);
-								format.Append ("{" + counter++ + "}");
+								format.Append ("{" + counter++ + itemFormatStr + "}");
 							} else {
 								// existing item
-								format.Append ("{" + index + "}");
+								format.Append ("{" + index + itemFormatStr + "}");
 							}
 						}
 					}
@@ -98,6 +102,30 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					script.Replace (expr, formatInvocation);
 				}, node);
 		}
+
+        static string DetermineItemFormatString(ref Expression myItem)
+        {
+            if (myItem is InvocationExpression)
+            {
+                InvocationExpression invocation = myItem as InvocationExpression;
+                if (invocation.Target is MemberReferenceExpression &&
+                    ((MemberReferenceExpression)invocation.Target).MemberName.Equals("ToString") &&
+                    invocation.Arguments.Count == 1)
+                {
+                    IEnumerator<Expression> i = invocation.Arguments.GetEnumerator();
+                    i.MoveNext();
+                    Expression arg = i.Current;
+                    if (IsStringLiteral(arg) && invocation.Target.FirstChild is Expression)
+                    {
+                        string formatStr = ((PrimitiveExpression)arg).Value as string;
+                        myItem = invocation.Target.FirstChild as Expression; // invocation target identifier is first child
+                        return ":" + formatStr;
+                    }
+                }
+            }
+            
+            return "";
+        }
 
 		static int IndexOf	(IList<Expression> arguments, Expression item)
 		{
