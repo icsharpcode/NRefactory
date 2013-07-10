@@ -72,6 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		public bool AutoSelect;
 		public string DefaultCompletionString;
 		public bool CloseOnSquareBrackets;
+		public readonly List<IMethod> PossibleDelegates = new List<IMethod> ();
 		#endregion
 		
 		public CSharpCompletionEngine(IDocument document, ICompletionContextProvider completionContextProvider, ICompletionDataFactory factory, IProjectContent content, CSharpTypeResolveContext ctx) : base (content, completionContextProvider, ctx)
@@ -2221,6 +2222,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		string AddDelegateHandlers(CompletionDataWrapper completionList, IType delegateType, bool addSemicolon = true, bool addDefault = true)
 		{
 			IMethod delegateMethod = delegateType.GetDelegateInvokeMethod();
+			PossibleDelegates.Add (delegateMethod);
 			var thisLineIndent = GetLineIndent(location.Line);
 			string delegateEndString = EolMarker + thisLineIndent + "}" + (addSemicolon ? ";" : "");
 			//bool containsDelegateData = completionList.Result.Any(d => d.DisplayText.StartsWith("delegate("));
