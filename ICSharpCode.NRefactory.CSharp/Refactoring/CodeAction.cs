@@ -66,13 +66,33 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		/// <summary>
 		/// This property is used to identify which actions are "siblings", ie which actions
-		/// are the same kind of fix. This is useful when supporting batch fixing of issues that
+		/// are the same kind of fix. This is used when batch fixing issues that
 		/// have more than one possible action to choose from.
 		/// </summary>
-		/// <value>The sibling key.</value>
+		/// <value>The non-null sibling key if this type of action is batchable, null otherwise.</value>
 		public object SiblingKey {
 			get;
 			private set;
+		}
+
+		const string defaultSiblingKey = "default";
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeAction"/> class,
+		/// using a non-null default value for <see cref="SiblingKey"/>.
+		/// </summary>
+		/// <param name='description'>
+		/// The description.
+		/// </param>
+		/// <param name='action'>
+		/// The code transformation.
+		/// </param>
+		/// <param name='astNode'>
+		/// A node that specifies the start/end positions for the code action.
+		/// </param>
+		public CodeAction (string description, Action<Script> action, AstNode astNode)
+			: this (description, action, astNode, defaultSiblingKey)
+		{
 		}
 
 		/// <summary>
@@ -87,7 +107,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name='astNode'>
 		/// A node that specifies the start/end positions for the code action.
 		/// </param>
-		public CodeAction (string description, Action<Script> action, AstNode astNode, object siblingKey = null)
+		/// <param name="siblingKey>
+		/// The key used to associate this action with other actions that should be fixed together in batch mode.
+		/// </param>
+		public CodeAction (string description, Action<Script> action, AstNode astNode, object siblingKey)
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
@@ -99,8 +122,25 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Run = action;
 			Start = astNode.StartLocation;
 			End = astNode.EndLocation;
-			// The default sibling key.
-			SiblingKey = siblingKey ?? "none";
+			SiblingKey = siblingKey;
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeAction"/> class,
+		/// using a non-null default value for <see cref="SiblingKey"/>.
+		/// </summary>
+		/// <param name='description'>
+		/// The description.
+		/// </param>
+		/// <param name='action'>
+		/// The code transformation.
+		/// </param>
+		/// <param name='start'>Start position for the code action.</param>
+		/// <param name='end'>End position for the code action.</param>
+		public CodeAction (string description, Action<Script> action, TextLocation start, TextLocation end)
+			: this (description, action, start, end, defaultSiblingKey)
+		{
+			SiblingKey = defaultSiblingKey;
 		}
 
 		/// <summary>
@@ -114,7 +154,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// </param>
 		/// <param name='start'>Start position for the code action.</param>
 		/// <param name='end'>End position for the code action.</param>
-		public CodeAction (string description, Action<Script> action, TextLocation start, TextLocation end, object siblingKey = null)
+		/// <param name="siblingKey>
+		/// The key used to associate this action with other actions that should be fixed together in batch mode.
+		/// </param>
+		public CodeAction (string description, Action<Script> action, TextLocation start, TextLocation end, object siblingKey)
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
@@ -124,7 +167,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Run = action;
 			this.Start = start;
 			this.End = end;
-			SiblingKey = siblingKey ?? "none";
+			SiblingKey = siblingKey;
 		}
 	}
 }
