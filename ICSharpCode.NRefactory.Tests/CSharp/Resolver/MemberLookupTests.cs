@@ -163,7 +163,7 @@ class Derived : Base {
 			Assert.AreEqual("Test.Field", rr.Member.FullName);
 			Assert.IsTrue(rr.TargetResult is TypeResolveResult);
 		}
-		
+
 		[Test]
 		public void InstanceMethodImplicitThis()
 		{
@@ -562,6 +562,27 @@ public class G<U, V> : IA<$G<V, string>$>
 			Assert.AreEqual(2, baseType.TypeParameterCount);
 			Assert.AreEqual("System.String", baseType.TypeArguments [0].FullName);
 			Assert.AreEqual("System.String", baseType.TypeArguments [1].FullName);
+		}
+
+		[Test]
+		public void FixedFieldTest()
+		{
+			string program = @"unsafe struct Test {
+	fixed int Field[8];
+	int M() { return $Field$; }
+}";
+			var rr = Resolve<MemberResolveResult>(program);
+			Assert.AreEqual("Test.Field", rr.Member.FullName);
+		}
+
+		[Test]
+		public void FixedFieldDeclarationTest()
+		{
+			string program = @"unsafe struct Test {
+	fixed int $Field[8]$;
+}";
+			var rr = Resolve<MemberResolveResult>(program);
+			Assert.AreEqual("Test.Field", rr.Member.FullName);
 		}
 	}
 }

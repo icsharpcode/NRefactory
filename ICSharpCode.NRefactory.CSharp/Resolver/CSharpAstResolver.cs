@@ -271,7 +271,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				if (node.Parent is QueryClause && node is Identifier) {
 					return false;
 				} else if (node.Role == Roles.Identifier) {
-					return !(node.Parent is ForeachStatement || node.Parent is CatchClause);
+					return !(node.Parent is ForeachStatement || node.Parent is FixedVariableInitializer || node.Parent is CatchClause);
 				}
 				return true;
 			}
