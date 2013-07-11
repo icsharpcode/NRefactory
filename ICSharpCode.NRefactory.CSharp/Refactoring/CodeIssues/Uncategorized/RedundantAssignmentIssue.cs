@@ -288,7 +288,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var variableNode = (VariableInitializer)node;
 						if (containsInvocations && isDeclareStatement) {
 							//add the column ';' that will be removed after the next line replacement
-							var expression = (InvocationExpression)variableNode.Initializer.Clone();
+							var expression = (Expression)variableNode.Initializer.Clone();
 							var invocation = new ExpressionStatement(expression);
 							if (containsLaterAssignments && varDecl != null) {
 								var clonedDefinition = (VariableDeclarationStatement)varDecl.Clone();
