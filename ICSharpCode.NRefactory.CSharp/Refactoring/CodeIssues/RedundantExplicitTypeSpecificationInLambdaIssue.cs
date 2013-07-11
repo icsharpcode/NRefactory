@@ -37,11 +37,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Explicit type specification can be removed as it can be implicitly inferred.
 	/// </summary>
 	[IssueDescription("Remove redundant explicit type specification in lambda expression",
-	                  Description= "Remove redundant explicit type specification in lambda expression",
-		   Category = IssueCategories.Redundancies,
-		   Severity = Severity.Hint,
-		   IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantExplicitTypeSpecificationInLambda")]
+			Description= "Remove redundant explicit type specification in lambda expression",
+			Category = IssueCategories.Redundancies,
+			Severity = Severity.Hint,
+			IssueMarker = IssueMarker.GrayOut,
+			ResharperDisableKeyword = "RedundantExplicitTypeSpecificationInLambda")]
 	public class RedundantExplicitTypeSpecificationInLambdaIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
