@@ -37,11 +37,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Finds redundant base qualifier 
 	/// </summary>
 	[IssueDescription("Remove redundant 'base.'",
-		   Description= "Removes 'base.' references that are not required.",
-		   Category = IssueCategories.Redundancies,
-		   Severity = Severity.Hint,
-		   IssueMarker = IssueMarker.GrayOut,
-		   ResharperDisableKeyword = "RedundantBaseQualifier")]
+			Description= "Removes 'base.' references that are not required.",
+			Category = IssueCategories.Redundancies,
+			Severity = Severity.Hint,
+			IssueMarker = IssueMarker.GrayOut,
+			ResharperDisableKeyword = "RedundantBaseQualifier")]
 	public class RedundantBaseIssue : ICodeIssueProvider
 	{
 		bool ignoreConstructors = true;
