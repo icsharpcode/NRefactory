@@ -424,5 +424,23 @@ class Project : MissingInterface {}";
 			TestWrongContext<CS0029InvalidConversionIssue>(input);
 		}
 
+		[Test]
+		public void TestFixedConversion()
+		{
+			var input = @"unsafe struct TestMe
+{
+	fixed int textureID[8], fooBar[12];
+
+	public void Randomize ()
+	{
+		fixed (int* buf = textureID) {
+			buf [0] = 1;
+		}
+	}
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
+		}
 	}
 }
