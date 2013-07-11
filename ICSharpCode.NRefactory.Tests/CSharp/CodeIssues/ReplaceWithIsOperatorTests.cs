@@ -43,12 +43,12 @@ using System.Reflection;
 
 namespace Demo
 {
-    public class BaseClass
-    {
-        public static void main(string[] args)
-        {
+	public class BaseClass
+	{
+		public static void main(string[] args)
+		{
 			int a = 1;
-            if (typeof (int) == a.GetType()){}}}}
+			if (typeof (int) == a.GetType()){}}}}
 ";
 			TestRefactoringContext context;
 			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
@@ -62,10 +62,10 @@ using System.Reflection;
 
 namespace Demo
 {
-    public class BaseClass
-    {
-        public static void main(string[] args)
-        {
+	public class BaseClass
+	{
+		public static void main(string[] args)
+		{
 			int a = 1;
 			if (a is int) {
 			}}}}
@@ -82,18 +82,17 @@ using System.Reflection;
 
 namespace Demo
 {
-    public class BaseClass
-    {
-        public static void main(string[] args)
-        {
+	public class BaseClass
+	{
+		public static void main(string[] args)
+		{
 			int a = 1;
-            if (a.GetType() == typeof (int)){}}}}
+			if (a.GetType() == typeof (int)){}}}}
 ";
 			TestRefactoringContext context;
 			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
-			
-			
+
 			CheckFix(context, issues, @"
 using System;
 using System.Linq;
@@ -101,10 +100,10 @@ using System.Reflection;
 
 namespace Demo
 {
-    public class BaseClass
-    {
-        public static void main(string[] args)
-        {
+	public class BaseClass
+	{
+		public static void main(string[] args)
+		{
 			int a = 1;
 			if (a is int) {
 			}}}}
@@ -121,12 +120,12 @@ using System.Reflection;
 
 namespace Demo
 {
-    public class BaseClass
-    {
+	public class BaseClass
+	{
 		static public int a;
-        public static void main(string[] args)
-        {
-            if (BaseClass.a.GetType() == typeof (int)){}}}}
+		public static void main(string[] args)
+		{
+		if (BaseClass.a.GetType() == typeof (int)){}}}}
 ";
 			TestRefactoringContext context;
 			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
@@ -140,11 +139,11 @@ using System.Reflection;
 
 namespace Demo
 {
-    public class BaseClass
-    {
+	public class BaseClass
+	{
 		static public int a;
-        public static void main(string[] args)
-        {
+		public static void main(string[] args)
+		{
 			if (BaseClass.a is int) {
 			}}}}
 ");
@@ -159,34 +158,33 @@ using System.Reflection;
 
 namespace Demo
 {
-    public sealed class TestClass
-    {
-    }
-    public class BaseClass 
-    {
-        public static void main(string[] args)
-        {
-            BaseClass b = new BaseClass();if (typeof (TestClass) == b.GetType()){}}}}
+	public sealed class TestClass
+	{
+	}
+	public class BaseClass 
+	{
+		public static void main(string[] args)
+		{
+			BaseClass b = new BaseClass();if (typeof (TestClass) == b.GetType()){}}}}
 ";
 			TestRefactoringContext context;
 			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
-			
-			
+
 			CheckFix(context, issues, @"
 using System;
 using System.Reflection;
 
 namespace Demo
 {
-    public sealed class TestClass
-    {
-    }
-    public class BaseClass 
-    {
-        public static void main(string[] args)
-        {
-            BaseClass b = new BaseClass();
+	public sealed class TestClass
+	{
+	}
+	public class BaseClass 
+	{
+		public static void main(string[] args)
+		{
+			BaseClass b = new BaseClass();
 			if (b is TestClass) {
 			}}}}
 ");
@@ -201,20 +199,20 @@ using System.Reflection;
 
 namespace Demo
 {
-    public class TestClass
-    {
-    }
-    public class BaseClass : TestClass
-    {
-        public static void main(string[] args)
-        {
-            BaseClass b = new BaseClass();
-            if ((typeof (TestClass) == b.GetType()))
-            {
+	public class TestClass
+	{
+	}
+	public class BaseClass : TestClass
+	{
+		public static void main(string[] args)
+		{
+			BaseClass b = new BaseClass();
+			if ((typeof (TestClass) == b.GetType()))
+			{
 
-            }
-        }
-    }
+			}
+		}
+	}
 }
 ";
 			TestRefactoringContext context;
@@ -231,19 +229,19 @@ using System.Reflection;
 
 namespace Demo
 {
-    public class BaseClass
-    {
-        public static void main(string[] args)
-        {
+	public class BaseClass
+	{
+		public static void main(string[] args)
+		{
 			int a = 1;
 //Resharper disable ReplaceWithIsOpeartor
-            if ((typeof (int) == a.GetType()))
-            {
+			if ((typeof (int) == a.GetType()))
+			{
 
-            }
+			}
 //Resharper restore ReplaceWithIsOpeartor
-        }
-    }
+		}
+	}
 }";
 			
 			TestRefactoringContext context;
