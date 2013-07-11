@@ -32,77 +32,65 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 	[TestFixture]
 	public class CovertToNewLineTests : ContextActionTestBase
 	{
-		[Test()]
+
+		[Test]
 		public void TestSimpleString()
 		{
-			string result = RunContextAction(
-				new ConvertToNewLineAction(),
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		string str = $\"\\n\";" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
+			Test<ConvertToNewLineAction>(@"class TestClass
+			{
+				void Test ()
+				{
+					string str = $""\n""; 
+				} 
+			}",
+			@"class TestClass
+			{
+				void Test ()
+				{
+					string str = System.Environment.NewLine; 
+				} 
+			}"
 			);
-
-			Assert.AreEqual(
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		string str = System.Environment.NewLine;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
 		}
 
-		[Test()]
+		[Test]
 		public void TestSimpleString2()
 		{
-			string result = RunContextAction(
-				new ConvertToNewLineAction(),
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		string str = $\"\\r\\n\";" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
+			Test<ConvertToNewLineAction>(@"class TestClass
+			{
+				void Test ()
+				{
+					string str = $""\r""; 
+				} 
+			}",
+			@"class TestClass
+			{
+				void Test ()
+				{
+					string str = System.Environment.NewLine; 
+				} 
+			}"
 			);
-			
-			Assert.AreEqual(
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		string str = System.Environment.NewLine;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
 		}
 
-		[Test()]
+		[Test]
 		public void TestSimpleString3()
 		{
-			string result = RunContextAction(
-				new ConvertToNewLineAction(),
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"System.Console.WriteLine ($\"\\r\\n\");" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-				);
-			
-			Assert.AreEqual(
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"\t\tSystem.Console.WriteLine (System.Environment.NewLine);" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
+			Test<ConvertToNewLineAction>(@"class TestClass
+			{
+				void Test ()
+				{
+					string str = $""\r\n""; 
+				} 
+			}",
+			@"class TestClass
+			{
+				void Test ()
+				{
+					string str = System.Environment.NewLine; 
+				} 
+			}"
+			);
 		}
 	}
-	
 }
