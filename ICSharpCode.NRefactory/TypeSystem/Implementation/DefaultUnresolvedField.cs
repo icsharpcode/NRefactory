@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		}
 		
 		public bool IsConst {
-			get { return constantValue != null; }
+			get { return constantValue != null && !IsFixed; }
 		}
 		
 		public bool IsReadOnly {
