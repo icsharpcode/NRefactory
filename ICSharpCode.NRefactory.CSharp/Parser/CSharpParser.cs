@@ -786,13 +786,12 @@ namespace ICSharpCode.NRefactory.CSharp
 						
 						variable = new FixedVariableInitializer ();
 						variable.AddChild (Identifier.Create (decl.Name.Value, Convert (decl.Name.Location)), Roles.Identifier);
-						if (!decl.Initializer.IsNull) {
-							variable.AddChild (new CSharpTokenNode (Convert (f.Initializer.Location), Roles.LBracket), Roles.LBracket);
-							variable.AddChild ((Expression)decl.Initializer.Accept (this), Roles.Expression);
-							var bracketLocations = LocationsBag.GetLocations (f.Initializer);
-							if (bracketLocations != null)
-								variable.AddChild (new CSharpTokenNode (Convert (bracketLocations [0]), Roles.RBracket), Roles.RBracket);
-						}
+						variable.AddChild (new CSharpTokenNode (Convert (decl.Initializer.Location), Roles.LBracket), Roles.LBracket);
+						variable.AddChild ((Expression)decl.Initializer.Accept (this), Roles.Expression);
+						var bracketLocations = LocationsBag.GetLocations (decl.Initializer);
+						if (bracketLocations != null)
+							variable.AddChild (new CSharpTokenNode (Convert (bracketLocations [0]), Roles.RBracket), Roles.RBracket);
+
 						newField.AddChild (variable, FixedFieldDeclaration.VariableRole);
 					}
 				}

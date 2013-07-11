@@ -584,5 +584,16 @@ public class G<U, V> : IA<$G<V, string>$>
 			var rr = Resolve<MemberResolveResult>(program);
 			Assert.AreEqual("Test.Field", rr.Member.FullName);
 		}
+
+
+		[Test]
+		public void FixedFieldDeclarationTestCase2()
+		{
+			string program = @"unsafe struct Test {
+	fixed int foo[12], $Field[8]$;
+}";
+			var rr = Resolve<MemberResolveResult>(program);
+			Assert.AreEqual("Test.Field", rr.Member.FullName);
+		}
 	}
 }
