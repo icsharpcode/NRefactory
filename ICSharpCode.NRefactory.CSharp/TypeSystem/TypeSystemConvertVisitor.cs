@@ -376,8 +376,27 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 		
 		public override IUnresolvedEntity VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
 		{
-			// TODO: add support for fixed fields
-			return base.VisitFixedFieldDeclaration(fixedFieldDeclaration);
+			bool isSingleField = fixedFieldDeclaration.Variables.Count == 1;
+			Modifiers modifiers = fixedFieldDeclaration.Modifiers;
+			DefaultUnresolvedField field = null;
+			foreach (var vi in fixedFieldDeclaration.Variables) {
+				field = new DefaultUnresolvedField(currentTypeDefinition, vi.Name);
+
+				field.Region = isSingleField ? MakeRegion(fixedFieldDeclaration) : MakeRegion(vi);
+				field.BodyRegion = MakeRegion(vi);
+				ConvertAttributes(field.Attributes, fixedFieldDeclaration.Attributes);
+				AddXmlDocumentation(field, fixedFieldDeclaration);
+
+				ApplyModifiers(field, modifiers);
+
+				field.ReturnType = ConvertTypeReference(fixedFieldDeclaration.ReturnType);
+				field.IsFixed = true;
+				field.ConstantValue = ConvertConstantValue(field.ReturnType, vi.CountExpression);
+
+				currentTypeDefinition.Members.Add(field);
+				field.ApplyInterningProvider(interningProvider);
+			}
+			return isSingleField ? field : null;
 		}
 		
 		public override IUnresolvedEntity VisitEnumMemberDeclaration(EnumMemberDeclaration enumMemberDeclaration)

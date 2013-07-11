@@ -67,6 +67,14 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				flags[FlagFieldIsVolatile] = value;
 			}
 		}
+
+		public bool IsFixed {
+			get { return flags[FlagFieldIsFixedSize]; }
+			set {
+				ThrowIfFrozen();
+				flags[FlagFieldIsFixedSize] = value;
+			}
+		}
 		
 		public IConstantValue ConstantValue {
 			get { return constantValue; }
