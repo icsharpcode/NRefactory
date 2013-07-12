@@ -77,7 +77,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		/// Used for inactive code (excluded by preprocessor or ConditionalAttribute)
 		/// </summary>
 		protected TColor inactiveCodeColor;
-		
+
+		protected TColor stringFormatItemColor;
+
+
 		protected TColor syntaxErrorColor;
 		
 		protected TextLocation regionStart;
@@ -260,6 +263,33 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			Colorize(memberNameToken, rr);
 			VisitChildrenAfter(memberReferenceExpression, memberNameToken);
 		}
+
+		void HighlightStringFormatItems(PrimitiveExpression expr)
+		{
+			if (!(expr.Value is string))
+				return;
+			int line = expr.StartLocation.Line;
+			int col = expr.StartLocation.Column;
+			TextLocation start = TextLocation.Empty;
+			for (int i = 0; i < expr.LiteralValue.Length; i++) {
+				char ch = expr.LiteralValue [i];
+
+				if (NewLine.GetDelimiterType(ch, i + 1 < expr.LiteralValue.Length ? expr.LiteralValue [i + 1] : '\0') != UnicodeNewline.Unknown) {
+					line++;
+					col = 1;
+					continue;
+				}
+
+				if (ch == '{' && start.IsEmpty)
+					start = new TextLocation(line, col);
+				if (ch == '}' &&!start.IsEmpty) {
+					Colorize(start, new TextLocation(line, col), stringFormatItemColor);
+					start = TextLocation.Empty;
+				}
+				col++;
+			}
+
+		}
 		
 		public override void VisitInvocationExpression(InvocationExpression invocationExpression)
 		{
@@ -271,7 +301,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					Colorize(invocationExpression.Parent, inactiveCodeColor);
 					return;
 				}
-				
+				if (invocationRR.Arguments.Count > 1 && 
+					(invocationRR.Member.FullName == "System.String.Format" ||
+				    invocationRR.Member.FullName == "System.Console.Write" ||
+				    invocationRR.Member.FullName == "System.Console.WriteLine")) {
+					var expr = invocationExpression.Arguments.First() as PrimitiveExpression; 
+					if (expr != null)
+						HighlightStringFormatItems(expr);
+				}
+
 				VisitChildrenUntil(invocationExpression, target);
 				
 				// highlight the method call
