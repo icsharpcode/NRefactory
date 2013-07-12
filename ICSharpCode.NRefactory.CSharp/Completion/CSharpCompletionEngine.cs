@@ -372,12 +372,105 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			return null;
 		}
 
+
+		internal static readonly string[] FormatItemMethods = {
+			"System.String.Format",
+			"System.Console.Write",
+			"System.Console.WriteLine",
+			"System.IO.StringWriter.Write",
+			"System.IO.StringWriter.WriteLine"
+		};
+
+		static readonly DateTime curDate = DateTime.Now;
+		IEnumerable<ICompletionData> HandleStringFormatItems()
+		{
+			var unit = ParseStub("a}\");", false);
+
+			var invoke = unit.GetNodeAt<InvocationExpression>(location);
+
+			if (invoke == null)
+				yield break;
+
+			var resolveResult = ResolveExpression(new ExpressionResult(invoke, unit));
+			var invokeResult = resolveResult.Item1 as InvocationResolveResult;
+			if (invokeResult == null)
+				yield break;
+
+			if (FormatItemMethods.Contains(invokeResult.Member.FullName)) {
+
+				// numbers
+				yield return factory.CreateFormatItemCompletionData("D", "decimal", 123);
+				yield return factory.CreateFormatItemCompletionData("D5", "decimal", 123);
+				yield return factory.CreateFormatItemCompletionData("C", "currency", 123);
+				yield return factory.CreateFormatItemCompletionData("C0", "currency", 123);
+				yield return factory.CreateFormatItemCompletionData("E", "exponential", 1.23E4);
+				yield return factory.CreateFormatItemCompletionData("E2", "exponential", 1.234);
+				yield return factory.CreateFormatItemCompletionData("e2", "exponential", 1.234);
+				yield return factory.CreateFormatItemCompletionData("F", "fixed-point", 123.45);
+				yield return factory.CreateFormatItemCompletionData("F1", "fixed-point", 123.45);
+				yield return factory.CreateFormatItemCompletionData("G", "general", 1.23E+56);
+				yield return factory.CreateFormatItemCompletionData("g2", "general", 1.23E+56);
+				yield return factory.CreateFormatItemCompletionData("N", "number", 12345.68);
+				yield return factory.CreateFormatItemCompletionData("N1", "number", 12345.68);
+				yield return factory.CreateFormatItemCompletionData("P", "percent", 12.34);
+				yield return factory.CreateFormatItemCompletionData("P1", "percent", 12.34);
+				yield return factory.CreateFormatItemCompletionData("R", "round-trip", 0.1230000001);
+				yield return factory.CreateFormatItemCompletionData("X", "hexadecimal", 1234);
+				yield return factory.CreateFormatItemCompletionData("x8", "hexadecimal", 1234);
+				yield return factory.CreateFormatItemCompletionData("0000", "custom", 123);
+				yield return factory.CreateFormatItemCompletionData("####", "custom", 123);
+				yield return factory.CreateFormatItemCompletionData("##.###", "custom", 1.23);
+				yield return factory.CreateFormatItemCompletionData("##.000", "custom", 1.23);
+				yield return factory.CreateFormatItemCompletionData("## 'items'", "custom", 12);
+
+				//dates
+				yield return factory.CreateFormatItemCompletionData("D", "long date", curDate);
+				yield return factory.CreateFormatItemCompletionData("d", "short date", curDate);
+				yield return factory.CreateFormatItemCompletionData("F", "full date long", curDate);
+				yield return factory.CreateFormatItemCompletionData("f", "full date short", curDate);
+				yield return factory.CreateFormatItemCompletionData("G", "general long", curDate);
+				yield return factory.CreateFormatItemCompletionData("g", "general short", curDate);
+				yield return factory.CreateFormatItemCompletionData("M", "month", curDate);
+				yield return factory.CreateFormatItemCompletionData("O", "ISO 8601", curDate);
+				yield return factory.CreateFormatItemCompletionData("R", "RFC 1123", curDate);
+				yield return factory.CreateFormatItemCompletionData("s", "sortable", curDate);
+				yield return factory.CreateFormatItemCompletionData("T", "long time", curDate);
+				yield return factory.CreateFormatItemCompletionData("t", "short time", curDate);
+				yield return factory.CreateFormatItemCompletionData("U", "universal full", curDate);
+				yield return factory.CreateFormatItemCompletionData("u", "universal sortable", curDate);
+				yield return factory.CreateFormatItemCompletionData("Y", "year month", curDate);
+				yield return factory.CreateFormatItemCompletionData("yy-MM-dd", "custom", curDate);
+				yield return factory.CreateFormatItemCompletionData("yyyy MMMMM dd", "custom", curDate);
+				yield return factory.CreateFormatItemCompletionData("yy-MMM-dd ddd", "custom", curDate);
+				yield return factory.CreateFormatItemCompletionData("yyyy-M-d dddd", "custom", curDate);
+				yield return factory.CreateFormatItemCompletionData("hh:mm:ss t z", "custom", curDate);
+				yield return factory.CreateFormatItemCompletionData("hh:mm:ss tt zz", "custom", curDate);
+				yield return factory.CreateFormatItemCompletionData("HH:mm:ss tt zz", "custom", curDate);
+				yield return factory.CreateFormatItemCompletionData("HH:m:s tt zz", "custom", curDate);
+			
+			}
+		}
+
 		IEnumerable<ICompletionData> MagicKeyCompletion(char completionChar, bool controlSpace)
 		{
 			Tuple<ResolveResult, CSharpResolver> resolveResult;
 			switch (completionChar) {
 				// Magic key completion
 				case ':':
+
+					var text = GetMemberTextToCaret();
+					var lexer = new MiniLexer(text.Item1);
+					lexer.Parse();
+					if (lexer.IsInSingleComment || 
+						lexer.IsInChar ||
+						lexer.IsInMultiLineComment || 
+						lexer.IsInPreprocessorDirective) {
+						return Enumerable.Empty<ICompletionData>();
+					}
+
+					if (lexer.IsInString || lexer.IsInVerbatimString)
+						return HandleStringFormatItems ();
+					return HandleMemberReferenceCompletion(GetExpressionBeforeCursor());
 				case '.':
 					if (IsInsideCommentStringOrDirective()) {
 						return Enumerable.Empty<ICompletionData>();

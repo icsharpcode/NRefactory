@@ -24,6 +24,7 @@ using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
+using ICSharpCode.NRefactory.CSharp.Completion;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -301,15 +302,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					Colorize(invocationExpression.Parent, inactiveCodeColor);
 					return;
 				}
-				string[] formatItemMethods = {
-					"System.String.Format",
-					"System.Console.Write",
-					"System.Console.WriteLine",
-					"System.IO.StringWriter.Write",
-					"System.IO.StringWriter.WriteLine"
-				};
 
-				if (invocationRR.Arguments.Count > 1 && formatItemMethods.Contains(invocationRR.Member.FullName)) {
+				if (invocationRR.Arguments.Count > 1 && CSharpCompletionEngine.FormatItemMethods.Contains(invocationRR.Member.FullName)) {
 					var expr = invocationExpression.Arguments.First() as PrimitiveExpression; 
 					if (expr != null)
 						HighlightStringFormatItems(expr);

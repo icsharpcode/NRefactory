@@ -434,6 +434,7 @@
     <Compile Include="CSharp\CodeIssues\ConditionalTernaryEqualBranchTests.cs" />
     <Compile Include="CSharp\CodeIssues\ThreadStaticAtInstanceFieldTests.cs" />
     <Compile Include="CSharp\CodeActions\MetaTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\FormatItemTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

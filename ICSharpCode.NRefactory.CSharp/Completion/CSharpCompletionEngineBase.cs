@@ -444,11 +444,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			lexer.Parse();
 			return
 				lexer.IsInSingleComment || 
-				lexer.IsInString ||
-				lexer.IsInVerbatimString ||
-				lexer.IsInChar ||
-				lexer.IsInMultiLineComment || 
-				lexer.IsInPreprocessorDirective;
+					lexer.IsInString ||
+					lexer.IsInVerbatimString ||
+					lexer.IsInChar ||
+					lexer.IsInMultiLineComment || 
+					lexer.IsInPreprocessorDirective;
 		}
 
 		protected bool IsInsideDocComment ()
