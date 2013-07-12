@@ -283,11 +283,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				if (ch == '{' && start.IsEmpty)
 					start = new TextLocation(line, col);
+				col++;
 				if (ch == '}' &&!start.IsEmpty) {
 					Colorize(start, new TextLocation(line, col), stringFormatItemColor);
 					start = TextLocation.Empty;
 				}
-				col++;
 			}
 
 		}
