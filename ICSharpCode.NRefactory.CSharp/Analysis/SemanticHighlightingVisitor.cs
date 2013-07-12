@@ -290,7 +290,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			}
 
 		}
-		
+
 		public override void VisitInvocationExpression(InvocationExpression invocationExpression)
 		{
 			Expression target = invocationExpression.Target;
@@ -301,10 +301,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					Colorize(invocationExpression.Parent, inactiveCodeColor);
 					return;
 				}
-				if (invocationRR.Arguments.Count > 1 && 
-					(invocationRR.Member.FullName == "System.String.Format" ||
-				    invocationRR.Member.FullName == "System.Console.Write" ||
-				    invocationRR.Member.FullName == "System.Console.WriteLine")) {
+				string[] formatItemMethods = {
+					"System.String.Format",
+					"System.Console.Write",
+					"System.Console.WriteLine",
+					"System.IO.StringWriter.Write",
+					"System.IO.StringWriter.WriteLine"
+				};
+
+				if (invocationRR.Arguments.Count > 1 && formatItemMethods.Contains(invocationRR.Member.FullName)) {
 					var expr = invocationExpression.Arguments.First() as PrimitiveExpression; 
 					if (expr != null)
 						HighlightStringFormatItems(expr);
