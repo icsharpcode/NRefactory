@@ -118,5 +118,51 @@ class TestClass
 }");
         }
 
+        [Test]
+        public void TestFormatBracesRegular()
+        {
+            Test<UseStringFormatAction>(@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 42;
+		string res = $""A test number: {"" + i + ""}"";
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 42;
+		string res = string.Format (""A test number: {{{0}}}"", i);
+	}
+}");
+        }
+
+        /*
+        [Test]
+        public void TestFormatBracesWithFormat()
+        {
+            Test<UseStringFormatAction>(@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 42;
+		string res = $""A test number: {"" + i.ToString(""N2"") + ""}"";
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 42;
+		string res = string.Format (""A test number: {0}{1:N2}{2}"", '{', i, '}');
+	}
+}");
+        }
+         */
+
 	}
 }

@@ -72,12 +72,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (IsStringLiteral (item)) {
 							var stringLiteral = (PrimitiveExpression)item;
 
+                            string rawLiteral;
 							if (stringLiteral.LiteralValue [0] == '@') {
 								verbatim = true;
-								format.Append (stringLiteral.LiteralValue, 2, stringLiteral.LiteralValue.Length - 3);
+                                rawLiteral = stringLiteral.LiteralValue.Substring(2, stringLiteral.LiteralValue.Length - 3);
 							} else {
-								format.Append (stringLiteral.LiteralValue, 1, stringLiteral.LiteralValue.Length - 2);
+								rawLiteral = stringLiteral.LiteralValue.Substring(1, stringLiteral.LiteralValue.Length - 2);
 							}
+
+                            format.Append(QuoteBraces(rawLiteral));
 						} else {
 							var index = IndexOf (arguments, item);
 
@@ -102,6 +105,25 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					script.Replace (expr, formatInvocation);
 				}, node);
 		}
+
+        private string QuoteBraces(string rawLiteral)
+        {
+            if (!rawLiteral.Contains("{") && !rawLiteral.Contains("}"))
+                return rawLiteral;
+
+            StringBuilder quoted = new StringBuilder();
+            for (int i = 0; i < rawLiteral.Length; i++)
+            {
+                char c = rawLiteral[i];
+                if (c == '{')
+                    quoted.Append("{{");
+                else if (c == '}')
+                    quoted.Append("}}");
+                else
+                    quoted.Append(c);
+            }
+            return quoted.ToString();
+        }
 
         static string DetermineItemFormatString(ref Expression myItem)
         {
