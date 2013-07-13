@@ -38,32 +38,32 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		public void TestInspectorCase1()
 		{
 			var input = @"class Program 
-        {
-            public static void Main(string[] args)
-            {
-                bool isTrue = (1 + 1 == 2);
-                switch (isTrue)
-                {
-                        default:
-                            break;
-                }
-            }
-        }
+		{
+			public static void Main(string[] args)
+			{
+				bool isTrue = (1 + 1 == 2);
+				switch (isTrue)
+				{
+						default:
+							break;
+				}
+			}
+		}
 ";
 
 			TestRefactoringContext context;
 			var issues = GetIssues(new RedundantEmptyDefaultBranchInSwitchIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			CheckFix(context, issues, @"class Program 
-        {
-            public static void Main(string[] args)
-            {
-                bool isTrue = (1 + 1 == 2);
-                switch (isTrue)
-                {
-                }
-            }
-        }
+		{
+			public static void Main(string[] args)
+			{
+				bool isTrue = (1 + 1 == 2);
+				switch (isTrue)
+				{
+				}
+			}
+		}
 ");
 		}
 
@@ -71,54 +71,54 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		public void TestInspectorCase2()
 		{
 			var input = @"class Program 
-        {
-            public static void Main(string[] args)
-            {
-                bool isTrue = (1 + 1 == 2);
-                switch (isTrue)
-                {
-                        default:
-                            break;
+		{
+			public static void Main(string[] args)
+			{
+				bool isTrue = (1 + 1 == 2);
+				switch (isTrue)
+				{
+						default:
+							break;
 							int a;
-                }
-            }
-        }
+				}
+			}
+		}
 ";
 			
 			TestRefactoringContext context;
 			var issues = GetIssues(new RedundantEmptyDefaultBranchInSwitchIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			CheckFix(context, issues, @"class Program 
-        {
-            public static void Main(string[] args)
-            {
-                bool isTrue = (1 + 1 == 2);
-                switch (isTrue)
-                {
-                }
-            }
-        }
+		{
+			public static void Main(string[] args)
+			{
+				bool isTrue = (1 + 1 == 2);
+				switch (isTrue)
+				{
+				}
+			}
+		}
 ");
 		}
 
 		[Test]
 		public void TestResharperDisable()
 		{
-			var input = @"    
-        class Program 
-        {
-            public static void Main(string[] args)
-            {
-                bool isTrue = (1 + 1 == 2);
-                switch (isTrue)
-                {
+			var input = @"
+		class Program 
+		{
+			public static void Main(string[] args)
+			{
+				bool isTrue = (1 + 1 == 2);
+				switch (isTrue)
+				{
 //Resharper disable RedundantEmptyDefaultBranchInSwitch
-                        default:
-                            break;
+						default:
+							break;
 //Resharper restore RedundantEmptyDefaultBranchInSwitch
-                }
-            }
-        }
+				}
+			}
+		}
 ";		
 			TestRefactoringContext context;
 			var issues = GetIssues(new RedundantEmptyDefaultBranchInSwitchIssue(), input, out context);
