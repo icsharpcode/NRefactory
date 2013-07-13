@@ -37,108 +37,105 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"    using System;
- 
-    namespace Application
-    {
-        public class BaseClass
-        {
-            public int a;
-            public virtual void print()
-            {
-                Console.Write(Environment.NewLine);
-            }
-            public void print1()
-            {
-                Console.Write(Environment.NewLine);
-            }
-        }
+			var input = @"using System;
+	namespace Application
+	{
+		public class BaseClass
+		{
+			public int a;
+			public virtual void method()
+			{
+				Console.Write(Environment.NewLine);
+			}
+			public void method1()
+			{
+				Console.Write(Environment.NewLine);
+			}
+		}
 
-        class Program : BaseClass
-        {
-            public void print2()
-            {
-                base.a = 1;
-            }
-            public override void print()
-            {
-                base.print1();
-            }
-           // public new int a;
-        }
-    }
+		class Program : BaseClass
+		{
+			public void method2(int a)
+			{
+				base.a = 1;
+			}
+			public override void method()
+			{
+				base.method1();
+			}
+		}
+	}
 ";
 
 			TestRefactoringContext context;
 			var issues = GetIssues(new RedundantBaseIssue(), input, out context);
-			Assert.AreEqual(2, issues.Count);
-			CheckFix(context, issues, @"    using System;
- 
-    namespace Application
-    {
-        public class BaseClass
-        {
-            public int a;
-            public virtual void print()
-            {
-                Console.Write(Environment.NewLine);
-            }
-            public void print1()
-            {
-                Console.Write(Environment.NewLine);
-            }
-        }
+			Assert.AreEqual(1, issues.Count);
+			CheckFix(context, issues, @"using System;
+	namespace Application
+	{
+		public class BaseClass
+		{
+			public int a;
+			public virtual void method()
+			{
+				Console.Write(Environment.NewLine);
+			}
+			public void method1()
+			{
+				Console.Write(Environment.NewLine);
+			}
+		}
 
-        class Program : BaseClass
-        {
-            public void print2()
-            {
-                a = 1;
-            }
-            public override void print()
-            {
-                print1 ();
-            }
-           // public new int a;
-        }
-    }
+		class Program : BaseClass
+		{
+			public void method2(int a)
+			{
+				base.a = 1;
+			}
+			public override void method()
+			{
+				method1 ();
+			}
+		}
+	}
 ");
 		}
 
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"    using System;
- 
-    namespace Application
-    {
-        public class BaseClass
-        {
-            public int a;
-            public void print()
-            {
-                Console.Write(Environment.NewLine);
-            }
-            public virtual void print1()
-            {
-                Console.Write(Environment.NewLine);
-            }
-        }
+			var input = @"using System;
+	namespace Application
+	{
+		public class BaseClass
+		{
+			public int a;
+			public int b;
+			public void method()
+			{
+				Console.Write(Environment.NewLine);
+			}
+			public virtual void method1()
+			{
+				Console.Write(Environment.NewLine);
+			}
+		}
 
-        class Program : BaseClass
-        {
-            public new void print()
-            {
-                base.a = 1;
-            }
-            public void print2()
-            {
-                base.print1 ();
-                base.print ();
-            }
-            public new int a;
-        }
-    }
+		class Program : BaseClass
+		{
+			public new void method(int b)
+			{
+				base.a = 1;
+				base.b = 2;
+			}
+			public void method2()
+			{
+				base.method1 ();
+				base.method ();
+			}
+			public new int a;
+		}
+	}
 ";
 			TestRefactoringContext context;
 			var issues = GetIssues(new RedundantBaseIssue(), input, out context);
@@ -148,39 +145,37 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			var input = @"    using System;
- 
-    namespace Application
-    {
-        public class BaseClass
-        {
-            public int a;
-            public virtual void print()
-            {
-                Console.Write(Environment.NewLine);
-            }
-            public void print1()
-            {
-                Console.Write(Environment.NewLine);
-            }
-        }
+			var input = @"using System;
+	namespace Application
+	{
+		public class BaseClass
+		{
+			public int a;
+			public virtual void print()
+			{
+				Console.Write(Environment.NewLine);
+			}
+			public void print1()
+			{
+				Console.Write(Environment.NewLine);
+			}
+		}
 
-        class Program : BaseClass
-        {
-            public void print2()
-            {
+		class Program : BaseClass
+		{
+			public void print2()
+			{
 //Resharper disable RedundantBaseQualifier
-                base.a = 1;
+				base.a = 1;
 //Resharper restore RedundantBaseQualifier
-                base.a = 1;
-            }
-            public override void print()
-            {
-                base.print1();
-            }
-           // public new int a;
-        }
-    }";
+				base.a = 1;
+			}
+			public override void print()
+			{
+				base.print1();
+			}
+		}
+	}";
 
 			TestRefactoringContext context;
 			var issues = GetIssues(new RedundantBaseIssue(), input, out context);

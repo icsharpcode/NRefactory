@@ -77,7 +77,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				} else if (result is MethodGroupResolveResult) {
 					return ((MethodGroupResolveResult)result).Methods.FirstOrDefault();
 				}
-
 				return null;
 			}
 			
@@ -98,10 +97,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var state = ctx.GetResolverStateAfter(baseReferenceExpression);
 				var wholeResult = ctx.Resolve(memberReference);
-
+				
 				IMember member = GetMember(wholeResult);
 				if (member == null || member.IsOverridable) { 
 					return;
+				}
+
+				if (member.SymbolKind == SymbolKind.Field) {
+					var method = memberReference.Parent;
+					while (!(method is MethodDeclaration)) {
+						method = method.Parent;
+					}
+					var parameters = (method as MethodDeclaration).Parameters;
+
+					if (parameters.Any(f => f.NameToken.ToString() == member.Name)) {
+						return;
+					}
+
+					var localvariables = state.LocalVariables;
+					if (localvariables.Any(f => f.Name == member.FullName)) {
+						return;
+					}
 				}
 
 				if (state.CurrentTypeDefinition.DirectBaseTypes == null)
