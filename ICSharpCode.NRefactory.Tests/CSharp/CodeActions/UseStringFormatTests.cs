@@ -164,5 +164,25 @@ class TestClass
         }
          */
 
+        [Test]
+        public void TestUnnecessaryStringFormat()
+        {
+            Test<UseStringFormatAction>(@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		string res = $""String 1"" + ""String 2"";
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		string res = ""String 1String 2"";
+	}
+}");
+        }
+
 	}
 }
