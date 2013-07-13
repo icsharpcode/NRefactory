@@ -95,5 +95,28 @@ class TestClass
 	}
 }");
 		}
+
+        [Test]
+        public void TestFormatString ()
+        {
+            Test<UseStringFormatAction>(@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 42;
+		string res = $""A test number: "" + i.ToString(""N2"");
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 42;
+		string res = string.Format (""A test number: {0:N2}"", i);
+	}
+}");
+        }
+
 	}
 }
