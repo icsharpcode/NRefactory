@@ -37,11 +37,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Remove redundant empty default branch in switch, For example: Switch (foo) { case Bar: DoSomething; break; default: break;}
 	/// </summary>
 	[IssueDescription("Remove redundant empty default branch in switch",
-	       Description= "Remove redundant empty default branch in switch.",
-		   Category = IssueCategories.Redundancies,
-		   Severity = Severity.Hint,
-		   IssueMarker = IssueMarker.GrayOut,
-		   ResharperDisableKeyword = "RedundantEmptyDefaultBranchInSwitch")]
+			Description= "Remove redundant empty default branch in switch.",
+			Category = IssueCategories.Redundancies,
+			Severity = Severity.Hint,
+			IssueMarker = IssueMarker.GrayOut,
+			ResharperDisableKeyword = "RedundantEmptyDefaultBranchInSwitch")]
 	public class RedundantEmptyDefaultBranchInSwitchIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
