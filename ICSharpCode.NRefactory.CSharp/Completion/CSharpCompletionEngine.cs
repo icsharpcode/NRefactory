@@ -467,17 +467,24 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		int GetFormatItemNumber()
 		{
 			int number = 0;
-			var o = offset - 1;
+			var o = offset - 2;
 			while (o > 0) {
 				char ch = document.GetCharAt(o);
+				if (ch == '{')
+					return number;
 				if (!char.IsDigit(ch))
 					break;
 				number = number * 10 + ch - '0';
+				o--;
 			}
-			return number;
+			return -1;
 		}
+
 		IEnumerable<ICompletionData> HandleStringFormatItems ()
 		{
+			var formatArgument = GetFormatItemNumber();
+			if (formatArgument < 0)
+				return Enumerable.Empty<ICompletionData>();
 			var followUp = new StringBuilder ();
 
 			var o = offset;
@@ -496,7 +503,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				var resolveResult = ResolveExpression(new ExpressionResult(invoke, unit));
 				var invokeResult = resolveResult.Item1 as InvocationResolveResult;
 				if (invokeResult != null) {
-					var arg = GetFormatItemNumber() + 1; // First argument is the format string
+					var arg = formatArgument + 1; // First argument is the format string
 					if (arg < invoke.Arguments.Count) {
 						var invokeArgument = ResolveExpression(new ExpressionResult(invoke.Arguments.ElementAt(arg), unit));
 						if (invokeArgument != null) {

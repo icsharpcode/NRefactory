@@ -47,6 +47,22 @@ class TestClass
 			Assert.Greater(provider.Count, 0); 
 		}
 
+
+		[Test]
+		public void TestFalsePositive ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (
+				@"using System;
+class TestClass
+{
+	public void Test ()
+	{
+		$Console.WriteLine (""Hello :$
+	}
+}");
+			Assert.IsTrue(provider == null || provider.Count == 0); 
+		}
+
 		[Test]
 		public void TestFormatItemRecognition ()
 		{
