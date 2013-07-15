@@ -184,5 +184,27 @@ class TestClass
 }");
         }
 
+        [Test]
+        public void TestUnnecessaryToString()
+        {
+            Test<UseStringFormatAction>(@"
+class TestClass
+{
+	void TestMethod ()
+	{
+        int i = 42;
+		string res = $""String 1"" + i.ToString();
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+        int i = 42;
+		string res = string.Format (""String 1{0}"", i);
+	}
+}");
+        }
+
 	}
 }

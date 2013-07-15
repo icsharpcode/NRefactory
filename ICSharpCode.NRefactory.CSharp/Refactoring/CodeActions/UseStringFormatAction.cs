@@ -82,12 +82,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
                             format.Append(QuoteBraces(rawLiteral));
 						} else {
-							var index = IndexOf (arguments, item);
-
-                            Expression myItem = item;
+                            Expression myItem = RemoveUnnecessaryToString(item);
                             string itemFormatStr = DetermineItemFormatString(ref myItem);
-
-							if (index == -1) {
+                            
+                            var index = IndexOf(arguments, myItem);
+                            if (index == -1) {
 								// new item
 								formatInvocation.Arguments.Add (myItem.Clone ());
 								arguments.Add (item);
@@ -109,6 +108,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                         script.Replace (expr, formatLiteral);
 				}, node);
 		}
+
+        private Expression RemoveUnnecessaryToString(Expression myItem)
+        {
+            if (myItem is InvocationExpression)
+            {
+                InvocationExpression invocation = (InvocationExpression)myItem;
+                if (invocation.Target is MemberReferenceExpression &&
+                    ((MemberReferenceExpression)invocation.Target).MemberName.Equals("ToString") &&
+                    invocation.Arguments.Count == 0)
+                {
+                    myItem = invocation.Target.FirstChild as Expression;
+                }
+                
+            }
+            return myItem;
+        }
 
         private string QuoteBraces(string rawLiteral)
         {
