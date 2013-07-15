@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 		[Test]
 		public void TestFormatItem ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			var provider = CodeCompletionBugTests.CreateProvider (
 				@"
 class TestClass
 {
@@ -45,7 +45,104 @@ class TestClass
 }");
 			Assert.IsNotNull (provider);
 			Assert.Greater(provider.Count, 0); 
+		}
 
+		[Test]
+		public void TestFormatItemRecognition ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (
+				@"using System;
+class TestClass
+{
+	public void Test (Guid i)
+	{
+		string.Format("" ${0:$"", i);
+	}
+}");
+			Assert.IsNotNull (provider);
+			Assert.AreEqual(4, provider.Count); 
+		}
+
+		[Test]
+		public void TestIntToString ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (
+				@"
+class TestClass
+{
+	public void Test (int i)
+	{
+		$i.ToString(""$
+	}
+}");
+			Assert.IsNotNull (provider);
+			Assert.Greater(provider.Count, 0); 
+		}
+		
+		[Test]
+		public void TestDateTimeToString ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (
+				@"using System;
+class TestClass
+{
+	public void Test (DateTime i)
+	{
+		$i.ToString(""$
+	}
+}");
+			Assert.IsNotNull (provider);
+			Assert.Greater(provider.Count, 0); 
+		}
+
+		
+		[Test]
+		public void TestGuidToString ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (
+				@"using System;
+class TestClass
+{
+	public void Test (Guid i)
+	{
+		$i.ToString(""$
+	}
+}");
+			Assert.IsNotNull (provider);
+			Assert.Greater(provider.Count, 0); 
+		}
+		
+		[Test]
+		public void TestTimeSpanToString ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (
+				@"using System;
+class TestClass
+{
+	public void Test (TimeSpan i)
+	{
+		$i.ToString(""$
+	}
+}");
+			Assert.IsNotNull (provider);
+			Assert.Greater(provider.Count, 0); 
+		}
+
+		
+		[Test]
+		public void TestEnumToString ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (
+				@"using System;
+class TestClass
+{
+	public void Test (ConsoleKey i)
+	{
+		$i.ToString(""$
+	}
+}");
+			Assert.IsNotNull (provider);
+			Assert.Greater(provider.Count, 0); 
 		}
 	}
 }
