@@ -510,6 +510,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							var provider = GetFormatCompletionData(invokeArgument.Item1.Type);
 							if (provider != null)
 								return provider;
+							if (!invokeArgument.Item1.Type.IsKnownType(KnownTypeCode.Object))
+								return Enumerable.Empty<ICompletionData>();
 						}
 					}
 				}

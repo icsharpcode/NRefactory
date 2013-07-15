@@ -79,6 +79,22 @@ class TestClass
 			Assert.AreEqual(4, provider.Count); 
 		}
 
+
+		[Test]
+		public void TestDontShowupCase ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (
+				@"using System;
+class TestClass
+{
+	public void Test (string i)
+	{
+		string.Format("" ${1:$"", 12, i);
+	}
+}");
+			Assert.IsTrue(provider == null || provider.Count == 0); 
+		}
+
 		[Test]
 		public void TestIntToString ()
 		{
