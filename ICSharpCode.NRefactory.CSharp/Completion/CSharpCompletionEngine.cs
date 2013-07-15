@@ -452,7 +452,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			yield return factory.CreateFormatItemCompletionData("c", "invariant", new TimeSpan(0, 1, 23, 456));
 			yield return factory.CreateFormatItemCompletionData("G", "general long", new TimeSpan(0, 1, 23, 456));
 			yield return factory.CreateFormatItemCompletionData("g", "general short", new TimeSpan(0, 1, 23, 456));
-			yield return factory.CreateFormatItemCompletionData("hh:mm:ss", "custom", new TimeSpan(0, 1, 23, 456));
 		}
 
 		static Guid defaultGuid = Guid.NewGuid();
