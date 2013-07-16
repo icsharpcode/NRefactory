@@ -297,16 +297,18 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			Expression target = invocationExpression.Target;
 			if (target is IdentifierExpression || target is MemberReferenceExpression || target is PointerReferenceExpression) {
 				var invocationRR = resolver.Resolve(invocationExpression, cancellationToken) as CSharpInvocationResolveResult;
-				if (invocationRR != null && invocationExpression.Parent is ExpressionStatement && IsInactiveConditionalMethod(invocationRR.Member)) {
-					// mark the whole invocation statement as inactive code
-					Colorize(invocationExpression.Parent, inactiveCodeColor);
-					return;
-				}
+				if (invocationRR != null) {
+					if (invocationExpression.Parent is ExpressionStatement && IsInactiveConditionalMethod(invocationRR.Member)) {
+						// mark the whole invocation statement as inactive code
+						Colorize(invocationExpression.Parent, inactiveCodeColor);
+						return;
+					}
 
-				if (invocationRR.Arguments.Count > 1 && CSharpCompletionEngine.FormatItemMethods.Contains(invocationRR.Member.FullName)) {
-					var expr = invocationExpression.Arguments.First() as PrimitiveExpression; 
-					if (expr != null)
-						HighlightStringFormatItems(expr);
+					if (invocationRR.Arguments.Count > 1 && CSharpCompletionEngine.FormatItemMethods.Contains(invocationRR.Member.FullName)) {
+						var expr = invocationExpression.Arguments.First() as PrimitiveExpression; 
+						if (expr != null)
+							HighlightStringFormatItems(expr);
+					}
 				}
 
 				VisitChildrenUntil(invocationExpression, target);
