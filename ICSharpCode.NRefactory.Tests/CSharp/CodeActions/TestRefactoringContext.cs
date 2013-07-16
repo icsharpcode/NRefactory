@@ -216,6 +216,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			{
 				List<AstNode> nodes = new List<AstNode>();
 				FindReferences refFinder = new FindReferences();
+				refFinder.FindCallsThroughInterface = true;
 				refFinder.FindReferencesInFile(refFinder.GetSearchScopes(entities),
 				                               localContext.UnresolvedFile,
 				                               localContext.RootNode as SyntaxTree,

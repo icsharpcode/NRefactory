@@ -143,9 +143,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (typeDeclaration.ClassType == ClassType.Interface) {
 					var disposeMember = ((MemberResolveResult)ctx.Resolve(methodDeclaration)).Member;
 					script.DoGlobalOperationOn(new List<IEntity>() { disposeMember }, (nCtx, nScript, nodes) => {
+						List<Tuple<AstType, AstType>> pendingChanges = new List<Tuple<AstType, AstType>>();
 						foreach (var node in nodes)
 						{
+							var method = node as MethodDeclaration;
+							if (method != null && !method.PrivateImplementationType.IsNull) {
+								var nResolver = ctx.GetResolverStateAfter(typeDeclaration.LBraceToken);
 
+								var nTypeResolve = nResolver.ResolveSimpleName("IDisposable", new List<IType>()) as TypeResolveResult;
+								bool nCanShortenIDisposable = nTypeResolve != null && nTypeResolve.Type.FullName == "System.IDisposable";
+
+								string nInterfaceName = (nCanShortenIDisposable ? string.Empty : "System.") + "IDisposable";
+
+								pendingChanges.Add(Tuple.Create(method.PrivateImplementationType, AstType.Create(nInterfaceName)));
+							}
+						}
+
+						foreach (var change in pendingChanges) {
+							nScript.Replace(change.Item1, change.Item2);
 						}
 					}, "Fix explicitly implemented members");
 				}

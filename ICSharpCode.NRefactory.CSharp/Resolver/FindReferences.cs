@@ -691,6 +691,13 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			referencedMember = NormalizeMember(referencedMember);
 			if (member.Equals(referencedMember))
 				return true;
+			if (FindCallsThroughInterface && member.DeclaringTypeDefinition != null && member.DeclaringTypeDefinition.Kind == TypeKind.Interface) {
+				if (FindOnlySpecializedReferences) {
+					return referencedMember.ImplementedInterfaceMembers.Contains(member);
+				} else {
+					return referencedMember.ImplementedInterfaceMembers.Any(m => m.MemberDefinition.Equals(member));
+				}
+			}
 			if (!isVirtualCall)
 				return false;
 			bool isInterfaceCall = referencedMember.DeclaringTypeDefinition != null && referencedMember.DeclaringTypeDefinition.Kind == TypeKind.Interface;
