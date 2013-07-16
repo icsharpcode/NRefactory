@@ -53,6 +53,28 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }"
 				);
 		}
+		
+		[Test]
+		public void MethodThatCallsInstanceMethodOnParameter()
+		{
+			Test<ConvertToStaticMethodIssue>(
+				@"class TestClass
+{
+	string $Test (string txt)
+	{
+		return txt.Trim ();
+	}
+}",
+				@"class TestClass
+{
+	static string Test (string txt)
+	{
+		return txt.Trim ();
+	}
+}"
+				);
+		}
+		
 		[Test]
 		public void TestWithVirtualFunction() {
 			
@@ -66,16 +88,14 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
             TestWrongContext<ConvertToStaticMethodIssue>(input);
 		}
 
-		[Ignore("Doesn't work for me.")]
 		[Test]
-		public void TestWithInterface() {
-			
+		public void TestWithInterfaceImplementation() {
 			var input = @"interface IBase {
     void Test();
 }
 class TestClass : IBase
 {
-	public virtual void $Test ()
+	public void $Test ()
 	{
 		int a = 2;
 	}
@@ -128,6 +148,18 @@ class TestClass
 		}
 
 		[Test]
+		public void TestDoNotWarnOnInterfaceMethod()
+		{
+
+			var input = @"using System;
+interface ITestInterface
+{
+	void $Test ();
+}";
+			TestWrongContext<ConvertToStaticMethodIssue>(input);
+		}
+
+		[Test]
 		public void TestDoNotWarnOnNotImplementedMethod()
 		{
 			var input = @"using System;
@@ -141,7 +173,6 @@ class TestClass
 			TestWrongContext<ConvertToStaticMethodIssue>(input);
 		}
 
-		[Ignore("Body analyzation is missing.")]
 		[Test]
 		public void TestPropertyAccess()
 		{
@@ -156,9 +187,18 @@ class TestClass
 }";
 			TestWrongContext<ConvertToStaticMethodIssue>(input);
 		}
-
-
-	
+		
+		[Test]
+		public void DoNotWarnOnMarshalByRefObject() {
+			
+			var input = @"class TestClass : System.MarshalByRefObject
+{
+	public void $Test ()
+	{
+		int a = 2;
 	}
-    
+}";
+            TestWrongContext<ConvertToStaticMethodIssue>(input);
+		}
+	}
 }

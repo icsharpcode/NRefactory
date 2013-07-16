@@ -207,13 +207,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
             Assert.AreEqual(0, issues.Count);
         }
         
-        [Ignore("Implement me.")]
         [Test]
         public void DoesNotWarnOnNotImplementedCustomEvent()
         {
-            
-            // Empty custom events are often used when the event can never be raised
-            // by a class (but the event is required e.g. due to an interface).
             var input = @"class A	
 {
 	delegate void TestEventHandler ();

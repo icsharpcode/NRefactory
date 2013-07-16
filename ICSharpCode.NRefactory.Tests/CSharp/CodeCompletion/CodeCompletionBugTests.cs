@@ -267,7 +267,12 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 			{
 				return Enumerable.Empty<ICompletionData> ();
 			}
-			
+
+			public ICompletionData CreateFormatItemCompletionData(string format, string description, object example)
+			{
+				return new CompletionData (format + " - " + description +":" + example);
+			}
+
 			public IEnumerable<ICompletionData> CreatePreProcessorDefinesCompletionData ()
 			{
 				yield return new CompletionData ("DEBUG");

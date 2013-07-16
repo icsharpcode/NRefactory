@@ -671,7 +671,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			//int initializerCount = fieldOrEventDeclaration.GetChildrenByRole(Roles.Variable).Count;
 			CSharpResolver oldResolver = resolver;
 			for (AstNode node = fieldOrEventDeclaration.FirstChild; node != null; node = node.NextSibling) {
-				if (node.Role == Roles.Variable) {
+				if (node.Role == Roles.Variable || node.Role == FixedFieldDeclaration.VariableRole) {
 					IMember member;
 					if (unresolvedFile != null) {
 						member = GetMemberFromLocation(node);

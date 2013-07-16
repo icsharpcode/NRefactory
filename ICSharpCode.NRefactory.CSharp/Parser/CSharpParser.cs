@@ -769,12 +769,11 @@ namespace ICSharpCode.NRefactory.CSharp
 				var variable = new FixedVariableInitializer ();
 				variable.AddChild (Identifier.Create (f.MemberName.Name, Convert (f.MemberName.Location)), Roles.Identifier);
 				if (f.Initializer != null && !f.Initializer.IsNull) {
-					var bracketLocations = LocationsBag.GetLocations (f.Initializer);
-					if (bracketLocations != null && bracketLocations.Count > 1)
-						variable.AddChild (new CSharpTokenNode (Convert (bracketLocations [0]), Roles.LBracket), Roles.LBracket);
+					variable.AddChild (new CSharpTokenNode (Convert (f.Initializer.Location), Roles.LBracket), Roles.LBracket);
 					
 					variable.AddChild ((Expression)f.Initializer.Accept (this), Roles.Expression);
-					if (bracketLocations != null && bracketLocations.Count > 1)
+					var bracketLocations = LocationsBag.GetLocations (f.Initializer);
+					if (bracketLocations != null)
 						variable.AddChild (new CSharpTokenNode (Convert (bracketLocations [0]), Roles.RBracket), Roles.RBracket);
 				}
 				newField.AddChild (variable, FixedFieldDeclaration.VariableRole);
@@ -787,14 +786,12 @@ namespace ICSharpCode.NRefactory.CSharp
 						
 						variable = new FixedVariableInitializer ();
 						variable.AddChild (Identifier.Create (decl.Name.Value, Convert (decl.Name.Location)), Roles.Identifier);
-						if (!decl.Initializer.IsNull) {
-							var bracketLocations = LocationsBag.GetLocations (f.Initializer);
-							if (bracketLocations != null && bracketLocations.Count > 1)
-								variable.AddChild (new CSharpTokenNode (Convert (bracketLocations [0]), Roles.LBracket), Roles.LBracket);
-							variable.AddChild ((Expression)decl.Initializer.Accept (this), Roles.Expression);
-							if (bracketLocations != null && bracketLocations.Count > 1)
-								variable.AddChild (new CSharpTokenNode (Convert (bracketLocations [0]), Roles.RBracket), Roles.RBracket);
-						}
+						variable.AddChild (new CSharpTokenNode (Convert (decl.Initializer.Location), Roles.LBracket), Roles.LBracket);
+						variable.AddChild ((Expression)decl.Initializer.Accept (this), Roles.Expression);
+						var bracketLocations = LocationsBag.GetLocations (decl.Initializer);
+						if (bracketLocations != null)
+							variable.AddChild (new CSharpTokenNode (Convert (bracketLocations [0]), Roles.RBracket), Roles.RBracket);
+
 						newField.AddChild (variable, FixedFieldDeclaration.VariableRole);
 					}
 				}

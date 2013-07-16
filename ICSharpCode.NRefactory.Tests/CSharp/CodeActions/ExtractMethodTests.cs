@@ -549,6 +549,39 @@ class TestClass
 	}
 }");
 		}
+
+		/// <summary>
+		/// Bug 13054 - Extract method creates params on new method for params declared on lambdas in method body
+		/// </summary>
+		[Test]
+		public void TestBug13054 ()
+		{
+			Test<ExtractMethodAction> (@"class TestClass
+{
+	public static void TestMethod ()
+	{
+		<-int i = 0;
+		Action<string> action = (str) =>  {
+			Console.WriteLine (str);
+		};->
+	}
+}", @"class TestClass
+{
+	static void NewMethod ()
+	{
+		int i = 0;
+		Action<string> action = str =>  {
+			Console.WriteLine (str);
+		};
+	}
+	public static void TestMethod ()
+	{
+		NewMethod ();
+	}
+}");
+		}
+
+
 	}
 }
 

@@ -521,7 +521,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				switch (info.Attributes & PInvokeAttributes.CallConvMask) {
 					case (PInvokeAttributes)0:
 						Debug.WriteLine ("P/Invoke calling convention not set on:" + methodDefinition.FullName);
-						callingConvention = CallingConvention.StdCall;
+						callingConvention = 0;
 						break;
 					case PInvokeAttributes.CallConvCdecl:
 						callingConvention = CallingConvention.Cdecl;

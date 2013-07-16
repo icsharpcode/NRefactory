@@ -45,30 +45,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		class GatherVisitor : GatherVisitorBase<ThreadStaticAtInstanceFieldIssue>
 		{
-			ITypeDefinition threadStaticDefinition;
+			IType threadStaticAttribute;
 
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
-				var type = typeof(ThreadStaticAttribute).ToTypeReference().Resolve(ctx.Compilation.TypeResolveContext);
-				threadStaticDefinition = type.GetDefinition();
+				threadStaticAttribute = ctx.Compilation.FindType(typeof(ThreadStaticAttribute));
 			}
 
-            public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-            {
-            }
-
-            public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-            {
-            }
-
-            public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-            {
-            }
-
-            public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
-            {
-            }
-
+			public override void VisitBlockStatement(BlockStatement blockStatement)
+			{
+			}
+			
 			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
 			{
                 if (fieldDeclaration.HasModifier(Modifiers.Static))
@@ -80,7 +67,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var resolvedAttribute = ctx.Resolve(attribute.Type) as TypeResolveResult;
 						if (resolvedAttribute == null)
 							continue;
-						if (threadStaticDefinition.Equals(resolvedAttribute.Type.GetDefinition())) {
+						if (threadStaticAttribute.Equals(resolvedAttribute.Type)) {
 							string title = ctx.TranslateString("ThreadStatic does nothing on instance fields");
 							if (attributeCount == 1)
 								AddIssue(attributeSection, title, GetActions(attribute, attributeSection, fieldDeclaration));

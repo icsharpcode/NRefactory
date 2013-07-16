@@ -95,6 +95,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
+			public override void VisitFixedStatement(FixedStatement fixedStatement)
+			{
+				// TODO: Check the initializer - but it can't contain a type cast anyways.
+				fixedStatement.EmbeddedStatement.AcceptVisitor (this);
+			}
+
 			public override void VisitArrayInitializerExpression(ArrayInitializerExpression arrayInitializerExpression)
 			{
 				base.VisitArrayInitializerExpression(arrayInitializerExpression);

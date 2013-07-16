@@ -347,6 +347,38 @@ class Class {
 		}
 ", varKeywordTypeColor);
 		}
+
+
+		[Test]
+		public void TestStringFormatItemColor()
+		{
+			TestColor (@"using System;
+class MyClass {
+			public static void Main ()
+			{
+				string str = string.Format ("" ${0} ${1} ${2} "", 1, 2, 3);
+			}
+		}
+", stringFormatItemColor);
+		}
+
+		[Test]
+		public void TestStringFormatItemInVerbatimStringColor()
+		{
+			TestColor (@"using System;
+class MyClass {
+			public static void Main ()
+			{
+				Console.WriteLine (@"" ${0}
+
+ ${1} 
+
+
+${2} "", 1, 2, 3);
+			}
+		}
+", stringFormatItemColor);
+		}
 	}
 }
 

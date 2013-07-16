@@ -408,6 +408,39 @@ class TestClass
 }";
 			Test<CS0029InvalidConversionIssue>(input, output);
 		}
+		
+		// TODO: create resolver unit tests for this issue
+		[Test, Ignore("Resolver bug - GetConversion() returns the explicit conversion instead of the expected identity conversion")]
+		public void ExplicitConversionFromUnknownType()
+		{
+			string input = @"
+class Test {
+	void M(MissingInterface m) {
+		this.Project = (Project)m;
+	}
+	public Project Project { get; set; }
+}
+class Project : MissingInterface {}";
+			TestWrongContext<CS0029InvalidConversionIssue>(input);
+		}
 
+		[Test]
+		public void TestFixedConversion()
+		{
+			var input = @"unsafe struct TestMe
+{
+	fixed int textureID[8], fooBar[12];
+
+	public void Randomize ()
+	{
+		fixed (int* buf = textureID) {
+			buf [0] = 1;
+		}
+	}
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
+		}
 	}
 }

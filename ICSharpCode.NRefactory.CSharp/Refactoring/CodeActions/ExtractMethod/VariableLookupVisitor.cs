@@ -64,12 +64,45 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 			if (startLocation.IsEmpty || startLocation <= identifierExpression.StartLocation && identifierExpression.EndLocation <= endLocation) {
 				var result = context.Resolve(identifierExpression);
 				var local = result as LocalResolveResult;
-				if (local != null && !UsedVariables.Contains(local.Variable)) {
+				if (local != null && !UsedVariables.Contains(local.Variable)&& !anonymousParameters.Contains(local.Variable)) {
 					UsedVariables.Add(local.Variable);
 				}
 			}
 		}
-		
+
+		HashSet<IVariable> anonymousParameters = new HashSet<IVariable> ();
+		public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+		{
+			foreach (var param in lambdaExpression.Parameters) {
+				var result = context.Resolve(param);
+				var local = result as LocalResolveResult;
+				anonymousParameters.Add(local.Variable); 
+			}
+			base.VisitLambdaExpression(lambdaExpression);
+			foreach (var param in lambdaExpression.Parameters) {
+				var result = context.Resolve(param);
+				var local = result as LocalResolveResult;
+				anonymousParameters.Remove(local.Variable); 
+			}
+		}
+
+		public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+		{
+			foreach (var param in anonymousMethodExpression.Parameters) {
+				var result = context.Resolve(param);
+				var local = result as LocalResolveResult;
+				anonymousParameters.Add(local.Variable); 
+			}
+
+
+			base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+			foreach (var param in anonymousMethodExpression.Parameters) {
+				var result = context.Resolve(param);
+				var local = result as LocalResolveResult;
+				anonymousParameters.Remove(local.Variable); 
+			}
+		}
+
 		public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)
 		{
 			base.VisitVariableDeclarationStatement(variableDeclarationStatement);
@@ -77,7 +110,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 				if (startLocation.IsEmpty || startLocation <= varDecl.StartLocation && varDecl.EndLocation <= endLocation) {
 					var result = context.Resolve(varDecl);
 					var local = result as LocalResolveResult;
-					if (local != null && !UsedVariables.Contains(local.Variable))
+					if (local != null && !UsedVariables.Contains(local.Variable) && !anonymousParameters.Contains(local.Variable))
 						UsedVariables.Add(local.Variable);
 				}
 			}

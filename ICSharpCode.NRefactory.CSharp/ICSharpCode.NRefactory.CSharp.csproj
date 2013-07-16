@@ -283,6 +283,7 @@
     <Compile Include="Refactoring\CodeActions\ConvertSwitchToIfAction.cs" />
     <Compile Include="Refactoring\CodeActions\CreateCustomEventImplementationAction.cs" />
     <Compile Include="Refactoring\CodeActions\CreateOverloadWithoutParameterAction.cs" />
+    <Compile Include="Refactoring\CodeActions\ImplementNotImplementedProperty.cs" />
     <Compile Include="Refactoring\CodeActions\JoinDeclarationAndAssignmentAction.cs" />
     <Compile Include="Refactoring\CodeActions\JoinStringAction.cs" />
     <Compile Include="Refactoring\CodeActions\MergeNestedIfAction.cs" />
@@ -300,6 +301,7 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompareBooleanWithTrueOrFalseIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompareFloatWithEqualityOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0029InvalidConversionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS1729TypeHasNoConstructorWithNArgumentsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ConstantConditionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\DoubleNegationOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
@@ -526,7 +528,6 @@
     <Compile Include="Refactoring\CreateChangedEvent.cs" />
     <Compile Include="Refactoring\CodeActions\SimplifyIfFlowAction.cs" />
     <Compile Include="Refactoring\CodeActions\SimplifyIfInLoopsFlowAction.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\NoDefaultConstructorIssue.cs" />
     <Compile Include="Refactoring\CodeActions\InvertIfAndSimplify.cs" />
     <Compile Include="Formatter\CSharpFormatter.cs" />
     <Compile Include="Formatter\FormattingVisitor.cs" />
@@ -548,7 +549,6 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicateIfInIfChainIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\UseBlockInsteadColonIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\LockThisIssue.cs" />
-    <Compile Include="Refactoring\ImplementNotImplementedProperty.cs" />
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="Refactoring\CodeActions\ConvertIfToNullCoalescingAction.cs" />

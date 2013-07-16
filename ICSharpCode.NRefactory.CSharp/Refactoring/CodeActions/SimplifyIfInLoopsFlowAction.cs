@@ -34,10 +34,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
-			// TODO: Invert if without else
-			// ex. if (cond) DoSomething () == if (!cond) return; DoSomething ()
-			// beware of loop contexts return should be continue then.
-			
 			var ifStatement = GetIfElseStatement(context);
 			if (ifStatement == null)
 				yield break;

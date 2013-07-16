@@ -104,5 +104,19 @@ sealed class TestClass
 }";
 			Test<ExpressionIsAlwaysOfProvidedTypeIssue> (input, 0);
 		}
+		
+		[Test]
+		public void MissingTypes ()
+		{
+			var input = @"
+sealed class TestClass
+{
+	void TestMethod (object x)
+	{
+		if (x.MissingMethod() is MissingClass) ;
+	}
+}";
+			Test<ExpressionIsAlwaysOfProvidedTypeIssue> (input, 0);
+		}
 	}
 }

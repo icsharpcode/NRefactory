@@ -24,16 +24,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-//	[IssueDescription("Make this method static",
-//                      Description = "This method doesn't use any non static members so it can be made static",
-//                      Severity = Severity.Hint,
-//                      IssueMarker = IssueMarker.Underline)]
+	[IssueDescription("Make this method static",
+	                  Description = "This method doesn't use any instance members so it can be made static",
+	                  Severity = Severity.Hint,
+	                  IssueMarker = IssueMarker.Underline)]
     public class ConvertToStaticMethodIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
@@ -48,25 +50,32 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
+			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+			{
+				var rr = ctx.Resolve(typeDeclaration);
+				if (rr.Type.GetNonInterfaceBaseTypes().Any(t => t.Name == "MarshalByRefObject" && t.Namespace == "System"))
+					return; // ignore MarshalByRefObject, as only instance method calls get marshaled
+				
+				base.VisitTypeDeclaration(typeDeclaration);
+			}
+			
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
-				// TODO: Invert if without else
-				// ex. if (cond) DoSomething () == if (!cond) return; DoSomething ()
-				// beware of loop contexts return should be continue then.
 				var context = ctx;
-				if (methodDeclaration.HasModifier(Modifiers.Static) || 
-				    methodDeclaration.HasModifier(Modifiers.Virtual) || 
-				    methodDeclaration.HasModifier(Modifiers.Override) || 
-				    methodDeclaration.HasModifier(Modifiers.New) || 
+				if (methodDeclaration.HasModifier(Modifiers.Static) ||
+				    methodDeclaration.HasModifier(Modifiers.Virtual) ||
+				    methodDeclaration.HasModifier(Modifiers.Override) ||
+				    methodDeclaration.HasModifier(Modifiers.New) ||
 				    methodDeclaration.Attributes.Any())
 					return;
 
+				var body = methodDeclaration.Body;
 				// skip empty methods
-				if (!methodDeclaration.Body.Statements.Any())
+				if (!body.Statements.Any())
 					return;
 
-				if (methodDeclaration.Body.Statements.Count == 1) {
-					if (methodDeclaration.Body.Statements.First () is ThrowStatement)
+				if (body.Statements.Count == 1) {
+					if (body.Statements.First () is ThrowStatement)
 						return;
 				}
 					
@@ -78,13 +87,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (isImplementingInterface)
 					return;
 
+				if (StaticVisitor.UsesNotStaticMember(context, body))
+					return;
+				
 				AddIssue(methodDeclaration.NameToken.StartLocation, methodDeclaration.NameToken.EndLocation,
 				                     context.TranslateString(string.Format("Make '{0}' static", methodDeclaration.Name)),
 				                     script => ExecuteScriptToFixStaticMethodIssue(script, context, methodDeclaration));
 			}
 
 			static void ExecuteScriptToFixStaticMethodIssue(Script script,
-			                                                                 BaseRefactoringContext context, 
+			                                                BaseRefactoringContext context,
 			                                                                 AstNode methodDeclaration)
 			{
 				var clonedDeclaration = (MethodDeclaration)methodDeclaration.Clone();

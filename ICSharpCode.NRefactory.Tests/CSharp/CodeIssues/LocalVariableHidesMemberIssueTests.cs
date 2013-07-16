@@ -206,5 +206,23 @@ class TestClass : BaseClass
 }";
 			Test<LocalVariableHidesMemberIssue> (input, 0);
 		}
+		
+		[Test]
+		public void SuppressIssueIfVariableInitializedFromField ()
+		{
+			var input = @"
+class TestClass
+{
+	int i;
+	
+	void Method ()
+	{
+		int i = this.i;
+	}
+}";
+			// Given the initializer, member hiding is obviously intended in this case;
+			// so we suppress the warning.
+			Test<LocalVariableHidesMemberIssue> (input, 0);
+		}
 	}
 }

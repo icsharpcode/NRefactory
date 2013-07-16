@@ -216,5 +216,19 @@ partial class TestClass {
 			Test<ParameterNotUsedIssue> (input, 0);
 		}
 
+		[Test]
+		public void SerializationConstructor ()
+		{
+			var input = @"using System;
+using System.Runtime.Serialization;
+class TestClass : ISerializable {
+	string text;
+	protected TestClass(SerializationInfo info, StreamingContext context)
+	{
+		this.text = info.GetString(""Text"");
+	}
+}";
+			TestWrongContext<ParameterNotUsedIssue> (input);
+		}
 	}
 }
