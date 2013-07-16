@@ -200,9 +200,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			if (memberKey == null)
 				return null;
 
-			if (member is IMember) {
-				newData.CompletionCategory = GetCompletionCategory (member.DeclaringTypeDefinition);
-			}
+			newData.CompletionCategory = GetCompletionCategory (member.DeclaringTypeDefinition);
+
 			List<ICompletionData> existingData;
 			data.TryGetValue (memberKey, out existingData);
 			if (existingData != null) {

@@ -1152,13 +1152,15 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 								if (!property.IsPublic) {
 									continue;
 								}
-								contextList.AddMember(property);
+								var data = contextList.AddMember(property);
+								data.DisplayFlags |= DisplayFlags.NamedArgument;
 							}
 							foreach (var field in initalizerResult.Item1.Type.GetFields ()) {       
 								if (!field.IsPublic) {
 									continue;
 								}
-								contextList.AddMember(field);
+								var data = contextList.AddMember(field);
+								data.DisplayFlags |= DisplayFlags.NamedArgument;
 							}
 							return contextList.Result;
 						}
@@ -1595,10 +1597,12 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				return;
 
 			foreach (var property in resolved.Type.GetProperties (p => p.Accessibility == Accessibility.Public)) {
-				wrapper.AddMember(property);
+				var data = wrapper.AddMember(property);
+				data.DisplayFlags |= DisplayFlags.NamedArgument;
 			}
 			foreach (var field in resolved.Type.GetFields (p => p.Accessibility == Accessibility.Public)) {
-				wrapper.AddMember(field);
+				var data = wrapper.AddMember(field);
+				data.DisplayFlags |= DisplayFlags.NamedArgument;
 			}
 			foreach (var constructor in resolved.Type.GetConstructors (p => p.Accessibility == Accessibility.Public)) {
 				foreach (var p in constructor.Parameters) {
