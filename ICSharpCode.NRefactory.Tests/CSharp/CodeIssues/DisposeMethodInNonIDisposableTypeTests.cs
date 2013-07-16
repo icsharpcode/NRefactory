@@ -114,6 +114,50 @@ class TestClass : Foo
 		}
 
 		[Test]
+		public void TestMultipleInterfacesDispose()
+		{
+			string input = @"
+using System;
+interface Foo
+{
+	void Dispose ();
+}
+interface Bar
+{
+	void Dispose ();
+}
+class TestClass : Foo, Bar
+{
+	void Foo.Dispose ()
+	{
+	}
+	void Bar.Dispose ()
+	{
+	}
+}
+";
+			Test<DisposeMethodInNonIDisposableTypeIssue>(input, 2, @"
+using System;
+interface Foo : IDisposable
+{
+}
+interface Bar
+{
+	void Dispose ();
+}
+class TestClass : Foo, Bar
+{
+	void IDisposable.Dispose ()
+	{
+	}
+	void Bar.Dispose ()
+	{
+	}
+}
+", 0);
+		}
+
+		[Test]
 		public void TestShortenedInterfaceDispose()
 		{
 			string input = @"
