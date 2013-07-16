@@ -66,9 +66,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		/// <summary>
 		/// This property is used to identify which actions are "siblings", ie which actions
-		/// are the same kind of fix. This is used when batch fixing issues that
-		/// have more than one possible action to choose from.
+		/// are the same kind of fix. This is used to group issues when batch fixing them.
 		/// </summary>
+		/// <remarks>
+		/// Although the type is <see cref="object"/>, there is a restriction: The instance
+		/// used must behave well as a key (for instance in a hash table). Additionaly, this
+		/// value must be independent of the specific <see cref="ICodeIssueProvider"/> instance
+		/// which created it. In other words two different instances of the same issue provider
+		/// implementation should use the same sibling keys for the same kinds of issues.
+		/// </remarks>
 		/// <value>The non-null sibling key if this type of action is batchable, null otherwise.</value>
 		public object SiblingKey {
 			get;
