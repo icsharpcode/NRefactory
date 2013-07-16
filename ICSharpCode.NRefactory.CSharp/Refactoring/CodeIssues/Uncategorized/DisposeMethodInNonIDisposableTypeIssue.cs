@@ -28,6 +28,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.CSharp.Resolver;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -78,10 +79,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
-				if (typeDeclaration.ClassType != ClassType.Class && typeDeclaration.ClassType != ClassType.Struct) {
-					//Disabled for interfaces, because the method could be
-					//explicitly implemented
-					//Also, does not apply to enums because enums have no methods
+				if (typeDeclaration.ClassType == ClassType.Enum) {
+					//enums have no methods
 					return;
 				}
 
@@ -130,10 +129,25 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				newTypeDeclaration.BaseTypes.Add(new SimpleType(interfaceName));
 
 				foreach (var method in DisposeMethods(newTypeDeclaration).ToList()) {
-					method.Modifiers &= ~Modifiers.Private;
-					method.Modifiers &= ~Modifiers.Protected;
-					method.Modifiers &= ~Modifiers.Internal;
-					method.Modifiers |= Modifiers.Public;
+					if (typeDeclaration.ClassType == ClassType.Interface) {
+						method.Remove();
+					}
+					else {
+						method.Modifiers &= ~Modifiers.Private;
+						method.Modifiers &= ~Modifiers.Protected;
+						method.Modifiers &= ~Modifiers.Internal;
+						method.Modifiers |= Modifiers.Public;
+					}
+				}
+
+				if (typeDeclaration.ClassType == ClassType.Interface) {
+					var disposeMember = ((MemberResolveResult)ctx.Resolve(methodDeclaration)).Member;
+					script.DoGlobalOperationOn(new List<IEntity>() { disposeMember }, (nCtx, nScript, nodes) => {
+						foreach (var node in nodes)
+						{
+
+						}
+					}, "Fix explicitly implemented members");
 				}
 
 				script.Replace(typeDeclaration, newTypeDeclaration);
