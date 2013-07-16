@@ -341,13 +341,18 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					foreach (var m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Field)) {
 						var f = m as IField;
 						if (f != null && (f.IsReadOnly || f.IsConst))
-						    continue;
-						if (lookup.IsAccessible (m, isProtectedAllowed))
-							contextList.AddMember(m);
+							continue;
+						if (lookup.IsAccessible (m, isProtectedAllowed)) {
+							var data = contextList.AddMember(m);
+							data.DisplayFlags |= DisplayFlags.NamedArgument;
+						}
 					}
+
 					foreach (IProperty m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Property)) {
-						if (m.CanSet && lookup.IsAccessible (m.Setter, isProtectedAllowed))
-							contextList.AddMember(m);
+						if (m.CanSet && lookup.IsAccessible(m.Setter, isProtectedAllowed)) {
+							var data = contextList.AddMember(m);
+							data.DisplayFlags |= DisplayFlags.NamedArgument;
+						}
 					}
 
 					if (prev != null && (prev is NamedExpression)) {
