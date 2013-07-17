@@ -2098,14 +2098,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					if (accessorContext != null) {
 						return accessorContext;
 					}
-					wrapper = new CompletionDataWrapper(this);
-					state = GetState();
-					if (currentType != null) {
-						AddTypesAndNamespaces(wrapper, state, null, null, m => false);
-						AddKeywords(wrapper, primitiveTypesKeywords);
-					}
-					AddKeywords(wrapper, typeLevelKeywords);
-					return wrapper.Result;
+					return null;
 				case "new":
 					int j = offset - 4;
 					//				string token = GetPreviousToken (ref j, true);
@@ -2147,7 +2140,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			}
 			return null;
 		}
-		
+
 		bool IsLineEmptyUpToEol()
 		{
 			var line = document.GetLineByNumber(location.Line);
