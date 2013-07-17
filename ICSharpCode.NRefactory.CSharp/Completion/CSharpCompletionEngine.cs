@@ -178,7 +178,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						break;
 					}
 				}
-				yield return factory.CreateImportCompletionData (type, useFullName);
+				yield return factory.CreateImportCompletionData (type, useFullName, false);
 			}
 		}
 
@@ -1754,7 +1754,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			return false;
 		}
 
-		void AddTypesAndNamespaces(CompletionDataWrapper wrapper, CSharpResolver state, AstNode node, Func<IType, IType> typePred = null, Predicate<IMember> memberPred = null, Action<ICompletionData, IType> callback = null)
+		void AddTypesAndNamespaces(CompletionDataWrapper wrapper, CSharpResolver state, AstNode node, Func<IType, IType> typePred = null, Predicate<IMember> memberPred = null, Action<ICompletionData, IType> callback = null, bool onlyAddConstructors = false)
 		{
 			var lookup = new MemberLookup(ctx.CurrentTypeDefinition, Compilation.MainAssembly);
 
@@ -1763,15 +1763,22 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					foreach (var nestedType in ct.GetNestedTypes ()) {
 						if (!lookup.IsAccessible (nestedType.GetDefinition (), true))
 							continue;
-						
+						if (onlyAddConstructors) {
+							if (!nestedType.GetConstructors().Any(c => lookup.IsAccessible(c, true)))
+								continue;
+						}
+
 						if (typePred == null) {
-							wrapper.AddType(nestedType, false, IsAttributeContext(node));
+							if (onlyAddConstructors)
+								wrapper.AddConstructors (nestedType, false, IsAttributeContext(node));
+							else 
+								wrapper.AddType(nestedType, false, IsAttributeContext(node));
 							continue;
 						}
 						
 						var type = typePred(nestedType);
 						if (type != null) {
-							var a2 = wrapper.AddType(type, false, IsAttributeContext(node));
+							var a2 = onlyAddConstructors ? wrapper.AddConstructors(type, false, IsAttributeContext(node)) : wrapper.AddType(type, false, IsAttributeContext(node));
 							if (a2 != null && callback != null) {
 								callback(a2, type);
 							}
@@ -1779,6 +1786,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						continue;
 					}
 				}
+
 				if (this.currentMember != null && !(node is AstType)) {
 					var def = ctx.CurrentTypeDefinition;
 					if (def == null && currentType != null)
@@ -1833,10 +1841,16 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					foreach (var type in u.Types) {
 						if (!lookup.IsAccessible(type, false))
 							continue;
-						
+
 						IType addType = typePred != null ? typePred(type) : type;
+						
+						if (onlyAddConstructors) {
+							if (!addType.GetConstructors().Any(c => lookup.IsAccessible(c, true)))
+								continue;
+						}
+
 						if (addType != null) {
-							var a = wrapper.AddType(addType, false, IsAttributeContext(node));
+							var a = onlyAddConstructors ? wrapper.AddConstructors(addType, false, IsAttributeContext(node)) : wrapper.AddType(addType, false, IsAttributeContext(node));
 							if (a != null && callback != null) {
 								callback(a, type);
 							}
@@ -1848,8 +1862,14 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					if (!lookup.IsAccessible(type, false))
 						continue;
 					IType addType = typePred != null ? typePred(type) : type;
+
+					if (onlyAddConstructors) {
+						if (!addType.GetConstructors().Any(c => lookup.IsAccessible(c, true)))
+							continue;
+					}
+
 					if (addType != null) {
-						var a2 = wrapper.AddType(addType, false);
+						var a2 = onlyAddConstructors ? wrapper.AddConstructors(addType, false, IsAttributeContext(node)) : wrapper.AddType(addType, false);
 						if (a2 != null && callback != null) {
 							callback(a2, type);
 						}
@@ -1873,7 +1893,13 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					var resolveResult = state.LookupSimpleNameOrTypeName(type.Name, type.TypeArguments, NameLookupMode.Expression);
 					if (resolveResult.Type.GetDefinition () == type)
 						continue;
-					wrapper.AddTypeImport(type, !resolveResult.IsError);
+
+					if (onlyAddConstructors) {
+						if (!type.GetConstructors().Any(c => lookup.IsAccessible(c, true)))
+							continue;
+					}
+
+					wrapper.AddTypeImport(type, !resolveResult.IsError, onlyAddConstructors);
 				}
 			}
 		}
@@ -2114,7 +2140,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						)
 						.FirstOrDefault();
 					
-					return CreateTypeCompletionData(hintType);
+					return CreateConstructorCompletionData(hintType);
 				case "yield":
 					var yieldDataList = new CompletionDataWrapper(this);
 					DefaultCompletionString = "return";
@@ -2179,7 +2205,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			}
 		}
 		
-		IEnumerable<ICompletionData> CreateTypeCompletionData(IType hintType)
+		IEnumerable<ICompletionData> CreateConstructorCompletionData(IType hintType)
 		{
 			var wrapper = new CompletionDataWrapper(this);
 			var state = GetState();
@@ -2260,7 +2286,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					}
 				}
 			} 
-			AddTypesAndNamespaces(wrapper, state, null, pred, m => false, typeCallback);
+			AddTypesAndNamespaces(wrapper, state, null, pred, m => false, typeCallback, true);
 			if (hintType == null || hintType == SpecialType.UnknownType) {
 				AddKeywords(wrapper, primitiveTypesKeywords.Where(k => k != "void"));
 			}
@@ -2690,7 +2716,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		IEnumerable<ICompletionData> CreateTypeList()
 		{
 			foreach (var cl in Compilation.RootNamespace.Types) {
-				yield return factory.CreateTypeCompletionData(cl, false, false);
+				yield return factory.CreateTypeCompletionData(cl, false, false, false);
 			}
 			
 			foreach (var ns in Compilation.RootNamespace.ChildNamespaces) {

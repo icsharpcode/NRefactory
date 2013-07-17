@@ -207,7 +207,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 				return new CompletionData (entity.Name);
 			}
 
-			public ICompletionData CreateTypeCompletionData (ICSharpCode.NRefactory.TypeSystem.IType type, bool fullName, bool isInAttributeContext)
+			public ICompletionData CreateTypeCompletionData (ICSharpCode.NRefactory.TypeSystem.IType type, bool fullName, bool isInAttributeContext, bool addForTypeCreation)
 			{
 				string name = fullName ? builder.ConvertType(type).ToString() : type.Name; 
 				if (isInAttributeContext && name.EndsWith("Attribute", StringComparison.Ordinal) && name.Length > "Attribute".Length) {
@@ -258,7 +258,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 				return new OverrideCompletionData (m.Name, declarationBegin);
 			}
 
-			public ICompletionData CreateImportCompletionData(IType type, bool useFullName)
+			public ICompletionData CreateImportCompletionData(IType type, bool useFullName, bool addForTypeCreation)
 			{
 				return new ImportCompletionData (type, useFullName);
 			}

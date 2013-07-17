@@ -96,7 +96,18 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 
 		Dictionary<string, ICompletionData> typeDisplayText = new Dictionary<string, ICompletionData> ();
 		Dictionary<IType, ICompletionData> addedTypes = new Dictionary<IType, ICompletionData> ();
+
+		public ICompletionData AddConstructors(IType type, bool showFullName, bool isInAttributeContext = false)
+		{
+			return InternalAddType(type, showFullName, isInAttributeContext, true);
+		}
+
 		public ICompletionData AddType(IType type, bool showFullName, bool isInAttributeContext = false)
+		{
+			return InternalAddType(type, showFullName, isInAttributeContext, false);
+		}
+
+		ICompletionData InternalAddType(IType type, bool showFullName, bool isInAttributeContext, bool addConstrurs)
 		{
 			if (type == null)
 				throw new ArgumentNullException("type");
@@ -124,7 +135,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				}
 			}
 			ICompletionData usedType;
-			var data = Factory.CreateTypeCompletionData(type, showFullName, isInAttributeContext);
+			var data = Factory.CreateTypeCompletionData(type, showFullName, isInAttributeContext, addConstrurs);
 			var text = data.DisplayText;
 			if (typeDisplayText.TryGetValue(text, out usedType)) {
 				usedType.AddOverload(data);
@@ -170,9 +181,9 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			result.Add (Factory.CreateVariableCompletionData (variable));
 		}
 
-		public void AddTypeImport(ITypeDefinition type, bool useFullName)
+		public void AddTypeImport(ITypeDefinition type, bool useFullName, bool addForTypeCreation)
 		{
-			result.Add(Factory.CreateImportCompletionData(type, useFullName));
+			result.Add(Factory.CreateImportCompletionData(type, useFullName, addForTypeCreation));
 		}
 
 		public ICompletionData AddMember (IMember member)
