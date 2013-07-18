@@ -414,8 +414,10 @@
     <Compile Include="CSharp\CodeIssues\DuplicateIfInIfChainIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseBlockInsteadColonIssueTests.cs" />
     <Compile Include="CSharp\AstTests.cs" />
+    <Compile Include="CSharp\CodeIssues\LockThisTests.cs" />
     <Compile Include="Analysis\SymbolCollectorTests.cs" />
     <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
+<<<<<<< HEAD
     <Compile Include="CSharp\CodeActions\ConvertToNewLineTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantOverridedMethodTests.cs" />
     <Compile Include="CSharp\CodeActions\CopyCommentsFromBaseTests.cs" />
@@ -428,6 +430,9 @@
     <Compile Include="CSharp\CodeIssues\ReplaceWithIsOperatorTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertToStaticTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\OverrideVirtualMethodsTest.cs" />
+=======
+    <Compile Include="CSharp\CodeActions\AutoLinqSumTests.cs" />
+>>>>>>> 126ab6808f44305f38872b4657d0f15420bb257e
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
@@ -448,6 +453,10 @@
       <Project>{3B2A5653-EC97-4001-BB9B-D90F1AF2C371}</Project>
       <Name>ICSharpCode.NRefactory</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\ICSharpCode.NRefactory.Cecil\ICSharpCode.NRefactory.Cecil.csproj">
+      <Project>{2B8F4F83-C2B3-4E84-A27B-8DEE1BE0E006}</Project>
+      <Name>ICSharpCode.NRefactory.Cecil</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

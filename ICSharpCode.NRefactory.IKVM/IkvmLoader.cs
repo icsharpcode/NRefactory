@@ -38,6 +38,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Utils;
 using IKVM.Reflection;
+using System.IO;
 
 namespace ICSharpCode.NRefactory.TypeSystem
 {
@@ -46,7 +47,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 	/// </summary>
 	/// <remarks>Instance methods are not thread-safe; you need to create multiple instances of CecilLoader
 	/// if you want to load multiple project contents in parallel.</remarks>
-	public class IkvmLoader 
+	public sealed class IkvmLoader : AssemblyLoader
 	{
 		/// <summary>
 		/// Version number of the ikvm loader.
@@ -108,19 +109,35 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 		#region Load Assembly From Disk
 
-		public IUnresolvedAssembly LoadAssemblyFile(string fileName)
+		public override IUnresolvedAssembly LoadAssemblyFile(string fileName)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException("fileName");
-		
+
 			using (var universe = new Universe (UniverseOptions.DisablePseudoCustomAttributeRetrieval | UniverseOptions.SupressReferenceTypeIdentityConversion)) {
 				universe.AssemblyResolve += delegate(object sender, IKVM.Reflection.ResolveEventArgs args) {
 					return universe.CreateMissingAssembly(args.Name);
 				};
+
 				return LoadAssembly (universe.LoadFile (fileName));
 			}
 		}
 
+		public IUnresolvedAssembly LoadAssemblyFile(string fileName, Stream stream)
+		{
+			if (fileName == null)
+				throw new ArgumentNullException("fileName");
+
+			using (var universe = new Universe (UniverseOptions.DisablePseudoCustomAttributeRetrieval | UniverseOptions.SupressReferenceTypeIdentityConversion)) {
+				universe.AssemblyResolve += delegate(object sender, IKVM.Reflection.ResolveEventArgs args) {
+					return universe.CreateMissingAssembly(args.Name);
+				};
+				using (RawModule module = universe.OpenRawModule (stream, fileName)) {
+					return LoadAssembly (universe.LoadAssembly (module));
+				}
+
+			}
+		}
 		#endregion
 
 		IkvmUnresolvedAssembly currentAssembly;
@@ -312,7 +329,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			name = ReflectionHelper.SplitTypeParameterCountFromReflectionName (name, out typeParameterCount);
 			name = interningProvider.Intern (name);
 			if (currentAssembly != null) {
-				IUnresolvedTypeDefinition c = currentAssembly.GetTypeDefinition (ns, name, typeParameterCount);
+				var c = currentAssembly.GetTypeDefinition (ns, name, typeParameterCount);
 				if (c != null)
 					return c;
 			}
@@ -331,8 +348,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			if (attributeProvider == null)
 				return false;
 			foreach (var a in attributeProvider) {
-				var type = a.AttributeType;
-				if (type.Name == "DynamicAttribute" && type.Namespace == "System.Runtime.CompilerServices") {
+				var declaringType = a.Constructor.DeclaringType;
+				if (declaringType.__Name == "DynamicAttribute" && declaringType.__Namespace == "System.Runtime.CompilerServices") {
 					if (a.ConstructorArguments.Count == 1) {
 						var values = a.ConstructorArguments[0].Value as CustomAttributeTypedArgument[];
 						if (values != null && typeIndex < values.Length && values[typeIndex].Value is bool) {
@@ -380,7 +397,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		static readonly IUnresolvedAttribute inAttribute = new DefaultUnresolvedAttribute(typeof(InAttribute).ToTypeReference());
 		static readonly IUnresolvedAttribute outAttribute = new DefaultUnresolvedAttribute(typeof(OutAttribute).ToTypeReference());
 
-		void AddAttributes(ParameterInfo parameter, DefaultUnresolvedParameter targetParameter)
+		void AddAttributes(ParameterInfo parameter, DefaultUnresolvedParameter targetParameter, IEnumerable<CustomAttributeData> customAttributes)
 		{
 			if (!targetParameter.IsOut) {
 				if (parameter.IsIn)
@@ -388,7 +405,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				if (parameter.IsOut)
 					targetParameter.Attributes.Add(outAttribute);
 			}
-			AddCustomAttributes(parameter.CustomAttributes, targetParameter.Attributes);
+			AddCustomAttributes(customAttributes, targetParameter.Attributes);
 
 			FieldMarshal marshalInfo;
 			if (parameter.__TryGetFieldMarshal (out marshalInfo)) {
@@ -408,22 +425,22 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 		static bool HasAnyAttributes(MethodInfo methodDefinition)
 		{
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.PinvokeImpl))
+			if ((methodDefinition.Attributes & MethodAttributes.PinvokeImpl) != 0)
 				return true;
 
-			if (methodDefinition.MethodImplementationFlags.HasFlag (MethodImplAttributes.CodeTypeMask))
+			if ((methodDefinition.MethodImplementationFlags & MethodImplAttributes.CodeTypeMask) != 0)
 				return true;
-			if (methodDefinition.ReturnParameter.Attributes.HasFlag (ParameterAttributes.HasFieldMarshal))
+			if ((methodDefinition.ReturnParameter.Attributes & ParameterAttributes.HasFieldMarshal) != 0)
 				return true;
 			return methodDefinition.CustomAttributes.Any ();
 		}
 
 		static bool HasAnyAttributes(ConstructorInfo methodDefinition)
 		{
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.PinvokeImpl))
+			if ((methodDefinition.Attributes & MethodAttributes.PinvokeImpl) != 0)
 				return true;
 
-			if (methodDefinition.MethodImplementationFlags.HasFlag (MethodImplAttributes.CodeTypeMask))
+			if ((methodDefinition.MethodImplementationFlags & MethodImplAttributes.CodeTypeMask) != 0)
 				return true;
 			return methodDefinition.CustomAttributes.Any ();
 		}
@@ -433,7 +450,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var implAttributes = methodDefinition.MethodImplementationFlags;
 
 			#region DllImportAttribute
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.PinvokeImpl)) {
+			if ((methodDefinition.Attributes & MethodAttributes.PinvokeImpl) != 0) {
 
 				ImplMapFlags flags;
 				string importName;
@@ -443,9 +460,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					dllImport.PositionalArguments.Add(CreateSimpleConstantValue(KnownTypeReference.String, importScope));
 
 					
-					if (flags.HasFlag (ImplMapFlags.BestFitOff))
+					if ((flags & ImplMapFlags.BestFitOff) != 0)
 						dllImport.AddNamedFieldArgument("BestFitMapping", falseValue);
-					if (flags.HasFlag (ImplMapFlags.BestFitOn))
+					if ((flags & ImplMapFlags.BestFitOn) != 0)
 						dllImport.AddNamedFieldArgument("BestFitMapping", trueValue);
 
 					CallingConvention callingConvention;
@@ -472,7 +489,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 						default:
 							throw new NotSupportedException("unknown calling convention");
 					}
-					if (!flags.HasFlag (ImplMapFlags.CallConvWinapi))
+					if (callingConvention != CallingConvention.Winapi)
 						dllImport.AddNamedFieldArgument("CallingConvention", CreateSimpleConstantValue(callingConventionTypeRef, (int)callingConvention));
 
 					CharSet charSet = CharSet.None;
@@ -493,7 +510,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					if (!string.IsNullOrEmpty(importName) && importName != methodDefinition.Name)
 						dllImport.AddNamedFieldArgument("EntryPoint", CreateSimpleConstantValue(KnownTypeReference.String, importName));
 
-					if (flags.HasFlag (ImplMapFlags.NoMangle))
+					if ((flags & ImplMapFlags.NoMangle) != 0)
 						dllImport.AddNamedFieldArgument("ExactSpelling", trueValue);
 
 					if ((implAttributes & MethodImplAttributes.PreserveSig) == MethodImplAttributes.PreserveSig)
@@ -501,12 +518,12 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					else
 						dllImport.AddNamedFieldArgument("PreserveSig", falseValue);
 
-					if (flags.HasFlag (ImplMapFlags.SupportsLastError))
+					if ((flags & ImplMapFlags.SupportsLastError) != 0)
 						dllImport.AddNamedFieldArgument("SetLastError", trueValue);
 
-					if (flags.HasFlag (ImplMapFlags.CharMapErrorOff))
+					if ((flags & ImplMapFlags.CharMapErrorOff) != 0)
 						dllImport.AddNamedFieldArgument("ThrowOnUnmappableChar", falseValue);
-					if (flags.HasFlag (ImplMapFlags.CharMapErrorOn))
+					if ((flags & ImplMapFlags.CharMapErrorOn) != 0)
 						dllImport.AddNamedFieldArgument("ThrowOnUnmappableChar", trueValue);
 
 					attributes.Add(interningProvider.Intern(dllImport));
@@ -532,7 +549,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var customAttributes = methodDefinition.CustomAttributes;
 			AddCustomAttributes (customAttributes, attributes);
 
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.HasSecurity)) {
+			if ((methodDefinition.Attributes & MethodAttributes.HasSecurity) != 0) {
 				AddSecurityAttributes(CustomAttributeData.__GetDeclarativeSecurity (methodDefinition), attributes);
 			}
 
@@ -565,7 +582,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			AddCustomAttributes(methodDefinition.CustomAttributes, attributes);
 
-			if (methodDefinition.Attributes.HasFlag (MethodAttributes.HasSecurity)) {
+			if ((methodDefinition.Attributes & MethodAttributes.HasSecurity) != 0) {
 				AddSecurityAttributes(CustomAttributeData.__GetDeclarativeSecurity (methodDefinition), attributes);
 			}
 		}
@@ -635,7 +652,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			AddCustomAttributes(typeDefinition.CustomAttributes, targetEntity.Attributes);
 
-			if (typeDefinition.Attributes.HasFlag (TypeAttributes.HasSecurity)) {
+			if ((typeDefinition.Attributes & TypeAttributes.HasSecurity) != 0) {
 				AddSecurityAttributes(CustomAttributeData.__GetDeclarativeSecurity(typeDefinition), targetEntity.Attributes);
 			}
 		}
@@ -729,11 +746,11 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		void AddCustomAttributes(IEnumerable<CustomAttributeData> attributes, ICollection<IUnresolvedAttribute> targetCollection)
 		{
 			foreach (var cecilAttribute in attributes) {
-				var type = cecilAttribute.AttributeType;
-				if (type.Namespace == "System.Runtime.CompilerServices") {
-					if (type.Name == "DynamicAttribute" || type.Name == "ExtensionAttribute" || type.Name == "DecimalConstantAttribute")
+				var type = cecilAttribute.Constructor.DeclaringType;
+				if (type.__Namespace == "System.Runtime.CompilerServices") {
+					if (type.__Name == "DynamicAttribute" || type.__Name == "ExtensionAttribute" || type.__Name == "DecimalConstantAttribute")
 						continue;
-				} else if (type.Name == "ParamArrayAttribute" && type.Namespace == "System") {
+				} else if (type.__Name == "ParamArrayAttribute" && type.__Namespace == "System") {
 					continue;
 				}
 				targetCollection.Add(ReadAttribute(cecilAttribute));
@@ -756,534 +773,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				}
 				ctorParameterTypes = interningProvider.InternList(ctorParameterTypes);
 			}
-			return interningProvider.Intern(new CecilUnresolvedAttribute(attributeType, ctorParameterTypes, attribute.__GetBlob ()));
-		}
-		#endregion
-
-		#region CecilUnresolvedAttribute
-		static int GetBlobHashCode(byte[] blob)
-		{
-			unchecked {
-				int hash = 0;
-				foreach (byte b in blob) {
-					hash *= 257;
-					hash += b;
-				}
-				return hash;
-			}
-		}
-
-		static bool BlobEquals(byte[] a, byte[] b)
-		{
-			if (a.Length != b.Length)
-				return false;
-			for (int i = 0; i < a.Length; i++) {
-				if (a[i] != b[i])
-					return false;
-			}
-			return true;
-		}
-
-		[Serializable, FastSerializerVersion(ikvmLoaderVersion)]
-		sealed class CecilUnresolvedAttribute : IUnresolvedAttribute, ISupportsInterning
-		{
-			internal readonly ITypeReference attributeType;
-			internal readonly IList<ITypeReference> ctorParameterTypes;
-			internal readonly byte[] blob;
-
-			public CecilUnresolvedAttribute(ITypeReference attributeType, IList<ITypeReference> ctorParameterTypes, byte[] blob)
-			{
-				Debug.Assert(attributeType != null);
-				Debug.Assert(ctorParameterTypes != null);
-				Debug.Assert(blob != null);
-				this.attributeType = attributeType;
-				this.ctorParameterTypes = ctorParameterTypes;
-				this.blob = blob;
-			}
-
-			DomRegion IUnresolvedAttribute.Region {
-				get { return DomRegion.Empty; }
-			}
-
-			IAttribute IUnresolvedAttribute.CreateResolvedAttribute(ITypeResolveContext context)
-			{
-				if (context.CurrentAssembly == null)
-					throw new InvalidOperationException("Cannot resolve CecilUnresolvedAttribute without a parent assembly");
-				return new CecilResolvedAttribute(context, this);
-			}
-
-			int ISupportsInterning.GetHashCodeForInterning()
-			{
-				return attributeType.GetHashCode() ^ ctorParameterTypes.GetHashCode() ^ GetBlobHashCode(blob);
-			}
-
-			bool ISupportsInterning.EqualsForInterning(ISupportsInterning other)
-			{
-				var o = other as CecilUnresolvedAttribute;
-				return o != null && attributeType == o.attributeType && ctorParameterTypes == o.ctorParameterTypes
-					&& BlobEquals(blob, o.blob);
-			}
-		}
-		#endregion
-
-		#region CecilResolvedAttribute
-		sealed class CecilResolvedAttribute : IAttribute
-		{
-			readonly ITypeResolveContext context;
-			readonly byte[] blob;
-			readonly IList<ITypeReference> ctorParameterTypes;
-			readonly IType attributeType;
-
-			IMethod constructor;
-			volatile bool constructorResolved;
-
-			IList<ResolveResult> positionalArguments;
-			IList<KeyValuePair<IMember, ResolveResult>> namedArguments;
-
-			public CecilResolvedAttribute(ITypeResolveContext context, CecilUnresolvedAttribute unresolved)
-			{
-				this.context = context;
-				this.blob = unresolved.blob;
-				this.ctorParameterTypes = unresolved.ctorParameterTypes;
-				this.attributeType = unresolved.attributeType.Resolve(context);
-			}
-
-			public CecilResolvedAttribute(ITypeResolveContext context, IType attributeType)
-			{
-				this.context = context;
-				this.attributeType = attributeType;
-				this.ctorParameterTypes = EmptyList<ITypeReference>.Instance;
-			}
-
-			public DomRegion Region {
-				get { return DomRegion.Empty; }
-			}
-
-			public IType AttributeType {
-				get { return attributeType; }
-			}
-
-			public IMethod Constructor {
-				get {
-					if (!constructorResolved) {
-						constructor = ResolveConstructor();
-						constructorResolved = true;
-					}
-					return constructor;
-				}
-			}
-
-			IMethod ResolveConstructor()
-			{
-				var parameterTypes = ctorParameterTypes.Resolve(context);
-				foreach (var ctor in attributeType.GetConstructors(m => m.Parameters.Count == parameterTypes.Count)) {
-					bool ok = true;
-					for (int i = 0; i < parameterTypes.Count; i++) {
-						if (!ctor.Parameters[i].Type.Equals(parameterTypes[i])) {
-							ok = false;
-							break;
-						}
-					}
-					if (ok)
-						return ctor;
-				}
-				return null;
-			}
-
-			public IList<ResolveResult> PositionalArguments {
-				get {
-					var result = LazyInit.VolatileRead(ref positionalArguments);
-					if (result != null) {
-						return result;
-					}
-					DecodeBlob();
-					return positionalArguments;
-				}
-			}
-
-			public IList<KeyValuePair<IMember, ResolveResult>> NamedArguments {
-				get {
-					var result = LazyInit.VolatileRead(ref namedArguments);
-					if (result != null) {
-						return result;
-					}
-					DecodeBlob();
-					return namedArguments;
-				}
-			}
-
-			public override string ToString()
-			{
-				return "[" + attributeType + "(...)]";
-			}
-
-			void DecodeBlob()
-			{
-				var newPositionalArguments = new List<ResolveResult>();
-				var newNamedArguments = new List<KeyValuePair<IMember, ResolveResult>>();
-				DecodeBlob(newPositionalArguments, newNamedArguments);
-				Interlocked.CompareExchange(ref positionalArguments, newPositionalArguments, null);
-				Interlocked.CompareExchange(ref namedArguments, newNamedArguments, null);
-			}
-
-			void DecodeBlob(ICollection<ResolveResult> newPositionalArguments, ICollection<KeyValuePair<IMember, ResolveResult>> newNamedArguments)
-			{
-				if (blob == null)
-					return;
-				var reader = new BlobReader(blob, context.CurrentAssembly);
-				if (reader.ReadUInt16() != 0x0001) {
-					Debug.WriteLine("Unknown blob prolog");
-					return;
-				}
-				foreach (var ctorParameter in ctorParameterTypes.Resolve(context)) {
-					ResolveResult arg = reader.ReadFixedArg(ctorParameter);
-					newPositionalArguments.Add(arg);
-					if (arg.IsError) {
-						// After a decoding error, we must stop decoding the blob because
-						// we might have read too few bytes due to the error.
-						// Just fill up the remaining arguments with ErrorResolveResult:
-						while (newPositionalArguments.Count < ctorParameterTypes.Count)
-							newPositionalArguments.Add(ErrorResolveResult.UnknownError);
-						return;
-					}
-				}
-				ushort numNamed = reader.ReadUInt16();
-				for (int i = 0; i < numNamed; i++) {
-					var namedArg = reader.ReadNamedArg(attributeType);
-					if (namedArg.Key != null)
-						newNamedArguments.Add(namedArg);
-				}
-			}
-		}
-		#endregion
-
-		#region class BlobReader
-		class BlobReader
-		{
-			byte[] buffer;
-			int position;
-			readonly IAssembly currentResolvedAssembly;
-
-			public BlobReader(byte[] buffer, IAssembly currentResolvedAssembly)
-			{
-				if (buffer == null)
-					throw new ArgumentNullException("buffer");
-				this.buffer = buffer;
-				this.currentResolvedAssembly = currentResolvedAssembly;
-			}
-
-			public byte ReadByte()
-			{
-				return buffer[position++];
-			}
-
-			public sbyte ReadSByte()
-			{
-				unchecked {
-					return(sbyte) ReadByte();
-				}
-			}
-
-			public byte[] ReadBytes(int length)
-			{
-				var bytes = new byte[length];
-				Buffer.BlockCopy(buffer, position, bytes, 0, length);
-				position += length;
-				return bytes;
-			}
-
-			public ushort ReadUInt16()
-			{
-				unchecked {
-					ushort value =(ushort)(buffer[position]
-					                       |(buffer[position + 1] << 8));
-					position += 2;
-					return value;
-				}
-			}
-
-			public short ReadInt16()
-			{
-				unchecked {
-					return(short) ReadUInt16();
-				}
-			}
-
-			public uint ReadUInt32()
-			{
-				unchecked {
-					uint value =(uint)(buffer[position]
-					                   |(buffer[position + 1] << 8)
-					                   |(buffer[position + 2] << 16)
-					                   |(buffer[position + 3] << 24));
-					position += 4;
-					return value;
-				}
-			}
-
-			public int ReadInt32()
-			{
-				unchecked {
-					return(int) ReadUInt32();
-				}
-			}
-
-			public ulong ReadUInt64()
-			{
-				unchecked {
-					uint low = ReadUInt32();
-					uint high = ReadUInt32();
-
-					return(((ulong) high) << 32) | low;
-				}
-			}
-
-			public long ReadInt64()
-			{
-				unchecked {
-					return(long) ReadUInt64();
-				}
-			}
-
-			public uint ReadCompressedUInt32()
-			{
-				unchecked {
-					byte first = ReadByte();
-					if((first & 0x80) == 0)
-						return first;
-
-					if((first & 0x40) == 0)
-						return((uint)(first & ~0x80) << 8)
-							| ReadByte();
-
-					return((uint)(first & ~0xc0) << 24)
-						|(uint) ReadByte() << 16
-							|(uint) ReadByte() << 8
-							| ReadByte();
-				}
-			}
-
-			public float ReadSingle()
-			{
-				unchecked {
-					if(!BitConverter.IsLittleEndian) {
-						var bytes = ReadBytes(4);
-						Array.Reverse(bytes);
-						return BitConverter.ToSingle(bytes, 0);
-					}
-
-					float value = BitConverter.ToSingle(buffer, position);
-					position += 4;
-					return value;
-				}
-			}
-
-			public double ReadDouble()
-			{
-				unchecked {
-					if(!BitConverter.IsLittleEndian) {
-						var bytes = ReadBytes(8);
-						Array.Reverse(bytes);
-						return BitConverter.ToDouble(bytes, 0);
-					}
-
-					double value = BitConverter.ToDouble(buffer, position);
-					position += 8;
-					return value;
-				}
-			}
-
-			public ResolveResult ReadFixedArg(IType argType)
-			{
-				if (argType.Kind == TypeKind.Array) {
-					if (((ArrayType)argType).Dimensions != 1) {
-						// Only single-dimensional arrays are supported
-						return ErrorResolveResult.UnknownError;
-					}
-					IType elementType = ((ArrayType)argType).ElementType;
-					uint numElem = ReadUInt32();
-					if (numElem == 0xffffffff) {
-						// null reference
-						return new ConstantResolveResult(argType, null);
-					} else {
-						ResolveResult[] elements = new ResolveResult[numElem];
-						for (int i = 0; i < elements.Length; i++) {
-							elements[i] = ReadElem(elementType);
-							// Stop decoding when encountering an error:
-							if (elements[i].IsError)
-								return ErrorResolveResult.UnknownError;
-						}
-						IType int32 = currentResolvedAssembly.Compilation.FindType(KnownTypeCode.Int32);
-						ResolveResult[] sizeArgs = { new ConstantResolveResult(int32, elements.Length) };
-						return new ArrayCreateResolveResult(argType, sizeArgs, elements);
-					}
-				} else {
-					return ReadElem(argType);
-				}
-			}
-
-			public ResolveResult ReadElem(IType elementType)
-			{
-				ITypeDefinition underlyingType;
-				if (elementType.Kind == TypeKind.Enum) {
-					underlyingType = elementType.GetDefinition ().EnumUnderlyingType.GetDefinition ();
-				} else {
-					underlyingType = elementType.GetDefinition ();
-				}
-				if (underlyingType == null)
-					return ErrorResolveResult.UnknownError;
-				KnownTypeCode typeCode = underlyingType.KnownTypeCode;
-				if (typeCode == KnownTypeCode.Object) {
-					// boxed value type
-					IType boxedTyped = ReadCustomAttributeFieldOrPropType ();
-					ResolveResult elem = ReadElem (boxedTyped);
-					if (elem.IsCompileTimeConstant && elem.ConstantValue == null)
-						return new ConstantResolveResult (elementType, null);
-					return new ConversionResolveResult (elementType, elem, Conversion.BoxingConversion);
-				}
-				if (typeCode == KnownTypeCode.Type)
-					return new TypeOfResolveResult (underlyingType, ReadType ());
-				return new ConstantResolveResult (elementType, ReadElemValue (typeCode));
-			}
-
-			object ReadElemValue(KnownTypeCode typeCode)
-			{
-				switch (typeCode) {
-					case KnownTypeCode.Boolean:
-					return ReadByte() != 0;
-					case KnownTypeCode.Char:
-					return (char)ReadUInt16();
-					case KnownTypeCode.SByte:
-					return ReadSByte();
-					case KnownTypeCode.Byte:
-					return ReadByte();
-					case KnownTypeCode.Int16:
-					return ReadInt16();
-					case KnownTypeCode.UInt16:
-					return ReadUInt16();
-					case KnownTypeCode.Int32:
-					return ReadInt32();
-					case KnownTypeCode.UInt32:
-					return ReadUInt32();
-					case KnownTypeCode.Int64:
-					return ReadInt64();
-					case KnownTypeCode.UInt64:
-					return ReadUInt64();
-					case KnownTypeCode.Single:
-					return ReadSingle();
-					case KnownTypeCode.Double:
-					return ReadDouble();
-					case KnownTypeCode.String:
-					return ReadSerString();
-					default:
-					throw new NotSupportedException();
-				}
-			}
-
-			public string ReadSerString ()
-			{
-				if (buffer [position] == 0xff) {
-					position++;
-					return null;
-				}
-
-				int length = (int) ReadCompressedUInt32();
-				if (length == 0)
-					return string.Empty;
-
-				string @string = System.Text.Encoding.UTF8.GetString(
-					buffer, position,
-					buffer [position + length - 1] == 0 ? length - 1 : length);
-
-				position += length;
-				return @string;
-			}
-
-			public KeyValuePair<IMember, ResolveResult> ReadNamedArg(IType attributeType)
-			{
-				SymbolKind memberType;
-				var b = ReadByte();
-				switch (b) {
-					case 0x53:
-					memberType = SymbolKind.Field;
-					break;
-					case 0x54:
-					memberType = SymbolKind.Property;
-					break;
-					default:
-					throw new NotSupportedException(string.Format("Custom member type 0x{0:x} is not supported.", b));
-				}
-				IType type = ReadCustomAttributeFieldOrPropType();
-				string name = ReadSerString();
-				ResolveResult val = ReadFixedArg(type);
-				IMember member = null;
-				// Use last matching member, as GetMembers() returns members from base types first.
-				foreach (IMember m in attributeType.GetMembers(m => m.SymbolKind == memberType && m.Name == name)) {
-					if (m.ReturnType.Equals(type))
-						member = m;
-				}
-				return new KeyValuePair<IMember, ResolveResult>(member, val);
-			}
-
-			IType ReadCustomAttributeFieldOrPropType()
-			{
-				ICompilation compilation = currentResolvedAssembly.Compilation;
-				var b = ReadByte();
-				switch (b) {
-					case 0x02:
-					return compilation.FindType(KnownTypeCode.Boolean);
-					case 0x03:
-					return compilation.FindType(KnownTypeCode.Char);
-					case 0x04:
-					return compilation.FindType(KnownTypeCode.SByte);
-					case 0x05:
-					return compilation.FindType(KnownTypeCode.Byte);
-					case 0x06:
-					return compilation.FindType(KnownTypeCode.Int16);
-					case 0x07:
-					return compilation.FindType(KnownTypeCode.UInt16);
-					case 0x08:
-					return compilation.FindType(KnownTypeCode.Int32);
-					case 0x09:
-					return compilation.FindType(KnownTypeCode.UInt32);
-					case 0x0a:
-					return compilation.FindType(KnownTypeCode.Int64);
-					case 0x0b:
-					return compilation.FindType(KnownTypeCode.UInt64);
-					case 0x0c:
-					return compilation.FindType(KnownTypeCode.Single);
-					case 0x0d:
-					return compilation.FindType(KnownTypeCode.Double);
-					case 0x0e:
-					return compilation.FindType(KnownTypeCode.String);
-					case 0x1d:
-					return new ArrayType(compilation, ReadCustomAttributeFieldOrPropType());
-					case 0x50:
-					return compilation.FindType(KnownTypeCode.Type);
-					case 0x51: // boxed value type
-					return compilation.FindType(KnownTypeCode.Object);
-					case 0x55: // enum
-					return ReadType();
-					default:
-					throw new NotSupportedException(string.Format("Custom attribute type 0x{0:x} is not supported.", b));
-				}
-			}
-
-			IType ReadType()
-			{
-				string typeName = ReadSerString ();
-				ITypeReference typeReference = ReflectionHelper.ParseReflectionName (typeName);
-				IType typeInCurrentAssembly = typeReference.Resolve (new SimpleTypeResolveContext (currentResolvedAssembly));
-				if (typeInCurrentAssembly.Kind != TypeKind.Unknown)
-					return typeInCurrentAssembly;
-
-				// look for the type in mscorlib
-				ITypeDefinition systemObject = currentResolvedAssembly.Compilation.FindType (KnownTypeCode.Object).GetDefinition ();
-				if (systemObject != null)
-					return typeReference.Resolve (new SimpleTypeResolveContext (systemObject.ParentAssembly));
-				// couldn't find corlib - return the unknown IType for the current assembly
-				return typeInCurrentAssembly;
-			}
+			return interningProvider.Intern(new UnresolvedAttributeBlob(attributeType, ctorParameterTypes, attribute.__GetBlob ()));
 		}
 		#endregion
 
@@ -1316,121 +806,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			AddCustomAttributes (securityAttributes, targetCollection);
 		}
 
-		[Serializable, FastSerializerVersion(ikvmLoaderVersion)]
-		sealed class UnresolvedSecurityDeclaration : ISupportsInterning
-		{
-			readonly IConstantValue securityAction;
-			readonly byte[] blob;
-
-			public UnresolvedSecurityDeclaration(IConstantValue securityAction, byte[] blob)
-			{
-				Debug.Assert(securityAction != null);
-				Debug.Assert(blob != null);
-				this.securityAction = securityAction;
-				this.blob = blob;
-			}
-
-			public IList<IAttribute> Resolve(IAssembly currentAssembly)
-			{
-				// TODO: make this a per-assembly cache
-//				CacheManager cache = currentAssembly.Compilation.CacheManager;
-//				IList<IAttribute> result = (IList<IAttribute>)cache.GetShared(this);
-//				if (result != null)
-//					return result;
-
-				var context = new SimpleTypeResolveContext(currentAssembly);
-				var reader = new BlobReader(blob, currentAssembly);
-				if (reader.ReadByte() != '.') {
-					// should not use UnresolvedSecurityDeclaration for XML secdecls
-					throw new InvalidOperationException();
-				}
-				var securityActionRR = securityAction.Resolve(context);
-				uint attributeCount = reader.ReadCompressedUInt32();
-				var attributes = new IAttribute[attributeCount];
-				try {
-					ReadSecurityBlob(reader, attributes, context, securityActionRR);
-				} catch (NotSupportedException ex) {
-					// ignore invalid blobs
-					Debug.WriteLine(ex.ToString());
-				}
-				for (int i = 0; i < attributes.Length; i++) {
-					if (attributes[i] == null)
-						attributes[i] = new CecilResolvedAttribute(context, SpecialType.UnknownType);
-				}
-				return attributes;
-//				return (IList<IAttribute>)cache.GetOrAddShared(this, attributes);
-			}
-
-			void ReadSecurityBlob(BlobReader reader, IAttribute[] attributes, ITypeResolveContext context, ResolveResult securityActionRR)
-			{
-				for (int i = 0; i < attributes.Length; i++) {
-					string attributeTypeName = reader.ReadSerString();
-					ITypeReference attributeTypeRef = ReflectionHelper.ParseReflectionName(attributeTypeName);
-					IType attributeType = attributeTypeRef.Resolve(context);
-
-					reader.ReadCompressedUInt32(); // ??
-					// The specification seems to be incorrect here, so I'm using the logic from Cecil instead.
-					uint numNamed = reader.ReadCompressedUInt32();
-
-					var namedArgs = new List<KeyValuePair<IMember, ResolveResult>>((int)numNamed);
-					for (uint j = 0; j < numNamed; j++) {
-						var namedArg = reader.ReadNamedArg(attributeType);
-						if (namedArg.Key != null)
-							namedArgs.Add(namedArg);
-
-					}
-					attributes[i] = new DefaultAttribute(
-						attributeType,
-						positionalArguments: new ResolveResult[] { securityActionRR },
-					namedArguments: namedArgs);
-				}
-			}
-
-			int ISupportsInterning.GetHashCodeForInterning()
-			{
-				return securityAction.GetHashCode() ^ GetBlobHashCode(blob);
-			}
-
-			bool ISupportsInterning.EqualsForInterning(ISupportsInterning other)
-			{
-				var o = other as UnresolvedSecurityDeclaration;
-				return o != null && securityAction == o.securityAction && BlobEquals(blob, o.blob);
-			}
-		}
-
-		[Serializable, FastSerializerVersion(ikvmLoaderVersion)]
-		sealed class UnresolvedSecurityAttribute : IUnresolvedAttribute, ISupportsInterning
-		{
-			readonly UnresolvedSecurityDeclaration secDecl;
-			readonly int index;
-
-			public UnresolvedSecurityAttribute(UnresolvedSecurityDeclaration secDecl, int index)
-			{
-				Debug.Assert(secDecl != null);
-				this.secDecl = secDecl;
-				this.index = index;
-			}
-
-			DomRegion IUnresolvedAttribute.Region {
-				get { return DomRegion.Empty; }
-			}
-
-			IAttribute IUnresolvedAttribute.CreateResolvedAttribute(ITypeResolveContext context)
-			{
-				return secDecl.Resolve(context.CurrentAssembly)[index];
-			}
-
-			int ISupportsInterning.GetHashCodeForInterning()
-			{
-				return index ^ secDecl.GetHashCode();
-			}
-
-			bool ISupportsInterning.EqualsForInterning(ISupportsInterning other)
-			{
-				var attr = other as UnresolvedSecurityAttribute;
-				return attr != null && index == attr.index && secDecl == attr.secDecl;
-			}
-		}
 		#endregion
 		#endregion
 
@@ -1585,8 +960,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		static bool IsModule(IKVM.Reflection.Type type)
 		{
 			foreach (var att in type.CustomAttributes) {
-				if (att.AttributeType.FullName == "Microsoft.VisualBasic.CompilerServices.StandardModuleAttribute"
-				    || att.AttributeType.FullName == "System.Runtime.CompilerServices.CompilerGlobalScopeAttribute")
+				var dt = att.Constructor.DeclaringType;
+				if (dt.__Name == "StandardModuleAttribute" && dt.__Namespace == "Microsoft.VisualBasic.CompilerServices" 
+				    || dt.__Name == "CompilerGlobalScopeAttribute" && dt.__Namespace == "System.Runtime.CompilerServices")
 				{
 					return true;
 				}
@@ -1622,7 +998,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			string defaultMemberName = null;
 			var defaultMemberAttribute = typeDefinition.CustomAttributes.FirstOrDefault(
-				a => a.AttributeType.FullName == typeof(System.Reflection.DefaultMemberAttribute).FullName);
+				a => {
+					var dt = a.Constructor.DeclaringType;
+					return dt.__Name == "DefaultMemberAttribute" && dt.Namespace == "System.Reflection";
+				});
 			if (defaultMemberAttribute != null && defaultMemberAttribute.ConstructorArguments.Count == 1) {
 				defaultMemberName = defaultMemberAttribute.ConstructorArguments[0].Value as string;
 			}
@@ -1678,6 +1057,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			return ReadMethod((MethodInfo)method, parentType, methodType, null);
 		}
 
+		const MethodAttributes nonBodyAttr = MethodAttributes.Abstract | MethodAttributes.PinvokeImpl;
+		const MethodImplAttributes nonBodyImplAttr = MethodImplAttributes.InternalCall | MethodImplAttributes.Native | MethodImplAttributes.Unmanaged;
+
 		IUnresolvedMethod ReadMethod(MethodInfo method, IUnresolvedTypeDefinition parentType, SymbolKind methodType, IUnresolvedMember accessorOwner)
 		{
 			if (method == null)
@@ -1685,19 +1067,21 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var m = new DefaultUnresolvedMethod(parentType, method.Name);
 			m.SymbolKind = methodType;
 			m.AccessorOwner = accessorOwner;
-			m.HasBody = !method.DeclaringType.IsInterface && (method.GetMethodImplementationFlags () & MethodImplAttributes.CodeTypeMask) == MethodImplAttributes.IL;
-			var genericArguments = method.GetGenericArguments ();
-			if (genericArguments != null) {
-				for (int i = 0; i < genericArguments.Length; i++) {
-					if (genericArguments[i].GenericParameterPosition != i)
-						throw new InvalidOperationException("g.Position != i");
-					m.TypeParameters.Add(new DefaultUnresolvedTypeParameter(
-						SymbolKind.Method, i, genericArguments[i].Name));
-				}
-				for (int i = 0; i < genericArguments.Length; i++) {
-					var tp = (DefaultUnresolvedTypeParameter)m.TypeParameters[i];
-					AddConstraints(tp, genericArguments[i]);
-					tp.ApplyInterningProvider(interningProvider);
+			m.HasBody = (method.Attributes & nonBodyAttr) == 0 && (method.GetMethodImplementationFlags () & nonBodyImplAttr) == 0;
+			if (method.IsGenericMethodDefinition) {
+				var genericArguments = method.GetGenericArguments ();
+				if (genericArguments != null) {
+					for (int i = 0; i < genericArguments.Length; i++) {
+						if (genericArguments[i].GenericParameterPosition != i)
+							throw new InvalidOperationException("g.Position != i");
+						m.TypeParameters.Add(new DefaultUnresolvedTypeParameter(
+							SymbolKind.Method, i, genericArguments[i].Name));
+					}
+					for (int i = 0; i < genericArguments.Length; i++) {
+						var tp = (DefaultUnresolvedTypeParameter)m.TypeParameters[i];
+						AddConstraints(tp, genericArguments[i]);
+						tp.ApplyInterningProvider(interningProvider);
+					}
 				}
 			}
 
@@ -1737,7 +1121,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		static bool HasExtensionAttribute(MemberInfo provider)
 		{
 			foreach (var attr in provider.CustomAttributes) {
-				if (attr.AttributeType.Name == "ExtensionAttribute" && attr.AttributeType.Namespace == "System.Runtime.CompilerServices")
+				var attributeType = attr.Constructor.DeclaringType;
+				if (attributeType.__Name == "ExtensionAttribute" && attributeType.__Namespace == "System.Runtime.CompilerServices")
 					return true;
 			}
 			return false;
@@ -1780,14 +1165,14 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				m.Accessibility = GetAccessibility(method.Attributes);
 				if (method.IsAbstract) {
 					m.IsAbstract = true;
-					m.IsOverride = !method.Attributes.HasFlag (MethodAttributes.NewSlot);
+					m.IsOverride = (method.Attributes & MethodAttributes.NewSlot) == 0;
 				} else if (method.IsFinal) {
-					if (!method.Attributes.HasFlag (MethodAttributes.NewSlot)) {
+					if ((method.Attributes & MethodAttributes.NewSlot) == 0) {
 						m.IsSealed = true;
 						m.IsOverride = true;
 					}
 				} else if (method.IsVirtual) {
-					if (method.Attributes.HasFlag (MethodAttributes.NewSlot))
+					if ((method.Attributes & MethodAttributes.NewSlot) != 0)
 						m.IsVirtual = true;
 					else
 						m.IsOverride = true;
@@ -1849,24 +1234,27 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		{
 			if (parameter == null)
 				throw new ArgumentNullException("parameter");
-			var type = ReadTypeReference(parameter.ParameterType, typeAttributes: parameter.CustomAttributes);
+			var customAttributes = parameter.CustomAttributes;
+			var parameterType = parameter.ParameterType;
+			var type = ReadTypeReference(parameterType, typeAttributes: customAttributes);
 			var p = new DefaultUnresolvedParameter(type, interningProvider.Intern(parameter.Name ?? "index"));
 
-			if (parameter.ParameterType.IsByRef) {
+			if (parameterType.IsByRef) {
 				if (!parameter.IsIn && parameter.IsOut)
 					p.IsOut = true;
 				else
 					p.IsRef = true;
 			}
-			AddAttributes(parameter, p);
+			AddAttributes(parameter, p, customAttributes);
 
 			if (parameter.IsOptional) {
 				p.DefaultValue = CreateSimpleConstantValue(type, parameter.RawDefaultValue);
 			}
 
-			if (parameter.ParameterType.IsArray) {
-				foreach (var att in parameter.CustomAttributes) {
-					if (att.AttributeType.FullName == typeof(ParamArrayAttribute).FullName) {
+			if (parameterType.IsArray) {
+				foreach (var att in customAttributes) {
+					var dt = att.Constructor.DeclaringType;
+					if (dt.__Name == "ParamArrayAttribute" && dt.Namespace == "System") {
 						p.IsParams = true;
 						break;
 					}
@@ -1936,11 +1324,14 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			f.IsStatic = field.IsStatic;
 			f.ReturnType = ReadTypeReference(field.FieldType, typeAttributes: field.CustomAttributes);
 
-			if (field.Attributes.HasFlag (FieldAttributes.HasDefault)) {
+			if ((field.Attributes & FieldAttributes.HasDefault) != 0) {
 				f.ConstantValue = CreateSimpleConstantValue(f.ReturnType, field.GetRawConstantValue ());
 			}
 			else {
-				var decConstant = field.CustomAttributes.FirstOrDefault(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.DecimalConstantAttribute");
+				var decConstant = field.CustomAttributes.FirstOrDefault(a => {
+					var dt = a.Constructor.DeclaringType;
+					return dt.__Name == "DecimalConstantAttribute" && dt.__Namespace == "System.Runtime.CompilerServices";
+				});
 				if (decConstant != null) {
 					var constValue = TryDecodeDecimalConstantAttribute(decConstant);
 					if (constValue != null)
@@ -1979,15 +1370,16 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		#region Type Parameter Constraints
 		void AddConstraints(DefaultUnresolvedTypeParameter tp, IKVM.Reflection.Type g)
 		{
-			if (g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.Contravariant)) {
+			var attr = g.GenericParameterAttributes;
+			if ((attr & GenericParameterAttributes.Contravariant) != 0) {
 				tp.Variance = VarianceModifier.Contravariant;
-			} else if (g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.Covariant)) {
+			} else if ((attr & GenericParameterAttributes.Covariant) != 0) {
 				tp.Variance = VarianceModifier.Covariant;
 			}
 
-			tp.HasReferenceTypeConstraint = g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.ReferenceTypeConstraint);
-			tp.HasValueTypeConstraint = g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.NotNullableValueTypeConstraint);
-			tp.HasDefaultConstructorConstraint = g.GenericParameterAttributes.HasFlag (GenericParameterAttributes.DefaultConstructorConstraint);
+			tp.HasReferenceTypeConstraint = (attr & GenericParameterAttributes.ReferenceTypeConstraint) != 0;
+			tp.HasValueTypeConstraint = (attr & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0;
+			tp.HasDefaultConstructorConstraint = (attr & GenericParameterAttributes.DefaultConstructorConstraint) != 0;
 
 			foreach (var constraint in g.GetGenericParameterConstraints ()) {
 				tp.Constraints.Add(ReadTypeReference(constraint));

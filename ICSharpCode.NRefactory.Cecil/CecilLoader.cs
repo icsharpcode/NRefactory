@@ -29,6 +29,7 @@ using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Utils;
 using Mono.Cecil;
 
+
 namespace ICSharpCode.NRefactory.TypeSystem
 {
 	/// <summary>
@@ -36,7 +37,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 	/// </summary>
 	/// <remarks>Instance methods are not thread-safe; you need to create multiple instances of CecilLoader
 	/// if you want to load multiple project contents in parallel.</remarks>
-	public class CecilLoader
+	public sealed class CecilLoader : AssemblyLoader
 	{
 		/// <summary>
 		/// Version number of the cecil loader.
@@ -306,7 +307,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		#endregion
 		
 		#region Load Assembly From Disk
-		public IUnresolvedAssembly LoadAssemblyFile(string fileName)
+		public override IUnresolvedAssembly LoadAssemblyFile(string fileName)
 		{
 			if (fileName == null)
 				throw new ArgumentNullException("fileName");

@@ -142,7 +142,6 @@
     <Compile Include="TypeSystem\ArrayType.cs" />
     <Compile Include="TypeSystem\AssemblyQualifiedTypeName.cs" />
     <Compile Include="TypeSystem\ByReferenceType.cs" />
-    <Compile Include="TypeSystem\CecilLoader.cs" />
     <Compile Include="TypeSystem\ComHelper.cs" />
     <Compile Include="TypeSystem\DefaultSolutionSnapshot.cs" />
     <Compile Include="TypeSystem\DomRegion.cs" />
@@ -284,6 +283,7 @@
     <Compile Include="Refactoring\IssueMarker.cs" />
     <Compile Include="Refactoring\Severity.cs" />
     <Compile Include="Analysis\SymbolCollector.cs" />
+    <Compile Include="TypeSystem\AssemblyLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Completion\" />
@@ -298,13 +298,6 @@
     <None Include="..\doc\XML Documentation.html">
       <Link>Documentation\XML Documentation.html</Link>
     </None>
-    <None Include="TypeSystem\IkvmLoader.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
-      <Project>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</Project>
-      <Name>Mono.Cecil</Name>
-    </ProjectReference>
-  </ItemGroup>
 </Project>
