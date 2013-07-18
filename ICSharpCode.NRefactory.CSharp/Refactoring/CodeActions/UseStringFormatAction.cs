@@ -72,22 +72,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (IsStringLiteral (item)) {
 							var stringLiteral = (PrimitiveExpression)item;
 
+                            string rawLiteral;
 							if (stringLiteral.LiteralValue [0] == '@') {
 								verbatim = true;
-								format.Append (stringLiteral.LiteralValue, 2, stringLiteral.LiteralValue.Length - 3);
+                                rawLiteral = stringLiteral.LiteralValue.Substring(2, stringLiteral.LiteralValue.Length - 3);
 							} else {
-								format.Append (stringLiteral.LiteralValue, 1, stringLiteral.LiteralValue.Length - 2);
+								rawLiteral = stringLiteral.LiteralValue.Substring(1, stringLiteral.LiteralValue.Length - 2);
 							}
+
+                            format.Append(QuoteBraces(rawLiteral));
 						} else {
-							var index = IndexOf (arguments, item);
-							if (index == -1) {
+                            Expression myItem = RemoveUnnecessaryToString(item);
+                            string itemFormatStr = DetermineItemFormatString(ref myItem);
+                            
+                            var index = IndexOf(arguments, myItem);
+                            if (index == -1) {
 								// new item
-								formatInvocation.Arguments.Add (item.Clone ());
+								formatInvocation.Arguments.Add (myItem.Clone ());
 								arguments.Add (item);
-								format.Append ("{" + counter++ + "}");
+								format.Append ("{" + counter++ + itemFormatStr + "}");
 							} else {
 								// existing item
-								format.Append ("{" + index + "}");
+								format.Append ("{" + index + itemFormatStr + "}");
 							}
 						}
 					}
@@ -95,9 +101,72 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (verbatim)
 						format.Insert (0, '@');
 					formatLiteral.LiteralValue = format.ToString ();
-					script.Replace (expr, formatInvocation);
+
+                    if (arguments.Count > 0)
+                        script.Replace (expr, formatInvocation);
+                    else
+                        script.Replace (expr, formatLiteral);
 				}, node);
 		}
+
+        private Expression RemoveUnnecessaryToString(Expression myItem)
+        {
+            if (myItem is InvocationExpression)
+            {
+                InvocationExpression invocation = (InvocationExpression)myItem;
+                if (invocation.Target is MemberReferenceExpression &&
+                    ((MemberReferenceExpression)invocation.Target).MemberName.Equals("ToString") &&
+                    invocation.Arguments.Count == 0)
+                {
+                    myItem = invocation.Target.FirstChild as Expression;
+                }
+                
+            }
+            return myItem;
+        }
+
+        private string QuoteBraces(string rawLiteral)
+        {
+            if (!rawLiteral.Contains("{") && !rawLiteral.Contains("}"))
+                return rawLiteral;
+
+            StringBuilder quoted = new StringBuilder();
+            for (int i = 0; i < rawLiteral.Length; i++)
+            {
+                char c = rawLiteral[i];
+                if (c == '{')
+                    quoted.Append("{{");
+                else if (c == '}')
+                    quoted.Append("}}");
+                else
+                    quoted.Append(c);
+            }
+            return quoted.ToString();
+        }
+
+        static string DetermineItemFormatString(ref Expression myItem)
+        {
+            if (myItem is InvocationExpression)
+            {
+                InvocationExpression invocation = myItem as InvocationExpression;
+                if (invocation.Target is MemberReferenceExpression &&
+                    ((MemberReferenceExpression)invocation.Target).MemberName.Equals("ToString") &&
+                    invocation.Arguments.Count == 1)
+                {
+                    IEnumerator<Expression> i = invocation.Arguments.GetEnumerator();
+                    i.MoveNext();
+                    Expression arg = i.Current;
+                    if (IsStringLiteral(arg) && invocation.Target.FirstChild is Expression)
+                    {
+                        string formatStr = ((PrimitiveExpression)arg).Value as string;
+                        myItem = invocation.Target.FirstChild as Expression; // invocation target identifier is first child
+                        return ":" + formatStr;
+                    }
+                }
+            }
+            
+            return "";
+        }
 
 		static int IndexOf	(IList<Expression> arguments, Expression item)
 		{
