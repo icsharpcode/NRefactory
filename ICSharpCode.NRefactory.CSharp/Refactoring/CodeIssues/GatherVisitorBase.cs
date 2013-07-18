@@ -193,6 +193,20 @@ namespace ICSharpCode.NRefactory.CSharp
             return isDisabled || isGloballySuppressed || isPragmaDisabled || suppressedRegions.Any(r => r.IsInside(location));
 		}
 
+		protected void AddIssue(AstNode node, string title, object siblingKey, System.Action<Script> fix = null)
+		{
+			if (IsSuppressed(node.StartLocation))
+				return;
+			FoundIssues.Add(new CodeIssue (title, node.StartLocation, node.EndLocation, fix != null ? new CodeAction (title, fix, node, siblingKey) : null));
+		}
+
+		protected void AddIssue(TextLocation start, TextLocation end, string title, object siblingKey, System.Action<Script> fix = null)
+		{
+			if (IsSuppressed(start))
+				return;
+			FoundIssues.Add(new CodeIssue(title, start, end, fix != null ? new CodeAction(title, fix, start, end, siblingKey) : null));
+		}
+
 		protected void AddIssue(AstNode node, string title, System.Action<Script> fix = null)
 		{
 			if (IsSuppressed(node.StartLocation))
@@ -206,7 +220,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				return;
 			FoundIssues.Add(new CodeIssue(title, start, end, fix != null ? new CodeAction(title, fix, start, end) : null));
 		}
-
+		
 		protected void AddIssue(AstNode node, string title, CodeAction fix)
 		{
 			if (IsSuppressed(node.StartLocation))

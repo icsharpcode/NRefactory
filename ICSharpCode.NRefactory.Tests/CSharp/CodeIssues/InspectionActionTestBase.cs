@@ -73,6 +73,25 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			Assert.AreEqual (expectedOutput, ctx.Text);
 		}
 
+		protected static void CheckBatchFix (TestRefactoringContext ctx, IEnumerable<CodeIssue> issues, object siblingKey, string expectedOutput)
+		{
+			using (var script = ctx.StartScript ()) {
+				foreach (var issue in issues) {
+					var actions = issue.Actions.Where (a => a.SiblingKey == siblingKey).ToList ();
+					Assert.IsTrue(actions.Count <= 1, "At most a single action expected per sibling key and issue.");
+					actions.First (a => a.SiblingKey == siblingKey).Run (script);
+				}
+			}
+			bool pass = expectedOutput == ctx.Text;
+			if (!pass) {
+				Console.WriteLine ("expected:");
+				Console.WriteLine (expectedOutput);
+				Console.WriteLine ("got:");
+				Console.WriteLine (ctx.Text);
+			}
+			Assert.AreEqual (expectedOutput, ctx.Text);
+		}
+
 		protected static void Test<T> (string input, int issueCount, string output = null, int issueToFix = -1)
 			where T : ICodeIssueProvider, new ()
 		{

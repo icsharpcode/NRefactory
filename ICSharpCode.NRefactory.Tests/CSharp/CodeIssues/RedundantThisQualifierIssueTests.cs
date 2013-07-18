@@ -28,6 +28,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.CSharp.CodeActions;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
@@ -74,6 +75,31 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			TestRefactoringContext context;
 			var issues = GetIssues (new RedundantThisQualifierIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
+		}
+
+		[Test]
+		public void TestBatchFix ()
+		{
+			var input = @"class Foo
+{
+	void Bar (string str)
+	{
+		this.Bar (str);
+		this.Bar (str);
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new RedundantThisQualifierIssue (), input, out context);
+			Assert.AreEqual (2, issues.Count);
+			CheckBatchFix (context, issues, issues[0].Actions.First().SiblingKey, @"class Foo
+{
+	void Bar (string str)
+	{
+		Bar (str);
+		Bar (str);
+	}
+}");
 		}
 	}
 }
