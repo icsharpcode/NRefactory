@@ -595,23 +595,16 @@ if (checkpoints.Length <= CheckpointIndex) throw new Exception (String.Format ("
 			}
 		}
 
-		[Conditional ("FULL_AST")]
-		public void SetPragmaDisable(bool disable)
+		#if FULL_AST
+		public PragmaPreProcessorDirective SetPragmaDisable(bool disable)
 		{
 			var pragmaDirective = Specials [Specials.Count - 1] as PragmaPreProcessorDirective;
 			if (pragmaDirective == null)
-				return;
+				return null;
 			pragmaDirective.Disalbe = disable;
+			return pragmaDirective;
 		}
-
-		[Conditional ("FULL_AST")]
-		public void AddPragmaCode(int code)
-		{
-			var pragmaDirective = Specials [Specials.Count - 1] as PragmaPreProcessorDirective;
-			if (pragmaDirective == null)
-				return;
-			pragmaDirective.Codes.Add (code);
-		}
+		#endif
 
 		public LineProcessorDirective GetCurrentLineProcessorDirective()
 		{

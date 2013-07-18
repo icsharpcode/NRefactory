@@ -378,7 +378,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 				mb.AddSymbol(sym);
 			}
 			var engine = new CSharpCompletionEngine(doc, mb, new TestFactory(new CSharpResolver (rctx)), pctx, rctx);
-
+			engine.AutomaticallyAddImports = true;
 			engine.EolMarker = Environment.NewLine;
 			engine.FormattingPolicy = FormattingOptionsFactory.CreateMono();
 			return engine;

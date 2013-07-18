@@ -760,6 +760,11 @@ namespace Mono.CSharp {
 
 			return Compiler.Settings.IsConditionalSymbolDefined (value);
 		}
+
+		public override void Accept (StructuralVisitor visitor)
+		{
+			visitor.Visit (this);
+		}
 	}
 
 
@@ -1065,6 +1070,9 @@ namespace Mono.CSharp {
 
 		public override void GetCompletionStartingWith (string prefix, List<string> results)
 		{
+			if (Usings == null)
+				return;
+
 			foreach (var un in Usings) {
 				if (un.Alias != null)
 					continue;
@@ -1333,7 +1341,7 @@ namespace Mono.CSharp {
 
 			return false;
 		}
-		
+
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);

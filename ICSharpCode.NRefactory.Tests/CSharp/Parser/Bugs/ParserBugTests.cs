@@ -444,7 +444,6 @@ class Foo
 			Assert.IsTrue(passed);
 		}
 
-		[Ignore("FixMe")]
 		[Test]
 		public void TestMultipleNestedPartialClassesInSameFile ()
 		{

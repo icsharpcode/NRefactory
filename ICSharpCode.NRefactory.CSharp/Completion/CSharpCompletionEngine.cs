@@ -1844,7 +1844,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 
 						IType addType = typePred != null ? typePred(type) : type;
 						
-						if (onlyAddConstructors) {
+						if (onlyAddConstructors && addType != null) {
 							if (!addType.GetConstructors().Any(c => lookup.IsAccessible(c, true)))
 								continue;
 						}
@@ -1863,7 +1863,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						continue;
 					IType addType = typePred != null ? typePred(type) : type;
 
-					if (onlyAddConstructors) {
+					if (onlyAddConstructors && addType != null) {
 						if (!addType.GetConstructors().Any(c => lookup.IsAccessible(c, true)))
 							continue;
 					}

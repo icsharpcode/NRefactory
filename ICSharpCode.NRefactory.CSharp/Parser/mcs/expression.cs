@@ -80,7 +80,7 @@ namespace Mono.CSharp
 		public override void Emit (EmitContext ec)
 		{
 			var call = new CallEmitter ();
-			call.EmitPredefined (ec, oper, arguments);
+			call.EmitPredefined (ec, oper, arguments, loc);
 		}
 
 		public override SLE.Expression MakeExpression (BuilderContext ctx)
@@ -2752,6 +2752,12 @@ namespace Mono.CSharp
 				if (l.IsPointer || r.IsPointer)
 					return ResolveOperatorPointer (rc, l, r);
 
+				// User operators
+				expr = ResolveUserOperator (rc, left, right);
+				if (expr != null)
+					return expr;
+
+
 				bool lenum = l.IsEnum;
 				bool renum = r.IsEnum;
 				if ((oper & (Operator.ComparisonMask | Operator.BitwiseMask)) != 0) {
@@ -2805,11 +2811,6 @@ namespace Mono.CSharp
 							return expr;
 					}
 				}
-
-				// User operators
-				expr = ResolveUserOperator (rc, left, right);
-				if (expr != null)
-					return expr;
 			}
 			
 			//
@@ -6029,7 +6030,7 @@ namespace Mono.CSharp
 				if (member_expr != null)
 					member_expr = member_expr.Resolve (ec);
 			} else {
-				member_expr = expr.Resolve (ec, ResolveFlags.VariableOrValue | ResolveFlags.MethodGroup);
+				member_expr = expr.Resolve (ec);
 			}
 
 			if (member_expr == null)
@@ -6553,14 +6554,16 @@ namespace Mono.CSharp
 				}
 
 				if (vr != null) {
+					ec.MarkCallEntry (loc);
 					ec.Emit (OpCodes.Call, method);
 					return false;
 				}
 			}
 			
 			if (type is TypeParameterSpec)
-				return DoEmitTypeParameter (ec);			
+				return DoEmitTypeParameter (ec);
 
+			ec.MarkCallEntry (loc);
 			ec.Emit (OpCodes.Newobj, method);
 			return true;
 		}
@@ -8627,7 +8630,7 @@ namespace Mono.CSharp
 
 				e = e.ResolveLValue (rc, right_side);
 			} else {
-				e = e.Resolve (rc, ResolveFlags.VariableOrValue | ResolveFlags.Type);
+				e = e.Resolve (rc, ResolveFlags.VariableOrValue | ResolveFlags.Type | ResolveFlags.MethodGroup);
 			}
 
 			return e;
@@ -10081,6 +10084,7 @@ namespace Mono.CSharp
 		public override void Emit (EmitContext ec)
 		{
 			source.Emit (ec);
+			ec.MarkCallEntry (loc);
 			ec.Emit (OpCodes.Call, method);
 		}
 

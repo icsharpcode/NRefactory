@@ -316,8 +316,11 @@ namespace Mono.CSharp {
 
 			var hoisted = localVariable.HoistedVariant;
 			if (hoisted != null && hoisted.Storey != this && hoisted.Storey is StateMachine) {
-				// TODO: It's too late the field is defined in HoistedLocalVariable ctor
+				//
+				// Variable is already hoisted but we need it in storey which can be shared
+				//
 				hoisted.Storey.hoisted_locals.Remove (hoisted);
+				hoisted.Storey.Members.Remove (hoisted.Field);
 				hoisted = null;
 			}
 
@@ -729,6 +732,12 @@ namespace Mono.CSharp {
 			this.field = field;
 		}
 
+		public Field Field {
+			get {
+				return field;
+			}
+		}
+
 		public AnonymousMethodStorey Storey {
 			get {
 				return storey;
@@ -849,12 +858,6 @@ namespace Mono.CSharp {
 
 		#region Properties
 
-		public Field Field {
-			get {
-				return field;
-			}
-		}
-
 		public bool IsAssigned { get; set; }
 
 		public ParameterReference Parameter {
@@ -893,12 +896,6 @@ namespace Mono.CSharp {
 		public HoistedThis (AnonymousMethodStorey storey, Field field)
 			: base (storey, field)
 		{
-		}
-
-		public Field Field {
-			get {
-				return field;
-			}
 		}
 	}
 
