@@ -433,7 +433,7 @@ class Foo
 }
 ";
 			var unit = SyntaxTree.Parse(code);
-			
+
 			var type = unit.Members.First() as TypeDeclaration;
 			var method = type.Members.First() as MethodDeclaration;
 			bool passed = method.Parameters.Count == 1;
@@ -443,6 +443,42 @@ class Foo
 			}
 			Assert.IsTrue(passed);
 		}
+
+		[Ignore("FixMe")]
+		[Test]
+		public void TestMultipleNestedPartialClassesInSameFile ()
+		{
+			string code = @"public partial class PartialClassInSameFile
+	{
+		public partial class NestedPartial
+		{
+			void Foo ()
+			{
+			}
+		}
+	}
+
+	public partial class PartialClassInSameFile
+	{
+		public partial class NestedPartial 
+		{
+			void FooBar ()
+			{
+
+			}
+		}
+	}
+";
+			var unit = SyntaxTree.Parse(code);
+			Console.WriteLine(unit);
+			var type = unit.Members.First() as TypeDeclaration;
+			Assert.IsTrue(type.Members.FirstOrDefault() is TypeDeclaration, "1st nested partial not found."); 
+
+			type = unit.Members.Skip (1).First() as TypeDeclaration;
+			Assert.IsTrue(type.Members.FirstOrDefault() is TypeDeclaration, "2nd nested partial not found."); 
+
+		}
+
 	}
 }
 
