@@ -230,7 +230,6 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					return new[] { GetSearchScopeForNamespace((INamespace)symbol) };
 				case SymbolKind.TypeParameter:
 					return new[] { GetSearchScopeForTypeParameter((ITypeParameter)symbol) };
-					// TODO: IVariable etc.
 			}
 			IEntity entity = symbol as IEntity;
 			if (entity == null)
@@ -500,15 +499,15 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				return null;
 			}
 
-			if (node is TypeDeclaration) 
+			if (node is TypeDeclaration)
 				node = ((TypeDeclaration)node).NameToken;
-			if (node is DelegateDeclaration) 
+			if (node is DelegateDeclaration)
 				node = ((DelegateDeclaration)node).NameToken;
 
-			if (node is EntityDeclaration) 
+			if (node is EntityDeclaration)
 				node = ((EntityDeclaration)node).NameToken;
 
-			if (node is ParameterDeclaration) 
+			if (node is ParameterDeclaration)
 				node = ((ParameterDeclaration)node).NameToken;
 			if (node is ConstructorDeclaration)
 				node = ((ConstructorDeclaration)node).NameToken;
@@ -531,8 +530,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		                                   Action<RenameCallbackArguments> callback, Action<Error> errorCallback, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			FindReferencesInFile(
-				searchScopes, 
-				resolver, 
+				searchScopes,
+				resolver,
 				delegate(AstNode astNode, ResolveResult result) {
 					var nodeToReplace = GetNodeToReplace(astNode);
 					if (nodeToReplace == null) {
@@ -540,7 +539,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						return;
 					}
 					callback (new RenameCallbackArguments(nodeToReplace, Identifier.Create(newName)));
-				}, 
+				},
 				cancellationToken);
 		}
 		#endregion

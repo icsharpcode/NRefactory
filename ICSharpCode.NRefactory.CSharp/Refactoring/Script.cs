@@ -29,6 +29,8 @@ using System.IO;
 using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading.Tasks;
+using System.Linq;
+using System.Text;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -176,7 +178,55 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			output.RegisterTrackedSegments(this, startOffset);
 			CorrectFormatting (null, newNode);
 		}
-		
+
+		/// <summary>
+		/// Changes the modifier of a given entity declaration.
+		/// </summary>
+		/// <param name="entity">The entity.</param>
+		/// <param name="modifiers">The new modifiers.</param>
+		public void ChangeModifier(EntityDeclaration entity, Modifiers modifiers)
+		{
+			var dummyEntity = new MethodDeclaration ();
+			dummyEntity.Modifiers = modifiers;
+
+			int offset;
+			int endOffset;
+
+			if (entity.ModifierTokens.Any ()) {
+				offset = GetCurrentOffset(entity.ModifierTokens.First ().StartLocation);
+				endOffset = GetCurrentOffset(entity.ModifierTokens.Last ().GetNextSibling (s => s.Role != Roles.NewLine && s.Role != Roles.Whitespace).StartLocation);
+			} else {
+				var child = entity.FirstChild;
+				while (child.NodeType == NodeType.Whitespace || child.Role == Roles.Attribute)
+					child = child.NextSibling;
+				offset = endOffset = GetCurrentOffset(entity.StartLocation);
+			}
+
+			var sb = new StringBuilder();
+			foreach (var modifier in dummyEntity.ModifierTokens) {
+				sb.Append(modifier.ToString());
+				sb.Append(' ');
+			}
+
+			Replace(offset, endOffset - offset, sb.ToString());
+		}
+
+
+		/// <summary>
+		/// Adds an attribute section to a given entity.
+		/// </summary>
+		/// <param name="entity">The entity to add the attribute to.</param>
+		/// <param name="Attribute">The attribute to add.</param>
+		public void AddAttribute(EntityDeclaration entity, AttributeSection attr)
+		{
+			var node = entity.FirstChild;
+			while (node.NodeType == NodeType.Whitespace || node.Role == Roles.Attribute) {
+				node = node.NextSibling;
+			}
+			InsertBefore(node, attr);
+		}
+
+
 		public virtual Task Link (params AstNode[] nodes)
 		{
 			// Default implementation: do nothing

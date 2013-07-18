@@ -59,9 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var token = token_;
 					if (token.Modifier == Modifiers.Private) {
 						AddIssue(token, ctx.TranslateString("Remove redundant 'private' modifier"), script => {
-							int offset = script.GetCurrentOffset(token.StartLocation);
-							int endOffset = script.GetCurrentOffset(token.GetNextNode().StartLocation);
-							script.RemoveText(offset, endOffset - offset);
+							script.ChangeModifier (node, node.Modifiers & ~Modifiers.Private);
 						});
 					}
 				}

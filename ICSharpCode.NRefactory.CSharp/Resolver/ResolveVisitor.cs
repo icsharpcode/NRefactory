@@ -1958,7 +1958,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				if (pd.ParameterModifier == ParameterModifier.Ref || pd.ParameterModifier == ParameterModifier.Out)
 					type = new ByReferenceType(type);
 				
-				IParameter p = new DefaultParameter(type, pd.Name, MakeRegion(pd),
+				IParameter p = new DefaultParameter(type, pd.Name,
+				                                    region: MakeRegion(pd),
 				                                    isRef: pd.ParameterModifier == ParameterModifier.Ref,
 				                                    isOut: pd.ParameterModifier == ParameterModifier.Out);
 				// The parameter declaration must be scanned in the current context (without the new parameter)
@@ -2230,7 +2231,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			{
 				this.lambda = lambda;
 				foreach (var pd in lambda.Parameters) {
-					parameters.Add(new DefaultParameter(SpecialType.UnknownType, pd.Name, parentVisitor.MakeRegion(pd)));
+					parameters.Add(new DefaultParameter(SpecialType.UnknownType, pd.Name, region: parentVisitor.MakeRegion(pd)));
 				}
 				RegisterUndecidedLambda();
 			}
@@ -2396,7 +2397,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				if (parameterDeclarations != null) {
 					int i = 0;
 					foreach (var pd in parameterDeclarations) {
-						lambdaParameters[i] = new DefaultParameter(parameterTypes[i], pd.Name, visitor.MakeRegion(pd));
+						lambdaParameters[i] = new DefaultParameter(parameterTypes[i], pd.Name, region: visitor.MakeRegion(pd));
 						visitor.resolver = visitor.resolver.AddVariable(lambdaParameters[i]);
 						i++;
 						visitor.Scan(pd);
@@ -2404,7 +2405,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				} else {
 					for (int i = 0; i < parameterTypes.Length; i++) {
 						var p = lambda.Parameters[i];
-						lambdaParameters[i] = new DefaultParameter(parameterTypes[i], p.Name, p.Region);
+						lambdaParameters[i] = new DefaultParameter(parameterTypes[i], p.Name, region: p.Region);
 						visitor.resolver = visitor.resolver.AddVariable(lambdaParameters[i]);
 					}
 				}

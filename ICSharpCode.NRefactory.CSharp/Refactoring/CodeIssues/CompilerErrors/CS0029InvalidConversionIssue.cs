@@ -1,10 +1,10 @@
 // 
-// ExpressionOfCompatibleTypeCastIssue.cs
+// CS0029InvalidConversionIssue.cs
 // 
 // Author:
-//      Ciprian Khlud <ciprian.mustiata@yahoo.com>
+//      Daniel Grunwald <daniel@danielgrunwald.de>
 // 
-// Copyright (c) 2013 Ciprian Khlud <ciprian.mustiata@yahoo.com>
+// Copyright (c) 2013 Daniel Grunwald <daniel@danielgrunwald.de>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -67,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (assignmentExpression.Operator != AssignmentOperatorType.Assign)
 					return;
 				var variableType = ctx.Resolve(assignmentExpression.Left).Type;
-				VisitAssignment(variableType, assignmentExpression.Right);
+				CheckConversion(variableType, assignmentExpression.Right);
 			}
 			
 			public override void VisitVariableInitializer(VariableInitializer variableInitializer)
@@ -75,12 +76,35 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitVariableInitializer(variableInitializer);
 				if (!variableInitializer.Initializer.IsNull) {
 					var variableType = ctx.Resolve(variableInitializer).Type;
-					VisitAssignment(variableType, variableInitializer.Initializer);
+					CheckConversion(variableType, variableInitializer.Initializer);
+				}
+			}
+
+			public override void VisitReturnStatement(ReturnStatement returnStatement)
+			{
+				base.VisitReturnStatement(returnStatement);
+				CheckConversion(ctx.GetExpectedType (returnStatement.Expression), returnStatement.Expression);			
+			}
+
+			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+			{
+				base.VisitInvocationExpression(invocationExpression);
+				foreach (var expr in invocationExpression.Arguments) {
+					CheckConversion(ctx.GetExpectedType(expr), expr);		
+				}
+			}
+
+			public override void VisitArrayInitializerExpression(ArrayInitializerExpression arrayInitializerExpression)
+			{
+				base.VisitArrayInitializerExpression(arrayInitializerExpression);
+				foreach (var expr in arrayInitializerExpression.Elements) {
+					CheckConversion(ctx.GetExpectedType(expr), expr);		
 				}
 			}
 			
-			void VisitAssignment(IType variableType, Expression expression)
+			void CheckConversion(IType variableType, Expression expression)
 			{
+				Console.WriteLine(variableType);
 				if (variableType.Kind == TypeKind.Unknown)
 					return; // ignore error if the variable type is unknown
 				if (ctx.GetConversion(expression).IsValid)
@@ -92,7 +116,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				
 				var foundConversion = conversion.ExplicitConversion(rr, variableType);
 				
-				var builder = ctx.CreateTypeSytemAstBuilder(expression);
+				var builder = ctx.CreateTypeSystemAstBuilder(expression);
 				AstType variableTypeNode = builder.ConvertType(variableType);
 				AstType expressionTypeNode = builder.ConvertType(rr.Type);
 				

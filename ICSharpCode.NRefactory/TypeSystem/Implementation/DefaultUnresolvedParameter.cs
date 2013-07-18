@@ -210,10 +210,11 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					IsParams = this.IsParams
 				};
 			} else {
+				var owner = context.CurrentMember as IParameterizedMember;
 				var resolvedAttributes = attributes.CreateResolvedAttributes (context);
 				bool isOptional = resolvedAttributes != null && resolvedAttributes.Any (a => IsOptionalAttribute (a.AttributeType));
-				return new DefaultParameter (type.Resolve (context), name, region,
-				                            resolvedAttributes, IsRef, IsOut, IsParams, isOptional);
+				return new DefaultParameter (type.Resolve (context), name, owner, region,
+				                             resolvedAttributes, IsRef, IsOut, IsParams, isOptional);
 			}
 		}
 		
@@ -229,6 +230,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			}
 			
 			SymbolKind ISymbol.SymbolKind { get { return SymbolKind.Parameter; } }
+			public IParameterizedMember Owner { get { return context.CurrentMember as IParameterizedMember; } }
 			public IType Type { get; internal set; }
 			public string Name { get; internal set; }
 			public DomRegion Region { get; internal set; }

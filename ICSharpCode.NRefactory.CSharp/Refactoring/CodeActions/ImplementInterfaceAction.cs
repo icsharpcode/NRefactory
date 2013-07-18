@@ -76,10 +76,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					yield return new PreProcessorDirective(
 						PreProcessorDirectiveType.Region,
 						string.Format("{0} implementation", kv.Key.Name));
-				} else {
+				} else if (kv.Key.Kind == TypeKind.Class && kv.Key.GetDefinition().IsAbstract) {
 					yield return new PreProcessorDirective(
 						PreProcessorDirectiveType.Region,
 						string.Format("implemented abstract members of {0}", kv.Key.Name));
+				} else {
+					yield return new PreProcessorDirective(
+						PreProcessorDirectiveType.Region,
+						"override virtual methods");
 				}
 				foreach (var member in kv.Value)
 					yield return member;
@@ -91,7 +95,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		static EntityDeclaration GenerateMemberImplementation(RefactoringContext context, IMember member, bool explicitImplementation)
 		{
-			var builder = context.CreateTypeSytemAstBuilder();
+			var builder = context.CreateTypeSystemAstBuilder();
 			builder.GenerateBody = true;
 			builder.ShowModifiers = false;
 			builder.ShowAccessibility = true;

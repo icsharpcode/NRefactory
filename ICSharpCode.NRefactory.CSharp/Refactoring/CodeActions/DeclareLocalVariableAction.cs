@@ -43,10 +43,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			}
 			var selected = new List<AstNode>(context.GetSelectedNodes());
+
 			if (selected.Count != 1 || !(selected [0] is Expression)) {
 				yield break;
 			}
+
 			var expr = selected [0] as Expression;
+			if (expr is ArrayInitializerExpression) {
+				var arr = (ArrayInitializerExpression)expr;
+				if (arr.IsSingleElement) {
+					expr = arr.Elements.First();
+				} else {
+					yield break;
+				}
+			}
+
 			var visitor = new SearchNodeVisitior(expr);
 			
 			var node = context.GetNode <BlockStatement>();

@@ -8,10 +8,10 @@ using ICSharpCode.NRefactory.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Any()/First()/etc. should be used with predicate and Where() removed",
-	                  Description= "Detects redundant Where() with predicate calls followed by Any().",
+	                  Description= "Detects redundant Where() with predicate calls followed by Any()/First()/etc.",
 	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Hint,
-                      ResharperDisableKeyword = "ReplaceWithSingleCallToAny")]
+	                  Severity = Severity.Suggestion,
+                      ResharperDisableKeyword = "RemoveRedundantCallWhere")]
 	public class RedundantWhereWithPredicateIssue : ICodeIssueProvider
 	{
 		static readonly AstNode pattern =
@@ -80,6 +80,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			bool HasPredicateVersion(IParameterizedMember member)
 			{
+				if (member == null)
+					return false;
 				if (!IsQueryExtensionClass(member.DeclaringTypeDefinition))
 					return false;
 				switch (member.Name) {

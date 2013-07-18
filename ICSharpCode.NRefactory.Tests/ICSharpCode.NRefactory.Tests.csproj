@@ -184,7 +184,6 @@
     <Compile Include="CSharp\Parser\Statements\ReturnStatementTests.cs" />
     <Compile Include="CSharp\Parser\Statements\SwitchStatementTests.cs" />
     <Compile Include="CSharp\Parser\Statements\ThrowStatementTests.cs" />
-    <Compile Include="CSharp\Parser\Statements\TryCatchStatementTests.cs" />
     <Compile Include="CSharp\Parser\Statements\UnsafeStatementTests.cs" />
     <Compile Include="CSharp\Parser\Statements\UsingStatementTests.cs" />
     <Compile Include="CSharp\Parser\Statements\VariableDeclarationStatementTests.cs" />
@@ -403,8 +402,6 @@
     <Compile Include="CSharp\CodeIssues\NoDefaultConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertIfAndSimplifyTests.cs" />
     <Compile Include="FormattingTests\TestExpressionFormatting.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantNullCheckTests.cs">
-    </Compile>
     <Compile Include="CSharp\CodeIssues\StaticConstructorAccessModifierTest.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantConstructorTests.cs" />
@@ -419,6 +416,18 @@
     <Compile Include="CSharp\AstTests.cs" />
     <Compile Include="Analysis\SymbolCollectorTests.cs" />
     <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertToNewLineTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantOverridedMethodTests.cs" />
+    <Compile Include="CSharp\CodeActions\CopyCommentsFromBaseTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantNullCheckTests.cs" />
+    <Compile Include="CSharp\CodeActions\CopyCommentsFromIntefaceTests.cs" />
+    <Compile Include="CSharp\Parser\Statements\TryCatchStatementTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantEmptyDefaultInSwitchTests.cs.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantExplicitTypeSpecificationInLambdaTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantBaseIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithIsOperatorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertToStaticTypeTests.cs" />
+    <Compile Include="CSharp\CodeActions\OverrideVirtualMethodsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

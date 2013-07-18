@@ -532,7 +532,6 @@
     <Compile Include="Refactoring\CodeIssues\RedundantNullCheckIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ConstructorIssues\StaticConstructorParameterIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ConstructorIssues\StaticConstructorAccessModifierIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\RedundantBaseConstructorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ConstructorIssues\RedudantConstructorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ConstructorIssues\PublicConstructorInAbstractClass.cs" />
     <Compile Include="Refactoring\CodeIssues\ConvertToStaticMethodIssue.cs" />
@@ -542,6 +541,17 @@
     <Compile Include="Refactoring\CodeIssues\DuplicateIfInIfChainIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\UseBlockInsteadColonIssue.cs" />
     <Compile Include="Refactoring\ImplementNotImplementedProperty.cs" />
+    <Compile Include="Refactoring\CodeActions\ConvertToNewLineAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\RedundantBaseConstructorIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\RedundantOverridedMethodIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\CopyCommentsFromBase.cs" />
+    <Compile Include="Refactoring\CodeActions\CopyCommentsFromInterface.cs" />
+    <Compile Include="Refactoring\CodeIssues\RedundantBaseIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\RedundantEmptyDefaultInSwitchIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\RedundantExplicitTypeSpecificationInLambdaIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\ReplaceWithIsOperatorIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\ConvertToStaticTypeIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\OverrideVirtualMethodAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
