@@ -56,10 +56,10 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 class Test {
 	public void test(){
 	int a = 0;
-	//Resharper disable RedundantNullCheck
+	//Resharper disable RedundantComparisonWithNull
 	if(a is int && a != null)
 	{a = 1;}
-	//Resharper restore RedundantNullCheck
+	//Resharper restore RedundantComparisonWithNull
 	}	
 	}";
 			

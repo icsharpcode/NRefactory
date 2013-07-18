@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using NUnit.Framework;
 
@@ -32,10 +31,10 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	[TestFixture]
 	public class RedundantIfElseBlockIssueTests : InspectionActionTestBase
 	{
-	    [Test]
-        public void TestReturn()
-        {
-            var input = @"
+		[Test]
+		public void TestReturn()
+		{
+			var input = @"
 class TestClass
 {
 	int TestMethod (int i)
@@ -46,7 +45,7 @@ class TestClass
 			return 0;
 	}
 }";
-            var output = @"
+			var output = @"
 class TestClass
 {
 	int TestMethod (int i)
@@ -56,13 +55,13 @@ class TestClass
 		return 0;
 	}
 }";
-            Test<RedundantIfElseBlockIssue>(input, 1, output);
-        }
+			Test<RedundantIfElseBlockIssue>(input, 1, output);
+		}
 
-        [Test]
-        public void TestDisable()
-        {
-            var input = @"
+		[Test]
+		public void TestDisable()
+		{
+			var input = @"
 class TestClass
 {
 	int TestMethod (int i)
@@ -74,11 +73,11 @@ class TestClass
 			return 0;
 	}
 }";
-            TestWrongContext<RedundantIfElseBlockIssue>(input);
-        }
+			TestWrongContext<RedundantIfElseBlockIssue>(input);
+		}
 
 		[Test]
-		public void TestBreakLoop ()
+		public void TestBreakLoop()
 		{
 			var input = @"
 class TestClass
@@ -107,11 +106,11 @@ class TestClass
 		}
 	}
 }";
-			Test<RedundantIfElseBlockIssue> (input, 1, output);
+			Test<RedundantIfElseBlockIssue>(input, 1, output);
 		}
 
 		[Test]
-		public void TestContinueLoop ()
+		public void TestContinueLoop()
 		{
 			var input = @"
 class TestClass
@@ -140,7 +139,7 @@ class TestClass
 		}
 	}
 }";
-			Test<RedundantIfElseBlockIssue> (input, 1, output);
+			Test<RedundantIfElseBlockIssue>(input, 1, output);
 		}
 
 		[Test]
@@ -169,11 +168,11 @@ class TestClass
 		return 0;
 	}
 }";
-			Test<RedundantIfElseBlockIssue> (input, 1, output);
+			Test<RedundantIfElseBlockIssue>(input, 1, output);
 		}
 
 		[Test]
-		public void TestEmptyFalseBlock ()
+		public void TestEmptyFalseBlock()
 		{
 			var input = @"
 class TestClass
@@ -196,11 +195,11 @@ class TestClass
 			a = 1;
 	}
 }";
-			Test<RedundantIfElseBlockIssue> (input, 1, output);
+			Test<RedundantIfElseBlockIssue>(input, 1, output);
 		}
 
 		[Test]
-		public void TestNecessaryElse ()
+		public void TestNecessaryElse()
 		{
 
 			var input = @"
@@ -215,11 +214,11 @@ class TestClass
 			a = 0;
 	}
 }";
-			Test<RedundantIfElseBlockIssue> (input, 0);
+			Test<RedundantIfElseBlockIssue>(input, 0);
 		}
 
 		[Test]
-		public void TestNecessaryElseCase2 ()
+		public void TestNecessaryElseCase2()
 		{
 
 			var input = @"
@@ -240,7 +239,7 @@ class TestClass
 		}
 	}
 }";
-			Test<RedundantIfElseBlockIssue> (input, 0);
+			Test<RedundantIfElseBlockIssue>(input, 0);
 		}
 	}
 }

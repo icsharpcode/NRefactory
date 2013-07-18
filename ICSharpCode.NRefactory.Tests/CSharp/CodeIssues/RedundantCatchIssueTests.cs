@@ -235,7 +235,7 @@ class A
 		}
 	}
 }");
-		}
+		} 
 
 		/// <summary>
 		/// Bug 12273 - Incorrect redundant catch warning
