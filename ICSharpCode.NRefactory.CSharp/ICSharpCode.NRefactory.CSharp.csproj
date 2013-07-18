@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{53DCA265-3C3C-42F9-B647-F72BA678122B}</ProjectGuid>
@@ -542,7 +542,6 @@
     <Compile Include="Refactoring\CodeIssues\UseBlockInsteadColonIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\LockThisIssue.cs" />
     <Compile Include="Refactoring\ImplementNotImplementedProperty.cs" />
-<<<<<<< HEAD
     <Compile Include="Refactoring\CodeActions\ConvertToNewLineAction.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantBaseConstructorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\RedundantOverridedMethodIssue.cs" />
@@ -554,9 +553,7 @@
     <Compile Include="Refactoring\CodeIssues\ReplaceWithIsOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\ConvertToStaticTypeIssue.cs" />
     <Compile Include="Refactoring\CodeActions\OverrideVirtualMethodAction.cs" />
-=======
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
->>>>>>> 126ab6808f44305f38872b4657d0f15420bb257e
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

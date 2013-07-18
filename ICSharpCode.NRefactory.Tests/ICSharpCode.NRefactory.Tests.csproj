@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{63D3B27A-D966-4902-90B3-30290E1692F1}</ProjectGuid>
@@ -417,7 +417,6 @@
     <Compile Include="CSharp\CodeIssues\LockThisTests.cs" />
     <Compile Include="Analysis\SymbolCollectorTests.cs" />
     <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
-<<<<<<< HEAD
     <Compile Include="CSharp\CodeActions\ConvertToNewLineTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantOverridedMethodTests.cs" />
     <Compile Include="CSharp\CodeActions\CopyCommentsFromBaseTests.cs" />
@@ -430,9 +429,7 @@
     <Compile Include="CSharp\CodeIssues\ReplaceWithIsOperatorTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertToStaticTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\OverrideVirtualMethodsTest.cs" />
-=======
     <Compile Include="CSharp\CodeActions\AutoLinqSumTests.cs" />
->>>>>>> 126ab6808f44305f38872b4657d0f15420bb257e
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
