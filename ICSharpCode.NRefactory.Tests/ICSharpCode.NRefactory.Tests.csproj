@@ -430,6 +430,7 @@
     <Compile Include="CSharp\CodeIssues\ConvertToStaticTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\OverrideVirtualMethodsTest.cs" />
     <Compile Include="CSharp\CodeActions\AutoLinqSumTests.cs" />
+    <Compile Include="CSharp\CodeIssues\EmptyGeneralCatchClauseTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

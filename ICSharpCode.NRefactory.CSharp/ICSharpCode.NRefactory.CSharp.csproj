@@ -554,6 +554,7 @@
     <Compile Include="Refactoring\CodeIssues\ConvertToStaticTypeIssue.cs" />
     <Compile Include="Refactoring\CodeActions\OverrideVirtualMethodAction.cs" />
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\EmptyGeneralCatchClauseIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
