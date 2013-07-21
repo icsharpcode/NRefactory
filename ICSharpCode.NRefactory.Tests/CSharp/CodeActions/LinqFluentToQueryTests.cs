@@ -281,7 +281,7 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = new int[0].$Join(new int[0].Cast<float> (), a => a * 2, b => b, (l, r) => l * r);
+		var x = new int[0].Cast<char> ().$Join(new int[0].Cast<float> (), a => a * 2, b => b, (l, r) => l * r);
 	}
 }", @"
 using System.Linq;
@@ -290,11 +290,37 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x =
-	from float a in new int[0]
+		var x = 
+	from char a in new int[0]
 	join float b in new int[0] on a * 2 equals b
-	select a * b
-		var x = new int[0].$Join(new int[0].Cast<float> (), a => a * 2, b => b, (a, b) => a * b);
+	select a * b;
+	}
+}");
+		}
+
+		[Test]
+		public void TestGroupJoin()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = new int[0].Cast<char> ().$GroupJoin(new int[0].Cast<float> (), a => a * 2, b => b, (l, r) => l * r [0]);
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = 
+	from char a in new int[0]
+	join float b in new int[0] on a * 2 equals b into r
+	select a * r [0];
 	}
 }");
 		}

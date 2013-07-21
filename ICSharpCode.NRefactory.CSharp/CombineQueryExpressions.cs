@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		bool IsTransparentIdentifier(string identifier)
 		{
-			return true;
+			return false;
 		}
 
 		bool TryRemoveTransparentIdentifier(QueryExpression query, QueryFromClause fromClause, QueryExpression innerQuery)
