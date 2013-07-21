@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			CombineQueryExpressions queryExpressionCombiner = new CombineQueryExpressions();
 			Expression newNode = queryExpressionIntroducer.ConvertFluentToQuery(node);
 
-			queryExpressionCombiner.CombineQueries(newNode);
+			queryExpressionCombiner.CombineQuery(newNode);
 
 			if (!(newNode is QueryExpression)) {
 				return null;

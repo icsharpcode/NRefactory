@@ -58,6 +58,13 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </summary>
 	public class IntroduceQueryExpressions
 	{
+		static readonly InvocationExpression castPattern = new InvocationExpression {
+			Target = new MemberReferenceExpression {
+				Target = new AnyNode("inExpr"),
+				MemberName = "Cast",
+				TypeArguments = { new AnyNode("targetType") }
+			}};
+
 		public Expression ConvertFluentToQuery(Expression node)
 		{
 			node = node.Clone();
@@ -209,13 +216,11 @@ namespace ICSharpCode.NRefactory.CSharp
 						if (lambda != null && lambda.Parameters.Count == 2 && lambda.Body is Expression) {
 							ParameterDeclaration p1 = lambda.Parameters.ElementAt(0);
 							ParameterDeclaration p2 = lambda.Parameters.ElementAt(1);
-							if (p1.Name == parameterName) {
-								QueryExpression query = new QueryExpression();
-								query.Clauses.Add(new QueryFromClause { Identifier = p1.Name, Expression = ExtractQuery(mre) });
-								query.Clauses.Add(new QueryFromClause { Identifier = p2.Name, Expression = collectionSelector.Detach() });
-								query.Clauses.Add(new QuerySelectClause { Expression = ((Expression)lambda.Body).Detach() });
-								return query;
-							}
+							QueryExpression query = new QueryExpression();
+							query.Clauses.Add(new QueryFromClause { Identifier = p1.Name, Expression = ExtractQuery(mre) });
+							query.Clauses.Add(new QueryFromClause { Identifier = p2.Name, Expression = collectionSelector.Detach() });
+							query.Clauses.Add(new QuerySelectClause { Expression = ((Expression)lambda.Body).Detach() });
+							return query;
 						}
 						return null;
 					}
@@ -294,17 +299,16 @@ namespace ICSharpCode.NRefactory.CSharp
 							query.Clauses.Add(new QueryFromClause { Identifier = elementName1, Expression = source1.Detach() });
 							QueryJoinClause joinClause = new QueryJoinClause();
 							
-							InvocationExpression sourceCast = source2 as InvocationExpression;
-							if (sourceCast != null && sourceCast.Arguments.Count == 0) {
-								MemberReferenceExpression sourceMre = sourceCast.Target as MemberReferenceExpression;
-								if (sourceMre != null && sourceMre.MemberName == "Cast" && sourceMre.TypeArguments.Count == 1) {
-									source2 = sourceMre.Target.Detach();
-									joinClause.Type = sourceMre.TypeArguments.Single().Detach();
-								}
-							}
-							
 							joinClause.JoinIdentifier = elementName2;    // join elementName2
 							joinClause.InExpression = source2.Detach();  // in source2
+
+							Match castMatch = castPattern.Match(source2);
+							if (castMatch.Success) {
+								Expression target = castMatch.Get<Expression>("inExpr").Single().Detach();
+								joinClause.Type = castMatch.Get<AstType>("targetType").Single().Detach();
+								joinClause.InExpression = target;
+							}
+							
 							joinClause.OnExpression = key1.Detach();     // on key1
 							joinClause.EqualsExpression = key2.Detach(); // equals key2
 							if (mre.MemberName == "GroupJoin") {

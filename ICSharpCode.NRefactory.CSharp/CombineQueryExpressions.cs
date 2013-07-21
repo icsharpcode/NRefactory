@@ -35,19 +35,32 @@ namespace ICSharpCode.NRefactory.CSharp
 				TypeArguments = { new AnyNode("targetType") }
 			}};
 
-		public void CombineQueries(AstNode node)
+		public void CombineQuery(AstNode node, AstNode rootQuery = null)
 		{
-			for (AstNode child = node.FirstChild; child != null; child = child.NextSibling) {
-				CombineQueries(child);
+			if (rootQuery == null) {
+				rootQuery = node;
 			}
+
 			QueryExpression query = node as QueryExpression;
 			if (query != null) {
+				foreach (var clause in query.Clauses) {
+					var continuation = clause as QueryContinuationClause;
+					if (continuation != null) {
+						CombineQuery(continuation.PrecedingQuery);
+					}
+
+					var from = clause as QueryFromClause;
+					if (from != null) {
+						CombineQuery(from.Expression, rootQuery);
+					}
+				}
+
 				QueryFromClause fromClause = (QueryFromClause)query.Clauses.First();
 				QueryExpression innerQuery = fromClause.Expression as QueryExpression;
 				if (innerQuery != null) {
 					string transparentIdentifier;
 					if (TryRemoveTransparentIdentifier(query, fromClause, innerQuery, out transparentIdentifier)) {
-						RemoveTransparentIdentifierReferences(query, transparentIdentifier);
+						RemoveTransparentIdentifierReferences(rootQuery, transparentIdentifier);
 					} else {
 						QueryContinuationClause continuation = new QueryContinuationClause();
 						continuation.PrecedingQuery = innerQuery.Detach();
@@ -122,6 +135,12 @@ namespace ICSharpCode.NRefactory.CSharp
 					newIdent.CopyAnnotationsFrom(mre);
 					newIdent.RemoveAnnotations<PropertyDeclaration>(); // remove the reference to the property of the anonymous type
 					mre.ReplaceWith(newIdent);
+					return;
+				} else if (mre.MemberName == transparentIdentifier) {
+					var newVar = mre.Target.Detach();
+					newVar.CopyAnnotationsFrom(mre);
+					newVar.RemoveAnnotations<PropertyDeclaration>(); // remove the reference to the property of the anonymous type
+					mre.ReplaceWith(newVar);
 					return;
 				}
 			}

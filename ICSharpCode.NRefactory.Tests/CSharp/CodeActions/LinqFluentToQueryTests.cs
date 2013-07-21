@@ -145,7 +145,11 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = new int[0].Select (w => new { w, two = w * 2 }).Select(h => new { h, three = h.w * 3 }).$Select (_ => _.h.w);
+		var x = new int[0].Select (w => new { w, two = w * 2 })
+			.Select (h => new { h, three = h.w * 3 })
+			.Select (k => new { k, four = k.h.w * 4 })
+			.$Select (_ => _.k.h.w + _.k.h.two + _.k.three + _.four)
+			.Select (sum => sum * 2);
 	}
 }", @"
 using System.Linq;
@@ -158,7 +162,36 @@ class TestClass
 	from w in new int[0]
 	let two = w * 2
 	let three = w * 3
-	select w;
+	let four = w * 4
+	select w + two + three + four into sum
+	select sum * 2;
+	}
+}");
+		}
+
+		[Test]
+		public void TestSelectMany()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = new int[0].$SelectMany (elem => new int[0], (elem1, elem2) => elem1 + elem2);
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = 
+	from elem1 in new int[0]
+	from elem2 in new int[0]
+	select elem1 + elem2;
 	}
 }");
 		}
