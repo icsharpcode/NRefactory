@@ -555,6 +555,8 @@
     <Compile Include="Refactoring\CodeActions\OverrideVirtualMethodAction.cs" />
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
     <Compile Include="Refactoring\CodeIssues\EmptyGeneralCatchClauseIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\UnmatchedSizeSpecificationInArrayCreationIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\RedundantSizeSpecificationInArrayCreationIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

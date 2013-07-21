@@ -431,6 +431,8 @@
     <Compile Include="CSharp\CodeActions\OverrideVirtualMethodsTest.cs" />
     <Compile Include="CSharp\CodeActions\AutoLinqSumTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyGeneralCatchClauseTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantExplicitSizeSpeicificationInArrayCreationTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnmatchedSizeSpeicificationInArrayCreationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
