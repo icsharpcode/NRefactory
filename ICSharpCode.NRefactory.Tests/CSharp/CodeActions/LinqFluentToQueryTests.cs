@@ -136,6 +136,34 @@ class TestClass
 		}
 
 		[Test]
+		public void TestLongLetChain()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = new int[0].Select (w => new { w, two = w * 2 }).Select(h => new { h, three = h.w * 3 }).$Select (_ => _.h.w);
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = 
+	from w in new int[0]
+	let two = w * 2
+	let three = w * 3
+	select w;
+	}
+}");
+		}
+
+		[Test]
 		public void TestCastSelect()
 		{
 			Test<LinqFluentToQueryAction>(@"

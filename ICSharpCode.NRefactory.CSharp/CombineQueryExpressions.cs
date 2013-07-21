@@ -45,8 +45,9 @@ namespace ICSharpCode.NRefactory.CSharp
 				QueryFromClause fromClause = (QueryFromClause)query.Clauses.First();
 				QueryExpression innerQuery = fromClause.Expression as QueryExpression;
 				if (innerQuery != null) {
-					if (TryRemoveTransparentIdentifier(query, fromClause, innerQuery)) {
-						RemoveTransparentIdentifierReferences(query);
+					string transparentIdentifier;
+					if (TryRemoveTransparentIdentifier(query, fromClause, innerQuery, out transparentIdentifier)) {
+						RemoveTransparentIdentifierReferences(query, transparentIdentifier);
 					} else {
 						QueryContinuationClause continuation = new QueryContinuationClause();
 						continuation.PrecedingQuery = innerQuery.Detach();
@@ -64,94 +65,58 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		static readonly QuerySelectClause selectTransparentIdentifierPattern = new QuerySelectClause {
-			Expression = new Choice {
-				new AnonymousTypeCreateExpression {
+			Expression = new AnonymousTypeCreateExpression {
 					Initializers = {
-						new NamedExpression {
-							Name = Pattern.AnyString,
-							Expression = new IdentifierExpression(Pattern.AnyString)
-						}.WithName("nae1"),
-						new NamedExpression {
-							Name = Pattern.AnyString,
-							Expression = new AnyNode("nae2Expr")
-						}.WithName("nae2")
-					}
-				},
-				new AnonymousTypeCreateExpression {
-					Initializers = {
-						new NamedNode("identifier", new IdentifierExpression(Pattern.AnyString)),
-						new AnyNode("nae2Expr")
+						new AnyNode("nae1"),
+						new AnyNode("nae2")
 					}
 				}
-			}};
+			};
 
-		bool IsTransparentIdentifier(string identifier)
+		bool TryRemoveTransparentIdentifier(QueryExpression query, QueryFromClause fromClause, QueryExpression innerQuery, out string transparentIdentifier)
 		{
-			return false;
-		}
+			transparentIdentifier = fromClause.Identifier;
 
-		bool TryRemoveTransparentIdentifier(QueryExpression query, QueryFromClause fromClause, QueryExpression innerQuery)
-		{
-			if (!IsTransparentIdentifier(fromClause.Identifier))
-				return false;
 			Match match = selectTransparentIdentifierPattern.Match(innerQuery.Clauses.Last());
 			if (!match.Success)
 				return false;
 			QuerySelectClause selectClause = (QuerySelectClause)innerQuery.Clauses.Last();
-			NamedExpression nae1 = match.Get<NamedExpression>("nae1").SingleOrDefault();
-			NamedExpression nae2 = match.Get<NamedExpression>("nae2").SingleOrDefault();
-			if (nae1 != null && nae1.Name != ((IdentifierExpression)nae1.Expression).Identifier)
+			Expression nae1 = match.Get<Expression>("nae1").SingleOrDefault();
+			string nae1Name = ExtractExpressionName(ref nae1);
+			if (nae1Name == null)
 				return false;
-			Expression nae2Expr = match.Get<Expression>("nae2Expr").Single();
-			IdentifierExpression nae2IdentExpr = nae2Expr as IdentifierExpression;
-			if (nae2IdentExpr != null && (nae2 == null || nae2.Name == nae2IdentExpr.Identifier)) {
-				// from * in (from x in ... select new { x = x, y = y }) ...
-				// =>
-				// from x in ... ...
-				fromClause.Remove();
-				selectClause.Remove();
-				// Move clauses from innerQuery to query
-				QueryClause insertionPos = null;
-				foreach (var clause in innerQuery.Clauses) {
-					query.Clauses.InsertAfter(insertionPos, insertionPos = clause.Detach());
-				}
-			} else {
-				// from * in (from x in ... select new { x = x, y = expr }) ...
-				// =>
-				// from x in ... let y = expr ...
-				fromClause.Remove();
-				selectClause.Remove();
-				// Move clauses from innerQuery to query
-				QueryClause insertionPos = null;
-				foreach (var clause in innerQuery.Clauses) {
-					query.Clauses.InsertAfter(insertionPos, insertionPos = clause.Detach());
-				}
-				string ident;
-				if (nae2 != null)
-					ident = nae2.Name;
-				else if (nae2Expr is IdentifierExpression)
-					ident = ((IdentifierExpression)nae2Expr).Identifier;
-				else if (nae2Expr is MemberReferenceExpression)
-					ident = ((MemberReferenceExpression)nae2Expr).MemberName;
-				else
-					throw new InvalidOperationException("Could not infer name from initializer in AnonymousTypeCreateExpression");
-				query.Clauses.InsertAfter(insertionPos, new QueryLetClause { Identifier = ident, Expression = nae2Expr.Detach() });
+
+			Expression nae2 = match.Get<Expression>("nae2").SingleOrDefault();
+			string nae2Name = ExtractExpressionName(ref nae2);
+			if (nae1Name == null)
+				return false;
+
+			// from * in (from x in ... select new { x = x, y = expr }) ...
+			// =>
+			// from x in ... let y = expr ...
+			fromClause.Remove();
+			selectClause.Remove();
+			// Move clauses from innerQuery to query
+			QueryClause insertionPos = null;
+			foreach (var clause in innerQuery.Clauses) {
+				query.Clauses.InsertAfter(insertionPos, insertionPos = clause.Detach());
 			}
+			query.Clauses.InsertAfter(insertionPos, new QueryLetClause { Identifier = nae2Name, Expression = nae2.Detach() });
 			return true;
 		}
 
 		/// <summary>
 		/// Removes all occurrences of transparent identifiers
 		/// </summary>
-		void RemoveTransparentIdentifierReferences(AstNode node)
+		void RemoveTransparentIdentifierReferences(AstNode node, string transparentIdentifier)
 		{
 			foreach (AstNode child in node.Children) {
-				RemoveTransparentIdentifierReferences(child);
+				RemoveTransparentIdentifierReferences(child, transparentIdentifier);
 			}
 			MemberReferenceExpression mre = node as MemberReferenceExpression;
 			if (mre != null) {
 				IdentifierExpression ident = mre.Target as IdentifierExpression;
-				if (ident != null && IsTransparentIdentifier(ident.Identifier)) {
+				if (ident != null && ident.Identifier == transparentIdentifier) {
 					IdentifierExpression newIdent = new IdentifierExpression(mre.MemberName);
 					mre.TypeArguments.MoveTo(newIdent.TypeArguments);
 					newIdent.CopyAnnotationsFrom(mre);
@@ -160,6 +125,27 @@ namespace ICSharpCode.NRefactory.CSharp
 					return;
 				}
 			}
+		}
+
+		string ExtractExpressionName(ref Expression expr)
+		{
+			NamedExpression namedExpr = expr as NamedExpression;
+			if (namedExpr != null) {
+				expr = namedExpr.Expression;
+				return namedExpr.Name;
+			}
+
+			IdentifierExpression identifier = expr as IdentifierExpression;
+			if (identifier != null) {
+				return identifier.Identifier;
+			}
+
+			MemberReferenceExpression memberRef = expr as MemberReferenceExpression;
+			if (memberRef != null) {
+				return memberRef.MemberName;
+			}
+
+			return null;
 		}
 	}
 }
