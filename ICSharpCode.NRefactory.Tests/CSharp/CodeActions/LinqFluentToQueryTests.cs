@@ -439,6 +439,32 @@ class TestClass
 	}
 }");
 		}
+
+		[Test]
+		public void TestGroupBy()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = new int[0].$GroupBy (t => t, t => new int[0]);
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = 
+	from t in new int[0]
+	group new int[0] by t;
+	}
+}");
+		}
 	}
 }
 
