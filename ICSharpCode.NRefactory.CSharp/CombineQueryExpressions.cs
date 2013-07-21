@@ -1,3 +1,10 @@
+//
+// CombineQueryExpressions.cs
+//
+// Modified by Luís Reis <luiscubal@gmail.com> (Copyright (C) 2013)
+//
+// Copyright header of the original version follows:
+//
 // Copyright (c) 2011 AlphaSierraPapa for the SharpDevelop Team
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
