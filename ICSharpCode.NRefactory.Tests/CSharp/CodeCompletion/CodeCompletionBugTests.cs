@@ -6128,5 +6128,32 @@ public class TestMe : System.Object
 			Assert.IsNotNull (provider, "provider not found.");
 			Assert.IsNotNull (provider.Find ("Equals"), "method 'Equals' not found.");
 		}
+
+		/// <summary>
+		/// Bug 13366 - Task result cannot be resolved in incomplete task continution
+		/// </summary>
+		[Test]
+		public void TestBug13366 ()
+		{
+			var provider = CreateProvider (
+				@"using System;
+
+class A { public void AMethod () {} }
+class B { public void BMethod () {} }
+
+public class TestMe
+{
+	void Foo(Action<A> act) {}
+	void Foo(Action<B> act) {}
+	
+	void Test ()
+	{
+		$Foo(a => a.$
+	}
+}");
+			Assert.IsNotNull (provider, "provider not found.");
+			Assert.IsNotNull (provider.Find ("AMethod"), "method 'AMethod' not found.");
+			Assert.IsNotNull (provider.Find ("BMethod"), "method 'BMethod' not found.");
+		}
 	}
 }
