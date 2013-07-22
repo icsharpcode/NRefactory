@@ -3051,7 +3051,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				}
 			}
 			
-			baseUnit = ParseStub("a", false);
+			baseUnit = ParseStub("ToString()", false);
 			var curNode = baseUnit.GetNodeAt(location);
 			// hack for local variable declaration missing ';' issue - remove that if it works.
 			if (curNode is EntityDeclaration || baseUnit.GetNodeAt<Expression>(location) == null && baseUnit.GetNodeAt<MemberType>(location) == null) {
