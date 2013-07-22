@@ -1031,6 +1031,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					AstNode n = identifierStart.Node;
 					if (n.Parent is NamedArgumentExpression)
 						n = n.Parent;
+
 					if (n != null && n.Parent is AnonymousTypeCreateExpression) {
 						AutoSelect = false;
 					}
@@ -1058,7 +1059,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							return result;
 					}
 					
-					if (n != null && n.Parent is InvocationExpression) {
+					if (n != null && n.Parent is InvocationExpression ||
+					    n.Parent is ParenthesizedExpression && n.Parent.Parent is InvocationExpression) {
+						if (n.Parent is ParenthesizedExpression)
+							n = n.Parent;
 						var invokeParent = (InvocationExpression)n.Parent;
 						var invokeResult = ResolveExpression(
 							invokeParent.Target

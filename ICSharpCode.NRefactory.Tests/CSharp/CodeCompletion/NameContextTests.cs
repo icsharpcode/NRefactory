@@ -26,6 +26,7 @@
 using System;
 using NUnit.Framework;
 
+
 namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 {
 	[TestFixture]
@@ -226,6 +227,32 @@ namespace MyApplication
 				Assert.AreEqual (0, provider.Count, "provider needs to be empty");
 			});
 		}
+
+		/// <summary>
+		/// Bug 13365 - Suggestion context lost after ( in lambda args
+		/// </summary>
+		[Test]
+		public void TestBug13365 ()
+		{
+			CodeCompletionBugTests.CombinedProviderTest (@"using System;
+using System.Threading.Tasks;
+
+namespace MyApplication
+{
+   class MyClass
+   {
+        void MyMethod ()
+        {
+            $Task.Factory.StartNew ((a$
+        }
+    }
+}
+", provider => {
+
+				Assert.IsFalse (provider.AutoSelect);
+			});
+		}
+
 
 	}
 }
