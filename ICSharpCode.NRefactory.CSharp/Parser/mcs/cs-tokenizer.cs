@@ -1922,11 +1922,11 @@ namespace Mono.CSharp
 
 		int TokenizePreprocessorIdentifier (out int c)
 		{
-			int endLine, endCol;
-			return TokenizePreprocessorIdentifier (out c, out endLine, out endCol);
+			int startCol, endLine, endCol;
+			return TokenizePreprocessorIdentifier (out c, out startCol, out endLine, out endCol);
 		}
 
-		int TokenizePreprocessorIdentifier (out int c, out int endLine, out int endCol)
+		int TokenizePreprocessorIdentifier (out int c, out int startCol, out int endLine, out int endCol)
 		{
 			// skip over white space
 			do {
@@ -1934,7 +1934,7 @@ namespace Mono.CSharp
 				endCol = col;
 				c = get_char ();
 			} while (c == ' ' || c == '\t');
-			
+			startCol = col;
 			int pos = 0;
 			while (c != -1 && c >= 'a' && c <= 'z') {
 				id_builder[pos++] = (char) c;
@@ -1966,8 +1966,8 @@ namespace Mono.CSharp
 			tokens_seen = false;
 			arg = "";
 			
-			int endLine, endCol;
-			var cmd = GetPreprocessorDirective (id_builder, TokenizePreprocessorIdentifier (out c, out endLine, out endCol));
+			int startCol2, endLine, endCol;
+			var cmd = GetPreprocessorDirective (id_builder, TokenizePreprocessorIdentifier (out c, out startCol2, out endLine, out endCol));
 			
 			if ((cmd & PreprocessorDirective.CustomArgumentsParsing) != 0) {
 				if (position_stack.Count == 0)
@@ -2457,9 +2457,17 @@ namespace Mono.CSharp
 		void ParsePragmaDirective (string arg)
 		{
 			int c;
-			int length = TokenizePreprocessorIdentifier (out c);
+			int startCol, endLine, endCol;
+			int length = TokenizePreprocessorIdentifier (out c, out startCol, out endLine, out endCol);
+			#if FULL_AST
+			var pragmaDirective = sbag.GetPragmaPreProcessorDirective();
+			pragmaDirective.WarningColumn = startCol;
+			#endif
 			if (length == pragma_warning.Length && IsTokenIdentifierEqual (pragma_warning)) {
-				length = TokenizePreprocessorIdentifier (out c);
+				length = TokenizePreprocessorIdentifier (out c, out startCol, out endLine, out endCol);
+				#if FULL_AST
+				pragmaDirective.DisableRestoreColumn = startCol;
+				#endif
 
 				//
 				// #pragma warning disable
@@ -2468,7 +2476,7 @@ namespace Mono.CSharp
 				if (length == pragma_warning_disable.Length) {
 					bool disable = IsTokenIdentifierEqual (pragma_warning_disable);
 					#if FULL_AST
-					var pragmaDirective = sbag.SetPragmaDisable (disable);
+					pragmaDirective.Disalbe = disable;
 					#endif
 					if (disable || IsTokenIdentifierEqual (pragma_warning_restore)) {
 						// skip over white space
@@ -2495,10 +2503,16 @@ namespace Mono.CSharp
 							//
 							int code;
 							do {
+								var startLoc = loc;
+								#if FULL_AST
+								// int read_start = reader.Position;
+								#endif
 								code = TokenizePragmaNumber (ref c);
 								if (code > 0) {
 									#if FULL_AST
-									pragmaDirective.Codes.Add (code);
+									var literal = new IntConstant(context.BuiltinTypes, code, startLoc);
+									pragmaDirective.Codes.Add (literal);
+								//	literal.ParsedValue = reader.ReadChars (read_start, reader.Position + 1);
 									#endif
 									if (disable) {
 										Report.RegisterWarningRegion (loc).WarningDisable (loc, code, context.Report);

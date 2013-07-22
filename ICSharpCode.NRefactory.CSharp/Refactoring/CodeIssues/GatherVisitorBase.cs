@@ -161,7 +161,7 @@ namespace ICSharpCode.NRefactory.CSharp
             var warning = preProcessorDirective as PragmaWarningPreprocssorDirective;
             if (warning == null)
                 return;
-            if (warning.WarningList.Contains(pragmaWarning))
+            if (warning.IsDefined(pragmaWarning))
                 isPragmaDisabled = warning.Disable;
 	    }
 

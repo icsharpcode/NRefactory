@@ -486,7 +486,18 @@ if (checkpoints.Length <= CheckpointIndex) throw new Exception (String.Format ("
 		public class PragmaPreProcessorDirective : PreProcessorDirective
 		{
 			public bool Disalbe { get; set; }
-			public List<int> Codes = new List<int> ();
+
+			public int WarningColumn {
+				get;
+				set;
+			}
+
+			public int DisableRestoreColumn {
+				get;
+				set;
+			}
+
+			public List<Constant> Codes = new List<Constant> ();
 
 			public PragmaPreProcessorDirective (int line, int col, int endLine, int endCol, Tokenizer.PreprocessorDirective cmd, string arg) : base (line, col, endLine, endCol, cmd, arg)
 			{
@@ -605,6 +616,12 @@ if (checkpoints.Length <= CheckpointIndex) throw new Exception (String.Format ("
 			return pragmaDirective;
 		}
 		#endif
+
+		public PragmaPreProcessorDirective GetPragmaPreProcessorDirective()
+		{
+			return Specials [Specials.Count - 1] as PragmaPreProcessorDirective;
+		}
+
 
 		public LineProcessorDirective GetCurrentLineProcessorDirective()
 		{

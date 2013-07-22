@@ -3658,8 +3658,25 @@ namespace ICSharpCode.NRefactory.CSharp
 					var pragmaDirective = special as SpecialsBag.PragmaPreProcessorDirective;
 					if (pragmaDirective != null) {
 						var pragma = new PragmaWarningPreprocssorDirective(new TextLocation(pragmaDirective.Line, pragmaDirective.Col), new TextLocation(pragmaDirective.EndLine, pragmaDirective.EndCol));
-						pragma.Disable = pragmaDirective.Disalbe;
-						pragma.AddWarnings(pragmaDirective.Codes);
+						pragma.AddChild(
+							new CSharpTokenNode (
+								new TextLocation(pragmaDirective.Line, pragmaDirective.WarningColumn),
+								PragmaWarningPreprocssorDirective.WarningKeywordRole
+							),
+							PragmaWarningPreprocssorDirective.WarningKeywordRole
+						);
+						var pragmaRole = pragmaDirective.Disalbe ? PragmaWarningPreprocssorDirective.DisableKeywordRole : PragmaWarningPreprocssorDirective.RestoreKeywordRole;
+						pragma.AddChild(
+							new CSharpTokenNode (
+								new TextLocation(pragmaDirective.Line, pragmaDirective.DisableRestoreColumn),
+								pragmaRole
+							),
+							pragmaRole
+						);
+
+						foreach (var code in pragmaDirective.Codes) {
+							pragma.AddChild((PrimitiveExpression)conversionVisitor.Visit (code), PragmaWarningPreprocssorDirective.WarningRole); 
+						}
 						newLeaf = pragma;
 						role = Roles.PreProcessorDirective;
 						goto end;
