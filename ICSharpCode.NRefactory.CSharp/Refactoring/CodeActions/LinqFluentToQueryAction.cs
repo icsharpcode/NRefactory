@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -61,11 +62,34 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			}
 
-			if (NeedsParenthesis(node)) {
-				newNode = new ParenthesizedExpression(newNode);
-			}
-
 			return new CodeAction(context.TranslateString("Convert to query syntax"), script => {
+				string newName = null;
+				var identifiers = newNode.Descendants.OfType<Identifier>().ToList();
+				foreach (var identifier in identifiers.Where(id => id.Name == "<>1"))
+				{
+					if (newName == null) {
+						//Find new name
+
+						//This might skip some legitimate names, but that's not a real problem.
+						var topMostBlock = node.AncestorsAndSelf.OfType<BlockStatement>().Last();
+						var variableDeclarations = topMostBlock.Descendants.OfType<VariableDeclarationStatement>();
+						var declaredNames = variableDeclarations.SelectMany(variableDeclaration => variableDeclaration.Variables).Select(variable => variable.Name).ToList();
+
+						int currentId = 1;
+						while (identifiers.Any(id => id.Name == "_" + currentId) || declaredNames.Contains("_" + currentId)) {
+							++currentId;
+						}
+
+						newName = "_" + currentId;
+					}
+
+					identifier.Name = newName;
+				}
+
+				if (NeedsParenthesis(node)) {
+					newNode = new ParenthesizedExpression(newNode);
+				}
+
 				script.Replace(node, newNode);
 			}, node);
 		}

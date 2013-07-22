@@ -79,14 +79,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				QueryFromClause fromClause = (QueryFromClause)query.Clauses.First();
 				if (IsDegenerateQuery(query)) {
 					string identifierName = fromClause.Identifier;
-					if (fromClause.Identifier.StartsWith("<>")) {
-						//STUB
-						identifierName = identifierName.Replace("<>", "_");
 
-						foreach (var identifier in query.Descendants.OfType<Identifier>().Where(identifier => identifier.Name == fromClause.Identifier)) {
-							identifier.ReplaceWith(Identifier.Create(identifierName));
-						}
-					}
 					// introduce select for degenerate query
 					query.Clauses.Add(new QuerySelectClause { Expression = new IdentifierExpression(identifierName) });
 				}
