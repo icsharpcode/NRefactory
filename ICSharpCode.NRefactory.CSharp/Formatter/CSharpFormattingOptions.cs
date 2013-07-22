@@ -745,6 +745,16 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
+		public int BlankLinesAroundRegion {
+			get;
+			set;
+		}
+
+		public int BlankLinesInsideRegion {
+			get;
+			set;
+		}
+
 		#endregion
 
 

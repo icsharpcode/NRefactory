@@ -89,7 +89,10 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 			formatter.FormattingMode = formattingMode;
 			string newText = formatter.Format (document);
 			if (expectedOutput != newText) {
-				Console.WriteLine (newText);
+				Console.WriteLine("expected:");
+				Console.WriteLine(expectedOutput);
+				Console.WriteLine("got:");
+				Console.WriteLine(newText);
 			}
 			Assert.AreEqual (expectedOutput, newText);
 		}

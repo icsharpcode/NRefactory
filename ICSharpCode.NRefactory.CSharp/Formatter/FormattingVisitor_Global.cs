@@ -205,6 +205,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 				if (child.Role == Roles.LBrace) {
 					startFormat = true;
+					EnsureNewLinesAfter(child, GetTypeLevelNewLinesFor(child));
 					return;
 				}
 				if (child.Role == Roles.RBrace) {
@@ -235,7 +236,26 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			var blankLines = 1;
 			var nextSibling = child.GetNextSibling(NoWhitespacePredicate);
-			if (child is PreProcessorDirective || child is Comment)
+			if (child is PreProcessorDirective) {
+				var directive = (PreProcessorDirective)child;
+				if (directive.Type == PreProcessorDirectiveType.Region)
+					blankLines += policy.BlankLinesInsideRegion;
+				if (directive.Type == PreProcessorDirectiveType.Endregion)
+					blankLines += policy.BlankLinesAroundRegion;
+				return blankLines;
+			}
+
+			if (nextSibling is PreProcessorDirective) {
+				var directive = (PreProcessorDirective)nextSibling;
+				if (directive.Type == PreProcessorDirectiveType.Region)
+					blankLines += policy.BlankLinesAroundRegion;
+				if (directive.Type == PreProcessorDirectiveType.Endregion)
+					blankLines += policy.BlankLinesInsideRegion;
+				return blankLines;
+			}
+			if (child.Role == Roles.LBrace)
+				return 1;
+			if (child is Comment)
 				return 1;
 			if (child is EventDeclaration) {
 				if (nextSibling is EventDeclaration) {
