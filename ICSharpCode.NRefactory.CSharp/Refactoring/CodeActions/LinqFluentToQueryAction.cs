@@ -63,11 +63,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 
 			return new CodeAction(context.TranslateString("Convert to query syntax"), script => {
-				string newName = null;
+				List<string> newNames = new List<string>();
 				var identifiers = newNode.Descendants.OfType<Identifier>().ToList();
-				foreach (var identifier in identifiers.Where(id => id.Name == "<>1"))
+				foreach (var identifier in identifiers.Where(id => id.Name.StartsWith("<>")))
 				{
-					if (newName == null) {
+					int nameId = int.Parse(identifier.Name.Substring(2)) - 1;
+					while (newNames.Count <= nameId) {
 						//Find new name
 
 						//This might skip some legitimate names, but that's not a real problem.
@@ -80,10 +81,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							++currentId;
 						}
 
-						newName = "_" + currentId;
+						newNames.Add("_" + currentId);
 					}
 
-					identifier.Name = newName;
+					identifier.Name = newNames[nameId];
 				}
 
 				if (NeedsParenthesis(node)) {

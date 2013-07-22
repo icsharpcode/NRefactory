@@ -493,6 +493,34 @@ class TestClass
 	}
 }");
 		}
+
+		[Test]
+		public void TestDoubleCasts()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = new int[0].$Cast<float> ().Cast<int> ();
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = 
+	from int _1 in 
+		from float _2 in new int[0]
+		select _2
+	select _1;
+	}
+}");
+		}
 	}
 }
 

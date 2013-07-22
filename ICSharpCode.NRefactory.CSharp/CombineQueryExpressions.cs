@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					string transparentIdentifier;
 					if (TryRemoveTransparentIdentifier(query, fromClause, innerQuery, out transparentIdentifier)) {
 						RemoveTransparentIdentifierReferences(rootQuery, transparentIdentifier);
-					} else {
+					} else if (fromClause.Type.IsNull) {
 						QueryContinuationClause continuation = new QueryContinuationClause();
 						continuation.PrecedingQuery = innerQuery.Detach();
 						continuation.Identifier = fromClause.Identifier;

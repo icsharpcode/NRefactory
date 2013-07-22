@@ -83,25 +83,28 @@ namespace ICSharpCode.NRefactory.CSharp
 					// introduce select for degenerate query
 					query.Clauses.Add(new QuerySelectClause { Expression = new IdentifierExpression(identifierName) });
 				}
-				// See if the data source of this query is a degenerate query,
-				// and combine the queries if possible.
-				QueryExpression innerQuery = fromClause.Expression as QueryExpression;
-				while (IsDegenerateQuery(innerQuery)) {
-					QueryFromClause innerFromClause = (QueryFromClause)innerQuery.Clauses.First();
-					if (fromClause.Identifier != innerFromClause.Identifier && !innerFromClause.Identifier.StartsWith("<>"))
-						break;
-					// Replace the fromClause with all clauses from the inner query
-					fromClause.Remove();
-					foreach (var identifierChild in innerQuery.Descendants.OfType<Identifier>().Where(identifier => identifier.Name == innerFromClause.Identifier)) {
-						//When the identifier is "<>X", then replace it with the outer one
-						identifierChild.ReplaceWith(fromClause.IdentifierToken.Clone());
+
+				if (fromClause.Type.IsNull) {
+					// See if the data source of this query is a degenerate query,
+					// and combine the queries if possible.
+					QueryExpression innerQuery = fromClause.Expression as QueryExpression;
+					while (IsDegenerateQuery(innerQuery)) {
+						QueryFromClause innerFromClause = (QueryFromClause)innerQuery.Clauses.First();
+						if (fromClause.Identifier != innerFromClause.Identifier && !innerFromClause.Identifier.StartsWith("<>"))
+							break;
+						// Replace the fromClause with all clauses from the inner query
+						fromClause.Remove();
+						foreach (var identifierChild in innerQuery.Descendants.OfType<Identifier>().Where(identifier => identifier.Name == innerFromClause.Identifier)) {
+							//When the identifier is "<>X", then replace it with the outer one
+							identifierChild.ReplaceWith(fromClause.IdentifierToken.Clone());
+						}
+						QueryClause insertionPos = null;
+						foreach (var clause in innerQuery.Clauses) {
+							query.Clauses.InsertAfter(insertionPos, insertionPos = clause.Detach());
+						}
+						fromClause = innerFromClause;
+						innerQuery = fromClause.Expression as QueryExpression;
 					}
-					QueryClause insertionPos = null;
-					foreach (var clause in innerQuery.Clauses) {
-						query.Clauses.InsertAfter(insertionPos, insertionPos = clause.Detach());
-					}
-					fromClause = innerFromClause;
-					innerQuery = fromClause.Expression as QueryExpression;
 				}
 			}
 
@@ -159,8 +162,9 @@ namespace ICSharpCode.NRefactory.CSharp
 							var typeArgument = mre.TypeArguments.First();
 
 							QueryExpression query = new QueryExpression();
+							string varName = GenerateVariableName();
 							query.Clauses.Add(new QueryFromClause {
-								Identifier = "<>1",
+								Identifier = varName,
 								Expression = ExtractQuery(mre),
 								Type = typeArgument.Detach()
 							});
@@ -329,6 +333,12 @@ namespace ICSharpCode.NRefactory.CSharp
 				default:
 					return null;
 			}
+		}
+
+		int id = 1;
+		string GenerateVariableName()
+		{
+			return "<>" + id++;
 		}
 
 		/// <summary>
