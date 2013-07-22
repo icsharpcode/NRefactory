@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 			var ppd = ParseUtilCSharp.ParseGlobal<PragmaWarningPreprocssorDirective>(program);
 			Assert.AreEqual(PreProcessorDirectiveType.Pragma, ppd.Type);
 			Assert.IsTrue(ppd.Disable);
-			Assert.IsTrue(ppd.WarningList.Contains (809));
+			Assert.IsTrue(ppd.IsDefined (809));
 		}
 		
 		[Test, Ignore("mcs crashes because it tries to compute the full path to file.cs")]
