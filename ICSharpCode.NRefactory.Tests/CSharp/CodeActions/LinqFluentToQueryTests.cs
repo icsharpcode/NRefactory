@@ -465,6 +465,34 @@ class TestClass
 	}
 }");
 		}
+
+		[Test]
+		public void Test_1AlreadyUsed()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		int _1;
+		var x = new int[0].$Cast<float> ();
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		int _1;
+		var x = 
+	from float _2 in new int[0]
+	select _2;
+	}
+}");
+		}
 	}
 }
 
