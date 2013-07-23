@@ -435,6 +435,7 @@
     <Compile Include="CSharp\CodeIssues\ThreadStaticAtInstanceFieldTests.cs" />
     <Compile Include="CSharp\CodeActions\MetaTests.cs" />
     <Compile Include="CSharp\CodeCompletion\FormatItemTests.cs" />
+    <Compile Include="CSharp\CodeActions\LinqFluentToQueryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
