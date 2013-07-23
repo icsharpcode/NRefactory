@@ -81,5 +81,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		ICompletionData CreateImportCompletionData(IType type, bool useFullName, bool addForTypeCreation);
 
 		ICompletionData CreateFormatItemCompletionData(string format, string description, object example);
+
+		ICompletionData CreateXmlDocCompletionData (string tag, string description = null, string tagInsertionText = null);
+
 	}
 }

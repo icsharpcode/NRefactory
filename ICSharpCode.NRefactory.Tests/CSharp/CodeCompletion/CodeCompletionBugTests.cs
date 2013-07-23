@@ -229,6 +229,11 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 				return new CompletionData (title);
 			}
 
+			public ICompletionData CreateXmlDocCompletionData (string title, string description, string insertText)
+			{
+				return new CompletionData (title);
+			}
+
 			public ICompletionData CreateNamespaceCompletionData (INamespace ns)
 			{
 				return new CompletionData (ns.Name);
