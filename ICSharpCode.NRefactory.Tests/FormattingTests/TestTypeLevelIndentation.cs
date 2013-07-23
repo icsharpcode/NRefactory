@@ -69,13 +69,19 @@ using Foo;");
 			Test(policy,
 			      @"
 class Test {
+
     #region FooBar
+
     #endregion
+
 }",
 			      @"
 class Test {
+
 	#region FooBar
+
 	#endregion
+
 }");
 		}
 
@@ -103,8 +109,10 @@ class Test {
 			policy.ClassBraceStyle = BraceStyle.DoNotChange;
 
 			Test(policy,
-			     @"			class Test {}",
-			     @"class Test {}");
+			     @"			class Test {
+}",
+			     @"class Test {
+}");
 		}
 
 		[Test]
@@ -117,11 +125,13 @@ class Test {
 			     @"/// <summary>
 		/// olwcowcolwc
 		/// </summary>
-			class Test {}",
+			class Test {
+}",
 			     @"/// <summary>
 /// olwcowcolwc
 /// </summary>
-class Test {}");
+class Test {
+}");
 		}
 
 		[Test]
@@ -133,10 +143,12 @@ class Test {}");
 			Test(policy,
 			      @"					[Attribute1]
 		[Attribute2()]
-          class Test {}",
+          class Test {
+}",
 			      @"[Attribute1]
 [Attribute2()]
-class Test {}");
+class Test {
+}");
 		}
 
 		[Test]
@@ -147,9 +159,11 @@ class Test {}");
 			policy.ClassBraceStyle = BraceStyle.DoNotChange;
 			
 			Test(policy,
-			      @"namespace A { class Test {} }",
+			      @"namespace A { class Test {
+} }",
 			      @"namespace A {
-	class Test {}
+	class Test {
+}
 }");
 		}
 
@@ -162,9 +176,11 @@ class Test {}");
 			policy.IndentNamespaceBody = false;
 			
 			Test(policy,
-			      @"namespace A { class Test {} }",
+			      @"namespace A { class Test {
+} }",
 			      @"namespace A {
-class Test {}
+class Test {
+}
 }");
 		}
 
@@ -592,16 +608,19 @@ set {
 			policy.IndentNamespaceBody = true;
 			var adapter = Test(policy,
 			                    @"			namespace Test {
-class FooBar {}
+class FooBar {
+}
 		}",
 			                    @"namespace Test {
-	class FooBar {}
+	class FooBar {
+}
 }");
 			
 			policy.IndentNamespaceBody = false;
 			Continue(policy, adapter,
 			          @"namespace Test {
-class FooBar {}
+class FooBar {
+}
 }");
 		}
 
