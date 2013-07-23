@@ -3471,12 +3471,12 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			yield return factory.CreateXmlDocCompletionData(
 				"exception",
 				"Identifies the exceptions a method can throw",
-				"exception cref=\"|\"></exception>"
+				"exception cref=\"|\"></exception"
 				);
 			yield return factory.CreateXmlDocCompletionData(
 				"include",
 				"Includes comments from a external file",
-				"include file=\"|\" path=\"\">"
+				"include file=\"|\" path=\"\""
 				);
 			yield return factory.CreateXmlDocCompletionData(
 				"inheritdoc",
@@ -3486,7 +3486,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			yield return factory.CreateXmlDocCompletionData(
 				"list",
 				"Create a list or table",
-				"list type=\"|\">"
+				"list type=\"|\""
 				);
 			yield return factory.CreateXmlDocCompletionData(
 				"listheader",
@@ -3510,12 +3510,12 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			yield return factory.CreateXmlDocCompletionData(
 				"param",
 				"Describe a parameter for a method or constructor",
-				"param name=\"|\">"
+				"param name=\"|\""
 				);
 			yield return factory.CreateXmlDocCompletionData(
 				"paramref",
 				"Identify that a word is a parameter name",
-				"paramref name=\"|\"/>"
+				"paramref name=\"|\"/"
 				);
 			
 			yield return factory.CreateXmlDocCompletionData(
@@ -3534,12 +3534,12 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			yield return factory.CreateXmlDocCompletionData(
 				"see",
 				"Specify a link",
-				"see cref=\"|\"/>"
+				"see cref=\"|\"/"
 				);
 			yield return factory.CreateXmlDocCompletionData(
 				"seealso",
 				"Generate a See Also entry",
-				"seealso cref=\"|\"/>"
+				"seealso cref=\"|\"/"
 				);
 			yield return factory.CreateXmlDocCompletionData(
 				"summary",
