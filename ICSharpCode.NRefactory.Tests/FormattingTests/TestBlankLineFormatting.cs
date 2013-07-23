@@ -363,7 +363,89 @@ namespace Test
 }", FormattingMode.Intrusive);
 		}
 
-		
+		/// <summary>
+		/// Bug 13373 - XS adding linefeeds within #ifs
+		/// </summary>
+		[Test]
+		public void TestBug13373_Global ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+
+			Test (policy, @"
+#if false
+class Test2
+{
+}
+#endif
+",
+			                    @"
+#if false
+class Test2
+{
+}
+#endif
+", FormattingMode.Intrusive);
+
+		}
+
+		[Test]
+		public void TestBug13373_TypeLevel ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+
+			Test (policy, 
+@"class Foo
+{
+	#if false
+	class Test2
+	{
+	}
+	#endif
+}
+",
+@"class Foo
+{
+	#if false
+	class Test2
+	{
+	}
+	#endif
+}
+", FormattingMode.Intrusive);
+
+		}
+
+		[Test]
+		public void TestBug13373_StatementLevel ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+
+			Test (policy, 
+			                    @"class Foo
+{
+	void Test ()
+	{
+		#if false
+		class Test2
+		{
+		}
+		#endif
+	}
+}",
+@"class Foo
+{
+	void Test ()
+	{
+		#if false
+		class Test2
+		{
+		}
+		#endif
+	}
+}", FormattingMode.Intrusive);
+
+		}
+
 		
 	}
 }

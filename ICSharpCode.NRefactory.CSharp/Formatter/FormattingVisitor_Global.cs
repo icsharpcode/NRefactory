@@ -34,6 +34,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			int newLines = 1;
 			var nextSibling = child.GetNextSibling(NoWhitespacePredicate);
+			if (nextSibling is PreProcessorDirective) {
+				var directive = (PreProcessorDirective)nextSibling;
+				if (directive.Type == PreProcessorDirectiveType.Endif)
+					return -1;
+			}
 			if ((child is UsingDeclaration || child is UsingAliasDeclaration) && !(nextSibling is UsingDeclaration || nextSibling is UsingAliasDeclaration)) {
 				newLines += policy.BlankLinesAfterUsings;
 			} else if ((child is TypeDeclaration) && (nextSibling is TypeDeclaration)) {
@@ -251,6 +256,8 @@ namespace ICSharpCode.NRefactory.CSharp
 					blankLines += policy.BlankLinesAroundRegion;
 				if (directive.Type == PreProcessorDirectiveType.Endregion)
 					blankLines += policy.BlankLinesInsideRegion;
+				if (directive.Type == PreProcessorDirectiveType.Endif)
+					return -1;
 				return blankLines;
 			}
 			if (child.Role == Roles.LBrace)

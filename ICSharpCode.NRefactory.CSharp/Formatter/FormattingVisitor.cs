@@ -117,6 +117,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public void EnsureNewLinesAfter(AstNode node, int blankLines)
 		{
+			if (blankLines < 0)
+				return;
 			if (formatter.FormattingMode != FormattingMode.Intrusive)
 				blankLines = 1;
 			int foundBlankLines = 0;
@@ -418,6 +420,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (node.GetPrevNode () is NewLineNode) {
 				FixIndentation(node);
 			} else {
+				// if no new line preceeds an #endif directive it's excluded
+				var directive = node as PreProcessorDirective;
+				if (directive != null) {
+					if (directive.Type == PreProcessorDirectiveType.Endif)
+						return;
+				}
 				int offset = document.GetOffset(node.StartLocation);
 				AddChange(offset, 0, curIndent.IndentString);
 			}
