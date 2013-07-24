@@ -117,6 +117,11 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public void EnsureNewLinesAfter(AstNode node, int blankLines)
 		{
+			if (node is PreProcessorDirective) {
+				var directive = (PreProcessorDirective)node;
+				if (directive.Type == PreProcessorDirectiveType.Pragma)
+					return;
+			}
 			if (blankLines < 0)
 				return;
 			if (formatter.FormattingMode != FormattingMode.Intrusive)

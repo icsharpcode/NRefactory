@@ -41,6 +41,35 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 			      @"[assembly: AssemblyDescription   (""""  )   ]",
 			      @"[assembly: AssemblyDescription ("""")]");
 		}
+
+		/// <summary>
+		/// Bug 13361 - Format Document partially removes pragmas (#pragma
+		/// </summary>
+		[Test]
+		public void TestBug13361()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+			Test(policy, 
+			     @"#pragma warning disable 0219
+
+class Foo
+{
+	#pragma warning disable 123
+	void Foo ()
+	{
+		#pragma warning disable 123
+	}
+}", @"#pragma warning disable 0219
+
+class Foo
+{
+	#pragma warning disable 123
+	void Foo ()
+	{
+		#pragma warning disable 123
+	}
+}");
+		}
 	}
 }
 
