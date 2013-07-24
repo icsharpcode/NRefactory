@@ -196,5 +196,18 @@ class TestClass : BaseClass
 }";
 			Test<ParameterHidesMemberIssue> (input, 0);
 		}
+
+		[Test]
+		public void TestIgnoreAbstractMethods ()
+		{
+			var input = @"
+abstract class TestClass
+{
+	private int i;
+
+	public abstract void Method (int i);
+}";
+			Test<ParameterHidesMemberIssue> (input, 0);
+		}
 	}
 }

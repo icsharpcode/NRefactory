@@ -50,6 +50,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
+			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+			{
+				if (methodDeclaration.HasModifier(Modifiers.Abstract))
+					return;
+				base.VisitMethodDeclaration(methodDeclaration);
+			}
+
 			public override void VisitParameterDeclaration (ParameterDeclaration parameterDeclaration)
 			{
 				base.VisitParameterDeclaration (parameterDeclaration);
