@@ -38,6 +38,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				var directive = (PreProcessorDirective)nextSibling;
 				if (directive.Type == PreProcessorDirectiveType.Endif)
 					return -1;
+				if (directive.Type == PreProcessorDirectiveType.Undef)
+					return -1;
 			}
 			if ((child is UsingDeclaration || child is UsingAliasDeclaration) && !(nextSibling is UsingDeclaration || nextSibling is UsingAliasDeclaration)) {
 				newLines += policy.BlankLinesAfterUsings;
@@ -257,6 +259,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				if (directive.Type == PreProcessorDirectiveType.Endregion)
 					blankLines += policy.BlankLinesInsideRegion;
 				if (directive.Type == PreProcessorDirectiveType.Endif)
+					return -1;
+				if (directive.Type == PreProcessorDirectiveType.Undef)
 					return -1;
 				return blankLines;
 			}

@@ -70,6 +70,28 @@ class Foo
 	}
 }");
 		}
+
+		/// <summary>
+		/// Bug 13413 - Formatter inserts new line between #undef statements in an #if block on every reformat 
+		/// </summary>
+		[Test]
+		public void TestBug13413()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+			Test(policy, 
+			     @"#if foo
+#undef a
+#undef b
+#undef c
+#undef d
+#endif
+", @"#if foo
+#undef a
+#undef b
+#undef c
+#undef d
+#endif
+");
+		}
 	}
 }
-
