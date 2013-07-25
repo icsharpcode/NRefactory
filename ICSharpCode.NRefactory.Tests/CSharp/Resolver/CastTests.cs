@@ -128,5 +128,40 @@ class Test {
 			Assert.AreEqual(typeof(int), rr.Variable.ConstantValue.GetType());
 			Assert.AreEqual(ushort.MaxValue, (int)rr.Variable.ConstantValue);
 		}
+		
+		[Test]
+		[Ignore("Broken - the resolver processes explicit conversions twice")]
+		public void ExplicitConversion_In_Assignment()
+		{
+			string input = @"
+class Test {
+	void M(int i) {
+		long l;
+		l = $(long)i$;
+	}
+	public Project Project { get; set; }
+}
+class Project : MissingInterface {}";
+			var crr = Resolve<ConversionResolveResult>(input);
+			Assert.AreEqual(Conversion.ImplicitNumericConversion, crr.Conversion);
+			Assert.AreEqual(Conversion.IdentityConversion, GetConversion(input));
+		}
+		
+		[Test]
+		public void ExplicitConversion_In_Assignment_Followed_By_ImplicitConversion()
+		{
+			string input = @"
+class Test {
+	void M(short i) {
+		long l;
+		l = $(int)i$;
+	}
+	public Project Project { get; set; }
+}
+class Project : MissingInterface {}";
+			var crr = Resolve<ConversionResolveResult>(input);
+			Assert.AreEqual(Conversion.ImplicitNumericConversion, crr.Conversion);
+			Assert.AreEqual(Conversion.ImplicitNumericConversion, GetConversion(input));
+		}
 	}
 }

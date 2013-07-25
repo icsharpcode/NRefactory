@@ -84,7 +84,7 @@ public class Form1 {
 			Assert.IsTrue(attr.GetChildByRole(Roles.RPar).IsNull);
 		}
 		
-		[Test, Ignore("Parser bug - parenthesis are missing")]
+		[Test]
 		public void AttributeWithEmptyParenthesis()
 		{
 			string program = @"[Attr()] class Test {}";
@@ -233,7 +233,6 @@ public class Form1 {
 					}});
 		}
 		
-		[Ignore("Fixme!")]
 		[Test]
 		public void AssemblyAttributeBeforeNamespace()
 		{
@@ -246,7 +245,6 @@ public class Form1 {
 				}, syntaxTree.Children.Select(c => c.GetType()).ToArray());
 		}
 		
-		[Ignore("Fixme!")]
 		[Test]
 		public void AssemblyAttributeBeforeClass()
 		{

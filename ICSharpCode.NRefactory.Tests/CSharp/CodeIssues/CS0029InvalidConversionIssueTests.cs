@@ -409,8 +409,8 @@ class TestClass
 			Test<CS0029InvalidConversionIssue>(input, output);
 		}
 		
-		// TODO: create resolver unit tests for this issue
-		[Test, Ignore("Resolver bug - GetConversion() returns the explicit conversion instead of the expected identity conversion")]
+		[Test]
+		[Ignore("Fails due to CastTests.ExplicitConversion_In_Assignment")]
 		public void ExplicitConversionFromUnknownType()
 		{
 			string input = @"
