@@ -33,6 +33,42 @@ namespace ICSharpCode.NRefactory.TypeSystem
 	/// </remarks>
 	public sealed class ParameterListComparer : IEqualityComparer<IList<IParameter>>
 	{
+		sealed class DynamicErasure : TypeVisitor
+		{
+			class DynamicOrObjectType : AbstractType {
+				public override string Name { get { throw new NotSupportedException(); } }
+				public override bool? IsReferenceType { get { throw new NotSupportedException(); } }
+				public override TypeKind Kind { get { throw new NotSupportedException(); } }
+				public override ITypeReference ToTypeReference() { throw new NotSupportedException(); }
+
+				public override bool Equals(IType other) {
+					return other is DynamicOrObjectType;
+				}
+
+				public override int GetHashCode() {
+					throw new NotSupportedException();
+				}
+			}
+
+			private static readonly DynamicOrObjectType dynamicOrObjectType = new DynamicOrObjectType();
+			
+			public override IType VisitOtherType(IType type) {
+				if (type.Kind == TypeKind.Dynamic)
+					return dynamicOrObjectType;
+				else
+					return base.VisitOtherType(type);
+			}
+
+			public override IType VisitTypeDefinition(ITypeDefinition type) {
+				if (type.IsKnownType(KnownTypeCode.Object))
+					return dynamicOrObjectType;
+				else
+					return base.VisitTypeDefinition(type);
+			}
+		}
+
+		private static readonly DynamicErasure dynamicErasure = new DynamicErasure();
+
 		public static readonly ParameterListComparer Instance = new ParameterListComparer();
 		
 		/// <summary>
@@ -64,13 +100,14 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				// In order to compare the method signatures, we will normalize all method type parameters.
 				IType aType = DummyTypeParameter.NormalizeMethodTypeParameters(a.Type);
 				IType bType = DummyTypeParameter.NormalizeMethodTypeParameters(b.Type);
-				
-				if (!aType.Equals(bType))
+
+				if (!aType.AcceptVisitor(dynamicErasure).Equals(bType.AcceptVisitor(dynamicErasure))) {
 					return false;
+				}
 			}
 			return true;
 		}
-		
+
 		public int GetHashCode(IList<IParameter> obj)
 		{
 			int hashCode = obj.Count;
