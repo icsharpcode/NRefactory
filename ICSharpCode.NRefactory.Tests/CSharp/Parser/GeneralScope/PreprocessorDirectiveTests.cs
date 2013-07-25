@@ -138,6 +138,8 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 			string program = "#pragma warning disable 809";
 			var ppd = ParseUtilCSharp.ParseGlobal<PragmaWarningPreprocssorDirective>(program);
 			Assert.AreEqual(new TextLocation(1, 1), ppd.StartLocation);
+			Assert.AreEqual(new TextLocation(1, 1), ppd.PragmaToken.StartLocation);
+			Assert.AreEqual(new TextLocation(1, 8), ppd.PragmaToken.EndLocation);
 			Assert.AreEqual(new TextLocation(1, 9), ppd.WarningToken.StartLocation);
 			Assert.AreEqual(new TextLocation(1, 16), ppd.WarningToken.EndLocation);
 			Assert.AreEqual(new TextLocation(1, 17), ppd.DisableToken.StartLocation);

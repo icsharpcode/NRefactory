@@ -199,6 +199,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			
 			TestOperator(MakeResult(typeof(int?)), BinaryOperatorType.Subtract, MakeResult(typeof(StringComparison)),
 			             Conversion.IdentityConversion, Conversion.ImplicitNullableConversion, typeof(StringComparison?));
+			
+			TestOperator(MakeResult(typeof(int)), BinaryOperatorType.Subtract, MakeResult(typeof(StringComparison?)),
+			             Conversion.ImplicitNullableConversion, Conversion.IdentityConversion, typeof(StringComparison?));
 		}
 		
 		[Test]
@@ -453,6 +456,19 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			
 			AssertConstant(0 | AttributeTargets.Field, resolver.ResolveBinaryOperator(
 				BinaryOperatorType.BitwiseOr, MakeConstant(0), MakeConstant(AttributeTargets.Field)));
+		}
+		
+		[Test]
+		public void NullableBitwiseEnum()
+		{
+			TestOperator(MakeResult(typeof(StringComparison?)), BinaryOperatorType.BitwiseAnd, MakeResult(typeof(StringComparison?)),
+			             Conversion.IdentityConversion, Conversion.IdentityConversion, typeof(StringComparison?));
+			
+			TestOperator(MakeResult(typeof(StringComparison)), BinaryOperatorType.BitwiseAnd, MakeResult(typeof(StringComparison?)),
+			             Conversion.ImplicitNullableConversion, Conversion.IdentityConversion, typeof(StringComparison?));
+			
+			TestOperator(MakeResult(typeof(StringComparison?)), BinaryOperatorType.BitwiseAnd, MakeResult(typeof(StringComparison)),
+			             Conversion.IdentityConversion, Conversion.ImplicitNullableConversion, typeof(StringComparison?));
 		}
 		
 		[Test]
@@ -778,7 +794,6 @@ class Test
 		/// <summary>
 		/// Bug 12689 - Wrong type of bitwise operation with enums
 		/// </summary>
-		//	[Ignore("FixMe")]
 		[Test]
 		public void TestEnumBitwiseAndOperatorOverloading()
 		{
@@ -841,22 +856,42 @@ class C
 		[Test]
 		public void TestEnumBitwiseAndOperatorWithNull()
 		{
-			string program = @"public enum E
-{
-
-}
+			string program = @"public enum E {}
 
 class C
 {
     public static void Main ()
     {
-
         E f = 0;
         var res = $f & null$; // XS sees Value as type uint instead of E
-}
+    }
 }";
 			var rr = Resolve<OperatorResolveResult>(program);
 			Assert.AreEqual("System.Nullable`1[[E]]", rr.Type.ReflectionName);
+		}
+		
+		[Test]
+		public void EnumSubtractionWithImplicitOperators()
+		{
+			string program = @"using System;
+public enum E {}
+struct S {
+    public static implicit operator E (S s) { return 0; }
+    public static implicit operator int (S s) { return 0; }
+}
+
+class C
+{
+    public void Test(E e, S s)
+    {
+        var res = $e - s$; // C# uses the conversion to E, so result will be int
+    }
+}";
+			var rr = Resolve<OperatorResolveResult>(program);
+			Assert.AreEqual("System.Int32", rr.Type.ReflectionName);
+			var c = ((ConversionResolveResult)rr.Operands[1]).Conversion;
+			Assert.IsTrue(c.IsUserDefined);
+			Assert.AreEqual("E", c.Method.ReturnType.ReflectionName);
 		}
 	}
 }
