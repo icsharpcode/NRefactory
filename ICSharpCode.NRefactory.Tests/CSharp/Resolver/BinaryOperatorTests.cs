@@ -190,8 +190,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			
 			TestOperator(MakeResult(typeof(StringComparison?)), BinaryOperatorType.Subtract, MakeResult(typeof(StringComparison)),
 			             Conversion.IdentityConversion, Conversion.ImplicitNullableConversion, typeof(int?));
-			
-			Assert.IsTrue(resolver.ResolveBinaryOperator(
+
+			Assert.IsFalse(resolver.ResolveBinaryOperator(
 				BinaryOperatorType.Subtract, MakeResult(typeof(int?)), MakeResult(typeof(StringComparison))).IsError);
 		}
 		
@@ -746,7 +746,6 @@ struct C<T>
 		/// <summary>
 		/// Bug 12717 - Wrong type resolved for enum substraction
 		/// </summary>
-		[Ignore("FixMe")]
 		[Test]
 		public void TestIntEnumSubstraction()
 		{

@@ -711,6 +711,11 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 							}
 						}
 						if (rhsType.Kind == TypeKind.Enum) {
+							// E operator -(U x, E y);
+							IType underlyingType = MakeNullable(GetEnumUnderlyingType(rhsType), isNullable);
+							if (TryConvert(ref lhs, underlyingType)) {
+								return HandleEnumOperator(isNullable, rhsType, op, lhs, rhs);
+							}
 							// U operator –(E x, E y);
 							if (TryConvert(ref lhs, rhs.Type)) {
 								return HandleEnumSubtraction(isNullable, rhsType, lhs, rhs);
