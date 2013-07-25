@@ -464,9 +464,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			parent = node;
 			CSharpResolver storedResolver;
 			while (!resolverBeforeDict.TryGetValue(parent, out storedResolver)) {
-				parent = parent.Parent;
-				if (parent == null)
+				AstNode tmp = parent.Parent;
+				if (tmp == null)
 					throw new InvalidOperationException("Could not find a resolver state for any parent of the specified node. Are you trying to resolve a node that is not a descendant of the CSharpAstResolver's root node?");
+				if (tmp.NodeType == NodeType.Whitespace)
+					return resolver; // special case: resolve expression within preprocessor directive
+				parent = tmp;
 			}
 			return storedResolver;
 		}
