@@ -94,8 +94,9 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					return result;
 				}
 				result = new List<IAttribute>();
+				var context = parentContext.WithCurrentTypeDefinition(this);
 				foreach (IUnresolvedTypeDefinition part in parts) {
-					ITypeResolveContext parentContextForPart = part.CreateResolveContext(parentContext);
+					ITypeResolveContext parentContextForPart = part.CreateResolveContext(context);
 					foreach (var attr in part.Attributes) {
 						result.Add(attr.CreateResolvedAttribute(parentContextForPart));
 					}

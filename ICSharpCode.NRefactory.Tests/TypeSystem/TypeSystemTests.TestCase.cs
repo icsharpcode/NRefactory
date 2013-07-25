@@ -397,4 +397,28 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 		event Action IExplicitImplementationTests.E { add {} remove {} }
 		int IExplicitImplementationTests.this[int x] { get { return 0; } set {} }
 	}
+
+	[TypeTest(C, typeof(Inner), typeof(int)), My]
+	public class ClassWithAttributesUsingNestedMembers {
+		sealed class MyAttribute : Attribute {}
+
+		const int C = 42;
+		class Inner {
+		}
+
+		[TypeTest(C, typeof(Inner), typeof(int)), My]
+		public int P { get; set; }
+
+		[TypeTest(C, typeof(Inner), typeof(int)), My]
+		class AttributedInner {
+		}
+
+		[TypeTest(C, typeof(Inner), typeof(int)), My]
+		class AttributedInner2 {
+			sealed class MyAttribute : Attribute {}
+
+			const int C = 43;
+			class Inner {}
+		}
+	}
 }
