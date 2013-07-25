@@ -261,6 +261,9 @@ namespace ICSharpCode.NRefactory.CSharp {
 			public override AstNode VisitQueryJoinClause(QueryJoinClause queryJoinClause) {
 				Expression resultSelectorBody = null;
 				var inExpression = VisitNested(queryJoinClause.InExpression, null);
+				if (!queryJoinClause.Type.IsNull) {
+					inExpression = inExpression.Invoke("Cast", new[] { queryJoinClause.Type.Clone() }, EmptyList<Expression>.Instance);
+				}
 				var key1SelectorFirstParam = CreateParameterForCurrentRangeVariable();
 				var key1Selector = CreateLambda(new[] { key1SelectorFirstParam }, VisitNested(queryJoinClause.OnExpression, key1SelectorFirstParam));
 				var key2Param = CreateParameter(Identifier.Create(queryJoinClause.JoinIdentifier));
