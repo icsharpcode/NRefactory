@@ -813,12 +813,29 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				case BinaryOperatorType.BitwiseOr:
 				case BinaryOperatorType.ExclusiveOr:
 					{
-						if (lhsType.Kind == TypeKind.Enum && TryConvert(ref rhs, lhs.Type)) {
+						if (lhsType.Kind == TypeKind.Enum) {
 							// bool operator op(E x, E y);
-							return HandleEnumOperator(isNullable, lhsType, op, lhs, rhs);
-						} else if (rhsType.Kind == TypeKind.Enum && TryConvert(ref lhs, rhs.Type)) {
+							if (TryConvert(ref rhs, lhs.Type)) {
+								return HandleEnumOperator(isNullable, lhsType, op, lhs, rhs);
+							}
+
+							// E operator op(E x, U y);
+							IType underlyingType = MakeNullable(lhsType, true);
+							if (TryConvert(ref rhs, underlyingType)) {
+								return HandleEnumOperator(true, lhsType, op, lhs, rhs);
+							}
+						}
+
+
+						if (rhsType.Kind == TypeKind.Enum) {
 							// bool operator op(E x, E y);
-							return HandleEnumOperator(isNullable, rhsType, op, lhs, rhs);
+							if (TryConvert(ref lhs, rhs.Type))
+								return HandleEnumOperator(isNullable, rhsType, op, lhs, rhs);
+							// E operator op(E x, U y);
+							IType underlyingType = MakeNullable(rhsType, true);
+							if (TryConvert(ref lhs, underlyingType)) {
+								return HandleEnumOperator(true, lhsType, op, lhs, rhs);
+							}
 						}
 						
 						switch (op) {

@@ -772,7 +772,7 @@ class Test
 		/// <summary>
 		/// Bug 12689 - Wrong type of bitwise operation with enums
 		/// </summary>
-		[Ignore("FixMe")]
+	//	[Ignore("FixMe")]
 		[Test]
 		public void TestEnumBitwiseAndOperatorOverloading()
 		{
@@ -802,7 +802,7 @@ class C
     }
 }";
 			var rr = Resolve<OperatorResolveResult>(program);
-			Assert.AreEqual("E?", rr.Type.ReflectionName);
+			Assert.AreEqual("System.Nullable`1[[E]]", rr.Type.ReflectionName);
 		}
 
 		/// <summary>
@@ -833,7 +833,6 @@ class C
 		/// <summary>
 		/// Bug 12670 - Wrong type resolution for enums
 		/// </summary>
-		[Ignore("FixMe")]
 		[Test]
 		public void TestEnumBitwiseAndOperatorWithNull()
 		{
@@ -848,11 +847,11 @@ class C
     {
 
         E f = 0;
-        var res = $(f & null).Value$; // XS sees Value as type uint instead of E
+        var res = $f & null$; // XS sees Value as type uint instead of E
 }
 }";
-			var rr = Resolve<ResolveResult>(program);
-			Assert.AreEqual("E", rr.Type.ReflectionName);
+			var rr = Resolve<OperatorResolveResult>(program);
+			Assert.AreEqual("System.Nullable`1[[E]]", rr.Type.ReflectionName);
 		}
 	}
 }
