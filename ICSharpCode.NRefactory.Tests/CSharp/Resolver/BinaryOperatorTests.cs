@@ -739,8 +739,7 @@ class Test {
 			Assert.IsFalse(irr.IsError);
 			Assert.IsTrue(irr.IsLiftedOperator);
 		}
-
-		[Ignore("Resolver bug. Fixme!")]
+		
 		[Test]
 		public void TestLiftedOperatorBug()
 		{
@@ -749,7 +748,7 @@ using System;
 
 struct C<T>
 {
-	public static C<T> operator+(C<T> u, C<T> u2)
+	public static C<T> operator+(C<T> u, T u2)
 	{
 		return u;
 	}
@@ -763,6 +762,7 @@ struct C<T>
 			var irr = Resolve<OperatorResolveResult>(program);
 			Assert.IsFalse(irr.IsError);
 			Assert.IsTrue(irr.IsLiftedOperator);
+			Assert.AreEqual("System.Nullable`1[[C`1[[System.Int32]]]]", irr.Type.ReflectionName);
 		}
 
 		/// <summary>
