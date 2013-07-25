@@ -1355,5 +1355,44 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			Assert.That(events.Select(e => e.RemoveAccessor.ImplementedInterfaceMembers.Count).ToList(), Is.EquivalentTo(new[] { 0, 1 }));
 			Assert.AreEqual(events.SelectMany(e => e.RemoveAccessor.ImplementedInterfaceMembers).Single(), ievent.RemoveAccessor);
 		}
+
+		[Test]
+		public void AttributesUsingNestedMembers() {
+			var type = GetTypeDefinition(typeof(ClassWithAttributesUsingNestedMembers));
+			var inner = type.GetNestedTypes().Single(t => t.Name == "Inner");
+			var myAttribute = type.GetNestedTypes().Single(t => t.Name == "MyAttribute");
+			var typeTypeTestAttr = type.Attributes.Single(a => a.AttributeType.Name == "TypeTestAttribute");
+			Assert.AreEqual(42, typeTypeTestAttr.PositionalArguments[0].ConstantValue);
+			Assert.IsInstanceOf<TypeOfResolveResult>(typeTypeTestAttr.PositionalArguments[1]);
+			Assert.AreEqual(inner, ((TypeOfResolveResult)typeTypeTestAttr.PositionalArguments[1]).ReferencedType);
+			var typeMyAttr = type.Attributes.Single(a => a.AttributeType.Name == "MyAttribute");
+			Assert.AreEqual(myAttribute, typeMyAttr.AttributeType);
+
+			var prop = type.GetProperties().Single(p => p.Name == "P");
+			var propTypeTestAttr = prop.Attributes.Single(a => a.AttributeType.Name == "TypeTestAttribute");
+			Assert.AreEqual(42, propTypeTestAttr.PositionalArguments[0].ConstantValue);
+			Assert.IsInstanceOf<TypeOfResolveResult>(propTypeTestAttr.PositionalArguments[1]);
+			Assert.AreEqual(inner, ((TypeOfResolveResult)propTypeTestAttr.PositionalArguments[1]).ReferencedType);
+			var propMyAttr = prop.Attributes.Single(a => a.AttributeType.Name == "MyAttribute");
+			Assert.AreEqual(myAttribute, propMyAttr.AttributeType);
+
+			var attributedInner = (ITypeDefinition)type.GetNestedTypes().Single(t => t.Name == "AttributedInner");
+			var innerTypeTestAttr = attributedInner.Attributes.Single(a => a.AttributeType.Name == "TypeTestAttribute");
+			Assert.AreEqual(42, innerTypeTestAttr.PositionalArguments[0].ConstantValue);
+			Assert.IsInstanceOf<TypeOfResolveResult>(innerTypeTestAttr.PositionalArguments[1]);
+			Assert.AreEqual(inner, ((TypeOfResolveResult)innerTypeTestAttr.PositionalArguments[1]).ReferencedType);
+			var innerMyAttr = attributedInner.Attributes.Single(a => a.AttributeType.Name == "MyAttribute");
+			Assert.AreEqual(myAttribute, innerMyAttr.AttributeType);
+
+			var attributedInner2 = (ITypeDefinition)type.GetNestedTypes().Single(t => t.Name == "AttributedInner2");
+			var inner2 = attributedInner2.GetNestedTypes().Single(t => t.Name == "Inner");
+			var myAttribute2 = attributedInner2.GetNestedTypes().Single(t => t.Name == "MyAttribute");
+			var inner2TypeTestAttr = attributedInner2.Attributes.Single(a => a.AttributeType.Name == "TypeTestAttribute");
+			Assert.AreEqual(43, inner2TypeTestAttr.PositionalArguments[0].ConstantValue);
+			Assert.IsInstanceOf<TypeOfResolveResult>(inner2TypeTestAttr.PositionalArguments[1]);
+			Assert.AreEqual(inner2, ((TypeOfResolveResult)inner2TypeTestAttr.PositionalArguments[1]).ReferencedType);
+			var inner2MyAttr = attributedInner2.Attributes.Single(a => a.AttributeType.Name == "MyAttribute");
+			Assert.AreEqual(myAttribute2, inner2MyAttr.AttributeType);
+		}
 	}
 }
