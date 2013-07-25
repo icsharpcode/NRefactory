@@ -700,25 +700,28 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					methodGroup = operators.SubtractionOperators;
 					{
 						if (lhsType.Kind == TypeKind.Enum) {
+							// U operator –(E x, E y);
+							if (TryConvert(ref rhs, lhs.Type)) {
+								return HandleEnumSubtraction(isNullable, lhsType, lhs, rhs);
+							}
+
 							// E operator –(E x, U y);
 							IType underlyingType = MakeNullable(GetEnumUnderlyingType(lhsType), isNullable);
 							if (TryConvert(ref rhs, underlyingType)) {
 								return HandleEnumOperator(isNullable, lhsType, op, lhs, rhs);
 							}
-							// U operator –(E x, E y);
-							if (TryConvert(ref rhs, lhs.Type)) {
-								return HandleEnumSubtraction(isNullable, lhsType, lhs, rhs);
-							}
+
 						}
 						if (rhsType.Kind == TypeKind.Enum) {
+							// U operator –(E x, E y);
+							if (TryConvert(ref lhs, rhs.Type)) {
+								return HandleEnumSubtraction(isNullable, rhsType, lhs, rhs);
+							}
+
 							// E operator -(U x, E y);
 							IType underlyingType = MakeNullable(GetEnumUnderlyingType(rhsType), isNullable);
 							if (TryConvert(ref lhs, underlyingType)) {
 								return HandleEnumOperator(isNullable, rhsType, op, lhs, rhs);
-							}
-							// U operator –(E x, E y);
-							if (TryConvert(ref lhs, rhs.Type)) {
-								return HandleEnumSubtraction(isNullable, rhsType, lhs, rhs);
 							}
 						}
 						

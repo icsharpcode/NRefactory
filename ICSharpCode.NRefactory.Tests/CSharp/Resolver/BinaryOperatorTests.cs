@@ -808,7 +808,6 @@ class C
 		/// <summary>
 		/// Bug 12677 - Wrong result of constant binary result 
 		/// </summary>
-		[Ignore("FixMe")]
 		[Test]
 		public void TestEnumSubstractionWithNull()
 		{
@@ -826,7 +825,7 @@ class C
         var res = $(e - null).Value$; // Value is E but should be int
     }
 }";
-			var rr = Resolve<ResolveResult>(program);
+			var rr = Resolve<MemberResolveResult>(program);
 			Assert.AreEqual("System.Int32", rr.Type.ReflectionName);
 		}
 
