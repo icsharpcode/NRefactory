@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory.ConsistencyCheck
 		
 		public static IUnresolvedAssembly LoadAssembly(string assemblyFileName)
 		{
-			return assemblyDict.GetOrAdd(assemblyFileName, file => AssemblyLoader.Create().LoadAssemblyFile(file));
+			return assemblyDict.GetOrAdd(assemblyFileName, file => new CecilLoader().LoadAssemblyFile(file));
 		}
 	}
 	

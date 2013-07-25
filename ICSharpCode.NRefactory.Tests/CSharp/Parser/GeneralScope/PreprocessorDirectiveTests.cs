@@ -132,6 +132,22 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 			Assert.IsTrue(ppd.IsDefined (809));
 		}
 		
+		[Test]
+		public void PragmaWarningLocations()
+		{
+			string program = "#pragma warning disable 809";
+			var ppd = ParseUtilCSharp.ParseGlobal<PragmaWarningPreprocssorDirective>(program);
+			Assert.AreEqual(new TextLocation(1, 1), ppd.StartLocation);
+			Assert.AreEqual(new TextLocation(1, 9), ppd.WarningToken.StartLocation);
+			Assert.AreEqual(new TextLocation(1, 16), ppd.WarningToken.EndLocation);
+			Assert.AreEqual(new TextLocation(1, 17), ppd.DisableToken.StartLocation);
+			Assert.AreEqual(new TextLocation(1, 24), ppd.DisableToken.EndLocation);
+			var id = ppd.Warnings.Single();
+			Assert.AreEqual(new TextLocation(1, 25), id.StartLocation);
+			Assert.AreEqual(new TextLocation(1, 28), id.EndLocation);
+			Assert.AreEqual(new TextLocation(1, 28), ppd.EndLocation);
+		}
+		
 		[Test, Ignore("mcs crashes because it tries to compute the full path to file.cs")]
 		public void PragmaChecksum()
 		{

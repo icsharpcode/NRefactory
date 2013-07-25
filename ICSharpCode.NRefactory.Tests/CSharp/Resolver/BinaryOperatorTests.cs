@@ -129,6 +129,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			TestOperator(MakeResult(typeof(StringComparison?)), BinaryOperatorType.Add, MakeResult(typeof(int)),
 			             Conversion.IdentityConversion, Conversion.ImplicitNullableConversion, typeof(StringComparison?));
 			
+			TestOperator(MakeResult(typeof(StringComparison)), BinaryOperatorType.Add, MakeResult(typeof(int?)),
+			             Conversion.ImplicitNullableConversion, Conversion.IdentityConversion, typeof(StringComparison?));
+			
 			TestOperator(MakeResult(typeof(StringComparison?)), BinaryOperatorType.Add, MakeResult(typeof(int?)),
 			             Conversion.IdentityConversion, Conversion.IdentityConversion, typeof(StringComparison?));
 			
@@ -185,14 +188,17 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			AssertConstant(3, resolver.ResolveBinaryOperator(
 				BinaryOperatorType.Subtract, MakeConstant(StringComparison.OrdinalIgnoreCase), MakeConstant(StringComparison.InvariantCulture)));
 			
+			AssertConstant(StringComparison.InvariantCulture, resolver.ResolveBinaryOperator(
+				BinaryOperatorType.Subtract, MakeConstant(StringComparison.InvariantCulture), MakeConstant(0)));
+			
 			TestOperator(MakeResult(typeof(StringComparison?)), BinaryOperatorType.Subtract, MakeResult(typeof(int)),
 			             Conversion.IdentityConversion, Conversion.ImplicitNullableConversion, typeof(StringComparison?));
 			
 			TestOperator(MakeResult(typeof(StringComparison?)), BinaryOperatorType.Subtract, MakeResult(typeof(StringComparison)),
 			             Conversion.IdentityConversion, Conversion.ImplicitNullableConversion, typeof(int?));
-
-			Assert.IsFalse(resolver.ResolveBinaryOperator(
-				BinaryOperatorType.Subtract, MakeResult(typeof(int?)), MakeResult(typeof(StringComparison))).IsError);
+			
+			TestOperator(MakeResult(typeof(int?)), BinaryOperatorType.Subtract, MakeResult(typeof(StringComparison)),
+			             Conversion.IdentityConversion, Conversion.ImplicitNullableConversion, typeof(StringComparison?));
 		}
 		
 		[Test]
@@ -772,7 +778,7 @@ class Test
 		/// <summary>
 		/// Bug 12689 - Wrong type of bitwise operation with enums
 		/// </summary>
-	//	[Ignore("FixMe")]
+		//	[Ignore("FixMe")]
 		[Test]
 		public void TestEnumBitwiseAndOperatorOverloading()
 		{
@@ -806,7 +812,7 @@ class C
 		}
 
 		/// <summary>
-		/// Bug 12677 - Wrong result of constant binary result 
+		/// Bug 12677 - Wrong result of constant binary result
 		/// </summary>
 		[Test]
 		public void TestEnumSubstractionWithNull()

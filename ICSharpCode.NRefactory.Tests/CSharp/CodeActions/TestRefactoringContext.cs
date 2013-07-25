@@ -36,7 +36,6 @@ using NUnit.Framework;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.NRefactory.CSharp;
-using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {

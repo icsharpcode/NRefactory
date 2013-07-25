@@ -250,5 +250,11 @@ class Test {
 ");
 			Assert.AreEqual("System.Environment", rr.Type.FullName);
 		}
+		
+		[Test]
+		public void PragmaWarningID()
+		{
+			ResolveAtLocation(@"#pragma warning disable 1$0");
+		}
 	}
 }
