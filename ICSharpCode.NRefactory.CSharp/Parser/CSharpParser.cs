@@ -3660,11 +3660,18 @@ namespace ICSharpCode.NRefactory.CSharp
 						var pragma = new PragmaWarningPreprocssorDirective(new TextLocation(pragmaDirective.Line, pragmaDirective.Col), new TextLocation(pragmaDirective.EndLine, pragmaDirective.EndCol));
 						pragma.AddChild(
 							new CSharpTokenNode (
-								new TextLocation(pragmaDirective.Line, pragmaDirective.WarningColumn),
-								PragmaWarningPreprocssorDirective.WarningKeywordRole
+								new TextLocation(pragmaDirective.Line, pragmaDirective.Col),
+								PragmaWarningPreprocssorDirective.PragmaKeywordRole
+							),
+							PragmaWarningPreprocssorDirective.PragmaKeywordRole
+						);
+						pragma.AddChild(
+							new CSharpTokenNode (
+							new TextLocation(pragmaDirective.Line, pragmaDirective.WarningColumn),
+							PragmaWarningPreprocssorDirective.WarningKeywordRole
 							),
 							PragmaWarningPreprocssorDirective.WarningKeywordRole
-						);
+							);
 						var pragmaRole = pragmaDirective.Disalbe ? PragmaWarningPreprocssorDirective.DisableKeywordRole : PragmaWarningPreprocssorDirective.RestoreKeywordRole;
 						pragma.AddChild(
 							new CSharpTokenNode (

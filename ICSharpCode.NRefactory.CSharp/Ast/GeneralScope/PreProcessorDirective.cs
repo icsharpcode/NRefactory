@@ -72,6 +72,8 @@ namespace ICSharpCode.NRefactory.CSharp
 	public class PragmaWarningPreprocssorDirective : PreProcessorDirective
 	{
 		public static readonly Role<PrimitiveExpression>  WarningRole = new Role<PrimitiveExpression> ("Warning");
+
+		public static readonly TokenRole PragmaKeywordRole = new TokenRole ("#pragma");
 		public static readonly TokenRole WarningKeywordRole = new TokenRole ("warning");
 		public static readonly TokenRole DisableKeywordRole = new TokenRole ("disable");
 		public static readonly TokenRole RestoreKeywordRole = new TokenRole ("restore");
@@ -80,6 +82,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			get {
 				return !DisableToken.IsNull;
 			}
+		}
+
+		public CSharpTokenNode PragmaToken {
+			get { return GetChildByRole (PragmaKeywordRole); }
 		}
 
 		public CSharpTokenNode WarningToken {
