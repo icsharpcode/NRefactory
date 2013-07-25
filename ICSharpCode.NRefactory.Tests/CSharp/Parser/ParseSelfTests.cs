@@ -140,7 +140,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser
 			if (node.NodeType == NodeType.Token)
 				return true;
 			if (node.NodeType == NodeType.Whitespace)
-				return !(node is PragmaWarningPreprocssorDirective);
+				return !(node is PragmaWarningPreprocessorDirective);
 			return node is PrimitiveType || node is PrimitiveExpression || node is NullReferenceExpression;
 		}
 		

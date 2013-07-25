@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 		public void PragmaWarning()
 		{
 			string program = "#pragma warning disable 809";
-			var ppd = ParseUtilCSharp.ParseGlobal<PragmaWarningPreprocssorDirective>(program);
+			var ppd = ParseUtilCSharp.ParseGlobal<PragmaWarningPreprocessorDirective>(program);
 			Assert.AreEqual(PreProcessorDirectiveType.Pragma, ppd.Type);
 			Assert.IsTrue(ppd.Disable);
 			Assert.IsTrue(ppd.IsDefined (809));
@@ -136,7 +136,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 		public void PragmaWarningLocations()
 		{
 			string program = "#pragma warning disable 809";
-			var ppd = ParseUtilCSharp.ParseGlobal<PragmaWarningPreprocssorDirective>(program);
+			var ppd = ParseUtilCSharp.ParseGlobal<PragmaWarningPreprocessorDirective>(program);
 			Assert.AreEqual(new TextLocation(1, 1), ppd.StartLocation);
 			Assert.AreEqual(new TextLocation(1, 1), ppd.PragmaToken.StartLocation);
 			Assert.AreEqual(new TextLocation(1, 8), ppd.PragmaToken.EndLocation);
@@ -155,7 +155,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 		{
 			string program = "#pragma checksum \"file.cs\" \"{3673e4ca-6098-4ec1-890f-8fceb2a794a2}\" \"{012345678AB}\"";
 			var ppd = ParseUtilCSharp.ParseGlobal<PreProcessorDirective>(program);
-			Assert.IsFalse(ppd is PragmaWarningPreprocssorDirective);
+			Assert.IsFalse(ppd is PragmaWarningPreprocessorDirective);
 			Assert.AreEqual(PreProcessorDirectiveType.Pragma, ppd.Type);
 			Assert.AreEqual("checksum \"file.cs\" \"{3673e4ca-6098-4ec1-890f-8fceb2a794a2}\" \"{012345678AB}\"", ppd.Argument);
 		}
@@ -174,7 +174,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 			}, syntaxTree.Children.Select(c => c.Role).ToArray());
 			Assert.AreEqual(new TextLocation(2, 1), syntaxTree.Members.Single().StartLocation);
 
-			var ppd = (LinePreprocssorDirective)syntaxTree.FirstChild;
+			var ppd = (LinePreprocessorDirective)syntaxTree.FirstChild;
 			Assert.AreEqual(PreProcessorDirectiveType.Line, ppd.Type);
 			Assert.AreEqual(200, ppd.LineNumber);
 			Assert.AreEqual("otherfile.cs", ppd.FileName);
@@ -193,7 +193,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 			                	NamespaceDeclaration.MemberRole
 			}, syntaxTree.Children.Select(c => c.Role).ToArray());
 			Assert.AreEqual(new TextLocation(2, 1), syntaxTree.Members.Single().StartLocation);
-			var ppd = (LinePreprocssorDirective)syntaxTree.FirstChild;
+			var ppd = (LinePreprocessorDirective)syntaxTree.FirstChild;
 			Assert.AreEqual(PreProcessorDirectiveType.Line, ppd.Type);
 			Assert.AreEqual(200, ppd.LineNumber);
 		}
