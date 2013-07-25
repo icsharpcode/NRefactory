@@ -698,7 +698,6 @@ attribute_section
 	  {
 	  	PushLocation (GetLocation ($1));
 		lexer.parsing_attribute_section = true;
-		savedOpenLocation = GetLocation ($1);
 	  }
 	  attribute_section_cont
 	  {
@@ -722,12 +721,12 @@ attribute_section_cont
 			$$ = new List<Attribute> (0);
 		else
 			$$ = $4;
-
-		lbag.InsertLocation ($$, 0, PopLocation ());
+		var targetLoc = PopLocation ();
+		var bracketloc = PopLocation ();
 		if ($5 != null) {
-			lbag.AddLocation ($$, GetLocation ($1), GetLocation ($2), GetLocation ($5), GetLocation ($6));
+			lbag.AddLocation ($$, bracketloc, targetLoc, GetLocation ($2), GetLocation ($5), GetLocation ($6));
 		} else {
-			lbag.AddLocation ($$, GetLocation ($1), GetLocation ($2), GetLocation ($6));
+			lbag.AddLocation ($$, bracketloc, targetLoc, GetLocation ($2), GetLocation ($6));
 		}
 
 		current_attr_target = null;
@@ -736,12 +735,10 @@ attribute_section_cont
 	| attribute_list opt_comma CLOSE_BRACKET
 	  {
 		$$ = $1;
-
-		lbag.InsertLocation ($$, 0, PopLocation ());
 		if ($2 != null) {
-			lbag.AddLocation ($$, GetLocation($2), GetLocation ($3));
+			lbag.AddLocation ($$, PopLocation (), GetLocation($2), GetLocation ($3));
 		} else {
-			lbag.AddLocation ($$, GetLocation($3));
+			lbag.AddLocation ($$, PopLocation (), GetLocation($3));
 		}
 	  }
 	| IDENTIFIER error
@@ -767,7 +764,7 @@ attribute_target
 	  {
 		var lt = (LocatedToken) $1;
 		$$ = CheckAttributeTarget (lt.Value, lt.Location);
-		savedCloseLocation = GetLocation ($1);
+		PushLocation (GetLocation ($1));
 	  }
 	| EVENT  { $$ = "event"; savedCloseLocation = GetLocation ($1); }
 	| RETURN { $$ = "return"; savedCloseLocation = GetLocation ($1); }

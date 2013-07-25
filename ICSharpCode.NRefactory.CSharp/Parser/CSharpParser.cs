@@ -163,7 +163,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				if (memberName.Left != null) {
 					result = new MemberType ();
 					result.AddChild (ConvertToType (memberName.Left), MemberType.TargetRole);
-					var loc = LocationsBag.GetLocations (memberName.Left);
+					var loc = LocationsBag.GetLocations (memberName);
 					if (loc != null)
 						result.AddChild (new CSharpTokenNode (Convert (loc [0]), Roles.Dot), Roles.Dot);
 					result.AddChild (Identifier.Create (memberName.Name, Convert (memberName.Location)), Roles.Identifier);

@@ -1235,7 +1235,9 @@ namespace Mono.CSharp
 			int the_token;
 
 			PushPosition ();
+			sbag.Suppress = true;
 			the_token = token ();
+			sbag.Suppress = false;
 			PopPosition ();
 			
 			return the_token;

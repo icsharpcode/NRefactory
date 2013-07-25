@@ -104,6 +104,15 @@ namespace ICSharpCode.NRefactory.CSharp
 			get { return GetChildrenByRole(WarningRole); }
 		}
 
+		public override TextLocation EndLocation {
+			get {
+				var child = LastChild;
+				if (child == null)
+					return TextLocation.Empty;
+				return child.EndLocation;
+			}
+		}
+
 		public PragmaWarningPreprocssorDirective(TextLocation startLocation, TextLocation endLocation) : base (PreProcessorDirectiveType.Pragma, startLocation, endLocation)
 		{
 		}
