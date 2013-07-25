@@ -743,7 +743,117 @@ struct C<T>
 			Assert.IsTrue(irr.IsLiftedOperator);
 		}
 
+		/// <summary>
+		/// Bug 12717 - Wrong type resolved for enum substraction
+		/// </summary>
+		[Ignore("FixMe")]
+		[Test]
+		public void TestIntEnumSubstraction()
+		{
+			string program = @"using System;
+
+enum E
+{
+    V
+}
+
+class Test
+{
+    public static void Main ()
+    {
+
+        E e = 0;
+        var res = $1 - e$;
+    }
+}";
+			var rr = Resolve<OperatorResolveResult>(program);
+			Assert.AreEqual("E", rr.Type.FullName);
+		}
+
+		/// <summary>
+		/// Bug 12689 - Wrong type of bitwise operation with enums
+		/// </summary>
+		[Ignore("FixMe")]
+		[Test]
+		public void TestEnumBitwiseAndOperatorOverloading()
+		{
+			string program = @"using System;
+
+struct S
+{
+    public static implicit operator E? (S s)
+    {
+        return 0;
+    }
+}
 
 
+public enum E
+{
+
+}
+
+class C
+{
+    public static void Main ()
+    {
+        E e = 0;
+        S s;
+        var res = $e & s$; // INVALID type of res XS shows int but should be E?
+    }
+}";
+			var rr = Resolve<OperatorResolveResult>(program);
+			Assert.AreEqual("E?", rr.Type.ReflectionName);
+		}
+
+		/// <summary>
+		/// Bug 12677 - Wrong result of constant binary result 
+		/// </summary>
+		[Ignore("FixMe")]
+		[Test]
+		public void TestEnumSubstractionWithNull()
+		{
+			string program = @"using System;
+
+public enum E
+{
+}
+
+class C
+{
+    public static void Main ()
+    {
+        E? e = null;
+        var res = $(e - null).Value$; // Value is E but should be int
+    }
+}";
+			var rr = Resolve<ResolveResult>(program);
+			Assert.AreEqual("System.Int32", rr.Type.ReflectionName);
+		}
+
+		/// <summary>
+		/// Bug 12670 - Wrong type resolution for enums
+		/// </summary>
+		[Ignore("FixMe")]
+		[Test]
+		public void TestEnumBitwiseAndOperatorWithNull()
+		{
+			string program = @"public enum E
+{
+
+}
+
+class C
+{
+    public static void Main ()
+    {
+
+        E f = 0;
+        var res = $(f & null).Value$; // XS sees Value as type uint instead of E
+}
+}";
+			var rr = Resolve<ResolveResult>(program);
+			Assert.AreEqual("E", rr.Type.ReflectionName);
+		}
 	}
 }
