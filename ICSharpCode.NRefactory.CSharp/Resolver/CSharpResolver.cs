@@ -815,27 +815,15 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					{
 						if (lhsType.Kind == TypeKind.Enum) {
 							// bool operator op(E x, E y);
-							if (TryConvert(ref rhs, lhs.Type)) {
+							if (TryConvertWithNullable(ref rhs, lhs.Type, ref isNullable))
 								return HandleEnumOperator(isNullable, lhsType, op, lhs, rhs);
-							}
-
-							// E operator op(E x, U y);
-							IType underlyingType = MakeNullable(lhsType, true);
-							if (TryConvert(ref rhs, underlyingType)) {
-								return HandleEnumOperator(true, lhsType, op, lhs, rhs);
-							}
 						}
 
 
 						if (rhsType.Kind == TypeKind.Enum) {
 							// bool operator op(E x, E y);
-							if (TryConvert(ref lhs, rhs.Type))
+							if (TryConvertWithNullable (ref lhs, rhs.Type, ref isNullable))
 								return HandleEnumOperator(isNullable, rhsType, op, lhs, rhs);
-							// E operator op(E x, U y);
-							IType underlyingType = MakeNullable(rhsType, true);
-							if (TryConvert(ref lhs, underlyingType)) {
-								return HandleEnumOperator(true, lhsType, op, lhs, rhs);
-							}
 						}
 						
 						switch (op) {
@@ -1298,7 +1286,24 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				return false;
 			}
 		}
-		
+
+		bool TryConvertWithNullable(ref ResolveResult rr, IType targetType, ref bool isNullable)
+		{
+			Conversion c = conversions.ImplicitConversion(rr, targetType);
+			if (c.IsValid) {
+				rr = Convert(rr, targetType, c);
+				return true;
+			}
+
+			var nullableType = MakeNullable(targetType, true);
+			if (TryConvert(ref rr, nullableType)) {
+				isNullable = true;
+				return true;
+			}
+			return false;
+		}
+
+
 		ResolveResult Convert(ResolveResult rr, IType targetType)
 		{
 			return Convert(rr, targetType, conversions.ImplicitConversion(rr, targetType));
