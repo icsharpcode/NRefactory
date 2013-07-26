@@ -185,7 +185,6 @@ class Test {
 		}
 		
 		[Test]
-		[Ignore("Fails due to CastTests.ExplicitConversion_In_Assignment")]
 		public void FindReferencesForOpImplicitInAssignment_ExplicitCast()
 		{
 			Init(@"using System;

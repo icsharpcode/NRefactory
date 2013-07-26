@@ -78,7 +78,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			AssertConstant(-3L, resolver.ResolveCast(ResolveType(typeof(long)), MakeConstant(-3.5)));
 		}
 
+#if __MonoCS__
 		[Ignore("Broken on mcs/mac os x")]
+#endif
 		[Test]
 		public void OverflowingCast()
 		{
@@ -130,7 +132,6 @@ class Test {
 		}
 		
 		[Test]
-		[Ignore("Broken - the resolver processes explicit conversions twice")]
 		public void ExplicitConversion_In_Assignment()
 		{
 			string input = @"
@@ -139,9 +140,7 @@ class Test {
 		long l;
 		l = $(long)i$;
 	}
-	public Project Project { get; set; }
-}
-class Project : MissingInterface {}";
+}";
 			var crr = Resolve<ConversionResolveResult>(input);
 			Assert.AreEqual(Conversion.ImplicitNumericConversion, crr.Conversion);
 			Assert.AreEqual(Conversion.IdentityConversion, GetConversion(input));
@@ -156,12 +155,73 @@ class Test {
 		long l;
 		l = $(int)i$;
 	}
-	public Project Project { get; set; }
-}
-class Project : MissingInterface {}";
+}";
 			var crr = Resolve<ConversionResolveResult>(input);
 			Assert.AreEqual(Conversion.ImplicitNumericConversion, crr.Conversion);
 			Assert.AreEqual(Conversion.ImplicitNumericConversion, GetConversion(input));
+		}
+		
+		[Test]
+		public void ExplicitConversion_In_BinaryOperator()
+		{
+			string input = @"
+class Test {
+	void M(int i) {
+		long n;
+		n = n + $(long)i$;
+	}
+}";
+			var crr = Resolve<ConversionResolveResult>(input);
+			Assert.AreEqual(Conversion.ImplicitNumericConversion, crr.Conversion);
+			Assert.AreEqual(Conversion.IdentityConversion, GetConversion(input));
+		}
+		
+		[Test]
+		public void ExplicitConversion_In_BinaryOperator_Navigator()
+		{
+			string input = @"
+class Test {
+	void M(int i) {
+		long n;
+		n = n + $(long)i$;
+	}
+}";
+			var tuple = PrepareResolver(input);
+			var astResolver = tuple.Item1;
+			var castExpression = (CastExpression)tuple.Item2;
+			var navigator = new ExplicitConversion_In_BinaryOperator_NavigatorImpl(castExpression);
+			astResolver.ApplyNavigator(navigator);
+			Assert.AreEqual(1, navigator.CallCount);
+		}
+		
+		class ExplicitConversion_In_BinaryOperator_NavigatorImpl : IResolveVisitorNavigator
+		{
+			CastExpression castExpression;
+			public int CallCount;
+			
+			public ExplicitConversion_In_BinaryOperator_NavigatorImpl(CastExpression castExpression)
+			{
+				this.castExpression = castExpression;
+			}
+			
+			public ResolveVisitorNavigationMode Scan(AstNode node)
+			{
+				return ResolveVisitorNavigationMode.Resolve;
+			}
+			
+			public void Resolved(AstNode node, ResolveResult result)
+			{
+			}
+			
+			public void ProcessConversion(Expression expression, ResolveResult result, Conversion conversion, IType targetType)
+			{
+				CallCount++;
+				Assert.AreEqual(Conversion.ImplicitNumericConversion, conversion);
+				Assert.AreSame(castExpression.Expression, expression);
+				Assert.IsInstanceOf<LocalResolveResult>(result);
+				Assert.AreEqual("System.Int32", result.Type.ReflectionName);
+				Assert.AreEqual("System.Int64", targetType.ReflectionName);
+			}
 		}
 	}
 }

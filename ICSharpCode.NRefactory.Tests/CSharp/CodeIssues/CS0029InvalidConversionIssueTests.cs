@@ -410,7 +410,6 @@ class TestClass
 		}
 		
 		[Test]
-		[Ignore("Fails due to CastTests.ExplicitConversion_In_Assignment")]
 		public void ExplicitConversionFromUnknownType()
 		{
 			string input = @"

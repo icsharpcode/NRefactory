@@ -259,6 +259,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			Debug.Assert(resolverBeforeDict.ContainsKey(node));
 			// Don't store results twice.
 			Debug.Assert(!resolveResultCache.ContainsKey(node));
+			// Don't use ConversionResolveResult as a result, because it can get
+			// confused with an implicit conversion.
+			Debug.Assert(!(result is ConversionResolveResult) || result is CastResolveResult);
 			resolveResultCache[node] = result;
 			if (navigator != null)
 				navigator.Resolved(node, result);
@@ -366,7 +369,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		
 		void ProcessConversionResult(Expression expr, ConversionResolveResult rr)
 		{
-			if (rr != null)
+			if (rr != null && !(rr is CastResolveResult))
 				ProcessConversion(expr, rr.Input, rr.Conversion, rr.Type);
 		}
 		
@@ -1316,7 +1319,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			if (resolverEnabled) {
 				ResolveResult input = Resolve(asExpression.Expression);
 				var targetType = ResolveType(asExpression.Type);
-				return new ConversionResolveResult(targetType, input, Conversion.TryCast, resolver.CheckForOverflow);
+				return new CastResolveResult(targetType, input, Conversion.TryCast, resolver.CheckForOverflow);
 			} else {
 				ScanChildren(asExpression);
 				return null;
@@ -1384,10 +1387,15 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		ResolveResult IAstVisitor<ResolveResult>.VisitCastExpression(CastExpression castExpression)
 		{
 			if (resolverEnabled) {
-				IType targetType = ResolveType(castExpression.Type);
-				Expression expr = castExpression.Expression;
-				ResolveResult rr = resolver.ResolveCast(targetType, Resolve(expr));
-				ProcessConversionResult(expr, rr as ConversionResolveResult);
+				var targetType = ResolveType(castExpression.Type);
+				var expr = castExpression.Expression;
+				var rr = resolver.ResolveCast(targetType, Resolve(expr));
+				var crr = rr as ConversionResolveResult;
+				if (crr != null) {
+					Debug.Assert(!(crr is CastResolveResult));
+					ProcessConversion(expr, crr.Input, crr.Conversion, targetType);
+					rr = new CastResolveResult(crr);
+				}
 				return rr;
 			} else {
 				ScanChildren(castExpression);
@@ -1547,13 +1555,14 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				// (but not when creating a delegate from a delegate, as then there would be a MGRR for .Invoke in between)
 				// This is necessary for lambda type inference.
 				var crr = rr as ConversionResolveResult;
-				if (crr != null && crr.Input == arguments[0]) {
-					ProcessConversionResult(objectCreateExpression.Arguments.Single(), crr);
+				if (crr != null) {
+					if (objectCreateExpression.Arguments.Count == 1)
+						ProcessConversionResult(objectCreateExpression.Arguments.Single(), crr);
 					
 					// wrap the result so that the delegate creation is not handled as a reference
 					// to the target method - otherwise FindReferencedEntities would produce two results for
 					// the same delegate creation.
-					return WrapResult(rr);
+					return new CastResolveResult(crr);
 				} else {
 					return rr;
 				}
@@ -3569,7 +3578,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// </summary>
 		ResolveResult WrapResult(ResolveResult result)
 		{
-			return new ConversionResolveResult(result.Type, result, Conversion.IdentityConversion, resolver.CheckForOverflow);
+			return new CastResolveResult(result.Type, result, Conversion.IdentityConversion, resolver.CheckForOverflow);
 		}
 		
 		ResolveResult IAstVisitor<ResolveResult>.VisitQueryContinuationClause(QueryContinuationClause queryContinuationClause)
