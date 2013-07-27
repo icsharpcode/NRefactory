@@ -2909,7 +2909,9 @@ namespace ICSharpCode.NRefactory.CSharp
 					
 					var commaLocations = LocationsBag.GetLocations (arrayCreationExpression.Arguments);
 					for (int i = 0; i < arrayCreationExpression.Arguments.Count; i++) {
-						result.AddChild ((Expression)arrayCreationExpression.Arguments [i].Accept (this), Roles.Argument);
+						var arg = arrayCreationExpression.Arguments [i];
+						if (arg != null)
+							result.AddChild ((Expression)arg.Accept (this), Roles.Argument);
 						if (commaLocations != null && i < commaLocations.Count)
 							result.AddChild (new CSharpTokenNode (Convert (commaLocations [i]), Roles.Comma), Roles.Comma);
 					}
