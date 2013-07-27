@@ -3730,11 +3730,11 @@ namespace ICSharpCode.NRefactory.CSharp
 				for (int i = 0; i < top.SpecialsBag.Specials.Count; i++) {
 					var newLine = top.SpecialsBag.Specials[i] as SpecialsBag.NewLineToken;
 					if (newLine != null) {
-						AstNode newLeaf;
+						NewLineNode newLeaf = new NewLineNode(new TextLocation (newLine.Line, newLine.Col + 1));
 						if (newLine.NewLine == SpecialsBag.NewLine.Unix) {
-							newLeaf = new UnixNewLine (new TextLocation (newLine.Line, newLine.Col + 1));
+							newLeaf.NewLineType = UnicodeNewline.LF;
 						} else {
-							newLeaf = new WindowsNewLine (new TextLocation (newLine.Line, newLine.Col + 1));
+							newLeaf.NewLineType = UnicodeNewline.CRLF;
 						}
 						InsertComment(ref insertionPoint, newLeaf, Roles.NewLine, false, conversionVisitor.Unit);
 					}

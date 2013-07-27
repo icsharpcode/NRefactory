@@ -5,7 +5,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// <summary>
 	/// A New line node represents a line break in the text.
 	/// </summary>
-	public abstract class NewLineNode : AstNode
+	public sealed class NewLineNode : AstNode
 	{
 		public override NodeType NodeType {
 			get {
@@ -13,8 +13,31 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
-		public abstract UnicodeNewline NewLineType {
-			get;
+		const uint newLineMask = 0xfu << AstNodeFlagsUsedBits;
+		static readonly UnicodeNewline[] newLineTypes = {
+			UnicodeNewline.Unknown,
+			UnicodeNewline.LF,
+			UnicodeNewline.CRLF,
+			UnicodeNewline.CR,
+			UnicodeNewline.NEL,
+			UnicodeNewline.VT,
+			UnicodeNewline.FF,
+			UnicodeNewline.LS,
+			UnicodeNewline.PS
+		};
+		
+		public UnicodeNewline NewLineType {
+			get {
+				return newLineTypes[(flags & newLineMask) >> AstNodeFlagsUsedBits];
+			}
+			set {
+				ThrowIfFrozen();
+				int pos = Array.IndexOf(newLineTypes, value);
+				if (pos < 0)
+					pos = 0;
+				flags &= ~newLineMask; // clear old newline type
+				flags |= (uint)pos << AstNodeFlagsUsedBits;
+			}
 		}
 
 		TextLocation startLocation;
@@ -58,74 +81,10 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return visitor.VisitNewLine (this, data);
 		}
-	}
-
-	class UnixNewLine : NewLineNode
-	{
-		public override UnicodeNewline NewLineType {
-			get {
-				return UnicodeNewline.LF;
-			}
-		}
-
-		public UnixNewLine()
+		
+		protected internal override bool DoMatch(AstNode other, ICSharpCode.NRefactory.PatternMatching.Match match)
 		{
-		}
-
-		public UnixNewLine(TextLocation startLocation) : base (startLocation)
-		{
-		}
-
-		protected internal override bool DoMatch(AstNode other, PatternMatching.Match match)
-		{
-			var o = other as UnixNewLine;
-			return o != null;
-		}
-	}
-
-	class WindowsNewLine : NewLineNode
-	{
-		public override UnicodeNewline NewLineType {
-			get {
-				return UnicodeNewline.CRLF;
-			}
-		}
-
-		public WindowsNewLine()
-		{
-		}
-
-		public WindowsNewLine(TextLocation startLocation) : base (startLocation)
-		{
-		}
-
-		protected internal override bool DoMatch(AstNode other, PatternMatching.Match match)
-		{
-			var o = other as WindowsNewLine;
-			return o != null;
-		}
-	}
-
-	class MacNewLine : NewLineNode
-	{
-		public override UnicodeNewline NewLineType {
-			get {
-				return UnicodeNewline.CR;
-			}
-		}
-
-		public MacNewLine()
-		{
-		}
-
-		public MacNewLine(TextLocation startLocation) : base (startLocation)
-		{
-		}
-
-		protected internal override bool DoMatch(AstNode other, PatternMatching.Match match)
-		{
-			var o = other as MacNewLine;
-			return o != null;
+			return other is NewLineNode;
 		}
 	}
 }
