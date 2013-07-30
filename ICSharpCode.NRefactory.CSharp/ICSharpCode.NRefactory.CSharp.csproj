@@ -556,6 +556,7 @@
     <Compile Include="Refactoring\CodeActions\LinqFluentToQueryAction.cs" />
     <Compile Include="IntroduceQueryExpressions.cs" />
     <Compile Include="CombineQueryExpressions.cs" />
+    <Compile Include="Refactoring\CodeActions\LinqQueryToFluentAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

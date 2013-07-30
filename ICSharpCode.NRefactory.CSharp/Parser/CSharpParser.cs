@@ -3416,7 +3416,10 @@ namespace ICSharpCode.NRefactory.CSharp
 				var location = LocationsBag.GetLocations (join);
 				result.AddChild (new CSharpTokenNode (Convert (join.Location), QueryJoinClause.JoinKeywordRole), QueryJoinClause.JoinKeywordRole);
 				result.AddChild (Identifier.Create (join.JoinVariable.Name, Convert (join.JoinVariable.Location)), QueryJoinClause.JoinIdentifierRole);
-				
+
+				if (join.IdentifierType != null)
+					result.AddChild (ConvertToType (join.IdentifierType), QueryJoinClause.TypeRole);
+
 				if (location != null)
 					result.AddChild (new CSharpTokenNode (Convert (location [0]), QueryJoinClause.InKeywordRole), QueryJoinClause.InKeywordRole);
 
