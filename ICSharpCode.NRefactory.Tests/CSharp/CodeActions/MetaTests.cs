@@ -118,6 +118,53 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 	}
 }", context.GetSideDocumentText(1));
 		}
+
+		[Test]
+		public void TestRenameInterfaceMethod ()
+		{
+			List<string> contents = new List<string>() {
+				@"interface ITest1
+{
+	int $method ();
+}
+class Test2 : ITest1
+{
+	int method ()
+	{
+	}
+}", @"class Test3 : ITest1
+{
+	int method ()
+	{
+	}
+}"
+			};
+			var context = TestRefactoringContext.Create(contents, 0);
+			using (var script = context.StartScript()) {
+				var method = context.GetNode<MethodDeclaration>();
+				script.Rename(((MemberResolveResult)context.Resolve(method)).Member, "newName");
+			}
+
+			Assert.AreEqual(@"interface ITest1
+{
+	int newName ();
+}
+class Test2 : ITest1
+{
+	int newName ()
+	{
+	}
+}", context.GetSideDocumentText(0));
+
+			Assert.AreEqual(@"class Test3 : ITest1
+{
+	int newName ()
+	{
+	}
+}", context.GetSideDocumentText(1));
+		}
+
+
 	}
 }
 
