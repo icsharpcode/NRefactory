@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantObjectCreationArgumentListIssue.cs
+// RedundantAttributeParenthesesIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -23,49 +23,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Redundant empty argument list on object creation expression",
-	                   Description = "When object creation uses object or collection initializer, empty argument list is redundant.",
+	[IssueDescription ("Parentheses are redundant if attribute has no arguments",
+	                   Description = "Parentheses are redundant if attribute has no arguments.",
 	                   Category = IssueCategories.Redundancies,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut,
-	                   ResharperDisableKeyword = "RedundantEmptyObjectCreationArgumentList")]
-	public class RedundantObjectCreationArgumentListIssue : ICodeIssueProvider
+	                   ResharperDisableKeyword = "RedundantAttributeParentheses")]
+	public class RedundantAttributeParenthesesIssue : ICodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor (context).GetIssues ();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantObjectCreationArgumentListIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantAttributeParenthesesIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor (BaseRefactoringContext ctx)
 				: base (ctx)
 			{
 			}
 
-			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
+			public override void VisitAttribute (Attribute attribute)
 			{
-				base.VisitObjectCreateExpression(objectCreateExpression);
+				base.VisitAttribute (attribute);
 
-				if (objectCreateExpression.Initializer.IsNull ||
-					objectCreateExpression.Arguments.Count > 0 ||
-					objectCreateExpression.LParToken.IsNull)
+				if (attribute.Arguments.Count > 0 || !attribute.HasArgumentList)
 					return;
 
-				AddIssue(objectCreateExpression.LParToken.StartLocation, objectCreateExpression.RParToken.EndLocation,
-				          ctx.TranslateString("Remove '()'"), script => {
-					var l1 = objectCreateExpression.LParToken.GetPrevNode().EndLocation;
-					var l2 = objectCreateExpression.RParToken.GetNextNode().StartLocation;
-					var o1 = script.GetCurrentOffset(l1);
-					var o2 = script.GetCurrentOffset(l2);
-
-					script.Replace(o1, o2 - o1, " ");
-				});
+				var start = attribute.Type.EndLocation;
+				var end = attribute.EndLocation;
+				AddIssue (start, end, ctx.TranslateString ("Remove '()'"), script =>
+					script.Replace (attribute, new Attribute { Type = attribute.Type.Clone () }));
 			}
 		}
 	}
