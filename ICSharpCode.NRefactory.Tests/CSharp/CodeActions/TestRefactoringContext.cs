@@ -215,6 +215,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			{
 				List<AstNode> nodes = new List<AstNode>();
 				FindReferences refFinder = new FindReferences();
+				refFinder.FindCallsThroughInterface = true;
 				refFinder.FindReferencesInFile(refFinder.GetSearchScopes(entities),
 				                               localContext.UnresolvedFile,
 				                               localContext.RootNode as SyntaxTree,
@@ -317,10 +318,10 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 					foreach (var error in parser.Errors) {
 						Console.WriteLine(error.Message);
 					}
-					Assert.IsFalse(parser.HasErrors, "The file contains unexpected parsing errors.");
+					Assert.IsFalse(parser.HasErrors, "The file " + i + " contains unexpected parsing errors.");
 				}
 				else {
-					Assert.IsTrue(parser.HasErrors, "Expected parsing errors, but the file doesn't contain any.");
+					Assert.IsTrue(parser.HasErrors, "Expected parsing errors, but the file " + i + "doesn't contain any.");
 				}
 				unit.Freeze();
 				CSharpUnresolvedFile unresolvedFile = unit.ToTypeSystem();

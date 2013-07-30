@@ -86,10 +86,11 @@ class TestClass : System.IDisposable
 		}
 
 		[Test]
-		public void IgnoreExplicitDisposeTest()
+		public void TestInterfaceDispose()
 		{
 			string input = @"
-interface Foo {
+interface Foo
+{
 	void Dispose ();
 }
 class TestClass : Foo
@@ -99,7 +100,91 @@ class TestClass : Foo
 	}
 }
 ";
-			Test(input, 0);
+			Test<DisposeMethodInNonIDisposableTypeIssue>(input, 1, @"
+interface Foo : System.IDisposable
+{
+}
+class TestClass : Foo
+{
+	void System.IDisposable.Dispose ()
+	{
+	}
+}
+", 0);
+		}
+
+		[Test]
+		public void TestMultipleInterfacesDispose()
+		{
+			string input = @"
+using System;
+interface Foo
+{
+	void Dispose ();
+}
+interface Bar
+{
+	void Dispose ();
+}
+class TestClass : Foo, Bar
+{
+	void Foo.Dispose ()
+	{
+	}
+	void Bar.Dispose ()
+	{
+	}
+}
+";
+			Test<DisposeMethodInNonIDisposableTypeIssue>(input, 2, @"
+using System;
+interface Foo : IDisposable
+{
+}
+interface Bar
+{
+	void Dispose ();
+}
+class TestClass : Foo, Bar
+{
+	void IDisposable.Dispose ()
+	{
+	}
+	void Bar.Dispose ()
+	{
+	}
+}
+", 0);
+		}
+
+		[Test]
+		public void TestShortenedInterfaceDispose()
+		{
+			string input = @"
+using System;
+interface Foo
+{
+	void Dispose ();
+}
+class TestClass : Foo
+{
+	void Foo.Dispose ()
+	{
+	}
+}
+";
+			Test<DisposeMethodInNonIDisposableTypeIssue>(input, 1, @"
+using System;
+interface Foo : IDisposable
+{
+}
+class TestClass : Foo
+{
+	void IDisposable.Dispose ()
+	{
+	}
+}
+", 0);
 		}
 
 		[Test]
@@ -192,20 +277,6 @@ class TestClass : IDisposable
 ";
 
 			TestFix(input, 1, output);
-		}
-
-		[Test]
-		public void DisabledForInterfaceTest()
-		{
-			string input = @"
-using System;
-interface TestInterface
-{
-	void Dispose ();
-}
-";
-
-			Test(input, 0);
 		}
 
 		[Test]
