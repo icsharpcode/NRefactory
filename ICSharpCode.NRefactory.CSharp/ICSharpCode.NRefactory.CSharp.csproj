@@ -320,7 +320,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantCaseLabelIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantIfElseBlockIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantDefaultFieldInitializerIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantObjectCreationArgumentListIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantObjectOrCollectionInitializerIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToFirstIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToFirstOrDefaultIssue.cs" />
@@ -557,6 +556,7 @@
     <Compile Include="IntroduceQueryExpressions.cs" />
     <Compile Include="CombineQueryExpressions.cs" />
     <Compile Include="Refactoring\CodeActions\LinqQueryToFluentAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantEmptyObjectCreationArgumentListssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
