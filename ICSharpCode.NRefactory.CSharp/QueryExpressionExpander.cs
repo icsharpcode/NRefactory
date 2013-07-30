@@ -301,7 +301,7 @@ namespace ICSharpCode.NRefactory.CSharp {
 				Expression resultSelectorBody = null;
 				var inExpression = VisitNested(queryJoinClause.InExpression, null);
 				if (!queryJoinClause.Type.IsNull) {
-					inExpression = inExpression.Invoke("Cast", new[] { queryJoinClause.Type.Clone() }, new Expression[0]); 
+					inExpression = inExpression.Invoke("Cast", new[] { queryJoinClause.Type.Clone() }, EmptyList<Expression>.Instance);
 				}
 				var key1SelectorFirstParam = CreateParameterForCurrentRangeVariable();
 				var key1Selector = CreateLambda(new[] { key1SelectorFirstParam }, VisitNested(queryJoinClause.OnExpression, key1SelectorFirstParam));
