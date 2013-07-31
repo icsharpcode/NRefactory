@@ -57,6 +57,78 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	}
 }");
 		}
+		
+		[Test]
+		public void TestRequiredThisInAssignmentFromFieldToLocal ()
+		{
+			Test<RedundantThisQualifierIssue>(@"class Foo
+{
+	int a;
+	void Bar ()
+	{
+		var a = this.a;
+	}
+}", 0);
+		}
+		
+		[Test]
+		public void TestRequiredThisInAssignmentFromDelegateToLocal ()
+		{
+			Test<RedundantThisQualifierIssue>(@"class Foo
+{
+	int a;
+	void Bar ()
+	{
+		Action a = () => {
+			Console.WriteLine (this.a);
+		};
+	}
+}", 0);
+		}
+		
+		[Test]
+		public void TestRedundantThisInAssignmentFromFieldToLocal ()
+		{
+			Test<RedundantThisQualifierIssue>(@"class Foo
+{
+	int a;
+	void Bar ()
+	{
+		var b = this.a;
+	}
+}", @"class Foo
+{
+	int a;
+	void Bar ()
+	{
+		var b = a;
+	}
+}");
+		}
+		
+		[Test]
+		public void TestRedundantThisInAssignmentFromDelegateToLocal ()
+		{
+			Test<RedundantThisQualifierIssue>(@"class Foo
+{
+	int a;
+	void Bar ()
+	{
+		Action b = () => {
+			Console.WriteLine (this.a);
+		};
+	}
+}", @"class Foo
+{
+	int a;
+	void Bar ()
+	{
+		Action b = () => {
+			Console.WriteLine (a);
+		};
+	}
+}");
+		}
 
 		[Test]
 		public void TestResharperDisableRestore ()
