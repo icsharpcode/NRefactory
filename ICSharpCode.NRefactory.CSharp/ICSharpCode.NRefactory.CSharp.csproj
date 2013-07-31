@@ -558,6 +558,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantEmptyObjectCreationArgumentListssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantAttributeParenthesesIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantExtendsListEntryIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\RefactoringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

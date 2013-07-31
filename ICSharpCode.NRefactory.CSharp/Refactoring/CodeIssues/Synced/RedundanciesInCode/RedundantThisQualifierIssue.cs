@@ -1,4 +1,4 @@
-﻿// 
+// 
 // RedundantThisInspector.cs
 //  
 // Author:
@@ -125,6 +125,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (member == null) { 
 					return;
 				}
+				
+				var localDeclarationSpace = thisReferenceExpression.GetLocalVariableDeclarationSpace();
+				if (ContainsConflictingDeclarationNamed(member.Name, localDeclarationSpace))
+					return;
 
 				var result = state.LookupSimpleNameOrTypeName(memberReference.MemberName, EmptyList<IType>.Instance, NameLookupMode.Expression);
 				var parentResult = ctx.Resolve(memberReference.Parent) as CSharpInvocationResolveResult;
@@ -147,6 +151,61 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					});
 				}
 			}
+			
+			static bool ContainsConflictingDeclarationNamed(string name, AstNode rootNode)
+			{
+				var declarationFinder = new DeclarationFinder(name);
+				rootNode.AcceptVisitor(declarationFinder);
+				return declarationFinder.Declarations.Any();
+			}
+			
+			class DeclarationFinder : DepthFirstAstVisitor
+			{
+				string name;
+				
+				public DeclarationFinder (string name)
+				{
+					this.name = name;
+					Declarations = new List<AstNode>();
+				}
+				
+				public IList<AstNode> Declarations {
+					get;
+					private set;
+				}
+				
+				public override void VisitVariableInitializer(VariableInitializer variableInitializer)
+				{
+					if (variableInitializer.Name == name) {
+						Declarations.Add(variableInitializer.NameToken);
+					}
+					base.VisitVariableInitializer(variableInitializer);
+				}
+				
+				public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
+				{
+					if (parameterDeclaration.Name == name) {
+						Declarations.Add(parameterDeclaration);
+					}
+					
+					base.VisitParameterDeclaration(parameterDeclaration);
+				}
+				
+				public override void VisitForStatement(ForStatement forStatement)
+				{
+					base.VisitForStatement(forStatement);
+				}
+				
+				public override void VisitForeachStatement(ForeachStatement foreachStatement)
+				{
+					if (foreachStatement.VariableName == name) {
+						Declarations.Add(foreachStatement.VariableNameToken);
+					}
+				
+					base.VisitForeachStatement(foreachStatement);
+				}
+			}
 		}
 	}
+	
 }
