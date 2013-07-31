@@ -129,6 +129,25 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	}
 }");
 		}
+		
+		[Test]
+		public void TestRequiredThisInExtensionMethodCall ()
+		{
+			Test<RedundantThisQualifierIssue>(@"static class Extensions
+{
+	public static void Ext (this Foo foo)
+	{
+	}
+}
+
+class Foo
+{
+	void Bar ()
+	{
+		this.Ext ();
+	}
+}", 0);
+		}
 
 		[Test]
 		public void TestResharperDisableRestore ()

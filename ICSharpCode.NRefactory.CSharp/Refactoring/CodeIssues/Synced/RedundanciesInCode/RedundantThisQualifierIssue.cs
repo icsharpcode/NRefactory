@@ -127,10 +127,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				var result = state.LookupSimpleNameOrTypeName(memberReference.MemberName, EmptyList<IType>.Instance, NameLookupMode.Expression);
-			
+				var parentResult = ctx.Resolve(memberReference.Parent) as CSharpInvocationResolveResult;
+				
 				bool isRedundant;
 				if (result is MemberResolveResult) {
 					isRedundant = ((MemberResolveResult)result).Member.Region.Equals(member.Region);
+				} else if (parentResult != null && parentResult.IsExtensionMethodInvocation) {
+					// 'this.' is required for extension method invocation
+					isRedundant = false;
 				} else if (result is MethodGroupResolveResult) {
 					isRedundant = ((MethodGroupResolveResult)result).Methods.Any(m => m.Region.Equals(member.Region));
 				} else {
@@ -140,8 +144,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (isRedundant) {
 					AddIssue(thisReferenceExpression.StartLocation, memberReference.MemberNameToken.StartLocation, ctx.TranslateString("Remove redundant 'this.'"), script => {
 						script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
-					}
-					);
+					});
 				}
 			}
 		}
