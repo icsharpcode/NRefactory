@@ -258,10 +258,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			ForceSpacesAfter(ifElseStatement.LParToken, policy.SpacesWithinIfParentheses);
 			ForceSpacesBefore(ifElseStatement.RParToken, policy.SpacesWithinIfParentheses);
 
-			if (!(ifElseStatement.Parent is IfElseStatement && ((IfElseStatement)ifElseStatement.Parent).FalseStatement == ifElseStatement)) {
-				FixStatementIndentation(ifElseStatement.StartLocation);
-			}
-
 			if (!ifElseStatement.Condition.IsNull) {
 				ifElseStatement.Condition.AcceptVisitor(this);
 			}
