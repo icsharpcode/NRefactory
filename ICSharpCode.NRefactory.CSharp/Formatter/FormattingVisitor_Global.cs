@@ -212,7 +212,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 				if (child.Role == Roles.LBrace) {
 					startFormat = true;
-					EnsureNewLinesAfter(child, GetTypeLevelNewLinesFor(child));
+					if (braceStyle != BraceStyle.DoNotChange)
+						EnsureNewLinesAfter(child, GetTypeLevelNewLinesFor(child));
 					return;
 				}
 				if (child.Role == Roles.RBrace) {
