@@ -434,10 +434,11 @@
     <Compile Include="FormattingTests\TestGlobalLevelFormatting.cs" />
     <Compile Include="CSharp\CodeIssues\ConditionalTernaryEqualBranchTests.cs" />
     <Compile Include="CSharp\CodeIssues\ThreadStaticAtInstanceFieldTests.cs" />
-	<Compile Include="CSharp\CodeActions\MetaTests.cs" />
+    <Compile Include="CSharp\CodeActions\MetaTests.cs" />
     <Compile Include="CSharp\CodeCompletion\FormatItemTests.cs" />
     <Compile Include="CSharp\CodeActions\LinqFluentToQueryTests.cs" />
     <Compile Include="CSharp\CodeActions\LinqQueryToFluentTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantBaseTypeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
