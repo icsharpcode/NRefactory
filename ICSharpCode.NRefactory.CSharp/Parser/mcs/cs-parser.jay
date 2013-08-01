@@ -147,7 +147,6 @@ namespace Mono.CSharp
 		Stack<Location> opt_intoStack = new Stack<Location> ();
 
 		bool HadAttributeParens;
-		List<Location> attributeCommas = new List<Location> ();
 		List<Location> attributeArgumentCommas = new List<Location> ();
 		List<Location> parameterListCommas = new List<Location> ();
 		Stack<Location> location_stack;
@@ -671,20 +670,11 @@ attribute_sections
 	  {
 		var sect = (List<Attribute>) $1;
 		$$ = new Attributes (sect);
-		if (locationListStack.Count > 0)
-			lbag.AddLocation (sect, locationListStack.Pop ());
-		if (attributeCommas.Count > 0) {
-			lbag.AddLocation (sect, attributeCommas);
-			attributeCommas.Clear ();
-		}
 	  }
 	| attribute_sections attribute_section
 	  {
 		Attributes attrs = $1 as Attributes;
 		var sect = (List<Attribute>) $2;
-		
-		if (locationListStack.Count > 0)
-			lbag.AddLocation (sect, locationListStack.Pop ());
 		if (attrs == null)
 			attrs = new Attributes (sect);
 		else if (sect != null)
@@ -721,12 +711,13 @@ attribute_section_cont
 			$$ = new List<Attribute> (0);
 		else
 			$$ = $4;
-		var targetLoc = PopLocation ();
-		var bracketloc = PopLocation ();
+		lbag.InsertLocation ($$, 0, GetLocation ($2));
+		lbag.InsertLocation ($$, 0, PopLocation ());
+		lbag.InsertLocation ($$, 0, PopLocation ());
 		if ($5 != null) {
-			lbag.AddLocation ($$, bracketloc, targetLoc, GetLocation ($2), GetLocation ($5), GetLocation ($6));
+			lbag.AddLocation ($$, GetLocation ($5), GetLocation ($6));
 		} else {
-			lbag.AddLocation ($$, bracketloc, targetLoc, GetLocation ($2), GetLocation ($6));
+			lbag.AddLocation ($$, GetLocation ($6));
 		}
 
 		current_attr_target = null;
@@ -735,10 +726,11 @@ attribute_section_cont
 	| attribute_list opt_comma CLOSE_BRACKET
 	  {
 		$$ = $1;
+		lbag.InsertLocation ($$, 0, PopLocation ());
 		if ($2 != null) {
-			lbag.AddLocation ($$, PopLocation (), GetLocation($2), GetLocation ($3));
+			lbag.AddLocation ($$, GetLocation($2), GetLocation ($3));
 		} else {
-			lbag.AddLocation ($$, PopLocation (), GetLocation($3));
+			lbag.AddLocation ($$, GetLocation($3));
 		}
 	  }
 	| IDENTIFIER error
@@ -766,8 +758,8 @@ attribute_target
 		$$ = CheckAttributeTarget (lt.Value, lt.Location);
 		PushLocation (GetLocation ($1));
 	  }
-	| EVENT  { $$ = "event"; savedCloseLocation = GetLocation ($1); }
-	| RETURN { $$ = "return"; savedCloseLocation = GetLocation ($1); }
+	| EVENT  { $$ = "event"; PushLocation (GetLocation ($1)); }
+	| RETURN { $$ = "return"; PushLocation (GetLocation ($1)); }
 	;
 
 attribute_list

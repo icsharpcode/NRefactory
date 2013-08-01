@@ -108,7 +108,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			get {
 				var child = LastChild;
 				if (child == null)
-					return TextLocation.Empty;
+					return base.EndLocation;
 				return child.EndLocation;
 			}
 		}
