@@ -157,6 +157,26 @@ class Foo
 	}
 }");
 		}
+
+		[Test]
+		public void TestChangeAccessor ()
+		{
+			Test<ChangeAccessModifierAction>(@"
+class Foo
+{
+	public int Bar
+	{
+		get; private $set;
+	}
+}", @"
+class Foo
+{
+	public int Bar
+	{
+		get; protected set;
+	}
+}");
+		}
 	}
 }
 

@@ -29,6 +29,10 @@ using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
+	/// <summary>
+	/// Changes the access level of an entity declaration
+	/// </summary>
+	[ContextAction("Change the access level of an entity declaration", Description = "Changes the access level of an entity declaration")]
 	public class ChangeAccessModifierAction : ICodeActionProvider
 	{
 		Dictionary<string, Modifiers> accessibilityLevels = new Dictionary<string, Modifiers>() {
@@ -90,7 +94,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (accessor != null) {
 					//Allow only converting to modifiers stricter than the parent entity
 
-					if (!IsStricterThan (access, GetActualAccess(parentTypeDeclaration, accessor))) {
+					if (!IsStricterThan (access, GetActualAccess(parentTypeDeclaration, accessor.GetParent<EntityDeclaration>()))) {
 						continue;
 					}
 				}
