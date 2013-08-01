@@ -177,6 +177,19 @@ class Foo
 	}
 }");
 		}
+
+		[Test]
+		public void TestVirtualAccessor ()
+		{
+			TestWrongContext<ChangeAccessModifierAction>(@"
+class Foo
+{
+	public virtual int Bar
+	{
+		get; $set;
+	}
+}");
+		}
 	}
 }
 

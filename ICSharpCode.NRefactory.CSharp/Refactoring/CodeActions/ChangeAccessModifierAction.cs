@@ -72,11 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			}
 
-			if (node.HasModifier(Modifiers.Override) ||
-			    node.HasModifier(Modifiers.Virtual) ||
-			    node.HasModifier(Modifiers.New) ||
-				node.HasModifier(Modifiers.Abstract)) {
-				//Do not change offer to change modifier, just to be safe
+			if (ShouldDisableAction(node)) {
 				yield break;
 			}
 
@@ -94,7 +90,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (accessor != null) {
 					//Allow only converting to modifiers stricter than the parent entity
 
-					if (!IsStricterThan (access, GetActualAccess(parentTypeDeclaration, accessor.GetParent<EntityDeclaration>()))) {
+					var actualParentAccess = GetActualAccess(parentTypeDeclaration, accessor.GetParent<EntityDeclaration>());
+					if (access != actualParentAccess && !IsStricterThan (access, actualParentAccess)) {
 						continue;
 					}
 				}
@@ -103,6 +100,31 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					yield return GetActionForLevel(context, accessName, access, node);
 				}
 			}
+		}
+
+		static bool ShouldDisableAction(EntityDeclaration node)
+		{
+			if (HasInheritanceModifier(node)) {
+				return true;
+			}
+
+			if (node is Accessor) {
+				var parent = node.GetParent<EntityDeclaration>();
+				if (HasInheritanceModifier(parent)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		static bool HasInheritanceModifier(EntityDeclaration node)
+		{
+			return node.HasModifier(Modifiers.Override) ||
+				node.HasModifier(Modifiers.Virtual) ||
+				node.HasModifier(Modifiers.New) ||
+				node.HasModifier(Modifiers.Abstract);
+
 		}
 
 		bool IsStricterThan(Modifiers access1, Modifiers access2)
@@ -154,7 +176,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var newNode = (EntityDeclaration) node.Clone();
 				newNode.Modifiers &= ~Modifiers.VisibilityMask;
-				newNode.Modifiers |= access;
+				
+				if (!(node is Accessor) || access != (node.GetParent<EntityDeclaration>().Modifiers & Modifiers.VisibilityMask)) {
+					//Do not add access modifier for accessors if the new access level is the same as the parent
+					//That is, in public int X { $private get; } if access == public, then the result should not have the modifier
+					newNode.Modifiers |= access;
+				}
 
 				script.Replace(node, newNode);
 
