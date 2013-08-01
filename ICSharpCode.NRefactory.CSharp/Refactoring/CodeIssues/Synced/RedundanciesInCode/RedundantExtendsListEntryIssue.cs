@@ -119,9 +119,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					AddIssue(
 						node,
-						issueText, 
+						string.Format(issueText, nodeType.Name), 
 						new CodeAction (
-							ctx.TranslateString(""),
+							ctx.TranslateString("Remove redundant base type reference"),
 							Script => {
 								if (typeDeclaration.GetCSharpNodeBefore(node).ToString().Equals(":")) {
 									if (node.GetNextNode().Role != Roles.BaseType) {
