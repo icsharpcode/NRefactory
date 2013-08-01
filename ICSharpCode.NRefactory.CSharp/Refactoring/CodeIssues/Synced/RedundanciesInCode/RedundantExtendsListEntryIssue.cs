@@ -34,22 +34,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// <summary>
 	/// Type is either mentioned in the base type list of other part, or it is interface and appears as other's type base and contains no explicit implementation.
 	/// </summary>
-	[IssueDescription("Remove redundant base type specifaction in the list",
-	                  Description= "Remove redundant base type specifaction in the list",
+	[IssueDescription("Redundant class or interface specification in base types list",
+	                  Description= "Type is either mentioned in the base type list of another part or in another base type",
 	                  Category = IssueCategories.Redundancies,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantBaseType")]
-	public class RedundantBaseTypeIssue : ICodeIssueProvider
+	                  ResharperDisableKeyword = "RedundantExtendsListEntry")]
+	public class RedundantExtendsListEntryIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}
 		
-		class GatherVisitor : GatherVisitorBase<RedundantBaseTypeIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantExtendsListEntryIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx, RedundantBaseTypeIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseRefactoringContext ctx, RedundantExtendsListEntryIssue issueProvider) : base (ctx, issueProvider)
 			{
 			}
 			
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				
 				List<AstNode> redundantBase = new List<AstNode>();
 				var type = ctx.Resolve(typeDeclaration).Type;
-				
+
 				if (typeDeclaration.HasModifier(Modifiers.Partial)) {
 					var parts = type.GetDefinition().Parts;
 					foreach (var node in typeDeclaration.BaseTypes) {
@@ -112,18 +112,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}			
 				}
 				foreach (var node in redundantBase) {
-					AddIssue(node, ctx.TranslateString("Remove redundant base specification"), Script =>
-					{
-						if (typeDeclaration.GetCSharpNodeBefore(node).ToString().Equals(":")) {
-							if (node.GetNextNode().Role != Roles.BaseType) {
-								Script.Remove(typeDeclaration.GetCSharpNodeBefore(node));
-							}
-						}
-						if (typeDeclaration.GetCSharpNodeBefore(node).ToString().Equals(",")) {
-							Script.Remove(typeDeclaration.GetCSharpNodeBefore(node));
-						}
-						Script.Remove(node);
-					}
+					var nodeType = ctx.Resolve(node).Type;
+					var issueText = nodeType.Kind == TypeKind.Interface ?
+						ctx.TranslateString("Base interface '{0}' is redundant") :
+						ctx.TranslateString("Base type '{0}' is already specified in other parts");
+
+					AddIssue(
+						node,
+						issueText, 
+						new CodeAction (
+							ctx.TranslateString(""),
+							Script => {
+								if (typeDeclaration.GetCSharpNodeBefore(node).ToString().Equals(":")) {
+									if (node.GetNextNode().Role != Roles.BaseType) {
+										Script.Remove(typeDeclaration.GetCSharpNodeBefore(node));
+									}
+								}
+								if (typeDeclaration.GetCSharpNodeBefore(node).ToString().Equals(",")) {
+									Script.Remove(typeDeclaration.GetCSharpNodeBefore(node));
+								}
+								Script.Remove(node);
+							},
+						node)
 					);
 				}
 			}

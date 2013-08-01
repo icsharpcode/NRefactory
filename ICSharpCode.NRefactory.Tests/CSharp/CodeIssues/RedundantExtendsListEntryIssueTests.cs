@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantBaseTypeTests : InspectionActionTestBase
+	public class RedundantExtendsListEntryIssueTests : InspectionActionTestBase
 	{
 		
 		[Test]
@@ -64,7 +64,7 @@ namespace resharper_test
 ";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantBaseTypeIssue(), input, out context);
+			var issues = GetIssues(new RedundantExtendsListEntryIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			CheckFix(context, issues, @"using System;
 
@@ -123,7 +123,7 @@ namespace resharper_test
 ";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantBaseTypeIssue(), input, out context);
+			var issues = GetIssues(new RedundantExtendsListEntryIssue(), input, out context);
 			Assert.AreEqual(2, issues.Count);
 			CheckFix(context, issues, @"using System;
 
@@ -183,7 +183,7 @@ namespace resharper_test
 ";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantBaseTypeIssue(), input, out context);
+			var issues = GetIssues(new RedundantExtendsListEntryIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -206,16 +206,16 @@ namespace resharper_test
 			throw new NotImplementedException();
 		}
 	}
-//Resharper disable RedundantBaseType
+//Resharper disable RedundantExtendsListEntry
 	public class Foo: baseClass, interf
 	{
 	}
-//Resharer restore RedundantBaseType
+//Resharer restore RedundantExtendsListEntry
 }
 ";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantBaseTypeIssue(), input, out context);
+			var issues = GetIssues(new RedundantExtendsListEntryIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 	}
