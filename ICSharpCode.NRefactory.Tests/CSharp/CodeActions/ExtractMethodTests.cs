@@ -581,7 +581,34 @@ class TestClass
 }");
 		}
 
-
+		/// <summary>
+		/// Bug 13539 - Extracting method where last line is comment leaves comment outside new method
+		/// </summary>
+		[Test]
+		public void TestBug13539 ()
+		{
+			Test<ExtractMethodAction> (@"class TestClass
+{
+	public static void TestMethod ()
+	{
+		<-
+			Foo ();
+			// Comment
+->
+	}
+}", @"class TestClass
+{
+	static void NewMethod ()
+	{
+		Foo ();
+		// Comment
+	}
+	public static void TestMethod ()
+	{
+		NewMethod ();
+	}
+}");
+		}
 	}
 }
 

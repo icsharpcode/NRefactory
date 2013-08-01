@@ -1598,10 +1598,13 @@ namespace ICSharpCode.NRefactory.CSharp
 			foreach (var node in blockStatement.Statements) {
 				node.AcceptVisitor(this);
 			}
+			AstNode pos = positionStack.Pop();
+			WriteSpecials(pos, null);
+			containerStack.Pop();
 			CloseBrace(style);
 			if (!(blockStatement.Parent is Expression))
 				NewLine();
-			EndNode(blockStatement);
+			formatter.EndNode(blockStatement);
 		}
 		
 		public void VisitBreakStatement(BreakStatement breakStatement)
