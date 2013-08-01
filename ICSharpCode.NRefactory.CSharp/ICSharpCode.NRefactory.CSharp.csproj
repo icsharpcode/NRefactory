@@ -557,7 +557,7 @@
     <Compile Include="Refactoring\CodeActions\LinqQueryToFluentAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantEmptyObjectCreationArgumentListssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantAttributeParenthesesIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBaseTypeIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantExtendsListEntryIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
