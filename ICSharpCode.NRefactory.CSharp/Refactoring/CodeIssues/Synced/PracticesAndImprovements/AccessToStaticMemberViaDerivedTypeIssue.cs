@@ -35,9 +35,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Category = IssueCategories.PracticesAndImprovements,
 	                   Severity = Severity.Warning,
                        ResharperDisableKeyword = "AccessToStaticMemberViaDerivedType")]
-    public class AccessToStaticMemberViaDerivedTypeIssue : ICodeIssueProvider
+	public class AccessToStaticMemberViaDerivedTypeIssue : ICodeIssueProvider
 	{
+
 		#region ICodeIssueProvider implementation
+
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
@@ -46,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<AccessToStaticMemberViaDerivedTypeIssue>
 		{
 			readonly BaseRefactoringContext context;
-			
+
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
 				this.context = context;
@@ -65,7 +67,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				HandleMember(memberReferenceExpression, memberReferenceExpression.Target, memberResolveResult.Member, memberResolveResult.TargetResult);
 			}
-			
+
 			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
 			{
 				base.VisitInvocationExpression(invocationExpression);
@@ -102,7 +104,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 
 			CodeAction GetAction(BaseRefactoringContext context, Expression targetExpression,
-			                                   IMember member)
+			                     IMember member)
 			{
 				var builder = context.CreateTypeSystemAstBuilder(targetExpression);
 				var newType = builder.ConvertType(member.DeclaringType);
@@ -111,17 +113,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					script.Replace(targetExpression, newType);
 				}, targetExpression);
 			}
-			
+
 			sealed class ContainsTypeVisitor : TypeVisitor
 			{
 				readonly ITypeDefinition searchedType;
 				internal bool IsContained;
-				
+
 				public ContainsTypeVisitor(ITypeDefinition searchedType)
 				{
 					this.searchedType = searchedType;
 				}
-				
+
 				public override IType VisitTypeDefinition(ITypeDefinition type)
 				{
 					if (type.Equals(searchedType))
@@ -130,7 +132,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 		}
+
 		#endregion
+
 	}
 }
 

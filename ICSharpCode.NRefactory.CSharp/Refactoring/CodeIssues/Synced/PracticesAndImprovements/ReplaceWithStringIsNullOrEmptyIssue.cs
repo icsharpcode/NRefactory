@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
            Category = IssueCategories.PracticesAndImprovements,
 	       Severity = Severity.Suggestion,
            ResharperDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
-    public class ReplaceWithStringIsNullOrEmptyIssue : ICodeIssueProvider
+	public class ReplaceWithStringIsNullOrEmptyIssue : ICodeIssueProvider
 	{
 		static readonly Pattern pattern = new Choice {
 			// str == null || str == ""
@@ -64,7 +64,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				PatternHelper.CommutativeOperator(new Backreference ("str"), BinaryOperatorType.Equality, new NullReferenceExpression ())
 			)
 		};
-
 		static readonly Pattern negPattern = new Choice {
 			// str != null && str != ""
 			// str != null && str.Length != 0
@@ -98,10 +97,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			return new GatherVisitor(context).GetIssues();
 		}
-		
+
 		class GatherVisitor : GatherVisitorBase<ReplaceWithStringIsNullOrEmptyIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
 			{
 			}
 
@@ -116,19 +115,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				if (m.Success) {
 					var str = m.Get<Expression>("str").Single();
-					var def = ctx.Resolve (str).Type.GetDefinition ();
+					var def = ctx.Resolve(str).Type.GetDefinition();
 					if (def == null || def.KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.String)
 						return;
-					AddIssue(binaryOperatorExpression, ctx.TranslateString("Use string.IsNullOrEmpty"), script => {
-						Expression expr = new PrimitiveType ("string").Invoke("IsNullOrEmpty", str.Clone());
-						if (isNegated)
-							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
-						script.Replace(binaryOperatorExpression, expr);
-					});
+					AddIssue(
+						binaryOperatorExpression,
+						isNegated ? ctx.TranslateString("Expression can be replaced with !string.IsNullOrEmpty") : ctx.TranslateString("Expression can be replaced with string.IsNullOrEmpty"),
+						new CodeAction (
+							isNegated ? ctx.TranslateString("Use !string.IsNullOrEmpty") : ctx.TranslateString("Use string.IsNullOrEmpty"),
+							script => {
+								Expression expr = new PrimitiveType("string").Invoke("IsNullOrEmpty", str.Clone());
+								if (isNegated)
+									expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
+								script.Replace(binaryOperatorExpression, expr);
+							},
+							binaryOperatorExpression
+						)
+					);
 					return;
 				}
 			}
-
 		}
 	}
 }

@@ -23,23 +23,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using ICSharpCode.NRefactory.Refactoring;
 using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-    [IssueDescription("Replace with single call to LastOrDefault(...)",
+	[IssueDescription("Replace with single call to LastOrDefault(...)",
         Description = "Replace with single call to LastOrDefault(...)",
         Category = IssueCategories.PracticesAndImprovements,
         Severity = Severity.Suggestion,
         ResharperDisableKeyword = "ReplaceWithSingleCallToLastOrDefault")]
-    public class ReplaceWithSingleCallToLastOrDefaultIssue : ICodeIssueProvider
-    {
-        public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
-        {
-            return new ReplaceWithSingleCallToAnyIssue.GatherVisitor<ReplaceWithSingleCallToLastOrDefaultIssue>(context, "LastOrDefault").GetIssues();
-        }
-    }
-
+	public class ReplaceWithSingleCallToLastOrDefaultIssue : ICodeIssueProvider
+	{
+		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		{
+			return new ReplaceWithSingleCallToAnyIssue.GatherVisitor<ReplaceWithSingleCallToLastOrDefaultIssue>(context, "LastOrDefault").GetIssues();
+		}
+	}
 }
