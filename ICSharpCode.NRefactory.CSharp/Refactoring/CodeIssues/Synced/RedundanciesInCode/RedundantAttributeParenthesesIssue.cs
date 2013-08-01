@@ -56,9 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (attribute.Arguments.Count > 0 || !attribute.HasArgumentList)
 					return;
 
-				var start = attribute.Type.EndLocation;
-				var end = attribute.EndLocation;
-				AddIssue (start, end, ctx.TranslateString ("Remove '()'"), script =>
+				AddIssue (attribute.LParToken.StartLocation, attribute.RParToken.StartLocation, ctx.TranslateString ("Remove '()'"), script =>
 					script.Replace (attribute, new Attribute { Type = attribute.Type.Clone () }));
 			}
 		}
