@@ -39,7 +39,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var entity = context.GetNode<ConstructorDeclaration>();
-
+			if (entity == null)
+				yield break;
 			var type = entity.Parent as TypeDeclaration;
 
 			if (entity.Name == type.Name)
