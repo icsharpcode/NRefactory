@@ -562,7 +562,7 @@
     <Compile Include="Refactoring\CodeIssues\RefactoringExtensions.cs" />
     <Compile Include="Refactoring\CodeActions\CopyCommentsFromInterface.cs" />
     <Compile Include="Refactoring\CodeActions\CopyCommentsFromBase.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS1520MethodMustHaveAReturnType.cs" />
+    <Compile Include="Refactoring\CodeActions\CS1520MethodMustHaveAReturnTypeAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

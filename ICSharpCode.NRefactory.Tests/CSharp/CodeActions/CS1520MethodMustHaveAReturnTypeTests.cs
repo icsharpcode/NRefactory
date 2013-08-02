@@ -31,46 +31,42 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class CS1520MethodMustHaveAReturnTypeTests : InspectionActionTestBase
+	public class CS1520MethodMustHaveAReturnTypeTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestMethod()
 		{
-			TestRefactoringContext context;
-			var issues = GetIssues(new CS1520MethodMustHaveAReturnType(), @"class Foo
+			Test<CS1520MethodMustHaveAReturnTypeAction> (
+				@"class Foo
 {
-	static Fa (string str)
+	static $Fa (string str)
 	{
 	}
-}", out context, true);
-
-			Assert.AreEqual(1, issues.Count);
-			CheckFix (context, issues.First(), @"class Foo
+}",
+				@"class Foo
 {
 	static void Fa (string str)
 	{
 	}
-}", 0);
+}", 1, true);
 		}
 
 		[Test]
 		public void TestConstructor()
 		{
-			TestRefactoringContext context;
-			var issues = GetIssues(new CS1520MethodMustHaveAReturnType(), @"class Foo
+			Test<CS1520MethodMustHaveAReturnTypeAction> (
+				@"class Foo
 {
-	internal Fa (string str)
+	static $Fa (string str)
 	{
 	}
-}", out context, true);
-
-			Assert.AreEqual(1, issues.Count);
-			CheckFix (context, issues.First(), @"class Foo
+}",
+				@"class Foo
 {
-	internal Foo (string str)
+	static Foo (string str)
 	{
 	}
-}", 1);
+}", 0, true);
 		}
 	}
 }

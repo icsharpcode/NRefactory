@@ -441,7 +441,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantExtendsListEntryIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\CopyCommentsFromBaseTests.cs" />
     <Compile Include="CSharp\CodeActions\CopyCommentsFromIntefaceTests.cs" />
-    <Compile Include="CSharp\CodeIssues\CS1520MethodMustHaveAReturnTypeTests.cs" />
+    <Compile Include="CSharp\CodeActions\CS1520MethodMustHaveAReturnTypeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

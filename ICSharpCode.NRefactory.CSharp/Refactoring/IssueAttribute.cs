@@ -43,13 +43,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		public string ResharperDisableKeyword { get; set; }
 		public string SuppressMessageCategory { get; set; }
 		public string SuppressMessageCheckId { get; set; }
-        public int PragmaWarning { get; set; }
+		public int PragmaWarning { get; set; }
 
 		public Severity Severity { get; set; }
 
 		public IssueMarker IssueMarker { get; set; }
-
-		public bool AcceptInvalidContexts { get; set; }
 
 		public IssueDescriptionAttribute (string title)
 		{

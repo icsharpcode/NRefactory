@@ -38,7 +38,6 @@ using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.Utils;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Analysis;
-using System.Collections.ObjectModel;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -46,7 +45,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		readonly CSharpAstResolver resolver;
 		readonly CancellationToken cancellationToken;
-		readonly List<Error> errorsAndWarnings;
 		
 		public virtual bool Supports(Version version)
 		{
@@ -87,23 +85,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			get { return resolver.Compilation; }
 		}
 
-
-
 		/// <summary>
 		/// Gets the type graph for the current compilation.
 		/// </summary>
 		public virtual TypeGraph TypeGraph {
 			get { return new TypeGraph(Compilation.Assemblies); }
 		}
-
-		public ReadOnlyCollection<Error> ErrorsAndWarnings
-		{
-			get { return new ReadOnlyCollection<Error>(errorsAndWarnings); }
-		}
 		
-		public BaseRefactoringContext (ICSharpCode.NRefactory.CSharp.Resolver.CSharpAstResolver resolver, List<Error> errorsAndWarnings, System.Threading.CancellationToken cancellationToken)
+		public BaseRefactoringContext (ICSharpCode.NRefactory.CSharp.Resolver.CSharpAstResolver resolver, System.Threading.CancellationToken cancellationToken)
 		{
-			this.errorsAndWarnings = new List<Error>(errorsAndWarnings);
 			this.resolver = resolver;
 			this.cancellationToken = cancellationToken;
 			this.referenceFinder = new LocalReferenceFinder(resolver);

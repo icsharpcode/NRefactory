@@ -535,7 +535,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				delegate(AstNode astNode, ResolveResult result) {
 					var nodeToReplace = GetNodeToReplace(astNode);
 					if (nodeToReplace == null) {
-						errorCallback (new Error (ErrorType.Error, null, "no node to replace found."));
+						errorCallback (new Error (ErrorType.Error, "no node to replace found."));
 						return;
 					}
 					callback (new RenameCallbackArguments(nodeToReplace, Identifier.Create(newName)));
