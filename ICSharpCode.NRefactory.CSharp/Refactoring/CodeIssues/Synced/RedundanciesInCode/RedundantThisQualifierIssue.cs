@@ -1,4 +1,4 @@
-﻿// 
+// 
 // RedundantThisInspector.cs
 //  
 // Author:
@@ -24,14 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using ICSharpCode.NRefactory.PatternMatching;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.CSharp.Resolver;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
+using System.Diagnostics;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -89,6 +88,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				base.VisitConstructorDeclaration(constructorDeclaration);
 			}
+			
+			// We keep this stack so that we can check for cases where a field is used in the initializer
+			// of a variable declaration. Currently the resolver does not resolve the variable name
+			// to the variable until after the end of the statement, which makes this workaround necessary.
+			Stack<VariableInitializer> currentDeclaringVariabes = new Stack<VariableInitializer> ();
+			public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)
+			{
+				foreach (var vi in variableDeclarationStatement.Variables) {
+					currentDeclaringVariabes.Push(vi);
+				}
+				
+				base.VisitVariableDeclarationStatement(variableDeclarationStatement);
+				
+				foreach (var vi in variableDeclarationStatement.Variables.Reverse()) {
+					var popped = currentDeclaringVariabes.Pop();
+					Debug.Assert(popped == vi);
+				}
+			}
 
 			public override void VisitThisReferenceExpression(ThisReferenceExpression thisReferenceExpression)
 			{
@@ -97,6 +114,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (memberReference == null) {
 					return;
 				}
+				
+				if (currentDeclaringVariabes.Any(vi => vi.Name == memberReference.MemberName))
+					return;
 
 				var state = ctx.GetResolverStateAfter(thisReferenceExpression);
 				var wholeResult = ctx.Resolve(memberReference);
@@ -105,12 +125,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (member == null) { 
 					return;
 				}
+				
+				var localDeclarationSpace = thisReferenceExpression.GetLocalVariableDeclarationSpace();
+				if (ContainsConflictingDeclarationNamed(member.Name, localDeclarationSpace))
+					return;
 
 				var result = state.LookupSimpleNameOrTypeName(memberReference.MemberName, EmptyList<IType>.Instance, NameLookupMode.Expression);
-			
+				var parentResult = ctx.Resolve(memberReference.Parent) as CSharpInvocationResolveResult;
+				
 				bool isRedundant;
 				if (result is MemberResolveResult) {
 					isRedundant = ((MemberResolveResult)result).Member.Region.Equals(member.Region);
+				} else if (parentResult != null && parentResult.IsExtensionMethodInvocation) {
+					// 'this.' is required for extension method invocation
+					isRedundant = false;
 				} else if (result is MethodGroupResolveResult) {
 					isRedundant = ((MethodGroupResolveResult)result).Methods.Any(m => m.Region.Equals(member.Region));
 				} else {
@@ -120,10 +148,64 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (isRedundant) {
 					AddIssue(thisReferenceExpression.StartLocation, memberReference.MemberNameToken.StartLocation, ctx.TranslateString("Remove redundant 'this.'"), script => {
 						script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
+					});
+				}
+			}
+			
+			static bool ContainsConflictingDeclarationNamed(string name, AstNode rootNode)
+			{
+				var declarationFinder = new DeclarationFinder(name);
+				rootNode.AcceptVisitor(declarationFinder);
+				return declarationFinder.Declarations.Any();
+			}
+			
+			class DeclarationFinder : DepthFirstAstVisitor
+			{
+				string name;
+				
+				public DeclarationFinder (string name)
+				{
+					this.name = name;
+					Declarations = new List<AstNode>();
+				}
+				
+				public IList<AstNode> Declarations {
+					get;
+					private set;
+				}
+				
+				public override void VisitVariableInitializer(VariableInitializer variableInitializer)
+				{
+					if (variableInitializer.Name == name) {
+						Declarations.Add(variableInitializer.NameToken);
 					}
-					);
+					base.VisitVariableInitializer(variableInitializer);
+				}
+				
+				public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
+				{
+					if (parameterDeclaration.Name == name) {
+						Declarations.Add(parameterDeclaration);
+					}
+					
+					base.VisitParameterDeclaration(parameterDeclaration);
+				}
+				
+				public override void VisitForStatement(ForStatement forStatement)
+				{
+					base.VisitForStatement(forStatement);
+				}
+				
+				public override void VisitForeachStatement(ForeachStatement foreachStatement)
+				{
+					if (foreachStatement.VariableName == name) {
+						Declarations.Add(foreachStatement.VariableNameToken);
+					}
+				
+					base.VisitForeachStatement(foreachStatement);
 				}
 			}
 		}
 	}
+	
 }
