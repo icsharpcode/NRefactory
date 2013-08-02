@@ -49,6 +49,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public IssueMarker IssueMarker { get; set; }
 
+		public bool AcceptInvalidContexts { get; set; }
+
 		public IssueDescriptionAttribute (string title)
 		{
 			Title = title;

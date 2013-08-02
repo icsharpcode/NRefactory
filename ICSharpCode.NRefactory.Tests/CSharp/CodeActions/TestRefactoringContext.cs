@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		readonly TextLocation location;
 		List<TestRefactoringContext> projectContexts;
 		
-		public TestRefactoringContext (IDocument document, TextLocation location, CSharpAstResolver resolver) : base(resolver, CancellationToken.None)
+		public TestRefactoringContext (IDocument document, TextLocation location, CSharpAstResolver resolver, List<Error> errorsAndWarnings) : base(resolver, errorsAndWarnings, CancellationToken.None)
 		{
 			this.doc = document;
 			this.location = location;
@@ -359,7 +359,15 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		public string GetSideDocumentText(int index)
 		{
 			return projectContexts [index].Text;
-		}
+/*			var resolver = new CSharpAstResolver (compilation, unit, unresolvedFile);
+			TextLocation location = TextLocation.Empty;
+			if (idx >= 0)
+				location = doc.GetLocation (idx);
+			return new TestRefactoringContext(doc, location, resolver, parser.ErrorsAndWarnings.ToList()) {
+				selectionStart = selectionStart,
+				selectionEnd = selectionEnd
+			};
+*/		}
 		
 		internal static void Print (AstNode node)
 		{

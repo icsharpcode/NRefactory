@@ -3779,7 +3779,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			public override void Print (AbstractMessage msg, bool showFullPath)
 			{
 				base.Print (msg, showFullPath);
-				var newError = new Error (msg.IsWarning ? ErrorType.Warning : ErrorType.Error, msg.Text, new DomRegion (fileName, msg.Location.Row, msg.Location.Column));
+				var newError = new Error (msg.IsWarning ? ErrorType.Warning : ErrorType.Error, "CS" + msg.Code, msg.Text, new DomRegion (fileName, msg.Location.Row, msg.Location.Column));
 				Errors.Add (newError);
 			}
 		}

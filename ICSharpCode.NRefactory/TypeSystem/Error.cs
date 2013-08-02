@@ -44,10 +44,16 @@ namespace ICSharpCode.NRefactory.TypeSystem
 	[Serializable]
 	public class Error
 	{
+		readonly string errorCode;
 		readonly ErrorType errorType;
 		readonly string message;
 		readonly DomRegion region;
-		
+
+		/// <summary>
+		/// The error code
+		/// </summary>
+		public string ErrorCode { get { return errorCode; } }
+
 		/// <summary>
 		/// The type of the error.
 		/// </summary>
@@ -69,19 +75,61 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// <param name='errorType'>
 		/// The error type.
 		/// </param>
+		/// <param name="errorCode">
+		/// The error code
+		/// </param>
 		/// <param name='message'>
 		/// The description of the error.
 		/// </param>
 		/// <param name='region'>
 		/// The region of the error.
 		/// </param>
-		public Error (ErrorType errorType, string message, DomRegion region)
+		public Error (ErrorType errorType, string errorCode, string message, DomRegion region)
 		{
 			this.errorType = errorType;
+			this.errorCode = errorCode;
 			this.message = message;
 			this.region = region;
 		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.TypeSystem.Error"/> class.
+		/// </summary>
+		/// <param name='errorType'>
+		/// The error type.
+		/// </param>
+		/// <param name='message'>
+		/// The description of the error.
+		/// </param>
+		/// <param name='region'>
+		/// The region of the error.
+		/// </param>
+		public Error (ErrorType errorType, string message, DomRegion region) : this (errorType, null, message, region)
+		{
+		}
 		
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.TypeSystem.Error"/> class.
+		/// </summary>
+		/// <param name='errorType'>
+		/// The error type.
+		/// </param>
+		/// <param name="errorCode">
+		/// The error code
+		/// </param>
+		/// <param name='message'>
+		/// The description of the error.
+		/// </param>
+		/// <param name='location'>
+		/// The location of the error.
+		/// </param>
+		public Error (ErrorType errorType, string errorCode, string message, TextLocation location)
+		{
+			this.errorType = errorType;
+			this.message = message;
+			this.region = new DomRegion (location, location);
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.TypeSystem.Error"/> class.
 		/// </summary>
@@ -94,13 +142,32 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// <param name='location'>
 		/// The location of the error.
 		/// </param>
-		public Error (ErrorType errorType, string message, TextLocation location)
+		public Error (ErrorType errorType, string message, TextLocation location) : this (errorType, null, message, location)
 		{
-			this.errorType = errorType;
-			this.message = message;
-			this.region = new DomRegion (location, location);
 		}
 		
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.TypeSystem.Error"/> class.
+		/// </summary>
+		/// <param name='errorType'>
+		/// The error type.
+		/// </param>
+		/// <param name='errorCode'>
+		/// The error code.
+		/// </param>
+		/// <param name='message'>
+		/// The description of the error.
+		/// </param>
+		/// <param name='line'>
+		/// The line of the error.
+		/// </param>
+		/// <param name='col'>
+		/// The column of the error.
+		/// </param>
+		public Error (ErrorType errorType, string errorCode, string message, int line, int col) : this (errorType, errorCode, message, new TextLocation (line, col))
+		{
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.TypeSystem.Error"/> class.
 		/// </summary>
@@ -116,7 +183,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// <param name='col'>
 		/// The column of the error.
 		/// </param>
-		public Error (ErrorType errorType, string message, int line, int col) : this (errorType, message, new TextLocation (line, col))
+		public Error (ErrorType errorType, string message, int line, int col) : this (errorType, null, message, new TextLocation (line, col))
 		{
 		}
 		
@@ -126,14 +193,29 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// <param name='errorType'>
 		/// The error type.
 		/// </param>
+		/// <param name="errorCode">
+		/// The error code.
+		/// </param> 
 		/// <param name='message'>
 		/// The description of the error.
 		/// </param>
-		public Error (ErrorType errorType, string message)
+		public Error (ErrorType errorType, string errorCode, string message)
 		{
 			this.errorType = errorType;
+			this.errorCode = errorCode;
 			this.message = message;
 			this.region = DomRegion.Empty;
+		}
+
+		/// </summary>
+		/// <param name='errorType'>
+		/// The error type.
+		/// </param>
+		/// <param name='message'>
+		/// The description of the error.
+		/// </param>
+		public Error (ErrorType errorType, string message) : this(errorType, null, message)
+		{
 		}
 	}
 }
