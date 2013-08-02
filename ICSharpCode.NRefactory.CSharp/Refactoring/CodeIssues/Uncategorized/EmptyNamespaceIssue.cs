@@ -51,17 +51,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
 			{
-				base.VisitNamespaceDeclaration(namespaceDeclaration);
-
 				if (IsEmpty(namespaceDeclaration)) {
 					AddIssue(namespaceDeclaration, ctx.TranslateString("Namespace is empty"),
 					         GetFixAction(namespaceDeclaration));
+				}
+
+				foreach (var member in namespaceDeclaration.Members) {
+					member.AcceptVisitor(this);
 				}
 			}
 
 			bool IsEmpty(NamespaceDeclaration namespaceDeclaration)
 			{
-				return !namespaceDeclaration.Descendants.Any(descendant => descendant is TypeDeclaration ||
+				return !namespaceDeclaration.Members.Any(descendant => descendant is TypeDeclaration ||
 				                                             descendant is DelegateDeclaration ||
 				                                             descendant is NamespaceDeclaration);
 			}
