@@ -51,21 +51,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
 			{
-				if (IsEmpty(namespaceDeclaration)) {
+				bool hasContents = false;
+				foreach (var member in namespaceDeclaration.Members) {
+					if (member is TypeDeclaration || member is DelegateDeclaration) {
+						hasContents = true;
+					}
+					else if (member is NamespaceDeclaration) {
+						hasContents = true;
+						member.AcceptVisitor(this);
+					}
+				}
+
+				if (!hasContents) {
 					AddIssue(namespaceDeclaration, ctx.TranslateString("Namespace is empty"),
 					         GetFixAction(namespaceDeclaration));
 				}
-
-				foreach (var member in namespaceDeclaration.Members) {
-					member.AcceptVisitor(this);
-				}
-			}
-
-			bool IsEmpty(NamespaceDeclaration namespaceDeclaration)
-			{
-				return !namespaceDeclaration.Members.Any(descendant => descendant is TypeDeclaration ||
-				                                             descendant is DelegateDeclaration ||
-				                                             descendant is NamespaceDeclaration);
 			}
 
 			CodeAction GetFixAction(NamespaceDeclaration namespaceDeclaration)
