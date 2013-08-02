@@ -443,6 +443,7 @@
     <Compile Include="CSharp\CodeActions\CopyCommentsFromIntefaceTests.cs" />
     <Compile Include="CSharp\CodeActions\CS1520MethodMustHaveAReturnTypeTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyDestructorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\EmptyNamespaceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
