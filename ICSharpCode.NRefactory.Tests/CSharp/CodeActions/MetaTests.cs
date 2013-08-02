@@ -119,6 +119,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 }", context.GetSideDocumentText(1));
 		}
 
+		[Ignore]
 		[Test]
 		public void TestRenameInterfaceMethod ()
 		{

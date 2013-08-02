@@ -83,7 +83,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			Assert.AreEqual(SpecialType.Dynamic, testClass.Properties.Single().ReturnType);
 			Assert.AreEqual(0, testClass.Properties.Single().Attributes.Count);
 		}
-		
+		#if !__MonoCS__
+
 		[Test]
 		public void DynamicTypeInGenerics()
 		{
@@ -111,7 +112,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			IMethod m7 = testClass.Methods.Single(me => me.Name == "DynamicGenerics7");
 			Assert.AreEqual("System.Action`3[[System.Int32[][,]],[dynamic],[System.Object]]", m7.Parameters[0].Type.ReflectionName);
 		}
-		
+		#endif
+
 		[Test]
 		public void DynamicParameterHasNoAttributes()
 		{
