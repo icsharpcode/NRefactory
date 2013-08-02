@@ -562,6 +562,7 @@
     <Compile Include="Refactoring\CodeIssues\RefactoringExtensions.cs" />
     <Compile Include="Refactoring\CodeActions\CopyCommentsFromInterface.cs" />
     <Compile Include="Refactoring\CodeActions\CopyCommentsFromBase.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantBaseQualifierIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
