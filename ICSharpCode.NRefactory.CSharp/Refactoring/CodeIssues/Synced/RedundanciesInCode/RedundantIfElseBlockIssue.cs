@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitIfElseStatement (ifElseStatement);
 
 				if (HasRundundantElse(ifElseStatement)) {
-					AddIssue (ifElseStatement.ElseToken, ctx.TranslateString ("Remove redundant 'else'"),
+					AddIssue (ifElseStatement.ElseToken, ctx.TranslateString ("Redundant 'else' keyword"), ctx.TranslateString ("Remove redundant 'else'"),
 						script =>
 						{
 							int start = script.GetCurrentOffset(ifElseStatement.ElseToken.GetPrevNode (n => !(n is NewLineNode)).EndLocation);

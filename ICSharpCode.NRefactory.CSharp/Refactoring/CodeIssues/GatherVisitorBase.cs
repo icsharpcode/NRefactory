@@ -193,34 +193,62 @@ namespace ICSharpCode.NRefactory.CSharp
             return isDisabled || isGloballySuppressed || isPragmaDisabled || suppressedRegions.Any(r => r.IsInside(location));
 		}
 
-		protected void AddIssue(AstNode node, string title, object siblingKey, System.Action<Script> fix = null)
+		protected void AddIssue(AstNode node, string issueDescription, string actionDescription, object siblingKey, System.Action<Script> fix)
 		{
 			if (IsSuppressed(node.StartLocation))
 				return;
-			FoundIssues.Add(new CodeIssue (title, node.StartLocation, node.EndLocation, fix != null ? new CodeAction (title, fix, node, siblingKey) : null));
+			FoundIssues.Add(new CodeIssue (issueDescription, node.StartLocation, node.EndLocation, fix != null ? new CodeAction (actionDescription, fix, node, siblingKey) : null));
 		}
 
-		protected void AddIssue(TextLocation start, TextLocation end, string title, object siblingKey, System.Action<Script> fix = null)
+		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription, string actionDescription, object siblingKey, System.Action<Script> fix)
 		{
 			if (IsSuppressed(start))
 				return;
-			FoundIssues.Add(new CodeIssue(title, start, end, fix != null ? new CodeAction(title, fix, start, end, siblingKey) : null));
+			FoundIssues.Add(new CodeIssue(issueDescription, start, end, fix != null ? new CodeAction(actionDescription, fix, start, end, siblingKey) : null));
 		}
 
-		protected void AddIssue(AstNode node, string title, System.Action<Script> fix = null)
+		protected void AddIssue(AstNode node, string issueDescription, string actionDescription, System.Action<Script> fix)
 		{
 			if (IsSuppressed(node.StartLocation))
 				return;
-			FoundIssues.Add(new CodeIssue (title, node.StartLocation, node.EndLocation, fix != null ? new CodeAction (title, fix, node) : null));
+			FoundIssues.Add(new CodeIssue (issueDescription, node.StartLocation, node.EndLocation, fix != null ? new CodeAction (actionDescription, fix, node) : null));
 		}
 
-		protected void AddIssue(TextLocation start, TextLocation end, string title, System.Action<Script> fix = null)
+		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription, string actionDescription, System.Action<Script> fix)
 		{
 			if (IsSuppressed(start))
 				return;
-			FoundIssues.Add(new CodeIssue(title, start, end, fix != null ? new CodeAction(title, fix, start, end) : null));
+			FoundIssues.Add(new CodeIssue(issueDescription, start, end, fix != null ? new CodeAction(actionDescription, fix, start, end) : null));
 		}
-		
+
+		protected void AddIssue(AstNode node, string issueDescription, object siblingKey)
+		{
+			if (IsSuppressed(node.StartLocation))
+				return;
+			FoundIssues.Add(new CodeIssue (issueDescription, node.StartLocation, node.EndLocation));
+		}
+
+		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription, object siblingKey)
+		{
+			if (IsSuppressed(start))
+				return;
+			FoundIssues.Add(new CodeIssue(issueDescription, start, end));
+		}
+
+		protected void AddIssue(AstNode node, string issueDescription)
+		{
+			if (IsSuppressed(node.StartLocation))
+				return;
+			FoundIssues.Add(new CodeIssue (issueDescription, node.StartLocation, node.EndLocation));
+		}
+
+		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription)
+		{
+			if (IsSuppressed(start))
+				return;
+			FoundIssues.Add(new CodeIssue(issueDescription, start, end));
+		}
+
 		protected void AddIssue(AstNode node, string title, CodeAction fix)
 		{
 			if (IsSuppressed(node.StartLocation))

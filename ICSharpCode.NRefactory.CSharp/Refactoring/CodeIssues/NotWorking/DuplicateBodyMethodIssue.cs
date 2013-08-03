@@ -96,8 +96,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							var secondMethod = list [j];
 							if (firstMethod.Body.IsMatch(secondMethod.Body)) {
 								AddIssue(secondMethod.NameToken,
-								                                 string.Format("Method '{0}' has the same with '{1}' ", secondMethod.Name,
-								                                               firstMethod.Name),
+								         string.Format("Method '{0}' has the same with '{1}' ", secondMethod.Name,
+								              firstMethod.Name), string.Format("Method '{0}' has the same with '{1}' ", secondMethod.Name,
+								                                 firstMethod.Name),
 								                                 script => {
 									InvokeMethod(script, firstMethod, secondMethod); }
 								);

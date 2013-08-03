@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
 					floatType = "double";
-				AddIssue(binaryOperatorExpr, string.Format(ctx.TranslateString ("Use {0}.IsNaN()"), floatType),
+				AddIssue(binaryOperatorExpr, string.Format(ctx.TranslateString ("Use {0}.IsNaN()"), floatType), string.Format(ctx.TranslateString ("Use {0}.IsNaN()"), floatType),
 					script => {
 						Expression expr = new PrimitiveType(floatType).Invoke("IsNaN", argExpr.Clone());
 						if (binaryOperatorExpr.Operator == BinaryOperatorType.InEquality)
@@ -123,7 +123,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				} else if (IsFloatingPoint(binaryOperatorExpression.Left) || IsFloatingPoint(binaryOperatorExpression.Right)) {
 					if (IsConstantInfinity(binaryOperatorExpression.Left) || IsConstantInfinity(binaryOperatorExpression.Right))
 						return;
-					AddIssue (binaryOperatorExpression, ctx.TranslateString ("Compare a difference with EPSILON"),
+					// TODO: Better description!
+					AddIssue (binaryOperatorExpression, ctx.TranslateString ("Compare a difference with EPSILON"), ctx.TranslateString ("Compare a difference with EPSILON"),
 						script => {
 							// Math.Abs(diff) op EPSILON
 							var builder = ctx.CreateTypeSystemAstBuilder(binaryOperatorExpression);

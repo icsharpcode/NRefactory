@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (attribute.Arguments.Count > 0 || !attribute.HasArgumentList)
 					return;
 
-				AddIssue (attribute.LParToken.StartLocation, attribute.RParToken.StartLocation, ctx.TranslateString ("Remove '()'"), script =>
+				AddIssue (attribute.LParToken.StartLocation, attribute.RParToken.StartLocation, ctx.TranslateString ("Parentheses are redundant if attribute has no arguments"), ctx.TranslateString ("Remove '()'"), script =>
 					script.Replace (attribute, new Attribute { Type = attribute.Type.Clone () }));
 			}
 		}

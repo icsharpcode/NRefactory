@@ -139,8 +139,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                 if (foundType == null)
                     return;
 
-                AddIssue(parameter.NameToken, string.Format(ctx.TranslateString("Parameter can be {0}"),
-                                                            foundType.Name),
+				AddIssue(parameter.NameToken, string.Format(ctx.TranslateString("Parameter can be {0}"),
+				                                            foundType.Name),string.Format(ctx.TranslateString("Parameter can be {0}"),
+				                              foundType.Name),
                          script => script.Replace(parameter.Type, CreateShortType(ctx, foundType, parameter)));
             }
 

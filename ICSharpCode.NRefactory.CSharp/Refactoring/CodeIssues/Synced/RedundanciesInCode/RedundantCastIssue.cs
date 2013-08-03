@@ -118,7 +118,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddIssue (Expression typeCastNode, Expression expr, TextLocation start, TextLocation end)
 			{
-				AddIssue (start, end, ctx.TranslateString ("Remove redundant type cast"),
+				AstNode type;
+				if (typeCastNode is CastExpression)
+					type = ((CastExpression)typeCastNode).Type;
+				else 
+					type = ((AsExpression)typeCastNode).Type;
+				AddIssue (start, end, ctx.TranslateString ("Type cast is redundant"), string.Format(ctx.TranslateString ("Remove cast to '{0}'"), type),
 					script => script.Replace (typeCastNode, expr.Clone ()));
 			}
 

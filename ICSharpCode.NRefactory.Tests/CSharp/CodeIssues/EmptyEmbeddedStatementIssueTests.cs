@@ -1,21 +1,21 @@
-﻿// 
-// CompareBooleanWithTrueOrFalseIssueTests.cs
-// 
+//
+// UseBlockInsteadColonIssueTests.cs
+//
 // Author:
-//      Mansheng Yang <lightyang0@gmail.com>
-// 
-// Copyright (c) 2012 Mansheng Yang <lightyang0@gmail.com>
-// 
+//       Ciprian Khlud <ciprian.mustiata@yahoo.com>
+//
+// Copyright (c) 2013 Ciprian Khlud
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,74 +28,69 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
-{
+{	
 	[TestFixture]
-	public class CompareBooleanWithTrueOrFalseIssueTests : InspectionActionTestBase
+	public class EmptyEmbeddedStatementIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void Test ()
+		public void TestSimple ()
 		{
 			var input = @"
 class TestClass
 {
-	void TestMethod (bool x)
+	void TestMethod (int i)
 	{
-		bool y;
-		y = x == true;
-		y = x != false;
-		y = x != true;
-		y = x == false;
+		if (i > 0);
 	}
 }";
 			var output = @"
 class TestClass
 {
-	void TestMethod (bool x)
+	void TestMethod (int i)
 	{
-		bool y;
-		y = x;
-		y = x;
-		y = !x;
-		y = !x;
+		if (i > 0) {
+		}
 	}
 }";
-			Test<CompareBooleanWithTrueOrFalseIssue> (input, 4, output);
+			Test<EmptyEmbeddedStatementIssue>(input, output);
 		}
-
 		[Test]
-		public void TestInsertParentheses ()
+		public void TestForeach()
 		{
 			var input = @"
 class TestClass
 {
-	void TestMethod ()
+	void TestMethod (int[] list)
 	{
-		bool y = 2 > 1 == false;
+		foreach (var i in list);
 	}
 }";
 			var output = @"
 class TestClass
 {
-	void TestMethod ()
+	void TestMethod (int[] list)
 	{
-		bool y = !(2 > 1);
+		foreach (var i in list) {
+		}
 	}
 }";
-			Test<CompareBooleanWithTrueOrFalseIssue> (input, 1, output);
+			Test<EmptyEmbeddedStatementIssue>(input, output);
 		}
 
 		[Test]
-		public void TestNullable ()
+		public void TestDisable ()
 		{
 			var input = @"
 class TestClass
 {
-	void TestMethod (bool? x)
+	void TestMethod (int i)
 	{
-		var y = x == false;
+//ReSharper disable once EmptyEmbeddedStatement
+		if (i > 0);
 	}
 }";
-			Test<CompareBooleanWithTrueOrFalseIssue> (input, 0);
+			TestWrongContext<EmptyEmbeddedStatementIssue>(input);
 		}
 	}
+	
 }

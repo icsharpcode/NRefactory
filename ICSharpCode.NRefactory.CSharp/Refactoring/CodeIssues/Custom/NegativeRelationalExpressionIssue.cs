@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 				}
 
-				AddIssue (unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"),
+				AddIssue (unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"), ctx.TranslateString ("Simplify negative relational expression"),
 					script => script.Replace (unaryOperatorExpression,
 						new BinaryOperatorExpression (binaryOperatorExpr.Left.Clone (), negatedOp,
 					          	binaryOperatorExpr.Right.Clone ())));

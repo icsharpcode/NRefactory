@@ -59,7 +59,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (constructorDeclaration.Initializer.Arguments.Count != 0)
 					return;
 				AddIssue(constructorDeclaration.Initializer.StartLocation, constructorDeclaration.Initializer.EndLocation,
-                         ctx.TranslateString("Remove redundant 'base()'"),
+				         ctx.TranslateString("Redundant base constructor call"),
+				         ctx.TranslateString("Remove redundant 'base()'"),
 				         script => {
 					var clone = (ConstructorDeclaration)constructorDeclaration.Clone();
 					script.Replace(clone.ColonToken, CSharpTokenNode.Null.Clone());

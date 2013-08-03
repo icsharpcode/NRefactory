@@ -105,6 +105,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				AddIssue(methodDeclaration,
 				         ctx.TranslateString("Type does not implement IDisposable despite having a Dispose method"),
+				         ctx.TranslateString("Implement IDisposable"),
 				         script => Fix(script, methodDeclaration, type));
 			}
 

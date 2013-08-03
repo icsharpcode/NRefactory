@@ -250,7 +250,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddIssue(AstNode node)
 			{
-				var title = ctx.TranslateString("Remove redundant assignment");
+				var issueDescription = ctx.TranslateString("Assignment is redundant");
+				var actionDescription = ctx.TranslateString("Remove redundant assignment");
 
 				var variableInitializer = node as VariableInitializer;
 				if (variableInitializer != null) {
@@ -284,7 +285,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					}
 
-					AddIssue(grayOutNode, title, script => {
+					AddIssue(grayOutNode, issueDescription, actionDescription, script => {
 						var variableNode = (VariableInitializer)node;
 						if (containsInvocations && isDeclareStatement) {
 							//add the column ';' that will be removed after the next line replacement
@@ -320,9 +321,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (assignmentExpr == null)
 					return;
 				if (assignmentExpr.Parent is ExpressionStatement) {
-					AddIssue(assignmentExpr.Parent, title, script => script.Remove(assignmentExpr.Parent));
+					AddIssue(assignmentExpr.Parent, issueDescription, actionDescription, script => script.Remove(assignmentExpr.Parent));
 				} else {
-					AddIssue(assignmentExpr.Left.StartLocation, assignmentExpr.OperatorToken.EndLocation, title,
+					AddIssue(assignmentExpr.Left.StartLocation, assignmentExpr.OperatorToken.EndLocation, issueDescription, actionDescription,
 					         script => script.Replace(assignmentExpr, assignmentExpr.Right.Clone()));
 				}
 			}

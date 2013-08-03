@@ -74,7 +74,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (IsUsed (decl.Parent, resolveResult.Variable, variableInitializer))
 					return;
 
-				AddIssue (variableInitializer.NameToken, ctx.TranslateString ("Remove unused local variable"),
+				AddIssue (variableInitializer.NameToken, 
+				          string.Format(ctx.TranslateString ("Local variable '{0}' is never used"), resolveResult.Variable.Name),  ctx.TranslateString ("Remove unused local variable"),
 					script =>
 					{
 						if (decl.Variables.Count == 1) {

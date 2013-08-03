@@ -91,8 +91,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				
 				AddIssue(methodDeclaration.NameToken.StartLocation, methodDeclaration.NameToken.EndLocation,
-				                     context.TranslateString(string.Format("Make '{0}' static", methodDeclaration.Name)),
-				                     script => ExecuteScriptToFixStaticMethodIssue(script, context, methodDeclaration));
+				         context.TranslateString("Method does not access members and can be made static."),
+				         context.TranslateString(string.Format("Make '{0}' static", methodDeclaration.Name)),
+				         script => ExecuteScriptToFixStaticMethodIssue(script, context, methodDeclaration));
 			}
 
 			static void ExecuteScriptToFixStaticMethodIssue(Script script,

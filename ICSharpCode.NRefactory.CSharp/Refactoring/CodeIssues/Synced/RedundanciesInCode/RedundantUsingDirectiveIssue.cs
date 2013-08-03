@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				foreach (var u in isInUse.Where (u => !u.Value)) {
 					var decl = u.Key;
-					AddIssue(decl, ctx.TranslateString("Remove redundant using directives"), script => {
+					AddIssue(decl, ctx.TranslateString("Using directive is not used by code and can be removed safely."), ctx.TranslateString("Remove redundant using directives"), script => {
 						foreach (var u2 in isInUse.Where (a => !a.Value)) {
 							script.Remove (u2.Key);
 						}

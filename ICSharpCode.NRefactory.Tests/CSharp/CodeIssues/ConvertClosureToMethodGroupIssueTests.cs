@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class SimplifyAnonymousMethodToDelegateIssueTests : InspectionActionTestBase
+	public class ConvertClosureToMethodGroupIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestSimpleVoidLambda ()
@@ -47,7 +47,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 			CheckFix (context, issues, @"using System;
 class Foo
@@ -74,7 +74,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 			CheckFix (context, issues, @"using System;
 class Foo
@@ -101,7 +101,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 			CheckFix (context, issues, @"using System;
 class Foo
@@ -128,7 +128,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 
@@ -147,7 +147,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 			CheckFix (context, issues, @"using System;
 class Foo
@@ -178,7 +178,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 
@@ -197,7 +197,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 
@@ -216,7 +216,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 
@@ -240,7 +240,7 @@ class C
 }";
 
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 			CheckFix (context, issues, @"using System;
 using System.Threading.Tasks;
@@ -271,7 +271,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
 		
@@ -289,7 +289,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 		
@@ -307,7 +307,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
 		
@@ -325,7 +325,7 @@ class Foo
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new SimplifyAnonymousMethodToDelegateIssue (), input, out context);
+			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 	}

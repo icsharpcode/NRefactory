@@ -144,7 +144,6 @@
     <Compile Include="CSharp\CodeIssues\ParameterOnlyAssignedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCommaInArrayInitializerIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantAssignmentIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\CompareBooleanWithTrueOrFalseIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantAttributeParenthesesIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCaseLabelIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantIfElseBlockIssueTests.cs" />
@@ -402,7 +401,6 @@
     <Compile Include="CSharp\CodeCompletion\ImportCompletionTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateEnumValueTests.cs" />
     <Compile Include="CSharp\CodeCompletion\GetCurrentParameterIndexTests.cs" />
-    <Compile Include="CSharp\CodeIssues\SimplifyAnonymousMethodToDelegateIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0127ReturnMustNotBeFollowedByAnyExpressionTests.cs" />
     <Compile Include="CSharp\Analysis\SemanticHighlightingTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateChangedEventTests.cs" />
@@ -423,7 +421,6 @@
     <Compile Include="CSharp\CodeIssues\DuplicateBodyMethodIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\DuplicateExpressionsInConditionsIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\DuplicateIfInIfChainIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\UseBlockInsteadColonIssueTests.cs" />
     <Compile Include="CSharp\AstTests.cs" />
     <Compile Include="CSharp\CodeIssues\LockThisTests.cs" />
     <Compile Include="Analysis\SymbolCollectorTests.cs" />
@@ -446,6 +443,9 @@
     <Compile Include="CSharp\CodeIssues\EmptyNamespaceTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseQualifierTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0759RedundantPartialMethodIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantBoolCompareIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertClosureToMethodGroupIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\EmptyEmbeddedStatementIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
