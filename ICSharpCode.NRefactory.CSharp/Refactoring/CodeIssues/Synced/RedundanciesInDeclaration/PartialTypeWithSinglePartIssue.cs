@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					AddIssue(partialModifierToken,
 					         ctx.TranslateString("Partial class with single part"),
-					         GetFixAction(typeDeclaration));
+					         GetFixAction(typeDeclaration, partialModifierToken));
 				}
 			}
 
@@ -83,13 +83,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				//We never need to visit the children of block statements
 			}
 
-			CodeAction GetFixAction(TypeDeclaration typeDeclaration)
+			CodeAction GetFixAction(TypeDeclaration typeDeclaration, CSharpModifierToken partialModifierToken)
 			{
 				return new CodeAction(ctx.TranslateString("Remove 'partial'"), script => {
-					var newDeclaration = (TypeDeclaration)typeDeclaration.Clone();
-					newDeclaration.Modifiers &= ~(Modifiers.Partial);
-					script.Replace(typeDeclaration, newDeclaration);
-				}, typeDeclaration);
+					script.ChangeModifier (typeDeclaration, typeDeclaration.Modifiers & ~Modifiers.Partial);
+				}, partialModifierToken);
 			}
 		}
 	}

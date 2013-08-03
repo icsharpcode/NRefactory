@@ -80,9 +80,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			CodeAction GetFixAction(MethodDeclaration methodDeclaration)
 			{
 				return new CodeAction(ctx.TranslateString("Remove 'partial'"), script => {
-					var newDeclaration = (MethodDeclaration)methodDeclaration.Clone();
-					newDeclaration.Modifiers &= ~(Modifiers.Partial);
-					script.Replace(methodDeclaration, newDeclaration);
+					script.ChangeModifier (methodDeclaration, methodDeclaration.Modifiers & ~Modifiers.Partial);
 				}, methodDeclaration);
 			}
 		}
