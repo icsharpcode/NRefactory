@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				if (method.Parts.Count == 1) {
-					AddIssue(methodDeclaration,
+					AddIssue(methodDeclaration.NameToken,
 					         string.Format(ctx.TranslateString("CS0759: A partial method `{0}' implementation is missing a partial method declaration"), method.FullName),
 					         GetFixAction(methodDeclaration));
 				}
