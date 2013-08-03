@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantPartialMethodTests : InspectionActionTestBase
+	public class CS0759RedundantPartialMethodIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestRedundantModifier()
@@ -51,7 +51,7 @@ partial class TestClass
 		int i = 1;
 	}
 }";
-			Test<RedundantPartialMethodIssue>(input, 1, output);
+			Test<CS0759RedundantPartialMethodIssue>(input, 1, output);
 		}
 
 		[Test]
@@ -69,7 +69,7 @@ partial class TestClass
 		int i = 1;
 	}
 }";
-			Test<RedundantPartialMethodIssue>(input, 0);
+			Test<CS0759RedundantPartialMethodIssue>(input, 0);
 		}
 	}
 }

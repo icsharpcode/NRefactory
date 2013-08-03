@@ -444,8 +444,8 @@
     <Compile Include="CSharp\CodeActions\CS1520MethodMustHaveAReturnTypeTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyDestructorTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyNamespaceTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantPartialMethodTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseQualifierTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CS0759RedundantPartialMethodIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

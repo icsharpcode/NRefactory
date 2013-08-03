@@ -35,17 +35,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Redundant partial modifier in method",
 	                   Description = "Redundant partial modifier in method",
-	                   Category = IssueCategories.Redundancies,
-	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantPartialMethodIssue : ICodeIssueProvider
+	                   Category = IssueCategories.CompilerWarnings,
+	                   Severity = Severity.Error,
+	                   IssueMarker = IssueMarker.Underline)]
+	public class CS0759RedundantPartialMethodIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantPartialMethodIssue>
+		class GatherVisitor : GatherVisitorBase<CS0759RedundantPartialMethodIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
@@ -54,21 +54,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
-				if (!methodDeclaration.HasModifier(Modifiers.Partial)) {
+				if (!methodDeclaration.HasModifier(Modifiers.Partial))
 					return;
-				}
 
 				var resolveResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
-				if (resolveResult == null) {
+				if (resolveResult == null)
 					return;
-				}
+
 				var method = (IMethod) resolveResult.Member;
-				if (method == null) {
+				if (method == null)
 					return;
-				}
 
 				if (method.Parts.Count == 1) {
-					AddIssue(methodDeclaration, ctx.TranslateString("Method has redundant partial modifier"),
+					AddIssue(methodDeclaration,
+					         string.Format(ctx.TranslateString("CS0759: A partial method `{0}' implementation is missing a partial method declaration"), method.FullName),
 					         GetFixAction(methodDeclaration));
 				}
 			}
@@ -80,11 +79,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			CodeAction GetFixAction(MethodDeclaration methodDeclaration)
 			{
-				return new CodeAction(ctx.TranslateString("Remove partial modifier"), script =>
-				{
+				return new CodeAction(ctx.TranslateString("Make method non-partial"), script => {
 					var newDeclaration = (MethodDeclaration)methodDeclaration.Clone();
 					newDeclaration.Modifiers &= ~(Modifiers.Partial);
-
 					script.Replace(methodDeclaration, newDeclaration);
 				}, methodDeclaration);
 			}
