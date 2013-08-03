@@ -64,19 +64,31 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				
 				var expr = methodDeclaration.Body.Statements.FirstOrNullObject();
-				
-				if (expr == null || !(expr.FirstChild is InvocationExpression))
+				//Debuger.WriteInFile(expr.FirstChild.ToString());
+				if (expr == null)
 					return;
-				
-				Expression memberReferenceExpression = (expr.FirstChild as InvocationExpression).Target;
-				if (memberReferenceExpression == null || 
-					(memberReferenceExpression as MemberReferenceExpression).MemberName != methodDeclaration.Name ||
-					!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
-					return;
-				var title = ctx.TranslateString("Redundant method override");
-				AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => {
-					script.Remove(methodDeclaration);
-				});
+				if (expr.FirstChild is InvocationExpression) {
+					Expression memberReferenceExpression = (expr.FirstChild as InvocationExpression).Target;
+					if (memberReferenceExpression == null || 
+						(memberReferenceExpression as MemberReferenceExpression).MemberName != methodDeclaration.Name ||
+						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
+						return;
+					var title = ctx.TranslateString("Redundant method override");
+					AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => {
+						script.Remove(methodDeclaration);
+					});
+				} else if (expr.FirstChild is CSharpTokenNode && expr.FirstChild.ToString().Equals("return")) {
+					Expression memberReferenceExpression = (expr.FirstChild.NextSibling as InvocationExpression).Target;
+					if (memberReferenceExpression == null || 
+						(memberReferenceExpression as MemberReferenceExpression).MemberName != methodDeclaration.Name ||
+						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
+						return;
+					var title = ctx.TranslateString("Redundant method override");
+					AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => {
+						script.Remove(methodDeclaration);
+					});
+				}
+				return;
 			}
 			
 			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
@@ -109,36 +121,36 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				bool hasBaseSetter = ((baseProperty as IProperty).Setter != null);
 				
 				if (hasBaseGetter) {
-					if (!hasGetter)
-						return;
-					var expr = propertyDeclaration.Getter.Body.Statements.FirstOrNullObject();
+					if (hasGetter) {
+						var expr = propertyDeclaration.Getter.Body.Statements.FirstOrNullObject();
 					
-					if (expr == null || !(expr is ReturnStatement))
-						return;
+						if (expr == null || !(expr is ReturnStatement))
+							return;
 					
-					Expression memberReferenceExpression = (expr as ReturnStatement).Expression;
+						Expression memberReferenceExpression = (expr as ReturnStatement).Expression;
 					
-					if (memberReferenceExpression == null || 
-						(memberReferenceExpression as MemberReferenceExpression).MemberName != propertyDeclaration.Name ||
-						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
-						return;
+						if (memberReferenceExpression == null || 
+							(memberReferenceExpression as MemberReferenceExpression).MemberName != propertyDeclaration.Name ||
+							!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
+							return;
+					}
 				}
 				
 				if (hasBaseSetter) {
-					if (!hasSetter)
-						return;
+					if (hasSetter) {
 					
-					var expr = propertyDeclaration.Setter.Body.Statements.FirstOrNullObject();
+						var expr = propertyDeclaration.Setter.Body.Statements.FirstOrNullObject();
 					
-					if (expr == null || !(expr.FirstChild is AssignmentExpression))
-						return;
+						if (expr == null || !(expr.FirstChild is AssignmentExpression))
+							return;
 					
-					Expression memberReferenceExpression = (expr.FirstChild as AssignmentExpression).Left;
+						Expression memberReferenceExpression = (expr.FirstChild as AssignmentExpression).Left;
 					
-					if (memberReferenceExpression == null || 
-						(memberReferenceExpression as MemberReferenceExpression).MemberName != propertyDeclaration.Name ||
-						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
-						return;
+						if (memberReferenceExpression == null || 
+							(memberReferenceExpression as MemberReferenceExpression).MemberName != propertyDeclaration.Name ||
+							!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
+							return;
+					}
 				}
 				
 				var title = ctx.TranslateString("Redundant property override");
@@ -178,35 +190,35 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				bool hasBaseSetter = ((baseIndexer as IProperty).Setter != null);
 				
 				if (hasBaseGetter) {
-					if (!hasGetter)
-						return;
+					if (hasGetter) {
 					
-					var expr = indexerDeclaration.Getter.Body.Statements.FirstOrNullObject();
+						var expr = indexerDeclaration.Getter.Body.Statements.FirstOrNullObject();
 					
-					if (expr == null || !(expr is ReturnStatement))
-						return;
+						if (expr == null || !(expr is ReturnStatement))
+							return;
 					
-					Expression indexerExpression = (expr as ReturnStatement).Expression;
+						Expression indexerExpression = (expr as ReturnStatement).Expression;
 					
-					if (indexerExpression == null || 
-						!(indexerExpression.FirstChild is BaseReferenceExpression))
-						return;
+						if (indexerExpression == null || 
+							!(indexerExpression.FirstChild is BaseReferenceExpression))
+							return;
+					}
 				}
 				
 				if (hasBaseSetter) {
-					if (!hasSetter)
-						return;
+					if (hasSetter) {
 					
-					var expr = indexerDeclaration.Setter.Body.Statements.FirstOrNullObject();
+						var expr = indexerDeclaration.Setter.Body.Statements.FirstOrNullObject();
 					
-					if (expr == null || !(expr.FirstChild is AssignmentExpression))
-						return;
+						if (expr == null || !(expr.FirstChild is AssignmentExpression))
+							return;
 					
-					Expression memberReferenceExpression = (expr.FirstChild as AssignmentExpression).Left;
+						Expression memberReferenceExpression = (expr.FirstChild as AssignmentExpression).Left;
 					
-					if (memberReferenceExpression == null || 
-						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
-						return;
+						if (memberReferenceExpression == null || 
+							!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
+							return;
+					}
 				}
 				
 				var title = ctx.TranslateString("Redundant indexer override");
@@ -239,7 +251,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					},
 				};
-
 			
 			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
 			{

@@ -251,6 +251,94 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+		[Test]
+		public void TestTestInspectorCase6()
+		{
+			var input = 
+				@"using System;
+using System.IO;
+
+partial class A
+{
+	public virtual int AProperty
+	{
+		get;
+		set;
+	}
+
+	public virtual int this[int i]
+	{
+		get { return i; }
+		set { Console.WriteLine(value); }
+	}
+}
+
+class B : A
+{
+	public override int AProperty
+	{
+		set
+		{
+			base.AProperty = value;
+		}
+	}
+
+	public override int this[int i]
+	{
+		get
+		{
+			return base[i];
+		}
+	}
+
+	public override string ToString()
+	{
+		return base.ToString();
+	}
+}
+
+class C : A
+{
+	public override int AProperty
+	{
+		get
+		{
+			return base.AProperty;
+		}
+	}
+}";
+			
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
+			Assert.AreEqual(4, issues.Count);
+			
+			CheckFix(context, issues,
+			@"using System;
+using System.IO;
+
+partial class A
+{
+	public virtual int AProperty
+	{
+		get;
+		set;
+	}
+
+	public virtual int this[int i]
+	{
+		get { return i; }
+		set { Console.WriteLine(value); }
+	}
+}
+
+class B : A
+{
+}
+
+class C : A
+{
+}");
+		}
 
 		[Test]
 		public void TestRedundantEvent()
