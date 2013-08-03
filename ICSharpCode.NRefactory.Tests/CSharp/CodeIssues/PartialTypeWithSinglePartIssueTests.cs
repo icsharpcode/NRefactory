@@ -60,6 +60,51 @@ partial class TestClass
 		}
 
 		[Test]
+		public void TestRedundantNestedPartial()
+		{
+			var input = @"
+partial class TestClass
+{
+	partial class Nested
+	{
+	}
+}
+partial class TestClass
+{
+}";
+			var output = @"
+partial class TestClass
+{
+	class Nested
+	{
+	}
+}
+partial class TestClass
+{
+}";
+			Test<PartialTypeWithSinglePartIssue>(input, output);
+		}
+
+		[Test]
+		public void TestNeededNestedPartial()
+		{
+			var input = @"
+partial class TestClass
+{
+	partial class Nested
+	{
+	}
+}
+partial class TestClass
+{
+	partial class Nested
+	{
+	}
+}";
+			Test<PartialTypeWithSinglePartIssue>(input, 0);
+		}
+
+		[Test]
 		public void TestDisable()
 		{
 			var input = @"
