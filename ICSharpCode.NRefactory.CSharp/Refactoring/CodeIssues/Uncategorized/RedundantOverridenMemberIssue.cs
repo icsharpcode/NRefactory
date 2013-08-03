@@ -71,8 +71,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					(memberReferenceExpression as MemberReferenceExpression).MemberName != methodDeclaration.Name ||
 					!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
 					return;
-				var title = ctx.TranslateString("Remove overriden method that just call the base class method");
-				AddIssue(methodDeclaration, title, script => {
+				var title = ctx.TranslateString("Overriden methods that just call the base class methods are redundant");
+				AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant members"), script => {
 					script.Remove(methodDeclaration);
 				});
 			}
@@ -139,8 +139,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 				}
 				
-				var title = ctx.TranslateString("Remove overriden property that just return the base class property");
-				AddIssue(propertyDeclaration, title, script => {
+				var title = ctx.TranslateString("Overriden property that just return the base class property are redundant");
+				AddIssue(propertyDeclaration, title, ctx.TranslateString("Remove redundant overriden memebrs"), script => {
 					script.Remove(propertyDeclaration);
 				});
 			}
@@ -207,8 +207,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 				}
 				
-				var title = ctx.TranslateString("Remove overriden indexers that just return the base class indexers");
-				AddIssue(indexerDeclaration, title, script => {
+				var title = ctx.TranslateString("Overriden indexers that just return the base class indexers are redundant");
+				AddIssue(indexerDeclaration, title, ctx.TranslateString("Remove redundant overriden members"), script => {
 					script.Remove(indexerDeclaration);
 				});
 			}
