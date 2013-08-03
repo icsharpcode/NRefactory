@@ -58,7 +58,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				AddIssue(objectCreateExpression.LParToken.StartLocation, objectCreateExpression.RParToken.EndLocation,
-				          ctx.TranslateString("Remove '()'"), script => {
+				         ctx.TranslateString("Empty argument list is redundant"),
+				         ctx.TranslateString("Remove '()'"), script => {
 					var l1 = objectCreateExpression.LParToken.GetPrevNode().EndLocation;
 					var l2 = objectCreateExpression.RParToken.GetNextNode().StartLocation;
 					var o1 = script.GetCurrentOffset(l1);

@@ -30,11 +30,12 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Namespace is empty",
-	                   Description = "Redundant empty namespace",
+	[IssueDescription ("Empty namespace declaration",
+	                   Description = "Empty namespace declaration is redundant",
 	                   Category = IssueCategories.Redundancies,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut)]
+	                   IssueMarker = IssueMarker.GrayOut,
+	                   ResharperDisableKeyword = "EmptyNamespace")]
 	public class EmptyNamespaceIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
@@ -63,14 +64,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (!hasContents) {
-					AddIssue(namespaceDeclaration, ctx.TranslateString("Namespace is empty"),
+					AddIssue(namespaceDeclaration.NamespaceToken, ctx.TranslateString("Empty namespace declaration is redundant"),
 					         GetFixAction(namespaceDeclaration));
 				}
 			}
 
 			CodeAction GetFixAction(NamespaceDeclaration namespaceDeclaration)
 			{
-				return new CodeAction(ctx.TranslateString("Remove namespace"),
+				return new CodeAction(ctx.TranslateString("Remove empty namespace"),
 				                      script => script.Remove(namespaceDeclaration),
 				                      namespaceDeclaration);
 			}

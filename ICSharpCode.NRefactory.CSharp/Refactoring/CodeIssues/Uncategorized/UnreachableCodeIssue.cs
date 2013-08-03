@@ -92,7 +92,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					unreachableNodes.Add (unreachableExpr);
 
-					AddIssue (unreachableExpr, ctx.TranslateString ("Remove unreachable code"),
+					AddIssue (unreachableExpr, ctx.TranslateString ("Code is unreachable"), ctx.TranslateString ("Remove unreachable code"),
 						script => script.Replace (conditionalExpression, resultExpr.Clone ()));
 				}
 				base.VisitConditionalExpression (conditionalExpression);

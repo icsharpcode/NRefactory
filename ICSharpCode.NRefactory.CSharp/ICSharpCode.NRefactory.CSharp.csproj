@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{53DCA265-3C3C-42F9-B647-F72BA678122B}</ProjectGuid>
@@ -298,7 +298,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\CS1717AssignmentMadeToSameVariableIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\BitwiseOperationOnNonFlagsEnumIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CastExpressionOfIncompatibleTypeIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\CompareBooleanWithTrueOrFalseIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompareFloatWithEqualityOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0029InvalidConversionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS1729TypeHasNoConstructorWithNArgumentsIssue.cs" />
@@ -522,7 +521,6 @@
     <Compile Include="Resolver\AliasTypeResolveResult.cs" />
     <Compile Include="Resolver\AliasNamespaceResolveResult.cs" />
     <Compile Include="Resolver\ReducedExtensionMethod.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\SimplifyAnonymousMethodToDelegateIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0127ReturnMustNotBeFollowedByAnyExpression.cs" />
     <Compile Include="Refactoring\CreateChangedEvent.cs" />
     <Compile Include="Refactoring\CodeActions\SimplifyIfFlowAction.cs" />
@@ -541,12 +539,10 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantBaseConstructorCallIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyConstructorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\PublicConstructorInAbstractClass.cs" />
-    <Compile Include="Refactoring\CodeIssues\NotWorking\ConvertToStaticMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\NotWorking\ParameterCanBeIEnumerableIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\NotWorking\DuplicateBodyMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicateExpressionsInConditionsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicateIfInIfChainIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\UseBlockInsteadColonIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\LockThisIssue.cs" />
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DisposeMethodInNonIDisposableTypeIssue.cs" />
@@ -568,6 +564,14 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantPartialMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantBaseQualifierIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantOverridenMemberIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBaseQualifierIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyNamespaceIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyDestructorIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\CS0759RedundantPartialMethodIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBoolCompareIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertClosureToMethodGroupIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Custom\ConvertToStaticMethodIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\EmptyEmbeddedStatementIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

@@ -96,7 +96,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				processedNodes.Add(invocationExpression);
 				
 				AddIssue(memberExpression.DotToken.StartLocation, invocationExpression.RParToken.EndLocation,
-				         ctx.TranslateString("Remove redundant call to ToString()"), script =>  {
+				         ctx.TranslateString("Redundant ToString() call"), 
+				         ctx.TranslateString("Remove redundant '.ToString()'"), script =>  {
 					script.Replace(invocationExpression, memberExpression.Target.Clone());
 				});
 			}

@@ -31,8 +31,8 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Bitwise Operations on enum without [Flags] attribute",
-					   Description = "Bitwise Operations on enum not marked with [Flags] attribute",
+	[IssueDescription ("Bitwise operation on enum which has no [Flags] attribute",
+	                   Description = "Bitwise operation on enum which has no [Flags] attribute",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.Underline,

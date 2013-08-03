@@ -60,7 +60,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!lastLabel.Expression.IsNull)
 					return;
 				AddIssue (switchSection.FirstChild.StartLocation, lastLabel.StartLocation,
-					ctx.TranslateString ("Remove redundant 'case' label"), scipt => {
+				          ctx.TranslateString ("Redundant case label"),
+				          ctx.TranslateString ("Remove redundant 'case' label"), scipt => {
 						foreach (var label in switchSection.CaseLabels) {
 							if (label != lastLabel)
 								scipt.Remove (label);

@@ -133,6 +133,16 @@ namespace Foo
 			var issues = GetIssues (new EmptyNamespaceIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
+
+		[Test]
+		public void TestDisable()
+		{
+			var input = @"// ReSharper disable once EmptyNamespace
+namespace Foo
+{
+}";
+			TestWrongContext<EmptyNamespaceIssue>(input);
+		}
 	}
 }
 

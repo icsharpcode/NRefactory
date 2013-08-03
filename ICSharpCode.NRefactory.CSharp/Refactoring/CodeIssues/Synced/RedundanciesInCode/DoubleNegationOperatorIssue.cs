@@ -72,8 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var expression = RemoveParentheses (innerUnaryOperatorExpr.Expression);
 				if (expression.IsNull)
 					return;
-
-				AddIssue (unaryOperatorExpression, ctx.TranslateString ("Remove double negation"),
+				AddIssue (unaryOperatorExpression, ctx.TranslateString ("Double negation is redundant"), ctx.TranslateString ("Remove '!!'"),
 					script => script.Replace (unaryOperatorExpression, expression.Clone ()));
 			}
 		}
