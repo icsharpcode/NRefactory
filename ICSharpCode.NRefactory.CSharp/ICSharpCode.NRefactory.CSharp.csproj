@@ -559,10 +559,6 @@
     <Compile Include="Refactoring\CodeActions\CopyCommentsFromInterface.cs" />
     <Compile Include="Refactoring\CodeActions\CopyCommentsFromBase.cs" />
     <Compile Include="Refactoring\CodeActions\CS1520MethodMustHaveAReturnTypeAction.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\EmptyDestructorIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\EmptyNamespaceIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantPartialMethodIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantBaseQualifierIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantOverridenMemberIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBaseQualifierIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyNamespaceIssue.cs" />

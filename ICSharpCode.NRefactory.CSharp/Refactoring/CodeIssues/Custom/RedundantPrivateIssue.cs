@@ -58,7 +58,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var token_ in node.ModifierTokens) {
 					var token = token_;
 					if (token.Modifier == Modifiers.Private) {
-						AddIssue(token, ctx.TranslateString("Keyword 'private' is redundant. This is the default modifier."), ctx.TranslateString("Remove redundant 'private' modifier"), script => {
+						AddIssue(token, ctx.TranslateString("Remove redundant 'private' modifier"), script => {
 							script.ChangeModifier (node, node.Modifiers & ~Modifiers.Private);
 						});
 					}
