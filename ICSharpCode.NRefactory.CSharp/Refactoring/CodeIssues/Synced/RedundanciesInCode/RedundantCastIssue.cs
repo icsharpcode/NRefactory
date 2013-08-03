@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return false;
 			}
 
-			void AddIssue (Expression typeCastNode, Expression expr, TextLocation start, TextLocation end)
+			void AddIssue (Expression outerTypeCastNode, Expression typeCastNode, Expression expr, TextLocation start, TextLocation end)
 			{
 				AstNode type;
 				if (typeCastNode is CastExpression)
@@ -124,19 +124,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				else 
 					type = ((AsExpression)typeCastNode).Type;
 				AddIssue (start, end, ctx.TranslateString ("Type cast is redundant"), string.Format(ctx.TranslateString ("Remove cast to '{0}'"), type),
-					script => script.Replace (typeCastNode, expr.Clone ()));
+				          script => script.Replace (outerTypeCastNode, expr.Clone ()));
 			}
 
 			void CheckTypeCast (Expression typeCastNode, Expression expr, TextLocation castStart, TextLocation castEnd)
 			{
-				while (typeCastNode.Parent != null && typeCastNode.Parent is ParenthesizedExpression)
-					typeCastNode = (Expression)typeCastNode.Parent;
-				var expectedType = GetExpectedType (typeCastNode);
+				var outerTypeCastNode = typeCastNode;
+				while (outerTypeCastNode.Parent != null && outerTypeCastNode.Parent is ParenthesizedExpression)
+					outerTypeCastNode = (Expression)outerTypeCastNode.Parent;
+				var expectedType = GetExpectedType (outerTypeCastNode);
 				var exprType = ctx.Resolve (expr).Type;
-				if (expectedType.Kind == TypeKind.Interface && IsExplicitImplementation (exprType, expectedType, typeCastNode))
+				if (expectedType.Kind == TypeKind.Interface && IsExplicitImplementation (exprType, expectedType, outerTypeCastNode))
 					return;
 				if (exprType.GetAllBaseTypes ().Any (t => t.Equals(expectedType)))
-					AddIssue (typeCastNode, expr, castStart, castEnd);
+					AddIssue (outerTypeCastNode, typeCastNode, expr, castStart, castEnd);
 			}
 		}
 	}
