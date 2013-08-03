@@ -48,15 +48,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			
 			IMethod originalMember = (IMethod)InheritanceHelper.GetBaseMember(resolvedMember);
-			
-			string comments = "";
-			if (originalMember.Documentation == null)
+		
+			if (originalMember == null || originalMember.Documentation == null)
 				return null;
-			else {
-				comments = originalMember.Documentation.ToString();
-			}
+			string comments = originalMember.Documentation.ToString();
 			
-			if (comments == "")
+			if (string.IsNullOrEmpty(comments))
 				return null;
 			
 			string[] lines = comments.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
