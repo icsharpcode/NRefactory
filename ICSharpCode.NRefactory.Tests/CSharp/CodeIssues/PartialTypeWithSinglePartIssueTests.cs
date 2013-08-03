@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantPartialMethodTypeTests : InspectionActionTestBase
+	public class PartialTypeWithSinglePartIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestRedundantModifier()
@@ -43,7 +43,7 @@ partial class TestClass
 class TestClass
 {
 }";
-			Test<RedundantPartialTypeIssue>(input, 1, output);
+			Test<PartialTypeWithSinglePartIssue>(input, 1, output);
 		}
 
 		[Test]
@@ -56,7 +56,19 @@ partial class TestClass
 partial class TestClass
 {
 }";
-			Test<RedundantPartialTypeIssue>(input, 0);
+			Test<PartialTypeWithSinglePartIssue>(input, 0);
 		}
+
+		[Test]
+		public void TestDisable()
+		{
+			var input = @"
+// ReSharper disable once PartialTypeWithSinglePart
+partial class TestClass
+{
+}";
+			TestWrongContext<PartialTypeWithSinglePartIssue>(input);
+		}
+
 	}
 }

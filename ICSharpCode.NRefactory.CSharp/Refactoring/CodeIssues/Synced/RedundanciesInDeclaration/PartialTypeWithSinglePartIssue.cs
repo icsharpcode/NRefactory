@@ -33,19 +33,20 @@ using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Redundant partial modifier in type declaration",
-	                   Description = "Redundant partial modifier in type declaration",
+	[IssueDescription ("Redundant 'partial' modifier in type declaration",
+	                   Description = "Class is declared partial but has only one part",
 	                   Category = IssueCategories.Redundancies,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantPartialTypeIssue : ICodeIssueProvider
+	                   IssueMarker = IssueMarker.GrayOut,
+	                   ResharperDisableKeyword = "PartialTypeWithSinglePart")]
+	public class PartialTypeWithSinglePartIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}
 
-		class GatherVisitor : GatherVisitorBase<CS0759RedundantPartialMethodIssue>
+		class GatherVisitor : GatherVisitorBase<PartialTypeWithSinglePartIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
@@ -67,8 +68,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (typeDefinition.Parts.Count == 1) {
 					var partialModifierToken = typeDeclaration.ModifierTokens.Single(modifier => modifier.Modifier == Modifiers.Partial);
+					// there may be a disable comment before the partial token somewhere
+					foreach (var child in typeDeclaration.Children.TakeWhile (child => child != partialModifierToken)) {
+						child.AcceptVisitor(this);
+					}
 					AddIssue(partialModifierToken,
-					         ctx.TranslateString("Type declaration has a partial modifier, but there are no other partial declarations for the same type"),
+					         ctx.TranslateString("Partial class with single part"),
 					         GetFixAction(typeDeclaration));
 				}
 			}
@@ -80,7 +85,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			CodeAction GetFixAction(TypeDeclaration typeDeclaration)
 			{
-				return new CodeAction(ctx.TranslateString("Make type non-partial"), script => {
+				return new CodeAction(ctx.TranslateString("Remove 'partial'"), script => {
 					var newDeclaration = (TypeDeclaration)typeDeclaration.Clone();
 					newDeclaration.Modifiers &= ~(Modifiers.Partial);
 					script.Replace(typeDeclaration, newDeclaration);
