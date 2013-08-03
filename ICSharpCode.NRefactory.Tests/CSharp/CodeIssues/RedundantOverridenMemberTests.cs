@@ -282,7 +282,6 @@ class B : A
 			base.AProperty = value;
 		}
 	}
-
 	public override int this[int i]
 	{
 		get
@@ -290,7 +289,6 @@ class B : A
 			return base[i];
 		}
 	}
-
 	public override string ToString()
 	{
 		return base.ToString();
