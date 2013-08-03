@@ -28,10 +28,12 @@ using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PatternMatching;
+using System.Runtime.InteropServices;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Remove redundant overriden members",
+	[IssueDescription ("Redundant member override",
 	                   Description = "The override of a virtual member is redundant because it consists of only a call to the base",
 	                   Category = IssueCategories.Redundancies,
 	                   Severity = Severity.Warning,
@@ -71,8 +73,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					(memberReferenceExpression as MemberReferenceExpression).MemberName != methodDeclaration.Name ||
 					!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
 					return;
-				var title = ctx.TranslateString("Overriden methods that just call the base class methods are redundant");
-				AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant members"), script => {
+				var title = ctx.TranslateString("Redundant method override");
+				AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => {
 					script.Remove(methodDeclaration);
 				});
 			}
@@ -139,8 +141,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 				}
 				
-				var title = ctx.TranslateString("Overriden property that just return the base class property are redundant");
-				AddIssue(propertyDeclaration, title, ctx.TranslateString("Remove redundant overriden memebrs"), script => {
+				var title = ctx.TranslateString("Redundant property override");
+				AddIssue(propertyDeclaration, title, ctx.TranslateString("Remove redundant property override"), script => {
 					script.Remove(propertyDeclaration);
 				});
 			}
@@ -207,9 +209,50 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 				}
 				
-				var title = ctx.TranslateString("Overriden indexers that just return the base class indexers are redundant");
-				AddIssue(indexerDeclaration, title, ctx.TranslateString("Remove redundant overriden members"), script => {
+				var title = ctx.TranslateString("Redundant indexer override");
+				AddIssue(indexerDeclaration, title, ctx.TranslateString("Remove redundant indexer override"), script => {
 					script.Remove(indexerDeclaration);
+				});
+			}
+
+			static readonly AstNode customEventPattern =
+				new CustomEventDeclaration {
+					Modifiers = Modifiers.Any,
+					Name = Pattern.AnyString,
+					ReturnType = new AnyNode(), 
+					AddAccessor = new Accessor {
+						Body = new BlockStatement {
+							new ExpressionStatement(new AssignmentExpression {
+								Left = new NamedNode ("baseRef", new MemberReferenceExpression(new BaseReferenceExpression(), Pattern.AnyString)),
+								Operator = AssignmentOperatorType.Add,
+								Right = new IdentifierExpression("value")
+							})
+						}
+					},
+					RemoveAccessor = new Accessor {
+						Body = new BlockStatement {
+							new ExpressionStatement(new AssignmentExpression {
+								Left = new Backreference("baseRef"),
+								Operator = AssignmentOperatorType.Subtract,
+								Right = new IdentifierExpression("value")
+							})
+						}
+					},
+				};
+
+			
+			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
+			{
+				var m = customEventPattern.Match(eventDeclaration);
+				if (!m.Success)
+					return;
+				var baseRef = m.Get<MemberReferenceExpression>("baseRef").First();
+				if (baseRef == null || baseRef.MemberName != eventDeclaration.Name)
+					return;
+
+				var title = ctx.TranslateString("Redundant event override");
+				AddIssue(eventDeclaration, title, ctx.TranslateString("Remove event override"), script => {
+					script.Remove(eventDeclaration);
 				});
 			}
 		}

@@ -250,5 +250,57 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	}
 }");
 		}
+
+
+		[Test]
+		public void TestRedundantEvent()
+		{
+			var input = @"namespace Demo
+{
+	public class BaseClass
+	{
+		public virtual event EventHandler FooBar { add {} remove {} }
+	}
+	public class CSharpDemo:BaseClass
+	{
+		public override event EventHandler FooBar { add { base.FooBar += value; } remove { base.FooBar -= value; } }
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+
+
+			CheckFix(context, issues, @"namespace Demo
+{
+	public class BaseClass
+	{
+		public virtual event EventHandler FooBar { add {} remove {} }
+	}
+	public class CSharpDemo:BaseClass
+	{
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestNonRedundantEvent()
+		{
+			var input = @"namespace Demo
+{
+	public class BaseClass
+	{
+		public virtual event EventHandler FooBar { add {} remove {} }
+		public virtual event EventHandler FooBar2 { add {} remove {} }
+	}
+	public class CSharpDemo:BaseClass
+	{
+		public override event EventHandler FooBar { add { base.FooBar += value; } remove { base.FooBar2 -= value; } }
+	}
+}";
+			TestWrongContext<RedundantOverridenMemberIssue>(input);
+		}
 	}
 }
