@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (!hasContents) {
-					AddIssue(namespaceDeclaration, ctx.TranslateString("Empty namespace declaration is redundant"),
+					AddIssue(namespaceDeclaration.NamespaceToken, ctx.TranslateString("Empty namespace declaration is redundant"),
 					         GetFixAction(namespaceDeclaration));
 				}
 			}
