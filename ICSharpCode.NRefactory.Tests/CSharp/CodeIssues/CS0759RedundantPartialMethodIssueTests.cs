@@ -55,6 +55,17 @@ partial class TestClass
 		}
 
 		[Test]
+		public void TestMethodWithNoBody()
+		{
+			var input = @"
+partial class TestClass
+{
+	partial void TestMethod ();
+}";
+			Test<CS0759RedundantPartialMethodIssue>(input, 0);
+		}
+
+		[Test]
 		public void TestNecessaryModifier()
 		{
 			var input = @"
