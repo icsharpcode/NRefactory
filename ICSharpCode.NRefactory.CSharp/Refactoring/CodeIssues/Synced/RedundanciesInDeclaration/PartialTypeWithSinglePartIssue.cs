@@ -55,6 +55,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
+				base.VisitTypeDeclaration(typeDeclaration);
+
 				if (!typeDeclaration.HasModifier(Modifiers.Partial))
 					return;
 
