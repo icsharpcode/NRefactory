@@ -37,10 +37,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// <summary>
 	/// Finds redundant base qualifier 
 	/// </summary>
-	[IssueDescription("Remove redundant 'base.'",
-			Description= "Removes 'base.' references that are not required.",
+	[IssueDescription("Redundant 'base.' qualifier",
+			Description= "'base.' is redundant and can safely be removed.",
 			Category = IssueCategories.Redundancies,
-			Severity = Severity.Hint,
+			Severity = Severity.Warning,
 			IssueMarker = IssueMarker.GrayOut,
 			ResharperDisableKeyword = "RedundantBaseQualifier")]
 	public class RedundantBaseQualifierIssue : ICodeIssueProvider
@@ -58,11 +58,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			static IMember GetMember(ResolveResult result)
 			{
-				if (result is MemberResolveResult) {
+				if (result is MemberResolveResult)
 					return ((MemberResolveResult)result).Member;
-				} else if (result is MethodGroupResolveResult) {
+				if (result is MethodGroupResolveResult)
 					return ((MethodGroupResolveResult)result).Methods.FirstOrDefault();
-				}
 				return null;
 			}
 
@@ -108,9 +107,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				bool isRedundant = !extendedMembers.Any(f => f.Name.Equals(member.Name));
 
 				if (isRedundant) {
-					AddIssue(baseReferenceExpression.StartLocation, memberReference.MemberNameToken.StartLocation, ctx.TranslateString("Remove redundant 'base.'"), script => {
-						script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
-					}
+					AddIssue(
+						baseReferenceExpression.StartLocation, 
+						memberReference.MemberNameToken.StartLocation, 
+						ctx.TranslateString("Qualifier 'base.' is redundant"), 
+						new CodeAction(
+							ctx.TranslateString("Remove redundant 'base.'"),
+							script => {
+								script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
+							},
+							baseReferenceExpression.StartLocation,
+							memberReference.MemberNameToken.StartLocation
+						) 
 					);
 				}
 			}

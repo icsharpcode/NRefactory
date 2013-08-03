@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Redundant 'this.' qualifier",
 	       Description= "'this.' is redundant and can safely be removed.",
 	       Category = IssueCategories.Redundancies,
-	       Severity = Severity.Hint,
+	       Severity = Severity.Warning,
 	       IssueMarker = IssueMarker.GrayOut,
 	       ResharperDisableKeyword = "RedundantThisQualifier")]
 	public class RedundantThisQualifierIssue : ICodeIssueProvider
@@ -146,9 +146,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (isRedundant) {
-					AddIssue(thisReferenceExpression.StartLocation, memberReference.MemberNameToken.StartLocation, ctx.TranslateString("Remove redundant 'this.'"), script => {
-						script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
-					});
+					AddIssue(
+						thisReferenceExpression.StartLocation, 
+						memberReference.MemberNameToken.StartLocation, 
+						ctx.TranslateString("Qualifier 'this.' is redundant"), 
+						new CodeAction(
+							ctx.TranslateString("Remove redundant 'this.'"),
+							script => {
+								script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
+							},
+							thisReferenceExpression.StartLocation,
+							memberReference.MemberNameToken.StartLocation
+						) 
+					);
 				}
 			}
 			
