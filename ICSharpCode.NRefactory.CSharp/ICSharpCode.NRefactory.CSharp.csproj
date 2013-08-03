@@ -566,6 +566,7 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\EmptyDestructorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\EmptyNamespaceIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantPartialMethodIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantBaseQualifierIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

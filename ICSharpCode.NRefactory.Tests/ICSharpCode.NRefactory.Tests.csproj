@@ -445,6 +445,7 @@
     <Compile Include="CSharp\CodeIssues\EmptyDestructorTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyNamespaceTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantPartialMethodTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantBaseQualifierTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
