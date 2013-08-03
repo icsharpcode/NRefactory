@@ -442,7 +442,6 @@
     <Compile Include="CSharp\CodeIssues\EmptyDestructorTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyNamespaceTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseQualifierTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantOverridenMemberTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0759RedundantPartialMethodIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBoolCompareIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertClosureToMethodGroupIssueTests.cs" />

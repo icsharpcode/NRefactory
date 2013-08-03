@@ -567,7 +567,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertClosureToMethodGroupIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\ConvertToStaticMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\EmptyEmbeddedStatementIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantPartialTypeIssue.cs" />
   </ItemGroup>
   <ItemGroup>
