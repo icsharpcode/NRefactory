@@ -31,11 +31,13 @@ using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Destructor is empty",
-	                   Description = "Redundant empty destructor",
+	[IssueDescription ("Empty destructor",
+	                   Description = "Empty destructor is redundant",
 	                   Category = IssueCategories.Redundancies,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut)]
+	                   IssueMarker = IssueMarker.GrayOut,
+	                   ResharperDisableKeyword = "EmptyDestructor"
+	                   )]
 	public class EmptyDestructorIssue : ICodeIssueProvider
 	{
 		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
@@ -53,10 +55,50 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
 			{
 				if (IsEmpty (destructorDeclaration.Body)) {
-					AddIssue(destructorDeclaration,
-					         ctx.TranslateString("Destructor is empty"),
+					AddIssue(destructorDeclaration.NameToken,
+					         ctx.TranslateString("Empty destructor is redundant"),
 					         GetFixAction(destructorDeclaration));
 				}
+			}
+
+			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+			{
+			}
+
+			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+			{
+			}
+
+			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+			{
+			}
+
+			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
+			{
+			}
+
+			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
+			{
+			}
+
+			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
+			{
+			}
+
+			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
+			{
+			}
+
+			public override void VisitUsingDeclaration(UsingDeclaration usingDeclaration)
+			{
+			}
+
+			public override void VisitUsingAliasDeclaration(UsingAliasDeclaration usingDeclaration)
+			{
+			}
+
+			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
+			{
 			}
 
 			bool IsEmpty(AstNode node)
@@ -74,7 +116,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return new CodeAction(ctx.TranslateString("Remove redundant destructor"), script =>
 				{
 					script.Remove(destructorDeclaration);
-				}, destructorDeclaration);
+				}, destructorDeclaration.NameToken);
 			}
 		}
 	}

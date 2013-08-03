@@ -91,6 +91,21 @@ class Foo
 			var issues = GetIssues (new EmptyDestructorIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
+
+		[Test]
+		public void TestDisable()
+		{
+			var input = @"
+class Foo
+{
+	// ReSharper disable once EmptyDestructor
+	~Foo()
+	{
+	}
+}";
+			TestWrongContext<EmptyDestructorIssue>(input);
+		}
+
 	}
 }
 
