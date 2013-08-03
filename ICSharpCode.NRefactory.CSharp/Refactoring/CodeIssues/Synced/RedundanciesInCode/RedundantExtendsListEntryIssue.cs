@@ -90,7 +90,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				var members = type.GetMembers();
 				var memberDeclaration = typeDeclaration.Members;
-				var interfaceBase = typeDeclaration.BaseTypes.Where(f => ctx.Resolve(f).Type.GetDefinition().Kind == TypeKind.Interface);
+				var interfaceBase = typeDeclaration.BaseTypes.Where(delegate(AstType f) {
+					var resolveResult = ctx.Resolve(f);
+					if (resolveResult.IsError || resolveResult.Type.GetDefinition() == null)
+						return false;
+					return resolveResult.Type.GetDefinition().Kind == TypeKind.Interface;
+				});
 				foreach (var node in interfaceBase) {
 					if (directBaseType.Single().GetDefinition().GetAllBaseTypeDefinitions().Any(f => f.Name.Equals(node.ToString()))) {
 						bool flag = false;
@@ -122,16 +127,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						string.Format(issueText, nodeType.Name), 
 						new CodeAction (
 							ctx.TranslateString("Remove redundant base type reference"),
-							Script => {
+							script => {
 								if (typeDeclaration.GetCSharpNodeBefore(node).ToString().Equals(":")) {
 									if (node.GetNextNode().Role != Roles.BaseType) {
-										Script.Remove(typeDeclaration.GetCSharpNodeBefore(node));
+										script.Remove(typeDeclaration.GetCSharpNodeBefore(node));
 									}
 								}
 								if (typeDeclaration.GetCSharpNodeBefore(node).ToString().Equals(",")) {
-									Script.Remove(typeDeclaration.GetCSharpNodeBefore(node));
+									script.Remove(typeDeclaration.GetCSharpNodeBefore(node));
 								}
-								Script.Remove(node);
+								script.Remove(node);
 							},
 						node)
 					);
