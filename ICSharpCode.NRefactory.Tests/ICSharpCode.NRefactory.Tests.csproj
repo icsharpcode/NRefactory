@@ -447,6 +447,7 @@
     <Compile Include="CSharp\CodeIssues\ConvertClosureToMethodGroupIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyEmbeddedStatementIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PartialTypeWithSinglePartIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantOverridenMemberTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
