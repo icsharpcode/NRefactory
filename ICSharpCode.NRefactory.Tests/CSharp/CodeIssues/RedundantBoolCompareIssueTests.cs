@@ -43,8 +43,6 @@ class TestClass
 		bool y;
 		y = x == true;
 		y = x != false;
-		y = x != true;
-		y = x == false;
 	}
 }";
 			var output = @"
@@ -55,13 +53,12 @@ class TestClass
 		bool y;
 		y = x;
 		y = x;
-		y = !x;
-		y = !x;
 	}
 }";
-			Test<RedundantBoolCompareIssue> (input, 4, output);
+			Test<RedundantBoolCompareIssue> (input, 2, output);
 		}
 
+		[Ignore("== false is no part of the R# redundant bool compare -> make another issue to check that.")]
 		[Test]
 		public void TestInsertParentheses ()
 		{
