@@ -76,6 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					         ctx.TranslateString("Partial class with single part"),
 					         GetFixAction(typeDeclaration, partialModifierToken));
 				}
+				base.VisitTypeDeclaration(typeDeclaration);
 			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)

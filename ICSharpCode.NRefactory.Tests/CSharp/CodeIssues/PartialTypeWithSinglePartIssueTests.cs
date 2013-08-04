@@ -70,5 +70,78 @@ partial class TestClass
 			TestWrongContext<PartialTypeWithSinglePartIssue>(input);
 		}
 
+		[Test]
+		public void TestRedundantNestedPartial()
+		{
+			var input = @"
+partial class TestClass
+{
+	partial class Nested
+	{
+	}
+}
+partial class TestClass
+{
+}";
+			var output = @"
+partial class TestClass
+{
+	class Nested
+	{
+	}
+}
+partial class TestClass
+{
+}";
+			Test<PartialTypeWithSinglePartIssue>(input, output);
+		}
+
+		[Test]
+		public void TestRedundantNestedPartialDisable()
+		{
+			var input = @"
+// ReSharper disable PartialTypeWithSinglePart
+partial class TestClass
+// ReSharper restore PartialTypeWithSinglePart
+{
+	partial class Nested
+	{
+	}
+}
+";
+			var output = @"
+// ReSharper disable PartialTypeWithSinglePart
+partial class TestClass
+// ReSharper restore PartialTypeWithSinglePart
+{
+	class Nested
+	{
+	}
+}
+";
+			Test<PartialTypeWithSinglePartIssue>(input, output);
+		}
+
+
+		[Test]
+		public void TestNeededNestedPartial()
+		{
+			var input = @"
+partial class TestClass
+{
+	partial class Nested
+	{
+	}
+}
+partial class TestClass
+{
+	partial class Nested
+	{
+	}
+}";
+			Test<PartialTypeWithSinglePartIssue>(input, 0);
+		}
+
+
 	}
 }
