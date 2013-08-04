@@ -38,9 +38,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        Severity = Severity.Error,
                        ResharperDisableKeyword = "StaticConstructorParameterless",
                        IssueMarker = IssueMarker.Underline)]
-	public class StaticConstructorParameterIssue : ICodeIssueProvider
+	public class StaticConstructorParameterIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)

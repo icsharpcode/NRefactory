@@ -34,25 +34,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Comparison of boolean with 'true' or 'false'",
 					   Description = "Comparison of a boolean value with 'true' or 'false' constant.",
-					   Category = IssueCategories.Redundancies,
+					   Category = IssueCategories.RedundanciesInCode,
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "RedundantBoolCompare")]
-	public class RedundantBoolCompareIssue : ICodeIssueProvider
+	public class RedundantBoolCompareIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantBoolCompareIssue>
 		{
+			// note:this action should only check <bool> == true or <bool> != null - it needs excectly 
+			//      mimic the RedundantBoolCompare behavior otherwise it's no 1:1 mapping
 			static readonly Pattern pattern = new Choice {
 				PatternHelper.CommutativeOperator(
 					new NamedNode ("const", new Choice { new PrimitiveExpression(true)/*, new PrimitiveExpression(false) */}),
 					BinaryOperatorType.Equality, new AnyNode("expr")),
 				PatternHelper.CommutativeOperator(
-					new NamedNode ("const", new Choice { new PrimitiveExpression(true)/*, new PrimitiveExpression(false) */ }),
+					new NamedNode ("const", new Choice { /*new PrimitiveExpression(true), */new PrimitiveExpression(false) }),
 					BinaryOperatorType.InEquality, new AnyNode("expr")),
 			};
 

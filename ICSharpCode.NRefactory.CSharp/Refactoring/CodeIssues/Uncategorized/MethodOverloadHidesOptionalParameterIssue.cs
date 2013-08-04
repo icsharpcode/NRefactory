@@ -38,9 +38,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.Underline,
                        ResharperDisableKeyword = "MethodOverloadWithOptionalParameter")]
-	public class MethodOverloadHidesOptionalParameterIssue : ICodeIssueProvider
+	public class MethodOverloadHidesOptionalParameterIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

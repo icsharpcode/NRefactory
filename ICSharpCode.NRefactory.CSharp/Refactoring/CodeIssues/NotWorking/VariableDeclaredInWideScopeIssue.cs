@@ -36,10 +36,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 //	                   Description = "Highlights variables that can be declared in a nested scope.",
 //	                   Category = IssueCategories.Opportunities,
 //	                   Severity = Severity.Suggestion)]
-	public class VariableDeclaredInWideScopeIssue : ICodeIssueProvider
+	public class VariableDeclaredInWideScopeIssue : CodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}

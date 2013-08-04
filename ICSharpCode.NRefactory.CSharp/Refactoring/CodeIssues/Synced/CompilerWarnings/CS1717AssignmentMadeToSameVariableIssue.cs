@@ -41,9 +41,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   IssueMarker = IssueMarker.GrayOut,
                        PragmaWarning = 1717,
                        ResharperDisableKeyword = "CSharpWarnings::CS1717")]
-    public class CS1717AssignmentMadeToSameVariableIssue : ICodeIssueProvider
+    public class CS1717AssignmentMadeToSameVariableIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

@@ -37,9 +37,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.Underline,
                        ResharperDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
-	public class BitwiseOperationOnNonFlagsEnumIssue : ICodeIssueProvider
+	public class BitwiseOperationOnNonFlagsEnumIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

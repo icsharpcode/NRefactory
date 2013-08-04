@@ -37,12 +37,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Remove redundant 'internal' modifier",
 	       Description="Removes 'internal' modifiers that are not required.", 
-	       Category = IssueCategories.Redundancies,
+	       Category = IssueCategories.RedundanciesInCode,
 	       Severity = Severity.Hint,
 	       IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantInternalIssue : ICodeIssueProvider
+	public class RedundantInternalIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}

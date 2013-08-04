@@ -29,9 +29,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Detects hidden explicit conversions in foreach loops.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning)]
-	public class ExplicitConversionInForEachIssue : ICodeIssueProvider
+	public class ExplicitConversionInForEachIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

@@ -69,7 +69,6 @@ class TestClass
 			TestRefactoringContext ctx;
 			var issues = GetIssues (new RedundantCommaInArrayInitializerIssue (), input, out ctx);
 			Assert.AreEqual (issues.Count, 1);
-			Assert.AreEqual (issues [0].Description, "Remove redundant comma in array initializer");
 		}
 
 		[Test]
@@ -87,7 +86,6 @@ class TestClass
 			TestRefactoringContext ctx;
 			var issues = GetIssues (new RedundantCommaInArrayInitializerIssue (), input, out ctx);
 			Assert.AreEqual (issues.Count, 1);
-			Assert.AreEqual (issues [0].Description, "Remove redundant comma in object initializer");
 		}
 
         [Test]
@@ -104,7 +102,6 @@ class TestClass
             TestRefactoringContext ctx;
             var issues = GetIssues(new RedundantCommaInArrayInitializerIssue(), input, out ctx);
             Assert.AreEqual(issues.Count, 1);
-            Assert.AreEqual(issues[0].Description, "Remove redundant comma in collection initializer");
         }
 
         [Test]

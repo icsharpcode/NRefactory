@@ -33,9 +33,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
         Category = IssueCategories.PracticesAndImprovements,
         Severity = Severity.Suggestion,
         ResharperDisableKeyword = "ReplaceWithSingleCallToFirst")]
-	public class ReplaceWithSingleCallToFirstIssue : ICodeIssueProvider
+	public class ReplaceWithSingleCallToFirstIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new ReplaceWithSingleCallToAnyIssue.GatherVisitor<ReplaceWithSingleCallToFirstIssue>(context, "First").GetIssues();
 		}

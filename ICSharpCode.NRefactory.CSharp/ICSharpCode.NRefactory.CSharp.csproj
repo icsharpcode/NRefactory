@@ -408,7 +408,6 @@
     <Compile Include="Refactoring\CodeIssue.cs" />
     <Compile Include="Refactoring\CodeAction.cs" />
     <Compile Include="Refactoring\ICodeActionProvider.cs" />
-    <Compile Include="Refactoring\ICodeIssueProvider.cs" />
     <Compile Include="Refactoring\ContextActionAttribute.cs" />
     <Compile Include="Refactoring\IssueAttribute.cs" />
     <Compile Include="Refactoring\CodeIssues\IssueCategories.cs" />
@@ -562,7 +561,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBaseQualifierIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyNamespaceIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyDestructorIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\CS0759RedundantPartialMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBoolCompareIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertClosureToMethodGroupIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\ConvertToStaticMethodIssue.cs" />
@@ -570,6 +568,10 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\EnumUnderlyingTypeIsIntIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\EmptyGeneralCatchClauseIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\NUnit\NonPublicMethodWithTestAttributeIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Custom\CS0759RedundantPartialMethodIssue.cs" />
+    <Compile Include="Refactoring\CodeIssueProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
@@ -593,5 +595,8 @@
   </ProjectExtensions>
   <ItemGroup>
     <None Include="Parser\mcs\cs-parser.jay" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Refactoring\CodeIssues\Synced\NUnit\" />
   </ItemGroup>
 </Project>

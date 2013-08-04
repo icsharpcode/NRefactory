@@ -36,9 +36,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Should only be shown in overview bar, no underlining.
 	/// </summary>
 	[IssueDescription("Show NotImplementedExceptions", Description="Shows NotImplementedException throws in the quick task bar.", Category = IssueCategories.Notifications, Severity = Severity.Suggestion, IssueMarker = IssueMarker.None)]
-	public class NotImplementedExceptionIssue : ICodeIssueProvider
+	public class NotImplementedExceptionIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}

@@ -37,9 +37,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantAssignmentIssue : ICodeIssueProvider
+	public class RedundantAssignmentIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)

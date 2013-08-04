@@ -31,13 +31,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Redundant empty object or collection initializer",
 					   Description = "Redundant empty object or collection initializer.",
-					   Category = IssueCategories.Redundancies,
+					   Category = IssueCategories.RedundanciesInCode,
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
                        ResharperDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
-	public class RedundantObjectOrCollectionInitializerIssue : ICodeIssueProvider
+	public class RedundantObjectOrCollectionInitializerIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

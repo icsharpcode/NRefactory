@@ -35,9 +35,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Since 'function' returns void, a return keyword must not be followed by an object expression",
 	                  Category = IssueCategories.CompilerErrors,
 	                  Severity = Severity.Error)]
-	public class CS0127ReturnMustNotBeFollowedByAnyExpression : ICodeIssueProvider
+	public class CS0127ReturnMustNotBeFollowedByAnyExpression : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

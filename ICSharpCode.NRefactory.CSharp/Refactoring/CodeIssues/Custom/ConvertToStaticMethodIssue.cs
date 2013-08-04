@@ -34,11 +34,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Make this method static",
 	                  Description = "This method doesn't use any instance members so it can be made static",
+	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.Underline)]
-    public class ConvertToStaticMethodIssue : ICodeIssueProvider
+    public class ConvertToStaticMethodIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

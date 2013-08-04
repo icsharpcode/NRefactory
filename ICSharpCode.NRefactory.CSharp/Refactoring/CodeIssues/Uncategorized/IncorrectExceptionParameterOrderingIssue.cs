@@ -35,9 +35,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Description = "Warns about the constructor parameter ordering of some confusing exception types.",
 	       Category = IssueCategories.CodeQualityIssues,
 	       Severity = Severity.Warning)]
-	public class IncorrectExceptionParameterOrderingIssue : ICodeIssueProvider
+	public class IncorrectExceptionParameterOrderingIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

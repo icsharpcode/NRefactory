@@ -31,13 +31,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Empty constructor",
 	                   Description = "An empty public constructor without paramaters is redundant.",
-                       Category = IssueCategories.Redundancies,
-                       Severity = Severity.Warning,
-                       ResharperDisableKeyword = "EmptyConstructor",
-                       IssueMarker = IssueMarker.GrayOut)]
-	public class EmptyConstructorIssue : ICodeIssueProvider
+	                   Category = IssueCategories.RedundanciesInDeclarations,
+	                   Severity = Severity.Warning,
+	                   ResharperDisableKeyword = "EmptyConstructor",
+	                   IssueMarker = IssueMarker.GrayOut)]
+	public class EmptyConstructorIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)

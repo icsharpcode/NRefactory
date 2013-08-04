@@ -39,14 +39,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.CompilerErrors,
 	                  Severity = Severity.Error,
 	                  IssueMarker = IssueMarker.Underline)]
-	public class CS0029InvalidConversionIssue : ICodeIssueProvider
+	public class CS0029InvalidConversionIssue : CodeIssueProvider
 	{
 		// This class handles both
 		// CS0029: Cannot implicitly convert type 'type' to 'type'
 		// and
 		// CS0266: Cannot implicitly convert type 'type1' to 'type2'. An explicit conversion exists (are you missing a cast?)
 		
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

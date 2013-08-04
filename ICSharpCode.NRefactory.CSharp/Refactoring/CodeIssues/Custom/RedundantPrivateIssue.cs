@@ -37,12 +37,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Remove redundant 'private' modifier",
 	       Description = "Removes 'private' modifiers that are not required.",
-	       Category = IssueCategories.Redundancies,
+	       Category = IssueCategories.RedundanciesInCode,
 	       Severity = Severity.Hint,
 	       IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantPrivateIssue : ICodeIssueProvider
+	public class RedundantPrivateIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}
