@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (body.Statements.Any())
 					return;
 
-				AddIssue(catchClause, ctx.TranslateString("Empty general catch clause suppresses any error"));
+				AddIssue(catchClause.CatchToken, ctx.TranslateString("Empty general catch clause suppresses any error"));
 			}
 		}
 	}
