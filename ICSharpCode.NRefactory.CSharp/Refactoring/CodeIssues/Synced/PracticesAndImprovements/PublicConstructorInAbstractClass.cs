@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
 	                  ResharperDisableKeyword = "PublicConstructorInAbstractClass",
-	                  IssueMarker = IssueMarker.Underline)]
+	                  IssueMarker = IssueMarker.WavedLine)]
 	public class PublicConstructorInAbstractClassIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)

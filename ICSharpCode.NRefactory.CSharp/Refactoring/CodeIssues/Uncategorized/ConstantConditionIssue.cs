@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Condition is always 'true' or always 'false'.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
+					   IssueMarker = IssueMarker.WavedLine)]
 	public class ConstantConditionIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)

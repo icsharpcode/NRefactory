@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "';' should be avoided. Use '{}' instead",
 	                   Category = IssueCategories.PracticesAndImprovements,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.Underline,
+	                   IssueMarker = IssueMarker.WavedLine,
 	                   ResharperDisableKeyword = "EmptyEmbeddedStatement")]
 	public class EmptyEmbeddedStatementIssue : CodeIssueProvider
 	{

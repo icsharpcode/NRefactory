@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			Title = title;
 			Severity = Severity.Suggestion;
-			IssueMarker = IssueMarker.Underline;
+			IssueMarker = IssueMarker.WavedLine;
 		}
 	}
 

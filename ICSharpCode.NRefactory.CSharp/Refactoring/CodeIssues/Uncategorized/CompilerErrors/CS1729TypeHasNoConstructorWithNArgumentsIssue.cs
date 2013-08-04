@@ -11,7 +11,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "CS1729: Class does not contain a 0 argument constructor",
 	                   Category = IssueCategories.CompilerErrors,
 	                   Severity = Severity.Error,
-	                   IssueMarker = IssueMarker.Underline)]
+	                   IssueMarker = IssueMarker.WavedLine)]
 	public class CS1729TypeHasNoConstructorWithNArgumentsIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)

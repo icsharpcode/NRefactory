@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        Category = IssueCategories.CompilerErrors,
                        Severity = Severity.Error,
                        ResharperDisableKeyword = "StaticConstructorParameterless",
-                       IssueMarker = IssueMarker.Underline)]
+                       IssueMarker = IssueMarker.WavedLine)]
 	public class StaticConstructorParameterIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)

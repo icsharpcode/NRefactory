@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Simplify negative relational expression",
                        Category = IssueCategories.PracticesAndImprovements,
 					   Severity = Severity.Suggestion,
-					   IssueMarker = IssueMarker.Underline)]
+					   IssueMarker = IssueMarker.WavedLine)]
 	public class NegativeRelationalExpressionIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)

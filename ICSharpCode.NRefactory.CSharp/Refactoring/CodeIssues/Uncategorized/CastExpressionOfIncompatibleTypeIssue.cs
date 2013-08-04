@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Type cast expression of incompatible type",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
+					   IssueMarker = IssueMarker.WavedLine)]
 	public class CastExpressionOfIncompatibleTypeIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)

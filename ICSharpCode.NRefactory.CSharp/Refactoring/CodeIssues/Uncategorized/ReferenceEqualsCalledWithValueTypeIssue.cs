@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "'Object.ReferenceEquals' is always false because it is called with value type.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
+					   IssueMarker = IssueMarker.WavedLine)]
 	public class ReferenceEqualsCalledWithValueTypeIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)

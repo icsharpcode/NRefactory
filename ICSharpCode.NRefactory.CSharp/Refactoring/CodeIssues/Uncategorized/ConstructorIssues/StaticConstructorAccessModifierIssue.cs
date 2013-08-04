@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        Category = IssueCategories.CompilerErrors,
                        Severity = Severity.Error,
                        ResharperDisableKeyword = "StaticConstructorAccessModifier",
-                       IssueMarker = IssueMarker.Underline)]
+                       IssueMarker = IssueMarker.WavedLine)]
 	public class StaticConstructorAccessModifierIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)

@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Description = "Use 'var' keyword when possible",
 	       Category = IssueCategories.Opportunities,
 	       Severity = Severity.Hint,
-	       IssueMarker = IssueMarker.None,
+	                  IssueMarker = IssueMarker.None,
            ResharperDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentIssue : CodeIssueProvider
 	{

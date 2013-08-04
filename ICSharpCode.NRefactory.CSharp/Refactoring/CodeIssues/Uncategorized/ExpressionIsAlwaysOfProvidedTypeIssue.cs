@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "CS0183:Given expression is always of the provided type.",
 					   Category = IssueCategories.CompilerWarnings,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
+					   IssueMarker = IssueMarker.WavedLine)]
 	public class ExpressionIsAlwaysOfProvidedTypeIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)

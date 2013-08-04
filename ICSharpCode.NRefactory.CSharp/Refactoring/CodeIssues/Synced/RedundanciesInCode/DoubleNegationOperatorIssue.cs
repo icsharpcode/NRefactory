@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "Double negation is meaningless.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.Underline,
+						IssueMarker = IssueMarker.WavedLine,
                         ResharperDisableKeyword = "DoubleNegationOperator")]
     public class DoubleNegationOperatorIssue : CodeIssueProvider
 	{

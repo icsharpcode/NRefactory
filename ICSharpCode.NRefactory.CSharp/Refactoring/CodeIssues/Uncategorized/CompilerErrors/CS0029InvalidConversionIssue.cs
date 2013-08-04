@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "This error occurs when trying to assign a value of an incompatible type.",
 	                  Category = IssueCategories.CompilerErrors,
 	                  Severity = Severity.Error,
-	                  IssueMarker = IssueMarker.Underline)]
+	                  IssueMarker = IssueMarker.WavedLine)]
 	public class CS0029InvalidConversionIssue : CodeIssueProvider
 	{
 		// This class handles both

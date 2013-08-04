@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Possible multiple enumeration of IEnumerable.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline,
+					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "PossibleNullReferenceException")]
 	public class MultipleEnumerationIssue : CodeIssueProvider
 	{
