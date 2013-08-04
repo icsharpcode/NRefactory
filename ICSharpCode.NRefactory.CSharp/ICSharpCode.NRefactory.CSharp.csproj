@@ -562,7 +562,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBaseQualifierIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyNamespaceIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyDestructorIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\CS0759RedundantPartialMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBoolCompareIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertClosureToMethodGroupIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\ConvertToStaticMethodIssue.cs" />
@@ -571,6 +570,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\EmptyGeneralCatchClauseIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\NUnit\NonPublicMethodWithTestAttributeIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Custom\CS0759RedundantPartialMethodIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
