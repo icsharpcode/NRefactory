@@ -35,11 +35,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "RedundantAttributeParentheses")]
-	public class RedundantAttributeParenthesesIssue : CodeIssueProvider
+	public class RedundantAttributeParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantAttributeParenthesesIssue>

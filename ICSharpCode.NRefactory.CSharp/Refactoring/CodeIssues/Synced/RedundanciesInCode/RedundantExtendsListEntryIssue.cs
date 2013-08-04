@@ -40,11 +40,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantExtendsListEntry")]
-	public class RedundantExtendsListEntryIssue : CodeIssueProvider
+	public class RedundantExtendsListEntryIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<RedundantExtendsListEntryIssue>

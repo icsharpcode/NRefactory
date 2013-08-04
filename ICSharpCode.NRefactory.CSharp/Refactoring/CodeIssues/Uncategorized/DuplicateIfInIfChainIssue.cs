@@ -36,11 +36,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "ConditionalTernaryEqualBranch")]
-	public class DuplicateIfInIfChainIssue : CodeIssueProvider
+	public class DuplicateIfInIfChainIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<DuplicateIfInIfChainIssue>

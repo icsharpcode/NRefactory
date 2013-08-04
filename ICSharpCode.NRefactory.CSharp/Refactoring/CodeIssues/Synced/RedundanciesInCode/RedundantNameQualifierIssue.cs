@@ -43,11 +43,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
                       ResharperDisableKeyword = "RedundantNameQualifier")]
-	public class RedundantNameQualifierIssue : CodeIssueProvider
+	public class RedundantNameQualifierIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantNameQualifierIssue>

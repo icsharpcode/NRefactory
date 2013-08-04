@@ -37,12 +37,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category=IssueCategories.CodeQualityIssues,
 	                  Severity=Severity.Warning,
 	                  IssueMarker=IssueMarker.WavedLine)]
-	public class DisposeMethodInNonIDisposableTypeIssue : CodeIssueProvider
+	public class DisposeMethodInNonIDisposableTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			var visitor = new GatherVisitor(context);
-			return visitor.GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		private class GatherVisitor : GatherVisitorBase<DisposeMethodInNonIDisposableTypeIssue>

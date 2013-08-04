@@ -35,9 +35,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   IssueMarker = IssueMarker.WavedLine)]
 	public class ParameterOnlyAssignedIssue : VariableOnlyAssignedIssue
 	{
-		public override System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		private class GatherVisitor : GatherVisitorBase<ParameterOnlyAssignedIssue>

@@ -39,11 +39,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut, 
 	                   ResharperDisableKeyword = "RedundantOverridenMember")]
-	public class RedundantOverridenMemberIssue : CodeIssueProvider
+	public class RedundantOverridenMemberIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<RedundantOverridenMemberIssue>

@@ -29,11 +29,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Detects hidden explicit conversions in foreach loops.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning)]
-	public class ExplicitConversionInForEachIssue : CodeIssueProvider
+	public class ExplicitConversionInForEachIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ExplicitConversionInForEachIssue>

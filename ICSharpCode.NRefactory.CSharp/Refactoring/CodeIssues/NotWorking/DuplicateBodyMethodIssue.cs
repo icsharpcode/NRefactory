@@ -38,8 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class DuplicateBodyMethodIssue : CodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
-
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
 		{
 			var visitor = new GatherVisitor(context);
 			visitor.GetMethods();

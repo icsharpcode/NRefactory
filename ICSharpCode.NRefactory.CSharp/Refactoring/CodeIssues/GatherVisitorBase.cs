@@ -40,10 +40,33 @@ namespace ICSharpCode.NRefactory.CSharp
 
 	}
 
+	public interface IGatherVisitor
+	{
+		string SubIssue { get; set; }
+		IEnumerable<CodeIssue> GetIssues();
+	}
+
+	/// <summary>
+	/// The code issue provider gets a list of all code issues in a syntax tree.
+	/// </summary>
+	public abstract class GatherVisitorCodeIssueProvider : CodeIssueProvider
+	{
+		protected abstract IGatherVisitor CreateVisitor (BaseRefactoringContext context);
+
+		public sealed override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context, string subIssue = null)
+		{
+			var visitor = CreateVisitor(context);
+			if (visitor == null)
+				return Enumerable.Empty<CodeIssue> ();
+			visitor.SubIssue = subIssue;
+			return visitor.GetIssues();
+		}
+	}
+
 	/// <summary>
 	/// A base class for writing issue provider visitor implementations.
 	/// </summary>
-	class GatherVisitorBase<T> : DepthFirstAstVisitor where T : CodeIssueProvider
+	class GatherVisitorBase<T> : DepthFirstAstVisitor, IGatherVisitor where T : CodeIssueProvider
 	{
 		/// <summary>
 		/// The issue provider. May be <c>null</c> if none was specified.
@@ -78,6 +101,8 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		public readonly List<CodeIssue> FoundIssues = new List<CodeIssue>();
+
+		public string SubIssue { get; set; }
 
 		static GatherVisitorBase()
 		{

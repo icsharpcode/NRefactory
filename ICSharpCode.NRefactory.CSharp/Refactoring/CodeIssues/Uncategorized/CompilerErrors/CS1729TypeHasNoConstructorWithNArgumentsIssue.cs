@@ -12,11 +12,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Category = IssueCategories.CompilerErrors,
 	                   Severity = Severity.Error,
 	                   IssueMarker = IssueMarker.WavedLine)]
-	public class CS1729TypeHasNoConstructorWithNArgumentsIssue : CodeIssueProvider
+	public class CS1729TypeHasNoConstructorWithNArgumentsIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		private class GatherVisitor : GatherVisitorBase<CS1729TypeHasNoConstructorWithNArgumentsIssue>

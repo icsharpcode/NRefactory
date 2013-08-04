@@ -34,11 +34,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.WavedLine,
 	                   ResharperDisableKeyword = "EmptyEmbeddedStatement")]
-	public class EmptyEmbeddedStatementIssue : CodeIssueProvider
+	public class EmptyEmbeddedStatementIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<EmptyEmbeddedStatementIssue>

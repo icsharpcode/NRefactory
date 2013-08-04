@@ -64,20 +64,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name='context'>
 		/// The refactoring context of the issues to get.
 		/// </param>
-		public virtual IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public virtual IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context, string subIssue = null)
 		{
-			throw new InvalidOperationException ();
-		}
-
-		/// <summary>
-		/// Gets all code issues inside a syntax tree.
-		/// </summary>
-		/// <param name='context'>
-		/// The refactoring context of the issues to get.
-		/// </param>
-		public virtual IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context, string subIssue)
-		{
-			throw new InvalidOperationException ();
+			return GetIssues(context);
 		}
 	}
 }

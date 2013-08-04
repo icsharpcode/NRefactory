@@ -45,24 +45,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       ResharperDisableKeyword = "RedundantThisQualifier")]
 	[SubIssueAttribute(RedundantThisQualifierIssue.InsideConstructors, Severity = Severity.None)]
 	[SubIssueAttribute(RedundantThisQualifierIssue.EverywhereElse)]
-	public class RedundantThisQualifierIssue : CodeIssueProvider
+	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		public const string InsideConstructors = "Inside constructors";
 		public const string EverywhereElse = "Everywhere else";
 
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this, subIssue).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantThisQualifierIssue>
 		{
-			bool insideConstructors;
+			bool InsideConstructors {
+				get {
+					return SubIssue == RedundantThisQualifierIssue.InsideConstructors;
+				}
+			}
 
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider, string subIssue) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor (BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
-				insideConstructors = subIssue == InsideConstructors;
-				System.Console.WriteLine ("inside:"+insideConstructors);
 			}
 
 			static IMember GetMember (ResolveResult result)
@@ -78,49 +80,49 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
-				if (insideConstructors)
+				if (InsideConstructors)
 					base.VisitConstructorDeclaration(constructorDeclaration);
 			}
 
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
-				if (!insideConstructors)
+				if (!InsideConstructors)
 					base.VisitMethodDeclaration(methodDeclaration);
 			}
 
 			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
 			{
-				if (!insideConstructors)
+				if (!InsideConstructors)
 					base.VisitIndexerDeclaration(indexerDeclaration);
 			}
 
 			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
 			{
-				if (!insideConstructors)
+				if (!InsideConstructors)
 					base.VisitCustomEventDeclaration(eventDeclaration);
 			}
 
 			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
 			{
-				if (!insideConstructors)
+				if (!InsideConstructors)
 					base.VisitDestructorDeclaration(destructorDeclaration);
 			}
 
 			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
 			{
-				if (!insideConstructors)
+				if (!InsideConstructors)
 					base.VisitFieldDeclaration(fieldDeclaration);
 			}
 
 			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
 			{
-				if (!insideConstructors)
+				if (!InsideConstructors)
 					base.VisitOperatorDeclaration(operatorDeclaration);
 			}
 
 			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
 			{
-				if (!insideConstructors)
+				if (!InsideConstructors)
 					base.VisitPropertyDeclaration(propertyDeclaration);
 			}
 			

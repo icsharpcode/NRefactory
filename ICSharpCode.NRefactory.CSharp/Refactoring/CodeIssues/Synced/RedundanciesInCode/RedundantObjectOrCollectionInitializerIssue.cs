@@ -35,11 +35,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
                        ResharperDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
-	public class RedundantObjectOrCollectionInitializerIssue : CodeIssueProvider
+	public class RedundantObjectOrCollectionInitializerIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantObjectOrCollectionInitializerIssue>

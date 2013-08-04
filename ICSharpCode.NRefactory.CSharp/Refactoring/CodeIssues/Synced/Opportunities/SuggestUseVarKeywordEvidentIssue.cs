@@ -43,11 +43,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.None,
            ResharperDisableKeyword = "SuggestUseVarKeywordEvident")]
-	public class SuggestUseVarKeywordEvidentIssue : CodeIssueProvider
+	public class SuggestUseVarKeywordEvidentIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 
         class GatherVisitor : GatherVisitorBase<SuggestUseVarKeywordEvidentIssue>

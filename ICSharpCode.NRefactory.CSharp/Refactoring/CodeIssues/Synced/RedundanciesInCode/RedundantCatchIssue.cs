@@ -36,11 +36,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.GrayOut,
                       ResharperDisableKeyword = "RedundantCatchClause")]
-	public class RedundantCatchIssue : CodeIssueProvider
+	public class RedundantCatchIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<RedundantCatchIssue>

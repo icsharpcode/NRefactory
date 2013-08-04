@@ -35,11 +35,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        Category = IssueCategories.PracticesAndImprovements,
 					   Severity = Severity.Suggestion,
 					   IssueMarker = IssueMarker.WavedLine)]
-	public class NegativeRelationalExpressionIssue : CodeIssueProvider
+	public class NegativeRelationalExpressionIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<NegativeRelationalExpressionIssue>

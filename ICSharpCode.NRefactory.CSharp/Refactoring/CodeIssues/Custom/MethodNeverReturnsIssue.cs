@@ -35,11 +35,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Category = IssueCategories.CodeQualityIssues,
 		Severity = Severity.Warning,
 		IssueMarker = IssueMarker.WavedLine)]
-	public class MethodNeverReturnsIssue : CodeIssueProvider
+	public class MethodNeverReturnsIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<MethodNeverReturnsIssue>

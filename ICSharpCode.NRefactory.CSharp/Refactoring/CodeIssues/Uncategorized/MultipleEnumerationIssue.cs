@@ -40,11 +40,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "PossibleNullReferenceException")]
-	public class MultipleEnumerationIssue : CodeIssueProvider
+	public class MultipleEnumerationIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class AnalysisStatementCollector : DepthFirstAstVisitor

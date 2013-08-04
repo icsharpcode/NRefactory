@@ -37,11 +37,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.DottedLine)]
-    public class ConvertToStaticMethodIssue : CodeIssueProvider
+    public class ConvertToStaticMethodIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		private class GatherVisitor : GatherVisitorBase<ConvertToStaticMethodIssue>

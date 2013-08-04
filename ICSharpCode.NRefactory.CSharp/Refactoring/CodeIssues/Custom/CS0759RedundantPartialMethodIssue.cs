@@ -38,11 +38,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Category = IssueCategories.CompilerErrors,
 	                   Severity = Severity.Error,
 	                   IssueMarker = IssueMarker.WavedLine)]
-	public class CS0759RedundantPartialMethodIssue : CodeIssueProvider
+	public class CS0759RedundantPartialMethodIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<CS0759RedundantPartialMethodIssue>

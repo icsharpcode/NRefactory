@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       ResharperDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
 	public class DoNotCallOverridableMethodsInConstructorIssue : CodeIssueProvider
 	{
-	    public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
 		{
 			var gv = new GatherVisitor(context);
 			context.RootNode.AcceptVisitor(gv);

@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	public abstract class VariableOnlyAssignedIssue : CodeIssueProvider
+	public abstract class VariableOnlyAssignedIssue : GatherVisitorCodeIssueProvider
 	{
 
 		protected static bool TestOnlyAssigned(BaseRefactoringContext ctx, AstNode rootNode, IVariable variable)

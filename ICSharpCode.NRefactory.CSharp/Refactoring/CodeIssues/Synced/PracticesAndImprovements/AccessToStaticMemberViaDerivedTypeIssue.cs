@@ -35,14 +35,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Category = IssueCategories.PracticesAndImprovements,
 	                   Severity = Severity.Warning,
                        ResharperDisableKeyword = "AccessToStaticMemberViaDerivedType")]
-	public class AccessToStaticMemberViaDerivedTypeIssue : CodeIssueProvider
+	public class AccessToStaticMemberViaDerivedTypeIssue : GatherVisitorCodeIssueProvider
 	{
 
 		#region ICodeIssueProvider implementation
 
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<AccessToStaticMemberViaDerivedTypeIssue>

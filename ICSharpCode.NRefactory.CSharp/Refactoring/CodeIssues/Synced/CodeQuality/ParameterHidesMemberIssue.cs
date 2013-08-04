@@ -38,9 +38,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        ResharperDisableKeyword = "ParameterHidesMember")]
     public class ParameterHidesMemberIssue : VariableHidesMemberIssue
 	{
-	    public override System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+	    protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ParameterHidesMemberIssue>

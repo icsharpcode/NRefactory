@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning,
                       ResharperDisableKeyword = "RedundantComparisonWithNull",
 	                  IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantComparisonWithNullIssue : CodeIssueProvider
+	public class RedundantComparisonWithNullIssue : GatherVisitorCodeIssueProvider
 	{
 		private static readonly Pattern pattern1
 			= new Choice {
@@ -71,9 +71,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			)
 		};
 
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantComparisonWithNullIssue>
