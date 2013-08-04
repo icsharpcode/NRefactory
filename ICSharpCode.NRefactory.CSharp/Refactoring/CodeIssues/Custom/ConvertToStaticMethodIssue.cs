@@ -34,6 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Make this method static",
 	                  Description = "This method doesn't use any instance members so it can be made static",
+	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.Underline)]
     public class ConvertToStaticMethodIssue : ICodeIssueProvider

@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("NUnit Test methods should have public visibility",
 	                  Description = "Non public methods are not found by NUnit.",
-	                  Category = IssueCategories.Opportunities,
+	                  Category = IssueCategories.NUnit,
 	                  Severity = Severity.Hint,
 	                  ResharperDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
 	public class NonPublicMethodWithTestAttributeIssue : ICodeIssueProvider
