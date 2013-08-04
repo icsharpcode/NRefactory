@@ -29,9 +29,9 @@ using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	public interface ICodeActionProvider
+	public abstract class CodeActionProvider
 	{
-		IEnumerable<CodeAction> GetActions (RefactoringContext context);
+		public abstract IEnumerable<CodeAction> GetActions (RefactoringContext context);
 	}
 }
 

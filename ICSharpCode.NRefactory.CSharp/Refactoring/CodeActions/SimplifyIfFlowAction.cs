@@ -28,11 +28,11 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Simplify if flow", Description = "Inverts if and reduces branching ")]
-	public class SimplifyIfFlowAction : ICodeActionProvider
+	public class SimplifyIfFlowAction : CodeActionProvider
 	{
 		readonly InsertParenthesesVisitor _insertParenthesesVisitor = new InsertParenthesesVisitor();
 
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var ifStatement = GetIfElseStatement(context);
 			if (ifStatement == null)

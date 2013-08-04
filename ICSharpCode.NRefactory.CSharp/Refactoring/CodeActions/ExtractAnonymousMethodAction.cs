@@ -33,9 +33,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Extract anonymous method",
 					Description = "Extract anonymous method to method of the containing type")]
-	public class ExtractAnonymousMethodAction : ICodeActionProvider
+	public class ExtractAnonymousMethodAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
 		{
 			// lambda
 			var lambda = context.GetNode<LambdaExpression> ();

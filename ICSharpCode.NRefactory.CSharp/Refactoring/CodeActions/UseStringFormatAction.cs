@@ -33,10 +33,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Use string.Format()",
 					Description = "Convert concatenation of strings and objects to string.Format()")]
-	public class UseStringFormatAction : ICodeActionProvider
+	public class UseStringFormatAction : CodeActionProvider
 	{
 
-		public IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
 		{
 			// NOTE: @, multiple occurance
 

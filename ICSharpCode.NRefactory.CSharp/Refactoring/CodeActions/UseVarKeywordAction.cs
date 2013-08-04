@@ -34,9 +34,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Use 'var' keyword",
 	               Description = "Converts local variable declaration to be implicit typed.",
 	               BoundToIssue = typeof (ICSharpCode.NRefactory.CSharp.Refactoring.SuggestUseVarKeywordEvidentIssue))]
-	public class UseVarKeywordAction : ICodeActionProvider
+	public class UseVarKeywordAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var varDecl = GetVariableDeclarationStatement(context);
 			var foreachStmt = GetForeachStatement(context);

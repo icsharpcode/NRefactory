@@ -407,7 +407,6 @@
     <Compile Include="Refactoring\BaseRefactoringContext.cs" />
     <Compile Include="Refactoring\CodeIssue.cs" />
     <Compile Include="Refactoring\CodeAction.cs" />
-    <Compile Include="Refactoring\ICodeActionProvider.cs" />
     <Compile Include="Refactoring\ContextActionAttribute.cs" />
     <Compile Include="Refactoring\IssueAttribute.cs" />
     <Compile Include="Refactoring\CodeIssues\IssueCategories.cs" />
@@ -571,6 +570,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\NUnit\NonPublicMethodWithTestAttributeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\CS0759RedundantPartialMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssueProvider.cs" />
+    <Compile Include="Refactoring\CodeActionProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

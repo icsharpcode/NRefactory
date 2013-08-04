@@ -32,9 +32,9 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Implement abstract members", Description = "Implements abstract members from an abstract class.")]
-	public class ImplementAbstractMembersAction : ICodeActionProvider
+	public class ImplementAbstractMembersAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var type = context.GetNode<AstType>();
 			if (type == null || type.Role != Roles.BaseType)

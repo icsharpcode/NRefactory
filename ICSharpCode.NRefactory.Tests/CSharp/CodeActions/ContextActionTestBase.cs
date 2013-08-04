@@ -62,12 +62,12 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		}
 
 		public void Test<T> (string input, string output, int action = 0, bool expectErrors = false)
-			where T : ICodeActionProvider, new ()
+			where T : CodeActionProvider, new ()
 		{
 			Test(new T(), input, output, action, expectErrors);
 		}
 		
-		public void Test (ICodeActionProvider provider, string input, string output, int action = 0, bool expectErrors = false)
+		public void Test (CodeActionProvider provider, string input, string output, int action = 0, bool expectErrors = false)
 		{
 			string result = RunContextAction (provider, HomogenizeEol (input), action, expectErrors);
 			bool passed = result == output;
@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			Assert.AreEqual (HomogenizeEol (output), result);
 		}
 
-		protected string RunContextAction (ICodeActionProvider action, string input,
+		protected string RunContextAction (CodeActionProvider action, string input,
 		                                          int actionIndex = 0, bool expectErrors = false)
 		{
 			var context = TestRefactoringContext.Create (input, expectErrors);
@@ -97,12 +97,12 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			return context.doc.Text;
 		}
 		
-		protected void TestWrongContext<T> (string input) where T : ICodeActionProvider, new ()
+		protected void TestWrongContext<T> (string input) where T : CodeActionProvider, new ()
 		{
 			TestWrongContext (new T(), input);
 		}
 		
-		protected void TestWrongContext (ICodeActionProvider action, string input)
+		protected void TestWrongContext (CodeActionProvider action, string input)
 		{
 			var context = TestRefactoringContext.Create (input);
 			context.FormattingOptions = formattingOptions;
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			Assert.IsTrue (!isValid, action.GetType () + " shouldn't be valid there.");
 		}
 		
-		protected void TestActionDescriptions (ICodeActionProvider provider, string input, params string[] expected)
+		protected void TestActionDescriptions (CodeActionProvider provider, string input, params string[] expected)
 		{
 			var ctx = TestRefactoringContext.Create(input);
 			ctx.FormattingOptions = formattingOptions;

@@ -34,9 +34,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Remove backing store for property", Description = "Removes the backing store of a property and creates an auto property.")]
-	public class RemoveBackingStoreAction : ICodeActionProvider
+	public class RemoveBackingStoreAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var property = context.GetNode<PropertyDeclaration>();
 			var field = GetBackingField(context);

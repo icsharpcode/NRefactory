@@ -30,9 +30,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Use string.Empty", Description = "Replaces \"\" with string.Empty")]
-	public class ReplaceEmptyStringAction : ICodeActionProvider
+	public class ReplaceEmptyStringAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var expr = GetEmptyString(context);
 			if (expr == null) {

@@ -31,9 +31,9 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Convert '?:' to 'if'", Description = "Convert '?:' operator to 'if' statement.")]
-	public class ConvertConditionalToIfAction : ICodeActionProvider
+	public class ConvertConditionalToIfAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
 		{
 			// return
 			var returnStatement = context.GetNode<ReturnStatement> ();
