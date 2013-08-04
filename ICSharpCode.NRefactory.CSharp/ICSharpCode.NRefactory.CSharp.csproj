@@ -562,7 +562,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyDestructorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBoolCompareIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertClosureToMethodGroupIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Custom\ConvertToStaticMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\EmptyEmbeddedStatementIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs" />
@@ -571,6 +570,8 @@
     <Compile Include="Refactoring\CodeIssues\Custom\CS0759RedundantPartialMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssueProvider.cs" />
     <Compile Include="Refactoring\CodeActionProvider.cs" />
+    <Compile Include="Refactoring\CommonSubIssues.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\MemberCanBeMadeStaticIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
