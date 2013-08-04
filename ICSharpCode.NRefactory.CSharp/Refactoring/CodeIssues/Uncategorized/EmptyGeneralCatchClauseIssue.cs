@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Empty general catch clause",
 	                  Description= "A catch clause that catches System.Exception and has an empty body",
-	                  Category = IssueCategories.Redundancies,
+	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.Underline,
 	                  ResharperDisableKeyword = "EmptyGeneralCatchClause")]
@@ -56,24 +56,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitCatchClause(catchClause);
 
-				var resolvedCatchClauseResult = ctx.Resolve(catchClause);
-				if (resolvedCatchClauseResult.IsError)
-					return;
-
 				AstType type = catchClause.Type;
-				if (type.IsNull)
-					return;
-				var resolvedType = ctx.Resolve(type);
+				if (!type.IsNull) {
+					var resolvedType = ctx.Resolve(type);
 
-				if (resolvedType.IsError ||
-					!resolvedType.Type.Namespace.Equals("System") || !resolvedType.Type.Name.Equals("Exception"))
-					return;
+					if (resolvedType.IsError ||
+						!resolvedType.Type.Namespace.Equals("System") || !resolvedType.Type.Name.Equals("Exception"))
+						return;
+				}
 
 				var body = catchClause.Body;
 				if (body.Statements.Any())
 					return;
 
-				AddIssue(catchClause, ctx.TranslateString("Empty gerenal catch clause suppresses any error"));
+				AddIssue(catchClause, ctx.TranslateString("Empty general catch clause suppresses any error"));
 			}
 		}
 	}
