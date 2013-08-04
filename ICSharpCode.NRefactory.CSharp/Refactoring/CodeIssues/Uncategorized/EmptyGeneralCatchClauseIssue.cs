@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
@@ -55,22 +56,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitCatchClause(catchClause);
 
-				var tryCatchStatement = catchClause.Parent;
-				var resolvedResult = ctx.Resolve(tryCatchStatement);
-				if (resolvedResult.IsError)
-					return;
-
 				var resolvedCatchClauseResult = ctx.Resolve(catchClause);
 				if (resolvedCatchClauseResult.IsError)
 					return;
 
 				AstType type = catchClause.Type;
-				if (type.IsNull || 
-					(!type.ToString().Equals("System.Exception") && !type.ToString().Equals("Exception")))
+				if (type.IsNull)
+					return;
+				var resolvedType = ctx.Resolve(type);
+
+				if (resolvedType.IsError ||
+					!resolvedType.Type.Namespace.Equals("System") || !resolvedType.Type.Name.Equals("Exception"))
 					return;
 
 				var body = catchClause.Body;
-				if (body.Statements.Count != 0)
+				if (body.Statements.Any())
 					return;
 
 				AddIssue(catchClause, ctx.TranslateString("Empty gerenal catch clause suppresses any error"));
