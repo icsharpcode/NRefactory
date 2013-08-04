@@ -64,7 +64,18 @@ namespace ICSharpCode.NRefactory.CSharp
 		public string Title { get; private set;}
 		public string Description { get; set; }
 
-		public Severity Severity { get; set; }
+		Severity severity;
+		public bool HasOwnSeverity { get; set; }
+
+		public Severity Severity {
+			get {
+				return severity;
+			}
+			set {
+				severity = value;
+				HasOwnSeverity = true;
+			}
+		}
 
 		public SubIssueAttribute (string title)
 		{
