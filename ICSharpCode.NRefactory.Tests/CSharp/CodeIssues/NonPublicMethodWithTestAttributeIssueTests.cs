@@ -145,6 +145,26 @@ class Tests
 ";
 			TestWrongContext<NonPublicMethodWithTestAttributeIssue>(input);
 		}
+
+
+		[Test]
+		public void TestDisableAll()
+		{
+			var input = NUnitClasses + 
+				@"
+[TextFixture]
+class Tests 
+{
+	// ReSharper disable All
+	[Test]
+	void NonPublicMethod ()
+	{
+	}
+	// ReSharper restore All
+}
+";
+			TestWrongContext<NonPublicMethodWithTestAttributeIssue>(input);
+		}
 	}
 }
 
