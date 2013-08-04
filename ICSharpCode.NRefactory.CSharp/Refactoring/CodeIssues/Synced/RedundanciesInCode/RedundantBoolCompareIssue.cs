@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Comparison of boolean with 'true' or 'false'",
 					   Description = "Comparison of a boolean value with 'true' or 'false' constant.",
-					   Category = IssueCategories.Redundancies,
+					   Category = IssueCategories.RedundanciesInCode,
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "RedundantBoolCompare")]

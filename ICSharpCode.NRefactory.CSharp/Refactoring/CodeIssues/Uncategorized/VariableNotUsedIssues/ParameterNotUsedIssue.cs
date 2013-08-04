@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Unused parameter",
 	                   Description = "Parameter is never used.",
-	                   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut)]
 	public class ParameterNotUsedIssue : ICodeIssueProvider

@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Remove redundant 'internal' modifier",
 	       Description="Removes 'internal' modifiers that are not required.", 
-	       Category = IssueCategories.Redundancies,
+	       Category = IssueCategories.RedundanciesInCode,
 	       Severity = Severity.Hint,
 	       IssueMarker = IssueMarker.GrayOut)]
 	public class RedundantInternalIssue : ICodeIssueProvider

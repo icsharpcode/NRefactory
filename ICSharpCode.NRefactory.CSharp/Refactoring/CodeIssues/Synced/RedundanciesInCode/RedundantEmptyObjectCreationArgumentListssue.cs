@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Redundant empty argument list on object creation expression",
 	                   Description = "When object creation uses object or collection initializer, empty argument list is redundant.",
-	                   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "RedundantEmptyObjectCreationArgumentList")]

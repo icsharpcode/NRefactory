@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Unused type parameter",
 					   Description = "Type parameter is never used.",
-					   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInDeclarations,
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
                        ResharperDisableKeyword = "UnusedTypeParameter")]

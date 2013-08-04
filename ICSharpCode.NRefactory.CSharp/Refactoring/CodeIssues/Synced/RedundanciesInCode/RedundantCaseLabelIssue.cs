@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Redundant 'case' label",
 						Description = "'case' label is redundant.",
-						Category = IssueCategories.Redundancies,
+						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
 						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantCaseLabel")]

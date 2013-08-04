@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Empty namespace declaration",
 	                   Description = "Empty namespace declaration is redundant",
-	                   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "EmptyNamespace")]

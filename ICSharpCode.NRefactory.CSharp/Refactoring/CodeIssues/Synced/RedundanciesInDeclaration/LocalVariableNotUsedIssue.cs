@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Unused local variable",
 					   Description = "Local variable is never used.",
-					   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInDeclarations,
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
                        PragmaWarning = 163,

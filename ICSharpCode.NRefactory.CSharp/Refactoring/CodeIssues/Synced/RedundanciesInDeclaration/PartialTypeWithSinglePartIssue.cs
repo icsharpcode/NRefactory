@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Redundant 'partial' modifier in type declaration",
 	                   Description = "Class is declared partial but has only one part",
-	                   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "PartialTypeWithSinglePart")]

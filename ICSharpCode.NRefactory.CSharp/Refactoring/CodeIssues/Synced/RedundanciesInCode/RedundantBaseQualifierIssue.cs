@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Redundant 'base.' qualifier",
 			Description= "'base.' is redundant and can safely be removed.",
-			Category = IssueCategories.Redundancies,
+			Category = IssueCategories.RedundanciesInCode,
 			Severity = Severity.Warning,
 			IssueMarker = IssueMarker.GrayOut,
 			ResharperDisableKeyword = "RedundantBaseQualifier")]

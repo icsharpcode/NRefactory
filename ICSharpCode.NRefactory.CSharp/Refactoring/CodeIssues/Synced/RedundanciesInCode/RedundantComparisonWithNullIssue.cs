@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Redundant comparison with 'null'",
 	                  Description = "When 'is' keyword is used, which implicitly check null.",
-	                  Category = IssueCategories.Redundancies,
+	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
                       ResharperDisableKeyword = "RedundantComparisonWithNull",
 	                  IssueMarker = IssueMarker.GrayOut)]

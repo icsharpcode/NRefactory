@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Redundant name qualifier",
 	                  Description = "Removes namespace usages that are obsolete.",
-	                  Category = IssueCategories.Redundancies,
+	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
                       ResharperDisableKeyword = "RedundantNameQualifier")]

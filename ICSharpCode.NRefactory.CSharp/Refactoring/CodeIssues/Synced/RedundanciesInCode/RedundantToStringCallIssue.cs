@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Redundant 'object.ToString()' call",
 	                  Description = "Finds calls to ToString() which would be generated automatically by the compiler.",
-	                  Category = IssueCategories.Redundancies,
+	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
                       ResharperDisableKeyword = "RedundantToStringCall")]

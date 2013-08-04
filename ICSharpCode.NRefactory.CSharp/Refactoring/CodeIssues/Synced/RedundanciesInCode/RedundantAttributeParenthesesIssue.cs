@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Parentheses are redundant if attribute has no arguments",
 	                   Description = "Parentheses are redundant if attribute has no arguments.",
-	                   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "RedundantAttributeParentheses")]

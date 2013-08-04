@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Redundant comma in array initializer",
 						Description = "Redundant comma in array initializer.",
-						Category = IssueCategories.Redundancies,
+						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
 						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantCommaInArrayInitializer")]

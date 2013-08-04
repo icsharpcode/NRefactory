@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Redundant catch clause",
                       Description = "Catch clause with a single 'throw' statement is redundant.",
-	                  Category = IssueCategories.Redundancies,
+	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.GrayOut,
                       ResharperDisableKeyword = "RedundantCatchClause")]

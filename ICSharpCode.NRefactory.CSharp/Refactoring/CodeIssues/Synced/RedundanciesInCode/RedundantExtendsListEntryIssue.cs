@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Redundant class or interface specification in base types list",
 	                  Description= "Type is either mentioned in the base type list of another part or in another base type",
-	                  Category = IssueCategories.Redundancies,
+	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantExtendsListEntry")]
