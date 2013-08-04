@@ -34,9 +34,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Severity = Severity.Suggestion,
 	                   IssueMarker = IssueMarker.GrayOut, 
 	                   ResharperDisableKeyword = "RedundantBaseConstructorCall")]
-	public class RedundantBaseConstructorCallIssue : ICodeIssueProvider
+	public class RedundantBaseConstructorCallIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

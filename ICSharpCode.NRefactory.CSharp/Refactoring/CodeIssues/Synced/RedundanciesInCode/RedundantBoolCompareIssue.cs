@@ -38,9 +38,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "RedundantBoolCompare")]
-	public class RedundantBoolCompareIssue : ICodeIssueProvider
+	public class RedundantBoolCompareIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

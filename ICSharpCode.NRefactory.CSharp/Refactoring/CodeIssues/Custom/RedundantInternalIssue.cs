@@ -40,9 +40,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Category = IssueCategories.RedundanciesInCode,
 	       Severity = Severity.Hint,
 	       IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantInternalIssue : ICodeIssueProvider
+	public class RedundantInternalIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}

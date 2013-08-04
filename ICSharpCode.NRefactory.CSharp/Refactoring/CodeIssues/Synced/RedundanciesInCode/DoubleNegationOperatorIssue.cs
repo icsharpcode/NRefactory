@@ -36,9 +36,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Severity = Severity.Warning,
 						IssueMarker = IssueMarker.Underline,
                         ResharperDisableKeyword = "DoubleNegationOperator")]
-    public class DoubleNegationOperatorIssue : ICodeIssueProvider
+    public class DoubleNegationOperatorIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

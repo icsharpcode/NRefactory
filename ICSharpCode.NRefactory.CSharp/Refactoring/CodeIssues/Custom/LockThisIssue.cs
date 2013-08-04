@@ -40,9 +40,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Warns about using lock (this) or MethodImplOptions.Synchronized.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning)]
-	public class LockThisIssue : ICodeIssueProvider
+	public class LockThisIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

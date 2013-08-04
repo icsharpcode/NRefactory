@@ -40,9 +40,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Severity = Severity.Warning,
 						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantCast")]
-	public class RedundantCastIssue : ICodeIssueProvider
+	public class RedundantCastIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

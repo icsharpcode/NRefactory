@@ -39,9 +39,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.Underline,
 	                  ResharperDisableKeyword = "EmptyGeneralCatchClause")]
-	public class EmptyGeneralCatchClauseIssue : ICodeIssueProvider
+	public class EmptyGeneralCatchClauseIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}

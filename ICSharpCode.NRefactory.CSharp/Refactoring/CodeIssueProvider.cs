@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// <summary>
 	/// The code issue provider gets a list of all code issues in a syntax tree.
 	/// </summary>
-	public interface ICodeIssueProvider
+	public abstract class CodeIssueProvider
 	{
 		/// <summary>
 		/// Gets all code issues inside a syntax tree.
@@ -39,7 +39,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name='context'>
 		/// The refactoring context of the issues to get.
 		/// </param>
-		IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context);
+		public virtual IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		{
+			throw new InvalidOperationException ();
+		}
+
+		/// <summary>
+		/// Gets all code issues inside a syntax tree.
+		/// </summary>
+		/// <param name='context'>
+		/// The refactoring context of the issues to get.
+		/// </param>
+		public virtual IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context, string subIssue)
+		{
+			throw new InvalidOperationException ();
+		}
 	}
 }
 

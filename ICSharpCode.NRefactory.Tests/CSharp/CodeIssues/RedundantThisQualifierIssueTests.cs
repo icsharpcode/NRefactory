@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }";
 
 			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantThisQualifierIssue (), input, out context);
+			var issues = GetIssuesWithSubIssue (new RedundantThisQualifierIssue (), input, RedundantThisQualifierIssue.EverywhereElse, out context);
 			Assert.AreEqual (1, issues.Count);
 			CheckFix (context, issues, @"class Foo
 {
@@ -59,22 +59,78 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 		
 		[Test]
+		public void TestSkipConstructors ()
+		{
+			var input = @"class Foo
+{
+	public Foo ()
+	{
+		this.Bar (str);
+	}
+}";
+			TestWrongContextWithSubIssue<RedundantThisQualifierIssue>(input, RedundantThisQualifierIssue.EverywhereElse);
+		}
+
+
+		[Test]
+		public void TestInsideConstructors ()
+		{
+			var input = @"class Foo
+{
+	public Foo ()
+	{
+		this.Bar (str);
+	}
+	void Bar (string str)
+	{
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssuesWithSubIssue (new RedundantThisQualifierIssue (), input, RedundantThisQualifierIssue.InsideConstructors, out context);
+			Assert.AreEqual (1, issues.Count);
+			CheckFix (context, issues, @"class Foo
+{
+	public Foo ()
+	{
+		Bar (str);
+	}
+	void Bar (string str)
+	{
+	}
+}");
+		}
+
+		[Test]
+		public void TestInsideConstructorsSkipMembers ()
+		{
+			var input = @"class Foo
+{
+	void Bar (string str)
+	{
+		this.Bar (str);
+	}
+}";
+			TestWrongContextWithSubIssue<RedundantThisQualifierIssue>(input, RedundantThisQualifierIssue.InsideConstructors);
+		}
+		
+		[Test]
 		public void TestRequiredThisInAssignmentFromFieldToLocal ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
 	{
 		var a = this.a;
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
 		public void TestRequiredThisInAssignmentFromDelegateToLocal ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -83,13 +139,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			Console.WriteLine (this.a);
 		};
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
 		public void TestRedundantThisInAssignmentFromFieldToLocal ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -103,13 +159,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	{
 		var b = a;
 	}
-}");
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 		
 		[Test]
 		public void TestRedundantThisInAssignmentFromDelegateToLocal ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -127,13 +183,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			Console.WriteLine (a);
 		};
 	}
-}");
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 		
 		[Test]
 		public void TestRequiredThisInExtensionMethodCall ()
 		{
-			Test<RedundantThisQualifierIssue>(@"static class Extensions
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"static class Extensions
 {
 	public static void Ext (this Foo foo)
 	{
@@ -146,13 +202,13 @@ class Foo
 	{
 		this.Ext ();
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135 ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -162,13 +218,13 @@ class Foo
 		}
 		this.a = 2;
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithLambda ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -176,13 +232,13 @@ class Foo
 		Action<int> action = (int a) => a.ToString();
 		this.a = 2;
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithDelegate ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -190,13 +246,13 @@ class Foo
 		Action<int> action = delegate (int a) { a.ToString(); };
 		this.a = 2;
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithForeach ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -205,13 +261,13 @@ class Foo
 		foreach (var a in ""abc"")
 			System.Console.WriteLine (a);
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithFor ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -220,13 +276,13 @@ class Foo
 		for (int a = 0; a < 2; a++)
 			System.Console.WriteLine (a);
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithUsing ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -235,13 +291,13 @@ class Foo
 		using (var a = new System.IO.MemoryStream())
 			a.Flush();
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithFixed ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Baz
+			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Baz
 {
 	public int c;
 }
@@ -255,7 +311,7 @@ class Foo
 		fixed (int* a = &b.c)
 			Console.WriteLine(a == null);
 	}
-}", 0);
+}", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
 		
 		[Test]
@@ -273,7 +329,7 @@ class Foo
 }";
 
 			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantThisQualifierIssue (), input, out context);
+			var issues = GetIssuesWithSubIssue (new RedundantThisQualifierIssue (), input, RedundantThisQualifierIssue.EverywhereElse, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
 
@@ -290,7 +346,7 @@ class Foo
 }";
 
 			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantThisQualifierIssue (), input, out context);
+			var issues = GetIssuesWithSubIssue (new RedundantThisQualifierIssue (), input, RedundantThisQualifierIssue.EverywhereElse, out context);
 			Assert.AreEqual (2, issues.Count);
 			CheckBatchFix (context, issues, issues[0].Actions.First().SiblingKey, @"class Foo
 {

@@ -37,9 +37,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
 						IssueMarker = IssueMarker.GrayOut)]
-	public class UnreachableCodeIssue : ICodeIssueProvider
+	public class UnreachableCodeIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

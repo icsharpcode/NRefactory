@@ -43,9 +43,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Severity = Severity.Hint,
 	       IssueMarker = IssueMarker.None,
            ResharperDisableKeyword = "SuggestUseVarKeywordEvident")]
-	public class SuggestUseVarKeywordEvidentIssue : ICodeIssueProvider
+	public class SuggestUseVarKeywordEvidentIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context, this).GetIssues();
 		}

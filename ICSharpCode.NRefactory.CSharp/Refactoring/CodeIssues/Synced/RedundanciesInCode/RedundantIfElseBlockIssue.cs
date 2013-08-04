@@ -35,9 +35,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Severity = Severity.Warning,
 						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantIfElseBlock")]
-	public class RedundantIfElseBlockIssue : ICodeIssueProvider
+	public class RedundantIfElseBlockIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

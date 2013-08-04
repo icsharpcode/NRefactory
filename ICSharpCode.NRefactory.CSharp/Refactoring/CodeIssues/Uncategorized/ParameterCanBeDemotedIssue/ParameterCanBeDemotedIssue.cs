@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   SuppressMessageCategory="Microsoft.Design",
 	                   SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters"
 	                  )]
-	public class ParameterCanBeDemotedIssue : ICodeIssueProvider
+	public class ParameterCanBeDemotedIssue : CodeIssueProvider
 	{
 		bool tryResolve;
 
@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		#region ICodeIssueProvider implementation
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 //			var sw = new Stopwatch();
 //			sw.Start();

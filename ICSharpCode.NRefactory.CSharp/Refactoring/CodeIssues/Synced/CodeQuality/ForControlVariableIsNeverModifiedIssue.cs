@@ -39,9 +39,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.Underline,
                        ResharperDisableKeyword = "ForControlVariableIsNeverModified")]
-    public class ForControlVariableIsNeverModifiedIssue : ICodeIssueProvider
+    public class ForControlVariableIsNeverModifiedIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

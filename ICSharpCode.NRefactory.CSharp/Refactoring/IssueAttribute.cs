@@ -56,5 +56,20 @@ namespace ICSharpCode.NRefactory.CSharp
 			IssueMarker = IssueMarker.Underline;
 		}
 	}
+
+
+	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+	public class SubIssueAttribute : System.Attribute
+	{
+		public string Title { get; private set;}
+		public string Description { get; set; }
+
+		public Severity Severity { get; set; }
+
+		public SubIssueAttribute (string title)
+		{
+			Title = title;
+		}
+	}
 }
 

@@ -38,11 +38,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   IssueMarker = IssueMarker.GrayOut,
                        PragmaWarning = 163,
                        ResharperDisableKeyword = "UnusedVariable.Compiler")]
-	public class LocalVariableNotUsedIssue : ICodeIssueProvider
+	public class LocalVariableNotUsedIssue : CodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
 
-		public System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

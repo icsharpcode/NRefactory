@@ -36,9 +36,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
                       ResharperDisableKeyword = "ThreadStaticAtInstanceField")]
-	public class ThreadStaticAtInstanceFieldIssue : ICodeIssueProvider
+	public class ThreadStaticAtInstanceFieldIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

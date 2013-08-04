@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantUsingDirective"
 	)]
-	public class RedundantUsingDirectiveIssue : ICodeIssueProvider
+	public class RedundantUsingDirectiveIssue : CodeIssueProvider
 	{
 		List<string> namespacesToKeep = new List<string>();
 		
@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			get { return namespacesToKeep; }
 		}
 		
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			var visitor = new GatherVisitor (context, this);
 			context.RootNode.AcceptVisitor (visitor);

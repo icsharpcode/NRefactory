@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
            Category = IssueCategories.PracticesAndImprovements,
 	       Severity = Severity.Suggestion,
            ResharperDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
-	public class ReplaceWithStringIsNullOrEmptyIssue : ICodeIssueProvider
+	public class ReplaceWithStringIsNullOrEmptyIssue : CodeIssueProvider
 	{
 		static readonly Pattern pattern = new Choice {
 			// str == null || str == ""
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			)
 		};
 
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

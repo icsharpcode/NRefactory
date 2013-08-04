@@ -39,9 +39,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.NUnit,
 	                  Severity = Severity.Hint,
 	                  ResharperDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
-	public class NonPublicMethodWithTestAttributeIssue : ICodeIssueProvider
+	public class NonPublicMethodWithTestAttributeIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

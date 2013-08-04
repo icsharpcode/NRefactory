@@ -34,9 +34,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.Underline,
 	                   ResharperDisableKeyword = "EmptyEmbeddedStatement")]
-	public class EmptyEmbeddedStatementIssue : ICodeIssueProvider
+	public class EmptyEmbeddedStatementIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

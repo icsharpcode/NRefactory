@@ -103,10 +103,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 	}
 
-    public abstract class VariableHidesMemberIssue : ICodeIssueProvider
+    public abstract class VariableHidesMemberIssue : CodeIssueProvider
     {
-        public abstract IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context);
-
         protected static bool HidesMember(BaseRefactoringContext ctx, AstNode node, string variableName)
         {
             IMember member;

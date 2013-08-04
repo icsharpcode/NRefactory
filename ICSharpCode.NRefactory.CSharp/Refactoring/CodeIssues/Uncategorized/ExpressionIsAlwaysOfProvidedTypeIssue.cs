@@ -37,9 +37,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Category = IssueCategories.CompilerWarnings,
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.Underline)]
-	public class ExpressionIsAlwaysOfProvidedTypeIssue : ICodeIssueProvider
+	public class ExpressionIsAlwaysOfProvidedTypeIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			return new GatherVisitor (context).GetIssues ();
 		}

@@ -39,10 +39,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut)]
-	public class ParameterNotUsedIssue : ICodeIssueProvider
+	public class ParameterNotUsedIssue : CodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			var delegateVisitor = new GetDelgateUsagesVisitor (context);
 			context.RootNode.AcceptVisitor (delegateVisitor);

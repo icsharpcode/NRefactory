@@ -40,11 +40,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
                        ResharperDisableKeyword = "UnusedTypeParameter")]
-	public class UnusedTypeParameterIssue : ICodeIssueProvider
+	public class UnusedTypeParameterIssue : CodeIssueProvider
 	{
 		static FindReferences refFinder = new FindReferences ();
 
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)

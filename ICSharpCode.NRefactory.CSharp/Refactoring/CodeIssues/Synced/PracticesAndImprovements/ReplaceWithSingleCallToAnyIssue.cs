@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
                       ResharperDisableKeyword = "ReplaceWithSingleCallToAny")]
-    public class ReplaceWithSingleCallToAnyIssue : ICodeIssueProvider
+    public class ReplaceWithSingleCallToAnyIssue : CodeIssueProvider
 	{
 		static readonly AstNode pattern =
 			new InvocationExpression (
@@ -50,12 +50,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					               	new AnyNode ())),
 					Pattern.AnyString));
 		
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor<ReplaceWithSingleCallToAnyIssue>(context, "Any").GetIssues();
 		}
 		
-		internal class GatherVisitor<T> : GatherVisitorBase<T> where T : ICodeIssueProvider
+		internal class GatherVisitor<T> : GatherVisitorBase<T> where T : CodeIssueProvider
 		{
 			readonly string member;
 

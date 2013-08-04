@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 //	                  Category = IssueCategories.Opportunities,
 //	                  Severity = Severity.Suggestion
 //	                  )]
-	public class ParameterCanBeIEnumerableIssue : ICodeIssueProvider
+	public class ParameterCanBeIEnumerableIssue : CodeIssueProvider
 	{
 	    readonly bool tryResolve;
 		
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 		
 		#region ICodeIssueProvider implementation
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			var gatherer = new GatherVisitor(context, tryResolve);
 			var issues = gatherer.GetIssues();

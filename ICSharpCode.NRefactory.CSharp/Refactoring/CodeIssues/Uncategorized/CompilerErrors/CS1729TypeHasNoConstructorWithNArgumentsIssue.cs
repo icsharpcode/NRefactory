@@ -12,9 +12,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Category = IssueCategories.CompilerErrors,
 	                   Severity = Severity.Error,
 	                   IssueMarker = IssueMarker.Underline)]
-	public class CS1729TypeHasNoConstructorWithNArgumentsIssue : ICodeIssueProvider
+	public class CS1729TypeHasNoConstructorWithNArgumentsIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

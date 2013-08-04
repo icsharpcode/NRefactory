@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	public abstract class AccessToClosureIssue : ICodeIssueProvider
+	public abstract class AccessToClosureIssue : CodeIssueProvider
 	{
 		ControlFlowGraphBuilder cfgBuilder = new ControlFlowGraphBuilder ();
 
@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Title = title;
 		}
 
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)

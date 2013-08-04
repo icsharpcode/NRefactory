@@ -40,9 +40,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes",
                       ResharperDisableKeyword = "StaticFieldInGenericType"
 	                  )]
-	public class StaticFieldInGenericTypeIssue : ICodeIssueProvider
+	public class StaticFieldInGenericTypeIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

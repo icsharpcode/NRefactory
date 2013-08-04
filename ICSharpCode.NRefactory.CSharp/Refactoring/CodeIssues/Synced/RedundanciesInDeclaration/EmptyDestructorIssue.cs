@@ -38,9 +38,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "EmptyDestructor"
 	                   )]
-	public class EmptyDestructorIssue : ICodeIssueProvider
+	public class EmptyDestructorIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}

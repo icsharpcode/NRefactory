@@ -36,11 +36,18 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	public abstract class InspectionActionTestBase
 	{
-		protected static List<CodeIssue> GetIssues (ICodeIssueProvider action, string input, out TestRefactoringContext context, bool expectErrors = false)
+		protected static List<CodeIssue> GetIssues (CodeIssueProvider action, string input, out TestRefactoringContext context, bool expectErrors = false)
 		{
 			context = TestRefactoringContext.Create (input, expectErrors);
 			
 			return new List<CodeIssue> (action.GetIssues (context));
+		}
+
+		protected static List<CodeIssue> GetIssuesWithSubIssue (CodeIssueProvider action, string input, string subIssue, out TestRefactoringContext context, bool expectErrors = false)
+		{
+			context = TestRefactoringContext.Create (input, expectErrors);
+
+			return new List<CodeIssue> (action.GetIssues (context, subIssue));
 		}
 
 		protected static void CheckFix (TestRefactoringContext ctx, CodeIssue issue, string expectedOutput, int fixIndex = 0)
@@ -93,7 +100,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		protected static void Test<T> (string input, int issueCount, string output = null, int issueToFix = -1)
-			where T : ICodeIssueProvider, new ()
+			where T : CodeIssueProvider, new ()
 		{
 			TestRefactoringContext context;
 			var issues = GetIssues (new T (), input, out context);
@@ -107,7 +114,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		protected static void Test<T> (string input, string output, int fixIndex = 0)
-			where T : ICodeIssueProvider, new ()
+			where T : CodeIssueProvider, new ()
 		{
 			TestRefactoringContext context;
 			var issues = GetIssues (new T (), input, out context);
@@ -115,10 +122,40 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			CheckFix (context, issues[0], output, fixIndex);
 		}
 
+
+		protected static void TestWithSubIssue<T> (string input,  string subIssue, int issueCount, string output = null, int issueToFix = -1)
+			where T : CodeIssueProvider, new ()
+		{
+			TestRefactoringContext context;
+			var issues = GetIssuesWithSubIssue (new T (), input, subIssue, out context);
+			Assert.AreEqual (issueCount, issues.Count);
+			if (issueCount == 0 || output == null) 
+				return;
+			if (issueToFix == -1)
+				CheckFix (context, issues, output);
+			else
+				CheckFix (context, issues [issueToFix], output);
+		}
+
+		protected static void TestWithSubIssue<T> (string input, string output, string subIssue, int fixIndex = 0)
+			where T : CodeIssueProvider, new ()
+		{
+			TestRefactoringContext context;
+			var issues = GetIssuesWithSubIssue (new T (), input, subIssue, out context);
+			Assert.AreEqual (1, issues.Count);
+			CheckFix (context, issues[0], output, fixIndex);
+		}
+
 		protected static void TestWrongContext<T> (string input)
-			where T : ICodeIssueProvider, new ()
+			where T : CodeIssueProvider, new ()
 		{
 			Test<T>(input, 0);
+		}
+
+		protected static void TestWrongContextWithSubIssue<T> (string input, string subIssue)
+			where T : CodeIssueProvider, new ()
+		{
+			TestWithSubIssue<T>(input, subIssue, 0);
 		}
 	}
 	

@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// <summary>
 	/// A base class for writing issue provider visitor implementations.
 	/// </summary>
-	class GatherVisitorBase<T> : DepthFirstAstVisitor where T : ICodeIssueProvider
+	class GatherVisitorBase<T> : DepthFirstAstVisitor where T : CodeIssueProvider
 	{
 		/// <summary>
 		/// The issue provider. May be <c>null</c> if none was specified.

@@ -35,9 +35,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
                        ResharperDisableKeyword = "BaseObjectGetHashCodeCallInGetHashCode")]
-	public class IncorrectCallToObjectGetHashCodeIssue : ICodeIssueProvider
+	public class IncorrectCallToObjectGetHashCodeIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}
