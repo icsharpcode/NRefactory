@@ -570,6 +570,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\EmptyGeneralCatchClauseIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\NUnit\NonPublicMethodWithTestAttributeIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
@@ -593,5 +594,8 @@
   </ProjectExtensions>
   <ItemGroup>
     <None Include="Parser\mcs\cs-parser.jay" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Refactoring\CodeIssues\Synced\NUnit\" />
   </ItemGroup>
 </Project>

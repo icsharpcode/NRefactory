@@ -449,6 +449,7 @@
     <Compile Include="CSharp\CodeIssues\PartialTypeWithSinglePartIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantOverridenMemberTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyGeneralCatchClauseTests.cs" />
+    <Compile Include="CSharp\CodeIssues\NonPublicMethodWithTestAttributeIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

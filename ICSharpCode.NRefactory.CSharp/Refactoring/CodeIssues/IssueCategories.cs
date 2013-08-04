@@ -37,6 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public const string Notifications = "Code Notifications";
 		public const string CompilerWarnings = "Compiler Warnings";
 		public const string CompilerErrors = "Compiler Errors";
+		public const string NUnit = "NUnit";
 	}
 }
 
