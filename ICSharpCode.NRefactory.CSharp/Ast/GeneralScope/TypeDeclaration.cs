@@ -78,9 +78,19 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
+		public CSharpTokenNode LChevronToken {
+			get { return GetChildByRole (Roles.LChevron); }
+		}
+
 		public AstNodeCollection<TypeParameterDeclaration> TypeParameters {
 			get { return GetChildrenByRole (Roles.TypeParameter); }
 		}
+
+		public CSharpTokenNode RChevronToken {
+			get { return GetChildByRole (Roles.RChevron); }
+		}
+
+
 
 		public CSharpTokenNode ColonToken {
 			get {
@@ -99,7 +109,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public CSharpTokenNode LBraceToken {
 			get { return GetChildByRole (Roles.LBrace); }
 		}
-		
+
 		public AstNodeCollection<EntityDeclaration> Members {
 			get { return GetChildrenByRole (Roles.TypeMemberRole); }
 		}
