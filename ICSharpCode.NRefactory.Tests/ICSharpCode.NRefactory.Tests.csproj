@@ -416,7 +416,6 @@
     <Compile Include="CSharp\CodeIssues\EmptyConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PublicConstructorInAbstractClassIssueTest.cs" />
     <Compile Include="CSharp\CodeIssues\CS0029InvalidConversionIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\ConvertToStaticMethodIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\ParameterCanBeIEnumerableTests.cs" />
     <Compile Include="CSharp\CodeIssues\DuplicateBodyMethodIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\DuplicateExpressionsInConditionsIssueTests.cs" />
@@ -449,6 +448,8 @@
     <Compile Include="CSharp\CodeIssues\PartialTypeWithSinglePartIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantOverridenMemberTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyGeneralCatchClauseTests.cs" />
+    <Compile Include="CSharp\CodeIssues\NonPublicMethodWithTestAttributeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\MemberCanBeMadeStaticIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantLambdaParameterTypeTests.cs" />
   </ItemGroup>
   <ItemGroup>
