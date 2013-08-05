@@ -37,13 +37,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "A catch clause that catches System.Exception and has an empty body",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.Underline,
+	                  IssueMarker = IssueMarker.WavedLine,
 	                  ResharperDisableKeyword = "EmptyGeneralCatchClause")]
-	public class EmptyGeneralCatchClauseIssue : CodeIssueProvider
+	public class EmptyGeneralCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<EmptyGeneralCatchClauseIssue>

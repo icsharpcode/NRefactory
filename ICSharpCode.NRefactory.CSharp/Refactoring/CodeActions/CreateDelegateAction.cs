@@ -31,9 +31,9 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create delegate", Description = "Creates a delegate declaration out of an event declaration.")]
-	public class CreateDelegateAction : ICodeActionProvider
+	public class CreateDelegateAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var simpleType = context.GetNode<SimpleType>();
 			if (simpleType != null && (simpleType.Parent is EventDeclaration || simpleType.Parent is CustomEventDeclaration)) 

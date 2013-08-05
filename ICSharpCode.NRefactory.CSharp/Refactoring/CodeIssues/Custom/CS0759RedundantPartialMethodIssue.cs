@@ -37,12 +37,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "A partial method must have a defining declaration that defines the signature (name, return type and parameters) of the method. The implementation or method body is optional.",
 	                   Category = IssueCategories.CompilerErrors,
 	                   Severity = Severity.Error,
-	                   IssueMarker = IssueMarker.Underline)]
-	public class CS0759RedundantPartialMethodIssue : CodeIssueProvider
+	                   IssueMarker = IssueMarker.WavedLine)]
+	public class CS0759RedundantPartialMethodIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<CS0759RedundantPartialMethodIssue>

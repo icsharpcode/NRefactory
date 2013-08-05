@@ -33,9 +33,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Insert anonymous method signature", Description = "Inserts a signature to parameterless anonymous methods.")]
-	public class InsertAnonymousMethodSignatureAction : ICodeActionProvider
+	public class InsertAnonymousMethodSignatureAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			IType type;
 			var anonymousMethodExpression = GetAnonymousMethodExpression(context, out type);

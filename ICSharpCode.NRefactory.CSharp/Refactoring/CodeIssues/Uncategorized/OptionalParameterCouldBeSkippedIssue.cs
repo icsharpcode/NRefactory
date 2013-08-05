@@ -38,11 +38,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.GrayOut)]
-	public class OptionalParameterCouldBeSkippedIssue : CodeIssueProvider
+	public class OptionalParameterCouldBeSkippedIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<OptionalParameterCouldBeSkippedIssue>

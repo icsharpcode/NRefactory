@@ -32,9 +32,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Convert a dec numer to hex. For example: 16 -> 0x10
 	/// </summary>
 	[ContextAction("Convert dec to hex.", Description = "Convert dec to hex.")]
-	public class ConvertDecToHexAction : ICodeActionProvider
+	public class ConvertDecToHexAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var pexpr = context.GetNode<PrimitiveExpression>();
 			if (pexpr == null || pexpr.LiteralValue.StartsWith("0X", System.StringComparison.OrdinalIgnoreCase))

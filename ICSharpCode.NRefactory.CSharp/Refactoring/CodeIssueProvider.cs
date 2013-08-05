@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -33,15 +34,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	public abstract class CodeIssueProvider
 	{
-		/// <summary>
-		/// Gets all code issues inside a syntax tree.
-		/// </summary>
-		/// <param name='context'>
-		/// The refactoring context of the issues to get.
-		/// </param>
-		public virtual IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		SubIssueAttribute[] subIssueAttributes;
+
+		public bool HasSubIssues {
+			get {
+				Initialize ();
+				return subIssueAttributes.Length > 0;
+			}
+		}
+
+		public IEnumerable<SubIssueAttribute> SubIssues {
+			get {
+				Initialize ();
+				return subIssueAttributes;
+			}
+		}
+
+		static readonly SubIssueAttribute[] emptyAttributes = new SubIssueAttribute[0];
+		void Initialize()
 		{
-			throw new InvalidOperationException ();
+			if (subIssueAttributes != null)
+				return;
+			subIssueAttributes = GetType().GetCustomAttributes(typeof(SubIssueAttribute), false).OfType<SubIssueAttribute>().ToArray() ?? emptyAttributes;
 		}
 
 		/// <summary>
@@ -50,9 +64,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name='context'>
 		/// The refactoring context of the issues to get.
 		/// </param>
-		public virtual IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context, string subIssue)
+		public virtual IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context, string subIssue = null)
 		{
-			throw new InvalidOperationException ();
+			return GetIssues(context);
 		}
 	}
 }

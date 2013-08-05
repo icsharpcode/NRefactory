@@ -35,10 +35,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {	
 	[ContextAction("Remove redundant type",
 	               Description = "Removes a redundant exception type specifier from catch clauses.")]
-	public class RemoveRedundantCatchTypeAction : ICodeActionProvider
+	public class RemoveRedundantCatchTypeAction : CodeActionProvider
 	{
 		#region ICodeActionProvider implementation
-		public System.Collections.Generic.IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var catchClause = context.GetNode<CatchClause>();
 			if (catchClause == null)

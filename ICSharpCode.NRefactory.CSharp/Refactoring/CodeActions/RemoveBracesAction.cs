@@ -31,9 +31,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Remove braces", Description = "Removes redundant braces around a statement.")]
-	public class RemoveBracesAction : ICodeActionProvider
+	public class RemoveBracesAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var block = GetBlockStatement(context);
 			if (block == null) {

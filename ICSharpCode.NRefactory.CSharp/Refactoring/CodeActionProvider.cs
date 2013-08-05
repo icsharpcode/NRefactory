@@ -1,10 +1,10 @@
 ﻿// 
-// ReplaceWithSingleCallToLast.cs
-//
+// ContextAction.cs
+//  
 // Author:
-//       Mike Krüger <mkrueger@xamarin.com>
+//       Mike Krüger <mkrueger@novell.com>
 // 
-// Copyright (c) 2013 Xamarin <http://xamarin.com>
+// Copyright (c) 2011 Mike Krüger <mkrueger@novell.com>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,21 +23,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.Refactoring;
+using System;
+using System.Threading;
 using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Replace with single call to Last(...)",
-        Description = "Replace with single call to Last(...)",
-        Category = IssueCategories.PracticesAndImprovements,
-        Severity = Severity.Suggestion,
-        ResharperDisableKeyword = "ReplaceWithSingleCallToLast")]
-	public class ReplaceWithSingleCallToLastIssue : GatherVisitorCodeIssueProvider
+	public abstract class CodeActionProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
-		{
-			return new ReplaceWithSingleCallToAnyIssue.GatherVisitor<ReplaceWithSingleCallToLastIssue>(context, "Last");
-		}
+		public abstract IEnumerable<CodeAction> GetActions (RefactoringContext context);
 	}
 }
+

@@ -37,11 +37,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Severity = Severity.Hint,
 						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantDefaultFieldInitializer")]
-	public class RedundantDefaultFieldInitializerIssue : CodeIssueProvider
+	public class RedundantDefaultFieldInitializerIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantDefaultFieldInitializerIssue>

@@ -407,7 +407,6 @@
     <Compile Include="Refactoring\BaseRefactoringContext.cs" />
     <Compile Include="Refactoring\CodeIssue.cs" />
     <Compile Include="Refactoring\CodeAction.cs" />
-    <Compile Include="Refactoring\ICodeActionProvider.cs" />
     <Compile Include="Refactoring\ContextActionAttribute.cs" />
     <Compile Include="Refactoring\IssueAttribute.cs" />
     <Compile Include="Refactoring\CodeIssues\IssueCategories.cs" />
@@ -521,7 +520,6 @@
     <Compile Include="Resolver\AliasNamespaceResolveResult.cs" />
     <Compile Include="Resolver\ReducedExtensionMethod.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0127ReturnMustNotBeFollowedByAnyExpression.cs" />
-    <Compile Include="Refactoring\CreateChangedEvent.cs" />
     <Compile Include="Refactoring\CodeActions\SimplifyIfFlowAction.cs" />
     <Compile Include="Refactoring\CodeActions\SimplifyIfInLoopsFlowAction.cs" />
     <Compile Include="Refactoring\CodeActions\InvertIfAndSimplify.cs" />
@@ -563,7 +561,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyDestructorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBoolCompareIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertClosureToMethodGroupIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Custom\ConvertToStaticMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\EmptyEmbeddedStatementIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs" />
@@ -572,6 +569,10 @@
     <Compile Include="Refactoring\CodeIssues\Synced\NUnit\NonPublicMethodWithTestAttributeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\CS0759RedundantPartialMethodIssue.cs" />
     <Compile Include="Refactoring\CodeIssueProvider.cs" />
+    <Compile Include="Refactoring\CodeActionProvider.cs" />
+    <Compile Include="Refactoring\CommonSubIssues.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\MemberCanBeMadeStaticIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\CreateChangedEventAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

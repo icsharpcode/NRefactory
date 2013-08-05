@@ -35,7 +35,7 @@ using ICSharpCode.NRefactory.Semantics;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create enum value", Description = "Creates an enum value for a undefined enum value.")]
-	public class CreateEnumValue : ICodeActionProvider
+	public class CreateEnumValue : CodeActionProvider
 	{
 		internal static bool IsInvocationTarget(AstNode node)
 		{
@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return context.GetNode(n => n is IdentifierExpression || n is MemberReferenceExpression || n is NamedExpression) as Expression;
 		}
 		
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var expr = GetCreatePropertyOrFieldNode(context);
 			if (expr == null)

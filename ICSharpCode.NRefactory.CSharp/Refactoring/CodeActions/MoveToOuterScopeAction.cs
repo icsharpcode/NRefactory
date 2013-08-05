@@ -34,10 +34,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	
 	[ContextAction("Move to outer scope", Description = "Moves a declaration to the parent scope.")]
-	public class MoveToOuterScopeAction : ICodeActionProvider
+	public class MoveToOuterScopeAction : CodeActionProvider
 	{
 		#region ICodeActionProvider implementation
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var variableDeclaration = context.GetNode<VariableDeclarationStatement>();
 			if (variableDeclaration == null)

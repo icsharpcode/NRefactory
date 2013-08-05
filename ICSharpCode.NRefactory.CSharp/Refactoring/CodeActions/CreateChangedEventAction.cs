@@ -35,11 +35,14 @@ using System.Threading.Tasks;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create changed event for property", Description = "Creates a changed event for an property.")]
-	public class CreateChangedEvent : ICodeActionProvider
+	public class CreateChangedEventAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var property = context.GetNode<PropertyDeclaration>();
+			if (property == null || !property.NameToken.Contains(context.Location))
+				yield break;
+
 			var field = RemoveBackingStoreAction.GetBackingField(context);
 			if (field == null)
 				yield break;

@@ -33,11 +33,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
         Category = IssueCategories.PracticesAndImprovements,
         Severity = Severity.Suggestion,
         ResharperDisableKeyword = "ReplaceWithSingleCallToCount")]
-	public class ReplaceWithSingleCallToCountIssue : CodeIssueProvider
+	public class ReplaceWithSingleCallToCountIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new ReplaceWithSingleCallToAnyIssue.GatherVisitor<ReplaceWithSingleCallToCountIssue>(context, "Count").GetIssues();
+			return new ReplaceWithSingleCallToAnyIssue.GatherVisitor<ReplaceWithSingleCallToCountIssue>(context, "Count");
 		}
 	}
 }

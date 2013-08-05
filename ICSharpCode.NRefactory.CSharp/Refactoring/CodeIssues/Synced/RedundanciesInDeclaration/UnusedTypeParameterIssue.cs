@@ -40,16 +40,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
                        ResharperDisableKeyword = "UnusedTypeParameter")]
-	public class UnusedTypeParameterIssue : CodeIssueProvider
+	public class UnusedTypeParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		static FindReferences refFinder = new FindReferences ();
 
-		public override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)
-				return Enumerable.Empty<CodeIssue> ();
-			return new GatherVisitor (context, unit).GetIssues ();
+				return null;
+			return new GatherVisitor(context, unit);
 		}
 
 		protected static bool FindUsage (BaseRefactoringContext context, SyntaxTree unit,

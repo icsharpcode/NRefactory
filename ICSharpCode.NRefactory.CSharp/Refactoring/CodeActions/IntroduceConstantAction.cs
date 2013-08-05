@@ -31,9 +31,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Introduce constant", Description = "Creates a constant for a non constant primitive expression.")]
-	public class IntroduceConstantAction : ICodeActionProvider
+	public class IntroduceConstantAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var pexpr = context.GetNode<PrimitiveExpression>();
 			if (pexpr == null)

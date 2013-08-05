@@ -36,9 +36,9 @@ using System.Threading.Tasks;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 {
 	[ContextAction("Extract method", Description = "Creates a new method out of selected text.")]
-	public class ExtractMethodAction : ICodeActionProvider
+	public class ExtractMethodAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			if (!context.IsSomethingSelected)
 				yield break;

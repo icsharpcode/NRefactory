@@ -36,13 +36,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="This type declares a method named Dispose, but it does not implement the System.IDisposable interface",
 	                  Category=IssueCategories.CodeQualityIssues,
 	                  Severity=Severity.Warning,
-	                  IssueMarker=IssueMarker.Underline)]
-	public class DisposeMethodInNonIDisposableTypeIssue : CodeIssueProvider
+	                  IssueMarker=IssueMarker.WavedLine)]
+	public class DisposeMethodInNonIDisposableTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			var visitor = new GatherVisitor(context);
-			return visitor.GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		private class GatherVisitor : GatherVisitorBase<DisposeMethodInNonIDisposableTypeIssue>

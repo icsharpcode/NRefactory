@@ -30,9 +30,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Invert if", Description = "Inverts an 'if ... else' expression.")]
-	public class InvertIfAction : ICodeActionProvider
+	public class InvertIfAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			// TODO: Invert if without else
 			// ex. if (cond) DoSomething () == if (!cond) return; DoSomething ()

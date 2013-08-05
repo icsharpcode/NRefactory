@@ -33,9 +33,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Use explicit type", Description = "Converts local variable declaration to be explicit typed.")]
-	public class UseExplicitTypeAction: ICodeActionProvider
+	public class UseExplicitTypeAction: CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var varDecl = GetVariableDeclarationStatement(context);
 			AstNode node;

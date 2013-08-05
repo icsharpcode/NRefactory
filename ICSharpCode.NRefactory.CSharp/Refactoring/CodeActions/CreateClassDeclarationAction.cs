@@ -32,9 +32,9 @@ using ICSharpCode.NRefactory.TypeSystem;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create class", Description = "Creates a class declaration out of an object creation.")]
-	public class CreateClassDeclarationAction : ICodeActionProvider
+	public class CreateClassDeclarationAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var simpleType = context.GetNode<SimpleType>();
 			if (simpleType != null && !(simpleType.Parent is EventDeclaration || simpleType.Parent is CustomEventDeclaration)) 

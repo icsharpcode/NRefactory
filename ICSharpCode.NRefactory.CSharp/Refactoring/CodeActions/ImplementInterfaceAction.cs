@@ -32,9 +32,9 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Implement interface", Description = "Creates an interface implementation.")]
-	public class ImplementInterfaceAction : ICodeActionProvider
+	public class ImplementInterfaceAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var type = context.GetNode<AstType>();
 			if (type == null || type.Role != Roles.BaseType)

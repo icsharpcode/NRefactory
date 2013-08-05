@@ -56,10 +56,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public IList<string> NamespacesToKeep {
 			get { return namespacesToKeep; }
 		}
-		
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+
+
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
 		{
-			var visitor = new GatherVisitor (context, this);
+			var visitor = new GatherVisitor(context, this);
 			context.RootNode.AcceptVisitor (visitor);
 			visitor.Collect ();
 			return visitor.FoundIssues;

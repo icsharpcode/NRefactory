@@ -37,11 +37,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// "this is <some> string" => string.Format ("this is {0} string", <some>)
 	/// </summary>
 	[ContextAction("Introduce format item", Description = "Creates a string.format call with the selection as parameter.")]
-	public class IntroduceFormatItemAction : ICodeActionProvider
+	public class IntroduceFormatItemAction : CodeActionProvider
 	{
 		readonly static MemberReferenceExpression PrototypeFormatReference = new MemberReferenceExpression (new TypeReferenceExpression (new PrimitiveType ("string")), "Format");
 		
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			if (!context.IsSomethingSelected) {
 				yield break;

@@ -36,9 +36,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// and simplify the type references to use the new shorter option.
 	/// </summary>
 	[ContextAction ("Add using", Description = "Add missing using declaration.")]
-	public class AddUsingAction : ICodeActionProvider
+	public class AddUsingAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			AstNode node = context.GetNode();
 			if (node is Identifier)

@@ -38,15 +38,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        Category = IssueCategories.CompilerErrors,
                        Severity = Severity.Error,
                        ResharperDisableKeyword = "StaticConstructorAccessModifier",
-                       IssueMarker = IssueMarker.Underline)]
-	public class StaticConstructorAccessModifierIssue : CodeIssueProvider
+                       IssueMarker = IssueMarker.WavedLine)]
+	public class StaticConstructorAccessModifierIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)
-				return Enumerable.Empty<CodeIssue>();
-			return new GatherVisitor(context).GetIssues();
+				return null;
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<StaticConstructorAccessModifierIssue>

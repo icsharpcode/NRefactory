@@ -31,11 +31,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Invoke using static method syntax",
 	               Description = "Converts the call into static method call syntax.")]
-	public class ExtensionMethodInvocationToStaticMethodInvocationAction : ICodeActionProvider
+	public class ExtensionMethodInvocationToStaticMethodInvocationAction : CodeActionProvider
 	{
 		#region ICodeActionProvider implementation
 
-		public IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
 		{
 			var invocation = context.GetNode<InvocationExpression>();
 			if (invocation == null)

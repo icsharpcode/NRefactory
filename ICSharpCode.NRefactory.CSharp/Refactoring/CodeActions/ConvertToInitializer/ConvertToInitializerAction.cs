@@ -30,10 +30,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Convert to initializer",
 	               Description = "Converts a set of assignments and .Add() calls to an initializer.")]
-	public class ConvertToInitializerAction : ICodeActionProvider
+	public class ConvertToInitializerAction : CodeActionProvider
 	{
 		#region ICodeActionProvider implementation
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var initializer = context.GetNode<VariableInitializer>();
 			if (initializer != null) {

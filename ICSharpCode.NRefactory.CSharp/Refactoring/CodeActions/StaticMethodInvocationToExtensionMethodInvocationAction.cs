@@ -33,11 +33,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	
 	[ContextAction("Invoke using extension method syntax",
 	               Description = "Converts the call into extension method call syntax.")]
-	public class StaticMethodInvocationToExtensionMethodInvocationAction : ICodeActionProvider
+	public class StaticMethodInvocationToExtensionMethodInvocationAction : CodeActionProvider
 	{
 		#region ICodeActionProvider implementation
 
-		public IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
 		{
 			var invocation = context.GetNode<InvocationExpression>();
 			if (invocation == null)
