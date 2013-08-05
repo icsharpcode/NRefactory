@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.CSharp;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
@@ -165,7 +166,118 @@ class Test2 : ITest1
 }", context.GetSideDocumentText(1));
 		}
 
+		[Test]
+		public void TestRemoveBaseType()
+		{
+			var context = TestRefactoringContext.Create(@"
+public class $Foo : System.IDisposable
+{
+}");
+			using (var script = context.StartScript()) {
+				var type = context.GetNode<TypeDeclaration>();
+				script.ChangeBaseTypes(type, Enumerable.Empty<AstType>());
+			}
 
+			Assert.AreEqual(@"
+public class Foo
+{
+}", context.Text);
+		}
+
+		[Test]
+		public void TestRemoveBaseTypeInNested()
+		{
+			var context = TestRefactoringContext.Create(@"
+public class X
+{
+	public class $Foo : System.IDisposable
+	{
+	}
+}");
+			using (var script = context.StartScript()) {
+				var type = context.GetNode<TypeDeclaration>();
+				script.ChangeBaseTypes(type, Enumerable.Empty<AstType>());
+			}
+
+			Assert.AreEqual(@"
+public class X
+{
+	public class Foo
+	{
+	}
+}", context.Text);
+		}
+
+		[Test]
+		public void TestReplaceBaseType()
+		{
+			var context = TestRefactoringContext.Create(@"
+public class $Foo : System.IDisposable
+{
+}");
+			using (var script = context.StartScript()) {
+				var type = context.GetNode<TypeDeclaration>();
+				script.ChangeBaseTypes(type, new AstType[] { AstType.Create("System.Test") });
+			}
+
+			Assert.AreEqual(@"
+public class Foo : System.Test
+{
+}", context.Text);
+		}
+
+		[Test]
+		public void TestChangeBaseTypeGenerics()
+		{
+			var context = TestRefactoringContext.Create(@"
+public class $Foo<T> : System.IDisposable where T : new()
+{
+}");
+			using (var script = context.StartScript()) {
+				var type = context.GetNode<TypeDeclaration>();
+				script.ChangeBaseTypes(type, new AstType[] { AstType.Create("System.Test") });
+			}
+
+			Assert.AreEqual(@"
+public class Foo<T> : System.Test where T : new()
+{
+}", context.Text);
+		}
+
+		[Test]
+		public void TestAddBaseType()
+		{
+			var context = TestRefactoringContext.Create(@"
+public class $Foo
+{
+}");
+			using (var script = context.StartScript()) {
+				var type = context.GetNode<TypeDeclaration>();
+				script.ChangeBaseTypes(type, new AstType[] { AstType.Create("System.Test") });
+			}
+
+			Assert.AreEqual(@"
+public class Foo : System.Test
+{
+}", context.Text);
+		}
+
+		[Test]
+		public void TestAddBaseTypeGenerics()
+		{
+			var context = TestRefactoringContext.Create(@"
+public class $Foo<T> where T : new()
+{
+}");
+			using (var script = context.StartScript()) {
+				var type = context.GetNode<TypeDeclaration>();
+				script.ChangeBaseTypes(type, new AstType[] { AstType.Create("System.Test") });
+			}
+
+			Assert.AreEqual(@"
+public class Foo<T> : System.Test where T : new()
+{
+}", context.Text);
+		}
 	}
 }
-

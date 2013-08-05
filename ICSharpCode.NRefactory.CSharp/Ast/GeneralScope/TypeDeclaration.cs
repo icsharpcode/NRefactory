@@ -81,6 +81,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		public AstNodeCollection<TypeParameterDeclaration> TypeParameters {
 			get { return GetChildrenByRole (Roles.TypeParameter); }
 		}
+
+		public CSharpTokenNode ColonToken {
+			get {
+				return GetChildByRole(Roles.Colon);
+			}
+		}
 		
 		public AstNodeCollection<AstType> BaseTypes {
 			get { return GetChildrenByRole(Roles.BaseType); }
