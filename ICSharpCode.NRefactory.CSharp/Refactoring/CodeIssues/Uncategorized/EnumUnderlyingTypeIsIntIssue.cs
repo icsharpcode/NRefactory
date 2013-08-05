@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  IssueMarker = IssueMarker.GrayOut)]
 	public class EnumUnderlyingTypeIsIntIssue : CodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}
@@ -84,10 +84,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return new CodeAction(ctx.TranslateString("Remove redundant underlying type"),
 				                      script => {
 
-					var newTypeDeclaration = (TypeDeclaration)typeDeclaration.Clone();
-					newTypeDeclaration.BaseTypes.Clear();
-
-					script.ChangeBaseTypes(typeDeclaration, newTypeDeclaration);
+					script.ChangeBaseTypes(typeDeclaration, Enumerable.Empty<AstType>());
 
 				}, start, end);
 			}
