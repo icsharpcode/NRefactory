@@ -85,6 +85,7 @@
     <Compile Include="Analysis\AbiComparer.cs" />
     <Compile Include="Analysis\TypeGraph.cs" />
     <Compile Include="Analysis\TypeGraphNode.cs" />
+    <Compile Include="Completion\FrameworkLookup.cs" />
     <Compile Include="Documentation\DocumentationComment.cs" />
     <Compile Include="Documentation\GetPotentiallyNestedClassTypeReference.cs" />
     <Compile Include="Documentation\IDocumentationProvider.cs" />

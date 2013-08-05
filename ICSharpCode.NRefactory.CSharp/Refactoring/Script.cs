@@ -407,7 +407,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public virtual void Rename(ISymbol symbol, string name = null)
 		{
 		}
-		
+
+		public virtual void DoGlobalOperationOn(IEnumerable<IEntity> entity, Action<RefactoringContext, Script, IEnumerable<AstNode>> callback, string operationDescripton = null)
+		{
+		}
+
 		public virtual void DoGlobalOperationOn(IEntity entity, Action<RefactoringContext, Script, AstNode> callback, string operationDescripton = null)
 		{
 		}
