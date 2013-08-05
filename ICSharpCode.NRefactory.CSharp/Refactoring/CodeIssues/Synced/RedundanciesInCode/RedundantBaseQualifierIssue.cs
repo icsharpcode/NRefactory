@@ -85,6 +85,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var method = memberReference.Parent;
 					while (!(method is MethodDeclaration)) {
 						method = method.Parent;
+						if (method == null)
+							return;
 					}
 					var parameters = (method as MethodDeclaration).Parameters;
 
