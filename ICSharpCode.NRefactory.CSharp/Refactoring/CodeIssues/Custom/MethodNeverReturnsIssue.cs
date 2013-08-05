@@ -29,7 +29,6 @@ using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -61,22 +60,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				var memberResolveResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
-				VisitBody("Method", methodDeclaration.NameToken, body, memberResolveResult == null ? null : memberResolveResult.Member);
+				VisitBody("Method", methodDeclaration.NameToken, body,
+				          memberResolveResult == null ? null : memberResolveResult.Member, null);
 
 				base.VisitMethodDeclaration (methodDeclaration);
 			}
 
 			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
 			{
-				VisitBody("Delegate", anonymousMethodExpression.DelegateToken, anonymousMethodExpression.Body, null);
+				VisitBody("Delegate", anonymousMethodExpression.DelegateToken,
+				          anonymousMethodExpression.Body, null, null);
 
 				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
 			}
 
 			public override void VisitAccessor(Accessor accessor)
 			{
-				var memberResolveResult = ctx.Resolve(accessor) as MemberResolveResult;
-				VisitBody("Accessor", accessor.Keyword, accessor.Body, memberResolveResult == null ? null : memberResolveResult.Member);
+				var parentProperty = accessor.GetParent<PropertyDeclaration>();
+				var resolveResult = ctx.Resolve(parentProperty);
+				var memberResolveResult = resolveResult as MemberResolveResult;
+				VisitBody("Accessor", accessor.Keyword, accessor.Body,
+				          memberResolveResult == null ? null : memberResolveResult.Member,
+				          accessor.Keyword.Role);
 
 				base.VisitAccessor (accessor);
 			}
@@ -85,7 +90,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				var body = lambdaExpression.Body as BlockStatement;
 				if (body != null) {
-					VisitBody("Lambda expression", lambdaExpression.ArrowToken, body, null);
+					VisitBody("Lambda expression", lambdaExpression.ArrowToken, body, null, null);
 				}
 
 				//Even if it is an expression, we still need to check for children
@@ -93,9 +98,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitLambdaExpression(lambdaExpression);
 			}
 
-			void VisitBody(string entityType, AstNode node, BlockStatement body, IMember member)
+			void VisitBody(string entityType, AstNode node, BlockStatement body, IMember member, Role accessorRole)
 			{
-				var reachability = ctx.CreateReachabilityAnalysis(body, new RecursiveDetector(ctx, member));
+				var reachability = ctx.CreateReachabilityAnalysis(body, new RecursiveDetector(ctx, member, accessorRole));
 				bool hasReachableReturn = false;
 				foreach (var statement in reachability.ReachableStatements) {
 					if (statement is ReturnStatement || statement is ThrowStatement || statement is YieldBreakStatement) {
@@ -112,10 +117,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				BaseRefactoringContext ctx;
 				IMember member;
+				Role accessorRole;
 
-				internal RecursiveDetector(BaseRefactoringContext ctx, IMember member) {
+				internal RecursiveDetector(BaseRefactoringContext ctx, IMember member, Role accessorRole) {
 					this.ctx = ctx;
 					this.member = member;
+					this.accessorRole = accessorRole;
 				}
 
 				public override void VisitIdentifierExpression(IdentifierExpression identifierExpression)
@@ -160,7 +167,39 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 					}
 
-					PushResult(true);
+					var parentAssignment = node.Parent as AssignmentExpression;
+					if (parentAssignment != null) {
+						if (accessorRole == CustomEventDeclaration.AddKeywordRole) {
+							PushResult(parentAssignment.Operator == AssignmentOperatorType.Add);
+							return;
+						}
+						if (accessorRole == CustomEventDeclaration.RemoveKeywordRole) {
+							PushResult(parentAssignment.Operator == AssignmentOperatorType.Subtract);
+							return;
+						}
+						if (accessorRole == PropertyDeclaration.GetKeywordRole) {
+							PushResult(parentAssignment.Operator != AssignmentOperatorType.Assign);
+							return;
+						}
+
+						PushResult(true);
+						return;
+					}
+
+					var parentUnaryOperation = node.Parent as UnaryOperatorExpression;
+					if (parentUnaryOperation != null) {
+						var operatorType = parentUnaryOperation.Operator;
+						if (operatorType == UnaryOperatorType.Increment ||
+							operatorType == UnaryOperatorType.Decrement ||
+							operatorType == UnaryOperatorType.PostIncrement ||
+							operatorType == UnaryOperatorType.PostDecrement) {
+
+							PushResult(true);
+							return;
+						}
+					}
+
+					PushResult(accessorRole == null || accessorRole == PropertyDeclaration.GetKeywordRole);
 				}
 			}
 		}

@@ -157,6 +157,38 @@ class TestClass
 		}
 
 		[Test]
+		public void TestRecursiveGetter ()
+		{
+			var input = @"
+class TestClass
+{
+	int TestProperty
+	{
+		get {
+			return TestProperty;
+		}
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestRecursiveSetter ()
+		{
+			var input = @"
+class TestClass
+{
+	int TestProperty
+	{
+		set {
+			TestProperty = value;
+		}
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
 		public void TestMethodGroupNeverReturns ()
 		{
 			var input = @"
@@ -172,6 +204,21 @@ class TestClass
 	}
 }";
 			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestIncrementProperty()
+		{
+			var input = @"
+class TestClass
+{
+	int TestProperty
+	{
+		get { return TestProperty++; }
+		set { TestProperty++; }
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 2);
 		}
 
 		[Test]
