@@ -35,9 +35,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut)]
-	public class EnumUnderlyingTypeIsIntIssue : ICodeIssueProvider
+	public class EnumUnderlyingTypeIsIntIssue : CodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}
@@ -61,10 +61,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 				}
 
-				var underlyingType = typeDeclaration.BaseTypes.SingleOrDefault();
+				var underlyingType = typeDeclaration.BaseTypes.FirstOrDefault();
 
 				if (underlyingType != null && ctx.ResolveType(underlyingType).FullName == "System.Int32") {
-					var colonToken = underlyingType.GetChildByRole(Roles.Colon);
+					var colonToken = typeDeclaration.ColonToken;
 					var startLocation = colonToken.StartLocation;
 					var endLocation = underlyingType.EndLocation;
 
@@ -74,9 +74,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					         ctx.TranslateString("Remove redundant underlying type"),
 					         script =>
 					{
-						var newEnum = (TypeDeclaration)typeDeclaration.Clone();
-						newEnum.BaseTypes.Clear();
-						script.Replace(typeDeclaration, newEnum);
+						script.ChangeBaseTypes(typeDeclaration, Enumerable.Empty<AstType>());
 					});
 				}
 			}
@@ -89,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var newTypeDeclaration = (TypeDeclaration)typeDeclaration.Clone();
 					newTypeDeclaration.BaseTypes.Clear();
 
-					script.Replace(typeDeclaration, newTypeDeclaration);
+					script.ChangeBaseTypes(typeDeclaration, newTypeDeclaration);
 
 				}, start, end);
 			}
