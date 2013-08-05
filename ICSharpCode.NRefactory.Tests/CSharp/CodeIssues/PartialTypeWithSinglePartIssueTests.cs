@@ -97,6 +97,26 @@ partial class TestClass
 		}
 
 		[Test]
+		public void TestRedundantNestedPartialInNonPartialOuterClass()
+		{
+			var input = @"
+class TestClass
+{
+	partial class Nested
+	{
+	}
+}";
+			var output = @"
+class TestClass
+{
+	class Nested
+	{
+	}
+}";
+			Test<PartialTypeWithSinglePartIssue>(input, output);
+		}
+
+		[Test]
 		public void TestRedundantNestedPartialDisable()
 		{
 			var input = @"
