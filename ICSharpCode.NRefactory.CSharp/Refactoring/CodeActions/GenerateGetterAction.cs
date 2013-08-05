@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var initializer = GetVariableInitializer(context);
-			if (initializer == null || !initializer.NameToken.Contains(context.Location.Line, context.Location.Column)) {
+			if (initializer == null || !initializer.NameToken.Contains(context.Location)) {
 				yield break;
 			}
 			var type = initializer.Parent.Parent as TypeDeclaration;

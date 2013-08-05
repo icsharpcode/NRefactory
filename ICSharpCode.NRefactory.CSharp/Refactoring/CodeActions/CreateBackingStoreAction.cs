@@ -34,13 +34,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var property = context.GetNode<PropertyDeclaration>();
-			if (!(property != null &&
-			      !property.Getter.IsNull && !property.Setter.IsNull && // automatic properties always need getter & setter
+			if (property == null || !property.NameToken.Contains(context.Location))
+				yield break;
+
+			if (!(!property.Getter.IsNull && !property.Setter.IsNull && // automatic properties always need getter & setter
 			      property.Getter.Body.IsNull &&
 			      property.Setter.Body.IsNull)) {
 				yield break;
 			}
-			
+
 			yield return new CodeAction(context.TranslateString("Create backing store"), script => {
 				string backingStoreName = context.GetNameProposal (property.Name);
 				

@@ -520,7 +520,6 @@
     <Compile Include="Resolver\AliasNamespaceResolveResult.cs" />
     <Compile Include="Resolver\ReducedExtensionMethod.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0127ReturnMustNotBeFollowedByAnyExpression.cs" />
-    <Compile Include="Refactoring\CreateChangedEvent.cs" />
     <Compile Include="Refactoring\CodeActions\SimplifyIfFlowAction.cs" />
     <Compile Include="Refactoring\CodeActions\SimplifyIfInLoopsFlowAction.cs" />
     <Compile Include="Refactoring\CodeActions\InvertIfAndSimplify.cs" />
@@ -572,6 +571,7 @@
     <Compile Include="Refactoring\CodeActionProvider.cs" />
     <Compile Include="Refactoring\CommonSubIssues.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\MemberCanBeMadeStaticIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\CreateChangedEventAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

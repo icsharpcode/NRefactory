@@ -39,6 +39,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var property = context.GetNode<PropertyDeclaration>();
+			if (property == null || !property.NameToken.Contains(context.Location))
+				yield break;
+
 			var field = GetBackingField(context);
 			if (field == null) {
 				yield break;

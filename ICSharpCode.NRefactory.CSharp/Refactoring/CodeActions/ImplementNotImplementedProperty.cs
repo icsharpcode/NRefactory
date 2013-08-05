@@ -49,8 +49,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var property = context.GetNode<PropertyDeclaration> ();
-			if (property == null ||
-			    !IsNotImplemented (context, property.Getter.Body) ||
+			if (property == null || !property.NameToken.Contains(context.Location))
+				yield break;
+
+			if (!IsNotImplemented (context, property.Getter.Body) ||
 			    !IsNotImplemented (context, property.Setter.Body)) {
 				yield break;
 			}
