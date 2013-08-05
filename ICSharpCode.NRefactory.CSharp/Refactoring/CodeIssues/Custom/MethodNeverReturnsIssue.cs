@@ -51,13 +51,46 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitMethodDeclaration (MethodDeclaration methodDeclaration)
 			{
-				base.VisitMethodDeclaration (methodDeclaration);
+				var body = methodDeclaration.Body;
 
 				// partial method
-				if (methodDeclaration.Body.IsNull)
+				if (body.IsNull)
 					return;
 
-				var reachability = ctx.CreateReachabilityAnalysis(methodDeclaration.Body);
+				VisitBody("Method", methodDeclaration.NameToken, body);
+
+				base.VisitMethodDeclaration (methodDeclaration);
+			}
+
+			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+			{
+				VisitBody("Delegate", anonymousMethodExpression.DelegateToken, anonymousMethodExpression.Body);
+
+				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+			}
+
+			public override void VisitAccessor(Accessor accessor)
+			{
+				VisitBody("Accessor", accessor.Keyword, accessor.Body);
+
+				base.VisitAccessor (accessor);
+			}
+
+			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+			{
+				var body = lambdaExpression.Body as BlockStatement;
+				if (body != null) {
+					VisitBody("Lambda expression", lambdaExpression.ArrowToken, body);
+				}
+
+				//Even if it is an expression, we still need to check for children
+				//for cases like () => () => { while (true) {}}
+				base.VisitLambdaExpression(lambdaExpression);
+			}
+
+			void VisitBody(string entityType, AstNode node, BlockStatement body)
+			{
+				var reachability = ctx.CreateReachabilityAnalysis(body);
 				bool hasReachableReturn = false;
 				foreach (var statement in reachability.ReachableStatements) {
 					if (statement is ReturnStatement || statement is ThrowStatement || statement is YieldBreakStatement) {
@@ -65,9 +98,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						break;
 					}
 				}
-				if (!hasReachableReturn && !reachability.IsEndpointReachable(methodDeclaration.Body)) {
-					AddIssue (methodDeclaration.NameToken, 
-						ctx.TranslateString ("Method never reaches its end or a 'return' statement."));
+				if (!hasReachableReturn && !reachability.IsEndpointReachable(body)) {
+					AddIssue(node, ctx.TranslateString(string.Format("{0} never reaches its end or a 'return' statement.", entityType)));
 				}
 			}
 		}

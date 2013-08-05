@@ -75,7 +75,7 @@ class TestClass
 		}
 
 		[Test]
-		public void TesNeverReturns ()
+		public void TestNeverReturns ()
 		{
 			var input = @"
 class TestClass
@@ -87,7 +87,83 @@ class TestClass
 }";
 			Test<MethodNeverReturnsIssue> (input, 1);
 		}
-		
+
+		[Test]
+		public void TestRecursive ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		TestMethod ();
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestNonRecursive ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		TestMethod (0);
+	}
+	void TestMethod (int i)
+	{
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 0);
+		}
+
+
+		[Test]
+		public void TestGetterNeverReturns ()
+		{
+			var input = @"
+class TestClass
+{
+	int TestProperty
+	{
+		get {
+			while (true) ;
+		}
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestLambdaNeverReturns ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod()
+	{
+		System.Action action = () => { while (true) ; };
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestDelegateNeverReturns ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod()
+	{
+		System.Action action = delegate() { while (true) ; };
+	}
+}";
+
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
 		[Test]
 		public void YieldBreak ()
 		{
