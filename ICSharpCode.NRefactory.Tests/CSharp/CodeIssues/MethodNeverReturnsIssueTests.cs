@@ -119,6 +119,26 @@ class TestClass
 			Test<MethodNeverReturnsIssue> (input, 0);
 		}
 
+		[Test]
+		public void TestNonRecursiveProperty ()
+		{
+			var input = @"
+class TestClass
+{
+	int foo;
+	int Foo
+	{
+		get { return foo; }
+		set
+		{
+			if (Foo != value)
+				foo = value;
+		}
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 0);
+		}
+
 
 		[Test]
 		public void TestGetterNeverReturns ()
@@ -131,6 +151,24 @@ class TestClass
 		get {
 			while (true) ;
 		}
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestMethodGroupNeverReturns ()
+		{
+			var input = @"
+class TestClass
+{
+	int TestMethod()
+	{
+		return TestMethod();
+	}
+	int TestMethod(object o)
+	{
+		return TestMethod();
 	}
 }";
 			Test<MethodNeverReturnsIssue> (input, 1);
