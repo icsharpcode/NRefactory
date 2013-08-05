@@ -33,12 +33,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Condition is always 'true' or always 'false'.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
-	public class ConstantConditionIssue : ICodeIssueProvider
+					   IssueMarker = IssueMarker.WavedLine)]
+	public class ConstantConditionIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ConstantConditionIssue>

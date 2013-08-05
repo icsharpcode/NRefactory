@@ -34,12 +34,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Method does not reach its end or a 'return' statement by any of possible execution paths.",
 		Category = IssueCategories.CodeQualityIssues,
 		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.Underline)]
-	public class MethodNeverReturnsIssue : ICodeIssueProvider
+		IssueMarker = IssueMarker.WavedLine)]
+	public class MethodNeverReturnsIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<MethodNeverReturnsIssue>

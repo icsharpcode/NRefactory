@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	public abstract class AccessToClosureIssue : ICodeIssueProvider
+	public abstract class AccessToClosureIssue : GatherVisitorCodeIssueProvider
 	{
 		ControlFlowGraphBuilder cfgBuilder = new ControlFlowGraphBuilder ();
 
@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Title = title;
 		}
 
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)
-				return Enumerable.Empty<CodeIssue> ();
-			return new GatherVisitor (context, unit, this).GetIssues ();
+				return null;
+			return new GatherVisitor(context, unit, this);
 		}
 
 		protected virtual bool IsTargetVariable (IVariable variable)

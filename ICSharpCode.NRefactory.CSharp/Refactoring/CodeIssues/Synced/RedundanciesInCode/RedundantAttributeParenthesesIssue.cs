@@ -31,15 +31,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Parentheses are redundant if attribute has no arguments",
 	                   Description = "Parentheses are redundant if attribute has no arguments.",
-	                   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "RedundantAttributeParentheses")]
-	public class RedundantAttributeParenthesesIssue : ICodeIssueProvider
+	public class RedundantAttributeParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantAttributeParenthesesIssue>

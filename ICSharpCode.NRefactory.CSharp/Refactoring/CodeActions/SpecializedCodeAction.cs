@@ -5,7 +5,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// <summary>
 	/// A specialized code action creates a code action assoziated with one special type of ast nodes.
 	/// </summary>
-	public abstract class SpecializedCodeAction<T> : ICodeActionProvider where T : AstNode
+	public abstract class SpecializedCodeAction<T> : CodeActionProvider where T : AstNode
 	{
 		/// <summary>
 		/// Gets the action for the specified ast node.
@@ -22,7 +22,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		protected abstract CodeAction GetAction(RefactoringContext context, T node);
 
 		#region ICodeActionProvider implementation
-		public System.Collections.Generic.IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var node = context.GetNode<T>();
 			if (node == null)

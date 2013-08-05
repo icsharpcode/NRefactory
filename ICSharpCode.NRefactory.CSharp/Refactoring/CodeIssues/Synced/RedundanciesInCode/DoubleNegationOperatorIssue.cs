@@ -32,15 +32,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Double negation operator",
 						Description = "Double negation is meaningless.",
-						Category = IssueCategories.Redundancies,
+						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.Underline,
+						IssueMarker = IssueMarker.WavedLine,
                         ResharperDisableKeyword = "DoubleNegationOperator")]
-    public class DoubleNegationOperatorIssue : ICodeIssueProvider
+    public class DoubleNegationOperatorIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<DoubleNegationOperatorIssue>

@@ -32,12 +32,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Parameter is assigned but its value is never used.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
+					   IssueMarker = IssueMarker.WavedLine)]
 	public class ParameterOnlyAssignedIssue : VariableOnlyAssignedIssue
 	{
-		public override System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		private class GatherVisitor : GatherVisitorBase<ParameterOnlyAssignedIssue>

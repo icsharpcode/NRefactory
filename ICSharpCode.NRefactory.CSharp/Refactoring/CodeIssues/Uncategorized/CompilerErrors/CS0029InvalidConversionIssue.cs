@@ -38,17 +38,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "This error occurs when trying to assign a value of an incompatible type.",
 	                  Category = IssueCategories.CompilerErrors,
 	                  Severity = Severity.Error,
-	                  IssueMarker = IssueMarker.Underline)]
-	public class CS0029InvalidConversionIssue : ICodeIssueProvider
+	                  IssueMarker = IssueMarker.WavedLine)]
+	public class CS0029InvalidConversionIssue : GatherVisitorCodeIssueProvider
 	{
 		// This class handles both
 		// CS0029: Cannot implicitly convert type 'type' to 'type'
 		// and
 		// CS0266: Cannot implicitly convert type 'type1' to 'type2'. An explicit conversion exists (are you missing a cast?)
 		
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<CS0029InvalidConversionIssue>

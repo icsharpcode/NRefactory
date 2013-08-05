@@ -36,18 +36,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Unused parameter",
 	                   Description = "Parameter is never used.",
-	                   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut)]
-	public class ParameterNotUsedIssue : ICodeIssueProvider
+	public class ParameterNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			var delegateVisitor = new GetDelgateUsagesVisitor (context);
 			context.RootNode.AcceptVisitor (delegateVisitor);
 
-			return new GatherVisitor (context, delegateVisitor).GetIssues ();
+			return new GatherVisitor(context, delegateVisitor);
 		}
 		#endregion
 

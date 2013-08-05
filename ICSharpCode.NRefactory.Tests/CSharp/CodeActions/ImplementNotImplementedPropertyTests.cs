@@ -75,6 +75,48 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 }");
 		}
 
+
+		[Test]
+		public void TestWrongLocation()
+		{
+			TestWrongContext<ImplementNotImplementedProperty> (@"class TestClass
+{
+	public $string Test {
+		get {
+			throw new System.NotImplementedException ();
+		}
+		set {
+			throw new System.NotImplementedException ();
+		}
+	}
+}");
+
+			TestWrongContext<ImplementNotImplementedProperty> (@"class TestClass
+{
+	public string $FooBar.Test {
+		get {
+			throw new System.NotImplementedException ();
+		}
+		set {
+			throw new System.NotImplementedException ();
+		}
+	}
+}");
+
+			TestWrongContext<ImplementNotImplementedProperty> (@"class TestClass
+{
+	public string Test ${
+		get {
+			throw new System.NotImplementedException ();
+		}
+		set {
+			throw new System.NotImplementedException ();
+		}
+	}
+}");
+		}
+
+
 	}
 }
 

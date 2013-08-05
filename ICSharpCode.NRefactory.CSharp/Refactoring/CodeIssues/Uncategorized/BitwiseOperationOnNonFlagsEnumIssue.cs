@@ -35,13 +35,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Bitwise operation on enum which has no [Flags] attribute",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline,
+					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
-	public class BitwiseOperationOnNonFlagsEnumIssue : ICodeIssueProvider
+	public class BitwiseOperationOnNonFlagsEnumIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<BitwiseOperationOnNonFlagsEnumIssue>

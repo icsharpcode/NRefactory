@@ -33,18 +33,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Unused local variable",
 					   Description = "Local variable is never used.",
-					   Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInDeclarations,
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.GrayOut,
                        PragmaWarning = 163,
                        ResharperDisableKeyword = "UnusedVariable.Compiler")]
-	public class LocalVariableNotUsedIssue : ICodeIssueProvider
+	public class LocalVariableNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
 
-		public System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		#endregion

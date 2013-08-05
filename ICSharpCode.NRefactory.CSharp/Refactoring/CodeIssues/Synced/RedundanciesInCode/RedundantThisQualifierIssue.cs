@@ -39,34 +39,30 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Redundant 'this.' qualifier",
 	       Description= "'this.' is redundant and can safely be removed.",
-	       Category = IssueCategories.Redundancies,
+	       Category = IssueCategories.RedundanciesInCode,
 	       Severity = Severity.Warning,
 	       IssueMarker = IssueMarker.GrayOut,
 	       ResharperDisableKeyword = "RedundantThisQualifier")]
-	public class RedundantThisQualifierIssue : ICodeIssueProvider
+	[SubIssueAttribute(RedundantThisQualifierIssue.InsideConstructors, Severity = Severity.None)]
+	[SubIssueAttribute(RedundantThisQualifierIssue.EverywhereElse)]
+	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider
 	{
-		bool ignoreConstructors = true;
+		public const string InsideConstructors = "Inside constructors";
+		public const string EverywhereElse = "Everywhere else";
 
-		/// <summary>
-		/// Specifies whether to ignore redundant 'this' in constructors.
-		/// "this.Name = name;"
-		/// </summary>
-		public bool IgnoreConstructors {
-			get {
-				return ignoreConstructors;
-			}
-			set {
-				ignoreConstructors = value;
-			}
-		}
-		
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantThisQualifierIssue>
 		{
+			bool InsideConstructors {
+				get {
+					return SubIssue == RedundantThisQualifierIssue.InsideConstructors;
+				}
+			}
+
 			public GatherVisitor (BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 			}
@@ -84,9 +80,50 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
-				if (QualifierDirectiveEvidentIssueProvider.IgnoreConstructors)
-					return;
-				base.VisitConstructorDeclaration(constructorDeclaration);
+				if (InsideConstructors)
+					base.VisitConstructorDeclaration(constructorDeclaration);
+			}
+
+			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+			{
+				if (!InsideConstructors)
+					base.VisitMethodDeclaration(methodDeclaration);
+			}
+
+			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
+			{
+				if (!InsideConstructors)
+					base.VisitIndexerDeclaration(indexerDeclaration);
+			}
+
+			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
+			{
+				if (!InsideConstructors)
+					base.VisitCustomEventDeclaration(eventDeclaration);
+			}
+
+			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
+			{
+				if (!InsideConstructors)
+					base.VisitDestructorDeclaration(destructorDeclaration);
+			}
+
+			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+			{
+				if (!InsideConstructors)
+					base.VisitFieldDeclaration(fieldDeclaration);
+			}
+
+			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
+			{
+				if (!InsideConstructors)
+					base.VisitOperatorDeclaration(operatorDeclaration);
+			}
+
+			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+			{
+				if (!InsideConstructors)
+					base.VisitPropertyDeclaration(propertyDeclaration);
 			}
 			
 			// We keep this stack so that we can check for cases where a field is used in the initializer

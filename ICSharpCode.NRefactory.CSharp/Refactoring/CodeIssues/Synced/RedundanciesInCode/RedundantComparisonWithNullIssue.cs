@@ -33,11 +33,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Redundant comparison with 'null'",
 	                  Description = "When 'is' keyword is used, which implicitly check null.",
-	                  Category = IssueCategories.Redundancies,
+	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
                       ResharperDisableKeyword = "RedundantComparisonWithNull",
 	                  IssueMarker = IssueMarker.GrayOut)]
-	public class RedundantComparisonWithNullIssue : ICodeIssueProvider
+	public class RedundantComparisonWithNullIssue : GatherVisitorCodeIssueProvider
 	{
 		private static readonly Pattern pattern1
 			= new Choice {
@@ -71,9 +71,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			)
 		};
 
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantComparisonWithNullIssue>

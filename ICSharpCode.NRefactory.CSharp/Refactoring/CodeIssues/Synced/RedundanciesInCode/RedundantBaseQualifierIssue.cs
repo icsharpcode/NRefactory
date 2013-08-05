@@ -39,15 +39,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Redundant 'base.' qualifier",
 			Description= "'base.' is redundant and can safely be removed.",
-			Category = IssueCategories.Redundancies,
+			Category = IssueCategories.RedundanciesInCode,
 			Severity = Severity.Warning,
 			IssueMarker = IssueMarker.GrayOut,
 			ResharperDisableKeyword = "RedundantBaseQualifier")]
-	public class RedundantBaseQualifierIssue : ICodeIssueProvider
+	public class RedundantBaseQualifierIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantBaseQualifierIssue>
@@ -85,6 +85,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var method = memberReference.Parent;
 					while (!(method is MethodDeclaration)) {
 						method = method.Parent;
+						if (method == null)
+							return;
 					}
 					var parameters = (method as MethodDeclaration).Parameters;
 

@@ -61,6 +61,34 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			Assert.AreEqual(1, issues.Count);
 		}
 
+
+		[Test]
+		public void TestInspectorCase2()
+		{
+			var input = @"using System;
+	using System.IO;
+	namespace Application
+	{
+		public class BaseClass
+		{
+			public void method()
+			{
+				try
+				{
+					F ();
+				}
+				catch
+				{
+				}
+			}
+		}
+	}
+";
+			TestRefactoringContext context;
+			var issues = GetIssues(new EmptyGeneralCatchClauseIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+		}
+
 		[Test]
 		public void TestResharperDisableRestore()
 		{

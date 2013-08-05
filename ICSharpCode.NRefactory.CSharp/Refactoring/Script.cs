@@ -197,9 +197,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				endOffset = GetCurrentOffset(entity.ModifierTokens.Last ().GetNextSibling (s => s.Role != Roles.NewLine && s.Role != Roles.Whitespace).StartLocation);
 			} else {
 				var child = entity.FirstChild;
-				while (child.NodeType == NodeType.Whitespace || child.Role == Roles.Attribute)
+				while (child.NodeType == NodeType.Whitespace ||
+				       child.Role == EntityDeclaration.AttributeRole ||
+				       child.Role == Roles.NewLine) {
 					child = child.NextSibling;
-				offset = endOffset = GetCurrentOffset(entity.StartLocation);
+				}
+				offset = endOffset = GetCurrentOffset(child.StartLocation);
 			}
 
 			var sb = new StringBuilder();

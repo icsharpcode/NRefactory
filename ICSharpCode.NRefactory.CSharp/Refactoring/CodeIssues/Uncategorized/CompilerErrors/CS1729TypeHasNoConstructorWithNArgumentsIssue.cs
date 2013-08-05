@@ -11,12 +11,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "CS1729: Class does not contain a 0 argument constructor",
 	                   Category = IssueCategories.CompilerErrors,
 	                   Severity = Severity.Error,
-	                   IssueMarker = IssueMarker.Underline)]
-	public class CS1729TypeHasNoConstructorWithNArgumentsIssue : ICodeIssueProvider
+	                   IssueMarker = IssueMarker.WavedLine)]
+	public class CS1729TypeHasNoConstructorWithNArgumentsIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		private class GatherVisitor : GatherVisitorBase<CS1729TypeHasNoConstructorWithNArgumentsIssue>

@@ -31,7 +31,7 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create a backing field for a not implemented property", Description = "Creates a backing field for a not implemented property.")]
-	public class ImplementNotImplementedProperty : ICodeActionProvider
+	public class ImplementNotImplementedProperty : CodeActionProvider
 	{
 		bool IsNotImplemented(RefactoringContext context, BlockStatement body)
 		{
@@ -46,11 +46,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return false;
 		}
 
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var property = context.GetNode<PropertyDeclaration> ();
-			if (property == null ||
-			    !IsNotImplemented (context, property.Getter.Body) ||
+			if (property == null || !property.NameToken.Contains(context.Location))
+				yield break;
+
+			if (!IsNotImplemented (context, property.Getter.Body) ||
 			    !IsNotImplemented (context, property.Setter.Body)) {
 				yield break;
 			}

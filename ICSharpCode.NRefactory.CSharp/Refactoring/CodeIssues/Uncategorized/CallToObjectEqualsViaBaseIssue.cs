@@ -37,11 +37,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
                       ResharperDisableKeyword = "BaseObjectEqualsIsObjectEquals")]
-	public class CallToObjectEqualsViaBaseIssue : ICodeIssueProvider
+	public class CallToObjectEqualsViaBaseIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<CallToObjectEqualsViaBaseIssue>

@@ -38,13 +38,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Possible multiple enumeration of IEnumerable.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline,
+					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "PossibleNullReferenceException")]
-	public class MultipleEnumerationIssue : ICodeIssueProvider
+	public class MultipleEnumerationIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class AnalysisStatementCollector : DepthFirstAstVisitor

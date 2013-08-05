@@ -41,11 +41,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   IssueMarker = IssueMarker.GrayOut,
                        PragmaWarning = 1717,
                        ResharperDisableKeyword = "CSharpWarnings::CS1717")]
-    public class CS1717AssignmentMadeToSameVariableIssue : ICodeIssueProvider
+    public class CS1717AssignmentMadeToSameVariableIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<CS1717AssignmentMadeToSameVariableIssue>

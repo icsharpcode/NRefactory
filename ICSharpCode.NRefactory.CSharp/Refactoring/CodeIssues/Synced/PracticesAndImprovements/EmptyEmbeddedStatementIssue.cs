@@ -32,13 +32,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "';' should be avoided. Use '{}' instead",
 	                   Category = IssueCategories.PracticesAndImprovements,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.Underline,
+	                   IssueMarker = IssueMarker.WavedLine,
 	                   ResharperDisableKeyword = "EmptyEmbeddedStatement")]
-	public class EmptyEmbeddedStatementIssue : ICodeIssueProvider
+	public class EmptyEmbeddedStatementIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<EmptyEmbeddedStatementIssue>

@@ -39,15 +39,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Redundant name qualifier",
 	                  Description = "Removes namespace usages that are obsolete.",
-	                  Category = IssueCategories.Redundancies,
+	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
                       ResharperDisableKeyword = "RedundantNameQualifier")]
-	public class RedundantNameQualifierIssue : ICodeIssueProvider
+	public class RedundantNameQualifierIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantNameQualifierIssue>
@@ -92,7 +92,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var lookupName = state.LookupSimpleNameOrTypeName(memberName.Name, resolvedTypeArguments, mode);
 				
 				if (lookupName is TypeResolveResult && !lookupName.IsError && wholeResult.Type.Equals(lookupName.Type)) {
-                    AddIssue(wholeNode.StartLocation, memberName.StartLocation, ctx.TranslateString("Remove redundant qualifier"), action);
+					AddIssue(
+						wholeNode.StartLocation, 
+						memberName.StartLocation, 
+						ctx.TranslateString("Qualifier is redundant"), 
+						ctx.TranslateString("Remove redundant qualifier"), 
+						action);
 				}
 			}
 		}

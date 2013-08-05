@@ -36,11 +36,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		                   Severity = Severity.Warning,
 		                   IssueMarker = IssueMarker.GrayOut,
 		                   ResharperDisableKeyword = "ConditionalTernaryEqualBranch")]
-	public class DuplicateExpressionsInConditionsIssue : ICodeIssueProvider
+	public class DuplicateExpressionsInConditionsIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
         static readonly List<BinaryOperatorType> SupportedOperators = new List<BinaryOperatorType>();

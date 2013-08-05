@@ -37,13 +37,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Local variable has the same name as a member and hides it.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline,
+					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "LocalVariableHidesMember")]
 	public class LocalVariableHidesMemberIssue : VariableHidesMemberIssue
 	{
-	    public override System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+	    protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 	    {
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<LocalVariableHidesMemberIssue>
@@ -103,10 +103,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 	}
 
-    public abstract class VariableHidesMemberIssue : ICodeIssueProvider
+    public abstract class VariableHidesMemberIssue : GatherVisitorCodeIssueProvider
     {
-        public abstract IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context);
-
         protected static bool HidesMember(BaseRefactoringContext ctx, AstNode node, string variableName)
         {
             IMember member;

@@ -35,13 +35,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "'?:' expression has identical true and false branches.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline,
+					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "ConditionalTernaryEqualBranch")]
-    public class ConditionalTernaryEqualBranchIssue : ICodeIssueProvider
+    public class ConditionalTernaryEqualBranchIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
         class GatherVisitor : GatherVisitorBase<ConditionalTernaryEqualBranchIssue>

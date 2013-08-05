@@ -32,9 +32,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Split declaration list", 
 		Description = "Split variable declaration with multiple variables into declarations with a single variable")] 
-	public class SplitDeclarationListAction : ICodeActionProvider
+	public class SplitDeclarationListAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
 		{
 			// field, local var, event, fixed var, fixed field
 

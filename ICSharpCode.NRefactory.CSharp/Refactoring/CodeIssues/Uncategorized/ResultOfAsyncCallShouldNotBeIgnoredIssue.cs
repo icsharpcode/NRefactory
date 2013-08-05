@@ -29,11 +29,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  " thrown by the call to be silently ignored.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning)]
-	public class ResultOfAsyncCallShouldNotBeIgnoredIssue : ICodeIssueProvider
+	public class ResultOfAsyncCallShouldNotBeIgnoredIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 		
 		sealed class GatherVisitor : GatherVisitorBase<ResultOfAsyncCallShouldNotBeIgnoredIssue>

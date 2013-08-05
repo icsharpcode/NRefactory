@@ -34,13 +34,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Parameter has the same name as a member and hides it.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline,
+					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "ParameterHidesMember")]
     public class ParameterHidesMemberIssue : VariableHidesMemberIssue
 	{
-	    public override System.Collections.Generic.IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+	    protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ParameterHidesMemberIssue>

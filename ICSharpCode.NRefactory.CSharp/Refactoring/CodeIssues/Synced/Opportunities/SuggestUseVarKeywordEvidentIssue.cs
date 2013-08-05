@@ -41,13 +41,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Description = "Use 'var' keyword when possible",
 	       Category = IssueCategories.Opportunities,
 	       Severity = Severity.Hint,
-	       IssueMarker = IssueMarker.None,
+	                  IssueMarker = IssueMarker.None,
            ResharperDisableKeyword = "SuggestUseVarKeywordEvident")]
-	public class SuggestUseVarKeywordEvidentIssue : ICodeIssueProvider
+	public class SuggestUseVarKeywordEvidentIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 
         class GatherVisitor : GatherVisitorBase<SuggestUseVarKeywordEvidentIssue>

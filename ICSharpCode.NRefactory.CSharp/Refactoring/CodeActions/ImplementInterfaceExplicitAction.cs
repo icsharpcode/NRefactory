@@ -33,9 +33,9 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Implement interface explicit", Description = "Creates an interface implementation.")]
-	public class ImplementInterfaceExplicitAction : ICodeActionProvider
+	public class ImplementInterfaceExplicitAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var type = context.GetNode<AstType>();
 			if (type == null || type.Role != Roles.BaseType)

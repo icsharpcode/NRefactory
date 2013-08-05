@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Converts a foreach loop to for.
 	/// </summary>
 	[ContextAction("Convert 'foreach' loop to 'for'", Description = "Works on 'foreach' loops that allow direct access to its elements.")]
-	public class ConvertForeachToForAction : ICodeActionProvider
+	public class ConvertForeachToForAction : CodeActionProvider
 	{
 		static string[] VariableNames = new string[] { "i", "j", "k", "l", "n", "m", "x", "y", "z"};
 		static string[] CollectionNames = new string[] { "list" };
@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var foreachStatement = GetForeachStatement(context);
 			if (foreachStatement == null) {

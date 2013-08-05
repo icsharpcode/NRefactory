@@ -37,9 +37,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
            Category = IssueCategories.ConstraintViolations,
 	       Severity = Severity.Warning,
            ResharperDisableKeyword = "InconsistentNaming")]
-	public class InconsistentNamingIssue : ICodeIssueProvider
+	public class InconsistentNamingIssue : CodeIssueProvider
 	{
-	    public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
 		{
 			var visitor = new GatherVisitor(context);
 			context.RootNode.AcceptVisitor(visitor);

@@ -1,21 +1,21 @@
-﻿// 
-// IInspector.cs
-//  
+//
+// ConvertToStaticMethodIssue.cs
+//
 // Author:
-//       Mike Krüger <mkrueger@xamarin.com>
-// 
-// Copyright (c) 2012 Xamarin <http://xamarin.com>
-// 
+//       Ciprian Khlud <ciprian.mustiata@yahoo.com>
+//
+// Copyright (c) 2013 Ciprian Khlud
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,23 +23,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.Semantics;
+using System.Linq;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	/// <summary>
-	/// The code issue provider gets a list of all code issues in a syntax tree.
-	/// </summary>
-	public interface ICodeIssueProvider
+	public class CommonSubIssues
 	{
-		/// <summary>
-		/// Gets all code issues inside a syntax tree.
-		/// </summary>
-		/// <param name='context'>
-		/// The refactoring context of the issues to get.
-		/// </param>
-		IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context);
+		public const string PrivateMember    = "Private accessibility";
+		public const string NonPrivateMember = "Non-private accessibility";
+
 	}
+
 }
 

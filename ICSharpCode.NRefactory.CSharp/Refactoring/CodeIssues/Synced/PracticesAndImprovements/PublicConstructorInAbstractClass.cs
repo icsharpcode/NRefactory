@@ -34,15 +34,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
 	                  ResharperDisableKeyword = "PublicConstructorInAbstractClass",
-	                  IssueMarker = IssueMarker.Underline)]
-	public class PublicConstructorInAbstractClassIssue : ICodeIssueProvider
+	                  IssueMarker = IssueMarker.WavedLine)]
+	public class PublicConstructorInAbstractClassIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)
-				return Enumerable.Empty<CodeIssue>();
-			return new GatherVisitor(context).GetIssues();
+				return null;
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<PublicConstructorInAbstractClassIssue>

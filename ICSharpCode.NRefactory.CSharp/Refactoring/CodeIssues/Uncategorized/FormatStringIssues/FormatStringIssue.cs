@@ -36,11 +36,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Finds issues with format strings.",
 	                  Category = IssueCategories.ConstraintViolations,
 	                  Severity = Severity.Error)]
-	public class FormatStringIssue : ICodeIssueProvider
+	public class FormatStringIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<FormatStringIssue>

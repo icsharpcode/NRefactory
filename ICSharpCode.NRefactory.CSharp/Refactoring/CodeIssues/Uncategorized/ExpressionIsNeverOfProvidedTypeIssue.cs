@@ -37,12 +37,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "CS0184:Given expression is never of the provided type.",
 					   Category = IssueCategories.CompilerWarnings,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
-	public class ExpressionIsNeverOfProvidedTypeIssue : ICodeIssueProvider
+					   IssueMarker = IssueMarker.WavedLine)]
+	public class ExpressionIsNeverOfProvidedTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ExpressionIsNeverOfProvidedTypeIssue>

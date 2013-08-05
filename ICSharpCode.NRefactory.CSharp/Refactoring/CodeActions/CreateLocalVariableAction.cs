@@ -28,9 +28,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create local variable", Description = "Creates a local variable for a undefined variable.")]
-	public class CreateLocalVariableAction : ICodeActionProvider
+	public class CreateLocalVariableAction : CodeActionProvider
 	{
-		public IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var identifier = context.GetNode<IdentifierExpression>();
 			if (identifier == null) {

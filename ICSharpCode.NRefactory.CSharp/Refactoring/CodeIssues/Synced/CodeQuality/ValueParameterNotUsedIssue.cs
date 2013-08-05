@@ -40,11 +40,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Category = IssueCategories.CodeQualityIssues,
 	       Severity = Severity.Warning,
            ResharperDisableKeyword = "ValueParameterNotUsed")]
-	public class ValueParameterNotUsedIssue : ICodeIssueProvider
+	public class ValueParameterNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<ValueParameterNotUsedIssue>

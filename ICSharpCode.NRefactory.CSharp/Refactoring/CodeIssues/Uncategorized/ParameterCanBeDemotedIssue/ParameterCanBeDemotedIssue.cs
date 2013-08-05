@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   SuppressMessageCategory="Microsoft.Design",
 	                   SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters"
 	                  )]
-	public class ParameterCanBeDemotedIssue : ICodeIssueProvider
+	public class ParameterCanBeDemotedIssue : GatherVisitorCodeIssueProvider
 	{
 		bool tryResolve;
 
@@ -56,16 +56,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		#region ICodeIssueProvider implementation
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-//			var sw = new Stopwatch();
-//			sw.Start();
-			var gatherer = new GatherVisitor(context, tryResolve);
-			var issues = gatherer.GetIssues();
-//			sw.Stop();
-//			Console.WriteLine("Elapsed time in ParameterCanBeDemotedIssue: {0} (Checked types: {3, 4} Qualified for resolution check: {5, 4} Members with issues: {4, 4} Method bodies resolved: {2, 4} File: '{1}')",
-//			                  sw.Elapsed, context.UnresolvedFile.FileName, gatherer.MethodResolveCount, gatherer.TypesChecked, gatherer.MembersWithIssues, gatherer.TypeResolveCount);
-			return issues;
+			return new GatherVisitor(context, tryResolve);
 		}
 		#endregion
 

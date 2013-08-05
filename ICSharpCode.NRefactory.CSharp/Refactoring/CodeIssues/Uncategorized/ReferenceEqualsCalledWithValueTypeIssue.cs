@@ -36,12 +36,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "'Object.ReferenceEquals' is always false because it is called with value type.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
-	public class ReferenceEqualsCalledWithValueTypeIssue : ICodeIssueProvider
+					   IssueMarker = IssueMarker.WavedLine)]
+	public class ReferenceEqualsCalledWithValueTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ReferenceEqualsCalledWithValueTypeIssue>

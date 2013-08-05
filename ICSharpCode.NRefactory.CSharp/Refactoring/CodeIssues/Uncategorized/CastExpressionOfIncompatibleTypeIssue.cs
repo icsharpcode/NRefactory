@@ -36,12 +36,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Type cast expression of incompatible type",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline)]
-	public class CastExpressionOfIncompatibleTypeIssue : ICodeIssueProvider
+					   IssueMarker = IssueMarker.WavedLine)]
+	public class CastExpressionOfIncompatibleTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<CastExpressionOfIncompatibleTypeIssue>

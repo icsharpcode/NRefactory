@@ -35,15 +35,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Empty general catch clause",
 	                  Description= "A catch clause that catches System.Exception and has an empty body",
-	                  Category = IssueCategories.Redundancies,
+	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.Underline,
+	                  IssueMarker = IssueMarker.WavedLine,
 	                  ResharperDisableKeyword = "EmptyGeneralCatchClause")]
-	public class EmptyGeneralCatchClauseIssue : ICodeIssueProvider
+	public class EmptyGeneralCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<EmptyGeneralCatchClauseIssue>
@@ -56,24 +56,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitCatchClause(catchClause);
 
-				var resolvedCatchClauseResult = ctx.Resolve(catchClause);
-				if (resolvedCatchClauseResult.IsError)
-					return;
-
 				AstType type = catchClause.Type;
-				if (type.IsNull)
-					return;
-				var resolvedType = ctx.Resolve(type);
+				if (!type.IsNull) {
+					var resolvedType = ctx.Resolve(type);
 
-				if (resolvedType.IsError ||
-					!resolvedType.Type.Namespace.Equals("System") || !resolvedType.Type.Name.Equals("Exception"))
-					return;
+					if (resolvedType.IsError ||
+						!resolvedType.Type.Namespace.Equals("System") || !resolvedType.Type.Name.Equals("Exception"))
+						return;
+				}
 
 				var body = catchClause.Body;
 				if (body.Statements.Any())
 					return;
 
-				AddIssue(catchClause, ctx.TranslateString("Empty gerenal catch clause suppresses any error"));
+				AddIssue(catchClause.CatchToken, ctx.TranslateString("Empty general catch clause suppresses any error"));
 			}
 		}
 	}

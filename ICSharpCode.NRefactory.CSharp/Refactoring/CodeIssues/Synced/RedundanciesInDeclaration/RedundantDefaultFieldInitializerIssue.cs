@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PatternMatching;
@@ -34,66 +33,67 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Redundant field initializer",
 						Description = "Initializing field with default value is redundant.",
-						Category = IssueCategories.Redundancies,
+	                   Category = IssueCategories.RedundanciesInDeclarations,
 						Severity = Severity.Hint,
 						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantDefaultFieldInitializer")]
-    public class RedundantDefaultFieldInitializerIssue : ICodeIssueProvider
+	public class RedundantDefaultFieldInitializerIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
-	    class GatherVisitor : GatherVisitorBase<RedundantDefaultFieldInitializerIssue>
+
+		class GatherVisitor : GatherVisitorBase<RedundantDefaultFieldInitializerIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
 			{
 			}
 
-			public override void VisitFieldDeclaration (FieldDeclaration fieldDeclaration)
+			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
 			{
-				base.VisitFieldDeclaration (fieldDeclaration);
-				if (fieldDeclaration.HasModifier (Modifiers.Const))
+				base.VisitFieldDeclaration(fieldDeclaration);
+				if (fieldDeclaration.HasModifier(Modifiers.Const))
 					return;
-				var defaultValueExpr = GetDefaultValueExpression (fieldDeclaration.ReturnType);
+				var defaultValueExpr = GetDefaultValueExpression(fieldDeclaration.ReturnType);
 				if (defaultValueExpr == null)
 					return;
 
 				foreach (var variable1 in fieldDeclaration.Variables) {
 					var variable = variable1;
-					if (!defaultValueExpr.Match (variable.Initializer).Success)
+					if (!defaultValueExpr.Match(variable.Initializer).Success)
 						continue;
 
-					AddIssue (variable.Initializer, ctx.TranslateString ("Initializing field by default value is redundant"),
-                        new CodeAction(ctx.TranslateString ("Remove field initializer"),
-                            script => script.Replace (variable, new VariableInitializer (variable.Name)),
-                            variable.Initializer));
+					AddIssue(variable.Initializer, ctx.TranslateString("Initializing field by default value is redundant"),
+					          new CodeAction(ctx.TranslateString("Remove field initializer"),
+					                                  script => script.Replace(variable, new VariableInitializer(variable.Name)),
+					                                  variable.Initializer));
 				}
 			}
 
-			Expression GetDefaultValueExpression (AstType astType)
+			Expression GetDefaultValueExpression(AstType astType)
 			{
-				var type = ctx.ResolveType (astType);
+				var type = ctx.ResolveType(astType);
 
 				if ((type.IsReferenceType ?? false) || type.Kind == TypeKind.Dynamic)
-					return new NullReferenceExpression ();
+					return new NullReferenceExpression();
 
-				var typeDefinition = type.GetDefinition ();
+				var typeDefinition = type.GetDefinition();
 				if (typeDefinition != null) {
 					switch (typeDefinition.KnownTypeCode) {
 						case KnownTypeCode.Boolean:
-							return new PrimitiveExpression (false);
+							return new PrimitiveExpression(false);
 
 						case KnownTypeCode.Char:
-							return new PrimitiveExpression ('\0');
+							return new PrimitiveExpression('\0');
 
 						case KnownTypeCode.SByte:
 						case KnownTypeCode.Byte:
 						case KnownTypeCode.Int16:
 						case KnownTypeCode.UInt16:
 						case KnownTypeCode.Int32:
-							return new PrimitiveExpression (0);
+							return new PrimitiveExpression(0);
 
 						case KnownTypeCode.Int64:
 							return new Choice { new PrimitiveExpression (0), new PrimitiveExpression (0L) };
@@ -113,14 +113,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							return new Choice { new PrimitiveExpression (0), new PrimitiveExpression (0M) };
 
 						case KnownTypeCode.NullableOfT:
-							return new NullReferenceExpression ();
+							return new NullReferenceExpression();
 					}
 					if (type.Kind == TypeKind.Struct)
-						return new ObjectCreateExpression (astType.Clone ());
+						return new ObjectCreateExpression(astType.Clone());
 				}
-				return new DefaultValueExpression (astType.Clone ());
-			} 
-			
+				return new DefaultValueExpression(astType.Clone());
+			}
 		}
 	}
 }

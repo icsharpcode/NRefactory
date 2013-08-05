@@ -39,11 +39,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Suggestion,
 	                  ResharperDisableKeyword = "ConvertClosureToMethodGroup")]
-	public class ConvertClosureToMethodGroupIssue : ICodeIssueProvider
+	public class ConvertClosureToMethodGroupIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ConvertClosureToMethodGroupIssue>

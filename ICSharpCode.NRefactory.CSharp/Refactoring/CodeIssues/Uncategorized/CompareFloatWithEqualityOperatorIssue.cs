@@ -35,13 +35,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Comparison of floating point numbers with equality operator.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.Underline,
+					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "CompareOfFloatsByEqualityOperator")]
-	public class CompareFloatWithEqualityOperatorIssue : ICodeIssueProvider
+	public class CompareFloatWithEqualityOperatorIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor (context).GetIssues ();
+			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<CompareFloatWithEqualityOperatorIssue>
