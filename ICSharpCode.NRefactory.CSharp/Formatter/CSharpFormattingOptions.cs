@@ -144,6 +144,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
+		public bool IndentPreprocessorStatements {
+			get;
+			set;
+		}
+
 		public bool AlignEmbeddedUsingStatements { // tested
 			get;
 			set;

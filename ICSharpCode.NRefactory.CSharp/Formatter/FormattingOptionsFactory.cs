@@ -58,6 +58,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				IndentSwitchBody = false,
 				IndentCaseBody = true,
 				IndentBreakStatements = true,
+				IndentPreprocessorStatements = false,
 				NamespaceBraceStyle = BraceStyle.NextLine,
 				ClassBraceStyle = BraceStyle.NextLine,
 				InterfaceBraceStyle = BraceStyle.NextLine,
@@ -220,6 +221,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				IndentSwitchBody = true,
 				IndentCaseBody = true,
 				IndentBreakStatements = true,
+				IndentPreprocessorStatements = false,
 
 				NamespaceBraceStyle = BraceStyle.NextLine,
 				ClassBraceStyle = BraceStyle.NextLine,

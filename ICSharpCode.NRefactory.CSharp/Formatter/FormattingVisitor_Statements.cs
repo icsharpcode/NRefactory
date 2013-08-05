@@ -57,7 +57,10 @@ namespace ICSharpCode.NRefactory.CSharp
 					// ignore
 				} else {
 					// pre processor directives at line start, if they are there.
-					if (child.StartLocation.Column > 1)
+					if (policy.IndentPreprocessorStatements) {
+						// TODO: leave the directive at block indent level
+					}
+					else if (child.StartLocation.Column > 1)
 						FixStatementIndentation(child.StartLocation);
 				}
 			});

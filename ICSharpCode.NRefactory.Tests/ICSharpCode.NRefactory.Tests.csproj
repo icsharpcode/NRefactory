@@ -265,6 +265,18 @@
     <Compile Include="FormattingTests\TestSpacingVisitor.cs" />
     <Compile Include="FormattingTests\TestStatementIndentation.cs" />
     <Compile Include="FormattingTests\TestTypeLevelIndentation.cs" />
+    <Compile Include="IndentationTests\AllInOneTests.cs" />
+    <Compile Include="IndentationTests\BlockTest.cs" />
+    <Compile Include="IndentationTests\CommentTests.cs" />
+    <Compile Include="IndentationTests\Helper.cs" />
+    <Compile Include="IndentationTests\PreProcessorTests.cs" />
+    <Compile Include="IndentationTests\StringTests.cs" />
+    <None Include="IndentationTests\TestFiles\Simple.cs" />
+    <None Include="IndentationTests\TestFiles\PreProcessorDirectives.cs" />
+    <None Include="IndentationTests\TestFiles\Comments.cs" />
+    <None Include="IndentationTests\TestFiles\Strings.cs" />
+    <None Include="IndentationTests\TestFiles\IndentEngine.cs" />
+    <None Include="IndentationTests\TestFiles\IndentState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeSystem\BlobLoaderTests.cs" />
     <Compile Include="TypeSystem\CecilLoaderTests.cs" />
@@ -389,7 +401,6 @@
     <Compile Include="CSharp\CodeIssues\RedundantWhereWithPredicateIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\SortUsingsTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateEventInvocatorTests.cs" />
-    <Compile Include="IndentationTests\IndentationTests.cs" />
     <Compile Include="CSharp\CodeCompletion\ImportCompletionTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateEnumValueTests.cs" />
     <Compile Include="CSharp\CodeCompletion\GetCurrentParameterIndexTests.cs" />
