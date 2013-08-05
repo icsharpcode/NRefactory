@@ -949,6 +949,33 @@ class C
 			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
+
+		[Test]
+		public void TestDisableAll()
+		{
+			var input = @"// ReSharper disable All
+
+class A
+{
+	public virtual void Foo() {}
+}
+class B : A
+{
+	public virtual void Bar() {}
+}
+class C
+{
+	void F(B b)
+	{
+		b.Foo();
+	}
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
+		}
+
+
 	}
 }
 

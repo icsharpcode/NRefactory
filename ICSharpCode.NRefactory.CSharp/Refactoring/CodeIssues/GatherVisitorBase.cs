@@ -167,7 +167,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitComment(Comment comment)
 		{
-			if (comment.CommentType == CommentType.SingleLine && restoreString != null) {
+			if (comment.CommentType == CommentType.SingleLine) {
 				var txt = comment.Content;
 				if (string.IsNullOrEmpty(txt))
 					return;
@@ -177,11 +177,13 @@ namespace ICSharpCode.NRefactory.CSharp
 					isAllDisabled |= txt.IndexOf(GatherVisitorConstants.DisableAllString, StringComparison.InvariantCultureIgnoreCase) > 0;
 				}
 
-				if (isDisabled) {
-					isDisabled &= txt.IndexOf(restoreString, StringComparison.InvariantCulture) < 0;
-				} else {
-					isDisabled |= txt.IndexOf(disableString, StringComparison.InvariantCulture) > 0;
-					isDisabledOnce |= txt.IndexOf(disableOnceString, StringComparison.InvariantCulture) > 0;
+				if (restoreString != null) {
+					if (isDisabled) {
+						isDisabled &= txt.IndexOf(restoreString, StringComparison.InvariantCulture) < 0;
+					} else {
+						isDisabled |= txt.IndexOf(disableString, StringComparison.InvariantCulture) > 0;
+						isDisabledOnce |= txt.IndexOf(disableOnceString, StringComparison.InvariantCulture) > 0;
+					}
 				}
 			}
 		}
