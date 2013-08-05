@@ -564,6 +564,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\EmptyEmbeddedStatementIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\EnumUnderlyingTypeIsIntIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\EmptyGeneralCatchClauseIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\NUnit\NonPublicMethodWithTestAttributeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\CS0759RedundantPartialMethodIssue.cs" />

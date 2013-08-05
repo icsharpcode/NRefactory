@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			var type = entity.Parent as TypeDeclaration;
 
-			if (entity.Name == type.Name)
+			if (type == null || entity.Name == type.Name)
 				yield break;
 
 			var typeDeclaration = entity.GetParent<TypeDeclaration>();

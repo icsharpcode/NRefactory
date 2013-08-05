@@ -214,6 +214,41 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Replace(offset, endOffset - offset, sb.ToString());
 		}
 
+		/// <summary>
+		/// Changes the base types of a type declaration.
+		/// </summary>
+		/// <param name="type">The type declaration to modify.</param>
+		/// <param name="baseTypes">The new base types.</param>
+		public void ChangeBaseTypes(TypeDeclaration type, IEnumerable<AstType> baseTypes)
+		{
+			var dummyType = new TypeDeclaration();
+			dummyType.BaseTypes.AddRange(baseTypes);
+
+			int offset;
+			int endOffset;
+			var sb = new StringBuilder();
+
+			if (type.BaseTypes.Any ()) {
+				offset = GetCurrentOffset(type.ColonToken.StartLocation);
+				endOffset = GetCurrentOffset(type.BaseTypes.Last ().EndLocation);
+			} else {
+				sb.Append(' ');
+				if (type.TypeParameters.Any()) {
+					offset = endOffset = GetCurrentOffset(type.RChevronToken.EndLocation);
+				} else {
+					offset = endOffset = GetCurrentOffset(type.NameToken.EndLocation);
+				}
+			}
+
+			if (dummyType.BaseTypes.Any()) {
+				sb.Append(": ");
+				sb.Append(string.Join(", ", dummyType.BaseTypes));
+			}
+
+			Replace(offset, endOffset - offset, sb.ToString());
+			FormatText(type);
+		}
+
 
 		/// <summary>
 		/// Adds an attribute section to a given entity.
@@ -470,4 +505,3 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 	}
 }
-
