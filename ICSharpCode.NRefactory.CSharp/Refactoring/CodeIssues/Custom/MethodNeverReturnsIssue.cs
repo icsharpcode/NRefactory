@@ -27,6 +27,8 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -51,13 +53,54 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitMethodDeclaration (MethodDeclaration methodDeclaration)
 			{
-				base.VisitMethodDeclaration (methodDeclaration);
+				var body = methodDeclaration.Body;
 
 				// partial method
-				if (methodDeclaration.Body.IsNull)
+				if (body.IsNull)
 					return;
 
-				var reachability = ctx.CreateReachabilityAnalysis(methodDeclaration.Body);
+				var memberResolveResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
+				VisitBody("Method", methodDeclaration.NameToken, body,
+				          memberResolveResult == null ? null : memberResolveResult.Member, null);
+
+				base.VisitMethodDeclaration (methodDeclaration);
+			}
+
+			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+			{
+				VisitBody("Delegate", anonymousMethodExpression.DelegateToken,
+				          anonymousMethodExpression.Body, null, null);
+
+				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+			}
+
+			public override void VisitAccessor(Accessor accessor)
+			{
+				var parentProperty = accessor.GetParent<PropertyDeclaration>();
+				var resolveResult = ctx.Resolve(parentProperty);
+				var memberResolveResult = resolveResult as MemberResolveResult;
+				VisitBody("Accessor", accessor.Keyword, accessor.Body,
+				          memberResolveResult == null ? null : memberResolveResult.Member,
+				          accessor.Keyword.Role);
+
+				base.VisitAccessor (accessor);
+			}
+
+			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+			{
+				var body = lambdaExpression.Body as BlockStatement;
+				if (body != null) {
+					VisitBody("Lambda expression", lambdaExpression.ArrowToken, body, null, null);
+				}
+
+				//Even if it is an expression, we still need to check for children
+				//for cases like () => () => { while (true) {}}
+				base.VisitLambdaExpression(lambdaExpression);
+			}
+
+			void VisitBody(string entityType, AstNode node, BlockStatement body, IMember member, Role accessorRole)
+			{
+				var reachability = ctx.CreateReachabilityAnalysis(body, new RecursiveDetector(ctx, member, accessorRole));
 				bool hasReachableReturn = false;
 				foreach (var statement in reachability.ReachableStatements) {
 					if (statement is ReturnStatement || statement is ThrowStatement || statement is YieldBreakStatement) {
@@ -65,9 +108,98 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						break;
 					}
 				}
-				if (!hasReachableReturn && !reachability.IsEndpointReachable(methodDeclaration.Body)) {
-					AddIssue (methodDeclaration.NameToken, 
-						ctx.TranslateString ("Method never reaches its end or a 'return' statement."));
+				if (!hasReachableReturn && !reachability.IsEndpointReachable(body)) {
+					AddIssue(node, ctx.TranslateString(string.Format("{0} never reaches its end or a 'return' statement.", entityType)));
+				}
+			}
+
+			class RecursiveDetector : ReachabilityAnalysis.RecursiveDetectorVisitor
+			{
+				BaseRefactoringContext ctx;
+				IMember member;
+				Role accessorRole;
+
+				internal RecursiveDetector(BaseRefactoringContext ctx, IMember member, Role accessorRole) {
+					this.ctx = ctx;
+					this.member = member;
+					this.accessorRole = accessorRole;
+				}
+
+				public override void VisitIdentifierExpression(IdentifierExpression identifierExpression)
+				{
+					CheckRecursion(identifierExpression);
+				}
+
+				public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
+				{
+					base.VisitMemberReferenceExpression(memberReferenceExpression);
+
+					if (!CurrentResult) {
+						PopResult();
+						CheckRecursion(memberReferenceExpression);
+					}
+				}
+
+				public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+				{
+					base.VisitInvocationExpression(invocationExpression);
+
+					if (!CurrentResult) {
+						PopResult();
+						CheckRecursion(invocationExpression);
+					}
+				}
+
+				void CheckRecursion(AstNode node) {
+					if (member == null) {
+						PushResult(false);
+						return;
+					}
+
+					var resolveResult = ctx.Resolve(node);
+
+					//We'll ignore Method groups here
+					//If the invocation expressions will be dealt with later anyway
+					//and properties are never in "method groups".
+					var memberResolveResult = resolveResult as MemberResolveResult;
+					if (memberResolveResult == null || memberResolveResult.Member != this.member) {
+						PushResult(false);
+						return;
+					}
+
+					var parentAssignment = node.Parent as AssignmentExpression;
+					if (parentAssignment != null) {
+						if (accessorRole == CustomEventDeclaration.AddKeywordRole) {
+							PushResult(parentAssignment.Operator == AssignmentOperatorType.Add);
+							return;
+						}
+						if (accessorRole == CustomEventDeclaration.RemoveKeywordRole) {
+							PushResult(parentAssignment.Operator == AssignmentOperatorType.Subtract);
+							return;
+						}
+						if (accessorRole == PropertyDeclaration.GetKeywordRole) {
+							PushResult(parentAssignment.Operator != AssignmentOperatorType.Assign);
+							return;
+						}
+
+						PushResult(true);
+						return;
+					}
+
+					var parentUnaryOperation = node.Parent as UnaryOperatorExpression;
+					if (parentUnaryOperation != null) {
+						var operatorType = parentUnaryOperation.Operator;
+						if (operatorType == UnaryOperatorType.Increment ||
+							operatorType == UnaryOperatorType.Decrement ||
+							operatorType == UnaryOperatorType.PostIncrement ||
+							operatorType == UnaryOperatorType.PostDecrement) {
+
+							PushResult(true);
+							return;
+						}
+					}
+
+					PushResult(accessorRole == null || accessorRole == PropertyDeclaration.GetKeywordRole);
 				}
 			}
 		}
