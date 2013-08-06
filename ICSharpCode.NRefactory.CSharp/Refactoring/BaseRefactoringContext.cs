@@ -162,9 +162,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <returns>
 		/// The reachability analysis object.
 		/// </returns>
-		public ReachabilityAnalysis CreateReachabilityAnalysis (Statement statement)
+		public ReachabilityAnalysis CreateReachabilityAnalysis (Statement statement, ReachabilityAnalysis.RecursiveDetectorVisitor recursiveDetectorVisitor = null)
 		{
-			return ReachabilityAnalysis.Create (statement, resolver, CancellationToken);
+			return ReachabilityAnalysis.Create (statement, resolver, recursiveDetectorVisitor, CancellationToken);
 		}
 
 		/// <summary>

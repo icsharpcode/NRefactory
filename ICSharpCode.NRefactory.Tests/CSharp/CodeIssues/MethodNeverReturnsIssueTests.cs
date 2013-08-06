@@ -75,7 +75,7 @@ class TestClass
 		}
 
 		[Test]
-		public void TesNeverReturns ()
+		public void TestNeverReturns ()
 		{
 			var input = @"
 class TestClass
@@ -87,7 +87,168 @@ class TestClass
 }";
 			Test<MethodNeverReturnsIssue> (input, 1);
 		}
-		
+
+		[Test]
+		public void TestRecursive ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		TestMethod ();
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestNonRecursive ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		TestMethod (0);
+	}
+	void TestMethod (int i)
+	{
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 0);
+		}
+
+		[Test]
+		public void TestNonRecursiveProperty ()
+		{
+			var input = @"
+class TestClass
+{
+	int foo;
+	int Foo
+	{
+		get { return foo; }
+		set
+		{
+			if (Foo != value)
+				foo = value;
+		}
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 0);
+		}
+
+
+		[Test]
+		public void TestGetterNeverReturns ()
+		{
+			var input = @"
+class TestClass
+{
+	int TestProperty
+	{
+		get {
+			while (true) ;
+		}
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestRecursiveGetter ()
+		{
+			var input = @"
+class TestClass
+{
+	int TestProperty
+	{
+		get {
+			return TestProperty;
+		}
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestRecursiveSetter ()
+		{
+			var input = @"
+class TestClass
+{
+	int TestProperty
+	{
+		set {
+			TestProperty = value;
+		}
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestMethodGroupNeverReturns ()
+		{
+			var input = @"
+class TestClass
+{
+	int TestMethod()
+	{
+		return TestMethod();
+	}
+	int TestMethod(object o)
+	{
+		return TestMethod();
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestIncrementProperty()
+		{
+			var input = @"
+class TestClass
+{
+	int TestProperty
+	{
+		get { return TestProperty++; }
+		set { TestProperty++; }
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 2);
+		}
+
+		[Test]
+		public void TestLambdaNeverReturns ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod()
+	{
+		System.Action action = () => { while (true) ; };
+	}
+}";
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestDelegateNeverReturns ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod()
+	{
+		System.Action action = delegate() { while (true) ; };
+	}
+}";
+
+			Test<MethodNeverReturnsIssue> (input, 1);
+		}
 		[Test]
 		public void YieldBreak ()
 		{
