@@ -226,22 +226,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			int offset;
 			int endOffset;
+			var sb = new StringBuilder();
 
 			if (type.BaseTypes.Any ()) {
 				offset = GetCurrentOffset(type.ColonToken.StartLocation);
 				endOffset = GetCurrentOffset(type.BaseTypes.Last ().EndLocation);
 			} else {
-				var child = (AstNode)type.Constraints.FirstOrDefault() ?? type.LBraceToken;
-				offset = endOffset = GetCurrentOffset(child.StartLocation);
+				sb.Append(' ');
+				if (type.TypeParameters.Any()) {
+					offset = endOffset = GetCurrentOffset(type.RChevronToken.EndLocation);
+				} else {
+					offset = endOffset = GetCurrentOffset(type.NameToken.EndLocation);
+				}
 			}
 
-			var sb = new StringBuilder();
 			if (dummyType.BaseTypes.Any()) {
 				sb.Append(": ");
 				sb.Append(string.Join(", ", dummyType.BaseTypes));
 			}
-			if (type.Constraints.Any())
-				sb.Append(' ');
 
 			Replace(offset, endOffset - offset, sb.ToString());
 			FormatText(type);

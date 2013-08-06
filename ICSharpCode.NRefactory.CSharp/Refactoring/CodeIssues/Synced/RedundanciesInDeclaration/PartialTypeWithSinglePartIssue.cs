@@ -55,8 +55,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
-				if (!typeDeclaration.HasModifier(Modifiers.Partial))
+				if (!typeDeclaration.HasModifier(Modifiers.Partial)) {
+					//We still need to visit the children in search of partial nested types.
+					base.VisitTypeDeclaration(typeDeclaration);
 					return;
+				}
 
 				var resolveResult = ctx.Resolve(typeDeclaration) as TypeResolveResult;
 				if (resolveResult == null)
