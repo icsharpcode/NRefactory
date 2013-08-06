@@ -38,15 +38,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	[IssueDescription("Remove redundant explicit type specification in lambda expression",
 	                  Description= "Explicit type specification can be removed as it can be implicitly inferred.",
-			Category = IssueCategories.Redundancies,
-			Severity = Severity.Hint,
-			IssueMarker = IssueMarker.GrayOut,
+	                  Category = IssueCategories.RedundanciesInCode,
+	                  Severity = Severity.Hint,
+	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantLambdaParameterType")]
-	public class RedundantLambdaParameterTypeIssue : ICodeIssueProvider
+	public class RedundantLambdaParameterTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		public IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this).GetIssues();
+			return new GatherVisitor(context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantLambdaParameterTypeIssue>

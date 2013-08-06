@@ -91,6 +91,30 @@ namespace application
 }");
 		}
 
+		[Ignore("FIXME")]
+		[Test]
+		public void TestInvalidContext()
+		{
+			var input = @"using System;
+		using System.Collections.Generic;
+		using System.Linq;
+
+namespace application
+{
+	internal class Program
+	{
+		public void Foo(Action<int> act) {}
+		public void Foo(Action<string> act) {}
+
+		void Test ()
+		{
+			Foo((int i) => Console.WriteLine (i));
+		}
+	}
+}";
+			TestWrongContext<RedundantLambdaParameterTypeIssue>(input);
+		}
+
 		[Test]
 		public void TestResharperDisableRestore()
 		{
