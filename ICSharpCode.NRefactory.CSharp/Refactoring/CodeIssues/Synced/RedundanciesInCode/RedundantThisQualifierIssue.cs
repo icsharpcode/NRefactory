@@ -1,5 +1,7 @@
 // 
 // RedundantThisInspector.cs
+// 
+// RedundantThisInspector.cs
 //  
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,18 +33,20 @@ using ICSharpCode.NRefactory.CSharp.Resolver;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 using System.Diagnostics;
+using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.CSharp.Analysis;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	/// <summary>
-	/// Finds redundant namespace usages.
+	/// Finds redundant this usages.
 	/// </summary>
 	[IssueDescription("Redundant 'this.' qualifier",
-	       Description= "'this.' is redundant and can safely be removed.",
-	       Category = IssueCategories.RedundanciesInCode,
-	       Severity = Severity.Warning,
-	       IssueMarker = IssueMarker.GrayOut,
-	       ResharperDisableKeyword = "RedundantThisQualifier")]
+	                  Description= "'this.' is redundant and can be removed safely.",
+	                  Category = IssueCategories.RedundanciesInCode,
+	                  Severity = Severity.Warning,
+	                  IssueMarker = IssueMarker.GrayOut,
+	                  ResharperDisableKeyword = "RedundantThisQualifier")]
 	[SubIssueAttribute(RedundantThisQualifierIssue.InsideConstructors, Severity = Severity.None)]
 	[SubIssueAttribute(RedundantThisQualifierIssue.EverywhereElse)]
 	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider
@@ -52,7 +56,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this);
+			var declarationSpaceVisitor = new DeclarationSpaceVisitor();
+			context.RootNode.AcceptVisitor(declarationSpaceVisitor);
+
+			return new GatherVisitor(declarationSpaceVisitor, context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantThisQualifierIssue>
@@ -63,21 +70,30 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			DeclarationSpaceVisitor declarationsSpaceVisitor;
+
+			public GatherVisitor (DeclarationSpaceVisitor visitor, BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
+				declarationsSpaceVisitor = visitor;
 			}
 
 			static IMember GetMember (ResolveResult result)
 			{
 				if (result is MemberResolveResult) {
 					return ((MemberResolveResult)result).Member;
-				} else if (result is MethodGroupResolveResult) {
-					return ((MethodGroupResolveResult)result).Methods.FirstOrDefault ();
 				}
-
+				if (result is MethodGroupResolveResult) {
+					return ((MethodGroupResolveResult)result).Methods.FirstOrDefault();
+				}
 				return null;
 			}
-			
+
+			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
+			{
+				base.VisitSyntaxTree(syntaxTree);
+				AnalyzeAllThisReferences();
+			}
+
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
 				if (InsideConstructors)
@@ -125,35 +141,29 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!InsideConstructors)
 					base.VisitPropertyDeclaration(propertyDeclaration);
 			}
-			
-			// We keep this stack so that we can check for cases where a field is used in the initializer
-			// of a variable declaration. Currently the resolver does not resolve the variable name
-			// to the variable until after the end of the statement, which makes this workaround necessary.
-			Stack<VariableInitializer> currentDeclaringVariabes = new Stack<VariableInitializer> ();
-			public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)
-			{
-				foreach (var vi in variableDeclarationStatement.Variables) {
-					currentDeclaringVariabes.Push(vi);
-				}
-				
-				base.VisitVariableDeclarationStatement(variableDeclarationStatement);
-				
-				foreach (var vi in variableDeclarationStatement.Variables.Reverse()) {
-					var popped = currentDeclaringVariabes.Pop();
-					Debug.Assert(popped == vi);
-				}
-			}
+
+			IList<ThisReferenceExpression> thisReferences = new List<ThisReferenceExpression> ();
 
 			public override void VisitThisReferenceExpression(ThisReferenceExpression thisReferenceExpression)
 			{
 				base.VisitThisReferenceExpression(thisReferenceExpression);
+				if (!IsSuppressed(thisReferenceExpression.Location))
+					thisReferences.Add(thisReferenceExpression);
+			}
+
+			void AnalyzeAllThisReferences ()
+			{
+				foreach (var thisReference in thisReferences) {
+					AnalyzeThisReferenceExpression(thisReference);
+				}
+			}
+
+			void AnalyzeThisReferenceExpression (ThisReferenceExpression thisReferenceExpression)
+			{
 				var memberReference = thisReferenceExpression.Parent as MemberReferenceExpression;
 				if (memberReference == null) {
 					return;
 				}
-				
-				if (currentDeclaringVariabes.Any(vi => vi.Name == memberReference.MemberName))
-					return;
 
 				var state = ctx.GetResolverStateAfter(thisReferenceExpression);
 				var wholeResult = ctx.Resolve(memberReference);
@@ -162,9 +172,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (member == null) { 
 					return;
 				}
-				
-				var localDeclarationSpace = thisReferenceExpression.GetLocalVariableDeclarationSpace();
-				if (ContainsConflictingDeclarationNamed(member.Name, localDeclarationSpace))
+
+				if (declarationsSpaceVisitor.GetDeclarationSpace(thisReferenceExpression).IsNameUsed(member.Name))
 					return;
 
 				var result = state.LookupSimpleNameOrTypeName(memberReference.MemberName, EmptyList<IType>.Instance, NameLookupMode.Expression);
@@ -183,76 +192,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (isRedundant) {
-					AddIssue(
-						thisReferenceExpression.StartLocation, 
-						memberReference.MemberNameToken.StartLocation, 
-						ctx.TranslateString("Qualifier 'this.' is redundant"), 
-						new CodeAction(
-							ctx.TranslateString("Remove redundant 'this.'"),
-							script => {
-								script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
-							},
-							thisReferenceExpression.StartLocation,
-							memberReference.MemberNameToken.StartLocation
-						) 
-					);
-				}
-			}
-			
-			static bool ContainsConflictingDeclarationNamed(string name, AstNode rootNode)
-			{
-				var declarationFinder = new DeclarationFinder(name);
-				rootNode.AcceptVisitor(declarationFinder);
-				return declarationFinder.Declarations.Any();
-			}
-			
-			class DeclarationFinder : DepthFirstAstVisitor
-			{
-				string name;
-				
-				public DeclarationFinder (string name)
-				{
-					this.name = name;
-					Declarations = new List<AstNode>();
-				}
-				
-				public IList<AstNode> Declarations {
-					get;
-					private set;
-				}
-				
-				public override void VisitVariableInitializer(VariableInitializer variableInitializer)
-				{
-					if (variableInitializer.Name == name) {
-						Declarations.Add(variableInitializer.NameToken);
-					}
-					base.VisitVariableInitializer(variableInitializer);
-				}
-				
-				public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
-				{
-					if (parameterDeclaration.Name == name) {
-						Declarations.Add(parameterDeclaration);
-					}
-					
-					base.VisitParameterDeclaration(parameterDeclaration);
-				}
-				
-				public override void VisitForStatement(ForStatement forStatement)
-				{
-					base.VisitForStatement(forStatement);
-				}
-				
-				public override void VisitForeachStatement(ForeachStatement foreachStatement)
-				{
-					if (foreachStatement.VariableName == name) {
-						Declarations.Add(foreachStatement.VariableNameToken);
-					}
-				
-					base.VisitForeachStatement(foreachStatement);
+					var issueDescription = ctx.TranslateString("'this.' is redundant and can be removed safely.");
+					var actionDescription = ctx.TranslateString("Remove 'this.'");
+					AddIssue(thisReferenceExpression.StartLocation, memberReference.MemberNameToken.StartLocation, issueDescription, actionDescription, script => {
+						script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
+					});
 				}
 			}
 		}
 	}
-	
 }
