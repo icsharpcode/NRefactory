@@ -125,6 +125,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			if (assembly == null)
 				throw new ArgumentNullException ("assembly");
 
+			currentAssemblyDefinition = assembly;
+			currentAssembly = new IkvmUnresolvedAssembly (assembly.FullName, DocumentationProvider);
+
 			// Read assembly and module attributes
 			IList<IUnresolvedAttribute> assemblyAttributes = new List<IUnresolvedAttribute>();
 			IList<IUnresolvedAttribute> moduleAttributes = new List<IUnresolvedAttribute>();
@@ -134,8 +137,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			assemblyAttributes = interningProvider.InternList(assemblyAttributes);
 			moduleAttributes = interningProvider.InternList(moduleAttributes);
 
-			currentAssemblyDefinition = assembly;
-			currentAssembly = new IkvmUnresolvedAssembly (assembly.FullName, DocumentationProvider);
 			currentAssembly.Location = assembly.Location;
 			currentAssembly.AssemblyAttributes.AddRange(assemblyAttributes);
 			currentAssembly.ModuleAttributes.AddRange(moduleAttributes);
