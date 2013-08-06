@@ -88,11 +88,11 @@ namespace ICSharpCode.NRefactory.Xml
 		/// <summary>
 		/// Creates a new documentation element.
 		/// </summary>
-		public XmlDocumentationElement(AXmlDocument document, IEntity declaringEntity, Func<string, IEntity> crefResolver)
+		public XmlDocumentationElement(AXmlObject xmlObject, IEntity declaringEntity, Func<string, IEntity> crefResolver)
 		{
-			if (document == null)
-				throw new ArgumentNullException("document");
-			this.xmlObject = document;
+			if (xmlObject == null)
+				throw new ArgumentNullException("xmlObject");
+			this.xmlObject = xmlObject;
 			this.declaringEntity = declaringEntity;
 			this.crefResolver = crefResolver;
 		}
@@ -197,11 +197,15 @@ namespace ICSharpCode.NRefactory.Xml
 		{
 			List<XmlDocumentationElement> list = new List<XmlDocumentationElement>();
 			foreach (var child in childObjects) {
+				var childTag = child as AXmlTag;
 				var childText = child as AXmlText;
 				var childElement = child as AXmlElement;
 				if (childText != null) {
 					list.Add(new XmlDocumentationElement(childText.Value, declaringEntity));
-				} else if (childElement != null) {
+				} else if (childTag != null) {
+                    			if (!childTag.IsStartOrEmptyTag && !childTag.IsEndTag)
+						list.Add(new XmlDocumentationElement(childTag, declaringEntity, crefResolver) { nestingLevel = nestingLevel });
+                		} else if (childElement != null) {
 					if (nestingLevel < 5 && childElement.Name == "inheritdoc") {
 						string cref = childElement.GetAttributeValue("cref");
 						IEntity inheritedFrom = null;
