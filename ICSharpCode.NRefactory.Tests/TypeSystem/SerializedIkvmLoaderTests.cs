@@ -17,40 +17,28 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Utils;
 using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.TypeSystem
 {
 	[TestFixture]
-	public class CecilLoaderTests : BinaryLoaderTests
+	public class SerializedIkvmLoaderTests : TypeSystemTests
 	{
-		static readonly Lazy<IUnresolvedAssembly> mscorlib = new Lazy<IUnresolvedAssembly>(
-			delegate {
-				return new CecilLoader().LoadAssemblyFile(typeof(object).Assembly.Location);
-			});
-		
-		static readonly Lazy<IUnresolvedAssembly> systemCore = new Lazy<IUnresolvedAssembly>(
-			delegate {
-			return new CecilLoader().LoadAssemblyFile(typeof(System.Linq.Enumerable).Assembly.Location);
-		});
-
-		public static IUnresolvedAssembly Mscorlib { get { return mscorlib.Value; } }
-		public static IUnresolvedAssembly SystemCore { get { return systemCore.Value; } }
-
-		public override IUnresolvedAssembly MscorlibInstance { get { return mscorlib.Value; } }
-		public override IUnresolvedAssembly SystemCoreInstance { get { return systemCore.Value; } }
-
 		[TestFixtureSetUp]
 		public void FixtureSetUp()
 		{
-			// use "IncludeInternalMembers" so that Cecil results match C# parser results
-			CecilLoader loader = new CecilLoader() { IncludeInternalMembers = true };
-			IUnresolvedAssembly asm = loader.LoadAssemblyFile(typeof(TestCase.SimplePublicClass).Assembly.Location);
-			compilation = new SimpleCompilation(asm, Mscorlib);
+			IkvmLoader loader = new IkvmLoader() { IncludeInternalMembers = true };
+			IUnresolvedAssembly pc = loader.LoadAssemblyFile(typeof(TestCase.SimplePublicClass).Assembly.Location);
+			FastSerializer serializer = new FastSerializer();
+			using (MemoryStream ms = new MemoryStream()) {
+				serializer.Serialize(ms, pc);
+				ms.Position = 0;
+				var asm = (IUnresolvedAssembly)serializer.Deserialize(ms);
+				base.compilation = new SimpleCompilation(asm, IkvmLoaderTests.Mscorlib);
+			}
 		}
 	}
 }
