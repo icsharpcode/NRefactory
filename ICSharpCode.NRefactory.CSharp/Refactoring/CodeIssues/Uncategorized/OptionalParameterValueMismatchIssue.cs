@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var parameterDeclaration = parameterEnumerator.Current;
 
 					if (overridenParameter.IsOptional) {
-						if (!overridenParameter.ConstantValue.Equals(baseParameter.ConstantValue)) {
+						if (!object.Equals(overridenParameter.ConstantValue, baseParameter.ConstantValue)) {
 
 							AddIssue(parameterDeclaration,
 							         string.Format(ctx.TranslateString("Default value of {0} does not match declaration in {1}"), parameterName, baseMethod.DeclaringType.FullName),

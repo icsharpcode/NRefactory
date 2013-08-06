@@ -55,6 +55,20 @@ class Derived : Base
 		}
 
 		[Test]
+		public void TestNullCase ()
+		{
+			Test<OptionalParameterValueMismatchIssue>(@"
+class Base
+{
+	public virtual void TestMethod(object value = null) {}
+}
+class Derived : Base
+{
+	public override void TestMethod(object value = null) {}
+}", 0);
+		}
+
+		[Test]
 		public void TestInterface ()
 		{
 			Test<OptionalParameterValueMismatchIssue>(@"
