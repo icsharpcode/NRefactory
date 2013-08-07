@@ -575,6 +575,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\FunctionNeverReturnsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\BitwiseOperatorOnEnumWithoutFlagsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\ChangeAccessModifierAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
