@@ -305,7 +305,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\DoubleNegationOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ExpressionIsNeverOfProvidedTypeIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Custom\MethodNeverReturnsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\MethodOverloadHidesOptionalParameterIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\MissingStringComparisonIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\NegativeRelationalExpressionIssue.cs" />
@@ -575,6 +574,7 @@
     <Compile Include="Refactoring\CodeActions\CreateChangedEventAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantLambdaParameterTypeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\OptionalParameterHierarchyMismatchIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\FunctionNeverReturnsIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

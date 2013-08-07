@@ -134,7 +134,6 @@
     <Compile Include="CSharp\CodeIssues\ForControlVariableIsNeverModifiedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LocalVariableHidesMemberIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LocalVariableNotUsedIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\MethodNeverReturnsIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MethodOverloadHidesOptionalParameterIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MissingStringComparisonIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MultipleEnumerationIssueTests.cs" />
@@ -453,6 +452,7 @@
     <Compile Include="CSharp\CodeIssues\MemberCanBeMadeStaticIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantLambdaParameterTypeTests.cs" />
     <Compile Include="CSharp\CodeIssues\OptionalParameterHierarchyMismatchIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\FunctionNeverReturnsIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
