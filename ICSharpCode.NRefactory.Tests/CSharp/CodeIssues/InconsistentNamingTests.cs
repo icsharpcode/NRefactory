@@ -332,5 +332,106 @@ class MyClass : Base { public override int Method (int Param) {} }";
 		}
 
 	}
+
+	[TestFixture]
+	public class NamingRuleTest
+	{
+		[Test]
+		public void TestPascalCase()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.PascalCase;
+			Assert.IsTrue(rule.IsValid("PascalCase"));
+			Assert.IsFalse(rule.IsValid("Pascal_Case"));
+			Assert.IsFalse(rule.IsValid("camelCase"));
+		}
+
+		[Test]
+		public void TestCamelCase()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.CamelCase;
+			Assert.IsFalse(rule.IsValid("PascalCase"));
+			Assert.IsFalse(rule.IsValid("camel_Case"));
+			Assert.IsTrue(rule.IsValid("camelCase"));
+		}
+
+		[Test]
+		public void TestAllUpper()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.AllUpper;
+			Assert.IsFalse(rule.IsValid("PascalCase"));
+			Assert.IsFalse(rule.IsValid("camelCase"));
+			Assert.IsFalse(rule.IsValid("ALL_UPPER"));
+			Assert.IsTrue(rule.IsValid("ALLUPPER"));
+		}
+
+		[Test]
+		public void TestAllLower()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.AllLower;
+			Assert.IsFalse(rule.IsValid("PascalCase"));
+			Assert.IsFalse(rule.IsValid("camelCase"));
+			Assert.IsFalse(rule.IsValid("all_lower"));
+			Assert.IsTrue(rule.IsValid("alllower"));
+		}
+
+		[Test]
+		public void TestFirstUpper()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.FirstUpper;
+			Assert.IsFalse(rule.IsValid("PascalCase"));
+			Assert.IsFalse(rule.IsValid("camelCase"));
+			Assert.IsFalse(rule.IsValid("First_upper"));
+			Assert.IsTrue(rule.IsValid("Firstupper"));
+		}
+
+		[Test]
+		public void UnderscoreTolerantPascalCaseWithUpperStart()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.PascalCase;
+			rule.UnderscoreHandling = UnderscoreHandling.AllowWithUpperStartingLetter;
+			Assert.IsFalse(rule.IsValid("camelCase"));
+			Assert.IsFalse(rule.IsValid("PascalCase_underscoreTolerant"));
+			Assert.IsTrue(rule.IsValid("PascalCase_UnderscoreTolerant"));
+		}
+
+		[Test]
+		public void UnderscoreTolerantPascalCaseWithLowStart()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.PascalCase;
+			rule.UnderscoreHandling = UnderscoreHandling.AllowWithLowerStartingLetter;
+			Assert.IsFalse(rule.IsValid("camelCase"));
+			Assert.IsFalse(rule.IsValid("PascalCase_UnderscoreTolerant"));
+			Assert.IsTrue(rule.IsValid("PascalCase_underscoreTolerant"));
+		}
+
+		[Test]
+		public void UnderscoreTolerantCamelCaseWithLowStart()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.CamelCase;
+			rule.UnderscoreHandling = UnderscoreHandling.AllowWithLowerStartingLetter;
+			Assert.IsFalse(rule.IsValid("PascalCase"));
+			Assert.IsFalse(rule.IsValid("camelCase_UnderscoreTolerant"));
+			Assert.IsTrue(rule.IsValid("camelCase_underscoreTolerant"));
+		}
+
+		[Test]
+		public void UnderscoreTolerantCamelCaseWithUpperStart()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.CamelCase;
+			rule.UnderscoreHandling = UnderscoreHandling.AllowWithUpperStartingLetter;
+			Assert.IsFalse(rule.IsValid("PascalCase"));
+			Assert.IsFalse(rule.IsValid("camelCase_underscoreTolerant"));
+			Assert.IsTrue(rule.IsValid("camelCase_UnderscoreTolerant"));
+		}
+	}
 }
 
