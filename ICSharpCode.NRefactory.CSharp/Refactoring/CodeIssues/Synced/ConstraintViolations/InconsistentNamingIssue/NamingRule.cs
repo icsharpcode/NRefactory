@@ -74,6 +74,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// </summary
 		public NamingStyle NamingStyle { get; set; }
 
+		/// <summary>
+		/// The way underscores are treated.
+		/// </summary>
+		public UnderscoreHandling UnderscoreHandling { get; set; }
+
 		public bool IncludeStaticEntities { get; set; }
 		public bool IncludeInstanceMembers { get; set; }
 
@@ -118,15 +123,59 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			switch (NamingStyle) {
 				case NamingStyle.AllLower:
-					return !id.Any(ch => char.IsLetter(ch) && char.IsUpper(ch));
+					for (int i = 0; i < id.Length; i++) {
+						char ch = id [i];
+						if (ch == '_' && !HandleUnderscore(id, ref i))
+							return false;
+						if (char.IsLetter(ch) && char.IsUpper(ch))
+							return false;
+					}
+					return true;
 				case NamingStyle.AllUpper:
-					return !id.Any(ch => char.IsLetter(ch) && char.IsLower(ch));
+					for (int i = 0; i < id.Length; i++) {
+						char ch = id [i];
+						if (ch == '_' && !HandleUnderscore(id, ref i))
+							return false;
+						if (char.IsLetter(ch) && char.IsLower(ch))
+							return false;
+					}
+					return true;
 				case NamingStyle.CamelCase:
-					return id.Length == 0 || (char.IsLower(id [0]) && NoUnderscore(id));
+					if (id.Length > 0) {
+						if (char.IsUpper(id [0]) || id [0] == '_')
+							return false;
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(id, ref i))
+								return false;
+						}
+					}
+					return true;
 				case NamingStyle.PascalCase:
-					return id.Length == 0 || (char.IsUpper(id [0]) && NoUnderscore(id));
+					if (id.Length > 0) {
+						if (char.IsLower (id [0]) || id [0] == '_')
+							return false;
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(id, ref i))
+								return false;
+						}
+					}
+					return true;
 				case NamingStyle.FirstUpper:
-					return id.Length == 0 && char.IsUpper(id [0]) && !id.Skip(1).Any(ch => char.IsLetter(ch) && char.IsUpper(ch));
+					if (id.Length > 0) {
+						if (char.IsLower(id [0]) || id [0] == '_')
+							return false;
+
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(id, ref i))
+								return false;
+							if (char.IsLetter(ch) && char.IsUpper(ch))
+								return false;
+						}
+					}
+					return true;
 			}
 			return true;
 		}
@@ -142,6 +191,34 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		static bool NoUnderscore(string id)
 		{
 			return id.IndexOf('_') < 0;
+		}
+
+		bool HandleUnderscore(string id, ref int i)
+		{
+			switch (UnderscoreHandling) {
+				case UnderscoreHandling.Forbid:
+					return false;
+				case UnderscoreHandling.Allow:
+					return true;
+				case UnderscoreHandling.AllowWithLowerStartingLetter:
+					if (i + 1 < id.Length) {
+						char ch = id [i + 1];
+						if (char.IsLetter(ch) && !char.IsLower(ch))
+							return false;
+						i++;
+					}
+					return true;
+				case UnderscoreHandling.AllowWithUpperStartingLetter:
+					if (i + 1 < id.Length) {
+						char ch = id [i + 1];
+						if (char.IsLetter(ch) && !char.IsUpper(ch))
+							return false;
+						i++;
+					}
+					return true;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
 		}
 
 //		static bool NoUnderscoreWithoutNumber(string id)

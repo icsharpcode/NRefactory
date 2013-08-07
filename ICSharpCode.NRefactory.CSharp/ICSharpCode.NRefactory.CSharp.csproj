@@ -576,6 +576,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\BitwiseOperatorOnEnumWithoutFlagsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\LowercaseLongLiteralSuffixIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\ConstraintViolations\InconsistentNamingIssue\UnderscoreHandling.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
