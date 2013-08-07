@@ -58,7 +58,7 @@ class Derived : Base
 		[Test]
 		public void TestNullCase ()
 		{
-			Test<OptionalParameterValueMismatchIssue>(@"
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
 class Base
 {
 	public virtual void TestMethod(object value = null) {}

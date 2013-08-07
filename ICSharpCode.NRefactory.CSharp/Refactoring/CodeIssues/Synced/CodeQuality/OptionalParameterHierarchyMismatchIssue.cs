@@ -110,7 +110,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								script.Remove(parameterDeclaration.DefaultExpression);
 								script.FormatText(parameterDeclaration);
 							});
-						} else if (!overridenParameter.ConstantValue.Equals(baseParameter.ConstantValue)) {
+						} else if (!object.Equals(overridenParameter.ConstantValue, baseParameter.ConstantValue)) {
 							AddIssue(parameterDeclaration,
 							         string.Format(ctx.TranslateString("Optional parameter value {0} differs from base method '{1}'"), parameterName, baseMethod.DeclaringType.FullName),
 							         string.Format(ctx.TranslateString("Change default value to {0}"), baseParameter.ConstantValue),
