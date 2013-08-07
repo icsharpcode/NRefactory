@@ -26,6 +26,7 @@
 using ICSharpCode.NRefactory.CSharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -141,20 +142,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return nodeAccess & Modifiers.VisibilityMask;
 		}
 
-		CodeAction GetActionForLevel(RefactoringContext context, string accessName, Modifiers access, AstNode node)
+		CodeAction GetActionForLevel(RefactoringContext context, string accessName, Modifiers access, EntityDeclaration node)
 		{
 			return new CodeAction(context.TranslateString("To " + accessName), script => {
 
-				var newNode = (EntityDeclaration) node.Clone();
-				newNode.Modifiers &= ~Modifiers.VisibilityMask;
+				Modifiers newModifiers = node.Modifiers;
+				newModifiers &= ~Modifiers.VisibilityMask;
 				
 				if (!(node is Accessor) || access != (node.GetParent<EntityDeclaration>().Modifiers & Modifiers.VisibilityMask)) {
 					//Do not add access modifier for accessors if the new access level is the same as the parent
 					//That is, in public int X { $private get; } if access == public, then the result should not have the modifier
-					newNode.Modifiers |= access;
+					newModifiers |= access;
 				}
 
-				script.Replace(node, newNode);
+				script.ChangeModifier(node, newModifiers);
 
 			}, node);
 		}
