@@ -33,19 +33,20 @@ using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Optional parameter value mismatch",
-	                   Description = "The value of an optional parameter in a method does not match its base counterpart.",
+	[IssueDescription ("Mismatch optional parameter value in overridden method",
+	                   Description = "The value of an optional parameter in a method does not match the base method.",
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.WavedLine)]
-	public class OptionalParameterValueMismatchIssue : GatherVisitorCodeIssueProvider
+	                   IssueMarker = IssueMarker.WavedLine,
+	                   ResharperDisableKeyword = "OptionalParameterHierarchyMismatch")]
+	public class OptionalParameterHierarchyMismatchIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<OptionalParameterValueMismatchIssue>
+		class GatherVisitor : GatherVisitorBase<OptionalParameterHierarchyMismatchIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
@@ -67,9 +68,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var method = (IMethod) memberResolveResult.Member;
 				var baseMethods = InheritanceHelper.GetBaseMembers(method, true);
-
 				foreach (IMethod baseMethod in baseMethods) {
+					if (baseMethod.IsOverride || baseMethod.DeclaringType.Kind == TypeKind.Interface)
+						continue;
 					CompareMethods(methodDeclaration.Parameters, method, baseMethod);
+					return;
+				}
+
+				// only check 1 interface method -> multiple interface implementations could lead to deault value conflicts
+				// possible other solutions: Skip the interface check entirely
+				var interfaceBaseMethods = baseMethods.Where(b => b.DeclaringType.Kind == TypeKind.Interface).ToList();
+				if (interfaceBaseMethods.Count == 1) {
+					foreach (IMethod baseMethod in interfaceBaseMethods) {
+						if (baseMethod.DeclaringType.Kind == TypeKind.Interface) {
+							CompareMethods(methodDeclaration.Parameters, method, baseMethod);
+						}
+					}
 				}
 			}
 
@@ -81,31 +95,36 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					var baseParameter = baseMethod.Parameters [parameterIndex];
 
-					if (!baseParameter.IsOptional) {
-						continue;
-					}
-
 					var overridenParameter = overridenMethod.Parameters [parameterIndex];
 
 					string parameterName = overridenParameter.Name;
 					var parameterDeclaration = parameterEnumerator.Current;
 
 					if (overridenParameter.IsOptional) {
-						if (!object.Equals(overridenParameter.ConstantValue, baseParameter.ConstantValue)) {
-
+						if (!baseParameter.IsOptional) {
 							AddIssue(parameterDeclaration,
-							         string.Format(ctx.TranslateString("Default value of {0} does not match declaration in {1}"), parameterName, baseMethod.DeclaringType.FullName),
+							         string.Format(ctx.TranslateString("Optional parameter value {0} differs from base method '{1}'"), parameterName, baseMethod.DeclaringType.FullName),
+							         ctx.TranslateString("Remove parameter default value"),
+							         script => {
+								script.Remove(parameterDeclaration.AssignToken);
+								script.Remove(parameterDeclaration.DefaultExpression);
+								script.FormatText(parameterDeclaration);
+							});
+						} else if (!overridenParameter.ConstantValue.Equals(baseParameter.ConstantValue)) {
+							AddIssue(parameterDeclaration,
+							         string.Format(ctx.TranslateString("Optional parameter value {0} differs from base method '{1}'"), parameterName, baseMethod.DeclaringType.FullName),
 							         string.Format(ctx.TranslateString("Change default value to {0}"), baseParameter.ConstantValue),
 							         script => {
 
 								script.Replace(parameterDeclaration.DefaultExpression, new PrimitiveExpression(baseParameter.ConstantValue));
-
 							});
 						}
 					} else {
+						if (!baseParameter.IsOptional)
+							continue;
 						AddIssue(parameterDeclaration,
-						         string.Format(ctx.TranslateString("{0} is not optional, even though it is in {1}"), parameterName, baseMethod.DeclaringType.FullName),
-						         string.Format(ctx.TranslateString("Add default value of {0}"), baseParameter.ConstantValue),
+						         string.Format(ctx.TranslateString("Parameter {0} has default value in base method '{1}'"), parameterName, baseMethod.FullName),
+						         string.Format(ctx.TranslateString("Add default value from base '{0}'"), baseParameter.ConstantValue),
 						         script => {
 
 							var newParameter = (ParameterDeclaration)parameterDeclaration.Clone();

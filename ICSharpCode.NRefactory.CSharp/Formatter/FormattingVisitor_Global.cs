@@ -99,6 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void VisitUsingAliasDeclaration(UsingAliasDeclaration usingDeclaration)
 		{
 			ForceSpacesAfter(usingDeclaration.UsingToken, true);
+			ForceSpacesAround(usingDeclaration.AssignToken, policy.SpaceAroundAssignment);
 			FixSemicolon(usingDeclaration.SemicolonToken);
 		}
 
@@ -158,8 +159,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			if (entity.Attributes.Count > 0) {
 				AstNode n = null;
+				entity.Attributes.First().AcceptVisitor(this);
 				foreach (var attr in entity.Attributes.Skip (1)) {
 					FixIndentation(attr);
+					attr.AcceptVisitor(this);
 					n = attr;
 				}
 				if (n != null) {

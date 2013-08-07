@@ -88,7 +88,11 @@ namespace ICSharpCode.NRefactory.CSharp
 				SetChildByRole (Roles.Identifier, value);
 			}
 		}
-		
+
+		public CSharpTokenNode AssignToken {
+			get { return GetChildByRole (Roles.Assign); }
+		}
+
 		public Expression DefaultExpression {
 			get { return GetChildByRole (Roles.Expression); }
 			set { SetChildByRole (Roles.Expression, value); }
