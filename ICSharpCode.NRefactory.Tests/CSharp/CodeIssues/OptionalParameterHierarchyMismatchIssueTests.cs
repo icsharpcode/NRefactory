@@ -30,12 +30,13 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	public class OptionalParameterValueMismatchTests : InspectionActionTestBase
+	[TestFixture]
+	public class OptionalParameterHierarchyMismatchIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestSimpleCase ()
 		{
-			Test<OptionalParameterValueMismatchIssue>(@"
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
 class Base
 {
 	public virtual void TestMethod(int value = 1) {}
@@ -57,7 +58,7 @@ class Derived : Base
 		[Test]
 		public void TestInterface ()
 		{
-			Test<OptionalParameterValueMismatchIssue>(@"
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
 interface IBase
 {
 	void TestMethod(int value = 1);
@@ -79,7 +80,7 @@ class Derived : IBase
 		[Test]
 		public void TestDisabledForCorrect ()
 		{
-			Test<OptionalParameterValueMismatchIssue>(@"
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
 interface IBase
 {
 	void TestMethod(int value = 1);
@@ -91,9 +92,9 @@ class Derived : IBase
 		}
 
 		[Test]
-		public void TestDisabledForAddOptional ()
+		public void TestAddOptional ()
 		{
-			Test<OptionalParameterValueMismatchIssue>(@"
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
 class Base
 {
 	public virtual void TestMethod(int value) {}
@@ -101,13 +102,21 @@ class Base
 class Derived : Base
 {
 	public override void TestMethod(int value = 2) {}
-}", 0);
+}", @"
+class Base
+{
+	public virtual void TestMethod(int value) {}
+}
+class Derived : Base
+{
+	public override void TestMethod(int value) {}
+}");
 		}
 
 		[Test]
 		public void TestRemoveOptional ()
 		{
-			Test<OptionalParameterValueMismatchIssue>(@"
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
 class Base
 {
 	public virtual void TestMethod(int value = 1) {}
@@ -125,5 +134,101 @@ class Derived : Base
 	public override void TestMethod(int value = 1) {}
 }");
 		}
+	
+		[Test]
+		public void TestTakeDeclarationValue()
+		{
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
+class A
+{
+	public virtual void Foo(int a = 1)
+	{
+
+	}
+}
+
+class B : A
+{
+	public override void Foo(int a = 2)
+	{
+
+	}
+}
+
+class C : B
+{
+	public override void Foo(int a = 3)
+	{
+
+	}
+}", 2, @"
+class A
+{
+	public virtual void Foo(int a = 1)
+	{
+
+	}
+}
+
+class B : A
+{
+	public override void Foo(int a = 2)
+	{
+
+	}
+}
+
+class C : B
+{
+	public override void Foo(int a = 1)
+	{
+
+	}
+}", 1);
+
+		}
+
+		[Test]
+		public void TestDisableForInterfaceMismatch ()
+		{
+			TestWrongContext<OptionalParameterHierarchyMismatchIssue>(@"class A
+{
+    public virtual void Foo(int a = 1)
+    {
+
+    }
+}
+
+interface IA
+{
+    void Foo(int a = 2);
+}
+
+
+class B : A, IA
+{
+    public override void Foo(int a = 1)
+    {
+
+    }
+}");
+		}
+
+
+		[Test]
+		public void TestDisable ()
+		{
+			TestWrongContext<OptionalParameterHierarchyMismatchIssue>(@"
+class Base
+{
+	public virtual void TestMethod(int value = 1) {}
+}
+class Derived : Base
+{
+	// ReSharper disable once OptionalParameterHierarchyMismatch
+	public override void TestMethod(int value = 2) {}
+}");
+		}
+
 	}
 }

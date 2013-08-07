@@ -574,7 +574,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\MemberCanBeMadeStaticIssue.cs" />
     <Compile Include="Refactoring\CodeActions\CreateChangedEventAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantLambdaParameterTypeIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\OptionalParameterValueMismatchIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\OptionalParameterHierarchyMismatchIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
