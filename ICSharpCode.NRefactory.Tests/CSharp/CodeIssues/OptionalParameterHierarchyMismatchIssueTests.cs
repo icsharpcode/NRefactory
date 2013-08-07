@@ -56,6 +56,20 @@ class Derived : Base
 		}
 
 		[Test]
+		public void TestNullCase ()
+		{
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
+class Base
+{
+	public virtual void TestMethod(object value = null) {}
+}
+class Derived : Base
+{
+	public override void TestMethod(object value = null) {}
+}", 0);
+		}
+
+		[Test]
 		public void TestInterface ()
 		{
 			Test<OptionalParameterHierarchyMismatchIssue>(@"
@@ -74,6 +88,40 @@ interface IBase
 class Derived : IBase
 {
 	public void TestMethod(int value = 1) {}
+}");
+		}
+
+		[Test]
+		public void TestIndexer ()
+		{
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
+interface IBase
+{
+	int this[int x = 1]
+	{
+		get;
+	}
+}
+class Derived : IBase
+{
+	public int this[int x = 2]
+	{
+		get;
+	}
+}", @"
+interface IBase
+{
+	int this[int x = 1]
+	{
+		get;
+	}
+}
+class Derived : IBase
+{
+	public int this[int x = 1]
+	{
+		get;
+	}
 }");
 		}
 
