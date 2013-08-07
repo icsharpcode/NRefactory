@@ -37,14 +37,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Severity = Severity.Warning,
 					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
-	public class BitwiseOperationOnNonFlagsEnumIssue : GatherVisitorCodeIssueProvider
+	public class BitwiseOperatorOnEnumWithoutFlagsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<BitwiseOperationOnNonFlagsEnumIssue>
+		class GatherVisitor : GatherVisitorBase<BitwiseOperatorOnEnumWithoutFlagsIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base(ctx)

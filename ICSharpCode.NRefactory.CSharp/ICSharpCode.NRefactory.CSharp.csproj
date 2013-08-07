@@ -296,7 +296,6 @@
     <Compile Include="Refactoring\CodeIssues\NotWorking\AccessToClosureIssues\AccessToModifiedClosureIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\NotWorking\AccessToClosureIssues\LocalVariableNamePicker.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\CS1717AssignmentMadeToSameVariableIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\BitwiseOperationOnNonFlagsEnumIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CastExpressionOfIncompatibleTypeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompareFloatWithEqualityOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0029InvalidConversionIssue.cs" />
@@ -575,6 +574,7 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantLambdaParameterTypeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\OptionalParameterHierarchyMismatchIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\FunctionNeverReturnsIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\BitwiseOperatorOnEnumWithoutFlagsIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

@@ -302,6 +302,13 @@ namespace ICSharpCode.NRefactory.CSharp
 			FoundIssues.Add(new CodeIssue(title, node.StartLocation, node.EndLocation, fixes));
 		}
 
+		protected void AddIssue(AstNode node, string title, params CodeAction[] fixes)
+		{
+			if (IsSuppressed(node.StartLocation))
+				return;
+			FoundIssues.Add(new CodeIssue(title, node.StartLocation, node.EndLocation, fixes));
+		}
+
 		protected void AddIssue(TextLocation start, TextLocation end, string title, IEnumerable<CodeAction> fixes)
 		{
 			if (IsSuppressed(start))
