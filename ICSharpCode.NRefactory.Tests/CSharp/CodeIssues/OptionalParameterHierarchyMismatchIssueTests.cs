@@ -92,6 +92,40 @@ class Derived : IBase
 		}
 
 		[Test]
+		public void TestIndexer ()
+		{
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
+interface IBase
+{
+	int this[int x = 1]
+	{
+		get;
+	}
+}
+class Derived : IBase
+{
+	public int this[int x = 2]
+	{
+		get;
+	}
+}", @"
+interface IBase
+{
+	int this[int x = 1]
+	{
+		get;
+	}
+}
+class Derived : IBase
+{
+	public int this[int x = 1]
+	{
+		get;
+	}
+}");
+		}
+
+		[Test]
 		public void TestDisabledForCorrect ()
 		{
 			Test<OptionalParameterHierarchyMismatchIssue>(@"
