@@ -30,6 +30,7 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
+	[TestFixture]
 	public class EnumUnderlyingTypeIsIntTests : InspectionActionTestBase
 	{
 		[Test]
@@ -45,6 +46,18 @@ public enum Foo
 	Bar
 }");
 		}
+
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<EnumUnderlyingTypeIsIntIssue>(@"
+// ReSharper disable once EnumUnderlyingTypeIsInt
+public enum Foo : int
+{
+    Bar
+}");
+		}
+
 
 		[Test]
 		public void TestNestedCase()
