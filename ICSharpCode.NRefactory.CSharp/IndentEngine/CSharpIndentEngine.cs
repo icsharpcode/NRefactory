@@ -388,11 +388,18 @@ namespace ICSharpCode.NRefactory.CSharp
 			currentChar = '\0';
 			previousChar = '\0';
 			currentIndent.Length = 0;
+			lineBeganInsideMultiLineComment = false;
+			lineBeganInsideVerbatimString = false;
 		}
 
 		/// <inheritdoc />
 		public void Update(int offset)
 		{
+			if (Offset > offset)
+			{
+				Reset();
+			}
+
 			while (Offset < offset)
 			{
 				Push(Document.GetCharAt(Offset));
