@@ -292,5 +292,122 @@ class TestClass
 }";
 			TestWrongContext<FunctionNeverReturnsIssue> (input);
 		}
+
+		[Test]
+		public void TestBug254 ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+class TestClass
+{
+	int state = 0;
+
+	bool Foo()
+	{
+		return state < 10;
+	}
+
+	void TestMethod()
+	{
+		if (Foo()) {
+			++state;
+			TestMethod ();	
+		}
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
+
+		[Test]
+		public void TestSwitch ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+class TestClass
+{
+	int foo;
+	void TestMethod()
+	{
+		switch (foo) {
+			case 0: TestMethod();
+		}
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
+
+		[Test]
+		public void TestSwitchWithDefault ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+class TestClass
+{
+	int foo;
+	void TestMethod()
+	{
+		switch (foo) {
+			case 0: case 1: TestMethod();
+			default: TestMethod();
+		}
+	}
+}";
+			Test<FunctionNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestSwitchValue ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+class TestClass
+{
+	int foo;
+	int TestMethod()
+	{
+		switch (TestMethod()) {
+			case 0: return 0;
+		}
+		return 1;
+	}
+}";
+			Test<FunctionNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestLinqFrom ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+using System.Linq;
+using System.Collections.Generic;
+class TestClass
+{
+	IEnumerable<int> TestMethod()
+	{
+		return from y in TestMethod() select y;
+	}
+}";
+			Test<FunctionNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestWrongLinqContexts ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+using System.Linq;
+using System.Collections.Generic;
+class TestClass
+{
+	IEnumerable<int> TestMethod()
+	{
+		return from y in Enumerable.Empty<int>()
+		       from z in TestMethod()
+		       select y;
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
 	}
 }

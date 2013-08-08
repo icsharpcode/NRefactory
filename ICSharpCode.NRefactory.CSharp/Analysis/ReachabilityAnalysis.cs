@@ -91,11 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 		bool IsRecursive(Statement statement)
 		{
-			if (recursiveDetectorVisitor == null)
-				return false;
-			recursiveDetectorVisitor.Clear();
-			statement.AcceptVisitor(recursiveDetectorVisitor);
-			return recursiveDetectorVisitor.Result;
+			return recursiveDetectorVisitor != null && statement.AcceptVisitor(recursiveDetectorVisitor);
 		}
 		
 		public IEnumerable<Statement> ReachableStatements {
@@ -112,99 +108,64 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			return reachableEndPoints.Contains(statement);
 		}
 
-		public class RecursiveDetectorVisitor : DepthFirstAstVisitor
+		public class RecursiveDetectorVisitor : DepthFirstAstVisitor<bool>
 		{
-			/// <summary>
-			/// If the last-to-pop element
-			/// </summary>
-			Stack<bool> recursiveStack = new Stack<bool>();
-
-			public void Clear() {
-				recursiveStack.Clear();
-			}
-
-			public bool Result
+			public override bool VisitConditionalExpression(ConditionalExpression conditionalExpression)
 			{
-				get {
-					return recursiveStack.Single();
-				}
+				if (conditionalExpression.Condition.AcceptVisitor(this))
+					return true;
+
+				if (!conditionalExpression.TrueExpression.AcceptVisitor(this))
+					return false;
+
+				return conditionalExpression.FalseExpression.AcceptVisitor(this);
 			}
 
-			protected bool CurrentResult
+			public override bool VisitIfElseStatement(IfElseStatement ifElseStatement)
 			{
-				get {
-					return recursiveStack.Peek();
-				}
+				if (ifElseStatement.Condition.AcceptVisitor(this))
+					return true;
+
+				if (!ifElseStatement.TrueStatement.AcceptVisitor(this))
+					return false;
+
+				//No need to worry about null ast nodes, since AcceptVisitor will just
+				//return false in those cases
+				return ifElseStatement.FalseStatement.AcceptVisitor(this);
 			}
 
-			protected void PushResult(bool result)
+			public override bool VisitSwitchStatement(SwitchStatement switchStatement)
 			{
-				recursiveStack.Push(result);
-			}
-
-			protected bool PopResult()
-			{
-				return recursiveStack.Pop();
-			}
-
-			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
-			{
-				conditionalExpression.Condition.AcceptVisitor(this);
-				if (CurrentResult) {
-					return;
-				}
-				PopResult();
-
-				conditionalExpression.TrueExpression.AcceptVisitor(this);
-				if (!CurrentResult) {
-					return;
-				}
-				PopResult();
-
-				conditionalExpression.FalseExpression.AcceptVisitor(this);
-			}
-
-			protected override void VisitChildren(AstNode node)
-			{
-				VisitNodeList(node.Children);
-			}
-
-			public override void VisitCSharpTokenNode(CSharpTokenNode token)
-			{
-				PushResult(false);
-			}
-
-			public override void VisitComment(Comment comment)
-			{
-				PushResult(false);
-			}
-
-			public override void VisitPrimitiveExpression(PrimitiveExpression primitiveExpression)
-			{
-				PushResult(false);
-			}
-
-			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
-			{
-				PushResult(false);
-			}
-
-			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
-			{
-				PushResult(false);
-			}
-
-			void VisitNodeList(IEnumerable<AstNode> nodes) {
-				foreach (var initializer in nodes) {
-					initializer.AcceptVisitor(this);
-					bool result = PopResult();
-					if (result) {
-						PushResult(true);
-						return;
-					}
+				if (switchStatement.Expression.AcceptVisitor(this)) {
+					return true;
 				}
 
-				PushResult(false);
+				bool foundDefault = false;
+				foreach (var section in switchStatement.SwitchSections) {
+					foundDefault = foundDefault || section.CaseLabels.Any(label => label.Expression.IsNull);
+					if (!section.AcceptVisitor(this))
+						return false;
+				}
+
+				return foundDefault;
+			}
+
+			protected override bool VisitChildren(AstNode node)
+			{
+				return VisitNodeList(node.Children);
+			}
+
+			bool VisitNodeList(IEnumerable<AstNode> nodes) {
+				return nodes.Any(node => node.AcceptVisitor(this));
+			}
+
+			public override bool VisitQueryExpression(QueryExpression queryExpression)
+			{
+				//We only care about the first from clause because:
+				//in "from x in Method() select x", Method() might be recursive
+				//but in "from x in Bar() from y in Method() select x + y", even if Method() is recursive
+				//Bar might still be empty.
+				return queryExpression.Clauses.OfType<QueryFromClause>().First().AcceptVisitor(this);
 			}
 		}
 	}
