@@ -342,6 +342,7 @@ class MyClass : Base { public override int Method (int Param) {} }";
 			var rule = new NamingRule(AffectedEntity.Class);
 			rule.NamingStyle = NamingStyle.PascalCase;
 			Assert.IsTrue(rule.IsValid("PascalCase"));
+			Assert.IsTrue(rule.IsValid("PascalCase_1_23"));
 			Assert.IsFalse(rule.IsValid("Pascal_Case"));
 			Assert.IsFalse(rule.IsValid("camelCase"));
 		}
@@ -354,6 +355,7 @@ class MyClass : Base { public override int Method (int Param) {} }";
 			Assert.IsFalse(rule.IsValid("PascalCase"));
 			Assert.IsFalse(rule.IsValid("camel_Case"));
 			Assert.IsTrue(rule.IsValid("camelCase"));
+			Assert.IsTrue(rule.IsValid("camelCase_10_11"));
 		}
 
 		[Test]
@@ -399,6 +401,7 @@ class MyClass : Base { public override int Method (int Param) {} }";
 			Assert.IsFalse(rule.IsValid("PascalCase__UnderscoreTolerant"));
 			Assert.IsFalse(rule.IsValid("_PascalCase_UnderscoreTolerant"));
 			Assert.IsTrue(rule.IsValid("PascalCase_UnderscoreTolerant"));
+			Assert.IsTrue(rule.IsValid("PascalCase_UnderscoreTolerant_12"));
 		}
 
 		[Test]
@@ -493,6 +496,17 @@ class MyClass : Base { public override int Method (int Param) {} }";
 			System.Collections.Generic.IList<string> suggestedNames;
 			rule.GetErrorMessage(new TestRefactoringContext (null, TextLocation.Empty, null), "PascalCase_UnderscoreTolerant", out suggestedNames); 
 			Assert.IsTrue(suggestedNames.Contains("PascalCase_underscoreTolerant"));
+		}
+
+
+		[Test]
+		public void TestSuggestionForPascalCase()
+		{
+			var rule = new NamingRule(AffectedEntity.Class);
+			rule.NamingStyle = NamingStyle.PascalCase;
+			System.Collections.Generic.IList<string> suggestedNames;
+			rule.GetErrorMessage(new TestRefactoringContext (null, TextLocation.Empty, null), "pascalCase_12_____12323", out suggestedNames); 
+			Assert.IsTrue(suggestedNames.Contains("PascalCase_12_12323"));
 		}
 
 	}

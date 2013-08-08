@@ -231,11 +231,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			IncludeInstanceMembers = true;
 		}
 
-		static bool NoUnderscore(string id)
-		{
-			return id.IndexOf('_') < 0;
-		}
-
 		static bool CheckUnderscore(string id, UnderscoreHandling handling)
 		{
 			for (int i = 1; i < id.Length; i++) {
@@ -257,6 +252,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			switch (handling) {
 				case UnderscoreHandling.Forbid:
+					if (i + 1 < id.Length) {
+						char ch = id [i + 1];
+						if (char.IsDigit(ch)) {
+							i++;
+							return true;
+						}
+					}
 					return false;
 				case UnderscoreHandling.Allow:
 					return true;
@@ -280,17 +282,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					throw new ArgumentOutOfRangeException();
 			}
 		}
-		//		static bool NoUnderscoreWithoutNumber(string id)
-		//		{
-		//			int idx = id.IndexOf('_');
-		//			while (idx >= 0 && idx < id.Length) {
-		//				if ((idx + 2 >= id.Length || !char.IsDigit(id [idx + 1])) && (idx == 0 || !char.IsDigit(id [idx - 1]))) {
-		//					return false;
-		//				}
-		//				idx = id.IndexOf('_', idx + 1);
-		//			}
-		//			return true;
-		//		}
+	
 		public string GetErrorMessage(BaseRefactoringContext ctx, string name, out IList<string> suggestedNames)
 		{
 			suggestedNames = new List<string>();
@@ -360,16 +352,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						suggestedNames.Add(id);
 					}
 					break;
+
 				case NamingStyle.CamelCase:
 					if (id.Length > 0 && char.IsUpper(id [0])) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter."), name);
-					} else if (!NoUnderscore(id)) {
+					} else if (!CheckUnderscore(id, UnderscoreHandling.Forbid)) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should not separate words with an underscore."), name);
 					} else {
 						suggestedNames.Add(id);
 						break;
 					}
-					suggestedNames.Add(CamelCaseIdentifier(WordParser.BreakWords(id)));
+					suggestedNames.Add(CamelCaseIdentifier(id));
 					break;
 				case NamingStyle.CamelCaseWithLowerLetterUnderscore:
 					if (id.Length > 0 && char.IsUpper(id [0])) {
@@ -397,13 +390,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				case NamingStyle.PascalCase:
 					if (id.Length > 0 && char.IsLower(id [0])) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
-					} else if (!NoUnderscore(id)) {
+					} else if (!CheckUnderscore(id, UnderscoreHandling.Forbid)) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should not separate words with an underscore."), name);
 					} else {
 						suggestedNames.Add(id);
 						break;
 					}
-					suggestedNames.Add(PascalCaseIdentifier(WordParser.BreakWords(id)));
+					suggestedNames.Add(PascalCaseIdentifier(id));
 					break;
 				case NamingStyle.PascalCaseWithLowerLetterUnderscore:
 					if (id.Length > 0 && char.IsLower(id [0])) {
@@ -427,7 +420,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					suggestedNames.Add(PascalCaseWithUpperLetterUnderscore(id));
 					break;
-
 				case NamingStyle.FirstUpper:
 					if (id.Length > 0 && char.IsLower(id [0])) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
@@ -490,16 +482,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				?? "no known errors.";
 		}
 
-		static string CamelCaseIdentifier(List<string> words)
+		static string CamelCaseIdentifier(string id)
 		{
-			var sb = new StringBuilder();
-			sb.Append(words [0].ToLower());
-			for (int i = 1; i < words.Count; i++) {
-//				if (sb.Length > 0 && (char.IsDigit (sb[sb.Length-1]) || char.IsDigit (words[i][0])))
-//					sb.Append ('_');
-				AppendCapitalized(words [i], sb);
-			}
-			return sb.ToString();
+			return ConvertToValidName(id, ch => char.ToLower(ch), ch => char.ToUpper (ch));
 		}
 
 		static string CamelCaseWithLowerLetterUnderscore(string id)
@@ -510,6 +495,38 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		static string CamelCaseWithUpperLetterUnderscore(string id)
 		{
 			return ConvertToValidNameWithSpecialUnderscoreHandling(id, ch => char.ToLower(ch), ch => char.ToUpper(ch));
+		}
+
+		static string ConvertToValidName(string id, Func<char, char> firstCharFunc, Func<char, char> followingCharFunc)
+		{
+			var sb = new StringBuilder();
+			bool first = true;
+			for (int i = 0; i < id.Length; i++) {
+				char ch = id[i];
+				if (first && char.IsLetter(ch)) {
+					sb.Append(firstCharFunc(ch));
+					firstCharFunc = followingCharFunc;
+					first = false;
+					continue;
+				}
+				if (ch == '_') {
+					if (first)
+						continue;
+					if (i + 1 < id.Length && id[i + 1] == '_')
+						continue;
+
+					if (i + 1 < id.Length) {
+						if (char.IsDigit(id[i + 1])) {
+							sb.Append('_');
+						} else {
+							first = true;
+						}
+					}
+					continue;
+				}
+				sb.Append(ch);
+			}
+			return sb.ToString();
 		}
 
 		static string ConvertToValidNameWithSpecialUnderscoreHandling(string id, Func<char, char> firstCharFunc, Func<char, char> afterUnderscoreLetter)
@@ -540,15 +557,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 
-		static string PascalCaseIdentifier(List<string> words)
+		static string PascalCaseIdentifier(string id)
 		{
-			var sb = new StringBuilder();
-			for (int i = 0; i < words.Count; i++) {
-//				if (sb.Length > 0 && (char.IsDigit (sb[sb.Length-1]) || char.IsDigit (words[i][0])))
-//					sb.Append ('_');
-				AppendCapitalized(words [i], sb);
-			}
-			return sb.ToString();
+			return ConvertToValidName(id, ch => char.ToUpper(ch), ch => char.ToUpper (ch));
 		}
 
 		static string PascalCaseWithLowerLetterUnderscore(string id)
