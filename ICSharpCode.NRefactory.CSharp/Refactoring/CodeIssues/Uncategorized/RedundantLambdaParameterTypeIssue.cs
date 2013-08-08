@@ -67,6 +67,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (arguments.Any(f => f.Type.IsNull))
 					return;
 
+				var statement = lambdaexpression.Parent;
+
+				if (statement == null || !(statement is InvocationExpression))
+					return;
+
+				var target = (statement as InvocationExpression).Target;
+				var resolvedResult = ctx.Resolve(target);
+
+				if (resolvedResult is MethodGroupResolveResult)
+					return;
+
 				bool singleArgument = (arguments.Any());
 				foreach (var argument in arguments) {
 					var type = argument.GetChildByRole(Roles.Type);
