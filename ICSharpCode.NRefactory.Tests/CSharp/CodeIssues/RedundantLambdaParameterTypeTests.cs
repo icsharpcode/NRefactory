@@ -158,49 +158,6 @@ namespace application
 			Assert.AreEqual(0, issues.Count);
 		}
 
-		[Test]
-		public void TestInspectorCase4()
-		{
-			var input = @"using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace application
-{
-	internal class Program
-	{
-		public void Foo(Action<int> act, Action<int> act1) { }
-		public void Foo(Action<float,int> act, Action<string> act1) { }
-
-		void Test()
-		{
-			Foo(((int i) => Console.WriteLine(i)), (j => Console.WriteLine(j)));
-		}
-	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-			CheckFix(context, issues, @"using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace application
-{
-	internal class Program
-	{
-		public void Foo(Action<int> act, Action<int> act1) { }
-		public void Foo(Action<float,int> act, Action<string> act1) { }
-
-		void Test()
-		{
-			Foo(( i => Console.WriteLine(i)), (j => Console.WriteLine(j)));
-		}
-	}
-}");
-		}
-
 
 		[Test]
 		public void TestInvalidContext()
@@ -236,16 +193,16 @@ using System.Linq;
 
 namespace application
 {
-    internal class Program
-    {
-        public void Foo(Action<int> act, Action<int> act1) { }
-        public void Foo(Action<float,int> act, Action<string> act1) { }
+	internal class Program
+	{
+		public void Foo(Action<int> act, Action<int> act1) { }
+		public void Foo(Action<float,int> act, Action<string> act1) { }
 
-        void Test()
-        {
-            Foo(((int i) => Console.WriteLine(i)), (j => Console.WriteLine(j)));
-        }
-    }
+		void Test()
+		{
+			Foo(((int i) => Console.WriteLine(i)), (j => Console.WriteLine(j)));
+		}
+	}
 }";
 			TestRefactoringContext context;
 			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
