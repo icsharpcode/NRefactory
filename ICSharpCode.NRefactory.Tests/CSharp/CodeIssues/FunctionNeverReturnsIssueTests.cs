@@ -319,6 +319,62 @@ class TestClass
 		}
 
 		[Test]
+		public void TestSwitch ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+class TestClass
+{
+	int foo;
+	void TestMethod()
+	{
+		switch (foo) {
+			case 0: TestMethod();
+		}
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
+
+		[Test]
+		public void TestSwitchWithDefault ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+class TestClass
+{
+	int foo;
+	void TestMethod()
+	{
+		switch (foo) {
+			case 0: case 1: TestMethod();
+			default: TestMethod();
+		}
+	}
+}";
+			Test<FunctionNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestSwitchValue ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+class TestClass
+{
+	int foo;
+	int TestMethod()
+	{
+		switch (TestMethod()) {
+			case 0: return 0;
+		}
+		return 1;
+	}
+}";
+			Test<FunctionNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
 		public void TestLinqFrom ()
 		{
 			//https://github.com/icsharpcode/NRefactory/issues/254

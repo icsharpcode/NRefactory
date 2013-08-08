@@ -134,6 +134,22 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return ifElseStatement.FalseStatement.AcceptVisitor(this);
 			}
 
+			public override bool VisitSwitchStatement(SwitchStatement switchStatement)
+			{
+				if (switchStatement.Expression.AcceptVisitor(this)) {
+					return true;
+				}
+
+				bool foundDefault = false;
+				foreach (var section in switchStatement.SwitchSections) {
+					foundDefault = foundDefault || section.CaseLabels.Any(label => label.Expression.IsNull);
+					if (!section.AcceptVisitor(this))
+						return false;
+				}
+
+				return foundDefault;
+			}
+
 			protected override bool VisitChildren(AstNode node)
 			{
 				return VisitNodeList(node.Children);
