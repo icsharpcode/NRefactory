@@ -58,36 +58,38 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
+				VisitParameterizedEntityDeclaration("method", methodDeclaration, methodDeclaration.Parameters);
+			}
+
+			void VisitParameterizedEntityDeclaration(string memberType, EntityDeclaration entityDeclaration, AstNodeCollection<ParameterDeclaration> parameters)
+			{
 				//Override is not strictly necessary because methodDeclaration
 				//might still implement an interface member
-
-				var memberResolveResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
+				var memberResolveResult = ctx.Resolve(entityDeclaration) as MemberResolveResult;
 				if (memberResolveResult == null) {
 					return;
 				}
-
-				var method = (IMethod) memberResolveResult.Member;
-				var baseMethods = InheritanceHelper.GetBaseMembers(method, true);
-				foreach (IMethod baseMethod in baseMethods) {
-					if (baseMethod.IsOverride || baseMethod.DeclaringType.Kind == TypeKind.Interface)
+				var member = (IParameterizedMember)memberResolveResult.Member;
+				var baseMembers = InheritanceHelper.GetBaseMembers(member, true);
+				foreach (IParameterizedMember baseMember in baseMembers) {
+					if (baseMember.IsOverride || baseMember.DeclaringType.Kind == TypeKind.Interface)
 						continue;
-					CompareMethods(methodDeclaration.Parameters, method, baseMethod);
+					CompareMethods(memberType, parameters, member, baseMember);
 					return;
 				}
-
 				// only check 1 interface method -> multiple interface implementations could lead to deault value conflicts
 				// possible other solutions: Skip the interface check entirely
-				var interfaceBaseMethods = baseMethods.Where(b => b.DeclaringType.Kind == TypeKind.Interface).ToList();
+				var interfaceBaseMethods = baseMembers.Where(b => b.DeclaringType.Kind == TypeKind.Interface).ToList();
 				if (interfaceBaseMethods.Count == 1) {
-					foreach (IMethod baseMethod in interfaceBaseMethods) {
-						if (baseMethod.DeclaringType.Kind == TypeKind.Interface) {
-							CompareMethods(methodDeclaration.Parameters, method, baseMethod);
+					foreach (IParameterizedMember baseMember in interfaceBaseMethods) {
+						if (baseMember.DeclaringType.Kind == TypeKind.Interface) {
+							CompareMethods(memberType, parameters, member, baseMember);
 						}
 					}
 				}
 			}
 
-			void CompareMethods(AstNodeCollection<ParameterDeclaration> parameters, IMethod overridenMethod, IMethod baseMethod)
+			void CompareMethods(string memberType, AstNodeCollection<ParameterDeclaration> parameters, IParameterizedMember overridenMethod, IParameterizedMember baseMethod)
 			{
 				var parameterEnumerator = parameters.GetEnumerator();
 				for (int parameterIndex = 0; parameterIndex < overridenMethod.Parameters.Count; parameterIndex++) {
@@ -103,16 +105,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (overridenParameter.IsOptional) {
 						if (!baseParameter.IsOptional) {
 							AddIssue(parameterDeclaration,
-							         string.Format(ctx.TranslateString("Optional parameter value {0} differs from base method '{1}'"), parameterName, baseMethod.DeclaringType.FullName),
+							         string.Format(ctx.TranslateString("Optional parameter value {0} differs from base " + memberType + " '{1}'"), parameterName, baseMethod.DeclaringType.FullName),
 							         ctx.TranslateString("Remove parameter default value"),
 							         script => {
 								script.Remove(parameterDeclaration.AssignToken);
 								script.Remove(parameterDeclaration.DefaultExpression);
 								script.FormatText(parameterDeclaration);
 							});
-						} else if (!overridenParameter.ConstantValue.Equals(baseParameter.ConstantValue)) {
+						} else if (!object.Equals(overridenParameter.ConstantValue, baseParameter.ConstantValue)) {
 							AddIssue(parameterDeclaration,
-							         string.Format(ctx.TranslateString("Optional parameter value {0} differs from base method '{1}'"), parameterName, baseMethod.DeclaringType.FullName),
+							         string.Format(ctx.TranslateString("Optional parameter value {0} differs from base " + memberType + " '{1}'"), parameterName, baseMethod.DeclaringType.FullName),
 							         string.Format(ctx.TranslateString("Change default value to {0}"), baseParameter.ConstantValue),
 							         script => {
 
@@ -139,7 +141,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
 			{
-				//TODO
+				VisitParameterizedEntityDeclaration("indexer", indexerDeclaration, indexerDeclaration.Parameters);
 			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)

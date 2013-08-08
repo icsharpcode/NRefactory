@@ -91,7 +91,6 @@ namespace application
 }");
 		}
 
-		[Ignore("FIXME")]
 		[Test]
 		public void TestInvalidContext()
 		{
@@ -112,7 +111,34 @@ namespace application
 		}
 	}
 }";
-			TestWrongContext<RedundantLambdaParameterTypeIssue>(input);
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
+		}
+
+		[Test]
+		public void TestInvalidContextCase2()
+		{
+			var input = @"using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace application
+{
+    internal class Program
+    {
+        public void Foo(Action<int> act, Action<int> act1) { }
+        public void Foo(Action<float,int> act, Action<string> act1) { }
+
+        void Test()
+        {
+            Foo(((int i) => Console.WriteLine(i)), (j => Console.WriteLine(j)));
+        }
+    }
+}";
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
 		}
 
 		[Test]
