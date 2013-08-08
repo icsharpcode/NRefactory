@@ -80,55 +80,34 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			if (copyData != null && copyData.Length == 1)
 			{
-				var strategy = TextPasteUtils.Strategies[(TextPasteUtils.PasteStrategy)copyData[0]];
+				var strategy = TextPasteUtils.Strategies[(PasteStrategy)copyData[0]];
 				text = strategy.Decode(text);
 			}
 
 			engine.Update(offset);
-
 			if (engine.IsInsideStringLiteral)
 			{
-				return TextPasteUtils.Strategies[TextPasteUtils.PasteStrategy.StringLiteral].Encode(text);
+				return TextPasteUtils.StringLiteralStrategy.Encode(text);
 			}
 			else if (engine.IsInsideVerbatimString)
 			{
-				return TextPasteUtils.Strategies[TextPasteUtils.PasteStrategy.VerbatimString].Encode(text);
+				return TextPasteUtils.VerbatimStringStrategy.Encode(text);
 			}
 
-			StringBuilder result = new StringBuilder();
-			StringBuilder lineBuf = new StringBuilder();
-			char newLineChar = '\0';
-
-			foreach (var ch in text)
+			StringBuilder indentedText = new StringBuilder();
+			foreach (var line in text.Split(text.Contains('\r') ? '\r' : '\n'))
 			{
-				if (new[] { '\r', '\n' }.Contains(ch))
+				foreach (var ch in line)
 				{
-					// the text can be copied from another text editor which has
-					// a different EOL, so we pick the first char in { '\r', '\n' }
-					// we encounter and use it as the new-line char
-					if (newLineChar == '\0')
-					{
-						newLineChar = ch;
-					}
-
-					if (ch == newLineChar)
-					{
-						result.Append(engine.ThisLineIndent +
-									  lineBuf.ToString().TrimStart(' ', '\t') +
-									  textEditorOptions.EolMarker);
-						lineBuf.Length = 0;
-					}
-				}
-				else
-				{
-					lineBuf.Append(ch);
+					engine.Push(ch);
 				}
 
-				engine.Push(ch);
+				indentedText.Append(engine.ThisLineIndent +
+									line.TrimStart('\r', '\n', ' ', '\t') +
+				                    textEditorOptions.EolMarker);
 			}
 
-			engine.Update(offset);
-			return result.ToString();
+			return indentedText.ToString().Trim('\r', '\n', ' ', '\t');
 		}
 
 		/// <inheritdoc />
@@ -138,11 +117,11 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			if (engine.IsInsideStringLiteral)
 			{
-				return new[] { (byte)TextPasteUtils.PasteStrategy.StringLiteral };
+				return new[] { (byte)PasteStrategy.StringLiteral };
 			}
 			else if (engine.IsInsideVerbatimString)
 			{
-				return new[] { (byte)TextPasteUtils.PasteStrategy.VerbatimString };
+				return new[] { (byte)PasteStrategy.VerbatimString };
 			}
 
 			return null;
@@ -230,6 +209,16 @@ namespace ICSharpCode.NRefactory.CSharp
 	}
 
 	/// <summary>
+	///     Types of text-paste strategies.
+	/// </summary>
+	public enum PasteStrategy : byte
+	{
+		PlainText = 0,
+		StringLiteral = 1,
+		VerbatimString = 2
+	}
+
+	/// <summary>
 	///     Defines some helper methods for dealing with text-paste events.
 	/// </summary>
 	public static class TextPasteUtils
@@ -238,16 +227,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		///     Collection of text-paste strategies.
 		/// </summary>
 		public static TextPasteStrategies Strategies = new TextPasteStrategies();
-
-		/// <summary>
-		///     Types of text-paste strategies.
-		/// </summary>
-		public enum PasteStrategy : byte
-		{
-			PlainText = 0,
-			StringLiteral = 1,
-			VerbatimString = 2
-		}
 
 		/// <summary>
 		///     The interface for a text-paste strategy.
@@ -302,8 +281,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				strategies = Assembly.GetExecutingAssembly()
 					.GetTypes()
-					.Where(t => t.IsSubclassOf(typeof(IPasteStrategy)))
-					.Select(t => (IPasteStrategy)t.GetProperty("Instance", BindingFlags.Static))
+					.Where(t => typeof(IPasteStrategy).IsAssignableFrom(t) && t.IsClass)
+					.Select(t => (IPasteStrategy)t.GetProperty("Instance").GetValue(null, null))
 					.ToDictionary(s => s.Type);
 			}
 
@@ -315,7 +294,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			/// </param>
 			/// <returns>
 			///     A strategy instance of the requested type,
-			///     or <see cref="Default"/> if it wasn't found.
+			///     or <see cref="DefaultStrategy"/> if it wasn't found.
 			/// </returns>
 			public IPasteStrategy this[PasteStrategy strategy]
 			{
@@ -326,71 +305,72 @@ namespace ICSharpCode.NRefactory.CSharp
 						return strategies[strategy];
 					}
 
-					return Default;
+					return DefaultStrategy;
 				}
 			}
+		}
 
-			/// <summary>
-			///     Doesn't do any formatting. Serves as the default strategy.
-			/// </summary>
-			public class PlainTextPasteStrategy : IPasteStrategy
+		/// <summary>
+		///     Doesn't do any formatting. Serves as the default strategy.
+		/// </summary>
+		public class PlainTextPasteStrategy : IPasteStrategy
+		{
+			#region Singleton
+
+			public static IPasteStrategy Instance
 			{
-				#region Singleton
-
-				public static IPasteStrategy Instance
+				get
 				{
-					get
-					{
-						return instance ?? (instance = new PlainTextPasteStrategy());
-					}
-				}
-				static PlainTextPasteStrategy instance;
-
-				protected PlainTextPasteStrategy() { }
-
-				#endregion
-
-				/// <inheritdoc />
-				public string Encode(string text)
-				{
-					return text;
-				}
-
-				/// <inheritdoc />
-				public string Decode(string text)
-				{
-					return text;
-				}
-
-				/// <inheritdoc />
-				public PasteStrategy Type
-				{
-					get { return PasteStrategy.PlainText; }
+					return instance ?? (instance = new PlainTextPasteStrategy());
 				}
 			}
+			static PlainTextPasteStrategy instance;
 
-			/// <summary>
-			///     Escapes chars in the given text so that they don't
-			///     break a valid string literal.
-			/// </summary>
-			public class StringLiteralPasteStrategy : IPasteStrategy
+			protected PlainTextPasteStrategy() { }
+
+			#endregion
+
+			/// <inheritdoc />
+			public string Encode(string text)
 			{
-				#region Singleton
+				return text;
+			}
 
-				public static IPasteStrategy Instance
+			/// <inheritdoc />
+			public string Decode(string text)
+			{
+				return text;
+			}
+
+			/// <inheritdoc />
+			public PasteStrategy Type
+			{
+				get { return PasteStrategy.PlainText; }
+			}
+		}
+
+		/// <summary>
+		///     Escapes chars in the given text so that they don't
+		///     break a valid string literal.
+		/// </summary>
+		public class StringLiteralPasteStrategy : IPasteStrategy
+		{
+			#region Singleton
+
+			public static IPasteStrategy Instance
+			{
+				get
 				{
-					get
-					{
-						return instance ?? (instance = new StringLiteralPasteStrategy());
-					}
+					return instance ?? (instance = new StringLiteralPasteStrategy());
 				}
-				static StringLiteralPasteStrategy instance;
+			}
+			static StringLiteralPasteStrategy instance;
 
-				protected StringLiteralPasteStrategy() { }
+			protected StringLiteralPasteStrategy() { }
 
-				#endregion
+			#endregion
 
-				Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>>
+			Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>>
 				{
 					{'\"', "\\\""},
 					{'\\', "\\\\"},
@@ -399,7 +379,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					{'\t', "\\t"},
 				};
 
-				Dictionary<char, char> decodeReplace = new Dictionary<char, char>
+			Dictionary<char, char> decodeReplace = new Dictionary<char, char>
 				{
 					{'"', '"'},
 					{'\\', '\\'},
@@ -408,95 +388,108 @@ namespace ICSharpCode.NRefactory.CSharp
 					{'t', '\t'},
 				};
 
-				/// <inheritdoc />
-				public string Encode(string text)
-				{
-					return string.Concat(text.SelectMany(c => encodeReplace.ContainsKey(c) ? encodeReplace[c] : new[] { c }));
-				}
+			/// <inheritdoc />
+			public string Encode(string text)
+			{
+				return string.Concat(text.SelectMany(c => encodeReplace.ContainsKey(c) ? encodeReplace[c] : new[] { c }));
+			}
 
-				/// <inheritdoc />
-				public string Decode(string text)
-				{
-					var result = new StringBuilder();
-					bool isEscaped = false;
+			/// <inheritdoc />
+			public string Decode(string text)
+			{
+				var result = new StringBuilder();
+				bool isEscaped = false;
 
-					foreach (var ch in text)
+				foreach (var ch in text)
+				{
+					if (isEscaped)
 					{
-						if (isEscaped)
+						if (decodeReplace.ContainsKey(ch))
 						{
-							if (decodeReplace.ContainsKey(ch))
-							{
-								result.Append(decodeReplace[ch]);
-							}
+							result.Append(decodeReplace[ch]);
 						}
 						else
 						{
-							result.Append(ch);
+							result.Append('\\', ch);
 						}
-
-						isEscaped = !isEscaped && ch == '\\';
+					}
+					else if (ch != '\\')
+					{
+						result.Append(ch);
 					}
 
-					return result.ToString();
+					isEscaped = !isEscaped && ch == '\\';
 				}
 
-				/// <inheritdoc />
-				public PasteStrategy Type
-				{
-					get { return PasteStrategy.StringLiteral; }
-				}
+				return result.ToString();
 			}
 
-			/// <summary>
-			///     Escapes chars in the given text so that they don't
-			///     break a valid verbatim string.
-			/// </summary>
-			public class VerbatimStringPasteStrategy : IPasteStrategy
+			/// <inheritdoc />
+			public PasteStrategy Type
 			{
-				#region Singleton
+				get { return PasteStrategy.StringLiteral; }
+			}
+		}
 
-				public static IPasteStrategy Instance
+		/// <summary>
+		///     Escapes chars in the given text so that they don't
+		///     break a valid verbatim string.
+		/// </summary>
+		public class VerbatimStringPasteStrategy : IPasteStrategy
+		{
+			#region Singleton
+
+			public static IPasteStrategy Instance
+			{
+				get
 				{
-					get
-					{
-						return instance ?? (instance = new VerbatimStringPasteStrategy());
-					}
+					return instance ?? (instance = new VerbatimStringPasteStrategy());
 				}
-				static VerbatimStringPasteStrategy instance;
+			}
+			static VerbatimStringPasteStrategy instance;
 
-				protected VerbatimStringPasteStrategy() { }
+			protected VerbatimStringPasteStrategy() { }
 
-				#endregion
+			#endregion
 
-				Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>>
+			Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>>
 				{
 					{'\"', "\"\""},
 				};
 
-				/// <inheritdoc />
-				public string Encode(string text)
-				{
-					return string.Concat(text.SelectMany(c => encodeReplace.ContainsKey(c) ? encodeReplace[c] : new[] { c }));
-				}
-
-				/// <inheritdoc />
-				public string Decode(string text)
-				{
-					bool isEscaped = false;
-					return string.Concat(text.Where(c => !(isEscaped = !isEscaped && c == '"')));
-				}
-
-				/// <inheritdoc />
-				public PasteStrategy Type
-				{
-					get { return PasteStrategy.VerbatimString; }
-				}
+			/// <inheritdoc />
+			public string Encode(string text)
+			{
+				return string.Concat(text.SelectMany(c => encodeReplace.ContainsKey(c) ? encodeReplace[c] : new[] { c }));
 			}
 
-			/// <summary>
-			///     The default text-paste strategy.
-			/// </summary>
-			public static IPasteStrategy Default = PlainTextPasteStrategy.Instance;
+			/// <inheritdoc />
+			public string Decode(string text)
+			{
+				bool isEscaped = false;
+				return string.Concat(text.Where(c => !(isEscaped = !isEscaped && c == '"')));
+			}
+
+			/// <inheritdoc />
+			public PasteStrategy Type
+			{
+				get { return PasteStrategy.VerbatimString; }
+			}
 		}
+
+		/// <summary>
+		///     The default text-paste strategy.
+		/// </summary>
+		public static IPasteStrategy DefaultStrategy = PlainTextPasteStrategy.Instance;
+
+		/// <summary>
+		///     String literal text-paste strategy.
+		/// </summary>
+		public static IPasteStrategy StringLiteralStrategy = StringLiteralPasteStrategy.Instance;
+
+		/// <summary>
+		///     Verbatim string text-paste strategy.
+		/// </summary>
+		public static IPasteStrategy VerbatimStringStrategy = VerbatimStringPasteStrategy.Instance;
 	}
 }
