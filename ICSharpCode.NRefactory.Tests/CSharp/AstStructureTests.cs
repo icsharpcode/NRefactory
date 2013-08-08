@@ -55,6 +55,8 @@ namespace ICSharpCode.NRefactory.CSharp
 					continue;
 				if (typeof(PreProcessorDirective).IsAssignableFrom (type)) // another exception - is it useful or not ?
 					continue;
+				if (type.Namespace == "ICSharpCode.NRefactory.PatternMatching")
+					continue;
 				if (type.IsSubclassOf(typeof(AstNode))) {
 					Assert.IsTrue(type.BaseType.IsAbstract, type.FullName);
 				}
