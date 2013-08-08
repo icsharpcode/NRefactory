@@ -30,12 +30,14 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	public class LowercaseLongLiteralSuffixTests : InspectionActionTestBase
+	[TestFixture]
+
+	public class LongLiteralEndingLowerLIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestNormal()
 		{
-			Test<LowercaseLongLiteralSuffixIssue>(@"
+			Test<LongLiteralEndingLowerLIssue>(@"
 class Test
 {
 	public long x = 3l;
@@ -49,7 +51,7 @@ class Test
 		[Test]
 		public void TestDisabledForUnsignedFirst()
 		{
-			Test<LowercaseLongLiteralSuffixIssue>(@"
+			Test<LongLiteralEndingLowerLIssue>(@"
 class Test
 {
 	public ulong x = 3ul;
@@ -59,7 +61,7 @@ class Test
 		[Test]
 		public void TestUnsigned()
 		{
-			Test<LowercaseLongLiteralSuffixIssue>(@"
+			Test<LongLiteralEndingLowerLIssue>(@"
 class Test
 {
 	public ulong x = 3lu;
@@ -73,7 +75,7 @@ class Test
 		[Test]
 		public void TestDisabledForUppercase()
 		{
-			Test<LowercaseLongLiteralSuffixIssue>(@"
+			Test<LongLiteralEndingLowerLIssue>(@"
 class Test
 {
 	public long x = 3L;
@@ -83,11 +85,22 @@ class Test
 		[Test]
 		public void TestDisabledForString()
 		{
-			Test<LowercaseLongLiteralSuffixIssue>(@"
+			Test<LongLiteralEndingLowerLIssue>(@"
 class Test
 {
 	public string x = ""l"";
 }", 0);
+		}
+
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<LongLiteralEndingLowerLIssue>(@"
+class Test
+{
+	// ReSharper disable once LongLiteralEndingLowerL
+	public long x = 3l;
+}");
 		}
 	}
 }

@@ -29,19 +29,20 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Use of lowercase L as long literal suffix",
-	                   Description = "Lowercase long literal suffix l should be avoided.",
+	[IssueDescription ("Long literal ends with 'l' instead of 'L'",
+	                   Description = "Lowercase 'l' is often confused with '1'",
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.WavedLine)]
-	public class LowercaseLongLiteralSuffixIssue : GatherVisitorCodeIssueProvider
+	                   IssueMarker = IssueMarker.WavedLine,
+	                   ResharperDisableKeyword = "LongLiteralEndingLowerL")]
+	public class LongLiteralEndingLowerLIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<LowercaseLongLiteralSuffixIssue>
+		class GatherVisitor : GatherVisitorBase<LongLiteralEndingLowerLIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
@@ -71,17 +72,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (lastChar == 'l' || prevChar == 'l') {
-
 					AddIssue(primitiveExpression,
-					        "Use of lowercase l as long literal suffix",
-					        "Replace lowercase l suffix by uppercase L",
-					        script => {
-
-						object newValue = primitiveExpression.Value;
-						string newLiteralValue = primitiveExpression.LiteralValue.ToUpperInvariant();
-						script.Replace(primitiveExpression, new PrimitiveExpression(newValue, newLiteralValue));
-
-					});
+					         ctx.TranslateString("Long literal ends with 'l' instead of 'L'"),
+					         ctx.TranslateString("Make suffix upper case"),
+					         script => {
+								object newValue = primitiveExpression.Value;
+								string newLiteralValue = primitiveExpression.LiteralValue.ToUpperInvariant();
+								script.Replace(primitiveExpression, new PrimitiveExpression(newValue, newLiteralValue));
+							}
+					);
 				}
 			}
 		}

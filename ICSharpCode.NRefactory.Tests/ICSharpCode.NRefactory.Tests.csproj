@@ -456,7 +456,6 @@
     <Compile Include="CSharp\CodeIssues\OptionalParameterHierarchyMismatchIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\FunctionNeverReturnsIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\BitwiseOperatorOnEnumWithoutFlagsIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\LowercaseLongLiteralSuffixTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeAnyIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeCountIssueTests.cs" />
@@ -468,6 +467,7 @@
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeSingleIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeSingleOrDefaultIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeWhereIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\LongLiteralEndingLowerLIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

@@ -575,7 +575,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\FunctionNeverReturnsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\BitwiseOperatorOnEnumWithoutFlagsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\LowercaseLongLiteralSuffixIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeIssue.cs" />
     <Compile Include="PatternMatching\AnyType.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeAny.cs" />
@@ -588,6 +587,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleOrDefaultIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeWhereIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\LongLiteralEndingLowerLIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
