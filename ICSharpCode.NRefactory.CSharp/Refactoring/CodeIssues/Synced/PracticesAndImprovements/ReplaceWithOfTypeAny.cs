@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
 						}
 					), 
-					"Any"
+					Pattern.AnyString
 				),
 				new LambdaExpression {
 					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
 						}
 					),	 
-					"Any"
+					Pattern.AnyString
 				),
 				new NamedNode("lambda", 
 					new LambdaExpression {
@@ -85,13 +85,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context);
+			return new GatherVisitor<ReplaceWithOfTypeIssue>(context, "Any");
 		}
 
-		class GatherVisitor : GatherVisitorBase<ReplaceWithOfTypeIssue>
+		internal class GatherVisitor<T> : GatherVisitorBase<T> where T : GatherVisitorCodeIssueProvider
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			readonly string member;
+
+			public GatherVisitor (BaseRefactoringContext ctx, string member) : base (ctx)
 			{
+				this.member = member;
 			}
 
 			bool CheckParameterMatches(IEnumerable<INode> param, IEnumerable<INode> expr)
@@ -109,35 +112,49 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitInvocationExpression (InvocationExpression anyInvoke)
 			{
 				base.VisitInvocationExpression (anyInvoke);
-				var match = selectPattern.Match (anyInvoke);
-				if (match.Success) {
-					AddIssue (
-						anyInvoke,
-						ctx.TranslateString("Replace with OfType<T>().Any()"),
-						ctx.TranslateString("Replace with call to OfType<T>().Any()"),
-						script => {
-						var target = match.Get<Expression>("targetExpr").Single().Clone();
+
+				var anyResolve = ctx.Resolve (anyInvoke) as InvocationResolveResult;
+				if (anyResolve == null || !HasPredicateVersion(anyResolve.Member))
+					return;
+				Match match;
+
+				if (member != "Where") {
+					match = selectPattern.Match(anyInvoke);
+					if (match.Success) {
+						if (!ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param1"), match.Get("expr1")) ||
+							!ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param2"), match.Get("expr2")))
+							return;
+						AddIssue(
+							anyInvoke,
+							string.Format(ctx.TranslateString("Replace with OfType<T>().{0}()"), member),
+							string.Format(ctx.TranslateString("Replace with call to OfType<T>().{0}()"), member),
+							script => {
+							var target = match.Get<Expression>("targetExpr").Single().Clone();
 							var type = match.Get<AstType>("type").Single().Clone();
 							script.Replace(
 								anyInvoke,
 								new InvocationExpression(
-									new MemberReferenceExpression(
-										new InvocationExpression(new MemberReferenceExpression(target, "OfType", type)),
-										"Any"
-									)
-								)
-							 );
+								new MemberReferenceExpression(
+								new InvocationExpression(new MemberReferenceExpression(target, "OfType", type)),
+								member
+							)
+							)
+							);
 						}
-					);
-					return;
+						);
+						return;
+					}
 				}
 
 				match = selectPatternWithFollowUp.Match (anyInvoke);
 				if (match.Success) {
+					if (!ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param1"), match.Get("expr1")) ||
+					    !ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param2"), match.Get("expr2")))
+						return;
 					AddIssue (
 						anyInvoke,
-						ctx.TranslateString("Replace with OfType<T>().Any()"),
-						ctx.TranslateString("Replace with call to OfType<T>().Any()"),
+						string.Format(ctx.TranslateString("Replace with OfType<T>().{0}()"), member),
+						string.Format(ctx.TranslateString("Replace with call to OfType<T>().{0}()"), member),
 						script => {
 							var target = match.Get<Expression>("targetExpr").Single().Clone();
 							var type = match.Get<AstType>("type").Single().Clone();
@@ -147,7 +164,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								new InvocationExpression(
 									new MemberReferenceExpression(
 										new InvocationExpression(new MemberReferenceExpression(target, "OfType", type)),
-										"Any"
+										member
 									),
 									new LambdaExpression {
 										Parameters = { (ParameterDeclaration)lambda.Parameters.First().Clone() },
@@ -159,7 +176,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					);
 					return;
 				}
+			}
 
+			bool IsQueryExtensionClass(ITypeDefinition typeDef)
+			{
+				if (typeDef == null || typeDef.Namespace != "System.Linq")
+					return false;
+				switch (typeDef.Name) {
+					case "Enumerable":
+						case "ParallelEnumerable":
+						case "Queryable":
+						return true;
+						default:
+						return false;
+				}
+			}
+
+			bool HasPredicateVersion(IParameterizedMember member)
+			{
+				if (!IsQueryExtensionClass(member.DeclaringTypeDefinition))
+					return false;
+				return member.Name == this.member;
 			}
 		}
 	}

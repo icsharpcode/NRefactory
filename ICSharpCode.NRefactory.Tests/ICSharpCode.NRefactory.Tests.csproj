@@ -459,6 +459,15 @@
     <Compile Include="CSharp\CodeIssues\LowercaseLongLiteralSuffixTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeAnyIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeCountIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeFirstIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeFirstOrDefaultIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeLastIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeLastOrDefaultIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeLongCountIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeSingleIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeSingleOrDefaultIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeWhereIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

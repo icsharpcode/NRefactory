@@ -61,9 +61,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public GatherVisitor (BaseRefactoringContext ctx, string member) : base (ctx)
 			{
-			    this.member = member;
+				this.member = member;
 			}
-			
+
 			public override void VisitInvocationExpression (InvocationExpression anyInvoke)
 			{
 				base.VisitInvocationExpression (anyInvoke);

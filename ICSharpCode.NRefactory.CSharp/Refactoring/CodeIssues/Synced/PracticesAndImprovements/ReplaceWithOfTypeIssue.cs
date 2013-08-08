@@ -86,22 +86,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
+		internal static bool CheckParameterMatches(IEnumerable<INode> paramMatch, IEnumerable<INode> expressionMatch)
+		{
+			var p = paramMatch.Single() as ParameterDeclaration;
+			var e = expressionMatch.Single();
+
+			if (p == null)
+				return false;
+			if (e is IdentifierExpression)
+				return p.Name == ((IdentifierExpression)e).Identifier;
+			return false;
+		}
+
+
 		class GatherVisitor : GatherVisitorBase<ReplaceWithOfTypeIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
-			}
-
-			bool CheckParameterMatches(IEnumerable<INode> param, IEnumerable<INode> expr)
-			{
-				var p = param.Single() as ParameterDeclaration;
-				var e = expr.Single();
-
-				if (p == null)
-					return false;
-				if (e is IdentifierExpression)
-					return p.Name == ((IdentifierExpression)e).Identifier;
-				return false;
 			}
 
 			public override void VisitInvocationExpression (InvocationExpression anyInvoke)

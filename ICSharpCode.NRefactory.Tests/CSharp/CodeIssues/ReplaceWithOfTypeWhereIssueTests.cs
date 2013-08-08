@@ -1,5 +1,5 @@
 //
-// ReplaceWithOfTypeAnyIssueTests.cs
+// ReplaceWithOfTypeWhereIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,44 +31,24 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ReplaceWithOfTypeAnyIssueTests : InspectionActionTestBase
+	public class ReplaceWithOfTypeWhereIssueTests : InspectionActionTestBase
 	{
-		[Test]
-		public void TestCaseBasic ()
-		{
-			Test<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
-class Test
-{
-	public void Foo(object[] obj)
-	{
-		obj.Select (q => q as Test).Any (q => q != null);
-	}
-}", @"using System.Linq;
-class Test
-{
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ().Any ();
-	}
-}");
-		}
-
 		[Test]
 		public void TestCaseBasicWithFollowUpExpresison ()
 		{
-			Test<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			Test<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.Select (q => q as Test).Any (q => q != null && Foo (q));
+		obj.Select (q => q as Test).Where (q => q != null && Foo (q));
 	}
 }", @"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.OfType<Test> ().Any (q => Foo (q));
+		obj.OfType<Test> ().Where (q => Foo (q));
 	}
 }");
 		}
@@ -76,13 +56,13 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			TestWrongContext<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		// ReSharper disable once ReplaceWithOfType.Any
-		obj.Select (q => q as Test).Any (q => q != null);
+		// ReSharper disable once ReplaceWithOfType.Where
+		obj.Select (q => q as Test).Where (q => q != null);
 	}
 }");
 		}
@@ -90,20 +70,20 @@ class Test
 		[Test]
 		public void TestJunk ()
 		{
-			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			TestWrongContext<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.Select (x => q as Test).Any (q => q != null);
+		obj.Select (x => q as Test).Where (q => q != null && true);
 	}
 }");
-			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			TestWrongContext<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.Select (q => q as Test).Any (q => 1 != null);
+		obj.Select (q => q as Test).Where (q => 1 != null && true);
 	}
 }");
 

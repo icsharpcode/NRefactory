@@ -579,6 +579,15 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeIssue.cs" />
     <Compile Include="PatternMatching\AnyType.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeAny.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeCountIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeFirstIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeFirstOrDefaultIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeLastIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeLastOrDefaultIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeLongCountIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleOrDefaultIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeWhereIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

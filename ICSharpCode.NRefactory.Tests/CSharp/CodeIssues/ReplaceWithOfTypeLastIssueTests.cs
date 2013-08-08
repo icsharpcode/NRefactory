@@ -1,5 +1,5 @@
 //
-// ReplaceWithOfTypeAnyIssueTests.cs
+// ReplaceWithOfTypeLastIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,24 +31,24 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ReplaceWithOfTypeAnyIssueTests : InspectionActionTestBase
+	public class ReplaceWithOfTypeLastIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestCaseBasic ()
 		{
-			Test<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			Test<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.Select (q => q as Test).Any (q => q != null);
+		obj.Select (q => q as Test).Last (q => q != null);
 	}
 }", @"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.OfType<Test> ().Any ();
+		obj.OfType<Test> ().Last ();
 	}
 }");
 		}
@@ -56,19 +56,19 @@ class Test
 		[Test]
 		public void TestCaseBasicWithFollowUpExpresison ()
 		{
-			Test<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			Test<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.Select (q => q as Test).Any (q => q != null && Foo (q));
+		obj.Select (q => q as Test).Last (q => q != null && Foo (q));
 	}
 }", @"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.OfType<Test> ().Any (q => Foo (q));
+		obj.OfType<Test> ().Last (q => Foo (q));
 	}
 }");
 		}
@@ -76,13 +76,13 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			TestWrongContext<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		// ReSharper disable once ReplaceWithOfType.Any
-		obj.Select (q => q as Test).Any (q => q != null);
+		// ReSharper disable once ReplaceWithOfType.Last
+		obj.Select (q => q as Test).Last (q => q != null);
 	}
 }");
 		}
@@ -90,20 +90,20 @@ class Test
 		[Test]
 		public void TestJunk ()
 		{
-			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			TestWrongContext<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.Select (x => q as Test).Any (q => q != null);
+		obj.Select (x => q as Test).Last (q => q != null);
 	}
 }");
-			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			TestWrongContext<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.Select (q => q as Test).Any (q => 1 != null);
+		obj.Select (q => q as Test).Last (q => 1 != null);
 	}
 }");
 
