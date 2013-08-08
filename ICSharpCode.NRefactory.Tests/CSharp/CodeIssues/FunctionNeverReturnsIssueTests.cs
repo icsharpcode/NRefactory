@@ -317,5 +317,41 @@ class TestClass
 }";
 			TestWrongContext<FunctionNeverReturnsIssue> (input);
 		}
+
+		[Test]
+		public void TestLinqFrom ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+using System.Linq;
+using System.Collections.Generic;
+class TestClass
+{
+	IEnumerable<int> TestMethod()
+	{
+		return from y in TestMethod() select y;
+	}
+}";
+			Test<FunctionNeverReturnsIssue> (input, 1);
+		}
+
+		[Test]
+		public void TestWrongLinqContexts ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+using System.Linq;
+using System.Collections.Generic;
+class TestClass
+{
+	IEnumerable<int> TestMethod()
+	{
+		return from y in Enumerable.Empty<int>()
+		       from z in TestMethod()
+		       select y;
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
 	}
 }
