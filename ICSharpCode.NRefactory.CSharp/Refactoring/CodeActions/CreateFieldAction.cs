@@ -179,7 +179,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (expr.Role == Roles.Condition) {
 				return new [] { resolver.Compilation.FindType (KnownTypeCode.Boolean) };
 			}
-
+			if (expr.Parent is ParenthesizedExpression) {
+				return GetValidTypes(resolver, expr.Parent);
+			}
 			if (expr.Parent is DirectionExpression) {
 				var parent = expr.Parent.Parent;
 				if (parent is InvocationExpression) {
