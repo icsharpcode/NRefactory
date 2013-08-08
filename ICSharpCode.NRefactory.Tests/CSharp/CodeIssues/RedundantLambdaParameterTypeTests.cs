@@ -91,7 +91,6 @@ namespace application
 }");
 		}
 
-		[Ignore("FIXME")]
 		[Test]
 		public void TestInvalidContext()
 		{
@@ -112,7 +111,9 @@ namespace application
 		}
 	}
 }";
-			TestWrongContext<RedundantLambdaParameterTypeIssue>(input);
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
 		}
 
 		[Test]
