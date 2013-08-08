@@ -457,6 +457,7 @@
     <Compile Include="CSharp\CodeIssues\FunctionNeverReturnsIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\BitwiseOperatorOnEnumWithoutFlagsIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LowercaseLongLiteralSuffixTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
@@ -483,7 +484,11 @@
       <Name>ICSharpCode.NRefactory.Cecil</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory.IKVM\ICSharpCode.NRefactory.IKVM.csproj">
+<<<<<<< HEAD
       <Project>{a727169f-d94f-443f-b305-b057d7f3b420}</Project>
+=======
+      <Project>{A727169F-D94F-443F-B305-B057D7F3B420}</Project>
+>>>>>>> Added ReplaceWithOfTypeIssue/ added some C# pattern matching helper.
       <Name>ICSharpCode.NRefactory.IKVM</Name>
     </ProjectReference>
   </ItemGroup>
