@@ -46,14 +46,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					new InvocationExpression(
 						new MemberReferenceExpression(new AnyNode("targetExpr"), "Select"),
 						new LambdaExpression {
-							Parameters = { new NamedParameterDeclaration ("param1", new AnyType (true, "paramType"), Pattern.AnyString) },
+							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 							Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
 						}
 					), 
 					"Any"
 				),
 				new LambdaExpression {
-					Parameters = { new NamedParameterDeclaration ("param2", new AnyType (true, "paramType"), Pattern.AnyString) },
+					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 					Body = PatternHelper.OptionalParentheses (PatternHelper.CommutativeOperator(new AnyNode("expr2"), BinaryOperatorType.InEquality, new NullReferenceExpression()))
 				}
 			);
@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					new InvocationExpression(
 						new MemberReferenceExpression(new AnyNode("targetExpr"), "Select"),
 						new LambdaExpression {
-							Parameters = { new NamedParameterDeclaration ("param1", new AnyType (true, "paramType"), Pattern.AnyString) },
+							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 							Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
 						}
 					),	 
@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				),
 				new NamedNode("lambda", 
 					new LambdaExpression {
-						Parameters = { new NamedParameterDeclaration ("param2", new AnyType (true, "paramType"), Pattern.AnyString) },
+						Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 						Body = new BinaryOperatorExpression(
 							PatternHelper.OptionalParentheses(PatternHelper.CommutativeOperator(new AnyNode("expr2"), BinaryOperatorType.InEquality, new NullReferenceExpression())),
 							BinaryOperatorType.ConditionalAnd,

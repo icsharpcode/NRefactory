@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			new InvocationExpression(
 				new MemberReferenceExpression(new AnyNode("target"), "SelectNotNull"),
 				new LambdaExpression {
-					Parameters = { new NamedParameterDeclaration ("param1", new AnyType (true, "paramType"), Pattern.AnyString) },
+					Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 					Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
 				}
 			);
@@ -55,12 +55,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					new InvocationExpression(
 						new MemberReferenceExpression(new AnyNode("target"), "Where"),
 						new LambdaExpression {
-							Parameters = { new NamedParameterDeclaration ("param1", new AnyType (true, "paramType"), Pattern.AnyString) },
+							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 							Body = PatternHelper.OptionalParentheses (new IsExpression(new AnyNode("expr1"), new AnyNode("type")))
 						}
 					), "Select"),
 				new LambdaExpression {
-					Parameters = { new NamedParameterDeclaration ("param2", new AnyType (true, "paramType"), Pattern.AnyString) },
+					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 					Body = PatternHelper.OptionalParentheses (new AsExpression(PatternHelper.OptionalParentheses (new AnyNode("expr2")), new Backreference("type")))
 				}
 		);
@@ -71,12 +71,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					new InvocationExpression(
 						new MemberReferenceExpression(new AnyNode("target"), "Where"),
 						new LambdaExpression {
-							Parameters = { new NamedParameterDeclaration ("param1", new AnyType (true, "paramType"), Pattern.AnyString) },
+							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 							Body = PatternHelper.OptionalParentheses (new IsExpression(PatternHelper.OptionalParentheses (new AnyNode("expr1")), new AnyNode("type")))
 						}
 					), "Select"),
 				new LambdaExpression {
-					Parameters = { new NamedParameterDeclaration ("param2", new AnyType (true, "paramType"), Pattern.AnyString) },
+					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 					Body = PatternHelper.OptionalParentheses (new CastExpression(new Backreference("type"), PatternHelper.OptionalParentheses (new AnyNode("expr2"))))
 				}
 		);

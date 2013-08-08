@@ -31,51 +31,7 @@ using ICSharpCode.NRefactory.CSharp;
 
 namespace ICSharpCode.NRefactory.PatternMatching
 {
-	/// <summary>
-	/// Matches any other type
-	/// </summary>
-	public class AnyType : AstType
-	{
-		readonly string groupName;
-		readonly bool doesMatchNullTypes;
 
-		public string GroupName {
-			get { return groupName; }
-		}
-
-		public AnyType(bool doesMatchNullTypes, string groupName = null)
-		{
-			this.doesMatchNullTypes = doesMatchNullTypes;
-			this.groupName = groupName;
-		}
-
-
-		public override ITypeReference ToTypeReference(NameLookupMode lookupMode, InterningProvider interningProvider)
-		{
-			throw new InvalidOperationException();
-		}
-
-		public override void AcceptVisitor (IAstVisitor visitor)
-		{
-			throw new InvalidOperationException();
-		}
-
-		public override T AcceptVisitor<T> (IAstVisitor<T> visitor)
-		{
-			throw new InvalidOperationException();
-		}
-
-		public override S AcceptVisitor<T, S> (IAstVisitor<T, S> visitor, T data)
-		{
-			throw new InvalidOperationException();
-		}
-
-		protected internal override bool DoMatch(AstNode other, ICSharpCode.NRefactory.PatternMatching.Match match)
-		{
-			match.Add(this.groupName, other);
-			return other is AstType && (doesMatchNullTypes || !other.IsNull);
-		}
-	}
 
 }
 

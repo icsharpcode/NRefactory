@@ -18,6 +18,7 @@
 
 using System;
 using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -58,6 +59,108 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				INode unpacked = ParenthesizedExpression.UnpackParenthesizedExpression(other as Expression);
 				return child.DoMatch(unpacked, match);
+			}
+		}
+	
+		/// <summary>
+		/// Allows to give parameter declaration group names.
+		/// </summary>
+		public static ParameterDeclaration NamedParameter(string groupName)
+		{
+			return new NamedParameterDeclaration (groupName);
+		}
+
+		/// <summary>
+		/// Allows to give parameter declaration group names.
+		/// </summary>
+		public static ParameterDeclaration NamedParameter(string groupName, AstType type, string name, ParameterModifier modifier = ParameterModifier.None)
+		{
+			return new NamedParameterDeclaration (groupName, type, name, modifier);
+		}
+
+		sealed class NamedParameterDeclaration : ParameterDeclaration
+		{
+			readonly string groupName;
+			public string GroupName {
+				get { return groupName; }
+			}
+
+			public NamedParameterDeclaration(string groupName = null)
+			{
+				this.groupName = groupName;
+			}
+
+			public NamedParameterDeclaration(string groupName, AstType type, string name, ParameterModifier modifier = ParameterModifier.None) : base (type, name, modifier)
+			{
+				this.groupName = groupName;
+			}
+
+			protected internal override bool DoMatch(AstNode other, Match match)
+			{
+				match.Add(this.groupName, other);
+				return base.DoMatch(other, match);
+			}
+		}
+
+		/// <summary>
+		/// Matches any type
+		/// </summary>
+		public static AstType AnyType (bool doesMatchNullTypes = false)
+		{
+			return new InternalAnyType(doesMatchNullTypes);
+		}
+
+		/// <summary>
+		/// Matches any type
+		/// </summary>
+		public static AstType AnyType (string groupName, bool doesMatchNullTypes = false)
+		{
+			return new InternalAnyType(doesMatchNullTypes, groupName);
+		}
+
+		/// <summary>
+		/// Matches any other type
+		/// </summary>
+		sealed class InternalAnyType : AstType
+		{
+			readonly string groupName;
+			readonly bool doesMatchNullTypes;
+
+			public string GroupName {
+				get { return groupName; }
+			}
+
+			public InternalAnyType(bool doesMatchNullTypes, string groupName = null)
+			{
+				this.doesMatchNullTypes = doesMatchNullTypes;
+				this.groupName = groupName;
+			}
+
+
+			public override ITypeReference ToTypeReference(NameLookupMode lookupMode, InterningProvider interningProvider)
+			{
+				throw new InvalidOperationException();
+			}
+
+			public override void AcceptVisitor (IAstVisitor visitor)
+			{
+				throw new InvalidOperationException();
+			}
+
+			public override T AcceptVisitor<T> (IAstVisitor<T> visitor)
+			{
+				throw new InvalidOperationException();
+			}
+
+			public override S AcceptVisitor<T, S> (IAstVisitor<T, S> visitor, T data)
+			{
+				throw new InvalidOperationException();
+			}
+
+			protected internal override bool DoMatch(AstNode other, ICSharpCode.NRefactory.PatternMatching.Match match)
+			{
+				match.Add(this.groupName, other);
+				return other is AstType && (doesMatchNullTypes || !other.IsNull);
 			}
 		}
 	}
