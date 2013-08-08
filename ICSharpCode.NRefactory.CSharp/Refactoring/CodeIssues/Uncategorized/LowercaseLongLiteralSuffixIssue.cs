@@ -50,26 +50,31 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitPrimitiveExpression(PrimitiveExpression primitiveExpression)
 			{
-				if (primitiveExpression.Value is string || primitiveExpression.Value is char)
+				if (!(primitiveExpression.Value is long || primitiveExpression.Value is ulong))
 				{
 					//Literals such as "l" or 'l' are perfectly acceptable.
+					//Also, no point in visiting integer or boolean literals
 					return;
 				}
 
-				if (!primitiveExpression.LiteralValue.Contains("l")) {
+				string literalValue = primitiveExpression.LiteralValue;
+				if (literalValue.Length < 2) {
 					return;
 				}
 
-				AddIssue(primitiveExpression,
-				         "Use of lowercase l as long literal suffix",
-				         "Replace lowercase l suffix by uppercase L",
-				         script => {
+				if (literalValue [literalValue.Length - 1] == 'l' || literalValue [literalValue.Length - 2] == 'l') {
 
-					object newValue = primitiveExpression.Value;
-					string newLiteralValue = primitiveExpression.LiteralValue.Replace('l', 'L');
-					script.Replace(primitiveExpression, new PrimitiveExpression(newValue, newLiteralValue));
+					AddIssue(primitiveExpression,
+					        "Use of lowercase l as long literal suffix",
+					        "Replace lowercase l suffix by uppercase L",
+					        script => {
 
-				});
+						object newValue = primitiveExpression.Value;
+						string newLiteralValue = primitiveExpression.LiteralValue.Replace('l', 'L');
+						script.Replace(primitiveExpression, new PrimitiveExpression(newValue, newLiteralValue));
+
+					});
+				}
 			}
 		}
 	}
