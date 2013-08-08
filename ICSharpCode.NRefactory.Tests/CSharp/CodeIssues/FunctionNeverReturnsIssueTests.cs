@@ -189,6 +189,21 @@ class TestClass
 		}
 
 		[Test]
+		public void TestAutoProperty ()
+		{
+			var input = @"
+class TestClass
+{
+	int TestProperty
+	{
+		get;
+		set;
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
+
+		[Test]
 		public void TestMethodGroupNeverReturns ()
 		{
 			var input = @"
