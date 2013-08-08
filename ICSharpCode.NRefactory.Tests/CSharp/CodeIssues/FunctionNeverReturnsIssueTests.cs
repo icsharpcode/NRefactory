@@ -292,5 +292,30 @@ class TestClass
 }";
 			TestWrongContext<FunctionNeverReturnsIssue> (input);
 		}
+
+		[Test]
+		public void TestBug254 ()
+		{
+			//https://github.com/icsharpcode/NRefactory/issues/254
+			var input = @"
+class TestClass
+{
+	int state = 0;
+
+	bool Foo()
+	{
+		return state < 10;
+	}
+
+	void TestMethod()
+	{
+		if (Foo()) {
+			++state;
+			TestMethod ();	
+		}
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
 	}
 }
