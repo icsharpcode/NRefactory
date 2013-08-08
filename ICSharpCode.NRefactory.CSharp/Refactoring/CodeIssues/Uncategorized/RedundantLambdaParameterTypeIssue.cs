@@ -48,22 +48,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			return new GatherVisitor(context, this);
 		}
-
+		
 		class GatherVisitor : GatherVisitorBase<RedundantLambdaParameterTypeIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx, RedundantLambdaParameterTypeIssue issueProvider) : base (ctx, issueProvider)
 			{
 			}
-
+			
 			public override void VisitLambdaExpression(LambdaExpression lambdaexpression)
 			{
 				base.VisitLambdaExpression(lambdaexpression);
-
+				
 				if (lambdaexpression == null)
 					return;
-
+				
 				var arguments = lambdaexpression.Parameters;
-
+				
 				if (arguments.Any(f => f.Type.IsNull))
 					return;
 
@@ -80,8 +80,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						p++;
 					}
 				}
-
-				bool singleArgument = arguments.Any();
+				
+				bool singleArgument = (arguments.Count == 1);
 
 				foreach (var argument in arguments) {
 					var type = argument.GetChildByRole(Roles.Type);
