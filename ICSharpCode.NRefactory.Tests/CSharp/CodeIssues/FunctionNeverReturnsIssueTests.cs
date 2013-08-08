@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class MethodNeverReturnsIssueTests : InspectionActionTestBase
+	public class FunctionNeverReturnsIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestEnd ()
@@ -43,7 +43,7 @@ class TestClass
 		int i = 1;
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 0);
+			Test<FunctionNeverReturnsIssue> (input, 0);
 		}
 
 		[Test]
@@ -57,7 +57,7 @@ class TestClass
 		return;
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 0);
+			Test<FunctionNeverReturnsIssue> (input, 0);
 		}
 
 		[Test]
@@ -71,7 +71,7 @@ class TestClass
 		throw new System.NotImplementedException();	
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 0);
+			Test<FunctionNeverReturnsIssue> (input, 0);
 		}
 
 		[Test]
@@ -85,7 +85,7 @@ class TestClass
 		while (true) ;
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 1);
+			Test<FunctionNeverReturnsIssue> (input, 1);
 		}
 
 		[Test]
@@ -99,7 +99,7 @@ class TestClass
 		TestMethod ();
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 1);
+			Test<FunctionNeverReturnsIssue> (input, 1);
 		}
 
 		[Test]
@@ -116,7 +116,7 @@ class TestClass
 	{
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 0);
+			Test<FunctionNeverReturnsIssue> (input, 0);
 		}
 
 		[Test]
@@ -136,7 +136,7 @@ class TestClass
 		}
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 0);
+			Test<FunctionNeverReturnsIssue> (input, 0);
 		}
 
 
@@ -153,7 +153,7 @@ class TestClass
 		}
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 1);
+			Test<FunctionNeverReturnsIssue> (input, 1);
 		}
 
 		[Test]
@@ -169,7 +169,7 @@ class TestClass
 		}
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 1);
+			Test<FunctionNeverReturnsIssue> (input, 1);
 		}
 
 		[Test]
@@ -185,7 +185,7 @@ class TestClass
 		}
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 1);
+			Test<FunctionNeverReturnsIssue> (input, 1);
 		}
 
 		[Test]
@@ -203,7 +203,7 @@ class TestClass
 		return TestMethod();
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 1);
+			Test<FunctionNeverReturnsIssue> (input, 1);
 		}
 
 		[Test]
@@ -218,7 +218,7 @@ class TestClass
 		set { TestProperty++; }
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 2);
+			Test<FunctionNeverReturnsIssue> (input, 2);
 		}
 
 		[Test]
@@ -232,7 +232,7 @@ class TestClass
 		System.Action action = () => { while (true) ; };
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 1);
+			Test<FunctionNeverReturnsIssue> (input, 1);
 		}
 
 		[Test]
@@ -247,7 +247,7 @@ class TestClass
 	}
 }";
 
-			Test<MethodNeverReturnsIssue> (input, 1);
+			Test<FunctionNeverReturnsIssue> (input, 1);
 		}
 		[Test]
 		public void YieldBreak ()
@@ -260,7 +260,22 @@ class TestClass
 		yield break;
 	}
 }";
-			Test<MethodNeverReturnsIssue> (input, 0);
+			Test<FunctionNeverReturnsIssue> (input, 0);
+		}
+
+		[Test]
+		public void TestDisable ()
+		{
+			var input = @"
+class TestClass
+{
+	// ReSharper disable once FunctionNeverReturns
+	void TestMethod ()
+	{
+		while (true) ;
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
 		}
 	}
 }

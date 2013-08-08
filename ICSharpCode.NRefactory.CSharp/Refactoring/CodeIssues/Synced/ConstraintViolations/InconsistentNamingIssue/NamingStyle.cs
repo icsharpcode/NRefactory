@@ -52,7 +52,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <summary>
 		/// Firstupper
 		/// </summary>
-		FirstUpper
+		FirstUpper,
+
+		/// <summary>
+		/// PascalCaseWithLowerLetterUnderscore
+		/// </summary>
+		PascalCaseWithLowerLetterUnderscore,
+
+		/// <summary>
+		/// PascalCaseWithUpperLetterUnderscore
+		/// </summary>
+		PascalCaseWithUpperLetterUnderscore,
+
+		/// <summary>
+		/// CamelCaseWithLowerLetterUnderscore
+		/// </summary>
+		CamelCaseWithLowerLetterUnderscore,
+
+		/// <summary>
+		/// CamelCaseWithUpperLetterUnderscore
+		/// </summary>
+		CamelCaseWithUpperLetterUnderscore
+
 	}
 
 }

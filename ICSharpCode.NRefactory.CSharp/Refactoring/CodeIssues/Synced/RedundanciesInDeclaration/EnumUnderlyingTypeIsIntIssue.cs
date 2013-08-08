@@ -31,10 +31,11 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Underlying type of enum is int",
-	                  Description = "The default underlying type of enums is int, so : int is redundant.",
-	                  Category = IssueCategories.CodeQualityIssues,
+	                  Description = "The default underlying type of enums is int, so defining it explicitly is redundant.",
+	                  Category = IssueCategories.RedundanciesInDeclarations,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut)]
+	                  IssueMarker = IssueMarker.GrayOut,
+	                  ResharperDisableKeyword = "EnumUnderlyingTypeIsInt")]
 	public class EnumUnderlyingTypeIsIntIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
@@ -71,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					AddIssue(startLocation,
 					         endLocation,
 					         ctx.TranslateString("Default underlying type of enums is already int"),
-					         ctx.TranslateString("Remove redundant underlying type"),
+					         ctx.TranslateString("Remove redundant ': int'"),
 					         script =>
 					{
 						script.ChangeBaseTypes(typeDeclaration, Enumerable.Empty<AstType>());

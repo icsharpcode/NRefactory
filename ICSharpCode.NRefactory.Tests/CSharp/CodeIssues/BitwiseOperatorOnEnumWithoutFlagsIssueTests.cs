@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class BitwiseOperationOnNonFlagsEnumIssueTests : InspectionActionTestBase
+	public class BitwiseOperatorOnEnumWithoutFlagsIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestUnary ()
@@ -47,7 +47,7 @@ class TestClass
 		var x = ~TestEnum.Item1;
 	}
 }";
-			Test<BitwiseOperationOnNonFlagsEnumIssue> (input, 1);
+			Test<BitwiseOperatorOnEnumWithoutFlagsIssue> (input, 1);
 		}
 
 		public void TestAssignment (string op, bool bitwise = true)
@@ -65,7 +65,7 @@ class TestClass
 		x " + op + @"= TestEnum.Item2;
 	}
 }";
-			Test<BitwiseOperationOnNonFlagsEnumIssue> (input, bitwise ? 1: 0);
+			Test<BitwiseOperatorOnEnumWithoutFlagsIssue> (input, bitwise ? 1: 0);
 		}
 		[Test]
 		public void TestAssignment ()
@@ -91,8 +91,29 @@ class TestClass
 		var x =  TestEnum.Item1 " + op + @" TestEnum.Item2;
 	}
 }";
-			Test<BitwiseOperationOnNonFlagsEnumIssue> (input, bitwise ? 1 : 0);
+			Test<BitwiseOperatorOnEnumWithoutFlagsIssue> (input, bitwise ? 1 : 0);
 		}
+
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<BitwiseOperatorOnEnumWithoutFlagsIssue>(@"
+enum TestEnum
+{
+    Item1, Item2
+}
+class TestClass
+{
+    void TestMethod()
+    {
+	    var x = TestEnum.Item1;
+        // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+        x = x ^ TestEnum.Item2;
+    }
+}
+");
+		}
+
 		[Test]
 		public void TestBinary()
 		{

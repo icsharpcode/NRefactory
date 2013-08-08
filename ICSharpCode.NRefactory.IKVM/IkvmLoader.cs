@@ -39,6 +39,7 @@ using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Utils;
 using IKVM.Reflection;
 using System.IO;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.TypeSystem
 {
@@ -125,6 +126,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			if (assembly == null)
 				throw new ArgumentNullException ("assembly");
 
+			currentAssemblyDefinition = assembly;
+			currentAssembly = new IkvmUnresolvedAssembly (assembly.FullName, DocumentationProvider);
+
 			// Read assembly and module attributes
 			IList<IUnresolvedAttribute> assemblyAttributes = new List<IUnresolvedAttribute>();
 			IList<IUnresolvedAttribute> moduleAttributes = new List<IUnresolvedAttribute>();
@@ -134,8 +138,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			assemblyAttributes = interningProvider.InternList(assemblyAttributes);
 			moduleAttributes = interningProvider.InternList(moduleAttributes);
 
-			currentAssemblyDefinition = assembly;
-			currentAssembly = new IkvmUnresolvedAssembly (assembly.FullName, DocumentationProvider);
 			currentAssembly.Location = assembly.Location;
 			currentAssembly.AssemblyAttributes.AddRange(assemblyAttributes);
 			currentAssembly.ModuleAttributes.AddRange(moduleAttributes);
@@ -246,26 +248,24 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				typeIndex++;
 				return interningProvider.Intern (
 					new ByReferenceTypeReference (
-					CreateTypeReference (
-					type.GetElementType (),
-					typeAttributes, ref typeIndex)));
+						CreateTypeReference (type.GetElementType (),typeAttributes, ref typeIndex))
+					);
 			}
 			if (type.IsPointer) {
 				typeIndex++;
 				return interningProvider.Intern (
 					new PointerTypeReference (
-					CreateTypeReference (
-					type.GetElementType (),
-					typeAttributes, ref typeIndex)));
+						CreateTypeReference (type.GetElementType (), typeAttributes, ref typeIndex))
+					);
 			}
 			if (type.IsArray) {
 				typeIndex++;
 				return interningProvider.Intern (
 					new ArrayTypeReference (
-						CreateTypeReference (
-						type.GetElementType (),
-						typeAttributes, ref typeIndex),
-						type.GetArrayRank ()));
+						CreateTypeReference (type.GetElementType (), typeAttributes, ref typeIndex),
+						type.GetArrayRank ()
+					)
+				);
 			}
 			if (type.IsConstructedGenericType) {
 				ITypeReference baseType = CreateTypeReference (type.GetGenericTypeDefinition (), typeAttributes, ref typeIndex);
@@ -354,7 +354,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		IConstantValue CreateSimpleConstantValue(ITypeReference type, object value)
 		{
 			if (ReferenceEquals (value, Missing.Value))
-				return null;
+				return CreateSimpleConstantValue(type, null);
 			return interningProvider.Intern(new SimpleConstantValue(type, interningProvider.InternValue(value)));
 		}
 		#endregion
@@ -405,7 +405,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				return true;
 			if ((methodDefinition.ReturnParameter.Attributes & ParameterAttributes.HasFieldMarshal) != 0)
 				return true;
-			return methodDefinition.CustomAttributes.Any ();
+			return methodDefinition.CustomAttributes.Any () || methodDefinition.ReturnParameter.CustomAttributes.Any ();
 		}
 
 		static bool HasAnyAttributes(ConstructorInfo methodDefinition)
@@ -530,8 +530,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			if (methodDefinition.ReturnParameter.__TryGetFieldMarshal (out marshalInfo)) {
 				returnTypeAttributes.Add(ConvertMarshalInfo(marshalInfo));
 			}
-// TODO: Not needed in ikvm - maybe a work around for a cecil bug ?
-//			AddCustomAttributes(methodDefinition.ReturnType.CustomAttributes, returnTypeAttributes);
+
+			AddCustomAttributes(methodDefinition.ReturnParameter.CustomAttributes, returnTypeAttributes);
 		}
 
 		void AddAttributes(ConstructorInfo methodDefinition, IList<IUnresolvedAttribute> attributes, IList<IUnresolvedAttribute> returnTypeAttributes)
@@ -1066,7 +1066,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			}
 
 			m.ReturnType = ReadTypeReference(method.ReturnType, typeAttributes: method.ReturnParameter.CustomAttributes);
-
 			if (HasAnyAttributes(method))
 				AddAttributes(method, m.Attributes, m.ReturnTypeAttributes);
 			TranslateModifiers(method, m);

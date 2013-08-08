@@ -146,7 +146,7 @@ class Test {
           class Test {
 }",
 			      @"[Attribute1]
-[Attribute2()]
+[Attribute2 ()]
 class Test {
 }");
 		}

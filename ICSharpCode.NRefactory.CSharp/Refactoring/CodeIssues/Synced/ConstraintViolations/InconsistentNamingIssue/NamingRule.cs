@@ -34,6 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class NamingRule : IEquatable<NamingRule>
 	{
 		public string Name { get; set; }
+
 		/// <summary>
 		/// If set, identifiers are required to be prefixed with one of these values.
 		/// </summary>
@@ -62,12 +63,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <summary>
 		/// Gets or sets the affected entity.
 		/// </summary>
-		public AffectedEntity AffectedEntity { get; set; } 
+		public AffectedEntity AffectedEntity { get; set; }
 
 		/// <summary>
 		/// Gets or sets the modifiers mask
 		/// </summary>
-		public Modifiers VisibilityMask { get; set; } 
+		public Modifiers VisibilityMask { get; set; }
 
 		/// <summary>
 		/// The way that the identifier is cased and that words are separated.
@@ -75,6 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public NamingStyle NamingStyle { get; set; }
 
 		public bool IncludeStaticEntities { get; set; }
+
 		public bool IncludeInstanceMembers { get; set; }
 
 		public bool IsValid(string name)
@@ -118,15 +120,105 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			switch (NamingStyle) {
 				case NamingStyle.AllLower:
-					return !id.Any(ch => char.IsLetter(ch) && char.IsUpper(ch));
+					for (int i = 0; i < id.Length; i++) {
+						char ch = id [i];
+						if (ch == '_' && !HandleUnderscore(UnderscoreHandling.Allow, id, ref i))
+							return false;
+						if (char.IsLetter(ch) && char.IsUpper(ch))
+							return false;
+					}
+					return true;
 				case NamingStyle.AllUpper:
-					return !id.Any(ch => char.IsLetter(ch) && char.IsLower(ch));
+					for (int i = 0; i < id.Length; i++) {
+						char ch = id [i];
+						if (ch == '_' && !HandleUnderscore(UnderscoreHandling.Allow, id, ref i))
+							return false;
+						if (char.IsLetter(ch) && char.IsLower(ch))
+							return false;
+					}
+					return true;
 				case NamingStyle.CamelCase:
-					return id.Length == 0 || (char.IsLower(id [0]) && NoUnderscore(id));
+					if (id.Length > 0) {
+						if (char.IsUpper(id [0]) || id [0] == '_')
+							return false;
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(UnderscoreHandling.Forbid, id, ref i))
+								return false;
+						}
+					}
+					return true;
+				case NamingStyle.CamelCaseWithLowerLetterUnderscore:
+					if (id.Length > 0) {
+						if (char.IsUpper(id [0]) || id [0] == '_')
+							return false;
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(UnderscoreHandling.AllowWithLowerStartingLetter, id, ref i))
+								return false;
+						}
+					}
+					return true;
+
+				case NamingStyle.CamelCaseWithUpperLetterUnderscore:
+					if (id.Length > 0) {
+						if (char.IsUpper(id [0]) || id [0] == '_')
+							return false;
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(UnderscoreHandling.AllowWithUpperStartingLetter, id, ref i))
+								return false;
+						}
+					}
+					return true;
+
 				case NamingStyle.PascalCase:
-					return id.Length == 0 || (char.IsUpper(id [0]) && NoUnderscore(id));
+					if (id.Length > 0) {
+						if (char.IsLower(id [0]) || id [0] == '_')
+							return false;
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(UnderscoreHandling.Forbid, id, ref i))
+								return false;
+						}
+					}
+					return true;
+				case NamingStyle.PascalCaseWithLowerLetterUnderscore:
+					if (id.Length > 0) {
+						if (char.IsLower(id [0]) || id [0] == '_')
+							return false;
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(UnderscoreHandling.AllowWithLowerStartingLetter, id, ref i))
+								return false;
+						}
+					}
+					return true;
+				case NamingStyle.PascalCaseWithUpperLetterUnderscore:
+					if (id.Length > 0) {
+						if (char.IsLower(id [0]) || id [0] == '_')
+							return false;
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(UnderscoreHandling.AllowWithUpperStartingLetter, id, ref i))
+								return false;
+						}
+					}
+					return true;
 				case NamingStyle.FirstUpper:
-					return id.Length == 0 && char.IsUpper(id [0]) && !id.Skip(1).Any(ch => char.IsLetter(ch) && char.IsUpper(ch));
+					if (id.Length > 0) {
+						if (char.IsLower(id [0]) || id [0] == '_')
+							return false;
+
+						for (int i = 1; i < id.Length; i++) {
+							char ch = id [i];
+							if (ch == '_' && !HandleUnderscore(UnderscoreHandling.Allow, id, ref i))
+								return false;
+							if (char.IsLetter(ch) && char.IsUpper(ch))
+								return false;
+						}
+					}
+					return true;
 			}
 			return true;
 		}
@@ -144,19 +236,61 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return id.IndexOf('_') < 0;
 		}
 
-//		static bool NoUnderscoreWithoutNumber(string id)
-//		{
-//			int idx = id.IndexOf('_');
-//			while (idx >= 0 && idx < id.Length) {
-//				if ((idx + 2 >= id.Length || !char.IsDigit(id [idx + 1])) && (idx == 0 || !char.IsDigit(id [idx - 1]))) {
-//					return false;
-//				}
-//				idx = id.IndexOf('_', idx + 1);
-//			}
-//			return true;
-//		}
+		static bool CheckUnderscore(string id, UnderscoreHandling handling)
+		{
+			for (int i = 1; i < id.Length; i++) {
+				char ch = id [i];
+				if (ch == '_' && !HandleUnderscore(handling, id, ref i))
+					return false;
+			}
+			return true;
+		}
 
+		enum UnderscoreHandling {
+			Forbid,
+			Allow,
+			AllowWithLowerStartingLetter,
+			AllowWithUpperStartingLetter
+		}
 
+		static bool HandleUnderscore(UnderscoreHandling handling, string id, ref int i)
+		{
+			switch (handling) {
+				case UnderscoreHandling.Forbid:
+					return false;
+				case UnderscoreHandling.Allow:
+					return true;
+				case UnderscoreHandling.AllowWithLowerStartingLetter:
+					if (i + 1 < id.Length) {
+						char ch = id [i + 1];
+						if (char.IsLetter(ch) && !char.IsLower(ch) || ch =='_')
+							return false;
+						i++;
+					}
+					return true;
+				case UnderscoreHandling.AllowWithUpperStartingLetter:
+					if (i + 1 < id.Length) {
+						char ch = id [i + 1];
+						if (char.IsLetter(ch) && !char.IsUpper(ch) || ch =='_')
+							return false;
+						i++;
+					}
+					return true;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+		//		static bool NoUnderscoreWithoutNumber(string id)
+		//		{
+		//			int idx = id.IndexOf('_');
+		//			while (idx >= 0 && idx < id.Length) {
+		//				if ((idx + 2 >= id.Length || !char.IsDigit(id [idx + 1])) && (idx == 0 || !char.IsDigit(id [idx - 1]))) {
+		//					return false;
+		//				}
+		//				idx = id.IndexOf('_', idx + 1);
+		//			}
+		//			return true;
+		//		}
 		public string GetErrorMessage(BaseRefactoringContext ctx, string name, out IList<string> suggestedNames)
 		{
 			suggestedNames = new List<string>();
@@ -237,6 +371,29 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					suggestedNames.Add(CamelCaseIdentifier(WordParser.BreakWords(id)));
 					break;
+				case NamingStyle.CamelCaseWithLowerLetterUnderscore:
+					if (id.Length > 0 && char.IsUpper(id [0])) {
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter."), name);
+					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithLowerStartingLetter)) {
+						errorMessage = ctx.TranslateString("after '_' a lower letter should follow.");
+					} else {
+						suggestedNames.Add(id);
+						break;
+					}
+					suggestedNames.Add(CamelCaseWithLowerLetterUnderscore(id));
+					break;
+				case NamingStyle.CamelCaseWithUpperLetterUnderscore:
+					if (id.Length > 0 && char.IsUpper(id [0])) {
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter."), name);
+					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithUpperStartingLetter)) {
+						errorMessage = ctx.TranslateString("after '_' an upper letter should follow.");
+					} else {
+						suggestedNames.Add(id);
+						break;
+					}
+					suggestedNames.Add(CamelCaseWithUpperLetterUnderscore(id));
+					break;
+
 				case NamingStyle.PascalCase:
 					if (id.Length > 0 && char.IsLower(id [0])) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
@@ -248,6 +405,29 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					suggestedNames.Add(PascalCaseIdentifier(WordParser.BreakWords(id)));
 					break;
+				case NamingStyle.PascalCaseWithLowerLetterUnderscore:
+					if (id.Length > 0 && char.IsLower(id [0])) {
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
+					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithLowerStartingLetter)) {
+						errorMessage = ctx.TranslateString("after '_' a lower letter should follow.");
+					} else {
+						suggestedNames.Add(id);
+						break;
+					}
+					suggestedNames.Add(PascalCaseWithLowerLetterUnderscore(id));
+					break;
+				case NamingStyle.PascalCaseWithUpperLetterUnderscore:
+					if (id.Length > 0 && char.IsLower(id [0])) {
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
+					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithUpperStartingLetter)) {
+						errorMessage = ctx.TranslateString("after '_' an upper letter should follow.");
+					} else {
+						suggestedNames.Add(id);
+						break;
+					}
+					suggestedNames.Add(PascalCaseWithUpperLetterUnderscore(id));
+					break;
+
 				case NamingStyle.FirstUpper:
 					if (id.Length > 0 && char.IsLower(id [0])) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
@@ -310,62 +490,110 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				?? "no known errors.";
 		}
 
-		static string CamelCaseIdentifier (List<string> words)
+		static string CamelCaseIdentifier(List<string> words)
 		{
-			var sb = new StringBuilder ();
-			sb.Append (words[0].ToLower ());
+			var sb = new StringBuilder();
+			sb.Append(words [0].ToLower());
 			for (int i = 1; i < words.Count; i++) {
 //				if (sb.Length > 0 && (char.IsDigit (sb[sb.Length-1]) || char.IsDigit (words[i][0])))
 //					sb.Append ('_');
-				AppendCapitalized (words[i], sb);
+				AppendCapitalized(words [i], sb);
 			}
-			return sb.ToString ();
+			return sb.ToString();
 		}
-		
-		static string PascalCaseIdentifier (List<string> words)
+
+		static string CamelCaseWithLowerLetterUnderscore(string id)
 		{
-			var sb = new StringBuilder ();
+			return ConvertToValidNameWithSpecialUnderscoreHandling(id, ch => char.ToLower(ch), ch => char.ToLower(ch));
+		}
+
+		static string CamelCaseWithUpperLetterUnderscore(string id)
+		{
+			return ConvertToValidNameWithSpecialUnderscoreHandling(id, ch => char.ToLower(ch), ch => char.ToUpper(ch));
+		}
+
+		static string ConvertToValidNameWithSpecialUnderscoreHandling(string id, Func<char, char> firstCharFunc, Func<char, char> afterUnderscoreLetter)
+		{
+			var sb = new StringBuilder();
+			bool first = true;
+			for (int i = 0; i < id.Length; i++) {
+				char ch = id[i];
+				if (first && char.IsLetter(ch)) {
+					sb.Append(firstCharFunc(ch));
+					first = false;
+					continue;
+				}
+				if (ch == '_') {
+					if (first)
+						continue;
+					if (i + 1 < id.Length && id[i + 1] == '_')
+						continue;
+					sb.Append('_');
+					i++;
+					if (i < id.Length)
+						sb.Append(afterUnderscoreLetter (id[i]));
+					continue;
+				}
+				sb.Append(ch);
+			}
+			return sb.ToString();
+		}
+
+
+		static string PascalCaseIdentifier(List<string> words)
+		{
+			var sb = new StringBuilder();
 			for (int i = 0; i < words.Count; i++) {
 //				if (sb.Length > 0 && (char.IsDigit (sb[sb.Length-1]) || char.IsDigit (words[i][0])))
 //					sb.Append ('_');
-				AppendCapitalized (words[i], sb);
+				AppendCapitalized(words [i], sb);
 			}
-			return sb.ToString ();
+			return sb.ToString();
 		}
-		
-		static string LowerCaseIdentifier (List<string> words)
+
+		static string PascalCaseWithLowerLetterUnderscore(string id)
 		{
-			var sb = new StringBuilder ();
-			sb.Append (words[0].ToLower ());
-			for (int i = 1; i < words.Count; i++) {
-				sb.Append ('_');
-				sb.Append (words[i].ToLower ());
-			}
-			return sb.ToString ();
+			return ConvertToValidNameWithSpecialUnderscoreHandling(id, ch => char.ToUpper(ch), ch => char.ToLower (ch));
 		}
-		
-		static string UpperCaseIdentifier (List<string> words)
+
+		static string PascalCaseWithUpperLetterUnderscore(string id)
 		{
-			var sb = new StringBuilder ();
-			sb.Append (words[0].ToUpper ());
-			for (int i = 1; i < words.Count; i++) {
-				sb.Append ('_');
-				sb.Append (words[i].ToUpper ());
-			}
-			return sb.ToString ();
+			return ConvertToValidNameWithSpecialUnderscoreHandling(id, ch => char.ToUpper(ch), ch => char.ToUpper(ch));
 		}
-		
-		static string FirstUpperIdentifier (List<string> words)
+
+		static string LowerCaseIdentifier(List<string> words)
 		{
-			var sb = new StringBuilder ();
-			AppendCapitalized (words[0], sb);
+			var sb = new StringBuilder();
+			sb.Append(words [0].ToLower());
 			for (int i = 1; i < words.Count; i++) {
-				sb.Append ('_');
-				sb.Append (words[i].ToLower ());
+				sb.Append('_');
+				sb.Append(words [i].ToLower());
 			}
-			return sb.ToString ();
+			return sb.ToString();
 		}
-		
+
+		static string UpperCaseIdentifier(List<string> words)
+		{
+			var sb = new StringBuilder();
+			sb.Append(words [0].ToUpper());
+			for (int i = 1; i < words.Count; i++) {
+				sb.Append('_');
+				sb.Append(words [i].ToUpper());
+			}
+			return sb.ToString();
+		}
+
+		static string FirstUpperIdentifier(List<string> words)
+		{
+			var sb = new StringBuilder();
+			AppendCapitalized(words [0], sb);
+			for (int i = 1; i < words.Count; i++) {
+				sb.Append('_');
+				sb.Append(words [i].ToLower());
+			}
+			return sb.ToString();
+		}
+
 		static void AppendCapitalized(string word, StringBuilder sb)
 		{
 			sb.Append(word.ToLower());
@@ -373,14 +601,66 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		#region IEquatable implementation
-		public bool Equals (NamingRule other)
+
+		public bool Equals(NamingRule other)
 		{
 			return Name == other.Name &&
 				AffectedEntity == other.AffectedEntity && 
 				VisibilityMask == other.VisibilityMask && 
 				NamingStyle == other.NamingStyle;
 		}
+
 		#endregion
+
+		/// <summary>
+		/// Gets an identifier (or comma separated list of identifiers) which apply to this naming rule.
+		/// </summary>
+		public string GetPreview()
+		{
+			var result = new StringBuilder();
+			if (RequiredPrefixes != null && RequiredPrefixes.Length > 0)
+				result.Append(RequiredPrefixes [0]);
+			switch (NamingStyle) {
+				case NamingStyle.PascalCase:
+					result.Append("PascalCase");
+					break;
+				case NamingStyle.PascalCaseWithLowerLetterUnderscore:
+					result.Append("PascalCase_underscoreTolerant");
+					break;
+				case NamingStyle.PascalCaseWithUpperLetterUnderscore:
+					result.Append("PascalCase_UnderscoreTolerant");
+					break;
+
+				case NamingStyle.CamelCase:
+					result.Append("camelCase");
+					break;
+				case NamingStyle.CamelCaseWithLowerLetterUnderscore:
+					result.Append("camelCase_underscoreTolerant");
+					break;
+				case NamingStyle.CamelCaseWithUpperLetterUnderscore:
+					result.Append("camelCase_UnderscoreTolerant");
+					break;
+
+				case NamingStyle.AllUpper:
+					result.Append("ALL_UPPER");
+					break;
+				case NamingStyle.AllLower:
+					result.Append("all_Lower");
+					break;
+				case NamingStyle.FirstUpper:
+					result.Append("First_Upper");
+					break;
+			}
+			if (RequiredSuffixes != null && RequiredSuffixes.Length > 0)
+				result.Append(RequiredSuffixes [0]);
+			if (AllowedPrefixes != null) {
+				string baseString = result.ToString();
+				foreach (var str in AllowedPrefixes) {
+					result.Append(", " + str + baseString);
+				}
+			}
+			return result.ToString();
+		}
 
 		public NamingRule Clone()
 		{
@@ -391,7 +671,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			return string.Format("[NamingRule: Name={0}, AffectedEntity={1}, VisibilityMask={2}, NamingStyle={3}, IncludeStaticEntities={4}, IncludeInstanceMembers={5}]", Name, AffectedEntity, VisibilityMask, NamingStyle, IncludeStaticEntities, IncludeInstanceMembers);
 		}
-		
 	}
 }
 

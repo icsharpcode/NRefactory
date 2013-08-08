@@ -543,6 +543,7 @@ namespace ICSharpCode.NRefactory.CSharp
 							if (child.PrevSibling.Role == Roles.Comma)
 								ForceSpaceBefore(child, true);
 						}
+						child.AcceptVisitor(this);
 						if (child.NextSibling != null && child.NextSibling.Role == Roles.Comma)
 							ForceSpacesAfter(child, false);
 						continue;
@@ -551,6 +552,13 @@ namespace ICSharpCode.NRefactory.CSharp
 					child.AcceptVisitor(this);
 				}
 			}
+		}
+		public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
+		{
+			var assignToken = parameterDeclaration.AssignToken;
+			if (!assignToken.IsNull)
+				ForceSpacesAround(assignToken, policy.SpaceAroundAssignment);
+			base.VisitParameterDeclaration(parameterDeclaration);
 		}
 
 		public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
@@ -561,9 +569,16 @@ namespace ICSharpCode.NRefactory.CSharp
 			base.VisitLambdaExpression(lambdaExpression);
 		}
 
+		public override void VisitNamedExpression(NamedExpression namedExpression)
+		{
+			ForceSpacesAround(namedExpression.AssignToken, policy.SpaceAroundAssignment);
+			base.VisitNamedExpression(namedExpression);
+		}
+
 		public override void VisitNamedArgumentExpression(NamedArgumentExpression namedArgumentExpression)
 		{
 			ForceSpacesAfter(namedArgumentExpression.ColonToken, policy.SpaceInNamedArgumentAfterDoubleColon);
+
 			base.VisitNamedArgumentExpression(namedArgumentExpression);
 		}
 

@@ -83,8 +83,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				}
 
-				var resolve = (TypeResolveResult)ctx.Resolve(typeDeclaration);
-				if (Implements(resolve.Type, "System.IDisposable")) {
+				var resolve = ctx.Resolve(typeDeclaration) as TypeResolveResult;
+				if (resolve != null && Implements(resolve.Type, "System.IDisposable")) {
 					return;
 				}
 
