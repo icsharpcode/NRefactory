@@ -86,6 +86,56 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestInspectorNegatedStringEmpty ()
+		{
+			var input = @"class Foo
+{
+	void Bar (string str)
+	{
+		if (null != str && str != string.Empty)
+			;
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
+			Assert.AreEqual (1, issues.Count);
+			CheckFix (context, issues, @"class Foo
+{
+	void Bar (string str)
+	{
+		if (!string.IsNullOrEmpty (str))
+			;
+	}
+}");
+		}
+
+		[Test]
+		public void TestInspectorStringEmpty ()
+		{
+			var input = @"class Foo
+{
+	void Bar (string str)
+	{
+		if (null == str || str == string.Empty)
+			;
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
+			Assert.AreEqual (1, issues.Count);
+			CheckFix (context, issues, @"class Foo
+{
+	void Bar (string str)
+	{
+		if (string.IsNullOrEmpty (str))
+			;
+	}
+}");
+		}
+
+		[Test]
 		public void TestInspectorCaseNS3 ()
 		{
 			var input = @"class Foo
