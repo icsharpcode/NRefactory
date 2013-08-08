@@ -95,7 +95,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					}, lockStatement);
 
-					AddIssue(lockStatement, ctx.TranslateString("Found lock (this)"), fixAction);
+					AddIssue(lockStatement.LockToken.StartLocation,
+					         lockStatement.RParToken.EndLocation, ctx.TranslateString("Found lock (this)"), fixAction);
 				}
 			}
 
