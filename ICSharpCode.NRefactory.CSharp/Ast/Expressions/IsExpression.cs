@@ -46,6 +46,17 @@ namespace ICSharpCode.NRefactory.CSharp
 			get { return GetChildByRole(Roles.Type); }
 			set { SetChildByRole(Roles.Type, value); }
 		}
+
+		public IsExpression()
+		{
+		}
+
+		public IsExpression (Expression expression, AstType type)
+		{
+			AddChild (expression, Roles.Expression);
+			AddChild (type, Roles.Type);
+		}
+
 		
 		public override void AcceptVisitor (IAstVisitor visitor)
 		{
