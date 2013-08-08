@@ -1,5 +1,5 @@
 //
-// PossibleParenthesizedExpression.cs
+// ReplaceWithOfTypeAnyIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,51 +24,68 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp;
+using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
 
-namespace ICSharpCode.NRefactory.PatternMatching
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	/// <summary>
-	/// Matches an expression regardless of it has redundant parentheses or not
-	/// </summary>
-	public class PossibleParenthesizedExpression : Expression
+	[TestFixture]
+	public class ReplaceWithOfTypeAnyIssueTests : InspectionActionTestBase
 	{
-		readonly Expression expr;
-
-		public PossibleParenthesizedExpression(Expression expr)
+		[Test]
+		public void TestCaseBasic ()
 		{
-			this.expr = expr;
+			Test<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+class Test
+{
+	public void Foo(object[] obj)
+	{
+		obj.Select (q => q as Test).Any (q => q != null);
+	}
+}", @"using System.Linq;
+class Test
+{
+	public void Foo(object[] obj)
+	{
+		obj.OfType<Test> ().Any ();
+	}
+}");
 		}
 
-		public override void AcceptVisitor (IAstVisitor visitor)
+		[Test]
+		public void TestCaseBasicWithFollowUpExpresison ()
 		{
-			throw new InvalidOperationException();
+			Test<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+class Test
+{
+	public void Foo(object[] obj)
+	{
+		obj.Select (q => q as Test).Any (q => q != null && Foo (q));
+	}
+}", @"using System.Linq;
+class Test
+{
+	public void Foo(object[] obj)
+	{
+		obj.OfType<Test> ().Any (q => Foo (q));
+	}
+}");
 		}
 
-		public override T AcceptVisitor<T> (IAstVisitor<T> visitor)
+		[Test]
+		public void TestDisable ()
 		{
-			throw new InvalidOperationException();
+			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+class Test
+{
+	public void Foo(object[] obj)
+	{
+		// ReSharper disable once ReplaceWithOfType.Any
+		obj.Select (q => q as Test).Any (q => q != null);
+	}
+}");
 		}
-
-		public override S AcceptVisitor<T, S> (IAstVisitor<T, S> visitor, T data)
-		{
-			throw new InvalidOperationException();
-		}
-
-		protected internal override bool DoMatch(AstNode other, ICSharpCode.NRefactory.PatternMatching.Match match)
-		{
-			do {
-				var parenthesized = other as ParenthesizedExpression;
-				if (parenthesized == null)
-					return expr.DoMatch(other, match);
-				other = parenthesized.Expression;
-			} while (other != null);
-			return false;
-		}
-
 	}
 }
 

@@ -578,8 +578,8 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\LowercaseLongLiteralSuffixIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeIssue.cs" />
     <Compile Include="PatternMatching\AnyType.cs" />
-    <Compile Include="PatternMatching\PossibleParenthesizedExpression.cs" />
     <Compile Include="PatternMatching\NamedParameterDeclaration.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeAny.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

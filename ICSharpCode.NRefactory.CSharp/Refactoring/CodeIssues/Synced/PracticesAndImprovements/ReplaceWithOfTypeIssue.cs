@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new MemberReferenceExpression(new AnyNode("target"), "SelectNotNull"),
 				new LambdaExpression {
 					Parameters = { new NamedParameterDeclaration ("param1", new AnyType (true, "paramType"), Pattern.AnyString) },
-					Body = new PossibleParenthesizedExpression (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
+					Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
 				}
 			);
 
@@ -56,12 +56,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						new MemberReferenceExpression(new AnyNode("target"), "Where"),
 						new LambdaExpression {
 							Parameters = { new NamedParameterDeclaration ("param1", new AnyType (true, "paramType"), Pattern.AnyString) },
-							Body = new PossibleParenthesizedExpression (new IsExpression(new AnyNode("expr1"), new AnyNode("type")))
+							Body = PatternHelper.OptionalParentheses (new IsExpression(new AnyNode("expr1"), new AnyNode("type")))
 						}
 					), "Select"),
 				new LambdaExpression {
 					Parameters = { new NamedParameterDeclaration ("param2", new AnyType (true, "paramType"), Pattern.AnyString) },
-					Body = new PossibleParenthesizedExpression (new AsExpression(new PossibleParenthesizedExpression (new AnyNode("expr2")), new Backreference("type")))
+					Body = PatternHelper.OptionalParentheses (new AsExpression(PatternHelper.OptionalParentheses (new AnyNode("expr2")), new Backreference("type")))
 				}
 		);
 
@@ -72,12 +72,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						new MemberReferenceExpression(new AnyNode("target"), "Where"),
 						new LambdaExpression {
 							Parameters = { new NamedParameterDeclaration ("param1", new AnyType (true, "paramType"), Pattern.AnyString) },
-							Body = new PossibleParenthesizedExpression (new IsExpression(new PossibleParenthesizedExpression (new AnyNode("expr1")), new AnyNode("type")))
+							Body = PatternHelper.OptionalParentheses (new IsExpression(PatternHelper.OptionalParentheses (new AnyNode("expr1")), new AnyNode("type")))
 						}
 					), "Select"),
 				new LambdaExpression {
 					Parameters = { new NamedParameterDeclaration ("param2", new AnyType (true, "paramType"), Pattern.AnyString) },
-					Body = new PossibleParenthesizedExpression (new CastExpression(new Backreference("type"), new PossibleParenthesizedExpression (new AnyNode("expr2"))))
+					Body = PatternHelper.OptionalParentheses (new CastExpression(new Backreference("type"), PatternHelper.OptionalParentheses (new AnyNode("expr2"))))
 				}
 		);
 
@@ -125,7 +125,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				AddIssue (
 					anyInvoke,
 					ctx.TranslateString("Replace with OfType<T>"),
-					ctx.TranslateString("Replace with call OfType<T>"),
+					ctx.TranslateString("Replace with call to OfType<T>"),
 					script => {
 						var target = match.Get<Expression>("target").Single().Clone ();
 						var type = match.Get<AstType>("type").Single().Clone();
@@ -133,9 +133,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				);
 			}
-
 		}
-
 	}
 }
 
