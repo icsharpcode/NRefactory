@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				
 				if (arguments.Any(f => f.Type.IsNull))
 					return;
-				
+
 				var validTypes = CreateFieldAction.GetValidTypes(ctx.Resolver, lambdaexpression).ToList();
 				foreach (var type in validTypes) {
 					if (type.Kind != TypeKind.Delegate)
@@ -81,8 +81,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				}
 				
-				bool singleArgument = (arguments.Any());
-				
+				bool singleArgument = (arguments.Count == 1);
+
 				foreach (var argument in arguments) {
 					var type = argument.GetChildByRole(Roles.Type);
 					AddIssue(type, ctx.TranslateString("Explicit type specification can be removed as it can be implicitly inferred."), ctx.TranslateString("Remove parameter type specification"), script => {
