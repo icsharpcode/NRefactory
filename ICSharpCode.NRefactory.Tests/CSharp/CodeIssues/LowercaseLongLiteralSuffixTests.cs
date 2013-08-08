@@ -47,16 +47,26 @@ class Test
 		}
 
 		[Test]
-		public void TestUnsigned()
+		public void TestDisabledForUnsignedFirst()
 		{
 			Test<LowercaseLongLiteralSuffixIssue>(@"
 class Test
 {
 	public ulong x = 3ul;
+}", 0);
+		}
+
+		[Test]
+		public void TestUnsigned()
+		{
+			Test<LowercaseLongLiteralSuffixIssue>(@"
+class Test
+{
+	public ulong x = 3lu;
 }", @"
 class Test
 {
-	public ulong x = 3uL;
+	public ulong x = 3LU;
 }");
 		}
 

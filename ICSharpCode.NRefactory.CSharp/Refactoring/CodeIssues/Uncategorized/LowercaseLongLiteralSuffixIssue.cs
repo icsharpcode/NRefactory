@@ -62,7 +62,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				}
 
-				if (literalValue [literalValue.Length - 1] == 'l' || literalValue [literalValue.Length - 2] == 'l') {
+				char prevChar = literalValue [literalValue.Length - 2];
+				char lastChar = literalValue [literalValue.Length - 1];
+
+				if (prevChar == 'u' || prevChar == 'U') {
+					//No problem, '3ul' is not confusing
+					return;
+				}
+
+				if (lastChar == 'l' || prevChar == 'l') {
 
 					AddIssue(primitiveExpression,
 					        "Use of lowercase l as long literal suffix",
@@ -70,7 +78,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					        script => {
 
 						object newValue = primitiveExpression.Value;
-						string newLiteralValue = primitiveExpression.LiteralValue.Replace('l', 'L');
+						string newLiteralValue = primitiveExpression.LiteralValue.ToUpperInvariant();
 						script.Replace(primitiveExpression, new PrimitiveExpression(newValue, newLiteralValue));
 
 					});
