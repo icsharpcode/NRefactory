@@ -77,9 +77,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitAccessor(Accessor accessor)
 			{
+				if (accessor.Body.IsNull)
+					return;
 				var parentProperty = accessor.GetParent<PropertyDeclaration>();
 				var resolveResult = ctx.Resolve(parentProperty);
 				var memberResolveResult = resolveResult as MemberResolveResult;
+
 				VisitBody("Accessor", accessor.Keyword, accessor.Body,
 				          memberResolveResult == null ? null : memberResolveResult.Member,
 				          accessor.Keyword.Role);
