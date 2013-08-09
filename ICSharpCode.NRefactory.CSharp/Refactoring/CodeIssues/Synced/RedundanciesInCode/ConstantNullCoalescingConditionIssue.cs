@@ -35,11 +35,13 @@ using System.Runtime.InteropServices.ComTypes;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Redundant null coalescing expression",
+	[IssueDescription("'??' condition is known to be null or not null",
 	                  Description = "Finds redundant null coalescing expressions such as expr ?? expr",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning)]
-	public class RedundantNullCoalescingExpressionIssue : GatherVisitorCodeIssueProvider
+	                  Category = IssueCategories.RedundanciesInCode,
+	                  Severity = Severity.Warning,
+	                  IssueMarker = IssueMarker.GrayOut,
+	                  ResharperDisableKeyword = "ConstantNullCoalescingCondition")]
+	public class ConstantNullCoalescingConditionIssue : GatherVisitorCodeIssueProvider
 	{
 		static readonly Pattern Pattern = new Choice {
 			PatternHelper.CommutativeOperatorWithOptionalParentheses(
@@ -57,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantNullCoalescingExpressionIssue>
+		class GatherVisitor : GatherVisitorBase<ConstantNullCoalescingConditionIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
@@ -70,18 +72,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var match = Pattern.Match(binaryOperatorExpression);
 				if (match.Success) {
-					AddIssue(binaryOperatorExpression.OperatorToken,
-					         ctx.TranslateString("Found redundant null coallescing expression"),
-					         ctx.TranslateString("Remove redundancy"),
-					         script => {
-
-						script.Replace(binaryOperatorExpression,
-						               match.Get<Expression>("expression").Single().Clone());
-
-					});
+					var expr = match.Get<Expression>("expression").Single();
+					var isLeft = binaryOperatorExpression.Left == expr;
+					AddIssue(
+						isLeft ? binaryOperatorExpression.Left : binaryOperatorExpression.Right,
+						ctx.TranslateString("Found redundant null coallescing expression"),
+						isLeft ? ctx.TranslateString("Replace '??' with left operand") : ctx.TranslateString("Replace '??' with right operand"),
+						script => {
+							script.Replace(binaryOperatorExpression, expr.Clone());
+						}
+					);
 				}
 			}
 		}
 	}
 }
-
