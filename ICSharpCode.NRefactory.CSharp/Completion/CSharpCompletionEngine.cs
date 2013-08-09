@@ -2504,7 +2504,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			var thisLineIndent = GetLineIndent(location.Line);
 			string delegateEndString = EolMarker + thisLineIndent + "}" + (addSemicolon ? ";" : "");
 			//bool containsDelegateData = completionList.Result.Any(d => d.DisplayText.StartsWith("delegate("));
-			if (addDefault) {
+			if (addDefault && !completionList.AnonymousDelegateAdded) {
+				completionList.AnonymousDelegateAdded = true;
 				var oldDelegate = completionList.Result.FirstOrDefault(cd => cd.DisplayText == "delegate");
 				if (oldDelegate != null)
 					completionList.Result.Remove(oldDelegate);

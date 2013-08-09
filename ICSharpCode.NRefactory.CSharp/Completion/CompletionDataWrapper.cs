@@ -48,6 +48,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				return completion.factory;
 			}
 		}
+
+		internal bool AnonymousDelegateAdded {
+			get;
+			set;
+		}
 		
 		public CompletionDataWrapper (CSharpCompletionEngine completion)
 		{
