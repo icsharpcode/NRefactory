@@ -6182,6 +6182,33 @@ public class TestMe
 			Assert.IsNotNull (provider.Find ("BMethod"), "method 'BMethod' not found.");
 		}
 
+		/// <summary>
+		/// Bug 13746 - Not useful completion for async delegates 
+		/// </summary>
+		[Test]
+		public void TestBug13746 ()
+		{
+			var provider = CreateProvider (
+				@"using System;
+using System.Threading.Tasks;
+
+class Test
+{
+    public static void Main()
+    {
+        var c = new HttpClient ();
+        $Task.Run (a$
+        return;
+    }
+}
+");
+			Assert.IsNotNull (provider, "provider not found.");
+			foreach (var p in provider.Data)
+				Console.WriteLine(p.DisplayText);
+			Assert.AreEqual(1, provider.Data.Count(cd => cd.DisplayText == "async delegate"));
+			Assert.AreEqual(1, provider.Data.Count(cd => cd.DisplayText == "delegate()"));
+			Assert.AreEqual(1, provider.Data.Count(cd => cd.DisplayText == "async delegate()"));
+		}
 
 
 	}
