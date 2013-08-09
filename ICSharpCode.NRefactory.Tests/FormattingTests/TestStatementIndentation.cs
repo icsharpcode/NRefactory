@@ -852,23 +852,6 @@ do {
 		if (true) { Foo (); }
 	}
 }");
-			
-			
-			Test (policy, @"class Test
-{
-	Test TestMethod ()
-	{
-		if (true) Foo ();
-	}
-}", @"class Test
-{
-	Test TestMethod ()
-	{
-		if (true) Foo ();
-	}
-}");
-			
-			
 			Test (policy, @"class Test
 {
 	Test TestMethod ()
@@ -1677,6 +1660,57 @@ using System;
 	}
 }");
 		}
-		
+
+
+		[Test]
+		public void TestEmbeddedStatementPlacement()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+			policy.EmbeddedStatementPlacement = NewLinePlacement.SameLine;
+
+			Test(policy, @"class Test
+{
+	void MyTest ()
+	{
+		if (true)                 ;
+	}
+}", @"class Test
+{
+	void MyTest ()
+	{
+		if (true) ;
+	}
+}");
+
+			Test(policy, @"class Test
+{
+	void MyTest ()
+	{
+		if (true)
+			;
+	}
+}", @"class Test
+{
+	void MyTest ()
+	{
+		if (true) ;
+	}
+}");
+			policy.EmbeddedStatementPlacement = NewLinePlacement.NewLine;
+			Test(policy, @"class Test
+{
+	void MyTest ()
+	{
+		if (true) ;
+	}
+}", @"class Test
+{
+	void MyTest ()
+	{
+		if (true)
+			;
+	}
+}");
+		}
 	}
 }

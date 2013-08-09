@@ -163,6 +163,15 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 		}
 
 		[Test]
+		public void TestSpaceAroundNullCoalescingOperator ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.SpaceAroundNullCoalescingOperator = true;
+			TestBinaryOperator (policy, "??");
+		}
+
+
+		[Test]
 		public void TestSpacesAroundAdditiveOperator ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -1685,6 +1694,60 @@ return (Test)null;
 				Assert.Fail ("text invalid:" + result.Text);
 			Assert.AreEqual ("foo = bar", result.GetText (i1, i2 - i1));
 		}
+
+
+		[Test]
+		public void TestSpaceAfterUnsafeAddressOfOperator ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.SpaceAfterUnsafeAddressOfOperator = true;
+
+			var result = GetResult (policy, @"unsafe class Test {
+	void TestMe ()
+	{
+		int* a = &x;
+	}
+}");
+			int i1 = result.Text.LastIndexOf("&", System.StringComparison.Ordinal);
+			int i2 = result.Text.LastIndexOf("x", System.StringComparison.Ordinal) + "x".Length;
+			Assert.AreEqual (@"& x", result.GetText (i1, i2 - i1));
+		}
+
+		[Test]
+		public void TestSpaceAfterUnsafeAsteriskOfOperator ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.SpaceAfterUnsafeAsteriskOfOperator = true;
+
+			var result = GetResult (policy, @"unsafe class Test {
+	void TestMe ()
+	{
+		int a = *x;
+	}
+}");
+			int i1 = result.Text.LastIndexOf("*", System.StringComparison.Ordinal);
+			int i2 = result.Text.LastIndexOf("x", System.StringComparison.Ordinal) + "x".Length;
+			Assert.AreEqual (@"* x", result.GetText (i1, i2 - i1));
+		}
+
+		[Test]
+		public void TestSpaceAroundUnsafeArrowOperator ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.SpaceAroundUnsafeArrowOperator = true;
+
+			var result = GetResult (policy, @"unsafe class Test {
+	void TestMe ()
+	{
+		x->Foo ();
+	}
+}");
+			var txt = result.Text;
+			int i1 = txt.LastIndexOf("x", System.StringComparison.Ordinal);
+			int i2 = txt.LastIndexOf(";", System.StringComparison.Ordinal) + ";".Length;
+			Assert.AreEqual (@"x -> Foo ();", txt.Substring (i1, i2 - i1));
+		}
+
 
 	}
 }
