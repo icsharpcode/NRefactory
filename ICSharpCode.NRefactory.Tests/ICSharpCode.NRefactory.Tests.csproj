@@ -468,6 +468,7 @@
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeSingleOrDefaultIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeWhereIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LongLiteralEndingLowerLIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\DuplicatedLinqToListOrArrayTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
