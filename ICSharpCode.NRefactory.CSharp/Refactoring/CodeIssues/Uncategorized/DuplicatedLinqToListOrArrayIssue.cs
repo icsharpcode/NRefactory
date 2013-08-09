@@ -86,8 +86,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (matches >= 2) {
 					AddIssue(currentExpression.EndLocation,
 					         invocationExpression.EndLocation,
-					         "Redundant Linq method invocations",
-					         "Remove redundant method invocations",
+					         ctx.TranslateString("Redundant Linq method invocations"),
+					         ctx.TranslateString("Remove redundant method invocations"),
 					         script => {
 
 						string lastInvocation = ((MemberReferenceExpression)invocationExpression.Target).MemberName;
