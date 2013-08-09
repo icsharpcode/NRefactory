@@ -50,6 +50,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				BinaryOperatorType.ConditionalOr,
 				new Choice {
 					PatternHelper.CommutativeOperator (new Backreference ("str"), BinaryOperatorType.Equality, new PrimitiveExpression ("")),
+					PatternHelper.CommutativeOperator (new Backreference ("str"), BinaryOperatorType.Equality,
+				                                       new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("string")), "Empty")),
 					PatternHelper.CommutativeOperator (
 						new MemberReferenceExpression (new Backreference ("str"), "Length"),
 						BinaryOperatorType.Equality,
@@ -59,7 +61,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			),
 			// str == "" || str == null
 			new BinaryOperatorExpression (
-				PatternHelper.CommutativeOperator (new AnyNode ("str"), BinaryOperatorType.Equality, new PrimitiveExpression ("")),
+				new Choice {
+					PatternHelper.CommutativeOperator (new AnyNode ("str"), BinaryOperatorType.Equality, new PrimitiveExpression ("")),
+					PatternHelper.CommutativeOperator (new AnyNode ("str"), BinaryOperatorType.Equality,
+				                                       new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("string")), "Empty"))
+				},
 				BinaryOperatorType.ConditionalOr,
 				PatternHelper.CommutativeOperator(new Backreference ("str"), BinaryOperatorType.Equality, new NullReferenceExpression ())
 			)
@@ -73,6 +79,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				BinaryOperatorType.ConditionalAnd,
 				new Choice {
 					PatternHelper.CommutativeOperator (new Backreference ("str"), BinaryOperatorType.InEquality, new PrimitiveExpression ("")),
+					PatternHelper.CommutativeOperator (new Backreference ("str"), BinaryOperatorType.InEquality,
+				                                   	   new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("string")), "Empty")),
 					PatternHelper.CommutativeOperator (
 						new MemberReferenceExpression (new Backreference ("str"), "Length"),
 						BinaryOperatorType.InEquality,
@@ -87,7 +95,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			),
 			// str != "" && str != null
 			new BinaryOperatorExpression (
-				PatternHelper.CommutativeOperator (new AnyNode ("str"), BinaryOperatorType.InEquality, new PrimitiveExpression ("")),
+				new Choice {
+					PatternHelper.CommutativeOperator (new AnyNode ("str"), BinaryOperatorType.InEquality, new PrimitiveExpression ("")),
+					PatternHelper.CommutativeOperator (new AnyNode ("str"), BinaryOperatorType.Equality,
+				                                   	   new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("string")), "Empty"))
+				},
 				BinaryOperatorType.ConditionalAnd,
 				PatternHelper.CommutativeOperator(new Backreference ("str"), BinaryOperatorType.InEquality, new NullReferenceExpression ())
 			)
