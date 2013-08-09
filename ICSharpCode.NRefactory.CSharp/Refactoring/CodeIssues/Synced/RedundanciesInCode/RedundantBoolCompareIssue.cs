@@ -50,10 +50,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			// note:this action should only check <bool> == true or <bool> != null - it needs excectly 
 			//      mimic the RedundantBoolCompare behavior otherwise it's no 1:1 mapping
 			static readonly Pattern pattern = new Choice {
-				PatternHelper.CommutativeOperator(
+				PatternHelper.CommutativeOperatorWithOptionalParentheses(
 					new NamedNode ("const", new Choice { new PrimitiveExpression(true)/*, new PrimitiveExpression(false) */}),
 					BinaryOperatorType.Equality, new AnyNode("expr")),
-				PatternHelper.CommutativeOperator(
+				PatternHelper.CommutativeOperatorWithOptionalParentheses(
 					new NamedNode ("const", new Choice { /*new PrimitiveExpression(true), */new PrimitiveExpression(false) }),
 					BinaryOperatorType.InEquality, new AnyNode("expr")),
 			};

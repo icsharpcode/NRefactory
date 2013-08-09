@@ -31,6 +31,7 @@ using ICSharpCode.NRefactory.CSharp.CodeCompletion;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
+	[TestFixture]
 	public class RedundantNullCoalescingExpressionTests : InspectionActionTestBase
 	{
 		[Test]

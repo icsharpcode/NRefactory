@@ -42,10 +42,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class RedundantNullCoalescingExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		static readonly Pattern Pattern = new Choice {
-			PatternHelper.CommutativeOperator(
+			PatternHelper.CommutativeOperatorWithOptionalParentheses(
 				new AnyNode("expression"),
 				BinaryOperatorType.NullCoalescing,
-				PatternHelper.OptionalParentheses(new NullReferenceExpression())),
+				new NullReferenceExpression()),
 			new BinaryOperatorExpression(
 				new AnyNode("expression"),
 				BinaryOperatorType.NullCoalescing,

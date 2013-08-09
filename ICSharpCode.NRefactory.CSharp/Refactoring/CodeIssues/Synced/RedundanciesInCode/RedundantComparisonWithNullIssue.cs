@@ -49,19 +49,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Type = new AnyNode("t")
 					}),
 				BinaryOperatorType.ConditionalAnd,
-				PatternHelper.OptionalParentheses(
-					PatternHelper.CommutativeOperator(new Backreference("a"),
+				PatternHelper.CommutativeOperatorWithOptionalParentheses(new Backreference("a"),
 					                                  BinaryOperatorType.InEquality,
 					                                  new NullReferenceExpression())
-				)
 			),
 			//  a != null && a is Record
 			new BinaryOperatorExpression (
-				PatternHelper.OptionalParentheses(
-					PatternHelper.CommutativeOperator(new AnyNode("a"),
+				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"),
 					                                  BinaryOperatorType.InEquality,
-					                                  new NullReferenceExpression())
-				),
+					                                  new NullReferenceExpression()),
 				BinaryOperatorType.ConditionalAnd,
 				PatternHelper.OptionalParentheses(
 					new IsExpression {

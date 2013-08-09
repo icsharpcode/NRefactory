@@ -37,6 +37,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new BinaryOperatorExpression(expr2.Clone(), op, expr1.Clone())
 			};
 		}
+
+		public static Expression CommutativeOperatorWithOptionalParentheses(Expression expr1, BinaryOperatorType op, Expression expr2)
+		{
+			return OptionalParentheses(CommutativeOperator(OptionalParentheses(expr1), op, OptionalParentheses(expr2)));
+		}
 		
 		/// <summary>
 		/// Optionally allows parentheses around the given expression.
