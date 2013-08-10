@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Resolver;
@@ -58,9 +57,14 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			return new NullValueAnalysis(methodDeclaration, astResolver, CancellationToken.None);
 		}
 
-		ParameterDeclaration CreatePrimitiveParameter(string typeKeyword = "string", string parameterName = "p")
+		ParameterDeclaration CreatePrimitiveParameter(string typeKeyword, string parameterName)
 		{
 			return new ParameterDeclaration(new PrimitiveType(typeKeyword), parameterName);
+		}
+
+		ParameterDeclaration CreateStringParameter(string parameterName = "p")
+		{
+			return CreatePrimitiveParameter("string", parameterName);
 		}
 
 		[Test]
@@ -75,7 +79,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					new ReturnStatement()
 				}
 			};
-			method.Parameters.Add(CreatePrimitiveParameter());
+			method.Parameters.Add(CreateStringParameter());
 
 			var analysis = CreateNullValueAnalysis(method);
 			var stmt1 = method.Body.Statements.First();
@@ -102,17 +106,92 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					new ReturnStatement()
 				}
 			};
-			method.Parameters.Add(CreatePrimitiveParameter());
+			method.Parameters.Add(CreateStringParameter());
 
 			var analysis = CreateNullValueAnalysis(method);
-			var stmt1 = (IfElseStatement) method.Body.Statements.First();
-			var stmt2 = (ExpressionStatement) stmt1.TrueStatement;
+			var stmt1 = (IfElseStatement)method.Body.Statements.First();
+			var stmt2 = (ExpressionStatement)stmt1.TrueStatement;
 			var stmt3 = (ReturnStatement)method.Body.Statements.ElementAt(1);
 
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt1, "p"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusBeforeStatement(stmt2, "p"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(stmt2, "p"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(stmt3, "p"));
+		}
+
+		[Test]
+		public void TestConditionalAnd()
+		{
+			var method = new MethodDeclaration {
+				Body = new BlockStatement {
+					new IfElseStatement {
+						Condition = new BinaryOperatorExpression(
+								new BinaryOperatorExpression(new IdentifierExpression("p1"),
+						                                         BinaryOperatorType.Equality,
+						                                         new NullReferenceExpression()),
+								BinaryOperatorType.ConditionalAnd,
+								new BinaryOperatorExpression(new IdentifierExpression("p2"),
+						                                     BinaryOperatorType.Equality,
+						                                     new NullReferenceExpression())),
+						TrueStatement = new ExpressionStatement(new AssignmentExpression(
+							new IdentifierExpression("p1"),
+							new PrimitiveExpression("Hello")))
+					},
+					new ReturnStatement()
+				}
+			};
+			method.Parameters.Add(CreateStringParameter("p1"));
+			method.Parameters.Add(CreateStringParameter("p2"));
+
+			var analysis = CreateNullValueAnalysis(method);
+			var stmt1 = (IfElseStatement)method.Body.Statements.First();
+			var stmt2 = (ExpressionStatement)stmt1.TrueStatement;
+			var stmt3 = (ReturnStatement)method.Body.Statements.ElementAt(1);
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt1, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt1, "p2"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusBeforeStatement(stmt2, "p1"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusBeforeStatement(stmt2, "p2"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(stmt2, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt3, "p2"));
+		}
+
+		[Test]
+		public void TestConditionalOr()
+		{
+			var method = new MethodDeclaration {
+				Body = new BlockStatement {
+					new IfElseStatement {
+						Condition = new UnaryOperatorExpression(UnaryOperatorType.Not,
+						                                        new BinaryOperatorExpression(
+							new BinaryOperatorExpression(new IdentifierExpression("p1"),
+						                             BinaryOperatorType.Equality,
+						                             new NullReferenceExpression()),
+							BinaryOperatorType.ConditionalOr,
+							new BinaryOperatorExpression(new IdentifierExpression("p2"),
+						                             BinaryOperatorType.Equality,
+						                             new NullReferenceExpression()))),
+						TrueStatement = new ExpressionStatement(new AssignmentExpression(
+							new IdentifierExpression("p1"),
+							new NullReferenceExpression()))
+					},
+					new ReturnStatement()
+				}
+			};
+			method.Parameters.Add(CreateStringParameter("p1"));
+			method.Parameters.Add(CreateStringParameter("p2"));
+
+			var analysis = CreateNullValueAnalysis(method);
+			var stmt1 = (IfElseStatement)method.Body.Statements.First();
+			var stmt2 = (ExpressionStatement)stmt1.TrueStatement;
+			var stmt3 = (ReturnStatement)method.Body.Statements.ElementAt(1);
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt1, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt1, "p2"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(stmt2, "p1"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(stmt2, "p2"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(stmt2, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt3, "p2"));
 		}
 	}
 }

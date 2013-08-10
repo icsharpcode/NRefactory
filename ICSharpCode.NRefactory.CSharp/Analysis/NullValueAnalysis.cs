@@ -41,6 +41,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.CSharp;
+using Mono.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -121,7 +122,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public bool ReceiveIncoming(VariableStatusInfo incomingState)
 			{
 				bool changed = false;
-				foreach (string variable in VariableStatus.Keys.Concat(incomingState.VariableStatus.Keys))
+				var listOfVariables = VariableStatus.Keys.Concat(incomingState.VariableStatus.Keys).ToList();
+				foreach (string variable in listOfVariables)
 				{
 					var newValue = CombineStatus(this [variable], incomingState [variable]);
 					if (this [variable] != newValue) {
@@ -477,6 +479,71 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					return clone;
 				}
 			}
+
+			public VariableStatusInfo TruePathVariables {
+				get {
+					var variables = Variables.Clone();
+					foreach (var item in ConditionalBranchInfo.TrueResultVariableNullStates) {
+						variables [item.Key] = item.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+					}
+					return variables;
+				}
+			}
+
+			public VariableStatusInfo FalsePathVariables {
+				get {
+					var variables = Variables.Clone();
+					foreach (var item in ConditionalBranchInfo.FalseResultVariableNullStates) {
+						variables [item.Key] = item.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+					}
+					return variables;
+				}
+			}
+
+			public static VisitorResult AndOperation(VisitorResult tentativeLeftResult, VisitorResult tentativeRightResult)
+			{
+				var result = new VisitorResult();
+				result.KnownBoolResult = tentativeLeftResult.KnownBoolResult & tentativeRightResult.KnownBoolResult;
+
+				var trueTruePath = tentativeRightResult.TruePathVariables;
+				var trueFalsePath = tentativeRightResult.FalsePathVariables;
+				var falsePath = tentativeLeftResult.FalsePathVariables;
+
+				var trueVariables = trueTruePath;
+
+				var falseVariables = trueFalsePath.Clone();
+				falseVariables.ReceiveIncoming(falsePath);
+				result.Variables = trueVariables.Clone();
+				result.Variables.ReceiveIncoming(falseVariables);
+
+				result.ConditionalBranchInfo = new ConditionalBranchInfo();
+
+				foreach (var variable in trueVariables.VariableStatus) {
+					if (!variable.Value.IsDefiniteValue())
+						continue;
+
+					string variableName = variable.Key;
+
+					if (variable.Value != result.Variables[variableName]) {
+						bool isNull = variable.Value == NullValueStatus.DefinitelyNull;
+						result.ConditionalBranchInfo.TrueResultVariableNullStates.Add(variableName, isNull);
+					}
+				}
+
+				foreach (var variable in falseVariables.VariableStatus) {
+					if (!variable.Value.IsDefiniteValue())
+						continue;
+
+					string variableName = variable.Key;
+
+					if (variable.Value != result.Variables [variableName]) {
+						bool isNull = variable.Value == NullValueStatus.DefinitelyNull;
+						result.ConditionalBranchInfo.FalseResultVariableNullStates.Add(variableName, isNull);
+					}
+				}
+
+				return result;
+			}
 		}
 
 		class NullAnalysisVisitor : DepthFirstAstVisitor<VariableStatusInfo, VisitorResult>
@@ -649,17 +716,45 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			VisitorResult VisitConditionalAndExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
 			{
-				throw new NotImplementedException();
+				var tentativeLeftResult = binaryOperatorExpression.Left.AcceptVisitor(this, data);
+				if (tentativeLeftResult.KnownBoolResult == false) {
+					return tentativeLeftResult;
+				}
+
+				var truePath = tentativeLeftResult.TruePathVariables;
+				var tentativeRightResult = binaryOperatorExpression.Right.AcceptVisitor(this, truePath);
+
+				return VisitorResult.AndOperation(tentativeLeftResult, tentativeRightResult);
 			}
 
 			VisitorResult VisitConditionalOrExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
 			{
-				throw new NotImplementedException();
+				var tentativeLeftResult = binaryOperatorExpression.Left.AcceptVisitor(this, data);
+				if (tentativeLeftResult.KnownBoolResult == true) {
+					return tentativeLeftResult;
+				}
+
+				var falsePath = tentativeLeftResult.FalsePathVariables;
+				var tentativeRightResult = binaryOperatorExpression.Right.AcceptVisitor(this, falsePath);
+
+				return VisitorResult.AndOperation(tentativeLeftResult.Negated, tentativeRightResult.Negated).Negated;
 			}
 
 			VisitorResult VisitNullCoalescing(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
 			{
 				throw new NotImplementedException();
+			}
+
+			public override VisitorResult VisitUnaryOperatorExpression(UnaryOperatorExpression unaryOperatorExpression, VariableStatusInfo data)
+			{
+				//TODO: Again, what to do when overloaded operators are found?
+
+				var tentativeResult = unaryOperatorExpression.Expression.AcceptVisitor(this, data);
+
+				if (unaryOperatorExpression.Operator == UnaryOperatorType.Not) {
+					return tentativeResult.Negated;
+				}
+				return tentativeResult;
 			}
 		}
 	}
