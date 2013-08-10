@@ -456,6 +456,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				var leftIdentifier = assignmentExpression.Left as IdentifierExpression;
 				if (leftIdentifier != null) {
 					var resolveResult = analysis.resolver.Resolve(leftIdentifier);
+					if (resolveResult.IsError) {
+						return VisitorResult.ForValue(data, NullValueStatus.Error);
+					}
 					var local = resolveResult as LocalResolveResult;
 					if (local != null) {
 						var result = new VisitorResult();
@@ -471,7 +474,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public override VisitorResult VisitIdentifierExpression(IdentifierExpression identifierExpression, VariableStatusInfo data)
 			{
-				var local = analysis.resolver.Resolve(identifierExpression) as LocalResolveResult;
+				var resolveResult = analysis.resolver.Resolve(identifierExpression);
+				if (resolveResult.IsError) {
+					return VisitorResult.ForValue(data, NullValueStatus.Error);
+				}
+				var local = resolveResult as LocalResolveResult;
 				if (local != null) {
 					return VisitorResult.ForValue(data, data.VariableStatus [local.Variable.Name]);
 				}

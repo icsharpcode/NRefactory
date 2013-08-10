@@ -31,6 +31,8 @@ using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
+using ICSharpCode.NRefactory.CSharp.TypeSystem;
+using ICSharpCode.NRefactory.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -39,8 +41,21 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 	{
 		NullValueAnalysis CreateNullValueAnalysis(MethodDeclaration methodDeclaration)
 		{
-			var resolver = new CSharpAstResolver(new CSharpResolver(new SimpleCompilation(CecilLoaderTests.Mscorlib)), methodDeclaration);
-			return new NullValueAnalysis(methodDeclaration, resolver, CancellationToken.None);
+			var type = new TypeDeclaration {
+				Name = "DummyClass",
+				ClassType = ClassType.Class
+			};
+			type.Members.Add(methodDeclaration);
+			var tree = new SyntaxTree() { FileName = "test.cs" };
+			tree.Members.Add(type);
+
+			IProjectContent pc = new CSharpProjectContent();
+			pc = pc.AddAssemblyReferences(CecilLoaderTests.Mscorlib);
+			pc = pc.AddOrUpdateFiles(new[] { tree.ToTypeSystem() });
+			var compilation = pc.CreateCompilation();
+			var resolver = new CSharpResolver(compilation);
+			var astResolver = new CSharpAstResolver(resolver, tree);
+			return new NullValueAnalysis(methodDeclaration, astResolver, CancellationToken.None);
 		}
 
 		ParameterDeclaration CreatePrimitiveParameter(string typeKeyword = "string", string parameterName = "p")
@@ -61,6 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 			};
 			method.Parameters.Add(CreatePrimitiveParameter());
+
 			var analysis = CreateNullValueAnalysis(method);
 			var stmt1 = method.Body.Statements.First();
 			var stmt2 = method.Body.Statements.ElementAt(1);
