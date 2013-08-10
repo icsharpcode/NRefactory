@@ -106,11 +106,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			var analysis = CreateNullValueAnalysis(method);
 			var stmt1 = (IfElseStatement) method.Body.Statements.First();
-			var stmt2 = stmt1.TrueStatement;
+			var stmt2 = (ExpressionStatement) stmt1.TrueStatement;
 			var stmt3 = (ReturnStatement)method.Body.Statements.ElementAt(1);
 
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt1, "p"));
-			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt2, "p"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusBeforeStatement(stmt2, "p"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(stmt2, "p"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(stmt3, "p"));
 		}

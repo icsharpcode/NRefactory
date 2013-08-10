@@ -39,6 +39,8 @@ using System.Security.Policy;
 using System.Runtime.InteropServices;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -78,6 +80,13 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		/// of this variable.
 		/// </summary>
 		Error
+	}
+
+	public static class NullValueStatusExtensions
+	{
+		public static bool IsDefiniteValue (this NullValueStatus self) {
+			return self == NullValueStatus.DefinitelyNull || self == NullValueStatus.DefinitelyNotNull;
+		}
 	}
 
 	public class NullValueAnalysis
@@ -324,12 +333,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (branchInfo != null) {
 					switch (outgoingEdge.Type) {
 						case ControlFlowEdgeType.ConditionTrue:
-							foreach (var trueState in branchInfo.TrueConditionVariableNullStates) {
+							foreach (var trueState in branchInfo.TrueResultVariableNullStates) {
 								edgeInfo.VariableStatus [trueState.Key] = trueState.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
 							}
 							break;
 						case ControlFlowEdgeType.ConditionFalse:
-							foreach (var falseState in branchInfo.FalseConditionVariableNullStates) {
+							foreach (var falseState in branchInfo.FalseResultVariableNullStates) {
 								edgeInfo.VariableStatus [falseState.Key] = falseState.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
 							}
 							break;
@@ -390,8 +399,14 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 		class ConditionalBranchInfo
 		{
-			public Dictionary<string, bool> TrueConditionVariableNullStates = new Dictionary<string, bool>();
-			public Dictionary<string, bool> FalseConditionVariableNullStates = new Dictionary<string, bool>();
+			/// <summary>
+			/// True if the variable is null for the true path, false if it is false for the true path.
+			/// </summary>
+			public Dictionary<string, bool> TrueResultVariableNullStates = new Dictionary<string, bool>();
+			/// <summary>
+			/// True if the variable is null for the false path, false if it is false for the false path.
+			/// </summary>
+			public Dictionary<string, bool> FalseResultVariableNullStates = new Dictionary<string, bool>();
 		}
 
 		class VisitorResult
@@ -419,6 +434,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			/// </summary>
 			public VariableStatusInfo Variables;
 
+			/// <summary>
+			/// The known bool result of an expression.
+			/// </summary>
+			public bool? KnownBoolResult;
+
 			public static VisitorResult ForValue(VariableStatusInfo oldResult, NullValueStatus newValue)
 			{
 				var clone = new VisitorResult();
@@ -426,10 +446,44 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				clone.Variables = oldResult.Clone();
 				return clone;
 			}
+
+			public static VisitorResult ForBoolValue(VariableStatusInfo oldResult, bool newValue)
+			{
+				var clone = new VisitorResult();
+				clone.NullableReturnResult = NullValueStatus.Unknown; //Not meaningful
+				clone.KnownBoolResult = newValue;
+				clone.Variables = oldResult.Clone();
+				return clone;
+			}
+
+			public VisitorResult Negated {
+				get {
+					var clone = new VisitorResult();
+					if (NullableReturnResult.IsDefiniteValue()) {
+						clone.NullableReturnResult = NullableReturnResult == NullValueStatus.DefinitelyNull
+							? NullValueStatus.DefinitelyNotNull : NullValueStatus.DefinitelyNull;
+					} else {
+						clone.NullableReturnResult = NullableReturnResult;
+					}
+					clone.Variables = Variables.Clone();
+					clone.KnownBoolResult = !KnownBoolResult;
+					clone.ConditionalBranchInfo = new ConditionalBranchInfo();
+					foreach (var item in ConditionalBranchInfo.TrueResultVariableNullStates) {
+						clone.ConditionalBranchInfo.FalseResultVariableNullStates [item.Key] = item.Value;
+					}
+					foreach (var item in ConditionalBranchInfo.FalseResultVariableNullStates) {
+						clone.ConditionalBranchInfo.TrueResultVariableNullStates [item.Key] = item.Value;
+					}
+					return clone;
+				}
+			}
 		}
 
 		class NullAnalysisVisitor : DepthFirstAstVisitor<VariableStatusInfo, VisitorResult>
 		{
+			static readonly Expression IdentifierPattern = PatternHelper.OptionalParentheses(
+				new IdentifierExpression(Pattern.AnyString).WithName("identifier"));
+
 			NullValueAnalysis analysis;
 
 			public NullAnalysisVisitor(NullValueAnalysis analysis) {
@@ -441,6 +495,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				//We'll visit the child statements later (we'll visit each one directly from the CFG)
 				//As such this is mostly a dummy node.
 				return new VisitorResult { Variables = data };
+			}
+
+			public override VisitorResult VisitIfElseStatement(IfElseStatement ifElseStatement, VariableStatusInfo data)
+			{
+				//We'll visit the true/false statements later (directly from the CFG)
+				return ifElseStatement.Condition.AcceptVisitor(this, data);
 			}
 
 			public override VisitorResult VisitExpressionStatement(ExpressionStatement expressionStatement, VariableStatusInfo data)
@@ -512,7 +572,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public override VisitorResult VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
 			{
-				//Let's not evaluate the sides just yet because of 
+				//Let's not evaluate the sides just yet because of ??, && and ||
 
 				switch (binaryOperatorExpression.Operator) {
 					case BinaryOperatorType.ConditionalAnd:
@@ -521,9 +581,70 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						return VisitConditionalOrExpression(binaryOperatorExpression, data);
 					case BinaryOperatorType.NullCoalescing:
 						return VisitNullCoalescing(binaryOperatorExpression, data);
+					case BinaryOperatorType.Equality:
+						return VisitEquality(binaryOperatorExpression, data);
+					case BinaryOperatorType.InEquality:
+						return VisitEquality(binaryOperatorExpression, data).Negated;
 					default:
 						throw new NotImplementedException();
 				}
+			}
+
+			VisitorResult VisitEquality(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
+			{
+				//TODO: Should this check for user operators?
+
+				var tentativeLeftResult = binaryOperatorExpression.Left.AcceptVisitor(this, data);
+				var tentativeRightResult = binaryOperatorExpression.Right.AcceptVisitor(this, tentativeLeftResult.Variables);
+
+				if (tentativeLeftResult.KnownBoolResult != null && tentativeLeftResult.KnownBoolResult == tentativeRightResult.KnownBoolResult) {
+					return VisitorResult.ForBoolValue(tentativeRightResult.Variables, true);
+				}
+
+				if (tentativeLeftResult.KnownBoolResult != null && tentativeLeftResult.KnownBoolResult == !tentativeRightResult.KnownBoolResult) {
+					return VisitorResult.ForBoolValue(tentativeRightResult.Variables, false);
+				}
+
+				if (tentativeLeftResult.NullableReturnResult.IsDefiniteValue()) {
+					if (tentativeRightResult.NullableReturnResult.IsDefiniteValue()) {
+						return VisitorResult.ForBoolValue(tentativeRightResult.Variables, tentativeLeftResult.NullableReturnResult == tentativeRightResult.NullableReturnResult);
+					}
+				}
+
+				VisitorResult result = new VisitorResult();
+				result.Variables = tentativeRightResult.Variables;
+				result.NullableReturnResult = NullValueStatus.Unknown;
+				result.ConditionalBranchInfo = new ConditionalBranchInfo();
+
+				if (tentativeRightResult.NullableReturnResult.IsDefiniteValue()) {
+					var match = IdentifierPattern.Match(binaryOperatorExpression.Left);
+
+					if (match.Success) {
+						var identifier = match.Get<IdentifierExpression>("identifier").Single();
+						var localVariableResult = analysis.resolver.Resolve(identifier) as LocalResolveResult;
+						if (localVariableResult != null) {
+							bool isNull = (tentativeRightResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
+							result.ConditionalBranchInfo.TrueResultVariableNullStates [identifier.Identifier] = isNull;
+							result.ConditionalBranchInfo.FalseResultVariableNullStates [identifier.Identifier] = !isNull;
+						}
+					}
+				}
+
+				if (tentativeRightResult.NullableReturnResult.IsDefiniteValue()) {
+					var match = IdentifierPattern.Match(binaryOperatorExpression.Right);
+
+					if (match.Success) {
+						var identifier = match.Get<IdentifierExpression>("identifier").Single();
+						var localVariableResult = analysis.resolver.Resolve(identifier) as LocalResolveResult;
+						if (localVariableResult != null) {
+							bool isNull = (tentativeLeftResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
+							result.ConditionalBranchInfo.TrueResultVariableNullStates [identifier.Identifier] = isNull;
+							result.ConditionalBranchInfo.FalseResultVariableNullStates [identifier.Identifier] = !isNull;
+						}
+					}
+				}
+
+				return result;
 			}
 
 			VisitorResult VisitConditionalAndExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
