@@ -589,6 +589,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeWhereIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\LongLiteralEndingLowerLIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\ConstantNullCoalescingConditionIssue.cs" />
+    <Compile Include="Analysis\NullValueAnalysis.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
