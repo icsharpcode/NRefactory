@@ -85,6 +85,35 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusBeforeStatement(stmt2, "p"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(stmt2, "p"));
 		}
+
+		[Test]
+		public void TestIfStatement()
+		{
+			var method = new MethodDeclaration {
+				Body = new BlockStatement {
+					new IfElseStatement {
+						Condition = new BinaryOperatorExpression(new IdentifierExpression("p"),
+						                                         BinaryOperatorType.Equality,
+						                                         new NullReferenceExpression()),
+						TrueStatement = new ExpressionStatement(new AssignmentExpression(
+							new IdentifierExpression("p"),
+							new PrimitiveExpression("Hello")))
+					},
+					new ReturnStatement()
+				}
+			};
+			method.Parameters.Add(CreatePrimitiveParameter());
+
+			var analysis = CreateNullValueAnalysis(method);
+			var stmt1 = (IfElseStatement) method.Body.Statements.First();
+			var stmt2 = stmt1.TrueStatement;
+			var stmt3 = (ReturnStatement)method.Body.Statements.ElementAt(1);
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt1, "p"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt2, "p"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(stmt2, "p"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(stmt3, "p"));
+		}
 	}
 }
 

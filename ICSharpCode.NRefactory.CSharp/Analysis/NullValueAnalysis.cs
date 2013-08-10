@@ -450,6 +450,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public override VisitorResult VisitAssignmentExpression(AssignmentExpression assignmentExpression, VariableStatusInfo data)
 			{
+				if (assignmentExpression.Operator != AssignmentOperatorType.Assign)
+					throw new NotImplementedException();
+
 				var tentativeResult = assignmentExpression.Left.AcceptVisitor(this, data);
 				tentativeResult = assignmentExpression.Right.AcceptVisitor(this, tentativeResult.Variables);
 
@@ -505,6 +508,37 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (returnStatement.Expression.IsNull)
 					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 				return returnStatement.Expression.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
+			{
+				//Let's not evaluate the sides just yet because of 
+
+				switch (binaryOperatorExpression.Operator) {
+					case BinaryOperatorType.ConditionalAnd:
+						return VisitConditionalAndExpression(binaryOperatorExpression, data);
+					case BinaryOperatorType.ConditionalOr:
+						return VisitConditionalOrExpression(binaryOperatorExpression, data);
+					case BinaryOperatorType.NullCoalescing:
+						return VisitNullCoalescing(binaryOperatorExpression, data);
+					default:
+						throw new NotImplementedException();
+				}
+			}
+
+			VisitorResult VisitConditionalAndExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
+			{
+				throw new NotImplementedException();
+			}
+
+			VisitorResult VisitConditionalOrExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
+			{
+				throw new NotImplementedException();
+			}
+
+			VisitorResult VisitNullCoalescing(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
+			{
+				throw new NotImplementedException();
 			}
 		}
 	}
