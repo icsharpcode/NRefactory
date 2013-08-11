@@ -202,7 +202,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt3, "p2"));
 		}
 
-		ExpressionStatement MakeStatement(Expression expr) {
+		ExpressionStatement MakeStatement(Expression expr)
+		{
 			return new ExpressionStatement(expr);
 		}
 
@@ -211,7 +212,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		{
 			var forStatement = new ForStatement();
 			forStatement.Initializers.Add(MakeStatement(new AssignmentExpression(new IdentifierExpression("p2"),
-			                                                                      new PrimitiveExpression(""))));
+			                                                                     new PrimitiveExpression(""))));
 			forStatement.Condition = new BinaryOperatorExpression(new IdentifierExpression("p1"),
 			                                                      BinaryOperatorType.Equality,
 			                                                      new NullReferenceExpression());
@@ -230,7 +231,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			method.Parameters.Add(CreateStringParameter("p1"));
 			method.Parameters.Add(CreateStringParameter("p2"));
 
-			var returnStatement = (ReturnStatement) method.Body.Statements.Last();
+			var returnStatement = (ReturnStatement)method.Body.Statements.Last();
 			var content = forStatement.EmbeddedStatement;
 
 			var analysis = CreateNullValueAnalysis(method);
@@ -245,7 +246,28 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		}
 
 		[Test]
-		public void TestCapturedLambdaVariables() {
+		public void TestNullCoallescing()
+		{
+			var method = new MethodDeclaration {
+				Body = new BlockStatement {
+					new ExpressionStatement(new AssignmentExpression(new IdentifierExpression("p1"),
+					                                                 new BinaryOperatorExpression(new IdentifierExpression("p1"),
+					                             BinaryOperatorType.NullCoalescing,
+					                             new PrimitiveExpression(""))))
+				}
+			};
+
+			method.Parameters.Add(CreateStringParameter("p1"));
+
+			var analysis = CreateNullValueAnalysis(method);
+			var stmt = method.Body.Statements.Single();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(stmt, "p1"));
+		}
+
+		[Test]
+		public void TestCapturedLambdaVariables()
+		{
 			var method = new MethodDeclaration {
 				Body = new BlockStatement {
 					new VariableDeclarationStatement(AstType.Create("System.Action"),
@@ -295,10 +317,35 @@ class TestClass
 			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
 			var analysis = CreateNullValueAnalysis(tree, method);
 
-			var lastStatement = (ExpressionStatement) method.Body.Statements.Last();
+			var lastStatement = (ExpressionStatement)method.Body.Statements.Last();
 
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p1"));
 			Assert.AreEqual(NullValueStatus.EscapedUnknown, analysis.GetVariableStatusAfterStatement(lastStatement, "p2"));
+		}
+
+		[Test]
+		public void TestCompileConstants()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	const int? value1 = null;
+	const bool value2 = true;
+	void TestMethod()
+	{
+		int? p1 = value2 ? value1 : 0;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = (VariableDeclarationStatement)method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p1"));
 		}
 
 		[Test]

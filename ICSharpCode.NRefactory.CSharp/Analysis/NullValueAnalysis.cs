@@ -516,12 +516,14 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 					clone.Variables = Variables.Clone();
 					clone.KnownBoolResult = !KnownBoolResult;
-					clone.ConditionalBranchInfo = new ConditionalBranchInfo();
-					foreach (var item in ConditionalBranchInfo.TrueResultVariableNullStates) {
-						clone.ConditionalBranchInfo.FalseResultVariableNullStates [item.Key] = item.Value;
-					}
-					foreach (var item in ConditionalBranchInfo.FalseResultVariableNullStates) {
-						clone.ConditionalBranchInfo.TrueResultVariableNullStates [item.Key] = item.Value;
+					if (ConditionalBranchInfo != null) {
+						clone.ConditionalBranchInfo = new ConditionalBranchInfo();
+						foreach (var item in ConditionalBranchInfo.TrueResultVariableNullStates) {
+							clone.ConditionalBranchInfo.FalseResultVariableNullStates [item.Key] = item.Value;
+						}
+						foreach (var item in ConditionalBranchInfo.FalseResultVariableNullStates) {
+							clone.ConditionalBranchInfo.TrueResultVariableNullStates [item.Key] = item.Value;
+						}
 					}
 					return clone;
 				}
@@ -594,6 +596,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 
 				return result;
+			}
+
+			public static VisitorResult OrOperation(VisitorResult tentativeLeftResult, VisitorResult tentativeRightResult)
+			{
+				return VisitorResult.AndOperation(tentativeLeftResult.Negated, tentativeRightResult.Negated).Negated;
 			}
 		}
 
@@ -696,6 +703,17 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (local != null) {
 					return VisitorResult.ForValue(data, data [local.Variable.Name]);
 				}
+				if (resolveResult.IsCompileTimeConstant) {
+					object value = resolveResult.ConstantValue;
+					if (value == null) {
+						return VisitorResult.ForValue(data, NullValueStatus.DefinitelyNull);
+					}
+					bool? boolValue = value as bool?;
+					if (boolValue != null) {
+						return VisitorResult.ForBoolValue(data, (bool)boolValue);
+					}
+					return VisitorResult.ForValue(data, NullValueStatus.DefinitelyNotNull);
+				}
 				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
 
@@ -719,6 +737,24 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (returnStatement.Expression.IsNull)
 					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 				return returnStatement.Expression.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitConditionalExpression(ConditionalExpression conditionalExpression, VariableStatusInfo data)
+			{
+				var tentativeBaseResult = conditionalExpression.Condition.AcceptVisitor(this, data);
+
+				if (tentativeBaseResult.KnownBoolResult == true) {
+					return conditionalExpression.TrueExpression.AcceptVisitor(this, tentativeBaseResult.TruePathVariables);
+				}
+				if (tentativeBaseResult.KnownBoolResult == false) {
+					return conditionalExpression.FalseExpression.AcceptVisitor(this, tentativeBaseResult.FalsePathVariables);
+				}
+
+				//No known bool result
+				var trueCase = conditionalExpression.TrueExpression.AcceptVisitor(this, tentativeBaseResult.TruePathVariables);
+				var falseCase = conditionalExpression.FalseExpression.AcceptVisitor(this, tentativeBaseResult.FalsePathVariables);
+
+				return VisitorResult.OrOperation(trueCase, falseCase);
 			}
 
 			public override VisitorResult VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
@@ -821,12 +857,48 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				var falsePath = tentativeLeftResult.FalsePathVariables;
 				var tentativeRightResult = binaryOperatorExpression.Right.AcceptVisitor(this, falsePath);
 
-				return VisitorResult.AndOperation(tentativeLeftResult.Negated, tentativeRightResult.Negated).Negated;
+				return VisitorResult.OrOperation(tentativeLeftResult, tentativeRightResult);
 			}
 
 			VisitorResult VisitNullCoalescing(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
 			{
-				throw new NotImplementedException();
+				var leftTentativeResult = binaryOperatorExpression.Left.AcceptVisitor(this, data);
+				if (leftTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNotNull) {
+					return leftTentativeResult;
+				}
+
+				//If the right side is found, then the left side is known to be null
+				var newData = leftTentativeResult.Variables;
+				var leftIdentifier = binaryOperatorExpression.Left as IdentifierExpression;
+				if (leftIdentifier != null) {
+					var resolveResult = analysis.resolver.Resolve(leftIdentifier);
+					if (resolveResult.IsError) {
+						return VisitorResult.ForValue(data, NullValueStatus.Error);
+					}
+					var localResolveResult = resolveResult as LocalResolveResult;
+					if (localResolveResult != null) {
+						string name = localResolveResult.Variable.Name;
+						if (newData [name] != NullValueStatus.EscapedUnknown) {
+							newData = newData.Clone();
+							newData [name] = NullValueStatus.DefinitelyNotNull;
+						}
+					}
+				}
+
+				var rightTentativeResult = binaryOperatorExpression.AcceptVisitor(this, newData);
+
+				var mergedVariables = rightTentativeResult.Variables;
+				var nullValue = rightTentativeResult.NullableReturnResult;
+
+				if (leftTentativeResult.NullableReturnResult != NullValueStatus.DefinitelyNull) {
+					mergedVariables = mergedVariables.Clone();
+					mergedVariables.ReceiveIncoming(leftTentativeResult.Variables);
+					if (nullValue == NullValueStatus.DefinitelyNull) {
+						nullValue = NullValueStatus.PotentiallyNull;
+					}
+				}
+
+				return VisitorResult.ForValue(mergedVariables, nullValue);
 			}
 
 			public override VisitorResult VisitUnaryOperatorExpression(UnaryOperatorExpression unaryOperatorExpression, VariableStatusInfo data)
