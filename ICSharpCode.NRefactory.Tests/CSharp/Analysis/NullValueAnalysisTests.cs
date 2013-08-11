@@ -197,6 +197,48 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt3, "p2"));
 		}
 
+		ExpressionStatement MakeStatement(Expression expr) {
+			return new ExpressionStatement(expr);
+		}
+
+		[Test]
+		public void TestForLoop()
+		{
+			var forStatement = new ForStatement();
+			forStatement.Initializers.Add(MakeStatement(new AssignmentExpression(new IdentifierExpression("p2"),
+			                                                                      new PrimitiveExpression(""))));
+			forStatement.Condition = new BinaryOperatorExpression(new IdentifierExpression("p1"),
+			                                                      BinaryOperatorType.Equality,
+			                                                      new NullReferenceExpression());
+			forStatement.Iterators.Add(MakeStatement(new AssignmentExpression(new IdentifierExpression("p2"),
+			                                                                  AssignmentOperatorType.Assign,
+			                                                                  new NullReferenceExpression())));
+			forStatement.EmbeddedStatement = MakeStatement(new AssignmentExpression(new IdentifierExpression("p1"),
+			                                                                        AssignmentOperatorType.Assign,
+			                                                                        new PrimitiveExpression("")));
+			var method = new MethodDeclaration {
+				Body = new BlockStatement {
+					forStatement,
+					new ReturnStatement()
+				}
+			};
+			method.Parameters.Add(CreateStringParameter("p1"));
+			method.Parameters.Add(CreateStringParameter("p2"));
+
+			var returnStatement = (ReturnStatement) method.Body.Statements.Last();
+			var content = forStatement.EmbeddedStatement;
+
+			var analysis = CreateNullValueAnalysis(method);
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(forStatement, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(forStatement, "p2"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusBeforeStatement(content, "p1"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(content, "p2"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(content, "p2"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(returnStatement, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(returnStatement, "p2"));
+		}
+
 		[Test]
 		public void TestConditionalAnd()
 		{

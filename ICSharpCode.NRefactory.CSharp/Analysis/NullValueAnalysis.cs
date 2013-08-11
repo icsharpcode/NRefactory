@@ -629,6 +629,13 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return whileStatement.Condition.AcceptVisitor(this, data);
 			}
 
+			public override VisitorResult VisitForStatement(ForStatement forStatement, VariableStatusInfo data)
+			{
+				//The initializers, the embedded statement and the iterators aren't visited here
+				//because they have their own CFG nodes.
+				return forStatement.Condition.AcceptVisitor(this, data);
+			}
+
 			public override VisitorResult VisitExpressionStatement(ExpressionStatement expressionStatement, VariableStatusInfo data)
 			{
 				return expressionStatement.Expression.AcceptVisitor(this, data);
