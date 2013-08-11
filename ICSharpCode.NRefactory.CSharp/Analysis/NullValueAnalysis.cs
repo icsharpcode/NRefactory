@@ -42,6 +42,10 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.CSharp;
 using Mono.CSharp;
+using System.Collections.Generic;
+using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
+using System.Collections;
+using System.Text;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -92,9 +96,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 	public class NullValueAnalysis
 	{
-		sealed class VariableStatusInfo : IEquatable<VariableStatusInfo>
+		sealed class VariableStatusInfo : IEquatable<VariableStatusInfo>, IEnumerable<KeyValuePair<string, NullValueStatus>>
 		{
-			public Dictionary<string, NullValueStatus> VariableStatus = new Dictionary<string, NullValueStatus>();
+			Dictionary<string, NullValueStatus> VariableStatus = new Dictionary<string, NullValueStatus>();
 
 			public NullValueStatus this[string name]
 			{
@@ -201,12 +205,34 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			}
 
 			public static bool operator ==(VariableStatusInfo obj1, VariableStatusInfo obj2) {
-				return obj1 == null ?
-					obj2 == null : obj1.Equals(obj2);
+				return object.ReferenceEquals(obj1, null) ?
+					object.ReferenceEquals(obj2, null) : obj1.Equals(obj2);
 			}
 
 			public static bool operator !=(VariableStatusInfo obj1, VariableStatusInfo obj2) {
 				return !(obj1 == obj2);
+			}
+
+			public IEnumerator<KeyValuePair<string, NullValueStatus>> GetEnumerator()
+			{
+				return VariableStatus.GetEnumerator();
+			}
+
+			IEnumerator IEnumerable.GetEnumerator()
+			{
+				return GetEnumerator();
+			}
+
+			public override string ToString()
+			{
+				var builder = new StringBuilder("[");
+				foreach (var item in this) {
+					builder.Append(item.Key);
+					builder.Append("=");
+					builder.Append(item.Value);
+				}
+				builder.Append("]");
+				return builder.ToString();
 			}
 		}
 
@@ -236,7 +262,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		CSharpAstResolver resolver;
 		readonly NullAnalysisVisitor visitor;
 		List<NullAnalysisNode> allNodes;
-		HashSet<NullAnalysisNode> nodesToVisit = new HashSet<NullAnalysisNode>();
+		HashSet<Tuple<NullAnalysisNode, VariableStatusInfo>> nodesToVisit = new HashSet<Tuple<NullAnalysisNode, VariableStatusInfo>>();
 		Dictionary<Statement, NullAnalysisNode> nodeBeforeStatementDict;
 		Dictionary<Statement, NullAnalysisNode> nodeAfterStatementDict;
 		Dictionary<Expression, VariableStatusInfo> statusBeforeExpression = new Dictionary<Expression, VariableStatusInfo>();
@@ -280,10 +306,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			foreach (var parameter in parameters) {
 				string name = parameter.Name;
 				var resolveResult = resolver.Resolve(parameter.Type);
-				node.VariableState.VariableStatus [name] = GetInitialVariableStatus(resolveResult);
+				node.VariableState [name] = GetInitialVariableStatus(resolveResult);
 			}
 
-			nodesToVisit.Add(node);
+			nodesToVisit.Add(Tuple.Create(node, node.VariableState));
 		}
 
 		NullValueStatus GetInitialVariableStatus(ResolveResult resolveResult)
@@ -309,47 +335,50 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		void VisitNodes()
 		{
 			while (nodesToVisit.Any()) {
-				var node = nodesToVisit.First();
-				nodesToVisit.Remove(node);
+				var tuple = nodesToVisit.First();
+				nodesToVisit.Remove(tuple);
 
-				Visit(node);
+				Visit(tuple.Item1, tuple.Item2);
 			}
 		}
 
-		void Visit(NullAnalysisNode node)
+		void Visit(NullAnalysisNode node, VariableStatusInfo statusInfo)
 		{
 			var nextStatement = node.NextStatement;
-			VariableStatusInfo outgoingStatusInfo = node.VariableState;
-			ConditionalBranchInfo branchInfo = null;
+			VariableStatusInfo outgoingStatusInfo = statusInfo;
+			VisitorResult result = null;
 
 			if (nextStatement != null) {
-				var result = nextStatement.AcceptVisitor(visitor, node.VariableState);
+				result = nextStatement.AcceptVisitor(visitor, statusInfo);
 				Debug.Assert(result != null);
 
 				outgoingStatusInfo = result.Variables;
-				branchInfo = result.ConditionalBranchInfo;
 			}
 
 			foreach (var outgoingEdge in node.Outgoing) {
 				var edgeInfo = outgoingStatusInfo.Clone();
-				if (branchInfo != null) {
+				if (result != null) {
 					switch (outgoingEdge.Type) {
 						case ControlFlowEdgeType.ConditionTrue:
-							foreach (var trueState in branchInfo.TrueResultVariableNullStates) {
-								edgeInfo.VariableStatus [trueState.Key] = trueState.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+							if (result.KnownBoolResult == false) {
+								//No need to explore this path -- expression is known to be false
+								continue;
 							}
+							edgeInfo = result.TruePathVariables;
 							break;
 						case ControlFlowEdgeType.ConditionFalse:
-							foreach (var falseState in branchInfo.FalseResultVariableNullStates) {
-								edgeInfo.VariableStatus [falseState.Key] = falseState.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+							if (result.KnownBoolResult == true) {
+								//No need to explore this path -- expression is known to be true
+								continue;
 							}
+							edgeInfo = result.FalsePathVariables;
 							break;
 					}
 				}
 
 				var outgoingNode = (NullAnalysisNode) outgoingEdge.To;
 				if (outgoingNode.ReceiveIncoming(edgeInfo)) {
-					nodesToVisit.Add(outgoingNode);
+					nodesToVisit.Add(Tuple.Create(outgoingNode, edgeInfo));
 				}
 			}
 		}
@@ -483,8 +512,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public VariableStatusInfo TruePathVariables {
 				get {
 					var variables = Variables.Clone();
-					foreach (var item in ConditionalBranchInfo.TrueResultVariableNullStates) {
-						variables [item.Key] = item.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+					if (ConditionalBranchInfo != null) {
+						foreach (var item in ConditionalBranchInfo.TrueResultVariableNullStates) {
+							variables [item.Key] = item.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+						}
 					}
 					return variables;
 				}
@@ -493,8 +524,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public VariableStatusInfo FalsePathVariables {
 				get {
 					var variables = Variables.Clone();
-					foreach (var item in ConditionalBranchInfo.FalseResultVariableNullStates) {
-						variables [item.Key] = item.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+					if (ConditionalBranchInfo != null) {
+						foreach (var item in ConditionalBranchInfo.FalseResultVariableNullStates) {
+							variables [item.Key] = item.Value ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+						}
 					}
 					return variables;
 				}
@@ -518,7 +551,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				result.ConditionalBranchInfo = new ConditionalBranchInfo();
 
-				foreach (var variable in trueVariables.VariableStatus) {
+				foreach (var variable in trueVariables) {
 					if (!variable.Value.IsDefiniteValue())
 						continue;
 
@@ -530,7 +563,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 
-				foreach (var variable in falseVariables.VariableStatus) {
+				foreach (var variable in falseVariables) {
 					if (!variable.Value.IsDefiniteValue())
 						continue;
 
@@ -557,6 +590,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				this.analysis = analysis;
 			}
 
+			public override VisitorResult VisitEmptyStatement(EmptyStatement emptyStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
 			public override VisitorResult VisitBlockStatement(BlockStatement blockStatement, VariableStatusInfo data)
 			{
 				//We'll visit the child statements later (we'll visit each one directly from the CFG)
@@ -564,10 +602,31 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return new VisitorResult { Variables = data };
 			}
 
+			public override VisitorResult VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement, VariableStatusInfo data)
+			{
+				foreach (var variable in variableDeclarationStatement.Variables) {
+					if (variable.Initializer.IsNull) {
+						data = data.Clone();
+						data [variable.Name] = NullValueStatus.Unassigned;
+					} else {
+						var result = variable.Initializer.AcceptVisitor(this, data);
+						data = result.Variables.Clone();
+						data [variable.Name] = result.NullableReturnResult;
+					}
+				}
+
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
 			public override VisitorResult VisitIfElseStatement(IfElseStatement ifElseStatement, VariableStatusInfo data)
 			{
 				//We'll visit the true/false statements later (directly from the CFG)
 				return ifElseStatement.Condition.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitWhileStatement(WhileStatement whileStatement, VariableStatusInfo data)
+			{
+				return whileStatement.Condition.AcceptVisitor(this, data);
 			}
 
 			public override VisitorResult VisitExpressionStatement(ExpressionStatement expressionStatement, VariableStatusInfo data)
@@ -594,7 +653,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						var result = new VisitorResult();
 						result.NullableReturnResult = tentativeResult.NullableReturnResult;
 						result.Variables = tentativeResult.Variables.Clone();
-						result.Variables.VariableStatus [local.Variable.Name] = tentativeResult.NullableReturnResult;
+						result.Variables [local.Variable.Name] = tentativeResult.NullableReturnResult;
 						return result;
 					}
 				}
@@ -610,7 +669,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 				var local = resolveResult as LocalResolveResult;
 				if (local != null) {
-					return VisitorResult.ForValue(data, data.VariableStatus [local.Variable.Name]);
+					return VisitorResult.ForValue(data, data [local.Variable.Name]);
 				}
 				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
