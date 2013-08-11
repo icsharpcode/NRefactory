@@ -916,10 +916,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					DirectionExpression directionExpression = argument as DirectionExpression;
 					if (directionExpression != null) {
 						var identifier = directionExpression.Expression as IdentifierExpression;
-						if (identifier != null) {
+						if (identifier != null && data [identifier.Identifier] != NullValueStatus.CapturedUnknown) {
 							//TODO: Check for scope and nullable types
+							//out and ref parameters do *NOT* capture the variable (since they must stop changing it by the time they return)
 							data = data.Clone();
-							data [identifier.Identifier] = NullValueStatus.CapturedUnknown;
+							data [identifier.Identifier] = NullValueStatus.Unknown;
 						}
 						continue;
 					}
@@ -938,16 +939,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				foreach (var identifier in identifiers) {
 					//Check if it is in a "change-null-state" context
 					//For instance, x++ does not change the null state
-					//but `x = y` and `Foo(ref x)` do.
+					//but `x = y` does.
 					if (identifier.Role == AssignmentExpression.LeftRole) {
 						var parent = (AssignmentExpression)identifier.Parent;
 						if (parent.Operator != AssignmentOperatorType.Assign) {
 							continue;
 						}
-					} else if (identifier.Parent is DirectionExpression) {
-						//Found `out` or `ref`
 					} else {
 						//No other context matters
+						//Captured variables are never passed by reference (out/ref)
 						continue;
 					}
 

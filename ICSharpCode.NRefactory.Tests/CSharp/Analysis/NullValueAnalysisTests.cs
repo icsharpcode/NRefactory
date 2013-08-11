@@ -320,7 +320,7 @@ class TestClass
 			var lastStatement = (ExpressionStatement)method.Body.Statements.Last();
 
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p1"));
-			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusAfterStatement(lastStatement, "p2"));
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(lastStatement, "p2"));
 		}
 
 		[Test]
