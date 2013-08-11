@@ -25,28 +25,21 @@
 // THE SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-
+using System.Text;
 using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Utils;
-using System.Security.Policy;
-using System.Runtime.InteropServices;
-using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.CSharp;
-using Mono.CSharp;
-using System.Collections.Generic;
 using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
-using System.Collections;
-using System.Text;
-using ICSharpCode.NRefactory.CSharp.Analysis;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
