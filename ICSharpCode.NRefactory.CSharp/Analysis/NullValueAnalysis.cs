@@ -253,6 +253,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		sealed class NullAnalysisNode : ControlFlowNode
 		{
 			public readonly VariableStatusInfo VariableState = new VariableStatusInfo();
+			public bool Visited { get; private set; }
 
 			public NullAnalysisNode(Statement previousStatement, Statement nextStatement, ControlFlowNodeType type)
 				: base(previousStatement, nextStatement, type)
@@ -261,7 +262,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public bool ReceiveIncoming(VariableStatusInfo incomingState)
 			{
-				return VariableState.ReceiveIncoming(incomingState);
+				bool changed = VariableState.ReceiveIncoming(incomingState);
+				if (!Visited) {
+					Visited = true;
+					return true;
+				}
+				return changed;
 			}
 		}
 
@@ -842,9 +848,20 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				data = invocationExpression.Target.AcceptVisitor(this, data).Variables;
 
 				foreach (var argument in invocationExpression.Arguments) {
+					DirectionExpression directionExpression = argument as DirectionExpression;
+					if (directionExpression != null) {
+						var identifier = directionExpression.Expression as IdentifierExpression;
+						if (identifier != null) {
+							//TODO: Check for scope and nullable types
+							data = data.Clone();
+							data [identifier.Identifier] = NullValueStatus.EscapedUnknown;
+						}
+						continue;
+					}
 					data = argument.AcceptVisitor(this, data).Variables;
 				}
 
+				//TODO: Some functions return non-nullable types
 				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
 

@@ -32,13 +32,23 @@ using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using ICSharpCode.NRefactory.CSharp.TypeSystem;
 using ICSharpCode.NRefactory.CSharp;
-using Mono.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
 	[TestFixture]
 	public class NullValueAnalysisTests
 	{
+		NullValueAnalysis CreateNullValueAnalysis(SyntaxTree tree, MethodDeclaration methodDeclaration)
+		{
+			IProjectContent pc = new CSharpProjectContent();
+			pc = pc.AddAssemblyReferences(CecilLoaderTests.Mscorlib);
+			pc = pc.AddOrUpdateFiles(new[] { tree.ToTypeSystem() });
+			var compilation = pc.CreateCompilation();
+			var resolver = new CSharpResolver(compilation);
+			var astResolver = new CSharpAstResolver(resolver, tree);
+			return new NullValueAnalysis(methodDeclaration, astResolver, CancellationToken.None);
+		}
+
 		NullValueAnalysis CreateNullValueAnalysis(MethodDeclaration methodDeclaration)
 		{
 			var type = new TypeDeclaration {
@@ -49,13 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			var tree = new SyntaxTree() { FileName = "test.cs" };
 			tree.Members.Add(type);
 
-			IProjectContent pc = new CSharpProjectContent();
-			pc = pc.AddAssemblyReferences(CecilLoaderTests.Mscorlib);
-			pc = pc.AddOrUpdateFiles(new[] { tree.ToTypeSystem() });
-			var compilation = pc.CreateCompilation();
-			var resolver = new CSharpResolver(compilation);
-			var astResolver = new CSharpAstResolver(resolver, tree);
-			return new NullValueAnalysis(methodDeclaration, astResolver, CancellationToken.None);
+			return CreateNullValueAnalysis(tree, methodDeclaration);
 		}
 
 		ParameterDeclaration CreatePrimitiveParameter(string typeKeyword, string parameterName)
@@ -267,6 +271,34 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(declareLambda, "p2"));
 			Assert.AreEqual(NullValueStatus.EscapedUnknown, analysis.GetVariableStatusBeforeStatement(callLambda, "p1"));
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(callLambda, "p2"));
+		}
+
+		[Test]
+		public void TestInvocation()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+delegate void MyDelegate(string p1, out string p2);
+class TestClass
+{
+	void TestMethod()
+	{
+		string p1 = null;
+		string p2 = null;
+		MyDelegate del = (string a, out string b) => { b = a; };
+		del(p1 = """", out p2);
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = (ExpressionStatement) method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p1"));
+			Assert.AreEqual(NullValueStatus.EscapedUnknown, analysis.GetVariableStatusAfterStatement(lastStatement, "p2"));
 		}
 
 		[Test]
