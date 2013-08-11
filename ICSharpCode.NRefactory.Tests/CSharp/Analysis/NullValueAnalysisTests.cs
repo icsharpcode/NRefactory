@@ -291,7 +291,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(declareLambda, "p1"));
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(declareLambda, "p2"));
-			Assert.AreEqual(NullValueStatus.EscapedUnknown, analysis.GetVariableStatusBeforeStatement(callLambda, "p1"));
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusBeforeStatement(callLambda, "p1"));
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(callLambda, "p2"));
 		}
 
@@ -320,7 +320,7 @@ class TestClass
 			var lastStatement = (ExpressionStatement)method.Body.Statements.Last();
 
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p1"));
-			Assert.AreEqual(NullValueStatus.EscapedUnknown, analysis.GetVariableStatusAfterStatement(lastStatement, "p2"));
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusAfterStatement(lastStatement, "p2"));
 		}
 
 		[Test]

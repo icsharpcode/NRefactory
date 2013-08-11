@@ -63,11 +63,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		/// <summary>
 		/// The value of the variable is unknown and even assigning it to a
 		/// value won't change its state, since it has been captured by a lambda
-		/// that may change it at any time.
+		/// that may change it at any time (potentially even from a different thread).
 		/// Only going out of scope and creating a new variable may change the value
 		/// of this variable.
 		/// </summary>
-		EscapedUnknown,
+		CapturedUnknown,
 		/// <summary>
 		/// This variable is potentially unassigned.
 		/// </summary>
@@ -163,9 +163,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					return NullValueStatus.Unassigned;
 				}
 
-				if (oldValue == NullValueStatus.EscapedUnknown || incomingValue == NullValueStatus.EscapedUnknown) {
+				if (oldValue == NullValueStatus.CapturedUnknown || incomingValue == NullValueStatus.CapturedUnknown) {
 					//TODO: Check if this is right
-					return NullValueStatus.EscapedUnknown;
+					return NullValueStatus.CapturedUnknown;
 				}
 
 				if (oldValue == NullValueStatus.Unknown) {
@@ -878,7 +878,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					var localResolveResult = resolveResult as LocalResolveResult;
 					if (localResolveResult != null) {
 						string name = localResolveResult.Variable.Name;
-						if (newData [name] != NullValueStatus.EscapedUnknown) {
+						if (newData [name] != NullValueStatus.CapturedUnknown) {
 							newData = newData.Clone();
 							newData [name] = NullValueStatus.DefinitelyNotNull;
 						}
@@ -926,7 +926,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						if (identifier != null) {
 							//TODO: Check for scope and nullable types
 							data = data.Clone();
-							data [identifier.Identifier] = NullValueStatus.EscapedUnknown;
+							data [identifier.Identifier] = NullValueStatus.CapturedUnknown;
 						}
 						continue;
 					}
@@ -962,7 +962,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					//TODO: Do we need to check if the type is nullable
 					//TODO: Do we need to check if the variable is in a relevant scope?
 
-					newData [identifier.Identifier] = NullValueStatus.EscapedUnknown;
+					newData [identifier.Identifier] = NullValueStatus.CapturedUnknown;
 				}
 
 				//The lambda itself is known not to be null
