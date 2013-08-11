@@ -39,7 +39,6 @@ using ICSharpCode.NRefactory.Utils;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -678,7 +677,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						var result = new VisitorResult();
 						result.NullableReturnResult = tentativeResult.NullableReturnResult;
 						result.Variables = tentativeResult.Variables.Clone();
-						result.Variables [local.Variable.Name] = tentativeResult.NullableReturnResult;
+						var oldValue = result.Variables [local.Variable.Name];
+						if (oldValue != NullValueStatus.CapturedUnknown) {
+							result.Variables [local.Variable.Name] = tentativeResult.NullableReturnResult;
+						}
 						return result;
 					}
 				}
@@ -694,7 +696,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 				var local = resolveResult as LocalResolveResult;
 				if (local != null) {
-					return VisitorResult.ForValue(data, data [local.Variable.Name]);
+					var value = data [local.Variable.Name];
+					if (value == NullValueStatus.CapturedUnknown)
+						value = NullValueStatus.Unknown;
+					return VisitorResult.ForValue(data, value);
 				}
 				if (resolveResult.IsCompileTimeConstant) {
 					object value = resolveResult.ConstantValue;

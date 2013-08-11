@@ -278,21 +278,27 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 							                                       new NullReferenceExpression()))
 						}
 					}),
-					new ExpressionStatement(new InvocationExpression(new IdentifierExpression("action")))
+					MakeStatement(new AssignmentExpression(new IdentifierExpression("p1"),
+					                                       new NullReferenceExpression())),
+					new ExpressionStatement(new InvocationExpression(new IdentifierExpression("action"))),
+					MakeStatement(new AssignmentExpression(new IdentifierExpression("p3"),
+					                                       new IdentifierExpression("p1")))
 				}
 			};
 
 			method.Parameters.Add(CreateStringParameter("p1"));
 			method.Parameters.Add(CreateStringParameter("p2"));
+			method.Parameters.Add(CreateStringParameter("p3"));
 
 			var analysis = CreateNullValueAnalysis(method);
 			var declareLambda = (VariableDeclarationStatement)method.Body.Statements.First();
-			var callLambda = (ExpressionStatement)method.Body.Statements.Last();
+			var lastStatement = (ExpressionStatement)method.Body.Statements.Last();
 
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(declareLambda, "p1"));
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(declareLambda, "p2"));
-			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusBeforeStatement(callLambda, "p1"));
-			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(callLambda, "p2"));
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusBeforeStatement(lastStatement, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(lastStatement, "p2"));
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(lastStatement, "p3"));
 		}
 
 		[Test]
