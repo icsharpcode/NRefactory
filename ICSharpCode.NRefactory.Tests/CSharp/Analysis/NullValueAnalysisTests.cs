@@ -32,6 +32,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using ICSharpCode.NRefactory.CSharp.TypeSystem;
 using ICSharpCode.NRefactory.CSharp;
+using Mono.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -237,6 +238,35 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(content, "p2"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(returnStatement, "p1"));
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(returnStatement, "p2"));
+		}
+
+		[Test]
+		public void TestCapturedLambdaVariables() {
+			var method = new MethodDeclaration {
+				Body = new BlockStatement {
+					new VariableDeclarationStatement(AstType.Create("System.Action"),
+					                                 "action",
+					                                 new LambdaExpression {
+						Body = new BlockStatement {
+							MakeStatement(new AssignmentExpression(new IdentifierExpression("p1"),
+							                                       new NullReferenceExpression()))
+						}
+					}),
+					new ExpressionStatement(new InvocationExpression(new IdentifierExpression("action")))
+				}
+			};
+
+			method.Parameters.Add(CreateStringParameter("p1"));
+			method.Parameters.Add(CreateStringParameter("p2"));
+
+			var analysis = CreateNullValueAnalysis(method);
+			var declareLambda = (VariableDeclarationStatement)method.Body.Statements.First();
+			var callLambda = (ExpressionStatement)method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(declareLambda, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(declareLambda, "p2"));
+			Assert.AreEqual(NullValueStatus.EscapedUnknown, analysis.GetVariableStatusBeforeStatement(callLambda, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(callLambda, "p2"));
 		}
 
 		[Test]

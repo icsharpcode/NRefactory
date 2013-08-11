@@ -46,6 +46,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
 using System.Collections;
 using System.Text;
+using ICSharpCode.NRefactory.CSharp.Analysis;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -59,6 +60,14 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		/// of the null value analysis.
 		/// </summary>
 		Unknown = 0,
+		/// <summary>
+		/// The value of the variable is unknown and even assigning it to a
+		/// value won't change its state, since it has been captured by a lambda
+		/// that may change it at any time.
+		/// Only going out of scope and creating a new variable may change the value
+		/// of this variable.
+		/// </summary>
+		EscapedUnknown,
 		/// <summary>
 		/// This variable is potentially unassigned.
 		/// </summary>
@@ -152,6 +161,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				if (incomingValue == NullValueStatus.Unassigned) {
 					return NullValueStatus.Unassigned;
+				}
+
+				if (oldValue == NullValueStatus.EscapedUnknown || incomingValue == NullValueStatus.EscapedUnknown) {
+					//TODO: Check if this is right
+					return NullValueStatus.EscapedUnknown;
 				}
 
 				if (oldValue == NullValueStatus.Unknown) {
@@ -312,6 +326,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			nodesToVisit.Add(Tuple.Create(node, node.VariableState));
 		}
 
+		bool IsTypeNullable(IType type) {
+			return type.IsReferenceType == true || type.FullName == "System.Nullable`1";
+		}
+
 		NullValueStatus GetInitialVariableStatus(ResolveResult resolveResult)
 		{
 			var typeResolveResult = resolveResult as TypeResolveResult;
@@ -319,17 +337,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return NullValueStatus.Error;
 			}
 			var type = typeResolveResult.Type;
-			switch (type.IsReferenceType) {
-				case true:
-					return NullValueStatus.PotentiallyNull;
-				case false:
-					return type.FullName == "System.Nullable`1" ? NullValueStatus.PotentiallyNull : NullValueStatus.DefinitelyNotNull;
-				case null:
-					return NullValueStatus.Error;
+			if (type.IsReferenceType == null) {
+				return NullValueStatus.Error;
 			}
 
-			Debug.Assert(false);
-			return NullValueStatus.Error;
+			return IsTypeNullable(type) ? NullValueStatus.PotentiallyNull : NullValueStatus.DefinitelyNotNull;
 		}
 
 		void VisitNodes()
@@ -821,6 +833,51 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					return tentativeResult.Negated;
 				}
 				return tentativeResult;
+			}
+
+			public override VisitorResult VisitInvocationExpression(InvocationExpression invocationExpression, VariableStatusInfo data)
+			{
+				//TODO: Handle some common methods such as string.IsNullOrEmpty
+
+				data = invocationExpression.Target.AcceptVisitor(this, data).Variables;
+
+				foreach (var argument in invocationExpression.Arguments) {
+					data = argument.AcceptVisitor(this, data).Variables;
+				}
+
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitLambdaExpression(LambdaExpression lambdaExpression, VariableStatusInfo data)
+			{
+				var newData = data.Clone();
+
+				var identifiers = lambdaExpression.Descendants.OfType<IdentifierExpression>();
+				foreach (var identifier in identifiers) {
+					//Check if it is in a "change-null-state" context
+					//For instance, x++ does not change the null state
+					//but `x = y` and `Foo(ref x)` do.
+					if (identifier.Role == AssignmentExpression.LeftRole) {
+						var parent = (AssignmentExpression)identifier.Parent;
+						if (parent.Operator != AssignmentOperatorType.Assign) {
+							continue;
+						}
+					} else if (identifier.Parent is DirectionExpression) {
+						//Found `out` or `ref`
+					} else {
+						//No other context matters
+						continue;
+					}
+
+					//At this point, we know there's a good chance the variable has been changed
+					//TODO: Do we need to check if the type is nullable
+					//TODO: Do we need to check if the variable is in a relevant scope?
+
+					newData [identifier.Identifier] = NullValueStatus.EscapedUnknown;
+				}
+
+				//The lambda itself is known not to be null
+				return VisitorResult.ForValue(newData, NullValueStatus.DefinitelyNotNull);
 			}
 		}
 	}
