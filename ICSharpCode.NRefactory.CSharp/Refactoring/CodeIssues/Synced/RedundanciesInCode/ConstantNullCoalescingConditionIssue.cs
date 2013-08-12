@@ -32,6 +32,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using System.Runtime.InteropServices.ComTypes;
+using ICSharpCode.NRefactory.CSharp.Analysis;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -43,17 +44,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  ResharperDisableKeyword = "ConstantNullCoalescingCondition")]
 	public class ConstantNullCoalescingConditionIssue : GatherVisitorCodeIssueProvider
 	{
-		static readonly Pattern Pattern = new Choice {
-			PatternHelper.CommutativeOperatorWithOptionalParentheses(
-				new AnyNode("expression"),
-				BinaryOperatorType.NullCoalescing,
-				new NullReferenceExpression()),
-			new BinaryOperatorExpression(
-				new AnyNode("expression"),
-				BinaryOperatorType.NullCoalescing,
-				new Backreference("expression"))
-		};
-
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
@@ -66,23 +56,84 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
+			Dictionary<AstNode, NullValueAnalysis> cachedNullAnalysis = new Dictionary<AstNode, NullValueAnalysis>();
+
 			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
 			{
 				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
 
-				var match = Pattern.Match(binaryOperatorExpression);
-				if (match.Success) {
-					var expr = match.Get<Expression>("expression").Single();
-					var isLeft = binaryOperatorExpression.Left == expr;
-					AddIssue(
-						isLeft ? binaryOperatorExpression.Left : binaryOperatorExpression.Right,
-						ctx.TranslateString("Found redundant null coallescing expression"),
-						isLeft ? ctx.TranslateString("Replace '??' with left operand") : ctx.TranslateString("Replace '??' with right operand"),
-						script => {
-							script.Replace(binaryOperatorExpression, expr.Clone());
-						}
-					);
+				if (binaryOperatorExpression.Operator != BinaryOperatorType.NullCoalescing) {
+					//The issue is not applicable
+					return;
 				}
+
+				var parentFunction = GetParentFunctionNode(binaryOperatorExpression);
+				var analysis = GetAnalysis(parentFunction);
+
+				NullValueStatus leftStatus = analysis.GetExpressionResult(binaryOperatorExpression.Left);
+				if (leftStatus == NullValueStatus.DefinitelyNotNull) {
+					AddIssue(binaryOperatorExpression,
+					         ctx.TranslateString("Redundant ??. Left side is never null"),
+					         ctx.TranslateString("Remove redundant right side"),
+					         script => {
+
+						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
+
+					});
+					return;
+				}
+				if (leftStatus == NullValueStatus.DefinitelyNull) {
+					AddIssue(binaryOperatorExpression,
+					         ctx.TranslateString("Redundant ??. Left side is always null"),
+					         ctx.TranslateString("Remove redundant left side"),
+					         script => {
+
+						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Right.Clone());
+
+					});
+					return;
+				}
+				NullValueStatus rightStatus = analysis.GetExpressionResult(binaryOperatorExpression.Right);
+				if (rightStatus == NullValueStatus.DefinitelyNull) {
+					AddIssue(binaryOperatorExpression,
+					         ctx.TranslateString("Redundant ??. Right side is always null"),
+					         ctx.TranslateString("Remove redundant right side"),
+					         script => {
+
+						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
+
+					});
+					return;
+				}
+			}
+
+			NullValueAnalysis GetAnalysis(AstNode parentFunction)
+			{
+				NullValueAnalysis analysis;
+				if (cachedNullAnalysis.TryGetValue(parentFunction, out analysis)) {
+					return analysis;
+				}
+
+				analysis = new NullValueAnalysis(parentFunction.GetChildByRole(Roles.Body), ctx.Resolver, parentFunction.GetChildrenByRole(Roles.Parameter), ctx.CancellationToken);
+				cachedNullAnalysis [parentFunction] = analysis;
+				return analysis;
+			}
+
+			static AstNode GetParentFunctionNode(AstNode node)
+			{
+				do {
+					node = node.Parent;
+				} while (node != null && !IsFunctionNode(node));
+
+				return node;
+			}
+
+			static bool IsFunctionNode(AstNode node)
+			{
+				return node is MethodDeclaration ||
+					node is Accessor ||
+					node is LambdaExpression ||
+					node is AnonymousMethodExpression;
 			}
 		}
 	}

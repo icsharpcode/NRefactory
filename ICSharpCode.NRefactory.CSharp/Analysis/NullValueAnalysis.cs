@@ -34,8 +34,6 @@ using System.Text;
 using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.Utils;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.CSharp;
@@ -140,7 +138,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return changed;
 			}
 
-			static NullValueStatus CombineStatus(NullValueStatus oldValue, NullValueStatus incomingValue)
+			public static NullValueStatus CombineStatus(NullValueStatus oldValue, NullValueStatus incomingValue)
 			{
 				Debug.Assert(incomingValue != NullValueStatus.UnreachablePosition);
 
@@ -277,7 +275,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		HashSet<Tuple<NullAnalysisNode, VariableStatusInfo>> nodesToVisit = new HashSet<Tuple<NullAnalysisNode, VariableStatusInfo>>();
 		Dictionary<Statement, NullAnalysisNode> nodeBeforeStatementDict;
 		Dictionary<Statement, NullAnalysisNode> nodeAfterStatementDict;
-		Dictionary<Expression, VariableStatusInfo> statusBeforeExpression = new Dictionary<Expression, VariableStatusInfo>();
+		Dictionary<Expression, NullValueStatus> expressionResult = new Dictionary<Expression, NullValueStatus>();
 		Statement rootStatement;
 
 		public NullValueAnalysis(MethodDeclaration methodDeclaration, CSharpAstResolver resolver, CancellationToken cancellationToken)
@@ -296,7 +294,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			this.rootStatement = rootStatement;
 			this.visitor = new NullAnalysisVisitor(this);
 
-			NullAnalysisGraphBuilder cfgBuilder = new NullAnalysisGraphBuilder();
+			var cfgBuilder = new NullAnalysisGraphBuilder();
 			allNodes = cfgBuilder.BuildControlFlowGraph(rootStatement, cancellationToken).Cast<NullAnalysisNode>().ToList();
 			foreach (var node in allNodes) {
 				if (node.Type == ControlFlowNodeType.StartNode && node.NextStatement == rootStatement) {
@@ -324,11 +322,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			nodesToVisit.Add(Tuple.Create(node, node.VariableState));
 		}
 
-		bool IsTypeNullable(IType type) {
+		static bool IsTypeNullable(IType type)
+		{
 			return type.IsReferenceType == true || type.FullName == "System.Nullable`1";
 		}
 
-		NullValueStatus GetInitialVariableStatus(ResolveResult resolveResult)
+		static NullValueStatus GetInitialVariableStatus(ResolveResult resolveResult)
 		{
 			var typeResolveResult = resolveResult as TypeResolveResult;
 			if (typeResolveResult == null) {
@@ -338,7 +337,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			if (type.IsReferenceType == null) {
 				return NullValueStatus.Error;
 			}
-
 			return IsTypeNullable(type) ? NullValueStatus.PotentiallyNull : NullValueStatus.DefinitelyNotNull;
 		}
 
@@ -393,16 +391,14 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			}
 		}
 
-		public NullValueStatus GetVariableStatusBeforeExpression(Expression expr, string variableName)
+		public NullValueStatus GetExpressionResult(Expression expr)
 		{
 			if (expr == null)
 				throw new ArgumentNullException("expr");
-			if (variableName == null)
-				throw new ArgumentNullException("variableName");
 
-			VariableStatusInfo info;
-			if (statusBeforeExpression.TryGetValue(expr, out info)) {
-				return info [variableName];
+			NullValueStatus info;
+			if (expressionResult.TryGetValue(expr, out info)) {
+				return info;
 			}
 
 			return NullValueStatus.UnreachablePosition;
@@ -658,6 +654,42 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return expressionStatement.Expression.AcceptVisitor(this, data);
 			}
 
+			public override VisitorResult VisitReturnStatement(ReturnStatement returnStatement, VariableStatusInfo data)
+			{
+				if (returnStatement.Expression.IsNull)
+					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+				return returnStatement.Expression.AcceptVisitor(this, data);
+			}
+
+			void RegisterExpressionResult(Expression expression, NullValueStatus expressionResult)
+			{
+				NullValueStatus oldStatus;
+				if (analysis.expressionResult.TryGetValue(expression, out oldStatus)) {
+					VariableStatusInfo.CombineStatus(analysis.expressionResult[expression], expressionResult);
+				}
+				else {
+					analysis.expressionResult[expression] = expressionResult;
+				}
+			}
+
+			VisitorResult HandleExpressionResult(Expression expression, VariableStatusInfo dataAfterExpression, NullValueStatus expressionResult) {
+				RegisterExpressionResult(expression, expressionResult);
+
+				return VisitorResult.ForValue(dataAfterExpression, expressionResult);
+			}
+
+			VisitorResult HandleExpressionResult(Expression expression, VariableStatusInfo dataAfterExpression, bool expressionResult) {
+				RegisterExpressionResult(expression, NullValueStatus.DefinitelyNotNull);
+
+				return VisitorResult.ForBoolValue(dataAfterExpression, expressionResult);
+			}
+
+			VisitorResult HandleExpressionResult(Expression expression, VisitorResult result) {
+				RegisterExpressionResult(expression, result.NullableReturnResult);
+
+				return result;
+			}
+
 			public override VisitorResult VisitAssignmentExpression(AssignmentExpression assignmentExpression, VariableStatusInfo data)
 			{
 				if (assignmentExpression.Operator != AssignmentOperatorType.Assign)
@@ -670,7 +702,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (leftIdentifier != null) {
 					var resolveResult = analysis.resolver.Resolve(leftIdentifier);
 					if (resolveResult.IsError) {
-						return VisitorResult.ForValue(data, NullValueStatus.Error);
+						return HandleExpressionResult(assignmentExpression, data, NullValueStatus.Error);
 					}
 					var local = resolveResult as LocalResolveResult;
 					if (local != null) {
@@ -681,7 +713,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						if (oldValue != NullValueStatus.CapturedUnknown) {
 							result.Variables [local.Variable.Name] = tentativeResult.NullableReturnResult;
 						}
-						return result;
+						return HandleExpressionResult(assignmentExpression, result);
 					}
 				}
 
@@ -692,49 +724,42 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			{
 				var resolveResult = analysis.resolver.Resolve(identifierExpression);
 				if (resolveResult.IsError) {
-					return VisitorResult.ForValue(data, NullValueStatus.Error);
+					return HandleExpressionResult(identifierExpression, data, NullValueStatus.Error);
 				}
 				var local = resolveResult as LocalResolveResult;
 				if (local != null) {
 					var value = data [local.Variable.Name];
 					if (value == NullValueStatus.CapturedUnknown)
 						value = NullValueStatus.Unknown;
-					return VisitorResult.ForValue(data, value);
+					return HandleExpressionResult(identifierExpression, data, value);
 				}
 				if (resolveResult.IsCompileTimeConstant) {
 					object value = resolveResult.ConstantValue;
 					if (value == null) {
-						return VisitorResult.ForValue(data, NullValueStatus.DefinitelyNull);
+						return HandleExpressionResult(identifierExpression, data, NullValueStatus.DefinitelyNull);
 					}
-					bool? boolValue = value as bool?;
+					var boolValue = value as bool?;
 					if (boolValue != null) {
 						return VisitorResult.ForBoolValue(data, (bool)boolValue);
 					}
-					return VisitorResult.ForValue(data, NullValueStatus.DefinitelyNotNull);
+					return HandleExpressionResult(identifierExpression, data, NullValueStatus.DefinitelyNotNull);
 				}
-				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+				return HandleExpressionResult(identifierExpression, data, NullValueStatus.Unknown);
 			}
 
 			public override VisitorResult VisitNullReferenceExpression(NullReferenceExpression nullReferenceExpression, VariableStatusInfo data)
 			{
-				return VisitorResult.ForValue(data, NullValueStatus.DefinitelyNull);
+				return HandleExpressionResult(nullReferenceExpression, data, NullValueStatus.DefinitelyNull);
 			}
 
 			public override VisitorResult VisitPrimitiveExpression(PrimitiveExpression primitiveExpression, VariableStatusInfo data)
 			{
-				return VisitorResult.ForValue(data, NullValueStatus.DefinitelyNotNull);
+				return HandleExpressionResult(primitiveExpression, data, NullValueStatus.DefinitelyNotNull);
 			}
 
 			public override VisitorResult VisitParenthesizedExpression(ParenthesizedExpression parenthesizedExpression, VariableStatusInfo data)
 			{
-				return parenthesizedExpression.Expression.AcceptVisitor(this, data);
-			}
-
-			public override VisitorResult VisitReturnStatement(ReturnStatement returnStatement, VariableStatusInfo data)
-			{
-				if (returnStatement.Expression.IsNull)
-					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
-				return returnStatement.Expression.AcceptVisitor(this, data);
+				return HandleExpressionResult(parenthesizedExpression, parenthesizedExpression.Expression.AcceptVisitor(this, data));
 			}
 
 			public override VisitorResult VisitConditionalExpression(ConditionalExpression conditionalExpression, VariableStatusInfo data)
@@ -742,34 +767,36 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				var tentativeBaseResult = conditionalExpression.Condition.AcceptVisitor(this, data);
 
 				if (tentativeBaseResult.KnownBoolResult == true) {
-					return conditionalExpression.TrueExpression.AcceptVisitor(this, tentativeBaseResult.TruePathVariables);
+					return HandleExpressionResult(conditionalExpression, conditionalExpression.TrueExpression.AcceptVisitor(this, tentativeBaseResult.TruePathVariables));
 				}
 				if (tentativeBaseResult.KnownBoolResult == false) {
-					return conditionalExpression.FalseExpression.AcceptVisitor(this, tentativeBaseResult.FalsePathVariables);
+					return HandleExpressionResult(conditionalExpression, conditionalExpression.FalseExpression.AcceptVisitor(this, tentativeBaseResult.FalsePathVariables));
 				}
 
 				//No known bool result
 				var trueCase = conditionalExpression.TrueExpression.AcceptVisitor(this, tentativeBaseResult.TruePathVariables);
 				var falseCase = conditionalExpression.FalseExpression.AcceptVisitor(this, tentativeBaseResult.FalsePathVariables);
 
-				return VisitorResult.OrOperation(trueCase, falseCase);
+				return HandleExpressionResult(conditionalExpression, VisitorResult.OrOperation(trueCase, falseCase));
 			}
 
 			public override VisitorResult VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
 			{
 				//Let's not evaluate the sides just yet because of ??, && and ||
 
+				//We'll register the results here (with HandleExpressionResult)
+				//so each Visit*Expression won't have to do it itself
 				switch (binaryOperatorExpression.Operator) {
 					case BinaryOperatorType.ConditionalAnd:
-						return VisitConditionalAndExpression(binaryOperatorExpression, data);
+						return HandleExpressionResult(binaryOperatorExpression, VisitConditionalAndExpression(binaryOperatorExpression, data));
 					case BinaryOperatorType.ConditionalOr:
-						return VisitConditionalOrExpression(binaryOperatorExpression, data);
+						return HandleExpressionResult(binaryOperatorExpression, VisitConditionalOrExpression(binaryOperatorExpression, data));
 					case BinaryOperatorType.NullCoalescing:
-						return VisitNullCoalescing(binaryOperatorExpression, data);
+						return HandleExpressionResult(binaryOperatorExpression, VisitNullCoalescing(binaryOperatorExpression, data));
 					case BinaryOperatorType.Equality:
-						return VisitEquality(binaryOperatorExpression, data);
+						return HandleExpressionResult(binaryOperatorExpression, VisitEquality(binaryOperatorExpression, data));
 					case BinaryOperatorType.InEquality:
-						return VisitEquality(binaryOperatorExpression, data).Negated;
+						return HandleExpressionResult(binaryOperatorExpression, VisitEquality(binaryOperatorExpression, data).Negated);
 					default:
 						throw new NotImplementedException();
 				}
@@ -796,7 +823,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 
-				VisitorResult result = new VisitorResult();
+				var result = new VisitorResult();
 				result.Variables = tentativeRightResult.Variables;
 				result.NullableReturnResult = NullValueStatus.Unknown;
 				result.ConditionalBranchInfo = new ConditionalBranchInfo();
@@ -883,7 +910,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 
-				var rightTentativeResult = binaryOperatorExpression.AcceptVisitor(this, newData);
+				var rightTentativeResult = binaryOperatorExpression.Right.AcceptVisitor(this, newData);
 
 				var mergedVariables = rightTentativeResult.Variables;
 				var nullValue = rightTentativeResult.NullableReturnResult;
@@ -906,9 +933,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				var tentativeResult = unaryOperatorExpression.Expression.AcceptVisitor(this, data);
 
 				if (unaryOperatorExpression.Operator == UnaryOperatorType.Not) {
-					return tentativeResult.Negated;
+					return HandleExpressionResult(unaryOperatorExpression, tentativeResult.Negated);
 				}
-				return tentativeResult;
+				return HandleExpressionResult(unaryOperatorExpression, tentativeResult);
 			}
 
 			public override VisitorResult VisitInvocationExpression(InvocationExpression invocationExpression, VariableStatusInfo data)
@@ -918,7 +945,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				data = invocationExpression.Target.AcceptVisitor(this, data).Variables;
 
 				foreach (var argument in invocationExpression.Arguments) {
-					DirectionExpression directionExpression = argument as DirectionExpression;
+					var directionExpression = argument as DirectionExpression;
 					if (directionExpression != null) {
 						var identifier = directionExpression.Expression as IdentifierExpression;
 						if (identifier != null && data [identifier.Identifier] != NullValueStatus.CapturedUnknown) {
@@ -933,7 +960,28 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 
 				//TODO: Some functions return non-nullable types
-				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+				return HandleExpressionResult(invocationExpression, data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression, VariableStatusInfo data)
+			{
+				foreach (var argument in objectCreateExpression.Arguments) {
+					var directionExpression = argument as DirectionExpression;
+					if (directionExpression != null) {
+						var identifier = directionExpression.Expression as IdentifierExpression;
+						if (identifier != null && data [identifier.Identifier] != NullValueStatus.CapturedUnknown) {
+							//TODO: Check for scope and nullable types
+							//out and ref parameters do *NOT* capture the variable (since they must stop changing it by the time they return)
+							data = data.Clone();
+							data [identifier.Identifier] = NullValueStatus.Unknown;
+						}
+						continue;
+					}
+					data = argument.AcceptVisitor(this, data).Variables;
+				}
+
+				//Constructors never return null
+				return HandleExpressionResult(objectCreateExpression, data, NullValueStatus.DefinitelyNotNull);
 			}
 
 			public override VisitorResult VisitLambdaExpression(LambdaExpression lambdaExpression, VariableStatusInfo data)
@@ -964,7 +1012,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 
 				//The lambda itself is known not to be null
-				return VisitorResult.ForValue(newData, NullValueStatus.DefinitelyNotNull);
+				return HandleExpressionResult(lambdaExpression, newData, NullValueStatus.DefinitelyNotNull);
 			}
 		}
 	}

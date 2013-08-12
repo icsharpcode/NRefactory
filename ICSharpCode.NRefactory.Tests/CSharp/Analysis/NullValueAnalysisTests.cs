@@ -26,11 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
 using ICSharpCode.NRefactory.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
@@ -38,36 +36,38 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 	[TestFixture]
 	public class NullValueAnalysisTests
 	{
-		NullValueAnalysis CreateNullValueAnalysis(SyntaxTree tree, MethodDeclaration methodDeclaration)
+		static NullValueAnalysis CreateNullValueAnalysis(SyntaxTree tree, MethodDeclaration methodDeclaration)
 		{
 			IProjectContent pc = new CSharpProjectContent();
 			pc = pc.AddAssemblyReferences(CecilLoaderTests.Mscorlib);
-			pc = pc.AddOrUpdateFiles(new[] { tree.ToTypeSystem() });
+			pc = pc.AddOrUpdateFiles(new[] {
+				tree.ToTypeSystem()
+			});
 			var compilation = pc.CreateCompilation();
 			var resolver = new CSharpResolver(compilation);
 			var astResolver = new CSharpAstResolver(resolver, tree);
 			return new NullValueAnalysis(methodDeclaration, astResolver, CancellationToken.None);
 		}
 
-		NullValueAnalysis CreateNullValueAnalysis(MethodDeclaration methodDeclaration)
+		static NullValueAnalysis CreateNullValueAnalysis(MethodDeclaration methodDeclaration)
 		{
 			var type = new TypeDeclaration {
 				Name = "DummyClass",
 				ClassType = ClassType.Class
 			};
 			type.Members.Add(methodDeclaration);
-			var tree = new SyntaxTree() { FileName = "test.cs" };
+			var tree = new SyntaxTree { FileName = "test.cs" };
 			tree.Members.Add(type);
 
 			return CreateNullValueAnalysis(tree, methodDeclaration);
 		}
 
-		ParameterDeclaration CreatePrimitiveParameter(string typeKeyword, string parameterName)
+		static ParameterDeclaration CreatePrimitiveParameter(string typeKeyword, string parameterName)
 		{
 			return new ParameterDeclaration(new PrimitiveType(typeKeyword), parameterName);
 		}
 
-		ParameterDeclaration CreateStringParameter(string parameterName = "p")
+		static ParameterDeclaration CreateStringParameter(string parameterName = "p")
 		{
 			return CreatePrimitiveParameter("string", parameterName);
 		}

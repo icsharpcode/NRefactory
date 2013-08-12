@@ -95,14 +95,24 @@ class TestClass
 		}
 
 		[Test]
-		public void TestDisabledForGoodUsages()
+		public void TestSmartUsage()
 		{
-			TestWrongContext<ConstantNullCoalescingConditionIssue>(@"
+			//Previously, this was a "TestWrongContext".
+			//However, since smart null coallescing was introduced, this can now be
+			//detected as redundant
+			Test<ConstantNullCoalescingConditionIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		object o = new object () ?? """";
+	}
+}", @"
+class TestClass
+{
+	void Foo()
+	{
+		object o = new object ();
 	}
 }");
 		}
