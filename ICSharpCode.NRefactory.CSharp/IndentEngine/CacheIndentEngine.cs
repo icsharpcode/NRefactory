@@ -133,7 +133,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			// determine the new current engine from cachedEngines
 			lastCachedEngine = currentEngine.Offset / cacheRate;
 
-			if (cachedEngines.Length < lastCachedEngine)
+			if (cachedEngines.Length < lastCachedEngine + 1)
 			{
 				Array.Resize(ref cachedEngines, lastCachedEngine * 2);
 			}
