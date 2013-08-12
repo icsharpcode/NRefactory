@@ -72,8 +72,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				NullValueStatus leftStatus = analysis.GetExpressionResult(binaryOperatorExpression.Left);
 				if (leftStatus == NullValueStatus.DefinitelyNotNull) {
-					AddIssue(binaryOperatorExpression,
-					         ctx.TranslateString("Redundant ??. Left side is never null"),
+					AddIssue(binaryOperatorExpression.OperatorToken.StartLocation,
+					         binaryOperatorExpression.Right.EndLocation,
+					         ctx.TranslateString("Redundant ??. Left side is never null."),
 					         ctx.TranslateString("Remove redundant right side"),
 					         script => {
 
@@ -83,8 +84,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				}
 				if (leftStatus == NullValueStatus.DefinitelyNull) {
-					AddIssue(binaryOperatorExpression,
-					         ctx.TranslateString("Redundant ??. Left side is always null"),
+					AddIssue(binaryOperatorExpression.Left.StartLocation,
+					         binaryOperatorExpression.OperatorToken.EndLocation,
+					         ctx.TranslateString("Redundant ??. Left side is always null."),
 					         ctx.TranslateString("Remove redundant left side"),
 					         script => {
 
@@ -95,8 +97,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				NullValueStatus rightStatus = analysis.GetExpressionResult(binaryOperatorExpression.Right);
 				if (rightStatus == NullValueStatus.DefinitelyNull) {
-					AddIssue(binaryOperatorExpression,
-					         ctx.TranslateString("Redundant ??. Right side is always null"),
+					AddIssue(binaryOperatorExpression.OperatorToken.StartLocation,
+					         binaryOperatorExpression.Right.EndLocation,
+					         ctx.TranslateString("Redundant ??. Right side is always null."),
 					         ctx.TranslateString("Remove redundant right side"),
 					         script => {
 
