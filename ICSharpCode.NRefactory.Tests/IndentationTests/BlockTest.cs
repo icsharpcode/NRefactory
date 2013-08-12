@@ -343,6 +343,18 @@ class Foo {
 		}
 
 		[Test]
+		public void TestBrackets_NotLineStart()
+		{
+			var indent = Helper.CreateEngine(@"
+namespace Foo {
+	class Foo {
+		void Test(int i,
+		          double d) { $");
+			Assert.AreEqual("\t\t          ", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
 		public void TestBrackets_RightHandExpression()
 		{
 			var indent = Helper.CreateEngine(@"
@@ -364,7 +376,7 @@ class Foo {
 	void Test ()
 	{
 		var v = I.Where(i => i == ';')
-					.Select(i => i); $");
+		         .Select(i => i); $");
 			Assert.AreEqual("\t\t         ", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}

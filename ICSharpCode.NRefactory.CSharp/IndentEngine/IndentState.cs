@@ -551,13 +551,17 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void InitializeState()
 		{
 			// remove all continuations and extra spaces from the previous state
-			Parent.ThisLineIndent.ExtraSpaces = 0;
 			Parent.NextLineIndent.ExtraSpaces = 0;
 			if (Parent.NextLineIndent.Count > 0 && Parent.NextLineIndent.Peek() == IndentType.Continuation)
 			{
 				Parent.NextLineIndent.Pop();
+			}
+
+			if (Engine.isLineStart)
+			{
 				Parent.ThisLineIndent = Parent.NextLineIndent.Clone();
 			}
+
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
 			AddIndentation(CurrentBody);
