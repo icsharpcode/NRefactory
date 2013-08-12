@@ -487,7 +487,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public static VisitorResult ForBoolValue(VariableStatusInfo oldResult, bool newValue)
 			{
 				var clone = new VisitorResult();
-				clone.NullableReturnResult = NullValueStatus.Unknown; //Not meaningful
+				clone.NullableReturnResult = NullValueStatus.DefinitelyNotNull; //Bool expressions are never null
 				clone.KnownBoolResult = newValue;
 				clone.Variables = oldResult.Clone();
 				return clone;
@@ -665,7 +665,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			{
 				NullValueStatus oldStatus;
 				if (analysis.expressionResult.TryGetValue(expression, out oldStatus)) {
-					VariableStatusInfo.CombineStatus(analysis.expressionResult[expression], expressionResult);
+					analysis.expressionResult[expression] = VariableStatusInfo.CombineStatus(analysis.expressionResult[expression], expressionResult);
 				}
 				else {
 					analysis.expressionResult[expression] = expressionResult;

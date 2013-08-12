@@ -330,6 +330,32 @@ class TestClass
 		}
 
 		[Test]
+		public void TestExpressionState()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+delegate void MyDelegate(string p1, out string p2);
+class TestClass
+{
+	string TestMethod(string p)
+	{
+		if (p != null) p = """";
+		return p;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = (ReturnStatement)method.Body.Statements.Last();
+			var expr = lastStatement.Expression;
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetExpressionResult(expr));
+		}
+
+		[Test]
 		public void TestCompileConstants()
 		{
 			var parser = new CSharpParser();
