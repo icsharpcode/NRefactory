@@ -29,7 +29,7 @@ using System;
 namespace ICSharpCode.NRefactory.CSharp
 {
 	/// <summary>
-	///     Represents a decorator of an IDocumentIndentEngine instance that provides
+	///     Represents a decorator of an IStateMachineIndentEngine instance that provides
 	///     logic for reseting and updating the engine on text changed events.
 	/// </summary>
 	/// <remarks>
@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		///     Creates a new CacheIndentEngine instance.
 		/// </summary>
 		/// <param name="decoratedEngine">
-		///     An instance of <see cref="IDocumentIndentEngine"/> to which the
+		///     An instance of <see cref="IStateMachineIndentEngine"/> to which the
 		///     logic for indentation will be delegated.
 		/// </param>
 		/// <param name="cacheRate">
@@ -215,7 +215,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			// update the engine to the given offset
-			currentEngine.Update(offset);
+			while (Offset < offset)
+			{
+				Push(Document.GetCharAt(Offset));
+			}
 		}
 
 		#endregion
