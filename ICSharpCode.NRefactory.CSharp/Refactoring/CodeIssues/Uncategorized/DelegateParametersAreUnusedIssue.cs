@@ -29,6 +29,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using System.Linq;
 using System.Runtime.InteropServices;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -61,20 +62,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var parameterNames = anonymousMethodExpression.Parameters.Select(parameter => parameter.Name);
 
 				var identifiers = anonymousMethodExpression.Body.Descendants.OfType<IdentifierExpression>();
-				if (!identifiers.Any(identifier => parameterNames.Contains(identifier.Identifier))) {
-					AddIssue(anonymousMethodExpression.LParToken.StartLocation,
-					         anonymousMethodExpression.RParToken.EndLocation,
-					         ctx.TranslateString("Redundant parameter list (all parameters are unused)"),
-					         ctx.TranslateString("Remove delegate parameter list"),
-					         script => {
-
-						int start = script.GetCurrentOffset(anonymousMethodExpression.LParToken.StartLocation);
-						int end = script.GetCurrentOffset(anonymousMethodExpression.RParToken.EndLocation);
-
-						script.RemoveText(start, end - start);
-
-					});
+				if (identifiers.Any(identifier => parameterNames.Contains(identifier.Identifier))) {
+					base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+					return;
 				}
+
+				if (!RedundantLambdaParameterTypeIssue.LambdaTypeCanBeInferred(ctx, anonymousMethodExpression, anonymousMethodExpression.Parameters)) {
+					base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+					return;
+				}
+
+				AddIssue(anonymousMethodExpression.LParToken.StartLocation,
+				         anonymousMethodExpression.RParToken.EndLocation,
+				         ctx.TranslateString("Redundant parameter list (all parameters are unused)"),
+				         ctx.TranslateString("Remove delegate parameter list"),
+				         script => {
+
+					int start = script.GetCurrentOffset(anonymousMethodExpression.LParToken.StartLocation);
+					int end = script.GetCurrentOffset(anonymousMethodExpression.RParToken.EndLocation);
+
+					script.RemoveText(start, end - start);
+
+				});
 
 				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
 			}

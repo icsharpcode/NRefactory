@@ -65,6 +65,49 @@ class TestClass
 	}
 }");
 		}
+
+		[Test]
+		public void TestVisitChild ()
+		{
+			Test<DelegateParametersAreUnusedIssue>(@"
+class TestClass
+{
+	void TestMethod()
+	{
+		Action<int> x = delegate(int p) {
+			Console.WriteLine(p);
+			Action<int> y = delegate(int q) {};
+		};
+	}
+}", @"
+class TestClass
+{
+	void TestMethod()
+	{
+		Action<int> x = delegate(int p) {
+			Console.WriteLine(p);
+			Action<int> y = delegate {};
+		};
+	}
+}");
+		}
+
+		[Test]
+		public void TestAmbiguousCase ()
+		{
+			TestWrongContext<DelegateParametersAreUnusedIssue>(@"
+using System;
+class TestClass
+{
+	void Foo(Action<int> action) {}
+	void Foo(Action<string> action) {}
+	void TestMethod()
+	{
+		Foo(delegate(int p) {});
+	}
+}
+");
+		}
 	}
 }
 
