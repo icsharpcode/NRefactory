@@ -441,5 +441,31 @@ class Project : MissingInterface {}";
 			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
+
+		[Test]
+		public void TestBinaryOperator()
+		{
+			var input = @"
+class TestClass
+{
+enum Enum{ };
+	void TestMethod (ulong i)
+	{
+		int x;
+		x = i + i;
+	}
+}";
+			var output = @"
+class TestClass
+{
+enum Enum{ };
+	void TestMethod (ulong i)
+	{
+		int x;
+		x = (int)(i + i);
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, output);
+		}
 	}
 }
