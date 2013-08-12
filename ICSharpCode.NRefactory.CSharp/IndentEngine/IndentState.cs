@@ -528,11 +528,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			else if (ch == '=' && !IsRightHandExpression)
 			{
 				IsRightHandExpression = true;
-				NextLineIndent.ExtraSpaces = Engine.column - NextLineIndent.CurIndent + 1;
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent + 1);
 			}
 			else if (ch == '.' && IsRightHandExpression)
 			{
-				NextLineIndent.ExtraSpaces = Engine.column - NextLineIndent.CurIndent - 1;
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 			}
 			else if (ch == Engine.newLineChar && NextLineIndent.ExtraSpaces > 0 &&
 				    (Engine.previousChar == '=' || Engine.previousChar == '.'))

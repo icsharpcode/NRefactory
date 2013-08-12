@@ -70,12 +70,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		IStateMachineIndentEngine[] cachedEngines;
 
 		/// <summary>
-		///     The number of engines that have been cached so far.
+		///     The index of the last cached engine in cachedEngines.
 		/// </summary>
 		/// <remarks>
 		///     Should be equal to: currentEngine.Offset / CacheRate
 		/// </remarks>
-		int cachedEnginesCount;
+		int lastCachedEngine;
 
 		#endregion
 
@@ -96,8 +96,24 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.cachedEngines = new IStateMachineIndentEngine[cacheCapacity];
 
 			this.cachedEngines[0] = decoratedEngine.Clone();
-			this.currentEngine = this.cachedEngines[0];
+			this.currentEngine = this.cachedEngines[0].Clone();
 			this.cacheRate = cacheRate;
+		}
+
+		/// <summary>
+		///     Creates a new CacheIndentEngine instance from the given prototype.
+		/// </summary>
+		/// <param name="prototype">
+		///     A CacheIndentEngine instance.
+		/// </param>
+		public CacheIndentEngine(CacheIndentEngine prototype)
+		{
+			this.cachedEngines = new IStateMachineIndentEngine[prototype.cachedEngines.Length];
+			Array.Copy(prototype.cachedEngines, this.cachedEngines, prototype.cachedEngines.Length);
+
+			this.lastCachedEngine = prototype.lastCachedEngine;
+			this.currentEngine = prototype.currentEngine.Clone();
+			this.cacheRate = prototype.cacheRate;
 		}
 
 		#endregion
@@ -114,16 +130,15 @@ namespace ICSharpCode.NRefactory.CSharp
 				throw new Exception("The current engine's offset is not divisable with the cacheRate.");
 			}
 
-			// determine the correct index of the current engine in cachedEngines
-			var engineIndex = currentEngine.Offset / cacheRate;
+			// determine the new current engine from cachedEngines
+			lastCachedEngine = currentEngine.Offset / cacheRate;
 
-			cachedEnginesCount = Math.Max(cachedEnginesCount, engineIndex);
-			if (cachedEngines.Length < cachedEnginesCount)
+			if (cachedEngines.Length < lastCachedEngine)
 			{
-				Array.Resize(ref cachedEngines, cachedEnginesCount * 2);
+				Array.Resize(ref cachedEngines, lastCachedEngine * 2);
 			}
 
-			cachedEngines[engineIndex] = currentEngine.Clone();
+			cachedEngines[lastCachedEngine] = currentEngine.Clone();
 		}
 
 		#endregion
@@ -186,7 +201,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <inheritdoc />
 		public void Reset()
 		{
-			currentEngine = cachedEngines[cachedEnginesCount = 0];
+			currentEngine = cachedEngines[lastCachedEngine = 0];
 		}
 
 		/// <inheritdoc />
@@ -210,8 +225,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				// replace the currentEngine with the first one whose offset
 				// is less then the given <paramref name="offset"/>
-				cachedEnginesCount = offset / cacheRate;
-				currentEngine = cachedEngines[cachedEnginesCount].Clone();
+				lastCachedEngine =  offset / cacheRate;
+				currentEngine = cachedEngines[lastCachedEngine].Clone();
 			}
 
 			// update the engine to the given offset
@@ -228,7 +243,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <inheritdoc />
 		public IStateMachineIndentEngine Clone()
 		{
-			return new CacheIndentEngine(currentEngine, cacheRate);
+			return new CacheIndentEngine(this);
 		}
 
 		/// <inheritdoc />
