@@ -963,6 +963,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return HandleExpressionResult(invocationExpression, data, NullValueStatus.Unknown);
 			}
 
+			public override VisitorResult VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression, VariableStatusInfo data)
+			{
+				var targetResult = memberReferenceExpression.Target.AcceptVisitor(this, data);
+				//TODO: If the target is an identifier, then that might mean that variable is not nullable
+				// however, for that we must first check if the member is an extension method (which tend to violate a couple rules)
+				//TODO: Check if type is not nullable
+				return HandleExpressionResult(memberReferenceExpression, targetResult.Variables, NullValueStatus.Unknown);
+			}
+
 			public override VisitorResult VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression, VariableStatusInfo data)
 			{
 				foreach (var argument in objectCreateExpression.Arguments) {
