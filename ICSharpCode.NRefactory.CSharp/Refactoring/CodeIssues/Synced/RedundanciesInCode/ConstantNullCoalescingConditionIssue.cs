@@ -133,8 +133,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			static bool IsFunctionNode(AstNode node)
 			{
-				return node is MethodDeclaration ||
-					node is Accessor ||
+				return node is EntityDeclaration ||
 					node is LambdaExpression ||
 					node is AnonymousMethodExpression;
 			}
