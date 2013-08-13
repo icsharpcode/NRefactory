@@ -150,6 +150,13 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return foundDefault;
 			}
 
+			public override bool VisitBlockStatement(BlockStatement blockStatement)
+			{
+				//If the block has a recursive statement, then that statement will be visited
+				//individually by the CFG construction algorithm later.
+				return false;
+			}
+
 			protected override bool VisitChildren(AstNode node)
 			{
 				return VisitNodeList(node.Children);
