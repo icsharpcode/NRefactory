@@ -588,7 +588,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleOrDefaultIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeWhereIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\LongLiteralEndingLowerLIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantNullCoalescingExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantExplicitArrayCreationIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\ConstantNullCoalescingConditionIssue.cs" />
