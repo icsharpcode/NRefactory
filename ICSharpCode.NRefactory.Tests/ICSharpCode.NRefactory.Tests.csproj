@@ -468,7 +468,6 @@
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeSingleOrDefaultIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithOfTypeWhereIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LongLiteralEndingLowerLIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantExplicitArrayCreationTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0659OverrideEqualsWithoutGetHashCodeTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConstantNullCoalescingConditionIssueTests.cs" />
   </ItemGroup>
