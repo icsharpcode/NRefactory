@@ -104,12 +104,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void VisitBody(string entityType, AstNode node, BlockStatement body, IMember member, Role accessorRole)
 			{
-				var reachability = ctx.CreateReachabilityAnalysis(body, new RecursiveDetector(ctx, member, accessorRole));
+				var recursiveDetector = new RecursiveDetector(ctx, member, accessorRole);
+				var reachability = ctx.CreateReachabilityAnalysis(body, recursiveDetector);
 				bool hasReachableReturn = false;
 				foreach (var statement in reachability.ReachableStatements) {
 					if (statement is ReturnStatement || statement is ThrowStatement || statement is YieldBreakStatement) {
-						hasReachableReturn = true;
-						break;
+						if (!statement.AcceptVisitor(recursiveDetector)) {
+							hasReachableReturn = true;
+							break;
+						}
 					}
 				}
 				if (!hasReachableReturn && !reachability.IsEndpointReachable(body)) {
