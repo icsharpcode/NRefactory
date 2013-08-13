@@ -159,8 +159,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 
 				if (oldValue == NullValueStatus.Unknown) {
-					return incomingValue == NullValueStatus.Unknown ?
-						NullValueStatus.Unknown : NullValueStatus.PotentiallyNull;
+					return NullValueStatus.Unknown;
 				}
 
 				if (oldValue == NullValueStatus.DefinitelyNull) {
@@ -169,8 +168,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 
 				if (oldValue == NullValueStatus.DefinitelyNotNull) {
-					return incomingValue == NullValueStatus.DefinitelyNotNull ?
-						NullValueStatus.DefinitelyNotNull : NullValueStatus.PotentiallyNull;
+					if (incomingValue == NullValueStatus.Unknown)
+						return NullValueStatus.Unknown;
+					if (incomingValue == NullValueStatus.DefinitelyNotNull)
+						return NullValueStatus.DefinitelyNotNull;
+					return NullValueStatus.PotentiallyNull;
 				}
 
 				Debug.Assert(oldValue == NullValueStatus.PotentiallyNull);
@@ -711,6 +713,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						result.Variables = tentativeResult.Variables.Clone();
 						var oldValue = result.Variables [local.Variable.Name];
 						if (oldValue != NullValueStatus.CapturedUnknown) {
+							//Captured variables remain captured, and they may become null/not null
+							//at any time in a different thread.
 							result.Variables [local.Variable.Name] = tentativeResult.NullableReturnResult;
 						}
 						return HandleExpressionResult(assignmentExpression, result);
@@ -798,7 +802,56 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					case BinaryOperatorType.InEquality:
 						return HandleExpressionResult(binaryOperatorExpression, VisitEquality(binaryOperatorExpression, data).Negated);
 					default:
-						throw new NotImplementedException();
+						return HandleExpressionResult(binaryOperatorExpression, VisitOtherBinaryExpression(binaryOperatorExpression, data));
+				}
+			}
+
+			VisitorResult VisitOtherBinaryExpression(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
+			{
+				var leftTentativeResult = binaryOperatorExpression.Left.AcceptVisitor(this, data);
+				var rightTentativeResult = binaryOperatorExpression.Right.AcceptVisitor(this, leftTentativeResult.Variables);
+
+				//TODO: Assuming operators are not overloaded by users
+				// (or, if they are, that they retain similar behavior to the default ones)
+
+				switch (binaryOperatorExpression.Operator) {
+					case BinaryOperatorType.LessThan:
+					case BinaryOperatorType.GreaterThan:
+						//Operations < and > with nulls always return false
+						//Those same operations will other values may or may not return false
+						if (leftTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull &&
+							rightTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
+							return VisitorResult.ForBoolValue(rightTentativeResult.Variables, false);
+						}
+						//We don't know what the value is, but we know that both true and false are != null.
+						return VisitorResult.ForValue(rightTentativeResult.Variables, NullValueStatus.DefinitelyNotNull);
+					case BinaryOperatorType.LessThanOrEqual:
+					case BinaryOperatorType.GreaterThanOrEqual:
+						if (leftTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
+							if (rightTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull)
+								return VisitorResult.ForBoolValue(rightTentativeResult.Variables, true);
+							if (rightTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNotNull)
+								return VisitorResult.ForBoolValue(rightTentativeResult.Variables, false);
+						} else if (leftTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNotNull) {
+							if (rightTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull)
+								return VisitorResult.ForBoolValue(rightTentativeResult.Variables, false);
+						}
+
+						return VisitorResult.ForValue(rightTentativeResult.Variables, NullValueStatus.Unknown);
+					default:
+						//Anything else: null + anything == anything + null == null.
+						//not null + not null = not null
+						if (leftTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
+							return VisitorResult.ForValue(rightTentativeResult.Variables, NullValueStatus.DefinitelyNull);
+						}
+						if (leftTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNotNull) {
+							if (rightTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull)
+								return VisitorResult.ForValue(rightTentativeResult.Variables, NullValueStatus.DefinitelyNull);
+							else if (rightTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNotNull)
+								return VisitorResult.ForValue(rightTentativeResult.Variables, NullValueStatus.DefinitelyNotNull);
+						}
+
+						return VisitorResult.ForValue(rightTentativeResult.Variables, NullValueStatus.Unknown);
 				}
 			}
 

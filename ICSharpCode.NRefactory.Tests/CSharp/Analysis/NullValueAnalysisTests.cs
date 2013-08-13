@@ -330,6 +330,67 @@ class TestClass
 		}
 
 		[Test]
+		public void TestUncaptureVariable()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		while (true) {
+			string p1 = null;
+			Action action = () => { p1 = """"; };
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var whileStatement = (WhileStatement)method.Body.Statements.Single();
+			var whileBlock = (BlockStatement)whileStatement.EmbeddedStatement;
+			var actionStatement = whileBlock.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusBeforeStatement(actionStatement, "p1"));
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusAfterStatement(actionStatement, "p1"));
+		}
+
+		[Test]
+		public void TestForCapture()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	string TestMethod(string p)
+	{
+		for (int? i = 0; i < 10; ++i) {
+			int? inI = i;
+			Action action = () => { i = null; inI = null; };
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			var forStatement = (ForStatement)method.Body.Statements.Single();
+			var forBody = (BlockStatement)forStatement.EmbeddedStatement;
+			var actionStatement = forBody.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusBeforeStatement(actionStatement, "i"));
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusAfterStatement(actionStatement, "i"));
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusBeforeStatement(actionStatement, "inI"));
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusAfterStatement(actionStatement, "inI"));
+		}
+
+		[Test]
 		public void TestExpressionState()
 		{
 			var parser = new CSharpParser();
