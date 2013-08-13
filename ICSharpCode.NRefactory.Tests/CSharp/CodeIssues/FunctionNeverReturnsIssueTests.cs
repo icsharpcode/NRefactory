@@ -89,6 +89,21 @@ class TestClass
 		}
 
 		[Test]
+		public void TestIfWithoutElse ()
+		{
+			var input = @"
+class TestClass
+{
+	string TestMethod (int x)
+	{
+		if (x <= 0) return ""Hi"";
+		return ""_"" + TestMethod(x - 1);
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
+
+		[Test]
 		public void TestRecursive ()
 		{
 			var input = @"
