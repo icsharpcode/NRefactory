@@ -30,23 +30,35 @@ using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
 	[TestFixture]
 	public class NullValueAnalysisTests
 	{
+		class StubbedRefactoringContext : BaseRefactoringContext
+		{
+			StubbedRefactoringContext(CSharpAstResolver resolver) : base(resolver, CancellationToken.None) {}
+
+			internal static StubbedRefactoringContext Create(SyntaxTree tree)
+			{
+				IProjectContent pc = new CSharpProjectContent();
+				pc = pc.AddAssemblyReferences(CecilLoaderTests.Mscorlib);
+				pc = pc.AddOrUpdateFiles(new[] {
+					tree.ToTypeSystem()
+				});
+				var compilation = pc.CreateCompilation();
+				var resolver = new CSharpAstResolver(compilation, tree);
+
+				return new StubbedRefactoringContext(resolver);
+			}
+		}
+
 		static NullValueAnalysis CreateNullValueAnalysis(SyntaxTree tree, MethodDeclaration methodDeclaration)
 		{
-			IProjectContent pc = new CSharpProjectContent();
-			pc = pc.AddAssemblyReferences(CecilLoaderTests.Mscorlib);
-			pc = pc.AddOrUpdateFiles(new[] {
-				tree.ToTypeSystem()
-			});
-			var compilation = pc.CreateCompilation();
-			var resolver = new CSharpResolver(compilation);
-			var astResolver = new CSharpAstResolver(resolver, tree);
-			return new NullValueAnalysis(methodDeclaration, astResolver, CancellationToken.None);
+			var ctx = StubbedRefactoringContext.Create(tree);
+			return new NullValueAnalysis(ctx, methodDeclaration, CancellationToken.None);
 		}
 
 		static NullValueAnalysis CreateNullValueAnalysis(MethodDeclaration methodDeclaration)

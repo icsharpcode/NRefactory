@@ -271,29 +271,27 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			}
 		}
 
-		CSharpAstResolver resolver;
+		BaseRefactoringContext context;
 		readonly NullAnalysisVisitor visitor;
 		List<NullAnalysisNode> allNodes;
 		HashSet<Tuple<NullAnalysisNode, VariableStatusInfo>> nodesToVisit = new HashSet<Tuple<NullAnalysisNode, VariableStatusInfo>>();
 		Dictionary<Statement, NullAnalysisNode> nodeBeforeStatementDict;
 		Dictionary<Statement, NullAnalysisNode> nodeAfterStatementDict;
 		Dictionary<Expression, NullValueStatus> expressionResult = new Dictionary<Expression, NullValueStatus>();
-		Statement rootStatement;
 
-		public NullValueAnalysis(MethodDeclaration methodDeclaration, CSharpAstResolver resolver, CancellationToken cancellationToken)
-			: this(methodDeclaration.Body, resolver, methodDeclaration.Parameters, cancellationToken)
+		public NullValueAnalysis(BaseRefactoringContext context, MethodDeclaration methodDeclaration, CancellationToken cancellationToken)
+			: this(context, methodDeclaration.Body, methodDeclaration.Parameters, cancellationToken)
 		{
 		}
 
-		public NullValueAnalysis(Statement rootStatement, CSharpAstResolver resolver, IEnumerable<ParameterDeclaration> parameters, CancellationToken cancellationToken)
+		public NullValueAnalysis(BaseRefactoringContext context, Statement rootStatement, IEnumerable<ParameterDeclaration> parameters, CancellationToken cancellationToken)
 		{
 			if (rootStatement == null)
 				throw new ArgumentNullException("rootStatement");
-			if (resolver == null)
+			if (context == null)
 				throw new ArgumentNullException("resolver");
 
-			this.resolver = resolver;
-			this.rootStatement = rootStatement;
+			this.context = context;
 			this.visitor = new NullAnalysisVisitor(this);
 
 			var cfgBuilder = new NullAnalysisGraphBuilder();
@@ -317,7 +315,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		{
 			foreach (var parameter in parameters) {
 				string name = parameter.Name;
-				var resolveResult = resolver.Resolve(parameter.Type);
+				var resolveResult = context.Resolve(parameter.Type);
 				node.VariableState [name] = GetInitialVariableStatus(resolveResult);
 			}
 
@@ -702,7 +700,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				var leftIdentifier = assignmentExpression.Left as IdentifierExpression;
 				if (leftIdentifier != null) {
-					var resolveResult = analysis.resolver.Resolve(leftIdentifier);
+					var resolveResult = analysis.context.Resolve(leftIdentifier);
 					if (resolveResult.IsError) {
 						return HandleExpressionResult(assignmentExpression, data, NullValueStatus.Error);
 					}
@@ -726,7 +724,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public override VisitorResult VisitIdentifierExpression(IdentifierExpression identifierExpression, VariableStatusInfo data)
 			{
-				var resolveResult = analysis.resolver.Resolve(identifierExpression);
+				var resolveResult = analysis.context.Resolve(identifierExpression);
 				if (resolveResult.IsError) {
 					return HandleExpressionResult(identifierExpression, data, NullValueStatus.Error);
 				}
@@ -847,7 +845,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						if (leftTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNotNull) {
 							if (rightTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull)
 								return VisitorResult.ForValue(rightTentativeResult.Variables, NullValueStatus.DefinitelyNull);
-							else if (rightTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNotNull)
+							if (rightTentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNotNull)
 								return VisitorResult.ForValue(rightTentativeResult.Variables, NullValueStatus.DefinitelyNotNull);
 						}
 
@@ -886,7 +884,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 					if (match.Success) {
 						var identifier = match.Get<IdentifierExpression>("identifier").Single();
-						var localVariableResult = analysis.resolver.Resolve(identifier) as LocalResolveResult;
+						var localVariableResult = analysis.context.Resolve(identifier) as LocalResolveResult;
 						if (localVariableResult != null) {
 							bool isNull = (tentativeRightResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
 							result.ConditionalBranchInfo.TrueResultVariableNullStates [identifier.Identifier] = isNull;
@@ -900,7 +898,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 					if (match.Success) {
 						var identifier = match.Get<IdentifierExpression>("identifier").Single();
-						var localVariableResult = analysis.resolver.Resolve(identifier) as LocalResolveResult;
+						var localVariableResult = analysis.context.Resolve(identifier) as LocalResolveResult;
 						if (localVariableResult != null) {
 							bool isNull = (tentativeLeftResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
 							result.ConditionalBranchInfo.TrueResultVariableNullStates [identifier.Identifier] = isNull;
@@ -949,7 +947,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				var newData = leftTentativeResult.Variables;
 				var leftIdentifier = binaryOperatorExpression.Left as IdentifierExpression;
 				if (leftIdentifier != null) {
-					var resolveResult = analysis.resolver.Resolve(leftIdentifier);
+					var resolveResult = analysis.context.Resolve(leftIdentifier);
 					if (resolveResult.IsError) {
 						return VisitorResult.ForValue(data, NullValueStatus.Error);
 					}
