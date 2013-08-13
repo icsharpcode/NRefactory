@@ -324,7 +324,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 		static bool IsTypeNullable(IType type)
 		{
-			return type.IsReferenceType == true || type.FullName == "System.Nullable`1";
+			return type.IsReferenceType == true || type.FullName == "System.Nullable";
 		}
 
 		static NullValueStatus GetInitialVariableStatus(ResolveResult resolveResult)
@@ -649,6 +649,20 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return forStatement.Condition.AcceptVisitor(this, data);
 			}
 
+			public override VisitorResult VisitForeachStatement(ForeachStatement foreachStatement, VariableStatusInfo data)
+			{
+				string newVariable = foreachStatement.VariableName;
+				var newData = foreachStatement.InExpression.AcceptVisitor(this, data).Variables.Clone();
+				var resolveResult = analysis.context.Resolve(foreachStatement.VariableNameToken) as LocalResolveResult;
+				if (resolveResult != null) {
+					if (analysis.context.Supports(new Version(5, 0)) || newData [newVariable] != NullValueStatus.CapturedUnknown) {
+						newData [newVariable] = NullValueAnalysis.IsTypeNullable(resolveResult.Type) ?
+							NullValueStatus.Unknown : NullValueStatus.DefinitelyNotNull;
+					}
+				}
+				return VisitorResult.ForValue(newData, NullValueStatus.Unknown);
+			}
+
 			public override VisitorResult VisitExpressionStatement(ExpressionStatement expressionStatement, VariableStatusInfo data)
 			{
 				return expressionStatement.Expression.AcceptVisitor(this, data);
@@ -692,9 +706,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public override VisitorResult VisitAssignmentExpression(AssignmentExpression assignmentExpression, VariableStatusInfo data)
 			{
-				if (assignmentExpression.Operator != AssignmentOperatorType.Assign)
-					throw new NotImplementedException();
-
 				var tentativeResult = assignmentExpression.Left.AcceptVisitor(this, data);
 				tentativeResult = assignmentExpression.Right.AcceptVisitor(this, tentativeResult.Variables);
 
@@ -713,7 +724,19 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						if (oldValue != NullValueStatus.CapturedUnknown) {
 							//Captured variables remain captured, and they may become null/not null
 							//at any time in a different thread.
-							result.Variables [local.Variable.Name] = tentativeResult.NullableReturnResult;
+							if (assignmentExpression.Operator == AssignmentOperatorType.Assign ||
+							    oldValue == NullValueStatus.Unassigned ||
+							    oldValue == NullValueStatus.DefinitelyNotNull ||
+							    tentativeResult.NullableReturnResult == NullValueStatus.Error ||
+							    tentativeResult.NullableReturnResult == NullValueStatus.Unknown) {
+								result.Variables [local.Variable.Name] = tentativeResult.NullableReturnResult;
+							} else {
+								if (oldValue == NullValueStatus.DefinitelyNull) {
+									//Do nothing --it'll remain null
+								} else {
+									result.Variables [local.Variable.Name] = NullValueStatus.PotentiallyNull;
+								}
+							}
 						}
 						return HandleExpressionResult(assignmentExpression, result);
 					}
@@ -1042,6 +1065,30 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				//Constructors never return null
 				return HandleExpressionResult(objectCreateExpression, data, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitArrayCreateExpression(ArrayCreateExpression arrayCreateExpression, VariableStatusInfo data)
+			{
+				foreach (var argument in arrayCreateExpression.Arguments) {
+					data = argument.AcceptVisitor(this, data).Variables.Clone();
+				}
+
+				if (!arrayCreateExpression.Initializer.IsNull) {
+					data = arrayCreateExpression.Initializer.AcceptVisitor(this, data).Variables.Clone();
+				}
+
+				return HandleExpressionResult(arrayCreateExpression, data, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitArrayInitializerExpression(ArrayInitializerExpression arrayInitializerExpression, VariableStatusInfo data)
+			{
+				if (arrayInitializerExpression.IsSingleElement) {
+					return HandleExpressionResult(arrayInitializerExpression, arrayInitializerExpression.Elements.Single().AcceptVisitor(this, data));
+				}
+				foreach (var element in arrayInitializerExpression.Elements) {
+					data = element.AcceptVisitor(this, data).Variables.Clone();
+				}
+				return HandleExpressionResult(arrayInitializerExpression, data, NullValueStatus.DefinitelyNotNull);
 			}
 
 			public override VisitorResult VisitLambdaExpression(LambdaExpression lambdaExpression, VariableStatusInfo data)

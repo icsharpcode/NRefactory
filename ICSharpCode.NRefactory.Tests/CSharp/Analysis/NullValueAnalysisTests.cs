@@ -39,9 +39,14 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 	{
 		class StubbedRefactoringContext : BaseRefactoringContext
 		{
-			StubbedRefactoringContext(CSharpAstResolver resolver) : base(resolver, CancellationToken.None) {}
+			bool supportsVersion5;
 
-			internal static StubbedRefactoringContext Create(SyntaxTree tree)
+			StubbedRefactoringContext(CSharpAstResolver resolver, bool supportsVersion5) :
+				base(resolver, CancellationToken.None) {
+				this.supportsVersion5 = supportsVersion5;
+			}
+
+			internal static StubbedRefactoringContext Create(SyntaxTree tree, bool supportsVersion5 = true)
 			{
 				IProjectContent pc = new CSharpProjectContent();
 				pc = pc.AddAssemblyReferences(CecilLoaderTests.Mscorlib);
@@ -51,13 +56,20 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				var compilation = pc.CreateCompilation();
 				var resolver = new CSharpAstResolver(compilation, tree);
 
-				return new StubbedRefactoringContext(resolver);
+				return new StubbedRefactoringContext(resolver, supportsVersion5);
+			}
+
+			public override bool Supports(Version version)
+			{
+				if (supportsVersion5)
+					return version.Major <= 5;
+				return version.Major <= 4;
 			}
 		}
 
-		static NullValueAnalysis CreateNullValueAnalysis(SyntaxTree tree, MethodDeclaration methodDeclaration)
+		static NullValueAnalysis CreateNullValueAnalysis(SyntaxTree tree, MethodDeclaration methodDeclaration, bool supportsCSharp5 = true)
 		{
-			var ctx = StubbedRefactoringContext.Create(tree);
+			var ctx = StubbedRefactoringContext.Create(tree, supportsCSharp5);
 			return new NullValueAnalysis(ctx, methodDeclaration, CancellationToken.None);
 		}
 
@@ -369,6 +381,101 @@ class TestClass
 
 			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusBeforeStatement(actionStatement, "p1"));
 			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusAfterStatement(actionStatement, "p1"));
+		}
+
+		[Test]
+		public void TestSimpleForeach()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int? accum = 0;
+		foreach (var x in new int[] { 1, 2, 3}) {
+			accum += x;
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = (ForeachStatement)method.Body.Statements.Last();
+			var content = (BlockStatement)lastStatement.EmbeddedStatement;
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(content, "x"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(lastStatement, "accum"));
+		}
+
+		[Test]
+		public void TestCapturedForeachInCSharp5()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int? accum = 0;
+		foreach (var x in new int?[] { 1, 2, 3 }) {
+			Action action = () => { x = null; };
+			accum += x;
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method, true);
+
+			var foreachStatement = (ForeachStatement)method.Body.Statements.ElementAt(1);
+			var foreachBody = (BlockStatement)foreachStatement.EmbeddedStatement;
+			var action = foreachBody.Statements.First();
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusBeforeStatement(action, "x"));
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusAfterStatement(action, "x"));
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(lastStatement, "accum"));
+		}
+
+		[Test]
+		public void TestCapturedForeachInCSharp4()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int? accum = 0;
+		foreach (var x in new int?[] { 1, 2, 3}) {
+			Action action = () => { x = null; };
+			accum += x;
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method, false);
+
+			var foreachStatement = (ForeachStatement)method.Body.Statements.ElementAt(1);
+			var foreachBody = (BlockStatement)foreachStatement.EmbeddedStatement;
+			var action = foreachBody.Statements.First();
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusBeforeStatement(action, "x"));
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusAfterStatement(action, "x"));
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(lastStatement, "accum"));
 		}
 
 		[Test]
