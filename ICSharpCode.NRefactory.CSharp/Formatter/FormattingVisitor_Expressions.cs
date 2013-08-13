@@ -390,6 +390,9 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitInvocationExpression(InvocationExpression invocationExpression)
 		{
+			if (!invocationExpression.Target.IsNull)
+				invocationExpression.Target.AcceptVisitor(this);
+
 			ForceSpacesBefore(invocationExpression.LParToken, policy.SpaceBeforeMethodCallParentheses);
 			if (invocationExpression.Arguments.Any()) {
 				ForceSpacesAfter(invocationExpression.LParToken, policy.SpaceWithinMethodCallParentheses);
@@ -397,9 +400,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				ForceSpacesAfter(invocationExpression.LParToken, policy.SpaceBetweenEmptyMethodCallParentheses);
 				ForceSpacesBefore(invocationExpression.RParToken, policy.SpaceBetweenEmptyMethodCallParentheses);
 			}
-
-			if (!invocationExpression.Target.IsNull)
-				invocationExpression.Target.AcceptVisitor(this);
 
 			if (invocationExpression.Target is MemberReferenceExpression) {
 				var mt = (MemberReferenceExpression)invocationExpression.Target;
@@ -589,6 +589,47 @@ namespace ICSharpCode.NRefactory.CSharp
 				ForceSpacesBefore(dot, false);
 			ForceSpacesAfter(dot, false);
 			base.VisitMemberReferenceExpression(memberReferenceExpression);
+		}
+
+		public override void VisitPointerReferenceExpression(PointerReferenceExpression pointerReferenceExpression)
+		{
+			ForceSpacesAround(pointerReferenceExpression.ArrowToken, policy.SpaceAroundUnsafeArrowOperator);
+			base.VisitPointerReferenceExpression(pointerReferenceExpression);
+		}
+
+		public override void VisitUnaryOperatorExpression(UnaryOperatorExpression unaryOperatorExpression)
+		{
+			base.VisitUnaryOperatorExpression(unaryOperatorExpression);
+			switch (unaryOperatorExpression.Operator) {
+				case UnaryOperatorType.Any:
+					break;
+				case UnaryOperatorType.Not:
+					break;
+				case UnaryOperatorType.BitNot:
+					break;
+				case UnaryOperatorType.Minus:
+					break;
+				case UnaryOperatorType.Plus:
+					break;
+				case UnaryOperatorType.Increment:
+					break;
+				case UnaryOperatorType.Decrement:
+					break;
+				case UnaryOperatorType.PostIncrement:
+					break;
+				case UnaryOperatorType.PostDecrement:
+					break;
+				case UnaryOperatorType.Dereference:
+					ForceSpacesAfter(unaryOperatorExpression.OperatorToken, policy.SpaceAfterUnsafeAsteriskOfOperator);
+					break;
+				case UnaryOperatorType.AddressOf:
+					ForceSpacesAfter(unaryOperatorExpression.OperatorToken, policy.SpaceAfterUnsafeAddressOfOperator);
+					break;
+				case UnaryOperatorType.Await:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
 		}
 	}
 }

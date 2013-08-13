@@ -48,6 +48,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				return completion.factory;
 			}
 		}
+
+		internal bool AnonymousDelegateAdded {
+			get;
+			set;
+		}
 		
 		public CompletionDataWrapper (CSharpCompletionEngine completion)
 		{
@@ -303,6 +308,17 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				}
 			}
 			return result;
+		}
+		HashSet<string> anonymousSignatures = new HashSet<string> ();
+
+		public bool HasAnonymousDelegateAdded(string signature)
+		{
+			return anonymousSignatures.Contains(signature); 
+		}
+
+		public void AddAnonymousDelegateAdded(string signature)
+		{
+			anonymousSignatures.Add(signature); 
 		}
 	}
 }

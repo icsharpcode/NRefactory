@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				),
 				new LambdaExpression {
 					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
-					Body = PatternHelper.OptionalParentheses (PatternHelper.CommutativeOperator(PatternHelper.OptionalParentheses (new AnyNode("expr2")), BinaryOperatorType.InEquality, new NullReferenceExpression()))
+					Body = PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("expr2"), BinaryOperatorType.InEquality, new NullReferenceExpression())
 				}
 			);
 
@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					new LambdaExpression {
 						Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
 						Body = new BinaryOperatorExpression(
-							PatternHelper.OptionalParentheses(PatternHelper.CommutativeOperator(PatternHelper.OptionalParentheses (new AnyNode("expr2")), BinaryOperatorType.InEquality, new NullReferenceExpression())),
+							PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("expr2"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
 							BinaryOperatorType.ConditionalAnd,
 							new AnyNode("followUpExpr")
 						)

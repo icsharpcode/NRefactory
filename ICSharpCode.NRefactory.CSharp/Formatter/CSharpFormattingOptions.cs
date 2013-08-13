@@ -303,6 +303,16 @@ namespace ICSharpCode.NRefactory.CSharp
 			get;
 			set;
 		}
+
+		NewLinePlacement embeddedStatementPlacement = NewLinePlacement.NewLine;
+		public NewLinePlacement EmbeddedStatementPlacement {
+			get {
+				return embeddedStatementPlacement;
+			}
+			set {
+				embeddedStatementPlacement = value;
+			}
+		}
 		#endregion
 		
 		#region Spaces
@@ -542,7 +552,22 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
-		public bool SpaceAroundNullCoalescingOperator {
+		public bool SpaceAroundNullCoalescingOperator { // Tested
+			get;
+			set;
+		}
+
+		public bool SpaceAfterUnsafeAddressOfOperator { // Tested
+			get;
+			set;
+		}
+
+		public bool SpaceAfterUnsafeAsteriskOfOperator { // Tested
+			get;
+			set;
+		}
+
+		public bool SpaceAroundUnsafeArrowOperator { // Tested
 			get;
 			set;
 		}

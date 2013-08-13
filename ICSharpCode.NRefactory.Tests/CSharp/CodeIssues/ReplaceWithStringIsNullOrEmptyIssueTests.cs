@@ -561,5 +561,26 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
+
+		[Test]
+		public void TestInspectorCaseNS1WithParentheses ()
+		{
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
+{
+	void Bar (string str)
+	{
+		if ((str != null) && (str) != """")
+			;
+	}
+}", @"class Foo
+{
+	void Bar (string str)
+	{
+		if (!string.IsNullOrEmpty (str))
+			;
+	}
+}");
+		}
+
 	}
 }

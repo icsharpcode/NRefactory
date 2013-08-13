@@ -31,12 +31,13 @@ using ICSharpCode.NRefactory.CSharp.CodeCompletion;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	public class RedundantNullCoalescingExpressionTests : InspectionActionTestBase
+	[TestFixture]
+	public class ConstantNullCoalescingConditionIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestNullRightSide()
 		{
-			Test<RedundantNullCoalescingExpressionIssue>(@"
+			Test<ConstantNullCoalescingConditionIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -56,7 +57,7 @@ class TestClass
 		[Test]
 		public void TestNullLeftSide()
 		{
-			Test<RedundantNullCoalescingExpressionIssue>(@"
+			Test<ConstantNullCoalescingConditionIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -76,7 +77,7 @@ class TestClass
 		[Test]
 		public void TestEqualExpressions()
 		{
-			Test<RedundantNullCoalescingExpressionIssue>(@"
+			Test<ConstantNullCoalescingConditionIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -96,12 +97,26 @@ class TestClass
 		[Test]
 		public void TestDisabledForGoodUsages()
 		{
-			TestWrongContext<RedundantNullCoalescingExpressionIssue>(@"
+			TestWrongContext<ConstantNullCoalescingConditionIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		object o = new object () ?? """";
+	}
+}");
+		}
+
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<ConstantNullCoalescingConditionIssue>(@"
+class TestClass
+{
+	void Foo()
+	{
+		// ReSharper disable once ConstantNullCoalescingCondition
+		object o = new object () ?? null;
 	}
 }");
 		}

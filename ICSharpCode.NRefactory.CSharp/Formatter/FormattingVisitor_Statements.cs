@@ -148,8 +148,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (isBlock) {
 				VisitBlockWithoutFixingBraces((BlockStatement)node, false);
 			} else {
-				if (!statementAlreadyIndented)
-					FixStatementIndentation(node.StartLocation);
+				if (!statementAlreadyIndented) {
+					PlaceOnNewLine(policy.EmbeddedStatementPlacement, node);
+					nextStatementIndent = null;
+				}
 				node.AcceptVisitor(this);
 			}
 			if (pushed)

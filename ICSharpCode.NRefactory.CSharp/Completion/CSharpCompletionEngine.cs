@@ -2504,7 +2504,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			var thisLineIndent = GetLineIndent(location.Line);
 			string delegateEndString = EolMarker + thisLineIndent + "}" + (addSemicolon ? ";" : "");
 			//bool containsDelegateData = completionList.Result.Any(d => d.DisplayText.StartsWith("delegate("));
-			if (addDefault) {
+			if (addDefault && !completionList.AnonymousDelegateAdded) {
+				completionList.AnonymousDelegateAdded = true;
 				var oldDelegate = completionList.Result.FirstOrDefault(cd => cd.DisplayText == "delegate");
 				if (oldDelegate != null)
 					completionList.Result.Remove(oldDelegate);
@@ -2540,46 +2541,52 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			
 			sb.Append(")");
 			sbWithoutTypes.Append(")");
-			completionList.AddCustom(
-				"delegate" + sb,
-				"Creates anonymous delegate.",
-				"delegate" + sb + " {" + EolMarker + thisLineIndent + IndentString + "|" + delegateEndString
-			);
-			if (LanguageVersion.Major >= 5) {
-				completionList.AddCustom(
-					"async delegate" + sb,
-					"Creates anonymous async delegate.",
-					"async delegate" + sb + " {" + EolMarker + thisLineIndent + IndentString + "|" + delegateEndString
-				);
-			}
-			if (!completionList.Result.Any(data => data.DisplayText == sb.ToString())) {
-				completionList.AddCustom(
-					sb.ToString(),
-					"Creates typed lambda expression.",
-					sb + " => |" + (addSemicolon ? ";" : "")
-					);
-				if (LanguageVersion.Major >= 5) {
-					completionList.AddCustom(
-						"async " + sb.ToString(),
-						"Creates typed async lambda expression.",
-						"async " + sb + " => |" + (addSemicolon ? ";" : "")
-					);
-				}
-			}
+			var signature = sb.ToString();
+			if (!completionList.HasAnonymousDelegateAdded(signature)) {
+				completionList.AddAnonymousDelegateAdded (signature);
 
-			if (!delegateMethod.Parameters.Any(p => p.IsOut || p.IsRef) && !completionList.Result.Any(data => data.DisplayText == sbWithoutTypes.ToString())) {
 				completionList.AddCustom(
-					sbWithoutTypes.ToString(),
-					"Creates lambda expression.",
-					sbWithoutTypes + " => |" + (addSemicolon ? ";" : "")
+					"delegate" + signature,
+					"Creates anonymous delegate.",
+					"delegate" + signature + " {" + EolMarker + thisLineIndent + IndentString + "|" + delegateEndString
 				);
 				if (LanguageVersion.Major >= 5) {
 					completionList.AddCustom(
-						"async " + sbWithoutTypes.ToString(),
-						"Creates async lambda expression.",
-						"async " + sbWithoutTypes + " => |" + (addSemicolon ? ";" : "")
+						"async delegate" + signature,
+						"Creates anonymous async delegate.",
+						"async delegate" + signature + " {" + EolMarker + thisLineIndent + IndentString + "|" + delegateEndString
 					);
 				}
+				if (!completionList.Result.Any(data => data.DisplayText == sb.ToString())) {
+					completionList.AddCustom(
+						signature,
+						"Creates typed lambda expression.",
+						signature + " => |" + (addSemicolon ? ";" : "")
+					);
+					if (LanguageVersion.Major >= 5) {
+						completionList.AddCustom(
+							"async " + signature,
+							"Creates typed async lambda expression.",
+							"async " + signature + " => |" + (addSemicolon ? ";" : "")
+						);
+					}
+
+					if (!delegateMethod.Parameters.Any(p => p.IsOut || p.IsRef) && !completionList.Result.Any(data => data.DisplayText == sbWithoutTypes.ToString())) {
+						completionList.AddCustom(
+							sbWithoutTypes.ToString(),
+							"Creates lambda expression.",
+							sbWithoutTypes + " => |" + (addSemicolon ? ";" : "")
+						);
+						if (LanguageVersion.Major >= 5) {
+							completionList.AddCustom(
+								"async " + sbWithoutTypes,
+								"Creates async lambda expression.",
+								"async " + sbWithoutTypes + " => |" + (addSemicolon ? ";" : "")
+							);
+						}
+					}
+				}
+
 			}
 			/* TODO:Make factory method out of it.
 			// It's  needed to temporarly disable inserting auto matching bracket because the anonymous delegates are selectable with '('

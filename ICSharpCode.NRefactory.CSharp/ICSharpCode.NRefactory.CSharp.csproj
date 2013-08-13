@@ -591,6 +591,7 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantNullCoalescingExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantExplicitArrayCreationIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\ConstantNullCoalescingConditionIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
