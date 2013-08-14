@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantUsingDirective"
-	)]
+	                  )]
 	public class RedundantUsingDirectiveIssue : CodeIssueProvider
 	{
 		List<string> namespacesToKeep = new List<string>();
-		
+
 		/// <summary>
 		/// The list of namespaces that should be kept even if they are not being used.
 		/// Used in SharpDevelop to always keep the "System" namespace around.
@@ -62,26 +62,46 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			var visitor = new GatherVisitor(context, this);
 			context.RootNode.AcceptVisitor (visitor);
-			visitor.Collect ();
+			visitor.Collect (0);
 			return visitor.FoundIssues;
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantUsingDirectiveIssue>
 		{
-			Dictionary<UsingDeclaration, bool> isInUse = new Dictionary<UsingDeclaration, bool>();
-			Dictionary<string, UsingDeclaration> namespaceToUsingDecl = new Dictionary<string, UsingDeclaration>();
-			
+			class UsingDeclarationSpecifier {
+				public UsingDeclaration UsingDeclaration { get; set; }
+				public bool IsUsed { get; set; }
+
+				public UsingDeclarationSpecifier(UsingDeclaration usingDeclaration)
+				{
+					this.UsingDeclaration = usingDeclaration;
+				}
+			}
+
+			List<UsingDeclarationSpecifier> declarations = new List<UsingDeclarationSpecifier>();
+			HashSet<string> usedNamespaces = new HashSet<string>();
+
 			public GatherVisitor (BaseRefactoringContext ctx, RedundantUsingDirectiveIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 			}
 
-			public void Collect()
+			public void Collect(int startIndex)
 			{
-				foreach (var u in isInUse.Where (u => !u.Value)) {
-					var decl = u.Key;
-					AddIssue(decl, ctx.TranslateString("Using directive is not used by code and can be removed safely."), ctx.TranslateString("Remove redundant using directives"), script => {
-						foreach (var u2 in isInUse.Where (a => !a.Value)) {
-							script.Remove (u2.Key);
+				var unused = new List<UsingDeclaration>();
+				foreach (var u in declarations.Skip (startIndex)) {
+					if (u.IsUsed || 
+					    QualifierDirectiveEvidentIssueProvider.namespacesToKeep.Contains(u.UsingDeclaration.Namespace))
+						continue;
+					unused.Add(u.UsingDeclaration);
+				}
+
+				foreach (var decl in unused) {
+					AddIssue(
+						decl,
+						ctx.TranslateString("Using directive is not used by code and can be removed safely."), ctx.TranslateString("Remove redundant using directives"),
+						script => {
+						foreach (var u2 in unused) {
+							script.Remove (u2);
 						}
 					}
 					);
@@ -90,28 +110,31 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitUsingDeclaration(UsingDeclaration usingDeclaration)
 			{
-				base.VisitUsingDeclaration(usingDeclaration);
 				if (IsSuppressed(usingDeclaration.StartLocation))
 					return;
-				var nrr = ctx.Resolve(usingDeclaration.Import) as NamespaceResolveResult;
-				if (nrr != null) {
-					isInUse[usingDeclaration] = QualifierDirectiveEvidentIssueProvider.namespacesToKeep.Contains(nrr.NamespaceName);
-					namespaceToUsingDecl[nrr.NamespaceName] = usingDeclaration;
-				}
+				declarations.Add(new UsingDeclarationSpecifier (usingDeclaration));
 			}
-			
+
 			public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
 			{
-				var oldNamespaceToUsingDecl = new Dictionary<string, UsingDeclaration>(namespaceToUsingDecl);
+				int idx = declarations.Count;
+				usedNamespaces.Clear();
 				base.VisitNamespaceDeclaration(namespaceDeclaration);
-				namespaceToUsingDecl = oldNamespaceToUsingDecl;
+				Collect(idx);
+				declarations.RemoveRange(idx, declarations.Count - idx);
 			}
 			
 			void UseNamespace(string ns)
 			{
-				UsingDeclaration decl;
-				if (namespaceToUsingDecl.TryGetValue(ns, out decl)) {
-					isInUse[decl] = true;
+				if (usedNamespaces.Contains(ns))
+					return;
+				usedNamespaces.Add(ns);
+				for (int i = declarations.Count - 1; i >= 0; i--) {
+					var decl = declarations [i];
+					if (decl.UsingDeclaration.Namespace == ns) {
+						decl.IsUsed = true;
+						break;
+					}
 				}
 			}
 

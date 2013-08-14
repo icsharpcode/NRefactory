@@ -168,5 +168,107 @@ class Foo
 			var issues = GetIssues (new RedundantUsingDirectiveIssue (), input, out context);
 			Assert.AreEqual (2, issues.Count);
 		}
+
+		[Test]
+		public void TestSubnamespace ()
+		{
+			Test<RedundantUsingDirectiveIssue>(@"namespace Foo
+{
+	using System;
+	using System.Collections.Generic;
+
+	class Bar
+	{
+		public static void Main (string[] args)
+		{
+			Console.WriteLine ();
+		}
 	}
+}", @"namespace Foo
+{
+	using System;
+
+	class Bar
+	{
+		public static void Main (string[] args)
+		{
+			Console.WriteLine ();
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestSubnamespaceCase1 ()
+		{
+			Test<RedundantUsingDirectiveIssue>(@"namespace Foo
+{
+	using System;
+	namespace Sub {
+		using System;
+	}
+	
+	namespace Sub2 {
+		class Bar
+		{
+			public static void Main (string[] args)
+			{
+				Console.WriteLine ();
+			}
+		}
+	}
+}", @"namespace Foo
+{
+	using System;
+	namespace Sub {
+	}
+	
+	namespace Sub2 {
+		class Bar
+		{
+			public static void Main (string[] args)
+			{
+				Console.WriteLine ();
+			}
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestSubnamespaceCase3 ()
+		{
+			Test<RedundantUsingDirectiveIssue>(@"namespace Foo
+{
+	using System;
+	
+	namespace Sub2 {
+		using System;
+		class Bar
+		{
+			public static void Main (string[] args)
+			{
+				Console.WriteLine ();
+			}
+		}
+	}
+}", @"namespace Foo
+{
+	
+	namespace Sub2 {
+		using System;
+		class Bar
+		{
+			public static void Main (string[] args)
+			{
+				Console.WriteLine ();
+			}
+		}
+	}
+}");
+		}
+
+
+	}
+
 }
