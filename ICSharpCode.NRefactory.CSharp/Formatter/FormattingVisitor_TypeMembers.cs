@@ -118,6 +118,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					FixIndentation(accessor);
 				}
 			} else {
+				blockFormatting = PropertyFormatting.ForceOneLine;
 				if (!accessor.Body.IsNull) {
 					ForceSpacesBeforeRemoveNewLines(accessor.Body.LBraceToken, true);
 					ForceSpacesBeforeRemoveNewLines(accessor.Body.RBraceToken, true);
@@ -134,7 +135,8 @@ namespace ICSharpCode.NRefactory.CSharp
 									goto case PropertyFormatting.ForceNewLine;
 								nextStatementIndent = " ";
 								VisitBlockWithoutFixingBraces(accessor.Body, policy.IndentBlocks);
-								ForceSpacesBeforeRemoveNewLines(accessor.Body.RBraceToken, true);
+								if (!oneLine)
+									ForceSpacesBeforeRemoveNewLines(accessor.Body.RBraceToken, true);
 								break;
 							case PropertyFormatting.ForceOneLine:
 								FixOpenBrace(BraceStyle.EndOfLine, accessor.Body.LBraceToken);
@@ -143,12 +145,14 @@ namespace ICSharpCode.NRefactory.CSharp
 								var statement = accessor.Body.Statements.First();
 								ForceSpacesBeforeRemoveNewLines(statement, true);
 								statement.AcceptVisitor(this);
-								ForceSpacesBeforeRemoveNewLines(accessor.Body.RBraceToken, true);
+								if (!oneLine)
+									ForceSpacesBeforeRemoveNewLines(accessor.Body.RBraceToken, true);
 								break;
 							case PropertyFormatting.ForceNewLine:
 								FixOpenBrace(braceStyle, accessor.Body.LBraceToken);
 								VisitBlockWithoutFixingBraces(accessor.Body, policy.IndentBlocks);
-								FixClosingBrace(braceStyle, accessor.Body.RBraceToken);
+								if (!oneLine)
+									FixClosingBrace(braceStyle, accessor.Body.RBraceToken);
 								break;
 						}
 					} else {

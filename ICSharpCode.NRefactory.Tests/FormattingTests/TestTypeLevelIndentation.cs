@@ -630,6 +630,24 @@ set {
 		}
 
 
+		[Test]
+		public void TestClashingPropertyAlignment()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+			policy.SimplePropertyFormatting = PropertyFormatting.ForceOneLine;
+			policy.SimpleGetBlockFormatting = PropertyFormatting.ForceNewLine;
+			Test(policy, @"class Test
+{
+	Test TestMe {
+		get { FooBar (); }
+	}
+}", @"class Test
+{
+	Test TestMe { get { FooBar (); } }
+}");
+		}
+
+
 
 		[Test]
 		public void TestIndentNamespaceBody()
