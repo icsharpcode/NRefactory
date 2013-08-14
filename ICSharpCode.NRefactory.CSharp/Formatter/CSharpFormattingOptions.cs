@@ -154,7 +154,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
-		public PropertyFormatting PropertyFormatting { // tested
+		public PropertyFormatting AutoPropertyFormatting { // tested
+			get;
+			set;
+		}
+
+		public PropertyFormatting SimplePropertyFormatting { // tested
 			get;
 			set;
 		}

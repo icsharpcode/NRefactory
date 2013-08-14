@@ -151,7 +151,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				
 				AlignEmbeddedIfStatements = true,
 				AlignEmbeddedUsingStatements = true,
-				PropertyFormatting = PropertyFormatting.AllowOneLine,
+				SimplePropertyFormatting = PropertyFormatting.AllowOneLine,
+				AutoPropertyFormatting = PropertyFormatting.AllowOneLine,
 				SpaceBeforeMethodDeclarationParameterComma = false,
 				SpaceAfterMethodDeclarationParameterComma = true,
 				SpaceAfterDelegateDeclarationParameterComma = true,
@@ -316,7 +317,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				
 				AlignEmbeddedIfStatements = true,
 				AlignEmbeddedUsingStatements = true,
-				PropertyFormatting = PropertyFormatting.AllowOneLine,
+				SimplePropertyFormatting = PropertyFormatting.AllowOneLine,
+				AutoPropertyFormatting = PropertyFormatting.AllowOneLine,
 				SpaceBeforeMethodDeclarationParameterComma = false,
 				SpaceAfterMethodDeclarationParameterComma = true,
 				SpaceAfterDelegateDeclarationParameterComma = true,

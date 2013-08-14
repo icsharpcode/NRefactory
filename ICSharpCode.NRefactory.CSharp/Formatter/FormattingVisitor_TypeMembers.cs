@@ -35,7 +35,16 @@ namespace ICSharpCode.NRefactory.CSharp
 			FixAttributesAndDocComment(propertyDeclaration);
 			bool oneLine = false;
 			bool fixClosingBrace = false;
-			switch (policy.PropertyFormatting) {
+			PropertyFormatting propertyFormatting;
+
+			if ((propertyDeclaration.Getter.IsNull || propertyDeclaration.Getter.Body.IsNull) &&
+			    (propertyDeclaration.Setter.IsNull || propertyDeclaration.Setter.Body.IsNull)) {
+				propertyFormatting = policy.AutoPropertyFormatting;
+			} else {
+				propertyFormatting = policy.SimplePropertyFormatting;
+			}
+
+			switch (propertyFormatting) {
 				case PropertyFormatting.AllowOneLine:
 					bool isSimple = IsSimpleAccessor(propertyDeclaration.Getter) && IsSimpleAccessor(propertyDeclaration.Setter);
 					int accessorLine = propertyDeclaration.RBraceToken.StartLocation.Line;
@@ -173,7 +182,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			bool oneLine = false;
 			bool fixClosingBrace = false;
-			switch (policy.PropertyFormatting) {
+			switch (policy.SimplePropertyFormatting) {
 				case PropertyFormatting.AllowOneLine:
 					bool isSimple = IsSimpleAccessor(indexerDeclaration.Getter) && IsSimpleAccessor(indexerDeclaration.Setter);
 					int accessorLine = indexerDeclaration.RBraceToken.StartLocation.Line;
