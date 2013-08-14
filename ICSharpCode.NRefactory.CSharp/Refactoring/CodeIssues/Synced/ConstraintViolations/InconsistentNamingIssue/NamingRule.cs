@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		/// <summary>
 		/// The way that the identifier is cased and that words are separated.
-		/// </summary
+		/// </summary>
 		public NamingStyle NamingStyle { get; set; }
 
 		public bool IncludeStaticEntities { get; set; }
