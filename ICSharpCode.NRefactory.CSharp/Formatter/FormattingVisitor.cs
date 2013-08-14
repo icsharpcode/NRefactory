@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	[Obsolete("This class was replaced by CSharpFormatter.")]
 	public class AstFormattingVisitor {}
 
-	partial class FormattingVisitor : DepthFirstAstVisitor
+	partial class FormattingVisitor  
 	{
 		readonly CSharpFormatter formatter;
 		readonly FormattingChanges changes;
@@ -171,19 +171,26 @@ namespace ICSharpCode.NRefactory.CSharp
 			AddChange(start, end - start, sb.ToString());
 		}
 
-		bool IsSimpleAccessor(Accessor accessor)
+		static bool IsSimpleAccessor(Accessor accessor)
 		{
 			if (accessor.IsNull || accessor.Body.IsNull || accessor.Body.FirstChild == null) {
 				return true;
 			}
-			if (accessor.Body.Statements.Count() != 1) {
+			var firstStatement = accessor.Body.Statements.FirstOrDefault();
+			if (firstStatement == null)
+				return true;
+
+			if (!(firstStatement is ReturnStatement || firstStatement is ExpressionStatement|| firstStatement is EmptyStatement || firstStatement is ThrowStatement))
 				return false;
-			}
+
+			if (firstStatement.GetNextSibling(s => s.Role == BlockStatement.StatementRole) != null)
+				return false;
+
 			return !(accessor.Body.Statements.FirstOrDefault() is BlockStatement);
 			
 		}
 		
-		bool IsSpacing(char ch)
+		static bool IsSpacing(char ch)
 		{
 			return ch == ' ' || ch == '\t';
 		}

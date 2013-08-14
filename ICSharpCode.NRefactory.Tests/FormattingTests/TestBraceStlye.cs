@@ -258,7 +258,7 @@ namespace B {
 			var adapter = Test (policy, @"class Test
 {
 	Test A {
-		get { return null; }
+		get { return null;}
 		set { ; }
 	}
 }",

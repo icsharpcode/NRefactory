@@ -127,16 +127,14 @@ namespace ICSharpCode.NRefactory.CSharp
 		
 			if (!accessor.IsNull) {
 				if (!accessor.Body.IsNull) {
-					AstNode stmt = accessor.Body.Statements.FirstOrDefault();
-					if (stmt != null)
-						stmt = stmt.GetNextSibling (s => s.Role != Roles.NewLine && s.Role != Roles.Whitespace);
-					if (stmt != null && stmt.Role == Roles.RBrace) {
+					if (IsSimpleAccessor (accessor)) {
 						switch (blockFormatting) {
 							case PropertyFormatting.AllowOneLine:
 								if (accessor.Body.LBraceToken.StartLocation.Line != accessor.Body.RBraceToken.StartLocation.Line)
 									goto case PropertyFormatting.ForceNewLine;
 								nextStatementIndent = " ";
 								VisitBlockWithoutFixingBraces(accessor.Body, policy.IndentBlocks);
+								ForceSpacesBeforeRemoveNewLines(accessor.Body.RBraceToken, true);
 								break;
 							case PropertyFormatting.ForceOneLine:
 								FixOpenBrace(BraceStyle.EndOfLine, accessor.Body.LBraceToken);
