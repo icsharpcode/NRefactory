@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 	[TestFixture()]
 	public class TestBraceStyle : TestBase
 	{
-		[Test()]
+		[Test]
 		public void TestNamespaceBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -65,7 +65,7 @@ namespace B {
 		}
 
 
-		[Test()]
+		[Test]
 		public void TestAnonymousMethodBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -89,7 +89,7 @@ namespace B {
 	}
 }");
 		}
-		[Test()]
+		[Test]
 		public void TestClassBraceStlye ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -101,7 +101,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestStructBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -114,7 +114,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestInterfaceBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -127,7 +127,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestEnumBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -142,7 +142,7 @@ namespace B {
 	}");
 		}
 
-		[Test()]
+		[Test]
 		public void TestMethodBraceStlye ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -160,7 +160,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestConstructorBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -178,7 +178,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestDestructorBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -196,7 +196,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestPropertyBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -219,7 +219,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestPropertyGetBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -246,7 +246,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestAllowPropertyGetBlockInline ()
 		{
 			
@@ -271,7 +271,6 @@ namespace B {
 		}
 	}
 }");
-			Console.WriteLine("----");
 			policy.SimpleGetBlockFormatting = PropertyFormatting.ForceNewLine;
 			policy.SimpleSetBlockFormatting = PropertyFormatting.ForceOneLine;
 			Continue (policy, adapter,
@@ -286,7 +285,27 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
+		public void TestPropertyForceOneLine ()
+		{
+
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.SimplePropertyFormatting = PropertyFormatting.ForceOneLine;
+
+			Test (policy, @"class Test
+{
+	Test A {
+		get { return null; }
+		set { ; }
+	}
+}",
+			                    @"class Test
+{
+	Test A { get { return null; } set { ; } }
+}");
+		}
+
+		[Test]
 		public void TestAllowPropertySetBlockInline ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -326,7 +345,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestPropertySetBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -353,7 +372,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestEventBraceStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -384,7 +403,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestAllowEventAddBlockInline ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -409,7 +428,7 @@ namespace B {
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestAllowEventRemoveBlockInline ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
@@ -435,7 +454,7 @@ namespace B {
 		}
 
 		[Ignore("FixMe")]
-		[Test()]
+		[Test]
 		public void TestTryCatchWithBannerStyle ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();

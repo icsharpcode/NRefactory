@@ -74,18 +74,16 @@ namespace ICSharpCode.NRefactory.CSharp
 				case PropertyFormatting.ForceOneLine:
 					isSimple = IsSimpleAccessor(propertyDeclaration.Getter) && IsSimpleAccessor(propertyDeclaration.Setter);
 					if (isSimple) {
-						int offset = this.document.GetOffset(propertyDeclaration.LBraceToken.StartLocation);
+						var lBraceToken = propertyDeclaration.LBraceToken;
+						var rBraceToken = propertyDeclaration.RBraceToken;
+						ForceSpacesBeforeRemoveNewLines(lBraceToken, true);
+						if (!propertyDeclaration.Getter.IsNull)
+							ForceSpacesBeforeRemoveNewLines(propertyDeclaration.Getter, true);
+						if (!propertyDeclaration.Setter.IsNull)
+							ForceSpacesBeforeRemoveNewLines(propertyDeclaration.Setter, true);
 
-						int start = SearchWhitespaceStart(offset);
-						int end = SearchWhitespaceEnd(offset);
-						AddChange(start, offset - start, " ");
-						AddChange(offset + 1, end - offset - 2, " ");
-
-						offset = this.document.GetOffset(propertyDeclaration.RBraceToken.StartLocation);
-						start = SearchWhitespaceStart(offset);
-						AddChange(start, offset - start, " ");
+						ForceSpacesBeforeRemoveNewLines(rBraceToken, true);
 						oneLine = true;
-
 					} else {
 						fixClosingBrace = true;
 						FixOpenBrace(policy.PropertyBraceStyle, propertyDeclaration.LBraceToken);
