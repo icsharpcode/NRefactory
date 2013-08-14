@@ -67,18 +67,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (arguments.Any(f => f.Type.IsNull))
 					return;
 
-				var validTypes = CreateFieldAction.GetValidTypes(ctx.Resolver, lambdaexpression).ToList();
-				foreach (var type in validTypes) {
-					if (type.Kind != TypeKind.Delegate)
-						continue;
-					var invokeMethod = type.GetDelegateInvokeMethod();
-					int p = 0;
-					foreach (var argument in arguments) {
-						var resolvedArgument = ctx.Resolve(argument.Type);
-						if (!invokeMethod.Parameters [p].Type.Equals(resolvedArgument.Type))
-							return;
-						p++;
-					}
+				if (!LambdaTypeCanBeInferred(ctx, lambdaexpression, arguments)) {
+					return;
 				}
 				
 				bool singleArgument = (arguments.Count == 1);
@@ -96,6 +86,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					});
 				}
 			}
+		}
+
+		public static bool LambdaTypeCanBeInferred(BaseRefactoringContext ctx, Expression expression, IEnumerable<ParameterDeclaration> arguments) {
+			var validTypes = CreateFieldAction.GetValidTypes(ctx.Resolver, expression).ToList();
+			foreach (var type in validTypes) {
+				if (type.Kind != TypeKind.Delegate)
+					continue;
+				var invokeMethod = type.GetDelegateInvokeMethod();
+				int p = 0;
+				foreach (var argument in arguments) {
+					var resolvedArgument = ctx.Resolve(argument.Type);
+					if (!invokeMethod.Parameters [p].Type.Equals(resolvedArgument.Type))
+						return false;
+					p++;
+				}
+			}
+
+			return true;
 		}
 	}
 }

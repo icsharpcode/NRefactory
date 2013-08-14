@@ -591,6 +591,8 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\ConstantNullCoalescingConditionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantArrayCreationExpressionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicatedLinqToListOrArrayIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\DelegateParametersAreUnusedIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
