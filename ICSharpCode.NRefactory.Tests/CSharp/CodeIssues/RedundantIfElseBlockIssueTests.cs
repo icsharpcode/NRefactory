@@ -241,5 +241,27 @@ class TestClass
 }";
 			Test<RedundantIfElseBlockIssue>(input, 0);
 		}
+
+		[Test]
+		public void TestNecessaryElseBecauseOfVarDeclaration()
+		{
+
+			var input = @"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		if (i > 0) {
+			int a = 1;
+			return;
+		} else {
+			int a = 2;
+			return;
+		}
+	}
+}";
+			Test<RedundantIfElseBlockIssue>(input, 0);
+		}
+
 	}
 }
