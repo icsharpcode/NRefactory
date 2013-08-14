@@ -252,9 +252,9 @@ namespace B {
 			
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
 			policy.PropertyBraceStyle = BraceStyle.DoNotChange;
-			policy.AllowPropertyGetBlockInline = true;
-			policy.AllowPropertySetBlockInline = false;
-			
+			policy.SimpleGetBlockFormatting = PropertyFormatting.AllowOneLine;
+			policy.SimpleSetBlockFormatting = PropertyFormatting.ForceNewLine;
+
 			var adapter = Test (policy, @"class Test
 {
 	Test A {
@@ -271,8 +271,9 @@ namespace B {
 		}
 	}
 }");
-			
-			policy.AllowPropertyGetBlockInline = false;
+			Console.WriteLine("----");
+			policy.SimpleGetBlockFormatting = PropertyFormatting.ForceNewLine;
+			policy.SimpleSetBlockFormatting = PropertyFormatting.ForceOneLine;
 			Continue (policy, adapter,
 @"class Test
 {
@@ -280,9 +281,7 @@ namespace B {
 		get {
 			return null;
 		}
-		set {
-			;
-		}
+		set { ; }
 	}
 }");
 		}
@@ -292,9 +291,9 @@ namespace B {
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
 			policy.PropertyBraceStyle = BraceStyle.DoNotChange;
-			policy.AllowPropertyGetBlockInline = false;
-			policy.AllowPropertySetBlockInline = true;
-			
+			policy.SimpleGetBlockFormatting = PropertyFormatting.ForceNewLine;
+			policy.SimpleSetBlockFormatting = PropertyFormatting.ForceOneLine;
+
 			var adapter = Test (policy, @"class Test
 {
 	Test A {
@@ -312,7 +311,7 @@ namespace B {
 	}
 }");
 			
-			policy.AllowPropertySetBlockInline = false;
+			policy.SimpleSetBlockFormatting = PropertyFormatting.ForceNewLine;
 			Continue (policy, adapter,
 @"class Test
 {

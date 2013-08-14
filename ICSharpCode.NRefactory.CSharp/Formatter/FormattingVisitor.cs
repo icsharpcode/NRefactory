@@ -65,6 +65,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		FormattingChanges.TextReplaceAction AddChange(int offset, int removedChars, string insertedText)
 		{
+			if (offset == 38)
+				Console.WriteLine("----"+Environment.StackTrace);
 			return changes.AddChange(offset, removedChars, insertedText);
 		}
 

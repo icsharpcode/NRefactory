@@ -490,9 +490,7 @@ set;
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
 			policy.PropertyFormatting = PropertyFormatting.AllowOneLine;
-			policy.AllowPropertyGetBlockInline = true;
-			policy.AllowPropertySetBlockInline = true;
-			
+
 			Test(policy,
 			      @"class Test
 {
@@ -509,9 +507,9 @@ set;
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
 			policy.PropertyFormatting = PropertyFormatting.AllowOneLine;
-			policy.AllowPropertyGetBlockInline = true;
-			policy.AllowPropertySetBlockInline = true;
-			
+			policy.SimpleGetBlockFormatting = PropertyFormatting.AllowOneLine;
+			policy.SimpleSetBlockFormatting = PropertyFormatting.AllowOneLine;
+
 			Test(policy,
 			      @"class Test
 {

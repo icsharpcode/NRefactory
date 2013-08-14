@@ -71,9 +71,9 @@ namespace ICSharpCode.NRefactory.CSharp
 				PropertyBraceStyle = BraceStyle.EndOfLine,
 				PropertyGetBraceStyle = BraceStyle.EndOfLine,
 				PropertySetBraceStyle = BraceStyle.EndOfLine,
-				AllowPropertyGetBlockInline = true,
-				AllowPropertySetBlockInline = true,
-	
+				SimpleGetBlockFormatting = PropertyFormatting.AllowOneLine,
+				SimpleSetBlockFormatting = PropertyFormatting.AllowOneLine,
+
 				EventBraceStyle = BraceStyle.EndOfLine,
 				EventAddBraceStyle = BraceStyle.EndOfLine,
 				EventRemoveBraceStyle = BraceStyle.EndOfLine,
@@ -235,8 +235,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				PropertyBraceStyle = BraceStyle.EndOfLine,
 				PropertyGetBraceStyle = BraceStyle.EndOfLine,
 				PropertySetBraceStyle = BraceStyle.EndOfLine,
-				AllowPropertyGetBlockInline = true,
-				AllowPropertySetBlockInline = true,
+				SimpleGetBlockFormatting = PropertyFormatting.AllowOneLine,
+				SimpleSetBlockFormatting = PropertyFormatting.AllowOneLine,
 	
 				EventBraceStyle = BraceStyle.EndOfLine,
 				EventAddBraceStyle = BraceStyle.EndOfLine,
