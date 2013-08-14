@@ -470,6 +470,7 @@
     <Compile Include="CSharp\CodeIssues\LongLiteralEndingLowerLIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0659OverrideEqualsWithoutGetHashCodeTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConstantNullCoalescingConditionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantArrayCreationExpressionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
