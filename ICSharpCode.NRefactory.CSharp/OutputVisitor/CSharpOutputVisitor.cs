@@ -1463,6 +1463,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			OpenBrace(policy.NamespaceBraceStyle);
 			foreach (var member in namespaceDeclaration.Members) {
 				member.AcceptVisitor(this);
+				MaybeNewLinesAfterUsings(member);
 			}
 			CloseBrace(policy.NamespaceBraceStyle);
 			OptionalSemicolon();
@@ -1520,7 +1521,13 @@ namespace ICSharpCode.NRefactory.CSharp
 				OptionalComma();
 				NewLine();
 			} else {
+				bool first = true;
 				foreach (var member in typeDeclaration.Members) {
+					if (!first) {
+						for (int i = 0; i < policy.BlankLinesBetweenMembers; i++)
+							NewLine();
+					}
+					first = false;
 					member.AcceptVisitor(this);
 				}
 			}
@@ -2319,12 +2326,25 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			EndNode(variableInitializer);
 		}
+
+		void MaybeNewLinesAfterUsings(AstNode node)
+		{
+			var nextSibling = node.NextSibling;
+			while (nextSibling is WhitespaceNode || nextSibling is NewLineNode)
+				nextSibling = nextSibling.NextSibling;
+
+			if ((node is UsingDeclaration || node is UsingAliasDeclaration) && !(nextSibling is UsingDeclaration || nextSibling is UsingAliasDeclaration)) {
+				for (int i = 0; i < policy.BlankLinesAfterUsings; i++)
+					NewLine();
+			}
+		}
 		
 		public void VisitSyntaxTree(SyntaxTree syntaxTree)
 		{
 			// don't do node tracking as we visit all children directly
 			foreach (AstNode node in syntaxTree.Children) {
 				node.AcceptVisitor(this);
+				MaybeNewLinesAfterUsings(node);
 			}
 		}
 		
