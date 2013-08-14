@@ -57,13 +57,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (blockStatement != null && blockStatement.Statements.Count == 0)
 					return true;
 				var reachability = ctx.CreateReachabilityAnalysis(ifElseStatement.TrueStatement);
-				if (!reachability.IsEndpointReachable(ifElseStatement.TrueStatement))
+				if (reachability.IsEndpointReachable(ifElseStatement.TrueStatement))
 					return false;
 
 				// check if the true & false statements contain the same variable declarations
 				var trueVariableDeclarations = ScanEmbeddedStatement(ifElseStatement.TrueStatement);
-				var falseVariableDeclarations = ScanEmbeddedStatement(ifElseStatement.TrueStatement);
-
+				var falseVariableDeclarations = ScanEmbeddedStatement(ifElseStatement.FalseStatement);
 				return !trueVariableDeclarations.Any(falseVariableDeclarations.Contains);
 			}
 
