@@ -34,15 +34,15 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// Inverts a boolean condition. Note: The condition object can be frozen (from AST) it's cloned internally.
 		/// </summary>
 		/// <param name="condition">The condition to invert.</param>
-		public static Expression InvertCondition (Expression condition)
+		public static Expression InvertCondition(Expression condition)
 		{
-			return InvertConditionInternal (condition.Clone ());
+			return InvertConditionInternal(condition.Clone());
 		}
 		
-		static Expression InvertConditionInternal (Expression condition)
+		static Expression InvertConditionInternal(Expression condition)
 		{
 			if (condition is ParenthesizedExpression) {
-				((ParenthesizedExpression)condition).Expression = InvertCondition (((ParenthesizedExpression)condition).Expression);
+				((ParenthesizedExpression)condition).Expression = InvertCondition(((ParenthesizedExpression)condition).Expression);
 				return condition;
 			}
 			
@@ -50,30 +50,39 @@ namespace ICSharpCode.NRefactory.CSharp
 				var uOp = (UnaryOperatorExpression)condition;
 				if (uOp.Operator == UnaryOperatorType.Not)
 					return uOp.Expression;
-				return new UnaryOperatorExpression (UnaryOperatorType.Not, uOp);
+				return new UnaryOperatorExpression(UnaryOperatorType.Not, uOp);
 			}
 			
 			if (condition is BinaryOperatorExpression) {
 				var bOp = (BinaryOperatorExpression)condition;
-				var negatedOp = NegateRelationalOperator (bOp.Operator);
-				if (negatedOp == BinaryOperatorType.Any)
-					return new UnaryOperatorExpression (UnaryOperatorType.Not, new ParenthesizedExpression (condition));
-				bOp.Operator = negatedOp;
-				return bOp;
+
+				if ((bOp.Operator == BinaryOperatorType.ConditionalAnd) || (bOp.Operator == BinaryOperatorType.ConditionalOr)) {
+					return new BinaryOperatorExpression(InvertCondition(bOp.Left), NegateConditionOperator(bOp.Operator), InvertCondition(bOp.Right));
+				} else if ((bOp.Operator == BinaryOperatorType.Equality) || (bOp.Operator == BinaryOperatorType.InEquality) || (bOp.Operator == BinaryOperatorType.GreaterThan)
+					|| (bOp.Operator == BinaryOperatorType.GreaterThanOrEqual) || (bOp.Operator == BinaryOperatorType.LessThan) || 
+					(bOp.Operator == BinaryOperatorType.LessThanOrEqual)) {
+					return new BinaryOperatorExpression(bOp.Left.Clone(), NegateRelationalOperator(bOp.Operator), bOp.Right.Clone());
+				} else {
+					var negatedOp = NegateRelationalOperator(bOp.Operator);
+					if (negatedOp == BinaryOperatorType.Any)
+						return new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(condition));
+					bOp.Operator = negatedOp;
+					return bOp;
+				}
 			}
 			if (condition is ConditionalExpression) {
 				var cEx = condition as ConditionalExpression;
-				cEx.Condition = InvertCondition (cEx.Condition);
+				cEx.Condition = InvertCondition(cEx.Condition);
 				return cEx;
 			}
 			if (condition is PrimitiveExpression) {
 				var pex = condition as PrimitiveExpression;
 				if (pex.Value is bool) {
-					return new PrimitiveExpression (!((bool)pex.Value)); 
+					return new PrimitiveExpression(!((bool)pex.Value)); 
 				}
 			}
 			
-			return new UnaryOperatorExpression (UnaryOperatorType.Not, condition);
+			return new UnaryOperatorExpression(UnaryOperatorType.Not, condition);
 		}
 
 		/// <summary>
@@ -82,7 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <returns>
 		/// negation of the specified relational operator, or BinaryOperatorType.Any if it's not a relational operator
 		/// </returns>
-		public static BinaryOperatorType NegateRelationalOperator (BinaryOperatorType op)
+		public static BinaryOperatorType NegateRelationalOperator(BinaryOperatorType op)
 		{
 			switch (op) {
 				case BinaryOperatorType.GreaterThan:
@@ -97,6 +106,27 @@ namespace ICSharpCode.NRefactory.CSharp
 					return BinaryOperatorType.GreaterThanOrEqual;
 				case BinaryOperatorType.LessThanOrEqual:
 					return BinaryOperatorType.GreaterThan;
+				case BinaryOperatorType.ConditionalOr:
+					return BinaryOperatorType.ConditionalAnd;
+				case BinaryOperatorType.ConditionalAnd:
+					return BinaryOperatorType.ConditionalOr;
+			}
+			return BinaryOperatorType.Any;
+		}
+
+		/// <summary>
+		/// Get negation of the condition operator
+		/// </summary>
+		/// <returns>
+		/// negation of the specified condition operator, or BinaryOperatorType.Any if it's not a condition operator
+		/// </returns>
+		public static BinaryOperatorType NegateConditionOperator(BinaryOperatorType op)
+		{
+			switch (op) {
+				case BinaryOperatorType.ConditionalOr:
+					return BinaryOperatorType.ConditionalAnd;
+				case BinaryOperatorType.ConditionalAnd:
+					return BinaryOperatorType.ConditionalOr;
 			}
 			return BinaryOperatorType.Any;
 		}

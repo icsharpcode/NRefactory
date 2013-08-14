@@ -1,0 +1,747 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestRecord xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Tests>
+    <TestRecord Name="ICSharpCode">
+      <Tests>
+        <TestRecord Name="NRefactory">
+          <Tests>
+            <TestRecord Name="CSharp">
+              <Tests>
+                <TestRecord Name="CodeActions">
+                  <Tests>
+                    <TestRecord Name="InvertLogicalExpressionTests">
+                      <Results>
+                        <UnitTestResult>
+                          <TestDate>2013-08-15T00:00:36</TestDate>
+                          <Passed>0</Passed>
+                          <Errors>0</Errors>
+                          <Failures>3</Failures>
+                          <Inconclusive>0</Inconclusive>
+                          <NotRunnable>0</NotRunnable>
+                          <Skipped>0</Skipped>
+                          <Ignored>0</Ignored>
+                          <Time />
+                          <Message>One or more child tests had errors</Message>
+                        </UnitTestResult>
+                        <UnitTestResult>
+                          <TestDate>2013-08-15T00:01:23</TestDate>
+                          <Passed>1</Passed>
+                          <Errors>0</Errors>
+                          <Failures>2</Failures>
+                          <Inconclusive>0</Inconclusive>
+                          <NotRunnable>0</NotRunnable>
+                          <Skipped>0</Skipped>
+                          <Ignored>0</Ignored>
+                          <Time />
+                          <Message>One or more child tests had errors</Message>
+                        </UnitTestResult>
+                        <UnitTestResult>
+                          <TestDate>2013-08-15T00:01:52</TestDate>
+                          <Passed>2</Passed>
+                          <Errors>0</Errors>
+                          <Failures>1</Failures>
+                          <Inconclusive>0</Inconclusive>
+                          <NotRunnable>0</NotRunnable>
+                          <Skipped>0</Skipped>
+                          <Ignored>0</Ignored>
+                          <Time />
+                          <Message>One or more child tests had errors</Message>
+                        </UnitTestResult>
+                        <UnitTestResult>
+                          <TestDate>2013-08-15T00:02:22</TestDate>
+                          <Passed>2</Passed>
+                          <Errors>0</Errors>
+                          <Failures>1</Failures>
+                          <Inconclusive>0</Inconclusive>
+                          <NotRunnable>0</NotRunnable>
+                          <Skipped>0</Skipped>
+                          <Ignored>0</Ignored>
+                          <Time />
+                          <Message>One or more child tests had errors</Message>
+                        </UnitTestResult>
+                        <UnitTestResult>
+                          <TestDate>2013-08-15T00:03:04</TestDate>
+                          <Passed>2</Passed>
+                          <Errors>0</Errors>
+                          <Failures>1</Failures>
+                          <Inconclusive>0</Inconclusive>
+                          <NotRunnable>0</NotRunnable>
+                          <Skipped>0</Skipped>
+                          <Ignored>0</Ignored>
+                          <Time />
+                          <Message>One or more child tests had errors</Message>
+                        </UnitTestResult>
+                        <UnitTestResult>
+                          <TestDate>2013-08-15T00:03:39</TestDate>
+                          <Passed>2</Passed>
+                          <Errors>0</Errors>
+                          <Failures>1</Failures>
+                          <Inconclusive>0</Inconclusive>
+                          <NotRunnable>0</NotRunnable>
+                          <Skipped>0</Skipped>
+                          <Ignored>0</Ignored>
+                          <Time />
+                          <Message>One or more child tests had errors</Message>
+                        </UnitTestResult>
+                        <UnitTestResult>
+                          <TestDate>2013-08-15T00:03:57</TestDate>
+                          <Passed>3</Passed>
+                          <Errors>0</Errors>
+                          <Failures>0</Failures>
+                          <Inconclusive>0</Inconclusive>
+                          <NotRunnable>0</NotRunnable>
+                          <Skipped>0</Skipped>
+                          <Ignored>0</Ignored>
+                          <Time />
+                          <Message>Test successful
+
+Execution time: 0.83ms</Message>
+                        </UnitTestResult>
+                      </Results>
+                      <Tests>
+                        <TestRecord Name="ConditionlAnd">
+                          <Results>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:00:36</TestDate>
+                              <Passed>0</Passed>
+                              <Errors>0</Errors>
+                              <Failures>1</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>  Expected string length 105 but was 103. Strings differ at index 92.
+  Expected: "...l a = true;\n\t\tbool b = false;\n\t\tif (!(!a || !b)){\n\t\t\n\t\t}\n\t}\n}"
+  But was:  "...l a = true;\n\t\tbool b = false;\n\t\tif (!(!a || !b)) {\n\t\t}\n\t}\n}"
+  --------------------------------------------------------------------^
+</Message>
+                              <StackTrace>  at NUnit.Framework.Assert.That (System.Object actual, IResolveConstraint expression, System.String message, System.Object[] args) [0x00000] in &lt;filename unknown&gt;:0 
+  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00000] in &lt;filename unknown&gt;:0 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test (ICSharpCode.NRefactory.CSharp.Refactoring.CodeActionProvider provider, System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00040] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:80 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test[InvertLogicalExpressionAction] (System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:67 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.InvertLogicalExpressionTests.ConditionlAnd () [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/InvertLogicalExpressionTests.cs:37 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod:InternalInvoke (System.Reflection.MonoMethod,object,object[],System.Exception&amp;)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00000] in &lt;filename unknown&gt;:0 </StackTrace>
+                              <ConsoleOutput>-----------Expected:
+
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (!(!a || !b)){
+		
+		}
+	}
+}
+-----------Got:
+
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (!(!a || !b)) {
+		}
+	}
+}
+</ConsoleOutput>
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:01:23</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.70ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:01:52</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.69ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:02:22</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.67ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:03:04</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.71ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:03:39</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.68ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:03:57</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.69ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                          </Results>
+                        </TestRecord>
+                        <TestRecord Name="ConditionlAnd2">
+                          <Results>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:00:36</TestDate>
+                              <Passed>0</Passed>
+                              <Errors>0</Errors>
+                              <Failures>1</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>  Expected string length 100 but was 104. Strings differ at index 93.
+  Expected: "...t a = 1;\n\t\tbool b = true;\n\t\tif (!((a &lt;= 1) || !b)){}\n\t}\n}"
+  But was:  "...t a = 1;\n\t\tbool b = true;\n\t\tif (!((a &lt;= 1) || !b)) {\n\t\t}\n\t}\n}"
+  ----------------------------------------------------------------------^
+</Message>
+                              <StackTrace>  at NUnit.Framework.Assert.That (System.Object actual, IResolveConstraint expression, System.String message, System.Object[] args) [0x00000] in &lt;filename unknown&gt;:0 
+  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00000] in &lt;filename unknown&gt;:0 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test (ICSharpCode.NRefactory.CSharp.Refactoring.CodeActionProvider provider, System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00040] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:80 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test[InvertLogicalExpressionAction] (System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:67 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.InvertLogicalExpressionTests.ConditionlAnd2 () [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/InvertLogicalExpressionTests.cs:63 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod:InternalInvoke (System.Reflection.MonoMethod,object,object[],System.Exception&amp;)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00000] in &lt;filename unknown&gt;:0 </StackTrace>
+                              <ConsoleOutput>-----------Expected:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!((a &lt;= 1) || !b)){}
+	}
+}
+-----------Got:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!((a &lt;= 1) || !b)) {
+		}
+	}
+}
+</ConsoleOutput>
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:01:23</TestDate>
+                              <Passed>0</Passed>
+                              <Errors>0</Errors>
+                              <Failures>1</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>  Expected string length 100 but was 104. Strings differ at index 93.
+  Expected: "...t a = 1;\n\t\tbool b = true;\n\t\tif (!((a &lt;= 1) || !b)){}\n\t}\n}"
+  But was:  "...t a = 1;\n\t\tbool b = true;\n\t\tif (!((a &lt;= 1) || !b)) {\n\t\t}\n\t}\n}"
+  ----------------------------------------------------------------------^
+</Message>
+                              <StackTrace>  at NUnit.Framework.Assert.That (System.Object actual, IResolveConstraint expression, System.String message, System.Object[] args) [0x00000] in &lt;filename unknown&gt;:0 
+  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00000] in &lt;filename unknown&gt;:0 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test (ICSharpCode.NRefactory.CSharp.Refactoring.CodeActionProvider provider, System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00040] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:80 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test[InvertLogicalExpressionAction] (System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:67 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.InvertLogicalExpressionTests.ConditionlAnd2 () [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/InvertLogicalExpressionTests.cs:62 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod:InternalInvoke (System.Reflection.MonoMethod,object,object[],System.Exception&amp;)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00000] in &lt;filename unknown&gt;:0 </StackTrace>
+                              <ConsoleOutput>-----------Expected:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!((a &lt;= 1) || !b)){}
+	}
+}
+-----------Got:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!((a &lt;= 1) || !b)) {
+		}
+	}
+}
+</ConsoleOutput>
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:01:52</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.01ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:02:22</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.01ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:03:04</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.01ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:03:39</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.01ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:03:57</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.01ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                          </Results>
+                        </TestRecord>
+                        <TestRecord Name="ConditionlOr">
+                          <Results>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:00:36</TestDate>
+                              <Passed>0</Passed>
+                              <Errors>0</Errors>
+                              <Failures>1</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>  String lengths are both 103. Strings differ at index 76.
+  Expected: "...nt a = 1;\n\t\tbool b = true;\n\t\tif (!!(((a &lt;= 1) &amp;&amp; !b))){}\n\t}\n}"
+  But was:  "...nt a = 1;\n\t\tbool b = true;\n\t\tif (!(!((a &lt;= 1) &amp;&amp; !b))){}\n\t}\n}"
+  ------------------------------------------------------^
+</Message>
+                              <StackTrace>  at NUnit.Framework.Assert.That (System.Object actual, IResolveConstraint expression, System.String message, System.Object[] args) [0x00000] in &lt;filename unknown&gt;:0 
+  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00000] in &lt;filename unknown&gt;:0 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test (ICSharpCode.NRefactory.CSharp.Refactoring.CodeActionProvider provider, System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00040] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:80 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test[InvertLogicalExpressionAction] (System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:67 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.InvertLogicalExpressionTests.ConditionlOr () [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/InvertLogicalExpressionTests.cs:87 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod:InternalInvoke (System.Reflection.MonoMethod,object,object[],System.Exception&amp;)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00000] in &lt;filename unknown&gt;:0 </StackTrace>
+                              <ConsoleOutput>-----------Expected:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!!(((a &lt;= 1) &amp;&amp; !b))){}
+	}
+}
+-----------Got:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!(!((a &lt;= 1) &amp;&amp; !b))){}
+	}
+}
+</ConsoleOutput>
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:01:23</TestDate>
+                              <Passed>0</Passed>
+                              <Errors>0</Errors>
+                              <Failures>1</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>  String lengths are both 103. Strings differ at index 76.
+  Expected: "...nt a = 1;\n\t\tbool b = true;\n\t\tif (!!(((a &lt;= 1) &amp;&amp; !b))){}\n\t}\n}"
+  But was:  "...nt a = 1;\n\t\tbool b = true;\n\t\tif (!(!((a &lt;= 1) &amp;&amp; !b))){}\n\t}\n}"
+  ------------------------------------------------------^
+</Message>
+                              <StackTrace>  at NUnit.Framework.Assert.That (System.Object actual, IResolveConstraint expression, System.String message, System.Object[] args) [0x00000] in &lt;filename unknown&gt;:0 
+  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00000] in &lt;filename unknown&gt;:0 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test (ICSharpCode.NRefactory.CSharp.Refactoring.CodeActionProvider provider, System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00040] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:80 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test[InvertLogicalExpressionAction] (System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:67 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.InvertLogicalExpressionTests.ConditionlOr () [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/InvertLogicalExpressionTests.cs:86 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod:InternalInvoke (System.Reflection.MonoMethod,object,object[],System.Exception&amp;)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00000] in &lt;filename unknown&gt;:0 </StackTrace>
+                              <ConsoleOutput>-----------Expected:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!!(((a &lt;= 1) &amp;&amp; !b))){}
+	}
+}
+-----------Got:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!(!((a &lt;= 1) &amp;&amp; !b))){}
+	}
+}
+</ConsoleOutput>
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:01:52</TestDate>
+                              <Passed>0</Passed>
+                              <Errors>0</Errors>
+                              <Failures>1</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>  String lengths are both 103. Strings differ at index 76.
+  Expected: "...nt a = 1;\n\t\tbool b = true;\n\t\tif (!!(((a &lt;= 1) &amp;&amp; !b))){}\n\t}\n}"
+  But was:  "...nt a = 1;\n\t\tbool b = true;\n\t\tif (!(!((a &lt;= 1) &amp;&amp; !b))){}\n\t}\n}"
+  ------------------------------------------------------^
+</Message>
+                              <StackTrace>  at NUnit.Framework.Assert.That (System.Object actual, IResolveConstraint expression, System.String message, System.Object[] args) [0x00000] in &lt;filename unknown&gt;:0 
+  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00000] in &lt;filename unknown&gt;:0 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test (ICSharpCode.NRefactory.CSharp.Refactoring.CodeActionProvider provider, System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00040] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:80 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test[InvertLogicalExpressionAction] (System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:67 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.InvertLogicalExpressionTests.ConditionlOr () [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/InvertLogicalExpressionTests.cs:87 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod:InternalInvoke (System.Reflection.MonoMethod,object,object[],System.Exception&amp;)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00000] in &lt;filename unknown&gt;:0 </StackTrace>
+                              <ConsoleOutput>-----------Expected:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!!(((a &lt;= 1) &amp;&amp; !b))){}
+	}
+}
+-----------Got:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!(!((a &lt;= 1) &amp;&amp; !b))){}
+	}
+}
+</ConsoleOutput>
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:02:22</TestDate>
+                              <Passed>0</Passed>
+                              <Errors>0</Errors>
+                              <Failures>1</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>  Expected string length 107 but was 103. Strings differ at index 76.
+  Expected: "... = 1;\n\t\tbool b = true;\n\t\tif (!!(((a &lt;= 1) &amp;&amp; !b))) {\n\t\t}\n\t}\n}"
+  But was:  "... = 1;\n\t\tbool b = true;\n\t\tif (!(!((a &lt;= 1) &amp;&amp; !b))){}\n\t}\n}"
+  --------------------------------------------------^
+</Message>
+                              <StackTrace>  at NUnit.Framework.Assert.That (System.Object actual, IResolveConstraint expression, System.String message, System.Object[] args) [0x00000] in &lt;filename unknown&gt;:0 
+  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00000] in &lt;filename unknown&gt;:0 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test (ICSharpCode.NRefactory.CSharp.Refactoring.CodeActionProvider provider, System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00040] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:80 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test[InvertLogicalExpressionAction] (System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:67 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.InvertLogicalExpressionTests.ConditionlOr () [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/InvertLogicalExpressionTests.cs:87 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod:InternalInvoke (System.Reflection.MonoMethod,object,object[],System.Exception&amp;)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00000] in &lt;filename unknown&gt;:0 </StackTrace>
+                              <ConsoleOutput>-----------Expected:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!!(((a &lt;= 1) &amp;&amp; !b))) {
+		}
+	}
+}
+-----------Got:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!(!((a &lt;= 1) &amp;&amp; !b))){}
+	}
+}
+</ConsoleOutput>
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:03:04</TestDate>
+                              <Passed>0</Passed>
+                              <Errors>0</Errors>
+                              <Failures>1</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>  Expected string length 107 but was 103. Strings differ at index 96.
+  Expected: "... = 1;\n\t\tbool b = true;\n\t\tif (!(!((a &lt;= 1) &amp;&amp; !b))) {\n\t\t}\n\t}\n}"
+  But was:  "... = 1;\n\t\tbool b = true;\n\t\tif (!(!((a &lt;= 1) &amp;&amp; !b))){}\n\t}\n}"
+  ----------------------------------------------------------------------^
+</Message>
+                              <StackTrace>  at NUnit.Framework.Assert.That (System.Object actual, IResolveConstraint expression, System.String message, System.Object[] args) [0x00000] in &lt;filename unknown&gt;:0 
+  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00000] in &lt;filename unknown&gt;:0 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test (ICSharpCode.NRefactory.CSharp.Refactoring.CodeActionProvider provider, System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00040] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:80 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test[InvertLogicalExpressionAction] (System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:67 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.InvertLogicalExpressionTests.ConditionlOr () [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/InvertLogicalExpressionTests.cs:87 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod:InternalInvoke (System.Reflection.MonoMethod,object,object[],System.Exception&amp;)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00000] in &lt;filename unknown&gt;:0 </StackTrace>
+                              <ConsoleOutput>-----------Expected:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!(!((a &lt;= 1) &amp;&amp; !b))) {
+		}
+	}
+}
+-----------Got:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!(!((a &lt;= 1) &amp;&amp; !b))){}
+	}
+}
+</ConsoleOutput>
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:03:39</TestDate>
+                              <Passed>0</Passed>
+                              <Errors>0</Errors>
+                              <Failures>1</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>  Expected string length 104 but was 103. Strings differ at index 96.
+  Expected: "...t a = 1;\n\t\tbool b = true;\n\t\tif (!(!((a &lt;= 1) &amp;&amp; !b))) {}\n\t}\n}"
+  But was:  "...t a = 1;\n\t\tbool b = true;\n\t\tif (!(!((a &lt;= 1) &amp;&amp; !b))){}\n\t}\n}"
+  -------------------------------------------------------------------------^
+</Message>
+                              <StackTrace>  at NUnit.Framework.Assert.That (System.Object actual, IResolveConstraint expression, System.String message, System.Object[] args) [0x00000] in &lt;filename unknown&gt;:0 
+  at NUnit.Framework.Assert.AreEqual (System.Object expected, System.Object actual) [0x00000] in &lt;filename unknown&gt;:0 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test (ICSharpCode.NRefactory.CSharp.Refactoring.CodeActionProvider provider, System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00040] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:80 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.ContextActionTestBase.Test[InvertLogicalExpressionAction] (System.String input, System.String output, Int32 action, Boolean expectErrors) [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/ContextActionTestBase.cs:67 
+  at ICSharpCode.NRefactory.CSharp.CodeActions.InvertLogicalExpressionTests.ConditionlOr () [0x00000] in /Users/leoji/NRefactory/ICSharpCode.NRefactory.Tests/CSharp/CodeActions/InvertLogicalExpressionTests.cs:87 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod:InternalInvoke (System.Reflection.MonoMethod,object,object[],System.Exception&amp;)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00000] in &lt;filename unknown&gt;:0 </StackTrace>
+                              <ConsoleOutput>-----------Expected:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!(!((a &lt;= 1) &amp;&amp; !b))) {}
+	}
+}
+-----------Got:
+
+class TestClass
+{
+	public void F()
+	{
+		int a = 1;
+		bool b = true;
+		if (!(!((a &lt;= 1) &amp;&amp; !b))){}
+	}
+}
+</ConsoleOutput>
+                              <ConsoleError />
+                            </UnitTestResult>
+                            <UnitTestResult>
+                              <TestDate>2013-08-15T00:03:57</TestDate>
+                              <Passed>1</Passed>
+                              <Errors>0</Errors>
+                              <Failures>0</Failures>
+                              <Inconclusive>0</Inconclusive>
+                              <NotRunnable>0</NotRunnable>
+                              <Skipped>0</Skipped>
+                              <Ignored>0</Ignored>
+                              <Time />
+                              <Message>Test successful
+
+Execution time: 0.00ms</Message>
+                              <ConsoleOutput />
+                              <ConsoleError />
+                            </UnitTestResult>
+                          </Results>
+                        </TestRecord>
+                      </Tests>
+                    </TestRecord>
+                  </Tests>
+                </TestRecord>
+              </Tests>
+            </TestRecord>
+          </Tests>
+        </TestRecord>
+      </Tests>
+    </TestRecord>
+  </Tests>
+</TestRecord>
