@@ -473,6 +473,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantArrayCreationExpressionTests.cs" />
     <Compile Include="CSharp\CodeIssues\DuplicatedLinqToListOrArrayTests.cs" />
     <Compile Include="CSharp\CodeIssues\DelegateParametersAreUnusedTests.cs" />
+    <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

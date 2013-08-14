@@ -593,6 +593,7 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantArrayCreationExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicatedLinqToListOrArrayIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DelegateParametersAreUnusedIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\InvertLogicalExpressionAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
