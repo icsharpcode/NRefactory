@@ -536,7 +536,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\PublicConstructorInAbstractClass.cs" />
     <Compile Include="Refactoring\CodeIssues\NotWorking\ParameterCanBeIEnumerableIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\NotWorking\DuplicateBodyMethodIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicateExpressionsInConditionsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicateIfInIfChainIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\LockThisIssue.cs" />
     <Compile Include="Refactoring\CodeActions\AutoLinqSumAction.cs" />
@@ -596,6 +595,7 @@
     <Compile Include="Refactoring\CodeActions\InvertLogicalExpressionAction.cs" />
     <Compile Include="Refactoring\CodeActions\ChangeAccessModifierAction.cs" />
     <Compile Include="Refactoring\CodeActions\AbstractAndVirtualConversionAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\NotWorking\DuplicateExpressionsInConditionsIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
