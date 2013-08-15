@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				return new Task (() => {});
 			}
 			
-			public override Task InsertWithCursor(string operation, InsertPosition defaultPosition, IEnumerable<AstNode> nodes)
+			public override Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, IEnumerable<AstNode> nodes)
 			{
 				EntityDeclaration entity = context.GetNode<EntityDeclaration>();
 				if (entity is Accessor) {
@@ -112,12 +112,12 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				foreach (var node in nodes) {
 					InsertBefore(entity, node);
 				}
-				var tcs = new TaskCompletionSource<object> ();
-				tcs.SetResult (null);
+				var tcs = new TaskCompletionSource<Script> ();
+				tcs.SetResult (this);
 				return tcs.Task;
 			}
 
-			public override Task InsertWithCursor (string operation, ITypeDefinition parentType, IEnumerable<AstNode> nodes)
+			public override Task<Script> InsertWithCursor (string operation, ITypeDefinition parentType, IEnumerable<AstNode> nodes)
 			{
 				var unit = context.RootNode;
 				var insertType = unit.GetNodeAt<TypeDeclaration> (parentType.Region.Begin);
@@ -132,8 +132,8 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 					}
 					output.RegisterTrackedSegments (this, startOffset);
 				}
-				var tcs = new TaskCompletionSource<object> ();
-				tcs.SetResult (null);
+				var tcs = new TaskCompletionSource<Script> ();
+				tcs.SetResult (this);
 				return tcs.Task;
 			}
 
