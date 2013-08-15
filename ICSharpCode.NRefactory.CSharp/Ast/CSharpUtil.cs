@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				var uOp = (UnaryOperatorExpression)condition;
 				if (uOp.Operator == UnaryOperatorType.Not)
 					return uOp.Expression;
-				return new UnaryOperatorExpression(UnaryOperatorType.Not, uOp);
+				return new UnaryOperatorExpression(UnaryOperatorType.Not, uOp.Clone());
 			}
 			
 			if (condition is BinaryOperatorExpression) {
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				} else {
 					var negatedOp = NegateRelationalOperator(bOp.Operator);
 					if (negatedOp == BinaryOperatorType.Any)
-						return new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(condition));
+						return new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(condition.Clone()));
 					bOp.Operator = negatedOp;
 					return bOp;
 				}
@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 			}
 			
-			return new UnaryOperatorExpression(UnaryOperatorType.Not, condition);
+			return new UnaryOperatorExpression(UnaryOperatorType.Not, condition.Clone());
 		}
 
 		/// <summary>
