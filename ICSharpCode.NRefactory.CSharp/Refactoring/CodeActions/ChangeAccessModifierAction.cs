@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (GetActualAccess(parentTypeDeclaration, node) != access) {
-					yield return GetActionForLevel(context, accessName, access, node);
+					yield return GetActionForLevel(context, accessName, access, node, selectedNode);
 				}
 			}
 		}
@@ -145,7 +145,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return nodeAccess & Modifiers.VisibilityMask;
 		}
 
-		CodeAction GetActionForLevel(RefactoringContext context, string accessName, Modifiers access, EntityDeclaration node)
+		CodeAction GetActionForLevel(RefactoringContext context, string accessName, Modifiers access, EntityDeclaration node, AstNode selectedNode)
 		{
 			return new CodeAction(context.TranslateString("To " + accessName), script => {
 
@@ -160,7 +160,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				script.ChangeModifier(node, newModifiers);
 
-			}, node);
+			}, selectedNode);
 		}
 	}
 }
