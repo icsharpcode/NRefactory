@@ -40,6 +40,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			//TODO: implement variable assignment & ctor param
 			var varInit = context.GetNode<VariableInitializer>();
 			if (varInit != null) {
+				var selectedNode = varInit.GetNodeAt(context.Location);
+				if (selectedNode != varInit.NameToken)
+					yield break;
+
 				AstType type = varInit.GetPrevNode() as AstType;
 				if (type == null) yield break;
 				if (varInit.Parent is FieldDeclaration) yield break;
