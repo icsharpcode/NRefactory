@@ -697,6 +697,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return whileStatement.Condition.AcceptVisitor(this, data);
 			}
 
+			public override VisitorResult VisitDoWhileStatement(DoWhileStatement doWhileStatement, VariableStatusInfo data)
+			{
+				return doWhileStatement.Condition.AcceptVisitor(this, data);
+			}
+
 			public override VisitorResult VisitForStatement(ForStatement forStatement, VariableStatusInfo data)
 			{
 				//The initializers, the embedded statement and the iterators aren't visited here
@@ -732,9 +737,59 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public override VisitorResult VisitTryCatchStatement(TryCatchStatement tryCatchStatement, VariableStatusInfo data)
 			{
-				//The only special treatment this needs is to ensure exceptions are considered properly.
-				//That will be dealt with in the actual analysis class.
+				//The needs special treatment in the analyser itself
 				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitBreakStatement(BreakStatement breakStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitContinueStatement(ContinueStatement continueStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitGotoStatement(GotoStatement gotoStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitGotoCaseStatement(GotoCaseStatement gotoCaseStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitGotoDefaultStatement(GotoDefaultStatement gotoDefaultStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitLabelStatement(LabelStatement labelStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitLockStatement(LockStatement lockStatement, VariableStatusInfo data)
+			{
+				//TODO: We know lock(null) is invalid
+				return lockStatement.Expression.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitThrowStatement(ThrowStatement throwStatement, VariableStatusInfo data)
+			{
+				return throwStatement.Expression.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitYieldBreakStatement(YieldBreakStatement yieldBreakStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitYieldReturnStatement(YieldReturnStatement yieldReturnStatement, VariableStatusInfo data)
+			{
+				return yieldReturnStatement.Expression.AcceptVisitor(this, data);
 			}
 
 			void RegisterExpressionResult(Expression expression, NullValueStatus expressionResult)
@@ -1108,6 +1163,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return HandleExpressionResult(memberReferenceExpression, targetResult.Variables, NullValueStatus.Unknown);
 			}
 
+			public override VisitorResult VisitTypeReferenceExpression(TypeReferenceExpression typeReferenceExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(typeReferenceExpression, data, NullValueStatus.Unknown);
+
+			}
+
 			public override VisitorResult VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression, VariableStatusInfo data)
 			{
 				foreach (var argument in objectCreateExpression.Arguments) {
@@ -1153,6 +1214,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return HandleExpressionResult(arrayInitializerExpression, data, NullValueStatus.DefinitelyNotNull);
 			}
 
+			public override VisitorResult VisitAnonymousTypeCreateExpression(AnonymousTypeCreateExpression anonymousTypeCreateExpression, VariableStatusInfo data)
+			{
+				foreach (var initializer in anonymousTypeCreateExpression.Initializers) {
+					data = initializer.AcceptVisitor(this, data).Variables.Clone();
+				}
+
+				return HandleExpressionResult(anonymousTypeCreateExpression, data, NullValueStatus.DefinitelyNotNull);
+			}
+
 			public override VisitorResult VisitLambdaExpression(LambdaExpression lambdaExpression, VariableStatusInfo data)
 			{
 				var newData = data.Clone();
@@ -1182,6 +1252,152 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				//The lambda itself is known not to be null
 				return HandleExpressionResult(lambdaExpression, newData, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression, VariableStatusInfo data)
+			{
+				var newData = data.Clone();
+
+				var identifiers = anonymousMethodExpression.Descendants.OfType<IdentifierExpression>();
+				foreach (var identifier in identifiers) {
+					//Check if it is in a "change-null-state" context
+					//For instance, x++ does not change the null state
+					//but `x = y` does.
+					if (identifier.Role == AssignmentExpression.LeftRole) {
+						var parent = (AssignmentExpression)identifier.Parent;
+						if (parent.Operator != AssignmentOperatorType.Assign) {
+							continue;
+						}
+					} else {
+						//No other context matters
+						//Captured variables are never passed by reference (out/ref)
+						continue;
+					}
+
+					//At this point, we know there's a good chance the variable has been changed
+					//TODO: Do we need to check if the type is nullable
+					//TODO: Do we need to check if the variable is in a relevant scope?
+
+					newData [identifier.Identifier] = NullValueStatus.CapturedUnknown;
+				}
+
+				//The anonymous method itself is known not to be null
+				return HandleExpressionResult(anonymousMethodExpression, newData, NullValueStatus.DefinitelyNotNull);
+			}
+
+
+			public override VisitorResult VisitNamedExpression(NamedExpression namedExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(namedExpression, namedExpression.Expression.AcceptVisitor(this, data));
+			}
+
+			public override VisitorResult VisitAsExpression(AsExpression asExpression, VariableStatusInfo data)
+			{
+				var tentativeResult = asExpression.Expression.AcceptVisitor(this, data);
+				NullValueStatus result;
+				if (tentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
+					result = NullValueStatus.DefinitelyNull;
+				} else {
+					result = NullValueStatus.Unknown;
+				}
+				return HandleExpressionResult(asExpression, tentativeResult.Variables, result);
+			}
+
+			public override VisitorResult VisitCastExpression(CastExpression castExpression, VariableStatusInfo data)
+			{
+				var tentativeResult = castExpression.Expression.AcceptVisitor(this, data);
+				NullValueStatus result;
+				if (tentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
+					result = NullValueStatus.DefinitelyNull;
+				} else {
+					result = NullValueStatus.Unknown;
+				}
+				return HandleExpressionResult(castExpression, tentativeResult.Variables, result);
+			}
+
+			public override VisitorResult VisitIsExpression(IsExpression isExpression, VariableStatusInfo data)
+			{
+				var tentativeResult = isExpression.Expression.AcceptVisitor(this, data);
+				return HandleExpressionResult(isExpression, tentativeResult.Variables, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitDirectionExpression(DirectionExpression directionExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(directionExpression, directionExpression.Expression.AcceptVisitor(this, data));
+			}
+
+			public override VisitorResult VisitCheckedExpression(CheckedExpression checkedExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(checkedExpression, checkedExpression.Expression.AcceptVisitor(this, data));
+			}
+
+			public override VisitorResult VisitUncheckedExpression(UncheckedExpression uncheckedExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(uncheckedExpression, uncheckedExpression.Expression.AcceptVisitor(this, data));
+			}
+
+			public override VisitorResult VisitThisReferenceExpression(ThisReferenceExpression thisReferenceExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(thisReferenceExpression, data, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitIndexerExpression(IndexerExpression indexerExpression, VariableStatusInfo data)
+			{
+				var tentativeResult = indexerExpression.Target.AcceptVisitor(this, data).Variables;
+				IdentifierExpression targetAsIdentifier = indexerExpression.Target as IdentifierExpression;
+				if (targetAsIdentifier != null && tentativeResult[targetAsIdentifier.Identifier] != NullValueStatus.CapturedUnknown) {
+					//TODO: Resolve
+					//If this doesn't cause an exception, then the target is not null
+					tentativeResult.Clone();
+					tentativeResult [targetAsIdentifier.Identifier] = NullValueStatus.DefinitelyNotNull;
+				}
+
+				foreach (var argument in indexerExpression.Arguments) {
+					tentativeResult = argument.AcceptVisitor(this, tentativeResult).Variables.Clone();
+				}
+
+				//TODO: Check for non-nullable array types (e.g. x[0] is never null if x is an int array)
+				return HandleExpressionResult(indexerExpression, tentativeResult, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitBaseReferenceExpression(BaseReferenceExpression baseReferenceExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(baseReferenceExpression, data, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitTypeOfExpression(TypeOfExpression typeOfExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(typeOfExpression, data, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitSizeOfExpression(SizeOfExpression sizeOfExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(sizeOfExpression, data, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitPointerReferenceExpression(PointerReferenceExpression pointerReferenceExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(pointerReferenceExpression, pointerReferenceExpression.Target.AcceptVisitor(this, data).Variables, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitStackAllocExpression(StackAllocExpression stackAllocExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(stackAllocExpression, stackAllocExpression.CountExpression.AcceptVisitor(this, data).Variables, NullValueStatus.DefinitelyNotNull);
+			}
+
+			public override VisitorResult VisitNamedArgumentExpression(NamedArgumentExpression namedArgumentExpression, VariableStatusInfo data)
+			{
+				return HandleExpressionResult(namedArgumentExpression, namedArgumentExpression.Expression.AcceptVisitor(this, data));
+			}
+
+			public override VisitorResult VisitUndocumentedExpression(UndocumentedExpression undocumentedExpression, VariableStatusInfo data)
+			{
+				throw new NotImplementedException();
+			}
+
+			public override VisitorResult VisitQueryExpression(QueryExpression queryExpression, VariableStatusInfo data)
+			{
+				throw new NotImplementedException();
 			}
 		}
 	}
