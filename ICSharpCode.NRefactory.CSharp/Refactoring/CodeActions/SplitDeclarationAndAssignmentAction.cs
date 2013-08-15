@@ -42,9 +42,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			AstType type;
 			var varDecl = GetVariableDeclarationStatement(context, out type);
-			if (varDecl == null) {
+			if (varDecl == null)
 				yield break;
-			}
+
+			var selectedNode = varDecl.GetNodeAt(context.Location);
+
 			yield return new CodeAction(context.TranslateString("Split local variable declaration and assignment"), script => {
 				var assign = new AssignmentExpression (new IdentifierExpression (varDecl.Variables.First().Name), AssignmentOperatorType.Assign, varDecl.Variables.First().Initializer.Clone());
 				
@@ -59,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				
 				script.InsertBefore(varDecl, newVarDecl);
 				script.Replace(varDecl, varDecl.Parent is ForStatement ? (AstNode)assign : new ExpressionStatement (assign));
-			}, varDecl.Variables.First ().AssignToken);
+			}, selectedNode);
 		}
 		
 		static VariableDeclarationStatement GetVariableDeclarationStatement (RefactoringContext context, out AstType resolvedType, CancellationToken cancellationToken = default(CancellationToken))
