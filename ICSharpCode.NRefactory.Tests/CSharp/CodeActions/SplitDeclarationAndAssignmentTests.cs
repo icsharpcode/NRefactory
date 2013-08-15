@@ -177,6 +177,18 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 	}
 }");
 		}
+
+		[Test]
+		public void TestLocalConstants ()
+		{
+			TestWrongContext<SplitDeclarationAndAssignmentAction>(@"class Test
+{
+	public static void Main (string[] args)
+	{
+		const int foo $= 5;
+	}
+}");
+		}
 	}
 }
 

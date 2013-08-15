@@ -44,24 +44,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			}
 			AstType type;
-			var varDecl = GetVariableDeclarationStatement(context, out type);
-			if (varDecl == null)
+			var varInitializer = GetVariableDeclarationStatement(context, out type);
+			if (varInitializer == null)
 				yield break;
-			var statement = varDecl.GetParent<Statement>();
+			var statement = varInitializer.GetParent<Statement>();
+			var declaration = varInitializer.GetParent<VariableDeclarationStatement>();
+			if ((declaration.Modifiers & Modifiers.Const) != 0)
+				yield break;
 
-			var selectedNode = varDecl.GetNodeAt(context.Location);
+			var selectedNode = varInitializer.GetNodeAt(context.Location);
 
 			yield return new CodeAction(context.TranslateString("Split local variable declaration and assignment"), script => {
-				var assign = new AssignmentExpression (new IdentifierExpression (varDecl.Name), AssignmentOperatorType.Assign, varDecl.Initializer.Clone());
+				var assign = new AssignmentExpression (new IdentifierExpression (varInitializer.Name), AssignmentOperatorType.Assign, varInitializer.Initializer.Clone());
 
-				var declaration = varDecl.GetParent<VariableDeclarationStatement>();
 				if (declaration != null && declaration.Type.IsVar())
 					script.Replace(declaration.Type, type);
 				if (declaration.Parent is ForStatement) {
-					script.InsertBefore(statement, new VariableDeclarationStatement (type, varDecl.Name));
+					script.InsertBefore(statement, new VariableDeclarationStatement (type, varInitializer.Name));
 					script.Replace(declaration, assign);
 				} else {
-					script.Replace(varDecl, new IdentifierExpression (varDecl.Name));
+					script.Replace(varInitializer, new IdentifierExpression (varInitializer.Name));
 					script.InsertAfter(statement, new ExpressionStatement (assign));
 				}
 
