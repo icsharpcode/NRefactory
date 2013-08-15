@@ -39,7 +39,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new ThrowStatement(new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException")))
 			};
 		}
-		void ImplementStub (RefactoringContext context, EntityDeclaration newNode)
+
+		static void ImplementStub (RefactoringContext context, EntityDeclaration newNode)
 		{
 			if (newNode is PropertyDeclaration || newNode is IndexerDeclaration) {
 				var getter = newNode.GetChildByRole(PropertyDeclaration.GetterRole);
@@ -91,7 +92,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						newNode.Modifiers &= ~Modifiers.Abstract;
 						ImplementStub (context, newNode);
 						script.Replace(node, newNode);
-					}, node);
+					}, selectedNode);
 				} else {
 					if (custom != null && (IsInvalidBody (custom.AddAccessor.Body) || IsInvalidBody (custom.RemoveAccessor.Body)))
 						yield break;
@@ -102,7 +103,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						newNode.Modifiers &= ~Modifiers.Static;
 						newNode.Modifiers |= Modifiers.Abstract;
 						script.Replace(node, newNode);
-					}, node);
+					}, selectedNode);
 
 				}
 			}
@@ -110,7 +111,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if ((node.Modifiers & Modifiers.Virtual) != 0) {
 				yield return new CodeAction(context.TranslateString("To non-virtual"), script => {
 					script.ChangeModifier(node, node.Modifiers & ~Modifiers.Virtual);
-				}, node);
+				}, selectedNode);
 			} else {
 				if ((node.Modifiers & Modifiers.Abstract) != 0) {
 					yield return new CodeAction(context.TranslateString("To virtual"), script => {
@@ -120,11 +121,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						newNode.Modifiers |= Modifiers.Virtual;
 						ImplementStub (context, newNode);
 						script.Replace(node, newNode);
-					}, node);
+					}, selectedNode);
 				} else {
 					yield return new CodeAction(context.TranslateString("To virtual"), script => {
 						script.ChangeModifier(node, (node.Modifiers & ~Modifiers.Static)  | Modifiers.Virtual);
-					}, node);
+					}, selectedNode);
 				}
 			}
 
