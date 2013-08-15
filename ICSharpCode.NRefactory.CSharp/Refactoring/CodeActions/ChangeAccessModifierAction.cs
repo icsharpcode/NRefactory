@@ -47,7 +47,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var node = context.GetNode<EntityDeclaration>();
-			if (node == null) {
+			if (node == null)
+				yield break;
+
+			var selectedNode = node.GetNodeAt(context.Location);
+			if (selectedNode.Role != EntityDeclaration.ModifierRole && 
+			    selectedNode.Role != PropertyDeclaration.SetKeywordRole && 
+			    selectedNode.Role != PropertyDeclaration.GetKeywordRole && 
+			    selectedNode != node.NameToken) {
 				yield break;
 			}
 

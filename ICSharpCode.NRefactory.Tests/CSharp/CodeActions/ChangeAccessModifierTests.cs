@@ -167,6 +167,16 @@ class Foo
 	}
 }");
 		}
+	
+		[Test]
+		public void TestReturnTypeWrongContext()
+		{
+			TestWrongContext<ChangeAccessModifierAction>(@"
+class Test
+{
+	public $void Foo () {}
+}");
+		}
 	}
 }
 
