@@ -504,4 +504,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 		}
 	}
+
+	static class ExtMethods
+	{
+		public static void ContinueScript (this Task task, Action act)
+		{
+			if (task.IsCompleted) {
+				act();
+			} else {
+				task.ContinueWith(delegate {
+					act();
+				}, TaskScheduler.FromCurrentSynchronizationContext());
+			}
+		}
+	}
 }

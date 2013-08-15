@@ -58,23 +58,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					new IdentifierExpression (methodDeclaration.Name),
 					new MemberReferenceExpression (new TypeReferenceExpression (context.CreateShortType("System", "EventArgs")), "Empty")
 				));
-				var task = script.InsertWithCursor(
+				script.InsertWithCursor(
 					context.TranslateString("Create event invocator"),
 					Script.InsertPosition.After,
 					new AstNode[] { eventDeclaration, methodDeclaration }
-				);
-
-				Action<Task> insertInvocation = delegate {
+				).ContinueScript(delegate {
 					script.InsertBefore (property.Setter.Body.RBraceToken, stmt);
 					script.FormatText (stmt);
-				};
-
-				if (task.IsCompleted) {
-					insertInvocation (null);
-				} else {
-					task.ContinueWith (insertInvocation, TaskScheduler.FromCurrentSynchronizationContext ());
-				}
-
+				});
 			}, property.NameToken);
 		}
 

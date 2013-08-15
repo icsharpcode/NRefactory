@@ -100,18 +100,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 					invocation.Arguments.Add(argumentExpression);
 				}
 
-				var task = script.InsertWithCursor(context.TranslateString("Extract method"), Script.InsertPosition.Before, method);
-
-				Action<Task> replaceStatements = delegate {
-					script.Replace(expression, invocation);
-					script.Link(target, method.NameToken);
-				};
-
-				if (task.IsCompleted) {
-					replaceStatements (null);
-				} else {
-					task.ContinueWith (replaceStatements, TaskScheduler.FromCurrentSynchronizationContext ());
-				}
+				script
+					.InsertWithCursor(context.TranslateString("Extract method"), Script.InsertPosition.Before, method)
+					.ContinueScript (delegate {
+						script.Replace(expression, invocation);
+						script.Link(target, method.NameToken);
+					});
 			}, expression);
 		}
 		
@@ -195,38 +189,33 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 					method.Parameters.Add(new ParameterDeclaration(context.CreateShortType(variable.Type), variable.Name, mod));
 					invocation.Arguments.Add(argumentExpression);
 				}
-				var task = script.InsertWithCursor(context.TranslateString("Extract method"), Script.InsertPosition.Before, method);
-				Action<Task> replaceStatements = delegate {
-					foreach (var node in statements.Skip (1)) {
-						if (node is NewLineNode)
-							continue;
-						script.Remove(node);
-					}
-					foreach (var variable in usedVariables) {
-						if ((variable is IParameter) || beforeExtractedRegion.Has (variable) || !afterExtractedRegion.Has (variable))
-							continue;
-						if (variable == generatedReturnVariable)
-							continue;
-						script.InsertBefore (statements [0], new VariableDeclarationStatement (context.CreateShortType(variable.Type), variable.Name));
-					}
-					AstNode invocationStatement;
+				script
+					.InsertWithCursor(context.TranslateString("Extract method"), Script.InsertPosition.Before, method)
+					.ContinueScript(delegate {
+						foreach (var node in statements.Skip (1)) {
+							if (node is NewLineNode)
+								continue;
+							script.Remove(node);
+						}
+						foreach (var variable in usedVariables) {
+							if ((variable is IParameter) || beforeExtractedRegion.Has (variable) || !afterExtractedRegion.Has (variable))
+								continue;
+							if (variable == generatedReturnVariable)
+								continue;
+							script.InsertBefore (statements [0], new VariableDeclarationStatement (context.CreateShortType(variable.Type), variable.Name));
+						}
+						AstNode invocationStatement;
 
-					if (generatedReturnVariable != null) {
-						invocationStatement = new VariableDeclarationStatement (new SimpleType ("var"), generatedReturnVariable.Name, invocation);
-					} else {
-						invocationStatement = new ExpressionStatement(invocation);
-					}
-					script.Replace(statements [0], invocationStatement);
+						if (generatedReturnVariable != null) {
+							invocationStatement = new VariableDeclarationStatement (new SimpleType ("var"), generatedReturnVariable.Name, invocation);
+						} else {
+							invocationStatement = new ExpressionStatement(invocation);
+						}
+						script.Replace(statements [0], invocationStatement);
 
 
-					script.Link(target, method.NameToken);
-				};
-
-				if (task.IsCompleted) {
-					replaceStatements (null);
-				} else {
-					task.ContinueWith (replaceStatements, TaskScheduler.FromCurrentSynchronizationContext ());
-				}
+						script.Link(target, method.NameToken);
+					});
 			}, statements.First ().StartLocation, statements.Last ().EndLocation);
 		}
 	}
