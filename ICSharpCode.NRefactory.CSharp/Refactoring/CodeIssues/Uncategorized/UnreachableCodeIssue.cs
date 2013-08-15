@@ -141,6 +141,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return false;
 					if (collectedStatements.Contains (statement))
 						return true;
+					if (statement is BlockStatement && statement.GetChildrenByRole<Statement>(BlockStatement.StatementRole).Any(reachability.IsReachable)) {
+						//There's reachable content
+						return false;
+					}
 					var prevEnd = statement.GetPrevNode (n => !(n is NewLineNode)).EndLocation;
 
 					// group multiple continuous statements into one issue
