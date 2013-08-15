@@ -474,6 +474,7 @@
     <Compile Include="CSharp\CodeIssues\DuplicatedLinqToListOrArrayTests.cs" />
     <Compile Include="CSharp\CodeIssues\DelegateParametersAreUnusedTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ChangeAccessModifierTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
