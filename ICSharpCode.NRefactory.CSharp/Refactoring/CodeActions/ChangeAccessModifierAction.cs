@@ -26,7 +26,6 @@
 using ICSharpCode.NRefactory.CSharp;
 using System;
 using System.Collections.Generic;
-using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 
@@ -38,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Change the access level of an entity declaration", Description = "Changes the access level of an entity declaration")]
 	public class ChangeAccessModifierAction : CodeActionProvider
 	{
-		Dictionary<string, Modifiers> accessibilityLevels = new Dictionary<string, Modifiers>() {
+		Dictionary<string, Modifiers> accessibilityLevels = new Dictionary<string, Modifiers> {
 			{ "private", Modifiers.Private },
 			{ "protected", Modifiers.Protected },
 			{ "protected internal", Modifiers.Protected | Modifiers.Internal },
@@ -72,6 +71,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			}
 
+			if (node.HasModifier(Modifiers.Override))
+				yield break;
+
 			var parentTypeDeclaration = node.GetParent<TypeDeclaration>();
 			if (parentTypeDeclaration != null && parentTypeDeclaration.ClassType == ClassType.Interface) {
 				//Interface members have no access modifiers
@@ -84,8 +86,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					yield break;
 			}
 
-			var nodeAccess = node.Modifiers & Modifiers.VisibilityMask;
-
 			foreach (var accessName in accessibilityLevels.Keys) {
 				var access = accessibilityLevels [accessName];
 
@@ -94,7 +94,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					continue;
 				}
 
-				Accessor accessor = node as Accessor;
+				var accessor = node as Accessor;
 				if (accessor != null) {
 					//Allow only converting to modifiers stricter than the parent entity
 
@@ -110,7 +110,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		bool IsStricterThan(Modifiers access1, Modifiers access2)
+		static bool IsStricterThan(Modifiers access1, Modifiers access2)
 		{
 			//First cover the basic cases
 			if (access1 == access2) {
@@ -134,7 +134,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return access2 == (Modifiers.Protected | Modifiers.Internal);
 		}
 
-		Modifiers GetActualAccess(AstNode parentTypeDeclaration, EntityDeclaration node)
+		static Modifiers GetActualAccess(AstNode parentTypeDeclaration, EntityDeclaration node)
 		{
 			Modifiers nodeAccess = node.Modifiers & Modifiers.VisibilityMask;
 			if (nodeAccess == Modifiers.None && node is Accessor) {

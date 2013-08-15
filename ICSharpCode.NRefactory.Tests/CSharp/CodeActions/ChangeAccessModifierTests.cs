@@ -68,6 +68,20 @@ class TestClass : Test
 		}
 
 		[Test]
+		public void TestNoOverrideMember()
+		{
+			TestWrongContext<ChangeAccessModifierAction>(@"
+class TestClass : Test
+{
+	public override string $ToString()
+	{
+		return ""Test"";
+	}
+		
+}");
+		}
+
+		[Test]
 		public void TestType ()
 		{
 			Test<ChangeAccessModifierAction>(@"
