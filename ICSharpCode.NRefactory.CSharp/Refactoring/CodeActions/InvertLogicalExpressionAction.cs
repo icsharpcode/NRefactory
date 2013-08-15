@@ -36,6 +36,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if ((node.Operator == BinaryOperatorType.ConditionalOr) || (node.Operator == BinaryOperatorType.ConditionalAnd))
 			{
 				var negativeExpression = CSharpUtil.InvertCondition(node);
+				if (node.Parent is ParenthesizedExpression && node.Parent.Parent is UnaryOperatorExpression)
+				{
+					UnaryOperatorExpression unaryOperatorExpression = node.Parent.Parent as UnaryOperatorExpression;
+					if (unaryOperatorExpression.Operator == UnaryOperatorType.Not)
+					{
+						return new CodeAction (string.Format (context.TranslateString ("Invert '{0}'"), unaryOperatorExpression.ToString()),
+						                       script => {
+							script.Replace (unaryOperatorExpression, negativeExpression);
+						}, node);	
+					}
+				}
 				var newExpression = new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(negativeExpression));
 
 				return new CodeAction (string.Format (context.TranslateString ("Invert '{0}'"), node.ToString()),
