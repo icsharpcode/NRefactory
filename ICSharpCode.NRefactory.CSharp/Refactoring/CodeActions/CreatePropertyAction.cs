@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				script.InsertWithCursor(context.TranslateString("Create property"), Script.InsertPosition.Before, decl);
 
-			}, identifier);
+			}, identifier.GetNodeAt(context.Location));
 		}
 
 		internal static string GetPropertyName(Expression expr)

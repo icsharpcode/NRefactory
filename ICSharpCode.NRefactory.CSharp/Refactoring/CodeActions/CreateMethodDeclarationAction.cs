@@ -218,7 +218,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				script.InsertWithCursor(context.TranslateString("Create method"), Script.InsertPosition.Before, decl);
-			}, createFromNode);
+			}, createFromNode.GetNodeAt(context.Location));
 		}
 
 		public static IEnumerable<ParameterDeclaration> GenerateParameters(RefactoringContext context, IEnumerable<Expression> arguments)
