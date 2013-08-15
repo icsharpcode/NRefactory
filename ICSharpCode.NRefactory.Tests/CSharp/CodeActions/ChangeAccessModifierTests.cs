@@ -179,6 +179,16 @@ class Test
 		}
 
 		[Test]
+		public void TestWrongModiferContext()
+		{
+			TestWrongContext<ChangeAccessModifierAction>(@"
+class Test
+{
+	public $virtual void Foo () {}
+}");
+		}
+
+		[Test]
 		public void TestMethodImplementingInterface()
 		{
 			TestWrongContext<ChangeAccessModifierAction>(@"using System;

@@ -53,11 +53,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 
 			var selectedNode = node.GetNodeAt(context.Location);
-			if (selectedNode.Role != EntityDeclaration.ModifierRole && 
-			    selectedNode.Role != PropertyDeclaration.SetKeywordRole && 
+			if (selectedNode.Role != PropertyDeclaration.SetKeywordRole && 
 			    selectedNode.Role != PropertyDeclaration.GetKeywordRole && 
 			    selectedNode != node.NameToken) {
 				yield break;
+			}
+			if (selectedNode.Role == EntityDeclaration.ModifierRole) {
+				var mod = (CSharpModifierToken)selectedNode;
+				if ((mod.Modifier & Modifiers.VisibilityMask) == 0)
+					yield break;
 			}
 
 			if (node is EnumMemberDeclaration) {
