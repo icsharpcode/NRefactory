@@ -53,6 +53,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 
 			var selectedNode = node.GetNodeAt(context.Location);
+			if (selectedNode == null)
+				yield break;
+
 			if (selectedNode.Role != PropertyDeclaration.SetKeywordRole && 
 			    selectedNode.Role != PropertyDeclaration.GetKeywordRole && 
 			    selectedNode != node.NameToken) {

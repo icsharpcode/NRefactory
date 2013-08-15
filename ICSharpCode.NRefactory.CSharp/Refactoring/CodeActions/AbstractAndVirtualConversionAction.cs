@@ -33,27 +33,29 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Make abstract member virtual", Description = "Implements an abstract member as a virtual one")]
 	public class AbstractAndVirtualConversionAction : CodeActionProvider
 	{
-		static BlockStatement CreateNotImplementedBody(RefactoringContext context)
+		static BlockStatement CreateNotImplementedBody(RefactoringContext context, out ThrowStatement throwStatement)
 		{
-			return new BlockStatement {
-				new ThrowStatement(new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException")))
-			};
+			throwStatement = new ThrowStatement(new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException")));
+			return new BlockStatement { throwStatement };
 		}
 
-		static void ImplementStub (RefactoringContext context, EntityDeclaration newNode)
+		static ThrowStatement ImplementStub (RefactoringContext context, EntityDeclaration newNode)
 		{
+			ThrowStatement throwStatement = null;
 			if (newNode is PropertyDeclaration || newNode is IndexerDeclaration) {
-				var getter = newNode.GetChildByRole(PropertyDeclaration.GetterRole);
-				if (!getter.IsNull)
-					getter.AddChild(CreateNotImplementedBody(context), Roles.Body); 
 				var setter = newNode.GetChildByRole(PropertyDeclaration.SetterRole);
 				if (!setter.IsNull)
-					setter.AddChild(CreateNotImplementedBody(context), Roles.Body); 
-			} else {
-				newNode.AddChild(CreateNotImplementedBody(context), Roles.Body); 
-			}
+					setter.AddChild(CreateNotImplementedBody(context, out throwStatement), Roles.Body); 
 
+				var getter = newNode.GetChildByRole(PropertyDeclaration.GetterRole);
+				if (!getter.IsNull)
+					getter.AddChild(CreateNotImplementedBody(context, out throwStatement), Roles.Body); 
+			} else {
+				newNode.AddChild(CreateNotImplementedBody(context, out throwStatement), Roles.Body); 
+			}
+			return throwStatement;
 		}
+
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var node = context.GetNode<EntityDeclaration>();
@@ -71,6 +73,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 
 			var selectedNode = node.GetNodeAt(context.Location);
+			if (selectedNode == null)
+				yield break;
 			if (selectedNode != node.NameToken) {
 				if ((node is EventDeclaration && node is CustomEventDeclaration || selectedNode.Role != Roles.Identifier) && 
 				    selectedNode.Role != IndexerDeclaration.ThisKeywordRole) {
@@ -90,8 +94,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					yield return new CodeAction(context.TranslateString("To non-abstract"), script => {
 						var newNode = (EntityDeclaration)node.Clone();
 						newNode.Modifiers &= ~Modifiers.Abstract;
-						ImplementStub (context, newNode);
+						var throwStmt = ImplementStub (context, newNode);
 						script.Replace(node, newNode);
+						if (throwStmt != null)
+							script.Select(throwStmt); 
 					}, selectedNode);
 				} else {
 					if (custom != null && (IsInvalidBody (custom.AddAccessor.Body) || IsInvalidBody (custom.RemoveAccessor.Body)))
@@ -119,8 +125,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						newNode.Modifiers &= ~Modifiers.Abstract;
 						newNode.Modifiers &= ~Modifiers.Static;
 						newNode.Modifiers |= Modifiers.Virtual;
-						ImplementStub (context, newNode);
+						var throwStmt = ImplementStub (context, newNode);
 						script.Replace(node, newNode);
+						if (throwStmt != null)
+							script.Select(throwStmt);
 					}, selectedNode);
 				} else {
 					yield return new CodeAction(context.TranslateString("To virtual"), script => {
