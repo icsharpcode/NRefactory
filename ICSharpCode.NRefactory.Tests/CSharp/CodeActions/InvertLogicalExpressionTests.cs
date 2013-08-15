@@ -100,7 +100,8 @@ class TestClass
 	{
 		int a = 1;
 		bool b = true;
-		if (!(!((a <= 1) && !b))){}
+		if ((a <= 1) && !b) {
+		}
 	}
 }");
 		}
