@@ -672,6 +672,37 @@ class TestClass
 		}
 
 		[Test]
+		public void TestFinallyCapture()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int? x = 1;
+		try {
+			Action a = () => { x = null; };
+		} finally {
+			Console.WriteLine(x);
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var tryFinally = (TryCatchStatement) method.Body.Statements.Last();
+			var finallyStatement = tryFinally.FinallyBlock.Statements.Single();
+
+			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusBeforeStatement(finallyStatement, "x"));
+		}
+
+
+		[Test]
 		public void TestReturnInFinally()
 		{
 			var parser = new CSharpParser();
