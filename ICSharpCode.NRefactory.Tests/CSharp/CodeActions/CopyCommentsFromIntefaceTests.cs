@@ -92,5 +92,31 @@ class TestClass : ITest
 	}
 }");
 		}	
+
+		[Ignore]
+		public void TestNoProblem()
+		{
+			Test<CopyCommentsFromInterface>(@"
+interface ITest
+{
+	void Method ();
+}
+class TestClass : ITest
+{
+	public void $Method ()
+	{
+	}
+}", @"
+interface ITest
+{
+	void Method ();
+}
+class TestClass : ITest
+{
+	public void Method ()
+	{
+	}
+}");
+		}	
 	}
 }
