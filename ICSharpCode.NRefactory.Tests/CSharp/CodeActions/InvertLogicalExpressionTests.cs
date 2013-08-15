@@ -57,6 +57,83 @@ class TestClass
 		}
 
 		[Test]
+		public void ConditionlAndReverse()
+		{
+			Test<InvertLogicalExpressionAction>(@"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (!(!a $|| !b)) {
+		}
+	}
+}", @"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (a && b) {
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void ConditionlOr()
+		{
+			Test<InvertLogicalExpressionAction>(@"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (a $|| b){}
+	}
+}", @"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (!(!a && !b)) {
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void ConditionlOrReverse()
+		{
+			Test<InvertLogicalExpressionAction>(@"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (!(!a $&& !b)){}
+	}
+}", @"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (a || b) {
+		}
+	}
+}");
+		}
+
+
+		[Test]
 		public void ConditionlAnd2()
 		{
 			Test<InvertLogicalExpressionAction>(@"
@@ -82,7 +159,7 @@ class TestClass
 		}
 
 		[Test]
-		public void ConditionlOr()
+		public void ConditionlOr2()
 		{
 			Test<InvertLogicalExpressionAction>(@"
 class TestClass
