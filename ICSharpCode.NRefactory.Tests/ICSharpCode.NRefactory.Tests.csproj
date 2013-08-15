@@ -477,6 +477,7 @@
     <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\ChangeAccessModifierTests.cs" />
     <Compile Include="CSharp\CodeActions\AbstractAndVirtualConversionActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantToStringCallForValueTypesIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
