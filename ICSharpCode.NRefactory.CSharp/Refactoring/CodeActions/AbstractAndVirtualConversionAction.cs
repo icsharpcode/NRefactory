@@ -56,6 +56,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return throwStatement;
 		}
 
+		static bool CheckBody(EntityDeclaration node)
+		{
+			var custom = node as CustomEventDeclaration;
+			if (custom != null && !(IsValidBody (custom.AddAccessor.Body) || IsValidBody (custom.RemoveAccessor.Body)))
+			    return false;
+			if (node is PropertyDeclaration || node is IndexerDeclaration) {
+				var setter = node.GetChildByRole(PropertyDeclaration.SetterRole);
+				var getter = node.GetChildByRole(PropertyDeclaration.GetterRole);
+				return IsValidBody(setter.Body) && IsValidBody(getter.Body);
+			} 
+			return IsValidBody(node.GetChildByRole(Roles.Body));
+		}
+
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var node = context.GetNode<EntityDeclaration>();
@@ -100,17 +113,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							script.Select(throwStmt); 
 					}, selectedNode);
 				} else {
-					if (custom != null && (IsInvalidBody (custom.AddAccessor.Body) || IsInvalidBody (custom.RemoveAccessor.Body)))
-						yield break;
-
-					yield return new CodeAction(context.TranslateString("To abstract"), script => {
-						var newNode = CloneNodeWithoutBodies(node);
-						newNode.Modifiers &= ~Modifiers.Virtual;
-						newNode.Modifiers &= ~Modifiers.Static;
-						newNode.Modifiers |= Modifiers.Abstract;
-						script.Replace(node, newNode);
-					}, selectedNode);
-
+					if (CheckBody(node)) {
+						yield return new CodeAction(context.TranslateString("To abstract"), script => {
+							var newNode = CloneNodeWithoutBodies(node);
+							newNode.Modifiers &= ~Modifiers.Virtual;
+							newNode.Modifiers &= ~Modifiers.Static;
+							newNode.Modifiers |= Modifiers.Abstract;
+							script.Replace(node, newNode);
+						}, selectedNode);
+					}
 				}
 			}
 
@@ -171,7 +182,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return newNode;
 		}
 
-		static bool IsInvalidBody(BlockStatement body)
+		static bool IsValidBody(BlockStatement body)
 		{
 			if (body.IsNull)
 				return true;
@@ -180,7 +191,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return true;
 			if (first.GetNextSibling(s => s.Role == BlockStatement.StatementRole) != null)
 				return false;
-			return !(first is EmptyStatement || first is ThrowStatement);
+			return first is EmptyStatement || first is ThrowStatement;
 		}
 	}
 }

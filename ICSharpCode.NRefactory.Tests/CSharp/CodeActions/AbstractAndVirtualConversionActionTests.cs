@@ -268,6 +268,21 @@ class Test
 }");
 		}
 
+		[Test]
+		public void InvalidMethodTest()
+		{
+			var actions = GetActions<AbstractAndVirtualConversionAction>(
+				@"using System;
+abstract class Test
+{
+	public virtual string $ToString()
+	{
+		Console.WriteLine (""Hello World"");
+	}
+}");
+			// only virtual -> non virtual should be provided - no abstract conversion
+			Assert.AreEqual(1, actions.Count); 
+		}
 
 	}
 }

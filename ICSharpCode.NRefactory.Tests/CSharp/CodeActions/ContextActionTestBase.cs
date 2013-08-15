@@ -31,6 +31,7 @@ using System.Threading;
 using System.Linq;
 using System.Text;
 using ICSharpCode.NRefactory;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
@@ -111,7 +112,14 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				Console.WriteLine ("invalid node is:" + context.GetNode ());
 			Assert.IsTrue (!isValid, action.GetType () + " shouldn't be valid there.");
 		}
-		
+
+		protected List<CodeAction> GetActions<T> (string input) where T : CodeActionProvider, new ()
+		{
+			var ctx = TestRefactoringContext.Create(input);
+			ctx.FormattingOptions = formattingOptions;
+			return new T().GetActions(ctx).ToList();
+		}
+
 		protected void TestActionDescriptions (CodeActionProvider provider, string input, params string[] expected)
 		{
 			var ctx = TestRefactoringContext.Create(input);
