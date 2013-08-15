@@ -647,6 +647,7 @@ class TestClass
 		int? x = 1;
 		int? y = 1;
 		try {
+			x = 2;
 			x = null;
 		} finally {
 			y = null;
@@ -662,10 +663,12 @@ class TestClass
 			var tryFinally = (TryCatchStatement) method.Body.Statements.Last();
 			var finallyStatement = tryFinally.FinallyBlock.Statements.Single();
 
-			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusBeforeStatement(finallyStatement, "x"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(finallyStatement, "x"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(finallyStatement, "y"));
-			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(finallyStatement, "x"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(finallyStatement, "x"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(finallyStatement, "y"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(tryFinally, "x"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(tryFinally, "y"));
 		}
 
 		[Test]
@@ -699,6 +702,44 @@ class TestClass
 			//Make sure it's not unreachable
 			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(finallyStatement, "x"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(finallyStatement, "y"));
+		}
+
+		[Test]
+		public void TestTryCatch()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int? x = 1;
+		int? y = 2;
+		int? z = 3;
+		try {
+			x = null;
+		} catch (Exception e) {
+			x = null;
+			y = 3;
+			z = null;
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var tryCatch = (TryCatchStatement) method.Body.Statements.Last();
+			var catchStatement = tryCatch.CatchClauses.First().Body.Statements.First();
+
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusBeforeStatement(catchStatement, "x"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(catchStatement, "e"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(tryCatch, "x"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(tryCatch, "y"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(tryCatch, "z"));
 		}
 	}
 }

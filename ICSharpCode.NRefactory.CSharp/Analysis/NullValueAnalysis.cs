@@ -41,59 +41,6 @@ using ICSharpCode.NRefactory.Utils;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
-	/// <summary>
-	/// Represents the null value status of a variable at a specific location.
-	/// </summary>
-	public enum NullValueStatus
-	{
-		/// <summary>
-		/// The value of the variable is unknown, possibly due to limitations
-		/// of the null value analysis.
-		/// </summary>
-		Unknown = 0,
-		/// <summary>
-		/// The value of the variable is unknown and even assigning it to a
-		/// value won't change its state, since it has been captured by a lambda
-		/// that may change it at any time (potentially even from a different thread).
-		/// Only going out of scope and creating a new variable may change the value
-		/// of this variable.
-		/// </summary>
-		CapturedUnknown,
-		/// <summary>
-		/// This variable is potentially unassigned.
-		/// </summary>
-		Unassigned,
-		/// <summary>
-		/// The value of the variable is provably null.
-		/// </summary>
-		DefinitelyNull,
-		/// <summary>
-		/// The value of the variable might or might not be null
-		/// </summary>
-		PotentiallyNull,
-		/// <summary>
-		/// The value of the variable is provably not null
-		/// </summary>
-		DefinitelyNotNull,
-		/// <summary>
-		/// The position of this node is unreachable, therefore the value
-		/// of the variable is not meaningful.
-		/// </summary>
-		UnreachablePosition,
-		/// <summary>
-		/// The analyser has encountered an error when attempting to find the value
-		/// of this variable.
-		/// </summary>
-		Error
-	}
-
-	public static class NullValueStatusExtensions
-	{
-		public static bool IsDefiniteValue (this NullValueStatus self) {
-			return self == NullValueStatus.DefinitelyNull || self == NullValueStatus.DefinitelyNotNull;
-		}
-	}
-
 	public class NullValueAnalysis
 	{
 		sealed class VariableStatusInfo : IEquatable<VariableStatusInfo>, IEnumerable<KeyValuePair<string, NullValueStatus>>
@@ -272,10 +219,46 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			}
 		}
 
+		class PendingNode : IEquatable<PendingNode> {
+			internal readonly NullAnalysisNode nodeToVisit;
+			internal readonly VariableStatusInfo statusInfo;
+			internal readonly ComparableList<NullAnalysisNode> pendingTryFinallyNodes;
+			internal readonly NullAnalysisNode nodeAfterFinally;
+
+			internal PendingNode(NullAnalysisNode nodeToVisit, VariableStatusInfo statusInfo)
+				: this(nodeToVisit, statusInfo, new ComparableList<NullAnalysisNode>(), null)
+			{
+			}
+
+			public PendingNode(NullAnalysisNode nodeToVisit, VariableStatusInfo statusInfo, ComparableList<NullAnalysisNode> pendingFinallyNodes, NullAnalysisNode nodeAfterFinally)
+			{
+				this.nodeToVisit = nodeToVisit;
+				this.statusInfo = statusInfo;
+				this.pendingTryFinallyNodes = pendingFinallyNodes;
+				this.nodeAfterFinally = nodeAfterFinally;
+			}
+
+			public override bool Equals(object obj)
+			{
+				return Equals(obj as PendingNode);
+			}
+
+			public bool Equals(PendingNode obj) {
+				if (obj == null) return false;
+
+				if (nodeToVisit != obj.nodeToVisit) return false;
+				if (statusInfo != obj.statusInfo) return false;
+				if (pendingTryFinallyNodes != obj.pendingTryFinallyNodes) return false;
+				if (nodeAfterFinally != obj.nodeAfterFinally) return false;
+
+				return true;
+			}
+		}
+
 		BaseRefactoringContext context;
 		readonly NullAnalysisVisitor visitor;
 		List<NullAnalysisNode> allNodes;
-		HashSet<Tuple<NullAnalysisNode, VariableStatusInfo, ComparableList<NullAnalysisNode>>> nodesToVisit = new HashSet<Tuple<NullAnalysisNode, VariableStatusInfo, ComparableList<NullAnalysisNode>>>();
+		HashSet<PendingNode> nodesToVisit = new HashSet<PendingNode>();
 		Dictionary<Statement, NullAnalysisNode> nodeBeforeStatementDict;
 		Dictionary<Statement, NullAnalysisNode> nodeAfterStatementDict;
 		Dictionary<Expression, NullValueStatus> expressionResult = new Dictionary<Expression, NullValueStatus>();
@@ -321,7 +304,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				node.VariableState [name] = GetInitialVariableStatus(resolveResult);
 			}
 
-			nodesToVisit.Add(Tuple.Create(node, node.VariableState, new ComparableList<NullAnalysisNode>()));
+			nodesToVisit.Add(new PendingNode(node, node.VariableState));
 		}
 
 		static bool IsTypeNullable(IType type)
@@ -345,15 +328,18 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		void VisitNodes()
 		{
 			while (nodesToVisit.Any()) {
-				var tuple = nodesToVisit.First();
-				nodesToVisit.Remove(tuple);
+				var nodeToVisit = nodesToVisit.First();
+				nodesToVisit.Remove(nodeToVisit);
 
-				Visit(tuple.Item1, tuple.Item2, tuple.Item3);
+				Visit(nodeToVisit);
 			}
 		}
 
-		void Visit(NullAnalysisNode node, VariableStatusInfo statusInfo, ComparableList<NullAnalysisNode> pendingNodes)
+		void Visit(PendingNode nodeInfo)
 		{
+			var node = nodeInfo.nodeToVisit;
+			var statusInfo = nodeInfo.statusInfo;
+
 			var nextStatement = node.NextStatement;
 			VariableStatusInfo outgoingStatusInfo = statusInfo;
 			VisitorResult result = null;
@@ -365,30 +351,97 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				outgoingStatusInfo = result.Variables;
 			}
 
-			foreach (var outgoingEdge in node.Outgoing) {
-				var edgeInfo = outgoingStatusInfo.Clone();
-				if (result != null) {
-					switch (outgoingEdge.Type) {
-						case ControlFlowEdgeType.ConditionTrue:
-							if (result.KnownBoolResult == false) {
-								//No need to explore this path -- expression is known to be false
-								continue;
+			if (node.Outgoing.Any()) {
+				var tryFinallyStatement = nextStatement as TryCatchStatement;
+
+				foreach (var outgoingEdge in node.Outgoing) {
+					VariableStatusInfo edgeInfo;
+					edgeInfo = outgoingStatusInfo.Clone();
+
+					if (tryFinallyStatement != null) {
+						//With the exception of try statements, this needs special handling:
+						//we'll set all changed variables to Unknown or CapturedUnknown
+						if (outgoingEdge.To.NextStatement == tryFinallyStatement.FinallyBlock) {
+							foreach (var identifierExpression in tryFinallyStatement.TryBlock.Descendants.OfType<IdentifierExpression>()) {
+								//TODO: Needs improvements (resolve and CaptureUnknown)
+								edgeInfo [identifierExpression.Identifier] = NullValueStatus.Unknown;
 							}
-							edgeInfo = result.TruePathVariables;
-							break;
-						case ControlFlowEdgeType.ConditionFalse:
-							if (result.KnownBoolResult == true) {
-								//No need to explore this path -- expression is known to be true
-								continue;
+						} else {
+							var clause = tryFinallyStatement.CatchClauses
+								.FirstOrDefault(candidateClause => candidateClause.Body == outgoingEdge.To.NextStatement);
+
+							if (clause != null) {
+								edgeInfo [clause.VariableName] = NullValueStatus.DefinitelyNotNull;
+
+								foreach (var identifierExpression in tryFinallyStatement.TryBlock.Descendants.OfType<IdentifierExpression>()) {
+									//TODO: Needs improvements (resolve and CaptureUnknown)
+									edgeInfo [identifierExpression.Identifier] = NullValueStatus.Unknown;
+								}
 							}
-							edgeInfo = result.FalsePathVariables;
-							break;
+						}
+					}
+
+					if (result != null) {
+						switch (outgoingEdge.Type) {
+							case ControlFlowEdgeType.ConditionTrue:
+								if (result.KnownBoolResult == false) {
+									//No need to explore this path -- expression is known to be false
+									continue;
+								}
+								edgeInfo = result.TruePathVariables;
+								break;
+							case ControlFlowEdgeType.ConditionFalse:
+								if (result.KnownBoolResult == true) {
+									//No need to explore this path -- expression is known to be true
+									continue;
+								}
+								edgeInfo = result.FalsePathVariables;
+								break;
+						}
+					}
+
+					if (outgoingEdge.IsLeavingTryFinally) {
+						var nodeAfterFinally = (NullAnalysisNode)outgoingEdge.To;
+						var finallyNodes = outgoingEdge.TryFinallyStatements.Select(tryFinally => nodeBeforeStatementDict [tryFinally.FinallyBlock]);
+						var nextNode = finallyNodes.First();
+						var remainingFinallyNodes = new ComparableList<NullAnalysisNode>(finallyNodes.Skip(1));
+						//We have to visit the node even if ReceiveIncoming returns false
+						//since the finallyNodes/nodeAfterFinally might be different even if the values of variables are the same -- and they need to be visited either way!
+						//TODO 1: Is there any point in visiting the finally statement here?
+						//TODO 2: Do we need the ReceiveIncoming at all?
+						nextNode.ReceiveIncoming(edgeInfo);
+						nodesToVisit.Add(new PendingNode(nextNode, edgeInfo, remainingFinallyNodes, nodeAfterFinally));
+					} else {
+						var outgoingNode = (NullAnalysisNode)outgoingEdge.To;
+						if (outgoingNode.ReceiveIncoming(edgeInfo)) {
+							nodesToVisit.Add(new PendingNode(outgoingNode, edgeInfo));
+						}
 					}
 				}
+			} else {
+				//We found a return/
+				var finallyBlockStarts = nodeInfo.pendingTryFinallyNodes;
+				var nodeAfterFinally = nodeInfo.nodeAfterFinally;
 
-				var outgoingNode = (NullAnalysisNode) outgoingEdge.To;
-				if (outgoingNode.ReceiveIncoming(edgeInfo)) {
-					nodesToVisit.Add(Tuple.Create(outgoingNode, edgeInfo, new ComparableList<NullAnalysisNode>()));
+				if (finallyBlockStarts.Any()) {
+					var nextNode = finallyBlockStarts.First();
+					if (nextNode.ReceiveIncoming(outgoingStatusInfo))
+						nodesToVisit.Add(new PendingNode(nextNode, outgoingStatusInfo, new ComparableList<NullAnalysisNode>(finallyBlockStarts.Skip(1)), nodeInfo.nodeAfterFinally));
+				} else if (nodeAfterFinally != null && nodeAfterFinally.ReceiveIncoming(outgoingStatusInfo)) {
+					nodesToVisit.Add(new PendingNode(nodeAfterFinally, outgoingStatusInfo));
+				} else {
+					//Maybe we finished a try/catch/finally statement the "normal" way (no direct jumps)
+					//so let's check that case
+					var previousStatement = node.PreviousStatement;
+					Debug.Assert(previousStatement != null);
+					var parent = previousStatement.GetParent<Statement>();
+					var parentTryCatch = parent as TryCatchStatement;
+					if (parentTryCatch != null) {
+						var nextNode = nodeAfterStatementDict [parentTryCatch];
+						if (nextNode.ReceiveIncoming(outgoingStatusInfo)) {
+							nodesToVisit.Add(new PendingNode(nextNode, outgoingStatusInfo));
+						}
+					}
 				}
 			}
 		}
@@ -675,6 +728,13 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (returnStatement.Expression.IsNull)
 					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 				return returnStatement.Expression.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitTryCatchStatement(TryCatchStatement tryCatchStatement, VariableStatusInfo data)
+			{
+				//The only special treatment this needs is to ensure exceptions are considered properly.
+				//That will be dealt with in the actual analysis class.
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
 
 			void RegisterExpressionResult(Expression expression, NullValueStatus expressionResult)
