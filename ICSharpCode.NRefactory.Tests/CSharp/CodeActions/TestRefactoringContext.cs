@@ -117,12 +117,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				return tcs.Task;
 			}
 
-			public override Task<Script> InsertWithCursor (string operation, ITypeDefinition parentType, IEnumerable<AstNode> nodes)
+			public override Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, IEnumerable<AstNode>> nodeCallback)
 			{
 				var unit = context.RootNode;
 				var insertType = unit.GetNodeAt<TypeDeclaration> (parentType.Region.Begin);
 
 				var startOffset = GetCurrentOffset (insertType.LBraceToken.EndLocation);
+				var nodes = nodeCallback(this, context);
 				foreach (var node in nodes.Reverse ()) {
 					var output = OutputNode (1, node, true);
 					if (parentType.Kind == TypeKind.Enum) {

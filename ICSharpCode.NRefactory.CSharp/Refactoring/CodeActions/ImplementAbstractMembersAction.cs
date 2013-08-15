@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				script.InsertWithCursor(
 					context.TranslateString("Implement abstract members"),
 					state.CurrentTypeDefinition,
-					ImplementInterfaceAction.GenerateImplementation (context, toImplement.Select (m => Tuple.Create (m, false))).Select (entity => {
+					(s, c) => ImplementInterfaceAction.GenerateImplementation (c, toImplement.Select (m => Tuple.Create (m, false))).Select (entity => {
 						var decl = entity as EntityDeclaration;
 						if (decl != null)
 							decl.Modifiers |= Modifiers.Override;

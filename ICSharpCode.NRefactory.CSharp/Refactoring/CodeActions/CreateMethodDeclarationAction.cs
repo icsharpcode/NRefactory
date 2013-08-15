@@ -193,7 +193,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		static CodeAction CreateAction(RefactoringContext context, AstNode createFromNode, string methodName, AstType returnType, IEnumerable<ParameterDeclaration> parameters, bool createInOtherType, bool isStatic, ResolveResult targetResolveResult)
 		{
 			return new CodeAction(context.TranslateString("Create method"), script => {
-				var throwStatement = new ThrowStatement(new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException")));
+				var throwStatement = new ThrowStatement();
 				var decl = new MethodDeclaration {
 					ReturnType = returnType,
 					Name = methodName,
@@ -215,14 +215,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 
 					script
-						.InsertWithCursor(context.TranslateString("Create method"), targetResolveResult.Type.GetDefinition(), decl)
+						.InsertWithCursor(context.TranslateString("Create method"), targetResolveResult.Type.GetDefinition(), (s, c) => {
+							throwStatement.Expression = new ObjectCreateExpression(c.CreateShortType("System", "NotImplementedException"));
+							return decl;
+						})
 						.ContinueScript (s => s.Select(throwStatement));
 					return;
 				}
 
 				script
 					.InsertWithCursor(context.TranslateString("Create method"), Script.InsertPosition.Before, decl)
-						.ContinueScript (() => script.Select(throwStatement));
+					.ContinueScript (() => script.Select(throwStatement));
 			}, createFromNode.GetNodeAt(context.Location));
 		}
 

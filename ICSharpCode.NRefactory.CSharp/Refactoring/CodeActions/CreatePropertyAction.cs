@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					script.InsertWithCursor(
 						context.TranslateString("Create property"),
 						targetResolveResult.Type.GetDefinition(),
-						decl);
+						(s, c) => decl);
 
 					return;
 				}

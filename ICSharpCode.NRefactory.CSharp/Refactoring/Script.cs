@@ -354,7 +354,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			throw new NotImplementedException();
 		}
 		
-		public virtual Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, IEnumerable<AstNode> node)
+		public virtual Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, IEnumerable<AstNode>> nodeCallback)
 		{
 			throw new NotImplementedException();
 		}
@@ -363,10 +363,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			return InsertWithCursor(operation, defaultPosition, (IEnumerable<AstNode>)nodes);
 		}
-		
-		public Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, params AstNode[] nodes)
+
+		public Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, AstNode> nodeCallback)
 		{
-			return InsertWithCursor(operation, parentType, (IEnumerable<AstNode>)nodes);
+			return InsertWithCursor(operation, parentType, (Func<Script, RefactoringContext, IEnumerable<AstNode>>)delegate (Script s, RefactoringContext ctx) {
+				return new AstNode[] { nodeCallback(s, ctx) };
+			});
 		}
 		
 		protected virtual int GetIndentLevelAt (int offset)
