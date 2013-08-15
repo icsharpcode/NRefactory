@@ -75,8 +75,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		
 		void MarkReachable(ControlFlowNode node)
 		{
-			if (node.PreviousStatement != null)
+			if (node.PreviousStatement != null) {
+				if (node.PreviousStatement is LabelStatement) {
+					reachableStatements.Add(node.PreviousStatement);
+				}
 				reachableEndPoints.Add(node.PreviousStatement);
+			}
 			if (node.NextStatement != null) {
 				reachableStatements.Add(node.NextStatement);
 				if (IsRecursive(node.NextStatement)) {
