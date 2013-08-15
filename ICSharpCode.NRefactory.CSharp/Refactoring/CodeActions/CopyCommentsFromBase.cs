@@ -41,6 +41,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			if (node == null || !node.HasModifier(Modifiers.Override))
 				return null;
+			if (!node.NameToken.Contains(context.Location))
+				return null;
 			
 			IMethod resolvedMember = (IMethod)(context.Resolve(node) as MemberResolveResult).Member;
 			
@@ -61,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (string co in lines) {
 					script.InsertBefore(node, new Comment(co, CommentType.Documentation));
 				}
-			}, node);
+			}, node.NameToken);
 		}
 	}
 }
