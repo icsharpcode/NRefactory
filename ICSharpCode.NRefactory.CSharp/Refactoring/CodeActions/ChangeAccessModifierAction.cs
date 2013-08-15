@@ -27,6 +27,8 @@ using ICSharpCode.NRefactory.CSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.Semantics;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -68,16 +70,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			}
 
-			var methodDeclaration = node as MethodDeclaration;
-			if (methodDeclaration != null && !methodDeclaration.PrivateImplementationType.IsNull) {
-				//Explictly implemented methods have no access modifiers
-				yield break;
-			}
-
-			var propertyDeclaration = node as PropertyDeclaration;
-			if (propertyDeclaration != null && !propertyDeclaration.PrivateImplementationType.IsNull) {
-				//Explictly implemented properties have no access modifiers
-				yield break;
+			var resolveResult = context.Resolve(node) as MemberResolveResult;
+			if (resolveResult != null) {
+				if (resolveResult.Member.ImplementedInterfaceMembers.Any())
+					yield break;
 			}
 
 			var nodeAccess = node.Modifiers & Modifiers.VisibilityMask;

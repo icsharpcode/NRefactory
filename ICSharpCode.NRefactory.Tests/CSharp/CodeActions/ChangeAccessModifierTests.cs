@@ -177,6 +177,21 @@ class Test
 	public $void Foo () {}
 }");
 		}
+
+		[Test]
+		public void TestMethodImplementingInterface()
+		{
+			TestWrongContext<ChangeAccessModifierAction>(@"using System;
+
+class BaseClass : IDisposable
+{
+	public void $Dispose()
+	{
+	}
+}");
+		}
+
+
 	}
 }
 
