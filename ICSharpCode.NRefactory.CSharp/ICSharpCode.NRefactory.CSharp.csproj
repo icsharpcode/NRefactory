@@ -575,7 +575,6 @@
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\FunctionNeverReturnsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\BitwiseOperatorOnEnumWithoutFlagsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs" />
-<<<<<<< HEAD
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeIssue.cs" />
     <Compile Include="PatternMatching\AnyType.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeAny.cs" />
