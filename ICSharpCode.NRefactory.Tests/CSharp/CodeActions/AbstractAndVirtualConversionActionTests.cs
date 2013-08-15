@@ -132,7 +132,7 @@ class Test : IDisposable
 	}
 }");
 		}
-	
+
 		[Test]
 		public void AbstractToNonAbstractTest()
 		{
@@ -253,6 +253,21 @@ class Test
 	}
 }");
 		}
+
+
+		[Test]
+		public void InvalidOverrideTest()
+		{
+			TestWrongContext<AbstractAndVirtualConversionAction>(
+				@"using System;
+class Test
+{
+	public override string $ToString()
+	{
+	}
+}");
+		}
+
 
 	}
 }

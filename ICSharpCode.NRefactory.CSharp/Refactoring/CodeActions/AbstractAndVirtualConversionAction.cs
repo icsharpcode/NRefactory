@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var node = context.GetNode<EntityDeclaration>();
-			if (node == null)
+			if (node == null || node.HasModifier(Modifiers.Override))
 				yield break;
 
 			var parent = node.Parent as TypeDeclaration;
