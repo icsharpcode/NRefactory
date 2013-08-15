@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 	[TestFixture]
 	public class InvertLogicalExpressionTests : ContextActionTestBase
 	{
-		[Test()]
+		[Test]
 		public void ConditionlAnd()
 		{
 			Test<InvertLogicalExpressionAction>(@"
@@ -56,7 +56,7 @@ class TestClass
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void ConditionlAnd2()
 		{
 			Test<InvertLogicalExpressionAction>(@"
@@ -81,7 +81,7 @@ class TestClass
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void ConditionlOr()
 		{
 			Test<InvertLogicalExpressionAction>(@"

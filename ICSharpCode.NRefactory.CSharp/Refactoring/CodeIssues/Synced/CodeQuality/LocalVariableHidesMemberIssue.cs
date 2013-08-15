@@ -113,13 +113,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			IMember[] members;
 			Tuple<IType, string> key = Tuple.Create(type, variableName);
 			if (!memberCache.TryGetValue (key, out members)) {
-				List<IMember> am;
-				if (!allMembers.TryGetValue (type, out am)) {
-					am = new List<IMember>(type.GetMembers());
-					allMembers.Add(type, am);
+				lock (memberCache) {
+					if (!memberCache.TryGetValue(key, out members)) {
+						List<IMember> am;
+						if (!allMembers.TryGetValue(type, out am)) {
+							lock (allMembers) {
+								if (!allMembers.TryGetValue(type, out am)) {
+									am = new List<IMember>(type.GetMembers());
+									allMembers [type] = am;
+								}
+							}
+						}
+						members = am.Where(m => m.Name == variableName).ToArray();
+						memberCache.Add(key, members);
+					}
 				}
-				members = am.Where(m => m.Name == variableName).ToArray();
-				memberCache.Add(key, members);
 			}
 			return members;
 		}
@@ -137,8 +145,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			MemberCollectionService mcs = (MemberCollectionService)ctx.GetService(typeof(MemberCollectionService));
 			if (mcs == null) {
-				mcs = new MemberCollectionService();
-				ctx.Services.AddService(typeof(MemberCollectionService), mcs);
+				lock (ctx) {
+					if ((mcs = (MemberCollectionService)ctx.GetService(typeof(MemberCollectionService))) == null) {
+						mcs = new MemberCollectionService();
+						ctx.Services.AddService(typeof(MemberCollectionService), mcs);
+					}
+				}
 			}
 
 			var typeDecl = node.GetParent<TypeDeclaration>();
