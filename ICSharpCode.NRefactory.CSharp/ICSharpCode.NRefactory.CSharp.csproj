@@ -590,9 +590,11 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\ConstantNullCoalescingConditionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantArrayCreationExpressionIssue.cs" />
+    <Compile Include="Analysis\NullValueAnalysis.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicatedLinqToListOrArrayIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DelegateParametersAreUnusedIssue.cs" />
     <Compile Include="Refactoring\CodeActions\InvertLogicalExpressionAction.cs" />
+    <Compile Include="Analysis\NullValueStatus.cs" />
     <Compile Include="Refactoring\CodeActions\ChangeAccessModifierAction.cs" />
     <Compile Include="Refactoring\CodeActions\AbstractAndVirtualConversionAction.cs" />
     <Compile Include="Refactoring\CodeIssues\NotWorking\DuplicateExpressionsInConditionsIssue.cs" />
