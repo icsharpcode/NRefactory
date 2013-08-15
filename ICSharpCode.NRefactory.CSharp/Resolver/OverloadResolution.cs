@@ -523,10 +523,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					return false;
 			}
 			foreach (IType constraintType in typeParameter.DirectBaseTypes) {
-				IType c = constraintType;
-				if (substitution != null)
-					c = c.AcceptVisitor(substitution);
-				if (!conversions.IsConstraintConvertible(typeArgument, c))
+				if (!conversions.IsConstraintConvertible(typeArgument, constraintType))
 					return false;
 			}
 			return true;
