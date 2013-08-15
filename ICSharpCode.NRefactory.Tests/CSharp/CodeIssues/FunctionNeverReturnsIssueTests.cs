@@ -135,6 +135,20 @@ class TestClass
 		}
 
 		[Test]
+		public void TestVirtualNonRecursive ()
+		{
+			var input = @"
+class Base
+{
+	public Base parent;
+	public virtual string Result {
+		get { return parent.Result; }
+	}
+}";
+			Test<FunctionNeverReturnsIssue> (input, 0);
+		}
+
+		[Test]
 		public void TestNonRecursiveProperty ()
 		{
 			var input = @"
