@@ -595,6 +595,7 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DelegateParametersAreUnusedIssue.cs" />
     <Compile Include="Refactoring\CodeActions\InvertLogicalExpressionAction.cs" />
     <Compile Include="Refactoring\CodeActions\ChangeAccessModifierAction.cs" />
+    <Compile Include="Refactoring\CodeActions\AbstractAndVirtualConversionAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
