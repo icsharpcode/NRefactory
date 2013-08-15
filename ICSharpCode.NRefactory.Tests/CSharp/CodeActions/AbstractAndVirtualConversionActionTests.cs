@@ -223,6 +223,21 @@ abstract class Test
 }");
 		}
 
+
+		[Test]
+		public void InvalidLocalContext()
+		{
+			TestWrongContext<AbstractAndVirtualConversionAction>(
+				@"using System;
+class Test
+{
+	public static void Main (string[] args)
+	{
+		int $fooBar = 1;
+	}
+}");
+		}
+
 	}
 }
 

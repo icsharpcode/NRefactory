@@ -76,6 +76,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var modToken = selectedNode as CSharpModifierToken;
 					if (modToken == null || (modToken.Modifier & (Modifiers.Abstract | Modifiers.Virtual)) == 0)
 						yield break;
+				} else {
+					if (!(node is EventDeclaration || node is CustomEventDeclaration) && selectedNode.Parent != node)
+						yield break;
 				}
 			}
 			if (!node.GetChildByRole(EntityDeclaration.PrivateImplementationTypeRole).IsNull)
