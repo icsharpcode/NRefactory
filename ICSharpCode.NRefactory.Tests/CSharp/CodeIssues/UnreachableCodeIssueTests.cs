@@ -65,6 +65,21 @@ class TestClass
 		}
 
 		[Test]
+		public void TestRedundantGoto ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		goto Foo; Foo:
+		int a = 1;
+	}
+}";
+			TestWrongContext<UnreachableCodeIssue> (input);
+		}
+
+		[Test]
 		public void TestContinue ()
 		{
 			var input = @"

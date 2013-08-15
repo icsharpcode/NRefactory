@@ -137,7 +137,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				bool AddStatement(Statement statement)
 				{
-					if (reachability.IsReachable (statement))
+					if (reachability.IsReachable(statement))
 						return false;
 					if (collectedStatements.Contains (statement))
 						return true;
@@ -147,8 +147,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var start = statement.StartLocation;
 					collectedStatements.Add (statement);
 					visitor.unreachableNodes.Add (statement);
-					while (statement.GetNextSibling (s => s is Statement) != null) {
-						statement = (Statement)statement.GetNextSibling (s => s is Statement);
+					Statement nextStatement;
+					while ((nextStatement = (Statement)statement.GetNextSibling (s => s is Statement)) != null && !(nextStatement is LabelStatement)) {
+						statement = nextStatement;
 						collectedStatements.Add (statement);
 						visitor.unreachableNodes.Add (statement);
 					}
