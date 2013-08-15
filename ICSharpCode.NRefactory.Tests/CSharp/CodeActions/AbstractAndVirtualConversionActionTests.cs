@@ -50,6 +50,44 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		}
 
 		[Test]
+		public void VirtualToAbstractTest()
+		{
+			Test<AbstractAndVirtualConversionAction>(
+				@"abstract class Test
+{
+	public $virtual void Foo ()
+	{
+	}
+}", @"abstract class Test
+{
+	public abstract void Foo ();
+}");
+		}
+
+
+		[Test]
+		public void VirtualIndexerToAbstractTest()
+		{
+			Test<AbstractAndVirtualConversionAction>(
+				@"abstract class MainClass
+{
+	public virtual int $this [int i] {
+		get {
+			;
+		}
+	}
+}", @"abstract class MainClass
+{
+	public abstract int this [int i] {
+		get;
+	}
+}");
+		}
+
+
+
+
+		[Test]
 		public void NonVirtualToVirtualTest()
 		{
 			Test<AbstractAndVirtualConversionAction>(

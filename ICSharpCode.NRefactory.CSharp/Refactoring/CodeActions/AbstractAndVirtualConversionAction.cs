@@ -71,7 +71,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			var selectedNode = node.GetNodeAt(context.Location);
 			if (selectedNode != node.NameToken) {
-				if (node is EventDeclaration && node is CustomEventDeclaration || selectedNode.Role != Roles.Identifier) {
+				if ((node is EventDeclaration && node is CustomEventDeclaration || selectedNode.Role != Roles.Identifier) && 
+				    selectedNode.Role != IndexerDeclaration.ThisKeywordRole) {
 					var modToken = selectedNode as CSharpModifierToken;
 					if (modToken == null || (modToken.Modifier & (Modifiers.Abstract | Modifiers.Virtual)) == 0)
 						yield break;
@@ -94,6 +95,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					yield return new CodeAction(context.TranslateString("To abstract"), script => {
 						var newNode = CloneNodeWithoutBodies(node);
+						newNode.Modifiers &= ~Modifiers.Virtual;
 						newNode.Modifiers |= Modifiers.Abstract;
 						script.Replace(node, newNode);
 					}, node);
@@ -130,7 +132,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			if (custom == null) {
 				newNode = (EntityDeclaration)node.Clone();
-				newNode.GetChildByRole(Roles.Body).Remove();
+
+				if (newNode is PropertyDeclaration || node is IndexerDeclaration) {
+					var getter = newNode.GetChildByRole(PropertyDeclaration.GetterRole);
+					if (!getter.IsNull)
+						getter.Body.Remove();
+					var setter = newNode.GetChildByRole(PropertyDeclaration.SetterRole);
+					if (!setter.IsNull)
+						setter.Body.Remove();
+				} else {
+					newNode.GetChildByRole(Roles.Body).Remove();
+				}
 			} else {
 				newNode = new EventDeclaration {
 					Modifiers = custom.Modifiers,
