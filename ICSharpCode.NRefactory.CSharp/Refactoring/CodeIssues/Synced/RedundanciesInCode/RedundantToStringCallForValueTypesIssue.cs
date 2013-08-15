@@ -1,10 +1,10 @@
 //
-// RedundantToStringCallIssue.cs
+// RedundantToStringCallForValueTypesIssue.cs
 //
 // Author:
-//       Simon Lindgren <simon.n.lindgren@gmail.com>
+//       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2012 Simon Lindgren
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,20 +34,19 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Redundant 'object.ToString()' call",
+	[IssueDescription("Redundant 'object.ToString()' call for value types",
 	                  Description = "Finds calls to ToString() which would be generated automatically by the compiler.",
 	                  Category = IssueCategories.RedundanciesInCode,
-	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantToStringCall")]
-	public class RedundantToStringCallIssue : GatherVisitorCodeIssueProvider
+	                  Severity = Severity.Hint,
+	                  IssueMarker = IssueMarker.GrayOut)]
+	public class RedundantToStringCallForValueTypesIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
-		
-		class GatherVisitor : GatherVisitorBase<RedundantToStringCallIssue>
+
+		class GatherVisitor : GatherVisitorBase<RedundantToStringCallForValueTypesIssue>
 		{
 			static Tuple<int, int> onlyFirst = Tuple.Create (0, 0);
 
@@ -57,12 +56,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				{ Tuple.Create("System.Console.Write", 1), onlyFirst },
 				{ Tuple.Create("System.Console.WriteLine", 1), onlyFirst }
 			};
-						
+
 			public GatherVisitor (BaseRefactoringContext context) : base (context)
 			{
 				binOpVisitor = new BinaryExpressionVisitor (this);
 			}
-			
+
 			HashSet<AstNode> processedNodes = new HashSet<AstNode>();
 
 			void CheckExpressionInAutoCallContext(Expression expression)
@@ -83,19 +82,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				var resolveResult = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-				if (resolveResult == null) {
+				if (resolveResult == null)
 					return;
-				}
-				if (ctx.Resolve(memberExpression.Target).Type.Kind != TypeKind.Struct) 
+				if (ctx.Resolve(memberExpression.Target).Type.Kind == TypeKind.Struct) 
 					AddRedundantToStringIssue(memberExpression, invocationExpression);
 			}
-			
+
 			void AddRedundantToStringIssue(MemberReferenceExpression memberExpression, InvocationExpression invocationExpression)
 			{
 				// Simon Lindgren 2012-09-14: Previously there was a check here to see if the node had already been processed
 				// This has been moved out to the callers, to check it earlier for a 30-40% run time reduction
 				processedNodes.Add(invocationExpression);
-				
+
 				AddIssue(memberExpression.DotToken.StartLocation, invocationExpression.RParToken.EndLocation,
 				         ctx.TranslateString("Redundant ToString() call"), 
 				         ctx.TranslateString("Remove redundant '.ToString()'"), script =>  {
@@ -153,7 +151,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						issue.CheckExpressionInAutoCallContext(expression);
 					}
 				}
-				
+
 				public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
 				{
 					Check(binaryOperatorExpression.Left);
@@ -176,9 +174,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				IMember member = invocationResolveResult.Member;
 
-				// "".ToString()
-                CheckTargetedObject(invocationExpression, invocationResolveResult.TargetResult.Type, member);
-
 				// Check list of members that call ToString() automatically
 				CheckAutomaticToStringCallers(invocationExpression, member);
 
@@ -186,16 +181,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				CheckFormattingCall(invocationExpression, invocationResolveResult);
 			}
 
-			void CheckTargetedObject(InvocationExpression invocationExpression, IType type, IMember member)
-			{
-				var memberExpression = invocationExpression.Target as MemberReferenceExpression;
-				if (memberExpression != null && !processedNodes.Contains(invocationExpression)) {
-					if (type.IsKnownType(KnownTypeCode.String) && member.Name == "ToString") {
-						AddRedundantToStringIssue(memberExpression, invocationExpression);
-					}
-				}
-			}
-			
 			void CheckAutomaticToStringCallers(InvocationExpression invocationExpression, IMember member)
 			{
 				if (member.IsOverride) {
@@ -227,7 +212,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					var typeDefinition = type.GetDefinition();
 					if (typeDefinition == null)
-						return false;
+					return false;
 					return typeDefinition.IsKnownType(KnownTypeCode.Object);
 				};
 				if (FormatStringHelper.TryGetFormattingParameters(invocationResolveResult, invocationExpression,

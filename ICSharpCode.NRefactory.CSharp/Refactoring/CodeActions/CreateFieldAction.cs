@@ -90,8 +90,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (isStatic)
 					decl.Modifiers |= Modifiers.Static;
 				script.InsertWithCursor(context.TranslateString("Create field"), Script.InsertPosition.Before, decl);
-			}, expr);
-
+			}, expr.GetNodeAt(context.Location));
 		}
 
 		#region Type guessing

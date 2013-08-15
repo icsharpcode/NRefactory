@@ -39,7 +39,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (pexpr == null)
 				yield break;
 			var statement = context.GetNode<Statement>();
-			if (statement == null) {
+			if (statement == null)
+				yield break;
+			var varDec = statement as VariableDeclarationStatement;
+			if (varDec != null && (varDec.Modifiers & Modifiers.Const) != 0) {
 				yield break;
 			}
 

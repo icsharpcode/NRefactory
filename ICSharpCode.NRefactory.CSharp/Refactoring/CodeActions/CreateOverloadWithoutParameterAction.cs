@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
+using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -80,10 +81,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					decl.Parameters.Remove (decl.Parameters.First (param => param.Name == node.Name));
 					decl.Body = body;
 
-					script.InsertWithCursor ("Create overload without parameter", Script.InsertPosition.Before, decl);
-
-					//if (node.ParameterModifier != ParameterModifier.Out)
-					//    script.Link (defaultExpr);
+					script
+						.InsertWithCursor ("Create overload without parameter", Script.InsertPosition.Before, decl)
+						.ContinueScript (() => script.Select(argExpr));
 				}, node.NameToken); 
 		}
 

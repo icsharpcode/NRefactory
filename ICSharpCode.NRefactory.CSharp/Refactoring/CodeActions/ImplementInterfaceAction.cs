@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				script.InsertWithCursor(
 					context.TranslateString("Implement Interface"),
 					state.CurrentTypeDefinition,
-					GenerateImplementation(context, toImplement)
+					(s, c) => GenerateImplementation(c, toImplement)
 				);
 			}, type);
 		}

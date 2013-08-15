@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (value is string || value is bool || value is float || value is double || value is char)
 				yield break;
 
-			yield return new CodeAction(context.TranslateString("Convert dec to hex"), script => {
+			yield return new CodeAction(context.TranslateString("Convert to hex"), script => {
 				script.Replace(pexpr, new PrimitiveExpression (value, string.Format("0x{0:x}", value)));
 			}, pexpr);
 		}

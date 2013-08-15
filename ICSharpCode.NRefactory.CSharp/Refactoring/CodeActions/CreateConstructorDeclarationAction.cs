@@ -43,19 +43,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 
 			yield return new CodeAction(context.TranslateString("Create constructor"), script => {
-				var decl = new ConstructorDeclaration() {
-					Name = resolveResult.Member.DeclaringTypeDefinition.Name,
-					Modifiers = Modifiers.Public,
-					Body = new BlockStatement() {
-						new ThrowStatement(new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException")))
-					}
-				};
-				decl.Parameters.AddRange(CreateMethodDeclarationAction.GenerateParameters(context, createExpression.Arguments));
-
 				script.InsertWithCursor(
 					context.TranslateString("Create constructor"),
 					resolveResult.Member.DeclaringTypeDefinition,
-					decl
+					(s, c) => {
+						var decl = new ConstructorDeclaration {
+							Name = resolveResult.Member.DeclaringTypeDefinition.Name,
+							Modifiers = Modifiers.Public,
+							Body = new BlockStatement {
+								new ThrowStatement(new ObjectCreateExpression(c.CreateShortType("System", "NotImplementedException")))
+							}
+						};
+						decl.Parameters.AddRange(CreateMethodDeclarationAction.GenerateParameters(c, createExpression.Arguments));
+						return decl;
+					}
 				);
 			}, createExpression);
 		}

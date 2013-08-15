@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						decl.Modifiers |= Modifiers.Public;
 					}
 
-					script.InsertWithCursor(context.TranslateString("Create indexer"), targetResolveResult.Type.GetDefinition(), decl);
+					script.InsertWithCursor(context.TranslateString("Create indexer"), targetResolveResult.Type.GetDefinition(), (s, c) => decl);
 					return;
 				}
 

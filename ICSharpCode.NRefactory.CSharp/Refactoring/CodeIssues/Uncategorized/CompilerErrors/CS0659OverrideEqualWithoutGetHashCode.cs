@@ -1,5 +1,5 @@
 // 
-// CS0029InvalidConversionIssue.cs
+// CS0659ClassOverrideEqualsWithoutGetHashCode.cs
 // 
 // Author:
 //      Ji Kun <jikun.nus@gmail.com>
@@ -62,12 +62,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				var method = (resolvedResult as MemberResolveResult).Member;
 
-				if (!method.Name.Equals("Equals")||! method.IsOverride)
+				if (!method.Name.Equals("Equals") || ! method.IsOverride)
 					return;
 
 				if (methodDeclaration.Parameters.Count != 1)
 					return;
-				//Debuger.WriteInFile((method as IMethod).Parameters.Single().Type.FullName);
+	
 				if (!(method as IMethod).Parameters.Single().Type.FullName.Equals("System.Object"))
 					return;
 
@@ -75,13 +75,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (classDeclration == null)
 					return;
 
-				var getHashCode = classDeclration.GetMethods(f => f.Name.Equals("GetHashCode"));
-				if (getHashCode != null && getHashCode.Count() != 0) {
-					var baseType = classDeclration.GetNonInterfaceBaseTypes().Where(f => f.FullName.Equals("System.Object")).Single().GetMethods(f => f.FullName.Equals("System.Object.GetHashCode")).Single();
-					//Debuger.WriteInFile(baseType.ToString());
+				List<IMethod> getHashCode = new List<IMethod>();
+				var methods = classDeclration.GetMethods();
+
+				foreach (var m in methods) {
+					if (m.Name.Equals("GetHashCode")) {
+						getHashCode.Add(m);
+					}
+				}
+
+				if (!getHashCode.Any()) {
 					AddIssue(ctx, methodDeclaration);
 					return;
-				} else if (getHashCode.Any(f => (f.IsOverride && f.ReturnType.Name.Equals("int")))) {
+				} else if (getHashCode.Any(f => (f.IsOverride && f.ReturnType.IsKnownType(KnownTypeCode.Int32)))) {
 					return;
 				}
 				AddIssue(ctx, methodDeclaration);
@@ -89,7 +95,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			private void AddIssue(BaseRefactoringContext ctx, AstNode node)
 			{
-
 				var getHashCode = new MethodDeclaration();
 				getHashCode.Name = "GetHashCode";
 				getHashCode.Modifiers = Modifiers.Public;
@@ -97,17 +102,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				getHashCode.ReturnType = new PrimitiveType("int");
 
 				var blockStatement = new BlockStatement();
-				var throwException = new ThrowStatement();
-
-				var astBuilder = ctx.CreateTypeSystemAstBuilder(node);
-				var exception = new ObjectCreateExpression(astBuilder.ConvertType(new FullTypeName("System.NotImplementedException")));
-				throwException.Expression = exception;
-				blockStatement.Add (throwException);
-				//blockStatement.AddChild(throwException, Roles.Expression);
+				var invocationExpression = new InvocationExpression(new MemberReferenceExpression(new BaseReferenceExpression(),"GetHashCode"));
+				var returnStatement = new ReturnStatement(invocationExpression);
+				blockStatement.Add(returnStatement);
 				getHashCode.Body = blockStatement;
 
 				AddIssue(
-					node, 
+					(node as MethodDeclaration).NameToken, 
 					ctx.TranslateString("If two objects are equal then they must both have the same hash code"),
 					new CodeAction(
 					ctx.TranslateString("Override GetHashCode"),
