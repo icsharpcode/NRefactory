@@ -33,6 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// </summary>
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 	
 	[ContextAction("Copy comments from interface", Description = "Copies documented comments from interface to implementing methods.")]
 	public class CopyCommentsFromInterface: SpecializedCodeAction <MethodDeclaration>
@@ -55,14 +56,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (interfaceMethods.Count != 1 || method.DeclaringType.Kind == TypeKind.Interface)
 				return null;
 			
-			var interfaceMethod = interfaceMethods[0];
-			
+			var interfaceMethod = interfaceMethods.SingleOrDefault();
+
+			if (interfaceMethod == null)
+				return null;
+
+			if (interfaceMethod.Documentation == null)
+				return null;
+
 			string comments = interfaceMethod.Documentation.ToString();
 			
 			if (comments == "")
 				return null;
 			
-			string[] lines = comments.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+			string[] lines = comments.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 			return new CodeAction(context.TranslateString("Copy comments from interface"), script =>
 			{
 				foreach (string co in lines) {
