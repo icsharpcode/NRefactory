@@ -37,6 +37,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.Utils;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -274,7 +275,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		BaseRefactoringContext context;
 		readonly NullAnalysisVisitor visitor;
 		List<NullAnalysisNode> allNodes;
-		HashSet<Tuple<NullAnalysisNode, VariableStatusInfo>> nodesToVisit = new HashSet<Tuple<NullAnalysisNode, VariableStatusInfo>>();
+		HashSet<Tuple<NullAnalysisNode, VariableStatusInfo, ComparableList<NullAnalysisNode>>> nodesToVisit = new HashSet<Tuple<NullAnalysisNode, VariableStatusInfo, ComparableList<NullAnalysisNode>>>();
 		Dictionary<Statement, NullAnalysisNode> nodeBeforeStatementDict;
 		Dictionary<Statement, NullAnalysisNode> nodeAfterStatementDict;
 		Dictionary<Expression, NullValueStatus> expressionResult = new Dictionary<Expression, NullValueStatus>();
@@ -296,6 +297,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			var cfgBuilder = new NullAnalysisGraphBuilder();
 			allNodes = cfgBuilder.BuildControlFlowGraph(rootStatement, cancellationToken).Cast<NullAnalysisNode>().ToList();
+			nodeBeforeStatementDict = allNodes.Where(node => node.Type == ControlFlowNodeType.StartNode || node.Type == ControlFlowNodeType.BetweenStatements)
+				.ToDictionary(node => node.NextStatement);
+			nodeAfterStatementDict = allNodes.Where(node => node.Type == ControlFlowNodeType.BetweenStatements || node.Type == ControlFlowNodeType.EndNode)
+				.ToDictionary(node => node.PreviousStatement);
+
 			foreach (var node in allNodes) {
 				if (node.Type == ControlFlowNodeType.StartNode && node.NextStatement == rootStatement) {
 					Debug.Assert(!nodesToVisit.Any());
@@ -305,10 +311,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			}
 
 			VisitNodes();
-			nodeBeforeStatementDict = allNodes.Where(node => node.Type == ControlFlowNodeType.StartNode || node.Type == ControlFlowNodeType.BetweenStatements)
-				.ToDictionary(node => node.NextStatement);
-			nodeAfterStatementDict = allNodes.Where(node => node.Type == ControlFlowNodeType.BetweenStatements || node.Type == ControlFlowNodeType.EndNode)
-				.ToDictionary(node => node.PreviousStatement);
 		}
 
 		void SetupNode(NullAnalysisNode node, IEnumerable<ParameterDeclaration> parameters)
@@ -319,7 +321,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				node.VariableState [name] = GetInitialVariableStatus(resolveResult);
 			}
 
-			nodesToVisit.Add(Tuple.Create(node, node.VariableState));
+			nodesToVisit.Add(Tuple.Create(node, node.VariableState, new ComparableList<NullAnalysisNode>()));
 		}
 
 		static bool IsTypeNullable(IType type)
@@ -346,11 +348,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				var tuple = nodesToVisit.First();
 				nodesToVisit.Remove(tuple);
 
-				Visit(tuple.Item1, tuple.Item2);
+				Visit(tuple.Item1, tuple.Item2, tuple.Item3);
 			}
 		}
 
-		void Visit(NullAnalysisNode node, VariableStatusInfo statusInfo)
+		void Visit(NullAnalysisNode node, VariableStatusInfo statusInfo, ComparableList<NullAnalysisNode> pendingNodes)
 		{
 			var nextStatement = node.NextStatement;
 			VariableStatusInfo outgoingStatusInfo = statusInfo;
@@ -386,7 +388,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				var outgoingNode = (NullAnalysisNode) outgoingEdge.To;
 				if (outgoingNode.ReceiveIncoming(edgeInfo)) {
-					nodesToVisit.Add(Tuple.Create(outgoingNode, edgeInfo));
+					nodesToVisit.Add(Tuple.Create(outgoingNode, edgeInfo, new ComparableList<NullAnalysisNode>()));
 				}
 			}
 		}

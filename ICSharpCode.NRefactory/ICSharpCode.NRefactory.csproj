@@ -286,6 +286,7 @@
     <Compile Include="TypeSystem\AssemblyLoader.cs" />
     <Compile Include="Editor\UnicodeNewline.cs" />
     <Compile Include="Completion\FrameworkLookup.cs" />
+    <Compile Include="Utils\ComparableList.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Completion\" />

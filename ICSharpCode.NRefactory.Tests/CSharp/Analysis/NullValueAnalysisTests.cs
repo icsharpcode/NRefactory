@@ -634,6 +634,72 @@ class TestClass
 			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(stmt2, "p1"));
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusBeforeStatement(stmt3, "p2"));
 		}
+
+		[Test]
+		public void TestFinally()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	void TestMethod()
+	{
+		int? x = 1;
+		int? y = 1;
+		try {
+			x = null;
+		} finally {
+			y = null;
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var tryFinally = (TryCatchStatement) method.Body.Statements.Last();
+			var finallyStatement = tryFinally.FinallyBlock.Statements.Single();
+
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusBeforeStatement(finallyStatement, "x"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(finallyStatement, "y"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(finallyStatement, "x"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(finallyStatement, "y"));
+		}
+
+		[Test]
+		public void TestReturnInFinally()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	void TestMethod()
+	{
+		int? x = 1;
+		int? y = 1;
+		try {
+			x = null;
+			return;
+		} finally {
+			y = null;
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var tryFinally = (TryCatchStatement) method.Body.Statements.Last();
+			var finallyStatement = tryFinally.FinallyBlock.Statements.Single();
+
+			//Make sure it's not unreachable
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(finallyStatement, "x"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(finallyStatement, "y"));
+		}
 	}
 }
 
