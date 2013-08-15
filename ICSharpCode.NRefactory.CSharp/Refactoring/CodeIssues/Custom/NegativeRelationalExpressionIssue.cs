@@ -70,6 +70,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var binaryOperatorExpr = expr as BinaryOperatorExpression;
 				if (binaryOperatorExpr == null)
 					return;
+				switch (binaryOperatorExpr.Operator) {
+					case BinaryOperatorType.BitwiseAnd:
+					case BinaryOperatorType.BitwiseOr:
+					case BinaryOperatorType.ConditionalAnd:
+					case BinaryOperatorType.ConditionalOr:
+					case BinaryOperatorType.ExclusiveOr:
+						return;
+				}
 
 				var negatedOp = CSharpUtil.NegateRelationalOperator(binaryOperatorExpr.Operator);
 				if (negatedOp == BinaryOperatorType.Any)
