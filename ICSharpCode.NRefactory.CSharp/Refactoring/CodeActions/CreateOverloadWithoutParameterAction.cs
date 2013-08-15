@@ -81,7 +81,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					decl.Body = body;
 
 					script.InsertWithCursor ("Create overload without parameter", Script.InsertPosition.Before, decl);
-
+					script.Select(argExpr);
 					//if (node.ParameterModifier != ParameterModifier.Out)
 					//    script.Link (defaultExpr);
 				}, node.NameToken); 
