@@ -60,7 +60,7 @@ namespace application
 		}
 		public override int GetHashCode ()
 		{
-			throw new System.NotImplementedException ();
+			return base.GetHashCode ();
 		}
 	}
 }";
@@ -83,6 +83,31 @@ namespace application
 	}
 }";
 		Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
+		}
+
+		[Test]
+		public void PatialClass()
+		{
+			var input = @"
+namespace application
+{
+	public partial class BaseClass
+	{
+		public override bool Equals(object o)
+		{
+			return base.Equals(o);
+		}
+	}
+	public partial class BaseClass
+	{
+		public override int GetHashCode ()
+		{
+			return base.GetHashCode ();
+		}
+	}
+}";
+
+			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
 		}
 
 		[Test]
