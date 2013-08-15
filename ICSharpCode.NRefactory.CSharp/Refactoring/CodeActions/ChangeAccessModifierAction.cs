@@ -56,12 +56,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (selectedNode.Role != PropertyDeclaration.SetKeywordRole && 
 			    selectedNode.Role != PropertyDeclaration.GetKeywordRole && 
 			    selectedNode != node.NameToken) {
-				yield break;
-			}
-			if (selectedNode.Role == EntityDeclaration.ModifierRole) {
-				var mod = (CSharpModifierToken)selectedNode;
-				if ((mod.Modifier & Modifiers.VisibilityMask) == 0)
+				if (selectedNode.Role == EntityDeclaration.ModifierRole) {
+					var mod = (CSharpModifierToken)selectedNode;
+					if ((mod.Modifier & Modifiers.VisibilityMask) == 0)
+						yield break;
+				} else {
 					yield break;
+				}
 			}
 
 			if (node is EnumMemberDeclaration) {

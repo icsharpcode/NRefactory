@@ -99,6 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					yield return new CodeAction(context.TranslateString("To abstract"), script => {
 						var newNode = CloneNodeWithoutBodies(node);
 						newNode.Modifiers &= ~Modifiers.Virtual;
+						newNode.Modifiers &= ~Modifiers.Static;
 						newNode.Modifiers |= Modifiers.Abstract;
 						script.Replace(node, newNode);
 					}, node);
@@ -115,13 +116,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					yield return new CodeAction(context.TranslateString("To virtual"), script => {
 						var newNode = CloneNodeWithoutBodies(node);
 						newNode.Modifiers &= ~Modifiers.Abstract;
+						newNode.Modifiers &= ~Modifiers.Static;
 						newNode.Modifiers |= Modifiers.Virtual;
 						ImplementStub (context, newNode);
 						script.Replace(node, newNode);
 					}, node);
 				} else {
 					yield return new CodeAction(context.TranslateString("To virtual"), script => {
-						script.ChangeModifier(node, node.Modifiers | Modifiers.Virtual);
+						script.ChangeModifier(node, (node.Modifiers & ~Modifiers.Static)  | Modifiers.Virtual);
 					}, node);
 				}
 			}

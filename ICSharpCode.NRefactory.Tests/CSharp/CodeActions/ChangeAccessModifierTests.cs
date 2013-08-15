@@ -98,6 +98,24 @@ class Foo
 		}
 
 		[Test]
+		public void TestPrivateMethodToProtected ()
+		{
+			Test<ChangeAccessModifierAction>(@"
+class Foo
+{
+	$private void Bar ()
+	{
+	}
+}", @"
+class Foo
+{
+	protected void Bar ()
+	{
+	}
+}");
+		}
+
+		[Test]
 		public void TestMethodToProtectedInternal ()
 		{
 			Test<ChangeAccessModifierAction>(@"

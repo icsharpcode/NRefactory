@@ -85,6 +85,22 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		}
 
 
+		[Test]
+		public void NonVirtualStaticToVirtualTest()
+		{
+			Test<AbstractAndVirtualConversionAction>(
+				@"class Test
+{
+	public static void $Foo ()
+	{
+	}
+}", @"class Test
+{
+	public virtual void Foo ()
+	{
+	}
+}");
+		}
 
 
 		[Test]
