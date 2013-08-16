@@ -64,8 +64,34 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
 {
 	#pragma warning disable 649
-    readonly int test;
+	readonly int test;
 	#pragma warning restore 649
+}");
+		}
+
+		[Test]
+		public void TestAlreadyInitalized ()
+		{
+			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+{
+	public Test (object fooBar)
+	{
+		this.fooBar = fooBar;
+	}
+	readonly object fooBar;
+}");
+		}
+
+		[Test]
+		public void TestAlreadyInitalizedCase2 ()
+		{
+			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+{
+	public void Foo ()
+	{
+		this.fooBar = null;
+	}
+	readonly object fooBar;
 }");
 		}
 	}

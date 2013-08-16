@@ -47,7 +47,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<UnassignedReadonlyFieldIssue>
 		{
-			HashSet<string> skipVariable = new HashSet<string>();
 			List<VariableInitializer> potentialReadonlyFields = new List<VariableInitializer>();
 
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
@@ -63,7 +62,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					AddIssue(
 						varDecl.NameToken,
 						string.Format(ctx.TranslateString("Readonly field '{0}' is never assigned"), varDecl.Name),
-						ctx.TranslateString("Create constructor"),
+						ctx.TranslateString("Initialize field from constructor parameter"),
 						script => {
 							script.InsertWithCursor(
 								ctx.TranslateString("Create constructor"),
@@ -112,49 +111,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				potentialReadonlyFields.Clear();
 			}
 
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				skipVariable = new HashSet<string>(methodDeclaration.Parameters.Select(p => p.Name));
-				base.VisitMethodDeclaration(methodDeclaration);
-			}
-
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-				skipVariable = new HashSet<string>(constructorDeclaration.Parameters.Select(p => p.Name));
-				base.VisitConstructorDeclaration(constructorDeclaration);
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-			{
-				skipVariable = new HashSet<string>(operatorDeclaration.Parameters.Select(p => p.Name));
-				base.VisitOperatorDeclaration(operatorDeclaration);
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-			{
-				skipVariable = new HashSet<string>(indexerDeclaration.Parameters.Select(p => p.Name));
-				base.VisitIndexerDeclaration(indexerDeclaration);
-			}
-
-			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
-			{
-				var old = skipVariable;
-				skipVariable = new HashSet<string>(skipVariable);
-				foreach (var p in anonymousMethodExpression.Parameters)
-					skipVariable.Add(p.Name); 
-				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
-				skipVariable = old;
-			}
-
-			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
-			{
-				var old = skipVariable;
-				skipVariable = new HashSet<string>(skipVariable);
-				foreach (var p in lambdaExpression.Parameters)
-					skipVariable.Add(p.Name); 
-				base.VisitLambdaExpression(lambdaExpression);
-				skipVariable = old;
-			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)
 			{
@@ -163,14 +119,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var assignmentAnalysis = new ConvertToConstantIssue.VariableAssignmentAnalysis (blockStatement, ctx.Resolver, ctx.CancellationToken);
 					List<VariableInitializer> newVars = new List<VariableInitializer>();
 					foreach (var variable in potentialReadonlyFields) {
-						if (!skipVariable.Contains(variable.Name)) {
-							var rr = ctx.Resolve(variable) as MemberResolveResult; 
-							if (rr == null)
-								continue;
-							assignmentAnalysis.Analyze(rr.Member as IField, DefiniteAssignmentStatus.PotentiallyAssigned, ctx.CancellationToken);
-							if (assignmentAnalysis.GetStatusAfter(blockStatement) == DefiniteAssignmentStatus.DefinitelyAssigned)
-								continue;
-						}
+						var rr = ctx.Resolve(variable) as MemberResolveResult; 
+						if (rr == null)
+							continue;
+						assignmentAnalysis.Analyze(rr.Member as IField, DefiniteAssignmentStatus.PotentiallyAssigned, ctx.CancellationToken);
+						System.Console.WriteLine(rr.Member.Name + ":"+assignmentAnalysis.GetStatusAfter(blockStatement));
+						if (assignmentAnalysis.GetStatusAfter(blockStatement) == DefiniteAssignmentStatus.DefinitelyAssigned)
+							continue;
 						newVars.Add(variable);
 					}
 					potentialReadonlyFields = newVars;
