@@ -1,5 +1,5 @@
 //
-// ConvertIfToOrExpressionIssue.cs
+// ConvertIfToAndExpressionIssue.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,20 +31,19 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("'if' statement can be re-written as '||' expression",
-	                  Description = "Convert 'if' to '||' expression",
+	[IssueDescription("'if' statement can be re-written as '&&' expression",
+	                  Description = "Convert 'if' to '&&' expression",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine,
-	                  ResharperDisableKeyword = "ConvertIfToOrExpression")]
-	public class ConvertIfToOrExpressionIssue : GatherVisitorCodeIssueProvider
+	                  IssueMarker = IssueMarker.DottedLine)]
+	public class ConvertIfToAndExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ConvertIfToOrExpressionIssue>
+		class GatherVisitor : GatherVisitorBase<ConvertIfToAndExpressionIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
@@ -57,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						new ExpressionStatement(
 							new AssignmentExpression(
 								new AnyNode("target"),
-								new NamedNode ("expr", new Choice { new PrimitiveExpression (true), new PrimitiveExpression (false) })
+								new PrimitiveExpression (false)
 							)
 						)
 					)
@@ -85,39 +84,39 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var expr = match.Get<Expression>("condition").Single();
 						AddIssue(
 							ifElseStatement.IfToken,
-							ctx.TranslateString("Convert to '||' expresssion"),
-							ctx.TranslateString("Replace with '||'"),
+							ctx.TranslateString("Convert to '&&' expresssion"),
+							ctx.TranslateString("Replace with '&&'"),
 							script => {
 								var variable = varDeclaration.Variables.First();
 								script.Replace(
 									varDeclaration, 
 									new VariableDeclarationStatement(
-									varDeclaration.Type.Clone(),
-									variable.Name,
-									new BinaryOperatorExpression(variable.Initializer.Clone(), BinaryOperatorType.ConditionalOr, expr.Clone()) 
+										varDeclaration.Type.Clone(),
+										variable.Name,
+										new BinaryOperatorExpression(variable.Initializer.Clone(), BinaryOperatorType.ConditionalAnd, CSharpUtil.InvertCondition(expr)) 
 									)
-									);
-								script.Remove(ifElseStatement); 
-							}
+								);
+							script.Remove(ifElseStatement); 
+						}
 						);
 						return;
 					} else {
 						var expr = match.Get<Expression>("condition").Single();
 						AddIssue(
 							ifElseStatement.IfToken,
-							ctx.TranslateString("Convert to '|=' expresssion"),
-							ctx.TranslateString("Replace with '|='"),
+							ctx.TranslateString("Convert to '&=' expresssion"),
+							ctx.TranslateString("Replace with '&='"),
 							script => {
 								script.Replace(
 									ifElseStatement, 
 									new ExpressionStatement(
-										new AssignmentExpression(
-											target.Clone(),
-											AssignmentOperatorType.BitwiseOr,
-											expr.Clone()) 
-										)
-									);
-							}
+									new AssignmentExpression(
+										target.Clone(),
+										AssignmentOperatorType.BitwiseAnd,
+										CSharpUtil.InvertCondition(expr)) 
+									)
+								);
+						}
 						);
 					}
 				}
