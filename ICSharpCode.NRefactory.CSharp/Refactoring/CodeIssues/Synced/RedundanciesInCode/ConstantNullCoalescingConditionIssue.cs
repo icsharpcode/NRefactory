@@ -121,22 +121,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				cachedNullAnalysis [parentFunction] = analysis;
 				return analysis;
 			}
+		}
 
-			static AstNode GetParentFunctionNode(AstNode node)
-			{
-				do {
-					node = node.Parent;
-				} while (node != null && !IsFunctionNode(node));
+		public static AstNode GetParentFunctionNode(AstNode node)
+		{
+			do {
+				node = node.Parent;
+			} while (node != null && !IsFunctionNode(node));
 
-				return node;
-			}
+			return node;
+		}
 
-			static bool IsFunctionNode(AstNode node)
-			{
-				return node is EntityDeclaration ||
-					node is LambdaExpression ||
+		static bool IsFunctionNode(AstNode node)
+		{
+			return node is EntityDeclaration ||
+				node is LambdaExpression ||
 					node is AnonymousMethodExpression;
-			}
 		}
 	}
 }
