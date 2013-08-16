@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			var declarationSpaceVisitor = new DeclarationSpaceVisitor();
+			var declarationSpaceVisitor = new LocalDeclarationSpaceVisitor();
 			context.RootNode.AcceptVisitor(declarationSpaceVisitor);
 
 			return new GatherVisitor(declarationSpaceVisitor, context, this);
@@ -70,9 +70,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			DeclarationSpaceVisitor declarationsSpaceVisitor;
+			LocalDeclarationSpaceVisitor declarationsSpaceVisitor;
 
-			public GatherVisitor (DeclarationSpaceVisitor visitor, BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor (LocalDeclarationSpaceVisitor visitor, BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 				declarationsSpaceVisitor = visitor;
 			}

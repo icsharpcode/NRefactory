@@ -1,5 +1,5 @@
 //
-// LocalVariableDeclarationSpaceTests.cs
+// LocalDeclarationSpaceTests.cs
 //
 // Author:
 //       Simon Lindgren <simon.n.lindgren@gmail.com>
@@ -27,6 +27,7 @@
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.CodeActions;
 using System;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -132,6 +133,37 @@ class Foo
 			Assert.That(!parent.IsNameUsed("j"), "parent contained a non-existent declaration.");
 			Assert.That(!child.IsNameUsed("j"), "parent contained a non-existent declaration.");
 			Assert.That(!child2.IsNameUsed("j"), "parent contained a non-existent declaration.");
+		}
+
+		[Test]
+		public void GetNameDeclarationsNoDeclarations()
+		{
+			var node = new IdentifierExpression();
+			child.AddDeclaration("blah", node);
+
+			var declarations = child.GetNameDeclarations("notBlah");
+			Assert.NotNull(declarations, "declarations");
+			Assert.AreEqual(0, declarations.Count(), "Wrong declaration count");
+		}
+
+		[Test]
+		public void GetNameDeclarationsInChildSpace()
+		{
+			var child2 = new LocalDeclarationSpace();
+			parent.AddChildSpace(child);
+			parent.AddChildSpace(child2);
+
+			var node1 = new IdentifierExpression();
+			child.AddDeclaration("blah", node1);
+
+			var node2 = new IdentifierExpression();
+			child.AddDeclaration("blah", node2);
+
+			var declarations = parent.GetNameDeclarations("blah").ToList();
+			Assert.NotNull(declarations, "declarations");
+			Assert.AreEqual(2, declarations.Count, "Wrong declaration count");
+			Assert.That(declarations.Contains(node1), "node1 was not one of the declarations");
+			Assert.That(declarations.Contains(node2), "node2 was not one of the declarations");
 		}
 	}
 }

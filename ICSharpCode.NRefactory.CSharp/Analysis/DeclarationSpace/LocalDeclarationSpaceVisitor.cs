@@ -1,5 +1,5 @@
 //
-// LocalVariableDeclarationSpaceVisitor.cs
+// LocalDeclarationSpaceVisitor.cs
 //
 // Author:
 //       Simon Lindgren <simon.n.lindgren@gmail.com>
@@ -23,24 +23,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
-	public class DeclarationSpaceVisitor : DepthFirstAstVisitor
+	public class LocalDeclarationSpaceVisitor : DepthFirstAstVisitor
 	{
 		LocalDeclarationSpace currentDeclarationSpace;
 		Dictionary<AstNode, LocalDeclarationSpace> nodeDeclarationSpaces = new Dictionary<AstNode, LocalDeclarationSpace>();
 		
 		public LocalDeclarationSpace GetDeclarationSpace(AstNode node)
 		{
-			var declarationSpaceNode = node.GetLocalVariableDeclarationSpace();
-			if (declarationSpaceNode == null)
-				return null;
-			LocalDeclarationSpace declarationSpace;
-			if (!nodeDeclarationSpaces.TryGetValue(declarationSpaceNode, out declarationSpace))
-				return null;
-			return declarationSpace;
+			if (node == null)
+				throw new ArgumentNullException("node");
+			while (node != null) {
+				LocalDeclarationSpace declarationSpace;
+				if (nodeDeclarationSpaces.TryGetValue(node, out declarationSpace))
+					return declarationSpace;
+				node = node.Parent;
+			}
+			return null;
 		}
 
 		#region Visitor

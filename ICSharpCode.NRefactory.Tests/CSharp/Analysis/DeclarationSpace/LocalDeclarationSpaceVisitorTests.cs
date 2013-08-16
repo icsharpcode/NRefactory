@@ -1,5 +1,5 @@
 //
-// LocalVariableDeclarationSpaceVisitor.cs
+// LocalVariableLocalDeclarationSpaceVisitor.cs
 //
 // Author:
 //       Simon Lindgren <simon.n.lindgren@gmail.com>
@@ -31,10 +31,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 	[TestFixture]
 	public class LocalDeclarationSpaceVisitorTests
 	{
-		static DeclarationSpaceVisitor GetVisitor(out TestRefactoringContext context, string input)
+		static LocalDeclarationSpaceVisitor GetVisitor(out TestRefactoringContext context, string input)
 		{
 			context = TestRefactoringContext.Create(input);
-			var visitor = new DeclarationSpaceVisitor();
+			var visitor = new LocalDeclarationSpaceVisitor();
 			context.RootNode.AcceptVisitor(visitor);
 			return visitor;
 		}

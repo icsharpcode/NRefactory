@@ -66,6 +66,26 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		}
 
 		/// <summary>
+		/// The names declared in this declaration space, excluding child spaces.
+		/// </summary>
+		/// <value>The declared names.</value>
+		public ICollection<string> DeclaredNames {
+			get {
+				return declarations.Keys;
+			}
+		}
+
+		/// <summary>
+		/// Get all nodes declaring the name specified in <paramref name="name"/>.
+		/// </summary>
+		/// <returns>The declaring nodes.</returns>
+		/// <param name="name">The declaration name.</param>
+		public IEnumerable<AstNode> GetNameDeclarations(string name)
+		{
+			return declarations [name].Concat(Children.SelectMany(child => child.GetNameDeclarations(name)));
+		}
+
+		/// <summary>
 		/// Adds a child declaration space.
 		/// </summary>
 		/// <param name="child">The <see cref="DeclarationSpace"/> to add.</param>

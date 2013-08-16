@@ -23,8 +23,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Collections.Generic;
+
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.CSharp.Analysis;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
@@ -44,12 +46,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantIfElseBlockIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			LocalDeclarationSpaceVisitor declarationSpaceVisitor;
+
+			public GatherVisitor (BaseRefactoringContext ctx)
 				: base(ctx)
 			{
+				this.declarationSpaceVisitor = new LocalDeclarationSpaceVisitor();
 			}
 
-			bool HasRundundantElse(IfElseStatement ifElseStatement)
+			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
+			{
+				syntaxTree.AcceptVisitor(declarationSpaceVisitor);
+				base.VisitSyntaxTree(syntaxTree);
+			}
+
+			bool ElseIsRedundantControlFlow(IfElseStatement ifElseStatement)
 			{
 				if (ifElseStatement.FalseStatement.IsNull || ifElseStatement.Parent is IfElseStatement)
 					return false;
@@ -57,70 +68,59 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (blockStatement != null && blockStatement.Statements.Count == 0)
 					return true;
 				var reachability = ctx.CreateReachabilityAnalysis(ifElseStatement.TrueStatement);
-				if (reachability.IsEndpointReachable(ifElseStatement.TrueStatement))
-					return false;
-
-				// check if the true & false statements contain the same variable declarations
-				var trueVariableDeclarations = ScanEmbeddedStatement(ifElseStatement.TrueStatement);
-				var falseVariableDeclarations = ScanEmbeddedStatement(ifElseStatement.FalseStatement);
-				return !trueVariableDeclarations.Any(falseVariableDeclarations.Contains);
+				return !reachability.IsEndpointReachable(ifElseStatement.TrueStatement);
 			}
 
-			static HashSet<string> ScanEmbeddedStatement(Statement trueStatement)
+			bool HasConflictingNames(AstNode targetContext, AstNode currentContext)
 			{
-				var variables = new HashSet<string>();
-				if (trueStatement is BlockStatement) {
-					var block = (BlockStatement)trueStatement;
-					foreach (var stmt in block.Statements)
-						ScanStatement(variables, stmt);
-				} else {
-					ScanStatement(variables, trueStatement);
+				var targetSpace = declarationSpaceVisitor.GetDeclarationSpace(targetContext);
+				var currentSpace = declarationSpaceVisitor.GetDeclarationSpace(currentContext);
+
+				foreach (var name in currentSpace.DeclaredNames) {
+					var isUsed = targetSpace.GetNameDeclarations(name).Any(node => !HasParent(node, currentContext));
+					if (isUsed)
+						return true;
 				}
-				return variables;
+				return false;
 			}
 
-			static void ScanStatement(HashSet<string> variables, Statement trueStatement)
+			static bool HasParent(AstNode node, AstNode currentContext)
 			{
-				var variableDeclarationStatement = trueStatement as VariableDeclarationStatement;
-				if (variableDeclarationStatement == null)
-					return;
-				foreach (var varDecl in variableDeclarationStatement.Variables) {
-					variables.Add(varDecl.Name);
-				}
-
+				while (node != null && node != currentContext)
+					node = node.Parent;
+				return node != null;
 			}
 
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+			public override void VisitIfElseStatement (IfElseStatement ifElseStatement)
 			{
 				base.VisitIfElseStatement(ifElseStatement);
 
-				if (HasRundundantElse(ifElseStatement)) {
-					AddIssue(ifElseStatement.ElseToken, ctx.TranslateString("Redundant 'else' keyword"), ctx.TranslateString("Remove redundant 'else'"),
-					         script =>
-					{
-						int start = script.GetCurrentOffset(ifElseStatement.ElseToken.GetPrevNode(n => !(n is NewLineNode)).EndLocation);
-						int end;
+				if (!ElseIsRedundantControlFlow(ifElseStatement) || HasConflictingNames(ifElseStatement.Parent, ifElseStatement.FalseStatement))
+					return;
 
-						var blockStatement = ifElseStatement.FalseStatement as BlockStatement;
-						if (blockStatement != null) {
-							if (blockStatement.Statements.Count == 0) {
-								// remove empty block
-								end = script.GetCurrentOffset(blockStatement.LBraceToken.StartLocation);
-								script.Remove(blockStatement);
-							} else {
-								// remove block braces
-								end = script.GetCurrentOffset(blockStatement.LBraceToken.EndLocation);
-								script.Remove(blockStatement.RBraceToken);
-							}
-						} else {
-							end = script.GetCurrentOffset(ifElseStatement.ElseToken.EndLocation);
+				AddIssue(ifElseStatement.ElseToken, ctx.TranslateString("Redundant 'else' keyword"), ctx.TranslateString("Remove redundant 'else'"), script =>  {
+					int start = script.GetCurrentOffset(ifElseStatement.ElseToken.GetPrevNode(n => !(n is NewLineNode)).EndLocation);
+					int end;
+					var blockStatement = ifElseStatement.FalseStatement as BlockStatement;
+					if (blockStatement != null) {
+						if (blockStatement.Statements.Count == 0) {
+							// remove empty block
+							end = script.GetCurrentOffset(blockStatement.LBraceToken.StartLocation);
+							script.Remove(blockStatement);
 						}
-						if (end > start)
-							script.RemoveText(start, end - start);
-
-						script.FormatText(ifElseStatement.Parent);
-					});
-				}
+						else {
+							// remove block braces
+							end = script.GetCurrentOffset(blockStatement.LBraceToken.EndLocation);
+							script.Remove(blockStatement.RBraceToken);
+						}
+					}
+					else {
+						end = script.GetCurrentOffset(ifElseStatement.ElseToken.EndLocation);
+					}
+					if (end > start)
+						script.RemoveText(start, end - start);
+					script.FormatText(ifElseStatement.Parent);
+				});
 			}
 		}
 	}
