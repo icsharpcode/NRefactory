@@ -485,6 +485,7 @@
     <Compile Include="CSharp\CodeIssues\UnassignedReadonlyFieldIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseMethodIsInstanceOfTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseIsOperatorIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RewriteIfReturnToReturnIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
