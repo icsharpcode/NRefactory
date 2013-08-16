@@ -487,6 +487,7 @@
     <Compile Include="CSharp\CodeIssues\UseIsOperatorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RewriteIfReturnToReturnIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertIfStatementToConditionalTernaryExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertIfStatementToNullCoalescingExpressionIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

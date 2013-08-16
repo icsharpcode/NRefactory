@@ -31,8 +31,8 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("'if...return' statement can be re-written as 'return' statement",
-	                  Description="Convert 'if...return' to 'return'",
+	[IssueDescription("'if' statement can be re-written as '?:' expression",
+	                  Description="Convert 'if' to '?:'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.DottedLine,
