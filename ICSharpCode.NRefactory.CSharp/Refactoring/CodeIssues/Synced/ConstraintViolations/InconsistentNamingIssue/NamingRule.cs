@@ -306,7 +306,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (RequiredPrefixes != null && RequiredPrefixes.Length > 0) {
 				requiredPrefix = RequiredPrefixes.FirstOrDefault(p => id.StartsWith(p, StringComparison.Ordinal));
 				if (requiredPrefix == null) {
-					errorMessage = string.Format(ctx.TranslateString("Name should have prefix '{0}'."), RequiredPrefixes [0]);
+					errorMessage = string.Format(ctx.TranslateString("Name should have prefix '{0}'. (Rule '{1}')."), RequiredPrefixes [0], Name);
 					missingRequiredPrefix = true;
 				} else {
 					id = id.Substring(requiredPrefix.Length);
@@ -314,7 +314,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			} else if (ForbiddenPrefixes != null && ForbiddenPrefixes.Length > 0) {
 				requiredPrefix = ForbiddenPrefixes.FirstOrDefault(p => id.StartsWith(p, StringComparison.Ordinal));
 				if (requiredPrefix != null) {
-					errorMessage = string.Format(ctx.TranslateString("Name has forbidden prefix '{0}'."), requiredPrefix);
+					errorMessage = string.Format(ctx.TranslateString("Name has forbidden prefix '{0}'. (Rule '{1}')"), requiredPrefix, Name);
 					id = id.Substring(requiredPrefix.Length);
 				}
 			}
@@ -322,7 +322,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (RequiredSuffixes != null && RequiredSuffixes.Length > 0) {
 				suffix = RequiredSuffixes.FirstOrDefault(s => id.EndsWith(s, StringComparison.Ordinal));
 				if (suffix == null) {
-					errorMessage = string.Format(ctx.TranslateString("Name should have suffix '{0}'."), RequiredSuffixes [0]);
+					errorMessage = string.Format(ctx.TranslateString("Name should have suffix '{0}'. (Rule '{1}')"), RequiredSuffixes [0], Name);
 					missingRequiredSuffix = true;
 				} else {
 					id = id.Substring(0, id.Length - suffix.Length);
@@ -330,7 +330,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			} else if (ForbiddenSuffixes != null && ForbiddenSuffixes.Length > 0) {
 				suffix = ForbiddenSuffixes.FirstOrDefault(p => id.EndsWith(p, StringComparison.Ordinal));
 				if (suffix != null) {
-					errorMessage = string.Format(ctx.TranslateString("Name has forbidden suffix '{0}'."), suffix);
+					errorMessage = string.Format(ctx.TranslateString("Name has forbidden suffix '{0}'. (Rule '{1}')"), suffix, Name);
 					id = id.Substring(0, id.Length - suffix.Length);
 				}
 			}
@@ -338,7 +338,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			switch (NamingStyle) {
 				case NamingStyle.AllLower:
 					if (id.Any(ch => char.IsLetter(ch) && char.IsUpper(ch))) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' contains upper case letters."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' contains upper case letters. (Rule '{1}')"), name, Name);
 						suggestedNames.Add(LowerCaseIdentifier(WordParser.BreakWords(id)));
 					} else {
 						suggestedNames.Add(id);
@@ -346,7 +346,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					break;
 				case NamingStyle.AllUpper:
 					if (id.Any(ch => char.IsLetter(ch) && char.IsLower(ch))) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' contains lower case letters."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' contains lower case letters. (Rule '{1}')"), name, Name);
 						suggestedNames.Add(UpperCaseIdentifier(WordParser.BreakWords(id)));
 					} else {
 						suggestedNames.Add(id);
@@ -355,9 +355,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				case NamingStyle.CamelCase:
 					if (id.Length > 0 && char.IsUpper(id [0])) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.Forbid)) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' should not separate words with an underscore."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should not separate words with an underscore. (Rule '{1}')"), name, Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
@@ -366,9 +366,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					break;
 				case NamingStyle.CamelCaseWithLowerLetterUnderscore:
 					if (id.Length > 0 && char.IsUpper(id [0])) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithLowerStartingLetter)) {
-						errorMessage = ctx.TranslateString("after '_' a lower letter should follow.");
+						errorMessage = ctx.TranslateString("after '_' a lower letter should follow. (Rule '{1}')", Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
@@ -377,9 +377,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					break;
 				case NamingStyle.CamelCaseWithUpperLetterUnderscore:
 					if (id.Length > 0 && char.IsUpper(id [0])) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithUpperStartingLetter)) {
-						errorMessage = ctx.TranslateString("after '_' an upper letter should follow.");
+						errorMessage = ctx.TranslateString("after '_' an upper letter should follow. (Rule '{1}')", Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
@@ -389,9 +389,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				case NamingStyle.PascalCase:
 					if (id.Length > 0 && char.IsLower(id [0])) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.Forbid)) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' should not separate words with an underscore."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should not separate words with an underscore. (Rule '{1}')"), name, Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
@@ -400,9 +400,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					break;
 				case NamingStyle.PascalCaseWithLowerLetterUnderscore:
 					if (id.Length > 0 && char.IsLower(id [0])) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithLowerStartingLetter)) {
-						errorMessage = ctx.TranslateString("after '_' a lower letter should follow.");
+						errorMessage = ctx.TranslateString("after '_' a lower letter should follow. (Rule '{1}')", Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
@@ -411,9 +411,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					break;
 				case NamingStyle.PascalCaseWithUpperLetterUnderscore:
 					if (id.Length > 0 && char.IsLower(id [0])) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithUpperStartingLetter)) {
-						errorMessage = ctx.TranslateString("after '_' an upper letter should follow.");
+						errorMessage = ctx.TranslateString("after '_' an upper letter should follow. (Rule '{1}')", Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
@@ -422,9 +422,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					break;
 				case NamingStyle.FirstUpper:
 					if (id.Length > 0 && char.IsLower(id [0])) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter. (Rule '{1}')"), name, Name);
 					} else if (id.Take(1).Any(ch => char.IsLetter(ch) && char.IsUpper(ch))) {
-						errorMessage = string.Format(ctx.TranslateString("'{0}' contains an upper case letter after the first."), name);
+						errorMessage = string.Format(ctx.TranslateString("'{0}' contains an upper case letter after the first. (Rule '{1}')"), name, Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
