@@ -481,6 +481,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantToStringCallForValueTypesIssue.cs" />
     <Compile Include="CSharp\CodeIssues\UseOfMemberOfNullReferenceTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertToConstantIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\FieldCanBeMadeReadOnlyIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

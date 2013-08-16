@@ -601,6 +601,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\UseOfMemberOfNullReference.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ConvertToConstantIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\FieldCanBeMadeReadOnlyIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

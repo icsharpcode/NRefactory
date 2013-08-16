@@ -145,13 +145,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				foreach (var fieldDeclaration in typeDeclaration.Members.OfType<FieldDeclaration>()) {
 					if (IsSuppressed(fieldDeclaration.StartLocation))
-						return;
+						continue;
 					if (fieldDeclaration.Modifiers.HasFlag (Modifiers.Const))
-						return;
+						continue;
+					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
+						continue;
 					if (fieldDeclaration.Variables.Any (v => !(ctx.Resolve (v.Initializer) is ConstantResolveResult)))
-						return;
+						continue;
 					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
 					if (rr.Type.IsReferenceType.HasValue && rr.Type.IsReferenceType.Value)
+						continue;
+					if (fieldDeclaration.Variables.Count() > 1)
 						continue;
 					potentialConstantFields.AddRange(fieldDeclaration.Variables); 
 				}
@@ -164,6 +168,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitVariableDeclarationStatement(varDecl);
 				if (varDecl.Modifiers.HasFlag (Modifiers.Const))
+					return;
+				if (varDecl.Variables.Count () > 1)
 					return;
 				if (varDecl.Variables.Any (v => !(ctx.Resolve (v.Initializer) is ConstantResolveResult)))
 					return;
