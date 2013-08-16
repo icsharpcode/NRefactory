@@ -33,6 +33,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		protected override CodeAction GetAction(RefactoringContext context, BinaryOperatorExpression node)
 		{
 			if ((node.Operator == BinaryOperatorType.ConditionalOr) || (node.Operator == BinaryOperatorType.ConditionalAnd)) {
+				if (!node.OperatorToken.IsInside(context.Location))
+					return null;
 				var negativeExpression = CSharpUtil.InvertCondition(node);
 				if (node.Parent is ParenthesizedExpression && node.Parent.Parent is UnaryOperatorExpression) {
 					var unaryOperatorExpression = node.Parent.Parent as UnaryOperatorExpression;

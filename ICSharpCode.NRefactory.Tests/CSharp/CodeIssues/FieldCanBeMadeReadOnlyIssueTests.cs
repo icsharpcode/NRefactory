@@ -126,6 +126,40 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 
+		[Test]
+		public void TestUninitalizedValueTypeField ()
+		{
+			Test<FieldCanBeMadeReadOnlyIssue>(@"class Test
+{
+	int fooBar;
+	public Test ()
+	{
+		fooBar = 5;
+	}
+}", @"class Test
+{
+	readonly int fooBar;
+	public Test ()
+	{
+		fooBar = 5;
+	}
+}");
+		}
+
+		[Test]
+		public void TestInitalizedValueTypeField ()
+		{
+			// Is handled by the 'to const' issue.
+			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"class Test
+{
+	int fooBar = 12;
+	public void FooBar ()
+	{
+		System.Console.WriteLine (fooBar);
+	}
+}");
+		}
+
 
 	}
 }

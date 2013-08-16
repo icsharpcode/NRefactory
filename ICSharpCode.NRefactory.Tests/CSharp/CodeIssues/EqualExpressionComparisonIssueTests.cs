@@ -1,5 +1,5 @@
 //
-// UnassignedReadonlyFieldIssueTests.cs
+// EqualExpressionComparisonIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,94 +23,78 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class UnassignedReadonlyFieldIssueTests : InspectionActionTestBase
+	public class EqualExpressionComparisonIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestField ()
+		public void TestIfElse ()
 		{
-			Test<UnassignedReadonlyFieldIssue>(@"class Test
+			Test<EqualExpressionComparisonIssue>(@"class Foo
 {
-	readonly object fooBar;
-}", @"class Test
-{
-	public Test (object fooBar)
+	static int Bar (object o)
 	{
-		this.fooBar = fooBar;
+		if (o == o) {
+		}
+		return 5;
 	}
-	readonly object fooBar;
+}", @"class Foo
+{
+	static int Bar (object o)
+	{
+		if (true) {
+		}
+		return 5;
+	}
 }");
 		}
 
+
 		[Test]
-		public void TestValueTypeField ()
+		public void TestIfElseNegated ()
 		{
-			Test<UnassignedReadonlyFieldIssue>(@"class Test
+			Test<EqualExpressionComparisonIssue>(@"class Foo
 {
-	readonly int fooBar;
-}", @"class Test
-{
-	public Test (int fooBar)
+	static int Bar (object o)
 	{
-		this.fooBar = fooBar;
+		if (o != o) {
+		}
+		return 5;
 	}
-	readonly int fooBar;
+}", @"class Foo
+{
+	static int Bar (object o)
+	{
+		if (false) {
+		}
+		return 5;
+	}
 }");
 		}
 
-		
+
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
-	// ReSharper disable once UnassignedReadonlyField.Compiler
-	readonly object fooBar;
-}");
-		}
-
-		
-		[Test]
-		public void TestPragmaDisable ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	#pragma warning disable 649
-	readonly int test;
-	#pragma warning restore 649
-}");
-		}
-
-		[Test]
-		public void TestAlreadyInitalized ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	public Test (object fooBar)
+	static int Bar (object o)
 	{
-		this.fooBar = fooBar;
+		// ReSharper disable once EqualExpressionComparison
+		if (o == o) {
+		}
+		return 5;
 	}
-	readonly object fooBar;
 }");
 		}
 
-		[Test]
-		public void TestAlreadyInitalizedCase2 ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	public void Foo ()
-	{
-		this.fooBar = null;
-	}
-	readonly object fooBar;
-}");
-		}
 	}
 }
 

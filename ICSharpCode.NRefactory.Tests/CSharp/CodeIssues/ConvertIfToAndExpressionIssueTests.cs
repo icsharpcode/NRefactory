@@ -1,5 +1,5 @@
 //
-// UnassignedReadonlyFieldIssueTests.cs
+// ConvertIfToAndExpressionIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,94 +23,59 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class UnassignedReadonlyFieldIssueTests : InspectionActionTestBase
+	public class ConvertIfToAndExpressionIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestField ()
+		public void TestVariableDeclarationCase ()
 		{
-			Test<UnassignedReadonlyFieldIssue>(@"class Test
+			Test<ConvertIfToAndExpressionIssue>(@"class Foo
 {
-	readonly object fooBar;
-}", @"class Test
-{
-	public Test (object fooBar)
+	int Bar(int o)
 	{
-		this.fooBar = fooBar;
+		bool b = o > 10;
+		if (o < 10)
+			b = false;
 	}
-	readonly object fooBar;
-}");
-		}
-
-		[Test]
-		public void TestValueTypeField ()
-		{
-			Test<UnassignedReadonlyFieldIssue>(@"class Test
+}", @"class Foo
 {
-	readonly int fooBar;
-}", @"class Test
-{
-	public Test (int fooBar)
+	int Bar(int o)
 	{
-		this.fooBar = fooBar;
+		bool b = o > 10 && o >= 10;
 	}
-	readonly int fooBar;
-}");
-		}
-
-		
-		[Test]
-		public void TestDisable ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	// ReSharper disable once UnassignedReadonlyField.Compiler
-	readonly object fooBar;
-}");
-		}
-
-		
-		[Test]
-		public void TestPragmaDisable ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	#pragma warning disable 649
-	readonly int test;
-	#pragma warning restore 649
 }");
 		}
 
 		[Test]
-		public void TestAlreadyInitalized ()
+		public void TestCommonCase ()
 		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+			Test<ConvertIfToAndExpressionIssue>(@"class Foo
 {
-	public Test (object fooBar)
+	int Bar(int o)
 	{
-		this.fooBar = fooBar;
+		bool b = o > 10;
+		Console.WriteLine ();
+		if (o < 10)
+			b = false;
 	}
-	readonly object fooBar;
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		Console.WriteLine ();
+		b &= o >= 10;
+	}
 }");
 		}
 
-		[Test]
-		public void TestAlreadyInitalizedCase2 ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	public void Foo ()
-	{
-		this.fooBar = null;
-	}
-	readonly object fooBar;
-}");
-		}
 	}
 }
 

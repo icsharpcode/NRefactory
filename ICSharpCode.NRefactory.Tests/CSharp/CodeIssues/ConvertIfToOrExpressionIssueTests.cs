@@ -1,5 +1,5 @@
 //
-// UnassignedReadonlyFieldIssueTests.cs
+// ConvertIfToOrExpressionIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,94 +23,74 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class UnassignedReadonlyFieldIssueTests : InspectionActionTestBase
+	public class ConvertIfToOrExpressionIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestField ()
+		public void TestVariableDeclarationCase ()
 		{
-			Test<UnassignedReadonlyFieldIssue>(@"class Test
+			Test<ConvertIfToOrExpressionIssue>(@"class Foo
 {
-	readonly object fooBar;
-}", @"class Test
-{
-	public Test (object fooBar)
+	int Bar(int o)
 	{
-		this.fooBar = fooBar;
+		bool b = o > 10;
+		if (o < 10)
+			b = true;
 	}
-	readonly object fooBar;
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10 || o < 10;
+	}
 }");
 		}
 
 		[Test]
-		public void TestValueTypeField ()
+		public void TestCommonCase ()
 		{
-			Test<UnassignedReadonlyFieldIssue>(@"class Test
+			Test<ConvertIfToOrExpressionIssue>(@"class Foo
 {
-	readonly int fooBar;
-}", @"class Test
-{
-	public Test (int fooBar)
+	int Bar(int o)
 	{
-		this.fooBar = fooBar;
+		bool b = o > 10;
+		Console.WriteLine ();
+		if (o < 10)
+			b = true;
 	}
-	readonly int fooBar;
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		Console.WriteLine ();
+		b |= o < 10;
+	}
 }");
 		}
 
-		
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+			TestWrongContext<ConvertIfToOrExpressionIssue>(@"class Foo
 {
-	// ReSharper disable once UnassignedReadonlyField.Compiler
-	readonly object fooBar;
-}");
-		}
-
-		
-		[Test]
-		public void TestPragmaDisable ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	#pragma warning disable 649
-	readonly int test;
-	#pragma warning restore 649
-}");
-		}
-
-		[Test]
-		public void TestAlreadyInitalized ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	public Test (object fooBar)
+	int Bar(int o)
 	{
-		this.fooBar = fooBar;
+		bool b = o > 10;
+		// ReSharper disable once ConvertIfToOrExpression
+		if (o < 10)
+			b = true;
 	}
-	readonly object fooBar;
 }");
 		}
 
-		[Test]
-		public void TestAlreadyInitalizedCase2 ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	public void Foo ()
-	{
-		this.fooBar = null;
-	}
-	readonly object fooBar;
-}");
-		}
 	}
 }
 

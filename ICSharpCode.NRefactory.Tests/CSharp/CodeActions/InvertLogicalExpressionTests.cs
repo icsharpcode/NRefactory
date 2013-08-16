@@ -41,7 +41,7 @@ class TestClass
 	{
 		bool a = true;
 		bool b = false;
-		if ($a && b){}
+		if (a $&& b){}
 	}
 }", @"
 class TestClass
@@ -143,7 +143,7 @@ class TestClass
 	{
 		int a = 1;
 		bool b = true;
-		if ($(a > 1) && b){}
+		if ((a > 1) $&& b){}
 	}
 }", @"
 class TestClass
@@ -168,7 +168,7 @@ class TestClass
 	{
 		int a = 1;
 		bool b = true;
-		if (!($(a > 1) || b)){}
+		if (!((a > 1) $|| b)){}
 	}
 }", @"
 class TestClass

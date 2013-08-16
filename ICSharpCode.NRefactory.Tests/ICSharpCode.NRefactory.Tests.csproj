@@ -489,6 +489,9 @@
     <Compile Include="CSharp\CodeIssues\ConvertIfStatementToConditionalTernaryExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertIfStatementToNullCoalescingExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertDoWhileToWhileLoopTests.cs" />
+    <Compile Include="CSharp\CodeIssues\EqualExpressionComparisonIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertIfToOrExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertIfToAndExpressionIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

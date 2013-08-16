@@ -97,9 +97,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 					if (!fieldDeclaration.HasModifier(Modifiers.Readonly))
 						continue;
-					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
-					if (rr.Type.IsReferenceType.HasValue && !rr.Type.IsReferenceType.Value)
-						continue;
 					if (fieldDeclaration.Variables.Count() > 1)
 						continue;
 					if (!fieldDeclaration.Variables.First().Initializer.IsNull)
