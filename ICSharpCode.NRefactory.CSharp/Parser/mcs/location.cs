@@ -598,6 +598,9 @@ if (checkpoints.Length <= CheckpointIndex) throw new Exception (String.Format ("
 			if (!inComment)
 				return;
 			inComment = false;
+			// Ignore empty comments
+			if (startLine == endLine && startCol == endColumn)
+				return;
 			Specials.Add (new Comment (curComment, startsLine, startLine, startCol, endLine, endColumn, contentBuilder.ToString ()));
 		}
 		

@@ -153,6 +153,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				AlignEmbeddedUsingStatements = true,
 				SimplePropertyFormatting = PropertyFormatting.AllowOneLine,
 				AutoPropertyFormatting = PropertyFormatting.AllowOneLine,
+				EmptyLineFormatting = EmptyLineFormatting.DoNotIndent,
 				SpaceBeforeMethodDeclarationParameterComma = false,
 				SpaceAfterMethodDeclarationParameterComma = true,
 				SpaceAfterDelegateDeclarationParameterComma = true,
@@ -165,6 +166,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				SpaceWithinIndexerDeclarationBracket = false,
 				SpaceBeforeIndexerDeclarationParameterComma = false,
 				SpaceInNamedArgumentAfterDoubleColon = true,
+				RemoveEndOfLineWhiteSpace = true,
 			
 				SpaceAfterIndexerDeclarationParameterComma = true,
 				
@@ -319,6 +321,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				AlignEmbeddedUsingStatements = true,
 				SimplePropertyFormatting = PropertyFormatting.AllowOneLine,
 				AutoPropertyFormatting = PropertyFormatting.AllowOneLine,
+				EmptyLineFormatting = EmptyLineFormatting.DoNotIndent,
 				SpaceBeforeMethodDeclarationParameterComma = false,
 				SpaceAfterMethodDeclarationParameterComma = true,
 				SpaceAfterDelegateDeclarationParameterComma = true,
@@ -332,6 +335,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				SpaceInNamedArgumentAfterDoubleColon = true,
 			
 				SpaceAfterIndexerDeclarationParameterComma = true,
+				RemoveEndOfLineWhiteSpace = true,
 				
 				BlankLinesBeforeUsings = 0,
 				BlankLinesAfterUsings = 1,

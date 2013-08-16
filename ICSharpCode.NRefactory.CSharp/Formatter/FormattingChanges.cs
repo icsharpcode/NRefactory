@@ -49,6 +49,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.document = document;
 		}
 
+		public int Count {
+			get {
+				return changes.Count;
+			}
+		}
+
 		/// <summary>
 		/// Applies the changes to the input document.
 		/// </summary>

@@ -446,7 +446,90 @@ class Test2
 
 		}
 
-		
+		[Test]
+		public void TestAddIndentOnBlankLines ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.EmptyLineFormatting = EmptyLineFormatting.Indent;
+
+			Test (policy, @"class Foo
+{
+	void Test ()
+	{
+	}
+	void Test2 ()
+	{
+	}
+}", @"class Foo
+{
+	void Test ()
+	{
+	}
+	
+	void Test2 ()
+	{
+	}
+}", FormattingMode.Intrusive);
+
+		}
+
+		[Test]
+		public void TestRemoveIndentOnBlankLines ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.EmptyLineFormatting = EmptyLineFormatting.DoNotIndent;
+
+			Test (policy, @"class Foo
+{
+	void Test ()
+	{
+	}
+	
+	void Test2 ()
+	{
+	}
+}", @"class Foo
+{
+	void Test ()
+	{
+	}
+
+	void Test2 ()
+	{
+	}
+}", FormattingMode.Intrusive);
+
+		}
+
+		[Test]
+		public void TestDoNotChangeIndentOnBlankLines ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.EmptyLineFormatting = EmptyLineFormatting.DoNotChange;
+
+			var indented = @"class Foo
+{
+	void Test ()
+	{
+	}
+	
+	void Test2 ()
+	{
+	}
+}";
+			var nonIndented = @"class Foo
+{
+	void Test ()
+	{
+	}
+
+	void Test2 ()
+	{
+	}
+}";
+			Test(policy, indented, indented, FormattingMode.Intrusive);
+			Test(policy, nonIndented, nonIndented, FormattingMode.Intrusive);
+		}
 	}
 }
 

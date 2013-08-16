@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
@@ -243,6 +245,7 @@ class TestClass
 		}
 
 		[Test]
+
 		public void TestNecessaryElseBecauseOfVarDeclaration()
 		{
 
@@ -266,7 +269,6 @@ class TestClass
 		[Test]
 		public void TestNecessaryElseBecauseOfVarDeclarationInDifferentStatement()
 		{
-
 			var input = @"
 class TestClass
 {

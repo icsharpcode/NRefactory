@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			ForceSpacesAfter(foreachStatement.LParToken, policy.SpacesWithinForeachParentheses);
 			ForceSpacesBefore(foreachStatement.RParToken, policy.SpacesWithinForeachParentheses);
-
+			
 			FixEmbeddedStatment(policy.StatementBraceStyle, foreachStatement.EmbeddedStatement);
 		}
 
