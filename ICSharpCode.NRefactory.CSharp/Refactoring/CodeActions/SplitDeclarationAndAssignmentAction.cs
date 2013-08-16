@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			var statement = varInitializer.GetParent<Statement>();
 			var declaration = varInitializer.GetParent<VariableDeclarationStatement>();
-			if ((declaration.Modifiers & Modifiers.Const) != 0)
+			if (declaration == null || (declaration.Modifiers & Modifiers.Const) != 0)
 				yield break;
 
 			var selectedNode = varInitializer.GetNodeAt(context.Location);
