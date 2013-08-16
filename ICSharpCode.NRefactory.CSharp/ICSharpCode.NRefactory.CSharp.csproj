@@ -599,6 +599,7 @@
     <Compile Include="Refactoring\CodeActions\AbstractAndVirtualConversionAction.cs" />
     <Compile Include="Refactoring\CodeIssues\NotWorking\DuplicateExpressionsInConditionsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\UseOfMemberOfNullReference.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
