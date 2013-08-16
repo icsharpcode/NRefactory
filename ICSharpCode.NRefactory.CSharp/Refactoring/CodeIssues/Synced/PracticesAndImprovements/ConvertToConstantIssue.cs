@@ -95,19 +95,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
+			static bool IsValidConstType(IType type)
+			{
+				var def = type.GetDefinition();
+				return KnownTypeCode.Boolean <= def.KnownTypeCode && def.KnownTypeCode <= KnownTypeCode.Decimal ||
+					def.KnownTypeCode == KnownTypeCode.String;
+			}
+
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
 				foreach (var fieldDeclaration in typeDeclaration.Members.OfType<FieldDeclaration>()) {
 					if (IsSuppressed(fieldDeclaration.StartLocation))
 						continue;
-					if (fieldDeclaration.Modifiers.HasFlag (Modifiers.Const))
+					if (fieldDeclaration.Modifiers.HasFlag (Modifiers.Const) || fieldDeclaration.Modifiers.HasFlag (Modifiers.Readonly))
 						continue;
 					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
 						continue;
 					if (fieldDeclaration.Variables.Any (v => !(ctx.Resolve (v.Initializer) is ConstantResolveResult)))
 						continue;
 					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
-					if (rr.Type.IsReferenceType.HasValue && rr.Type.IsReferenceType.Value)
+					if (!IsValidConstType(rr.Type))
 						continue;
 					if (fieldDeclaration.Variables.Count() > 1)
 						continue;
@@ -139,7 +146,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				assignmentAnalysis.SetAnalyzedRange (varDecl, containingBlock, false, true);
 				foreach (var variable in varDecl.Variables) {
 					var rr = ctx.Resolve(variable) as LocalResolveResult; 
-					if (rr == null)
+					if (rr == null && !IsValidConstType(rr.Type))
 						continue;
 					assignmentAnalysis.Analyze (rr.Variable, DefiniteAssignmentStatus.PotentiallyAssigned, ctx.CancellationToken);
 					if (assignmentAnalysis.GetEndState() == DefiniteAssignmentStatus.DefinitelyAssigned)
