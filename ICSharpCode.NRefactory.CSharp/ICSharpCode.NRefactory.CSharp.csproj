@@ -603,6 +603,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ConvertToConstantIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\FieldCanBeMadeReadOnlyIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\UnassignedReadonlyFieldIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseMethodIsInstanceOfTypeIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
