@@ -453,12 +453,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (a == b)
 					return a;
-				else if (a == DefiniteAssignmentStatus.CodeUnreachable)
+				if (a == DefiniteAssignmentStatus.CodeUnreachable || b == DefiniteAssignmentStatus.DefinitelyAssigned)
 					return b;
-				else if (b == DefiniteAssignmentStatus.CodeUnreachable)
+				if (b == DefiniteAssignmentStatus.CodeUnreachable || a == DefiniteAssignmentStatus.DefinitelyAssigned)
 					return a;
-				else
-					return DefiniteAssignmentStatus.PotentiallyAssigned;
+				return DefiniteAssignmentStatus.PotentiallyAssigned;
 			}
 
 			void ChangeNodeStatus (DefiniteAssignmentNode node, DefiniteAssignmentStatus inputStatus)

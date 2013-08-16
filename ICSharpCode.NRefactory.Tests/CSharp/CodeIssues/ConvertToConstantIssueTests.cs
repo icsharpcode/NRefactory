@@ -91,6 +91,40 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestChangingVariableCase3 ()
+		{
+			TestWrongContext<ConvertToConstantIssue>(@"class Test
+{
+	public static void Main (string[] args)
+	{
+		int fooBar = 12;
+		if (args.Length == 10)
+			fooBar = 20;
+		Console.WriteLine (fooBar);
+	}
+}");
+		}
+
+		[Test]
+		public void TestChangingVariableCase4 ()
+		{
+			TestWrongContext<ConvertToConstantIssue>(@"class Test
+{
+	public static void Main (string[] args)
+	{
+		int fooBar = 12;
+		switch (args[0]) {
+			case ""Hello"":
+				fooBar = 20;
+				break;
+		}
+		Console.WriteLine (fooBar);
+	}
+}");
+		}
+
+
+		[Test]
 		public void TestDisable ()
 		{
 			TestWrongContext<ConvertToConstantIssue>(@"class Test
