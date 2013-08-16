@@ -368,7 +368,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (id.Length > 0 && char.IsUpper(id [0])) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithLowerStartingLetter)) {
-						errorMessage = ctx.TranslateString("after '_' a lower letter should follow. (Rule '{1}')", Name);
+						errorMessage = string.Format(ctx.TranslateString("after '_' a lower letter should follow. (Rule '{1}')"), Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
@@ -379,7 +379,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (id.Length > 0 && char.IsUpper(id [0])) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with a lower case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithUpperStartingLetter)) {
-						errorMessage = ctx.TranslateString("after '_' an upper letter should follow. (Rule '{1}')", Name);
+						errorMessage = string.Format(ctx.TranslateString("after '_' an upper letter should follow. (Rule '{1}')"), Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
@@ -402,7 +402,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (id.Length > 0 && char.IsLower(id [0])) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithLowerStartingLetter)) {
-						errorMessage = ctx.TranslateString("after '_' a lower letter should follow. (Rule '{1}')", Name);
+						errorMessage = string.Format(ctx.TranslateString("after '_' a lower letter should follow. (Rule '{1}')"), Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
@@ -413,7 +413,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (id.Length > 0 && char.IsLower(id [0])) {
 						errorMessage = string.Format(ctx.TranslateString("'{0}' should start with an upper case letter. (Rule '{1}')"), name, Name);
 					} else if (!CheckUnderscore(id, UnderscoreHandling.AllowWithUpperStartingLetter)) {
-						errorMessage = ctx.TranslateString("after '_' an upper letter should follow. (Rule '{1}')", Name);
+						errorMessage = string.Format(ctx.TranslateString("after '_' an upper letter should follow. (Rule '{1}')"), Name);
 					} else {
 						suggestedNames.Add(id);
 						break;
