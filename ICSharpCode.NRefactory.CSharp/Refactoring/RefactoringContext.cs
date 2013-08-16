@@ -48,7 +48,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		public TypeSystemAstBuilder CreateTypeSystemAstBuilder()
 		{
-			var csResolver = Resolver.GetResolverStateBefore(GetNode());
+			var astNode = GetNode() ?? RootNode.GetNodeAt(Location) ?? RootNode;
+			var csResolver = Resolver.GetResolverStateBefore(astNode);
 			return new TypeSystemAstBuilder(csResolver);
 		}
 		

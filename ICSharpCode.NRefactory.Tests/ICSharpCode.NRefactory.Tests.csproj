@@ -482,6 +482,7 @@
     <Compile Include="CSharp\CodeIssues\UseOfMemberOfNullReferenceTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertToConstantIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\FieldCanBeMadeReadOnlyIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnassignedReadonlyFieldIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
