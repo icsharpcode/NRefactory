@@ -54,7 +54,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			public GatherVisitor (BaseRefactoringContext ctx, SuggestUseVarKeywordEvidentIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
-                GatherVisitor bla = this;
             }
 
 			public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)

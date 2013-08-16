@@ -166,7 +166,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitInvocationExpression(invocationExpression);
 
-				var target = invocationExpression.Target as MemberReferenceExpression;
+				//var target = invocationExpression.Target as MemberReferenceExpression;
 
 				var invocationResolveResult = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
 				if (invocationResolveResult == null) {

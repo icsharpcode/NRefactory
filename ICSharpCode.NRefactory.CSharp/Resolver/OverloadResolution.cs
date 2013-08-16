@@ -935,7 +935,6 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// <param name="returnTypeOverride">
 		/// If not null, use this instead of the ReturnType of the member as the type of the created resolve result.
 		/// </param>
-		/// </param>
 		public CSharpInvocationResolveResult CreateResolveResult(ResolveResult targetResolveResult, IList<ResolveResult> initializerStatements = null, IType returnTypeOverride = null)
 		{
 			IParameterizedMember member = GetBestCandidateWithSubstitutedTypeArguments();

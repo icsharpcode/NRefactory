@@ -115,7 +115,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		public static List<Tuple<IMember, bool>> CollectMembersToImplement(ITypeDefinition implementingType, IType interfaceType, bool explicitly)
 		{
-			var def = interfaceType.GetDefinition();
+			//var def = interfaceType.GetDefinition();
 			List<Tuple<IMember, bool>> toImplement = new List<Tuple<IMember, bool>>();
 			bool alreadyImplemented;
 			
