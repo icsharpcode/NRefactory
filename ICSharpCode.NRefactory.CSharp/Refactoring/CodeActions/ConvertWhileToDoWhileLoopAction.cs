@@ -30,9 +30,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	/// <summary>
 	/// Converts a while loop to a do...while loop.
-	/// For instance: while (foo) {} becomes if (foo) { do { } while (foo); }
+	/// For instance: while (foo) {} becomes do { } while (foo);
 	/// </summary>
-	[ContextAction("Convert dec to hex.", Description = "Convert dec to hex.")]
+	[ContextAction("Convert while loop to do...while", Description = "Convert while loop to do...while (changing semantics)")]
 	public class ConvertWhileToDoWhileLoopAction : CodeActionProvider
 	{
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
@@ -48,13 +48,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		void ApplyAction(Script script, WhileStatement statement) {
-			var innerDoWhile = new DoWhileStatement {
+			var doWhile = new DoWhileStatement {
 				Condition = statement.Condition.Clone(),
 				EmbeddedStatement = statement.EmbeddedStatement.Clone()
 			};
-			var outerIf = new IfElseStatement(statement.Condition.Clone(), new BlockStatement { innerDoWhile });
 
-			script.Replace(statement, outerIf);
+			script.Replace(statement, doWhile);
 		}
 	}
 }
