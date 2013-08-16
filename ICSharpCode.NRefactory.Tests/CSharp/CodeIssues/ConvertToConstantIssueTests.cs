@@ -159,6 +159,20 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestReadonlyField ()
+		{
+			TestWrongContext<ConvertToConstantIssue>(@"class Test
+{
+	readonly int fooBar = 12;
+	public static void Main (string[] args)
+	{
+		Console.WriteLine (fooBar);
+	}
+}");
+		}
+
+
+		[Test]
 		public void TestStaticField ()
 		{
 			Test<ConvertToConstantIssue>(@"class Test
