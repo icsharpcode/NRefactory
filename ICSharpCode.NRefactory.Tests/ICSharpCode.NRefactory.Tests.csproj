@@ -484,6 +484,7 @@
     <Compile Include="CSharp\CodeIssues\FieldCanBeMadeReadOnlyIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnassignedReadonlyFieldIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseMethodIsInstanceOfTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertWhileToDoWhileLoopTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
