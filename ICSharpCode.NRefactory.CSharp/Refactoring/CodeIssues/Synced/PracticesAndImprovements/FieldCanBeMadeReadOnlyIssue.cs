@@ -83,12 +83,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
 						continue;
-					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
-					if (rr.Type.IsReferenceType.HasValue && !rr.Type.IsReferenceType.Value)
-						continue;
 					if (fieldDeclaration.Variables.Count() > 1)
 						continue;
-					potentialReadonlyFields.AddRange(fieldDeclaration.Variables); 
+					var variable = fieldDeclaration.Variables.First();
+					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
+					if ((rr.Type.IsReferenceType.HasValue && !rr.Type.IsReferenceType.Value) && (ctx.Resolve (variable.Initializer) is ConstantResolveResult))
+						continue;
+
+					potentialReadonlyFields.Add(variable); 
 				}
 				base.VisitTypeDeclaration(typeDeclaration);
 				Collect();
