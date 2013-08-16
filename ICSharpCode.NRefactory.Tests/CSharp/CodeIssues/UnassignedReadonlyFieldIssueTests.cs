@@ -46,6 +46,23 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	readonly object fooBar;
 }");
 		}
+
+		[Test]
+		public void TestValueTypeField ()
+		{
+			Test<UnassignedReadonlyFieldIssue>(@"class Test
+{
+	readonly int fooBar;
+}", @"class Test
+{
+	public Test (int fooBar)
+	{
+		this.fooBar = fooBar;
+	}
+	readonly int fooBar;
+}");
+		}
+
 		
 		[Test]
 		public void TestDisable ()
