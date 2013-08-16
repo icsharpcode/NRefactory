@@ -49,12 +49,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var typeDeclaration = entity.GetParent<TypeDeclaration>();
 
 			yield return new CodeAction(context.TranslateString("This is a constructor"), script =>  {
-				var generatedConstructor = new ConstructorDeclaration();
-				generatedConstructor.Modifiers = entity.Modifiers;
+				var generatedConstructor = (ConstructorDeclaration)entity.Clone();
 				generatedConstructor.Name = typeDeclaration.Name;
-				generatedConstructor.Parameters.AddRange(entity.Parameters.Select(parameter => (ParameterDeclaration)parameter.Clone()));
-				generatedConstructor.Body = (BlockStatement) entity.Body.Clone();
-				generatedConstructor.Attributes.AddRange(entity.Attributes.Select(attribute => (AttributeSection) attribute.Clone()));
 
 				script.Replace(entity, generatedConstructor);
 			}, entity);
