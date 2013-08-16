@@ -66,6 +66,46 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return child.DoMatch(unpacked, match);
 			}
 		}
+
+		/// <summary>
+		/// Optionally allow a block around the given statement;
+		/// </summary>
+		/// <returns>The statement.</returns>
+		public static Statement EmbeddedStatement(Statement statement)
+		{
+			return new OptionalBlockPattern(statement);
+		}
+
+		sealed class OptionalBlockPattern : Pattern
+		{
+			readonly INode child;
+
+			public OptionalBlockPattern(INode child)
+			{
+				this.child = child;
+			}
+
+			public override bool DoMatch(INode other, Match match)
+			{
+				INode unpacked = UnpackBlockStatement(other as Statement);
+				return child.DoMatch(unpacked, match);
+			}
+
+			
+			/// <summary>
+			/// Unpacks the given expression if it is a ParenthesizedExpression, CheckedExpression or UncheckedExpression.
+			/// </summary>
+			public static Statement UnpackBlockStatement(Statement stmt)
+			{
+				while (stmt is BlockStatement) {
+					stmt = stmt.GetChildByRole(BlockStatement.StatementRole);
+					if (stmt.GetNextSibling(s => s.Role == BlockStatement.StatementRole) != null)
+						return null;
+				}
+				return stmt;
+			}
+		}
+
 	
 		/// <summary>
 		/// Allows to give parameter declaration group names.
