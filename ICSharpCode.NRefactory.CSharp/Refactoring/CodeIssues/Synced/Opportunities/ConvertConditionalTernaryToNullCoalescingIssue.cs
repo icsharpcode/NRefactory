@@ -59,16 +59,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this);
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<ConvertConditionalTernaryToNullCoalescingIssue>
 		{
-//			readonly ConvertConditionalTernaryToNullCoalescingIssue inspector;
-			
-			public GatherVisitor (BaseRefactoringContext ctx, ConvertConditionalTernaryToNullCoalescingIssue inspector) : base (ctx)
+
+			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
-//				this.inspector = inspector;
 			}
 
 			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)

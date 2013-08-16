@@ -609,6 +609,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToNullCoalescingExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\EqualExpressionComparisonIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToAssignmentExpressionIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
