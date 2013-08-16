@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (resolveResult == null || resolveResult.IsError)
 						continue;
 					AddIssue(
-						varDecl,
+						varDecl.NameToken,
 						string.Format(ctx.TranslateString("Readonly field '{0}' is never assigned"), varDecl.Name),
 						ctx.TranslateString("Create constructor"),
 						script => {

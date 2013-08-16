@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				foreach (var varDecl in potentialReadonlyFields) {
 					AddIssue(
-						varDecl,
+						varDecl.NameToken,
 						ctx.TranslateString("Convert to readonly"),
 						ctx.TranslateString("To readonly"),
 						script => {

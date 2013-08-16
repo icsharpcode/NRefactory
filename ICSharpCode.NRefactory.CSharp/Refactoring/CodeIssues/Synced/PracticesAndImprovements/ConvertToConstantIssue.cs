@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				foreach (var varDecl in potentialConstantFields) {
 					AddIssue(
-						varDecl,
+						varDecl.NameToken,
 						ctx.TranslateString("Convert to constant"),
 						ctx.TranslateString("To const"),
 						script => {
@@ -192,7 +192,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 				}
 				AddIssue (
-					varDecl,
+					varDecl.Variables.First().NameToken,
 					ctx.TranslateString ("Convert to constant"),
 					ctx.TranslateString ("To const"),
 					script => {
