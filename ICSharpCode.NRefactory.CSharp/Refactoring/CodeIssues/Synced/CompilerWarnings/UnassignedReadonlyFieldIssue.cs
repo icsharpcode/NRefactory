@@ -123,8 +123,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (rr == null)
 							continue;
 						assignmentAnalysis.Analyze(rr.Member as IField, DefiniteAssignmentStatus.PotentiallyAssigned, ctx.CancellationToken);
-						System.Console.WriteLine(rr.Member.Name + ":"+assignmentAnalysis.GetStatusAfter(blockStatement));
-						if (assignmentAnalysis.GetStatusAfter(blockStatement) == DefiniteAssignmentStatus.DefinitelyAssigned)
+						if (assignmentAnalysis.GetEndState() == DefiniteAssignmentStatus.DefinitelyAssigned)
 							continue;
 						newVars.Add(variable);
 					}

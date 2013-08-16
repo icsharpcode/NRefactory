@@ -94,6 +94,39 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 
+		[Test]
+		public void TestFactoryMethod ()
+		{
+			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"class Test
+{
+	object fooBar;
+	
+	public static Test Create ()
+	{
+		var result = new Test ();
+		result.fooBar = new object ();
+		return result;
+	}
+}");
+		}
+
+		[Test]
+		public void TestFactoryMethodCase2 ()
+		{
+			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"class Test
+{
+	object fooBar;
+	
+	public static Test Create ()
+	{
+		var result = new Test {fooBar = new object () };
+		return result;
+	}
+}");
+		}
+
+
+
 	}
 }
 

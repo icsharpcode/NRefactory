@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (rr == null)
 							continue;
 						assignmentAnalysis.Analyze(rr.Member as IField, DefiniteAssignmentStatus.PotentiallyAssigned, ctx.CancellationToken);
-						if (assignmentAnalysis.GetStatusAfter(blockStatement) == DefiniteAssignmentStatus.DefinitelyAssigned)
+						if (assignmentAnalysis.GetEndState() == DefiniteAssignmentStatus.DefinitelyAssigned)
 							continue;
 						newVars.Add(variable);
 					}
@@ -142,7 +142,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (rr == null)
 						continue;
 					assignmentAnalysis.Analyze (rr.Variable, DefiniteAssignmentStatus.PotentiallyAssigned, ctx.CancellationToken);
-					if (assignmentAnalysis.GetStatusAfter (containingBlock) == DefiniteAssignmentStatus.DefinitelyAssigned)
+					if (assignmentAnalysis.GetEndState() == DefiniteAssignmentStatus.DefinitelyAssigned)
 						return;
 				}
 				AddIssue (
@@ -201,8 +201,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
+			public DefiniteAssignmentStatus GetEndState()
+			{
+				var block = rootStatement as BlockStatement;
+				if (block != null) {
+					var last = block.Statements.LastOrDefault();
+					var result = GetStatusAfter(last);
+					if (result == DefiniteAssignmentStatus.DefinitelyAssigned)
+						return result;
+					return GetStatusBefore(last);
+				}
+				return GetStatusAfter(rootStatement);
+			}
+
+			readonly Statement rootStatement;
+
 			public VariableAssignmentAnalysis(Statement rootStatement, CSharpAstResolver resolver, CancellationToken cancellationToken)
 			{
+				this.rootStatement = rootStatement;
 				if (rootStatement == null)
 					throw new ArgumentNullException("rootStatement");
 				if (resolver == null)
@@ -388,9 +404,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public bool IsVariable(Expression left)
 			{
 				var rr = resolver.Resolve(left);
+
 				var mr = rr as MemberResolveResult;
-				if (mr != null)
+				if (mr != null) {
 					return mr.Member == variableName;
+				}
 
 				var lr = rr as LocalResolveResult;
 				if (lr != null)
@@ -560,6 +578,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						status = child.AcceptVisitor(this, status);
 						status = CleanSpecialValues(status);
 					}
+					if (status == DefiniteAssignmentStatus.DefinitelyAssigned) {
+						Console.WriteLine("result state:" + status);
+					}
 					return status;
 				}
 
@@ -689,6 +710,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				}
 
+				public override DefiniteAssignmentStatus VisitNamedExpression(NamedExpression namedExpression, DefiniteAssignmentStatus data)
+				{
+					if (analysis.IsVariable (namedExpression))
+						return DefiniteAssignmentStatus.DefinitelyAssigned;
+					return namedExpression.Expression.AcceptVisitor(this, data);
+
+				}
+
 				DefiniteAssignmentStatus HandleAssignment(Expression left, Expression right, DefiniteAssignmentStatus initialStatus)
 				{
 					if (analysis.IsVariable (left)) {
@@ -788,6 +817,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return VisitChildren(binaryOperatorExpression, data);
 					}
 				}
+
 
 				public override DefiniteAssignmentStatus VisitUnaryOperatorExpression(UnaryOperatorExpression unaryOperatorExpression, DefiniteAssignmentStatus data)
 				{

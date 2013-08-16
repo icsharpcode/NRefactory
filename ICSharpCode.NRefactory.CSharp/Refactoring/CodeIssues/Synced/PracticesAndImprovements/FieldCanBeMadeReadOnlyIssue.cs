@@ -111,7 +111,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (rr == null)
 							continue;
 						assignmentAnalysis.Analyze(rr.Member as IField, DefiniteAssignmentStatus.PotentiallyAssigned, ctx.CancellationToken);
-						if (assignmentAnalysis.GetStatusAfter(blockStatement) == DefiniteAssignmentStatus.DefinitelyAssigned)
+						var definiteAssignmentStatus = assignmentAnalysis.GetEndState();
+						if (definiteAssignmentStatus == DefiniteAssignmentStatus.DefinitelyAssigned)
 							continue;
 						newVars.Add(variable);
 					}
