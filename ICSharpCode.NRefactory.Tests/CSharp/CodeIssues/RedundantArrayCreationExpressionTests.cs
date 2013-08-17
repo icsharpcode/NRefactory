@@ -98,6 +98,22 @@ class TestClass
 		}
 
 		[Test]
+		public void TestNoProblem3()
+		{
+			var input = @"
+class TestClass
+{
+	Void Foo(int[] a)
+	{}
+	void TestMethod ()
+	{
+		Foo(new int[]{1,2,3});
+	}
+}";
+			Test<RedundantArrayCreationExpressionIssue>(input, 0);
+		}
+
+		[Test]
 		public void TestResharperDisableRestore()
 		{
 			var input = @"
