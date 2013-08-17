@@ -98,7 +98,6 @@ class Foo
 }");
 		}
 
-
 		[Test]
 		public void TestUnaryOperatorCase ()
 		{

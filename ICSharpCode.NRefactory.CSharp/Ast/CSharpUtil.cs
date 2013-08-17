@@ -134,7 +134,14 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public static bool AreConditionsEqual(Expression cond1, Expression cond2)
 		{
-			return cond1.IsMatch(cond2);
+			return GetInnerMostExpression(cond1).IsMatch(GetInnerMostExpression(cond2));
+		}
+
+		static Expression GetInnerMostExpression(Expression target)
+		{
+			while (target is ParenthesizedExpression)
+				target = ((ParenthesizedExpression)target).Expression;
+			return target;
 		}
 	}
 }

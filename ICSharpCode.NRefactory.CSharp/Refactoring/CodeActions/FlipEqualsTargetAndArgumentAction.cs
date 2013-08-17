@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 
 			var rr = context.Resolve(invocation) as InvocationResolveResult;
-			if (rr == null || rr.Member.Name != "Equals" || rr.Member.IsStatic)
+			if (rr == null || rr.Member.Name != "Equals" || rr.Member.IsStatic || !rr.Member.ReturnType.IsKnownType(KnownTypeCode.Boolean))
 				yield break;
 
 			yield return new CodeAction(
@@ -75,7 +75,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				invocation
 			);
 		}
-
 
 		Expression AddParensIfRequired(Expression expression)
 		{

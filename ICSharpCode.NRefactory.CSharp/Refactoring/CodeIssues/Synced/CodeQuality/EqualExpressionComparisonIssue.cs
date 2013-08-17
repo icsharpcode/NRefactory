@@ -28,6 +28,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -53,6 +55,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
+			void AddIssue(AstNode nodeToReplace, AstNode highlightNode, bool replaceWithTrue)
+			{
+				AddIssue(
+					highlightNode, 
+					ctx.TranslateString("Equal expression comparison"), 
+					replaceWithTrue ? ctx.TranslateString("Replace with 'true'") : ctx.TranslateString("Replace with 'false'"), 
+					script =>  {
+						script.Replace(nodeToReplace, new PrimitiveExpression(replaceWithTrue));
+					}
+				);
+			}
+
+
 			readonly BinaryOperatorExpression pattern = 
 				new BinaryOperatorExpression(
 					PatternHelper.OptionalParentheses(new AnyNode("expression")), 
@@ -75,18 +90,42 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var match = pattern.Match(binaryOperatorExpression);
 				if (match.Success) {
-					AddIssue(
-						binaryOperatorExpression.OperatorToken,
-						ctx.TranslateString("Equal expression comparison"),
-						binaryOperatorExpression.Operator == BinaryOperatorType.Equality ? ctx.TranslateString("Replace with 'true'") : ctx.TranslateString("Replace with 'false'"),
-						script => {
-							script.Replace(binaryOperatorExpression, new PrimitiveExpression(binaryOperatorExpression.Operator == BinaryOperatorType.Equality));
-						}
-					);
+					AddIssue(binaryOperatorExpression, binaryOperatorExpression.OperatorToken, binaryOperatorExpression.Operator == BinaryOperatorType.Equality);
 					return;
 				}
 			}
 
+			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+			{
+				base.VisitInvocationExpression(invocationExpression);
+				var rr = ctx.Resolve(invocationExpression) as InvocationResolveResult;
+				if (rr == null || rr.Member.Name != "Equals" || !rr.Member.ReturnType.IsKnownType(KnownTypeCode.Boolean))
+					return;
+
+				if (rr.Member.IsStatic) {
+					if (rr.Member.Parameters.Count != 2)
+						return;
+					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.First(), invocationExpression.Arguments.Last())) {
+						if ((invocationExpression.Parent is UnaryOperatorExpression) && ((UnaryOperatorExpression)invocationExpression.Parent).Operator == UnaryOperatorType.Not) {
+							AddIssue(invocationExpression.Parent, invocationExpression.Parent, false);
+						} else {
+							AddIssue(invocationExpression, invocationExpression, true);
+						}
+					}
+				} else {
+					if (rr.Member.Parameters.Count != 1)
+						return;
+					var target = invocationExpression.Target as MemberReferenceExpression;
+					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.First(), target.Target)) {
+						if ((invocationExpression.Parent is UnaryOperatorExpression) && ((UnaryOperatorExpression)invocationExpression.Parent).Operator == UnaryOperatorType.Not) {
+							AddIssue(invocationExpression.Parent, invocationExpression.Parent, false);
+						} else {
+							AddIssue(invocationExpression, invocationExpression, true);
+						}
+					}
+				}
+
+			}
 		}
 	}
 }

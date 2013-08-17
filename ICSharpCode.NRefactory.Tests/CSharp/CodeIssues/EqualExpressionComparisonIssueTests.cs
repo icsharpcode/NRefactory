@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	public class EqualExpressionComparisonIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestIfElse ()
+		public void TestEquality ()
 		{
 			Test<EqualExpressionComparisonIssue>(@"class Foo
 {
@@ -58,7 +58,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 
 
 		[Test]
-		public void TestIfElseNegated ()
+		public void TestInequality ()
 		{
 			Test<EqualExpressionComparisonIssue>(@"class Foo
 {
@@ -79,6 +79,94 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+
+		[Test]
+		public void TestEquals ()
+		{
+			Test<EqualExpressionComparisonIssue>(@"class Foo
+{
+	static int Bar (object o)
+	{
+		if ((1 + 2).Equals(1 + 2)) {
+		}
+		return 5;
+	}
+}", @"class Foo
+{
+	static int Bar (object o)
+	{
+		if (true) {
+		}
+		return 5;
+	}
+}");
+		}
+
+		[Test]
+		public void TestNotEquals ()
+		{
+			Test<EqualExpressionComparisonIssue>(@"class Foo
+{
+	static int Bar (object o)
+	{
+		if (!(1 + 2).Equals(1 + 2)) {
+		}
+		return 5;
+	}
+}", @"class Foo
+{
+	static int Bar (object o)
+	{
+		if (false) {
+		}
+		return 5;
+	}
+}");
+		}
+
+		[Test]
+		public void TestStaticEquals ()
+		{
+			Test<EqualExpressionComparisonIssue>(@"class Foo
+{
+	static int Bar (object o)
+	{
+		if (Equals(o, o)) {
+		}
+		return 5;
+	}
+}", @"class Foo
+{
+	static int Bar (object o)
+	{
+		if (true) {
+		}
+		return 5;
+	}
+}");
+		}
+
+		[Test]
+		public void TestNotStaticEquals ()
+		{
+			Test<EqualExpressionComparisonIssue>(@"class Foo
+{
+	static int Bar (object o)
+	{
+		if (!Equals(o, o)) {
+		}
+		return 5;
+	}
+}", @"class Foo
+{
+	static int Bar (object o)
+	{
+		if (false) {
+		}
+		return 5;
+	}
+}");
+		}
 
 		[Test]
 		public void TestDisable ()
