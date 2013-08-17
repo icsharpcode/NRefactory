@@ -612,6 +612,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\EqualExpressionComparisonIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertIfToOrExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\ConvertIfToAndExpressionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\EventUnsubscriptionViaAnonymousDelegateIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
