@@ -287,6 +287,7 @@
     <Compile Include="Editor\UnicodeNewline.cs" />
     <Compile Include="Completion\FrameworkLookup.cs" />
     <Compile Include="Utils\ComparableList.cs" />
+    <Compile Include="PatternMatching\AnyNodeOrNull.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Completion\" />

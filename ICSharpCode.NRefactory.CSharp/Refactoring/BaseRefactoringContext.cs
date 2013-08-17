@@ -190,6 +190,30 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		#endregion
 
+
+		#region Naming
+		public virtual string GetNameProposal (string name, TextLocation loc, bool camelCase = true)
+		{
+			string baseName = (camelCase ? char.ToLower (name [0]) : char.ToUpper (name [0])) + name.Substring (1);
+
+			var type = RootNode.GetNodeAt<TypeDeclaration>(loc);
+			if (type == null)
+				return baseName;
+
+			int number = -1;
+			string proposedName;
+			do {
+				proposedName = AppendNumberToName (baseName, number++);
+			} while (type.Members.Select (m => m.GetChildByRole (Roles.Identifier)).Any (n => n.Name == proposedName));
+			return proposedName;
+		}
+
+		static string AppendNumberToName (string baseName, int number)
+		{
+			return baseName + (number > 0 ? (number + 1).ToString () : "");
+		}
+		#endregion
+
 		/// <summary>
 		/// Translates the english input string to the context language.
 		/// </summary>

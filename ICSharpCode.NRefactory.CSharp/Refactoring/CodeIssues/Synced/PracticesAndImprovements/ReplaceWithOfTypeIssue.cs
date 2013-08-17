@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					), "Select"),
 				new LambdaExpression {
 					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
-					Body = PatternHelper.OptionalParentheses (new AsExpression(PatternHelper.OptionalParentheses (new AnyNode("expr2")), new Backreference("type")))
+					Body = PatternHelper.OptionalParentheses (new AsExpression(new Backreference("type"), PatternHelper.OptionalParentheses (new AnyNode("expr2"))))
 				}
 		);
 

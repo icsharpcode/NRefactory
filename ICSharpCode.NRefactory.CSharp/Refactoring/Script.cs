@@ -303,7 +303,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			InsertBefore(node, attr);
 		}
 
-
 		public virtual Task Link (params AstNode[] nodes)
 		{
 			// Default implementation: do nothing
@@ -313,6 +312,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var tcs = new TaskCompletionSource<object>();
 			tcs.SetResult(null);
 			return tcs.Task;
+		}
+
+		public virtual Task Link (IEnumerable<AstNode> nodes)
+		{
+			return Link(nodes.ToArray());
 		}
 		
 		public void Replace (AstNode node, AstNode replaceWith)

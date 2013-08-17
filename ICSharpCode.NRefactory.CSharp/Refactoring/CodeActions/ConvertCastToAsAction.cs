@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var isNullable = typeDef != null && typeDef.KnownTypeCode == KnownTypeCode.NullableOfT;
 			if (type.IsReferenceType == true || isNullable) {
 				return new CodeAction (context.TranslateString ("Convert cast to 'as'"), script => {
-					var asExpr = new AsExpression (node.Expression.Clone (), node.Type.Clone ());
+					var asExpr = new AsExpression (node.Type.Clone (), node.Expression.Clone ());
 					// if parent is an expression, clone parent and replace the case expression with asExpr,
 					// so that we can inset parentheses
 					var parentExpr = node.Parent.Clone () as Expression;

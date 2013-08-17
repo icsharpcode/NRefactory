@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 		}
 		
-		public AsExpression (Expression expression, AstType type)
+		public AsExpression (AstType type, Expression expression)
 		{
 			AddChild (expression, Roles.Expression);
 			AddChild (type, Roles.Type);

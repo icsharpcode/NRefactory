@@ -619,6 +619,7 @@
     <Compile Include="Refactoring\CodeActions\ConvertEqualityOperatorToEqualsAction.cs" />
     <Compile Include="Refactoring\CodeActions\ConvertEqualsToEqualityOperatorAction.cs" />
     <Compile Include="Refactoring\CodeActions\FlipEqualsTargetAndArgumentAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\CanBeReplacedWithTryCastAndCheckForNullIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
