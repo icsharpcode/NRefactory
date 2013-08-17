@@ -221,6 +221,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						})
 						.ContinueScript (s => s.Select(throwStatement));
 					return;
+				} else {
+					throwStatement.Expression = new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException"));
 				}
 
 				script
