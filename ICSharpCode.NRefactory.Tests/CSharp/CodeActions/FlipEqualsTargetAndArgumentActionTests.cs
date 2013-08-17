@@ -77,6 +77,29 @@ class Foo
 		}
 
 		[Test]
+		public void TestRemoveParens ()
+		{
+			Test<FlipEqualsTargetAndArgumentAction>(@"
+class Foo
+{
+	public void FooFoo (object x, object y)
+	{
+		if ((1 + 2).Equals $(x))
+			Console.WriteLine (x);
+	}
+}", @"
+class Foo
+{
+	public void FooFoo (object x, object y)
+	{
+		if (x.Equals (1 + 2))
+			Console.WriteLine (x);
+	}
+}");
+		}
+
+
+		[Test]
 		public void TestUnaryOperatorCase ()
 		{
 			Test<FlipEqualsTargetAndArgumentAction>(@"
@@ -123,6 +146,29 @@ class Foo
 	public void FooFoo (object x, object y)
 	{
 		if (Foo.$Equals (x))
+			Console.WriteLine (x);
+	}
+}");
+		}
+
+		[Test]
+		public void TestCaretLocation ()
+		{
+			TestWrongContext<FlipEqualsTargetAndArgumentAction>(@"
+class Foo
+{
+	public void FooFoo (object x, object y)
+	{
+		if (x$.Equals (y))
+			Console.WriteLine (x);
+	}
+}");
+			TestWrongContext<FlipEqualsTargetAndArgumentAction>(@"
+class Foo
+{
+	public void FooFoo (object x, object y)
+	{
+		if (x.Equals ($y))
 			Console.WriteLine (x);
 	}
 }");

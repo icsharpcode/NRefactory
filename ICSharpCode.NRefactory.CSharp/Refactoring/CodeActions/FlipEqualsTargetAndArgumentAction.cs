@@ -35,6 +35,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Swap 'Equals' target and argument", Description = "Swap 'Equals' target and argument")]
 	public class FlipEqualsTargetAndArgumentAction : CodeActionProvider
 	{
+		Expression GetInnerMostExpression(Expression target)
+		{
+			while (target is ParenthesizedExpression)
+				target = ((ParenthesizedExpression)target).Expression;
+			return target;
+		}
+
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var invocation = context.GetNode<InvocationExpression>();
@@ -42,6 +49,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			if (invocation.Arguments.Count != 1 || invocation.Arguments.First() is NullReferenceExpression)
 				yield break;
+			var target = invocation.Target as MemberReferenceExpression;
+
+			if (target == null || target.MemberNameToken.StartLocation > context.Location || invocation.LParToken.StartLocation < context.Location)
+				yield break;
+
 			var rr = context.Resolve(invocation) as InvocationResolveResult;
 			if (rr == null || rr.Member.Name != "Equals" || rr.Member.IsStatic)
 				yield break;
@@ -49,7 +61,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			yield return new CodeAction(
 				context.TranslateString("Flip 'Equals' target and argument"),
 				script => {
-					var target = invocation.Target as MemberReferenceExpression;
 					script.Replace(
 						invocation,
 						new InvocationExpression(
@@ -57,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								AddParensIfRequired(invocation.Arguments.First ().Clone()),
 								"Equals"
 							),
-							target.Target.Clone()
+							GetInnerMostExpression (target.Target).Clone()
 						)
 				    );
 				},
