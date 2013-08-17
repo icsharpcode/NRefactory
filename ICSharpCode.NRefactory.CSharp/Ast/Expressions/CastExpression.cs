@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System.Collections.Generic;
+using System;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
@@ -53,12 +54,20 @@ namespace ICSharpCode.NRefactory.CSharp
 		public CastExpression ()
 		{
 		}
-		
+
+		[Obsolete("Use CastExpression (Expression expression, AstType castToType)")]
 		public CastExpression (AstType castToType, Expression expression)
 		{
 			AddChild (castToType, Roles.Type);
 			AddChild (expression, Roles.Expression);
 		}
+
+		public CastExpression (Expression expression, AstType castToType)
+		{
+			AddChild (castToType, Roles.Type);
+			AddChild (expression, Roles.Expression);
+		}
+
 		
 		public override void AcceptVisitor (IAstVisitor visitor)
 		{

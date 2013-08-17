@@ -137,7 +137,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			return GetInnerMostExpression(cond1).IsMatch(GetInnerMostExpression(cond2));
 		}
 
-		static Expression GetInnerMostExpression(Expression target)
+		public static Expression GetInnerMostExpression(Expression target)
 		{
 			while (target is ParenthesizedExpression)
 				target = ((ParenthesizedExpression)target).Expression;

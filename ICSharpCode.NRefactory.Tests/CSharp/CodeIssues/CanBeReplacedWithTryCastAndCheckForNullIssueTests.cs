@@ -65,6 +65,95 @@ class Bar
 		}
 
 		[Test]
+		public void ComplexCase()
+		{
+			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+class Bar
+{
+	public IDisposable Baz (object foo)
+	{
+		if (((foo) is Bar)) {
+			Baz ((Bar)foo);
+			Baz (foo as Bar);
+			Baz (((foo) as Bar));
+			Baz ((Bar)(foo));
+			return (IDisposable)foo;
+		}
+		return null;
+	}
+}
+", @"
+class Bar
+{
+	public IDisposable Baz (object foo)
+	{
+		var bar = foo as Bar;
+		if (bar != null) {
+			Baz (bar);
+			Baz (bar);
+			Baz ((bar));
+			Baz (bar);
+			return (IDisposable)foo;
+		}
+		return null;
+	}
+}
+");
+		}
+
+		[Test]
+		public void IfElseCase()
+		{
+			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		if (foo is Bar) {
+			Baz ((Bar)foo);
+			return (Bar)foo;
+		} else {
+			Console.WriteLine (""Hello World "");
+		}
+		return null;
+	}
+}
+", @"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		var bar = foo as Bar;
+		if (bar != null) {
+			Baz (bar);
+			return bar;
+		} else {
+			Console.WriteLine (""Hello World "");
+		}
+		return null;
+	}
+}
+");
+		}
+
+		[Test]
+		public void InvalidIfNoTypeCast()
+		{
+			TestWrongContext<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		if (foo is Bar) {
+			Console.WriteLine (""Hello World "");
+		}
+		return null;
+	}
+}
+");
+		}
+
+		[Test]
 		public void TestDisable()
 		{
 			TestWrongContext<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"

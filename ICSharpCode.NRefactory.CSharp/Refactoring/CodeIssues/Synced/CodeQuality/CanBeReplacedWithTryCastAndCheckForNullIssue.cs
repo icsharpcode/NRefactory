@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			static readonly AstNode pattern = 
 				new IfElseStatement(
-					new NamedNode ("isExpression", new IsExpression(new AnyNode(), new AnyNode())),
+					new NamedNode ("isExpression", PatternHelper.OptionalParentheses(new IsExpression(PatternHelper.OptionalParentheses(new AnyNode()), PatternHelper.AnyType()))),
 					new AnyNode("embedded"),
 					new AnyNodeOrNull()
 				);
@@ -66,12 +66,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!match.Success)
 					return;
 
-				var isExpression     = match.Get<IsExpression>("isExpression").Single();
-				var obj              = isExpression.Expression;
+				var outerIs          = match.Get<Expression>("isExpression").Single();
+				var isExpression     = CSharpUtil.GetInnerMostExpression(outerIs) as IsExpression;
+				var obj              = CSharpUtil.GetInnerMostExpression(isExpression.Expression);
 				var castToType       = isExpression.Type;
 				var embeddedStatment = match.Get<Statement>("embedded").Single();
 
-				var cast = new CastExpression(castToType.Clone(), obj.Clone());
+				var cast = new Choice {
+					new CastExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone()),
+					new AsExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone())
+				};
 
 				var rr = ctx.Resolve(castToType);
 				if (rr == null || rr.IsError)
@@ -89,19 +93,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var varDec = new VariableDeclarationStatement(
 							new PrimitiveType("var"),
 							varName,
-							new AsExpression(castToType.Clone(), obj.Clone())
+							new AsExpression(obj.Clone(), castToType.Clone())
 						);
 						script.InsertBefore(ifElseStatement, varDec);
+						var binaryOperatorIdentifier = new IdentifierExpression(varName);
 						script.Replace(
-							isExpression,
-			               	new BinaryOperatorExpression(
-								new IdentifierExpression(varName),
+							outerIs,
+							new BinaryOperatorExpression(
+								binaryOperatorIdentifier,
 								BinaryOperatorType.InEquality,
 								new NullReferenceExpression()
 							)
 						);
 						var linkedNodes = new List<AstNode>();
 						linkedNodes.Add(varDec.Variables.First().NameToken);
+						linkedNodes.Add(binaryOperatorIdentifier);
 						foreach (var c in foundCasts) {
 							var id = new IdentifierExpression(varName);
 							linkedNodes.Add(id);
@@ -111,8 +117,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				);
 			}
-
 		}
 	}
 }
-

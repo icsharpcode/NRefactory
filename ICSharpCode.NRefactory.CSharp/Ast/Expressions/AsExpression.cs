@@ -53,13 +53,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 		}
 		
-		public AsExpression (AstType type, Expression expression)
-		{
-			AddChild (expression, Roles.Expression);
-			AddChild (type, Roles.Type);
-		}
-
-		[Obsolete("Use AsExpression (AstType type, Expression expression).")]
 		public AsExpression (Expression expression, AstType type)
 		{
 			AddChild (expression, Roles.Expression);
