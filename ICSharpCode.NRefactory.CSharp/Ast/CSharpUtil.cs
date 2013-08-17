@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
@@ -129,6 +130,11 @@ namespace ICSharpCode.NRefactory.CSharp
 					return BinaryOperatorType.ConditionalOr;
 			}
 			return BinaryOperatorType.Any;
+		}
+
+		public static bool AreConditionsEqual(Expression cond1, Expression cond2)
+		{
+			return cond1.IsMatch(cond2);
 		}
 	}
 }

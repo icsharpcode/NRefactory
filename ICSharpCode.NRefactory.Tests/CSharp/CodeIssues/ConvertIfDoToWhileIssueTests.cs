@@ -79,6 +79,22 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+		[Test]
+		public void TestInvalidCase ()
+		{
+			TestWrongContext<ConvertIfDoToWhileIssue>(@"class FooBar
+{
+	public void FooFoo (int x)
+	{
+		if (x < 10) {
+			do {
+				Console.WriteLine (x++);
+			} while (x < 11);
+		}
+	}
+}");
+		}
+
 
 		[Test]
 		public void TestDisable ()

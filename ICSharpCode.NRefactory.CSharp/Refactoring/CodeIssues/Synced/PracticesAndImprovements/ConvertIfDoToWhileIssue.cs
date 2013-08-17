@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new IfElseStatement(
 					new AnyNode ("condition"),
 					PatternHelper.EmbeddedStatement (
-						new DoWhileStatement (new Backreference("condition"), new AnyNode ("EmbeddedStatement"))
+						new DoWhileStatement (new AnyNode("condition2"), new AnyNode ("EmbeddedStatement"))
 					)
 				);
 
@@ -63,6 +63,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitIfElseStatement(ifElseStatement);
 				var match = ifPattern.Match(ifElseStatement);
 				if (match.Success) {
+					var cond1 = match.Get<Expression>("condition").Single();
+					var cond2 = match.Get<Expression>("condition2").Single();
+					if (!CSharpUtil.AreConditionsEqual(cond1, cond2))
+						return;
 					AddIssue(
 						ifElseStatement.IfToken,
 						ctx.TranslateString("Statement can be simplified to 'while' statement"),
@@ -71,7 +75,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							script.Replace(
 								ifElseStatement, 
 								new WhileStatement(
-									match.Get<Expression>("condition").Single().Clone(),
+									cond1.Clone(),
 									match.Get<Statement>("EmbeddedStatement").Single().Clone()
 								)
 							);
