@@ -64,6 +64,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name='context'>
 		/// The refactoring context of the issues to get.
 		/// </param>
+		/// <param name='subIssue'>
+		/// The name of the sub issue to run.
+		/// </param>
 		public virtual IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context, string subIssue = null)
 		{
 			return GetIssues(context);

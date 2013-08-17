@@ -1,4 +1,4 @@
-﻿// 
+// 
 // MethodNeverReturnsIssue.cs
 // 
 // Author:
@@ -165,6 +165,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					//and properties are never in "method groups".
 					var memberResolveResult = resolveResult as MemberResolveResult;
 					if (memberResolveResult == null || memberResolveResult.Member != this.member) {
+						return false;
+					}
+
+					//Now check for virtuals
+					if (memberResolveResult.Member.IsVirtual && !memberResolveResult.Member.DeclaringTypeDefinition.IsSealed) {
 						return false;
 					}
 

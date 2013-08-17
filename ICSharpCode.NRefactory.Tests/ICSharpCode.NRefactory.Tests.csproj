@@ -472,11 +472,26 @@
     <Compile Include="CSharp\CodeIssues\CS0659OverrideEqualsWithoutGetHashCodeTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConstantNullCoalescingConditionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantArrayCreationExpressionTests.cs" />
+    <Compile Include="CSharp\Analysis\NullValueAnalysisTests.cs" />
     <Compile Include="CSharp\CodeIssues\DuplicatedLinqToListOrArrayTests.cs" />
     <Compile Include="CSharp\CodeIssues\DelegateParametersAreUnusedTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\ChangeAccessModifierTests.cs" />
     <Compile Include="CSharp\CodeActions\AbstractAndVirtualConversionActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantToStringCallForValueTypesIssue.cs" />
+    <Compile Include="CSharp\CodeIssues\UseOfMemberOfNullReferenceTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertToConstantIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\FieldCanBeMadeReadOnlyIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnassignedReadonlyFieldIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UseMethodIsInstanceOfTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UseIsOperatorIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RewriteIfReturnToReturnIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertIfStatementToConditionalTernaryExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertIfStatementToNullCoalescingExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertDoWhileToWhileLoopTests.cs" />
+    <Compile Include="CSharp\CodeIssues\EqualExpressionComparisonIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertIfToOrExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertIfToAndExpressionIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

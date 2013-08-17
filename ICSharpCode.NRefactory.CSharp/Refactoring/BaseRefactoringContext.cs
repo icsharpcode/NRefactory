@@ -159,6 +159,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name="statement">
 		/// The statement to start the analysis.
 		/// </param>
+		/// <param name="recursiveDetectorVisitor">
+		/// TODO.
+		/// </param>
 		/// <returns>
 		/// The reachability analysis object.
 		/// </returns>

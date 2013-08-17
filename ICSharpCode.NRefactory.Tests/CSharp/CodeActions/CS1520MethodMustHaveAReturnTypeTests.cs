@@ -68,6 +68,24 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	}
 }", 0, true);
 		}
+
+		[Test]
+		public void TestConstructorWithBase()
+		{
+			Test<CS1520MethodMustHaveAReturnTypeAction> (
+				@"class Foo
+{
+	static $Fa (string str) : base (str)
+	{
+	}
+}",
+				@"class Foo
+{
+	static Foo (string str) : base (str)
+	{
+	}
+}", 0, true);
+		}
 	}
 }
 

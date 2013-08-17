@@ -590,12 +590,28 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\ConstantNullCoalescingConditionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantArrayCreationExpressionIssue.cs" />
+    <Compile Include="Analysis\NullValueAnalysis.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DuplicatedLinqToListOrArrayIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\DelegateParametersAreUnusedIssue.cs" />
     <Compile Include="Refactoring\CodeActions\InvertLogicalExpressionAction.cs" />
+    <Compile Include="Analysis\NullValueStatus.cs" />
     <Compile Include="Refactoring\CodeActions\ChangeAccessModifierAction.cs" />
     <Compile Include="Refactoring\CodeActions\AbstractAndVirtualConversionAction.cs" />
     <Compile Include="Refactoring\CodeIssues\NotWorking\DuplicateExpressionsInConditionsIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\UseOfMemberOfNullReference.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ConvertToConstantIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\FieldCanBeMadeReadOnlyIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\UnassignedReadonlyFieldIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseMethodIsInstanceOfTypeIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\UseIsOperatorIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\RewriteIfReturnToReturnIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToNullCoalescingExpressionIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\ConvertDoWhileToWhileLoopAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\EqualExpressionComparisonIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertIfToOrExpressionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Custom\ConvertIfToAndExpressionIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

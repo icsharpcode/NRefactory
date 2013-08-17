@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
-                      ResharperDisableKeyword = "RedundantToStringCall")]
+	                  ResharperDisableKeyword = "RedundantToStringCall")]
 	public class RedundantToStringCallIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -86,7 +86,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (resolveResult == null) {
 					return;
 				}
-				AddRedundantToStringIssue(memberExpression, invocationExpression);
+				if (ctx.Resolve(memberExpression.Target).Type.Kind != TypeKind.Struct) 
+					AddRedundantToStringIssue(memberExpression, invocationExpression);
 			}
 			
 			void AddRedundantToStringIssue(MemberReferenceExpression memberExpression, InvocationExpression invocationExpression)
@@ -167,7 +168,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitInvocationExpression(invocationExpression);
 
-				var target = invocationExpression.Target as MemberReferenceExpression;
+				//var target = invocationExpression.Target as MemberReferenceExpression;
 
 				var invocationResolveResult = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
 				if (invocationResolveResult == null) {

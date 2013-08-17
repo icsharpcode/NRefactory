@@ -36,21 +36,20 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <param name="condition">The condition to invert.</param>
 		public static Expression InvertCondition(Expression condition)
 		{
-			return InvertConditionInternal(condition.Clone());
+			return InvertConditionInternal(condition);
 		}
 		
 		static Expression InvertConditionInternal(Expression condition)
 		{
 			if (condition is ParenthesizedExpression) {
-				((ParenthesizedExpression)condition).Expression = InvertCondition(((ParenthesizedExpression)condition).Expression);
-				return condition;
+				return new ParenthesizedExpression(InvertCondition(((ParenthesizedExpression)condition).Expression));
 			}
 			
 			if (condition is UnaryOperatorExpression) {
 				var uOp = (UnaryOperatorExpression)condition;
 				if (uOp.Operator == UnaryOperatorType.Not)
-					return uOp.Expression;
-				return new UnaryOperatorExpression(UnaryOperatorType.Not, uOp);
+					return uOp.Expression.Clone();
+				return new UnaryOperatorExpression(UnaryOperatorType.Not, uOp.Clone());
 			}
 			
 			if (condition is BinaryOperatorExpression) {
@@ -65,13 +64,14 @@ namespace ICSharpCode.NRefactory.CSharp
 				} else {
 					var negatedOp = NegateRelationalOperator(bOp.Operator);
 					if (negatedOp == BinaryOperatorType.Any)
-						return new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(condition));
+						return new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(condition.Clone()));
+					bOp = (BinaryOperatorExpression)bOp.Clone();
 					bOp.Operator = negatedOp;
 					return bOp;
 				}
 			}
 			if (condition is ConditionalExpression) {
-				var cEx = condition as ConditionalExpression;
+				var cEx = condition.Clone() as ConditionalExpression;
 				cEx.Condition = InvertCondition(cEx.Condition);
 				return cEx;
 			}
@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 			}
 			
-			return new UnaryOperatorExpression(UnaryOperatorType.Not, condition);
+			return new UnaryOperatorExpression(UnaryOperatorType.Not, condition.Clone());
 		}
 
 		/// <summary>
