@@ -66,8 +66,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public static bool RequiresParens(AstNode replaceNode, AstNode replaceWithNode)
 		{
 			if (!(replaceWithNode is BinaryOperatorExpression) &&
+			    !(replaceWithNode is AssignmentExpression) &&
 			    !(replaceWithNode is AsExpression) &&
 			    !(replaceWithNode is IsExpression) &&
+			    !(replaceWithNode is CastExpression) &&
+			    !(replaceWithNode is LambdaExpression) &&
 				!(replaceWithNode is ConditionalExpression)) {
 				return false;
 			}
@@ -82,10 +85,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			return replaceNode.Parent is BinaryOperatorExpression || 
 				replaceNode.Parent is UnaryOperatorExpression || 
+				replaceNode.Parent is AssignmentExpression || 
 				replaceNode.Parent is MemberReferenceExpression ||
 				replaceNode.Parent is AsExpression || 
 				replaceNode.Parent is IsExpression || 
 				replaceNode.Parent is CastExpression ||
+				replaceNode.Parent is LambdaExpression ||
 				replaceNode.Parent is PointerReferenceExpression;
 		}
 

@@ -62,8 +62,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Expression AddParensIfRequired(Expression expression)
 			{
 				if ((expression is BinaryOperatorExpression) ||
+				    (expression is AssignmentExpression) ||
+				    (expression is CastExpression) ||
 					(expression is AsExpression) ||
 					(expression is IsExpression) ||
+				    (expression is LambdaExpression) ||
 					(expression is ConditionalExpression)) {
 					return new ParenthesizedExpression(expression);
 				}

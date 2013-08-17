@@ -345,7 +345,9 @@
     <Compile Include="CSharp\Inspector\InconsistentNamingIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\InconsistentNamingTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateLocalVariableTests.cs" />
-    <Compile Include="CSharp\CodeActions\CreateFieldTests.cs" />
+    <Compile Include="CSharp\CodeActions\CreateFieldTests.cs">
+      <DependentUpon>CreateEventInvocatorTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="CSharp\CodeActions\CreatePropertyTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateMethodDeclarationTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateIndexerTests.cs" />
@@ -498,6 +500,7 @@
     <Compile Include="CSharp\CodeIssues\ConvertNullableToShortFormIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertEqualityOperatorToEqualsActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertEqualsToEqualityOperatorActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\FlipEqualsTargetAndArgumentActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
