@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						new MemberReferenceExpression(new AnyNode("targetExpr"), "Select"),
 						new LambdaExpression {
 							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
-							Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
+							Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), PatternHelper.AnyType("type")))
 						}
 					), 
 					Pattern.AnyString
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						new MemberReferenceExpression(new AnyNode("targetExpr"), "Select"),
 						new LambdaExpression {
 							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
-							Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
+							Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), PatternHelper.AnyType("type")))
 						}
 					),	 
 					Pattern.AnyString
