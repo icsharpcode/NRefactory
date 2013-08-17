@@ -616,6 +616,8 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\BaseMemberHasParamsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ConvertIfDoToWhileIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertNullableToShortFormIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\ConvertEqualityOperatorToEqualsAction.cs" />
+    <Compile Include="Refactoring\CodeActions\ConvertEqualsToEqualityOperatorAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

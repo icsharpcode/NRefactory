@@ -496,6 +496,8 @@
     <Compile Include="CSharp\CodeIssues\BaseMemberHasParamsIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertIfDoToWhileIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertNullableToShortFormIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertEqualityOperatorToEqualsActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertEqualsToEqualityOperatorActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
