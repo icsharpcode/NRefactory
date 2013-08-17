@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+			TestWrongContext<EqualExpressionComparisonIssue>(@"class Foo
 {
 	static int Bar (object o)
 	{

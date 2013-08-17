@@ -39,16 +39,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Comparing equal expression for equality is usually useless",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
+	                  ResharperDisableKeyword = "EqualExpressionComparison")]
 	public class EqualExpressionComparisonIssue : GatherVisitorCodeIssueProvider
 	{
-		
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 		
-		class GatherVisitor : GatherVisitorBase<ConvertConditionalTernaryToNullCoalescingIssue>
+		class GatherVisitor : GatherVisitorBase<EqualExpressionComparisonIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
