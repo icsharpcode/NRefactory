@@ -91,7 +91,7 @@ class Bar
 		if (bar != null) {
 			Baz (bar);
 			Baz (bar);
-			Baz ((bar));
+			Baz (bar);
 			Baz (bar);
 			return (IDisposable)foo;
 		}

@@ -73,14 +73,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var embeddedStatment = match.Get<Statement>("embedded").Single();
 
 				var cast = new Choice {
-					new CastExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone()),
-					new AsExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone())
+					PatternHelper.OptionalParentheses(new CastExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone())),
+					PatternHelper.OptionalParentheses(new AsExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone()))
 				};
 
 				var rr = ctx.Resolve(castToType);
 				if (rr == null || rr.IsError)
 					return;
-				var foundCasts = embeddedStatment.DescendantsAndSelf.Where(n => cast.IsMatch(n)).ToList();
+				var foundCasts = embeddedStatment.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n)).ToList();
 				if (foundCasts.Count == 0)
 					return;
 
