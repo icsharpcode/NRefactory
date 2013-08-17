@@ -50,6 +50,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
+		internal class FieldCollectVisitor<T> : GatherVisitorBase<T>  where T : CodeIssueProvider
+		{
+			public readonly List<FieldDeclaration> CollectedFields = new List<FieldDeclaration>();
+
+			public FieldCollectVisitor(BaseRefactoringContext context) : base (context)
+			{
+			}
+
+			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+			{
+				if (IsSuppressed(fieldDeclaration.StartLocation))
+					return;
+				CollectedFields.Add(fieldDeclaration); 
+			}
+
+			public override void VisitBlockStatement(BlockStatement blockStatement)
+			{
+				// SKIP
+			}
+		}
+
 		class GatherVisitor : GatherVisitorBase<ConvertToConstantIssue>
 		{
 			List<VariableInitializer> potentialConstantFields = new List<VariableInitializer>();
@@ -104,7 +125,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
-				foreach (var fieldDeclaration in typeDeclaration.Members.OfType<FieldDeclaration>()) {
+				var fieldVisitor = new ConvertToConstantIssue.FieldCollectVisitor<ConvertToConstantIssue>(ctx);
+				typeDeclaration.AcceptVisitor(fieldVisitor);
+
+				foreach (var fieldDeclaration in fieldVisitor.CollectedFields) {
 					if (IsSuppressed(fieldDeclaration.StartLocation))
 						continue;
 					if (fieldDeclaration.Modifiers.HasFlag (Modifiers.Const) || fieldDeclaration.Modifiers.HasFlag (Modifiers.Readonly))

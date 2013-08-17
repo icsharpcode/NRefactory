@@ -76,9 +76,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
-				foreach (var fieldDeclaration in typeDeclaration.Members.OfType<FieldDeclaration>()) {
-					if (IsSuppressed(fieldDeclaration.StartLocation))
-						continue;
+				var fieldVisitor = new ConvertToConstantIssue.FieldCollectVisitor<FieldCanBeMadeReadOnlyIssue>(ctx);
+				typeDeclaration.AcceptVisitor(fieldVisitor);
+
+				foreach (var fieldDeclaration in fieldVisitor.CollectedFields) {
 					if (fieldDeclaration.HasModifier(Modifiers.Const) || fieldDeclaration.HasModifier(Modifiers.Readonly))
 						continue;
 					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
