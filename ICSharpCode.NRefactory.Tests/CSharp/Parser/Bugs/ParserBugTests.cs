@@ -302,6 +302,7 @@ class Test
 			var unit = SyntaxTree.Parse(code);
 			
 			bool passed = unit.ToString().Trim() == @"using System;
+
 class Test
 {
 	void Foo ()

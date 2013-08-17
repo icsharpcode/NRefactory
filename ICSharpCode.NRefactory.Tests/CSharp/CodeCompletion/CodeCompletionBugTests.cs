@@ -71,12 +71,12 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 		public class TestFactory
 		: ICompletionDataFactory
 		{
-			readonly CSharpResolver state;
+//			readonly CSharpResolver state;
 			readonly TypeSystemAstBuilder builder;
 
 			public TestFactory(CSharpResolver state)
 			{
-				this.state = state;
+//				this.state = state;
 				builder = new TypeSystemAstBuilder(state);
 				builder.ConvertUnboundTypeArguments = true;
 			}

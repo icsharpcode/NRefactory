@@ -609,7 +609,7 @@ int j,
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
 
-			var adapter = Test (policy, @"class Test
+			Test (policy, @"class Test
 {
 	int Foo (int i, double d, Action a)
 	{
@@ -631,7 +631,7 @@ int j,
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
 			policy.BlankLinesBetweenMembers = 1;
 
-			var adapter = Test (policy, @"class Test
+			Test (policy, @"class Test
 {
 	int Foo (int i, double d, Action a)
 	{

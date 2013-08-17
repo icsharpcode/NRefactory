@@ -53,11 +53,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 
 			yield return new CodeAction(context.TranslateString("Convert to while loop"),
-			                           script => ConvertToWhileLoop(script, node),
-			                           target);
+			                            script => ConvertToWhileLoop(script, node),
+			                            target);
 
 		}
-		
+
 		static void ConvertToWhileLoop(Script script, DoWhileStatement originalStatement)
 		{
 			script.Replace(originalStatement, new WhileStatement {

@@ -42,11 +42,11 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 	{
 		internal class TestFactory : IParameterCompletionDataFactory
 		{
-			IProjectContent ctx;
+//			IProjectContent ctx;
 			
 			public TestFactory (IProjectContent ctx)
 			{
-				this.ctx = ctx;
+//				this.ctx = ctx;
 			}
 			
 			internal class Provider : IParameterDataProvider
