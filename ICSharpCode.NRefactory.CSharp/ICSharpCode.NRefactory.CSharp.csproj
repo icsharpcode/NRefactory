@@ -614,6 +614,7 @@
     <Compile Include="Refactoring\CodeIssues\Custom\ConvertIfToAndExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\EventUnsubscriptionViaAnonymousDelegateIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\BaseMemberHasParamsIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ConvertIfDoToWhileIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
