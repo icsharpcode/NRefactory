@@ -33,7 +33,7 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("CS0659: Class override Object.equals but not Object.Gethashcode.",
+	[IssueDescription("CS0659: Class overrides Object.Equals but not Object.GetHashCode.",
 					Description = "If two objects are equal then they must both have the same hash code",
 					Category = IssueCategories.CompilerErrors,
 					Severity = Severity.Error,
