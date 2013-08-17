@@ -214,6 +214,45 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Replace(offset, endOffset - offset, sb.ToString());
 		}
 
+		public void ChangeModifier(ParameterDeclaration param, ParameterModifier modifier)
+		{
+			var child = param.FirstChild;
+			Func<AstNode, bool> pred = s => s.Role == ParameterDeclaration.RefModifierRole || s.Role == ParameterDeclaration.OutModifierRole || s.Role == ParameterDeclaration.ParamsModifierRole || s.Role == ParameterDeclaration.ThisModifierRole;
+			if (!pred(child))
+				child = child.GetNextSibling(pred); 
+
+			int offset;
+			int endOffset;
+
+			if (child != null) {
+				offset = GetCurrentOffset(child.StartLocation);
+				endOffset = GetCurrentOffset(child.GetNextSibling (s => s.Role != Roles.NewLine && s.Role != Roles.Whitespace).StartLocation);
+			} else {
+				offset = endOffset = GetCurrentOffset(param.Type.StartLocation);
+			}
+			string modString;
+			switch (modifier) {
+				case ParameterModifier.None:
+					modString = "";
+					break;
+				case ParameterModifier.Ref:
+					modString = "ref ";
+					break;
+				case ParameterModifier.Out:
+					modString = "out ";
+					break;
+				case ParameterModifier.Params:
+					modString = "params ";
+					break;
+				case ParameterModifier.This:
+					modString = "this ";
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+			Replace(offset, endOffset - offset, modString);
+		}
+
 		/// <summary>
 		/// Changes the base types of a type declaration.
 		/// </summary>

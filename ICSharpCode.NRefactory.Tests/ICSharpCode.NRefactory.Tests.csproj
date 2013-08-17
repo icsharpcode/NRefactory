@@ -493,6 +493,7 @@
     <Compile Include="CSharp\CodeIssues\ConvertIfToOrExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertIfToAndExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\EventUnsubscriptionViaAnonymousDelegateIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\BaseMemberHasParamsIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

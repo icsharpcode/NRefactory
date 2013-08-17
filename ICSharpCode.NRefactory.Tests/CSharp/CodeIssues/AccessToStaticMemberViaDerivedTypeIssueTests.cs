@@ -33,10 +33,10 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	[TestFixture]
 	public class AccessToStaticMemberViaDerivedTypeIssueTests : InspectionActionTestBase
 	{
-        [Test]
-        public void MemberInvocation()
-        {
-            var input = @"
+		[Test]
+		public void MemberInvocation()
+		{
+			var input = @"
 class A
 {
 	public static void F() { }
@@ -49,12 +49,12 @@ class C
 		B.F ();
 	}
 }";
-            TestRefactoringContext context;
-            var issues = GetIssues(new AccessToStaticMemberViaDerivedTypeIssue(), input, out context);
-            Assert.AreEqual(1, issues.Count);
-            Assert.AreEqual(11, issues[0].Start.Line);
+			TestRefactoringContext context;
+			var issues = GetIssues(new AccessToStaticMemberViaDerivedTypeIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+			Assert.AreEqual(11, issues [0].Start.Line);
 
-            CheckFix(context, issues[0], @"
+			CheckFix(context, issues [0], @"
 class A
 {
 	public static void F() { }
@@ -67,13 +67,13 @@ class C
 		A.F ();
 	}
 }"
-            );
-        }
+			);
+		}
 
-        [Test]
-        public void TestDisable()
-        {
-            var input = @"
+		[Test]
+		public void TestDisable()
+		{
+			var input = @"
 class A
 {
 	public static void F() { }
@@ -87,8 +87,8 @@ class C
 		B.F ();
 	}
 }";
-            TestWrongContext<AccessToStaticMemberViaDerivedTypeIssue>(input);
-        }
+			TestWrongContext<AccessToStaticMemberViaDerivedTypeIssue>(input);
+		}
 
 		[Test]
 		public void PropertyAccess()
@@ -126,7 +126,7 @@ class C
 }"
 			);
 		}
-		
+
 		[Test]
 		public void FieldAccess()
 		{
@@ -206,7 +206,7 @@ class D
 }"
 			);
 		}
-		
+
 		[Test]
 		public void ExpandsTypeWithNamespaceIfNeccessary()
 		{
@@ -255,7 +255,7 @@ namespace Second
 }"
 			);
 		}
-		
+
 		[Test]
 		public void IgnoresCorrectCalls()
 		{
@@ -275,7 +275,7 @@ class B
 			var issues = GetIssues(new AccessToStaticMemberViaDerivedTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
-		
+
 		[Test]
 		public void IgnoresNonStaticCalls()
 		{
@@ -297,7 +297,7 @@ class C
 			var issues = GetIssues(new AccessToStaticMemberViaDerivedTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
-		
+
 		[Test]
 		public void IgnoresOwnMemberFunctions()
 		{
@@ -319,7 +319,7 @@ class B : A
 			var issues = GetIssues(new AccessToStaticMemberViaDerivedTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
-		
+
 		[Test]
 		public void IgnoresCuriouslyRecurringTemplatePattern()
 		{
