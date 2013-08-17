@@ -152,7 +152,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitVariableDeclarationStatement (VariableDeclarationStatement varDecl)
 			{
 				base.VisitVariableDeclarationStatement(varDecl);
-				if (varDecl.Modifiers.HasFlag (Modifiers.Const))
+				if (varDecl.Modifiers.HasFlag (Modifiers.Const) || varDecl.Role == ForStatement.InitializerRole)
 					return;
 				if (varDecl.Variables.Count () > 1)
 					return;
