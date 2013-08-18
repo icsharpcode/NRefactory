@@ -625,6 +625,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithLastOrDefaultIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseMethodAnyIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\InvokeAsExtensionMethodIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\AddArgumentNameAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

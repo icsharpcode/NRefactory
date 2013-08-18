@@ -507,6 +507,7 @@
     <Compile Include="CSharp\CodeIssues\ReplaceWithLastOrDefaultIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseMethodAnyIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\InvokeAsExtensionMethodIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\AddArgumentNameTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
