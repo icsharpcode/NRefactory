@@ -40,7 +40,7 @@ class TestClass
 	public void Foo(int a, int b, float c = 0.1){}
 	public void F()
 	{
-		$Foo(1,b: 2);
+		Foo($1,b: 2);
 	}
 }", @"
 class TestClass
@@ -62,7 +62,7 @@ class TestClass
 	public void Foo(int a, int b, float c = 0.1){}
 	public void F()
 	{
-		$Foo(1, 2);
+		Foo($1, 2);
 	}
 }", @"
 class TestClass
@@ -72,6 +72,25 @@ class TestClass
 	{
 		Foo (a: 1, b: 2);
 	}
+}");
+		}
+
+		[Test]
+		public void AttrbuteUsage()
+		{
+			Test<AddArgumentNameAction>(@"
+public class AnyClass
+{ 
+[Obsolete($"" "", error: true)]
+    static void Old() { }
+
+    static void New() { }
+}
+", @"
+public class AnyClass
+{
+	[Obsolete(message: "" "", error: true)]
+	static void Old() { }
 }");
 		}
 	}
