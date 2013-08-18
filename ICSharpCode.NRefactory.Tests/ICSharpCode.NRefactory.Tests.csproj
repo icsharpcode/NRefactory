@@ -504,6 +504,8 @@
     <Compile Include="CSharp\CodeActions\FlipEqualsTargetAndArgumentActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\CanBeReplacedWithTryCastAndCheckForNullIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\OptionalParameterRefOutIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithFirstOrDefaultIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithLastOrDefaultIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

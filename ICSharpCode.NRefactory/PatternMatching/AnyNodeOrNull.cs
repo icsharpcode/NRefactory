@@ -47,8 +47,12 @@ namespace ICSharpCode.NRefactory.PatternMatching
 
 		public override bool DoMatch(INode other, Match match)
 		{
-			match.Add(this.groupName, other);
-			return other != null;
+			if (other == null) {
+				match.AddNull(this.groupName);
+			} else {
+				match.Add(this.groupName, other);
+			}
+			return true;
 		}
 	}
 }
