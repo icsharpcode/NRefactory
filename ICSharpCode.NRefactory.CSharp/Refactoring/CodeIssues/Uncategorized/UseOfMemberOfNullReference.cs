@@ -41,6 +41,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  IssueMarker = IssueMarker.WavedLine)]
 	public class UseOfMemberOfNullReference : GatherVisitorCodeIssueProvider
 	{
+		static readonly ISet<NullValueStatus> ProblematicNullStates = new HashSet<NullValueStatus> {
+			NullValueStatus.DefinitelyNull,
+			NullValueStatus.PotentiallyNull
+		};
+
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
@@ -63,7 +68,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var parentFunction = ConstantNullCoalescingConditionIssue.GetParentFunctionNode(memberReferenceExpression);
 				var analysis = GetAnalysis(parentFunction);
 
-				if (analysis.GetExpressionResult(memberReferenceExpression.Target) == NullValueStatus.DefinitelyNull) {
+				var nullStatus = analysis.GetExpressionResult(memberReferenceExpression.Target);
+				if (ProblematicNullStates.Contains(nullStatus)) {
 					//Depending on how reliable the null analysis turns out to be, we may also want to include PotentiallyNull here
 
 					AddIssue(memberReferenceExpression,
