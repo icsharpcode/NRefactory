@@ -1,10 +1,12 @@
 //
-// StaticMethodInvocationToExtensionMethodInvocationTests.cs
+// InvokeAsExtensionMethodIssueTests.cs
 //
 // Author:
-//       Simon Lindgren <simon.n.lindgren@gmail.com>
+//   Simon Lindgren <simon.n.lindgren@gmail.com>
+//   Mike Krüger <mkrueger@xamarin.com>
 //
 // Copyright (c) 2012 Simon Lindgren
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,21 +25,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using System;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
+using System.Collections.Generic;
 using NUnit.Framework;
+using System.Linq;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-
 	[TestFixture]
-	public class StaticMethodInvocationToExtensionMethodInvocationTests : ContextActionTestBase
+	public class StaticMethodInvocationToExtensionMethodInvocationTests : InspectionActionTestBase
 	{
 
 		[Test]
 		public void HandlesBasicCase()
 		{
-			Test<StaticMethodInvocationToExtensionMethodInvocationAction>(@"
+			Test<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -69,7 +73,7 @@ class C
 		[Test]
 		public void HandlesReturnValueUsage()
 		{
-			Test<StaticMethodInvocationToExtensionMethodInvocationAction>(@"
+			Test<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -103,7 +107,7 @@ class C
 		[Test]
 		public void IgnoresIfNullArgument()
 		{
-			TestWrongContext<StaticMethodInvocationToExtensionMethodInvocationAction>(@"
+			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -121,7 +125,7 @@ class C
 		[Test]
 		public void IgnoresIfNotExtensionMethod()
 		{
-			TestWrongContext<StaticMethodInvocationToExtensionMethodInvocationAction>(@"
+			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -139,7 +143,7 @@ class C
 		[Test]
 		public void IgnoresIfAlreadyExtensionMethodCallSyntax()
 		{
-			TestWrongContext<StaticMethodInvocationToExtensionMethodInvocationAction>(@"
+			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -158,7 +162,7 @@ class C
 		[Test]
 		public void IgnoresPropertyInvocation()
 		{
-			TestWrongContext<StaticMethodInvocationToExtensionMethodInvocationAction>(@"
+			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
 static class B
 {
 	public static int Ext { get; set; }
@@ -171,5 +175,27 @@ class C
 	}
 }");
 		}
+
+
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
+class A { }
+static class B
+{
+	public static bool Ext (this A a, int i);
+}
+class C
+{
+	void F()
+	{
+		A a = new A();
+		// ReSharper disable once InvokeAsExtensionMethod
+		B.Ext (a, 1);
+	}
+}");
+		}
 	}
 }
+

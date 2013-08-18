@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (invocationRR == null)
 				yield break;
 			if (invocationRR.IsExtensionMethodInvocation)
-				yield return new CodeAction(context.TranslateString("Convert to call to static method"), script => {
+				yield return new CodeAction(context.TranslateString("Convert to static method call"), script => {
 					script.Replace(invocation, ToStaticMethodInvocation(invocation, memberReference, invocationRR));
 				}, invocation);
 		}

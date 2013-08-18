@@ -474,7 +474,6 @@
     <Compile Include="Refactoring\CodeActions\RemoveRedundantCatchTypeAction.cs" />
     <Compile Include="Refactoring\CodeActions\AddCatchTypeAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\IncorrectExceptionParameterOrderingIssue.cs" />
-    <Compile Include="Refactoring\CodeActions\StaticMethodInvocationToExtensionMethodInvocationAction.cs" />
     <Compile Include="Refactoring\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationAction.cs" />
     <Compile Include="Refactoring\CodeActions\IterateViaForeachAction.cs" />
     <Compile Include="Refactoring\CodeActions\ExtractFieldAction.cs" />
@@ -625,6 +624,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithFirstOrDefaultIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithLastOrDefaultIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseMethodAnyIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\InvokeAsExtensionMethodIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

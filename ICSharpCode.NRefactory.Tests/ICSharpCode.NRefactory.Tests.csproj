@@ -369,7 +369,6 @@
     <Compile Include="CSharp\CodeActions\AddCatchTypeTests.cs" />
     <Compile Include="CSharp\CodeIssues\IncorrectExceptionParameterOrderingTests.cs" />
     <Compile Include="CSharp\CodeIssues\DoNotCallOverridableMethodsInConstructorIssueTests.cs" />
-    <Compile Include="CSharp\CodeActions\StaticMethodInvocationToExtensionMethodInvocationTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationTests.cs" />
     <Compile Include="CSharp\CodeActions\IterateViaForeachTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtractFieldTests.cs" />
@@ -507,6 +506,7 @@
     <Compile Include="CSharp\CodeIssues\ReplaceWithFirstOrDefaultIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithLastOrDefaultIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseMethodAnyIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\InvokeAsExtensionMethodIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
