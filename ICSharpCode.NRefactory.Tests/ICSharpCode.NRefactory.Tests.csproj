@@ -486,6 +486,7 @@
     <Compile Include="CSharp\CodeIssues\FieldCanBeMadeReadOnlyIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnassignedReadonlyFieldIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseMethodIsInstanceOfTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertWhileToDoWhileLoopTests.cs" />
     <Compile Include="CSharp\CodeIssues\UseIsOperatorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RewriteIfReturnToReturnIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertIfStatementToConditionalTernaryExpressionIssueTests.cs" />

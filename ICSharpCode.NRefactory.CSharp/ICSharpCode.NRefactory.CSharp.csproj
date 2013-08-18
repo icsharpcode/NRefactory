@@ -604,6 +604,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\FieldCanBeMadeReadOnlyIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\UnassignedReadonlyFieldIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseMethodIsInstanceOfTypeIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\ConvertWhileToDoWhileLoopAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\UseIsOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\RewriteIfReturnToReturnIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionIssue.cs" />
