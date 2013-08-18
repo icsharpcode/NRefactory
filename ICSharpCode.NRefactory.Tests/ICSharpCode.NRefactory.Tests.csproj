@@ -503,6 +503,7 @@
     <Compile Include="CSharp\CodeActions\ConvertEqualsToEqualityOperatorActionTests.cs" />
     <Compile Include="CSharp\CodeActions\FlipEqualsTargetAndArgumentActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\CanBeReplacedWithTryCastAndCheckForNullIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\OptionalParameterRefOutIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

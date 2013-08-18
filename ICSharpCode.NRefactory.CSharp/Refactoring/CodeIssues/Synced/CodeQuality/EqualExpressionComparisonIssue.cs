@@ -33,10 +33,6 @@ using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	/// <summary>
-	/// Checks for "a != null ? a : other"<expr>
-	/// Converts to: "a ?? other"<expr>
-	/// </summary>
 	[IssueDescription("Equal expression comparison",
 	                  Description="Comparing equal expression for equality is usually useless",
 	                  Category = IssueCategories.CodeQualityIssues,
