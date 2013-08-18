@@ -30,6 +30,7 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
+	[TestFixture]
 	public class UseOfMemberOfNullReferenceTests : InspectionActionTestBase
 	{
 		[Test]
@@ -93,6 +94,80 @@ class TestClass
 	}
 }";
 			TestWrongContext<UseOfMemberOfNullReference> (input);
+		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestAs ()
+		{
+			string input = @"
+class TestClass
+{
+	int TestMethod(object x) {
+		return (x as string).Length;
+	}
+}";
+			Test<UseOfMemberOfNullReference> (input, 1);
+		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestIfBranch ()
+		{
+			string input = @"
+class TestClass
+{
+	int TestMethod(object x, object y) 
+	{
+		if (y != null)
+			x = null;
+		return x.GetHashCode ();
+	}
+}";
+			Test<UseOfMemberOfNullReference> (input, 1);
+		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestSwitchBranch ()
+		{
+			string input = @"
+class TestClass
+{
+	int TestMethod(object x, int y) 
+	{
+		switch (y) {
+		case 1:
+			break;
+		case 2:
+			x = null;
+			break;
+		default:
+			x = new object ();
+			break;
+		}
+		return x.GetHashCode ();
+	}
+}";
+			Test<UseOfMemberOfNullReference> (input, 1);
+		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestWhile ()
+		{
+			string input = @"
+class TestClass
+{
+	int TestMethod(object x, int y) 
+	{
+		while (y++ < 10) {
+			x = null;
+		}
+		return x.GetHashCode ();
+	}
+}";
+			Test<UseOfMemberOfNullReference> (input, 1);
 		}
 	}
 }
