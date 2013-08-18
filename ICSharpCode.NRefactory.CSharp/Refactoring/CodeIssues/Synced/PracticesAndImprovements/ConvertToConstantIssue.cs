@@ -87,10 +87,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						ctx.TranslateString("Convert to constant"),
 						ctx.TranslateString("To const"),
 						script => {
-							var constVarDecl = (FieldDeclaration)varDecl.Parent.Clone();
-							constVarDecl.Modifiers &= ~Modifiers.Static;
-							constVarDecl.Modifiers |= Modifiers.Const;
-							script.Replace(varDecl.Parent, constVarDecl);
+							var constVarDecl = (FieldDeclaration)varDecl.Parent;
+							script.ChangeModifier(constVarDecl, (constVarDecl.Modifiers & ~Modifiers.Static) | Modifiers.Const);
 						}
 					);
 				}
