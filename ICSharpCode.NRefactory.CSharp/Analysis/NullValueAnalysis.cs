@@ -253,15 +253,23 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				return true;
 			}
+
+			public override int GetHashCode()
+			{
+				return nodeToVisit.GetHashCode() ^
+					statusInfo.GetHashCode() ^
+					pendingTryFinallyNodes.GetHashCode() ^
+					(nodeAfterFinally == null ? 0 : nodeAfterFinally.GetHashCode());
+			}
 		}
 
-		BaseRefactoringContext context;
+		readonly BaseRefactoringContext context;
 		readonly NullAnalysisVisitor visitor;
-		List<NullAnalysisNode> allNodes;
-		HashSet<PendingNode> nodesToVisit = new HashSet<PendingNode>();
-		Dictionary<Statement, NullAnalysisNode> nodeBeforeStatementDict;
-		Dictionary<Statement, NullAnalysisNode> nodeAfterStatementDict;
-		Dictionary<Expression, NullValueStatus> expressionResult = new Dictionary<Expression, NullValueStatus>();
+		readonly List<NullAnalysisNode> allNodes;
+		readonly HashSet<PendingNode> nodesToVisit = new HashSet<PendingNode>();
+		readonly Dictionary<Statement, NullAnalysisNode> nodeBeforeStatementDict;
+		readonly Dictionary<Statement, NullAnalysisNode> nodeAfterStatementDict;
+		readonly Dictionary<Expression, NullValueStatus> expressionResult = new Dictionary<Expression, NullValueStatus>();
 
 		public NullValueAnalysis(BaseRefactoringContext context, MethodDeclaration methodDeclaration, CancellationToken cancellationToken)
 			: this(context, methodDeclaration.Body, methodDeclaration.Parameters, cancellationToken)
@@ -419,7 +427,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 			} else {
-				//We found a return/
+				//We found a return/throw/yield break
 				var finallyBlockStarts = nodeInfo.pendingTryFinallyNodes;
 				var nodeAfterFinally = nodeInfo.nodeAfterFinally;
 
@@ -432,9 +440,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				} else {
 					//Maybe we finished a try/catch/finally statement the "normal" way (no direct jumps)
 					//so let's check that case
-					var previousStatement = node.PreviousStatement;
-					Debug.Assert(previousStatement != null);
-					var parent = previousStatement.GetParent<Statement>();
+					var statement = node.PreviousStatement ?? node.NextStatement;
+					Debug.Assert(statement != null);
+					var parent = statement.GetParent<Statement>();
 					var parentTryCatch = parent as TryCatchStatement;
 					if (parentTryCatch != null) {
 						var nextNode = nodeAfterStatementDict [parentTryCatch];
@@ -721,6 +729,25 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 				return VisitorResult.ForValue(newData, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitSwitchStatement(SwitchStatement switchStatement, VariableStatusInfo data)
+			{
+				//We could do better than this, but it would require special handling outside the visitor
+				//so for now, for simplicity, we'll just take the easy way
+
+				var tentativeResult = switchStatement.Expression.AcceptVisitor(this, data);
+
+				foreach (var section in switchStatement.SwitchSections) {
+					section.AcceptVisitor(this, tentativeResult.Variables);
+				}
+
+				return VisitorResult.ForValue(tentativeResult.Variables, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitSwitchSection(SwitchSection switchSection, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
 
 			public override VisitorResult VisitExpressionStatement(ExpressionStatement expressionStatement, VariableStatusInfo data)

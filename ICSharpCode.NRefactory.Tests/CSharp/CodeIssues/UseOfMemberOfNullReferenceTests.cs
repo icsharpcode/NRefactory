@@ -96,7 +96,7 @@ class TestClass
 			TestWrongContext<UseOfMemberOfNullReference> (input);
 		}
 
-		[Ignore("Fixme")]
+		[Ignore("Under discussion")]
 		[Test]
 		public void TestAs ()
 		{
@@ -110,7 +110,6 @@ class TestClass
 			Test<UseOfMemberOfNullReference> (input, 1);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestIfBranch ()
 		{
@@ -127,7 +126,6 @@ class TestClass
 			Test<UseOfMemberOfNullReference> (input, 1);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestSwitchBranch ()
 		{
@@ -152,7 +150,6 @@ class TestClass
 			Test<UseOfMemberOfNullReference> (input, 1);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestWhile ()
 		{
