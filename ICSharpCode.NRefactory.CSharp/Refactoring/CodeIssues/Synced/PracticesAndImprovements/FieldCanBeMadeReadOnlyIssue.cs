@@ -66,9 +66,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						ctx.TranslateString("Convert to readonly"),
 						ctx.TranslateString("To readonly"),
 						script => {
-							var constVarDecl = (FieldDeclaration)varDecl.Parent.Clone();
-							constVarDecl.Modifiers |= Modifiers.Readonly;
-							script.Replace(varDecl.Parent, constVarDecl);
+							var field = (FieldDeclaration)varDecl.Parent;
+							script.ChangeModifier(field, field.Modifiers | Modifiers.Readonly);
 						}
 					);
 				}
