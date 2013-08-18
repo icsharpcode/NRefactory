@@ -33,77 +33,69 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Remove region", Description = "Removes a pre processor #region/#endregion directive.")]
 	public class RemoveRegionAction : CodeActionProvider
 	{
+		static PreProcessorDirective GetEndDirective(PreProcessorDirective directive)
+		{
+			var nextNode = directive.GetNextNode();
+			int d = 0;
+			while (nextNode != null) {
+				var pp = nextNode as PreProcessorDirective;
+				if (pp != null) {
+					if (pp.Type == PreProcessorDirectiveType.Region) {
+						d++;
+					} else if (pp.Type == PreProcessorDirectiveType.Endregion) {
+						if (d == 0) {
+							return pp;
+						}
+						d--;
+					}
+				}
+				nextNode = nextNode.GetNextNode();
+			}
+			return null;
+		}
+
+		static PreProcessorDirective GetStartDirective(PreProcessorDirective directive)
+		{
+			var nextNode = directive.GetPrevNode();
+			int d = 0;
+			while (nextNode != null) {
+				var pp = nextNode as PreProcessorDirective;
+				if (pp != null) {
+					if (pp.Type == PreProcessorDirectiveType.Endregion) {
+						d++;
+					} else if (pp.Type == PreProcessorDirectiveType.Region) {
+						if (d == 0) {
+							return pp;
+						}
+						d--;
+					}
+				}
+				nextNode = nextNode.GetPrevNode();
+			}
+			return null;
+		}
+
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var directive = GetDirective(context);
-			if (directive == null) {
+			if (directive == null)
 				yield break;
-			}
-			var endDirective = DirectiveSearcher.GetEndRegion(context.RootNode, directive);
-			if (endDirective == null) {
+
+			PreProcessorDirective endDirective = directive.Type == PreProcessorDirectiveType.Region ? GetEndDirective(directive) : GetStartDirective(directive);
+
+			if (endDirective == null)
 				yield break;
-			}
+
 			yield return new CodeAction (context.TranslateString("Remove region"), script => {
 				script.Remove (directive);
 				script.Remove (endDirective);
 			}, directive);
 		}
 		
-		class DirectiveSearcher : DepthFirstAstVisitor
-		{
-			readonly PreProcessorDirective regionDirective;
-			bool searchDirectives = false;
-			int depth;
-			PreProcessorDirective endregion;
-			
-			DirectiveSearcher (PreProcessorDirective regionDirective)
-			{
-				if (regionDirective == null)
-					throw new ArgumentNullException ("regionDirective");
-				this.regionDirective = regionDirective;
-			}
-			
-			public static PreProcessorDirective GetEndRegion (AstNode rootNode, PreProcessorDirective regionDirective)
-			{
-				var visitor = new DirectiveSearcher (regionDirective);
-				rootNode.AcceptVisitor (visitor);
-				return visitor.endregion;
-			}
-			
-			protected override void VisitChildren (AstNode node)
-			{
-				if (endregion != null)
-					return;
-				if (!searchDirectives && !regionDirective.Ancestors.Any (a => a == node))
-					return;
-				base.VisitChildren (node);
-			}
-			
-			public override void VisitPreProcessorDirective (PreProcessorDirective preProcessorDirective)
-			{
-				if (searchDirectives) {
-					if (preProcessorDirective.Type == PreProcessorDirectiveType.Region) {
-						depth++;
-					} else if (preProcessorDirective.Type == PreProcessorDirectiveType.Endregion) {
-						depth--;
-						if (depth == 0) {
-							endregion = preProcessorDirective;
-							searchDirectives = false;
-						}
-					}
-				} else if (preProcessorDirective == regionDirective) {
-					searchDirectives = true;
-					depth = 1;
-				}
-				
-				base.VisitPreProcessorDirective (preProcessorDirective);
-			}
-		}
-		
 		static PreProcessorDirective GetDirective (RefactoringContext context)
 		{
 			var directive = context.GetNode<PreProcessorDirective> ();
-			if (directive == null || directive.Type != PreProcessorDirectiveType.Region)
+			if (directive == null || directive.Type != PreProcessorDirectiveType.Region && directive.Type != PreProcessorDirectiveType.Endregion)
 				return null;
 			return directive;
 		}
