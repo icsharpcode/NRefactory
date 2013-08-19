@@ -6210,6 +6210,44 @@ class Test
 			Assert.AreEqual(1, provider.Data.Count(cd => cd.DisplayText == "async delegate()"));
 		}
 
+		[Test]
+		public void TestBasicIntersectionProblem ()
+		{
+			CombinedProviderTest(@"using System;
 
+class A { public int AInt { get { return 1; } } }
+class B { public int BInt { get { return 0; } } }
+
+class Testm
+{
+	public void Foo (Action<A> a) {}
+	public void Foo (Action<B> b) {}
+
+	public void Bar ()
+	{
+		$Foo(x => x.$
+	}
+}", provider => {
+				Assert.IsNotNull (provider.Find ("AInt"), "property 'AInt' not found.");
+				Assert.IsNotNull (provider.Find ("BInt"), "property 'BInt' not found.");
+			});
+		}
+
+		[Test]
+		public void TestComplexIntersectionTypeProblem ()
+		{
+			CombinedProviderTest(@"using System.Threading.Tasks;
+using System.Linq;
+
+class Foo
+{
+	public void Bar ()
+	{
+		$Task.Factory.ContinueWhenAll (new[] { Task.Factory.StartNew (() => 5) }, t => t.Select (r => r.$
+	}
+}", provider => {
+				Assert.IsNotNull (provider.Find ("Result"), "property 'Result' not found.");
+			});
+		}
 	}
 }
