@@ -82,8 +82,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var castToType       = isExpression.Type;
 
 				var cast = new Choice {
-					PatternHelper.OptionalParentheses(new CastExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone())),
-					PatternHelper.OptionalParentheses(new AsExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone()))
+					PatternHelper.OptionalParentheses(PatternHelper.OptionalParentheses(obj.Clone()).CastTo(castToType.Clone())),
+					PatternHelper.OptionalParentheses(PatternHelper.OptionalParentheses(obj.Clone()).CastAs(castToType.Clone()))
 				};
 
 				var rr = ctx.Resolve(castToType);
@@ -159,8 +159,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var embeddedStatment = match.Get<Statement>("embedded").Single();
 
 				var cast = new Choice {
-					PatternHelper.OptionalParentheses(new CastExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone())),
-					PatternHelper.OptionalParentheses(new AsExpression(PatternHelper.OptionalParentheses(obj.Clone()), castToType.Clone()))
+					PatternHelper.OptionalParentheses(PatternHelper.OptionalParentheses(obj.Clone()).CastTo(castToType.Clone())),
+					PatternHelper.OptionalParentheses(PatternHelper.OptionalParentheses(obj.Clone()).CastAs(castToType.Clone()))
 				};
 
 				var rr = ctx.Resolve(castToType);
