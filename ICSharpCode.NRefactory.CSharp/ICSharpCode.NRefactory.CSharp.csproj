@@ -629,6 +629,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringLastIndexOfIsCultureSpecificIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringStartsWithIsCultureSpecificIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Uncategorized\RedundantCheckBeforeAssignmentIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
