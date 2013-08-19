@@ -170,7 +170,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// Infers type arguments for the <paramref name="typeParameters"/> occurring in the <paramref name="targetType"/>
 		/// so that the resulting type (after substition) satisfies the given bounds.
 		/// </summary>
-		public IType[] InferTypeArgumentsFromBounds(IList<ITypeParameter> typeParameters, IType targetType, IList<IType> lowerBounds, IList<IType> upperBounds, out bool success)
+		public IType[] InferTypeArgumentsFromBounds(IList<ITypeParameter> typeParameters, IType targetType, IList<IType> lowerBounds, IList<IType> upperBounds, IList<IType> exactBounds, out bool success)
 		{
 			if (typeParameters == null)
 				throw new ArgumentNullException("typeParameters");
@@ -180,6 +180,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				throw new ArgumentNullException("lowerBounds");
 			if (upperBounds == null)
 				throw new ArgumentNullException("upperBounds");
+			if (exactBounds == null)
+				throw new ArgumentNullException("exactBounds");
 			this.typeParameters = new TP[typeParameters.Count];
 			for (int i = 0; i < this.typeParameters.Length; i++) {
 				if (i != typeParameters[i].Index)
@@ -191,6 +193,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			}
 			foreach (IType b in upperBounds) {
 				MakeUpperBoundInference(b, targetType);
+			}
+			foreach (IType b in exactBounds) {
+				MakeExactInference(b, targetType);
 			}
 			IType[] result = new IType[this.typeParameters.Length];
 			success = true;
@@ -207,6 +212,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		{
 			public readonly HashSet<IType> LowerBounds = new HashSet<IType>();
 			public readonly HashSet<IType> UpperBounds = new HashSet<IType>();
+			public readonly HashSet<IType> ExactBounds = new HashSet<IType>();
 			public readonly ITypeParameter TypeParameter;
 			public IType FixedTo;
 			
@@ -215,7 +221,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			}
 			
 			public bool HasBounds {
-				get { return LowerBounds.Count > 0 || UpperBounds.Count > 0; }
+				get { return LowerBounds.Count > 0 || UpperBounds.Count > 0 || ExactBounds.Count > 0; }
 			}
 			
 			public TP(ITypeParameter typeParameter)
@@ -563,8 +569,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			TP tp = GetTPForType(V);
 			if (tp != null && tp.IsFixed == false) {
 				Log.WriteLine(" Add exact bound '" + U + "' to " + tp);
-				tp.LowerBounds.Add(U);
-				tp.UpperBounds.Add(U);
+				tp.ExactBounds.Add(U);
 				return;
 			}
 			// Handle by reference types:
@@ -774,7 +779,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			Log.WriteLine(" Trying to fix " + tp);
 			Debug.Assert(!tp.IsFixed);
 			Log.Indent();
-			var types = CreateNestedInstance().FindTypesInBounds(tp.LowerBounds.ToArray(), tp.UpperBounds.ToArray());
+			var types = CreateNestedInstance().FindTypesInBounds(tp.LowerBounds.ToArray(), tp.UpperBounds.ToArray(), tp.ExactBounds.ToArray());
 			Log.Unindent();
 			if (algorithm == TypeInferenceAlgorithm.ImprovedReturnAllResults) {
 				tp.FixedTo = IntersectionType.Create(types);
@@ -819,14 +824,14 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// <summary>
 		/// Finds a type that satisfies the given lower and upper bounds.
 		/// </summary>
-		public IType FindTypeInBounds(IList<IType> lowerBounds, IList<IType> upperBounds)
+		public IType FindTypeInBounds(IList<IType> lowerBounds, IList<IType> upperBounds, IList<IType> exactBounds = null)
 		{
 			if (lowerBounds == null)
 				throw new ArgumentNullException("lowerBounds");
 			if (upperBounds == null)
 				throw new ArgumentNullException("upperBounds");
 			
-			IList<IType> result = FindTypesInBounds(lowerBounds, upperBounds);
+			IList<IType> result = FindTypesInBounds(lowerBounds, upperBounds, exactBounds ?? new IType[0]);
 			
 			if (algorithm == TypeInferenceAlgorithm.ImprovedReturnAllResults) {
 				return IntersectionType.Create(result);
@@ -842,14 +847,16 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				?? result.FirstOrDefault() ?? SpecialType.UnknownType;
 		}
 		
-		IList<IType> FindTypesInBounds(IList<IType> lowerBounds, IList<IType> upperBounds)
+		IList<IType> FindTypesInBounds(IList<IType> lowerBounds, IList<IType> upperBounds, IList<IType> exactBounds)
 		{
 			// If there's only a single type; return that single type.
-			// If both inputs are empty, return the empty list.
-			if (lowerBounds.Count == 0 && upperBounds.Count <= 1)
+			// If all inputs are empty, return the empty list.
+			if (lowerBounds.Count == 0 && exactBounds.Count == 0 && upperBounds.Count <= 1)
 				return upperBounds;
-			if (upperBounds.Count == 0 && lowerBounds.Count <= 1)
+			if (upperBounds.Count == 0 && exactBounds.Count == 0 && lowerBounds.Count <= 1)
 				return lowerBounds;
+			if (lowerBounds.Count == 0 && upperBounds.Count == 0 && exactBounds.Count <= 1)
+				return exactBounds;
 			if (nestingLevel > maxNestingLevel)
 				return EmptyList<IType>.Instance;
 			
@@ -858,7 +865,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			Log.WriteCollection("FindTypesInBound, UpperBounds=", upperBounds);
 			
 			// First try the Fixing algorithm from the C# spec (§7.5.2.11)
-			List<IType> candidateTypes = lowerBounds.Union(upperBounds)
+			List<IType> candidateTypes = lowerBounds.Union(upperBounds).Union(exactBounds)
+				.Where(c => exactBounds.All(b => Equals(b, c)))
 				.Where(c => lowerBounds.All(b => conversions.ImplicitConversion(b, c).IsValid))
 				.Where(c => upperBounds.All(b => conversions.ImplicitConversion(c, b).IsValid))
 				.ToList(); // evaluate the query only once
@@ -885,11 +893,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			// Now try the improved algorithm
 			Log.Indent();
 			List<ITypeDefinition> candidateTypeDefinitions;
-			if (lowerBounds.Count > 0) {
-				// Find candidates by using the lower bounds:
-				var hashSet = new HashSet<ITypeDefinition>(lowerBounds[0].GetAllBaseTypeDefinitions());
-				for (int i = 1; i < lowerBounds.Count; i++) {
-					hashSet.IntersectWith(lowerBounds[i].GetAllBaseTypeDefinitions());
+			if (lowerBounds.Count > 0 || exactBounds.Count > 0) {
+				// Find candidates by using the lower and exact bounds:
+				var bounds = lowerBounds.Concat(exactBounds).ToList();
+				var hashSet = new HashSet<ITypeDefinition>(bounds[0].GetAllBaseTypeDefinitions());
+				for (int i = 1; i < bounds.Count; i++) {
+					hashSet.IntersectWith(bounds[i].GetAllBaseTypeDefinitions());
 				}
 				candidateTypeDefinitions = hashSet.ToList();
 			} else {
@@ -898,7 +907,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			}
 			
 			// Now filter out candidates that violate the upper bounds:
-			foreach (IType ub in upperBounds) {
+			foreach (IType ub in upperBounds.Concat(exactBounds)) {
 				ITypeDefinition ubDef = ub.GetDefinition();
 				if (ubDef != null) {
 					candidateTypeDefinitions.RemoveAll(c => !c.IsDerivedFrom(ubDef));
@@ -916,7 +925,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					IType[] result = InferTypeArgumentsFromBounds(
 						candidateDef.TypeParameters,
 						new ParameterizedType(candidateDef, candidateDef.TypeParameters),
-						lowerBounds, upperBounds,
+						lowerBounds, upperBounds, exactBounds,
 						out success);
 					if (success) {
 						candidate = new ParameterizedType(candidateDef, result);
@@ -927,7 +936,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				}
 				Log.WriteLine("Candidate type: " + candidate);
 				
-				if (upperBounds.Count == 0) {
+				if (upperBounds.Count == 0 && exactBounds.Count == 0) {
 					// if there were only lower bounds, we aim for the most specific candidate:
 					
 					// if this candidate isn't made redundant by an existing, more specific candidate:
