@@ -31,6 +31,31 @@ namespace ICSharpCode.NRefactory.CSharp.Parser
 	[TestFixture]
 	public class TypeSystemConvertVisitorTests : TypeSystemTests
 	{
+		[Serializable]
+		class EmbeddedResource : IAssemblyResource {
+			private readonly string name;
+			private readonly string filepath;
+			private readonly bool isPublic;
+
+			public string Name { get { return name; } }
+
+			public string LinkedFileName { get { return null; } }
+
+			public AssemblyResourceType Type { get { return AssemblyResourceType.Embedded; } }
+
+			public bool IsPublic { get { return isPublic; } }
+
+			public EmbeddedResource(string name, string filepath, bool isPublic) {
+				this.name = name;
+				this.filepath = filepath;
+				this.isPublic = isPublic;
+			}
+
+			public Stream GetResourceStream() {
+				return File.Open(filepath, FileMode.Open, FileAccess.Read);
+			}
+		}
+
 		[TestFixtureSetUp]
 		public void FixtureSetUp()
 		{
@@ -45,9 +70,9 @@ namespace ICSharpCode.NRefactory.CSharp.Parser
 					CecilLoaderTests.Mscorlib
 				})
 				.SetAssemblyName(typeof(TypeSystemTests).Assembly.GetName().Name)
-				.AddEmbeddedResource("ICSharpCode.NRefactory.TypeSystem.EmbeddedResource.txt", Path.Combine("TypeSystem", "EmbeddedResource.txt"), isPublic: true)
-				.AddEmbeddedResource("ICSharpCode.NRefactory.TypeSystem.PrivateEmbeddedResource.txt", Path.Combine("TypeSystem", "PrivateEmbeddedResource.txt"), isPublic: false)
-				.AddLinkedResource("ICSharpCode.NRefactory.TypeSystem.LinkedResource.txt", Path.Combine(Path.GetDirectoryName(typeof(TypeSystemConvertVisitorTests).Assembly.Location), "LinkedResource.txt"), isPublic: true);
+				.AddResources(new EmbeddedResource("ICSharpCode.NRefactory.TypeSystem.EmbeddedResource.txt", Path.Combine("TypeSystem", "EmbeddedResource.txt"), isPublic: true),
+				              new EmbeddedResource("ICSharpCode.NRefactory.TypeSystem.PrivateEmbeddedResource.txt", Path.Combine("TypeSystem", "PrivateEmbeddedResource.txt"), isPublic: false),
+				              new LinkedResource("ICSharpCode.NRefactory.TypeSystem.LinkedResource.txt", "LinkedResource.txt", Path.GetDirectoryName(typeof(TypeSystemConvertVisitorTests).Assembly.Location), isPublic: true));
 		}
 		
 		internal static IProjectContent ParseTestCase()

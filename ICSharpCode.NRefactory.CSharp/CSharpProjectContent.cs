@@ -248,16 +248,25 @@ namespace ICSharpCode.NRefactory.CSharp
 			return RemoveFiles((IEnumerable<string>)fileNames);
 		}
 
-		public IProjectContent AddLinkedResource(string name, string filename, bool isPublic = true) {
+		public IProjectContent AddResources(IEnumerable<IAssemblyResource> resources) {
 			var pc = Clone();
-			pc.resources.Add(new LinkedResource(name, Path.GetFileName(filename), Path.GetDirectoryName(filename), isPublic));
+			pc.resources.AddRange(resources);
 			return pc;
 		}
 
-		public IProjectContent AddEmbeddedResource(string name, string filepath, bool isPublic = true) {
-			var pc = Clone();
-			pc.resources.Add(new EmbeddedResource(name, filepath, isPublic));
+		public IProjectContent AddResources(params IAssemblyResource[] resources) {
+			return AddResources((IEnumerable<IAssemblyResource>)resources);
+		}
+
+		public IProjectContent RemoveResources(IEnumerable<IAssemblyResource> resources) {
+			CSharpProjectContent pc = Clone();
+			foreach (var r in resources)
+				pc.resources.Remove(r);
 			return pc;
+		}
+
+		public IProjectContent RemoveResources(params IAssemblyResource[] resources) {
+			return RemoveResources((IEnumerable<IAssemblyResource>)resources);
 		}
 
 		[Obsolete("Use RemoveFiles/AddOrUpdateFiles instead")]
@@ -305,31 +314,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			} else {
 				asm = new CSharpAssembly(context.Compilation, this);
 				return (IAssembly)cache.GetOrAddShared(this, asm);
-			}
-		}
-
-		[Serializable]
-		class EmbeddedResource : IAssemblyResource {
-			private readonly string name;
-			private readonly string filepath;
-			private readonly bool isPublic;
-
-			public string Name { get { return name; } }
-
-			public string LinkedFileName { get { return null; } }
-
-			public AssemblyResourceType Type { get { return AssemblyResourceType.Embedded; } }
-
-			public bool IsPublic { get { return isPublic; } }
-
-			public EmbeddedResource(string name, string filepath, bool isPublic) {
-				this.name = name;
-				this.filepath = filepath;
-				this.isPublic = isPublic;
-			}
-
-			public Stream GetResourceStream() {
-				return File.Open(filepath, FileMode.Open, FileAccess.Read);
 			}
 		}
 	}

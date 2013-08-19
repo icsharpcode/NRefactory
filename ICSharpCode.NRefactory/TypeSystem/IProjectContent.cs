@@ -157,13 +157,23 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		IProjectContent SetCompilerSettings(object compilerSettings);
 
 		/// <summary>
-		/// Adds a linked resource to the project.
+		/// Add resources to this project content.
 		/// </summary>
-		IProjectContent AddLinkedResource(string name, string filename, bool isPublic = true);
+		IProjectContent AddResources(IEnumerable<IAssemblyResource> resources);
 
 		/// <summary>
-		/// Adds an embedded resource to the project.
+		/// Add resources to this project content.
 		/// </summary>
-		IProjectContent AddEmbeddedResource(string name, string filepath, bool isPublic = true);
+		IProjectContent AddResources(params IAssemblyResource[] resources);
+
+		/// <summary>
+		/// Remove resources from this project content.
+		/// </summary>
+		IProjectContent RemoveResources(IEnumerable<IAssemblyResource> resources);
+
+		/// <summary>
+		/// Add resources to this project.
+		/// </summary>
+		IProjectContent RemoveResources(params IAssemblyResource[] resources);
 	}
 }
