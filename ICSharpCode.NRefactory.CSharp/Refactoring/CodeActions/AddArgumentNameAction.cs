@@ -107,7 +107,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 									expression
 				);
 			} else if (parant is IndexerExpression) {
-				Debuger.WriteInFile(parant.ToString());
 				var resolvedResult = context.Resolve(parant as IndexerExpression);
 				if (resolvedResult.IsError)
 					return null;
