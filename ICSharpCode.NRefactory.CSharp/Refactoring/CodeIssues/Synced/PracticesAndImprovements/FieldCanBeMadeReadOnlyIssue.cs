@@ -94,7 +94,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				base.VisitTypeDeclaration(typeDeclaration);
 				Collect();
-				potentialReadonlyFields.Pop();
 			}
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
