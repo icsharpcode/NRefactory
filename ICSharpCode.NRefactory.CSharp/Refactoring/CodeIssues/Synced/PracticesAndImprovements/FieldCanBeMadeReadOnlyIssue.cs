@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<FieldCanBeMadeReadOnlyIssue>
 		{
-			List<VariableInitializer> potentialReadonlyFields = new List<VariableInitializer>();
+			Stack<List<VariableInitializer>> potentialReadonlyFields = new Stack<List<VariableInitializer>> ();
 
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void Collect()
 			{
-				foreach (var varDecl in potentialReadonlyFields) {
+				foreach (var varDecl in potentialReadonlyFields.Pop()) {
 					AddIssue(
 						varDecl.NameToken,
 						ctx.TranslateString("Convert to readonly"),
@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				var fieldVisitor = new ConvertToConstantIssue.FieldCollectVisitor<FieldCanBeMadeReadOnlyIssue>(ctx);
 				typeDeclaration.AcceptVisitor(fieldVisitor);
-
+				potentialReadonlyFields.Push(new List<VariableInitializer> ()); 
 				foreach (var fieldDeclaration in fieldVisitor.CollectedFields) {
 					if (fieldDeclaration.HasModifier(Modifiers.Const) || fieldDeclaration.HasModifier(Modifiers.Readonly))
 						continue;
@@ -90,11 +90,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if ((rr.Type.IsReferenceType.HasValue && !rr.Type.IsReferenceType.Value) && (ctx.Resolve (variable.Initializer) is ConstantResolveResult))
 						continue;
 
-					potentialReadonlyFields.Add(variable); 
+					potentialReadonlyFields.Peek().Add(variable); 
 				}
 				base.VisitTypeDeclaration(typeDeclaration);
 				Collect();
-				potentialReadonlyFields.Clear();
+				potentialReadonlyFields.Pop();
 			}
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
@@ -108,7 +108,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (blockStatement.Parent is EntityDeclaration || blockStatement.Parent is Accessor) {
 					var assignmentAnalysis = new ConvertToConstantIssue.VariableAssignmentAnalysis (blockStatement, ctx.Resolver, ctx.CancellationToken);
 					List<VariableInitializer> newVars = new List<VariableInitializer>();
-					foreach (var variable in potentialReadonlyFields) {
+					var oldVars = potentialReadonlyFields.Pop();
+					foreach (var variable in oldVars) {
 						var rr = ctx.Resolve(variable) as MemberResolveResult; 
 						if (rr == null)
 							continue;
@@ -118,10 +119,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							continue;
 						newVars.Add(variable);
 					}
-					potentialReadonlyFields = newVars;
+					potentialReadonlyFields.Push(newVars);
 				}
 			}
-
 		}
 	}
 }

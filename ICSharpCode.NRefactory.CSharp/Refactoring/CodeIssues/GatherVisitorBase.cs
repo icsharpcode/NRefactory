@@ -315,5 +315,12 @@ namespace ICSharpCode.NRefactory.CSharp
 				return;
 			FoundIssues.Add(new CodeIssue(title, start, end, fixes));
 		}
+
+		protected void AddIssue(TextLocation start, TextLocation end, string title, params CodeAction[] fixes)
+		{
+			if (IsSuppressed(start))
+				return;
+			FoundIssues.Add(new CodeIssue(title, start, end, fixes));
+		}
 	}
 }

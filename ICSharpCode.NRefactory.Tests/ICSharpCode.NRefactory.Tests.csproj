@@ -135,7 +135,6 @@
     <Compile Include="CSharp\CodeIssues\LocalVariableHidesMemberIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LocalVariableNotUsedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MethodOverloadHidesOptionalParameterIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\MissingStringComparisonIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MultipleEnumerationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\NegativeRelationalExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterHidesMemberIssueTests.cs" />
@@ -508,6 +507,10 @@
     <Compile Include="CSharp\CodeIssues\UseMethodAnyIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\InvokeAsExtensionMethodIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\AddArgumentNameTests.cs" />
+    <Compile Include="CSharp\CodeIssues\StringIndexOfIsCultureSpecificIssueTest.cs" />
+    <Compile Include="CSharp\CodeIssues\StringLastIndexOfIsCultureSpecificIssueTest.cs" />
+    <Compile Include="CSharp\CodeIssues\StringStartsWithIsCultureSpecificIssueTest.cs" />
+    <Compile Include="CSharp\CodeIssues\StringEndsWithIsCultureSpecificIssueTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

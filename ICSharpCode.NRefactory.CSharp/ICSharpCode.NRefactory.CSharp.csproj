@@ -305,7 +305,6 @@
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ExpressionIsNeverOfProvidedTypeIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\MethodOverloadHidesOptionalParameterIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\MissingStringComparisonIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\NegativeRelationalExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ExplicitConversionInForEachIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\ForControlVariableIsNeverModifiedIssue.cs" />
@@ -626,6 +625,10 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseMethodAnyIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\Opportunities\InvokeAsExtensionMethodIssue.cs" />
     <Compile Include="Refactoring\CodeActions\AddArgumentNameAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringIndexOfIsCultureSpecificIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringLastIndexOfIsCultureSpecificIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringStartsWithIsCultureSpecificIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

@@ -1,4 +1,4 @@
-﻿//
+//
 // Author:
 //       Daniel Grunwald <daniel@danielgrunwald.de>
 //
@@ -29,7 +29,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class MissingStringComparisonIssueTests : InspectionActionTestBase
+	public class StringIndexOfIsCultureSpecificIssueTest : InspectionActionTestBase
 	{
 		const string stringIndexOfStringCalls = @"using System;
 using System.Collections.Generic;
@@ -57,13 +57,13 @@ class Test {
 		[Test]
 		public void IndexOfStringCalls()
 		{
-			Test<MissingStringComparisonIssue>(stringIndexOfStringCalls, 4, stringIndexOfStringCallsWithComparison);
+			Test<StringIndexOfIsCultureSpecificIssue>(stringIndexOfStringCalls, 4, stringIndexOfStringCallsWithComparison);
 		}
 		
 		[Test]
 		public void IndexOfStringCallsAlreadyWithComparison()
 		{
-			Test<MissingStringComparisonIssue>(stringIndexOfStringCallsWithComparison, 0);
+			Test<StringIndexOfIsCultureSpecificIssue>(stringIndexOfStringCallsWithComparison, 0);
 		}
 		
 		[Test]
@@ -75,7 +75,7 @@ class Test {
 		text.IndexOf('.');
 	}
 }";
-			Test<MissingStringComparisonIssue>(program, 0);
+			Test<StringIndexOfIsCultureSpecificIssue>(program, 0);
 		}
 		
 		[Test]
@@ -87,7 +87,24 @@ class Test {
 		list.IndexOf("".com"");
 	}
 }";
-			Test<MissingStringComparisonIssue>(program, 0);
+			Test<StringIndexOfIsCultureSpecificIssue>(program, 0);
 		}
+
+
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<StringIndexOfIsCultureSpecificIssue>(@"using System;
+using System.Collections.Generic;
+class Test {
+	public void StringIndexOfStringCalls(List<string> list)
+	{
+		// ReSharper disable once StringIndexOfIsCultureSpecific
+		list[0].IndexOf("".com"");
+	}
+}");
+		}
+
+
 	}
 }

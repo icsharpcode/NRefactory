@@ -92,6 +92,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					);
 				}
+				potentialConstantFields.Clear();
 			}
 
 
