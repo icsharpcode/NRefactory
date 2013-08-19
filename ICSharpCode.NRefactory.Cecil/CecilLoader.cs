@@ -311,8 +311,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			public bool IsPublic { get { return isPublic; } }
 
 			public Stream GetResourceStream() {
-				var asm = AssemblyDefinition.ReadAssembly(assemblyFile);
-				return ((EmbeddedResource)asm.Modules.SelectMany(m => m.Resources).Single(r => r.Name == name)).GetResourceStream();
+				var module = ModuleDefinition.ReadModule(assemblyFile);
+				return ((EmbeddedResource)module.Resources.Single(r => r.Name == name)).GetResourceStream();
 			}
 		}
 		#endregion
