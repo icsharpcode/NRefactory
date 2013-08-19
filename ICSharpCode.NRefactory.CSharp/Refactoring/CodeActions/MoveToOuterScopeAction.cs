@@ -46,13 +46,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (entryNode == null)
 				yield break;
 			var selectedInitializer = context.GetNode<VariableInitializer>();
-			if (selectedInitializer != null) {
+			if (selectedInitializer != null && selectedInitializer.Contains(context.Location)) {
 				if (HasDependency(context, entryNode, selectedInitializer)) {
 					yield return MoveDeclarationAction(context, entryNode, variableDeclaration, selectedInitializer);
 				} else {
 					yield return MoveInitializerAction(context, entryNode, variableDeclaration, selectedInitializer);
 				}
 			} else {
+				if (!variableDeclaration.Type.Contains(context.Location) || variableDeclaration.Variables.Count <= 1)
+					yield break;
 				yield return new CodeAction(context.TranslateString("Move declaration to outer scope"), script => {
 					script.Remove(variableDeclaration);
 					script.InsertBefore(entryNode, variableDeclaration.Clone());
@@ -73,7 +75,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				script.Remove(declaration);
 				var outerDeclaration = new VariableDeclarationStatement(type, name, initializer.Initializer.Clone());
 				script.InsertBefore(insertAnchor, outerDeclaration);
-			}, declaration);
+			}, initializer.NameToken);
 		}
 
 		static CodeAction MoveDeclarationAction(RefactoringContext context, AstNode insertAnchor,
@@ -88,7 +90,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				});
 				script.Remove(declarationStatement);
 				script.InsertBefore(insertAnchor, new VariableDeclarationStatement(type, name, Expression.Null));
-			}, declarationStatement);
+			}, initializer.NameToken);
 		}
 
 		bool HasDependency(RefactoringContext context, AstNode firstSearchNode, AstNode targetNode)
