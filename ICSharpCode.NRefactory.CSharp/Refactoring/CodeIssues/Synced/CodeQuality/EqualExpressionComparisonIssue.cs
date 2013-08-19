@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (rr.Member.IsStatic) {
 					if (rr.Member.Parameters.Count != 2)
 						return;
-					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.First(), invocationExpression.Arguments.Last())) {
+					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.FirstOrDefault(), invocationExpression.Arguments.Last())) {
 						if ((invocationExpression.Parent is UnaryOperatorExpression) && ((UnaryOperatorExpression)invocationExpression.Parent).Operator == UnaryOperatorType.Not) {
 							AddIssue(invocationExpression.Parent, invocationExpression.Parent, false);
 						} else {
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (rr.Member.Parameters.Count != 1)
 						return;
 					var target = invocationExpression.Target as MemberReferenceExpression;
-					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.First(), target.Target)) {
+					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.FirstOrDefault(), target.Target)) {
 						if ((invocationExpression.Parent is UnaryOperatorExpression) && ((UnaryOperatorExpression)invocationExpression.Parent).Operator == UnaryOperatorType.Not) {
 							AddIssue(invocationExpression.Parent, invocationExpression.Parent, false);
 						} else {

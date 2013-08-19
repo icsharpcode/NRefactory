@@ -134,6 +134,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public static bool AreConditionsEqual(Expression cond1, Expression cond2)
 		{
+			if (cond1 == null || cond2 == null)
+				return false;
 			return GetInnerMostExpression(cond1).IsMatch(GetInnerMostExpression(cond2));
 		}
 
