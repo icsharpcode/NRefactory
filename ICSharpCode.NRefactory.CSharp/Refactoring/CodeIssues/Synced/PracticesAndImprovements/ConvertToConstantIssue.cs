@@ -721,7 +721,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				#region Expressions
 				public override DefiniteAssignmentStatus VisitDirectionExpression(DirectionExpression directionExpression, DefiniteAssignmentStatus data)
 				{
-					if (directionExpression.FieldDirection == FieldDirection.Out) {
+					if (directionExpression.FieldDirection == FieldDirection.Out ||
+					    directionExpression.FieldDirection == FieldDirection.Ref) {
 						return HandleAssignment(directionExpression.Expression, null, data);
 					} else {
 						// use default logic for 'ref'
@@ -731,12 +732,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				public override DefiniteAssignmentStatus VisitAssignmentExpression(AssignmentExpression assignmentExpression, DefiniteAssignmentStatus data)
 				{
-					if (assignmentExpression.Operator == AssignmentOperatorType.Assign) {
-						return HandleAssignment(assignmentExpression.Left, assignmentExpression.Right, data);
-					} else {
-						// use default logic for compound assignment operators
-						return VisitChildren(assignmentExpression, data);
-					}
+					return HandleAssignment(assignmentExpression.Left, assignmentExpression.Right, data);
 				}
 
 				public override DefiniteAssignmentStatus VisitNamedExpression(NamedExpression namedExpression, DefiniteAssignmentStatus data)

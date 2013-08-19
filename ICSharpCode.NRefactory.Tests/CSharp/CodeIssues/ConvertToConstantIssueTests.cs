@@ -123,6 +123,35 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+		
+		[Test]
+		public void TestChangingVariableCase5 ()
+		{
+			TestWrongContext<ConvertToConstantIssue>(@"class Test
+{
+	public static void Main (string[] args)
+	{
+		int fooBar = 12;
+		fooBar += 1;
+		Console.WriteLine (fooBar);
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestChangingVariableCase6 ()
+		{
+			TestWrongContext<ConvertToConstantIssue>(@"class Test
+{
+	public static void Main (string[] args)
+	{
+		int fooBar = 12;
+		TestMe (ref fooBar);
+		Console.WriteLine (fooBar);
+	}
+}");
+		}
 
 		[Test]
 		public void TestDisable ()

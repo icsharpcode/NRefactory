@@ -34,11 +34,12 @@ using ICSharpCode.NRefactory.CSharp.Analysis;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
+	/*
 	[IssueDescription("Use of (non-extension method) member of null value will cause a NullReferenceException",
 	                  Description = "Detects when a member of a null value is used",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.WavedLine)]
+	                  IssueMarker = IssueMarker.WavedLine)]*/
 	public class UseOfMemberOfNullReference : GatherVisitorCodeIssueProvider
 	{
 		static readonly ISet<NullValueStatus> ProblematicNullStates = new HashSet<NullValueStatus> {
