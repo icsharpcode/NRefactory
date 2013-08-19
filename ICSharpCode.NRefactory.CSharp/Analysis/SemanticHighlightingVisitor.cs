@@ -25,6 +25,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using ICSharpCode.NRefactory.CSharp.Completion;
+using System.Collections.ObjectModel;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -281,10 +282,24 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					continue;
 				}
 
-				if (ch == '{' && start.IsEmpty)
+
+				if (ch == '{' && start.IsEmpty) {
+					char next = i + 1 < expr.LiteralValue.Length ? expr.LiteralValue [i + 1] : '\0';
+					if (next == '{') {
+						i++;
+						col += 2;
+						continue;
+					}
 					start = new TextLocation(line, col);
+				}
 				col++;
 				if (ch == '}' &&!start.IsEmpty) {
+					char next = i + 1 < expr.LiteralValue.Length ? expr.LiteralValue [i + 1] : '\0';
+					if (next == '}') {
+						i++;
+						col += 2;
+						continue;
+					}
 					Colorize(start, new TextLocation(line, col), stringFormatItemColor);
 					start = TextLocation.Empty;
 				}

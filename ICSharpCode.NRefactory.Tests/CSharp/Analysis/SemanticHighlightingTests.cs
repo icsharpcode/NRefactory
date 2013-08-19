@@ -119,7 +119,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			foreach (var offset in offsets) {
 				var loc = doc.GetLocation (offset);
-				var color = visitor.GetColor (loc);
+				var color = visitor.GetColor (loc) ?? "defaultTextColor";
 				Assert.AreEqual (keywordColor.Name, color, "Color at " + loc + " is wrong:" + color);
 			}
 		}
@@ -378,6 +378,19 @@ ${2} "", 1, 2, 3);
 			}
 		}
 ", stringFormatItemColor);
+		}
+
+		[Test]
+		public void TestFormatItemBug()
+		{
+			TestColor (@"using System;
+class MyClass {
+			public static void Main ()
+			{
+				string str = string.Format ("" ${{ {0} {1} {2} $}} "", 1, 2, 3);
+			}
+		}
+", defaultTextColor);
 		}
 	}
 }
