@@ -155,6 +155,56 @@ class Test
 	}
 }");
 		}
+
+		
+
+		[Test]
+		public void TestAnonymousMethodBlocks ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+
+			policy.AnonymousMethodBraceStyle = BraceStyle.NextLine;
+
+			Test (policy, @"class Test
+{
+	Test TestMethod ()
+	{
+		Action act = delegate{};
+	}
+}", @"class Test
+{
+	Test TestMethod ()
+	{
+		Action act = delegate
+		{
+		};
+	}
+}");
+		}
+
+		[Test]
+		public void TestLambdaBraceStyle ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+
+			policy.AnonymousMethodBraceStyle = BraceStyle.NextLine;
+
+			Test (policy, @"class Test
+{
+	Test TestMethod ()
+	{
+		Action act = () => {};
+	}
+}", @"class Test
+{
+	Test TestMethod ()
+	{
+		Action act = () =>
+		{
+		};
+	}
+}");
+		}
 	}
 }
 

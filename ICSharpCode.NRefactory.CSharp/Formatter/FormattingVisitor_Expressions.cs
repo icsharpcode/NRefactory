@@ -47,19 +47,16 @@ namespace ICSharpCode.NRefactory.CSharp
 			base.VisitComposedType(composedType);
 		}
 
-		public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+		public override void VisitAnonymousMethodExpression(AnonymousMethodExpression lambdaExpression)
 		{
-			if (!anonymousMethodExpression.Body.IsNull) {
-				if (anonymousMethodExpression.Body.LBraceToken.GetNextNode(NoWhitespacePredicate) != anonymousMethodExpression.Body.RBraceToken) {
-					FixOpenBrace(policy.AnonymousMethodBraceStyle, anonymousMethodExpression.Body.LBraceToken);
-					VisitBlockWithoutFixingBraces(anonymousMethodExpression.Body, policy.IndentBlocks);
-					FixClosingBrace(policy.AnonymousMethodBraceStyle, anonymousMethodExpression.Body.RBraceToken);
-				} else {
-					VisitBlockWithoutFixingBraces(anonymousMethodExpression.Body, policy.IndentBlocks);
-				}
-				return;
+			FormatArguments(lambdaExpression);
+
+			if (!lambdaExpression.Body.IsNull) {
+				FixOpenBrace(policy.AnonymousMethodBraceStyle, lambdaExpression.Body.LBraceToken);
+				VisitBlockWithoutFixingBraces(lambdaExpression.Body, policy.IndentBlocks);
+				FixClosingBrace(policy.AnonymousMethodBraceStyle, lambdaExpression.Body.RBraceToken);
 			}
-			base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+
 		}
 
 		public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
@@ -276,6 +273,32 @@ namespace ICSharpCode.NRefactory.CSharp
 				rParToken = oce.RParToken;
 				lParToken = oce.LParToken;
 				arguments = oce.Arguments.Cast<AstNode> ().ToList ();
+			} else if (node is LambdaExpression)  {
+				var methodDeclaration = node as LambdaExpression;
+				methodCallArgumentWrapping = policy.MethodDeclarationParameterWrapping;
+				newLineAferMethodCallOpenParentheses = policy.NewLineAferMethodDeclarationOpenParentheses;
+				methodClosingParenthesesOnNewLine = policy.MethodDeclarationClosingParenthesesOnNewLine;
+				doAlignToFirstArgument = policy.AlignToFirstMethodDeclarationParameter;
+				spaceWithinMethodCallParentheses = policy.SpaceWithinMethodDeclarationParentheses;
+				spaceAfterMethodCallParameterComma = policy.SpaceAfterMethodDeclarationParameterComma;
+				spaceBeforeMethodCallParameterComma = policy.SpaceBeforeMethodDeclarationParameterComma;
+				spaceWithinEmptyParentheses = policy.SpaceBetweenEmptyMethodDeclarationParentheses;
+				lParToken = methodDeclaration.LParToken;
+				rParToken = methodDeclaration.RParToken;
+				arguments = methodDeclaration.Parameters.Cast<AstNode> ().ToList ();
+			} else if (node is AnonymousMethodExpression)  {
+				var methodDeclaration = node as AnonymousMethodExpression;
+				methodCallArgumentWrapping = policy.MethodDeclarationParameterWrapping;
+				newLineAferMethodCallOpenParentheses = policy.NewLineAferMethodDeclarationOpenParentheses;
+				methodClosingParenthesesOnNewLine = policy.MethodDeclarationClosingParenthesesOnNewLine;
+				doAlignToFirstArgument = policy.AlignToFirstMethodDeclarationParameter;
+				spaceWithinMethodCallParentheses = policy.SpaceWithinMethodDeclarationParentheses;
+				spaceAfterMethodCallParameterComma = policy.SpaceAfterMethodDeclarationParameterComma;
+				spaceBeforeMethodCallParameterComma = policy.SpaceBeforeMethodDeclarationParameterComma;
+				spaceWithinEmptyParentheses = policy.SpaceBetweenEmptyMethodDeclarationParentheses;
+				lParToken = methodDeclaration.LParToken;
+				rParToken = methodDeclaration.RParToken;
+				arguments = methodDeclaration.Parameters.Cast<AstNode> ().ToList ();
 			} else {
 				InvocationExpression invocationExpression = node as InvocationExpression;
 				methodCallArgumentWrapping = policy.MethodCallArgumentWrapping;
@@ -563,10 +586,20 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
 		{
-			ForceSpacesAfter(lambdaExpression.ArrowToken, true);
+			FormatArguments(lambdaExpression);
 			ForceSpacesBefore(lambdaExpression.ArrowToken, true);
 
-			base.VisitLambdaExpression(lambdaExpression);
+			if (!lambdaExpression.Body.IsNull) {
+				var body = lambdaExpression.Body as BlockStatement;
+				if (body != null) {
+					FixOpenBrace(policy.AnonymousMethodBraceStyle, body.LBraceToken);
+					VisitBlockWithoutFixingBraces(body, policy.IndentMethodBody);
+					FixClosingBrace(policy.AnonymousMethodBraceStyle, body.RBraceToken);
+				} else {
+					ForceSpacesAfter(lambdaExpression.ArrowToken, true);
+					lambdaExpression.Body.AcceptVisitor(this);
+				}
+			}
 		}
 
 		public override void VisitNamedExpression(NamedExpression namedExpression)

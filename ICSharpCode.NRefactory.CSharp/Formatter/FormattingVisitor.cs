@@ -317,6 +317,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				return true;
 			if (placement == NewLinePlacement.SameLine)
 				return false;
+			if (token.IsNull)
+				return false;
 			var prevMeaningfulNode = token.GetPrevNode (n =>n.Role !=Roles.NewLine && n.Role != Roles.Whitespace && n.Role !=Roles.Comment);
 			return prevMeaningfulNode.EndLocation.Line != token.StartLocation.Line;
 		}
