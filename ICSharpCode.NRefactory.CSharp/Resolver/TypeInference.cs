@@ -207,6 +207,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		{
 			public readonly HashSet<IType> LowerBounds = new HashSet<IType>();
 			public readonly HashSet<IType> UpperBounds = new HashSet<IType>();
+			public IType ExactBound;
+			public bool MultipleDifferentExactBounds;
 			public readonly ITypeParameter TypeParameter;
 			public IType FixedTo;
 			
@@ -215,7 +217,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			}
 			
 			public bool HasBounds {
-				get { return LowerBounds.Count > 0 || UpperBounds.Count > 0; }
+				get { return LowerBounds.Count > 0 || UpperBounds.Count > 0 || ExactBound != null; }
 			}
 			
 			public TP(ITypeParameter typeParameter)
@@ -223,6 +225,16 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				if (typeParameter == null)
 					throw new ArgumentNullException("typeParameter");
 				this.TypeParameter = typeParameter;
+			}
+			
+			public void AddExactBound(IType type)
+			{
+				// Exact bounds need to stored separately, not just as Lower+Upper bounds,
+				// due to TypeInferenceTests.GenericArgumentImplicitlyConvertibleToAndFromAnotherTypeList (see #281)
+				if (ExactBound == null)
+					ExactBound = type;
+				else if (!ExactBound.Equals(type))
+					MultipleDifferentExactBounds = true;
 			}
 			
 			public override string ToString()
@@ -563,8 +575,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			TP tp = GetTPForType(V);
 			if (tp != null && tp.IsFixed == false) {
 				Log.WriteLine(" Add exact bound '" + U + "' to " + tp);
-				tp.LowerBounds.Add(U);
-				tp.UpperBounds.Add(U);
+				tp.AddExactBound(U);
 				return;
 			}
 			// Handle by reference types:
@@ -725,7 +736,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			} else if (arrV != null && IsGenericInterfaceImplementedByArray(pU) && arrV.Dimensions == 1) {
 				MakeUpperBoundInference(pU.GetTypeArgument(0), arrV.ElementType);
 				return;
- 			}
+			}
 			// Handle parameterized types:
 			if (pU != null) {
 				ParameterizedType uniqueBaseType = null;
@@ -773,6 +784,15 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		{
 			Log.WriteLine(" Trying to fix " + tp);
 			Debug.Assert(!tp.IsFixed);
+			if (tp.ExactBound != null) {
+				// the exact bound will always be the result
+				tp.FixedTo = tp.ExactBound;
+				// check validity
+				if (tp.MultipleDifferentExactBounds)
+					return false;
+				return tp.LowerBounds.All(b => conversions.ImplicitConversion(b, tp.FixedTo).IsValid)
+					&& tp.UpperBounds.All(b => conversions.ImplicitConversion(tp.FixedTo, b).IsValid);
+			}
 			Log.Indent();
 			var types = CreateNestedInstance().FindTypesInBounds(tp.LowerBounds.ToArray(), tp.UpperBounds.ToArray());
 			Log.Unindent();
