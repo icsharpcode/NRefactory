@@ -511,6 +511,7 @@
     <Compile Include="CSharp\CodeIssues\StringLastIndexOfIsCultureSpecificIssueTest.cs" />
     <Compile Include="CSharp\CodeIssues\StringStartsWithIsCultureSpecificIssueTest.cs" />
     <Compile Include="CSharp\CodeIssues\StringEndsWithIsCultureSpecificIssueTest.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantCheckBeforeAssignmentTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
