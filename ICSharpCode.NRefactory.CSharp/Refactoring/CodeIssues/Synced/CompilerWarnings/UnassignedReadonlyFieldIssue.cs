@@ -29,6 +29,8 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.CSharp.Analysis;
 using System.Linq;
+using System;
+using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -47,43 +49,43 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<UnassignedReadonlyFieldIssue>
 		{
-			List<VariableInitializer> potentialReadonlyFields = new List<VariableInitializer>();
+			List<Tuple<VariableInitializer, IVariable>> potentialReadonlyFields = new List<Tuple<VariableInitializer, IVariable>>();
 
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
 			}
-			
+
 			void Collect()
 			{
 				foreach (var varDecl in potentialReadonlyFields) {
-					var resolveResult = ctx.Resolve(varDecl) as MemberResolveResult;
+					var resolveResult = ctx.Resolve(varDecl.Item1) as MemberResolveResult;
 					if (resolveResult == null || resolveResult.IsError)
 						continue;
 					AddIssue(
-						varDecl.NameToken,
-						string.Format(ctx.TranslateString("Readonly field '{0}' is never assigned"), varDecl.Name),
+						varDecl.Item1.NameToken,
+						string.Format(ctx.TranslateString("Readonly field '{0}' is never assigned"), varDecl.Item1.Name),
 						ctx.TranslateString("Initialize field from constructor parameter"),
 						script => {
-							script.InsertWithCursor(
-								ctx.TranslateString("Create constructor"),
-								resolveResult.Member.DeclaringTypeDefinition,
-								(s, c) => {
-									return new ConstructorDeclaration {
-										Name = resolveResult.Member.DeclaringTypeDefinition.Name,
-										Modifiers = Modifiers.Public,
-										Body = new BlockStatement {
-											new ExpressionStatement(
-												new AssignmentExpression(
-													new MemberReferenceExpression(new ThisReferenceExpression(), varDecl.Name),
-													new IdentifierExpression(varDecl.Name)
-												)
-											)
-										},
-										Parameters = {
-											new ParameterDeclaration(c.CreateShortType(resolveResult.Type), varDecl.Name)
-										}
-									};
+						script.InsertWithCursor(
+							ctx.TranslateString("Create constructor"),
+							resolveResult.Member.DeclaringTypeDefinition,
+							(s, c) => {
+							return new ConstructorDeclaration {
+								Name = resolveResult.Member.DeclaringTypeDefinition.Name,
+								Modifiers = Modifiers.Public,
+								Body = new BlockStatement {
+									new ExpressionStatement(
+										new AssignmentExpression(
+										new MemberReferenceExpression(new ThisReferenceExpression(), varDecl.Item1.Name),
+										new IdentifierExpression(varDecl.Item1.Name)
+									)
+									)
+								},
+								Parameters = {
+									new ParameterDeclaration(c.CreateShortType(resolveResult.Type), varDecl.Item1.Name)
 								}
+							};
+						}
 						);
 					}
 					);
@@ -92,43 +94,41 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
-				foreach (var fieldDeclaration in typeDeclaration.Members.OfType<FieldDeclaration>()) {
+				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields(this, typeDeclaration)) {
 					if (!fieldDeclaration.HasModifier(Modifiers.Readonly))
 						continue;
 					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
-					if (rr.Type.IsReferenceType.HasValue && !rr.Type.IsReferenceType.Value)
-						continue;
+				
 					if (fieldDeclaration.Variables.Count() > 1)
 						continue;
 					if (!fieldDeclaration.Variables.First().Initializer.IsNull)
 						continue;
-					potentialReadonlyFields.AddRange(fieldDeclaration.Variables); 
+					var variable = fieldDeclaration.Variables.First();
+					var mr = ctx.Resolve(variable) as MemberResolveResult;
+					if (mr == null)
+						continue;
+					potentialReadonlyFields.Add(Tuple.Create(variable, mr.Member as IVariable)); 
 				}
 				base.VisitTypeDeclaration(typeDeclaration);
 				Collect();
 				potentialReadonlyFields.Clear();
 			}
 
-
 			public override void VisitBlockStatement(BlockStatement blockStatement)
 			{
 				base.VisitBlockStatement(blockStatement);
 				if (blockStatement.Parent is EntityDeclaration || blockStatement.Parent is Accessor) {
-					var assignmentAnalysis = new ConvertToConstantIssue.VariableAssignmentAnalysis (blockStatement, ctx.Resolver, ctx.CancellationToken);
-					List<VariableInitializer> newVars = new List<VariableInitializer>();
+					var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation(ctx);
+					var newVars = new List<Tuple<VariableInitializer, IVariable>>();
+					blockStatement.AcceptVisitor(assignmentAnalysis); 
 					foreach (var variable in potentialReadonlyFields) {
-						var rr = ctx.Resolve(variable) as MemberResolveResult; 
-						if (rr == null)
-							continue;
-						assignmentAnalysis.Analyze(rr.Member as IField, DefiniteAssignmentStatus.PotentiallyAssigned, ctx.CancellationToken);
-						if (assignmentAnalysis.GetEndState() == DefiniteAssignmentStatus.DefinitelyAssigned)
+						if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
 							continue;
 						newVars.Add(variable);
 					}
 					potentialReadonlyFields = newVars;
 				}
 			}
-
 		}
 	}
 }

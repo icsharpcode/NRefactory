@@ -35,6 +35,7 @@ using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using System;
 using System.Diagnostics;
 using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -52,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<FieldCanBeMadeReadOnlyIssue>
 		{
-			List<VariableInitializer> potentialReadonlyFields = new List<VariableInitializer>();
+			List<Tuple<VariableInitializer, IVariable>> potentialReadonlyFields = new List<Tuple<VariableInitializer, IVariable>> ();
 
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
@@ -62,11 +63,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				foreach (var varDecl in potentialReadonlyFields) {
 					AddIssue(
-						varDecl.NameToken,
+						varDecl.Item1.NameToken,
 						ctx.TranslateString("Convert to readonly"),
 						ctx.TranslateString("To readonly"),
 						script => {
-							var field = (FieldDeclaration)varDecl.Parent;
+							var field = (FieldDeclaration)varDecl.Item1.Parent;
 							script.ChangeModifier(field, field.Modifiers | Modifiers.Readonly);
 						}
 					);
@@ -87,7 +88,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if ((rr.Type.IsReferenceType.HasValue && !rr.Type.IsReferenceType.Value) && (ctx.Resolve (variable.Initializer) is ConstantResolveResult))
 						continue;
 
-					potentialReadonlyFields.Add(variable); 
+					var mr = ctx.Resolve(variable) as MemberResolveResult;
+					if (mr == null)
+						continue;
+					potentialReadonlyFields.Add(Tuple.Create(variable, mr.Member as IVariable)); 
 				}
 				base.VisitTypeDeclaration(typeDeclaration);
 				Collect();
@@ -102,21 +106,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitBlockStatement(BlockStatement blockStatement)
 			{
 				base.VisitBlockStatement(blockStatement);
+
 				if (blockStatement.Parent is EntityDeclaration || blockStatement.Parent is Accessor) {
-					var assignmentAnalysis = new ConvertToConstantIssue.VariableAssignmentAnalysis (blockStatement, ctx.Resolver, ctx.CancellationToken);
-					List<VariableInitializer> newVars = new List<VariableInitializer>();
+					var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation (ctx);
+					var newVars = new List<Tuple<VariableInitializer, IVariable>>();
+					blockStatement.AcceptVisitor(assignmentAnalysis); 
 					foreach (var variable in potentialReadonlyFields) {
-						var rr = ctx.Resolve(variable) as MemberResolveResult; 
-						if (rr == null)
-							continue;
-						assignmentAnalysis.Analyze(rr.Member as IField, DefiniteAssignmentStatus.PotentiallyAssigned, ctx.CancellationToken);
-						var definiteAssignmentStatus = assignmentAnalysis.GetEndState();
-						if (definiteAssignmentStatus == DefiniteAssignmentStatus.DefinitelyAssigned)
+						if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
 							continue;
 						newVars.Add(variable);
 					}
 					potentialReadonlyFields = newVars;
 				}
+
 			}
 
 		}
