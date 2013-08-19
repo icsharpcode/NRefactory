@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					ctx.TranslateString("Convert to '?:' expression"),
 					ctx.TranslateString("Replace with '?:' expression"),
 					script => {
-					script.Replace(ifElseStatement, new ExpressionStatement(
+						script.Replace(ifElseStatement, new ExpressionStatement(
 							new AssignmentExpression(target.Clone(), new ConditionalExpression(condition.Clone(), trueExpr.Clone(), falseExpr.Clone()))
 						)
 					); 
