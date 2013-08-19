@@ -55,7 +55,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			var fieldVisitor = new ConvertToConstantIssue.FieldCollectVisitor<T>(provider.Ctx, typeDeclaration);
 			typeDeclaration.AcceptVisitor(fieldVisitor);
-			Console.WriteLine(fieldVisitor.CollectedFields.Count);
 			return fieldVisitor.CollectedFields;
 		}
 
@@ -73,7 +72,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (IsSuppressed(fieldDeclaration.StartLocation))
 					return;
-				Console.WriteLine(fieldDeclaration);
 				CollectedFields.Add(fieldDeclaration); 
 			}
 
