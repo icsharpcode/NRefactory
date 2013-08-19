@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<FieldCanBeMadeReadOnlyIssue>
 		{
-			Stack<List<VariableInitializer>> potentialReadonlyFields = new Stack<List<VariableInitializer>> ();
+			List<VariableInitializer> potentialReadonlyFields = new List<VariableInitializer>();
 
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void Collect()
 			{
-				foreach (var varDecl in potentialReadonlyFields.Pop()) {
+				foreach (var varDecl in potentialReadonlyFields) {
 					AddIssue(
 						varDecl.NameToken,
 						ctx.TranslateString("Convert to readonly"),
@@ -74,11 +74,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				var fieldVisitor = new ConvertToConstantIssue.FieldCollectVisitor<FieldCanBeMadeReadOnlyIssue>(ctx);
-				typeDeclaration.AcceptVisitor(fieldVisitor);
-				potentialReadonlyFields.Push(new List<VariableInitializer> ()); 
-				foreach (var fieldDeclaration in fieldVisitor.CollectedFields) {
+			{	
+				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields (this, typeDeclaration)) {
 					if (fieldDeclaration.HasModifier(Modifiers.Const) || fieldDeclaration.HasModifier(Modifiers.Readonly))
 						continue;
 					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
@@ -90,10 +87,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if ((rr.Type.IsReferenceType.HasValue && !rr.Type.IsReferenceType.Value) && (ctx.Resolve (variable.Initializer) is ConstantResolveResult))
 						continue;
 
-					potentialReadonlyFields.Peek().Add(variable); 
+					potentialReadonlyFields.Add(variable); 
 				}
 				base.VisitTypeDeclaration(typeDeclaration);
 				Collect();
+				potentialReadonlyFields.Clear();
 			}
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
@@ -107,8 +105,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (blockStatement.Parent is EntityDeclaration || blockStatement.Parent is Accessor) {
 					var assignmentAnalysis = new ConvertToConstantIssue.VariableAssignmentAnalysis (blockStatement, ctx.Resolver, ctx.CancellationToken);
 					List<VariableInitializer> newVars = new List<VariableInitializer>();
-					var oldVars = potentialReadonlyFields.Pop();
-					foreach (var variable in oldVars) {
+					foreach (var variable in potentialReadonlyFields) {
 						var rr = ctx.Resolve(variable) as MemberResolveResult; 
 						if (rr == null)
 							continue;
@@ -118,9 +115,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							continue;
 						newVars.Add(variable);
 					}
-					potentialReadonlyFields.Push(newVars);
+					potentialReadonlyFields = newVars;
 				}
 			}
+
 		}
 	}
 }

@@ -50,12 +50,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
-		internal class FieldCollectVisitor<T> : GatherVisitorBase<T>  where T : CodeIssueProvider
+		internal static IEnumerable<FieldDeclaration> CollectFields<T>(GatherVisitorBase<T> provider, TypeDeclaration typeDeclaration) where T : CodeIssueProvider
 		{
+			var fieldVisitor = new ConvertToConstantIssue.FieldCollectVisitor<T>(provider.Ctx, typeDeclaration);
+			typeDeclaration.AcceptVisitor(fieldVisitor);
+			return fieldVisitor.CollectedFields;
+		}
+
+		class FieldCollectVisitor<T> : GatherVisitorBase<T>  where T : CodeIssueProvider
+		{
+			readonly TypeDeclaration typeDeclaration;
 			public readonly List<FieldDeclaration> CollectedFields = new List<FieldDeclaration>();
 
-			public FieldCollectVisitor(BaseRefactoringContext context) : base (context)
+			public FieldCollectVisitor(BaseRefactoringContext context, TypeDeclaration typeDeclaration) : base (context)
 			{
+				this.typeDeclaration = typeDeclaration;
 			}
 
 			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
@@ -63,6 +72,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (IsSuppressed(fieldDeclaration.StartLocation))
 					return;
 				CollectedFields.Add(fieldDeclaration); 
+			}
+
+			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+			{
+				if (typeDeclaration != this.typeDeclaration)
+					return;
+				base.VisitTypeDeclaration(typeDeclaration);
 			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)
@@ -92,7 +108,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					);
 				}
-				potentialConstantFields.Clear();
 			}
 
 
@@ -124,10 +139,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
-				var fieldVisitor = new ConvertToConstantIssue.FieldCollectVisitor<ConvertToConstantIssue>(ctx);
-				typeDeclaration.AcceptVisitor(fieldVisitor);
-
-				foreach (var fieldDeclaration in fieldVisitor.CollectedFields) {
+				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields(this, typeDeclaration)) {
 					if (IsSuppressed(fieldDeclaration.StartLocation))
 						continue;
 					if (fieldDeclaration.Modifiers.HasFlag (Modifiers.Const) || fieldDeclaration.Modifiers.HasFlag (Modifiers.Readonly))

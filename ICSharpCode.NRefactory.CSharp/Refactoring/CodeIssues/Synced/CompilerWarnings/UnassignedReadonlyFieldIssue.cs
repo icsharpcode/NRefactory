@@ -92,11 +92,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
-				var fieldVisitor = new ConvertToConstantIssue.FieldCollectVisitor<UnassignedReadonlyFieldIssue>(ctx);
-				typeDeclaration.AcceptVisitor(fieldVisitor);
-
-				foreach (var fieldDeclaration in fieldVisitor.CollectedFields) {
+				foreach (var fieldDeclaration in typeDeclaration.Members.OfType<FieldDeclaration>()) {
 					if (!fieldDeclaration.HasModifier(Modifiers.Readonly))
+						continue;
+					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
+					if (rr.Type.IsReferenceType.HasValue && !rr.Type.IsReferenceType.Value)
 						continue;
 					if (fieldDeclaration.Variables.Count() > 1)
 						continue;

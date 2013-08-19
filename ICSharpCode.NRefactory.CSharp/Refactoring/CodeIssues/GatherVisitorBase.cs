@@ -42,6 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 	public interface IGatherVisitor
 	{
+		BaseRefactoringContext Ctx { get; }
 		string SubIssue { get; set; }
 		IEnumerable<CodeIssue> GetIssues();
 	}
@@ -73,6 +74,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		protected readonly T QualifierDirectiveEvidentIssueProvider;
 		protected readonly BaseRefactoringContext ctx;
+
+		public BaseRefactoringContext Ctx {
+			get {
+				return ctx;
+			}
+		}
 
 		bool isAllDisabled;
 		bool isDisabled;
