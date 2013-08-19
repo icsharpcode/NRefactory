@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.CodeIssues;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
@@ -38,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void WithoutGetHashCode()
 		{
-		var input = @"
+			var input = @"
 namespace application
 {
 	public class BaseClass
@@ -49,7 +48,7 @@ namespace application
 		}
 	}
 }";
-		var output = @"
+			var output = @"
 namespace application
 {
 	public class BaseClass
@@ -64,7 +63,7 @@ namespace application
 		}
 	}
 }";
-		Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, output);
+			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, output);
 		}
 
 		[Test]
@@ -82,7 +81,7 @@ namespace application
 		}
 	}
 }";
-		Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
+			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
 		}
 
 		[Test]
@@ -145,6 +144,25 @@ namespace application
 			return false;
 		}
 //Resharper restore CSharpWarnings::CS0659
+	}
+}";
+			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
+		}
+
+		[Test]
+		public void TestPragmaSuppression()
+		{
+			var input = @"
+namespace application
+{
+	public class Program
+	{
+#pragma warning disable 0659
+		public override bool Equals(Object o)
+		{
+			return false;
+		}
+#pragma warning restore 0659
 	}
 }";
 			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
