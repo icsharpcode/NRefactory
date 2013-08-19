@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				if (node is Identifier) {
 					node = node.Parent;
 				} else if (node.NodeType == NodeType.Token) {
-					if (node.Parent is IndexerExpression || node.Parent is ConstructorInitializer) {
+					if (node.Parent is IndexerExpression || node.Parent is ConstructorInitializer || node.Role == IndexerDeclaration.ThisKeywordRole) {
 						// There's no other place where one could hover to see the indexer's tooltip,
 						// so we need to resolve it when hovering over the '[' or ']'.
 						// For constructor initializer, the same applies to the 'base'/'this' token.

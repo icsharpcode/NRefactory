@@ -250,6 +250,20 @@ class Test {
 ");
 			Assert.AreEqual("System.Environment", rr.Type.FullName);
 		}
+
+		[Test]
+		public void TestIndexer()
+		{
+			var rr = ResolveAtLocation<MemberResolveResult>(
+				@"using System;
+class Test {
+	public int $this[int index] { get { return 1; } }
+}
+");
+			Assert.AreEqual("Test.Item", rr.Member.FullName);
+		}
+
+
 		
 		[Test]
 		public void PragmaWarningID()
