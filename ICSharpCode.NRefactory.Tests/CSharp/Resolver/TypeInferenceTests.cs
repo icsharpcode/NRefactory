@@ -386,10 +386,10 @@ class Test
 		#endregion
 		
 		#region FindTypeInBounds
-		IType[] FindAllTypesInBounds(IList<IType> lowerBounds, IList<IType> upperBounds = null)
+		IType[] FindAllTypesInBounds(IList<IType> lowerBounds, IList<IType> upperBounds = null, IList<IType> exactBounds = null)
 		{
 			ti.Algorithm = TypeInferenceAlgorithm.ImprovedReturnAllResults;
-			IType type = ti.FindTypeInBounds(lowerBounds, upperBounds ?? new IType[0]);
+			IType type = ti.FindTypeInBounds(lowerBounds, upperBounds ?? new IType[0], exactBounds ?? new IType[0]);
 			return ExpandIntersections(type).OrderBy(t => t.ReflectionName).ToArray();
 		}
 		
@@ -603,7 +603,6 @@ class C : I<string>
 			Assert.IsFalse(mrr.IsError);
 		}
 
-		[Ignore("Fixme?")]
 		[Test]
 		public void GenericArgumentImplicitlyConvertibleToAndFromAnotherTypeList() {
 			string program = @"
