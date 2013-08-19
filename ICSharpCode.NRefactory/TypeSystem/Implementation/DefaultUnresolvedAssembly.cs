@@ -39,6 +39,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		string fullAssemblyName;
 		IList<IUnresolvedAttribute> assemblyAttributes;
 		IList<IUnresolvedAttribute> moduleAttributes;
+		IList<IAssemblyResource> resources;
 		Dictionary<TopLevelTypeName, IUnresolvedTypeDefinition> typeDefinitions = new Dictionary<TopLevelTypeName, IUnresolvedTypeDefinition>(TopLevelTypeNameComparer.Ordinal);
 		Dictionary<TopLevelTypeName, ITypeReference> typeForwarders = new Dictionary<TopLevelTypeName, ITypeReference>(TopLevelTypeNameComparer.Ordinal);
 		
@@ -47,6 +48,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			base.FreezeInternal();
 			assemblyAttributes = FreezableHelper.FreezeListAndElements(assemblyAttributes);
 			moduleAttributes = FreezableHelper.FreezeListAndElements(moduleAttributes);
+			resources = FreezableHelper.FreezeList(resources);
 			foreach (var type in typeDefinitions.Values) {
 				FreezableHelper.Freeze(type);
 			}
@@ -65,6 +67,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			this.assemblyName = pos < 0 ? assemblyName : assemblyName.Substring(0, pos);
 			this.assemblyAttributes = new List<IUnresolvedAttribute>();
 			this.moduleAttributes = new List<IUnresolvedAttribute>();
+			this.resources = new List<IAssemblyResource>();
 		}
 		
 		/// <summary>
@@ -130,6 +133,14 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		
 		public IEnumerable<IUnresolvedTypeDefinition> TopLevelTypeDefinitions {
 			get { return typeDefinitions.Values; }
+		}
+
+		public IList<IAssemblyResource> Resources {
+			get { return resources; }
+		}
+
+		IEnumerable<IAssemblyResource> IUnresolvedAssembly.Resources {
+			get { return resources; }
 		}
 		
 		/// <summary>
@@ -371,6 +382,10 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				get {
 					return unresolvedAssembly.TopLevelTypeDefinitions.Select(t => GetTypeDefinition(t));
 				}
+			}
+
+			public IEnumerable<IAssemblyResource> Resources {
+				get { return unresolvedAssembly.Resources; }
 			}
 			
 			public override string ToString()

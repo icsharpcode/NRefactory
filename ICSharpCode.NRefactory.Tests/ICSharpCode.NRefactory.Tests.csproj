@@ -542,6 +542,19 @@
       <Name>ICSharpCode.NRefactory.IKVM</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TypeSystem\EmbeddedResource.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <LinkResource Include="TypeSystem\LinkedResource.txt">
+      <LogicalName>ICSharpCode.NRefactory.TypeSystem.LinkedResource.txt</LogicalName>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </LinkResource>
+    <EmbeddedResource Include="TypeSystem\PrivateEmbeddedResource.txt">
+      <Access>private</Access>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <MonoDevelop>

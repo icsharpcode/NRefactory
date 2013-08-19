@@ -129,6 +129,16 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			currentAssemblyDefinition = assembly;
 			currentAssembly = new IkvmUnresolvedAssembly (assembly.FullName, DocumentationProvider);
 
+			foreach (var res in assembly.GetManifestResourceNames()) {
+				var info = assembly.GetManifestResourceInfo(res);
+				if ((info.ResourceLocation & ResourceLocation.Embedded) != 0) {
+					currentAssembly.Resources.Add(new IkvmEmbeddedResource(res, assembly.Location, (info.__ResourceAttributes & ResourceAttributes.Public) != 0));
+				}
+				else {
+					currentAssembly.Resources.Add(new LinkedResource(res, info.FileName, Path.GetDirectoryName(assembly.Location), (info.__ResourceAttributes & ResourceAttributes.Public) != 0));
+				}
+			}
+
 			// Read assembly and module attributes
 			IList<IUnresolvedAttribute> assemblyAttributes = new List<IUnresolvedAttribute>();
 			IList<IUnresolvedAttribute> moduleAttributes = new List<IUnresolvedAttribute>();
@@ -215,6 +225,34 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				if (documentationProvider != null)
 					return documentationProvider.GetDocumentation (entity);
 				return null;
+			}
+		}
+
+		[Serializable, FastSerializerVersion(ikvmLoaderVersion)]
+		sealed class IkvmEmbeddedResource : IAssemblyResource {
+			private string name;
+			private string assemblyFile;
+			private bool isPublic;
+
+			public IkvmEmbeddedResource(string name, string assemblyFile, bool isPublic) {
+				this.name = name;
+				this.assemblyFile = assemblyFile;
+				this.isPublic = isPublic;
+			}
+
+			public string Name { get { return name; } }
+
+			public AssemblyResourceType Type { get { return AssemblyResourceType.Embedded; } }
+
+			public string LinkedFileName { get { return null; } }
+
+			public bool IsPublic { get { return isPublic; } }
+
+			public Stream GetResourceStream() {
+				using (var universe = new Universe (UniverseOptions.DisablePseudoCustomAttributeRetrieval | UniverseOptions.SupressReferenceTypeIdentityConversion)) {
+					var asm = universe.LoadFile(assemblyFile);
+					return asm.GetManifestResourceStream(name);
+				}
 			}
 		}
 		#endregion

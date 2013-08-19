@@ -44,7 +44,10 @@ namespace ICSharpCode.NRefactory.CSharp.Parser
 				.AddAssemblyReferences(new[] {
 					CecilLoaderTests.Mscorlib
 				})
-				.SetAssemblyName(typeof(TypeSystemTests).Assembly.GetName().Name);
+				.SetAssemblyName(typeof(TypeSystemTests).Assembly.GetName().Name)
+				.AddEmbeddedResource("ICSharpCode.NRefactory.TypeSystem.EmbeddedResource.txt", Path.Combine("TypeSystem", "EmbeddedResource.txt"), isPublic: true)
+				.AddEmbeddedResource("ICSharpCode.NRefactory.TypeSystem.PrivateEmbeddedResource.txt", Path.Combine("TypeSystem", "PrivateEmbeddedResource.txt"), isPublic: false)
+				.AddLinkedResource("ICSharpCode.NRefactory.TypeSystem.LinkedResource.txt", Path.Combine(Path.GetDirectoryName(typeof(TypeSystemConvertVisitorTests).Assembly.Location), "LinkedResource.txt"), isPublic: true);
 		}
 		
 		internal static IProjectContent ParseTestCase()

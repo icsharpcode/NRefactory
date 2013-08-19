@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using ICSharpCode.NRefactory.CSharp.TypeSystem;
@@ -36,6 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		string location;
 		Dictionary<string, IUnresolvedFile> unresolvedFiles;
 		List<IAssemblyReference> assemblyReferences;
+		List<IAssemblyResource> resources;
 		CompilerSettings compilerSettings;
 		
 		public CSharpProjectContent()
@@ -43,6 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.unresolvedFiles = new Dictionary<string, IUnresolvedFile>(Platform.FileNameComparer);
 			this.assemblyReferences = new List<IAssemblyReference>();
 			this.compilerSettings = new CompilerSettings();
+			this.resources = new List<IAssemblyResource>();
 			compilerSettings.Freeze();
 		}
 		
@@ -54,6 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.location = pc.location;
 			this.unresolvedFiles = new Dictionary<string, IUnresolvedFile>(pc.unresolvedFiles, Platform.FileNameComparer);
 			this.assemblyReferences = new List<IAssemblyReference>(pc.assemblyReferences);
+			this.resources = new List<IAssemblyResource>(pc.resources);
 			this.compilerSettings = pc.compilerSettings;
 		}
 		
@@ -104,6 +108,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		public IEnumerable<IUnresolvedTypeDefinition> TopLevelTypeDefinitions {
 			get {
 				return this.Files.SelectMany(f => f.TopLevelTypeDefinitions);
+			}
+		}
+
+		public IEnumerable<IAssemblyResource> Resources {
+			get {
+				return resources.Select(x => x);
 			}
 		}
 		
@@ -237,7 +247,19 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return RemoveFiles((IEnumerable<string>)fileNames);
 		}
-		
+
+		public IProjectContent AddLinkedResource(string name, string filename, bool isPublic = true) {
+			var pc = Clone();
+			pc.resources.Add(new LinkedResource(name, Path.GetFileName(filename), Path.GetDirectoryName(filename), isPublic));
+			return pc;
+		}
+
+		public IProjectContent AddEmbeddedResource(string name, string filepath, bool isPublic = true) {
+			var pc = Clone();
+			pc.resources.Add(new EmbeddedResource(name, filepath, isPublic));
+			return pc;
+		}
+
 		[Obsolete("Use RemoveFiles/AddOrUpdateFiles instead")]
 		public IProjectContent UpdateProjectContent(IUnresolvedFile oldFile, IUnresolvedFile newFile)
 		{
@@ -283,6 +305,31 @@ namespace ICSharpCode.NRefactory.CSharp
 			} else {
 				asm = new CSharpAssembly(context.Compilation, this);
 				return (IAssembly)cache.GetOrAddShared(this, asm);
+			}
+		}
+
+		[Serializable]
+		class EmbeddedResource : IAssemblyResource {
+			private readonly string name;
+			private readonly string filepath;
+			private readonly bool isPublic;
+
+			public string Name { get { return name; } }
+
+			public string LinkedFileName { get { return null; } }
+
+			public AssemblyResourceType Type { get { return AssemblyResourceType.Embedded; } }
+
+			public bool IsPublic { get { return isPublic; } }
+
+			public EmbeddedResource(string name, string filepath, bool isPublic) {
+				this.name = name;
+				this.filepath = filepath;
+				this.isPublic = isPublic;
+			}
+
+			public Stream GetResourceStream() {
+				return File.Open(filepath, FileMode.Open, FileAccess.Read);
 			}
 		}
 	}

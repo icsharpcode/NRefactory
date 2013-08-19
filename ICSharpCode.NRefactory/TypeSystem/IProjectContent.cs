@@ -155,5 +155,15 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// Using the incorrect type of settings object results in an <see cref="ArgumentException"/>.
 		/// </summary>
 		IProjectContent SetCompilerSettings(object compilerSettings);
+
+		/// <summary>
+		/// Adds a linked resource to the project.
+		/// </summary>
+		IProjectContent AddLinkedResource(string name, string filename, bool isPublic = true);
+
+		/// <summary>
+		/// Adds an embedded resource to the project.
+		/// </summary>
+		IProjectContent AddEmbeddedResource(string name, string filepath, bool isPublic = true);
 	}
 }
