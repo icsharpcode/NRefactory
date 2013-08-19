@@ -607,9 +607,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						status = child.AcceptVisitor(this, status);
 						status = CleanSpecialValues(status);
 					}
-					if (status == DefiniteAssignmentStatus.DefinitelyAssigned) {
-						Console.WriteLine("result state:" + status);
-					}
 					return status;
 				}
 
