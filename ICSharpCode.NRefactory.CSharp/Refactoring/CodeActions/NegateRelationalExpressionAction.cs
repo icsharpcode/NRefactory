@@ -33,8 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			var newOp = CSharpUtil.NegateRelationalOperator (node.Operator);
 			if (newOp != BinaryOperatorType.Any && node.OperatorToken.Contains (context.Location)) {
-				var operatorToken = BinaryOperatorExpression.GetOperatorRole (node.Operator).Token;
-				return new CodeAction (string.Format (context.TranslateString ("Negate '{0}'"), operatorToken),
+				return new CodeAction (string.Format (context.TranslateString ("Negate '{0}'"), node),
 					script => {
 						script.Replace (node, CSharpUtil.InvertCondition(node));
 					}, node.OperatorToken);
