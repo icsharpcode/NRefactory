@@ -182,5 +182,55 @@ class TestClass
 	}
 }");
 		}
+	
+		[Test]
+		public void Equals()
+		{
+			Test<InvertLogicalExpressionAction>(@"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (a $== b){}
+	}
+}", @"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (!(a != b)) {
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void EqualsReverse()
+		{
+			Test<InvertLogicalExpressionAction>(@"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (!(a $!= b)){}
+	}
+}", @"
+class TestClass
+{
+	public void F()
+	{
+		bool a = true;
+		bool b = false;
+		if (a == b) {
+		}
+	}
+}");
+		}
 	}
 }
