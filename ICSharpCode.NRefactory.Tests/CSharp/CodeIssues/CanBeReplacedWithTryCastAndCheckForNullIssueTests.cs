@@ -154,6 +154,43 @@ class Bar
 		}
 
 		[Test]
+		public void NestedIf()
+		{
+			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		if (foo is string) {
+		} else if (foo is Bar) {
+			Baz ((Bar)foo);
+			return (Bar)foo;
+		}
+		return null;
+	}
+}
+", @"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		if (foo is string) {
+		} else {
+			var bar = foo as Bar;
+			if (bar != null) {
+				Baz (bar);
+				return bar;
+			}
+		}
+		return null;
+	}
+}
+");
+		}
+
+	
+
+		[Test]
 		public void TestDisable()
 		{
 			TestWrongContext<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"

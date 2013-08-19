@@ -59,6 +59,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					new AnyNodeOrNull()
 				);
 
+			static bool IsEmbeddedStatement(AstNode stmt)
+			{
+				return stmt.Role == Roles.EmbeddedStatement || 
+					stmt.Role == IfElseStatement.TrueRole || 
+					stmt.Role == IfElseStatement.FalseRole;
+			}
+
 			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 			{
 				base.VisitIfElseStatement(ifElseStatement);
@@ -95,23 +102,36 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							varName,
 							new AsExpression(obj.Clone(), castToType.Clone())
 						);
-						script.InsertBefore(ifElseStatement, varDec);
 						var binaryOperatorIdentifier = new IdentifierExpression(varName);
-						script.Replace(
-							outerIs,
-							new BinaryOperatorExpression(
-								binaryOperatorIdentifier,
-								BinaryOperatorType.InEquality,
-								new NullReferenceExpression()
-							)
-						);
+						var binaryOperatorExpression = new BinaryOperatorExpression(binaryOperatorIdentifier, BinaryOperatorType.InEquality, new NullReferenceExpression());
+
 						var linkedNodes = new List<AstNode>();
 						linkedNodes.Add(varDec.Variables.First().NameToken);
 						linkedNodes.Add(binaryOperatorIdentifier);
-						foreach (var c in foundCasts) {
-							var id = new IdentifierExpression(varName);
-							linkedNodes.Add(id);
-							script.Replace(c, id);
+
+						if (IsEmbeddedStatement (ifElseStatement)) {
+							var block = new BlockStatement ();
+							block.Add(varDec); 
+							var newIf = (IfElseStatement)ifElseStatement.Clone();
+							newIf.Condition = binaryOperatorExpression;
+							foreach (var node in newIf.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n))) {
+								var id = new IdentifierExpression(varName);
+								linkedNodes.Add(id);
+								node.ReplaceWith(id);
+							}
+							block.Add(newIf); 
+							script.Replace(ifElseStatement, block);
+						} else {
+							script.InsertBefore(ifElseStatement, varDec);
+							script.Replace(
+								outerIs,
+								binaryOperatorExpression
+							);
+							foreach (var c in foundCasts) {
+								var id = new IdentifierExpression(varName);
+								linkedNodes.Add(id);
+								script.Replace(c, id);
+							}
 						}
 						script.Link(linkedNodes);
 					}
