@@ -205,6 +205,49 @@ class TestClass
 	}
 }");
         }
-
+		
+		[Test]
+		public void EscapeBraces ()
+		{
+			Test<UseStringFormatAction> (@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 0;
+		string str = $""{"" + i + ""}"";
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 0;
+		string str = string.Format (""{{{0}}}"", i);
+	}
+}");
+		}
+		
+		[Test]
+		public void QuotesMixedVerbatim ()
+		{
+			Test<UseStringFormatAction> (@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 0;
+		string str = $""\"""" + i + @"""""""";
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int i = 0;
+		string str = string.Format (@""""""{0}"""""", i);
+	}
+}");
+		}
 	}
 }
