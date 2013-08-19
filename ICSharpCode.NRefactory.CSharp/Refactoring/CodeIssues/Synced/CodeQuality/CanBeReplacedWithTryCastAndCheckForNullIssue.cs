@@ -96,7 +96,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					ctx.TranslateString("Type check and casts can be replaced with 'as' and null check"),
 					ctx.TranslateString("Use 'as' and check for null"),
 					script => {
-						var varName = ctx.GetNameProposal(rr.Type.Name, ifElseStatement.StartLocation);
+						var varName = ctx.GetNameProposal(CreateMethodDeclarationAction.GuessNameFromType(rr.Type), ifElseStatement.StartLocation);
 						var varDec = new VariableDeclarationStatement(
 							new PrimitiveType("var"),
 							varName,

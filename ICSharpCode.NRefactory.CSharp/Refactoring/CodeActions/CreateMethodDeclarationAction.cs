@@ -323,7 +323,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return sb.ToString ();
 		}
 
-		static string GuessNameFromType(IType returnType)
+		internal static string GuessNameFromType(IType returnType)
 		{
 			switch (returnType.ReflectionName) {
 				case "System.Byte":
