@@ -79,18 +79,55 @@ class TestClass
 		public void AttrbuteUsage()
 		{
 			Test<AddArgumentNameAction>(@"
+using System;
 public class AnyClass
-{ 
-[Obsolete($"" "", error: true)]
-    static void Old() { }
-
-    static void New() { }
-}
-", @"
+{
+	[Obsolete($"" "", error: true)]
+	static void Old() { }
+}", @"
+using System;
 public class AnyClass
 {
 	[Obsolete(message: "" "", error: true)]
 	static void Old() { }
+}");
+		}
+
+		[Test]
+		public void IndexerInvocation()
+		{
+			Test<AddArgumentNameAction>(@"
+public class TestClass
+{
+	public int this[int i, int j]
+	{
+		set { }
+		get { return 0; }
+	}
+}
+internal class Test
+{
+	private void Foo()
+	{
+		var TestBases = new TestClass();
+		int a = TestBases[ $1, 2];
+	}
+}", @"
+public class TestClass
+{
+	public int this[int i, int j]
+	{
+		set { }
+		get { return 0; }
+	}
+}
+internal class Test
+{
+	private void Foo()
+	{
+		var TestBases = new TestClass();
+		int a = TestBases [i: 1, j: 2];
+	}
 }");
 		}
 	}
