@@ -50,9 +50,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<XmlDocIssue>
 		{
-			readonly List<Comment> storedXmlComment = new List<Comment> ();
+			readonly List<Comment> storedXmlComment = new List<Comment>();
 
-			public GatherVisitor (BaseRefactoringContext ctx)
+			public GatherVisitor(BaseRefactoringContext ctx)
 				: base (ctx)
 			{
 			}
@@ -109,13 +109,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitExternAliasDeclaration(externAliasDeclaration);
 			}
 
-			void AddXmlIssue(int line, int col, string str)
+			void AddXmlIssue(int line, int col, int length, string str)
 			{
 				var cmt = storedXmlComment [Math.Max(0, Math.Min(storedXmlComment.Count - 1, line))];
 
-				AddIssue(new TextLocation (cmt.StartLocation.Line, cmt.StartLocation.Column + 3 + col),
-				         new TextLocation (cmt.StartLocation.Line, cmt.StartLocation.Column + 3 + col + 1),
+				AddIssue(new TextLocation(cmt.StartLocation.Line, cmt.StartLocation.Column + 3 + col),
+				         new TextLocation(cmt.StartLocation.Line, cmt.StartLocation.Column + 3 + col + length),
 				         str);
+			}
+
+			int SearchAttributeColumn(int x, int line)
+			{
+				var comment = storedXmlComment [Math.Max(0, Math.Min(storedXmlComment.Count - 1, line))];
+				var idx = comment.Content.IndexOfAny(new char[] { '"', '\'' }, x);
+				return idx < 0 ? x : idx + 1;
 			}
 
 			void CheckXmlDoc(AstNode node)
@@ -144,7 +151,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 									case "typeparam":
 									case "typeparamref":
 										reader.MoveToFirstAttribute();
-										int line = reader.LineNumber;
+										int line = reader.LineNumber - 1;
 										int x = reader.LinePosition;
 										string name = reader.GetAttribute("name");
 										if (name == null)
@@ -153,7 +160,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 										if (member.SymbolKind == SymbolKind.TypeDefinition) {
 											var type = (ITypeDefinition)member;
 											if (!type.TypeArguments.Any(arg => arg.Name == name)) {
-												AddXmlIssue(line, x, string.Format(ctx.TranslateString("Type parameter '{0}' not found"), name));
+												AddXmlIssue(line, SearchAttributeColumn(x, line), name.Length, string.Format(ctx.TranslateString("Type parameter '{0}' not found"), name));
 											}
 
 										}
@@ -161,7 +168,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 									case "param":
 									case "paramref":
 										reader.MoveToFirstAttribute();
-										line = reader.LineNumber;
+										line = reader.LineNumber - 2;
 										x = reader.LinePosition;
 										name = reader.GetAttribute("name");
 										if (name == null)
@@ -170,13 +177,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 										var m = member as IParameterizedMember;
 										if (m != null && m.Parameters.Any(p => p.Name == name))
 											break;
-										AddXmlIssue(line, x, string.Format(ctx.TranslateString("Parameter '{0}' not found"), name));
+										AddXmlIssue(line, SearchAttributeColumn(x, line), name.Length, string.Format(ctx.TranslateString("Parameter '{0}' not found"), name));
 										break;
 									case "exception":
 									case "seealso":
 									case "see":
 										reader.MoveToFirstAttribute();
-										line = reader.LineNumber;
+										line = reader.LineNumber - 2;
 										x = reader.LinePosition;
 										string cref = reader.GetAttribute("cref");
 										if (cref == null)
@@ -184,15 +191,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 										try {
 											var trctx = ctx.Resolver.TypeResolveContext;
 
-											if (member is IMember) 
+											if (member is IMember)
 												trctx = trctx.WithCurrentTypeDefinition(member.DeclaringTypeDefinition).WithCurrentMember((IMember)member);
-											if (member is ITypeDefinition) 
+											if (member is ITypeDefinition)
 												trctx = trctx.WithCurrentTypeDefinition((ITypeDefinition)member);
 											var entity = IdStringProvider.FindEntity(cref, trctx);
-											if (entity == null)
-												AddXmlIssue(line, x, string.Format(ctx.TranslateString("Cannot find reference '{0}'"), cref));
+											if (entity == null) {
+
+												AddXmlIssue(line, SearchAttributeColumn(x, line), cref.Length, string.Format(ctx.TranslateString("Cannot find reference '{0}'"), cref));
+											}
 										} catch (Exception e) {
-											AddXmlIssue(line, x, string.Format(ctx.TranslateString("Reference parsing error '{0}'."), e.Message));
+											AddXmlIssue(line, SearchAttributeColumn(x, line), cref.Length, string.Format(ctx.TranslateString("Reference parsing error '{0}'."), e.Message));
 										}
 										break;
 
@@ -200,7 +209,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}
 						}
 					} catch (XmlException e) {
-						AddXmlIssue(e.LineNumber, e.LinePosition, e.Message);
+						AddXmlIssue(e.LineNumber, e.LinePosition - 2, 1, e.Message);
 					}
 					if (storedXmlComment.Count > 0) {
 
@@ -210,23 +219,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								var p = pm.Parameters [i];
 								if (!parameters.Any(tp => tp.Item1 == p.Name)) {
 									AstNode before = i < parameters.Count ? storedXmlComment [parameters [i].Item2 - 2] : null;
-									AstNode afterNode = before == null ? storedXmlComment[storedXmlComment.Count - 1] : null;
+									AstNode afterNode = before == null ? storedXmlComment [storedXmlComment.Count - 1] : null;
 									AddIssue(
-										GetParameter(node, i),
+										GetParameterHighlightNode(node, i),
 										string.Format(ctx.TranslateString("Missing xml documentation for Parameter '{0}'"), p.Name),
 										string.Format(ctx.TranslateString("Create xml documentation for Parameter '{0}'"), p.Name),
 										script => {
-											if (before != null) {
-												script.InsertBefore (
-													before, 
-													new Comment(string.Format(" <param name = \"{0}\"></param>", p.Name), CommentType.Documentation)
-												);
-											} else {
-												script.InsertAfter (
-													afterNode, 
-													new Comment(string.Format(" <param name = \"{0}\"></param>", p.Name), CommentType.Documentation)
-												);
-											}
+										if (before != null) {
+											script.InsertBefore(
+												before, 
+												new Comment(string.Format(" <param name = \"{0}\"></param>", p.Name), CommentType.Documentation)
+											);
+										} else {
+											script.InsertAfter(
+												afterNode, 
+												new Comment(string.Format(" <param name = \"{0}\"></param>", p.Name), CommentType.Documentation)
+											);
+										}
 									});
 								}
 							}
@@ -237,26 +246,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			AstNode GetParameter(AstNode node, int i)
+			AstNode GetParameterHighlightNode(AstNode node, int i)
 			{
 				if (node is MethodDeclaration)
-					return ((MethodDeclaration)node).Parameters.ElementAt(i);
+					return ((MethodDeclaration)node).Parameters.ElementAt(i).NameToken;
 				if (node is ConstructorDeclaration)
-					return ((ConstructorDeclaration)node).Parameters.ElementAt(i);
+					return ((ConstructorDeclaration)node).Parameters.ElementAt(i).NameToken;
 				if (node is OperatorDeclaration)
-					return ((OperatorDeclaration)node).Parameters.ElementAt(i);
+					return ((OperatorDeclaration)node).Parameters.ElementAt(i).NameToken;
 				if (node is IndexerDeclaration)
-					return ((IndexerDeclaration)node).Parameters.ElementAt(i);
+					return ((IndexerDeclaration)node).Parameters.ElementAt(i).NameToken;
 				throw new InvalidOperationException("invalid parameterized node:" + node);
 			}
 
-			protected virtual void VisitXmlChildren (AstNode node)
+			protected virtual void VisitXmlChildren(AstNode node)
 			{
 				AstNode next;
 				var child = node.FirstChild;
 				while (child != null && (child is Comment || child.Role == Roles.NewLine)) {
 					next = child.NextSibling;
-					child.AcceptVisitor (this);
+					child.AcceptVisitor(this);
 					child = next;
 				}
 
@@ -266,7 +275,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					// Store next to allow the loop to continue
 					// if the visitor removes/replaces child.
 					next = child.NextSibling;
-					child.AcceptVisitor (this);
+					child.AcceptVisitor(this);
 				}
 				InvalideXmlComments();
 			}
@@ -280,7 +289,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				VisitXmlChildren(methodDeclaration);
 			}
-			
+
 			public override void VisitDelegateDeclaration(DelegateDeclaration delegateDeclaration)
 			{
 				VisitXmlChildren(delegateDeclaration);
@@ -330,8 +339,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				VisitXmlChildren(operatorDeclaration);
 			}
-
 		}
 	}
 }
-
