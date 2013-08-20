@@ -227,6 +227,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
+		public BraceStyle SwitchBraceStyle {
+			get;
+			set;
+		}
+
 		public bool AllowPropertyGetBlockInline { // tested
 			get;
 			set;
