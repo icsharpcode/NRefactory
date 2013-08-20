@@ -79,7 +79,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var target = match.Get<Expression>("target").Single() as IdentifierExpression;
 					var match2 = varDelarationPattern.Match(varDeclaration);
 					if (match2.Success) {
-						if (target.Identifier != varDeclaration.Variables.First().Name)
+						var initializer = varDeclaration.Variables.FirstOrDefault();
+						if (initializer != null && target.Identifier != initializer.Name)
 							return;
 						var expr = match.Get<Expression>("condition").Single();
 						AddIssue(
@@ -87,13 +88,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							ctx.TranslateString("Convert to '&&' expresssion"),
 							ctx.TranslateString("Replace with '&&'"),
 							script => {
-								var variable = varDeclaration.Variables.First();
+								var variable = initializer;
+								var initalizerExpression = variable.Initializer.Clone();
+								var bOp = initalizerExpression as BinaryOperatorExpression;
+								if (bOp != null && bOp.Operator == BinaryOperatorType.ConditionalOr)
+									initalizerExpression = new ParenthesizedExpression (initalizerExpression);
 								script.Replace(
 									varDeclaration, 
 									new VariableDeclarationStatement(
 										varDeclaration.Type.Clone(),
 										variable.Name,
-										new BinaryOperatorExpression(variable.Initializer.Clone(), BinaryOperatorType.ConditionalAnd, CSharpUtil.InvertCondition(expr)) 
+										new BinaryOperatorExpression(initalizerExpression, BinaryOperatorType.ConditionalAnd, CSharpUtil.InvertCondition(expr)) 
 									)
 								);
 							script.Remove(ifElseStatement); 

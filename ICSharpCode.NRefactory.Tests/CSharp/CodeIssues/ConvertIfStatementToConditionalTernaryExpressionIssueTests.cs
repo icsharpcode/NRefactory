@@ -59,6 +59,62 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestSkipComplexCondition ()
+		{
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+{
+	static int Bar (int x)
+	{
+		int result;
+		if (x > 10 ||
+		    x < -10)
+			result = 10;
+		else
+			result = 20;
+		return result;
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestSkipComplexTrueExpression ()
+		{
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+{
+	static int Bar (int x)
+	{
+		int result;
+		if (x > 10)
+			result = 10 +
+					 12;
+		else
+			result = 20;
+		return result;
+	}
+}");
+		}
+
+		[Test]
+		public void TestSkipComplexFalseExpression ()
+		{
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+{
+	static int Bar (int x)
+	{
+		int result;
+		if (x > 10)
+			result = 10;
+		else
+			result = 20 +
+
+12;
+		return result;
+	}
+}");
+		}
+
+		[Test]
 		public void TestDisable ()
 		{
 			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo

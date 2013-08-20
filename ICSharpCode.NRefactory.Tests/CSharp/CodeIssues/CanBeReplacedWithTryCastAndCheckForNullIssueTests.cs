@@ -188,7 +188,107 @@ class Bar
 ");
 		}
 
-	
+		[Test]
+		public void TestNegatedCaseWithReturn()
+		{
+			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		if (!(foo is Bar))
+			return null;
+		Baz ((Bar)foo);
+		return (Bar)foo;
+	}
+}
+", @"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		var bar = foo as Bar;
+		if (bar == null)
+			return null;
+		Baz (bar);
+		return bar;
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestNegatedCaseWithBreak()
+		{
+			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		for (int i = 0; i < 10; i++) {
+			if (!(foo is Bar))
+				break;
+			Baz ((Bar)foo);
+		}
+		return (Bar)foo;
+	}
+}
+", @"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		for (int i = 0; i < 10; i++) {
+			var bar = foo as Bar;
+			if (bar == null)
+				break;
+			Baz (bar);
+		}
+		return (Bar)foo;
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestCaseWithContinue()
+		{
+			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		for (int i = 0; i < 10; i++) {
+			if (!(foo is Bar)) {
+				continue;
+			} else {
+				foo = new Bar ();
+			}
+			Baz ((Bar)foo);
+		}
+		return (Bar)foo;
+	}
+}
+", @"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		for (int i = 0; i < 10; i++) {
+			var bar = foo as Bar;
+			if (bar == null) {
+				continue;
+			} else {
+				foo = new Bar ();
+			}
+			Baz (bar);
+		}
+		return (Bar)foo;
+	}
+}
+");
+		}
+
 
 		[Test]
 		public void TestDisable()

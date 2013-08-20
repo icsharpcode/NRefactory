@@ -231,7 +231,7 @@ using System.Threading.Tasks;
 
 class C
 {
-	public C GetResponse () { return null; }
+	public static C GetResponse () { return null; }
 
 	public static void Foo ()
 	{
@@ -241,19 +241,19 @@ class C
 
 			TestRefactoringContext context;
 			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"using System;
+			Assert.AreEqual (0, issues.Count);
+/*			CheckFix (context, issues, @"using System;
 using System.Threading.Tasks;
 
 class C
 {
-	public C GetResponse () { return null; }
+	public static C GetResponse () { return null; }
 
 	public static void Foo ()
 	{
 		Task.Factory.StartNew ((Func<C>)GetResponse);
 	}
-}");
+}");*/
 
 		}
 		

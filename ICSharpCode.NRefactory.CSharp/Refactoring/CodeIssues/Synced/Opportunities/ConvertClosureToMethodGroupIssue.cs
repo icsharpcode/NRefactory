@@ -102,10 +102,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var returnConv = ctx.GetConversion(invocation);
 				if (returnConv.IsExplicit || !(returnConv.IsIdentityConversion || returnConv.IsReferenceConversion))
 					return;
+				var validTypes = CreateFieldAction.GetValidTypes (ctx.Resolver, expression).ToList ();
+				if (validTypes.Any(t => t.FullName == "System.Func" && t.TypeParameterCount == 1 + parameters.Count) && validTypes.Any(t => t.FullName == "System.Action"))
+				if (rr != null && rr.Member.ReturnType.Kind != TypeKind.Void)
+					return;
 				AddIssue(expression,
 				         expression is AnonymousMethodExpression ? ctx.TranslateString("Anonymous method can be simplified to method group") : ctx.TranslateString("Lambda expression can be simplified to method group"), 
 				         ctx.TranslateString("Replace with method group"), script =>  {
-					var validTypes = CreateFieldAction.GetValidTypes (ctx.Resolver, expression).ToList ();
 					if (validTypes.Any (t => t.FullName == "System.Func" && t.TypeParameterCount == 1 + parameters.Count) && validTypes.Any (t => t.FullName == "System.Action")) {
 						if (rr != null && rr.Member.ReturnType.Kind != TypeKind.Void) {
 							var builder = ctx.CreateTypeSystemAstBuilder (expression);

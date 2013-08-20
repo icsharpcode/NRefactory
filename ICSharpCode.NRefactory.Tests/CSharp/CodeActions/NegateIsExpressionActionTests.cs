@@ -1,5 +1,5 @@
 //
-// ConvertIfToAndExpressionIssueTests.cs
+// NegateIsExpressionActionTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,75 +23,50 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ConvertIfToAndExpressionIssueTests : InspectionActionTestBase
+	public class NegateIsExpressionActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestVariableDeclarationCase ()
+		public void TestSimpleCase ()
 		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
+			Test<NegateIsExpressionAction> (@"
+class TestClass
 {
-	int Bar(int o)
+	void Test (object x)
 	{
-		bool b = o > 10;
-		if (o < 10)
-			b = false;
+		var b = x $is TestClass;
 	}
-}", @"class Foo
+}", @"
+class TestClass
 {
-	int Bar(int o)
+	void Test (object x)
 	{
-		bool b = o > 10 && o >= 10;
+		var b = !(x is TestClass);
 	}
 }");
 		}
 
 		[Test]
-		public void TestComplexVariableDeclarationCase ()
+		public void TestReverse ()
 		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
+			Test<NegateIsExpressionAction> (@"
+class TestClass
 {
-	int Bar(int o)
+	void Test (object x)
 	{
-		bool b = o > 10 || o < 10;
-		if (o < 10)
-			b = false;
+		var b = !(x $is TestClass);
 	}
-}", @"class Foo
+}", @"
+class TestClass
 {
-	int Bar(int o)
+	void Test (object x)
 	{
-		bool b = (o > 10 || o < 10) && o >= 10;
-	}
-}");
-		}
-
-		[Test]
-		public void TestCommonCase ()
-		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = o > 10;
-		Console.WriteLine ();
-		if (o < 10)
-			b = false;
-	}
-}", @"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = o > 10;
-		Console.WriteLine ();
-		b &= o >= 10;
+		var b = x is TestClass;
 	}
 }");
 		}

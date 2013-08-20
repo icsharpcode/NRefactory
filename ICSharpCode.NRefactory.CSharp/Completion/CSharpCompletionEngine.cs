@@ -1879,7 +1879,9 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						}
 					}
 				}
+			}
 
+			for (var n = scope; n != null; n = n.Parent) {
 				foreach (var curNs in n.Namespace.ChildNamespaces) {
 					wrapper.AddNamespace(lookup, curNs);
 				}

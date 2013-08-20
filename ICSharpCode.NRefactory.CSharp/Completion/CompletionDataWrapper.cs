@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				return null;
 			if (addedTypes.ContainsKey (type))
 				return addedTypes[type];
-
+			usedNamespaces.Add(type.Name);
 			var def = type.GetDefinition();
 			if (def != null && def.ParentAssembly != completion.ctx.CurrentAssembly) {
 				switch (completion.EditorBrowsableBehavior) {

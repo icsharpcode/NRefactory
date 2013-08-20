@@ -66,6 +66,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		InsideNamespace
 	}
 
+	public enum EmptyLineFormatting {
+		DoNotChange,
+		Indent,
+		DoNotIndent
+	}
+
 	public class CSharpFormattingOptions
 	{
 		public string Name {
@@ -160,6 +166,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		public PropertyFormatting SimplePropertyFormatting { // tested
+			get;
+			set;
+		}
+
+		public EmptyLineFormatting EmptyLineFormatting {
 			get;
 			set;
 		}
@@ -734,6 +745,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		public bool SpaceInNamedArgumentAfterDoubleColon {
+			get;
+			set;
+		}
+
+		public bool RemoveEndOfLineWhiteSpace {
 			get;
 			set;
 		}

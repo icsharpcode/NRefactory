@@ -1,4 +1,4 @@
-﻿// 
+// 
 // CompareFloatWithEqualityOperatorIssueTests.cs
 // 
 // Author:
@@ -30,9 +30,9 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class CompareFloatWithEqualityOperatorIssueTests : InspectionActionTestBase
+	public class CompareOfFloatsByEqualityOperatorIssueTests : InspectionActionTestBase
 	{
-		public void Test (string inputOp, string outputOp)
+		static void Test (string inputOp, string outputOp)
 		{
 			var input = @"
 class TestClass
@@ -41,6 +41,7 @@ class TestClass
 	{
 		double x = 0.1;
 		bool test = x " + inputOp + @" 0.1;
+		bool test2 = x " + inputOp + @" 1ul;
 	}
 }";
 			var output = @"
@@ -50,9 +51,10 @@ class TestClass
 	{
 		double x = 0.1;
 		bool test = System.Math.Abs (x - 0.1) " + outputOp + @" EPSILON;
+		bool test2 = System.Math.Abs (x - 1ul) " + outputOp + @" EPSILON;
 	}
 }";
-			Test<CompareFloatWithEqualityOperatorIssue> (input, 1, output);
+			Test<CompareOfFloatsByEqualityOperatorIssue> (input, 2, output);
 		}
 
 		[Test]
@@ -68,9 +70,35 @@ class TestClass
 		}
 
 		[Test]
+		public void TestZero ()
+		{
+			Test<CompareOfFloatsByEqualityOperatorIssue> (@"
+class TestClass
+{
+	void TestMethod (double x, float y)
+	{
+		bool test = x == 0;
+		bool test2 = 0.0e10 != x;
+		bool test3 = 0L == y;
+		bool test4 = y != 0.0000;
+	}
+}", 4, @"
+class TestClass
+{
+	void TestMethod (double x, float y)
+	{
+		bool test = System.Math.Abs (x) < EPSILON;
+		bool test2 = System.Math.Abs (x) > EPSILON;
+		bool test3 = System.Math.Abs (y) < EPSILON;
+		bool test4 = System.Math.Abs (y) > EPSILON;
+	}
+}");
+		}
+
+		[Test]
 		public void TestNaN ()
 		{
-			var input = @"
+			Test<CompareOfFloatsByEqualityOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod (double x, float y)
@@ -80,8 +108,7 @@ class TestClass
 		bool test3 = y == float.NaN;
 		bool test4 = x != float.NaN;
 	}
-}";
-			var output = @"
+}", 4, @"
 class TestClass
 {
 	void TestMethod (double x, float y)
@@ -91,15 +118,15 @@ class TestClass
 		bool test3 = float.IsNaN (y);
 		bool test4 = !double.IsNaN (x);
 	}
-}";
-			Test<CompareFloatWithEqualityOperatorIssue> (input, 4, output);
+}");
 		}
 		
 		
 		[Test]
 		public void TestPositiveInfinity ()
 		{
-			var input = @"
+
+			Test<CompareOfFloatsByEqualityOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod (double x, float y)
@@ -109,14 +136,23 @@ class TestClass
 		bool test3 = y == float.PositiveInfinity;
 		bool test4 = x != float.PositiveInfinity;
 	}
-}";
-			Test<CompareFloatWithEqualityOperatorIssue> (input, 0);
+}", 4, @"
+class TestClass
+{
+	void TestMethod (double x, float y)
+	{
+		bool test = double.IsPositiveInfinity (x);
+		bool test2 = !double.IsPositiveInfinity (x);
+		bool test3 = float.IsPositiveInfinity (y);
+		bool test4 = !double.IsPositiveInfinity (x);
+	}
+}");
 		}
 		
 		[Test]
 		public void TestNegativeInfinity ()
 		{
-			var input = @"
+			Test<CompareOfFloatsByEqualityOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod (double x, float y)
@@ -126,8 +162,33 @@ class TestClass
 		bool test3 = y == float.NegativeInfinity;
 		bool test4 = x != float.NegativeInfinity;
 	}
-}";
-			Test<CompareFloatWithEqualityOperatorIssue> (input, 0);
+}", 4, @"
+class TestClass
+{
+	void TestMethod (double x, float y)
+	{
+		bool test = double.IsNegativeInfinity (x);
+		bool test2 = !double.IsNegativeInfinity (x);
+		bool test3 = float.IsNegativeInfinity (y);
+		bool test4 = !double.IsNegativeInfinity (x);
+	}
+}");
+		}
+	
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<CompareOfFloatsByEqualityOperatorIssue> (@"
+class TestClass
+{
+	void TestMethod (double x, float y)
+	{
+		// ReSharper disable once CompareOfFloatsByEqualityOperator
+		if (x == y)
+			System.Console.WriteLine (x);
+	}
+}");
+
 		}
 	}
 }

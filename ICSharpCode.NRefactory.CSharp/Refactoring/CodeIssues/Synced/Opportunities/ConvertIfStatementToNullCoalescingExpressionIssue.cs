@@ -65,6 +65,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddTo(IfElseStatement ifElseStatement, VariableDeclarationStatement varDeclaration, Expression expr)
 			{
+				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(varDeclaration) || 
+					ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(expr))
+					return;
 				AddIssue(
 					ifElseStatement.IfToken,
 					ctx.TranslateString("Convert to '??' expresssion"),
@@ -94,7 +97,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var match2 = varDelarationPattern.Match(next);
 					if (match2.Success) {
 						var target = match.Get<Expression>("target").Single() as IdentifierExpression;
-						if (target.Identifier != next.Variables.First().Name)
+						var initializer = next.Variables.FirstOrDefault();
+						if (initializer == null || target.Identifier != initializer.Name)
 							return;
 						AddTo(ifElseStatement,
 						      next,

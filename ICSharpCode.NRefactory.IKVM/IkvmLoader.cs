@@ -29,17 +29,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
 using ICSharpCode.NRefactory.Documentation;
-using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Utils;
 using IKVM.Reflection;
-using System.IO;
-using System.Linq;
 
 namespace ICSharpCode.NRefactory.TypeSystem
 {

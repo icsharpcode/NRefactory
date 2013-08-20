@@ -1,5 +1,5 @@
 //
-// ConvertIfToAndExpressionIssueTests.cs
+// RedundantTernaryExpressionIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,78 +24,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ConvertIfToAndExpressionIssueTests : InspectionActionTestBase
+	public class RedundantTernaryExpressionIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestVariableDeclarationCase ()
+		public void TestTrueFalseCase ()
 		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
+			Test<RedundantTernaryExpressionIssue>(@"
+class Foo
 {
-	int Bar(int o)
+	void Bar ()
 	{
-		bool b = o > 10;
-		if (o < 10)
-			b = false;
+		var a = 1 < 2 ? true : false;
 	}
-}", @"class Foo
+}
+", @"
+class Foo
 {
-	int Bar(int o)
+	void Bar ()
 	{
-		bool b = o > 10 && o >= 10;
+		var a = 1 < 2;
 	}
-}");
+}
+");
 		}
-
+	
 		[Test]
-		public void TestComplexVariableDeclarationCase ()
+		public void TestDisable ()
 		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
+			TestWrongContext<RedundantTernaryExpressionIssue>(@"
+class Foo
 {
-	int Bar(int o)
+	void Bar ()
 	{
-		bool b = o > 10 || o < 10;
-		if (o < 10)
-			b = false;
+		// ReSharper disable once RedundantTernaryExpression
+		var a = 1 < 2 ? true : false;
 	}
-}", @"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = (o > 10 || o < 10) && o >= 10;
-	}
-}");
+}
+");
 		}
-
-		[Test]
-		public void TestCommonCase ()
-		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = o > 10;
-		Console.WriteLine ();
-		if (o < 10)
-			b = false;
-	}
-}", @"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = o > 10;
-		Console.WriteLine ();
-		b &= o >= 10;
-	}
-}");
-		}
-
 	}
 }
 

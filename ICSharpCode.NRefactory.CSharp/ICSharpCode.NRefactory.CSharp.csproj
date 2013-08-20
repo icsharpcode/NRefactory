@@ -297,7 +297,6 @@
     <Compile Include="Refactoring\CodeIssues\NotWorking\AccessToClosureIssues\LocalVariableNamePicker.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\CS1717AssignmentMadeToSameVariableIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CastExpressionOfIncompatibleTypeIssue.cs" />
-    <Compile Include="Refactoring\CodeIssues\Uncategorized\CompareFloatWithEqualityOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0029InvalidConversionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS1729TypeHasNoConstructorWithNArgumentsIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\ConstantConditionIssue.cs" />
@@ -629,6 +628,14 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringLastIndexOfIsCultureSpecificIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringStartsWithIsCultureSpecificIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\InvertConditionalOperatorAction.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\CompareOfFloatsByEqualityOperatorIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\SimplifyConditionalTernaryExpressionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantTernaryExpressionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\BaseMethodCallWithDefaultParameterIssue.cs" />
+    <Compile Include="Refactoring\CodeActions\NegateIsExpressionAction.cs" />
+    <Compile Include="Analysis\DeclarationSpace\LocalDeclarationSpace.cs" />
+    <Compile Include="Analysis\DeclarationSpace\LocalDeclarationSpaceVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

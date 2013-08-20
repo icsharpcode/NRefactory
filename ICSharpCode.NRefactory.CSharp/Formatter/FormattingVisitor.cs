@@ -30,6 +30,8 @@ using System.Linq;
 using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
+using System.Collections.Generic;
+using ICSharpCode.NRefactory.Utils;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
@@ -115,6 +117,71 @@ namespace ICSharpCode.NRefactory.CSharp
 			VisitChildrenToFormat (node, n => n.AcceptVisitor (this));
 		}
 
+		#region NewLines
+
+		void AdjustNewLineBlock(AstNode startNode, int targetNewLineCount)
+		{
+			var indentString = policy.EmptyLineFormatting == EmptyLineFormatting.Indent ? curIndent.IndentString : "";
+
+			TextLocation newLineInsertPosition = startNode.EndLocation;
+			var node = startNode.NextSibling;
+			int currentNewLineCount = 0;
+			// Check the existing newlines
+			for (; currentNewLineCount < targetNewLineCount; node = node.NextSibling) {
+				if (node is WhitespaceNode)
+					continue;
+				if (!(node is NewLineNode))
+					break;
+				newLineInsertPosition = node.EndLocation;
+				currentNewLineCount++;
+				if (policy.EmptyLineFormatting == EmptyLineFormatting.DoNotChange) {
+					if (node.NextSibling == null)
+						// end of file/block etc, nothing more to do but break before assigning null to node
+						break;
+					continue;
+				}
+				var isBlankLine = IsSpacing(document.GetLineByNumber(node.StartLocation.Line));
+				if (!isBlankLine) {
+					// remove EOL whitespace if appropriate
+					if (policy.RemoveEndOfLineWhiteSpace) {
+						var offset = document.GetOffset(node.StartLocation);
+						var start = SearchWhitespaceStart(offset);
+						if (start != offset)
+							AddChange(start, offset - start, null);
+					}
+				} else {
+					var actualIndent = GetIndentation(node.StartLocation.Line);
+					if (actualIndent != indentString) {
+						var start = document.GetOffset(new TextLocation(node.StartLocation.Line, 0));
+						AddChange(start, actualIndent.Length, indentString);
+					}
+				}
+				if (node.NextSibling == null)
+					// end of file/block etc, nothing more to do but break before assigning null to node
+					break;
+			}
+			if (currentNewLineCount < targetNewLineCount) {
+				// We need to add more newlines
+				var builder = new StringBuilder();
+				for (; currentNewLineCount < targetNewLineCount; currentNewLineCount++) {
+					if (currentNewLineCount > 0)
+						// Don't indent the first line in the block since that is not an empty line.
+						builder.Append(indentString);
+					builder.Append(options.EolMarker);
+				}
+				var offset = document.GetOffset(newLineInsertPosition);
+				AddChange(offset, 0, builder.ToString());
+			} else if (currentNewLineCount == targetNewLineCount && node is NewLineNode){
+				// Check to see if there are any newlines to remove
+				var endNode = node.GetNextSibling(n => !(n is NewLineNode || n is WhitespaceNode));
+				if (endNode != null) {
+					var startOffset = document.GetOffset(newLineInsertPosition);
+					var endOffset = document.GetOffset(new TextLocation(endNode.StartLocation.Line, 0));
+					EnsureText(startOffset, endOffset, null);
+				}
+			}
+		}
+
 		public void EnsureNewLinesAfter(AstNode node, int blankLines)
 		{
 			if (node is PreProcessorDirective) {
@@ -125,26 +192,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (blankLines < 0)
 				return;
 			if (formatter.FormattingMode != FormattingMode.Intrusive)
-				blankLines = 1;
-			int foundBlankLines = 0;
-			var nextNode = node.GetNextNode ();
-			AstNode lastNewLine = null;
-			while (nextNode != null) {
-				if (!(nextNode is NewLineNode))
-					break;
-				lastNewLine = nextNode;
-				foundBlankLines++;
-				nextNode = nextNode.GetNextNode ();
-			}
-			if (nextNode == null)
-				return;
-			var start = document.GetOffset(node.EndLocation);
-			var end = document.GetOffset((lastNewLine ?? nextNode).StartLocation);
-			var sb = new StringBuilder(options.EolMarker.Length *  blankLines);
-			for (int i = 0; i < blankLines + (lastNewLine != null ? -1 : 0); i++) {
-				sb.Append(options.EolMarker);
-			}
-			AddChange(start, end - start, sb.ToString());
+				blankLines = Math.Min(1, blankLines);
+			AdjustNewLineBlock(node, blankLines);
 		}
 		
 		public void EnsureBlankLinesBefore(AstNode node, int blankLines)
@@ -169,7 +218,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			AddChange(start, end - start, sb.ToString());
 		}
 
-		static bool IsSimpleAccessor(Accessor accessor)
+		#endregion
+
+		bool IsSimpleAccessor(Accessor accessor)
 		{
 			if (accessor.IsNull || accessor.Body.IsNull || accessor.Body.FirstChild == null) {
 				return true;
@@ -185,7 +236,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				return false;
 
 			return !(accessor.Body.Statements.FirstOrDefault() is BlockStatement);
-			
 		}
 		
 		static bool IsSpacing(char ch)
@@ -242,8 +292,20 @@ namespace ICSharpCode.NRefactory.CSharp
 		void ForceSpace(int startOffset, int endOffset, bool forceSpace)
 		{
 			int lastNonWs = SearchLastNonWsChar(startOffset, endOffset);
-			if (lastNonWs >= 0)
-				AddChange(lastNonWs + 1, Math.Max(0, endOffset - lastNonWs - 1), forceSpace ? " " : "");
+			if (lastNonWs < 0)
+				return;
+
+			var spaceCount = Math.Max(0, endOffset - lastNonWs - 1);
+			if (forceSpace) {
+				if (spaceCount != 1) {
+					// Here we could technically remove spaceCount - 1 chars instead
+					// and skip replacing that with new space, but we want to trigger the
+					// overlap detection if this space is changed again for some reason
+					AddChange(lastNonWs + 1, spaceCount, " ");
+				}
+			} else if (spaceCount > 0 && !forceSpace) {
+				AddChange(lastNonWs + 1, spaceCount, "");
+			}
 		}
 		
 		void ForceSpacesAfter(AstNode n, bool forceSpaces)
@@ -325,35 +387,12 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		void ForceSpaceBefore(AstNode node, bool forceSpace)
 		{
-			_ForceSpaceBefore(document.GetOffset(node.StartLocation), forceSpace);
-		}
-
-		void _ForceSpaceBefore(int offset, bool forceSpace)
-		{
-			bool insertedSpace = false;
-			do {
-				char ch = document.GetCharAt(offset);
-				//Console.WriteLine (ch);
-				if (!IsSpacing(ch) && (insertedSpace || !forceSpace)) {
-					break;
-				}
-				if (ch == ' ' && forceSpace) {
-					if (insertedSpace) {
-						AddChange(offset, 1, null);
-					} else {
-						insertedSpace = true;
-					}
-				} else if (forceSpace) {
-					if (!insertedSpace) {
-						AddChange(offset, IsSpacing(ch) ? 1 : 0, " ");
-						insertedSpace = true;
-					} else if (IsSpacing(ch)) {
-						AddChange(offset, 1, null);
-					}
-				}
-				
-				offset--;
-			} while (offset >= 0);
+			var offset = document.GetOffset(node.StartLocation);
+			int end = offset;
+			// ForceSpace inserts a space one char after start in the case of a missing space
+			// Therefore, make sure that start < offset by starting at offset - 1
+			int start = SearchWhitespaceStart(offset - 1);
+			ForceSpace(start, end, forceSpace);
 		}
 
 		public void FixSemicolon(CSharpTokenNode semicolon)
@@ -406,7 +445,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			int lineStart = SearchWhitespaceLineStart(offset);
 			string indentString = nextStatementIndent ?? (isEmpty ? "" : options.EolMarker) + curIndent.IndentString;
 			nextStatementIndent = null;
-			AddChange(lineStart, offset - lineStart, indentString);
+			EnsureText(lineStart, offset, indentString);
 		}
 
 		void FixIndentation (AstNode node)
@@ -440,8 +479,10 @@ namespace ICSharpCode.NRefactory.CSharp
 					if (directive.Type == PreProcessorDirectiveType.Endif)
 						return;
 				}
-				int offset = document.GetOffset(node.StartLocation);
-				AddChange(offset, 0, curIndent.IndentString);
+				var startNode = node.GetPrevSibling(n => !(n is WhitespaceNode)) ?? node;
+				var startOffset = document.GetOffset(startNode.EndLocation);
+				int endOffset = document.GetOffset(node.StartLocation);
+				AddChange(startOffset, endOffset - startOffset, curIndent.IndentString);
 			}
 		}
 
@@ -460,6 +501,22 @@ namespace ICSharpCode.NRefactory.CSharp
 			return b.ToString();
 		}
 
+		void EnsureText(int start, int end, string replacementText)
+		{
+			var length = end - start;
+			if (length == 0 && string.IsNullOrEmpty(replacementText))
+				return;
+			if (replacementText == null || replacementText.Length != length) {
+				AddChange(start, length, replacementText);
+				return;
+			}
+			for (int i = 0; i < length; i++) {
+				if (document.GetCharAt(start + i) != replacementText[i]) {
+					AddChange(start, length, replacementText);
+					break;
+				}
+			}
+		}
 		
 		void FixOpenBrace(BraceStyle braceStyle, AstNode lbrace)
 		{
@@ -478,14 +535,14 @@ namespace ICSharpCode.NRefactory.CSharp
 
 					if (prev is Comment || prev is PreProcessorDirective) {
 						int next = document.GetOffset(lbrace.GetNextNode ().StartLocation);
-						AddChange(prevOffset, next - prevOffset, "");
+						EnsureText(prevOffset, next, "");
 						while (prev is Comment || prev is PreProcessorDirective)
 							prev = prev.GetPrevNode();
 						prevOffset = document.GetOffset(prev.EndLocation);
 						AddChange(prevOffset, 0, " {");
 					} else {
 						int braceOffset2 = document.GetOffset(lbrace.StartLocation);
-						AddChange(prevOffset, braceOffset2 - prevOffset, " ");
+						EnsureText(prevOffset, braceOffset2, " ");
 					}
 					break;
 				case BraceStyle.EndOfLineWithoutSpace:
@@ -494,7 +551,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						return;
 					prevOffset = document.GetOffset(prev.EndLocation);
 					int braceOffset = document.GetOffset(lbrace.StartLocation);
-					AddChange(prevOffset, braceOffset - prevOffset, "");
+					EnsureText(prevOffset, braceOffset, "");
 					break;
 
 				case BraceStyle.NextLine:
@@ -503,7 +560,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						return;
 					prevOffset = document.GetOffset(prev.EndLocation);
 					braceOffset = document.GetOffset(lbrace.StartLocation);
-					AddChange(prevOffset, braceOffset - prevOffset, options.EolMarker + curIndent.IndentString);
+					EnsureText(prevOffset, braceOffset, options.EolMarker + curIndent.IndentString);
 					break;
 				case BraceStyle.NextLineShifted:
 					prev = lbrace.GetPrevNode (NoWhitespacePredicate);
@@ -512,7 +569,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					prevOffset = document.GetOffset(prev.EndLocation);
 					braceOffset = document.GetOffset(lbrace.StartLocation);
 					curIndent.Push(IndentType.Block);
-					AddChange(prevOffset, braceOffset - prevOffset, options.EolMarker + curIndent.IndentString);
+					EnsureText(prevOffset, braceOffset, options.EolMarker + curIndent.IndentString);
 					curIndent.Pop();
 					break;
 				case BraceStyle.NextLineShifted2:
@@ -522,7 +579,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					prevOffset = document.GetOffset(prev.EndLocation);
 					braceOffset = document.GetOffset(lbrace.StartLocation);
 					curIndent.Push(IndentType.Block);
-					AddChange(prevOffset, braceOffset - prevOffset, options.EolMarker + curIndent.IndentString);
+					EnsureText(prevOffset, braceOffset, options.EolMarker + curIndent.IndentString);
 					curIndent.Pop();
 					break;
 			}
@@ -534,9 +591,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			var prevNode = rbrace.GetPrevNode();
 			int prevNodeOffset = prevNode != null ? document.GetOffset(prevNode.EndLocation) : 0;
 			if (prevNode is NewLineNode) {
-				AddChange(prevNodeOffset, braceOffset - prevNodeOffset, curIndent.IndentString);
+				EnsureText(prevNodeOffset, braceOffset, curIndent.IndentString);
 			} else {
-				AddChange(prevNodeOffset, braceOffset - prevNodeOffset, options.EolMarker + curIndent.IndentString);
+				EnsureText(prevNodeOffset, braceOffset, options.EolMarker + curIndent.IndentString);
 			}
 		}
 

@@ -27,34 +27,32 @@ using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Invert logical expression", Description = "Inverts a logical expression according to De Morgan Law.")]
+	[ContextAction("Invert logical expression", Description = "Inverts a logical expression")]
 	public class InvertLogicalExpressionAction : SpecializedCodeAction<BinaryOperatorExpression>
 	{
 		protected override CodeAction GetAction(RefactoringContext context, BinaryOperatorExpression node)
 		{
-			if ((node.Operator == BinaryOperatorType.ConditionalOr) || (node.Operator == BinaryOperatorType.ConditionalAnd)) {
-				if (!node.OperatorToken.IsInside(context.Location))
-					return null;
-				var negativeExpression = CSharpUtil.InvertCondition(node);
-				if (node.Parent is ParenthesizedExpression && node.Parent.Parent is UnaryOperatorExpression) {
-					var unaryOperatorExpression = node.Parent.Parent as UnaryOperatorExpression;
-					if (unaryOperatorExpression.Operator == UnaryOperatorType.Not) {
-						return new CodeAction(
-							string.Format(context.TranslateString("Invert '{0}'"), unaryOperatorExpression),
-							script => {
-								script.Replace(unaryOperatorExpression, negativeExpression);
-							}, node
-						);	
-					}
+			if (!node.OperatorToken.IsInside(context.Location))
+				return null;
+			var negativeExpression = CSharpUtil.InvertCondition(node);
+			if (node.Parent is ParenthesizedExpression && node.Parent.Parent is UnaryOperatorExpression) {
+				var unaryOperatorExpression = node.Parent.Parent as UnaryOperatorExpression;
+				if (unaryOperatorExpression.Operator == UnaryOperatorType.Not) {
+					return new CodeAction(
+						string.Format(context.TranslateString("Invert '{0}'"), unaryOperatorExpression),
+						script => {
+							script.Replace(unaryOperatorExpression, negativeExpression);
+						}, node
+					);	
 				}
-				var newExpression = new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(negativeExpression));
-				return new CodeAction(
-					string.Format(context.TranslateString("Invert '{0}'"), node),
-					script => {
-						script.Replace(node, newExpression);
-					}, node
-				);
 			}
+			var newExpression = new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(negativeExpression));
+			return new CodeAction(
+				string.Format(context.TranslateString("Invert '{0}'"), node),
+				script => {
+					script.Replace(node, newExpression);
+				}, node
+			);
 			return null;
 		}
 	}

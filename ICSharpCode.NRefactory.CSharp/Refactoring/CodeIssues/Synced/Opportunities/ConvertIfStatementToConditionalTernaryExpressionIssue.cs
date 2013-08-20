@@ -44,6 +44,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
+		public static bool IsComplexExpression(AstNode expr)
+		{
+			return expr.StartLocation.Line != expr.EndLocation.Line;
+		}
+
 		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToConditionalTernaryExpressionIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
@@ -60,12 +65,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddTo(IfElseStatement ifElseStatement, Expression target, Expression condition, Expression trueExpr, Expression falseExpr)
 			{
+				if (IsComplexExpression(condition) || IsComplexExpression(trueExpr) || IsComplexExpression(falseExpr))
+					return;
 				AddIssue(
 					ifElseStatement.IfToken,
 					ctx.TranslateString("Convert to '?:' expression"),
 					ctx.TranslateString("Replace with '?:' expression"),
 					script => {
-					script.Replace(ifElseStatement, new ExpressionStatement(
+						script.Replace(ifElseStatement, new ExpressionStatement(
 							new AssignmentExpression(target.Clone(), new ConditionalExpression(condition.Clone(), trueExpr.Clone(), falseExpr.Clone()))
 						)
 					); 

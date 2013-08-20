@@ -204,7 +204,7 @@ class Foo
 	}
 }", RedundantThisQualifierIssue.EverywhereElse, 0);
 		}
-		
+
 		[Test]
 		public void TestRequiredThisToAvoidCS0135 ()
 		{
@@ -219,6 +219,22 @@ class Foo
 		this.a = 2;
 	}
 }", RedundantThisQualifierIssue.EverywhereElse, 0);
+		}
+
+		[Test]
+		public void TestRequiredThisToAvoidCS0844 ()
+		{
+			Test<RedundantThisQualifierIssue>(@"class Foo
+{
+	int a;
+	void Bar ()
+	{
+		{
+			this.a = 0;
+		}
+		var a = 2;
+	}
+}", 0);
 		}
 		
 		[Test]

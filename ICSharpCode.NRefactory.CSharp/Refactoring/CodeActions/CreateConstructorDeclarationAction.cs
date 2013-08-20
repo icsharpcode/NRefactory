@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								new ThrowStatement(new ObjectCreateExpression(c.CreateShortType("System", "NotImplementedException")))
 							}
 						};
-						decl.Parameters.AddRange(CreateMethodDeclarationAction.GenerateParameters(c, createExpression.Arguments));
+						decl.Parameters.AddRange(CreateMethodDeclarationAction.GenerateParameters(context, createExpression.Arguments));
 						return decl;
 					}
 				);

@@ -55,20 +55,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 		}
 
-		[Obsolete("Use CastExpression (Expression expression, AstType castToType)")]
 		public CastExpression (AstType castToType, Expression expression)
 		{
 			AddChild (castToType, Roles.Type);
 			AddChild (expression, Roles.Expression);
 		}
 
-		public CastExpression (Expression expression, AstType castToType)
-		{
-			AddChild (castToType, Roles.Type);
-			AddChild (expression, Roles.Expression);
-		}
-
-		
 		public override void AcceptVisitor (IAstVisitor visitor)
 		{
 			visitor.VisitCastExpression (this);

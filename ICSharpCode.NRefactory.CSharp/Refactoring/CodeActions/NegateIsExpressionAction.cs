@@ -1,5 +1,5 @@
 //
-// ConvertIfToAndExpressionIssueTests.cs
+// NegateIsExpressionAction.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,79 +23,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
-
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[TestFixture]
-	public class ConvertIfToAndExpressionIssueTests : InspectionActionTestBase
+	[ContextAction ("Negate 'is' expression", Description = "Negate an is expression.")]
+	public class NegateIsExpressionAction : SpecializedCodeAction<IsExpression>
 	{
-		[Test]
-		public void TestVariableDeclarationCase ()
+		protected override CodeAction GetAction (RefactoringContext context, IsExpression node)
 		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = o > 10;
-		if (o < 10)
-			b = false;
-	}
-}", @"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = o > 10 && o >= 10;
-	}
-}");
-		}
+			if (!node.IsToken.Contains(context.Location))
+				return null;
+			var pExpr = node.Parent as ParenthesizedExpression;
+			if (pExpr != null) {
+				var uOp = pExpr.Parent as UnaryOperatorExpression;
+				if (uOp != null && uOp.Operator == UnaryOperatorType.Not) {
+					return new CodeAction(
+						string.Format(context.TranslateString("Negate '{0}'"), uOp),
+						script => {
+							script.Replace(uOp, node.Clone());
+						}, 
+						node.IsToken
+					);
+				}
+			}
 
-		[Test]
-		public void TestComplexVariableDeclarationCase ()
-		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = o > 10 || o < 10;
-		if (o < 10)
-			b = false;
-	}
-}", @"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = (o > 10 || o < 10) && o >= 10;
-	}
-}");
+			return new CodeAction (
+				string.Format (context.TranslateString ("Negate '{0}'"), node),
+				script => {
+					script.Replace (node, new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(node.Clone())));
+				}, 
+				node.IsToken
+			);
 		}
-
-		[Test]
-		public void TestCommonCase ()
-		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = o > 10;
-		Console.WriteLine ();
-		if (o < 10)
-			b = false;
-	}
-}", @"class Foo
-{
-	int Bar(int o)
-	{
-		bool b = o > 10;
-		Console.WriteLine ();
-		b &= o >= 10;
-	}
-}");
-		}
-
 	}
 }
-

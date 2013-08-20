@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					asExpression.EndLocation);
 			}
 
-			IType GetExpectedType (Expression typeCastNode)
+			IType GetExpectedType (Expression typeCastNode, out IMember accessingMember)
 			{
 				var memberRefExpr = typeCastNode.Parent as MemberReferenceExpression;
 				if (memberRefExpr != null) {
@@ -78,15 +78,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (invocationExpr != null && invocationExpr.Target == memberRefExpr) {
 						var invocationResolveResult = ctx.Resolve (invocationExpr) as InvocationResolveResult;
 						if (invocationResolveResult != null) {
+							accessingMember = invocationResolveResult.Member;
 							return invocationResolveResult.Member.DeclaringType;
 						}
 					} else {
 						var memberResolveResult = ctx.Resolve (memberRefExpr) as MemberResolveResult;
 						if (memberResolveResult != null) {
+							accessingMember = memberResolveResult.Member;
 							return memberResolveResult.Member.DeclaringType;
 						}
 					}
 				}
+				accessingMember = null;
 				return ctx.GetExpectedType (typeCastNode);
 			}
 
@@ -132,12 +135,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var outerTypeCastNode = typeCastNode;
 				while (outerTypeCastNode.Parent != null && outerTypeCastNode.Parent is ParenthesizedExpression)
 					outerTypeCastNode = (Expression)outerTypeCastNode.Parent;
-				var expectedType = GetExpectedType (outerTypeCastNode);
+				IMember accessingMember;
+				var expectedType = GetExpectedType (outerTypeCastNode, out accessingMember);
 				var exprType = ctx.Resolve (expr).Type;
 				if (expectedType.Kind == TypeKind.Interface && IsExplicitImplementation (exprType, expectedType, outerTypeCastNode))
 					return;
-				if (exprType.GetAllBaseTypes ().Any (t => t.Equals(expectedType)))
-					AddIssue (outerTypeCastNode, typeCastNode, expr, castStart, castEnd);
+				var baseTypes = exprType.GetAllBaseTypes().ToList();
+				if (!baseTypes.Any(t => t.Equals(expectedType)))
+					return;
+
+				// check if the called member doesn't change it's virtual slot when changing types
+				if (accessingMember != null) {
+					var baseMember = InheritanceHelper.GetBaseMember(accessingMember);
+					foreach (var bt in baseTypes) {
+						foreach (var member in bt.GetMembers(m => m.Name == accessingMember.Name)) {
+							if (InheritanceHelper.GetBaseMember(member) != baseMember)
+								return;
+						}
+					}
+				}
+				AddIssue(outerTypeCastNode, typeCastNode, expr, castStart, castEnd);
 			}
 		}
 	}

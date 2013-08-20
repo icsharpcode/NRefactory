@@ -125,7 +125,6 @@
     <Compile Include="CSharp\CodeIssues\AccessToModifiedClosureTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS1717AssignmentMadeToSameVariableIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CastExpressionOfIncompatibleTypeIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\CompareFloatWithEqualityOperatorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConstantConditionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\DoubleNegationOperatorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ExplicitConversionInForEachIssueTests.cs" />
@@ -511,6 +510,14 @@
     <Compile Include="CSharp\CodeIssues\StringLastIndexOfIsCultureSpecificIssueTest.cs" />
     <Compile Include="CSharp\CodeIssues\StringStartsWithIsCultureSpecificIssueTest.cs" />
     <Compile Include="CSharp\CodeIssues\StringEndsWithIsCultureSpecificIssueTest.cs" />
+    <Compile Include="CSharp\CodeActions\InvertConditionalOperatorActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CompareOfFloatsByEqualityOperatorIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantTernaryExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\SimplifyConditionalTernaryExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\BaseMethodCallWithDefaultParameterIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\NegateIsExpressionActionTests.cs" />
+    <Compile Include="CSharp\Analysis\DeclarationSpace\LocalDeclarationSpaceTests.cs" />
+    <Compile Include="CSharp\Analysis\DeclarationSpace\LocalDeclarationSpaceVisitorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

@@ -26,15 +26,14 @@
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction ("Negate an relational expression", Description = "Negate an relational expression.")]
+	[ContextAction ("Negate a relational expression", Description = "Negate a relational expression.")]
 	public class NegateRelationalExpressionAction : SpecializedCodeAction<BinaryOperatorExpression>
 	{
 		protected override CodeAction GetAction (RefactoringContext context, BinaryOperatorExpression node)
 		{
 			var newOp = CSharpUtil.NegateRelationalOperator (node.Operator);
 			if (newOp != BinaryOperatorType.Any && node.OperatorToken.Contains (context.Location)) {
-				var operatorToken = BinaryOperatorExpression.GetOperatorRole (node.Operator).Token;
-				return new CodeAction (string.Format (context.TranslateString ("Negate '{0}'"), operatorToken),
+				return new CodeAction (string.Format (context.TranslateString ("Negate '{0}'"), node),
 					script => {
 						script.Replace (node, CSharpUtil.InvertCondition(node));
 					}, node.OperatorToken);

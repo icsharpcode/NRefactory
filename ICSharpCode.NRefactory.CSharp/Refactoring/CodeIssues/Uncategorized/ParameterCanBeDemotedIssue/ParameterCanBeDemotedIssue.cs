@@ -114,6 +114,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return true;
 			}
 
+			bool FilterOut(IType current, IType newType)
+			{
+				// Filter out some strange framework types like _Exception
+				return newType.Namespace.StartsWith("System.", StringComparison.Ordinal) && 
+					   newType.Name.StartsWith("_", StringComparison.Ordinal) ? true : false;
+			}
+
 			void ProcessParameter(ParameterDeclaration parameter, AstNode rootResolutionNode, TypeCriteriaCollector collector)
 			{
 				var localResolveResult = ctx.Resolve(parameter) as LocalResolveResult;
@@ -142,13 +149,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				TypeResolveCount += possibleTypes.Count;
 				var validTypes = 
 					(from type in possibleTypes
-					 where !tryResolve || TypeChangeResolvesCorrectly(ctx, parameter, rootResolutionNode, type)
+					 where (!tryResolve || TypeChangeResolvesCorrectly(ctx, parameter, rootResolutionNode, type)) && !FilterOut (variable.Type, type)
 					 select type).ToList();
 				if (validTypes.Any()) {
-					// don't demote an array to IList
-					if (variable.Type.Kind == TypeKind.Array && validTypes.Any (t => t.Namespace == "System.Collections" && t.Name == "IList")) {
-						return;
-					}
 					AddIssue(parameter, ctx.TranslateString("Parameter can be demoted to base class"), GetActions(parameter, validTypes));
 					MembersWithIssues++;
 				}

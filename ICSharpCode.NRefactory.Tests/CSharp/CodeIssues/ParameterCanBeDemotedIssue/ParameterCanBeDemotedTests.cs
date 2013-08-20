@@ -904,7 +904,31 @@ class Test : TestBase
 	{
 	    return arr [0];
 	}
-}", 0);
+}", 1, @"class Test
+{
+	object Foo (System.Collections.IList arr)
+	{
+	    return arr [0];
+	}
+}");
+		}
+
+		[Test]
+		public void TestBug9617Case2()
+		{
+			Test<ParameterCanBeDemotedIssue>(@"class Test
+{
+	int Foo (int[] arr)
+	{
+	    return arr [0];
+	}
+}", 1, @"class Test
+{
+	int Foo (System.Collections.Generic.IList<int> arr)
+	{
+	    return arr [0];
+	}
+}");
 		}
 		
 		[Test]
@@ -973,6 +997,44 @@ class C
 			TestRefactoringContext context;
 			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
+		}
+
+
+		/// <summary>
+		/// Bug 14099 - Do not suggest demoting Exception to _Exception
+		/// </summary>
+		[Test]
+		public void TestBug14099()
+		{
+			var input = @"
+using System;
+
+public class Test
+{
+	public void Foo (Exception ex)
+	{
+		System.Console.WriteLine (ex.HelpLink);
+	}
+}
+";
+			TestRefactoringContext context;
+			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
+		}
+
+
+		[Test]
+		public void TestPreferGenerics()
+		{
+			TestWrongContext<ParameterCanBeDemotedIssue>(@"using System.Collections.Generic;
+
+class Test
+{
+	int Foo (ICollection<object> arr)
+	{
+		return arr.Count;
+	}
+}");
 		}
 
 
