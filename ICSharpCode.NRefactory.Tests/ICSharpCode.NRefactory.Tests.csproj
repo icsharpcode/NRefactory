@@ -512,6 +512,8 @@
     <Compile Include="CSharp\CodeIssues\StringEndsWithIsCultureSpecificIssueTest.cs" />
     <Compile Include="CSharp\CodeActions\InvertConditionalOperatorActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\CompareOfFloatsByEqualityOperatorIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantTernaryExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\SimplifyConditionalTernaryExpressionIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

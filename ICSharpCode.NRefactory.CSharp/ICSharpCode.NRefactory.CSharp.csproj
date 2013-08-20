@@ -630,6 +630,8 @@
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs" />
     <Compile Include="Refactoring\CodeActions\InvertConditionalOperatorAction.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\CompareOfFloatsByEqualityOperatorIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\SimplifyConditionalTernaryExpressionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantTernaryExpressionIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
