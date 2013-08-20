@@ -1,21 +1,21 @@
-﻿// 
-// NegateRelationalExpressionAction.cs
-// 
+//
+// NegateIsExpressionActionTests.cs
+//
 // Author:
-//      Mansheng Yang <lightyang0@gmail.com>
-// 
-// Copyright (c) 2012 Mansheng Yang <lightyang0@gmail.com>
-// 
+//       Mike Krüger <mkrueger@xamarin.com>
+//
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,22 +23,54 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
-	[ContextAction ("Negate a relational expression", Description = "Negate a relational expression.")]
-	public class NegateRelationalExpressionAction : SpecializedCodeAction<BinaryOperatorExpression>
+	[TestFixture]
+	public class NegateIsExpressionActionTests : ContextActionTestBase
 	{
-		protected override CodeAction GetAction (RefactoringContext context, BinaryOperatorExpression node)
+		[Test]
+		public void TestSimpleCase ()
 		{
-			var newOp = CSharpUtil.NegateRelationalOperator (node.Operator);
-			if (newOp != BinaryOperatorType.Any && node.OperatorToken.Contains (context.Location)) {
-				return new CodeAction (string.Format (context.TranslateString ("Negate '{0}'"), node),
-					script => {
-						script.Replace (node, CSharpUtil.InvertCondition(node));
-					}, node.OperatorToken);
-			}
-			return null;
+			Test<NegateIsExpressionAction> (@"
+class TestClass
+{
+	void Test (object x)
+	{
+		var b = x $is TestClass;
+	}
+}", @"
+class TestClass
+{
+	void Test (object x)
+	{
+		var b = !(x is TestClass);
+	}
+}");
 		}
+
+		[Test]
+		public void TestReverse ()
+		{
+			Test<NegateIsExpressionAction> (@"
+class TestClass
+{
+	void Test (object x)
+	{
+		var b = !(x $is TestClass);
+	}
+}", @"
+class TestClass
+{
+	void Test (object x)
+	{
+		var b = x is TestClass;
+	}
+}");
+		}
+
 	}
 }
+

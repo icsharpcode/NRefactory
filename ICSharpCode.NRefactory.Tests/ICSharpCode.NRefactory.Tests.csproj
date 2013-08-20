@@ -515,6 +515,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantTernaryExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\SimplifyConditionalTernaryExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\BaseMethodCallWithDefaultParameterIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\NegateIsExpressionActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
