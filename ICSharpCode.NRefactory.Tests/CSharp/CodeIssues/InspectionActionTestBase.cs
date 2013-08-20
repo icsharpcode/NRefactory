@@ -63,11 +63,11 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			Assert.AreEqual (expectedOutput, ctx.Text);
 		}
 
-		protected static void CheckFix (TestRefactoringContext ctx, IEnumerable<CodeIssue> issues, string expectedOutput)
+		protected static void CheckFix (TestRefactoringContext ctx, IEnumerable<CodeIssue> issues, string expectedOutput, int fixINdex = 0)
 		{
 			using (var script = ctx.StartScript ()) {
 				foreach (var issue in issues) {
-					issue.Actions.First ().Run (script);
+					issue.Actions[fixINdex].Run (script);
 				}
 			}
 			bool pass = expectedOutput == ctx.Text;

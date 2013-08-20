@@ -55,7 +55,31 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	}
 }");
 		}
-		
+
+
+		[Test]
+		public void TestReturnTypeFix ()
+		{
+			var input = @"class Foo
+{
+	void Bar (string str)
+	{
+		return str;
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0127ReturnMustNotBeFollowedByAnyExpression (), input, out context);
+			Assert.AreEqual (1, issues.Count);
+			CheckFix (context, issues, @"class Foo
+{
+	string Bar (string str)
+	{
+		return str;
+	}
+}", 1);
+		}
+
 		[Test]
 		public void TestSimpleInvalidCase ()
 		{

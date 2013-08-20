@@ -98,16 +98,25 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitReturnStatement(ReturnStatement returnStatement)
 			{
 				if (!returnStatement.Expression.IsNull) {
+					var actions = new List<CodeAction>();
+					actions.Add(new CodeAction(ctx.TranslateString("Remove returned expression"), script => {
+						script.Remove(returnStatement.Expression);
+					}, returnStatement));
+
+					var method = returnStatement.GetParent<MethodDeclaration>();
+					if (method != null) {
+						var rr = ctx.Resolve(returnStatement.Expression);
+						if (rr != null && !rr.IsError) {
+							actions.Add(new CodeAction(ctx.TranslateString("Change return type of method."), script => {
+								script.Replace(method.ReturnType, ctx.CreateTypeSystemAstBuilder(method).ConvertType(rr.Type));
+							}, returnStatement));
+						}
+					}
+
 					AddIssue(
 						returnStatement, 
-						string.Format (ctx.TranslateString("`{0}': A return keyword must not be followed by any expression when method returns void"), currentMethodName),
-						new CodeAction (
-							ctx.TranslateString("Remove returned expression"),
-							script => {
-								script.Remove(returnStatement.Expression); 
-							},
-							returnStatement
-						)
+						string.Format(ctx.TranslateString("`{0}': A return keyword must not be followed by any expression when method returns void"), currentMethodName),
+						actions
 					);
 				}
 			}
