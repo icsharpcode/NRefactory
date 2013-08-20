@@ -519,6 +519,7 @@
     <Compile Include="CSharp\Analysis\DeclarationSpace\LocalDeclarationSpaceTests.cs" />
     <Compile Include="CSharp\Analysis\DeclarationSpace\LocalDeclarationSpaceVisitorTests.cs" />
     <Compile Include="CSharp\CodeIssues\XmlDocIssueIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CS1573ParameterHasNoMatchingParamTagIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

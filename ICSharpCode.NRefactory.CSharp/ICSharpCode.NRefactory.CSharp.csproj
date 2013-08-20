@@ -637,6 +637,7 @@
     <Compile Include="Analysis\DeclarationSpace\LocalDeclarationSpace.cs" />
     <Compile Include="Analysis\DeclarationSpace\LocalDeclarationSpaceVisitor.cs" />
     <Compile Include="Refactoring\CodeIssues\Custom\XmlDocIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\CS1573ParameterHasNoMatchingParamTagIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

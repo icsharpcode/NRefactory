@@ -1,5 +1,5 @@
 //
-// InvalidXmlTypeReferenceIssueTests.cs
+// CS1573ParameterHasNoMatchingParamTagIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -33,105 +33,79 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class XmlDocIssueTests: InspectionActionTestBase
+	public class CS1573ParameterHasNoMatchingParamTagIssueTests: InspectionActionTestBase
 	{
 		[Test]
-		public void TestBeforeNamespace()
+		public void TestMethodMissesParameter()
 		{
-			Test<XmlDocIssue>(@"
-/// foo
-namespace Foo {}
-", @"
-namespace Foo {}
-");
-		}
-
-		[Test]
-		public void TestBeforeUsing()
-		{
-			Test<XmlDocIssue>(@"
-/// foo
-using System;
-", @"
-using System;
-");
-		}
-
-		[Test]
-		public void TestBeforeUsingAlias()
-		{
-			Test<XmlDocIssue>(@"
-/// foo
-using A = System;
-", @"
-using A = System;
-");
-		}
-		
-		[Test]
-		public void TestBeforeExternAlias()
-		{
-			Test<XmlDocIssue>(@"
-/// foo
-extern alias System;
-", @"
-extern alias System;
-");
-		}
-
-		[Test]
-		public void TestTypeParameter()
-		{
-			TestRefactoringContext ctx;
-			var issues = GetIssues(new XmlDocIssue(), @"
-/// <typeparam name=""Undefined""></typeparam>
-class Foo {}
-
-/// <typeparam name=""T""></typeparam>
-class Foo2<T> {}
-", out ctx);
-			Assert.AreEqual(1, issues.Count);
-		}
-
-		[Test]
-		public void TestWrongMethodParameter()
-		{
-			TestRefactoringContext ctx;
-			var issues = GetIssues(new XmlDocIssue(), @"
+			Test<CS1573ParameterHasNoMatchingParamTagIssue>(@"
 class Foo {
-	/// <param name=""undefined""></param>
-	/// <param name=""y""></param>
-	/// <param name=""z""></param>
+	/// <summary/>
+	/// <param name = ""y""></param>
+	/// <param name = ""z""></param>
 	public void FooBar(int x, int y, int z)
 	{
 	}
-
-	/// <param name=""x1""></param>
-	/// <param name=""y""></param>
-	int this[int x, int y] { get { return 1;  } }
 }
-", out ctx);
-			Assert.AreEqual(2, issues.Count);
+", @"
+class Foo {
+	/// <summary/>
+	/// <param name = ""x""></param>
+	/// <param name = ""y""></param>
+	/// <param name = ""z""></param>
+	public void FooBar(int x, int y, int z)
+	{
+	}
+}
+");
 		}
 
 		[Test]
-		public void TestSeeCref()
+		public void TestNoParamDocs()
 		{
-			TestRefactoringContext ctx;
-			var issues = GetIssues(new XmlDocIssue(), @"
-/// <summary>
-/// <see cref=""Undefined""/>
-/// </summary>
-class Foo {}
-
-/// <summary>
-/// <see cref=""T:Foo""/>
-/// <seealso cref=""T:System.Console""/>
-/// </summary>
-class Foo2 {}
-", out ctx);
-			Assert.AreEqual(1, issues.Count);
+			TestWrongContext<CS1573ParameterHasNoMatchingParamTagIssue>(@"
+class Foo {
+	/// <summary/>
+	public void FooBar(int x, int y, int z)
+	{
+	}
+}
+");
 		}
+
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<CS1573ParameterHasNoMatchingParamTagIssue>(@"
+class Foo {
+	/// <summary/>
+	/// <param name = ""y""></param>
+	/// <param name = ""z""></param>
+// ReSharper disable once CSharpWarnings::CS1573
+	public void FooBar(int x, int y, int z)
+	{
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestPragmaDisable()
+		{
+			TestWrongContext<CS1573ParameterHasNoMatchingParamTagIssue>(@"
+class Foo {
+	/// <summary/>
+	/// <param name = ""y""></param>
+	/// <param name = ""z""></param>
+#pragma warning disable 1573
+	public void FooBar(int x, int y, int z)
+#pragma warning restore 1573
+	{
+	}
+}
+");
+		}
+	
 	}
 }
 

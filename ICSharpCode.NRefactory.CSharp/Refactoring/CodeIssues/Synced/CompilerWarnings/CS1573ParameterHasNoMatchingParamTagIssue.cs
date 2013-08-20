@@ -1,5 +1,5 @@
 //
-// XmlDocIssue.cs
+// CS1573ParameterHasNoMatchingParamTagIssue.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -37,18 +37,20 @@ using ICSharpCode.NRefactory.Documentation;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Validate Xml documentation",
-	                  Description = "Validate Xml docs",
+	[IssueDescription("Parameter has no matching param tag in the XML comment",
+	                  Description = "Parameter has no matching param tag in the XML comment",
 	                  Category = IssueCategories.CompilerWarnings,
-	                  Severity = Severity.Warning)]
-	public class XmlDocIssue : GatherVisitorCodeIssueProvider
+	                  Severity = Severity.Warning,
+	                  PragmaWarning = 1573,
+	                  ResharperDisableKeyword = "CSharpWarnings::CS1573")]
+	public class CS1573ParameterHasNoMatchingParamTagIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<XmlDocIssue>
+		class GatherVisitor : GatherVisitorBase<CS1573ParameterHasNoMatchingParamTagIssue>
 		{
 			readonly List<Comment> storedXmlComment = new List<Comment>();
 
@@ -59,28 +61,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void InvalideXmlComments()
 			{
-				if (storedXmlComment.Count == 0)
-					return;
-				var from = storedXmlComment.First().StartLocation;
-				var to = storedXmlComment.Last().EndLocation;
-				AddIssue(
-					from,
-					to,
-					ctx.TranslateString("Xml comment is not placed before a valid language element"),
-					ctx.TranslateString("Remove comment"),
-					script => {
-					var startOffset = script.GetCurrentOffset(from);
-					var endOffset = script.GetCurrentOffset(to);
-					endOffset += ctx.GetLineByOffset(endOffset).DelimiterLength;
-					script.RemoveText(startOffset, endOffset - startOffset);
-				});
-
-
 				storedXmlComment.Clear();
 			}
 
 			public override void VisitComment(Comment comment)
 			{
+				base.VisitComment(comment);
 				if (comment.CommentType == CommentType.Documentation)
 					storedXmlComment.Add(comment);
 			}
@@ -139,6 +125,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					xml.AppendLine(cmt.Content);
 				xml.AppendLine("</root>");
 
+				List<Tuple<string, int>> parameters = new List<Tuple<string, int>>();
+
 				using (var reader = new XmlTextReader(new StringReader(xml.ToString()))) {
 					try {
 						while (reader.Read()) {
@@ -146,65 +134,50 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								continue;
 							if (reader.NodeType == XmlNodeType.Element) {
 								switch (reader.Name) {
-									case "typeparam":
-									case "typeparamref":
-										reader.MoveToFirstAttribute();
-										int line = reader.LineNumber - 1;
-										int x = reader.LinePosition;
-										string name = reader.GetAttribute("name");
-										if (name == null)
-											break;
-										if (member.SymbolKind == SymbolKind.TypeDefinition) {
-											var type = (ITypeDefinition)member;
-											if (!type.TypeArguments.Any(arg => arg.Name == name)) {
-												AddXmlIssue(line, SearchAttributeColumn(x, line), name.Length, string.Format(ctx.TranslateString("Type parameter '{0}' not found"), name));
-											}
-										}
-										break;
 									case "param":
-									case "paramref":
 										reader.MoveToFirstAttribute();
-										line = reader.LineNumber - 2;
-										x = reader.LinePosition;
-										name = reader.GetAttribute("name");
+										var line = reader.LineNumber;
+										var name = reader.GetAttribute("name");
 										if (name == null)
 											break;
-										var m = member as IParameterizedMember;
-										if (m != null && m.Parameters.Any(p => p.Name == name))
-											break;
-										AddXmlIssue(line, SearchAttributeColumn(x, line), name.Length, string.Format(ctx.TranslateString("Parameter '{0}' not found"), name));
-										break;
-									case "exception":
-									case "seealso":
-									case "see":
-										reader.MoveToFirstAttribute();
-										line = reader.LineNumber - 2;
-										x = reader.LinePosition;
-										string cref = reader.GetAttribute("cref");
-										if (cref == null)
-											break;
-										try {
-											var trctx = ctx.Resolver.TypeResolveContext;
-
-											if (member is IMember)
-												trctx = trctx.WithCurrentTypeDefinition(member.DeclaringTypeDefinition).WithCurrentMember((IMember)member);
-											if (member is ITypeDefinition)
-												trctx = trctx.WithCurrentTypeDefinition((ITypeDefinition)member);
-											var entity = IdStringProvider.FindEntity(cref, trctx);
-											if (entity == null) {
-
-												AddXmlIssue(line, SearchAttributeColumn(x, line), cref.Length, string.Format(ctx.TranslateString("Cannot find reference '{0}'"), cref));
-											}
-										} catch (Exception e) {
-											AddXmlIssue(line, SearchAttributeColumn(x, line), cref.Length, string.Format(ctx.TranslateString("Reference parsing error '{0}'."), e.Message));
-										}
+										parameters.Add(Tuple.Create(name, line));
 										break;
 
 								}
 							}
 						}
 					} catch (XmlException e) {
-						AddXmlIssue(e.LineNumber, e.LinePosition - 2, 1, e.Message);
+					}
+
+					if (storedXmlComment.Count > 0 && parameters.Count > 0) {
+						var pm = member as IParameterizedMember;
+						if (pm != null) {
+							for (int i = 0; i < pm.Parameters.Count; i++) {
+								var p = pm.Parameters [i];
+								if (!parameters.Any(tp => tp.Item1 == p.Name)) {
+									AstNode before = i < parameters.Count ? storedXmlComment [parameters [i].Item2 - 2] : null;
+									AstNode afterNode = before == null ? storedXmlComment [storedXmlComment.Count - 1] : null;
+									AddIssue(
+										GetParameterHighlightNode(node, i),
+										string.Format(ctx.TranslateString("Missing xml documentation for Parameter '{0}'"), p.Name),
+										string.Format(ctx.TranslateString("Create xml documentation for Parameter '{0}'"), p.Name),
+										script => {
+										if (before != null) {
+											script.InsertBefore(
+												before, 
+												new Comment(string.Format(" <param name = \"{0}\"></param>", p.Name), CommentType.Documentation)
+												);
+										} else {
+											script.InsertAfter(
+												afterNode, 
+												new Comment(string.Format(" <param name = \"{0}\"></param>", p.Name), CommentType.Documentation)
+												);
+										}
+									});
+								}
+							}
+
+						}
 					}
 					storedXmlComment.Clear();
 				}
@@ -227,7 +200,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				AstNode next;
 				var child = node.FirstChild;
-				while (child != null && (child is Comment || child.Role == Roles.NewLine)) {
+				while (child != null && (child is Comment || child is PreProcessorDirective || child.Role == Roles.NewLine)) {
 					next = child.NextSibling;
 					child.AcceptVisitor(this);
 					child = next;
@@ -251,7 +224,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
-				var rr = ctx.Resolve(methodDeclaration) as MemberResolveResult;
 				VisitXmlChildren(methodDeclaration);
 			}
 
@@ -307,3 +279,4 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 	}
 }
+
