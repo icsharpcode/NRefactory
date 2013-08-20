@@ -54,6 +54,26 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestComplexVariableDeclarationCase ()
+		{
+			Test<ConvertIfToAndExpressionIssue>(@"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10 || o < 10;
+		if (o < 10)
+			b = false;
+	}
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = (o > 10 || o < 10) && o >= 10;
+	}
+}");
+		}
+
+		[Test]
 		public void TestCommonCase ()
 		{
 			Test<ConvertIfToAndExpressionIssue>(@"class Foo

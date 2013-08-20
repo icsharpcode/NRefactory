@@ -54,6 +54,37 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestSkipComplexExpression ()
+		{
+			TestWrongContext<ConvertIfStatementToNullCoalescingExpressionIssue>(@"class Foo
+{
+	int Bar(object o)
+	{
+		var ob = o;
+		if (ob == null)
+			ob = this +
+12;
+	}
+}");
+		}
+
+		[Test]
+		public void TestSkipComplexAssignment ()
+		{
+			TestWrongContext<ConvertIfStatementToNullCoalescingExpressionIssue>(@"class Foo
+{
+	int Bar(object o)
+	{
+		var ob = o  +
+
+12;
+		if (ob == null)
+			ob = this;
+	}
+}");
+		}
+
+		[Test]
 		public void TestDisable ()
 		{
 			TestWrongContext<ConvertIfStatementToNullCoalescingExpressionIssue>(@"class Foo

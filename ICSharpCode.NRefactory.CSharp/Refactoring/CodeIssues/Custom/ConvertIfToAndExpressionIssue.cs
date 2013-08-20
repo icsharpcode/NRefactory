@@ -89,12 +89,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							ctx.TranslateString("Replace with '&&'"),
 							script => {
 								var variable = initializer;
+								var initalizerExpression = variable.Initializer.Clone();
+								var bOp = initalizerExpression as BinaryOperatorExpression;
+								if (bOp != null && bOp.Operator == BinaryOperatorType.ConditionalOr)
+									initalizerExpression = new ParenthesizedExpression (initalizerExpression);
 								script.Replace(
 									varDeclaration, 
 									new VariableDeclarationStatement(
 										varDeclaration.Type.Clone(),
 										variable.Name,
-										new BinaryOperatorExpression(variable.Initializer.Clone(), BinaryOperatorType.ConditionalAnd, CSharpUtil.InvertCondition(expr)) 
+										new BinaryOperatorExpression(initalizerExpression, BinaryOperatorType.ConditionalAnd, CSharpUtil.InvertCondition(expr)) 
 									)
 								);
 							script.Remove(ifElseStatement); 

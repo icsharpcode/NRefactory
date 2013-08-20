@@ -65,6 +65,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddTo(IfElseStatement ifElseStatement, VariableDeclarationStatement varDeclaration, Expression expr)
 			{
+				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(varDeclaration) || 
+					ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(expr))
+					return;
 				AddIssue(
 					ifElseStatement.IfToken,
 					ctx.TranslateString("Convert to '??' expresssion"),
