@@ -170,5 +170,26 @@ public class TestClass : IDisposable
 			Test<RedundantCastIssue> (input, 0);
 		}
 
+		
+		/// <summary>
+		/// Bug 14081 - Incorrect redundant cast analysis with explicitly implemented interface member
+		/// </summary>
+		[Test]
+		public void TestBug14081 ()
+		{
+			var input = @"
+using System;
+using System.Collections.Generic;
+public class TestClass
+{
+	public IEnumerator<int> GetEnumerator ()
+	{
+		return ((IEnumerable<int>)new[] { 5 }).GetEnumerator ();
+	}
+}
+";
+			Test<RedundantCastIssue> (input, 0);
+		}
+
 	}
 }
