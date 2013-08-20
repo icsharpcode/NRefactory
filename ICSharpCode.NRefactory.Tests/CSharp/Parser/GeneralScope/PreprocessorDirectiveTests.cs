@@ -121,7 +121,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 			Assert.AreEqual(CommentType.SingleLine, ns.GetChildrenByRole(Roles.Comment).First().CommentType);
 			Assert.AreEqual(CommentType.InactiveCode, ns.GetChildrenByRole(Roles.Comment).Last().CommentType);
 		}
-		
+
 		[Test]
 		public void PragmaWarning()
 		{
@@ -187,11 +187,12 @@ namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
 			CSharpParser parser = new CSharpParser();
 			SyntaxTree syntaxTree = parser.Parse(program);
 			Assert.IsFalse(parser.HasErrors, string.Join(Environment.NewLine, parser.Errors.Select(e => e.Message)));
+			var roles = syntaxTree.Children.Select(c => c.Role).ToArray();
 			Assert.AreEqual(new Role[] {
-			                	Roles.PreProcessorDirective,
-			                	Roles.NewLine,
-			                	NamespaceDeclaration.MemberRole
-			}, syntaxTree.Children.Select(c => c.Role).ToArray());
+				Roles.PreProcessorDirective,
+				Roles.NewLine,
+				NamespaceDeclaration.MemberRole
+			}, roles);
 			Assert.AreEqual(new TextLocation(2, 1), syntaxTree.Members.Single().StartLocation);
 			var ppd = (LinePreprocessorDirective)syntaxTree.FirstChild;
 			Assert.AreEqual(PreProcessorDirectiveType.Line, ppd.Type);
@@ -306,7 +307,63 @@ class B { }
 			Assert.AreEqual(PreProcessorDirectiveType.Elif, bbb.Type);
 			Assert.AreEqual("BBB", bbb.Argument);
 		}
-		
+
+		[Test]
+		public void NewLinesAfterPreprocessorDirectives()
+		{
+			string program = @"#define FOO
+#undef FOO
+#define FOO
+#region Blah
+#if FOO
+class Test {}
+#elif FOO
+class Test {}
+#else
+class Test {}
+#endif
+#endregion";
+			CSharpParser parser = new CSharpParser();
+			SyntaxTree syntaxTree = parser.Parse(program);
+			Assert.IsFalse(parser.HasErrors, string.Join(Environment.NewLine, parser.Errors.Select(e => string.Format("{0}: {1}", e.Region.BeginLine, e.Message))));
+			var roles = syntaxTree.Children.Select(c => c.Role).ToArray();
+			Assert.AreEqual(new Role[] {
+				// #define FOO
+				Roles.PreProcessorDirective,
+				Roles.NewLine,
+				// #undef FOO
+				Roles.PreProcessorDirective,
+				Roles.NewLine,
+				// #define FOO
+				Roles.PreProcessorDirective,
+				Roles.NewLine,
+				// #region Blah
+				Roles.PreProcessorDirective,
+				Roles.NewLine,
+				// #if FOO
+				Roles.PreProcessorDirective,
+				Roles.NewLine,
+				// class Test {}
+				NamespaceDeclaration.MemberRole,
+				Roles.NewLine,
+				// #elif FOO
+				Roles.PreProcessorDirective,
+				Roles.NewLine,
+				// class Test {}
+				Roles.Comment,
+				// #else
+				Roles.PreProcessorDirective,
+				Roles.NewLine,
+				// class Test {}
+				Roles.Comment,
+				// #endif
+				Roles.PreProcessorDirective,
+				Roles.NewLine,
+				// #endregion
+				Roles.PreProcessorDirective
+			}, roles);
+		}
+				
 		[Test]
 		public void ConditionalSymbolTest()
 		{
