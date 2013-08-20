@@ -203,7 +203,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var epsilon = new IdentifierExpression ("EPSILON");
 						var compare = new BinaryOperatorExpression (abs, op, epsilon);
 						script.Replace (binaryOperatorExpression, compare);
-						script.Link (epsilon);
+						script.Select (epsilon);
 					}
 				);
 			}
@@ -257,7 +257,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							var epsilon = new IdentifierExpression("EPSILON");
 							var compare = new BinaryOperatorExpression(abs, op, epsilon);
 							script.Replace(binaryOperatorExpression, compare);
-							script.Link(epsilon);
+							script.Select(epsilon);
 						}
 					);
 				}
