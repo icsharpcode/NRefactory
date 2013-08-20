@@ -3645,7 +3645,11 @@ namespace Mono.CSharp
 						}
 
 						if (c == '#') {
-							if (ParsePreprocessingDirective (false))
+							var oldNL = recordNewLine;
+							recordNewLine = true;
+							var continueNormalLexing = ParsePreprocessingDirective(false);
+							recordNewLine = oldNL;
+							if (continueNormalLexing)
 								break;
 							sbag.StartComment(SpecialsBag.CommentType.InactiveCode, false, line, 1);
 						}

@@ -32,6 +32,13 @@ namespace ICSharpCode.NRefactory.CSharp
 	{
 		int GetGlobalNewLinesFor(AstNode child)
 		{
+			if (child.NextSibling == null)
+				// last node in the document => no extra newlines
+				return 0;
+			if (child.NextSibling.Role == Roles.RBrace)
+				// Last node in a block => no extra newlines, it's handled later by FixClosingBrace()
+				return 0;
+
 			int newLines = 1;
 			var nextSibling = child.GetNextSibling(NoWhitespacePredicate);
 			if (nextSibling is PreProcessorDirective) {

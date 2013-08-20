@@ -634,6 +634,8 @@
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantTernaryExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\BaseMethodCallWithDefaultParameterIssue.cs" />
     <Compile Include="Refactoring\CodeActions\NegateIsExpressionAction.cs" />
+    <Compile Include="Analysis\DeclarationSpace\LocalDeclarationSpace.cs" />
+    <Compile Include="Analysis\DeclarationSpace\LocalDeclarationSpaceVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

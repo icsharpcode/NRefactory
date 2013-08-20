@@ -1,4 +1,4 @@
-﻿// 
+// 
 // CSharpParser.cs
 //
 // Author:

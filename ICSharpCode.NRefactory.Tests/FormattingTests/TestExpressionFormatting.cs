@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 		}
 
 
-
+		
 		[Test]
 		public void TestArrayInitializer ()
 		{
@@ -108,6 +108,23 @@ class Test
 		};
 	}
 }");
+		}
+
+		[Test]
+		public void TestNoUneccessaryChangesToImplicitArrayInitializer ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			const string input = @"using System.Collections.Generic;
+
+class Test
+{
+	void Init ()
+	{
+		var list = { 1, 2 };
+	}
+}";
+
+			TestNoUnnecessaryChanges(policy, input);
 		}
 
 
