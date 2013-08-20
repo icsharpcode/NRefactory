@@ -118,6 +118,8 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		{
 			TestRefactoringContext context;
 			var issues = GetIssues (new T (), input, out context);
+			if (issues.Count == 0)
+				Console.WriteLine("No issues in:\n" + input);
 			Assert.AreEqual (1, issues.Count);
 			CheckFix (context, issues[0], output, fixIndex);
 		}

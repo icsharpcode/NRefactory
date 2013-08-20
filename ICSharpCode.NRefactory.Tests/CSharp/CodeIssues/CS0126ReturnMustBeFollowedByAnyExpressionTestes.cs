@@ -33,29 +33,33 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	[TestFixture]
 	public class CS0126ReturnMustBeFollowedByAnyExpressionTests : InspectionActionTestBase
 	{
-		[Test]
-		public void TestSimpleCase ()
+		static void Test(string type, string defaultValue)
 		{
-			var input = @"class Foo
+			Test<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
 {
-	int Bar (string str)
+	" + type + @" Bar (string str)
 	{
 		return;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
-	int Bar (string str)
+	" + type + @" Bar (string str)
 	{
-		return 0;
+		return " + defaultValue + @";
 	}
 }");
 		}
 
+		[Test]
+		public void TestSimpleCase ()
+		{
+			Test("int", "0");
+			Test("string", "\"\"");
+			Test("char", "' '");
+			Test("bool", "false");
+			Test("object", "null");
+			Test("System.DateTime", "default(System.DateTime)");
+		}
 
 		[Test]
 		public void TestReturnTypeFix ()

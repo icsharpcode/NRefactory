@@ -29,6 +29,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -56,13 +57,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
 				var primitiveType = methodDeclaration.ReturnType as PrimitiveType;
-				skip = (primitiveType == null || primitiveType.Keyword == "void");
+				skip = (primitiveType != null && primitiveType.Keyword == "void");
 				currentMethodName = methodDeclaration.Name;
 				base.VisitMethodDeclaration(methodDeclaration);
 			}
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
+
 				currentMethodName = constructorDeclaration.Name;
 				skip = true;
 				base.VisitConstructorDeclaration(constructorDeclaration);
@@ -92,13 +94,40 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitReturnStatement(ReturnStatement returnStatement)
 			{
+				base.VisitReturnStatement(returnStatement);
 				if (skip)
 					return;
 
 				if (returnStatement.Expression.IsNull) {
+					var entity = returnStatement.GetParent<EntityDeclaration>();
+					if (entity is Accessor)
+						entity = entity.GetParent<EntityDeclaration>();
+					Console.WriteLine("enitity : "+ entity);
+					if (entity == null)
+						return;
+					var rr = ctx.Resolve(entity) as MemberResolveResult;
+					Console.WriteLine("rr:"+rr);
+					if (rr == null || rr.IsError)
+						return;
 					var actions = new List<CodeAction>();
 					actions.Add(new CodeAction(ctx.TranslateString("Return default value"), script => {
-						script.Replace(returnStatement, new ReturnStatement (new PrimitiveExpression(0)));
+						Expression p;
+						if (rr.Member.ReturnType.IsKnownType(KnownTypeCode.Boolean)) {
+							p = new PrimitiveExpression(false );
+						} else if (rr.Member.ReturnType.IsKnownType(KnownTypeCode.String)) {
+							p = new PrimitiveExpression("");
+						} else if (rr.Member.ReturnType.IsKnownType(KnownTypeCode.Char)) {
+							p = new PrimitiveExpression(' ');
+						} else if (rr.Member.ReturnType.IsReferenceType == true) {
+							p = new NullReferenceExpression();
+						} else if (rr.Member.ReturnType.GetDefinition() != null &&
+						           rr.Member.ReturnType.GetDefinition().KnownTypeCode < KnownTypeCode.DateTime) {
+							p = new PrimitiveExpression(0x0);
+						} else {
+							p = new DefaultValueExpression (ctx.CreateTypeSystemAstBuilder(returnStatement).ConvertType(rr.Type));
+						}
+
+						script.Replace(returnStatement, new ReturnStatement(p));
 					}, returnStatement));
 
 					var method = returnStatement.GetParent<MethodDeclaration>();
