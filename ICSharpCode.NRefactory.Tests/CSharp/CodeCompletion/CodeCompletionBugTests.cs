@@ -6209,7 +6209,7 @@ class Test
 			Assert.AreEqual(1, provider.Data.Count(cd => cd.DisplayText == "delegate()"));
 			Assert.AreEqual(1, provider.Data.Count(cd => cd.DisplayText == "async delegate()"));
 		}
-
+		[Ignore]
 		[Test]
 		public void TestBasicIntersectionProblem ()
 		{
@@ -6233,6 +6233,7 @@ class Testm
 			});
 		}
 
+		[Ignore]
 		[Test]
 		public void TestComplexIntersectionTypeProblem ()
 		{
@@ -6247,6 +6248,35 @@ class Foo
 	}
 }", provider => {
 				Assert.IsNotNull (provider.Find ("Result"), "property 'Result' not found.");
+			});
+		}
+
+		/// <summary>
+		/// Bug 8795 - Completion shows namespace entry which in not usable
+		/// </summary>
+		[Test]
+		public void TestBug8795 ()
+		{
+			CombinedProviderTest(@"namespace A.B
+{
+    public class Foo
+    {
+    }
+}
+namespace Foo
+{
+    using A.B;
+
+    class MainClass
+    {
+        public static void Main ()
+        {
+            $F$
+        }
+    }
+}
+", provider => {
+				provider.Data.Single(d => d.DisplayText == "Foo");
 			});
 		}
 	}
