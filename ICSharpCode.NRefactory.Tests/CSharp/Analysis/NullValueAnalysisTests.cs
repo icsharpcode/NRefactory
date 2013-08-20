@@ -59,6 +59,30 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return new StubbedRefactoringContext(resolver, supportsVersion5);
 			}
 
+			#region implemented abstract members of BaseRefactoringContext
+			public override int GetOffset(TextLocation location)
+			{
+				throw new NotImplementedException();
+			}
+			public override ICSharpCode.NRefactory.Editor.IDocumentLine GetLineByOffset(int offset)
+			{
+				throw new NotImplementedException();
+			}
+			public override TextLocation GetLocation(int offset)
+			{
+				throw new NotImplementedException();
+			}
+			public override string GetText(int offset, int length)
+			{
+				throw new NotImplementedException();
+			}
+			public override string GetText(ICSharpCode.NRefactory.Editor.ISegment segment)
+			{
+				throw new NotImplementedException();
+			}
+			#endregion
+
+
 			public override bool Supports(Version version)
 			{
 				if (supportsVersion5)
