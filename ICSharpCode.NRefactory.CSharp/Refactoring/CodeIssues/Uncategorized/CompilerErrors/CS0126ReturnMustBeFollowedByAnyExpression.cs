@@ -1,5 +1,5 @@
-﻿//
-// CS0127ReturnMustNotBeFollowedByAnyExpression.cs
+//
+// CS0126ReturnMustBeFollowedByAnyExpression.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -28,14 +28,15 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("CS0127: A method with a void return type cannot return a value.",
-	                  Description = "Since 'function' returns void, a return keyword must not be followed by an object expression",
+	[IssueDescription("CS0126: A method with return type cannot return without value.",
+	                  Description = "Since 'function' doesn't return void, a return keyword must be followed by an object expression",
 	                  Category = IssueCategories.CompilerErrors,
 	                  Severity = Severity.Error)]
-	public class CS0127ReturnMustNotBeFollowedByAnyExpression : GatherVisitorCodeIssueProvider
+	public class CS0126ReturnMustBeFollowedByAnyExpression : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
@@ -50,12 +51,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
-			
+			bool skip;
+
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
 				var primitiveType = methodDeclaration.ReturnType as PrimitiveType;
-				if (primitiveType == null || primitiveType.Keyword != "void")
-					return;
+				skip = (primitiveType == null || primitiveType.Keyword == "void");
 				currentMethodName = methodDeclaration.Name;
 				base.VisitMethodDeclaration(methodDeclaration);
 			}
@@ -63,60 +64,53 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
 				currentMethodName = constructorDeclaration.Name;
+				skip = true;
 				base.VisitConstructorDeclaration(constructorDeclaration);
 			}
 
 			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
 			{
 				currentMethodName = "~" + destructorDeclaration.Name;
+				skip = true;
 				base.VisitDestructorDeclaration(destructorDeclaration);
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-			{
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-			{
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-			{
-			}
-
-			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-			{
-			}
-
-			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
-			{
 			}
 
 			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
 			{
+				bool old = skip;
+				skip = !CreateFieldAction.GetValidTypes(ctx.Resolver, anonymousMethodExpression).Any(t => !t.IsKnownType(KnownTypeCode.Void));
+				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+				skip = old;
+			}
+			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+			{
+				bool old = skip;
+				skip = !CreateFieldAction.GetValidTypes(ctx.Resolver, lambdaExpression).Any(t => !t.IsKnownType(KnownTypeCode.Void));
+				base.VisitLambdaExpression(lambdaExpression);
+				skip = old;
 			}
 
 			public override void VisitReturnStatement(ReturnStatement returnStatement)
 			{
-				if (!returnStatement.Expression.IsNull) {
+				if (skip)
+					return;
+
+				if (returnStatement.Expression.IsNull) {
 					var actions = new List<CodeAction>();
-					actions.Add(new CodeAction(ctx.TranslateString("Remove returned expression"), script => {
-						script.Remove(returnStatement.Expression);
+					actions.Add(new CodeAction(ctx.TranslateString("Return default value"), script => {
+						script.Replace(returnStatement, new ReturnStatement (new PrimitiveExpression(0)));
 					}, returnStatement));
 
 					var method = returnStatement.GetParent<MethodDeclaration>();
 					if (method != null) {
-						var rr = ctx.Resolve(returnStatement.Expression);
-						if (rr != null && !rr.IsError) {
-							actions.Add(new CodeAction(ctx.TranslateString("Change return type of method."), script => {
-								script.Replace(method.ReturnType, ctx.CreateTypeSystemAstBuilder(method).ConvertType(rr.Type));
-							}, returnStatement));
-						}
+						actions.Add(new CodeAction(ctx.TranslateString("Change method return type to 'void'"), script => {
+							script.Replace(method.ReturnType, new PrimitiveType("void"));
+						}, returnStatement));
 					}
 
 					AddIssue(
 						returnStatement, 
-						string.Format(ctx.TranslateString("`{0}': A return keyword must not be followed by any expression when method returns void"), currentMethodName),
+						string.Format(ctx.TranslateString("`{0}': A return keyword must be followed by any expression when method returns a value"), currentMethodName),
 						actions
 					);
 				}
