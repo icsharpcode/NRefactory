@@ -632,6 +632,7 @@
     <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\CompareOfFloatsByEqualityOperatorIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\PracticesAndImprovements\SimplifyConditionalTernaryExpressionIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantTernaryExpressionIssue.cs" />
+    <Compile Include="Refactoring\CodeIssues\Synced\CodeQuality\BaseMethodCallWithDefaultParameterIssue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

@@ -514,6 +514,7 @@
     <Compile Include="CSharp\CodeIssues\CompareOfFloatsByEqualityOperatorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantTernaryExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\SimplifyConditionalTernaryExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\BaseMethodCallWithDefaultParameterIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
