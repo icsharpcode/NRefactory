@@ -904,7 +904,31 @@ class Test : TestBase
 	{
 	    return arr [0];
 	}
-}", 0);
+}", 1, @"class Test
+{
+	object Foo (System.Collections.IList arr)
+	{
+	    return arr [0];
+	}
+}");
+		}
+
+		[Test]
+		public void TestBug9617Case2()
+		{
+			Test<ParameterCanBeDemotedIssue>(@"class Test
+{
+	int Foo (int[] arr)
+	{
+	    return arr [0];
+	}
+}", 1, @"class Test
+{
+	int Foo (System.Collections.Generic.IList<int> arr)
+	{
+	    return arr [0];
+	}
+}");
 		}
 		
 		[Test]
