@@ -334,7 +334,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			foreach (var stmt in switchSection.Statements) {
-				if (stmt is BreakStatement && !policy.IndentBreakStatements && policy.IndentCaseBody) {
+				if ((stmt is BreakStatement || stmt is ContinueStatement || stmt is ReturnStatement || stmt is GotoCaseStatement || stmt is GotoDefaultStatement) &&
+					!policy.IndentBreakStatements && policy.IndentCaseBody) 
+				{
 					curIndent.Pop();
 					FixStatementIndentation(stmt.StartLocation);
 					stmt.AcceptVisitor(this);

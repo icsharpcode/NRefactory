@@ -455,6 +455,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 				NextLineIndent.ExtraSpaces = 0;
 				IsRightHandExpression = false;
+				CurrentStatement = Statement.None;
 			}
 			else if (ch == '=' && !IsRightHandExpression)
 			{
@@ -570,10 +571,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			else if (new string[] { "case", "default" }.Contains(keyword) && CurrentBody == Body.Switch)
 			{
 				ChangeState<SwitchCaseState>();
-			}
-			else if (keyword == "break")
-			{
-				// TODO: OPTION: Engine.formattingOptions.IndentBreakStatements
 			}
 			else if (statements.ContainsKey(keyword))
 			{
@@ -812,6 +809,14 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				ExitState();
 				ChangeState<SwitchCaseState>();
+			}
+			else if (new string[] { "break", "continue", "return" }.Contains(keyword))
+			{
+				// OPTION: Engine.formattingOptions.IndentBreakStatements
+				if (!Engine.formattingOptions.IndentBreakStatements)
+				{
+					ThisLineIndent = Parent.ThisLineIndent.Clone();
+				}
 			}
 			else
 			{

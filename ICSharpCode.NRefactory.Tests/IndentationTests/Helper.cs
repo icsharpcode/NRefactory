@@ -33,14 +33,15 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			return result;
 		}
 
-		public static void ReadAndTest(string filePath)
+		public static void ReadAndTest(string filePath, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
 		{
 			if (File.Exists(filePath))
 			{
 				var code = File.ReadAllText(filePath);
-				var policy = FormattingOptionsFactory.CreateMono();
 				var document = new ReadOnlyDocument(code);
-				var options = new TextEditorOptions { IndentBlankLines = false };
+				policy = policy ?? FormattingOptionsFactory.CreateMono();
+				options = options ?? new TextEditorOptions { IndentBlankLines = false };
+
 				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
 
 				foreach (var ch in code)
