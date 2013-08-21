@@ -251,6 +251,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					variable = mr.Member as IVariable;
 				if (variable == null)
 					return;
+				var sv = variable as SpecializedField;
+				if (sv != null) {
+					variable = sv.MemberDefinition as IVariable;
+				}
 				VariableState oldState;
 				if (states.TryGetValue (variable, out oldState)) {
 					if (oldState < state)

@@ -161,6 +161,23 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 
+		[Test]
+		public void TestSpecializedFieldBug ()
+		{
+			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"
+using System;
+class Test<T> where T : IDisposable
+{
+	object fooBar = new object ();
+	public void Foo ()
+	{
+		fooBar = null;
+	}
+}");
+		}
+
+
+
 	}
 }
 

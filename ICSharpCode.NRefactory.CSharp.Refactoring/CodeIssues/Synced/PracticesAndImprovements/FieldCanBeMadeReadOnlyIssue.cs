@@ -67,9 +67,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						ctx.TranslateString("Convert to readonly"),
 						ctx.TranslateString("To readonly"),
 						script => {
-							var field = (FieldDeclaration)varDecl.Item1.Parent;
-							script.ChangeModifier(field, field.Modifiers | Modifiers.Readonly);
-						}
+						var field = (FieldDeclaration)varDecl.Item1.Parent;
+						script.ChangeModifier(field, field.Modifiers | Modifiers.Readonly);
+					}
 					);
 				}
 			}
@@ -105,22 +105,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)
 			{
-				base.VisitBlockStatement(blockStatement);
-
-				if (blockStatement.Parent is EntityDeclaration || blockStatement.Parent is Accessor) {
-					var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation (ctx);
-					var newVars = new List<Tuple<VariableInitializer, IVariable>>();
-					blockStatement.AcceptVisitor(assignmentAnalysis); 
-					foreach (var variable in potentialReadonlyFields) {
-						if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
-							continue;
-						newVars.Add(variable);
-					}
-					potentialReadonlyFields = newVars;
+				var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation (ctx);
+				var newVars = new List<Tuple<VariableInitializer, IVariable>>();
+				blockStatement.AcceptVisitor(assignmentAnalysis); 
+				foreach (var variable in potentialReadonlyFields) {
+					if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
+						continue;
+					newVars.Add(variable);
 				}
-
+				potentialReadonlyFields = newVars;
 			}
-
 		}
 	}
 }
