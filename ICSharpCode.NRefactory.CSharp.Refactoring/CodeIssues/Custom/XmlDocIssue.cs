@@ -40,9 +40,9 @@ using ICSharpCode.NRefactory.Editor;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Validate Xml documentation",
-	                  Description = "Validate Xml docs",
-	                  Category = IssueCategories.CompilerWarnings,
-	                  Severity = Severity.Warning)]
+	                   Description = "Validate Xml docs",
+	                   Category = IssueCategories.CompilerWarnings,
+	                   Severity = Severity.Warning)]
 	public class XmlDocIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -111,27 +111,37 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitExternAliasDeclaration(externAliasDeclaration);
 			}
 
-			TextLocation TranslateOffset (int offset)
+			TextLocation TranslateOffset(int offset)
 			{
-				int line = storedXmlComment.First ().StartLocation.Line;
+				int line = storedXmlComment.First().StartLocation.Line;
 				foreach (var cmt in storedXmlComment) {
-					var next = offset - cmt.Content.Length;
+					var next = offset - cmt.Content.Length - "\n".Length;
 					if (next <= 0)
-						return new TextLocation(line, cmt.StartLocation.Column + 3 - next);
+						return new TextLocation(line, cmt.StartLocation.Column + "///".Length + offset);
+					offset = next;
+					line++;
 				}
-				return new TextLocation(line, 1);
+				return TextLocation.Empty;
 			}
 
 			void AddXmlIssue(int offset, int length, string str)
 			{
-				AddIssue(TranslateOffset(offset),
-				         TranslateOffset(offset + length),
-				         str);
+				var textLocation = TranslateOffset(offset);
+				var textLocation2 = TranslateOffset(offset + length);
+				if (textLocation.IsEmpty && textLocation2.IsEmpty) {
+					AddIssue(storedXmlComment.Last(), str);
+				} else if (textLocation.IsEmpty) {
+					AddIssue(storedXmlComment.First().StartLocation, textLocation2, str);
+				} else if (textLocation2.IsEmpty) {
+					AddIssue(textLocation, storedXmlComment.Last().EndLocation, str);
+				} else {
+					AddIssue(textLocation, textLocation2, str);
+				}
 			}
 
 			int SearchAttributeColumn(int x, int line)
 			{
-				var comment = storedXmlComment [Math.Max(0, Math.Min(storedXmlComment.Count - 1, line))];
+				var comment = storedXmlComment[Math.Max(0, Math.Min(storedXmlComment.Count - 1, line))];
 				var idx = comment.Content.IndexOfAny(new char[] { '"', '\'' }, x);
 				return idx < 0 ? x : idx + 1;
 			}
@@ -146,71 +156,71 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					member = ((MemberResolveResult)resolveResult).Member;
 				var xml = new StringBuilder();
 				var firstline = "<root>\n";
-				xml.Append (firstline);
+				xml.Append(firstline);
 				foreach (var cmt in storedXmlComment)
 					xml.Append(cmt.Content + "\n");
 				xml.Append("</root>\n");
 
-				var doc = new AXmlParser().Parse(new StringTextSource(xml.ToString ()));
+				var doc = new AXmlParser().Parse(new StringTextSource(xml.ToString()));
 
-				Stack<AXmlObject> stack = new Stack<AXmlObject> ();
-				stack.Push (doc);
+				Stack<AXmlObject> stack = new Stack<AXmlObject>();
+				stack.Push(doc);
 				foreach (var err in doc.SyntaxErrors)
-					AddXmlIssue(err.StartOffset - firstline.Length, err.EndOffset - firstline.Length, err.Description);
+					AddXmlIssue(err.StartOffset - firstline.Length, err.EndOffset - err.StartOffset, err.Description);
 
 				while (stack.Count > 0) {
-					var cur = stack.Pop ();
+					var cur = stack.Pop();
 					if (cur is AXmlElement) {
 						var reader = cur as AXmlElement;
 						switch (reader.Name) {
-						case "typeparam":
-						case "typeparamref":
-							var name = reader.Attributes.FirstOrDefault (attr => attr.Name == "name");
-							if (name == null)
-								break;
-							if (member.SymbolKind == SymbolKind.TypeDefinition) {
-								var type = (ITypeDefinition)member;
-								if (!type.TypeArguments.Any(arg => arg.Name == name.Value)) {
-									AddXmlIssue(name.StartOffset - firstline.Length, name.Value.Length, string.Format(ctx.TranslateString("Type parameter '{0}' not found"), name));
+							case "typeparam":
+							case "typeparamref":
+								var name = reader.Attributes.FirstOrDefault(attr => attr.Name == "name");
+								if (name == null)
+									break;
+								if (member.SymbolKind == SymbolKind.TypeDefinition) {
+									var type = (ITypeDefinition)member;
+									if (!type.TypeArguments.Any(arg => arg.Name == name.Value)) {
+										AddXmlIssue(name.ValueSegment.Offset - firstline.Length + 1, name.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Type parameter '{0}' not found"), name));
+									}
 								}
-							}
-							break;
-						case "param":
-						case "paramref":
-							name = reader.Attributes.FirstOrDefault (attr => attr.Name == "name");
-							if (name == null)
 								break;
-							var m = member as IParameterizedMember;
-							if (m != null && m.Parameters.Any(p => p.Name == name.Value))
+							case "param":
+							case "paramref":
+								name = reader.Attributes.FirstOrDefault(attr => attr.Name == "name");
+								if (name == null)
+									break;
+								var m = member as IParameterizedMember;
+								if (m != null && m.Parameters.Any(p => p.Name == name.Value))
+									break;
+								AddXmlIssue(name.ValueSegment.Offset - firstline.Length + 1, name.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Parameter '{0}' not found"), name.Value));
 								break;
-							AddXmlIssue(name.StartOffset - firstline.Length, name.Value.Length, string.Format(ctx.TranslateString("Parameter '{0}' not found"), name.Value));
-							break;
-						case "exception":
-						case "seealso":
-						case "see":
-							var cref = reader.Attributes.FirstOrDefault (attr => attr.Name == "cref");
-							if (cref == null)
-								break;
-							try {
-								var trctx = ctx.Resolver.TypeResolveContext;
+							case "exception":
+							case "seealso":
+							case "see":
+								var cref = reader.Attributes.FirstOrDefault(attr => attr.Name == "cref");
+								if (cref == null)
+									break;
+								try {
+									var trctx = ctx.Resolver.TypeResolveContext;
 
-								if (member is IMember)
-									trctx = trctx.WithCurrentTypeDefinition(member.DeclaringTypeDefinition).WithCurrentMember((IMember)member);
-								if (member is ITypeDefinition)
-									trctx = trctx.WithCurrentTypeDefinition((ITypeDefinition)member);
-								var entity = IdStringProvider.FindEntity(cref.Value, trctx);
-								if (entity == null) {
-									AddXmlIssue(cref.StartOffset - firstline.Length, cref.Length, string.Format(ctx.TranslateString("Cannot find reference '{0}'"), cref));
+									if (member is IMember)
+										trctx = trctx.WithCurrentTypeDefinition(member.DeclaringTypeDefinition).WithCurrentMember((IMember)member);
+									if (member is ITypeDefinition)
+										trctx = trctx.WithCurrentTypeDefinition((ITypeDefinition)member);
+									var entity = IdStringProvider.FindEntity(cref.Value, trctx);
+									if (entity == null) {
+										AddXmlIssue(cref.ValueSegment.Offset - firstline.Length + 1, cref.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Cannot find reference '{0}'"), cref));
+									}
+								} catch (Exception e) {
+									AddXmlIssue(cref.ValueSegment.Offset - firstline.Length + 1, cref.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Reference parsing error '{0}'."), e.Message));
 								}
-							} catch (Exception e) {
-								AddXmlIssue(cref.StartOffset - firstline.Length, cref.Length, string.Format(ctx.TranslateString("Reference parsing error '{0}'."), e.Message));
-							}
-							break;
+								break;
 
 						}
 					}
 					foreach (var child in cur.Children)
-						stack.Push (child);
+						stack.Push(child);
 				}
 				storedXmlComment.Clear();
 			}
