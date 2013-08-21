@@ -354,7 +354,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			if (nextStatement != null) {
 				result = nextStatement.AcceptVisitor(visitor, statusInfo);
-				Debug.Assert(result != null);
+				if (result == null) {
+					Console.WriteLine("Failure in {0}", nextStatement);
+				}
 
 				outgoingStatusInfo = result.Variables;
 			}
@@ -933,6 +935,18 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return HandleExpressionResult(identifierExpression, data, NullValueStatus.Unknown);
 			}
 
+			public override VisitorResult VisitDefaultValueExpression(DefaultValueExpression defaultValueExpression, VariableStatusInfo data)
+			{
+				var resolveResult = analysis.context.Resolve(defaultValueExpression);
+				if (resolveResult.IsError) {
+					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+				}
+
+				Debug.Assert(resolveResult.IsCompileTimeConstant);
+
+				return VisitorResult.ForValue(data, resolveResult.ConstantValue == null ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull);
+			}
+
 			public override VisitorResult VisitNullReferenceExpression(NullReferenceExpression nullReferenceExpression, VariableStatusInfo data)
 			{
 				return HandleExpressionResult(nullReferenceExpression, data, NullValueStatus.DefinitelyNull);
@@ -1286,7 +1300,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					//Check if it is in a "change-null-state" context
 					//For instance, x++ does not change the null state
 					//but `x = y` does.
-					if (identifier.Role == AssignmentExpression.LeftRole) {
+					if (identifier.Parent is AssignmentExpression && identifier.Role == AssignmentExpression.LeftRole) {
 						var parent = (AssignmentExpression)identifier.Parent;
 						if (parent.Operator != AssignmentOperatorType.Assign) {
 							continue;
@@ -1317,7 +1331,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					//Check if it is in a "change-null-state" context
 					//For instance, x++ does not change the null state
 					//but `x = y` does.
-					if (identifier.Role == AssignmentExpression.LeftRole) {
+					if (identifier.Parent is AssignmentExpression && identifier.Role == AssignmentExpression.LeftRole) {
 						var parent = (AssignmentExpression)identifier.Parent;
 						if (parent.Operator != AssignmentOperatorType.Assign) {
 							continue;
