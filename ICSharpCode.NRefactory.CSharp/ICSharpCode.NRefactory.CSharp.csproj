@@ -639,6 +639,8 @@
     <Compile Include="Refactoring\CodeIssues\Custom\XmlDocIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Synced\CompilerWarnings\CS1573ParameterHasNoMatchingParamTagIssue.cs" />
     <Compile Include="Refactoring\CodeIssues\Uncategorized\CompilerErrors\CS0126ReturnMustBeFollowedByAnyExpression.cs" />
+    <Compile Include="Refactoring\CodeActions\ConvertMethodGroupToLambdaAction.cs" />
+    <Compile Include="Refactoring\CodeActions\ConvertMethodGroupToAnonymousMethodAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
