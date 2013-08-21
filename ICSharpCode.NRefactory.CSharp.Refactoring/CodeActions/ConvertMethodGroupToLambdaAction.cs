@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Expression node = context.GetNode<IdentifierExpression>();
 			if (node == null) {
 				var mr = context.GetNode<MemberReferenceExpression>();
-				if (!mr.MemberNameToken.IsInside(context.Location))
+				if (mr == null || !mr.MemberNameToken.IsInside(context.Location))
 					yield break;
 				node = mr;
 			}
