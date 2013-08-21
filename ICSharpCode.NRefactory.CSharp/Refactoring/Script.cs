@@ -105,8 +105,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// on every <see cref="Replace(int,int,string)"/> call.
 		/// </returns>
 		protected abstract ISegment CreateTrackedSegment(int offset, int length);
-		
-		protected ISegment GetSegment(AstNode node)
+
+		/// <summary>
+		/// Gets the current text segment of the specified AstNode.
+		/// </summary>
+		/// <param name="node">The node to get the segment for.</param>
+		public ISegment GetSegment(AstNode node)
 		{
 			ISegment segment;
 			if (segmentsForInsertedNodes.TryGetValue(node, out segment))
@@ -383,6 +387,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			// default implementation: do nothing
 			// Derived classes are supposed to set the text editor's selection
 		}
+
+		public virtual void Select (TextLocation start, TextLocation end)
+		{
+			// default implementation: do nothing
+			// Derived classes are supposed to set the text editor's selection
+		}
+
+		public virtual void Select (int startOffset, int endOffset)
+		{
+			// default implementation: do nothing
+			// Derived classes are supposed to set the text editor's selection
+		}
+
 		
 		public enum InsertPosition
 		{
