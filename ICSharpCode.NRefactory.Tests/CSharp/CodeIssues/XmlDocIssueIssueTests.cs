@@ -120,18 +120,22 @@ class Foo {
 			TestRefactoringContext ctx;
 			var issues = GetIssues(new XmlDocIssue(), @"
 /// <summary>
-/// <see cref=""Undefined""/>
 /// </summary>
-class Foo {}
+/// <see cref=""Undefined""/>
+class Foo {
+	public void Undefined () {}
+}
 
 /// <summary>
-/// <see cref=""T:Foo""/>
-/// <seealso cref=""T:System.Console""/>
+/// <seealso cref=""Foo""/>
 /// </summary>
+/// <see cref=""Foo2""/>
 class Foo2 {}
 ", out ctx);
-			Assert.AreEqual(1, issues.Count);
+			Assert.AreEqual(0, issues.Count);
 		}
 	}
+
+
 }
 

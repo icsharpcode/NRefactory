@@ -102,11 +102,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var entity = returnStatement.GetParent<EntityDeclaration>();
 					if (entity is Accessor)
 						entity = entity.GetParent<EntityDeclaration>();
-					Console.WriteLine("enitity : "+ entity);
 					if (entity == null)
 						return;
 					var rr = ctx.Resolve(entity) as MemberResolveResult;
-					Console.WriteLine("rr:"+rr);
 					if (rr == null || rr.IsError)
 						return;
 					var actions = new List<CodeAction>();

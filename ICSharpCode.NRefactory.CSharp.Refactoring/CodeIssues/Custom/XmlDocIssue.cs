@@ -33,6 +33,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Xml;
+using ICSharpCode.NRefactory.CSharp.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -133,7 +134,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					AddIssue(textLocation, textLocation2, str);
 				}
 			}
-
+			readonly StringTextSource emptySource = new StringTextSource("");
 			void CheckXmlDoc(AstNode node)
 			{
 				ResolveResult resolveResult = ctx.Resolve(node);
@@ -189,13 +190,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								var cref = el.Attributes.FirstOrDefault(attr => attr.Name == "cref");
 								if (cref == null)
 									break;
+
 								try {
 									var trctx = ctx.Resolver.TypeResolveContext;
 									if (member is IMember)
 										trctx = trctx.WithCurrentTypeDefinition(member.DeclaringTypeDefinition).WithCurrentMember((IMember)member);
 									if (member is ITypeDefinition)
 										trctx = trctx.WithCurrentTypeDefinition((ITypeDefinition)member);
-									var entity = IdStringProvider.FindEntity(cref.Value, trctx);
+									var cdc = new CSharpDocumentationComment (emptySource, trctx);
+									var entity = cdc.ResolveCref(cref.Value);
+
 									if (entity == null) {
 										AddXmlIssue(cref.ValueSegment.Offset - firstline.Length + 1, cref.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Cannot find reference '{0}'"), cref));
 									}
