@@ -25,17 +25,14 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.PatternMatching;
-using ICSharpCode.NRefactory.Refactoring;
 using System.Linq;
 using System.Text;
-using System.Xml;
-using System.IO;
 using ICSharpCode.NRefactory.Documentation;
-using ICSharpCode.NRefactory.Xml;
 using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Xml;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -76,8 +73,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					endOffset += ctx.GetLineByOffset(endOffset).DelimiterLength;
 					script.RemoveText(startOffset, endOffset - startOffset);
 				});
-
-
 				storedXmlComment.Clear();
 			}
 
@@ -139,13 +134,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			int SearchAttributeColumn(int x, int line)
-			{
-				var comment = storedXmlComment[Math.Max(0, Math.Min(storedXmlComment.Count - 1, line))];
-				var idx = comment.Content.IndexOfAny(new char[] { '"', '\'' }, x);
-				return idx < 0 ? x : idx + 1;
-			}
-
 			void CheckXmlDoc(AstNode node)
 			{
 				ResolveResult resolveResult = ctx.Resolve(node);
@@ -163,19 +151,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var doc = new AXmlParser().Parse(new StringTextSource(xml.ToString()));
 
-				Stack<AXmlObject> stack = new Stack<AXmlObject>();
+				var stack = new Stack<AXmlObject>();
 				stack.Push(doc);
 				foreach (var err in doc.SyntaxErrors)
 					AddXmlIssue(err.StartOffset - firstline.Length, err.EndOffset - err.StartOffset, err.Description);
 
 				while (stack.Count > 0) {
 					var cur = stack.Pop();
-					if (cur is AXmlElement) {
-						var reader = cur as AXmlElement;
-						switch (reader.Name) {
+					var el = cur as AXmlElement;
+					if (el != null) {
+						switch (el.Name) {
 							case "typeparam":
 							case "typeparamref":
-								var name = reader.Attributes.FirstOrDefault(attr => attr.Name == "name");
+								var name = el.Attributes.FirstOrDefault(attr => attr.Name == "name");
 								if (name == null)
 									break;
 								if (member.SymbolKind == SymbolKind.TypeDefinition) {
@@ -187,7 +175,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								break;
 							case "param":
 							case "paramref":
-								name = reader.Attributes.FirstOrDefault(attr => attr.Name == "name");
+								name = el.Attributes.FirstOrDefault(attr => attr.Name == "name");
 								if (name == null)
 									break;
 								var m = member as IParameterizedMember;
@@ -198,12 +186,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							case "exception":
 							case "seealso":
 							case "see":
-								var cref = reader.Attributes.FirstOrDefault(attr => attr.Name == "cref");
+								var cref = el.Attributes.FirstOrDefault(attr => attr.Name == "cref");
 								if (cref == null)
 									break;
 								try {
 									var trctx = ctx.Resolver.TypeResolveContext;
-
 									if (member is IMember)
 										trctx = trctx.WithCurrentTypeDefinition(member.DeclaringTypeDefinition).WithCurrentMember((IMember)member);
 									if (member is ITypeDefinition)
@@ -223,19 +210,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						stack.Push(child);
 				}
 				storedXmlComment.Clear();
-			}
-
-			AstNode GetParameterHighlightNode(AstNode node, int i)
-			{
-				if (node is MethodDeclaration)
-					return ((MethodDeclaration)node).Parameters.ElementAt(i).NameToken;
-				if (node is ConstructorDeclaration)
-					return ((ConstructorDeclaration)node).Parameters.ElementAt(i).NameToken;
-				if (node is OperatorDeclaration)
-					return ((OperatorDeclaration)node).Parameters.ElementAt(i).NameToken;
-				if (node is IndexerDeclaration)
-					return ((IndexerDeclaration)node).Parameters.ElementAt(i).NameToken;
-				throw new InvalidOperationException("invalid parameterized node:" + node);
 			}
 
 			protected virtual void VisitXmlChildren(AstNode node)
@@ -266,7 +240,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
-				var rr = ctx.Resolve(methodDeclaration) as MemberResolveResult;
 				VisitXmlChildren(methodDeclaration);
 			}
 
