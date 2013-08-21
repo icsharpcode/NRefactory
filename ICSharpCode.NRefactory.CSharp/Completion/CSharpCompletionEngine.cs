@@ -1725,7 +1725,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				while (root.Parent != null)
 					root = root.Parent;
 				var astResolver = CompletionContextProvider.GetResolver(state, root);
-				foreach (var type in CreateFieldAction.GetValidTypes(astResolver, (Expression)node)) {
+				foreach (var type in TypeGuessing.GetValidTypes(astResolver, (Expression)node)) {
 					if (type.Kind == TypeKind.Enum) {
 						AddEnumMembers(wrapper, type, state);
 					} else if (type.Kind == TypeKind.Delegate) {
@@ -2140,7 +2140,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					if (expressionOrVariableDeclaration == null)
 						return null;
 					var astResolver = CompletionContextProvider.GetResolver(GetState(), expressionOrVariableDeclaration.Unit);
-					hintType = CreateFieldAction.GetValidTypes(
+					hintType = TypeGuessing.GetValidTypes(
 						astResolver,
 						expressionOrVariableDeclaration.Node as Expression
 						)
@@ -2689,7 +2689,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			
 			var astResolver = unit != null ? CompletionContextProvider.GetResolver(state, unit) : null;
 			IType hintType = exprParent != null && astResolver != null ? 
-				CreateFieldAction.GetValidTypes(astResolver, exprParent) .FirstOrDefault() :
+				TypeGuessing.GetValidTypes(astResolver, exprParent) .FirstOrDefault() :
 					null;
 			var result = new CompletionDataWrapper(this);
 			var lookup = new MemberLookup(
