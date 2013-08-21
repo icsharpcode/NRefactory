@@ -523,6 +523,7 @@
     <Compile Include="CSharp\CodeIssues\CS0126ReturnMustBeFollowedByAnyExpressionTestes.cs" />
     <Compile Include="CSharp\CodeActions\ConvertMethodGroupToLambdaActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertMethodGroupToAnonymousMethodActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\AddExceptionDescriptionActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
