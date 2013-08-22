@@ -42,9 +42,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var curNode = context.GetNode();
 			if (!RemoveBracesAction.IsSpecialNode(curNode, out keyword, out embeddedStatement))
 				yield break;
-
+			if (embeddedStatement is BlockStatement)
+				yield break;
 			yield return new CodeAction (
-				context.TranslateString("Add braces to '{0}'"),
+				string.Format(context.TranslateString("Add braces to '{0}'"), keyword),
 				script => {
 					script.Replace(embeddedStatement, new BlockStatement { embeddedStatement.Clone() });
 				}, 

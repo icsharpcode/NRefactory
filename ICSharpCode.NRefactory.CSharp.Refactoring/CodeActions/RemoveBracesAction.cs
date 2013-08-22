@@ -94,7 +94,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Statement embeddedStatement;
 			BlockStatement block;
 
-			if (IsSpecialNode (context.GetNode(), out keyword, out embeddedStatement)) {
+			var currentNode = context.GetNode();
+			if (IsSpecialNode(currentNode, out keyword, out embeddedStatement)) {
 				block = embeddedStatement as BlockStatement;
 				if (block == null || block.Statements.Count != 1 || block.Statements.First() is VariableDeclarationStatement)
 					yield break;
@@ -117,7 +118,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					script.Remove(block.RBraceToken);
 					script.FormatText(block.Parent);
 				}, 
-				block
+				currentNode
 			);
 		}
 		
