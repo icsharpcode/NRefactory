@@ -91,7 +91,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (type.Kind != TypeKind.Delegate)
 						continue;
 					var invoke = type.GetDelegateInvokeMethod();
-					Console.WriteLine(invoke.ReturnType);
 					if (invoke != null && invoke.ReturnType.IsKnownType(KnownTypeCode.Void))
 						return true;
 				}

@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			return -1;
 		}
 
-		static IEnumerable<IType> GetAllValidTypesFromInvokation(CSharpAstResolver resolver, InvocationExpression invoke, AstNode parameter)
+		static IEnumerable<IType> GetAllValidTypesFromInvocation(CSharpAstResolver resolver, InvocationExpression invoke, AstNode parameter)
 		{
 			int index = GetArgumentIndex(invoke.Arguments, parameter);
 			if (index < 0)
@@ -114,11 +114,26 @@ namespace ICSharpCode.NRefactory.CSharp
 			return resolver.Compilation.FindType(KnownTypeCode.Object);
 		}
 
+		static IEnumerable<IType> GuessFromConstructorInitializer(CSharpAstResolver resolver, AstNode expr)
+		{
+			var init = expr.Parent as ConstructorInitializer;
+			var rr = resolver.Resolve(expr.Parent);
+			int index = GetArgumentIndex(init.Arguments, expr);
+			if (index >= 0) {
+				foreach (var constructor in rr.Type.GetConstructors()) {
+					if (index < constructor.Parameters.Count) {
+						yield return constructor.Parameters[index].Type;
+					}
+				}
+			}
+		}
+
 		public static IEnumerable<IType> GetValidTypes(CSharpAstResolver resolver, AstNode expr)
 		{
 			if (expr.Role == Roles.Condition) {
 				return new [] { resolver.Compilation.FindType (KnownTypeCode.Boolean) };
 			}
+
 			if (expr.Parent is ParenthesizedExpression) {
 				return GetValidTypes(resolver, expr.Parent);
 			}
@@ -126,7 +141,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				var parent = expr.Parent.Parent;
 				if (parent is InvocationExpression) {
 					var invoke = (InvocationExpression)parent;
-					return GetAllValidTypesFromInvokation(resolver, invoke, expr.Parent);
+					return GetAllValidTypesFromInvocation(resolver, invoke, expr.Parent);
 				}
 			}
 
@@ -158,7 +173,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				var parent = expr.Parent;
 				if (parent is InvocationExpression) {
 					var invoke = (InvocationExpression)parent;
-					return GetAllValidTypesFromInvokation(resolver, invoke, expr);
+					return GetAllValidTypesFromInvocation(resolver, invoke, expr);
 				}
 			}
 
@@ -222,6 +237,10 @@ namespace ICSharpCode.NRefactory.CSharp
 						return new [] { resolver.Compilation.FindType(KnownTypeCode.Int32) };
 				}
 			}
+
+			if (expr.Parent is ConstructorInitializer)
+				return GuessFromConstructorInitializer(resolver, expr);
+
 			return Enumerable.Empty<IType>();
 		}
 		static readonly IType[] emptyTypes = new IType[0];

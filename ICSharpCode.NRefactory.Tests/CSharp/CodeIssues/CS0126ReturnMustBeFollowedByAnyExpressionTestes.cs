@@ -286,6 +286,23 @@ class Test
 }");
 		}
 
+
+		[Test]
+		public void TestConstructorInitializer ()
+		{
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+using System;
+
+class Test
+{
+	Test (Func<int, int> func) {}
+	Test (Action<int> func) {}
+	
+	Test () : this (delegate { return; }) 
+	{
+	}
+}");
+		}
 	}
 }
 

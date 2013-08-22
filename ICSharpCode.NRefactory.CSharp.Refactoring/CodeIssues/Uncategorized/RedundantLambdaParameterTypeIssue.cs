@@ -96,6 +96,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var invokeMethod = type.GetDelegateInvokeMethod();
 				int p = 0;
 				foreach (var argument in arguments) {
+					if (p >= invokeMethod.Parameters.Count)
+						break;
 					var resolvedArgument = ctx.Resolve(argument.Type);
 					if (!invokeMethod.Parameters [p].Type.Equals(resolvedArgument.Type))
 						return false;
