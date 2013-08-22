@@ -32,8 +32,11 @@ using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction ("Convert 'if' to 'switch'", Description = "Convert 'if' statement to 'switch' statement")]
-	public class ConvertIfToSwitchAction : SpecializedCodeAction<IfElseStatement>
+	[ContextAction (
+		"Convert 'if' to 'switch'", 
+		Description = "Convert 'if' statement to 'switch' statement",
+		BoundToIssue = typeof (ConvertIfStatementToSwitchStatementIssue))]
+	public class ConvertIfStatementToSwitchStatementAction : SpecializedCodeAction<IfElseStatement>
 	{
 		protected override CodeAction GetAction (RefactoringContext context, IfElseStatement node)
 		{
@@ -48,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (!CollectSwitchSections (switchSections, context, node, switchExpr))
 				return null;
 
-			return new CodeAction (context.TranslateString ("Convert 'if' to 'switch'"),
+			return new CodeAction (context.TranslateString ("Convert to 'switch'"),
 				script =>
 				{
 					var switchStatement = new SwitchStatement { Expression = switchExpr.Clone () };
@@ -59,7 +62,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 
-		static Expression GetSwitchExpression (RefactoringContext context, Expression expr)
+		internal static Expression GetSwitchExpression (BaseRefactoringContext context, Expression expr)
 		{
 			var binaryOp = expr as BinaryOperatorExpression;
 			if (binaryOp == null)
@@ -81,7 +84,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 
-		static bool IsConstantExpression (RefactoringContext context, Expression expr)
+		static bool IsConstantExpression (BaseRefactoringContext context, Expression expr)
 		{
 			if (expr is PrimitiveExpression || expr is NullReferenceExpression)
 				return true;
@@ -113,7 +116,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return Array.IndexOf (validTypes, typeDefinition.KnownTypeCode) != -1;
 		}
 
-		static bool CollectSwitchSections (ICollection<SwitchSection> result, RefactoringContext context, 
+		internal static bool CollectSwitchSections (ICollection<SwitchSection> result, BaseRefactoringContext context, 
 										   IfElseStatement ifStatement, Expression switchExpr)
 		{
 			// if
@@ -140,7 +143,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return true;
 		}
 
-		static bool CollectCaseLabels (AstNodeCollection<CaseLabel> result, RefactoringContext context, 
+		static bool CollectCaseLabels (AstNodeCollection<CaseLabel> result, BaseRefactoringContext context, 
 									   Expression condition, Expression switchExpr)
 		{
 			if (condition is ParenthesizedExpression)
@@ -171,7 +174,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return false;
 		}
 		
-		static void CollectSwitchSectionStatements (AstNodeCollection<Statement> result, RefactoringContext context, 
+		static void CollectSwitchSectionStatements (AstNodeCollection<Statement> result, BaseRefactoringContext context, 
 												    Statement statement)
 		{
 			BlockStatement blockStatement = statement as BlockStatement;

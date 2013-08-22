@@ -103,7 +103,6 @@
     <Compile Include="CodeActions\ConvertExplicitToImplicitImplementationAction.cs" />
     <Compile Include="CodeActions\ConvertForeachToForAction.cs" />
     <Compile Include="CodeActions\ConvertHexToDecAction.cs" />
-    <Compile Include="CodeActions\ConvertIfToSwitchAction.cs" />
     <Compile Include="CodeActions\ConvertImplicitToExplicitImplementationAction.cs" />
     <Compile Include="CodeActions\ConvertLambdaBodyExpressionToStatementAction.cs" />
     <Compile Include="CodeActions\ConvertLambdaBodyStatementToExpressionAction.cs" />
@@ -355,6 +354,8 @@
     <Compile Include="CodeActions\ConvertIfStatementToConditionalTernaryExpressionAction.cs" />
     <Compile Include="CodeActions\ConvertIfStatementToReturnStatementAction.cs" />
     <Compile Include="CodeActions\ConvertIfStatementToNullCoalescingExpressionAction.cs" />
+    <Compile Include="CodeIssues\Synced\Opportunities\ConvertIfStatementToSwitchStatementIssue.cs" />
+    <Compile Include="CodeActions\ConvertIfStatementToSwitchStatementAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

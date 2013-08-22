@@ -105,7 +105,6 @@
     <Compile Include="CSharp\CodeActions\ConvertCastToAsTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertConditionalToIfTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertExplicitToImplicitImplementationTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertIfToSwtichTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertImplicitToExplicittImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertLambdaBodyExpressionToStatementTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertLambdaBodyStatementToExpressionTests.cs" />
@@ -525,6 +524,8 @@
     <Compile Include="CSharp\CodeActions\ConvertIfStatementToConditionalTernaryExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertIfStatementToReturnStatementActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertIfStatementToNullCoalescingExpressionActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertIfStatementToSwitchStatementActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertIfStatementToSwitchStatementIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
