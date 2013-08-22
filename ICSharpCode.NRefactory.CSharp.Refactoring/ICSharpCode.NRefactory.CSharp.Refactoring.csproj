@@ -354,6 +354,7 @@
     <Compile Include="CodeIssues\Uncategorized\VariableOnlyAssignedIssues\ParameterOnlyAssignedIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\VariableOnlyAssignedIssues\VariableOnlyAssignedIssue.cs" />
     <Compile Include="CodeActions\AddExceptionDescriptionAction.cs" />
+    <Compile Include="CodeIssues\Uncategorized\DontUseLinqWhenItsVerboseAndInefficientIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

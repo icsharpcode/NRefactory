@@ -524,6 +524,7 @@
     <Compile Include="CSharp\CodeActions\ConvertMethodGroupToLambdaActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertMethodGroupToAnonymousMethodActionTests.cs" />
     <Compile Include="CSharp\CodeActions\AddExceptionDescriptionActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\DontUseLinqWhenItsVerboseAndInefficientTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
