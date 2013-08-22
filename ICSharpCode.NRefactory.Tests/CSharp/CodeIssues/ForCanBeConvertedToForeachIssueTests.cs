@@ -1,5 +1,5 @@
 //
-// ConvertNullableToShortFormIssueTests.cs
+// ForCanBeConvertedToForeachIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,65 +23,64 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ConvertNullableToShortFormIssueTests : InspectionActionTestBase
+	public class ForCanBeConvertedToForeachIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestSimpleCase ()
+		public void TestArrayCase ()
 		{
-			Test<ConvertNullableToShortFormIssue>(@"using System;
-
-class Foo
+			Test<ForCanBeConvertedToForeachIssue>(@"
+class Test
 {
-	Nullable<int> Bar ()
+	void Foo (object[] o)
 	{
-		return 5;
+		for (int i = 0; i < o.Length; i++) {
+			var p = o [i];
+			System.Console.WriteLine (p);
+		}
 	}
-}", @"using System;
-
-class Foo
+}", @"
+class Test
 {
-	int? Bar ()
+	void Foo (object[] o)
 	{
-		return 5;
+		foreach (var p in o) {
+			System.Console.WriteLine (p);
+		}
 	}
 }");
 		}
 
 		[Test]
-		public void TestFullyQualifiedNameCase ()
+		public void TestIListCase ()
 		{
-			Test<ConvertNullableToShortFormIssue>(@"class Foo
+			Test<ForCanBeConvertedToForeachIssue>(@"
+using System.Collections.Generic;
+
+class Test
 {
-	void Bar ()
+	void Foo(IList<int> o)
 	{
-		System.Nullable<int> a;
-	}
-}", @"class Foo
-{
-	void Bar ()
-	{
-		int? a;
-	}
-}");
+		for (int i = 0; i < o.Count; i++) {
+			var p = o [i];
+			System.Console.WriteLine (p);
 		}
+	}
+}", @"
+using System.Collections.Generic;
 
-
-		[Test]
-		public void TestAlreadyShort ()
-		{
-			TestWrongContext<ConvertNullableToShortFormIssue>(@"class Foo
+class Test
 {
-	int? Bar (int o)
+	void Foo(IList<int> o)
 	{
-		return 5;
+		foreach (var p in o) {
+			System.Console.WriteLine (p);
+		}
 	}
 }");
 		}
@@ -89,46 +88,51 @@ class Foo
 		[Test]
 		public void TestInvalid ()
 		{
-			TestWrongContext<ConvertNullableToShortFormIssue>(@"using System;
-namespace NN {
-	class Nullable<T> {}
-	class Foo
+			TestWrongContext<ForCanBeConvertedToForeachIssue>(@"
+class Test
+{
+	void Foo (object[] o)
 	{
-		void Bar ()
-		{
-			Nullable<int> a;
+		for (int i = 0; i < o.Length; i++) {
+			var p = o [i];
+			System.Console.WriteLine (p);
+			System.Console.WriteLine (i++);
 		}
 	}
 }");
 		}
 
 		[Test]
-		public void TestInvalidTypeOf ()
+		public void TestInvalidCase2 ()
 		{
-			TestWrongContext<ConvertNullableToShortFormIssue>(@"using System;
-class Foo
+			TestWrongContext<ForCanBeConvertedToForeachIssue>(@"
+class Test
 {
-	bool Bar (object o)
+	void Foo (object[] o)
 	{
-		return o.GetType() == typeof (Nullable<>);
-	}
-	bool Bar2 (object o)
-	{
-		return o.GetType() == typeof (System.Nullable<>);
-	}
-}
-");
+		for (int i = 0; i < o.Length; i++) {
+			var p = o [i];
+			p = o[0];
+			System.Console.WriteLine (p);
 		}
+	}
+}");
+		}
+
 
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConvertNullableToShortFormIssue>(@"class Foo
+			TestWrongContext<ForCanBeConvertedToForeachIssue>(@"
+class Test
 {
-	void Bar ()
+	void Foo (object[] o)
 	{
-		// ReSharper disable once ConvertNullableToShortForm
-		System.Nullable<int> a;
+		// ReSharper disable once ForCanBeConvertedToForeach
+		for (int i = 0; i < o.Length; i++) {
+			var p = o [i];
+			System.Console.WriteLine (p);
+		}
 	}
 }");
 		}

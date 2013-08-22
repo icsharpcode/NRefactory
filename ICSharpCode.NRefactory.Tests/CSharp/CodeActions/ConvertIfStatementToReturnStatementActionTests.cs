@@ -1,10 +1,10 @@
-// 
-// RedundantPrivateInspectorTests.cs
+﻿// 
+// ConvertIfStatementToReturnStatementAction.cs
 //  
 // Author:
-//       Mike Krüger <mkrueger@xamarin.com>
+//       Mansheng Yang <lightyang0@gmail.com>
 // 
-// Copyright (c) 2012 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2012 Mansheng Yang <lightyang0@gmail.com>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,56 +24,82 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using NUnit.Framework;
+
+namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
 	[TestFixture]
-	public class RedundantPrivateInspectorTests : InspectionActionTestBase
+	public class ConvertIfStatementToReturnStatementActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestInspectorCase1 ()
+		public void TestReturn ()
 		{
-			var input = @"class Foo
+			Test<ConvertIfStatementToReturnStatementAction> (@"
+class TestClass
 {
-	static private int foo;
-	private void Bar (string str)
+	int TestMethod (int i)
 	{
+		$if (i > 0)
+			return 1;
+		else
+			return 0;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantPrivateIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
-
-			
-			CheckFix (context, issues, @"class Foo
+}", @"
+class TestClass
 {
-	static int foo;
-	void Bar (string str)
+	int TestMethod (int i)
 	{
+		return i > 0 ? 1 : 0;
 	}
 }");
 		}
-	
-	
+
 		[Test]
-		public void TestNestedClass ()
+		public void TestIfElseWithBlocks ()
 		{
-			Test<RedundantPrivateIssue>(@"class Foo
+			Test<ConvertIfStatementToReturnStatementAction>(@"class Foo
 {
-	private class Nested
+	bool Bar (string str)
 	{
+		$if (str.Length > 10) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }", @"class Foo
 {
-	class Nested
+	bool Bar (string str)
 	{
+		return str.Length > 10;
 	}
 }");
 		}
+
+		[Test]
+		public void TestImplicitElse ()
+		{
+
+			Test<ConvertIfStatementToReturnStatementAction> (@"
+class TestClass
+{
+	int TestMethod (int i)
+	{
+		$if (i > 0)
+			return 1;
+		return 0;
+	}
+}", @"
+class TestClass
+{
+	int TestMethod (int i)
+	{
+		return i > 0 ? 1 : 0;
+	}
+}");
+		}
+
 	}
 }

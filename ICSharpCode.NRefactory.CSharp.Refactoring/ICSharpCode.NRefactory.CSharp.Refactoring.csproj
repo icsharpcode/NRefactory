@@ -103,9 +103,6 @@
     <Compile Include="CodeActions\ConvertExplicitToImplicitImplementationAction.cs" />
     <Compile Include="CodeActions\ConvertForeachToForAction.cs" />
     <Compile Include="CodeActions\ConvertHexToDecAction.cs" />
-    <Compile Include="CodeActions\ConvertIfToConditionalAction.cs" />
-    <Compile Include="CodeActions\ConvertIfToNullCoalescingAction.cs" />
-    <Compile Include="CodeActions\ConvertIfToSwitchAction.cs" />
     <Compile Include="CodeActions\ConvertImplicitToExplicitImplementationAction.cs" />
     <Compile Include="CodeActions\ConvertLambdaBodyExpressionToStatementAction.cs" />
     <Compile Include="CodeActions\ConvertLambdaBodyStatementToExpressionAction.cs" />
@@ -355,6 +352,18 @@
     <Compile Include="CodeIssues\Uncategorized\VariableOnlyAssignedIssues\VariableOnlyAssignedIssue.cs" />
     <Compile Include="CodeActions\AddExceptionDescriptionAction.cs" />
     <Compile Include="CodeIssues\Uncategorized\DontUseLinqWhenItsVerboseAndInefficientIssue.cs" />
+    <Compile Include="CodeActions\ConvertIfStatementToConditionalTernaryExpressionAction.cs" />
+    <Compile Include="CodeActions\ConvertIfStatementToReturnStatementAction.cs" />
+    <Compile Include="CodeActions\ConvertIfStatementToNullCoalescingExpressionAction.cs" />
+    <Compile Include="CodeIssues\Synced\Opportunities\ConvertIfStatementToSwitchStatementIssue.cs" />
+    <Compile Include="CodeActions\ConvertIfStatementToSwitchStatementAction.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantParamsIssue.cs" />
+    <Compile Include="CodeActions\ConvertNullCoalescingToConditionalExpressionAction.cs" />
+    <Compile Include="CodeActions\ConvertReturnStatementToIfAction.cs" />
+    <Compile Include="CodeActions\ConvertAssignmentToIfAction.cs" />
+    <Compile Include="CodeIssues\Synced\Opportunities\ForCanBeConvertedToForeachIssue.cs" />
+    <Compile Include="CodeActions\UseAsAndNullCheckAction.cs" />
+    <Compile Include="CodeIssues\Custom\MixedUseOfFieldsAndGettersIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -1,5 +1,5 @@
 //
-// BaseMemberHasParamsIssue.cs
+// RedundantParamsIssue.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -30,19 +30,20 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Base parameter has 'params' modifier, but missing in overrider",
-	                  Description = "Base parameter has 'params' modifier, but missing in overrider",
-	                  Category = IssueCategories.PracticesAndImprovements,
+	[IssueDescription("'params' is ignored on overrides",
+	                  Description = "'params' is ignored on overrides",
+	                  Category = IssueCategories.RedundanciesInDeclarations,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "BaseMemberHasParams")]
-	public class BaseMemberHasParamsIssue : GatherVisitorCodeIssueProvider
+	                  IssueMarker = IssueMarker.GrayOut,
+	                  ResharperDisableKeyword = "RedundantParams")]
+	public class RedundantParamsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<BaseMemberHasParamsIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantParamsIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
@@ -53,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!methodDeclaration.HasModifier(Modifiers.Override))
 					return;
 				var lastParam = methodDeclaration.Parameters.LastOrDefault();
-				if (lastParam == null || lastParam.ParameterModifier == ParameterModifier.Params)
+				if (lastParam == null || lastParam.ParameterModifier != ParameterModifier.Params)
 					return;
 				var type = lastParam.Type as ComposedType;
 				if (type == null || !type.ArraySpecifiers.Any())
@@ -62,14 +63,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (rr == null)
 					return;
 				var baseMember = InheritanceHelper.GetBaseMember(rr.Member) as IMethod;
-				if (baseMember == null || baseMember.Parameters.Count == 0 || !baseMember.Parameters.Last().IsParams)
+				if (baseMember == null || baseMember.Parameters.Count == 0 || baseMember.Parameters.Last().IsParams)
 					return;
 				AddIssue(
-					lastParam.NameToken,
-					string.Format(ctx.TranslateString("Base method '{0}' has a 'params' modifier"), baseMember.FullName),
-					ctx.TranslateString("Add 'params' modifier"),
+					lastParam.GetChildByRole(ParameterDeclaration.ParamsModifierRole),
+					ctx.TranslateString("'params' is always ignored in overrides"),
+					ctx.TranslateString("Remove 'params' modifier"),
 					script => {
-						script.ChangeModifier(lastParam, ParameterModifier.Params);
+						var p = (ParameterDeclaration)lastParam.Clone();
+						p.ParameterModifier = ParameterModifier.None;
+						script.Replace(lastParam, p);
 					}
 				);
 			}
@@ -81,3 +84,4 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 	}
 }
+

@@ -58,18 +58,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitMethodDeclaration(methodDeclaration);
 
-				var resolvedResult = ctx.Resolve(methodDeclaration);
+				var resolvedResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
 				if (resolvedResult == null)
 					return;
-				var method = (resolvedResult as MemberResolveResult).Member;
+				var method = resolvedResult.Member as IMethod;
 
-				if (!method.Name.Equals("Equals") || ! method.IsOverride)
+				if (method == null || !method.Name.Equals("Equals") || ! method.IsOverride)
 					return;
 
 				if (methodDeclaration.Parameters.Count != 1)
 					return;
 	
-				if (!(method as IMethod).Parameters.Single().Type.FullName.Equals("System.Object"))
+				if (!method.Parameters.Single().Type.FullName.Equals("System.Object"))
 					return;
 
 				var classDeclration = method.DeclaringTypeDefinition;

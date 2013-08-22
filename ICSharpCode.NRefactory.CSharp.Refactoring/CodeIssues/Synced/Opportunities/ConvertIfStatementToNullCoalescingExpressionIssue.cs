@@ -50,62 +50,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
-			static readonly AstNode ifPattern = 
-				new IfElseStatement(
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (
-						new AnyNode ("target"), 
-						BinaryOperatorType.Equality,
-						new NullReferenceExpression()
-					),
-					PatternHelper.EmbeddedStatement (new ExpressionStatement(new AssignmentExpression(new Backreference("target"), new AnyNode("expr"))))
-				);
-
-			static readonly AstNode varDelarationPattern = 
-				new VariableDeclarationStatement(new AnyNode("type"), Pattern.AnyString, new AnyNode("initializer"));
-
-			void AddTo(IfElseStatement ifElseStatement, VariableDeclarationStatement varDeclaration, Expression expr)
-			{
-				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(varDeclaration) || 
-					ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(expr))
-					return;
-				AddIssue(
-					ifElseStatement.IfToken,
-					ctx.TranslateString("Convert to '??' expresssion"),
-					ctx.TranslateString("Replace with '??'"),
-					script => {
-						var variable = varDeclaration.Variables.First();
-						script.Replace(
-							varDeclaration, 
-							new VariableDeclarationStatement(
-								varDeclaration.Type.Clone(),
-								variable.Name,
-								new BinaryOperatorExpression(variable.Initializer.Clone(), BinaryOperatorType.NullCoalescing, expr.Clone()) 
-							)
-						);
-						script.Remove(ifElseStatement); 
-					}
-				);
-			}
-
 			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 			{
 				base.VisitIfElseStatement(ifElseStatement);
+				Expression rightSide;
+				var leftSide = ConvertIfStatementToNullCoalescingExpressionAction.CheckNode(ifElseStatement, out rightSide);
+				if (leftSide == null)
+					return;
+				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(leftSide) || 
+				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(rightSide))
+					return;
+				var previousNode = ifElseStatement.GetPrevSibling(sibling => sibling is Statement) as VariableDeclarationStatement;
+				if (previousNode == null || ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(previousNode))
+					return;
 
-				var match = ifPattern.Match(ifElseStatement);
-				if (match.Success) {
-					var next = ifElseStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) as VariableDeclarationStatement;
-					var match2 = varDelarationPattern.Match(next);
-					if (match2.Success) {
-						var target = match.Get<Expression>("target").Single() as IdentifierExpression;
-						var initializer = next.Variables.FirstOrDefault();
-						if (initializer == null || target.Identifier != initializer.Name)
-							return;
-						AddTo(ifElseStatement,
-						      next,
-						      match.Get<Expression>("expr").Single());
-						return;
-					}
-				}
+				AddIssue(
+					ifElseStatement.IfToken,
+					ctx.TranslateString("Convert to '??' expresssion"));
 			}
 		}
 	}

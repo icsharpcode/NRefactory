@@ -1,5 +1,5 @@
 //
-// CanBeReplacedWithTryCastAndCheckForNullIssue.cs
+// ConvertIfStatementToSwitchStatementIssue.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,49 +23,52 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Type check and casts can be replaced with 'as' and null check",
-	                  Description="Type check and casts can be replaced with 'as' and null check",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "CanBeReplacedWithTryCastAndCheckForNull")]
-	public class CanBeReplacedWithTryCastAndCheckForNullIssue : GatherVisitorCodeIssueProvider
+	[IssueDescription("'if' statement can be re-written as 'switch' statement",
+	                  Description="Convert 'if' to 'switch'",
+	                  Category = IssueCategories.Opportunities,
+	                  Severity = Severity.Hint,
+	                  IssueMarker = IssueMarker.DottedLine)]
+	public class ConvertIfStatementToSwitchStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<CanBeReplacedWithTryCastAndCheckForNullIssue>
+		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToNullCoalescingExpressionIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
 			}
+
 			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 			{
 				base.VisitIfElseStatement(ifElseStatement);
 
-				IsExpression isExpression;
-				int foundCastCount;
-				if (UseAsAndNullCheckAction.ScanIfElse(ctx, ifElseStatement, out isExpression, out foundCastCount) == null)
+				if (ifElseStatement.Parent is IfElseStatement)
 					return;
-				if (foundCastCount == 0)
+
+				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression (ctx, ifElseStatement.Condition);
+				if (switchExpr == null) {
+					return;
+				}
+
+				var switchSections = new List<SwitchSection> ();
+				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr)) {
+					return;
+				}
+				if (switchSections.Count <= 1)
 					return;
 
 				AddIssue(
-					isExpression.IsToken,
-					ctx.TranslateString("Type check and casts can be replaced with 'as' and null check")
-				);
+					ifElseStatement.IfToken,
+					ctx.TranslateString("Convert to 'switch' statement"));
+
 			}
 		}
 	}

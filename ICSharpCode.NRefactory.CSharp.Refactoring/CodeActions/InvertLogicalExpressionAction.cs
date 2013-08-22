@@ -34,6 +34,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			if (!node.OperatorToken.IsInside(context.Location))
 				return null;
+			if (node.Operator == BinaryOperatorType.Add ||
+				node.Operator == BinaryOperatorType.BitwiseAnd ||
+				node.Operator == BinaryOperatorType.BitwiseOr ||
+				node.Operator == BinaryOperatorType.Divide ||
+				node.Operator == BinaryOperatorType.ExclusiveOr ||
+				node.Operator == BinaryOperatorType.Modulus || 
+				node.Operator == BinaryOperatorType.Multiply ||
+				node.Operator == BinaryOperatorType.NullCoalescing ||
+				node.Operator == BinaryOperatorType.ShiftLeft ||
+				node.Operator == BinaryOperatorType.ShiftRight ||
+				node.Operator == BinaryOperatorType.Subtract)
+				return null;
 			var negativeExpression = CSharpUtil.InvertCondition(node);
 			if (node.Parent is ParenthesizedExpression && node.Parent.Parent is UnaryOperatorExpression) {
 				var unaryOperatorExpression = node.Parent.Parent as UnaryOperatorExpression;
@@ -42,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						string.Format(context.TranslateString("Invert '{0}'"), unaryOperatorExpression),
 						script => {
 							script.Replace(unaryOperatorExpression, negativeExpression);
-						}, node
+						}, node.OperatorToken
 					);	
 				}
 			}
@@ -51,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				string.Format(context.TranslateString("Invert '{0}'"), node),
 				script => {
 					script.Replace(node, newExpression);
-				}, node
+				}, node.OperatorToken
 			);
 			return null;
 		}

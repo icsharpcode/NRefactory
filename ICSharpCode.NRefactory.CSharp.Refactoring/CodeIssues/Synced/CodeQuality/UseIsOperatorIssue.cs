@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new AnyNode("object")
 			);
 
-			Expression AddParensIfRequired(Expression expression)
+			static Expression AddParensIfRequired(Expression expression)
 			{
 				if ((expression is BinaryOperatorExpression) ||
 				    (expression is AssignmentExpression) ||

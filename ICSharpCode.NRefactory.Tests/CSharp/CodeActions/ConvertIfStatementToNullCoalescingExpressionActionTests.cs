@@ -1,5 +1,5 @@
 ﻿// 
-// ConvertIfToNullCoalescingTests.cs
+// ConvertIfStatementToNullCoalescingExpressionActionTests.cs
 //  
 // Author:
 //       Luís Reis <luiscubal@gmail.com>
@@ -31,7 +31,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ConvertIfToNullCoalescingTests : ContextActionTestBase
+	public class ConvertIfStatementToNullCoalescingExpressionActionTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestDeclaration ()
@@ -66,7 +66,7 @@ class TestClass
 }
 ";
 
-			Assert.AreEqual(output, RunContextAction(new ConvertIfToNullCoalescingAction(), input));
+			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
 		}
 
 		[Test]
@@ -102,7 +102,7 @@ class TestClass
 }
 ";
 
-			Assert.AreEqual(output, RunContextAction(new ConvertIfToNullCoalescingAction(), input));
+			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
 		}
 
 		[Test]
@@ -140,7 +140,7 @@ class TestClass
 }
 ";
 
-			Assert.AreEqual(output, RunContextAction(new ConvertIfToNullCoalescingAction(), input));
+			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
 		}
 
 		[Test]
@@ -169,7 +169,7 @@ class TestClass
 }
 ";
 
-			Assert.AreEqual(output, RunContextAction(new ConvertIfToNullCoalescingAction(), input));
+			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
 		}
 
 		[Test]
@@ -207,7 +207,7 @@ class TestClass
 }
 ";
 
-			Assert.AreEqual(output, RunContextAction(new ConvertIfToNullCoalescingAction(), input));
+			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
 		}
 
 		[Test]
@@ -246,7 +246,7 @@ class TestClass
 }
 ";
 
-			Assert.AreEqual(output, RunContextAction(new ConvertIfToNullCoalescingAction(), input));
+			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
 		}
 
 		[Test]
@@ -270,7 +270,7 @@ class TestClass
 }
 ";
 
-			TestWrongContext<ConvertIfToNullCoalescingAction>(input);
+			TestWrongContext<ConvertIfStatementToNullCoalescingExpressionAction>(input);
 		}
 	}
 }

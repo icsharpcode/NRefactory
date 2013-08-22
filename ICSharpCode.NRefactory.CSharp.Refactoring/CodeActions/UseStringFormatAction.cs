@@ -101,11 +101,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (verbatim)
 						format.Insert (0, '@');
 					formatLiteral.LiteralValue = format.ToString ();
-
+				System.Console.WriteLine (formatInvocation);
+				System.Console.WriteLine (formatLiteral);
                     if (arguments.Count > 0)
-                        script.Replace (expr, formatInvocation);
+					script.Replace (expr, formatInvocation);
                     else
-                        script.Replace (expr, formatLiteral);
+					script.Replace (expr, formatLiteral);
 				}, node);
 		}
 

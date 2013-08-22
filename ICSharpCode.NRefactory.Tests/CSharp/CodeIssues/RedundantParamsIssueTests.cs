@@ -1,5 +1,5 @@
 //
-// UnassignedReadonlyFieldIssueTests.cs
+// RedundantParamsIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,102 +23,86 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
+
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class UnassignedReadonlyFieldIssueTests : InspectionActionTestBase
+	public class RedundantParamsIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestField ()
+		public void TestBasicCase ()
 		{
-			Test<UnassignedReadonlyFieldIssue>(@"class Test
+			Test<RedundantParamsIssue>(@"class FooBar
 {
-	readonly object fooBar;
-}", @"class Test
-{
-	public Test (object fooBar)
+	public virtual void Foo(string fmt, object[] args)
 	{
-		this.fooBar = fooBar;
 	}
-	readonly object fooBar;
+}
+
+class FooBar2 : FooBar
+{
+	public override void Foo(string fmt, params object[] args)
+	{
+		System.Console.WriteLine(fmt, args);
+	}
+}", @"class FooBar
+{
+	public virtual void Foo(string fmt, object[] args)
+	{
+	}
+}
+
+class FooBar2 : FooBar
+{
+	public override void Foo(string fmt, object[] args)
+	{
+		System.Console.WriteLine(fmt, args);
+	}
 }");
 		}
 
 		[Test]
-		public void TestValueTypeField ()
+		public void TestValidCase ()
 		{
-			Test<UnassignedReadonlyFieldIssue>(@"class Test
+			TestWrongContext<RedundantParamsIssue>(@"class FooBar
 {
-	readonly int fooBar;
-}", @"class Test
-{
-	public Test (int fooBar)
+	public virtual void Foo(string fmt, object[] args)
 	{
-		this.fooBar = fooBar;
 	}
-	readonly int fooBar;
+}
+
+class FooBar2 : FooBar
+{
+	public override void Foo(string fmt, object[] args)
+	{
+		System.Console.WriteLine(fmt, args);
+	}
 }");
 		}
 
-		
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+			TestWrongContext<RedundantParamsIssue>(@"class FooBar
 {
-	// ReSharper disable once UnassignedReadonlyField.Compiler
-	readonly object fooBar;
-}");
-		}
-
-		
-		[Test]
-		public void TestPragmaDisable ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	#pragma warning disable 649
-	readonly int test;
-	#pragma warning restore 649
-}");
-		}
-
-		[Test]
-		public void TestAlreadyInitalized ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
-{
-	public Test (object fooBar)
+	public virtual void Foo(string fmt, object[] args)
 	{
-		this.fooBar = fooBar;
-	}
-	readonly object fooBar;
-}");
-		}
-
-		[Test]
-		public void TestAlreadyInitalizedCase2 ()
-		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"
-using System;
-public class FooBar
-{
-	sealed class Bar
-	{
-		public int foo;
-	}
-
-	readonly string foo;
-	
-	public FooBar()
-	{
-		this.foo = """";
 	}
 }
-");
+
+class FooBar2 : FooBar
+{
+	// ReSharper disable once RedundantParams
+	public override void Foo(string fmt, params object[] args)
+	{
+		System.Console.WriteLine(fmt, args);
+	}
+}");
 		}
 	}
 }

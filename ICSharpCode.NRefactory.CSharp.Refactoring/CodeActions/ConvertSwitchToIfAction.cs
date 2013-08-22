@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return null;
 			}
 			
-			return new CodeAction (context.TranslateString ("Convert 'switch' to 'if'"),
+			return new CodeAction (context.TranslateString ("Convert to 'if'"),
 				script =>
 				{
 					IfElseStatement ifStatement = null;

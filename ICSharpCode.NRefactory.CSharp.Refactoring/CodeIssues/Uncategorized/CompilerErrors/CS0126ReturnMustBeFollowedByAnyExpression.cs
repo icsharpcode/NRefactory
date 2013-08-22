@@ -44,6 +44,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
+		internal static IType GetRequestedReturnType (BaseRefactoringContext ctx, AstNode returnStatement, out AstNode entityNode)
+		{
+			entityNode = returnStatement.GetParent(p => p is LambdaExpression || p is AnonymousMethodExpression || !(p is Accessor) && p is EntityDeclaration);
+			if (entityNode == null)
+				return null;
+			if (entityNode is EntityDeclaration) {
+				var rr = ctx.Resolve(entityNode) as MemberResolveResult;
+				if (rr == null)
+					return null;
+				return rr.Member.ReturnType;
+			}
+			foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, entityNode)) {
+				if (type.Kind != TypeKind.Delegate)
+					continue;
+				var invoke = type.GetDelegateInvokeMethod();
+				if (invoke != null && !invoke.ReturnType.IsKnownType(KnownTypeCode.Void))
+					return invoke.ReturnType;
+			}
+			return null;
+		}
+
+
 		class GatherVisitor : GatherVisitorBase<CS0127ReturnMustNotBeFollowedByAnyExpression>
 		{
 			string currentMethodName;
@@ -64,7 +86,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
-
 				currentMethodName = constructorDeclaration.Name;
 				skip = true;
 				base.VisitConstructorDeclaration(constructorDeclaration);
@@ -77,17 +98,39 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitDestructorDeclaration(destructorDeclaration);
 			}
 
+			public override void VisitAccessor(Accessor accessor)
+			{
+				bool old = skip; 
+				skip = accessor.Role != PropertyDeclaration.GetterRole && accessor.Role != IndexerDeclaration.GetterRole;
+				base.VisitAccessor(accessor);
+				skip = old;
+			}
+
+			static bool AnonymousMethodMayReturnVoid(BaseRefactoringContext ctx, Expression anonymousMethodExpression)
+			{
+				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
+					if (type.Kind != TypeKind.Delegate)
+						continue;
+					var invoke = type.GetDelegateInvokeMethod();
+					if (invoke != null && invoke.ReturnType.IsKnownType(KnownTypeCode.Void))
+						return true;
+				}
+				return false;
+			}
+
+
 			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
 			{
 				bool old = skip;
-				skip = !TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression).Any(t => !t.IsKnownType(KnownTypeCode.Void));
+				skip = AnonymousMethodMayReturnVoid(ctx, anonymousMethodExpression);
 				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
 				skip = old;
 			}
+
 			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
 			{
 				bool old = skip;
-				skip = !TypeGuessing.GetValidTypes(ctx.Resolver, lambdaExpression).Any(t => !t.IsKnownType(KnownTypeCode.Void));
+				skip = AnonymousMethodMayReturnVoid(ctx, lambdaExpression);
 				base.VisitLambdaExpression(lambdaExpression);
 				skip = old;
 			}
@@ -104,30 +147,30 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						entity = entity.GetParent<EntityDeclaration>();
 					if (entity == null)
 						return;
-					var rr = ctx.Resolve(entity) as MemberResolveResult;
-					if (rr == null || rr.IsError)
-						return;
+					AstNode entityNode;
+					var rr = GetRequestedReturnType (ctx, returnStatement, out entityNode);
 					var actions = new List<CodeAction>();
-					actions.Add(new CodeAction(ctx.TranslateString("Return default value"), script => {
-						Expression p;
-						if (rr.Member.ReturnType.IsKnownType(KnownTypeCode.Boolean)) {
-							p = new PrimitiveExpression(false );
-						} else if (rr.Member.ReturnType.IsKnownType(KnownTypeCode.String)) {
-							p = new PrimitiveExpression("");
-						} else if (rr.Member.ReturnType.IsKnownType(KnownTypeCode.Char)) {
-							p = new PrimitiveExpression(' ');
-						} else if (rr.Member.ReturnType.IsReferenceType == true) {
-							p = new NullReferenceExpression();
-						} else if (rr.Member.ReturnType.GetDefinition() != null &&
-						           rr.Member.ReturnType.GetDefinition().KnownTypeCode < KnownTypeCode.DateTime) {
-							p = new PrimitiveExpression(0x0);
-						} else {
-							p = new DefaultValueExpression (ctx.CreateTypeSystemAstBuilder(returnStatement).ConvertType(rr.Type));
-						}
+					if (rr != null) {
+						actions.Add(new CodeAction(ctx.TranslateString("Return default value"), script => {
+							Expression p;
+							if (rr.IsKnownType(KnownTypeCode.Boolean)) {
+								p = new PrimitiveExpression(false);
+							} else if (rr.IsKnownType(KnownTypeCode.String)) {
+								p = new PrimitiveExpression("");
+							} else if (rr.IsKnownType(KnownTypeCode.Char)) {
+								p = new PrimitiveExpression(' ');
+							} else if (rr.IsReferenceType == true) {
+								p = new NullReferenceExpression();
+							} else if (rr.GetDefinition() != null &&
+								rr.GetDefinition().KnownTypeCode < KnownTypeCode.DateTime) {
+								p = new PrimitiveExpression(0x0);
+							} else {
+								p = new DefaultValueExpression(ctx.CreateTypeSystemAstBuilder(returnStatement).ConvertType(rr));
+							}
 
-						script.Replace(returnStatement, new ReturnStatement(p));
-					}, returnStatement));
-
+							script.Replace(returnStatement, new ReturnStatement(p));
+						}, returnStatement));
+					}
 					var method = returnStatement.GetParent<MethodDeclaration>();
 					if (method != null) {
 						actions.Add(new CodeAction(ctx.TranslateString("Change method return type to 'void'"), script => {

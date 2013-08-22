@@ -30,13 +30,13 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ConvertIfToSwitchTests : ContextActionTestBase
+	public class ConvertIfStatementToSwitchStatementActionTests : ContextActionTestBase
 	{
 
 		[Test]
 		public void TestBreak ()
 		{
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	void TestMethod (int a)
@@ -80,7 +80,7 @@ class TestClass
 		[Test]
 		public void TestReturn ()
 		{
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	int TestMethod (int a)
@@ -116,7 +116,7 @@ class TestClass
 		[Test]
 		public void TestConstantExpression ()
 		{
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	int TestMethod (int? a)
@@ -154,7 +154,7 @@ class TestClass
 }");
 
 
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	const int b = 0;
@@ -191,7 +191,7 @@ class TestClass
 		[Test]
 		public void TestNestedOr ()
 		{
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	int TestMethod (int a)
@@ -227,7 +227,7 @@ class TestClass
 		[Test]
 		public void TestComplexSwitchExpression ()
 		{
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	int TestMethod (int a, int b)
@@ -260,7 +260,7 @@ class TestClass
 		[Test]
 		public void TestNonConstantExpression ()
 		{
-			TestWrongContext<ConvertIfToSwitchAction> (@"
+			TestWrongContext<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	void TestMethod (int a, int c)
@@ -277,7 +277,7 @@ class TestClass
 		}
 	}
 }");
-			TestWrongContext<ConvertIfToSwitchAction> (@"
+			TestWrongContext<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	void TestMethod (int a, int c)
@@ -294,7 +294,7 @@ class TestClass
 		}
 	}
 }");
-			TestWrongContext<ConvertIfToSwitchAction> (@"
+			TestWrongContext<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	void TestMethod (int a, int c)
@@ -316,7 +316,7 @@ class TestClass
 		[Test]
 		public void TestNonEqualityComparison ()
 		{
-			TestWrongContext<ConvertIfToSwitchAction> (@"
+			TestWrongContext<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	void TestMethod (int a)
@@ -339,7 +339,7 @@ class TestClass
 		public void TestValidType ()
 		{
 			// enum
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 enum TestEnum
 {
 	First,
@@ -390,7 +390,7 @@ class TestClass
 
 		void TestValidType (string type, string caseValue)
 		{
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	int TestMethod (" + type + @" a)
@@ -419,7 +419,7 @@ class TestClass
 		[Test]
 		public void TestInvalidType ()
 		{
-			TestWrongContext<ConvertIfToSwitchAction> (@"
+			TestWrongContext<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	void TestMethod (double a)
@@ -437,7 +437,7 @@ class TestClass
 		[Test]
 		public void TestNoElse()
 		{
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	void TestMethod (int a)
@@ -470,7 +470,7 @@ class TestClass
 		[Test]
 		public void TestNestedIf ()
 		{
-			Test<ConvertIfToSwitchAction> (@"
+			Test<ConvertIfStatementToSwitchStatementAction> (@"
 class TestClass
 {
 	void TestMethod (int a)

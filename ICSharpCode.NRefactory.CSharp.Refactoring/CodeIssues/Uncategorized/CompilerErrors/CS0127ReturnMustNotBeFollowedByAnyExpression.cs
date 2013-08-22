@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -45,12 +46,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<CS0127ReturnMustNotBeFollowedByAnyExpression>
 		{
 			string currentMethodName;
+			bool skip;
 
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
 			}
 
-			
+			static bool AnonymousMethodMayReturnNonVoid(BaseRefactoringContext ctx, Expression anonymousMethodExpression)
+			{
+				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
+					if (type.Kind != TypeKind.Delegate)
+						continue;
+					var invoke = type.GetDelegateInvokeMethod();
+					if (invoke != null && !invoke.ReturnType.IsKnownType(KnownTypeCode.Void))
+						return true;
+				}
+				return false;
+			}
+
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
 				var primitiveType = methodDeclaration.ReturnType as PrimitiveType;
@@ -76,32 +89,44 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+			public override void VisitAccessor(Accessor accessor)
 			{
+				if (accessor.Role == PropertyDeclaration.SetterRole || 
+				    accessor.Role == IndexerDeclaration.SetterRole )
+				base.VisitAccessor(accessor);
 			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-			{
-			}
-
+	
+				
 			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-			{
-			}
-
-			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
 			{
 			}
 
 			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
 			{
+				bool old = skip;
+				skip = AnonymousMethodMayReturnNonVoid(ctx, anonymousMethodExpression);
+				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+				skip = old;
+			}
+
+			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+			{
+				bool old = skip;
+				skip = AnonymousMethodMayReturnNonVoid(ctx, lambdaExpression);
+				base.VisitLambdaExpression(lambdaExpression);
+				skip = old;
 			}
 
 			public override void VisitReturnStatement(ReturnStatement returnStatement)
 			{
+				base.VisitReturnStatement(returnStatement);
+				if (skip)
+					return;
+
 				if (!returnStatement.Expression.IsNull) {
 					var actions = new List<CodeAction>();
 					actions.Add(new CodeAction(ctx.TranslateString("Remove returned expression"), script => {
-						script.Remove(returnStatement.Expression);
+						script.Replace(returnStatement, new ReturnStatement());
 					}, returnStatement));
 
 					var method = returnStatement.GetParent<MethodDeclaration>();
@@ -116,7 +141,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					AddIssue(
 						returnStatement, 
-						string.Format(ctx.TranslateString("`{0}': A return keyword must not be followed by any expression when method returns void"), currentMethodName),
+						ctx.TranslateString("Return type is 'void'"),
 						actions
 					);
 				}

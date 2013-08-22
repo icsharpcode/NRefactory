@@ -55,44 +55,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
-			static readonly AstNode ifElsePattern = 
-				new IfElseStatement(
-					new AnyNode("condition"),
-					PatternHelper.EmbeddedStatement (new ExpressionStatement(new AssignmentExpression(new AnyNode("target"), new AnyNode("expr1")))),
-					PatternHelper.EmbeddedStatement (new ExpressionStatement(new AssignmentExpression(new Backreference("target"), new AnyNode("expr2"))))
-				);
-
-
-			void AddTo(IfElseStatement ifElseStatement, Expression target, Expression condition, Expression trueExpr, Expression falseExpr)
+			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 			{
+				base.VisitIfElseStatement(ifElseStatement);
+				Match match;
+				if (!ConvertIfStatementToConditionalTernaryExpressionAction.GetMatch(ifElseStatement, out match))
+					return;
+				var target = match.Get<Expression>("target").Single();
+				var condition = match.Get<Expression>("condition").Single();
+				var trueExpr = match.Get<Expression>("expr1").Single();
+				var falseExpr = match.Get<Expression>("expr2").Single();
+
 				if (IsComplexExpression(condition) || IsComplexExpression(trueExpr) || IsComplexExpression(falseExpr))
 					return;
 				AddIssue(
 					ifElseStatement.IfToken,
-					ctx.TranslateString("Convert to '?:' expression"),
-					ctx.TranslateString("Replace with '?:' expression"),
-					script => {
-						script.Replace(ifElseStatement, new ExpressionStatement(
-							new AssignmentExpression(target.Clone(), new ConditionalExpression(condition.Clone(), trueExpr.Clone(), falseExpr.Clone()))
-						)
-					); 
-				}
+					ctx.TranslateString("Convert to '?:' expression")
 				);
-			}
-
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
-
-				var match = ifElsePattern.Match(ifElseStatement);
-				if (match.Success) {
-					AddTo(ifElseStatement,
-					      match.Get<Expression>("target").Single(),
-					      match.Get<Expression>("condition").Single(),
-					      match.Get<Expression>("expr1").Single(),
-					      match.Get<Expression>("expr2").Single());
-					return;
-				}
 			}
 		}
 	}

@@ -27,6 +27,8 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.CSharp.CodeActions;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
@@ -102,6 +104,25 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			Assert.AreEqual (1, issues.Count);
 		}
 
+		
+		[Test]
+		public void TestPropertySetter ()
+		{
+			var input = @"class Foo {
+	string Bar 
+	{
+		set {
+			return;
+		}
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
+			Assert.AreEqual (0, issues.Count);
+		}
+
+
 		[Test]
 		public void TestIndexer ()
 		{
@@ -122,7 +143,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestAnonymousMethod ()
 		{
-			var input = @"class Foo
+			var input = @"
+using System;
+class Foo
 {
 	void Bar (string str)
 	{
@@ -136,6 +159,54 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
+
+
+		[Test]
+		public void TestAnonymousMethodReturnTypeFix ()
+		{
+			Test<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+using System;
+class Foo
+{
+	int Bar (string str)
+	{
+		System.Func<string> func = delegate {
+			return;
+		};
+	}
+}", @"
+using System;
+class Foo
+{
+	int Bar (string str)
+	{
+		System.Func<string> func = delegate {
+			return """";
+		};
+	}
+}");
+		}
+
+		[Test]
+		public void TestAnonymousMethodReturningVoid ()
+		{
+			var input = @"using System;
+
+class Foo
+{
+	void Bar (string str)
+	{
+		Action func = delegate {
+			return;
+		};
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
+			Assert.AreEqual (0, issues.Count);
+		}
+
 
 		[Test]
 		public void TestLambdaMethod ()
@@ -201,6 +272,63 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			TestRefactoringContext context;
 			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
 			Assert.AreEqual (0, issues.Count);
+		}
+
+		[Test]
+		public void TestDontShowUpOnUndecidableCase ()
+		{
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+using System;
+
+class Test
+{
+	void Foo (Func<int, int> func) {}
+	void Foo (Action<int> func) {}
+
+	void Bar (string str)
+	{
+		Foo(delegate {
+			return;
+		});
+	}
+}");
+		}
+
+		[Test]
+		public void TestParallelForBug ()
+		{
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+class Test
+{
+	void FooBar(IEnumerable<string> str)
+	{
+		Parallel.ForEach(str, p => {
+			return;
+		});
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestConstructorInitializer ()
+		{
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+using System;
+
+class Test
+{
+	Test (Func<int, int> func) {}
+	Test (Action<int> func) {}
+	
+	Test () : this (delegate { return; }) 
+	{
+	}
+}");
 		}
 	}
 }

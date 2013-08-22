@@ -125,24 +125,44 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var builder = ctx.CreateTypeSystemAstBuilder(expression);
 				AstType variableTypeNode = builder.ConvertType(variableType);
 				AstType expressionTypeNode = builder.ConvertType(rr.Type);
-				
+
+				string title;
+				List<CodeAction> fixes = new List<CodeAction>();
 				if (foundConversion.IsValid) {
 					// CS0266: An explicit conversion exists -> suggested fix is to insert the cast
-					string title = string.Format(ctx.TranslateString("Cannot implicitly convert type `{0}' to `{1}'. An explicit conversion exists (are you missing a cast?)"),
-					                             expressionTypeNode, variableTypeNode);
+					title = string.Format(ctx.TranslateString("Cannot implicitly convert type `{0}' to `{1}'. An explicit conversion exists (are you missing a cast?)"),
+					                      expressionTypeNode, variableTypeNode);
 					string fixTitle = string.Format(ctx.TranslateString("Cast to '{0}'"), variableTypeNode);
 					Action<Script> fixAction = script => {
 						var right = expression.Clone();
 						var castRight = right.CastTo(variableTypeNode);
 						script.Replace(expression, castRight);
 					};
-					AddIssue(expression, title, new CodeAction(fixTitle, fixAction, expression));
+					fixes.Add(new CodeAction(fixTitle, fixAction, expression));
 				} else {
 					// CS0029: No explicit conversion -> Issue without suggested fix
-					string title = string.Format(ctx.TranslateString("Cannot implicitly convert type `{0}' to `{1}'"),
+					title = string.Format(ctx.TranslateString("Cannot implicitly convert type `{0}' to `{1}'"),
 					                             expressionTypeNode, variableTypeNode);
-					AddIssue(expression, title);
+
 				}
+
+				if (expression.Parent is ReturnStatement) {
+					AstNode entityNode;
+					var type = CS0126ReturnMustBeFollowedByAnyExpression.GetRequestedReturnType(ctx, expression.Parent, out entityNode);
+					if (type != null) {
+						var entity = entityNode as EntityDeclaration;
+						if (entity != null) {
+							fixes.Add(new CodeAction(
+								ctx.TranslateString("Change return type"), 
+								script => {
+									script.Replace(entity.ReturnType, ctx.CreateTypeSystemAstBuilder(entity).ConvertType(rr.Type));
+								}, 
+								expression
+							));
+						}
+					}
+				}
+				AddIssue(expression, title, fixes);
 			}
 		}
 	}

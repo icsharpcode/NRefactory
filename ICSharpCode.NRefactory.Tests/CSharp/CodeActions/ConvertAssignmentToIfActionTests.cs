@@ -1,5 +1,5 @@
 //
-// BaseMemberHasParamsIssueTests.cs
+// ConvertAssignmentToIfActionTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -25,84 +25,63 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
 	[TestFixture]
-	public class BaseMemberHasParamsIssueTests : InspectionActionTestBase
+	public class ConvertAssignmentToIfActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestBasicCase ()
+		public void TestConditionalOperator ()
 		{
-			Test<BaseMemberHasParamsIssue>(@"class FooBar
+			Test<ConvertAssignmentToIfAction> (@"
+class TestClass
 {
-	public virtual void Foo(string fmt, params object[] args)
+	int TestMethod (int o, int p)
 	{
+		int z;
+		z $= i > 0 ? o : p;
+		return z;
 	}
-}
-
-class FooBar2 : FooBar
+}", @"
+class TestClass
 {
-	public override void Foo(string fmt, object[] args)
+	int TestMethod (int o, int p)
 	{
-		System.Console.WriteLine(fmt, args);
-	}
-}", @"class FooBar
-{
-	public virtual void Foo(string fmt, params object[] args)
-	{
-	}
-}
-
-class FooBar2 : FooBar
-{
-	public override void Foo(string fmt, params object[] args)
-	{
-		System.Console.WriteLine(fmt, args);
+		int z;
+		if (i > 0)
+			z = o;
+		else
+			z = p;
+		return z;
 	}
 }");
 		}
 
 		[Test]
-		public void TestValidCase ()
+		public void TestNullCoalescingOperator ()
 		{
-			TestWrongContext<BaseMemberHasParamsIssue>(@"class FooBar
+			Test<ConvertAssignmentToIfAction> (@"
+class Test
 {
-	public virtual void Foo(string fmt, params object[] args)
+	object TestMethod (object o, object p)
 	{
+		object z;
+		z $= o ?? p;
+		return z;
 	}
-}
-
-class FooBar2 : FooBar
+}", @"
+class Test
 {
-	public override void Foo(string fmt, params object[] args)
+	object TestMethod (object o, object p)
 	{
-		System.Console.WriteLine(fmt, args);
-	}
-}");
-		}
-
-
-
-		[Test]
-		public void TestDisable ()
-		{
-			TestWrongContext<BaseMemberHasParamsIssue>(@"class FooBar
-{
-	public virtual void Foo(string fmt, params object[] args)
-	{
-	}
-}
-
-class FooBar2 : FooBar
-{
-	// ReSharper disable once BaseMemberHasParams
-	public override void Foo(string fmt, object[] args)
-	{
-		System.Console.WriteLine(fmt, args);
+		object z;
+		if (o != null)
+			z = o;
+		else
+			z = p;
+		return z;
 	}
 }");
 		}

@@ -67,14 +67,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			if (expression.Role != Roles.Argument || expression is NamedArgumentExpression)
 				return null;
-			var parant = expression.Parent;
-			if (!(parant is CSharp.Attribute) && !(parant is IndexerExpression) && !(parant is InvocationExpression))
+			var parent = expression.Parent;
+			if (!(parent is CSharp.Attribute) && !(parent is IndexerExpression) && !(parent is InvocationExpression))
 				return null;
-			if (parant is CSharp.Attribute) {
-				var resolvedResult = context.Resolve(parant as CSharp.Attribute);
+
+			if (parent is CSharp.Attribute) {
+				var resolvedResult = context.Resolve(parent as CSharp.Attribute);
 				if (resolvedResult.IsError)
 					return null;
-				var arguments = (parant as CSharp.Attribute).Arguments;
+				var arguments = (parent as CSharp.Attribute).Arguments;
 				IMember member = (resolvedResult as CSharpInvocationResolveResult).Member;
 
 				int index = 0;
@@ -82,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				List<Expression> nodes = new List<Expression>();
 				foreach (var argument in arguments) {
 					if (argument.Equals(expression)) {
-						nodes = CollectNodes(parant, expression);
+						nodes = CollectNodes(parent, expression);
 						break;
 					}
 					temp++;
@@ -90,63 +91,33 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				index = temp;
 				if (!nodes.Any())
 					return null;
-				if (!(member is IMethod)) {
+				var method = member as IMethod;
+				if (method == null || method.Parameters.Count == 0 || method.Parameters.Last().IsParams)
 					return null;
-				}
+
 				var parameterMap = (resolvedResult as CSharpInvocationResolveResult).GetArgumentToParameterMap();
-				var parameters = (member as IMethod).Parameters;
+				var parameters = method.Parameters;
+				if (index >= parameterMap.Count)
+					return null;
 				var name = parameters.ElementAt(parameterMap [index]).Name;
-				string des = "Add argument name:" + name;
-				return new CodeAction(des, script => {
-					for (int i = 0; i< nodes.Count; i++) {
+				return new CodeAction(string.Format(context.TranslateString("Add argument name '{0}'"), name), script => {
+					for (int i = 0; i < nodes.Count; i++) {
 						int p = index + i;
-						name = parameters.ElementAt(parameterMap [p]).Name;
-						var namedArgument = new NamedArgumentExpression(name, arguments.ElementAt(p).Clone());
-						script.Replace(arguments.ElementAt(p), namedArgument);
-					}}, 
-									expression
-				);
-			} else if (parant is IndexerExpression) {
-				var resolvedResult = context.Resolve(parant as IndexerExpression);
-				if (resolvedResult.IsError)
-					return null;
-				var arguments = (parant as IndexerExpression).Arguments;
-				IMember member = (resolvedResult as CSharpInvocationResolveResult).Member;
-				
-				int index = 0;
-				int temp = 0; 
-				List<Expression> nodes = new List<Expression>();
-				foreach (var argument in arguments) {
-					if (argument.Equals(expression)) {
-						nodes = CollectNodes(parant, expression);
-						break;
-					}
-					temp++;
-				}
-				index = temp;
-				if (!nodes.Any())
-					return null;
-				if (!(member is IProperty)) {
-					return null;
-				}
-				var parameterMap = (resolvedResult as CSharpInvocationResolveResult).GetArgumentToParameterMap();
-				var parameters = (member as IProperty).Parameters;
-				var name = parameters.ElementAt(parameterMap [index]).Name;
-				string des = "Add argument name:" + name;
-				return new CodeAction(des, script => {
-					for (int i = 0; i< nodes.Count; i++) {
-						int p = index + i;
+						if (p >= parameterMap.Count)
+							break;
 						name = parameters.ElementAt(parameterMap [p]).Name;
 						var namedArgument = new NamedArgumentExpression(name, arguments.ElementAt(p).Clone());
 						script.Replace(arguments.ElementAt(p), namedArgument);
 					}}, 
 				expression
 				);
-			} else if (parant is InvocationExpression) {
-				var resolvedResult = context.Resolve(parant as InvocationExpression);
+			} 
+
+			if (parent is IndexerExpression) {
+				var resolvedResult = context.Resolve(parent as IndexerExpression);
 				if (resolvedResult.IsError)
 					return null;
-				var arguments = (parant as InvocationExpression).Arguments;
+				var arguments = (parent as IndexerExpression).Arguments;
 				IMember member = (resolvedResult as CSharpInvocationResolveResult).Member;
 				
 				int index = 0;
@@ -154,7 +125,49 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				List<Expression> nodes = new List<Expression>();
 				foreach (var argument in arguments) {
 					if (argument.Equals(expression)) {
-						nodes = CollectNodes(parant, expression);
+						nodes = CollectNodes(parent, expression);
+						break;
+					}
+					temp++;
+				}
+				index = temp;
+				if (!nodes.Any())
+					return null;
+				var property = member as IProperty;
+				if (property == null || property.Parameters.Count == 0 || property.Parameters.Last().IsParams) {
+					return null;
+				}
+				var parameterMap = (resolvedResult as CSharpInvocationResolveResult).GetArgumentToParameterMap();
+				var parameters = property.Parameters;
+				if (index >= parameterMap.Count)
+					return null;
+				var name = parameters.ElementAt(parameterMap [index]).Name;
+				return new CodeAction(string.Format(context.TranslateString("Add argument name '{0}'"), name), script => {
+					for (int i = 0; i< nodes.Count; i++) {
+						int p = index + i;
+						if (p >= parameterMap.Count)
+							break;
+						name = parameters.ElementAt(parameterMap [p]).Name;
+						var namedArgument = new NamedArgumentExpression(name, arguments.ElementAt(p).Clone());
+						script.Replace(arguments.ElementAt(p), namedArgument);
+					}}, 
+				expression
+				);
+			} 
+
+			if (parent is InvocationExpression) {
+				var resolvedResult = context.Resolve(parent as InvocationExpression);
+				if (resolvedResult.IsError)
+					return null;
+				var arguments = (parent as InvocationExpression).Arguments;
+				IMember member = (resolvedResult as CSharpInvocationResolveResult).Member;
+				
+				int index = 0;
+				int temp = 0; 
+				List<Expression> nodes = new List<Expression>();
+				foreach (var argument in arguments) {
+					if (argument.Equals(expression)) {
+						nodes = CollectNodes(parent, expression);
 						break;
 					}
 					temp++;
@@ -163,16 +176,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!nodes.Any())
 					return null;
 			
-				if (!(member is IMethod)) {
+				var method = member as IMethod;
+				if (method == null || method.Parameters.Count == 0 || method.Parameters.Last().IsParams)
 					return null;
-				}
+
 				var parameterMap = (resolvedResult as CSharpInvocationResolveResult).GetArgumentToParameterMap();
-				var parameters = (member as IMethod).Parameters;
+				var parameters = method.Parameters;
+				if (index >= parameterMap.Count)
+					return null;
 				var name = parameters.ElementAt(parameterMap [index]).Name;
-				string des = "Add argument name:" + name;
-				return new CodeAction(des, script => {
+				return new CodeAction(string.Format(context.TranslateString("Add argument name '{0}'"), name), script => {
 					for (int i = 0; i< nodes.Count; i++) {
 						int p = index + i;
+						if (p >= parameterMap.Count)
+							break;
 						name = parameters.ElementAt(parameterMap [p]).Name;
 						var namedArgument = new NamedArgumentExpression(name, arguments.ElementAt(p).Clone());
 						script.Replace(arguments.ElementAt(p), namedArgument);
