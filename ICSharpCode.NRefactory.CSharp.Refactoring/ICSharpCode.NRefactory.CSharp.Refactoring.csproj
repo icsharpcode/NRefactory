@@ -364,6 +364,7 @@
     <Compile Include="CodeActions\UseAsAndNullCheckAction.cs" />
     <Compile Include="CodeIssues\Custom\MixedUseOfFieldsAndGettersIssue.cs" />
     <Compile Include="CodeActions\ConvertForToWhileAction.cs" />
+    <Compile Include="CodeActions\AddBracesAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
