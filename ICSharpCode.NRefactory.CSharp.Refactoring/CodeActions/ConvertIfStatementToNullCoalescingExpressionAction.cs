@@ -32,70 +32,66 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Convert 'if' to '??' expression",
 	                Category = IssueCategories.Opportunities,
-	                Description = "Convert 'if' statement to '??' expression.")]
-	public class ConvertIfToNullCoalescingAction : SpecializedCodeAction <IfElseStatement>
+	                Description = "Convert 'if' statement to '??' expression.",
+	                BoundToIssue = typeof (ConvertIfStatementToNullCoalescingExpressionIssue))]
+	public class ConvertIfStatementToNullCoalescingExpressionAction : SpecializedCodeAction <IfElseStatement>
 	{
 		const string expressionGroupName = "expression";
 		const string comparedNodeGroupName = "comparedNode";
 		const string valueOnNullGroupName = "valueOnNull";
 
-		Expression ActionPattern;
+		static readonly Expression ActionPattern = 
+			PatternHelper.OptionalParentheses(
+				new NamedNode(
+					expressionGroupName, 
+					new Choice {
+						PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode(comparedNodeGroupName), BinaryOperatorType.Equality, new NullReferenceExpression()),
+						PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode(comparedNodeGroupName), BinaryOperatorType.InEquality, new NullReferenceExpression())
+					}
+				)
+			);
 
-		public ConvertIfToNullCoalescingAction()
+		internal static Expression CheckNode(IfElseStatement node, out Expression rightSide)
 		{
-			var leftPattern = PatternHelper.OptionalParentheses(new AnyNode(comparedNodeGroupName));
-			var rightPattern = PatternHelper.OptionalParentheses(new NullReferenceExpression());
-			var choicePattern = new Choice();
-			var equalityPattern = PatternHelper.CommutativeOperator(leftPattern, BinaryOperatorType.Equality, rightPattern);
-			var inequalityPattern = PatternHelper.CommutativeOperator(leftPattern.Clone(), BinaryOperatorType.InEquality, rightPattern.Clone());
-			choicePattern.Add(equalityPattern);
-			choicePattern.Add(inequalityPattern);
-			var namedChoicePattern = new NamedNode(expressionGroupName, choicePattern);
-			ActionPattern = PatternHelper.OptionalParentheses(namedChoicePattern);
+			rightSide = null;
+			var match = ActionPattern.Match(node.Condition);
+			if (!match.Success)
+				return null;
+			var conditionExpression = match.Get<BinaryOperatorExpression>(expressionGroupName).Single();
+			bool isEqualityComparison = conditionExpression.Operator == BinaryOperatorType.Equality;
+			Expression comparedNode = match.Get<Expression>(comparedNodeGroupName).Single();
+			Statement contentStatement;
+			if (isEqualityComparison) {
+				contentStatement = node.TrueStatement;
+				if (!IsEmpty(node.FalseStatement))
+					return null;
+			}
+			else {
+				contentStatement = node.FalseStatement;
+				if (!IsEmpty(node.TrueStatement))
+					return null;
+			}
+			contentStatement = GetSimpleStatement(contentStatement);
+			if (contentStatement == null)
+				return null;
+			var leftExpressionPattern = PatternHelper.OptionalParentheses(comparedNode);
+			var expressionPattern = new AssignmentExpression(leftExpressionPattern, AssignmentOperatorType.Assign, new AnyNode(valueOnNullGroupName));
+			var statementPattern = new ExpressionStatement(PatternHelper.OptionalParentheses(expressionPattern));
+			var statementMatch = statementPattern.Match(contentStatement);
+			if (!statementMatch.Success)
+				return null;
+			rightSide = statementMatch.Get<Expression>(valueOnNullGroupName).Single();
+			return comparedNode;
 		}
 
 		protected override CodeAction GetAction (RefactoringContext context, IfElseStatement node)
 		{
-			var match = ActionPattern.Match(node.Condition);
-			if (!match.Success) {
+			Expression rightSide;
+			var comparedNode = CheckNode(node, out rightSide);
+			if (comparedNode == null)
 				return null;
-			}
 
-			var conditionExpression = match.Get<BinaryOperatorExpression>(expressionGroupName).Single();
-			bool isEqualityComparison = conditionExpression.Operator == BinaryOperatorType.Equality;
-
-			Expression comparedNode = match.Get<Expression>(comparedNodeGroupName).Single();
-
-			Statement contentStatement;
-			if (isEqualityComparison) {
-				contentStatement = node.TrueStatement;
-				if (!IsEmpty(node.FalseStatement)) {
-					return null;
-				}
-			} else {
-				contentStatement = node.FalseStatement;
-				if (!IsEmpty(node.TrueStatement)) {
-					return null;
-				}
-			}
-
-			contentStatement = GetSimpleStatement(contentStatement);
-			if (contentStatement == null) {
-				return null;
-			}
-
-			var leftExpressionPattern = PatternHelper.OptionalParentheses(comparedNode);
-			var expressionPattern = new AssignmentExpression(leftExpressionPattern, AssignmentOperatorType.Assign, new AnyNode(valueOnNullGroupName));
-			var statementPattern = new ExpressionStatement(PatternHelper.OptionalParentheses(expressionPattern));
-
-			var statementMatch = statementPattern.Match(contentStatement);
-			if (!statementMatch.Success) {
-				return null;
-			}
-
-			var rightSide = statementMatch.Get<Expression>(valueOnNullGroupName).Single();
-
-			return new CodeAction(context.TranslateString("Convert if statement to ?? expression"),
+			return new CodeAction(context.TranslateString("Replace with '??'"),
 			                      script => {
 
 				var previousNode = node.GetPrevSibling(sibling => sibling is Statement);
@@ -143,7 +139,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, node);
 		}
 
-		Statement GetSimpleStatement (Statement statement)
+		static Statement GetSimpleStatement (Statement statement)
 		{
 			BlockStatement blockStatement;
 			while ((blockStatement = statement as BlockStatement) != null) {
@@ -159,13 +155,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return statement;
 		}
 
-		bool IsEmpty (Statement statement)
+		static bool IsEmpty (Statement statement)
 		{
-			if (statement.IsNull) {
-				return true;
-			}
-			return !statement.DescendantsAndSelf.OfType<Statement>()
-				.Any(descendant => !(descendant is EmptyStatement || descendant is BlockStatement));
+			return statement.IsNull || 
+				!statement.DescendantsAndSelf.OfType<Statement>().Any(descendant => !(descendant is EmptyStatement || descendant is BlockStatement));
 		}
 	}
 }

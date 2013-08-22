@@ -49,65 +49,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
-			static readonly AstNode ifElsePattern = 
-				new IfElseStatement(
-					new AnyNode("condition"),
-					PatternHelper.EmbeddedStatement (new ReturnStatement(new AnyNode("expr1"))),
-					PatternHelper.EmbeddedStatement (new ReturnStatement(new AnyNode("expr2")))
-				);
-
-			static readonly AstNode ifPattern = 
-				new IfElseStatement(
-					new AnyNode("condition"),
-					PatternHelper.EmbeddedStatement (new ReturnStatement(new AnyNode("expr1")))
-				);
-
-			static readonly AstNode returnPattern = 
-				new ReturnStatement(new AnyNode("expr2"));
-
-			void AddTo(IfElseStatement ifElseStatement, AstNode next, Expression condition, Expression trueExpr, Expression falseExpr)
-			{
-				AddIssue(
-					ifElseStatement.IfToken,
-					ctx.TranslateString("Convert to 'return' statement"),
-					ctx.TranslateString("Replace with 'return'"),
-					script => {
-						script.Replace(ifElseStatement, new ReturnStatement(
-							new ConditionalExpression(condition.Clone(), trueExpr.Clone(), falseExpr.Clone())
-						)); 
-						if (next != null)
-							script.Remove(next); 
-					}
-				);
-			}
-
 			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 			{
 				base.VisitIfElseStatement(ifElseStatement);
 
-				var match = ifElsePattern.Match(ifElseStatement);
-				if (match.Success) {
-					AddTo(ifElseStatement,
-					      null,
-					      match.Get<Expression>("condition").Single(),
-					      match.Get<Expression>("expr1").Single(),
-					      match.Get<Expression>("expr2").Single());
+				if (ifElseStatement.Parent is IfElseStatement)
 					return;
-				}
-
-				match = ifPattern.Match(ifElseStatement);
-				if (match.Success) {
-					var next = ifElseStatement.GetNextSibling(s => s.Role == BlockStatement.StatementRole);
-					var match2 = returnPattern.Match(next);
-					if (match2.Success) {
-						AddTo(ifElseStatement,
-						      next,
-						      match.Get<Expression>("condition").Single(),
-						      match.Get<Expression>("expr1").Single(),
-						      match2.Get<Expression>("expr2").Single());
-						return;
-					}
-				}
+				Expression c, e1, e2;
+				AstNode rs;
+				if (!ConvertIfStatementToReturnStatementAction.GetMatch(ifElseStatement, out c, out e1, out e2, out rs))
+					return;
+				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(c) || 
+				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e1) || 
+				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e2))
+					return;
+				AddIssue(
+					ifElseStatement.IfToken,
+					ctx.TranslateString("Convert to 'return' statement")
+				);
 			}
 		}
 	}

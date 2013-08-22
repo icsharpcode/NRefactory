@@ -113,6 +113,14 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 				CheckFix (context, issues [issueToFix], output);
 		}
 
+		protected static void TestIssue<T> (string input, int issueCount = 1)
+			where T : CodeIssueProvider, new ()
+		{
+			TestRefactoringContext context;
+			var issues = GetIssues (new T (), input, out context);
+			Assert.AreEqual (issueCount, issues.Count);
+		}
+
 		protected static void Test<T> (string input, string output, int fixIndex = 0)
 			where T : CodeIssueProvider, new ()
 		{

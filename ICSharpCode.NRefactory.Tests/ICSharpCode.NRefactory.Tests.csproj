@@ -105,7 +105,6 @@
     <Compile Include="CSharp\CodeActions\ConvertCastToAsTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertConditionalToIfTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertExplicitToImplicitImplementationTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertIfToConditionalTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertIfToSwtichTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertImplicitToExplicittImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertLambdaBodyExpressionToStatementTests.cs" />
@@ -427,7 +426,6 @@
     <Compile Include="CSharp\CodeActions\ImplementNotImplementedPropertyTests.cs" />
     <Compile Include="CSharp\CodeActions\AutoLinqSumTests.cs" />
     <Compile Include="CSharp\CodeIssues\DisposeMethodInNonIDisposableTypeTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertIfToNullCoalescingTests.cs" />
     <Compile Include="FormattingTests\TestGlobalLevelFormatting.cs" />
     <Compile Include="CSharp\CodeIssues\ConditionalTernaryEqualBranchTests.cs" />
     <Compile Include="CSharp\CodeIssues\ThreadStaticAtInstanceFieldTests.cs" />
@@ -524,6 +522,9 @@
     <Compile Include="CSharp\CodeActions\ConvertMethodGroupToLambdaActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertMethodGroupToAnonymousMethodActionTests.cs" />
     <Compile Include="CSharp\CodeActions\AddExceptionDescriptionActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertIfStatementToConditionalTernaryExpressionActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertIfStatementToReturnStatementActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertIfStatementToNullCoalescingExpressionActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
