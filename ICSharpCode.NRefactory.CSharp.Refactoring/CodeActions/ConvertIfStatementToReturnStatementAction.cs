@@ -26,6 +26,8 @@
 using System;
 using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -78,6 +80,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return false;
 		}
 
+		static readonly AstNode truePattern = PatternHelper.OptionalParentheses(new PrimitiveExpression (true));
+		static readonly AstNode falsePattern = PatternHelper.OptionalParentheses(new PrimitiveExpression (false));
+
+		static Expression CreateCondition(Expression c, Expression e1, Expression e2)
+		{
+			if (truePattern.IsMatch(e1) && falsePattern.IsMatch(e2))
+				return c.Clone();
+			return new ConditionalExpression(c.Clone(), e1.Clone(), e2.Clone());
+		}
+
 		protected override CodeAction GetAction(RefactoringContext context, IfElseStatement ifElseStatement)
 		{
 			if (!ifElseStatement.IfToken.Contains(context.Location))
@@ -91,8 +103,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				context.TranslateString("Replace with 'return'"),
 				script => {
 					script.Replace(ifElseStatement, new ReturnStatement(
-						new ConditionalExpression(c.Clone(), e1.Clone(), e2.Clone())
-					)); 
+					CreateCondition(c, e1, e2)
+				)); 
 					if (rs != null)
 						script.Remove(rs); 
 				},

@@ -73,7 +73,7 @@ class TestClass
 {
 	bool Bar (string str)
 	{
-		return str.Length > 10 ? true : false;
+		return str.Length > 10;
 	}
 }");
 		}
