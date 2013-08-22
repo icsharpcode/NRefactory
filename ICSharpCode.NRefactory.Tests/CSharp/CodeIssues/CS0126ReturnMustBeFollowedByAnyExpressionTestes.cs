@@ -27,6 +27,8 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.CSharp.CodeActions;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
@@ -248,7 +250,10 @@ class Foo
 		[Test]
 		public void TestDontShowUpOnUndecidableCase ()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Test
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+using System;
+
+class Test
 {
 	void Foo (Func<int, int> func) {}
 	void Foo (Action<int> func) {}
@@ -261,6 +266,26 @@ class Foo
 	}
 }");
 		}
+
+		[Test]
+		public void TestParallelForBug ()
+		{
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+class Test
+{
+	void FooBar(IEnumerable<string> str)
+	{
+		Parallel.ForEach(str, p => {
+			return;
+		});
+	}
+}");
+		}
+
 	}
 }
 

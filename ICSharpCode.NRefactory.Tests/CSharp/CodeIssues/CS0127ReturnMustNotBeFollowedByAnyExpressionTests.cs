@@ -258,7 +258,10 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestDontShowUpOnUndecidableCase ()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Test
+			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"
+using System;
+
+class Test
 {
 	void Foo (Func<int, int> func) {}
 	void Foo (Action<int> func) {}

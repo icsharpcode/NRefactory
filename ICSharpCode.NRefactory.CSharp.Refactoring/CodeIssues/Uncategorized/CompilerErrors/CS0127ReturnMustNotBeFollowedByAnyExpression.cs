@@ -52,13 +52,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
-			static bool AnonymousMethodReturnsVoid(BaseRefactoringContext ctx, Expression anonymousMethodExpression)
+			static bool AnonymousMethodMayReturnNonVoid(BaseRefactoringContext ctx, Expression anonymousMethodExpression)
 			{
 				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
 					if (type.Kind != TypeKind.Delegate)
 						continue;
 					var invoke = type.GetDelegateInvokeMethod();
-					if (invoke != null && invoke.ReturnType.IsKnownType(KnownTypeCode.Void))
+					if (invoke != null && !invoke.ReturnType.IsKnownType(KnownTypeCode.Void))
 						return true;
 				}
 				return false;
@@ -104,7 +104,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
 			{
 				bool old = skip;
-				skip = !AnonymousMethodReturnsVoid(ctx, anonymousMethodExpression);
+				skip = AnonymousMethodMayReturnNonVoid(ctx, anonymousMethodExpression);
 				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
 				skip = old;
 			}
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
 			{
 				bool old = skip;
-				skip = !AnonymousMethodReturnsVoid(ctx, lambdaExpression);
+				skip = AnonymousMethodMayReturnNonVoid(ctx, lambdaExpression);
 				base.VisitLambdaExpression(lambdaExpression);
 				skip = old;
 			}
