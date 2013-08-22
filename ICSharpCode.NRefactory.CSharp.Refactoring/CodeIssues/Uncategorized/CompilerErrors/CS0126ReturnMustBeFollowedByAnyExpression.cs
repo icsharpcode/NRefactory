@@ -44,6 +44,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
+		internal static bool AnonymousMethodReturnsVoid(BaseRefactoringContext ctx, Expression anonymousMethodExpression)
+		{
+			foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
+				if (type.Kind != TypeKind.Delegate)
+					continue;
+				var invoke = type.GetDelegateInvokeMethod();
+				if (invoke != null && invoke.ReturnType.IsKnownType(KnownTypeCode.Void))
+					return true;
+			}
+			return false;
+		}
+
 		class GatherVisitor : GatherVisitorBase<CS0127ReturnMustNotBeFollowedByAnyExpression>
 		{
 			string currentMethodName;
@@ -64,7 +76,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
-
 				currentMethodName = constructorDeclaration.Name;
 				skip = true;
 				base.VisitConstructorDeclaration(constructorDeclaration);
@@ -77,17 +88,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitDestructorDeclaration(destructorDeclaration);
 			}
 
+			public override void VisitAccessor(Accessor accessor)
+			{
+				bool old = skip; 
+				skip = accessor.Role != PropertyDeclaration.GetterRole && accessor.Role != IndexerDeclaration.GetterRole;
+				base.VisitAccessor(accessor);
+				skip = old;
+			}
+
+
 			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
 			{
 				bool old = skip;
-				skip = !TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression).Any(t => !t.IsKnownType(KnownTypeCode.Void));
+				skip = AnonymousMethodReturnsVoid(ctx, anonymousMethodExpression);
 				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
 				skip = old;
 			}
+
 			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
 			{
 				bool old = skip;
-				skip = !TypeGuessing.GetValidTypes(ctx.Resolver, lambdaExpression).Any(t => !t.IsKnownType(KnownTypeCode.Void));
+				skip = AnonymousMethodReturnsVoid(ctx, lambdaExpression);
 				base.VisitLambdaExpression(lambdaExpression);
 				skip = old;
 			}

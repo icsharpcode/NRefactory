@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	void Bar (string str)
 	{
-		return ;
+		return;
 	}
 }");
 		}
@@ -131,7 +131,47 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestIndexerSetter ()
+		{
+			var input = @"class Foo {
+	string this [int idx]
+	{
+		set {
+			return ""Hello World "";
+		}
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0127ReturnMustNotBeFollowedByAnyExpression (), input, out context);
+			Assert.AreEqual (1, issues.Count);
+		}
+
+
+		[Test]
 		public void TestAnonymousMethod ()
+		{
+			Test<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo
+{
+	void Bar (string str)
+	{
+		System.Action func = delegate {
+			return str;
+		};
+	}
+}", @"class Foo
+{
+	void Bar (string str)
+	{
+		System.Action func = delegate {
+			return;
+		};
+	}
+}");
+		}
+
+		[Test]
+		public void TestAnonymousMethodReturningValue ()
 		{
 			var input = @"class Foo
 {

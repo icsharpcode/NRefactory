@@ -102,6 +102,25 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			Assert.AreEqual (1, issues.Count);
 		}
 
+		
+		[Test]
+		public void TestPropertySetter ()
+		{
+			var input = @"class Foo {
+	string Bar 
+	{
+		set {
+			return;
+		}
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
+			Assert.AreEqual (0, issues.Count);
+		}
+
+
 		[Test]
 		public void TestIndexer ()
 		{
@@ -122,7 +141,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestAnonymousMethod ()
 		{
-			var input = @"class Foo
+			var input = @"
+using System;
+class Foo
 {
 	void Bar (string str)
 	{
@@ -136,6 +157,27 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
+
+		[Test]
+		public void TestAnonymousMethodReturningVoid ()
+		{
+			var input = @"using System;
+
+class Foo
+{
+	void Bar (string str)
+	{
+		Action func = delegate {
+			return;
+		};
+	}
+}";
+
+			TestRefactoringContext context;
+			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
+			Assert.AreEqual (0, issues.Count);
+		}
+
 
 		[Test]
 		public void TestLambdaMethod ()
