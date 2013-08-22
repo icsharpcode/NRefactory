@@ -232,5 +232,20 @@ class TestClass
 	}
 }");
 		}
+
+		
+		[Test]
+		public void TestNullCoalescing()
+		{
+			TestWrongContext<InvertLogicalExpressionAction>(@"
+class Foo
+{
+	void Bar (object i, object j)
+	{
+		Console.WriteLine (i $?? j);
+	}
+}
+");
+		}
 	}
 }
