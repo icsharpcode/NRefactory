@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						string.Format(context.TranslateString("Invert '{0}'"), unaryOperatorExpression),
 						script => {
 							script.Replace(unaryOperatorExpression, negativeExpression);
-						}, node
+						}, node.OperatorToken
 					);	
 				}
 			}
@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				string.Format(context.TranslateString("Invert '{0}'"), node),
 				script => {
 					script.Replace(node, newExpression);
-				}, node
+				}, node.OperatorToken
 			);
 			return null;
 		}

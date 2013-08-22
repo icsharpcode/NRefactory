@@ -160,6 +160,33 @@ class Foo
 			Assert.AreEqual (1, issues.Count);
 		}
 
+
+		[Test]
+		public void TestAnonymousMethodReturnTypeFix ()
+		{
+			Test<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+using System;
+class Foo
+{
+	int Bar (string str)
+	{
+		System.Func<string> func = delegate {
+			return;
+		};
+	}
+}", @"
+using System;
+class Foo
+{
+	int Bar (string str)
+	{
+		System.Func<string> func = delegate {
+			return """";
+		};
+	}
+}");
+		}
+
 		[Test]
 		public void TestAnonymousMethodReturningVoid ()
 		{
