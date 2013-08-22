@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (match2.Success) {
 						var target = match.Get<Expression>("target").Single() as IdentifierExpression;
 						var initializer = next.Variables.FirstOrDefault();
-						if (initializer == null || target.Identifier != initializer.Name)
+						if (initializer == null || target == null || target.Identifier != initializer.Name)
 							return;
 						AddTo(ifElseStatement,
 						      next,

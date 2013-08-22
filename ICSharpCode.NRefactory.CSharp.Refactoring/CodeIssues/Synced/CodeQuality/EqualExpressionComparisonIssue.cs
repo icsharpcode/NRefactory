@@ -112,6 +112,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (rr.Member.Parameters.Count != 1)
 						return;
 					var target = invocationExpression.Target as MemberReferenceExpression;
+					if (target == null)
+						return;
 					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.FirstOrDefault(), target.Target)) {
 						if ((invocationExpression.Parent is UnaryOperatorExpression) && ((UnaryOperatorExpression)invocationExpression.Parent).Operator == UnaryOperatorType.Not) {
 							AddIssue(invocationExpression.Parent, invocationExpression.Parent, false);

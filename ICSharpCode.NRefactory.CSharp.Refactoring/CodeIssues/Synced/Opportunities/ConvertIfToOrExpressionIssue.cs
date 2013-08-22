@@ -78,6 +78,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (match.Success) {
 					var varDeclaration = ifElseStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) as VariableDeclarationStatement;
 					var target = match.Get<Expression>("target").Single() as IdentifierExpression;
+					if (varDeclaration == null || target == null)
+						return;
 					var match2 = varDelarationPattern.Match(varDeclaration);
 					if (match2.Success) {
 						var initializer = varDeclaration.Variables.FirstOrDefault();
