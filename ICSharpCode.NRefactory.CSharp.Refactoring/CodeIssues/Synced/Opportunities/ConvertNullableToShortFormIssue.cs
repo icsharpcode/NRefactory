@@ -49,14 +49,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
 			}
+			static readonly AstType nullType = new SimpleType("");
 
 			void CheckType(AstType simpleType, AstType arg)
 			{
-				if (arg == null)
+				if (arg == null || nullType.IsMatch(arg))
 					return;
 				var rr = ctx.Resolve(simpleType);
 				if (rr == null || rr.IsError || rr.Type.Namespace != "System" || rr.Type.Name != "Nullable")
 					return;
+
 				AddIssue(
 					simpleType,
 					string.Format(ctx.TranslateString("Type can be simplified to '{0}?'"), arg), 
