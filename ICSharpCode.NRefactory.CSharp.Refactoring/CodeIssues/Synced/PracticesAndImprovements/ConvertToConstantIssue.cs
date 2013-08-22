@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<ConvertToConstantIssue>
 		{
-			List<Tuple<VariableInitializer, IVariable>> potentialConstantFields = new List<Tuple<VariableInitializer, IVariable>> ();
+			readonly Stack<List<Tuple<VariableInitializer, IVariable>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable>>>();
 
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void Collect()
 			{
-				foreach (var varDecl in potentialConstantFields) {
+				foreach (var varDecl in fieldStack.Peek()) {
 					AddIssue(
 						varDecl.Item1.NameToken,
 						ctx.TranslateString("Convert to constant"),
@@ -119,12 +119,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var assignmentAnalysis = new VariableUsageAnalyzation (ctx);
 					var newVars = new List<Tuple<VariableInitializer, IVariable>>();
 					blockStatement.AcceptVisitor(assignmentAnalysis); 
-					foreach (var variable in potentialConstantFields) {
+					foreach (var variable in fieldStack.Pop()) {
 						if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
 							continue;
 						newVars.Add(variable);
 					}
-					potentialConstantFields = newVars;
+					fieldStack.Push(newVars);
 				}
 			}
 
@@ -137,6 +137,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
+				var list = new List<Tuple<VariableInitializer, IVariable>>();
+				fieldStack.Push(list);
 				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields(this, typeDeclaration)) {
 					if (IsSuppressed(fieldDeclaration.StartLocation))
 						continue;
@@ -155,11 +157,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var mr = ctx.Resolve(variable) as MemberResolveResult;
 					if (mr == null)
 						continue;
-					potentialConstantFields.Add(Tuple.Create(variable, mr.Member as IVariable)); 
+					list.Add(Tuple.Create(variable, mr.Member as IVariable)); 
 				}
 				base.VisitTypeDeclaration(typeDeclaration);
 				Collect();
-				potentialConstantFields.Clear();
+				fieldStack.Pop();
 			}
 
 			public override void VisitVariableDeclarationStatement (VariableDeclarationStatement varDecl)
