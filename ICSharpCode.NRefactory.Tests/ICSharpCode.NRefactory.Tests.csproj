@@ -528,6 +528,7 @@
     <Compile Include="CSharp\CodeIssues\ConvertIfStatementToSwitchStatementIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantParamsIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertNullCoalescingToConditionalExpressionActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertReturnStatementToIfActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
