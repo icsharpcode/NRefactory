@@ -275,6 +275,7 @@ class TestClass
 		{
 			TestWrongContext<DontUseLinqWhenItsVerboseAndInefficientIssue>(@"
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 class MyCollection : ICollection<int>
 {
@@ -299,7 +300,7 @@ class TestClass
 {
 	int TestMethod()
 	{
-		IList<int> x = new List<int> ();
+		MyCollection x = new MyCollection ();
 		return x.Count ();
 	}
 }");

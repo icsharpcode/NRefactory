@@ -124,12 +124,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				}
 
-				var targetType = ctx.Resolve(target).Type;
+				var currentTypeDeclaration = outerInvocationExpression.GetParent<TypeDeclaration>();
+				var currentTypeResolveResult = ctx.Resolve(currentTypeDeclaration) as TypeResolveResult;
+				if (currentTypeResolveResult == null) {
+					base.VisitInvocationExpression(invocationExpression);
+					return;
+				}
 
-				var countProperty = targetType.GetProperties(unresolvedMember => !unresolvedMember.IsExplicitInterfaceImplementation &&
-				                                             (unresolvedMember.Name == "Count" || unresolvedMember.Name == "Length"))
-					.FirstOrDefault();
-				string countPropertyName = countProperty == null ? null : countProperty.Name;
+				var currentTypeDefinition = currentTypeResolveResult.Type.GetDefinition();
+
+				var targetResolveResult = ctx.Resolve(target);
+				if (!CanIndex(currentTypeDefinition, targetResolveResult)) {
+					base.VisitInvocationExpression(invocationExpression);
+					return;
+				}
+
+				string countPropertyName = GetCountProperty(currentTypeDefinition, targetResolveResult);
 
 				string lastInvocationName = ((MemberReferenceExpression)invocations[0].Target).MemberName;
 
@@ -249,6 +259,48 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				});
 
 				base.VisitInvocationExpression(invocationExpression);
+			}
+
+			bool CanIndex(ITypeDefinition currentTypeDefinition, ResolveResult targetResolveResult)
+			{
+				var type = targetResolveResult.Type;
+				if (type is ArrayType) {
+					return true;
+				}
+
+				var memberLookup = new MemberLookup(currentTypeDefinition, ctx.Compilation.MainAssembly);
+				var indexers = memberLookup.LookupIndexers(type).ToList();
+
+				return indexers.SelectMany(methodList => methodList).Any(
+					member => ((IProperty)member).CanGet && ((IProperty)member).Getter.Parameters.Count == 1);
+			}
+
+			string GetCountProperty(ITypeDefinition currentTypeDefinition, ResolveResult targetResolveResult)
+			{
+				var memberLookup = new MemberLookup(currentTypeDefinition, ctx.Compilation.MainAssembly);
+
+				string countProperty = TryProperty(memberLookup, targetResolveResult, "Count");
+				if (countProperty != null) {
+					return countProperty;
+				}
+
+				return TryProperty(memberLookup, targetResolveResult, "Length");
+			}
+
+			string TryProperty(MemberLookup memberLookup, ResolveResult targetResolveResult, string name)
+			{
+				var countResolveResult = memberLookup.Lookup(targetResolveResult, name, EmptyList<IType>.Instance, false);
+				var countPropertyResolveResult = countResolveResult as MemberResolveResult;
+				if (countPropertyResolveResult == null) {
+					return null;
+				}
+
+				var property = countPropertyResolveResult.Member as IProperty;
+				if (property == null || !property.CanGet) {
+					return null;
+				}
+
+				return name;
 			}
 		}
 	}
