@@ -206,8 +206,55 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var isExpr = ctx.GetNode<IsExpression>();
 			if (isExpr == null || !isExpr.IsToken.Contains(ctx.Location))
 				return null;
+
 			int foundCasts;
-			return ScanIfElse(ctx, ifElseStatement, out isExpr, out foundCasts);
+			var action = ScanIfElse(ctx, ifElseStatement, out isExpr, out foundCasts);
+			if (action != null)
+				return action;
+
+			isExpr = ctx.GetNode<IsExpression>();
+			var node = isExpr.Parent;
+			while (node is ParenthesizedExpression)
+				node = node.Parent;
+			var uOp = node as UnaryOperatorExpression;
+			if (uOp != null && uOp.Operator == UnaryOperatorType.Not) {
+				var rr = ctx.Resolve(isExpr.Type);
+				if (rr == null)
+					return null;
+
+				return new CodeAction(
+					ctx.TranslateString("Use 'as' and check for null"),
+					script => {
+						var varName = ctx.GetNameProposal(CreateMethodDeclarationAction.GuessNameFromType(rr.Type), ifElseStatement.StartLocation);
+						var varDec = new VariableDeclarationStatement(
+							new PrimitiveType("var"),
+							varName,
+							new AsExpression(isExpr.Expression.Clone(), isExpr.Type.Clone())
+						);
+						var binaryOperatorIdentifier = new IdentifierExpression(varName);
+						var binaryOperatorExpression = new BinaryOperatorExpression(binaryOperatorIdentifier, BinaryOperatorType.Equality, new NullReferenceExpression());
+
+						if (IsEmbeddedStatement(ifElseStatement)) {
+							var block = new BlockStatement();
+							block.Add(varDec); 
+							var newIf = (IfElseStatement)ifElseStatement.Clone();
+							newIf.Condition = binaryOperatorExpression;
+							block.Add(newIf); 
+							script.Replace(ifElseStatement, block);
+						} else {
+							script.InsertBefore(ifElseStatement, varDec);
+							script.Replace(
+								uOp,
+								binaryOperatorExpression
+							);
+						}
+					},
+				isExpr.IsToken
+				);
+
+			}
+
+			return null;
 		}
 	}
 }

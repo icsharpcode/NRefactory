@@ -92,6 +92,70 @@ class Bar
 ");
 		}
 
+		
+		[Test]
+		public void NegatedCase()
+		{
+			Test<UseAsAndNullCheckAction>(@"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		if (!(foo $is Bar)) {
+			Baz ((Bar)foo);
+		}
+		return null;
+	}
+}
+", @"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		var bar = foo as Bar;
+		if (bar == null) {
+			Baz ((Bar)foo);
+		}
+		return null;
+	}
+}
+");
+		}
+
+
+		[Test]
+		public void NegatedEmbeddedCase()
+		{
+			Test<UseAsAndNullCheckAction>(@"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		if (true) {
+		} else if (!(foo $is Bar)) {
+			Baz ((Bar)foo);
+		}
+		return null;
+	}
+}
+", @"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		if (true) {
+		} else {
+			var bar = foo as Bar;
+			if (bar == null) {
+				Baz ((Bar)foo);
+			}
+		}
+		return null;
+	}
+}
+");
+		}
+
 		[Test]
 		public void ComplexCase()
 		{
