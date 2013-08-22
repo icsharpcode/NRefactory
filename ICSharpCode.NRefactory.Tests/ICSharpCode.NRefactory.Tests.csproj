@@ -530,6 +530,7 @@
     <Compile Include="CSharp\CodeActions\ConvertNullCoalescingToConditionalExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertReturnStatementToIfActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertAssignmentToIfActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ForCanBeConvertedToForeachIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

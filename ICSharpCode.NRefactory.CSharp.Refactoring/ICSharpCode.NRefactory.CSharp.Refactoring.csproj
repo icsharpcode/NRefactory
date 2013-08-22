@@ -360,6 +360,7 @@
     <Compile Include="CodeActions\ConvertNullCoalescingToConditionalExpressionAction.cs" />
     <Compile Include="CodeActions\ConvertReturnStatementToIfAction.cs" />
     <Compile Include="CodeActions\ConvertAssignmentToIfAction.cs" />
+    <Compile Include="CodeIssues\Synced\Opportunities\ForCanBeConvertedToForeachIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
