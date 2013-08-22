@@ -218,6 +218,23 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 	}
 }");
 		}
+
+		[Test]
+		public void TestNullNode()
+		{
+			TestWrongContext<AddBracesAction>(@"class TestClass
+{
+	void Test ()
+	{
+		if (true) {
+			Console.WriteLine (""Hello"");
+		}
+	}
+}
+
+        $          
+");
+		}
 	}
 }
 
