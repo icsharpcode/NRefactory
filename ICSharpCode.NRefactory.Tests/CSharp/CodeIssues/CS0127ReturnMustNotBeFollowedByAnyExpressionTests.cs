@@ -253,6 +253,25 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			var issues = GetIssues (new CS0127ReturnMustNotBeFollowedByAnyExpression (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
+	
+
+		[Test]
+		public void TestDontShowUpOnUndecidableCase ()
+		{
+			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Test
+{
+	void Foo (Func<int, int> func) {}
+	void Foo (Action<int> func) {}
+
+	void Bar (string str)
+	{
+		Foo(delegate {
+			return str;
+		});
+	}
+}");
+		}
+
 	}
 }
 

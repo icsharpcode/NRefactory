@@ -244,6 +244,23 @@ class Foo
 			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
+
+		[Test]
+		public void TestDontShowUpOnUndecidableCase ()
+		{
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Test
+{
+	void Foo (Func<int, int> func) {}
+	void Foo (Action<int> func) {}
+
+	void Bar (string str)
+	{
+		Foo(delegate {
+			return;
+		});
+	}
+}");
+		}
 	}
 }
 
