@@ -363,6 +363,7 @@
     <Compile Include="CodeIssues\Synced\Opportunities\ForCanBeConvertedToForeachIssue.cs" />
     <Compile Include="CodeActions\UseAsAndNullCheckAction.cs" />
     <Compile Include="CodeIssues\Custom\MixedUseOfFieldsAndGettersIssue.cs" />
+    <Compile Include="CodeActions\ConvertForToWhileAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

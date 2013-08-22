@@ -53,6 +53,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 
+		string GetBoundName(Expression inExpression)
+		{
+			if (inExpression is IdentifierExpression)
+				return ((IdentifierExpression)inExpression).Identifier;
+			var mre = inExpression as MemberReferenceExpression;
+			if (mre != null)
+				return GetBoundName(mre.Target) + mre.MemberName;
+			return "max";
+		}
+
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
 			var foreachStatement = GetForeachStatement(context);
@@ -100,6 +110,62 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				};
 				
+				if (foreachStatement.EmbeddedStatement is BlockStatement) {
+					variableDeclarationStatement.Remove();
+					var oldBlock = (BlockStatement)foreachStatement.EmbeddedStatement.Clone();
+					if (oldBlock.Statements.Any()) {
+						oldBlock.Statements.InsertBefore(oldBlock.Statements.First(), variableDeclarationStatement);
+					} else {
+						oldBlock.Statements.Add(variableDeclarationStatement);
+					}
+					forStatement.EmbeddedStatement = oldBlock;
+				} else {
+					forStatement.EmbeddedStatement.AddChild (foreachStatement.EmbeddedStatement.Clone (), BlockStatement.StatementRole);
+				}
+				if (declarationStatement != null)
+					script.InsertBefore (foreachStatement, declarationStatement);
+				script.Replace (foreachStatement, forStatement);
+				script.Link (initializer.Variables.First ().NameToken, id1, id2, id3);
+			}, foreachStatement);
+
+			yield return new CodeAction(context.TranslateString("Convert 'foreach' loop to optimized 'for'"), script => {
+				var result = context.Resolve(foreachStatement.InExpression);
+				var countProperty = GetCountProperty(result.Type);
+
+				// TODO: use another variable name if 'i' is already in use
+				var initializer = new VariableDeclarationStatement(new PrimitiveType("int"), name, new PrimitiveExpression(0));
+				var id1 = new IdentifierExpression(name);
+				var id2 = id1.Clone();
+				var id3 = id1.Clone();
+				var inExpression = foreachStatement.InExpression;
+				Statement declarationStatement = null;
+				if (inExpression is ObjectCreateExpression || inExpression is ArrayCreateExpression) {
+					string listName = GetName(state, CollectionNames) ?? "col";
+					declarationStatement = new VariableDeclarationStatement (
+						new PrimitiveType ("var"),
+						listName,
+						inExpression.Clone ()
+						);
+					inExpression = new IdentifierExpression (listName);
+				}
+
+				var variableDeclarationStatement = new VariableDeclarationStatement(
+					foreachStatement.VariableType.Clone(),
+					foreachStatement.VariableName,
+					new IndexerExpression(inExpression.Clone(), id3)
+					);
+
+				string optimizedUpperBound = GetBoundName(inExpression) + countProperty;
+				initializer.Variables.Add(new VariableInitializer(optimizedUpperBound, new MemberReferenceExpression (inExpression.Clone (), countProperty)));
+				var forStatement = new ForStatement {
+					Initializers = { initializer },
+					Condition = new BinaryOperatorExpression (id1, BinaryOperatorType.LessThan, new IdentifierExpression(optimizedUpperBound)),
+					Iterators = { new ExpressionStatement (new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, id2)) },
+					EmbeddedStatement = new BlockStatement {
+						variableDeclarationStatement
+					}
+				};
+
 				if (foreachStatement.EmbeddedStatement is BlockStatement) {
 					variableDeclarationStatement.Remove();
 					var oldBlock = (BlockStatement)foreachStatement.EmbeddedStatement.Clone();
