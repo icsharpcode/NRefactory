@@ -531,6 +531,7 @@
     <Compile Include="CSharp\CodeActions\ConvertReturnStatementToIfActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertAssignmentToIfActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\ForCanBeConvertedToForeachIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\UseAsAndNullCheckActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

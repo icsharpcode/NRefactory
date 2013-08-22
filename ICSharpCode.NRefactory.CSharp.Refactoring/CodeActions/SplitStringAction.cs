@@ -30,7 +30,7 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Split string literal", Description = "Splits string literal into two.")]
-	public class SplitStringAction: CodeActionProvider
+	public class SplitStringAction : CodeActionProvider
 	{
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		internal static IType GetRequestedReturnType (BaseRefactoringContext ctx, AstNode returnStatement, out AstNode entityNode)
 		{
-			entityNode = returnStatement.GetParent(p => p is LambdaExpression || p is AnonymousMethodExpression || p is EntityDeclaration);
+			entityNode = returnStatement.GetParent(p => p is LambdaExpression || p is AnonymousMethodExpression || !(p is Accessor) && p is EntityDeclaration);
 			if (entityNode == null)
 				return null;
 			if (entityNode is EntityDeclaration) {
@@ -149,29 +149,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 					AstNode entityNode;
 					var rr = GetRequestedReturnType (ctx, returnStatement, out entityNode);
-					if (rr == null)
-						return;
 					var actions = new List<CodeAction>();
-					actions.Add(new CodeAction(ctx.TranslateString("Return default value"), script => {
-						Expression p;
-						if (rr.IsKnownType(KnownTypeCode.Boolean)) {
-							p = new PrimitiveExpression(false );
-						} else if (rr.IsKnownType(KnownTypeCode.String)) {
-							p = new PrimitiveExpression("");
-						} else if (rr.IsKnownType(KnownTypeCode.Char)) {
-							p = new PrimitiveExpression(' ');
-						} else if (rr.IsReferenceType == true) {
-							p = new NullReferenceExpression();
-						} else if (rr.GetDefinition() != null &&
-						           rr.GetDefinition().KnownTypeCode < KnownTypeCode.DateTime) {
-							p = new PrimitiveExpression(0x0);
-						} else {
-							p = new DefaultValueExpression (ctx.CreateTypeSystemAstBuilder(returnStatement).ConvertType(rr));
-						}
+					if (rr != null) {
+						actions.Add(new CodeAction(ctx.TranslateString("Return default value"), script => {
+							Expression p;
+							if (rr.IsKnownType(KnownTypeCode.Boolean)) {
+								p = new PrimitiveExpression(false);
+							} else if (rr.IsKnownType(KnownTypeCode.String)) {
+								p = new PrimitiveExpression("");
+							} else if (rr.IsKnownType(KnownTypeCode.Char)) {
+								p = new PrimitiveExpression(' ');
+							} else if (rr.IsReferenceType == true) {
+								p = new NullReferenceExpression();
+							} else if (rr.GetDefinition() != null &&
+								rr.GetDefinition().KnownTypeCode < KnownTypeCode.DateTime) {
+								p = new PrimitiveExpression(0x0);
+							} else {
+								p = new DefaultValueExpression(ctx.CreateTypeSystemAstBuilder(returnStatement).ConvertType(rr));
+							}
 
-						script.Replace(returnStatement, new ReturnStatement(p));
-					}, returnStatement));
-
+							script.Replace(returnStatement, new ReturnStatement(p));
+						}, returnStatement));
+					}
 					var method = returnStatement.GetParent<MethodDeclaration>();
 					if (method != null) {
 						actions.Add(new CodeAction(ctx.TranslateString("Change method return type to 'void'"), script => {

@@ -361,6 +361,7 @@
     <Compile Include="CodeActions\ConvertReturnStatementToIfAction.cs" />
     <Compile Include="CodeActions\ConvertAssignmentToIfAction.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\ForCanBeConvertedToForeachIssue.cs" />
+    <Compile Include="CodeActions\UseAsAndNullCheckAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
