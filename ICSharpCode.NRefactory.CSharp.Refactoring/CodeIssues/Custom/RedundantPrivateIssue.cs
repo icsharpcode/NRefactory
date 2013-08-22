@@ -121,7 +121,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
-				if (!(typeDeclaration.Parent is TypeDeclaration)) {
+				if (typeDeclaration.Parent is TypeDeclaration) {
 					CheckNode(typeDeclaration);
 				}
 				base.VisitTypeDeclaration(typeDeclaration);
