@@ -170,7 +170,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								if (member.SymbolKind == SymbolKind.TypeDefinition) {
 									var type = (ITypeDefinition)member;
 									if (!type.TypeArguments.Any(arg => arg.Name == name.Value)) {
-										AddXmlIssue(name.ValueSegment.Offset - firstline.Length + 1, name.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Type parameter '{0}' not found"), name));
+										AddXmlIssue(name.ValueSegment.Offset - firstline.Length + 1, name.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Type parameter '{0}' not found"), name.Value));
 									}
 								}
 								break;
@@ -201,7 +201,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 									var entity = cdc.ResolveCref(cref.Value);
 
 									if (entity == null) {
-										AddXmlIssue(cref.ValueSegment.Offset - firstline.Length + 1, cref.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Cannot find reference '{0}'"), cref));
+										AddXmlIssue(cref.ValueSegment.Offset - firstline.Length + 1, cref.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Cannot find reference '{0}'"), cref.Value));
 									}
 								} catch (Exception e) {
 									AddXmlIssue(cref.ValueSegment.Offset - firstline.Length + 1, cref.ValueSegment.Length - 2, string.Format(ctx.TranslateString("Reference parsing error '{0}'."), e.Message));
