@@ -356,6 +356,7 @@
     <Compile Include="CodeActions\ConvertIfStatementToNullCoalescingExpressionAction.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertIfStatementToSwitchStatementIssue.cs" />
     <Compile Include="CodeActions\ConvertIfStatementToSwitchStatementAction.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantParamsIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

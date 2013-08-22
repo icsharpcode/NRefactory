@@ -1,5 +1,5 @@
 //
-// BaseMemberHasParamsIssueTests.cs
+// RedundantParamsIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -32,27 +32,14 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class BaseMemberHasParamsIssueTests : InspectionActionTestBase
+	public class RedundantParamsIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestBasicCase ()
 		{
-			Test<BaseMemberHasParamsIssue>(@"class FooBar
+			Test<RedundantParamsIssue>(@"class FooBar
 {
-	public virtual void Foo(string fmt, params object[] args)
-	{
-	}
-}
-
-class FooBar2 : FooBar
-{
-	public override void Foo(string fmt, object[] args)
-	{
-		System.Console.WriteLine(fmt, args);
-	}
-}", @"class FooBar
-{
-	public virtual void Foo(string fmt, params object[] args)
+	public virtual void Foo(string fmt, object[] args)
 	{
 	}
 }
@@ -60,6 +47,19 @@ class FooBar2 : FooBar
 class FooBar2 : FooBar
 {
 	public override void Foo(string fmt, params object[] args)
+	{
+		System.Console.WriteLine(fmt, args);
+	}
+}", @"class FooBar
+{
+	public virtual void Foo(string fmt, object[] args)
+	{
+	}
+}
+
+class FooBar2 : FooBar
+{
+	public override void Foo(string fmt, object[] args)
 	{
 		System.Console.WriteLine(fmt, args);
 	}
@@ -69,38 +69,36 @@ class FooBar2 : FooBar
 		[Test]
 		public void TestValidCase ()
 		{
-			TestWrongContext<BaseMemberHasParamsIssue>(@"class FooBar
+			TestWrongContext<RedundantParamsIssue>(@"class FooBar
 {
-	public virtual void Foo(string fmt, params object[] args)
+	public virtual void Foo(string fmt, object[] args)
 	{
 	}
 }
 
 class FooBar2 : FooBar
 {
-	public override void Foo(string fmt, params object[] args)
+	public override void Foo(string fmt, object[] args)
 	{
 		System.Console.WriteLine(fmt, args);
 	}
 }");
 		}
 
-
-
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<BaseMemberHasParamsIssue>(@"class FooBar
+			TestWrongContext<RedundantParamsIssue>(@"class FooBar
 {
-	public virtual void Foo(string fmt, params object[] args)
+	public virtual void Foo(string fmt, object[] args)
 	{
 	}
 }
 
 class FooBar2 : FooBar
 {
-	// ReSharper disable once BaseMemberHasParams
-	public override void Foo(string fmt, object[] args)
+	// ReSharper disable once RedundantParams
+	public override void Foo(string fmt, params object[] args)
 	{
 		System.Console.WriteLine(fmt, args);
 	}
