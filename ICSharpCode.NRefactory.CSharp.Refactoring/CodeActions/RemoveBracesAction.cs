@@ -35,54 +35,55 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		internal static bool IsSpecialNode (AstNode node, out string keyword, out Statement embeddedStatement)
 		{
-			if (node.Role == IfElseStatement.IfKeywordRole) {
-				keyword = "if";
-				embeddedStatement = ((IfElseStatement)node.Parent).TrueStatement;
-				return true;
-			}
+			if (node != null) {
+				if (node.Role == IfElseStatement.IfKeywordRole) {
+					keyword = "if";
+					embeddedStatement = ((IfElseStatement)node.Parent).TrueStatement;
+					return true;
+				}
 
-			if (node.Role == IfElseStatement.ElseKeywordRole) {
-				keyword = "else";
-				embeddedStatement = ((IfElseStatement)node.Parent).FalseStatement;
-				return true;
-			}
+				if (node.Role == IfElseStatement.ElseKeywordRole) {
+					keyword = "else";
+					embeddedStatement = ((IfElseStatement)node.Parent).FalseStatement;
+					return true;
+				}
 
-			if (node.Role == DoWhileStatement.DoKeywordRole || node.Role == DoWhileStatement.WhileKeywordRole) {
-				keyword = "do";
-				embeddedStatement = ((DoWhileStatement)node.Parent).EmbeddedStatement;
-				return true;
-			}
+				if (node.Role == DoWhileStatement.DoKeywordRole || node.Role == DoWhileStatement.WhileKeywordRole) {
+					keyword = "do";
+					embeddedStatement = ((DoWhileStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
 
-			if (node.Role == ForeachStatement.ForeachKeywordRole) {
-				keyword = "foreach";
-				embeddedStatement = ((ForeachStatement)node.Parent).EmbeddedStatement;
-				return true;
-			}
+				if (node.Role == ForeachStatement.ForeachKeywordRole) {
+					keyword = "foreach";
+					embeddedStatement = ((ForeachStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
 
-			if (node.Role == ForStatement.ForKeywordRole) {
-				keyword = "for";
-				embeddedStatement = ((ForStatement)node.Parent).EmbeddedStatement;
-				return true;
-			}
+				if (node.Role == ForStatement.ForKeywordRole) {
+					keyword = "for";
+					embeddedStatement = ((ForStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
 
-			if (node.Role == LockStatement.LockKeywordRole) {
-				keyword = "lock";
-				embeddedStatement = ((LockStatement)node.Parent).EmbeddedStatement;
-				return true;
-			}
+				if (node.Role == LockStatement.LockKeywordRole) {
+					keyword = "lock";
+					embeddedStatement = ((LockStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
 
-			if (node.Role == UsingStatement.UsingKeywordRole) {
-				keyword = "using";
-				embeddedStatement = ((UsingStatement)node.Parent).EmbeddedStatement;
-				return true;
-			}
+				if (node.Role == UsingStatement.UsingKeywordRole) {
+					keyword = "using";
+					embeddedStatement = ((UsingStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
 
-			if (node.Role == WhileStatement.WhileKeywordRole) {
-				keyword = "while";
-				embeddedStatement = ((WhileStatement)node.Parent).EmbeddedStatement;
-				return true;
+				if (node.Role == WhileStatement.WhileKeywordRole) {
+					keyword = "while";
+					embeddedStatement = ((WhileStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
 			}
-
 			keyword = null;
 			embeddedStatement = null;
 			return false;
