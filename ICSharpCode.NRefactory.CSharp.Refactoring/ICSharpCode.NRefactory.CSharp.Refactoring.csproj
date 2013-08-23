@@ -366,7 +366,7 @@
     <Compile Include="CodeActions\ConvertForToWhileAction.cs" />
     <Compile Include="CodeActions\AddBracesAction.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchIssue.cs" />
-    <Compile Include="CodeIssues\Custom\DuplicateCaseLabelValueIssue.cs" />
+    <Compile Include="CodeIssues\Custom\CS0152DuplicateCaseLabelValueIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

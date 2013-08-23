@@ -31,12 +31,12 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class DuplicateCaseLabelValueIssueTests : InspectionActionTestBase
+	public class CS0152DuplicateCaseLabelValueIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestInts()
 		{
-			TestIssue<DuplicateCaseLabelValueIssue>(@"
+			TestIssue<CS0152DuplicateCaseLabelValueIssue>(@"
 class Test
 {
 	void TestMethod (int i = 0)
@@ -59,7 +59,7 @@ class Test
 		[Test]
 		public void TestStrings()
 		{
-			TestIssue<DuplicateCaseLabelValueIssue>(@"
+			TestIssue<CS0152DuplicateCaseLabelValueIssue>(@"
 class Test
 {
 	void TestMethod (string i = 0)
@@ -82,7 +82,7 @@ class Test
 		[Test]
 		public void TestNoIssue()
 		{
-			TestWrongContext<DuplicateCaseLabelValueIssue>(@"
+			TestWrongContext<CS0152DuplicateCaseLabelValueIssue>(@"
 class Test
 {
 	void TestMethod (int i = 0)

@@ -36,17 +36,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Duplicate case label value issue",
 	                   Description = "A case label value is duplicate.",
-	                   Category = IssueCategories.CodeQualityIssues,
+	                   Category = IssueCategories.CompilerErrors,
 	                   Severity = Severity.Error,
 	                   IssueMarker = IssueMarker.WavedLine)]
-	public class DuplicateCaseLabelValueIssue : GatherVisitorCodeIssueProvider
+	public class CS0152DuplicateCaseLabelValueIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<DuplicateCaseLabelValueIssue>
+		class GatherVisitor : GatherVisitorBase<CS0152DuplicateCaseLabelValueIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)
