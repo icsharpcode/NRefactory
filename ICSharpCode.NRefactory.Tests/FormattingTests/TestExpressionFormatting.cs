@@ -173,7 +173,39 @@ class Test
 }");
 		}
 
-		
+
+		[Test]
+		public void AnonymousBlocksAsParameter ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono ();
+
+			Test (policy, @"class Test
+{
+	Test TestMethod ()
+	{
+		FooBar (
+			foo,
+			delegate {
+Bar ();
+}, 
+test
+);
+	}
+}", @"class Test
+{
+	Test TestMethod ()
+	{
+		FooBar (
+			foo,
+			delegate {
+				Bar ();
+			}, 
+			test
+		);
+	}
+}");
+		}
+
 
 		[Test]
 		public void TestAnonymousMethodBlocks ()

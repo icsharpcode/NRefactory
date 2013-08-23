@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			if (!lambdaExpression.Body.IsNull) {
 				var old = curIndent;
-				this.curIndent = curIndent.GetBlockIndent ();
+				this.curIndent = curIndent.GetIndentWithoutSpace ();
 				FixOpenBrace(policy.AnonymousMethodBraceStyle, lambdaExpression.Body.LBraceToken);
 				VisitBlockWithoutFixingBraces(lambdaExpression.Body, policy.IndentBlocks);
 				FixClosingBrace(policy.AnonymousMethodBraceStyle, lambdaExpression.Body.RBraceToken);
@@ -332,10 +332,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				argumentStart = 0;
 			}
 			bool wrapMethodCall = DoWrap(methodCallArgumentWrapping, rParToken, arguments.Count);
-
 			if (wrapMethodCall && arguments.Any()) {
 				if (ShouldBreakLine(newLineAferMethodCallOpenParentheses, lParToken)) {
-
 					curIndent.Push(IndentType.Continuation);
 					foreach (var arg in arguments) {
 						FixStatementIndentation(arg.StartLocation);
@@ -635,7 +633,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				var body = lambdaExpression.Body as BlockStatement;
 				if (body != null) {
 					var old = curIndent;
-					this.curIndent = curIndent.GetBlockIndent ();
+					this.curIndent = curIndent.GetIndentWithoutSpace ();
 					FixOpenBrace(policy.AnonymousMethodBraceStyle, body.LBraceToken);
 					VisitBlockWithoutFixingBraces(body, policy.IndentMethodBody);
 					FixClosingBrace(policy.AnonymousMethodBraceStyle, body.RBraceToken);
