@@ -131,6 +131,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			static bool IsValidConstType(IType type)
 			{
 				var def = type.GetDefinition();
+				if (def == null)
+					return false;
 				return KnownTypeCode.Boolean <= def.KnownTypeCode && def.KnownTypeCode <= KnownTypeCode.Decimal ||
 					def.KnownTypeCode == KnownTypeCode.String;
 			}

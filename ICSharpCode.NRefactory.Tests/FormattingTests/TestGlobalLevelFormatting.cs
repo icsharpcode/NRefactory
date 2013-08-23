@@ -93,5 +93,20 @@ class Foo
 #endif
 ");
 		}
+
+		
+
+		[Test]
+		public void TestOverlappingChangeBug ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono ();
+			Test (policy,
+			      @"//
+
+
+using System;", @"//
+
+using System;");
+		}
 	}
 }
