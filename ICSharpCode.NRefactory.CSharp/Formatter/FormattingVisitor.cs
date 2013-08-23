@@ -412,14 +412,16 @@ namespace ICSharpCode.NRefactory.CSharp
 		
 		void PlaceOnNewLine(NewLinePlacement newLine, AstNode keywordNode)
 		{
-			if (keywordNode == null || newLine == NewLinePlacement.DoNotCare) {
+			if (keywordNode == null)
 				return;
-			}
 			
 			var prev = keywordNode.GetPrevNode (NoWhitespacePredicate);
 			if (prev is Comment || prev is PreProcessorDirective)
 				return;
-			
+
+			if (newLine == NewLinePlacement.DoNotCare)
+				newLine = prev.EndLocation.Line == keywordNode.StartLocation.Line ? NewLinePlacement.SameLine : NewLinePlacement.NewLine;
+
 			int offset = document.GetOffset(keywordNode.StartLocation);
 			
 			int whitespaceStart = SearchWhitespaceStart(offset);

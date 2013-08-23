@@ -1140,6 +1140,86 @@ if (i == 2) {
 		}
 
 		[Test]
+		public void TestIfElseNewLine()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateKRStyle();
+			policy.ElseIfNewLinePlacement = NewLinePlacement.NewLine;
+			Test(policy, @"class Test
+{
+	void TestMethod()
+	{
+		int i = 0;
+		if (i == 0) {
+		} else
+			if (i == 1) {
+		} else
+if (i == 2) {
+		} else                     if (i == 2)	
+		Foo();
+		else {
+		}
+	}
+}", @"class Test
+{
+	void TestMethod()
+	{
+		int i = 0;
+		if (i == 0) {
+		} else
+		if (i == 1) {
+		} else
+		if (i == 2) {
+		} else
+		if (i == 2)
+			Foo();
+		else {
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestIfElseDoNotCare()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateKRStyle();
+			policy.ElseIfNewLinePlacement = NewLinePlacement.DoNotCare;
+			Test(policy, @"class Test
+{
+	void TestMethod()
+	{
+		int i = 0;
+		if (i == 0) {
+		} else
+			if (i == 1) {
+		} else
+if (i == 2) {
+		} else                     if (i == 2)	
+		Foo();
+		else {
+		}
+	}
+}", @"class Test
+{
+	void TestMethod()
+	{
+		int i = 0;
+		if (i == 0) {
+		} else
+		if (i == 1) {
+		} else
+		if (i == 2) {
+		} else if (i == 2)
+			Foo();
+		else {
+		}
+	}
+}");
+		}
+
+
+
+
+		[Test]
 		public void TestFixedBracketPlacement()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
