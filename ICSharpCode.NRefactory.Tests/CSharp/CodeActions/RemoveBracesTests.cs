@@ -182,7 +182,8 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 	void Test ()
 	{
 		do
-			Console.WriteLine (""Hello""); while (true);
+			Console.WriteLine (""Hello"");
+		while (true);
 	}
 }");
 		}

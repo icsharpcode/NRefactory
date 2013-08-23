@@ -270,8 +270,9 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			if (!ifElseStatement.FalseStatement.IsNull) {
 				var placeElseOnNewLine = policy.ElseNewLinePlacement;
-				if (!(ifElseStatement.TrueStatement is BlockStatement))
+				if (!(ifElseStatement.TrueStatement is BlockStatement)) {
 					placeElseOnNewLine = NewLinePlacement.NewLine;
+				}
 				PlaceOnNewLine(placeElseOnNewLine, ifElseStatement.ElseToken);
 				if (ifElseStatement.FalseStatement is IfElseStatement) {
 					PlaceOnNewLine(policy.ElseIfNewLinePlacement, ((IfElseStatement)ifElseStatement.FalseStatement).IfToken);
@@ -433,8 +434,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitDoWhileStatement(DoWhileStatement doWhileStatement)
 		{
-			PlaceOnNewLine(policy.WhileNewLinePlacement, doWhileStatement.WhileToken);
 			FixEmbeddedStatment(policy.StatementBraceStyle, doWhileStatement.EmbeddedStatement);
+			PlaceOnNewLine(doWhileStatement.EmbeddedStatement is BlockStatement ? policy.WhileNewLinePlacement : NewLinePlacement.NewLine, doWhileStatement.WhileToken);
 		}
 
 		public override void VisitWhileStatement(WhileStatement whileStatement)
