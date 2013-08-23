@@ -61,7 +61,7 @@ class A
 	{
 		throw new ArgumentNullException (""bar"", ""foo"");
 	}
-}", @"
+}", 2, @"
 using System;
 class A
 {
@@ -69,7 +69,7 @@ class A
 	{
 		throw new ArgumentNullException (""foo"", ""bar"");
 	}
-}");
+}", 0);
 		}
 
 		[Test]
@@ -83,7 +83,7 @@ class A
 	{
 		throw new ArgumentException (""foo"", ""bar"");
 	}
-}", @"
+}", 2, @"
 using System;
 class A
 {
@@ -91,7 +91,7 @@ class A
 	{
 		throw new ArgumentException (""bar"", ""foo"");
 	}
-}");
+}", 0);
 		}
 
 		[Test]
@@ -105,7 +105,7 @@ class A
 	{
 		throw new ArgumentOutOfRangeException (""bar"", ""foo"");
 	}
-}", @"
+}", 2, @"
 using System;
 class A
 {
@@ -113,7 +113,7 @@ class A
 	{
 		throw new ArgumentOutOfRangeException (""foo"", ""bar"");
 	}
-}");
+}", 0);
 		}
 
 		[Test]
@@ -127,7 +127,7 @@ class A
 	{
 		throw new ArgumentOutOfRangeException (""bar"", 3, ""foo"");
 	}
-}", @"
+}", 2, @"
 using System;
 class A
 {
@@ -135,7 +135,7 @@ class A
 	{
 		throw new ArgumentOutOfRangeException (""foo"", 3, ""bar"");
 	}
-}");
+}", 0);
 		}
 
 		[Test]
@@ -149,7 +149,7 @@ class A
 	{
 		throw new DuplicateWaitObjectException (""bar"", ""foo"");
 	}
-}", @"
+}", 2, @"
 using System;
 class A
 {
@@ -157,7 +157,7 @@ class A
 	{
 		throw new DuplicateWaitObjectException (""foo"", ""bar"");
 	}
-}");
+}", 0);
 		}
 
 
