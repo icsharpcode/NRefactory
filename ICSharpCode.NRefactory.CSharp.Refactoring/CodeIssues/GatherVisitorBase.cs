@@ -165,11 +165,32 @@ namespace ICSharpCode.NRefactory.CSharp
 			return FoundIssues;
 		}
 
-		protected override void VisitChildren(AstNode node)
+		public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 		{
-			if (ctx.CancellationToken.IsCancellationRequested || isGloballySuppressed)
+			if (ctx.CancellationToken.IsCancellationRequested)
 				return;
-			base.VisitChildren(node);
+			base.VisitTypeDeclaration(typeDeclaration);
+		}
+
+		public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+		{
+			if (ctx.CancellationToken.IsCancellationRequested)
+				return;
+			base.VisitMethodDeclaration(methodDeclaration);
+		}
+
+		public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+		{
+			if (ctx.CancellationToken.IsCancellationRequested)
+				return;
+			base.VisitPropertyDeclaration(propertyDeclaration);
+		}
+
+		public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+		{
+			if (ctx.CancellationToken.IsCancellationRequested)
+				return;
+			base.VisitFieldDeclaration(fieldDeclaration);
 		}
 
 		public override void VisitComment(Comment comment)
