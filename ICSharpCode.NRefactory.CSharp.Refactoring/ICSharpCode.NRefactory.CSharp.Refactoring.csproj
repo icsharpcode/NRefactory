@@ -365,6 +365,7 @@
     <Compile Include="CodeIssues\Custom\MixedUseOfFieldsAndGettersIssue.cs" />
     <Compile Include="CodeActions\ConvertForToWhileAction.cs" />
     <Compile Include="CodeActions\AddBracesAction.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

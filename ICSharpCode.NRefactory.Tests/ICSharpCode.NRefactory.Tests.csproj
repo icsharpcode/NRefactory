@@ -534,6 +534,7 @@
     <Compile Include="CSharp\CodeActions\UseAsAndNullCheckActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertForToWhileActionTests.cs" />
     <Compile Include="CSharp\CodeActions\AddBracesActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantEmptyDefaultSwitchBranchIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
