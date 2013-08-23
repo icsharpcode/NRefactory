@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				expr = uOp;
 				useEquality = false;
 			}
-			if (node.Arguments.Count != 2 && memberRefExpr == null || node.Arguments.Count != 1)
+			if (node.Arguments.Count != 2 && (memberRefExpr == null || node.Arguments.Count != 1))
 				yield break;
 			yield return new CodeAction(
 				useEquality ? context.TranslateString("Use '=='") : context.TranslateString("Use '!='"),

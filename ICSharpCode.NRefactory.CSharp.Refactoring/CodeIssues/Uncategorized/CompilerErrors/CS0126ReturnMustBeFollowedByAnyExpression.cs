@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 
-		class GatherVisitor : GatherVisitorBase<CS0127ReturnMustNotBeFollowedByAnyExpression>
+		class GatherVisitor : GatherVisitorBase<CS0126ReturnMustBeFollowedByAnyExpression>
 		{
 			string currentMethodName;
 
