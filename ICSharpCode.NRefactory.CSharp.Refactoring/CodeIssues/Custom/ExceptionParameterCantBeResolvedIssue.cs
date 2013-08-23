@@ -66,13 +66,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			}
 
-			string GetParameterName(Expression expr)
-			{
-				var rr = context.Resolve(expr) as LocalResolveResult;
-				if (rr == null || rr.Variable.SymbolKind != SymbolKind.Parameter)
-					return null;
-				return rr.Variable.Name;
-			}
 
 			bool CheckExceptionType(ObjectCreateExpression objectCreateExpression, out Expression paramNode, out Expression altParam)
 			{
@@ -137,6 +130,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return names;
 			}
 
+			string GetParameterName(Expression expr)
+			{
+				foreach (var node in expr.DescendantsAndSelf) {
+					if (!(node is Expression))
+						continue;
+					var rr = context.Resolve(node) as LocalResolveResult;
+					if (rr != null && rr.Variable.SymbolKind == SymbolKind.Parameter)
+						return rr.Variable.Name;
+				}
+				return null;
+			}
+
 			string GuessParameterName(ObjectCreateExpression objectCreateExpression, List<string> validNames)
 			{
 				if (validNames.Count == 1)
@@ -144,17 +149,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var parent = objectCreateExpression.GetParent<IfElseStatement>();
 				if (parent == null)
 					return null;
-				var bOp = parent.Condition as BinaryOperatorExpression;
-				if (bOp == null)
-					return null;
-				var name = GetParameterName(bOp.Left);
-				if (name != null && validNames.Contains(name))
-					return name;
-
-				name = GetParameterName(bOp.Right);
-				if (name != null && validNames.Contains(name))
-					return name;
-				return null;
+				return GetParameterName(parent.Condition);
 			}
 
 			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)

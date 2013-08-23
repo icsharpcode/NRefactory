@@ -279,19 +279,19 @@ class A
 using System;
 class A
 {
-	void F (object foo)
+	void F (int foo, int bar)
 	{
-		if (foo != null)
-			throw new ArgumentOutOfRangeException (""bar"", ""bar"");
+		if (foo < 0 || foo > 10)
+			throw new ArgumentOutOfRangeException (""foobar"", ""foobar"");
 	}
 }", @"
 using System;
 class A
 {
-	void F (object foo)
+	void F (int foo, int bar)
 	{
-		if (foo != null)
-			throw new ArgumentOutOfRangeException (""foo"", ""bar"");
+		if (foo < 0 || foo > 10)
+			throw new ArgumentOutOfRangeException (""foo"", ""foobar"");
 	}
 }");
 		}
