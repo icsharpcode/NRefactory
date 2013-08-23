@@ -365,7 +365,6 @@
     <Compile Include="CSharp\CodeActions\ImplementAbstractMembersTest.cs" />
     <Compile Include="CSharp\CodeActions\RemoveRedundantCatchTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\AddCatchTypeTests.cs" />
-    <Compile Include="CSharp\CodeIssues\IncorrectExceptionParameterOrderingTests.cs" />
     <Compile Include="CSharp\CodeIssues\DoNotCallOverridableMethodsInConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationTests.cs" />
     <Compile Include="CSharp\CodeActions\IterateViaForeachTests.cs" />
@@ -538,6 +537,7 @@
     <Compile Include="CSharp\CodeActions\AddBracesActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantEmptyDefaultSwitchBranchIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0152DuplicateCaseLabelValueIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ExceptionParameterCantBeResolvedIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

@@ -329,7 +329,6 @@
     <Compile Include="CodeIssues\Uncategorized\FormatStringIssues\FormatStringHelper.cs" />
     <Compile Include="CodeIssues\Uncategorized\FormatStringIssues\FormatStringIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\IncorrectCallToObjectGetHashCodeIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\IncorrectExceptionParameterOrderingIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\MethodOverloadHidesOptionalParameterIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\MultipleEnumerationIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\OptionalParameterCouldBeSkippedIssue.cs" />
@@ -367,6 +366,7 @@
     <Compile Include="CodeActions\AddBracesAction.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchIssue.cs" />
     <Compile Include="CodeIssues\Custom\CS0152DuplicateCaseLabelValueIssue.cs" />
+    <Compile Include="CodeIssues\Custom\ExceptionParameterCantBeResolvedIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
