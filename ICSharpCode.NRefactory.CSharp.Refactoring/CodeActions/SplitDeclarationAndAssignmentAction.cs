@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (declaration == null || (declaration.Modifiers & Modifiers.Const) != 0)
 				yield break;
 
-			var selectedNode = varInitializer.GetNodeAt(context.Location);
+			var selectedNode = varInitializer.GetNodeAt(context.Location) ?? varInitializer;
 
 			yield return new CodeAction(context.TranslateString("Split local variable declaration and assignment"), script => {
 				var assign = new AssignmentExpression (new IdentifierExpression (varInitializer.Name), AssignmentOperatorType.Assign, varInitializer.Initializer.Clone());
