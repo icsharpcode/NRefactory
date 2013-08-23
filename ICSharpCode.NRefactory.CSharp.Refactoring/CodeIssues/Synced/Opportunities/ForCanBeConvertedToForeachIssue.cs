@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
 								BinaryOperatorType.LessThan,
 								PatternHelper.OptionalParentheses(
-									new AnyNode("upperBound")
+									new NamedNode("upperBound", new MemberReferenceExpression(new AnyNode (), Pattern.AnyString))
 								)
 							)
 						),
@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								Type = new AnyNode("int"),
 								Variables = {
 									new NamedNode("iteratorInitialzer", new VariableInitializer(Pattern.AnyString, new PrimitiveExpression(0))),
-									new NamedNode("upperBoundInitializer", new VariableInitializer(Pattern.AnyString, new AnyNode("upperBound"))),
+									new NamedNode("upperBoundInitializer", new VariableInitializer(Pattern.AnyString, new NamedNode("upperBound", new MemberReferenceExpression(new AnyNode (), Pattern.AnyString)))),
 								}
 							}
 						},
