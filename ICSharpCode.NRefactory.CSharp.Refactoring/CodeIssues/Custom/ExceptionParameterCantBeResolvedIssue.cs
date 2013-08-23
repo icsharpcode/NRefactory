@@ -175,10 +175,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							string.Format(context.TranslateString("The parameter '{0}' can't be resolved"), paramName),
 							context.TranslateString("Swap parameter."),
 							script => {
-							var newAltNode = paramNode.Clone();
-							script.Replace(paramNode, altParamNode.Clone());
-							script.Replace(altParamNode, newAltNode);
-						}
+								var newAltNode = paramNode.Clone();
+								script.Replace(paramNode, altParamNode.Clone());
+								script.Replace(altParamNode, newAltNode);
+							}
+						);
+						AddIssue(
+							altParamNode,
+							context.TranslateString("The parameter name is on the wrong argument."),
+							context.TranslateString("Swap parameter."),
+							script => {
+								var newAltNode = paramNode.Clone();
+								script.Replace(paramNode, altParamNode.Clone());
+								script.Replace(altParamNode, newAltNode);
+							}
 						);
 						return;
 					}
