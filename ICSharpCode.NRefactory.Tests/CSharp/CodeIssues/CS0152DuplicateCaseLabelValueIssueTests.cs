@@ -28,11 +28,40 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.CSharp.CodeActions;
 
+
+
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
 	public class CS0152DuplicateCaseLabelValueIssueTests : InspectionActionTestBase
 	{
+		[Test]
+		public void TestConstants()
+		{
+			TestIssue<CS0152DuplicateCaseLabelValueIssue>(@"
+class Test
+{
+	const int foo = 1;
+	void TestMethod (int i = 0)
+	{
+		switch (i) {
+			case 1:
+				System.Console.WriteLine();
+				break;
+			case foo:
+				System.Console.WriteLine();
+				break;
+			case 4:
+				default:
+			case 3:
+				break;
+		}
+	}
+}", 2);
+		}
+
+
+
 		[Test]
 		public void TestInts()
 		{

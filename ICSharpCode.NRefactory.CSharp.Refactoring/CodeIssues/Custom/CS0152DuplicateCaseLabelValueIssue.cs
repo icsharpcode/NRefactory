@@ -64,10 +64,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var curLabel in switchSection.CaseLabels) {
 					if (curLabel.Expression.IsNull)
 						continue;
+					var curValue = ctx.Resolve(curLabel.Expression).ConstantValue;
+					if (curValue == null)
+						continue;
 					foreach (var sect in parent.SwitchSections) {
-						if (sect.CaseLabels.Any(label => label != curLabel && label.Expression.IsMatch(curLabel.Expression))) {
+						if (sect.CaseLabels.Any(label => label != curLabel && Equals(curValue, ctx.Resolve(label.Expression).ConstantValue))) {
 							AddIssue(curLabel,
-							         string.Format(ctx.TranslateString("Duplicate case label '{0}'"), curLabel.Expression));
+							         string.Format(ctx.TranslateString("Duplicate case label value '{0}'"), curValue));
 							break;
 						}
 					}
