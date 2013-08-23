@@ -59,20 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new AnyNode("object")
 			);
 
-			static Expression AddParensIfRequired(Expression expression)
-			{
-				if ((expression is BinaryOperatorExpression) ||
-				    (expression is AssignmentExpression) ||
-				    (expression is CastExpression) ||
-					(expression is AsExpression) ||
-					(expression is IsExpression) ||
-				    (expression is LambdaExpression) ||
-					(expression is ConditionalExpression)) {
-					return new ParenthesizedExpression(expression);
-				}
 
-				return expression;
-			}
 
 			void AddIssue(AstNode invocationExpression, Match match, bool negate = false)
 			{
@@ -81,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					ctx.TranslateString("Use 'is' operator"),
 					ctx.TranslateString("Replace with 'is' operator"), 
 					s => {
-						Expression expression = new IsExpression(AddParensIfRequired(match.Get<Expression>("object").Single().Clone()), match.Get<AstType>("Type").Single().Clone());
+						Expression expression = new IsExpression(CSharpUtil.AddParensForUnaryExpressionIfRequired(match.Get<Expression>("object").Single().Clone()), match.Get<AstType>("Type").Single().Clone());
 						if (negate)
 							expression = new UnaryOperatorExpression (UnaryOperatorType.Not, new ParenthesizedExpression(expression));
 						s.Replace(invocationExpression, expression);

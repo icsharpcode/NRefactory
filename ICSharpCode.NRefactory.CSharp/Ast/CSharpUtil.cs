@@ -83,7 +83,26 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 			}
 			
-			return new UnaryOperatorExpression(UnaryOperatorType.Not, condition.Clone());
+			return new UnaryOperatorExpression(UnaryOperatorType.Not, AddParensForUnaryExpressionIfRequired(condition.Clone()));
+		}
+
+		/// <summary>
+		/// When negating an expression this is required, otherwise you would end up with
+		/// a or b -> !a or b
+		/// </summary>
+		internal static Expression AddParensForUnaryExpressionIfRequired(Expression expression)
+		{
+			if ((expression is BinaryOperatorExpression) ||
+			    (expression is AssignmentExpression) ||
+			    (expression is CastExpression) ||
+			    (expression is AsExpression) ||
+			    (expression is IsExpression) ||
+			    (expression is LambdaExpression) ||
+			    (expression is ConditionalExpression)) {
+				return new ParenthesizedExpression(expression);
+			}
+
+			return expression;
 		}
 
 		/// <summary>
