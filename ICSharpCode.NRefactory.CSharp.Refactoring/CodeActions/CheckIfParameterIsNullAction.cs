@@ -37,6 +37,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		protected override CodeAction GetAction(RefactoringContext context, ParameterDeclaration parameter)
 		{
+			if (!parameter.NameToken.Contains(context.Location))
+				return null;
 			BlockStatement bodyStatement;
 			if (parameter.Parent is LambdaExpression) {
 				bodyStatement = parameter.Parent.GetChildByRole (LambdaExpression.BodyRole) as BlockStatement;
