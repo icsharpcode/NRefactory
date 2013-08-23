@@ -158,5 +158,15 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return string.Format("[Indent: curIndent={0}]", curIndent);
 		}
+
+		public Indent GetBlockIndent ()
+		{
+			var result = new Indent(options);
+			foreach (var i in indentStack)
+				if (i == IndentType.Block || i == IndentType.DoubleBlock)
+					result.Push(i);
+			return result;
+		}
+
 	}
 }

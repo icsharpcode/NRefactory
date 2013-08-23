@@ -465,8 +465,24 @@ namespace ICSharpCode.NRefactory.CSharp
 				ForceSpacesAround(variableInitializer.AssignToken, policy.SpaceAroundAssignment);
 			}
 			if (!variableInitializer.Initializer.IsNull) {
+				int extraSpaces = 0;
+				var useExtraSpaces = variableInitializer.AssignToken.StartLocation.Line == variableInitializer.Initializer.StartLocation.Line;
+				if (useExtraSpaces) {
+					extraSpaces = variableInitializer.AssignToken.StartLocation.Column + 1 - curIndent.IndentString.Length;
+					curIndent.ExtraSpaces += extraSpaces;
+				} else {
+					curIndent.Push(IndentType.Continuation); 
+					FixIndentation(variableInitializer.Initializer);
+				}
 				variableInitializer.Initializer.AcceptVisitor(this);
+
+				if (useExtraSpaces) {
+					curIndent.ExtraSpaces -= extraSpaces;
+				} else {
+					curIndent.Pop();
+				}
 			}
+
 		}
 	}
 }

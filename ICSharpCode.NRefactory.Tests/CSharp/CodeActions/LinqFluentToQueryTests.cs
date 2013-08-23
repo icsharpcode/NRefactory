@@ -434,7 +434,7 @@ class TestClass
 		var x = 
 	from t in Enumerable.Empty<int[]> ()
 	select (
-		from g in t
+		    from g in t
 		select g);
 	}
 }");

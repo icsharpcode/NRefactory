@@ -222,6 +222,125 @@ class Test
 	}
 }");
 		}
+
+		[Test]
+		public void TestBinaryExpressionsInInitializer ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono ();
+			Test (policy, @"class Test
+{
+	private void Foo ()
+	{
+		int x =    5+ 
+23 - 
+43*12 - 44*
+5;
+	}
+}
+", @"class Test
+{
+	private void Foo ()
+	{
+		int x = 5 +
+		        23 -
+		        43 * 12 - 44 *
+		        5;
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestBinaryExpressionsInInitializerBreakAfterAssign ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono ();
+			Test (policy, @"class Test
+{
+	private void Foo ()
+	{
+		int x =
+ 5+ 
+23 
+- 43
+*12 
+ - 
+44*
+5;
+	}
+}
+", @"class Test
+{
+	private void Foo ()
+	{
+		int x =
+			5 +
+			23
+			- 43
+			* 12
+			-
+			44 *
+			5;
+	}
+}
+");
+			}
+
+		[Test]
+		public void TestBinaryExpressionsInInitializerWithParenthesizedExpr ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono ();
+			Test (policy, @"class Test
+{
+	private void Foo ()
+	{
+		int x = 5
+		+ (2343 *  12)            - (
+		44 * 5
+		);
+	}
+}
+", @"class Test
+{
+	private void Foo ()
+	{
+		int x = 5
+		        + (2343 * 12) - (
+		            44 * 5
+		        );
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestArrayInitializerFormattingBugSimple ()
+		{
+			var policy = FormattingOptionsFactory.CreateSharpDevelop ();
+			Test (policy, @"class Test
+{
+	static readonly AstNode forPattern =
+		new Choice {
+			new BinaryOperatorExpression(
+				PatternHelper.OptionalParentheses(
+					new AnyNode(""upperBound"")
+				)
+			)
+		};
+}
+", @"class Test
+{
+	static readonly AstNode forPattern =
+		new Choice {
+			new BinaryOperatorExpression(
+				PatternHelper.OptionalParentheses(
+					new AnyNode(""upperBound"")
+				)
+			)
+		};
+}
+");
+		}
+
 	}
 }
 
