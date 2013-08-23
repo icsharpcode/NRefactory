@@ -256,13 +256,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 		{
 			ForceSpacesBefore(ifElseStatement.LParToken, policy.SpaceBeforeIfParentheses);
-
-			ForceSpacesAfter(ifElseStatement.LParToken, policy.SpacesWithinIfParentheses);
+			Align(ifElseStatement.LParToken, ifElseStatement.Condition, policy.SpacesWithinIfParentheses);
 			ForceSpacesBefore(ifElseStatement.RParToken, policy.SpacesWithinIfParentheses);
 
-			if (!ifElseStatement.Condition.IsNull) {
-				ifElseStatement.Condition.AcceptVisitor(this);
-			}
 
 			if (!ifElseStatement.TrueStatement.IsNull) {
 				FixEmbeddedStatment(policy.StatementBraceStyle, ifElseStatement.IfToken, policy.AllowIfBlockInline, ifElseStatement.TrueStatement);
@@ -436,13 +432,37 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			FixEmbeddedStatment(policy.StatementBraceStyle, doWhileStatement.EmbeddedStatement);
 			PlaceOnNewLine(doWhileStatement.EmbeddedStatement is BlockStatement ? policy.WhileNewLinePlacement : NewLinePlacement.NewLine, doWhileStatement.WhileToken);
+
+			Align(doWhileStatement.LParToken, doWhileStatement.Condition, policy.SpacesWithinWhileParentheses);
+			ForceSpacesBefore(doWhileStatement.RParToken, policy.SpacesWithinWhileParentheses);
+		}
+
+		void Align(AstNode lPar, AstNode alignNode, bool space)
+		{
+			int extraSpaces = 0;
+			var useExtraSpaces = lPar.StartLocation.Line == alignNode.StartLocation.Line;
+			if (useExtraSpaces) {
+				extraSpaces = lPar.StartLocation.Column + (space ? 1 : 0) - curIndent.IndentString.Length;
+				curIndent.ExtraSpaces += extraSpaces;
+				ForceSpacesAfter(lPar, space);
+			} else {
+				curIndent.Push(IndentType.Continuation); 
+				FixIndentation(alignNode);
+			}
+			alignNode.AcceptVisitor(this);
+
+			if (useExtraSpaces) {
+				curIndent.ExtraSpaces -= extraSpaces;
+			} else {
+				curIndent.Pop();
+			}
+
 		}
 
 		public override void VisitWhileStatement(WhileStatement whileStatement)
 		{
 			ForceSpacesBefore(whileStatement.LParToken, policy.SpaceBeforeWhileParentheses);
-
-			ForceSpacesAfter(whileStatement.LParToken, policy.SpacesWithinWhileParentheses);
+			Align(whileStatement.LParToken, whileStatement.Condition, policy.SpacesWithinWhileParentheses);
 			ForceSpacesBefore(whileStatement.RParToken, policy.SpacesWithinWhileParentheses);
 
 			FixEmbeddedStatment(policy.StatementBraceStyle, whileStatement.EmbeddedStatement);

@@ -1216,9 +1216,6 @@ if (i == 2) {
 }");
 		}
 
-
-
-
 		[Test]
 		public void TestFixedBracketPlacement()
 		{
@@ -1847,6 +1844,90 @@ using System;
 			;
 	}
 }");
+		}
+
+		[Test]
+		public void AlignmentTest_DoWhile()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+
+			Test(policy, @"
+class Test
+{
+	void Foo ()
+	{
+		do {
+		} while(a <
+b);
+	}
+}
+", @"
+class Test
+{
+	void Foo ()
+	{
+		do {
+		} while(a <
+		        b);
+	}
+}
+");
+		}
+
+		[Test]
+		public void AlignmentTest_IfElse()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+
+			Test(policy, @"
+class Test
+{
+	void Foo ()
+	{
+		if (a 
+> b) {
+		}
+	}
+}
+", @"
+class Test
+{
+	void Foo ()
+	{
+		if (a
+		    > b) {
+		}
+	}
+}
+");
+		}
+
+		[Test]
+		public void AlignmentTest_While()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+
+			Test(policy, @"
+class Test
+{
+	void Foo()
+	{
+		while (a 
+> b) {
+		}
+	}
+}
+", @"
+class Test
+{
+	void Foo ()
+	{
+		while (a
+		       > b) {
+		}
+	}
+}
+");
 		}
 	}
 }

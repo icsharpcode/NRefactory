@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<ForCanBeConvertedToForeachIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
 			{
 			}
 
@@ -94,13 +94,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						},
 						Condition = PatternHelper.OptionalParentheses(
 							new BinaryOperatorExpression(
-									PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
-									BinaryOperatorType.LessThan,
-									PatternHelper.OptionalParentheses(
-										new AnyNode("upperBoundInitializerName")
-									)
+								PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
+								BinaryOperatorType.LessThan,
+								PatternHelper.OptionalParentheses(
+									new AnyNode("upperBoundInitializerName")
 								)
-							),
+							)
+						),
 						Iterators = {
 							new ExpressionStatement(
 								new Choice {
@@ -112,7 +112,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						EmbeddedStatement = new AnyNode("body")
 					},
 				};
-
 			static readonly AstNode varDeclPattern =
 				new VariableDeclarationStatement {
 					Type = new AnyNode(),
@@ -122,6 +121,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				};
 			static readonly AstNode varTypePattern =
 				new SimpleType("var");
+
 			static bool IsEnumerable(IType type)
 			{
 				return type.Name == "IEnumerable" && (type.Namespace == "System.Collections.Generic" || type.Namespace == "System.Collections");
@@ -143,9 +143,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!varMatch.Success)
 					return;
 				var typeNode = forMatch.Get<AstNode>("int").FirstOrDefault();
-				var varDecl = forMatch.Get<VariableInitializer> ("iteratorInitialzer").FirstOrDefault();
-				var iterator = forMatch.Get<IdentifierExpression> ("iterator").FirstOrDefault();
-				var upperBound = forMatch.Get<MemberReferenceExpression> ("upperBound").FirstOrDefault();
+				var varDecl = forMatch.Get<VariableInitializer>("iteratorInitialzer").FirstOrDefault();
+				var iterator = forMatch.Get<IdentifierExpression>("iterator").FirstOrDefault();
+				var upperBound = forMatch.Get<MemberReferenceExpression>("upperBound").FirstOrDefault();
 				if (typeNode == null || varDecl == null || iterator == null || upperBound == null)
 					return;
 
@@ -159,8 +159,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (varDecl.Name != iterator.Identifier)
 					return;
 
-				var upperBoundInitializer = forMatch.Get<VariableInitializer> ("upperBoundInitializer").FirstOrDefault();
-				var upperBoundInitializerName = forMatch.Get<IdentifierExpression> ("upperBoundInitializerName").FirstOrDefault();
+				var upperBoundInitializer = forMatch.Get<VariableInitializer>("upperBoundInitializer").FirstOrDefault();
+				var upperBoundInitializerName = forMatch.Get<IdentifierExpression>("upperBoundInitializerName").FirstOrDefault();
 				if (upperBoundInitializer != null) {
 					if (upperBoundInitializerName == null || upperBoundInitializer.Name != upperBoundInitializerName.Identifier)
 						return;
@@ -177,7 +177,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				if (!(rr.Member.Name == "Length" && rr.Member.DeclaringType.Name == "Array" && rr.Member.DeclaringType.Namespace == "System") &&
-				    !(rr.Member.Name == "Count" && (IsEnumerable(rr.TargetResult.Type) || rr.TargetResult.Type.GetAllBaseTypes().Any(IsEnumerable))))
+				!(rr.Member.Name == "Count" && (IsEnumerable(rr.TargetResult.Type) || rr.TargetResult.Type.GetAllBaseTypes().Any(IsEnumerable))))
 					return;
 
 				var variableInitializer = varDeclStmt.Variables.First();
@@ -192,28 +192,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var analyze = new ConvertToConstantIssue.VariableUsageAnalyzation(ctx);
 				forStatement.EmbeddedStatement.AcceptVisitor(analyze);
 				if (analyze.GetStatus(lr.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
-				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed)
+				analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed)
 					return;
 
 				AddIssue(
 					forStatement.ForToken,
 					ctx.TranslateString("'for' loop can be converted to 'foreach'"),
 					ctx.TranslateString("Convert to 'foreach'"),
-					script  => {
-						var foreachBody = (BlockStatement)forStatement.EmbeddedStatement.Clone();
-						foreachBody.Statements.First().Remove();
+					script => {
+					var foreachBody = (BlockStatement)forStatement.EmbeddedStatement.Clone();
+					foreachBody.Statements.First().Remove();
 						
-						var fe = new ForeachStatement {
-							VariableType = new PrimitiveType("var"),
-							VariableName = variableInitializer.Name,
-							InExpression = upperBound.Target.Clone(),
-							EmbeddedStatement = foreachBody
-						};
-						script.Replace(forStatement, fe); 
-					});
+					var fe = new ForeachStatement {
+						VariableType = new PrimitiveType("var"),
+						VariableName = variableInitializer.Name,
+						InExpression = upperBound.Target.Clone(),
+						EmbeddedStatement = foreachBody
+					};
+					script.Replace(forStatement, fe); 
+				});
 
 			}
-
 		}
 	}
 }
