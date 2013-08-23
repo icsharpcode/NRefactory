@@ -53,43 +53,75 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 
 			static readonly AstNode forPattern =
-				new ForStatement {
-					Initializers = {
-						new VariableDeclarationStatement {
-							Type = new PrimitiveType("int"),
-							Variables = {
-								new NamedNode("iteratorInitialzer", new VariableInitializer(Pattern.AnyString, new PrimitiveExpression(0)))
+				new Choice {
+					new ForStatement {
+						Initializers = {
+							new VariableDeclarationStatement {
+								Type = new AnyNode("int"),
+								Variables = {
+									new NamedNode("iteratorInitialzer", new VariableInitializer(Pattern.AnyString, new PrimitiveExpression(0)))
+								}
 							}
-						}
-					},
-					Condition = PatternHelper.OptionalParentheses(
-						new BinaryOperatorExpression(
-							PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
+						},
+						Condition = PatternHelper.OptionalParentheses(
+							new BinaryOperatorExpression(
+								PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
 								BinaryOperatorType.LessThan,
 								PatternHelper.OptionalParentheses(
 									new AnyNode("upperBound")
 								)
-						)
-					),
-					Iterators = {
-						new ExpressionStatement(
-							new Choice {
-								new UnaryOperatorExpression(UnaryOperatorType.Increment, new Backreference("iterator")), 
-								new UnaryOperatorExpression(UnaryOperatorType.PostIncrement, new Backreference("iterator")) 
-							}
-						)
+							)
+						),
+						Iterators = {
+							new ExpressionStatement(
+								new Choice {
+									new UnaryOperatorExpression(UnaryOperatorType.Increment, new Backreference("iterator")), 
+									new UnaryOperatorExpression(UnaryOperatorType.PostIncrement, new Backreference("iterator")) 
+								}
+							)
+						},
+						EmbeddedStatement = new AnyNode("body")
 					},
-					EmbeddedStatement = new AnyNode("body")
+					new ForStatement {
+						Initializers = {
+							new VariableDeclarationStatement {
+								Type = new AnyNode("int"),
+								Variables = {
+									new NamedNode("iteratorInitialzer", new VariableInitializer(Pattern.AnyString, new PrimitiveExpression(0))),
+									new NamedNode("upperBoundInitializer", new VariableInitializer(Pattern.AnyString, new AnyNode("upperBound"))),
+								}
+							}
+						},
+						Condition = PatternHelper.OptionalParentheses(
+							new BinaryOperatorExpression(
+									PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
+									BinaryOperatorType.LessThan,
+									PatternHelper.OptionalParentheses(
+										new AnyNode("upperBoundInitializerName")
+									)
+								)
+							),
+						Iterators = {
+							new ExpressionStatement(
+								new Choice {
+									new UnaryOperatorExpression(UnaryOperatorType.Increment, new Backreference("iterator")), 
+									new UnaryOperatorExpression(UnaryOperatorType.PostIncrement, new Backreference("iterator")) 
+								}
+							)
+						},
+						EmbeddedStatement = new AnyNode("body")
+					},
 				};
 
 			static readonly AstNode varDeclPattern =
 				new VariableDeclarationStatement {
 					Type = new AnyNode(),
 					Variables = {
-						new VariableInitializer(Pattern.AnyString, new NamedNode("indexer", new IndexerExpression(new IdentifierExpression(Pattern.AnyString), new IdentifierExpression(Pattern.AnyString))))
+						new VariableInitializer(Pattern.AnyString, new NamedNode("indexer", new IndexerExpression(new AnyNode(), new IdentifierExpression(Pattern.AnyString))))
 					}
 				};
-
+			static readonly AstNode varTypePattern =
+				new SimpleType("var");
 			static bool IsEnumerable(IType type)
 			{
 				return type.Name == "IEnumerable" && (type.Namespace == "System.Collections.Generic" || type.Namespace == "System.Collections");
@@ -110,16 +142,30 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var varMatch = varDeclPattern.Match(varDeclStmt);
 				if (!varMatch.Success)
 					return;
-
-				var varDecl = forMatch.Get<VariableInitializer> ("iteratorInitialzer").SingleOrDefault();
+				var typeNode = forMatch.Get<AstNode>("int").FirstOrDefault();
+				var varDecl = forMatch.Get<VariableInitializer> ("iteratorInitialzer").FirstOrDefault();
 				var iterator = forMatch.Get<IdentifierExpression> ("iterator").FirstOrDefault();
 				var upperBound = forMatch.Get<MemberReferenceExpression> ("upperBound").FirstOrDefault();
-				if (varDecl == null || iterator == null || upperBound == null)
+				if (typeNode == null || varDecl == null || iterator == null || upperBound == null)
 					return;
+
+				// Check iterator type
+				if (!varTypePattern.IsMatch(typeNode)) {
+					var typeRR = ctx.Resolve(typeNode);
+					if (!typeRR.Type.IsKnownType(KnownTypeCode.Int32))
+						return;
+				}
 
 				if (varDecl.Name != iterator.Identifier)
 					return;
-				
+
+				var upperBoundInitializer = forMatch.Get<VariableInitializer> ("upperBoundInitializer").FirstOrDefault();
+				var upperBoundInitializerName = forMatch.Get<IdentifierExpression> ("upperBoundInitializerName").FirstOrDefault();
+				if (upperBoundInitializer != null) {
+					if (upperBoundInitializerName == null || upperBoundInitializer.Name != upperBoundInitializerName.Identifier)
+						return;
+				}
+
 				var indexer = varMatch.Get<IndexerExpression>("indexer").Single();
 				if (((IdentifierExpression)indexer.Arguments.First()).Identifier != iterator.Identifier)
 					return;

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
@@ -118,6 +119,75 @@ class Test
 	}
 }");
 		}
+
+
+		[Test]
+		public void TestComplexExpression ()
+		{
+			Test<ForCanBeConvertedToForeachIssue>(@"
+using System.Collections.Generic;
+
+class Test
+{
+	IList<int> Bar { get { return null; } }
+
+	void Foo(object o)
+	{
+		for (int i = 0; i < ((Test)o).Bar.Count; i++) {
+			var p = ((Test)o).Bar [i];
+			System.Console.WriteLine (p);
+		}
+	}
+}", @"
+using System.Collections.Generic;
+
+class Test
+{
+	IList<int> Bar { get { return null; } }
+
+	void Foo(object o)
+	{
+		foreach (var p in ((Test)o).Bar) {
+			System.Console.WriteLine (p);
+		}
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestOptimizedFor ()
+		{
+			Test<ForCanBeConvertedToForeachIssue>(@"
+using System.Collections.Generic;
+
+class Test
+{
+	IList<int> Bar { get { return null; } }
+
+	void Foo(object o)
+	{
+		for (var i = 0, maxBarCount = ((Test)o).Bar.Count; i < maxBarCount; ++i) {
+			var p = ((Test)o).Bar[i];
+			System.Console.WriteLine(p);
+		}
+	}
+}", @"
+using System.Collections.Generic;
+
+class Test
+{
+	IList<int> Bar { get { return null; } }
+
+	void Foo(object o)
+	{
+		foreach (var p in ((Test)o).Bar) {
+			System.Console.WriteLine (p);
+		}
+	}
+}");
+		}
+
 
 
 		[Test]
