@@ -368,7 +368,6 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs" />
     <Compile Include="CodeIssues\TODO\UnusedLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ConvertIfToOrExpressionIssue.cs" />
-    <Compile Include="CodeIssues\TODO\ReplaceWithSimpleAssignmentIssue.cs" />
     <Compile Include="CodeIssues\TODO\StringCompareIsCultureSpecificIssue.cs" />
     <Compile Include="CodeIssues\TODO\StringCompareToIsCultureSpecificIssue.cs" />
     <Compile Include="CodeIssues\TODO\UseArrayCreationExpressionIssue.cs" />
@@ -381,6 +380,8 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentDefaultValueIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyFinallyBlockIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\PartialMethodParameterNameMismatchIssue.cs" />
+    <Compile Include="CodeIssues\TODO\BaseMethodParameterNameMismatchIssue.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSimpleAssignmentIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

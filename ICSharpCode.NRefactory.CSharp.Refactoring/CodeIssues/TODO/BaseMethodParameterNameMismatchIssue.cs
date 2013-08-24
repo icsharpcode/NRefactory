@@ -1,5 +1,5 @@
 //
-// ReplaceWithSimpleAssignmentIssue.cs
+// BaseMethodParameterNameMismatchIssue.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,32 +23,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
-{/*
-	[IssueDescription(
-		"Replace with simple assignment",
-		Description = "Replace with simple assignment",
-		Category = IssueCategories.PracticesAndImprovements,
-		Severity = Severity.Suggestion,
-		ResharperDisableKeyword = "ReplaceWithSimpleAssignment")]
-	public class ReplaceWithSimpleAssignmentIssue : GatherVisitorCodeIssueProvider
+{
+	public class BaseMethodParameterNameMismatchIssue
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		public BaseMethodParameterNameMismatchIssue()
 		{
-			return new GatherVisitor(context);
 		}
-
-		class GatherVisitor : GatherVisitorBase<ReplaceWithSimpleAssignmentIssue>
-		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
-			{
-			}
-		}
-	}*/
+	}
 }
+
