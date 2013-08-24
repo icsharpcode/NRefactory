@@ -319,5 +319,22 @@ class A
 	}
 }");
 		}
+
+		[Test]
+		public void TestConstructorValidCase()
+		{
+			TestWrongContext<ExceptionParameterCantBeResolvedIssue>(@"
+using System;
+class A
+{
+	public A(BaseRefactoringContext context, Statement rootStatement, IEnumerable<ParameterDeclaration> parameters, CancellationToken cancellationToken)
+	{
+		if (rootStatement == null)
+			throw new ArgumentNullException(""rootStatement"");
+		if (context == null)
+			throw new ArgumentNullException(""context"");
+	}
+}");
+		}
 	}
 }

@@ -125,6 +125,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						names.AddRange(methodDeclaration.Parameters.Select(p => p.Name));
 						break;
 					}
+
+					var constructorDeclaration = node as ConstructorDeclaration;
+					if (constructorDeclaration != null) {
+						names.AddRange(constructorDeclaration.Parameters.Select(p => p.Name));
+						break;
+					}
 					node = node.Parent;
 				}
 				return names;
