@@ -471,7 +471,6 @@
     <Compile Include="CSharp\CodeIssues\RedundantArrayCreationExpressionTests.cs" />
     <Compile Include="CSharp\Analysis\NullValueAnalysisTests.cs" />
     <Compile Include="CSharp\CodeIssues\DuplicatedLinqToListOrArrayTests.cs" />
-    <Compile Include="CSharp\CodeIssues\DelegateParametersAreUnusedTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\ChangeAccessModifierTests.cs" />
     <Compile Include="CSharp\CodeActions\AbstractAndVirtualConversionActionTests.cs" />
@@ -539,6 +538,7 @@
     <Compile Include="CSharp\CodeIssues\CS0152DuplicateCaseLabelValueIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ExceptionParameterCantBeResolvedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\SealedMemberInSealedClassIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnusedAnonymousMethodSignatureIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

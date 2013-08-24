@@ -33,8 +33,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("'if' statement can be re-written as '||' expression",
 	                  Description = "Convert 'if' to '||' expression",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint,
+	                  Category = IssueCategories.PracticesAndImprovements,
+	                  Severity = Severity.Suggestion,
 	                  IssueMarker = IssueMarker.DottedLine,
 	                  ResharperDisableKeyword = "ConvertIfToOrExpression")]
 	public class ConvertIfToOrExpressionIssue : GatherVisitorCodeIssueProvider

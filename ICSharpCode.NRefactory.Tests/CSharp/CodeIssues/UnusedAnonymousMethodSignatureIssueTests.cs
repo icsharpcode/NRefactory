@@ -30,12 +30,12 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class DelegateParametersAreUnusedTests : InspectionActionTestBase
+	public class UnusedAnonymousMethodSignatureIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestSimpleUsage ()
 		{
-			Test<DelegateParametersAreUnusedIssue>(@"
+			Test<UnusedAnonymousMethodSignatureIssue>(@"
 class TestClass
 {
 	void TestMethod()
@@ -55,7 +55,7 @@ class TestClass
 		[Test]
 		public void TestNecessaryParameter ()
 		{
-			TestWrongContext<DelegateParametersAreUnusedIssue>(@"
+			TestWrongContext<UnusedAnonymousMethodSignatureIssue>(@"
 class TestClass
 {
 	void TestMethod()
@@ -69,7 +69,7 @@ class TestClass
 		[Test]
 		public void TestVisitChild ()
 		{
-			Test<DelegateParametersAreUnusedIssue>(@"
+			Test<UnusedAnonymousMethodSignatureIssue>(@"
 class TestClass
 {
 	void TestMethod()
@@ -95,7 +95,7 @@ class TestClass
 		[Test]
 		public void TestAmbiguousCase ()
 		{
-			TestWrongContext<DelegateParametersAreUnusedIssue>(@"
+			TestWrongContext<UnusedAnonymousMethodSignatureIssue>(@"
 using System;
 class TestClass
 {

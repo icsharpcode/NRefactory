@@ -33,19 +33,19 @@ using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Delegate parameters are unused",
-	                   Description = "Detects when no delegate parameter is used in the delegate body.",
-	                   Category = IssueCategories.Opportunities,
+	[IssueDescription ("Anonymous method signature is not required",
+	                   Description = "Detects when no delegate parameter is used in the anonymous method body.",
+	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.WavedLine)]
-	public class DelegateParametersAreUnusedIssue : GatherVisitorCodeIssueProvider
+	                   IssueMarker = IssueMarker.GrayOut)]
+	public class UnusedAnonymousMethodSignatureIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<DelegateParametersAreUnusedIssue>
+		class GatherVisitor : GatherVisitorBase<UnusedAnonymousMethodSignatureIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base(ctx)

@@ -234,7 +234,6 @@
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertConditionalTernaryToNullCoalescingIssue.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertIfStatementToNullCoalescingExpressionIssue.cs" />
-    <Compile Include="CodeIssues\Synced\Opportunities\ConvertIfToOrExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertNullableToShortFormIssue.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\InvokeAsExtensionMethodIssue.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\RewriteIfReturnToReturnIssue.cs" />
@@ -314,7 +313,6 @@
     <Compile Include="CodeIssues\Uncategorized\ConstantConditionIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ConstructorIssues\StaticConstructorAccessModifierIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ConstructorIssues\StaticConstructorParameterIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\DelegateParametersAreUnusedIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\DuplicatedLinqToListOrArrayIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\DuplicateIfInIfChainIssue.cs" />
@@ -368,6 +366,21 @@
     <Compile Include="CodeIssues\Custom\CompilerErrors\CS0759RedundantPartialMethodIssue.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\CS0029InvalidConversionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs" />
+    <Compile Include="CodeIssues\TODO\UnusedLabelIssue.cs" />
+    <Compile Include="CodeIssues\TODO\PartialMethodParameterNameMismatchIssue.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ConvertIfToOrExpressionIssue.cs" />
+    <Compile Include="CodeIssues\TODO\EmptyStatementIssue.cs" />
+    <Compile Include="CodeIssues\TODO\ReplaceWithSimpleAssignmentIssue.cs" />
+    <Compile Include="CodeIssues\TODO\StringCompareIsCultureSpecificIssue.cs" />
+    <Compile Include="CodeIssues\TODO\StringCompareToIsCultureSpecificIssue.cs" />
+    <Compile Include="CodeIssues\TODO\UseArrayCreationExpressionIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureIssue.cs" />
+    <Compile Include="CodeIssues\TODO\RedundantArgumentDefaultValueIssue.cs" />
+    <Compile Include="CodeIssues\TODO\RedundantEmptyFinallyBlockIssue.cs" />
+    <Compile Include="CodeIssues\TODO\RedundantExplicitArraySizeIssue.cs" />
+    <Compile Include="CodeIssues\TODO\RedundantUnsafeContextIssue.cs" />
+    <Compile Include="CodeIssues\TODO\ProhibitedModifiersIssue.cs" />
+    <Compile Include="CodeIssues\TODO\ConvertToAutoPropertyIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -399,5 +412,6 @@
   </ProjectExtensions>
   <ItemGroup>
     <Folder Include="CodeIssues\Custom\CompilerErrors\" />
+    <Folder Include="CodeIssues\TODO\" />
   </ItemGroup>
 </Project>
