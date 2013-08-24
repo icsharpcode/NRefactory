@@ -368,7 +368,6 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs" />
     <Compile Include="CodeIssues\TODO\UnusedLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ConvertIfToOrExpressionIssue.cs" />
-    <Compile Include="CodeIssues\TODO\UseArrayCreationExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureIssue.cs" />
     <Compile Include="CodeIssues\TODO\RedundantExplicitArraySizeIssue.cs" />
     <Compile Include="CodeIssues\TODO\RedundantUnsafeContextIssue.cs" />
@@ -382,6 +381,7 @@
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSimpleAssignmentIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\StringCompareToIsCultureSpecificIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\StringCompareIsCultureSpecificIssue.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\UseArrayCreationExpressionIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

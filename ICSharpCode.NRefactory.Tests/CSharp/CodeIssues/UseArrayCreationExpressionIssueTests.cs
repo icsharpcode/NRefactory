@@ -1,5 +1,5 @@
 //
-// UseArrayCreationExpressionIssue.cs
+// UseArrayCreationExpressionIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,32 +23,73 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using NUnit.Framework;
 
-using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
-
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
-{/*
-	[IssueDescription("Use array creation expression",
-	                  Description = "Use array creation expression",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "UseArrayCreationExpression")]
-	public class UseArrayCreationExpressionIssue : GatherVisitorCodeIssueProvider
-	{ // Array.CreateInstance(typeof (T) ...
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+{
+	[TestFixture]
+	public class UseArrayCreationExpressionIssueTests : InspectionActionTestBase
+	{
+		[Test]
+		public void TestTypeOfIsAssignableFrom ()
 		{
-			return new GatherVisitor(context);
+			Test<UseArrayCreationExpressionIssue> (@"
+class Test
+{
+	void Foo()
+	{
+		System.Array.CreateInstance(typeof(int), 10);
+	}
+}
+", @"
+class Test
+{
+	void Foo()
+	{
+		new int[10];
+	}
+}
+");
 		}
 
-		class GatherVisitor : GatherVisitorBase<UseArrayCreationExpressionIssue>
+		[Test]
+		public void MultiDim ()
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
-			{
-			}
+			Test<UseArrayCreationExpressionIssue> (@"
+class Test
+{
+	void Foo(int i)
+	{
+		System.Array.CreateInstance(typeof(int), 10, 20, i);
+	}
+}
+", @"
+class Test
+{
+	void Foo(int i)
+	{
+		new int[10, 20, i];
+	}
+}
+");
 		}
-	}*/
+
+		[Test]
+		public void TestDisable ()
+		{
+			TestWrongContext<UseArrayCreationExpressionIssue> (@"
+class Test
+{
+	void Foo()
+	{
+		// ReSharper disable once UseArrayCreationExpression
+		System.Array.CreateInstance(typeof(int), 10);
+	}
+}
+");
+		}
+
+	}
 }
 

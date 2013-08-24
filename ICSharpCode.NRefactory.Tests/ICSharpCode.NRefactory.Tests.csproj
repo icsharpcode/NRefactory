@@ -546,6 +546,7 @@
     <Compile Include="CSharp\CodeIssues\ReplaceWithSimpleAssignmentIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\StringCompareToIsCultureSpecificIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\StringCompareIsCultureSpecificIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UseArrayCreationExpressionIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
