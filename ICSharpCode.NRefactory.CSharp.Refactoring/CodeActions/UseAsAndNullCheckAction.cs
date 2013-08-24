@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 
 
-		static bool IsEmbeddedStatement(AstNode stmt)
+		internal static bool IsEmbeddedStatement(AstNode stmt)
 		{
 			return stmt.Role == Roles.EmbeddedStatement || 
 				stmt.Role == IfElseStatement.TrueRole || 

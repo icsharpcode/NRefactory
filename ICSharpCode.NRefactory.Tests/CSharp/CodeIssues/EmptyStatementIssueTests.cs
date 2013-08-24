@@ -1,5 +1,5 @@
 //
-// EmptyStatementIssue.cs
+// EmptyStatementIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,33 +23,69 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
+using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
-{/*
-	[IssueDescription(
-		"Empty statement is redundant",
-		Description = "Empty statement is redundant",
-		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.GrayOut,
-		ResharperDisableKeyword = "EmptyStatement")]
-	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+{
+	[TestFixture]
+	public class EmptyStatementIssueTests : InspectionActionTestBase
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		[Test]
+		public void TestBasicCase()
 		{
-			return new GatherVisitor(context);
+			Test<EmptyStatementIssue>(@"
+class Test
+{
+	public void Foo ()
+	{
+		;
+	}
+}
+", @"
+class Test
+{
+	public void Foo ()
+	{
+	}
+}
+");
 		}
 
-		class GatherVisitor : GatherVisitorBase<EmptyStatementIssue>
+		[Test]
+		public void TestDisable()
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
-			{
-			}
-		}
-	}*/
+			TestWrongContext<EmptyStatementIssue>(@"
+class Test
+{
+	public void Foo ()
+	{
+		// ReSharper disable once EmptyStatement
+		;
+	}
 }
+");
+		}
+		[Test]
+		public void TestEmbeddedStatements()
+		{
+			TestWrongContext<EmptyStatementIssue>(@"
+class Test
+{
+	public void Foo ()
+	{
+		for (;;) ;
+		if (true) ; else ;
+		while (true) ;
+		do ; while (true);
+	}
+}
+");
+		}
+
+
+	}
+}
+
