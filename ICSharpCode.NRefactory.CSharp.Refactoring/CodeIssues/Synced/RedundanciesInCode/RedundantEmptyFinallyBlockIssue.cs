@@ -23,10 +23,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-/*
+
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -50,7 +51,40 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				: base (ctx)
 			{
 			}
+
+			static bool IsEmpty (BlockStatement blockStatement)
+			{
+				return !blockStatement.Descendants.Any(s => s is Statement && !(s is EmptyStatement || s is BlockStatement));
+			}
+
+			public override void VisitBlockStatement(BlockStatement blockStatement)
+			{
+				base.VisitBlockStatement(blockStatement);
+				if (blockStatement.Role != TryCatchStatement.FinallyBlockRole || !IsEmpty (blockStatement))
+					return;
+				var tryCatch = blockStatement.Parent as TryCatchStatement;
+				if (tryCatch == null)
+					return;
+				AddIssue(
+					blockStatement,
+					ctx.TranslateString("Redundant empty finally block"),
+					ctx.TranslateString("Remove 'finally'"),
+					s => {
+						if (tryCatch.CatchClauses.Any()) {
+							s.Remove(tryCatch.FinallyToken);
+							s.Remove(blockStatement); 
+							s.FormatText(tryCatch);
+							return;
+						}
+						s.Remove(tryCatch.TryToken);
+						s.Remove(tryCatch.TryBlock.LBraceToken);
+						s.Remove(tryCatch.TryBlock.RBraceToken);
+						s.Remove(tryCatch.FinallyToken);
+						s.Remove(tryCatch.FinallyBlock); 
+						s.FormatText(tryCatch.Parent);
+					}
+				);
+			}
 		}
 	}
-}*/
-
+}

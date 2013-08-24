@@ -374,13 +374,13 @@
     <Compile Include="CodeIssues\TODO\StringCompareToIsCultureSpecificIssue.cs" />
     <Compile Include="CodeIssues\TODO\UseArrayCreationExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureIssue.cs" />
-    <Compile Include="CodeIssues\TODO\RedundantEmptyFinallyBlockIssue.cs" />
     <Compile Include="CodeIssues\TODO\RedundantExplicitArraySizeIssue.cs" />
     <Compile Include="CodeIssues\TODO\RedundantUnsafeContextIssue.cs" />
     <Compile Include="CodeIssues\TODO\ProhibitedModifiersIssue.cs" />
     <Compile Include="CodeIssues\TODO\ConvertToAutoPropertyIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\EmptyStatementIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentDefaultValueIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyFinallyBlockIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
