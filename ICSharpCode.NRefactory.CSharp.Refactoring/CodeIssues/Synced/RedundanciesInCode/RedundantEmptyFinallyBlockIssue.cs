@@ -66,7 +66,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (tryCatch == null)
 					return;
 				AddIssue(
-					blockStatement,
+					tryCatch.FinallyToken.StartLocation,
+					blockStatement.EndLocation,
 					ctx.TranslateString("Redundant empty finally block"),
 					ctx.TranslateString("Remove 'finally'"),
 					s => {
