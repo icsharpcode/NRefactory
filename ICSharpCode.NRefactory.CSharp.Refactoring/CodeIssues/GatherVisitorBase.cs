@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <summary>
 		/// The issue provider. May be <c>null</c> if none was specified.
 		/// </summary>
-		protected readonly T QualifierDirectiveEvidentIssueProvider;
+		protected readonly T issueProvider;
 		protected readonly BaseRefactoringContext ctx;
 
 		public BaseRefactoringContext Ctx {
@@ -135,7 +135,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public GatherVisitorBase(BaseRefactoringContext ctx, T qualifierDirectiveEvidentIssueProvider = default(T))
 		{
 			this.ctx = ctx;
-			this.QualifierDirectiveEvidentIssueProvider = qualifierDirectiveEvidentIssueProvider;
+			this.issueProvider = qualifierDirectiveEvidentIssueProvider;
 			if (suppressMessageCheckId != null) {
 				foreach (var attr in this.ctx.Compilation.MainAssembly.AssemblyAttributes) {
 					if (attr.AttributeType.Name == "SuppressMessageAttribute" && attr.AttributeType.Namespace == "System.Diagnostics.CodeAnalysis") {

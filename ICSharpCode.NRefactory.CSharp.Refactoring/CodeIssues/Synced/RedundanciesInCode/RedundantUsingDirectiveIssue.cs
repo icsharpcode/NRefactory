@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var unused = new List<UsingDeclaration>();
 				foreach (var u in declarations.Skip (startIndex)) {
 					if (u.IsUsed || 
-					    QualifierDirectiveEvidentIssueProvider.namespacesToKeep.Contains(u.UsingDeclaration.Namespace))
+					    issueProvider.namespacesToKeep.Contains(u.UsingDeclaration.Namespace))
 						continue;
 					unused.Add(u.UsingDeclaration);
 				}

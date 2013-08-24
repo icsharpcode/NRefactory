@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void CheckVariable(IVariable variable, Statement env)
 			{
-				if (!QualifierDirectiveEvidentIssueProvider.IsTargetVariable(variable))
+				if (!issueProvider.IsTargetVariable(variable))
 					return;
 
 				var root = new Environment (env, env);
@@ -131,7 +131,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				envLookup [env] = root;
 
 				foreach (var result in ctx.FindReferences(env, variable)) {
-					AddNode(envLookup, new Node(result.Node, QualifierDirectiveEvidentIssueProvider.GetNodeKind(result.Node)));
+					AddNode(envLookup, new Node(result.Node, issueProvider.GetNodeKind(result.Node)));
 				}
 
 				root.SortChildren ();
@@ -144,7 +144,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				IDictionary<Statement, IList<Node>> modifications = null;
 
 				if (env.Body != null) {
-					cfg = QualifierDirectiveEvidentIssueProvider.cfgBuilder.BuildControlFlowGraph (env.Body);
+					cfg = issueProvider.cfgBuilder.BuildControlFlowGraph (env.Body);
 					modifications = new Dictionary<Statement, IList<Node>> ();
 					foreach (var node in env.Children) {
 						if (node.Kind == NodeKind.Modification || node.Kind == NodeKind.ReferenceAndModification) {
@@ -167,7 +167,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void CollectAllIssues (Environment env, string variableName)
 			{
-				var fixes = QualifierDirectiveEvidentIssueProvider.GetFixes (ctx, env, variableName).ToArray ();
+				var fixes = issueProvider.GetFixes (ctx, env, variableName).ToArray ();
 				env.IssueCollected = true;
 
 				foreach (var child in env.Children) {
@@ -228,7 +228,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var visitedNodes = new HashSet<ControlFlowNode> (stack);
 				while (stack.Count > 0) {
 					var node = stack.Pop ();
-					if (QualifierDirectiveEvidentIssueProvider.CanReachModification (node, start, modifications))
+					if (issueProvider.CanReachModification (node, start, modifications))
 						return true;
 					foreach (var edge in node.Outgoing) {
 						if (visitedNodes.Add (edge.To))

@@ -183,7 +183,6 @@
     <Compile Include="CodeActions\UseStringFormatAction.cs" />
     <Compile Include="CodeActions\UseVarKeywordAction.cs" />
     <Compile Include="CodeIssues\Custom\ConvertIfToAndExpressionIssue.cs" />
-    <Compile Include="CodeIssues\Custom\CS0759RedundantPartialMethodIssue.cs" />
     <Compile Include="CodeIssues\Custom\LockThisIssue.cs" />
     <Compile Include="CodeIssues\Custom\NegativeRelationalExpressionIssue.cs" />
     <Compile Include="CodeIssues\Custom\NotImplementedExceptionIssue.cs" />
@@ -310,9 +309,6 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedTypeParameterIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\CallToObjectEqualsViaBaseIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\CastExpressionOfIncompatibleTypeIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\CompilerErrors\CS0029InvalidConversionIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\CompilerErrors\CS0126ReturnMustBeFollowedByAnyExpression.cs" />
-    <Compile Include="CodeIssues\Uncategorized\CompilerErrors\CS0127ReturnMustNotBeFollowedByAnyExpression.cs" />
     <Compile Include="CodeIssues\Uncategorized\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
     <Compile Include="CodeIssues\Uncategorized\CompilerErrors\CS1729TypeHasNoConstructorWithNArgumentsIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ConstantConditionIssue.cs" />
@@ -365,8 +361,12 @@
     <Compile Include="CodeActions\ConvertForToWhileAction.cs" />
     <Compile Include="CodeActions\AddBracesAction.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchIssue.cs" />
-    <Compile Include="CodeIssues\Custom\CS0152DuplicateCaseLabelValueIssue.cs" />
     <Compile Include="CodeIssues\Custom\ExceptionParameterCantBeResolvedIssue.cs" />
+    <Compile Include="CodeIssues\Custom\CompilerErrors\CS0126ReturnMustBeFollowedByAnyExpression.cs" />
+    <Compile Include="CodeIssues\Custom\CompilerErrors\CS0127ReturnMustNotBeFollowedByAnyExpression.cs" />
+    <Compile Include="CodeIssues\Custom\CompilerErrors\CS0152DuplicateCaseLabelValueIssue.cs" />
+    <Compile Include="CodeIssues\Custom\CompilerErrors\CS0759RedundantPartialMethodIssue.cs" />
+    <Compile Include="CodeIssues\Custom\CompilerErrors\CS0029InvalidConversionIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -396,4 +396,7 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="CodeIssues\Custom\CompilerErrors\" />
+  </ItemGroup>
 </Project>
