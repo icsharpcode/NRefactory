@@ -66,6 +66,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				}
 			}
+
+			public override void VisitBlockStatement(BlockStatement blockStatement)
+			{
+				// SKIP
+			}
 		}
 	}
 }

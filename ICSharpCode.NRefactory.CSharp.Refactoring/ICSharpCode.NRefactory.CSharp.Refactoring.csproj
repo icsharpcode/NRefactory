@@ -367,6 +367,7 @@
     <Compile Include="CodeIssues\Custom\CompilerErrors\CS0152DuplicateCaseLabelValueIssue.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\CS0759RedundantPartialMethodIssue.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\CS0029InvalidConversionIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
