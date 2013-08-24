@@ -1,5 +1,5 @@
 //
-// UnusedLabelIssue.cs
+// UnusedLabelIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,33 +23,111 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-//	[IssueDescription(
-//		"Unused label",
-//		Description = "Label is never referenced",
-//		Category = IssueCategories.RedundanciesInDeclarations,
-//		Severity = Severity.Warning,
-//		IssueMarker = IssueMarker.GrayOut,
-//		PragmaWarning = 164,
-//		ResharperDisableKeyword = "UnusedLabel")]
-	public class UnusedLabelIssue : GatherVisitorCodeIssueProvider
+	[Ignore("Implement me!")]
+	[TestFixture]
+	public class UnusedLabelIssueTests : InspectionActionTestBase
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		[Test]
+		public void TestUnusedLabelInMethod ()
 		{
-			return new GatherVisitor(context);
+			Test<UnusedLabelIssue>(@"
+class Foo
+{
+	void Test()
+	{
+		bar: ;
+	}
+}
+", @"
+class Foo
+{
+	void Test()
+	{
+		;
+	}
+}
+");
 		}
 
-		class GatherVisitor : GatherVisitorBase<UnusedLabelIssue>
+		[Test]
+		public void TestUnusedLabelInAnonymousMethod ()
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
-			{
-			}
+			Test<UnusedLabelIssue>(@"
+class Foo
+{
+	void Test()
+	{
+		bar: ;
+		var a = delegate {
+			bar: ;
+		};
+		goto bar;
+	}
+}
+", @"
+class Foo
+{
+	void Test()
+	{
+		bar:
+		var a = delegate {
+			;
+		};
+		goto bar;
+	}
+}
+");
+		}
+	
+		[Test]
+		public void TestInvalidCase ()
+		{
+			TestWrongContext<UnusedLabelIssue>(@"
+class Foo
+{
+	void Test()
+	{
+		bar:
+		goto bar;
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestDisable ()
+		{
+			TestWrongContext<UnusedLabelIssue>(@"
+class Foo
+{
+	void Test()
+	{
+		// ReSharper disable once UnusedLabel
+		bar: ;
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestPragmaDisable ()
+		{
+			TestWrongContext<UnusedLabelIssue>(@"
+class Foo
+{
+	void Test()
+	{
+#pragma warning disable 164
+		bar: ;
+#pragma warning restore 164
+	}
+}
+");
 		}
 	}
 }
