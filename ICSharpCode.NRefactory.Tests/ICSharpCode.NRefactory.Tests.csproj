@@ -540,6 +540,7 @@
     <Compile Include="CSharp\CodeIssues\SealedMemberInSealedClassIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnusedAnonymousMethodSignatureIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyStatementIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantArgumentDefaultValueIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
