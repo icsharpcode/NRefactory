@@ -55,6 +55,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			bool IsDefaultValue(Expression arg, ICSharpCode.NRefactory.TypeSystem.IParameter par)
 			{
+				var ne = arg as NamedArgumentExpression;
+				if (ne != null) {
+					if (ne.Name != par.Name)
+						return false;
+					arg = ne.Expression;
+				}
 				var cr = ctx.Resolve(arg);
 				if (cr == null || !cr.IsCompileTimeConstant || !par.IsOptional)
 					return false;

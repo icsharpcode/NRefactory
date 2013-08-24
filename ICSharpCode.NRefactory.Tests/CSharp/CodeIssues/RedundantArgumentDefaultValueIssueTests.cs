@@ -55,6 +55,29 @@ class Test
 ");
 		}
 
+
+		[Test]
+		public void TestNamedArgument()
+		{
+			Test<RedundantArgumentDefaultValueIssue>(@"
+class Test
+{ 
+	public void Bar (int foo = 22)
+	{
+		Bar(foo: 22);
+	}
+}
+", @"
+class Test
+{ 
+	public void Bar (int foo = 22)
+	{
+		Bar ();
+	}
+}
+");
+		}
+
 		[Test]
 		public void TestMultipleRemoveFirst()
 		{
