@@ -27,9 +27,12 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory.TypeSystem;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
-{/*
+{
 	[IssueDescription("'string.CompareTo' is culture-aware",
 	                  Description = "Warns when a culture-aware 'string.CompareTo' call is used by default.",
 	                  Category = IssueCategories.PracticesAndImprovements,
@@ -48,6 +51,47 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				: base (ctx)
 			{
 			}
+
+			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+			{
+				base.VisitInvocationExpression(invocationExpression);
+
+				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+				if (rr == null || rr.IsError)
+					return;
+
+				if (rr.Member.Name != "CompareTo" || 
+				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
+				    rr.Member.Parameters.Count != 1 ||
+				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
+					return;
+				}
+				AddIssue(
+					invocationExpression,
+					ctx.TranslateString("'string.CompareTo' is culture-aware"), 
+					new CodeAction(ctx.TranslateString("Add 'StringComparison.Ordinal'"), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
+					new CodeAction(ctx.TranslateString("Add 'StringComparison.CurrentCulture'"), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
+				);
+
+			}
+
+			void AddArgument(Script script, InvocationExpression invocationExpression, string ordinal)
+			{
+				var mr = invocationExpression.Target as MemberReferenceExpression;
+				if (mr == null)
+					return;
+
+				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
+				var newArgument = astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ordinal);
+
+				var newInvocation = new InvocationExpression(
+					new MemberReferenceExpression(new PrimitiveType("string"), "Compare"),
+					mr.Target.Clone(),
+					invocationExpression.Arguments.First().Clone(),
+					newArgument
+				);
+				script.Replace(invocationExpression, newInvocation);
+			}
 		}
-	}*/
+	}
 }

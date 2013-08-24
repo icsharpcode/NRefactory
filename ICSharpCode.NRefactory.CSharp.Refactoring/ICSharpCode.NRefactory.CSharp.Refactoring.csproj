@@ -369,7 +369,6 @@
     <Compile Include="CodeIssues\TODO\UnusedLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ConvertIfToOrExpressionIssue.cs" />
     <Compile Include="CodeIssues\TODO\StringCompareIsCultureSpecificIssue.cs" />
-    <Compile Include="CodeIssues\TODO\StringCompareToIsCultureSpecificIssue.cs" />
     <Compile Include="CodeIssues\TODO\UseArrayCreationExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureIssue.cs" />
     <Compile Include="CodeIssues\TODO\RedundantExplicitArraySizeIssue.cs" />
@@ -382,6 +381,7 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\PartialMethodParameterNameMismatchIssue.cs" />
     <Compile Include="CodeIssues\TODO\BaseMethodParameterNameMismatchIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSimpleAssignmentIssue.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\StringCompareToIsCultureSpecificIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

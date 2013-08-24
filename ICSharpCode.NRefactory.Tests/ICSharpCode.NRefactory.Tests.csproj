@@ -544,6 +544,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantEmptyFinallyBlockIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PartialMethodParameterNameMismatchIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithSimpleAssignmentIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\StringCompareToIsCultureSpecificIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
