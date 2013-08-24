@@ -75,22 +75,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				var targetSpace = declarationSpaceVisitor.GetDeclarationSpace(targetContext);
 				var currentSpace = declarationSpaceVisitor.GetDeclarationSpace(currentContext);
-
 				foreach (var name in currentSpace.DeclaredNames) {
-					var isUsed = targetSpace.GetNameDeclarations(name).Any(node => !HasParent(node, currentContext));
+					var isUsed = targetSpace.GetNameDeclarations(name).Any(node => node.Ancestors.Any(n => n == currentContext));
 					if (isUsed)
 						return true;
 				}
 				return false;
 			}
-
-			static bool HasParent(AstNode node, AstNode currentContext)
-			{
-				while (node != null && node != currentContext)
-					node = node.Parent;
-				return node != null;
-			}
-
 			public override void VisitIfElseStatement (IfElseStatement ifElseStatement)
 			{
 				base.VisitIfElseStatement(ifElseStatement);
