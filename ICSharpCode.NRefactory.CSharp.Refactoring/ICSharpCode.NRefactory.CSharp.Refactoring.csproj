@@ -384,6 +384,7 @@
     <Compile Include="CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs" />
     <Compile Include="CodeActions\ReverseDirectionForForLoopAction.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantArgumentNameIssue.cs" />
+    <Compile Include="CodeIssues\Custom\AdditionalOfTypeIssues.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

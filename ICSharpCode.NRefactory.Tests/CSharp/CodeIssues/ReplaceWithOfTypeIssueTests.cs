@@ -198,26 +198,6 @@ class Test
 		}
 
 
-		// 
-		[Test]
-		public void TestAdditionalCase ()
-		{
-			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
-class Test
-{
-	public void Foo(object[] obj)
-	{
-		obj.Where(o => (o is Test));
-	}
-}", @"using System.Linq;
-class Test
-{
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ();
-	}
-}");
-		}
 
 		[Test]
 		public void TestDisable ()
@@ -236,5 +216,6 @@ class Test
 
 
 	}
+	
 }
 

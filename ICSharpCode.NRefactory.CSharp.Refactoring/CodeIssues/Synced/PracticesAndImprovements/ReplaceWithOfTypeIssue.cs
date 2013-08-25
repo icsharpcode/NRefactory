@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  ResharperDisableKeyword = "ReplaceWithOfType")]
 	public class ReplaceWithOfTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		static readonly AstNode selectNotNullPattern =
+		internal static readonly AstNode selectNotNullPattern =
 			new InvocationExpression(
 				new MemberReferenceExpression(new AnyNode("target"), "SelectNotNull"),
 				new LambdaExpression {
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			);
 
-		static readonly AstNode wherePatternCase1 =
+		internal static readonly AstNode wherePatternCase1 =
 			new InvocationExpression(
 				new MemberReferenceExpression(
 					new InvocationExpression(
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 		);
 
-		static readonly AstNode wherePatternCase2 =
+		internal static readonly AstNode wherePatternCase2 =
 			new InvocationExpression(
 				new MemberReferenceExpression(
 					new InvocationExpression(
@@ -80,15 +80,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Body = PatternHelper.OptionalParentheses (new CastExpression(new Backreference("type"), PatternHelper.OptionalParentheses (new AnyNode("expr2"))))
 				}
 		);
-
-		static readonly AstNode whereSimpleCase =
-			new InvocationExpression(
-				new MemberReferenceExpression(new AnyNode("target"), "Where"),
-				new LambdaExpression {
-					Parameters = { PatternHelper.NamedParameter("param1", PatternHelper.AnyType("paramType", true), Pattern.AnyString) },
-					Body = PatternHelper.OptionalParentheses(new IsExpression(PatternHelper.OptionalParentheses(new AnyNode("expr1")), new AnyNode("type")))
-				}
-			);
 
 
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -123,24 +114,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (!match.Success) {
 						match = wherePatternCase2.Match (anyInvoke); 
 						if (!match.Success) {
-
-							// Warning: The simple case is not 100% equal in semantic, but it's one common code smell
-							match = whereSimpleCase.Match (anyInvoke); 
-							if (match.Success) {
-								AddIssue (
-									anyInvoke,
-									ctx.TranslateString("Replace with OfType<T>"),
-									ctx.TranslateString("Replace with call to OfType<T>"),
-									script => {
-										var target = match.Get<Expression>("target").Single().Clone ();
-										var type = match.Get<AstType>("type").Single().Clone();
-										script.Replace(anyInvoke, new InvocationExpression(new MemberReferenceExpression(target, "OfType", type)));
-									}
-								);
-								return;
-							}
-
-
 							base.VisitInvocationExpression(anyInvoke);
 							return;
 						}
