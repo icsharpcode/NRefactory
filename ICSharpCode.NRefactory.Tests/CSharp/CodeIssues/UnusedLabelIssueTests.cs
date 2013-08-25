@@ -28,7 +28,6 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	[Ignore("Implement me!")]
 	[TestFixture]
 	public class UnusedLabelIssueTests : InspectionActionTestBase
 	{
@@ -54,36 +53,6 @@ class Foo
 ");
 		}
 
-		[Test]
-		public void TestUnusedLabelInAnonymousMethod ()
-		{
-			Test<UnusedLabelIssue>(@"
-class Foo
-{
-	void Test()
-	{
-		bar: ;
-		var a = delegate {
-			bar: ;
-		};
-		goto bar;
-	}
-}
-", @"
-class Foo
-{
-	void Test()
-	{
-		bar:
-		var a = delegate {
-			;
-		};
-		goto bar;
-	}
-}
-");
-		}
-	
 		[Test]
 		public void TestInvalidCase ()
 		{

@@ -367,7 +367,6 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ConvertIfToOrExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureIssue.cs" />
-    <Compile Include="CodeIssues\TODO\ConvertToAutoPropertyIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\EmptyStatementIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentDefaultValueIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyFinallyBlockIssue.cs" />
@@ -376,11 +375,11 @@
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\StringCompareToIsCultureSpecificIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\StringCompareIsCultureSpecificIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\UseArrayCreationExpressionIssue.cs" />
-    <Compile Include="CodeIssues\TODO\UnusedLabelIssue.cs" />
     <Compile Include="CodeIssues\Custom\BaseMethodParameterNameMismatchIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArraySizeIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantUnsafeContextIssue.cs" />
     <Compile Include="CodeIssues\Synced\CompilerErrors\ProhibitedModifiersIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedLabelIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -412,7 +411,6 @@
   </ProjectExtensions>
   <ItemGroup>
     <Folder Include="CodeIssues\Custom\CompilerErrors\" />
-    <Folder Include="CodeIssues\TODO\" />
     <Folder Include="CodeIssues\Synced\CompilerErrors\" />
   </ItemGroup>
 </Project>
