@@ -554,6 +554,7 @@
     <Compile Include="CSharp\CodeIssues\RemoveRedundantOrStatementIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtractWhileConditionToInternalIfStatementActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReverseDirectionForForLoopTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantArgumentNameTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
