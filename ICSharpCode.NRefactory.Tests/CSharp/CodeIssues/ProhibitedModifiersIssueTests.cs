@@ -1,5 +1,5 @@
 //
-// ProhibitedModifiersIssue.cs
+// ProhibitedModifiersIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,33 +23,95 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-/*
-using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	[IssueDescription(
-		"Checks for prohibited modifiers",
-		Description = "Checks for prohibited modifiers",
-		Category = IssueCategories.CompilerErrors,
-		Severity = Severity.Error)]
-	public class ProhibitedModifiersIssue : GatherVisitorCodeIssueProvider
+	[TestFixture]
+	public class ProhibitedModifiersIssueTests : InspectionActionTestBase
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		[Test]
+		public void TestNonStaticMembersInStaticClass ()
 		{
-			return new GatherVisitor(context);
+			Test<ProhibitedModifiersIssue>(@"
+static class Foo
+{
+	public void Bar () 
+	{
+	}
+}
+", @"
+static class Foo
+{
+	public static void Bar () 
+	{
+	}
+}
+");
+		}
+	
+		[Test]
+		public void TestNonStaticFieldsInStaticClass ()
+		{
+			Test<ProhibitedModifiersIssue>(@"
+static class Foo
+{
+	int a, b, c;
+}
+", 3, @"
+static class Foo
+{
+	static int a, b, c;
+}
+", 1);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantArgumentDefaultValueIssue>
+		[Ignore("Code issues don't run with errors atm.")]
+		[Test]
+		public void TestStaticConstructorWithPublicModifier()
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
-			{
-			}
+			Test<ProhibitedModifiersIssue>(@"
+class Test
+{
+	static int a;
+
+	public static Test ()
+	{
+		a = 100;
+	}
+}", @"
+class Test
+{
+	static int a;
+
+	static Test ()
+	{
+		a = 100;
+	}
+}");
 		}
+	
+		[Test]
+		public void TestVirtualMemberInSealedClass ()
+		{
+			Test<ProhibitedModifiersIssue>(@"
+sealed class Test
+{
+	public virtual void FooBar ()
+	{
+	}
+}", @"
+sealed class Test
+{
+	public void FooBar ()
+	{
+	}
+}");
+		}
+	
+
+
 	}
 }
 
-*/

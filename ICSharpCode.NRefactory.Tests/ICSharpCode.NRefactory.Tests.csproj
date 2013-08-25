@@ -411,7 +411,6 @@
     <Compile Include="FormattingTests\TestExpressionFormatting.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantComparisonWithNullIssueTests.cs">
     </Compile>
-    <Compile Include="CSharp\CodeIssues\StaticConstructorAccessModifierTest.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PublicConstructorInAbstractClassIssueTest.cs" />
@@ -551,6 +550,7 @@
     <Compile Include="CSharp\CodeIssues\BaseMethodParameterNameMismatchIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantExplicitArraySizeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantUnsafeContextIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ProhibitedModifiersIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
