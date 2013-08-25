@@ -128,7 +128,6 @@ class TestClass
 			Test<RedundantArgumentNameIssue>(input, 1, output);
 		}
 
-		[Ignore]
 		[Test]
 		public void IndexerExpression()
 		{
@@ -146,10 +145,7 @@ internal class Test
 	private void Foo()
 	{
 		var TestBases = new TestClass();
-//Resharper disable RedundantArgumentName
-		int a = TestBases[i: 1,
-//Resharper restore RedundantArgumentName
-		j: 2];
+		int a = TestBases[i: 1, j: 2];
 	}
 }
 ";
@@ -167,15 +163,79 @@ internal class Test
 	private void Foo()
 	{
 		var TestBases = new TestClass();
-//Resharper disable RedundantArgumentName
-		int a = TestBases [1,
-//Resharper restore RedundantArgumentName
-		2];
+		int a = TestBases [1, j: 2];
+	}
+}
+";
+			Test<RedundantArgumentNameIssue>(input, 2, output, 0);
+		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestAttributes()
+		{
+			var input = @"using System;
+class MyAttribute : Attribute
+{
+	public MyAttribute(int x, int y) {}
+}
+
+
+[MyAttribute(x: 1, y: 2)]
+class TestClass
+{
+}
+"
+;
+			var output = @"using System;
+class MyAttribute : Attribute
+{
+	public MyAttribute(int x, int y) {}
+}
+
+
+[MyAttribute(x: 1, 2)]
+class TestClass
+{
+}
+";
+			Test<RedundantArgumentNameIssue>(input, 2, output, 1);
+		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestObjectCreation()
+		{
+			var input = @"
+class TestClass
+{
+	public TestClass (int x, int y)
+	{
+	}
+
+	public void Foo ()
+	{
+		new TestClass (0, y:1);
+	}
+}
+"
+;
+			var output = @"
+class TestClass
+{
+	public TestClass (int x, int y)
+	{
+	}
+
+	public void Foo ()
+	{
+		new TestClass (0, 1);
 	}
 }
 ";
 			Test<RedundantArgumentNameIssue>(input, 1, output);
 		}
+
 
 		[Test]
 		public void Invalid()
