@@ -368,7 +368,6 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ConvertIfToOrExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureIssue.cs" />
-    <Compile Include="CodeIssues\TODO\RedundantExplicitArraySizeIssue.cs" />
     <Compile Include="CodeIssues\TODO\RedundantUnsafeContextIssue.cs" />
     <Compile Include="CodeIssues\TODO\ProhibitedModifiersIssue.cs" />
     <Compile Include="CodeIssues\TODO\ConvertToAutoPropertyIssue.cs" />
@@ -382,6 +381,7 @@
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\UseArrayCreationExpressionIssue.cs" />
     <Compile Include="CodeIssues\TODO\UnusedLabelIssue.cs" />
     <Compile Include="CodeIssues\Custom\BaseMethodParameterNameMismatchIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArraySizeIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

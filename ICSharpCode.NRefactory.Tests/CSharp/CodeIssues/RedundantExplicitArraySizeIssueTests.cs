@@ -1,5 +1,5 @@
 //
-// RedundantExplicitArraySizeIssue.cs
+// RedundantExplicitArraySizeIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,34 +23,52 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-/*
 using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
+using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	[IssueDescription(
-		"Redundant explicit size in array creation",
-		Description = "Redundant explicit size in array creation",
-		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.GrayOut,
-		ResharperDisableKeyword = "RedundantExplicitArraySize")]
-	public class RedundantExplicitArraySizeIssue : GatherVisitorCodeIssueProvider
+	[TestFixture]
+	public class RedundantExplicitArraySizeIssueTests : InspectionActionTestBase
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		[Test]
+		public void TestSimpleCase()
 		{
-			return new GatherVisitor(context);
+			Test<RedundantExplicitArraySizeIssue>(@"
+class Test
+{
+	void Foo ()
+	{
+		var foo = new int[3] { 1, 2, 3 };
+	}
+}
+", @"
+class Test
+{
+	void Foo ()
+	{
+		var foo = new int[] { 1, 2, 3 };
+	}
+}
+");
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantExplicitArraySizeIssue>
+		[Test]
+		public void TestDisable()
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
-			{
-			}
+			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
+class Test
+{
+	void Foo ()
+	{
+		// ReSharper disable once RedundantExplicitArraySize
+		var foo = new int[3] { 1, 2, 3 };
+	}
+}
+");
 		}
 	}
 }
-*/
+
