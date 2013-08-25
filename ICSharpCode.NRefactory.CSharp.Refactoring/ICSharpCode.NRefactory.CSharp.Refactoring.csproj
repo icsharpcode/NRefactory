@@ -376,12 +376,12 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentDefaultValueIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyFinallyBlockIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\PartialMethodParameterNameMismatchIssue.cs" />
-    <Compile Include="CodeIssues\TODO\BaseMethodParameterNameMismatchIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSimpleAssignmentIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\StringCompareToIsCultureSpecificIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\StringCompareIsCultureSpecificIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\UseArrayCreationExpressionIssue.cs" />
     <Compile Include="CodeIssues\TODO\UnusedLabelIssue.cs" />
+    <Compile Include="CodeIssues\Custom\BaseMethodParameterNameMismatchIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
