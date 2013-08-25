@@ -237,20 +237,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					ReturnType = new AnyNode(), 
 					AddAccessor = new Accessor {
 						Body = new BlockStatement {
-							new ExpressionStatement(new AssignmentExpression {
+							new AssignmentExpression {
 								Left = new NamedNode ("baseRef", new MemberReferenceExpression(new BaseReferenceExpression(), Pattern.AnyString)),
 								Operator = AssignmentOperatorType.Add,
 								Right = new IdentifierExpression("value")
-							})
+							}
 						}
 					},
 					RemoveAccessor = new Accessor {
 						Body = new BlockStatement {
-							new ExpressionStatement(new AssignmentExpression {
+							new AssignmentExpression {
 								Left = new Backreference("baseRef"),
 								Operator = AssignmentOperatorType.Subtract,
 								Right = new IdentifierExpression("value")
-							})
+							}
 						}
 					},
 				};

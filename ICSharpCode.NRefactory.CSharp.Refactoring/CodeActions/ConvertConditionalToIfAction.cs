@@ -138,9 +138,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 														   conditionalExpr.TrueExpression.Clone ());
 			var falseAssignment = new AssignmentExpression (target.Clone (), op,
 															conditionalExpr.FalseExpression.Clone ());
-			return new IfElseStatement (conditionalExpr.Condition.Clone (),
-										new ExpressionStatement (trueAssignment),
-										new ExpressionStatement (falseAssignment));
+			return new IfElseStatement (conditionalExpr.Condition.Clone (), trueAssignment, falseAssignment);
 		}
 	}
 }

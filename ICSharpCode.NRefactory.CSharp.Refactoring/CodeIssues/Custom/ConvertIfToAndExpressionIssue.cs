@@ -53,11 +53,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new IfElseStatement(
 					new AnyNode ("condition"),
 					PatternHelper.EmbeddedStatement (
-						new ExpressionStatement(
-							new AssignmentExpression(
-								new AnyNode("target"),
-								new PrimitiveExpression (false)
-							)
+						new AssignmentExpression(
+							new AnyNode("target"),
+							new PrimitiveExpression (false)
 						)
 					)
 				);
@@ -115,13 +113,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								script.Replace(
 									ifElseStatement, 
 									new ExpressionStatement(
-									new AssignmentExpression(
-										target.Clone(),
-										AssignmentOperatorType.BitwiseAnd,
-										CSharpUtil.InvertCondition(expr)) 
+										new AssignmentExpression(
+											target.Clone(),
+											AssignmentOperatorType.BitwiseAnd,
+											CSharpUtil.InvertCondition(expr)
+										) 
 									)
 								);
-						}
+							}
 						);
 					}
 				}

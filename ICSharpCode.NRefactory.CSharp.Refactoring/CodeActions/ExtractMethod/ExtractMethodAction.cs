@@ -204,12 +204,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 								continue;
 							script.InsertBefore (statements [0], new VariableDeclarationStatement (context.CreateShortType(variable.Type), variable.Name));
 						}
-						AstNode invocationStatement;
+						Statement invocationStatement;
 
 						if (generatedReturnVariable != null) {
 							invocationStatement = new VariableDeclarationStatement (new SimpleType ("var"), generatedReturnVariable.Name, invocation);
 						} else {
-							invocationStatement = new ExpressionStatement(invocation);
+							invocationStatement = invocation;
 						}
 						script.Replace(statements [0], invocationStatement);
 

@@ -50,9 +50,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				ctx.TranslateString("Replace with 'if' statement"),
 				script => {
 					var ifStatement = new IfElseStatement(
-						conditionalExpression.Condition.Clone(), 
-						new ExpressionStatement(new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.TrueExpression.Clone())),
-						new ExpressionStatement(new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.FalseExpression.Clone()))
+						conditionalExpression.Condition.Clone(),
+						new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.TrueExpression.Clone()),
+						new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.FalseExpression.Clone())
 					);
 					script.Replace(node.Parent, ifStatement); 
 				},
@@ -67,8 +67,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				script => {
 					var ifStatement = new IfElseStatement(
 						new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.InEquality, new NullReferenceExpression()), 
-						new ExpressionStatement(new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Left.Clone())),
-						new ExpressionStatement(new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Right.Clone()))
+						new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Left.Clone()),
+						new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Right.Clone())
 					);
 					script.Replace(node.Parent, ifStatement); 
 				},

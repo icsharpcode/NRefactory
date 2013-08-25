@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var name = initializer.Name;
 			
 			return new CodeAction(context.TranslateString("Move declaration to outer scope"), script =>  {
-				script.InsertBefore(declarationStatement, new ExpressionStatement() {
+				script.InsertBefore(declarationStatement, new ExpressionStatement {
 					Expression = new AssignmentExpression(new IdentifierExpression(name), initializer.Initializer.Clone())
 				});
 				script.Remove(declarationStatement);

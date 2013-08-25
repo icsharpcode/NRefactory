@@ -81,7 +81,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						),
 					new IfElseStatement {
 						Condition = new BinaryOperatorExpression (new IdentifierExpression (handlerName), BinaryOperatorType.InEquality, new PrimitiveExpression (null)),
-						TrueStatement = new ExpressionStatement (new InvocationExpression (new IdentifierExpression (handlerName), arguments))
+						TrueStatement = new InvocationExpression (new IdentifierExpression (handlerName), arguments)
 					}
 				}
 			};

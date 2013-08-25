@@ -289,8 +289,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var variableNode = (VariableInitializer)node;
 						if (containsInvocations && isDeclareStatement) {
 							//add the column ';' that will be removed after the next line replacement
-							var expression = (Expression)variableNode.Initializer.Clone();
-							var invocation = new ExpressionStatement(expression);
+							var expression = (Statement)variableNode.Initializer.Clone();
 							if (containsLaterAssignments && varDecl != null) {
 								var clonedDefinition = (VariableDeclarationStatement)varDecl.Clone();
 
@@ -300,7 +299,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								variableNodeClone.Initializer = null;
 								script.InsertBefore(node.Parent, clonedDefinition);
 							}
-							script.Replace(node.Parent, invocation);
+							script.Replace(node.Parent, expression);
 							return;
 						}
 						if (isDeclareStatement && !containsRefOrOut && !containsLaterAssignments) {

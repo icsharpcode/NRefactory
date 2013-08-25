@@ -78,14 +78,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				Modifiers = mod,
 				Name = context.GetNameProposal (fieldName, false),
 				ReturnType = field.ReturnType.Clone (),
-				Getter = new Accessor () {
-					Body = new BlockStatement () {
+				Getter = new Accessor {
+					Body = new BlockStatement {
 						new ReturnStatement (new IdentifierExpression (fieldName))
 					}
 				},
-				Setter = new Accessor () {
-					Body = new BlockStatement () {
-						new ExpressionStatement (new AssignmentExpression (new IdentifierExpression (fieldName), new IdentifierExpression ("value")))
+				Setter = new Accessor {
+					Body = new BlockStatement {
+						new AssignmentExpression (new IdentifierExpression (fieldName), new IdentifierExpression ("value"))
 					}
 				}
 			};

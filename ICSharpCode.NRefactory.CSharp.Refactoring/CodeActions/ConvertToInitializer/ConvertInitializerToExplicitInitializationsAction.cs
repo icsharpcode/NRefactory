@@ -166,8 +166,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Target = data.Clone(),
 					MemberName = "Add"
 				};
-				var statement = new ExpressionStatement(new InvocationExpression(method, arguments));
-				statements.Add(statement);
+				statements.Add(new InvocationExpression(method, arguments));
 
 				return null;
 			}

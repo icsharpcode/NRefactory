@@ -54,11 +54,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new IfElseStatement(
 					new AnyNode ("condition"),
 					PatternHelper.EmbeddedStatement (
-						new ExpressionStatement(
-							new AssignmentExpression(
-								new AnyNode("target"),
-								new PrimitiveExpression (true)
-							)
+						new AssignmentExpression(
+							new AnyNode("target"),
+							new PrimitiveExpression (true)
 						)
 					)
 				);

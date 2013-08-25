@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				context.TranslateString("Convert to anonymous method"), 
 				script => {
 					var expr = new InvocationExpression(node.Clone(), invocationMethod.Parameters.Select(p => new IdentifierExpression(context.GetNameProposal(p.Name))));
-					var stmt = invocationMethod.ReturnType.IsKnownType(KnownTypeCode.Void) ? (Statement)new ExpressionStatement(expr) : new ReturnStatement(expr);
+					var stmt = invocationMethod.ReturnType.IsKnownType(KnownTypeCode.Void) ? (Statement)expr : new ReturnStatement(expr);
 					var anonymousMethod = new AnonymousMethodExpression {
 						Body = new BlockStatement { stmt }
 					};

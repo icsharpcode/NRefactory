@@ -74,12 +74,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								Name = resolveResult.Member.DeclaringTypeDefinition.Name,
 								Modifiers = Modifiers.Public,
 								Body = new BlockStatement {
-									new ExpressionStatement(
 										new AssignmentExpression(
-										new MemberReferenceExpression(new ThisReferenceExpression(), varDecl.Item1.Name),
-										new IdentifierExpression(varDecl.Item1.Name)
-									)
-									)
+											new MemberReferenceExpression(new ThisReferenceExpression(), varDecl.Item1.Name),
+											new IdentifierExpression(varDecl.Item1.Name)
+										)
 								},
 								Parameters = {
 									new ParameterDeclaration(c.CreateShortType(resolveResult.Type), varDecl.Item1.Name)

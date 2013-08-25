@@ -104,7 +104,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var forStatement = new ForStatement() {
 					Initializers = { initializer },
 					Condition = new BinaryOperatorExpression (id1, BinaryOperatorType.LessThan, new MemberReferenceExpression (inExpression.Clone (), countProperty)),
-					Iterators = { new ExpressionStatement (new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, id2)) },
+					Iterators = { new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, id2) },
 					EmbeddedStatement = new BlockStatement {
 						variableDeclarationStatement
 					}
@@ -160,7 +160,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var forStatement = new ForStatement {
 					Initializers = { initializer },
 					Condition = new BinaryOperatorExpression (id1, BinaryOperatorType.LessThan, new IdentifierExpression(optimizedUpperBound)),
-					Iterators = { new ExpressionStatement (new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, id2)) },
+					Iterators = { new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, id2) },
 					EmbeddedStatement = new BlockStatement {
 						variableDeclarationStatement
 					}

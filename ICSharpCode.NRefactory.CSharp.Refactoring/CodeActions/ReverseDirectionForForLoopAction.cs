@@ -145,7 +145,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var newFor = new ForStatement() {
 						Initializers = { new VariableDeclarationStatement(varDelc.Type.Clone(), initalizer.Name, direction == true ? SubtractOne(bound.Clone()) : bound.Clone() ) },
 						Condition = GetNewBound(initalizer.Name, !direction, initalizer.Initializer.Clone()),
-						Iterators = { new ExpressionStatement (CreateIterator(initalizer.Name, !direction)) },
+						Iterators = { CreateIterator(initalizer.Name, !direction) },
 						EmbeddedStatement = node.EmbeddedStatement.Clone()
 					};
 					s.Replace(node, newFor);

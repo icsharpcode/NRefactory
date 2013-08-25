@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (RequireReturnStatement (context, node)) {
 						body.Add (new ReturnStatement (bodyExpr.Clone ()));
 					} else {
-						body.Add (new ExpressionStatement (bodyExpr.Clone ()));
+						body.Add (bodyExpr.Clone ());
 					}
 					script.Replace (bodyExpr, body);
 				},
