@@ -81,6 +81,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 		);
 
+		static readonly AstNode whereSimpleCase =
+			new InvocationExpression(
+				new MemberReferenceExpression(new AnyNode("target"), "Where"),
+				new LambdaExpression {
+					Parameters = { PatternHelper.NamedParameter("param1", PatternHelper.AnyType("paramType", true), Pattern.AnyString) },
+					Body = PatternHelper.OptionalParentheses(new IsExpression(PatternHelper.OptionalParentheses(new AnyNode("expr1")), new AnyNode("type")))
+				}
+			);
+
+
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
@@ -107,21 +117,44 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitInvocationExpression (InvocationExpression anyInvoke)
 			{
-				base.VisitInvocationExpression (anyInvoke);
 				var match = selectNotNullPattern.Match (anyInvoke);
 				if (!match.Success) {
 					match = wherePatternCase1.Match (anyInvoke);
 					if (!match.Success) {
-						match = wherePatternCase2.Match (anyInvoke);
-						if (!match.Success)
+						match = wherePatternCase2.Match (anyInvoke); 
+						if (!match.Success) {
+
+							// Warning: The simple case is not 100% equal in semantic, but it's one common code smell
+							match = whereSimpleCase.Match (anyInvoke); 
+							if (match.Success) {
+								AddIssue (
+									anyInvoke,
+									ctx.TranslateString("Replace with OfType<T>"),
+									ctx.TranslateString("Replace with call to OfType<T>"),
+									script => {
+										var target = match.Get<Expression>("target").Single().Clone ();
+										var type = match.Get<AstType>("type").Single().Clone();
+										script.Replace(anyInvoke, new InvocationExpression(new MemberReferenceExpression(target, "OfType", type)));
+									}
+								);
+								return;
+							}
+
+
+							base.VisitInvocationExpression(anyInvoke);
 							return;
+						}
 					}
-					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1")) || 
-					    !CheckParameterMatches(match.Get("param2"), match.Get("expr2")))
+					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1")) ||
+					    !CheckParameterMatches(match.Get("param2"), match.Get("expr2"))) {
+						base.VisitInvocationExpression (anyInvoke);
 						return;
+					}
 				} else {
-					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1")))
+					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1"))) {
+						base.VisitInvocationExpression (anyInvoke);
 						return;
+					}
 				}
 				AddIssue (
 					anyInvoke,

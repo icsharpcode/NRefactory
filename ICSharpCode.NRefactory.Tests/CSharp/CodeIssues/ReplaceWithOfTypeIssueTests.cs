@@ -27,6 +27,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.CSharp.CodeActions;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
@@ -196,6 +197,27 @@ class Test
 }");
 		}
 
+
+		// 
+		[Test]
+		public void TestAdditionalCase ()
+		{
+			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
+class Test
+{
+	public void Foo(object[] obj)
+	{
+		obj.Where(o => (o is Test));
+	}
+}", @"using System.Linq;
+class Test
+{
+	public void Foo(object[] obj)
+	{
+		obj.OfType<Test> ();
+	}
+}");
+		}
 
 		[Test]
 		public void TestDisable ()
