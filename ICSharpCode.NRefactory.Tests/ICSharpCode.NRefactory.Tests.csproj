@@ -550,6 +550,7 @@
     <Compile Include="CSharp\CodeIssues\UnusedLabelIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\BaseMethodParameterNameMismatchIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantExplicitArraySizeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantUnsafeContextIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
