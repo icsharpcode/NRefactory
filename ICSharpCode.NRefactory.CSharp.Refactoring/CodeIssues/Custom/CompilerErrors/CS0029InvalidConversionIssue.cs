@@ -146,6 +146,30 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				}
 
+				if (expression.Parent is VariableInitializer) {
+					var fd = expression.Parent.Parent as FieldDeclaration;
+					if (fd != null) {
+						fixes.Add(new CodeAction(
+							ctx.TranslateString("Change field return type"), 
+							script => {
+								script.Replace(fd.ReturnType, ctx.CreateTypeSystemAstBuilder(fd).ConvertType(rr.Type));
+							}, 
+							expression
+						));
+					}
+
+					var lc =  expression.Parent.Parent as VariableDeclarationStatement;
+					if (lc != null) {
+						fixes.Add(new CodeAction(
+							ctx.TranslateString("Fix local return type"), 
+							script => {
+								script.Replace(lc.Type, new SimpleType("var"));
+							}, 
+							expression
+						));
+					}
+				}
+
 				if (expression.Parent is ReturnStatement) {
 					AstNode entityNode;
 					var type = CS0126ReturnMustBeFollowedByAnyExpression.GetRequestedReturnType(ctx, expression.Parent, out entityNode);

@@ -489,5 +489,44 @@ enum Enum{ };
 }";
 			Test<CS0029InvalidConversionIssue>(input, output);
 		}
+	
+		[Test]
+		public void TestDeclarationFix ()
+		{
+			Test<CS0029InvalidConversionIssue>(@"
+using System.Collections.Generic;
+class TestClass
+{
+	string[] str = new List<string> ();
+}", @"
+using System.Collections.Generic;
+class TestClass
+{
+	List<string> str = new List<string> ();
+}");
+		}
+
+		[Test]
+		public void TestLocalDeclarationFix ()
+		{
+			Test<CS0029InvalidConversionIssue>(@"
+using System.Collections.Generic;
+class TestClass
+{
+	void Foo ()
+	{
+		string[] str = new List<string> ();
+	}
+}", @"
+using System.Collections.Generic;
+class TestClass
+{
+	void Foo ()
+	{
+		var str = new List<string> ();
+	}
+}");
+		}
+
 	}
 }
