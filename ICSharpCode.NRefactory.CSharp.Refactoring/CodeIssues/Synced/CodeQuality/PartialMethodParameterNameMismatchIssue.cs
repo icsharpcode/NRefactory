@@ -95,6 +95,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				int arg = 0;
 				foreach (var param in methodDeclaration.Parameters) {
+					var pr = ctx.Resolve(param) as LocalResolveResult;
+					if (pr == null)
+						continue;
 					foreach (var part in method.Parts) {
 						if (param.Name != part.Parameters[arg].Name) {
 							List<CodeAction> fixes = new List<CodeAction>();
@@ -103,7 +106,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 									int _arg = arg;
 									fixes.Add(new CodeAction (
 										string.Format(ctx.TranslateString("Rename to '{0}'"), p2.Parameters[_arg].Name),
-										s => { s.Replace(param.NameToken, Identifier.Create(p2.Parameters[_arg].Name));},
+										s => {
+											s.Rename(pr.Variable, p2.Parameters[_arg].Name);
+										},
 										param
 									)); 
 								}

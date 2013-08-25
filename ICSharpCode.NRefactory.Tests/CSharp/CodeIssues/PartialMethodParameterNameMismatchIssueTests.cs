@@ -31,8 +31,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	[TestFixture]
 	public class PartialMethodParameterNameMismatchIssueTests : InspectionActionTestBase
 	{
+
 		[Test]
-		public void SimpleCase ()
+		public void SimpleCaseFix ()
 		{
 			Test<PartialMethodParameterNameMismatchIssue>(@"
 partial class Test
@@ -46,37 +47,7 @@ partial class Test
 	{
 	}
 }
-", 2, @"
-partial class Test
-{
-	partial void FooBar(int foo);
-}
-
-partial class Test
-{
-	partial void FooBar(int foo)
-	{
-	}
-}
-", 0);
-		}
-
-		[Test]
-		public void SimpleCaseFix2 ()
-		{
-			Test<PartialMethodParameterNameMismatchIssue>(@"
-partial class Test
-{
-	partial void FooBar(int bar);
-}
-
-partial class Test
-{
-	partial void FooBar(int foo)
-	{
-	}
-}
-", 2, @"
+", @"
 partial class Test
 {
 	partial void FooBar(int bar);
@@ -88,7 +59,7 @@ partial class Test
 	{
 	}
 }
-", 1);
+");
 		}
 
 		[Test]
