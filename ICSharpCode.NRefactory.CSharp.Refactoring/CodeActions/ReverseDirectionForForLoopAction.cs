@@ -35,31 +35,41 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Reverse the direction of a for loop", Description = "Reverse the direction of a for loop")]
 	public class ReverseDirectionForForLoopAction : SpecializedCodeAction<ForStatement>
 	{
-		bool? IsForward(ExpressionStatement statement, string name)
+		static bool? IsForward(ExpressionStatement statement, string name, out Expression step)
 		{
+			step = null;
 			if (statement == null)
 				return null;
 
 			var forwardPattern = new Choice {
 				PatternHelper.OptionalParentheses(new UnaryOperatorExpression (UnaryOperatorType.Increment, new IdentifierExpression(name))),
 				PatternHelper.OptionalParentheses(new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, new IdentifierExpression(name))),
-				PatternHelper.OptionalParentheses(new BinaryOperatorExpression (new IdentifierExpression(name), BinaryOperatorType.Add, new PrimitiveExpression(1)))
+				PatternHelper.OptionalParentheses(new AssignmentExpression (new IdentifierExpression(name), AssignmentOperatorType.Add, PatternHelper.OptionalParentheses(new AnyNode("step"))))
 			};
-			if (forwardPattern.IsMatch(statement.Expression))
+			var match = forwardPattern.Match(statement.Expression);
+			if (match.Success) {
+				step = match.Get<Expression>("step").FirstOrDefault();
 				return true;
+			}
 
 			var backwardPattern = new Choice {
 				PatternHelper.OptionalParentheses(new UnaryOperatorExpression (UnaryOperatorType.Decrement, new IdentifierExpression(name))),
 				PatternHelper.OptionalParentheses(new UnaryOperatorExpression (UnaryOperatorType.PostDecrement, new IdentifierExpression(name))),
-				PatternHelper.OptionalParentheses(new BinaryOperatorExpression (new IdentifierExpression(name), BinaryOperatorType.Subtract, new PrimitiveExpression(1)))
+				PatternHelper.OptionalParentheses(new AssignmentExpression (new IdentifierExpression(name), AssignmentOperatorType.Subtract, PatternHelper.OptionalParentheses(new AnyNode("step"))))
 			};
-			if (backwardPattern.IsMatch(statement.Expression))
+
+			match = backwardPattern.Match(statement.Expression);
+			if (match.Success) {
+				step = match.Get<Expression>("step").FirstOrDefault();
 				return false;
+			}
 			return null;
 		}
 
-		Expression GetBound(Expression condition, string name, bool? direction)
+		Expression GetNewCondition(Expression condition, VariableInitializer initializer, bool? direction, Expression step, out Expression newInitializer)
 		{
+			var name = initializer.Name;
+			newInitializer = null;
 			var bOp = condition as BinaryOperatorExpression;
 			if (bOp == null || direction == null)
 				return null;
@@ -69,9 +79,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					PatternHelper.OptionalParentheses(new BinaryOperatorExpression(PatternHelper.OptionalParentheses(new AnyNode("bound")), BinaryOperatorType.GreaterThan, PatternHelper.OptionalParentheses(new IdentifierExpression(name))))
 				};
 				var upMatch = upwardPattern.Match(condition);
-				if (!upMatch.Success)
-					return null;
-				return upMatch.Get<Expression>("bound").FirstOrDefault();
+				if (upMatch.Success) {
+					var bound = upMatch.Get<Expression>("bound").FirstOrDefault();
+					newInitializer = direction == true ? Subtract(bound, step) : bound.Clone();
+					return GetNewBound(name, false, initializer.Initializer.Clone(), step);
+				}
+
+				var altUpwardPattern = new Choice {
+					PatternHelper.OptionalParentheses(new BinaryOperatorExpression(PatternHelper.OptionalParentheses(new IdentifierExpression(name)), BinaryOperatorType.LessThanOrEqual, PatternHelper.OptionalParentheses(new AnyNode("bound")))),
+					PatternHelper.OptionalParentheses(new BinaryOperatorExpression(PatternHelper.OptionalParentheses(new AnyNode("bound")), BinaryOperatorType.GreaterThanOrEqual, PatternHelper.OptionalParentheses(new IdentifierExpression(name))))
+				};
+				var altUpMatch = altUpwardPattern.Match(condition);
+				if (altUpMatch.Success) {
+					var bound = altUpMatch.Get<Expression>("bound").FirstOrDefault();
+					newInitializer = bound.Clone();
+					return GetNewBound(name, false, initializer.Initializer.Clone(), step);
+				}
 			}
 
 			var downPattern = new Choice {
@@ -81,39 +104,100 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var downMatch = downPattern.Match(condition);
 			if (!downMatch.Success)
 				return null;
-			return downMatch.Get<Expression>("bound").FirstOrDefault();
+			var bound2 = downMatch.Get<Expression>("bound").FirstOrDefault();
+			newInitializer = direction == true ? Subtract(bound2, step) : bound2.Clone();
+			return GetNewBound(name, true, initializer.Initializer.Clone(), step);
 		}
 
-		Expression SubtractOne(Expression astNode)
+		static readonly AstNode zeroExpr = new PrimitiveExpression(0);
+		static readonly AstNode oneExpr = new PrimitiveExpression(1);
+
+		Expression Subtract(Expression expr, Expression step)
 		{
-			var pe = astNode as PrimitiveExpression;
+			var pe = expr as PrimitiveExpression;
 			if (pe != null) {
-				return new PrimitiveExpression((int)pe.Value - 1);
-			}
-			return new BinaryOperatorExpression(pe, BinaryOperatorType.Subtract, new PrimitiveExpression(1));
+				if (step == null)
+					return new PrimitiveExpression((int)pe.Value - 1);
+				var stepExpr = step as PrimitiveExpression;
+				if (stepExpr != null)
+					return new PrimitiveExpression((int)pe.Value - (int)stepExpr.Value);
+			} 
+
+			var bOp = expr as BinaryOperatorExpression;
+			if (bOp != null) {
+				if (bOp.Operator == BinaryOperatorType.Subtract) {
+					var right = Add(bOp.Right, step);
+					if (zeroExpr.IsMatch(right))
+						return bOp.Left.Clone();
+					return new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.Subtract, right);
+				}
+				if (bOp.Operator == BinaryOperatorType.Add) {
+					var right = Subtract(bOp.Right, step);
+					if (zeroExpr.IsMatch(right))
+						return bOp.Left.Clone();
+					return new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.Add, Subtract(bOp.Right, step));
+				}
+			} 
+			if (step != null && expr.IsMatch(step))
+				return new PrimitiveExpression(0);
+
+			return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Subtract, step.Clone());
 		}
 
-		Expression AddOne(Expression astNode)
+		Expression Add(Expression expr, Expression step)
 		{
-			var pe = astNode as PrimitiveExpression;
+			var pe = expr as PrimitiveExpression;
 			if (pe != null) {
-				return new PrimitiveExpression((int)pe.Value + 1);
-			}
-			return new BinaryOperatorExpression(pe, BinaryOperatorType.Add, new PrimitiveExpression(1));
+				if (step == null)
+					return new PrimitiveExpression((int)pe.Value + 1);
+				var stepExpr = step as PrimitiveExpression;
+				if (stepExpr != null)
+					return new PrimitiveExpression((int)pe.Value + (int)stepExpr.Value);
+			} 
+
+			var bOp = expr as BinaryOperatorExpression;
+			if (bOp != null) {
+				if (bOp.Operator == BinaryOperatorType.Add) {
+					var right = Add(bOp.Right, step);
+					if (zeroExpr.IsMatch(right))
+						return bOp.Left.Clone();
+					return new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.Add, right);
+				}
+				if (bOp.Operator == BinaryOperatorType.Subtract) {
+					var right = Subtract(bOp.Right, step);
+					if (zeroExpr.IsMatch(right))
+						return bOp.Left.Clone();
+					return new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.Subtract, right);
+				}
+			} 
+
+			return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Add, step.Clone());
 		}
 
-		Expression GetNewBound(string name, bool? direction, Expression initializer)
+		Expression GetNewBound(string name, bool? direction, Expression initializer, Expression step)
 		{
+			if (initializer == null)
+				return null;
+
 			return new BinaryOperatorExpression (
 				new IdentifierExpression (name),
 				direction == true ? BinaryOperatorType.LessThan : BinaryOperatorType.GreaterThanOrEqual,
-				direction == true ? AddOne(initializer) : initializer
+				direction == true ? Add(initializer, step) : initializer
 			);
 		}
 
-		Expression CreateIterator(string name, bool? direction)
+		Expression CreateIterator(string name, bool? direction, Expression step)
 		{
-			return new UnaryOperatorExpression(direction == true ? UnaryOperatorType.PostIncrement : UnaryOperatorType.PostDecrement, new IdentifierExpression(name));
+			if (direction == true) {
+				if (step == null || oneExpr.IsMatch(step)) {
+					return new UnaryOperatorExpression(UnaryOperatorType.PostIncrement, new IdentifierExpression(name));
+				}
+				return new AssignmentExpression(new IdentifierExpression(name), AssignmentOperatorType.Add, step.Clone());
+			}
+			if (step == null || oneExpr.IsMatch(step)) {
+				return new UnaryOperatorExpression(UnaryOperatorType.PostDecrement, new IdentifierExpression(name));
+			}
+			return new AssignmentExpression(new IdentifierExpression(name), AssignmentOperatorType.Subtract, step.Clone());
 		}
 
 		protected override CodeAction GetAction(RefactoringContext context, ForStatement node)
@@ -133,19 +217,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 
 			var iterator = node.Iterators.SingleOrDefault();
-			var direction = IsForward(iterator as ExpressionStatement, initalizer.Name);
+			Expression step;
+			var direction = IsForward(iterator as ExpressionStatement, initalizer.Name, out step);
 
-			var bound = GetBound(node.Condition, initalizer.Name, direction);
-			if (bound == null)
+			Expression newInitializer;
+			var newCondition = GetNewCondition(node.Condition, initalizer, direction, step, out newInitializer);
+			if (newCondition == null)
 				return null;
 
 			return new CodeAction (
 				context.TranslateString("Reverse 'for' loop"),
 				s => {
 					var newFor = new ForStatement() {
-						Initializers = { new VariableDeclarationStatement(varDelc.Type.Clone(), initalizer.Name, direction == true ? SubtractOne(bound.Clone()) : bound.Clone() ) },
-						Condition = GetNewBound(initalizer.Name, !direction, initalizer.Initializer.Clone()),
-						Iterators = { CreateIterator(initalizer.Name, !direction) },
+						Initializers = { new VariableDeclarationStatement(varDelc.Type.Clone(), initalizer.Name, newInitializer) },
+						Condition = newCondition,
+						Iterators = { CreateIterator(initalizer.Name, !direction, step) },
 						EmbeddedStatement = node.EmbeddedStatement.Clone()
 					};
 					s.Replace(node, newFor);
