@@ -380,6 +380,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantUnsafeContextIssue.cs" />
     <Compile Include="CodeIssues\Synced\CompilerErrors\ProhibitedModifiersIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedLabelIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RemoveRedundantOrStatementIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

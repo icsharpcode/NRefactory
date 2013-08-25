@@ -551,6 +551,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantExplicitArraySizeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantUnsafeContextIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ProhibitedModifiersIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RemoveRedundantOrStatementIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
