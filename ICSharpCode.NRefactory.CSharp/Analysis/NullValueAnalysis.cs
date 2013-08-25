@@ -343,10 +343,24 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			}
 		}
 
+		int visits = 0;
+
 		void Visit(PendingNode nodeInfo)
 		{
 			var node = nodeInfo.nodeToVisit;
 			var statusInfo = nodeInfo.statusInfo;
+
+			visits++;
+			if (visits > 100) {
+				//Visiting way too often, let's enter fast mode
+				//Fast mode is slighly less accurate but visits each node less times
+				nodesToVisit.RemoveWhere(candidate => candidate.nodeToVisit == nodeInfo.nodeToVisit &&
+				                         candidate.pendingTryFinallyNodes.Equals(nodeInfo.pendingTryFinallyNodes) &&
+				                         candidate.nodeAfterFinally == nodeInfo.nodeAfterFinally);
+				statusInfo = node.VariableState;
+			}
+
+
 
 			var nextStatement = node.NextStatement;
 			VariableStatusInfo outgoingStatusInfo = statusInfo;
