@@ -76,11 +76,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var match = ifPattern.Match(ifElseStatement);
 				if (match.Success) {
 					var varDeclaration = ifElseStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) as VariableDeclarationStatement;
-					var target = match.Get<Expression>("target").Single() as IdentifierExpression;
+					var target = match.Get<Expression>("target").Single();
 					var match2 = varDelarationPattern.Match(varDeclaration);
 					if (match2.Success) {
 						var initializer = varDeclaration.Variables.FirstOrDefault();
-						if (initializer != null && target.Identifier != initializer.Name)
+						if (initializer != null && target is IdentifierExpression && ((IdentifierExpression)target).Identifier != initializer.Name)
 							return;
 						var expr = match.Get<Expression>("condition").Single();
 						AddIssue(
