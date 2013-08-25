@@ -412,7 +412,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		
 		void PlaceOnNewLine(NewLinePlacement newLine, AstNode keywordNode)
 		{
-			if (keywordNode == null)
+			if (keywordNode == null || keywordNode.StartLocation.IsEmpty)
 				return;
 			
 			var prev = keywordNode.GetPrevNode (NoWhitespacePredicate);

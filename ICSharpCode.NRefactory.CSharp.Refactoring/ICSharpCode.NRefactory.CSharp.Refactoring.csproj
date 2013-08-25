@@ -382,6 +382,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RemoveRedundantOrStatementIssue.cs" />
     <Compile Include="CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs" />
+    <Compile Include="CodeActions\ReverseDirectionForForLoopAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
