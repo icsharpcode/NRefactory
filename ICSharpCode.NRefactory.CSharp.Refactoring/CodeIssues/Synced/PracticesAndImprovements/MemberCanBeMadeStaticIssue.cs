@@ -186,7 +186,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (fnode is MemberReferenceExpression) {
 					var memberReference = new MemberReferenceExpression(
-						new TypeReferenceExpression(fctx.CreateShortType(rr.Member.DeclaringType)),
+						fctx.CreateShortType(rr.Member.DeclaringType),
 						rr.Member.Name
 					);
 					fscript.Replace(fnode, memberReference);
@@ -197,7 +197,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if ((invoke.Target is MemberReferenceExpression))
 						return;
 					var memberReference = new MemberReferenceExpression(
-						new TypeReferenceExpression(fctx.CreateShortType(rr.Member.DeclaringType)),
+						fctx.CreateShortType(rr.Member.DeclaringType),
 						rr.Member.Name
 					);
 					fscript.Replace(invoke.Target, memberReference);

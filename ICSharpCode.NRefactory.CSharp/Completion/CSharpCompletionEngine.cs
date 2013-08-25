@@ -3122,11 +3122,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						} else {
 							tref = baseUnit.GetNodeAt<Expression>(location); 
 							if (tref == null) {
-								tref = new TypeReferenceExpression(memberType.Clone());
+								tref = memberType.Clone();
 								memberType.Parent.AddChild(tref, Roles.Expression);
 							}
 							if (tref is ObjectCreateExpression) {
-								expr = new TypeReferenceExpression(memberType.Target.Clone());
+								expr = memberType.Target.Clone();
 								expr.AddAnnotation(new ObjectCreateExpression());
 							}
 						}
@@ -3137,7 +3137,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					return null;
 				}
 				if (expr == null) {
-					expr = new TypeReferenceExpression(memberType.Target.Clone());
+					expr = memberType.Target.Clone();
 				}
 				tref.ReplaceWith(expr);
 			}

@@ -294,7 +294,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			static MemberReferenceExpression CreateMethodImplReferenceNode(MethodImplOptions option, AstType methodImplOptionsType)
 			{
-				return new MemberReferenceExpression(new TypeReferenceExpression(methodImplOptionsType.Clone()), Enum.GetName(typeof(MethodImplOptions), option));
+				return new MemberReferenceExpression(methodImplOptionsType.Clone(), Enum.GetName(typeof(MethodImplOptions), option));
 			}
 
 			bool IsMethodSynchronizedAttribute(Attribute attribute)

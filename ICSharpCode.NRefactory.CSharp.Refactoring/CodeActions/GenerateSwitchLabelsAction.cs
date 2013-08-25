@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var type = result.Type;
 				var newSwitch = (SwitchStatement)switchStatement.Clone();
 				
-				var target = new TypeReferenceExpression (context.CreateShortType(result.Type));
+				var target = context.CreateShortType(result.Type);
 				foreach (var field in type.GetFields ()) {
 					if (field.IsSynthetic || !field.IsConst) {
 						continue;

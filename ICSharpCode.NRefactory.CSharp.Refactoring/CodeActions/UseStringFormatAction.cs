@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			                             script => {
 				var stringType = new PrimitiveType("string");
 				var formatInvocation = new InvocationExpression(
-					new MemberReferenceExpression(new TypeReferenceExpression(stringType), "Format"));
+					new MemberReferenceExpression(stringType, "Format"));
 				var formatLiteral = new PrimitiveExpression("");
 				var counter = 0;
 				var arguments = new List<Expression>();

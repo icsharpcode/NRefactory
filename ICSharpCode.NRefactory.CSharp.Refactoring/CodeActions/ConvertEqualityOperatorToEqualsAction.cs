@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var rr = context.Resolver.GetResolverStateBefore(bOp).LookupSimpleNameOrTypeName("Equals", emptyTypes, NameLookupMode.Expression) as MethodGroupResolveResult;
 			if (rr == null || rr.IsError || HasDifferentEqualsMethod (rr.Methods)) {
 				return new MemberReferenceExpression(
-					new TypeReferenceExpression (new PrimitiveType ("object")),
+					new PrimitiveType ("object"),
 					"Equals"
 				);
 			}
