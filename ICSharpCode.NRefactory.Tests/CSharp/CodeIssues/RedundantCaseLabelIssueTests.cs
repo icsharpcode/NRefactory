@@ -60,8 +60,39 @@ class TestClass
 		}
 	}
 }";
+			Test<RedundantCaseLabelIssue> (input, 2, output);
+		}
+
+
+		[Test]
+		public void TestLabelAfterDefault ()
+		{
+			var input = @"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		switch (i) {
+			default:
+			case 1:
+				break;
+		}
+	}
+}";
+			var output = @"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		switch (i) {
+			default:
+				break;
+		}
+	}
+}";
 			Test<RedundantCaseLabelIssue> (input, 1, output);
 		}
+
 
         [Test]
         public void TestDisable()

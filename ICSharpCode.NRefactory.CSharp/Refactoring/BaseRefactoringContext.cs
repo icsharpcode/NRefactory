@@ -214,6 +214,52 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 		#endregion
 
+		#region Text stuff
+		public virtual TextEditorOptions TextEditorOptions {
+			get {
+				return TextEditorOptions.Default;
+			}
+		}
+
+		public virtual bool IsSomethingSelected {
+			get {
+				return SelectionStart != TextLocation.Empty;
+			}
+		}
+
+		public virtual string SelectedText {
+			get { return string.Empty; }
+		}
+
+		public virtual TextLocation SelectionStart {
+			get {
+				return TextLocation.Empty;
+			}
+		}
+
+		public virtual TextLocation SelectionEnd {
+			get {
+				return TextLocation.Empty;
+			}
+		}
+
+		public abstract int GetOffset (TextLocation location);
+
+		public abstract IDocumentLine GetLineByOffset (int offset);
+
+		public int GetOffset (int line, int col)
+		{
+			return GetOffset (new TextLocation (line, col));
+		}
+
+		public abstract TextLocation GetLocation (int offset);
+
+		public abstract string GetText (int offset, int length);
+
+		public abstract string GetText (ISegment segment);
+		#endregion
+
+
 		/// <summary>
 		/// Translates the english input string to the context language.
 		/// </summary>

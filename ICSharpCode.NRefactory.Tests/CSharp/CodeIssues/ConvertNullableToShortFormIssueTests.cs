@@ -103,6 +103,24 @@ namespace NN {
 		}
 
 		[Test]
+		public void TestInvalidTypeOf ()
+		{
+			TestWrongContext<ConvertNullableToShortFormIssue>(@"using System;
+class Foo
+{
+	bool Bar (object o)
+	{
+		return o.GetType() == typeof (Nullable<>);
+	}
+	bool Bar2 (object o)
+	{
+		return o.GetType() == typeof (System.Nullable<>);
+	}
+}
+");
+		}
+
+		[Test]
 		public void TestDisable ()
 		{
 			TestWrongContext<ConvertNullableToShortFormIssue>(@"class Foo

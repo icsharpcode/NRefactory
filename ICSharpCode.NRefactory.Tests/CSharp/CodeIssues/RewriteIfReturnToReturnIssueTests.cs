@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestIfElse ()
 		{
-			Test<RewriteIfReturnToReturnIssue>(@"class Foo
+			TestIssue<RewriteIfReturnToReturnIssue>(@"class Foo
 {
 	bool Bar (string str)
 	{
@@ -45,41 +45,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		else
 			return false;
 	}
-}", @"class Foo
-{
-	bool Bar (string str)
-	{
-		return str.Length > 10 ? true : false;
-	}
-}");
-		}
-
-		[Test]
-		public void TestIfElseWithBlocks ()
-		{
-			Test<RewriteIfReturnToReturnIssue>(@"class Foo
-{
-	bool Bar (string str)
-	{
-		if (str.Length > 10) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-}", @"class Foo
-{
-	bool Bar (string str)
-	{
-		return str.Length > 10 ? true : false;
-	}
 }");
 		}
 
 		[Test]
 		public void TestIfReturn ()
 		{
-			Test<RewriteIfReturnToReturnIssue>(@"class Foo
+			TestIssue<RewriteIfReturnToReturnIssue>(@"class Foo
 {
 	bool Bar (string str)
 	{
@@ -87,14 +59,61 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			return true;
 		return false;
 	}
-}", @"class Foo
+}");
+		}
+	
+		[Test]
+		public void TestSkipIfElseIf ()
+		{
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
-	bool Bar (string str)
+	static int Bar (int x)
 	{
-		return str.Length > 10 ? true : false;
+		if (x < 10)
+			return -10;
+		else if (x > 10)
+			return 10;
+		else
+			return 20;
+		return result;
 	}
 }");
 		}
+
+		[Test]
+		public void TestSkipComplexTrueExpression ()
+		{
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+{
+	static int Bar (int x)
+	{
+		if (x > 10)
+			return 10 +
+					 12;
+		else
+			return 20;
+		return result;
+	}
+}");
+		}
+
+		[Test]
+		public void TestSkipComplexFalseExpression ()
+		{
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+{
+	static int Bar (int x)
+	{
+		if (x > 10)
+			return 10;
+		else
+			return 20 +
+
+12;
+	}
+}");
+		}
+
 	}
 }
 

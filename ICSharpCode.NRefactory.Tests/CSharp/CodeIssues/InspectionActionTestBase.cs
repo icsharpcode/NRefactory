@@ -63,11 +63,11 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			Assert.AreEqual (expectedOutput, ctx.Text);
 		}
 
-		protected static void CheckFix (TestRefactoringContext ctx, IEnumerable<CodeIssue> issues, string expectedOutput)
+		protected static void CheckFix (TestRefactoringContext ctx, IEnumerable<CodeIssue> issues, string expectedOutput, int fixINdex = 0)
 		{
 			using (var script = ctx.StartScript ()) {
 				foreach (var issue in issues) {
-					issue.Actions.First ().Run (script);
+					issue.Actions[fixINdex].Run (script);
 				}
 			}
 			bool pass = expectedOutput == ctx.Text;
@@ -113,11 +113,21 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 				CheckFix (context, issues [issueToFix], output);
 		}
 
+		protected static void TestIssue<T> (string input, int issueCount = 1)
+			where T : CodeIssueProvider, new ()
+		{
+			TestRefactoringContext context;
+			var issues = GetIssues (new T (), input, out context);
+			Assert.AreEqual (issueCount, issues.Count);
+		}
+
 		protected static void Test<T> (string input, string output, int fixIndex = 0)
 			where T : CodeIssueProvider, new ()
 		{
 			TestRefactoringContext context;
 			var issues = GetIssues (new T (), input, out context);
+			if (issues.Count == 0)
+				Console.WriteLine("No issues in:\n" + input);
 			Assert.AreEqual (1, issues.Count);
 			CheckFix (context, issues[0], output, fixIndex);
 		}

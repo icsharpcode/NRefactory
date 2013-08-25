@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 	[TestFixture]
 	public class ConvertForeachToForTests : ContextActionTestBase
 	{
-		[Test()]
+		[Test]
 		public void TestArray ()
 		{
 			string result = RunContextAction (
@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				"}", result);
 		}
 		
-		[Test()]
+		[Test]
 		public void TestListOfT ()
 		{
 			string result = RunContextAction (
@@ -96,7 +96,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				"}", result);
 		}
 		
-		[Test()]
+		[Test]
 		public void TestEnumerableOfT ()
 		{
 			TestWrongContext<ConvertForeachToForAction> (
@@ -143,6 +143,31 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		}
 	}
 }");
+		}
+	
+		[Test]
+		public void TestOptimizedForLoop ()
+		{
+			Test<ConvertForeachToForAction>(@"
+class Test
+{
+	void Foo (object[] o)
+	{
+		$foreach (var p in o) {
+			System.Console.WriteLine (p);
+		}
+	}
+}", @"
+class Test
+{
+	void Foo (object[] o)
+	{
+		for (int i = 0, oLength = o.Length; i < oLength; i++) {
+			var p = o [i];
+			System.Console.WriteLine (p);
+		}
+	}
+}", 1);
 		}
 	}
 }

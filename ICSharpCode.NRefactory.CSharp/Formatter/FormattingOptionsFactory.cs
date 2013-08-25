@@ -249,6 +249,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				StatementBraceStyle = BraceStyle.EndOfLine,
 	
 				ElseNewLinePlacement = NewLinePlacement.SameLine,
+				ElseIfNewLinePlacement = NewLinePlacement.SameLine,
 				CatchNewLinePlacement = NewLinePlacement.SameLine,
 				FinallyNewLinePlacement = NewLinePlacement.SameLine,
 				WhileNewLinePlacement = NewLinePlacement.SameLine,
@@ -380,6 +381,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			baseOptions.CatchNewLinePlacement = NewLinePlacement.NewLine;
 			baseOptions.ElseNewLinePlacement = NewLinePlacement.NewLine;
+			baseOptions.ElseIfNewLinePlacement = NewLinePlacement.SameLine;
+
 			baseOptions.FinallyNewLinePlacement = NewLinePlacement.NewLine;
 			baseOptions.WhileNewLinePlacement = NewLinePlacement.DoNotCare;
 			baseOptions.ArrayInitializerWrapping = Wrapping.DoNotChange;

@@ -76,6 +76,26 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+		
+		[Test]
+		public void TestConversionBug ()
+		{
+			Test<ConvertIfToOrExpressionIssue>(@"class Foo
+{
+	public override void VisitComposedType (ComposedType composedType)
+	{
+		if (composedType.PointerRank > 0)
+			unsafeStateStack.Peek ().UseUnsafeConstructs = true;
+	}
+}", @"class Foo
+{
+	public override void VisitComposedType (ComposedType composedType)
+	{
+		unsafeStateStack.Peek ().UseUnsafeConstructs |= composedType.PointerRank > 0;
+	}
+}");
+		}
+
 		[Test]
 		public void TestDisable ()
 		{

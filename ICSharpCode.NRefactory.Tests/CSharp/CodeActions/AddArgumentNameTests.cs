@@ -76,7 +76,7 @@ class TestClass
 		}
 
 		[Test]
-		public void AttrbuteUsage()
+		public void AttributeUsage()
 		{
 			Test<AddArgumentNameAction>(@"
 using System;
@@ -91,6 +91,75 @@ public class AnyClass
 	[Obsolete(message: "" "", error: true)]
 	static void Old() { }
 }");
+		}
+
+		[Test]
+		public void AttributeNamedArgument()
+		{
+			Test<AddArgumentNameAction>(@"
+class MyAttribute : System.Attribute
+{
+	public string Name1 { get; set; }
+	public string Name2 { get; set; }
+	public string Name3 { get; set; }
+	private int foo;
+
+	public MyAttribute(int foo)
+	{
+		this.foo = foo;
+	}
+}
+
+
+[My($1, Name1 = """", Name2 = """")]
+public class Test
+{
+}
+", @"
+class MyAttribute : System.Attribute
+{
+	public string Name1 { get; set; }
+	public string Name2 { get; set; }
+	public string Name3 { get; set; }
+	private int foo;
+
+	public MyAttribute(int foo)
+	{
+		this.foo = foo;
+	}
+}
+
+
+[My(foo: 1, Name1 = """", Name2 = """")]
+public class Test
+{
+}
+");
+		}
+
+		[Test]
+		public void AttributeNamedArgumentInvalidCase()
+		{
+			TestWrongContext<AddArgumentNameAction>(@"
+class MyAttribute : System.Attribute
+{
+	public string Name1 { get; set; }
+	public string Name2 { get; set; }
+	public string Name3 { get; set; }
+	private int foo;
+
+	public MyAttribute(int foo)
+	{
+		this.foo = foo;
+	}
+}
+
+
+[My(1, $Name1 = """", Name2 = """")]
+public class Test
+{
+}
+");
 		}
 
 		[Test]
@@ -130,5 +199,20 @@ internal class Test
 	}
 }");
 		}
+	
+		[Test]
+		public void TestParamsInvalidContext()
+		{
+
+			TestWrongContext<AddArgumentNameAction>(@"
+class TestClass
+{
+	public void F()
+	{
+		System.Console.WriteLine (""foo"", 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, $12);
+	}
+}");
+		}
+
 	}
 }

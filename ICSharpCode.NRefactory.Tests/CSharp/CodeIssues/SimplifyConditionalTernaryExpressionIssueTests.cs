@@ -53,6 +53,28 @@ class Foo
 }
 ");
 		}
+
+		[Test]
+		public void TestFalseTrueCase2 ()
+		{
+			Test<SimplifyConditionalTernaryExpressionIssue>(@"
+class Foo
+{
+	void Bar ()
+	{
+		var a = obj is foo ? false : true;
+	}
+}
+", @"
+class Foo
+{
+	void Bar ()
+	{
+		var a = !(obj is foo);
+	}
+}
+");
+		}
 	
 		[Test]
 		public void TestFalseExprCase ()

@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			/// Modifies the variable state to consider a new incoming path
 			/// </summary>
 			/// <returns><c>true</c>, if the state has changed, <c>false</c> otherwise.</returns>
-			/// <param name="edgeInfo">The variable state of the incoming path</param>
+			/// <param name="incomingState">The variable state of the incoming path</param>
 			public bool ReceiveIncoming(VariableStatusInfo incomingState)
 			{
 				bool changed = false;
@@ -354,7 +354,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			if (nextStatement != null) {
 				result = nextStatement.AcceptVisitor(visitor, statusInfo);
-				Debug.Assert(result != null);
+				if (result == null) {
+					Console.WriteLine("Failure in {0}", nextStatement);
+				}
 
 				outgoingStatusInfo = result.Variables;
 			}
@@ -520,6 +522,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public NullValueStatus NullableReturnResult;
 
 			/// <summary>
+			/// Indicates the value of each item in an array or linq query.
+			/// </summary>
+			public NullValueStatus EnumeratedValueResult;
+
+			/// <summary>
 			/// Information that indicates the restrictions to add
 			/// when branching.
 			/// </summary>
@@ -539,44 +546,53 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			/// </summary>
 			public bool? KnownBoolResult;
 
-			public static VisitorResult ForValue(VariableStatusInfo oldResult, NullValueStatus newValue)
+			public static VisitorResult ForEnumeratedValue(VariableStatusInfo variables, NullValueStatus itemValues)
 			{
-				var clone = new VisitorResult();
-				clone.NullableReturnResult = newValue;
-				clone.Variables = oldResult.Clone();
-				return clone;
+				var result = new VisitorResult();
+				result.NullableReturnResult = NullValueStatus.DefinitelyNotNull;
+				result.EnumeratedValueResult = itemValues;
+				result.Variables = variables.Clone();
+				return result;
 			}
 
-			public static VisitorResult ForBoolValue(VariableStatusInfo oldResult, bool newValue)
+			public static VisitorResult ForValue(VariableStatusInfo variables, NullValueStatus returnValue)
 			{
-				var clone = new VisitorResult();
-				clone.NullableReturnResult = NullValueStatus.DefinitelyNotNull; //Bool expressions are never null
-				clone.KnownBoolResult = newValue;
-				clone.Variables = oldResult.Clone();
-				return clone;
+				var result = new VisitorResult();
+				result.NullableReturnResult = returnValue;
+				result.Variables = variables.Clone();
+				return result;
+			}
+
+			public static VisitorResult ForBoolValue(VariableStatusInfo variables, bool newValue)
+			{
+				var result = new VisitorResult();
+				result.NullableReturnResult = NullValueStatus.DefinitelyNotNull; //Bool expressions are never null
+				result.KnownBoolResult = newValue;
+				result.Variables = variables.Clone();
+				return result;
 			}
 
 			public VisitorResult Negated {
 				get {
-					var clone = new VisitorResult();
+					var result = new VisitorResult();
 					if (NullableReturnResult.IsDefiniteValue()) {
-						clone.NullableReturnResult = NullableReturnResult == NullValueStatus.DefinitelyNull
+						result.NullableReturnResult = NullableReturnResult == NullValueStatus.DefinitelyNull
 							? NullValueStatus.DefinitelyNotNull : NullValueStatus.DefinitelyNull;
 					} else {
-						clone.NullableReturnResult = NullableReturnResult;
+						result.NullableReturnResult = NullableReturnResult;
 					}
-					clone.Variables = Variables.Clone();
-					clone.KnownBoolResult = !KnownBoolResult;
+					result.Variables = Variables.Clone();
+					result.KnownBoolResult = !KnownBoolResult;
 					if (ConditionalBranchInfo != null) {
-						clone.ConditionalBranchInfo = new ConditionalBranchInfo();
+						result.ConditionalBranchInfo = new ConditionalBranchInfo();
 						foreach (var item in ConditionalBranchInfo.TrueResultVariableNullStates) {
-							clone.ConditionalBranchInfo.FalseResultVariableNullStates [item.Key] = item.Value;
+							result.ConditionalBranchInfo.FalseResultVariableNullStates [item.Key] = item.Value;
 						}
 						foreach (var item in ConditionalBranchInfo.FalseResultVariableNullStates) {
-							clone.ConditionalBranchInfo.TrueResultVariableNullStates [item.Key] = item.Value;
+							result.ConditionalBranchInfo.TrueResultVariableNullStates [item.Key] = item.Value;
 						}
 					}
-					return clone;
+					return result;
 				}
 			}
 
@@ -720,14 +736,17 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitForeachStatement(ForeachStatement foreachStatement, VariableStatusInfo data)
 			{
 				string newVariable = foreachStatement.VariableName;
-				var newData = foreachStatement.InExpression.AcceptVisitor(this, data).Variables.Clone();
+				var inExpressionResult = foreachStatement.InExpression.AcceptVisitor(this, data);
+				var newData = inExpressionResult.Variables.Clone();
+
 				var resolveResult = analysis.context.Resolve(foreachStatement.VariableNameToken) as LocalResolveResult;
 				if (resolveResult != null) {
 					if (analysis.context.Supports(new Version(5, 0)) || newData [newVariable] != NullValueStatus.CapturedUnknown) {
 						newData [newVariable] = NullValueAnalysis.IsTypeNullable(resolveResult.Type) ?
-							NullValueStatus.Unknown : NullValueStatus.DefinitelyNotNull;
+							inExpressionResult.EnumeratedValueResult : NullValueStatus.DefinitelyNotNull;
 					}
 				}
+
 				return VisitorResult.ForValue(newData, NullValueStatus.Unknown);
 			}
 
@@ -914,6 +933,18 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					return HandleExpressionResult(identifierExpression, data, NullValueStatus.DefinitelyNotNull);
 				}
 				return HandleExpressionResult(identifierExpression, data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitDefaultValueExpression(DefaultValueExpression defaultValueExpression, VariableStatusInfo data)
+			{
+				var resolveResult = analysis.context.Resolve(defaultValueExpression);
+				if (resolveResult.IsError) {
+					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+				}
+
+				Debug.Assert(resolveResult.IsCompileTimeConstant);
+
+				return VisitorResult.ForValue(data, resolveResult.ConstantValue == null ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull);
 			}
 
 			public override VisitorResult VisitNullReferenceExpression(NullReferenceExpression nullReferenceExpression, VariableStatusInfo data)
@@ -1220,14 +1251,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitArrayCreateExpression(ArrayCreateExpression arrayCreateExpression, VariableStatusInfo data)
 			{
 				foreach (var argument in arrayCreateExpression.Arguments) {
-					data = argument.AcceptVisitor(this, data).Variables.Clone();
+					var result = argument.AcceptVisitor(this, data);
+					data = result.Variables.Clone();
 				}
 
-				if (!arrayCreateExpression.Initializer.IsNull) {
-					data = arrayCreateExpression.Initializer.AcceptVisitor(this, data).Variables.Clone();
+				if (arrayCreateExpression.Initializer.IsNull) {
+					return HandleExpressionResult(arrayCreateExpression, data, NullValueStatus.DefinitelyNotNull);
 				}
 
-				return HandleExpressionResult(arrayCreateExpression, data, NullValueStatus.DefinitelyNotNull);
+				return HandleExpressionResult(arrayCreateExpression, arrayCreateExpression.Initializer.AcceptVisitor(this, data));
 			}
 
 			public override VisitorResult VisitArrayInitializerExpression(ArrayInitializerExpression arrayInitializerExpression, VariableStatusInfo data)
@@ -1235,10 +1267,19 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (arrayInitializerExpression.IsSingleElement) {
 					return HandleExpressionResult(arrayInitializerExpression, arrayInitializerExpression.Elements.Single().AcceptVisitor(this, data));
 				}
-				foreach (var element in arrayInitializerExpression.Elements) {
-					data = element.AcceptVisitor(this, data).Variables.Clone();
+				if (!arrayInitializerExpression.Elements.Any()) {
+					//Empty array
+					return HandleExpressionResult(arrayInitializerExpression, VisitorResult.ForValue(data, NullValueStatus.Unknown));
 				}
-				return HandleExpressionResult(arrayInitializerExpression, data, NullValueStatus.DefinitelyNotNull);
+
+				NullValueStatus enumeratedValue = NullValueStatus.UnreachablePosition;
+				foreach (var element in arrayInitializerExpression.Elements) {
+					var result = element.AcceptVisitor(this, data);
+					data = result.Variables.Clone();
+					enumeratedValue = VariableStatusInfo.CombineStatus(enumeratedValue, result.NullableReturnResult);
+
+				}
+				return HandleExpressionResult(arrayInitializerExpression, VisitorResult.ForEnumeratedValue(data, enumeratedValue));
 			}
 
 			public override VisitorResult VisitAnonymousTypeCreateExpression(AnonymousTypeCreateExpression anonymousTypeCreateExpression, VariableStatusInfo data)
@@ -1259,7 +1300,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					//Check if it is in a "change-null-state" context
 					//For instance, x++ does not change the null state
 					//but `x = y` does.
-					if (identifier.Role == AssignmentExpression.LeftRole) {
+					if (identifier.Parent is AssignmentExpression && identifier.Role == AssignmentExpression.LeftRole) {
 						var parent = (AssignmentExpression)identifier.Parent;
 						if (parent.Operator != AssignmentOperatorType.Assign) {
 							continue;
@@ -1290,7 +1331,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					//Check if it is in a "change-null-state" context
 					//For instance, x++ does not change the null state
 					//but `x = y` does.
-					if (identifier.Role == AssignmentExpression.LeftRole) {
+					if (identifier.Parent is AssignmentExpression && identifier.Role == AssignmentExpression.LeftRole) {
 						var parent = (AssignmentExpression)identifier.Parent;
 						if (parent.Operator != AssignmentOperatorType.Assign) {
 							continue;
@@ -1423,6 +1464,167 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			}
 
 			public override VisitorResult VisitQueryExpression(QueryExpression queryExpression, VariableStatusInfo data)
+			{
+				VariableStatusInfo outgoingData = data.Clone();
+				NullValueStatus? outgoingArrayContentsData = null;
+				var clauses = queryExpression.Clauses.ToList();
+
+				var backtracingClauses = (from item in clauses.Select((clause, i) => new { clause, i })
+				                                where item.clause is QueryFromClause || item.clause is QueryJoinClause || item.clause is QueryContinuationClause
+				                                select item.i).ToList();
+
+				var beforeClauseVariableStates = Enumerable.Range(0, clauses.Count).ToDictionary(clauseIndex => clauseIndex,
+				                                                                                 clauseIndex => new VariableStatusInfo());
+				var afterClauseVariableStates = Enumerable.Range(0, clauses.Count).ToDictionary(clauseIndex => clauseIndex,
+				                                                                                clauseIndex => new VariableStatusInfo());
+
+				VisitorResult lastValidResult = null;
+				int currentClauseIndex = 0;
+				for (;;) {
+					VisitorResult result = null;
+					QueryClause clause = null;
+					bool backtrack = false;
+
+					if (currentClauseIndex >= clauses.Count) {
+						backtrack = true;
+					} else {
+						clause = clauses [currentClauseIndex];
+						beforeClauseVariableStates [currentClauseIndex].ReceiveIncoming(data);
+						result = clause.AcceptVisitor(this, data);
+						data = result.Variables;
+						lastValidResult = result;
+						if (result.KnownBoolResult == false) {
+							backtrack = true;
+						}
+
+						afterClauseVariableStates [currentClauseIndex].ReceiveIncoming(data);
+					}
+
+					if (backtrack) {
+						int? newIndex;
+						for (;;) {
+							newIndex = backtracingClauses.LastOrDefault(index => index < currentClauseIndex);
+							if (newIndex == null) {
+								//We've reached the end
+								break;
+							}
+
+							currentClauseIndex = (int)newIndex + 1;
+
+							if (!beforeClauseVariableStates[currentClauseIndex].ReceiveIncoming(lastValidResult.Variables)) {
+								newIndex = null;
+								break;
+							}
+						}
+
+						if (newIndex == null) {
+							break;
+						}
+
+					} else {
+						if (clause is QuerySelectClause) {
+							outgoingData.ReceiveIncoming(data);
+							if (outgoingArrayContentsData == null)
+								outgoingArrayContentsData = result.EnumeratedValueResult;
+							else
+								outgoingArrayContentsData = VariableStatusInfo.CombineStatus(outgoingArrayContentsData.Value, result.EnumeratedValueResult);
+						}
+
+						++currentClauseIndex;
+					}
+				}
+
+				var finalData = new VariableStatusInfo();
+				var endingClauseIndices = from item in clauses.Select((clause, i) => new { clause, i })
+					let clause = item.clause
+						where clause is QueryFromClause ||
+					clause is QueryContinuationClause ||
+					clause is QueryJoinClause ||
+					clause is QuerySelectClause ||
+					clause is QueryWhereClause
+						select item.i;
+				foreach (var clauseIndex in endingClauseIndices) {
+					finalData.ReceiveIncoming(afterClauseVariableStates [clauseIndex]);
+				}
+
+				return VisitorResult.ForEnumeratedValue(finalData, outgoingArrayContentsData ?? NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitQueryContinuationClause(QueryContinuationClause queryContinuationClause, VariableStatusInfo data)
+			{
+				return IntroduceVariableFromEnumeratedValue(queryContinuationClause.Identifier, queryContinuationClause.PrecedingQuery, data);
+			}
+
+			VisitorResult IntroduceVariableFromEnumeratedValue(string newVariable, Expression expression, VariableStatusInfo data)
+			{
+				var result = expression.AcceptVisitor(this, data);
+				var newVariables = result.Variables.Clone();
+				newVariables[newVariable] = result.EnumeratedValueResult;
+				return VisitorResult.ForValue(newVariables, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitQueryFromClause(QueryFromClause queryFromClause, VariableStatusInfo data)
+			{
+				return IntroduceVariableFromEnumeratedValue(queryFromClause.Identifier, queryFromClause.Expression, data);
+			}
+
+			public override VisitorResult VisitQueryJoinClause(QueryJoinClause queryJoinClause, VariableStatusInfo data)
+			{
+				//TODO: Check if this really works in weird edge-cases.
+				var tentativeResult = IntroduceVariableFromEnumeratedValue(queryJoinClause.JoinIdentifier, queryJoinClause.InExpression, data);
+				tentativeResult = queryJoinClause.OnExpression.AcceptVisitor(this, tentativeResult.Variables);
+				tentativeResult = queryJoinClause.EqualsExpression.AcceptVisitor(this, tentativeResult.Variables);
+
+				if (queryJoinClause.IsGroupJoin) {
+					var newVariables = tentativeResult.Variables.Clone();
+					newVariables [queryJoinClause.IntoIdentifier] = NullValueStatus.DefinitelyNotNull;
+					return VisitorResult.ForValue(newVariables, NullValueStatus.Unknown);
+				}
+
+				return tentativeResult;
+			}
+
+			public override VisitorResult VisitQueryLetClause(QueryLetClause queryLetClause, VariableStatusInfo data)
+			{
+				var result = queryLetClause.Expression.AcceptVisitor(this, data);
+
+				string newVariable = queryLetClause.Identifier;
+				var newVariables = result.Variables.Clone();
+				newVariables [newVariable] = result.NullableReturnResult;
+
+				return VisitorResult.ForValue(newVariables, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitQuerySelectClause(QuerySelectClause querySelectClause, VariableStatusInfo data)
+			{
+				var result = querySelectClause.Expression.AcceptVisitor(this, data);
+
+				//The value of the expression in select becomes the "enumerated" value
+				return VisitorResult.ForEnumeratedValue(result.Variables, result.NullableReturnResult);
+			}
+
+			public override VisitorResult VisitQueryWhereClause(QueryWhereClause queryWhereClause, VariableStatusInfo data)
+			{
+				var result = queryWhereClause.Condition.AcceptVisitor(this, data);
+
+				return VisitorResult.ForEnumeratedValue(result.TruePathVariables, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitQueryOrderClause(QueryOrderClause queryOrderClause, VariableStatusInfo data)
+			{
+				foreach (var ordering in queryOrderClause.Orderings) {
+					data = ordering.AcceptVisitor(this, data).Variables;
+				}
+
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitQueryOrdering(QueryOrdering queryOrdering, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(queryOrdering.Expression.AcceptVisitor(this, data).Variables, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitQueryGroupClause(QueryGroupClause queryGroupClause, VariableStatusInfo data)
 			{
 				throw new NotImplementedException();
 			}

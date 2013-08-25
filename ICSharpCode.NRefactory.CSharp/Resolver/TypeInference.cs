@@ -697,11 +697,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		{
 			if (rt == null || rt.TypeParameterCount != 1)
 				return false;
-			switch (rt.GetDefinition().FullName) {
-				case "System.Collections.Generic.IEnumerable":
-				case "System.Collections.Generic.ICollection":
-				case "System.Collections.Generic.IList":
-				case "System.Collections.Generic.IReadOnlyList":
+			switch (rt.GetDefinition().KnownTypeCode) {
+				case KnownTypeCode.IEnumerableOfT:
+				case KnownTypeCode.ICollectionOfT:
+				case KnownTypeCode.IListOfT:
+				case KnownTypeCode.IReadOnlyCollectionOfT:
+				case KnownTypeCode.IReadOnlyListOfT:
 					return true;
 				default:
 					return false;

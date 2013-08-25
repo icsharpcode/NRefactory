@@ -262,6 +262,28 @@ class TestClass
 			Test<CS0029InvalidConversionIssue>(input, output);
 		}
 
+		[Test]
+		public void TestReturnInMethodChangeReturnType()
+		{
+			var input = @"
+class TestClass
+{
+	int TestMethod ()
+	{
+		return ""foo"";
+	}
+}";
+			var output = @"
+class TestClass
+{
+	string TestMethod ()
+	{
+		return ""foo"";
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, output);
+		}
+
 		
 		[Test]
 		public void TestReturnInAnonymousMethod()

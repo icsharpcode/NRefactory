@@ -313,7 +313,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			if (target is IdentifierExpression || target is MemberReferenceExpression || target is PointerReferenceExpression) {
 				var invocationRR = resolver.Resolve(invocationExpression, cancellationToken) as CSharpInvocationResolveResult;
 				if (invocationRR != null) {
-					if (invocationExpression.Parent is ExpressionStatement && IsInactiveConditionalMethod(invocationRR.Member)) {
+					if (invocationExpression.Parent is ExpressionStatement && (IsInactiveConditionalMethod(invocationRR.Member) || IsEmptyPartialMethod(invocationRR.Member))) {
 						// mark the whole invocation statement as inactive code
 						Colorize(invocationExpression.Parent, inactiveCodeColor);
 						return;
@@ -356,7 +356,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			}
 			return IsInactiveConditional(member.Attributes);
 		}
-		
+
+		static bool IsEmptyPartialMethod(IParameterizedMember member)
+		{
+			if (member.SymbolKind != SymbolKind.Method || member.ReturnType.Kind != TypeKind.Void)
+				return false;
+			var method = (IMethod)member;
+			return method.IsPartial && !method.HasBody;
+		}
+
 		bool IsInactiveConditional(IList<IAttribute> attributes)
 		{
 			bool hasConditionalAttribute = false;

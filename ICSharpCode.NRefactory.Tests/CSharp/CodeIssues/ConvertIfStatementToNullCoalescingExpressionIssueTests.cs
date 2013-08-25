@@ -36,19 +36,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestSimpleCase ()
 		{
-			Test<ConvertIfStatementToNullCoalescingExpressionIssue>(@"class Foo
+			TestIssue<ConvertIfStatementToNullCoalescingExpressionIssue>(@"class Foo
 {
 	int Bar(object o)
 	{
 		var ob = o;
 		if (ob == null)
 			ob = this;
-	}
-}", @"class Foo
-{
-	int Bar(object o)
-	{
-		var ob = o ?? this;
 	}
 }");
 		}

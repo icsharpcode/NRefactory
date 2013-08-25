@@ -256,13 +256,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 		{
 			ForceSpacesBefore(ifElseStatement.LParToken, policy.SpaceBeforeIfParentheses);
-
-			ForceSpacesAfter(ifElseStatement.LParToken, policy.SpacesWithinIfParentheses);
+			Align(ifElseStatement.LParToken, ifElseStatement.Condition, policy.SpacesWithinIfParentheses);
 			ForceSpacesBefore(ifElseStatement.RParToken, policy.SpacesWithinIfParentheses);
 
-			if (!ifElseStatement.Condition.IsNull) {
-				ifElseStatement.Condition.AcceptVisitor(this);
-			}
 
 			if (!ifElseStatement.TrueStatement.IsNull) {
 				FixEmbeddedStatment(policy.StatementBraceStyle, ifElseStatement.IfToken, policy.AllowIfBlockInline, ifElseStatement.TrueStatement);
@@ -270,8 +266,9 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			if (!ifElseStatement.FalseStatement.IsNull) {
 				var placeElseOnNewLine = policy.ElseNewLinePlacement;
-				if (!(ifElseStatement.TrueStatement is BlockStatement))
+				if (!(ifElseStatement.TrueStatement is BlockStatement)) {
 					placeElseOnNewLine = NewLinePlacement.NewLine;
+				}
 				PlaceOnNewLine(placeElseOnNewLine, ifElseStatement.ElseToken);
 				if (ifElseStatement.FalseStatement is IfElseStatement) {
 					PlaceOnNewLine(policy.ElseIfNewLinePlacement, ((IfElseStatement)ifElseStatement.FalseStatement).IfToken);
@@ -433,15 +430,39 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitDoWhileStatement(DoWhileStatement doWhileStatement)
 		{
-			PlaceOnNewLine(policy.WhileNewLinePlacement, doWhileStatement.WhileToken);
 			FixEmbeddedStatment(policy.StatementBraceStyle, doWhileStatement.EmbeddedStatement);
+			PlaceOnNewLine(doWhileStatement.EmbeddedStatement is BlockStatement ? policy.WhileNewLinePlacement : NewLinePlacement.NewLine, doWhileStatement.WhileToken);
+
+			Align(doWhileStatement.LParToken, doWhileStatement.Condition, policy.SpacesWithinWhileParentheses);
+			ForceSpacesBefore(doWhileStatement.RParToken, policy.SpacesWithinWhileParentheses);
+		}
+
+		void Align(AstNode lPar, AstNode alignNode, bool space)
+		{
+			int extraSpaces = 0;
+			var useExtraSpaces = lPar.StartLocation.Line == alignNode.StartLocation.Line;
+			if (useExtraSpaces) {
+				extraSpaces = lPar.StartLocation.Column + (space ? 1 : 0) - curIndent.IndentString.Length;
+				curIndent.ExtraSpaces += extraSpaces;
+				ForceSpacesAfter(lPar, space);
+			} else {
+				curIndent.Push(IndentType.Continuation); 
+				FixIndentation(alignNode);
+			}
+			alignNode.AcceptVisitor(this);
+
+			if (useExtraSpaces) {
+				curIndent.ExtraSpaces -= extraSpaces;
+			} else {
+				curIndent.Pop();
+			}
+
 		}
 
 		public override void VisitWhileStatement(WhileStatement whileStatement)
 		{
 			ForceSpacesBefore(whileStatement.LParToken, policy.SpaceBeforeWhileParentheses);
-
-			ForceSpacesAfter(whileStatement.LParToken, policy.SpacesWithinWhileParentheses);
+			Align(whileStatement.LParToken, whileStatement.Condition, policy.SpacesWithinWhileParentheses);
 			ForceSpacesBefore(whileStatement.RParToken, policy.SpacesWithinWhileParentheses);
 
 			FixEmbeddedStatment(policy.StatementBraceStyle, whileStatement.EmbeddedStatement);
@@ -464,8 +485,24 @@ namespace ICSharpCode.NRefactory.CSharp
 				ForceSpacesAround(variableInitializer.AssignToken, policy.SpaceAroundAssignment);
 			}
 			if (!variableInitializer.Initializer.IsNull) {
+				int extraSpaces = 0;
+				var useExtraSpaces = variableInitializer.AssignToken.StartLocation.Line == variableInitializer.Initializer.StartLocation.Line;
+				if (useExtraSpaces) {
+					extraSpaces = variableInitializer.AssignToken.StartLocation.Column + 1 - curIndent.IndentString.Length;
+					curIndent.ExtraSpaces += extraSpaces;
+				} else {
+					curIndent.Push(IndentType.Continuation); 
+					FixIndentation(variableInitializer.Initializer);
+				}
 				variableInitializer.Initializer.AcceptVisitor(this);
+
+				if (useExtraSpaces) {
+					curIndent.ExtraSpaces -= extraSpaces;
+				} else {
+					curIndent.Pop();
+				}
 			}
+
 		}
 	}
 }
