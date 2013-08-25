@@ -62,8 +62,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				AddIssue(
 					node,
-					ctx.TranslateString("'static' modifier is required inside a static class."),
-					ctx.TranslateString("Add 'static' modifier."), 
+					ctx.TranslateString("'static' modifier is required inside a static class"),
+					ctx.TranslateString("Add 'static' modifier"), 
 					s => {
 						s.ChangeModifier(entity, entity.Modifiers | Modifiers.Static);
 					}
@@ -97,8 +97,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				AddIssue(
 					entity.ModifierTokens.First(t => t.Modifier == Modifiers.Virtual),
-					ctx.TranslateString("'virtual' modifier is not usable in a sealed class."),
-					ctx.TranslateString("Remove 'virtual' modifier."), 
+					ctx.TranslateString("'virtual' modifier is not usable in a sealed class"),
+					ctx.TranslateString("Remove 'virtual' modifier"), 
 					s => {
 						s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Virtual);
 					}
@@ -148,8 +148,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								continue;
 							AddIssue(
 								mod,
-								ctx.TranslateString("Static constructors can't have any other modifier."),
-								ctx.TranslateString("Remove prohibited modifier."), 
+								ctx.TranslateString("Static constructors can't have any other modifier"),
+								ctx.TranslateString("Remove prohibited modifier"), 
 								s => {
 									s.ChangeModifier(constructorDeclaration, Modifiers.Static);
 								}
