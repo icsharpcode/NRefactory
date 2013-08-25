@@ -552,6 +552,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantUnsafeContextIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ProhibitedModifiersIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RemoveRedundantOrStatementIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\ExtractWhileConditionToInternalIfStatementActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
