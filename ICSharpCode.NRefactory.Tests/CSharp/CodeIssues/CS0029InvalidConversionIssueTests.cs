@@ -204,18 +204,21 @@ class TestClass
 		[Test]
 		public void AssignCustomClassToString()
 		{
-			var input = @"
+			Test<CS0029InvalidConversionIssue>(@"
 class TestClass
 {
 	void TestMethod ()
 	{
 		string x = this;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			Assert.IsFalse(issues[0].Actions.Any());
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = this;
+	}
+}");
 		}
 
 		/// <summary>
