@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantArgumentDefaultValueIssue>
+		class GatherVisitor : GatherVisitorBase<ProhibitedModifiersIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
 				: base (ctx)
