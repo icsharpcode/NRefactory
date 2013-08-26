@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					ctx.TranslateString("'static' modifier is required inside a static class"),
 					ctx.TranslateString("Add 'static' modifier"), 
 					s => {
-						s.ChangeModifier(entity, entity.Modifiers | Modifiers.Static);
+						s.ChangeModifier(entity, (entity.Modifiers & ~(Modifiers.Virtual | Modifiers.Override)) | Modifiers.Static);
 					}
 				);
 			}
@@ -91,8 +91,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				AddStaticRequiredError(entity, entity.NameToken);
 			}
 
-			void CheckForbiddenVirtual(EntityDeclaration entity)
+			void CheckVirtual(EntityDeclaration entity)
 			{
+				if (!curType.Peek().HasModifier(Modifiers.Static) && !curType.Peek().HasModifier(Modifiers.Sealed) && entity.HasModifier(Modifiers.Virtual)) {
+					if (!entity.HasModifier(Modifiers.Public) && !entity.HasModifier(Modifiers.Protected)  && !entity.HasModifier(Modifiers.Internal)) {
+						AddIssue(
+							entity.NameToken,
+							ctx.TranslateString("'virtual' members can't be private")
+						);
+						return;
+					}
+
+				}
 				if (!curType.Peek().HasModifier(Modifiers.Sealed) || !entity.HasModifier(Modifiers.Virtual))
 					return;
 				AddIssue(
@@ -100,15 +110,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					ctx.TranslateString("'virtual' modifier is not usable in a sealed class"),
 					ctx.TranslateString("Remove 'virtual' modifier"), 
 					s => {
-						s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Virtual);
-					}
+					s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Virtual);
+				}
 				);
 			}
 
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
 				CheckStaticRequired(methodDeclaration);
-				CheckForbiddenVirtual(methodDeclaration);
+				CheckVirtual(methodDeclaration);
 				base.VisitMethodDeclaration(methodDeclaration);
 			}
 
@@ -133,7 +143,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
 			{
 				CheckStaticRequired(eventDeclaration);
-				CheckForbiddenVirtual(eventDeclaration);
+				CheckVirtual(eventDeclaration);
 				base.VisitCustomEventDeclaration(eventDeclaration);
 			}
 
@@ -168,13 +178,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
 			{
 				CheckStaticRequired(propertyDeclaration);
-				CheckForbiddenVirtual(propertyDeclaration);
+				CheckVirtual(propertyDeclaration);
 				base.VisitPropertyDeclaration(propertyDeclaration);
 			}
 
 			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
 			{
-				CheckForbiddenVirtual(indexerDeclaration);
+				CheckVirtual(indexerDeclaration);
 				base.VisitIndexerDeclaration(indexerDeclaration);
 			}
 

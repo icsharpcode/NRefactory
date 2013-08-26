@@ -128,6 +128,19 @@ sealed class Test
 		}
 	
 
+		[Test]
+		public void TestPrivateVirtualMembers ()
+		{
+			TestIssue<ProhibitedModifiersIssue>(@"
+class Foo
+{
+	virtual void Bar () 
+	{
+	}
+}
+");
+		}
+
 
 	}
 }
