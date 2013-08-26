@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
 		{
-			if (!node.OperatorToken.Contains(context.Location) && !(node.Parent is ExpressionStatement))
+			if (!node.OperatorToken.Contains(context.Location) || !(node.Parent is ExpressionStatement))
 				return null;
 
 			if (node.Right is ConditionalExpression)
