@@ -56,6 +56,36 @@ class Test
 		}
 
 		[Test]
+		public void TestInvalidCase1()
+		{
+			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
+class Test
+{
+	void Foo (int i)
+	{
+		var foo = new int[i] { 1, 2, 3 };
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestInvalidCase2()
+		{
+			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
+class Test
+{
+	void Foo ()
+	{
+		var foo = new int[10];
+	}
+}
+");
+		}
+
+
+
+		[Test]
 		public void TestDisable()
 		{
 			TestWrongContext<RedundantExplicitArraySizeIssue>(@"

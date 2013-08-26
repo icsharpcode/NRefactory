@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitArrayCreateExpression(arrayCreateExpression);
 
 				var arg = arrayCreateExpression.Arguments.SingleOrDefault() as PrimitiveExpression;
-				if (arg == null && !(arg.Value is int))
+				if (arg == null || !(arg.Value is int))
 					return;
 				if (arrayCreateExpression.Initializer.Elements.Count () == (int)arg.Value) {
 					AddIssue(
