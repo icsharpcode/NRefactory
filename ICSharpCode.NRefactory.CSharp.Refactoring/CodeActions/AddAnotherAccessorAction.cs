@@ -63,9 +63,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				} else {
 					script.InsertBefore(pdecl.Getter, accessor);
 				}
+				script.FormatText(pdecl);
 				if (accessorStatement != null)
 					script.Select(accessorStatement);
-				script.FormatText(pdecl);
 			}, pdecl.NameToken);
 		}
 		
