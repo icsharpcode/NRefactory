@@ -394,6 +394,40 @@ class Bar
 ");
 		}
 
+		[Test]
+		public void InvalidCase()
+		{
+			TestWrongContext<UseAsAndNullCheckAction>(@"
+class Bar
+{
+	public int Baz (object foo)
+	{
+		if (foo $is int) {
+			Baz ((int)foo);
+			return (int)foo;
+		}
+		return 0;
+	}
+}
+");
+		}
+
+		[Test]
+		public void InvalidCase2()
+		{
+			TestWrongContext<UseAsAndNullCheckAction>(@"
+class Bar
+{
+	public int Baz (object foo)
+	{
+		if (!(foo $is int)) {
+		}
+		return 0;
+	}
+}
+");
+		}
+
 	}
 }
 

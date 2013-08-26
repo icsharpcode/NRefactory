@@ -60,7 +60,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var arg = arrayCreateExpression.Arguments.Single() as PrimitiveExpression;
 				if (arg == null || !(arg.Value is int))
 					return;
-				if (arrayCreateExpression.Initializer.Elements.Count () == (int)arg.Value) {
+				var value = (int)arg.Value;
+				if (value == 0)
+					return;
+				if (arrayCreateExpression.Initializer.Elements.Count() == value) {
 					AddIssue(
 						arg,
 						ctx.TranslateString("Redundant explicit size in array creation"),

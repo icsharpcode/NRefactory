@@ -83,7 +83,19 @@ class Test
 ");
 		}
 
-
+		[Test]
+		public void TestInvalidCase3()
+		{
+			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
+class Test
+{
+	void Foo ()
+	{
+		var foo = new int[0];
+	}
+}
+");
+		}
 
 		[Test]
 		public void TestDisable()
