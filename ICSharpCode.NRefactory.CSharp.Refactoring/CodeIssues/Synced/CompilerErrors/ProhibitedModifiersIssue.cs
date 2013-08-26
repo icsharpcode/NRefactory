@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void CheckStaticRequired(EntityDeclaration entity)
 			{
-				if (!curType.Peek().HasModifier(Modifiers.Static) || entity.HasModifier(Modifiers.Static))
+				if (!curType.Peek().HasModifier(Modifiers.Static) || entity.HasModifier(Modifiers.Static) || entity.HasModifier(Modifiers.Const))
 					return;
 				var fd = entity as FieldDeclaration;
 				if (fd != null) {

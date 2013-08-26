@@ -52,6 +52,23 @@ static class Foo
 		}
 	
 		[Test]
+		public void TestValidStaticClass ()
+		{
+			TestWrongContext<ProhibitedModifiersIssue>(@"
+static class Foo
+{
+	public const int f = 1;
+	static Foo () {}
+
+	public static void Bar () 
+	{
+	}
+}
+");
+		}
+	
+
+		[Test]
 		public void TestNonStaticFieldsInStaticClass ()
 		{
 			Test<ProhibitedModifiersIssue>(@"

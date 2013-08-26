@@ -55,8 +55,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitArrayCreateExpression(ArrayCreateExpression arrayCreateExpression)
 			{
 				base.VisitArrayCreateExpression(arrayCreateExpression);
-
-				var arg = arrayCreateExpression.Arguments.SingleOrDefault() as PrimitiveExpression;
+				if (arrayCreateExpression.Arguments.Count != 1)
+					return;
+				var arg = arrayCreateExpression.Arguments.Single() as PrimitiveExpression;
 				if (arg == null || !(arg.Value is int))
 					return;
 				if (arrayCreateExpression.Initializer.Elements.Count () == (int)arg.Value) {
