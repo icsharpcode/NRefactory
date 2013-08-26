@@ -134,6 +134,22 @@ class Foo2 {}
 ", out ctx);
 			Assert.AreEqual(0, issues.Count);
 		}
+
+		[Test]
+		public void TestValidCref()
+		{
+			TestWrongContext<XmlDocIssue>(@"
+using System;
+
+namespace Foo {
+	/// <summary>
+	/// </summary>
+	/// <see cref=""IDisposable""/>
+	class Foo {
+		public void Undefined () {}
+	}
+}");
+		}
 	}
 
 
