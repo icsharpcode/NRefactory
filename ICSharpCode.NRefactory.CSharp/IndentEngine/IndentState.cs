@@ -435,6 +435,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (OpenBrackets.ContainsKey(ch))
 			{
+				// TODO: remove extra spaces if this == BracesBody
 				OpenBrackets[ch](this);
 			}
 			else if (ch == ClosedBracket)
@@ -740,7 +741,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
-			NextLineIndent = ThisLineIndent.Clone();
+			NextLineIndent = Parent.NextLineIndent.Clone();
 
 			base.InitializeState();
 		}
@@ -858,6 +859,17 @@ namespace ICSharpCode.NRefactory.CSharp
 			: base(prototype, engine)
 		{ }
 
+		public override void Push(char ch)
+		{
+			if (ch == Engine.newLineChar && Engine.previousChar == '(')
+			{
+				NextLineIndent.ExtraSpaces = 0;
+				NextLineIndent.Push(IndentType.Continuation);
+			}
+
+			base.Push(ch);
+		}
+
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
@@ -897,6 +909,17 @@ namespace ICSharpCode.NRefactory.CSharp
 			: base(prototype, engine)
 		{ }
 
+		public override void Push(char ch)
+		{
+			if (ch == Engine.newLineChar && Engine.previousChar == '[')
+			{
+				NextLineIndent.ExtraSpaces = 0;
+				NextLineIndent.Push(IndentType.Continuation);
+			}
+
+			base.Push(ch);
+		}
+
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
@@ -935,6 +958,17 @@ namespace ICSharpCode.NRefactory.CSharp
 		public AngleBracketsBodyState(AngleBracketsBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
 		{ }
+
+		public override void Push(char ch)
+		{
+			if (ch == Engine.newLineChar && Engine.previousChar == '<')
+			{
+				NextLineIndent.ExtraSpaces = 0;
+				NextLineIndent.Push(IndentType.Continuation);
+			}
+
+			base.Push(ch);
+		}
 
 		public override void InitializeState()
 		{
