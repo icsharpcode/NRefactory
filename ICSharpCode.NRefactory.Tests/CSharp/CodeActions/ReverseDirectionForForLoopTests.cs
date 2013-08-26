@@ -176,6 +176,31 @@ class Foo
 		}
 
 		[Test]
+		public void TestArbitraryBoundsCase2()
+		{
+			Test<ReverseDirectionForForLoopAction>(@"
+class Foo
+{
+	public void Bar ()
+	{
+		$for (int i = 0; i < a.T; i++)
+			System.Console.WriteLine (i);
+	}
+}
+", @"
+class Foo
+{
+	public void Bar ()
+	{
+		for (int i = a.T - 1; i >= 0; i--)
+			System.Console.WriteLine (i);
+	}
+}
+");
+		}
+
+
+		[Test]
 		public void TestComplex()
 		{
 			Test<ReverseDirectionForForLoopAction>(@"

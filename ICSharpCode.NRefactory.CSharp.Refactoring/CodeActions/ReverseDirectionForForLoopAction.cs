@@ -141,6 +141,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.Add, Subtract(bOp.Right, step));
 				}
 			} 
+			if (step == null)
+				return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Subtract, new PrimitiveExpression(1));
 
 			return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Subtract, CSharpUtil.AddParensForUnaryExpressionIfRequired(step.Clone()));
 		}
@@ -171,6 +173,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.Subtract, right);
 				}
 			} 
+			if (step == null)
+				return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Add, new PrimitiveExpression(1));
 
 			return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Add, CSharpUtil.AddParensForUnaryExpressionIfRequired(step.Clone()));
 		}
