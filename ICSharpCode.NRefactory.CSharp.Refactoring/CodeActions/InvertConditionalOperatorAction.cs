@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				script.Replace(conditionalExpr.TrueExpression, conditionalExpr.FalseExpression.Clone());
 				script.Replace(conditionalExpr.FalseExpression, conditionalExpr.TrueExpression.Clone());
 				script.FormatText(conditionalExpr);
-			}, conditionalExpr);
+			}, conditionalExpr.Condition);
 		}
 	}
 }

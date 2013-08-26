@@ -85,6 +85,81 @@ class Test
 	}
 }");
 		}
+
+		[Test]
+		public void TestEmbeddedStatement ()
+		{
+			Test<ConvertAssignmentToIfAction> (@"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		int a;
+		if (i < 10)
+			a $= i > 0 ? 0 : 1;
+	}
+}", @"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		int a;
+		if (i < 10)
+		if (i > 0)
+			a = 0;
+		else
+			a = 1;
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestAssignment ()
+		{
+			Test<ConvertAssignmentToIfAction> (@"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		int a;
+		a $= i > 0 ? 0 : 1;
+	}
+}", @"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		int a;
+		if (i > 0)
+			a = 0;
+		else
+			a = 1;
+	}
+}");
+			Test<ConvertAssignmentToIfAction> (@"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		int a;
+		a $+= i > 0 ? 0 : 1;
+	}
+}", @"
+class TestClass
+{
+	void TestMethod (int i)
+	{
+		int a;
+		if (i > 0)
+			a += 0;
+		else
+			a += 1;
+	}
+}");
+		}
+
+
 	}
 }
 

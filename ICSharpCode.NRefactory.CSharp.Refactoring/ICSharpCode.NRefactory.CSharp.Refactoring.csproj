@@ -95,7 +95,6 @@
     <Compile Include="CodeActions\ConvertAnonymousDelegateToLambdaAction.cs" />
     <Compile Include="CodeActions\ConvertAsToCastAction.cs" />
     <Compile Include="CodeActions\ConvertCastToAsAction.cs" />
-    <Compile Include="CodeActions\ConvertConditionalToIfAction.cs" />
     <Compile Include="CodeActions\ConvertDecToHexAction.cs" />
     <Compile Include="CodeActions\ConvertDoWhileToWhileLoopAction.cs" />
     <Compile Include="CodeActions\ConvertEqualityOperatorToEqualsAction.cs" />

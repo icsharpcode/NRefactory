@@ -26,8 +26,8 @@
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Convert '??' to '?:'",
-	               Description = "Convert '??' to '?:'")]
+	[ContextAction("Convert assignment to 'if'",
+	               Description = "Convert assignment to 'if'")]
 	public class ConvertAssignmentToIfAction : SpecializedCodeAction<AssignmentExpression>
 	{
 		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					);
 					script.Replace(node.Parent, ifStatement); 
 				},
-				node
+				node.OperatorToken
 			);
 		}
 
@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					);
 					script.Replace(node.Parent, ifStatement); 
 				},
-				node
+				node.OperatorToken
 			);
 		}
 
