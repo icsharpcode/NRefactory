@@ -36,8 +36,8 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Remove redundant explicit type specification in lambda expression",
-	                  Description= "Explicit type specification can be removed as it can be implicitly inferred.",
+	[IssueDescription("Redundant lambda explicit type specification",
+	                  Description= "Explicit type specification can be removed as it can be implicitly inferred",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
@@ -46,27 +46,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this);
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<RedundantLambdaParameterTypeIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx, RedundantLambdaParameterTypeIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
 			{
 			}
 			
 			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
 			{
 				base.VisitLambdaExpression(lambdaExpression);
-				
-				if (lambdaExpression == null)
-					return;
-				
+
 				var arguments = lambdaExpression.Parameters.ToList();
-				
 				if (arguments.Any(f => f.Type.IsNull))
 					return;
-
 				if (!LambdaTypeCanBeInferred(ctx, lambdaExpression, arguments))
 					return;
 
