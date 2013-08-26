@@ -58,10 +58,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var p = lambdaExpression.Parameters.FirstOrDefault();
 				if (p == null || !p.Type.IsNull)
 					return;
+				var lParToken = lambdaExpression.LParToken;
+				if (lParToken.IsNull)
+					return;
 				if (p.GetNextSibling(n => n.Role == Roles.Parameter) != null)
 					return;
 				Action<Script> action = script =>  {
-					script.Remove(lambdaExpression.LParToken);
+					script.Remove(lParToken);
 					script.Remove(lambdaExpression.RParToken);
 					script.FormatText(lambdaExpression);
 				};

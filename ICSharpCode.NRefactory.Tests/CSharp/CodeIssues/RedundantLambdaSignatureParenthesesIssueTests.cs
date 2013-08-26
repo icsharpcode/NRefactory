@@ -92,6 +92,24 @@ class Program
 ");
 		}
 
+
+		[Test]
+		public void TestInvalid()
+		{
+			TestWrongContext<RedundantLambdaSignatureParenthesesIssue>(@"
+class Program
+{
+	public delegate int MyDel(int j);
+
+	public static void Foo()
+	{
+		MyDel increase = j => (j * 42);
+	}
+}
+");
+		}
+
+
 		[Test]
 		public void TestDisable()
 		{
