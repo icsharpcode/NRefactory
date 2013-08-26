@@ -753,7 +753,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			}
 			CustomMarshalInfo cmi = marshalInfo as CustomMarshalInfo;
 			if (cmi != null) {
-				attr.AddNamedFieldArgument("MarshalType", CreateSimpleConstantValue(KnownTypeReference.String, cmi.ManagedType.FullName));
+				if (cmi.ManagedType != null)
+					attr.AddNamedFieldArgument("MarshalType", CreateSimpleConstantValue(KnownTypeReference.String, cmi.ManagedType.FullName));
 				if (!string.IsNullOrEmpty(cmi.Cookie))
 					attr.AddNamedFieldArgument("MarshalCookie", CreateSimpleConstantValue(KnownTypeReference.String, cmi.Cookie));
 			}
