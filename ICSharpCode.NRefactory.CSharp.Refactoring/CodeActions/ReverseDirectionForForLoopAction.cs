@@ -114,6 +114,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		Expression Subtract(Expression expr, Expression step)
 		{
+			if (step != null && CSharpUtil.GetInnerMostExpression(expr).IsMatch(CSharpUtil.GetInnerMostExpression(step)))
+				return new PrimitiveExpression(0);
+
 			var pe = expr as PrimitiveExpression;
 			if (pe != null) {
 				if (step == null)
@@ -138,10 +141,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.Add, Subtract(bOp.Right, step));
 				}
 			} 
-			if (step != null && expr.IsMatch(step))
-				return new PrimitiveExpression(0);
 
-			return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Subtract, step.Clone());
+			return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Subtract, CSharpUtil.AddParensForUnaryExpressionIfRequired(step.Clone()));
 		}
 
 		Expression Add(Expression expr, Expression step)
@@ -171,7 +172,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			} 
 
-			return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Add, step.Clone());
+			return new BinaryOperatorExpression(expr.Clone(), BinaryOperatorType.Add, CSharpUtil.AddParensForUnaryExpressionIfRequired(step.Clone()));
 		}
 
 		Expression GetNewBound(string name, bool? direction, Expression initializer, Expression step)

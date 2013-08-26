@@ -176,6 +176,54 @@ class Foo
 		}
 
 		[Test]
+		public void TestComplex()
+		{
+			Test<ReverseDirectionForForLoopAction>(@"
+class Foo
+{
+	public void Bar ()
+	{
+		$for (int i = Foo ().Bar + Test; i < (to - from).Length; i += a + b)
+			System.Console.WriteLine (i);
+	}
+}
+", @"
+class Foo
+{
+	public void Bar ()
+	{
+		for (int i = (to - from).Length - (a + b); i >= Foo ().Bar + Test; i -= a + b)
+			System.Console.WriteLine (i);
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestComplexReverse()
+		{
+			Test<ReverseDirectionForForLoopAction>(@"
+class Foo
+{
+	public void Bar ()
+	{
+		$for (int i = (to - from).Length - (a + b); i >= Foo ().Bar + Test; i -= a + b)
+			System.Console.WriteLine (i);
+	}
+}
+", @"
+class Foo
+{
+	public void Bar ()
+	{
+		for (int i = Foo ().Bar + Test; i < (to - from).Length; i += a + b)
+			System.Console.WriteLine (i);
+	}
+}
+");
+		}
+
+		[Test]
 		public void TestArbitraryBoundsReverse()
 		{
 			Test<ReverseDirectionForForLoopAction>(@"
