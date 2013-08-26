@@ -204,19 +204,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			if (!node.ForToken.Contains(context.Location))
 				return null;
-
-			var varDelc = node.Initializers.SingleOrDefault() as VariableDeclarationStatement;
+			if (node.Initializers.Count() != 1)
+				return null;
+			var varDelc = node.Initializers.Single() as VariableDeclarationStatement;
 			if (varDelc == null)
 				return null;
 
-			var initalizer = varDelc.Variables.SingleOrDefault();
+			if (varDelc.Variables.Count() != 1)
+				return null;
+			var initalizer = varDelc.Variables.First ();
 			if (initalizer == null)
 				return null;
 
 			if (!context.Resolve(initalizer.Initializer).Type.IsKnownType(KnownTypeCode.Int32))
 				return null;
 
-			var iterator = node.Iterators.SingleOrDefault();
+			if (node.Iterators.Count() != 1)
+				return null;
+			var iterator = node.Iterators.First();
 			Expression step;
 			var direction = IsForward(iterator as ExpressionStatement, initalizer.Name, out step);
 
