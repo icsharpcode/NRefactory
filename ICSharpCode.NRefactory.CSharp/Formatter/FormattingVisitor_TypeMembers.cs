@@ -57,6 +57,10 @@ namespace ICSharpCode.NRefactory.CSharp
 							propertyDeclaration.Getter : propertyDeclaration.Setter;
 						accessorLine = acc.StartLocation.Line;
 					}
+					if (isSimple && 
+					    Math.Min(propertyDeclaration.Getter.StartLocation.Line, propertyDeclaration.Setter.StartLocation.Line) == propertyDeclaration.LBraceToken.StartLocation.Line &&
+				        propertyDeclaration.Getter.StartLocation.Line != propertyDeclaration.Setter.StartLocation.Line)
+						goto case PropertyFormatting.ForceOneLine;
 					if (!isSimple || propertyDeclaration.LBraceToken.StartLocation.Line != accessorLine) {
 						fixClosingBrace = true;
 						FixOpenBrace(policy.PropertyBraceStyle, propertyDeclaration.LBraceToken);

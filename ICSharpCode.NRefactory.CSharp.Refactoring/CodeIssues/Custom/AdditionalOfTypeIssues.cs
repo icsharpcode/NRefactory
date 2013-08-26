@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ReplaceWithOfTypeIssue>
+		class GatherVisitor : GatherVisitorBase<AdditionalOfTypeIssues>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
