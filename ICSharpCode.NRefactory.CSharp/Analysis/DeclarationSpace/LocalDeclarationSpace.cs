@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		/// <summary>
 		/// Adds a child declaration space.
 		/// </summary>
-		/// <param name="child">The <see cref="DeclarationSpace"/> to add.</param>
+		/// <param name="child">The <see cref="LocalDeclarationSpace"/> to add.</param>
 		public void AddChildSpace(LocalDeclarationSpace child)
 		{
 			if (child == null)

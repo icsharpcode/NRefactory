@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				Match match;
 				if (!ConvertIfStatementToConditionalTernaryExpressionAction.GetMatch(ifElseStatement, out match))
 					return;
-				var target = match.Get<Expression>("target").Single();
+//				var target = match.Get<Expression>("target").Single();
 				var condition = match.Get<Expression>("condition").Single();
 				var trueExpr = match.Get<Expression>("expr1").Single();
 				var falseExpr = match.Get<Expression>("expr2").Single();

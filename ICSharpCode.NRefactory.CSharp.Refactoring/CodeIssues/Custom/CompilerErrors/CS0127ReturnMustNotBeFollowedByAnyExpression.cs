@@ -45,7 +45,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<CS0127ReturnMustNotBeFollowedByAnyExpression>
 		{
-			string currentMethodName;
 			bool skip;
 
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
@@ -69,20 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var primitiveType = methodDeclaration.ReturnType as PrimitiveType;
 				if (primitiveType == null || primitiveType.Keyword != "void")
 					return;
-				currentMethodName = methodDeclaration.Name;
 				base.VisitMethodDeclaration(methodDeclaration);
-			}
-
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-				currentMethodName = constructorDeclaration.Name;
-				base.VisitConstructorDeclaration(constructorDeclaration);
-			}
-
-			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-			{
-				currentMethodName = "~" + destructorDeclaration.Name;
-				base.VisitDestructorDeclaration(destructorDeclaration);
 			}
 
 			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)

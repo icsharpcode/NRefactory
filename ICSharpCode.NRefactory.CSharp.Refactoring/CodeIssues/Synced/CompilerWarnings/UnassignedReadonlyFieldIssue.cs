@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields(this, typeDeclaration)) {
 					if (!fieldDeclaration.HasModifier(Modifiers.Readonly))
 						continue;
-					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
+//					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
 				
 					if (fieldDeclaration.Variables.Count() > 1)
 						continue;

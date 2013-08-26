@@ -146,7 +146,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								}
 							}
 						}
-					} catch (XmlException e) {
+					} catch (XmlException) {
 					}
 
 					if (storedXmlComment.Count > 0 && parameters.Count > 0) {
