@@ -406,5 +406,30 @@ class Foo {
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestBrackets_EqualContinuation()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{
+		var v = 
+			0; $");
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_EqualExtraSpaces()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{
+		var v = 1 + $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t        ", indent.NextLineIndent);
+		}
 	}
 }

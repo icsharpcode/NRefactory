@@ -404,6 +404,42 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
+			if (ch == ';' || ch == ':')
+			{
+				while (NextLineIndent.Count > 0 && NextLineIndent.Peek() == IndentType.Continuation)
+				{
+					NextLineIndent.Pop();
+				}
+				NextLineIndent.ExtraSpaces = 0;
+				IsRightHandExpression = false;
+				CurrentStatement = Statement.None;
+			}
+			else if (ch == '=' && !IsRightHandExpression)
+			{
+				IsRightHandExpression = true;
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent + 1);
+			}
+			else if (ch == '.' && IsRightHandExpression)
+			{
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+			}
+			else if (ch == Engine.newLineChar && NextLineIndent.ExtraSpaces > 0 &&
+					(Engine.previousChar == '=' || Engine.previousChar == '.'))
+			{
+				// the last significant pushed char was '=' or '.' and we added
+				// extra spaces to align the next line, but the newline char was
+				// pushed afterwards so it's better to replace the extra spaces
+				// with one continuation indent.
+				NextLineIndent.ExtraSpaces = 0;
+				NextLineIndent.Push(IndentType.Continuation);
+			}
+
+			// try to capture ': base(...)' and inherit statements when they are on a new line
+			if (ch == ':' && Engine.isLineStart && new[] { Body.Class, Body.Interface, Body.Struct }.Contains(NextBody))
+			{
+				ThisLineIndent.Push(IndentType.Continuation);
+			}
+
 			base.Push(ch);
 
 			if (ch == '#' && Engine.isLineStart)
@@ -446,42 +482,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 
 				ExitState();
-			}
-
-			if (ch == ';' || ch == ':')
-			{
-				while (NextLineIndent.Count > 0 && NextLineIndent.Peek() == IndentType.Continuation)
-				{
-					NextLineIndent.Pop();
-				}
-				NextLineIndent.ExtraSpaces = 0;
-				IsRightHandExpression = false;
-				CurrentStatement = Statement.None;
-			}
-			else if (ch == '=' && !IsRightHandExpression)
-			{
-				IsRightHandExpression = true;
-				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent + 1);
-			}
-			else if (ch == '.' && IsRightHandExpression)
-			{
-				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
-			}
-			else if (ch == Engine.newLineChar && NextLineIndent.ExtraSpaces > 0 &&
-					(Engine.previousChar == '=' || Engine.previousChar == '.'))
-			{
-				// the last significant pushed char was '=' or '.' and we added
-				// extra spaces to align the next line, but the newline char was
-				// pushed afterwards so it's better to replace the extra spaces
-				// with one continuation indent.
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Continuation);
-			}
-
-			// try to capture ': base(...)' and inherit statements when they are on a new line
-			if (ch == ':' && Engine.isLineStart && new[] { Body.Class, Body.Interface, Body.Struct }.Contains(NextBody))
-			{
-				ThisLineIndent.Push(IndentType.Continuation);
 			}
 		}
 
