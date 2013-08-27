@@ -332,7 +332,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					parentStatement.ReplaceWith(replacement);
 				}
 
-				var lambdaContent = (Statement) continuation.Arguments.Single().GetChildByRole(LambdaExpression.BodyRole);
+				var lambdaOrDelegate = continuation.Arguments.Single();
+				Statement lambdaContent;
+				if (lambdaOrDelegate is LambdaExpression) {
+					lambdaContent = (Statement)lambdaOrDelegate.GetChildByRole(LambdaExpression.BodyRole);
+				} else {
+					lambdaContent = lambdaOrDelegate.GetChildByRole(Roles.Body);
+				}
 
 				foreach (var memberReference in lambdaContent.Descendants.OfType<MemberReferenceExpression>()) {
 					if (memberReference.MemberName != "Result") {

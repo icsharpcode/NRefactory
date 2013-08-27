@@ -115,6 +115,40 @@ class TestClass
 		}
 
 		[Test]
+		public void TestDelegate() {
+			Test<AutoAsyncAction>(@"
+using System.Threading.Tasks;
+class TestClass
+{
+	public Task<int> Foo ()
+	{
+		return null;
+	}
+	public Task<int> $TestMethod ()
+	{
+		var tcs = new TaskCompletionSource<int> ();
+		Foo ().ContinueWith (delegate {
+			tcs.SetResult (42);
+		});
+		return tcs.Task;
+	}
+}", @"
+using System.Threading.Tasks;
+class TestClass
+{
+	public Task<int> Foo ()
+	{
+		return null;
+	}
+	public async Task<int> TestMethod ()
+	{
+		int taskResult = await Foo ();
+		return 42;
+	}
+}");
+		}
+
+		[Test]
 		public void TestTwoContinueWith() {
 			Test<AutoAsyncAction>(@"
 using System.Threading.Tasks;
