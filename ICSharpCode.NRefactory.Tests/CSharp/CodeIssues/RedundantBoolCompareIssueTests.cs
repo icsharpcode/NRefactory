@@ -85,6 +85,23 @@ class TestClass
 		}
 
 		[Test]
+		public void TestInvalid ()
+		{
+			TestWrongContext<RedundantBoolCompareIssue> (@"
+class TestClass
+{
+	void TestMethod (bool? x)
+	{
+		bool y;
+		y = x == true;
+		y = x == false;
+		y = x != false;
+		y = x != true;
+	}
+}");
+		}
+
+		[Test]
 		public void TestNullable ()
 		{
 			var input = @"
