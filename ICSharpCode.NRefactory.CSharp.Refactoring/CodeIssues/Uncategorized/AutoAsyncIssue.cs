@@ -242,6 +242,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								//This may actually be valid, but it would add even more complexity to this action
 								return;
 							}
+							var initializer = variableStatement.Variables.First().Initializer as ObjectCreateExpression;
+							if (initializer == null || initializer.Arguments.Count != 0 || !initializer.Initializer.IsNull) {
+								return;
+							}
+
+							var constructedType = ctx.ResolveType(initializer.Type);
+							if (constructedType.FullName != "System.Threading.Tasks.TaskCompletionSource") {
+								return;
+							}
+
 							continue;
 						}
 
@@ -397,7 +407,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				//Find all instances of ContinueWith to replace and associated 
 				var continuations = new List<Tuple<InvocationExpression, InvocationExpression, string>>();
-				foreach (var invocation in blockStatement.DescendantNodes(node => true /* STUB: Recognize async lambdas */).OfType<InvocationExpression>()) {
+				foreach (var invocation in blockStatement.Descendants.OfType<InvocationExpression>()) {
 					if (invocation.Arguments.Count != 1)
 						continue;
 

@@ -57,6 +57,25 @@ class TestClass
 		}
 
 		[Test]
+		public void TestIncorrectlyInitializedCompletionSource() {
+			TestWrongContext<AutoAsyncIssue>(@"
+using System.Threading.Tasks;
+class TestClass
+{
+	TaskCompletionSource<int> GetCompletionSource ()
+	{
+		return new TaskCompletionSource<int> ();
+	}
+	public Task<int> $TestMethod ()
+	{
+		var tcs = GetCompletionSource ();
+		tcs.SetResult (1);
+		return tcs.Task;
+	}
+}");
+		}
+
+		[Test]
 		public void TestTaskWithoutResult() {
 			Test<AutoAsyncIssue>(@"
 using System.Threading.Tasks;
@@ -76,6 +95,36 @@ class TestClass
 	{
 		int result = 1;
 		return;
+	}
+}");
+		}
+
+		[Test]
+		public void TestAsyncContinueWith() {
+			Test<AutoAsyncIssue>(@"
+using System.Threading.Tasks;
+class TestClass
+{
+	public Task Foo () { return null; }
+	public Task<int> $TestMethod ()
+	{
+		var tcs = new TaskCompletionSource<int> ();
+		Foo ().ContinueWith (async (precedent) => {
+			await Foo();
+			tcs.SetResult (1);
+		});
+		return tcs.Task;
+	}
+}", @"
+using System.Threading.Tasks;
+class TestClass
+{
+	public Task Foo () { return null; }
+	public async Task<int> TestMethod ()
+	{
+		await Foo ();
+		await Foo ();
+		return 1;
 	}
 }");
 		}
