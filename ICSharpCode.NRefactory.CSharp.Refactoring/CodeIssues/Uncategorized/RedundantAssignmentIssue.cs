@@ -379,6 +379,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				stack.Push(startNode);
 				while (stack.Count > 0) {
 					var node = stack.Pop();
+					if (node == null)
+						continue;
 					if (node.References.Count > 0) {
 						nodeStates [node] = IsAssignment(node.References [0]) ?
 							NodeState.UsageUnreachable : NodeState.UsageReachable;
