@@ -103,6 +103,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 
 				}
+
+				if (entity.HasModifier(Modifiers.Sealed) && !entity.HasModifier(Modifiers.Override)) {
+					AddIssue(
+						entity.ModifierTokens.First(t => t.Modifier == Modifiers.Sealed),
+						ctx.TranslateString("'sealed' modifier is not usable without override"),
+						ctx.TranslateString("Remove 'sealed' modifier"), 
+						s => {
+							s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Sealed);
+						}
+					);
+
+				}
+
 				if (!curType.Peek().HasModifier(Modifiers.Sealed) || !entity.HasModifier(Modifiers.Virtual))
 					return;
 				AddIssue(

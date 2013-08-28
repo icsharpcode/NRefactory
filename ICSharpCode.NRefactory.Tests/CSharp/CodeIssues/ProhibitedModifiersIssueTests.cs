@@ -142,6 +142,42 @@ class Foo
 		}
 
 
+		[Test]
+		public void TestSealed ()
+		{
+			Test<ProhibitedModifiersIssue>(@"
+class Foo
+{
+	public sealed void Bar () 
+	{
+	}
+}
+", @"
+class Foo
+{
+	public void Bar () 
+	{
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestValidSealed ()
+		{
+			TestWrongContext<ProhibitedModifiersIssue>(@"
+class Foo
+{
+	public override sealed void Bar () 
+	{
+	}
+}
+");
+		}
+
+
+
+
 	}
 }
 
