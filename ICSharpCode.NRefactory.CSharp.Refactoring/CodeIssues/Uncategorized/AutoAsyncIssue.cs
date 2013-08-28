@@ -34,12 +34,15 @@ using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.CSharp;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.Refactoring;
 
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Old-style asynchronous function can be converted to C# 5 async",
-	               Description = "Detects usage of old-style TaskCompletionSource/ContinueWith and suggests using async/await instead")]
+	[IssueDescription("Old-style asynchronous function can be converted to C# 5 async",
+	                  Description = "Detects usage of old-style TaskCompletionSource/ContinueWith and suggests using async/await instead",
+	                  Category = IssueCategories.Opportunities,
+	                  Severity = Severity.Hint)]
 	public class AutoAsyncIssue : GatherVisitorCodeIssueProvider
 	{
 		static readonly ReturnStatement ReturnTaskCompletionSourcePattern = new ReturnStatement {
