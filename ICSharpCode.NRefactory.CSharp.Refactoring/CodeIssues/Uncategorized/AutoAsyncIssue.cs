@@ -177,11 +177,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (resolveResult.Member.FullName != "System.Threading.Tasks.Task.ContinueWith")
 						continue;
 
-					if (lambdaBody.DescendantNodesAndSelf(node => node is Statement).OfType<ReturnStatement>().Any(returnStatement => !returnStatement.Expression.IsNull)) {
-						//We do not currently support "return expr;"
-						continue;
-					}
-
 					var parentExpression = invocation.Parent as Expression;
 					if (parentExpression != null) {
 						var mreParent = parentExpression as MemberReferenceExpression;
@@ -206,6 +201,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				string taskCompletionSourceIdentifier = null;
+				InvocationExpression returnedContinuation = null;
 
 				if (isVoid) {
 					if (returnStatements.Any())
@@ -219,118 +215,150 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 
 					var match = ReturnTaskCompletionSourcePattern.Match(returnStatement);
-					if (!match.Success) {
-						return;
-					}
-					var taskCompletionSource = match.Get<IdentifierExpression>("target").Single();
-					var taskCompletionSourceResolveResult = ctx.Resolve(taskCompletionSource);
+					if (match.Success) {
+						var taskCompletionSource = match.Get<IdentifierExpression>("target").Single();
+						var taskCompletionSourceResolveResult = ctx.Resolve(taskCompletionSource);
 
-					//Make sure the TaskCompletionSource is a local variable
-					if (!(taskCompletionSourceResolveResult is LocalResolveResult) ||
-					    taskCompletionSourceResolveResult.Type.FullName != "System.Threading.Tasks.TaskCompletionSource") {
+						//Make sure the TaskCompletionSource is a local variable
+						if (!(taskCompletionSourceResolveResult is LocalResolveResult) ||
+						    taskCompletionSourceResolveResult.Type.FullName != "System.Threading.Tasks.TaskCompletionSource") {
 
-						return;
-					}
-					taskCompletionSourceIdentifier = taskCompletionSource.Identifier;
-
-					//Make sure there are no unsupported uses of the task completion source
-					foreach (var identifier in functionBody.Descendants.OfType<Identifier>()) {
-						if (identifier.Name != taskCompletionSourceIdentifier)
-							continue;
-
-						var statement = identifier.GetParent<Statement>();
-						var variableStatement = statement as VariableDeclarationStatement;
-						if (variableStatement != null) {
-							if (functionBody.Statements.First() != variableStatement || variableStatement.Variables.Count != 1) {
-								//This may actually be valid, but it would add even more complexity to this action
-								return;
-							}
-							var initializer = variableStatement.Variables.First().Initializer as ObjectCreateExpression;
-							if (initializer == null || initializer.Arguments.Count != 0 || !initializer.Initializer.IsNull) {
-								return;
-							}
-
-							var constructedType = ctx.ResolveType(initializer.Type);
-							if (constructedType.FullName != "System.Threading.Tasks.TaskCompletionSource") {
-								return;
-							}
-
-							continue;
-						}
-
-						if (statement == returnStatement)
-							continue;
-
-						if (identifier.Parent is MemberReferenceExpression) {
-							//Right side of the member.
-							//We don't care about this case since it's not a reference to the variable.
-							continue;
-						}
-
-						//The method's taskCompletionSource can only be used on the left side of a member
-						//reference expression (specifically tcs.SetResult).
-						var identifierExpressionParent = identifier.Parent as IdentifierExpression;
-						if (identifierExpressionParent == null) {
 							return;
 						}
-						var memberReferenceExpression = identifierExpressionParent.Parent as MemberReferenceExpression;
-						if (memberReferenceExpression == null) {
-							return;
-						}
+						taskCompletionSourceIdentifier = taskCompletionSource.Identifier;
 
-						if (memberReferenceExpression.MemberName != "SetResult") {
-							//Aside from the final return statement, the only member of task completion source
-							//that can be used is SetResult.
-							//Perhaps future versions could also include SetException and SetCancelled.
-							return;
-						}
+						var cfgBuilder = new ControlFlowGraphBuilder();
+						var cachedControlFlowGraphs = new Dictionary<BlockStatement, IList<ControlFlowNode>>();
 
-						//We found a SetResult -- we will now find out if it is in a proper context
-						AstNode node = memberReferenceExpression;
-						for (;;) {
-							node = node.Parent;
+						//Make sure there are no unsupported uses of the task completion source
+						foreach (var identifier in functionBody.Descendants.OfType<Identifier>()) {
+							if (identifier.Name != taskCompletionSourceIdentifier)
+								continue;
 
-							if (node == null) {
-								//Abort since this is unexpected (it should never happen)
-								return;
-							}
-
-							if (node is MethodDeclaration) {
-								//Ok -- tcs.SetResult is in method declaration
-								break;
-							}
-
-							if (node is LambdaExpression || node is AnonymousMethodExpression) {
-								//It's time to verify if the lambda is supported
-								var lambdaParent = node.Parent as InvocationExpression;
-								if (lambdaParent == null || !invocations.Contains(lambdaParent)) {
+							var statement = identifier.GetParent<Statement>();
+							var variableStatement = statement as VariableDeclarationStatement;
+							if (variableStatement != null) {
+								if (functionBody.Statements.First() != variableStatement || variableStatement.Variables.Count != 1) {
+									//This may actually be valid, but it would add even more complexity to this action
 									return;
 								}
-								break;
-							}
-						}
+								var initializer = variableStatement.Variables.First().Initializer as ObjectCreateExpression;
+								if (initializer == null || initializer.Arguments.Count != 0 || !initializer.Initializer.IsNull) {
+									return;
+								}
 
-						var containingContinueWith = node.Parent as InvocationExpression;
-						if (containingContinueWith != null) {
-							if (nextInChain.ContainsKey(containingContinueWith)) {
-								//Unsupported: ContinueWith has a SetResult
-								//but it's not the last in the chain
+								var constructedType = ctx.ResolveType(initializer.Type);
+								if (constructedType.FullName != "System.Threading.Tasks.TaskCompletionSource") {
+									return;
+								}
+
+								continue;
+							}
+
+							if (statement == returnStatement)
+								continue;
+
+							if (identifier.Parent is MemberReferenceExpression) {
+								//Right side of the member.
+								//We don't care about this case since it's not a reference to the variable.
+								continue;
+							}
+
+							//The method's taskCompletionSource can only be used on the left side of a member
+							//reference expression (specifically tcs.SetResult).
+							var identifierExpressionParent = identifier.Parent as IdentifierExpression;
+							if (identifierExpressionParent == null) {
+								return;
+							}
+							var memberReferenceExpression = identifierExpressionParent.Parent as MemberReferenceExpression;
+							if (memberReferenceExpression == null) {
+								return;
+							}
+
+							if (memberReferenceExpression.MemberName != "SetResult") {
+								//Aside from the final return statement, the only member of task completion source
+								//that can be used is SetResult.
+								//Perhaps future versions could also include SetException and SetCancelled.
+								return;
+							}
+
+							//We found a SetResult -- we will now find out if it is in a proper context
+							AstNode node = memberReferenceExpression;
+							for (;;) {
+								node = node.Parent;
+
+								if (node == null) {
+									//Abort since this is unexpected (it should never happen)
+									return;
+								}
+
+								if (node is MethodDeclaration) {
+									//Ok -- tcs.SetResult is in method declaration
+									break;
+								}
+
+								if (node is LambdaExpression || node is AnonymousMethodExpression) {
+									//It's time to verify if the lambda is supported
+									var lambdaParent = node.Parent as InvocationExpression;
+									if (lambdaParent == null || !invocations.Contains(lambdaParent)) {
+										return;
+									}
+									break;
+								}
+							}
+
+							var containingContinueWith = node.Parent as InvocationExpression;
+							if (containingContinueWith != null) {
+								if (nextInChain.ContainsKey(containingContinueWith)) {
+									//Unsupported: ContinueWith has a SetResult
+									//but it's not the last in the chain
+									return;
+								}
+							}
+
+							var containingFunctionBlock = node is LambdaExpression ? (BlockStatement)node.GetChildByRole(LambdaExpression.BodyRole) : node.GetChildByRole(Roles.Body);
+
+							//Finally, tcs.SetResult must be at the end of its method
+							IList<ControlFlowNode> nodes;
+							if (!cachedControlFlowGraphs.TryGetValue(containingFunctionBlock, out nodes)) {
+								nodes = cfgBuilder.BuildControlFlowGraph(containingFunctionBlock, ctx.CancellationToken);
+								cachedControlFlowGraphs[containingFunctionBlock] = nodes;
+							}
+
+							var setResultNode = nodes.FirstOrDefault(candidateNode => candidateNode.PreviousStatement == statement);
+							if (setResultNode != null && HasReachableNonReturnNodes(setResultNode)) {
+								//The only allowed outgoing nodes are return statements
 								return;
 							}
 						}
+					} else {
+						//Not TaskCompletionSource-based
+						//Perhaps it is return Task.ContinueWith(foo);
 
-						var containingFunctionBlock = node is LambdaExpression ? (Statement)node.GetChildByRole(LambdaExpression.BodyRole) : node.GetChildByRole(Roles.Body);
-
-						//Finally, tcs.SetResult must be at the end of its method
-						var cfgBuilder = new ControlFlowGraphBuilder();
-						var nodes = cfgBuilder.BuildControlFlowGraph(containingFunctionBlock, ctx.CancellationToken);
-						var setResultNode = nodes.FirstOrDefault(candidateNode => candidateNode.PreviousStatement == statement);
-						if (setResultNode != null && HasReachableNonReturnNodes(setResultNode)) {
-							//The only allowed outgoing nodes are return statements
+						if (!invocations.Any()) {
 							return;
 						}
+
+						var outerMostInvocations = new List<InvocationExpression>();
+						InvocationExpression currentInvocation = invocations.First();
+						do {
+							outerMostInvocations.Add(currentInvocation);
+						} while (nextInChain.TryGetValue(currentInvocation, out currentInvocation));
+
+						var lastInvocation = outerMostInvocations.Last();
+						if (returnStatement.Expression != lastInvocation) {
+							return;
+						}
+
+						//Found return <1>.ContinueWith(<2>);
+						returnedContinuation = lastInvocation;
 					}
 				}
+
+				//We do not support "return expr" in continuations
+				//The only exception is when the outer method returns that continuation.
+				invocations.RemoveAll(invocation => invocation != returnedContinuation &&
+				                      invocation.Arguments.First().Children.OfType<Statement>().First().DescendantNodesAndSelf(node => node is Statement).OfType<ReturnStatement>().Any(returnStatement => !returnStatement.Expression.IsNull));
 
 				AddIssue(GetFunctionToken(currentFunction),
 				         ctx.TranslateString("Function can be converted to C# 5-style async function"),
@@ -351,17 +379,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (methodDeclaration != null)
 						methodDeclaration.Modifiers |= Modifiers.Async;
 
-					TransformBody(invocations, isVoid, resultType != null, taskCompletionSourceIdentifier, newFunction.GetChildByRole(Roles.Body));
+					TransformBody(invocations, isVoid, resultType != null, returnedContinuation, taskCompletionSourceIdentifier, newFunction.GetChildByRole(Roles.Body));
 
 					script.Replace(currentFunction, newFunction);
 				});
 			}
 
-			void TransformBody(List<InvocationExpression> validInvocations, bool isVoid, bool isParameterizedTask, string taskCompletionSourceIdentifier, BlockStatement blockStatement)
+			void TransformBody(List<InvocationExpression> validInvocations, bool isVoid, bool isParameterizedTask, InvocationExpression returnedContinuation, string taskCompletionSourceIdentifier, BlockStatement blockStatement)
 			{
 				if (!isVoid) {
-					blockStatement.Statements.First().Remove(); //Remove task completion source declaration
-					blockStatement.Statements.Last().Remove(); //Remove final return
+					if (returnedContinuation == null) {
+						//Is TaskCompletionSource-based
+						blockStatement.Statements.First().Remove(); //Remove task completion source declaration
+						blockStatement.Statements.Last().Remove(); //Remove final return
+					}
 
 					//We use ToList() because we will be modifying the original collection
 					foreach (var expressionStatement in blockStatement.Descendants.OfType<ExpressionStatement>().ToList()) {

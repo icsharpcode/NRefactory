@@ -190,6 +190,38 @@ class TestClass
 		}
 
 		[Test]
+		public void TestTaskWithoutCompletionSource() {
+			Test<AutoAsyncIssue>(@"
+using System.Threading.Tasks;
+class TestClass
+{
+	public Task<int> Foo ()
+	{
+		return null;
+	}
+	public Task<int> $TestMethod ()
+	{
+		return Foo ().ContinueWith (precedent => {
+			return 3;
+		});
+	}
+}", @"
+using System.Threading.Tasks;
+class TestClass
+{
+	public Task<int> Foo ()
+	{
+		return null;
+	}
+	public async Task<int> TestMethod ()
+	{
+		int precedentResult = await Foo ();
+		return 3;
+	}
+}");
+		}
+
+		[Test]
 		public void TestContinueWithUsingPrecedent() {
 			Test<AutoAsyncIssue>(@"
 using System.Threading.Tasks;
