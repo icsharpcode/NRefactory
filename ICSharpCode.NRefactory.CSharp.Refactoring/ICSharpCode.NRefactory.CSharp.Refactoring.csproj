@@ -385,6 +385,7 @@
     <Compile Include="CodeIssues\Custom\AdditionalOfTypeIssues.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaParameterTypeIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaSignatureParenthesesIssue.cs" />
+    <Compile Include="CodeActions\ComputeConstantValueAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
