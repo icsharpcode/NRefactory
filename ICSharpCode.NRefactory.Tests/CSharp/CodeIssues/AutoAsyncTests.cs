@@ -190,6 +190,43 @@ class TestClass
 		}
 
 		[Test]
+		public void TestContinueWithUsingPrecedent() {
+			Test<AutoAsyncIssue>(@"
+using System.Threading.Tasks;
+class TestClass
+{
+	public Task<int> Foo ()
+	{
+		return null;
+	}
+	public Task<int> $TestMethod ()
+	{
+		var tcs = new TaskCompletionSource<int> ();
+		Foo ().ContinueWith (precedent => {
+			Console.WriteLine (precedent.IsFaulted);
+			tcs.SetResult (precedent.Result);
+		});
+		return tcs.Task;
+	}
+}", @"
+using System.Threading.Tasks;
+class TestClass
+{
+	public Task<int> Foo ()
+	{
+		return null;
+	}
+	public async Task<int> TestMethod ()
+	{
+		Task<int> precedent1 = Foo ();
+		int precedentResult = await precedent1;
+		Console.WriteLine (precedent1.IsFaulted);
+		return precedentResult;
+	}
+}");
+		}
+
+		[Test]
 		public void TestBasicContinueWithExtraName() {
 			Test<AutoAsyncIssue>(@"
 using System.Threading.Tasks;

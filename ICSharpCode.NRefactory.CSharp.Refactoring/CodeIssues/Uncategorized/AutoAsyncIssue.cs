@@ -433,25 +433,46 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				foreach (var continuationTuple in continuations) {
 					string taskName = continuationTuple.Item3 ?? "task";
+					string effectiveTaskName = CreateVariableName(blockStatement, taskName);
 					string resultName = CreateVariableName(blockStatement, taskName + "Result");
 					var continuation = continuationTuple.Item1;
 					var originalInvocation = continuationTuple.Item2;
 
 					var target = continuation.Target.GetChildByRole(Roles.TargetExpression).Detach();
-					Expression awaitedExpression = new UnaryOperatorExpression(UnaryOperatorType.Await, target);
-					Statement replacement;
-					var continuationLambdaResolveResult = ctx.Resolve(originalInvocation.Arguments.First()) as LambdaResolveResult;
+					var awaitedExpression = new UnaryOperatorExpression(UnaryOperatorType.Await, target);
+					var replacements = new List<Statement>();
+					var lambdaExpression = originalInvocation.Arguments.First();
+					var continuationLambdaResolveResult = ctx.Resolve(lambdaExpression) as LambdaResolveResult;
 
 					if (!continuationLambdaResolveResult.HasParameterList ||
 					    !continuationLambdaResolveResult.Parameters.First().Type.IsParameterized)
 					{
 						//Either precedent is of type Task or the result is not used
-						replacement = new ExpressionStatement(awaitedExpression);
+						replacements.Add(new ExpressionStatement(awaitedExpression));
 					} else {
 						//Precedent is of type Task<T>
-						var precedentTaskType = continuationLambdaResolveResult.Parameters.First().Type;
+						var lambdaParameter = continuationLambdaResolveResult.Parameters.First();
+						var precedentTaskType = lambdaParameter.Type;
 						var precedentResultType = precedentTaskType.TypeArguments.First();
-						replacement = new VariableDeclarationStatement(CreateShortType(originalInvocation, precedentResultType), resultName, awaitedExpression);
+
+						//We might need to separate the task creation and awaiting
+						var taskIdentifiers = lambdaExpression.Descendants.OfType<IdentifierExpression>().Where(identifier => {
+							if (identifier.Identifier != lambdaParameter.Name)
+								return false;
+							var identifierMre = identifier.Parent as MemberReferenceExpression;
+							return identifierMre == null || identifierMre.MemberName != "Result";
+						});
+						if (taskIdentifiers.Any()) {
+							//Create new task variable
+							var taskExpression = awaitedExpression.Expression;
+							taskExpression.Detach();
+							replacements.Add(new VariableDeclarationStatement(CreateShortType(lambdaExpression, precedentTaskType),
+							                                                  effectiveTaskName,
+							                                                  taskExpression));
+							awaitedExpression.Expression = new IdentifierExpression(effectiveTaskName);
+						}
+
+						replacements.Add(new VariableDeclarationStatement(CreateShortType(originalInvocation, precedentResultType), resultName, awaitedExpression));
 					}
 
 					var parentStatement = continuation.GetParent<Statement>();
@@ -459,10 +480,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var block = grandParentStatement as BlockStatement;
 					if (block == null) {
 						block = new BlockStatement();
-						block.Add(replacement);
+						block.Statements.AddRange(replacements);
 						parentStatement.ReplaceWith(block);
 					} else {
-						parentStatement.ReplaceWith(replacement);
+						foreach (var replacement in replacements) {
+							block.Statements.InsertBefore(parentStatement, replacement);
+						}
+						parentStatement.Remove();
 					}
 
 					var lambdaOrDelegate = continuation.Arguments.Single();
@@ -473,23 +497,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						lambdaContent = lambdaOrDelegate.GetChildByRole(Roles.Body);
 					}
 
-					foreach (var memberReference in lambdaContent.Descendants.OfType<MemberReferenceExpression>()) {
-						if (memberReference.MemberName != "Result") {
+					foreach (var identifierExpression in lambdaContent.Descendants.OfType<IdentifierExpression>()) {
+						if (continuationTuple.Item3 != identifierExpression.Identifier) {
 							continue;
 						}
 
-						var memberReferenceTarget = memberReference.Target as IdentifierExpression;
-						if (memberReferenceTarget == null) {
+						var memberReference = identifierExpression.Parent as MemberReferenceExpression;
+
+						if (memberReference == null || memberReference.MemberName != "Result") {
+							identifierExpression.ReplaceWith(new IdentifierExpression(effectiveTaskName));
 							continue;
 						}
 
-						if (continuationTuple.Item3.Contains(memberReferenceTarget.Identifier)) {
-							memberReference.ReplaceWith(new IdentifierExpression(resultName));
-						}
+						memberReference.ReplaceWith(new IdentifierExpression(resultName));
 					}
 
 					if (lambdaContent is BlockStatement) {
-						Statement previousStatement = replacement;
+						Statement previousStatement = replacements.Last();
 						foreach (var statementInContinuation in lambdaContent.GetChildrenByRole(BlockStatement.StatementRole)) {
 							statementInContinuation.Detach();
 							block.Statements.InsertAfter(previousStatement, statementInContinuation);
@@ -497,7 +521,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					} else {
 						lambdaContent.Detach();
-						block.Statements.InsertAfter(replacement, lambdaContent);
+						block.Statements.InsertAfter(replacements.Last(), lambdaContent);
 					}
 				}
 			}
