@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			string keyword;
 			Statement embeddedStatement;
-			BlockStatement block;
+//			BlockStatement block;
 
 			var curNode = context.GetNode();
 			if (!RemoveBracesAction.IsSpecialNode(curNode, out keyword, out embeddedStatement))

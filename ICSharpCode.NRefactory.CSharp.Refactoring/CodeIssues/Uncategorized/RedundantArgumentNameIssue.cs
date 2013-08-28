@@ -81,7 +81,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				foreach (var argument in arguments) {
 					argumentNames.Add((argument as NamedArgumentExpression).Name);
-					Console.WriteLine((argument as NamedArgumentExpression).Name);
 				}
 
 				return IsSublist(argumentNames, parameterNames);
@@ -159,7 +158,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					List<string> parameterNames = new List<string>();
 					foreach (var parameter in parameters) {
 						parameterNames.Add(parameter.Name);
-						Console.WriteLine(parameter.Name);
 					}
 
 					if (!IsRedundant(parent, parameterNames))

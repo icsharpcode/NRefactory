@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  ResharperDisableKeyword = "ReplaceWithOfType")]
 	public class ReplaceWithOfTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		static readonly AstNode selectNotNullPattern =
+		internal static readonly AstNode selectNotNullPattern =
 			new InvocationExpression(
 				new MemberReferenceExpression(new AnyNode("target"), "SelectNotNull"),
 				new LambdaExpression {
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			);
 
-		static readonly AstNode wherePatternCase1 =
+		internal static readonly AstNode wherePatternCase1 =
 			new InvocationExpression(
 				new MemberReferenceExpression(
 					new InvocationExpression(
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 		);
 
-		static readonly AstNode wherePatternCase2 =
+		internal static readonly AstNode wherePatternCase2 =
 			new InvocationExpression(
 				new MemberReferenceExpression(
 					new InvocationExpression(
@@ -80,6 +80,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Body = PatternHelper.OptionalParentheses (new CastExpression(new Backreference("type"), PatternHelper.OptionalParentheses (new AnyNode("expr2"))))
 				}
 		);
+
 
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
@@ -107,21 +108,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitInvocationExpression (InvocationExpression anyInvoke)
 			{
-				base.VisitInvocationExpression (anyInvoke);
 				var match = selectNotNullPattern.Match (anyInvoke);
 				if (!match.Success) {
 					match = wherePatternCase1.Match (anyInvoke);
 					if (!match.Success) {
-						match = wherePatternCase2.Match (anyInvoke);
-						if (!match.Success)
+						match = wherePatternCase2.Match (anyInvoke); 
+						if (!match.Success) {
+							base.VisitInvocationExpression(anyInvoke);
 							return;
+						}
 					}
-					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1")) || 
-					    !CheckParameterMatches(match.Get("param2"), match.Get("expr2")))
+					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1")) ||
+					    !CheckParameterMatches(match.Get("param2"), match.Get("expr2"))) {
+						base.VisitInvocationExpression (anyInvoke);
 						return;
+					}
 				} else {
-					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1")))
+					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1"))) {
+						base.VisitInvocationExpression (anyInvoke);
 						return;
+					}
 				}
 				AddIssue (
 					anyInvoke,

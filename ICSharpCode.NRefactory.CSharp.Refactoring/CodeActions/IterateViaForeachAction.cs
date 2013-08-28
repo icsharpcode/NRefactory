@@ -103,8 +103,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (expressionStatement == null)
 				return null;
 			var expression = expressionStatement.Expression;
-			if (expression is AssignmentExpression)
-				expression = ((AssignmentExpression)expression).Left;
+			var assignment = expression as AssignmentExpression;
+			if (assignment != null)
+				expression = assignment.Left;
+			if (!expression.Contains(context.Location))
+				return null;
 			var expressionRR = context.Resolve(expression);
 			if (expressionRR == null)
 				return null;

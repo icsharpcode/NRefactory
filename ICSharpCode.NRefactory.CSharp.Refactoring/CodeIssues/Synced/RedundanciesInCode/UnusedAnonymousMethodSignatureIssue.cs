@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				}
 
-				if (!RedundantLambdaParameterTypeIssue.LambdaTypeCanBeInferred(ctx, anonymousMethodExpression, anonymousMethodExpression.Parameters)) {
+				if (!RedundantLambdaParameterTypeIssue.LambdaTypeCanBeInferred(ctx, anonymousMethodExpression, anonymousMethodExpression.Parameters.ToList())) {
 					base.VisitAnonymousMethodExpression(anonymousMethodExpression);
 					return;
 				}

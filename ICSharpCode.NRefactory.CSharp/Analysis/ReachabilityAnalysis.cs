@@ -176,7 +176,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				//in "from x in Method() select x", Method() might be recursive
 				//but in "from x in Bar() from y in Method() select x + y", even if Method() is recursive
 				//Bar might still be empty.
-				return queryExpression.Clauses.OfType<QueryFromClause>().First().AcceptVisitor(this);
+				var queryFromClause = queryExpression.Clauses.OfType<QueryFromClause>().FirstOrDefault();
+				if (queryFromClause == null)
+					return true;
+				return queryFromClause.AcceptVisitor(this);
 			}
 		}
 	}

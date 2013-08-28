@@ -1,5 +1,5 @@
 //
-// RedundantExplicitArraySizeIssueTests.cs
+// AdditionalOfTypeIssuesTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -27,90 +27,33 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.CSharp.CodeActions;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantExplicitArraySizeIssueTests : InspectionActionTestBase
+	public class AdditionalOfTypeIssuesTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestSimpleCase()
+		public void TestAdditionalCase ()
 		{
-			Test<RedundantExplicitArraySizeIssue>(@"
+			Test<AdditionalOfTypeIssues>(@"using System.Linq;
 class Test
 {
-	void Foo ()
+	public void Foo(object[] obj)
 	{
-		var foo = new int[3] { 1, 2, 3 };
+		obj.Where(o => (o is Test));
 	}
-}
-", @"
+}", @"using System.Linq;
 class Test
 {
-	void Foo ()
+	public void Foo(object[] obj)
 	{
-		var foo = new int[] { 1, 2, 3 };
+		obj.OfType<Test> ();
 	}
-}
-");
+}");
 		}
 
-		[Test]
-		public void TestInvalidCase1()
-		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
-class Test
-{
-	void Foo (int i)
-	{
-		var foo = new int[i] { 1, 2, 3 };
-	}
-}
-");
-		}
-
-		[Test]
-		public void TestInvalidCase2()
-		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
-class Test
-{
-	void Foo ()
-	{
-		var foo = new int[10];
-	}
-}
-");
-		}
-
-		[Test]
-		public void TestInvalidCase3()
-		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
-class Test
-{
-	void Foo ()
-	{
-		var foo = new int[0];
-	}
-}
-");
-		}
-
-		[Test]
-		public void TestDisable()
-		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
-class Test
-{
-	void Foo ()
-	{
-		// ReSharper disable once RedundantExplicitArraySize
-		var foo = new int[3] { 1, 2, 3 };
-	}
-}
-");
-		}
 	}
 }
 

@@ -197,6 +197,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 										trctx = trctx.WithCurrentTypeDefinition(member.DeclaringTypeDefinition).WithCurrentMember((IMember)member);
 									if (member is ITypeDefinition)
 										trctx = trctx.WithCurrentTypeDefinition((ITypeDefinition)member);
+
+									var state = ctx.Resolver.GetResolverStateBefore(node);
+									if (state.CurrentUsingScope != null)
+										trctx = trctx.WithUsingScope(state.CurrentUsingScope);
+
 									var cdc = new CSharpDocumentationComment (emptySource, trctx);
 									var entity = cdc.ResolveCref(cref.Value);
 

@@ -95,7 +95,6 @@
     <Compile Include="CodeActions\ConvertAnonymousDelegateToLambdaAction.cs" />
     <Compile Include="CodeActions\ConvertAsToCastAction.cs" />
     <Compile Include="CodeActions\ConvertCastToAsAction.cs" />
-    <Compile Include="CodeActions\ConvertConditionalToIfAction.cs" />
     <Compile Include="CodeActions\ConvertDecToHexAction.cs" />
     <Compile Include="CodeActions\ConvertDoWhileToWhileLoopAction.cs" />
     <Compile Include="CodeActions\ConvertEqualityOperatorToEqualsAction.cs" />
@@ -334,7 +333,6 @@
     <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\TypeCriteriaCollector.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantArrayCreationExpressionIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantAssignmentIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\RedundantLambdaParameterTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ReferenceEqualsCalledWithValueTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ResultOfAsyncCallShouldNotBeIgnoredIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\UnreachableCodeIssue.cs" />
@@ -385,6 +383,9 @@
     <Compile Include="CodeActions\ReverseDirectionForForLoopAction.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantArgumentNameIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\AutoAsyncIssue.cs" />
+    <Compile Include="CodeIssues\Custom\AdditionalOfTypeIssues.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaParameterTypeIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaSignatureParenthesesIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

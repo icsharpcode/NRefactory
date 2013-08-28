@@ -205,6 +205,24 @@ class Bar
 }
 ");
 		}
+
+		[Test]
+		public void TestInvaludValueType()
+		{
+			TestWrongContext<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+class Bar
+{
+	public int Baz (object foo)
+	{
+		if (foo is int) {
+			Baz ((int)foo);
+			return (int)foo;
+		}
+		return 0;
+	}
+}
+");
+		}
 	}
 }
 

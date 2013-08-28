@@ -103,7 +103,6 @@
     <Compile Include="CSharp\CodeActions\AddUsing\AddUsingActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertAsToCastTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertCastToAsTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertConditionalToIfTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertExplicitToImplicitImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertImplicitToExplicittImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertLambdaBodyExpressionToStatementTests.cs" />
@@ -556,6 +555,8 @@
     <Compile Include="CSharp\CodeActions\ReverseDirectionForForLoopTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantArgumentNameTests.cs" />
     <Compile Include="CSharp\CodeIssues\AutoAsyncTests.cs" />
+    <Compile Include="CSharp\CodeIssues\AdditionalOfTypeIssuesTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantLambdaSignatureParenthesesIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

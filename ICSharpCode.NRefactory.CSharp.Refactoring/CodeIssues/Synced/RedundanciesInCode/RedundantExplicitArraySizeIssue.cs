@@ -55,11 +55,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitArrayCreateExpression(ArrayCreateExpression arrayCreateExpression)
 			{
 				base.VisitArrayCreateExpression(arrayCreateExpression);
-
-				var arg = arrayCreateExpression.Arguments.SingleOrDefault() as PrimitiveExpression;
-				if (arg == null && !(arg.Value is int))
+				if (arrayCreateExpression.Arguments.Count != 1)
 					return;
-				if (arrayCreateExpression.Initializer.Elements.Count () == (int)arg.Value) {
+				var arg = arrayCreateExpression.Arguments.Single() as PrimitiveExpression;
+				if (arg == null || !(arg.Value is int))
+					return;
+				var value = (int)arg.Value;
+				if (value == 0)
+					return;
+				if (arrayCreateExpression.Initializer.Elements.Count() == value) {
 					AddIssue(
 						arg,
 						ctx.TranslateString("Redundant explicit size in array creation"),

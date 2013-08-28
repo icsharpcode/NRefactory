@@ -1,5 +1,5 @@
 //
-// RedundantExplicitArraySizeIssueTests.cs
+// RedundantLambdaSignatureParenthesesIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,86 +31,103 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantExplicitArraySizeIssueTests : InspectionActionTestBase
+	public class RedundantLambdaSignatureParenthesesIssueTests : InspectionActionTestBase
 	{
+
 		[Test]
-		public void TestSimpleCase()
+		public void SimpleCase()
 		{
-			Test<RedundantExplicitArraySizeIssue>(@"
-class Test
+			Test<RedundantLambdaSignatureParenthesesIssue>(@"
+class Program
 {
-	void Foo ()
+	public delegate int MyDel(int j);
+
+	public static void Foo()
 	{
-		var foo = new int[3] { 1, 2, 3 };
+		MyDel increase = (j) => (j * 42);
 	}
 }
-", @"
-class Test
+", 2, @"
+class Program
 {
-	void Foo ()
+	public delegate int MyDel(int j);
+
+	public static void Foo()
 	{
-		var foo = new int[] { 1, 2, 3 };
+		MyDel increase = j => (j * 42);
+	}
+}
+", 0);
+		}
+
+		[Test]
+		public void InvalidCase1()
+		{
+			TestWrongContext<RedundantLambdaSignatureParenthesesIssue>(@"
+class Program
+{
+	public delegate int MyDel(int j);
+
+	public static void Foo()
+	{
+		MyDel increase = (int j) => (j * 42);
 	}
 }
 ");
 		}
 
 		[Test]
-		public void TestInvalidCase1()
+		public void InvalidCase2()
 		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
-class Test
+			TestWrongContext<RedundantLambdaSignatureParenthesesIssue>(@"
+using System;
+
+class Program
 {
-	void Foo (int i)
+	public static void Foo()
 	{
-		var foo = new int[i] { 1, 2, 3 };
+		Action<int, int> act = (i, j) => (j * j);
 	}
 }
 ");
 		}
 
+
 		[Test]
-		public void TestInvalidCase2()
+		public void TestInvalid()
 		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
-class Test
+			TestWrongContext<RedundantLambdaSignatureParenthesesIssue>(@"
+class Program
 {
-	void Foo ()
+	public delegate int MyDel(int j);
+
+	public static void Foo()
 	{
-		var foo = new int[10];
+		MyDel increase = j => (j * 42);
 	}
 }
 ");
 		}
 
-		[Test]
-		public void TestInvalidCase3()
-		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
-class Test
-{
-	void Foo ()
-	{
-		var foo = new int[0];
-	}
-}
-");
-		}
 
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
-class Test
+			TestWrongContext<RedundantLambdaSignatureParenthesesIssue>(@"
+class Program
 {
-	void Foo ()
+	public delegate int MyDel(int j);
+
+	public static void Foo()
 	{
-		// ReSharper disable once RedundantExplicitArraySize
-		var foo = new int[3] { 1, 2, 3 };
+// ReSharper disable RedundantLambdaSignatureParentheses
+		MyDel increase = (j) => (j * 42);
+// ReSharper restore RedundantLambdaSignatureParentheses
 	}
 }
 ");
 		}
+
 	}
 }
 

@@ -3,8 +3,11 @@
 //  
 // Author:
 //       Ji Kun <jikun.nus@gmail.com>
-// 
+//       Mike Krüger <mkrueger@xamarin.com>
+//
+//
 // Copyright (c) 2013  Ji Kun <jikun.nus@gmail.com>
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,78 +36,69 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	/// <summary>
-	/// Explicit type specification can be removed as it can be implicitly inferred.
-	/// </summary>
-	[IssueDescription("Remove redundant explicit type specification in lambda expression",
-	                  Description= "Explicit type specification can be removed as it can be implicitly inferred.",
+	[IssueDescription("Redundant lambda explicit type specification",
+	                  Description= "Explicit type specification can be removed as it can be implicitly inferred",
 	                  Category = IssueCategories.RedundanciesInCode,
-	                  Severity = Severity.Hint,
+	                  Severity = Severity.Warning,
 	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantLambdaParameterType")]
 	public class RedundantLambdaParameterTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			return new GatherVisitor(context, this);
+			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<RedundantLambdaParameterTypeIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx, RedundantLambdaParameterTypeIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
 			{
 			}
 			
-			public override void VisitLambdaExpression(LambdaExpression lambdaexpression)
+			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
 			{
-				base.VisitLambdaExpression(lambdaexpression);
-				
-				if (lambdaexpression == null)
-					return;
-				
-				var arguments = lambdaexpression.Parameters;
-				
+				base.VisitLambdaExpression(lambdaExpression);
+
+				var arguments = lambdaExpression.Parameters.ToList();
 				if (arguments.Any(f => f.Type.IsNull))
 					return;
-
-				if (!LambdaTypeCanBeInferred(ctx, lambdaexpression, arguments)) {
+				if (!LambdaTypeCanBeInferred(ctx, lambdaExpression, arguments))
 					return;
-				}
-				
-				bool singleArgument = (arguments.Count == 1);
 
 				foreach (var argument in arguments) {
-					var type = argument.GetChildByRole(Roles.Type);
-					AddIssue(type, ctx.TranslateString("Explicit type specification can be removed as it can be implicitly inferred."), ctx.TranslateString("Remove parameter type specification"), script => {
-						if (singleArgument) {
-							if (argument.NextSibling.ToString().Equals(")") && argument.PrevSibling.ToString().Equals("(")) {
-								script.Remove(argument.NextSibling);
-								script.Remove(argument.PrevSibling);
+					AddIssue(
+						argument.Type,
+						ctx.TranslateString("Redundant lambda explicit type specification"), 
+						ctx.TranslateString("Remove parameter type specification"),
+						script => {
+							if (arguments.Count == 1) {
+								if (argument.NextSibling.ToString().Equals(")") && argument.PrevSibling.ToString().Equals("(")) {
+									script.Remove(argument.NextSibling);
+									script.Remove(argument.PrevSibling);
+								}
 							}
-						}
-						script.Remove(type);
-					});
+							foreach (var arg in arguments)
+								script.Replace(arg, new ParameterDeclaration(arg.Name));
+						});
 				}
 			}
 		}
 
-		public static bool LambdaTypeCanBeInferred(BaseRefactoringContext ctx, Expression expression, IEnumerable<ParameterDeclaration> arguments) {
+		public static bool LambdaTypeCanBeInferred(BaseRefactoringContext ctx, Expression expression, List<ParameterDeclaration> parameters)
+		{
 			var validTypes = TypeGuessing.GetValidTypes(ctx.Resolver, expression).ToList();
 			foreach (var type in validTypes) {
 				if (type.Kind != TypeKind.Delegate)
 					continue;
 				var invokeMethod = type.GetDelegateInvokeMethod();
-				int p = 0;
-				foreach (var argument in arguments) {
-					if (p >= invokeMethod.Parameters.Count)
-						break;
-					var resolvedArgument = ctx.Resolve(argument.Type);
+				if (invokeMethod == null || invokeMethod.Parameters.Count != parameters.Count)
+					continue;
+				for (int p = 0; p < invokeMethod.Parameters.Count; p++) {
+					var resolvedArgument = ctx.Resolve(parameters[p].Type);
 					if (!invokeMethod.Parameters [p].Type.Equals(resolvedArgument.Type))
 						return false;
-					p++;
 				}
 			}
-
 			return true;
 		}
 	}

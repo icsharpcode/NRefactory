@@ -113,7 +113,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				
 				var resultProperty = ctx.Resolve(propertyDeclaration) as MemberResolveResult;
-				var basetype = resultProperty.Member.DeclaringTypeDefinition.DirectBaseTypes.First();
+				var basetype = resultProperty.Member.DeclaringTypeDefinition.DirectBaseTypes.FirstOrDefault();
 				if (basetype == null)
 					return;
 				var baseProperty = basetype.GetMembers(f => f.Name.Equals(propertyDeclaration.Name)).FirstOrDefault();

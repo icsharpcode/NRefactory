@@ -75,7 +75,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			};
 
 			var rr = ctx.Resolve(castToType);
-			if (rr == null || rr.IsError)
+			if (rr == null || rr.IsError || rr.Type.IsReferenceType == false)
 				return null;
 			var foundCasts = ifElseStatement.GetParent<BlockStatement>().DescendantNodes(n => n.StartLocation >= ifElseStatement.StartLocation && !cast.IsMatch(n)).Where(n => cast.IsMatch(n)).ToList();
 			foundCastCount = foundCasts.Count;
@@ -139,7 +139,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			};
 
 			var rr = ctx.Resolve(castToType);
-			if (rr == null || rr.IsError)
+			if (rr == null || rr.IsError || rr.Type.IsReferenceType == false)
 				return null;
 			var foundCasts = embeddedStatment.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n)).ToList();
 			foundCastCount = foundCasts.Count;
@@ -210,7 +210,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var uOp = node as UnaryOperatorExpression;
 			if (uOp != null && uOp.Operator == UnaryOperatorType.Not) {
 				var rr = ctx.Resolve(isExpr.Type);
-				if (rr == null)
+				if (rr == null || rr.IsError || rr.Type.IsReferenceType == false)
 					return null;
 
 				return new CodeAction(ctx.TranslateString("Use 'as' and check for null"), script =>  {
@@ -242,7 +242,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			};
 
 			var rr2 = ctx.Resolve(castToType);
-			if (rr2 == null || rr2.IsError)
+			if (rr2 == null || rr2.IsError || rr2.Type.IsReferenceType == false)
 				return null;
 			var foundCasts2 = isExpr.GetParent<Statement>().DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => isExpr.StartLocation < n.StartLocation && cast.IsMatch(n)).ToList();
 

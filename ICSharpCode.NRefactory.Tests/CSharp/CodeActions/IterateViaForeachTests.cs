@@ -104,7 +104,7 @@ class TestClass
 	public void F()
 	{
 		IEnumerable<int> ints;
-		ints = GetIn$ts ();
+		$ints = GetInts ();
 	}
 }", @"
 using System.Collections.Generic;

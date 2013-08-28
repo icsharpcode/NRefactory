@@ -65,7 +65,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					script.Replace(node, newExpression);
 				}, node.OperatorToken
 			);
-			return null;
 		}
 	}
 }

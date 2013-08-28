@@ -252,7 +252,7 @@ namespace ICSharpCode.NRefactory.GtkDemo
 				Parallel.For(
 					0, assemblies.Length,
 					delegate (int i) {
-						Stopwatch w = Stopwatch.StartNew();
+//						Stopwatch w = Stopwatch.StartNew();
 						AssemblyLoader loader = AssemblyLoader.Create();
 						projectContents[i] = loader.LoadAssemblyFile(assemblies[i].Location);
 					});
