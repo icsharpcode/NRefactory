@@ -54,6 +54,24 @@ class Test
 }");
 		}
 
+		[Test]
+		public void TestInvalid ()
+		{
+			TestWrongContext<AdditionalOfTypeIssues>(@"using System.Linq;
+class Test
+{
+	public void Foo(object[] obj)
+	{
+		obj.OfType<IDisposable> ().Where(o => this is IDisposable);
+	}
+}");
+		}
+
+
+
+
+
+
 	}
 }
 
