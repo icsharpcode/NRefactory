@@ -65,11 +65,7 @@ class TestClass
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo(
-//Resharper disable RedundantArgumentName
-a: 1, b: 2,
-//Resharper restore RedundantArgumentName
- c: 0.2);
+		Foo(a: 1, b: 2, c: 0.2);
 	}
 }
 ";
@@ -79,15 +75,11 @@ class TestClass
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo (
-//Resharper disable RedundantArgumentName
-			1, 2,
-//Resharper restore RedundantArgumentName
-			0.2);
+		Foo (1, b: 2, c: 0.2);
 	}
 }
 ";
-			Test<RedundantArgumentNameIssue>(input, 1, output);
+			Test<RedundantArgumentNameIssue>(input, 3, output, 0);
 		}
 		
 		[Test]
@@ -99,13 +91,7 @@ class TestClass
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo (
-//Resharper disable RedundantArgumentName
-a: 1,
-//Resharper restore RedundantArgumentName
- b: 2,
-//Resharper disable RedundantArgumentName
- c: 0.2);
+		Foo (a: 1, b: 2, c: 0.2);
 	}
 }
 ";
@@ -115,21 +101,47 @@ class TestClass
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo (
-//Resharper disable RedundantArgumentName
-			1,
-//Resharper restore RedundantArgumentName
-			2,
-//Resharper disable RedundantArgumentName
-			c: 0.2);
+		Foo (1, 2, c: 0.2);
 	}
 }
 ";
-			Test<RedundantArgumentNameIssue>(input, 1, output);
+			Test<RedundantArgumentNameIssue>(input, 3, output, 1);
 		}
-		
+
+
 		[Test]
-		public void IndexerExpression()
+		public void MethodInvocation4()
+		{
+			Test<RedundantArgumentNameIssue>(@"
+class TestClass
+{
+	public void Foo (int a = 2, int b = 3, int c = 4, int d = 5, int e = 5)
+	{
+	}
+
+	public void F ()
+	{
+		Foo (1, b: 2, d: 2, c: 3, e:19);
+	}
+}
+", 1, @"
+class TestClass
+{
+	public void Foo (int a = 2, int b = 3, int c = 4, int d = 5, int e = 5)
+	{
+	}
+
+	public void F ()
+	{
+		Foo (1, 2, d: 2, c: 3, e: 19);
+	}
+}
+");
+		}
+	
+
+		[Test]
+		public void IndexerExpression() 
 		{
 			var input = @"
 public class TestClass
@@ -257,31 +269,6 @@ internal class Test
 ";
 			Test<RedundantArgumentNameIssue>(input, 0);
 		}
-		
-		[Test]
-		public void ResharperDisable()
-		{
-			var input = @"
-public class TestClass
-{
-	public int this[int i, int j]
-	{
-		set { }
-		get { return 0; }
-	}
-}
-internal class Test
-{
-	private void Foo()
-	{
-		var TestBases = new TestClass();
-//Resharper disable RedundantArgumentName
-		int a = TestBases[ i: 1, j: 2];
-//Resharper restore RedundantArgumentName
-	}
-}
-";
-			Test<RedundantArgumentNameIssue>(input, 0);
-		}
+
 	}
 }
