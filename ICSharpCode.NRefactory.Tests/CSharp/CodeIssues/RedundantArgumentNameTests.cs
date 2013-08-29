@@ -202,7 +202,6 @@ class TestClass
 			Test<RedundantArgumentNameIssue>(input, 2, output, 1);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestObjectCreation()
 		{

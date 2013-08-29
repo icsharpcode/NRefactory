@@ -123,54 +123,64 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitNamedArgumentExpression(NamedArgumentExpression namedArgumentExpression)
 			{
 				base.VisitNamedArgumentExpression(namedArgumentExpression);
-
-				if (namedArgumentExpression.Parent is IndexerExpression) {
-					var parent = namedArgumentExpression.Parent;
+				
+				IMember member;
+				List<NamedArgumentExpression> redundantNodes;
+				var parent = namedArgumentExpression.Parent;
+				List<IParameter> parameters;
+				List<string> parameterNames = new List<string>();
+				
+				if (parent is IndexerExpression) {
 					var resolvedResult = ctx.Resolve(parent as IndexerExpression);
 					if (resolvedResult.IsError)
 						return;
-					IMember member = (resolvedResult as CSharpInvocationResolveResult).Member;
-					var parameters = (member as IProperty).Parameters;
-					List<string> parameterNames = new List<string>();
+					member = (resolvedResult as CSharpInvocationResolveResult).Member;
+					if (!(member is IProperty)) {
+						return;
+					}
+					parameters = (member as IProperty).Parameters;
 					foreach (var parameter in parameters) {
 						parameterNames.Add(parameter.Name);
 					}
-
-					if (!IsRedundant(parent, parameterNames))
-						return;
-
-					List<NamedArgumentExpression> redundantNodes = CollectNodes(parent, namedArgumentExpression);
-
-					if (!redundantNodes.Any())
-						return;
-
-					AddIssue(redundantNodes);
-				} else if (namedArgumentExpression.Parent is InvocationExpression) {
-					var parent = namedArgumentExpression.Parent;
+				}
+				else if (parent is InvocationExpression) {
 					var resolvedResult = ctx.Resolve(parent as InvocationExpression);
 					if (resolvedResult.IsError)
 						return;
-					IMember member = (resolvedResult as CSharpInvocationResolveResult).Member;
+					member = (resolvedResult as CSharpInvocationResolveResult).Member;
 					if (!(member is IMethod)) {
 						return;
 					}
-					var parameters = (member as IMethod).Parameters;
-					List<string> parameterNames = new List<string>();
+					parameters = (member as IProperty).Parameters;
 					foreach (var parameter in parameters) {
 						parameterNames.Add(parameter.Name);
 					}
-
-					if (!IsRedundant(parent, parameterNames))
-						return;
-					
-					List<NamedArgumentExpression> redundantNodes = CollectNodes(parent, namedArgumentExpression);
-					
-					if (!redundantNodes.Any())
-						return;
-
-					AddIssue(redundantNodes);
 				}
+				else if (parent is ObjectCreateExpression)
+				{
+					var resolvedResult = ctx.Resolve(parent as ObjectCreateExpression);
+					if (resolvedResult.IsError)
+						return;
+					member = (resolvedResult as CSharpInvocationResolveResult).Member;
+					if (!(member is IMethod)) {
+						return;
+					}
+					member = (resolvedResult as CSharpInvocationResolveResult).Member;
+					parameters = (member as IProperty).Parameters;
+					foreach (var parameter in parameters) {
+						parameterNames.Add(parameter.Name);
+					}
+				}
+				
+				
+				if (!IsRedundant(parent, parameterNames))
+					return;
+				redundantNodes = CollectNodes(parent, namedArgumentExpression);
+				if (!redundantNodes.Any())
+					return;
+				AddIssue(redundantNodes);
 			}
 		}
 	}
+}
 }
