@@ -30,28 +30,45 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Description = "Converts statement of lambda body to expression")]
 	public class ConvertLambdaBodyStatementToExpressionAction : SpecializedCodeAction<LambdaExpression>
 	{
+		internal static bool TryGetConvertableExpression(LambdaExpression node, out BlockStatement blockStatement, out Expression expr)
+		{
+			expr = null;
+			blockStatement = node.Body as BlockStatement;
+			if (blockStatement == null || blockStatement.Statements.Count > 1)
+				return false;
+			var returnStatement = blockStatement.Statements.FirstOrNullObject() as ReturnStatement;
+			if (returnStatement != null) {
+				expr = returnStatement.Expression;
+			} else {
+				var exprStatement = blockStatement.Statements.FirstOrNullObject() as ExpressionStatement;
+				if (exprStatement == null)
+					return false;
+				expr = exprStatement.Expression;
+			}
+			return true;
+		}
+
+		internal static CodeAction CreateAction (BaseRefactoringContext context, AstNode node, BlockStatement blockStatement, Expression expr)
+		{
+			return new CodeAction (
+				context.TranslateString ("Convert to lambda expression"),
+				script => script.Replace (blockStatement, expr.Clone ()), 
+				node
+			);
+		}
+
 		protected override CodeAction GetAction (RefactoringContext context, LambdaExpression node)
 		{
 			if (!node.ArrowToken.Contains (context.Location))
 				return null;
 
-			var blockStatement = node.Body as BlockStatement;
-			if (blockStatement == null || blockStatement.Statements.Count > 1)
+			BlockStatement blockStatement;
+			Expression expr;
+			if (!TryGetConvertableExpression(node, out blockStatement, out expr))
 				return null;
 
-			Expression expr;
-			var returnStatement = blockStatement.Statements.FirstOrNullObject () as ReturnStatement;
-			if (returnStatement != null) {
-				expr = returnStatement.Expression;
-			} else {
-				var exprStatement = blockStatement.Statements.FirstOrNullObject () as ExpressionStatement;
-				if (exprStatement == null)
-					return null;
-				expr = exprStatement.Expression;
-			}
 			
-			return new CodeAction (context.TranslateString ("Convert to lambda expression"),
-				script => script.Replace (blockStatement, expr.Clone ()), node);
+			return CreateAction (context, node.ArrowToken, blockStatement, expr);
 		}
 	}
 }

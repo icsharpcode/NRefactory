@@ -557,6 +557,7 @@
     <Compile Include="CSharp\CodeIssues\AdditionalOfTypeIssuesTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantLambdaSignatureParenthesesIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCheckBeforeAssignmentTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertToLambdaExpressionIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
