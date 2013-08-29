@@ -55,7 +55,7 @@ class TestClass
 ";
 			Test<RedundantArgumentNameIssue>(input, 1, output);
 		}
-
+		
 		[Test]
 		public void MethodInvocation2()
 		{
@@ -89,7 +89,7 @@ class TestClass
 ";
 			Test<RedundantArgumentNameIssue>(input, 1, output);
 		}
-
+		
 		[Test]
 		public void MethodInvocation3()
 		{
@@ -127,7 +127,7 @@ class TestClass
 ";
 			Test<RedundantArgumentNameIssue>(input, 1, output);
 		}
-
+		
 		[Test]
 		public void IndexerExpression()
 		{
@@ -169,8 +169,7 @@ internal class Test
 ";
 			Test<RedundantArgumentNameIssue>(input, 2, output, 0);
 		}
-
-		[Ignore("Fixme")]
+		
 		[Test]
 		public void TestAttributes()
 		{
@@ -185,8 +184,7 @@ class MyAttribute : Attribute
 class TestClass
 {
 }
-"
-;
+";
 			var output = @"using System;
 class MyAttribute : Attribute
 {
@@ -194,15 +192,14 @@ class MyAttribute : Attribute
 }
 
 
-[MyAttribute(x: 1, 2)]
+[MyAttribute(1, 2)]
 class TestClass
 {
 }
 ";
 			Test<RedundantArgumentNameIssue>(input, 2, output, 1);
 		}
-
-		[Ignore("Fixme")]
+		
 		[Test]
 		public void TestObjectCreation()
 		{
@@ -219,7 +216,7 @@ class TestClass
 	}
 }
 "
-;
+				;
 			var output = @"
 class TestClass
 {
@@ -235,8 +232,8 @@ class TestClass
 ";
 			Test<RedundantArgumentNameIssue>(input, 1, output);
 		}
-
-
+		
+		
 		[Test]
 		public void Invalid()
 		{
