@@ -108,5 +108,62 @@ using System;", @"//
 
 using System;");
 		}
+
+		[Test]
+		public void TestUsingBlankLines ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.BlankLinesBeforeUsings = 2;
+			Test(policy,
+			      @"//
+using System;",
+			      @"//
+
+
+using System;");
+		}
+
+		[Test]
+		public void TestUsingBlankLinesCase2 ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.BlankLinesBeforeUsings = 2;
+			Test(policy,
+			       @"//
+
+
+using System;",
+			       @"//
+
+
+using System;");
+		}
+
+		[Test]
+		public void TestUsingBlankLinesCase3 ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.BlankLinesBeforeUsings = 2;
+			Test(policy,
+			      @"
+
+using System;",
+			      @"
+
+using System;");
+		}
+
+		[Test]
+		public void TestUsingBlankLinesCase4 ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.BlankLinesBeforeUsings = 2;
+			Test (policy,
+			      @"using System;",
+			      @"
+
+using System;");
+
+		}
 	}
 }

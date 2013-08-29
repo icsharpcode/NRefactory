@@ -207,13 +207,21 @@ namespace ICSharpCode.NRefactory.CSharp
 			} while (line > 0 && IsSpacing(document.GetLineByNumber(line)));
 			if (line > 0 && !IsSpacing(document.GetLineByNumber(line)))
 			    line++;
-			int end = document.GetOffset(loc.Line, 1);
-			int start = document.GetOffset(line + 1, 1);
+			if (loc.Line - line == blankLines)
+				return;
+
 			var sb = new StringBuilder ();
-			for (int i = 0; i < blankLines; i++) {
+			for (int i = 0; i < blankLines; i++)
 				sb.Append(options.EolMarker);
+			int end = document.GetOffset(loc.Line, 1);
+			if (loc.Line == line) {
+				AddChange(end, 0, sb.ToString());
+				return;
 			}
-			if (end - start == 0 && sb.Length == 0)
+			if (line + 1 > document.LineCount)
+				return;
+			int start = document.GetOffset(line + 1, 1);
+			if (end - start <= 0 && sb.Length == 0)
 				return;
 			AddChange(start, end - start, sb.ToString());
 		}
