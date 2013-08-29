@@ -48,22 +48,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			var typeDeclaration = entity.GetParent<TypeDeclaration>();
 
-			yield return new CodeAction(context.TranslateString("This is a constructor"), script =>  {
-				script.Replace(entity.NameToken, Identifier.Create (typeDeclaration.Name, TextLocation.Empty));
-			}, entity);
+			yield return new CodeAction(context.TranslateString("This is a constructor"), script => script.Replace(entity.NameToken, Identifier.Create(typeDeclaration.Name, TextLocation.Empty)), entity) {
+				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
+			};
 
-			yield return new CodeAction(context.TranslateString("This is a void method"), script =>  {
+			yield return new CodeAction(context.TranslateString("This is a void method"), script => {
 				var generatedMethod = new MethodDeclaration();
 				generatedMethod.Modifiers = entity.Modifiers;
 				generatedMethod.ReturnType = new PrimitiveType("void");
 				generatedMethod.Name = entity.Name;
 				generatedMethod.Parameters.AddRange(entity.Parameters.Select(parameter => (ParameterDeclaration)parameter.Clone()));
-				generatedMethod.Body = (BlockStatement) entity.Body.Clone();
-				generatedMethod.Attributes.AddRange(entity.Attributes.Select(attribute => (AttributeSection) attribute.Clone()));
+				generatedMethod.Body = (BlockStatement)entity.Body.Clone();
+				generatedMethod.Attributes.AddRange(entity.Attributes.Select(attribute => (AttributeSection)attribute.Clone()));
 
 				script.Replace(entity, generatedMethod);
-			}, entity);
-
+			}, entity) {
+				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
+			};
 		}
 	}
 }
