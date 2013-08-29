@@ -892,6 +892,40 @@ class TestClass
 
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(linqStatement, "collection"));
 		}
+
+		[Test]
+		public void TestUsing()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	System.IDisposable Foo() {
+		throw new NotImplementedException();
+	}
+
+	void TestMethod()
+	{
+		using (var x = Foo()) {
+			;
+		}
+		using (Foo()) {
+			//Ensure the analysis doesn't throw an exception for a non-declaration using
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var usingStatement = (UsingStatement)method.Body.Statements.First();
+			var content = usingStatement.EmbeddedStatement;
+
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(content, "x"));
+		}
 	}
 }
 

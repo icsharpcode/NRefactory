@@ -764,6 +764,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return VisitorResult.ForValue(newData, NullValueStatus.Unknown);
 			}
 
+			public override VisitorResult VisitUsingStatement(UsingStatement usingStatement, VariableStatusInfo data)
+			{
+				return usingStatement.ResourceAcquisition.AcceptVisitor(this, data);
+			}
+
 			public override VisitorResult VisitSwitchStatement(SwitchStatement switchStatement, VariableStatusInfo data)
 			{
 				//We could do better than this, but it would require special handling outside the visitor
