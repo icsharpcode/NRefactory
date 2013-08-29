@@ -96,7 +96,7 @@ class TestClass
 			TestWrongContext<UseOfMemberOfNullReference> (input);
 		}
 
-		[Ignore("Under discussion")]
+		[Ignore("fixme")]
 		[Test]
 		public void TestAs ()
 		{
@@ -109,6 +109,20 @@ class TestClass
 }";
 			Test<UseOfMemberOfNullReference> (input, 1);
 		}
+
+		[Test]
+		public void TestAsCase2 ()
+		{
+			string input = @"
+class TestClass
+{
+	int TestMethod(object x) {
+		return (this as TestClass).TestMethod(null);
+	}
+}";
+			Test<UseOfMemberOfNullReference> (input, 0);
+		}
+
 
 		[Test]
 		public void TestIfBranch ()
@@ -166,5 +180,48 @@ class TestClass
 }";
 			Test<UseOfMemberOfNullReference> (input, 1);
 		}
+
+		[Ignore("fixme")]
+		[Test]
+		public void TestNullExpression ()
+		{
+			string input = @"
+class TestClass
+{
+	void TestMethod() {
+		return (null).Length;
+	}
+}";
+			Test<UseOfMemberOfNullReference> (input, 1);
+		}
+
+		[Ignore("fixme")]
+		[Test]
+		public void TestNullExpressionCase2 ()
+		{
+			string input = @"
+class TestClass
+{
+	void TestMethod() {
+		return (null ?? null).Length;
+	}
+}";
+			Test<UseOfMemberOfNullReference> (input, 1);
+		}
+
+		[Ignore("fixme")]
+		[Test]
+		public void TestNullExpressionCase3 ()
+		{
+			string input = @"
+class TestClass
+{
+	void TestMethod() {
+		return (1 == 1 ? null : "").Length;
+	}
+}";
+			Test<UseOfMemberOfNullReference> (input, 1);
+		}
+
 	}
 }

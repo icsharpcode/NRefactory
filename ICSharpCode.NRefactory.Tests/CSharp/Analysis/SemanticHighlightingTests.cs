@@ -392,6 +392,46 @@ class MyClass {
 		}
 ", defaultTextColor);
 		}
+
+		[Test]
+		public void TestInactiveConditionalCall()
+		{
+			TestColor (@"using System.Diagnostics;
+
+class Test
+{
+	[Conditional(""FOO"")]
+	public void Test22()
+	{
+	}
+
+	public void Foo()
+	{
+		$Test22();
+	}
+}
+", inactiveCodeColor);
+		}
+
+		[Test]
+		public void TestInactivePartialCall()
+		{
+			TestColor (@"using System.Diagnostics;
+
+partial class Test
+{
+	partial void FooBar();
+}
+
+partial class Test
+{
+	public void Foo()
+	{
+		$FooBar();
+	}
+}
+", inactiveCodeColor);
+		}
 	}
 }
 

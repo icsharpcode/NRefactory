@@ -28,6 +28,7 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.CodeActions;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 
+
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
@@ -64,6 +65,27 @@ class FooBar2 : FooBar
 	}
 }");
 		}
+
+		[Test]
+		public void TestValidCase ()
+		{
+			TestWrongContext<BaseMemberHasParamsIssue>(@"class FooBar
+{
+	public virtual void Foo(string fmt, params object[] args)
+	{
+	}
+}
+
+class FooBar2 : FooBar
+{
+	public override void Foo(string fmt, params object[] args)
+	{
+		System.Console.WriteLine(fmt, args);
+	}
+}");
+		}
+
+
 
 		[Test]
 		public void TestDisable ()

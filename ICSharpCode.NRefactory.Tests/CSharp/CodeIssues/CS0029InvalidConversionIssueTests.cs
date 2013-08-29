@@ -204,18 +204,21 @@ class TestClass
 		[Test]
 		public void AssignCustomClassToString()
 		{
-			var input = @"
+			Test<CS0029InvalidConversionIssue>(@"
 class TestClass
 {
 	void TestMethod ()
 	{
 		string x = this;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			Assert.IsFalse(issues[0].Actions.Any());
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = this;
+	}
+}");
 		}
 
 		/// <summary>
@@ -257,6 +260,28 @@ class TestClass
 	int TestMethod (Enum i)
 	{
 		return (int)i;
+	}
+}";
+			Test<CS0029InvalidConversionIssue>(input, output);
+		}
+
+		[Test]
+		public void TestReturnInMethodChangeReturnType()
+		{
+			var input = @"
+class TestClass
+{
+	int TestMethod ()
+	{
+		return ""foo"";
+	}
+}";
+			var output = @"
+class TestClass
+{
+	string TestMethod ()
+	{
+		return ""foo"";
 	}
 }";
 			Test<CS0029InvalidConversionIssue>(input, output);
@@ -467,5 +492,44 @@ enum Enum{ };
 }";
 			Test<CS0029InvalidConversionIssue>(input, output);
 		}
+	
+		[Test]
+		public void TestDeclarationFix ()
+		{
+			Test<CS0029InvalidConversionIssue>(@"
+using System.Collections.Generic;
+class TestClass
+{
+	string[] str = new List<string> ();
+}", @"
+using System.Collections.Generic;
+class TestClass
+{
+	List<string> str = new List<string> ();
+}");
+		}
+
+		[Test]
+		public void TestLocalDeclarationFix ()
+		{
+			Test<CS0029InvalidConversionIssue>(@"
+using System.Collections.Generic;
+class TestClass
+{
+	void Foo ()
+	{
+		string[] str = new List<string> ();
+	}
+}", @"
+using System.Collections.Generic;
+class TestClass
+{
+	void Foo ()
+	{
+		var str = new List<string> ();
+	}
+}");
+		}
+
 	}
 }

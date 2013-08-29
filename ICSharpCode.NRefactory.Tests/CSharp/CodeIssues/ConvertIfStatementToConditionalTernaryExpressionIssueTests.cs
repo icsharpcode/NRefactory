@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestIfElse ()
 		{
-			Test<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+			TestIssue<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
 	static int Bar (int x)
 	{
@@ -45,14 +45,6 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			result = 10;
 		else
 			result = 20;
-		return result;
-	}
-}", @"class Foo
-{
-	static int Bar (int x)
-	{
-		int result;
-		result = x > 10 ? 10 : 20;
 		return result;
 	}
 }");
@@ -76,6 +68,24 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+		[Test]
+		public void TestSkipIfElseIf ()
+		{
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+{
+	static int Bar (int x)
+	{
+		int result;
+		if (x < 10)
+			result = -10;
+		else if (x > 10)
+			result = 10;
+		else
+			result = 20;
+		return result;
+	}
+}");
+		}
 
 		[Test]
 		public void TestSkipComplexTrueExpression ()

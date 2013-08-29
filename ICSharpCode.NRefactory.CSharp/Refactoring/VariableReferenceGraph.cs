@@ -58,6 +58,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		public void AddNextNode (VariableReferenceNode node)
 		{
+			if (node == null)
+				return;
 			NextNodes.Add (node);
 			node.PreviousNodes.Add (this);
 		}

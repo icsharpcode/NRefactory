@@ -124,5 +124,27 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 	}
 }");
 		}
+
+		[Test]
+		public void TestAlreadyConstantCase2 ()
+		{
+			TestWrongContext<IntroduceConstantAction> (@"class TestClass
+{
+	const int i = $0xAFFE;
+}");
+		}
+
+		[Test]
+		public void TestIntroduceConstantInInitializer ()
+		{
+			Test<IntroduceConstantAction> (@"class TestClass
+{
+	readonly int foo = new Foo ($5);
+}", @"class TestClass
+{
+	const int i = 5;
+	readonly int foo = new Foo (i);
+}");
+		}
 	}
 }

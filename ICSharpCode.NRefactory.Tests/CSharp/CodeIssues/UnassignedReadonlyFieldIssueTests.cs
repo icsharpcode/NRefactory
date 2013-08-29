@@ -102,14 +102,23 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestAlreadyInitalizedCase2 ()
 		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+			TestWrongContext<UnassignedReadonlyFieldIssue>(@"
+using System;
+public class FooBar
 {
-	public void Foo ()
+	sealed class Bar
 	{
-		this.fooBar = null;
+		public int foo;
 	}
-	readonly object fooBar;
-}");
+
+	readonly string foo;
+	
+	public FooBar()
+	{
+		this.foo = """";
+	}
+}
+");
 		}
 	}
 }

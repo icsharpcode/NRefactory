@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void SimpleCase()
 		{
-			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
@@ -48,26 +48,13 @@ class Bar
 		return null;
 	}
 }
-", @"
-class Bar
-{
-	public Bar Baz (object foo)
-	{
-		var bar = foo as Bar;
-		if (bar != null) {
-			Baz (bar);
-			return bar;
-		}
-		return null;
-	}
-}
 ");
 		}
 
 		[Test]
 		public void ComplexCase()
 		{
-			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public IDisposable Baz (object foo)
@@ -82,29 +69,13 @@ class Bar
 		return null;
 	}
 }
-", @"
-class Bar
-{
-	public IDisposable Baz (object foo)
-	{
-		var bar = foo as Bar;
-		if (bar != null) {
-			Baz (bar);
-			Baz (bar);
-			Baz (bar);
-			Baz (bar);
-			return (IDisposable)foo;
-		}
-		return null;
-	}
-}
 ");
 		}
 
 		[Test]
 		public void IfElseCase()
 		{
-			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
@@ -112,21 +83,6 @@ class Bar
 		if (foo is Bar) {
 			Baz ((Bar)foo);
 			return (Bar)foo;
-		} else {
-			Console.WriteLine (""Hello World "");
-		}
-		return null;
-	}
-}
-", @"
-class Bar
-{
-	public Bar Baz (object foo)
-	{
-		var bar = foo as Bar;
-		if (bar != null) {
-			Baz (bar);
-			return bar;
 		} else {
 			Console.WriteLine (""Hello World "");
 		}
@@ -156,7 +112,7 @@ class Bar
 		[Test]
 		public void NestedIf()
 		{
-			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
@@ -169,29 +125,13 @@ class Bar
 		return null;
 	}
 }
-", @"
-class Bar
-{
-	public Bar Baz (object foo)
-	{
-		if (foo is string) {
-		} else {
-			var bar = foo as Bar;
-			if (bar != null) {
-				Baz (bar);
-				return bar;
-			}
-		}
-		return null;
-	}
-}
 ");
 		}
 
 		[Test]
 		public void TestNegatedCaseWithReturn()
 		{
-			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
@@ -202,25 +142,13 @@ class Bar
 		return (Bar)foo;
 	}
 }
-", @"
-class Bar
-{
-	public Bar Baz (object foo)
-	{
-		var bar = foo as Bar;
-		if (bar == null)
-			return null;
-		Baz (bar);
-		return bar;
-	}
-}
 ");
 		}
 
 		[Test]
 		public void TestNegatedCaseWithBreak()
 		{
-			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
@@ -233,27 +161,13 @@ class Bar
 		return (Bar)foo;
 	}
 }
-", @"
-class Bar
-{
-	public Bar Baz (object foo)
-	{
-		for (int i = 0; i < 10; i++) {
-			var bar = foo as Bar;
-			if (bar == null)
-				break;
-			Baz (bar);
-		}
-		return (Bar)foo;
-	}
-}
 ");
 		}
 
 		[Test]
 		public void TestCaseWithContinue()
 		{
-			Test<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
@@ -265,23 +179,6 @@ class Bar
 				foo = new Bar ();
 			}
 			Baz ((Bar)foo);
-		}
-		return (Bar)foo;
-	}
-}
-", @"
-class Bar
-{
-	public Bar Baz (object foo)
-	{
-		for (int i = 0; i < 10; i++) {
-			var bar = foo as Bar;
-			if (bar == null) {
-				continue;
-			} else {
-				foo = new Bar ();
-			}
-			Baz (bar);
 		}
 		return (Bar)foo;
 	}
@@ -304,6 +201,24 @@ class Bar
 			return (Bar)foo;
 		}
 		return null;
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestInvaludValueType()
+		{
+			TestWrongContext<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+class Bar
+{
+	public int Baz (object foo)
+	{
+		if (foo is int) {
+			Baz ((int)foo);
+			return (int)foo;
+		}
+		return 0;
 	}
 }
 ");

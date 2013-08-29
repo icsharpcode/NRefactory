@@ -49,6 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 			Test(policy, @"// THE SOFTWARE.
 
 using    Foo   ;", @"// THE SOFTWARE.
+
 using Foo;");
 		}
 
@@ -881,5 +882,23 @@ remove {
 	public event EventHandler<UpdateFinishedEventArgs> UpdateFinished = delegate { };
 }");
 		}
+
+		[Test]
+		public void TestPropertyOneLineCorrection()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+
+			Test(policy,
+			      @"class Test
+{
+	int test { get { return test;}
+set { test = value; } }
+}",
+			      @"class Test
+{
+	int test { get { return test; } set { test = value; } }
+}");
+		}
+
 	}
 }

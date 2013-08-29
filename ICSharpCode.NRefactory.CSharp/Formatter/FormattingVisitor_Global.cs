@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				if (NoWhitespacePredicate(child))
 					FixIndentation(child);
 				child.AcceptVisitor(this);
-				if (NoWhitespacePredicate(child))
+				if (NoWhitespacePredicate(child) && !first)
 					EnsureNewLinesAfter(child, GetGlobalNewLinesFor(child));
 			});
 		}

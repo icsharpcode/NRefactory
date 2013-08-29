@@ -131,6 +131,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			Name = name;
 			ParameterModifier = modifier;
 		}
+
+		public ParameterDeclaration(string name, ParameterModifier modifier = ParameterModifier.None)
+		{
+			Name = name;
+			ParameterModifier = modifier;
+		}
 	}
 }
 

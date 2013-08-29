@@ -287,5 +287,35 @@ class TestClass
 }";
 			Test<RedundantIfElseBlockIssue>(input, 0);
 		}
+
+		[Test]
+		public void TestReturn2()
+		{
+			var input = @"
+class TestClass
+{
+	bool? EvaluateCondition (Expression expr)
+	{
+		ResolveResult rr = EvaluateConstant (expr);
+		if (rr != null && rr.IsCompileTimeConstant)
+			return rr.ConstantValue as bool?;
+		else
+			return null;
+	}
+}";
+			var output = @"
+class TestClass
+{
+	bool? EvaluateCondition (Expression expr)
+	{
+		ResolveResult rr = EvaluateConstant (expr);
+		if (rr != null && rr.IsCompileTimeConstant)
+			return rr.ConstantValue as bool?;
+		return null;
+	}
+}";
+			Test<RedundantIfElseBlockIssue>(input, 1, output);
+		}
+
 	}
 }

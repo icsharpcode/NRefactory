@@ -158,5 +158,14 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return string.Format("[Indent: curIndent={0}]", curIndent);
 		}
+
+		public Indent GetIndentWithoutSpace ()
+		{
+			var result = new Indent(options);
+			foreach (var i in indentStack)
+					result.Push(i);
+			return result;
+		}
+
 	}
 }

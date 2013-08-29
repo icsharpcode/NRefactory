@@ -98,6 +98,46 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 	}
 }");
 		}
+
+		[Test]
+		public void TestMemberReferencEquals ()
+		{
+			Test<ConvertEqualsToEqualityOperatorAction> (@"class FooBar
+{
+	public void Foo (object x , object y)
+	{
+		if (x.$Equals (y)) {
+		}
+	}
+}", @"class FooBar
+{
+	public void Foo (object x , object y)
+	{
+		if (x == y) {
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestNegatedMemberReferencEquals ()
+		{
+			Test<ConvertEqualsToEqualityOperatorAction> (@"class FooBar
+{
+	public void Foo (object x , object y)
+	{
+		if (!x.$Equals (y)) {
+		}
+	}
+}", @"class FooBar
+{
+	public void Foo (object x , object y)
+	{
+		if (x != y) {
+		}
+	}
+}");
+		}
 	}
 }
 

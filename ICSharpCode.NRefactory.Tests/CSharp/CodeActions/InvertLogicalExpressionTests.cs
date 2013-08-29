@@ -232,5 +232,43 @@ class TestClass
 	}
 }");
 		}
+
+		
+		[Test]
+		public void TestNullCoalescing()
+		{
+			TestWrongContext<InvertLogicalExpressionAction>(@"
+class Foo
+{
+	void Bar (object i, object j)
+	{
+		Console.WriteLine (i $?? j);
+	}
+}
+");
+		}
+
+
+		[Test]
+		public void TestUnaryExpression()
+		{
+			Test<InvertLogicalExpressionAction>(@"
+class Foo
+{
+	void Bar (bool a, bool b)
+	{
+		Console.WriteLine ($!(a && b));
+	}
+}
+", @"
+class Foo
+{
+	void Bar (bool a, bool b)
+	{
+		Console.WriteLine (!a || !b);
+	}
+}
+");
+		}
 	}
 }

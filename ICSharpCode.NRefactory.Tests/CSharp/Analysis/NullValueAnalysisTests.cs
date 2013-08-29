@@ -59,6 +59,30 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return new StubbedRefactoringContext(resolver, supportsVersion5);
 			}
 
+			#region implemented abstract members of BaseRefactoringContext
+			public override int GetOffset(TextLocation location)
+			{
+				throw new NotImplementedException();
+			}
+			public override ICSharpCode.NRefactory.Editor.IDocumentLine GetLineByOffset(int offset)
+			{
+				throw new NotImplementedException();
+			}
+			public override TextLocation GetLocation(int offset)
+			{
+				throw new NotImplementedException();
+			}
+			public override string GetText(int offset, int length)
+			{
+				throw new NotImplementedException();
+			}
+			public override string GetText(ICSharpCode.NRefactory.Editor.ISegment segment)
+			{
+				throw new NotImplementedException();
+			}
+			#endregion
+
+
 			public override bool Supports(Version version)
 			{
 				if (supportsVersion5)
@@ -413,6 +437,35 @@ class TestClass
 		}
 
 		[Test]
+		public void TestNonNullEnumeratedValue()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int? accum = 0;
+		foreach (var x in new int?[] { 1, 2, 3}) {
+			accum += x;
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = (ForeachStatement)method.Body.Statements.Last();
+			var content = (BlockStatement)lastStatement.EmbeddedStatement;
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(content, "x"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(lastStatement, "accum"));
+		}
+
+		[Test]
 		public void TestCapturedForeachInCSharp5()
 		{
 			var parser = new CSharpParser();
@@ -440,7 +493,7 @@ class TestClass
 			var action = foreachBody.Statements.First();
 			var lastStatement = method.Body.Statements.Last();
 
-			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusBeforeStatement(action, "x"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusBeforeStatement(action, "x"));
 			Assert.AreEqual(NullValueStatus.CapturedUnknown, analysis.GetVariableStatusAfterStatement(action, "x"));
 			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(lastStatement, "accum"));
 		}
@@ -771,6 +824,73 @@ class TestClass
 			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(tryCatch, "x"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(tryCatch, "y"));
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(tryCatch, "z"));
+		}
+
+		[Test]
+		public void TestLinq()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int?[] collection = new int?[10];
+		var x = from item in collection
+				where item != null
+				select item
+				into item2
+				let item3 = item2
+				select item3;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var linqStatement = (VariableDeclarationStatement) method.Body.Statements.Last();
+			var linqExpression = (QueryExpression)linqStatement.Variables.Single().Initializer;
+			var continuation = (QueryContinuationClause)linqExpression.Clauses.First();
+			var itemInWhere = ((BinaryOperatorExpression)((QueryWhereClause)continuation.PrecedingQuery.Clauses.ElementAt(1)).Condition).Left;
+			var itemInSelect = ((QuerySelectClause)continuation.PrecedingQuery.Clauses.ElementAt(2)).Expression;
+			var item2InLet = ((QueryLetClause)linqExpression.Clauses.ElementAt(1)).Expression;
+			var item3InSelect = ((QuerySelectClause)linqExpression.Clauses.Last()).Expression;
+			
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(linqStatement, "x"));
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetExpressionResult(itemInWhere));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetExpressionResult(itemInSelect));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetExpressionResult(item2InLet));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetExpressionResult(item3InSelect));
+		}
+
+		[Test]
+		public void TestNoExecutionLinq()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int?[] collection = new int?[0];
+		var x = from item in collection
+				where (collection = null) != null
+				select item;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var linqStatement = (VariableDeclarationStatement) method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(linqStatement, "collection"));
 		}
 	}
 }
