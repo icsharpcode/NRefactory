@@ -78,7 +78,7 @@ class TestClass
 	public void F()
 	{
 		double c = 0.2 $/ 2;
- 	}
+	}
 }", @"
 class TestClass
 {
@@ -97,7 +97,7 @@ class TestClass
 	public void F()
 	{
 		double d = 2 $* (-0.2);
- 	}
+	}
 }", @"
 class TestClass
 {
