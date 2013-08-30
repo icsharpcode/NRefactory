@@ -101,10 +101,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitForeachStatement(ForeachStatement foreachStatement)
 		{
-			ForceSpacesBefore(foreachStatement.LParToken, policy.SpaceBeforeForeachParentheses);
+			ForceSpacesBeforeRemoveNewLines(foreachStatement.LParToken, policy.SpaceBeforeForeachParentheses);
 
 			ForceSpacesAfter(foreachStatement.LParToken, policy.SpacesWithinForeachParentheses);
-			ForceSpacesBefore(foreachStatement.RParToken, policy.SpacesWithinForeachParentheses);
+			ForceSpacesBeforeRemoveNewLines(foreachStatement.RParToken, policy.SpacesWithinForeachParentheses);
 			
 			FixEmbeddedStatment(policy.StatementBraceStyle, foreachStatement.EmbeddedStatement);
 		}
@@ -239,10 +239,10 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 			}
 
-			ForceSpacesBefore(forStatement.LParToken, policy.SpaceBeforeForParentheses);
+			ForceSpacesBeforeRemoveNewLines(forStatement.LParToken, policy.SpaceBeforeForParentheses);
 
 			ForceSpacesAfter(forStatement.LParToken, policy.SpacesWithinForParentheses);
-			ForceSpacesBefore(forStatement.RParToken, policy.SpacesWithinForParentheses);
+			ForceSpacesBeforeRemoveNewLines(forStatement.RParToken, policy.SpacesWithinForParentheses);
 
 			FixEmbeddedStatment(policy.StatementBraceStyle, forStatement.EmbeddedStatement);
 		}
@@ -255,9 +255,9 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 		{
-			ForceSpacesBefore(ifElseStatement.LParToken, policy.SpaceBeforeIfParentheses);
+			ForceSpacesBeforeRemoveNewLines(ifElseStatement.LParToken, policy.SpaceBeforeIfParentheses);
 			Align(ifElseStatement.LParToken, ifElseStatement.Condition, policy.SpacesWithinIfParentheses);
-			ForceSpacesBefore(ifElseStatement.RParToken, policy.SpacesWithinIfParentheses);
+			ForceSpacesBeforeRemoveNewLines(ifElseStatement.RParToken, policy.SpacesWithinIfParentheses);
 
 
 			if (!ifElseStatement.TrueStatement.IsNull) {
@@ -285,10 +285,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitLockStatement(LockStatement lockStatement)
 		{
-			ForceSpacesBefore(lockStatement.LParToken, policy.SpaceBeforeLockParentheses);
+			ForceSpacesBeforeRemoveNewLines(lockStatement.LParToken, policy.SpaceBeforeLockParentheses);
 
 			ForceSpacesAfter(lockStatement.LParToken, policy.SpacesWithinLockParentheses);
-			ForceSpacesBefore(lockStatement.RParToken, policy.SpacesWithinLockParentheses);
+			ForceSpacesBeforeRemoveNewLines(lockStatement.RParToken, policy.SpacesWithinLockParentheses);
 
 			FixEmbeddedStatment(policy.StatementBraceStyle, lockStatement.EmbeddedStatement);
 		}
@@ -301,10 +301,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitSwitchStatement(SwitchStatement switchStatement)
 		{
-			ForceSpacesBefore(switchStatement.LParToken, policy.SpaceBeforeSwitchParentheses);
+			ForceSpacesBeforeRemoveNewLines(switchStatement.LParToken, policy.SpaceBeforeSwitchParentheses);
 
 			ForceSpacesAfter(switchStatement.LParToken, policy.SpacesWithinSwitchParentheses);
-			ForceSpacesBefore(switchStatement.RParToken, policy.SpacesWithinSwitchParentheses);
+			ForceSpacesBeforeRemoveNewLines(switchStatement.RParToken, policy.SpacesWithinSwitchParentheses);
 
 			FixOpenBrace(policy.StatementBraceStyle, switchStatement.LBraceToken);
 			VisitChildren(switchStatement);
@@ -365,10 +365,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			foreach (CatchClause clause in tryCatchStatement.CatchClauses) {
 				PlaceOnNewLine(policy.CatchNewLinePlacement, clause.CatchToken);
 				if (!clause.LParToken.IsNull) {
-					ForceSpacesBefore(clause.LParToken, policy.SpaceBeforeCatchParentheses);
+					ForceSpacesBeforeRemoveNewLines(clause.LParToken, policy.SpaceBeforeCatchParentheses);
 
 					ForceSpacesAfter(clause.LParToken, policy.SpacesWithinCatchParentheses);
-					ForceSpacesBefore(clause.RParToken, policy.SpacesWithinCatchParentheses);
+					ForceSpacesBeforeRemoveNewLines(clause.RParToken, policy.SpacesWithinCatchParentheses);
 				}
 				FixEmbeddedStatment(policy.StatementBraceStyle, clause.Body);
 			}
@@ -398,10 +398,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitUsingStatement(UsingStatement usingStatement)
 		{
-			ForceSpacesBefore(usingStatement.LParToken, policy.SpaceBeforeUsingParentheses);
+			ForceSpacesBeforeRemoveNewLines(usingStatement.LParToken, policy.SpaceBeforeUsingParentheses);
 
 			ForceSpacesAfter(usingStatement.LParToken, policy.SpacesWithinUsingParentheses);
-			ForceSpacesBefore(usingStatement.RParToken, policy.SpacesWithinUsingParentheses);
+			ForceSpacesBeforeRemoveNewLines(usingStatement.RParToken, policy.SpacesWithinUsingParentheses);
 
 			FixEmbeddedStatment(policy.StatementBraceStyle, usingStatement.EmbeddedStatement);
 		}
@@ -434,7 +434,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			PlaceOnNewLine(doWhileStatement.EmbeddedStatement is BlockStatement ? policy.WhileNewLinePlacement : NewLinePlacement.NewLine, doWhileStatement.WhileToken);
 
 			Align(doWhileStatement.LParToken, doWhileStatement.Condition, policy.SpacesWithinWhileParentheses);
-			ForceSpacesBefore(doWhileStatement.RParToken, policy.SpacesWithinWhileParentheses);
+			ForceSpacesBeforeRemoveNewLines(doWhileStatement.RParToken, policy.SpacesWithinWhileParentheses);
 		}
 
 		void Align(AstNode lPar, AstNode alignNode, bool space)
@@ -442,7 +442,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			int extraSpaces = 0;
 			var useExtraSpaces = lPar.StartLocation.Line == alignNode.StartLocation.Line;
 			if (useExtraSpaces) {
-				extraSpaces = lPar.StartLocation.Column + (space ? 1 : 0) - curIndent.IndentString.Length;
+				extraSpaces = Math.Max(0, lPar.StartLocation.Column + (space ? 1 : 0) - curIndent.IndentString.Length);
 				curIndent.ExtraSpaces += extraSpaces;
 				ForceSpacesAfter(lPar, space);
 			} else {
@@ -461,9 +461,9 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitWhileStatement(WhileStatement whileStatement)
 		{
-			ForceSpacesBefore(whileStatement.LParToken, policy.SpaceBeforeWhileParentheses);
+			ForceSpacesBeforeRemoveNewLines(whileStatement.LParToken, policy.SpaceBeforeWhileParentheses);
 			Align(whileStatement.LParToken, whileStatement.Condition, policy.SpacesWithinWhileParentheses);
-			ForceSpacesBefore(whileStatement.RParToken, policy.SpacesWithinWhileParentheses);
+			ForceSpacesBeforeRemoveNewLines(whileStatement.RParToken, policy.SpacesWithinWhileParentheses);
 
 			FixEmbeddedStatment(policy.StatementBraceStyle, whileStatement.EmbeddedStatement);
 		}
@@ -488,7 +488,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				int extraSpaces = 0;
 				var useExtraSpaces = variableInitializer.AssignToken.StartLocation.Line == variableInitializer.Initializer.StartLocation.Line;
 				if (useExtraSpaces) {
-					extraSpaces = variableInitializer.AssignToken.StartLocation.Column + 1 - curIndent.IndentString.Length;
+					extraSpaces = Math.Max(0, variableInitializer.AssignToken.StartLocation.Column + 1 - curIndent.IndentString.Length);
 					curIndent.ExtraSpaces += extraSpaces;
 				} else {
 					curIndent.Push(IndentType.Continuation); 

@@ -353,7 +353,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						}
 						curIndent.Pop();
 					} else {
-						int extraSpaces = arguments.First().StartLocation.Column - 1 - curIndent.IndentString.Length;
+						int extraSpaces = Math.Max(0, arguments.First().StartLocation.Column - 1 - curIndent.IndentString.Length);
 						curIndent.ExtraSpaces += extraSpaces;
 						foreach (var arg in arguments.Take (argumentStart)) {
 							arg.AcceptVisitor(this);
@@ -457,7 +457,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitIndexerExpression(IndexerExpression indexerExpression)
 		{
-			ForceSpacesBefore(indexerExpression.LBracketToken, policy.SpacesBeforeBrackets);
+			ForceSpacesBeforeRemoveNewLines(indexerExpression.LBracketToken, policy.SpacesBeforeBrackets);
 			ForceSpacesAfter(indexerExpression.LBracketToken, policy.SpacesWithinBrackets);
 
 			if (!indexerExpression.Target.IsNull)
@@ -496,37 +496,37 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitSizeOfExpression(SizeOfExpression sizeOfExpression)
 		{
-			ForceSpacesBefore(sizeOfExpression.LParToken, policy.SpaceBeforeSizeOfParentheses);
+			ForceSpacesBeforeRemoveNewLines(sizeOfExpression.LParToken, policy.SpaceBeforeSizeOfParentheses);
 			ForceSpacesAfter(sizeOfExpression.LParToken, policy.SpacesWithinSizeOfParentheses);
-			ForceSpacesBefore(sizeOfExpression.RParToken, policy.SpacesWithinSizeOfParentheses);
+			ForceSpacesBeforeRemoveNewLines(sizeOfExpression.RParToken, policy.SpacesWithinSizeOfParentheses);
 			base.VisitSizeOfExpression(sizeOfExpression);
 		}
 
 		public override void VisitTypeOfExpression(TypeOfExpression typeOfExpression)
 		{
-			ForceSpacesBefore(typeOfExpression.LParToken, policy.SpaceBeforeTypeOfParentheses);
+			ForceSpacesBeforeRemoveNewLines(typeOfExpression.LParToken, policy.SpaceBeforeTypeOfParentheses);
 			ForceSpacesAfter(typeOfExpression.LParToken, policy.SpacesWithinTypeOfParentheses);
-			ForceSpacesBefore(typeOfExpression.RParToken, policy.SpacesWithinTypeOfParentheses);
+			ForceSpacesBeforeRemoveNewLines(typeOfExpression.RParToken, policy.SpacesWithinTypeOfParentheses);
 			base.VisitTypeOfExpression(typeOfExpression);
 		}
 
 		public override void VisitCheckedExpression(CheckedExpression checkedExpression)
 		{
 			ForceSpacesAfter(checkedExpression.LParToken, policy.SpacesWithinCheckedExpressionParantheses);
-			ForceSpacesBefore(checkedExpression.RParToken, policy.SpacesWithinCheckedExpressionParantheses);
+			ForceSpacesBeforeRemoveNewLines(checkedExpression.RParToken, policy.SpacesWithinCheckedExpressionParantheses);
 			base.VisitCheckedExpression(checkedExpression);
 		}
 
 		public override void VisitUncheckedExpression(UncheckedExpression uncheckedExpression)
 		{
 			ForceSpacesAfter(uncheckedExpression.LParToken, policy.SpacesWithinCheckedExpressionParantheses);
-			ForceSpacesBefore(uncheckedExpression.RParToken, policy.SpacesWithinCheckedExpressionParantheses);
+			ForceSpacesBeforeRemoveNewLines(uncheckedExpression.RParToken, policy.SpacesWithinCheckedExpressionParantheses);
 			base.VisitUncheckedExpression(uncheckedExpression);
 		}
 
 		public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
 		{
-			ForceSpacesBefore(objectCreateExpression.LParToken, policy.SpaceBeforeNewParentheses);
+			ForceSpacesBeforeRemoveNewLines(objectCreateExpression.LParToken, policy.SpaceBeforeNewParentheses);
 
 			if (objectCreateExpression.Arguments.Any()) {
 				if (!objectCreateExpression.LParToken.IsNull)
@@ -627,7 +627,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
 		{
 			FormatArguments(lambdaExpression);
-			ForceSpacesBefore(lambdaExpression.ArrowToken, true);
+			ForceSpacesBeforeRemoveNewLines(lambdaExpression.ArrowToken, true);
 
 			if (!lambdaExpression.Body.IsNull) {
 				var body = lambdaExpression.Body as BlockStatement;

@@ -487,7 +487,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						if (indent.Count > 0)
 							indent.Pop();
 						popNextParenBlock = false;
-						indent.ExtraSpaces = parenStack.Peek().Column - 1 - thisLineindent.CurIndent;
+						indent.ExtraSpaces = Math.Max(0, parenStack.Peek().Column - 1 - thisLineindent.CurIndent);
 					}
 					break;
 				case '{':
