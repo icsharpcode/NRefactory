@@ -139,14 +139,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					alreadyImplemented = false;
 				
 					foreach (var cmet in implementingType.GetMethods ()) {
-						if (CompareMethods(method, cmet)) {
+						if (CompareMembers(method, cmet)) {
 							if (!needsExplicitly && !cmet.ReturnType.Equals(method.ReturnType))
 								needsExplicitly = true;
 							else
 								alreadyImplemented |= !needsExplicitly /*|| cmet.InterfaceImplementations.Any (impl => impl.InterfaceType.Equals (interfaceType))*/;
 						}
 					}
-					if (toImplement.Where(t => t.Item1 is IMethod).Any(t => CompareMethods(method, (IMethod)t.Item1)))
+					if (toImplement.Where(t => t.Item1 is IMethod).Any(t => CompareMembers(method, (IMethod)t.Item1)))
 						needsExplicitly = true;
 					if (!alreadyImplemented) 
 						toImplement.Add(new Tuple<IMember, bool>(method, needsExplicitly));
@@ -182,7 +182,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return toImplement;
 		}
 		
-		internal static bool CompareMethods(IMethod interfaceMethod, IMethod typeMethod)
+		internal static bool CompareMembers(IMember interfaceMethod, IMember typeMethod)
 		{
 			if (typeMethod.IsExplicitInterfaceImplementation)
 				return typeMethod.ImplementedInterfaceMembers.Any(m => m.Equals(interfaceMethod));

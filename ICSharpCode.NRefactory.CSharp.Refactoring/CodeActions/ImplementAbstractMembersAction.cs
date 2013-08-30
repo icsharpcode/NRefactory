@@ -51,18 +51,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (toImplement.Count == 0)
 				yield break;
 
-			yield return new CodeAction(context.TranslateString("Implement abstract members"), script => {
-				script.InsertWithCursor(
-					context.TranslateString("Implement abstract members"),
-					state.CurrentTypeDefinition,
-					(s, c) => ImplementInterfaceAction.GenerateImplementation (c, toImplement.Select (m => Tuple.Create (m, false))).Select (entity => {
-						var decl = entity as EntityDeclaration;
-						if (decl != null)
-							decl.Modifiers |= Modifiers.Override;
-						return entity;
-					})
-				);
-			}, type);
+			yield return new CodeAction(
+				context.TranslateString("Implement abstract members"), 
+				script => script.InsertWithCursor(
+					context.TranslateString("Implement abstract members"), 
+					state.CurrentTypeDefinition, (s, c) => ImplementInterfaceAction.GenerateImplementation(c, toImplement.Select(m => Tuple.Create(m, false)))
+				.Select(entity => {
+					var decl = entity as EntityDeclaration;
+					if (decl != null)
+						decl.Modifiers |= Modifiers.Override;
+					return entity;
+				}
+			)), type);
 		}
 
 		public static List<IMember> CollectMembersToImplement(ITypeDefinition implementingType, IType abstractType)
@@ -86,10 +86,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				alreadyImplemented = false;
 
 				var allBaseTypes = method.DeclaringType.GetAllBaseTypes().ToList ();
-				foreach (var cmet in implementingType.GetMethods (d => !d.IsAbstract && d.Name == method.Name)) {
+				foreach (var cmet in implementingType.GetMethods (d => d.Name == method.Name)) {
 					if (allBaseTypes.Contains(cmet.DeclaringType))
 						continue;
-					if (ImplementInterfaceAction.CompareMethods(method, cmet)) {
+					if (ImplementInterfaceAction.CompareMembers(method, cmet)) {
 						alreadyImplemented = true;
 						break;
 					}
@@ -101,13 +101,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			// Stub out non-implemented properties defined by @iface
 			foreach (var prop in abstractType.GetProperties (p => !p.IsSynthetic && p.IsAbstract)) {
 				alreadyImplemented = false;
-				foreach (var t in implementingType.GetAllBaseTypeDefinitions ()) {
-					if (t.Kind == TypeKind.Interface)
+
+				var allBaseTypes = prop.DeclaringType.GetAllBaseTypes().ToList ();
+				foreach (var cmet in implementingType.GetProperties (d => d.Name == prop.Name)) {
+					if (allBaseTypes.Contains(cmet.DeclaringType))
 						continue;
-					foreach (IProperty cprop in t.Properties) {
-						if (!cprop.IsAbstract && cprop.Name == prop.Name) {
-							alreadyImplemented = true;
-						}
+					if (ImplementInterfaceAction.CompareMembers(prop, cmet)) {
+						alreadyImplemented = true;
+						break;
 					}
 				}
 				if (!alreadyImplemented)
