@@ -191,42 +191,36 @@ class MockTypeInfo : Base2
 		}
 
 		[Test]
-		public void TestAbstractOverridePropertyCase1()
+		public void TestAbstractOverrideEventCase1()
 		{
-			Test<ImplementAbstractMembersAction>(@"class A {
-	public virtual int Foo { get { return 1; } }
+			Test<ImplementAbstractMembersAction>(@"using System;
+class A {
+	public virtual event EventHandler Foo { add {} remove {} }
 }
 
 abstract class B : A {
-	public abstract override int Foo { get; }
-	public abstract int FooBar { get; }
+	public abstract override event EventHandler Foo;
+	public abstract event EventHandler FooBar;
 }
 
 class C : $B
 {
 }
-", @"class A {
-	public virtual int Foo { get { return 1; } }
+", @"using System;
+class A {
+	public virtual event EventHandler Foo { add {} remove {} }
 }
 
 abstract class B : A {
-	public abstract override int Foo { get; }
-	public abstract int FooBar { get; }
+	public abstract override event EventHandler Foo;
+	public abstract event EventHandler FooBar;
 }
 
 class C : B
 {
 	#region implemented abstract members of B
-	public override int Foo {
-		get {
-			throw new System.NotImplementedException ();
-		}
-	}
-	public override int FooBar {
-		get {
-			throw new System.NotImplementedException ();
-		}
-	}
+	public override event EventHandler Foo;
+	public override event EventHandler FooBar;
 	#endregion
 }
 ");
@@ -267,6 +261,7 @@ class MockTypeInfo : Base2
 }
 ");
 		}
+
 
 
 		[Test]
@@ -340,8 +335,81 @@ class MockTypeInfo : Base2
 ");
 		}
 
+		[Test]
+		public void TestAbstractOverrideVirtualIndexer()
+		{
+			Test<ImplementAbstractMembersAction>(@"abstract class Base {
+	public virtual int this [int i] { get { return 1; } }
+}
 
+abstract class Base2 : Base {
+	public abstract override int this [int i] { get; }
+}
 
+class MockTypeInfo : $Base2
+{
+}
+", @"abstract class Base {
+	public virtual int this [int i] { get { return 1; } }
+}
+
+abstract class Base2 : Base {
+	public abstract override int this [int i] { get; }
+}
+
+class MockTypeInfo : Base2
+{
+	#region implemented abstract members of Base2
+	public override int this [int i] {
+		get {
+			throw new System.NotImplementedException ();
+		}
+	}
+	#endregion
+}
+");
+		}
+
+		[Test]
+		public void TestAbstractOverrideVirtualEvent()
+		{
+			Test<ImplementAbstractMembersAction>(@"using System;
+
+abstract class Base {
+	public virtual event EventHandler Foo {
+		add {}
+		remove{}
+	}
+}
+
+abstract class Base2 : Base {
+	public override abstract event EventHandler Foo;
+}
+
+class MockTypeInfo : $Base2
+{
+}
+", @"using System;
+
+abstract class Base {
+	public virtual event EventHandler Foo {
+		add {}
+		remove{}
+	}
+}
+
+abstract class Base2 : Base {
+	public override abstract event EventHandler Foo;
+}
+
+class MockTypeInfo : Base2
+{
+	#region implemented abstract members of Base2
+	public override event EventHandler Foo;
+	#endregion
+}
+");
+		}
 
 		[Test]
 		public void TestAlreadyImplementedMethods()

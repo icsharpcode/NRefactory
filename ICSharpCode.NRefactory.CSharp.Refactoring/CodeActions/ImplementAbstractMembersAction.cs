@@ -67,52 +67,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		public static List<IMember> CollectMembersToImplement(ITypeDefinition implementingType, IType abstractType)
 		{
-//			var def = abstractType.GetDefinition();
 			var toImplement = new List<IMember>();
 			bool alreadyImplemented;
-			
-			// Stub out non-implemented events defined by @iface
-			foreach (var ev in abstractType.GetEvents (e => !e.IsSynthetic && e.IsAbstract)) {
-				alreadyImplemented = implementingType.GetAllBaseTypeDefinitions().Any(
-					x => x.Kind != TypeKind.Interface && x.Events.Any (y => y.Name == ev.Name)
-					);
-				
-				if (!alreadyImplemented)
-					toImplement.Add(ev);
-			}
-			
-			// Stub out non-implemented methods defined by @iface
-			foreach (var method in abstractType.GetMethods (d => !d.IsSynthetic  && d.IsAbstract)) {
+			foreach (var member in abstractType.GetMembers (d => !d.IsSynthetic  && d.IsAbstract)) {
 				alreadyImplemented = false;
-
-				var allBaseTypes = method.DeclaringType.GetAllBaseTypes().ToList ();
-				foreach (var cmet in implementingType.GetMethods (d => d.Name == method.Name)) {
+				var allBaseTypes = member.DeclaringType.GetAllBaseTypes().ToList ();
+				foreach (var cmet in implementingType.GetMembers (d => d.SymbolKind == member.SymbolKind && d.Name == member.Name)) {
 					if (allBaseTypes.Contains(cmet.DeclaringType))
 						continue;
-					if (ImplementInterfaceAction.CompareMembers(method, cmet)) {
+					if (ImplementInterfaceAction.CompareMembers(member, cmet)) {
 						alreadyImplemented = true;
 						break;
 					}
 				}
 				if (!alreadyImplemented) 
-					toImplement.Add(method);
-			}
-			
-			// Stub out non-implemented properties defined by @iface
-			foreach (var prop in abstractType.GetProperties (p => !p.IsSynthetic && p.IsAbstract)) {
-				alreadyImplemented = false;
-
-				var allBaseTypes = prop.DeclaringType.GetAllBaseTypes().ToList ();
-				foreach (var cmet in implementingType.GetProperties (d => d.Name == prop.Name)) {
-					if (allBaseTypes.Contains(cmet.DeclaringType))
-						continue;
-					if (ImplementInterfaceAction.CompareMembers(prop, cmet)) {
-						alreadyImplemented = true;
-						break;
-					}
-				}
-				if (!alreadyImplemented)
-					toImplement.Add(prop);
+					toImplement.Add(member);
 			}
 			return toImplement;
 		}
