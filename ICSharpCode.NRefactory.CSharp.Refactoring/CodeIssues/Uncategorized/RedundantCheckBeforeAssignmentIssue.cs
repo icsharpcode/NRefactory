@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Check for inequality before assignment is redundant if (x!=value) x=value",
 	                   Description = "Remove redundant check before assignment",
 	                   Category = IssueCategories.RedundanciesInCode,
-	                   Severity = Severity.Warning,
+	                   Severity = Severity.Hint,
 	                   IssueMarker = IssueMarker.WavedLine, 
 	                   ResharperDisableKeyword = "RedundantCheckBeforeAssignment")]
 	public class RedundantCheckBeforeAssignmentIssue : GatherVisitorCodeIssueProvider
@@ -49,67 +49,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				: base (ctx)
 			{
 			}
-		
-			private Expression UnpackExpression(Expression expression)
-			{
-				var returnedExpression = expression;
-				while (returnedExpression is ParenthesizedExpression) {
-					returnedExpression = (returnedExpression as ParenthesizedExpression).Expression;
-				}
-				return returnedExpression;
-			}
-
+			
+			private static readonly Pattern pattern
+			= new Choice {
+				new IfElseStatement(
+					PatternHelper.CommutativeOperator(new AnyNode("a"),BinaryOperatorType.InEquality, new AnyNode("b")),
+					new ExpressionStatement(new AssignmentExpression(new Backreference("a"), new Backreference("b"))))
+				,
+				new IfElseStatement(
+					PatternHelper.CommutativeOperator(new AnyNode("a"),BinaryOperatorType.InEquality, new AnyNode("b")),
+					new BlockStatement{new AssignmentExpression(new Backreference("a"), new Backreference("b"))})
+			};
+			
 			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 			{
 				base.VisitIfElseStatement(ifElseStatement);
-
-				if (ifElseStatement.Condition == null)
-					return;
-
-				if (!(ifElseStatement.Condition is BinaryOperatorExpression))
-					return;
-
-				if ((ifElseStatement.Condition as BinaryOperatorExpression).Operator != BinaryOperatorType.InEquality)
-					return;
-
-				if (ifElseStatement.TrueStatement == null)
-					return;
-
-				if (!ifElseStatement.FalseStatement.IsNull)
-					return;
-
-				Expression left = null;
-				Expression right = null;
-				if (ifElseStatement.TrueStatement is BlockStatement) {
-					if ((ifElseStatement.TrueStatement as BlockStatement).Statements.Count == 1) {
-						if ((ifElseStatement.TrueStatement as BlockStatement).Statements.Single().FirstChild is AssignmentExpression) {
-							AssignmentExpression assignmentExpression = (ifElseStatement.TrueStatement as BlockStatement).Statements.Single().FirstChild as AssignmentExpression;
-							left = assignmentExpression.Left;
-							right = assignmentExpression.Right;
-						}
-					}
-				} else if (ifElseStatement.TrueStatement is ExpressionStatement) {
-					AssignmentExpression assignmentExpression = (ifElseStatement.TrueStatement as ExpressionStatement).Expression as AssignmentExpression;
-					left = assignmentExpression.Left;
-					right = assignmentExpression.Right;
-				}
-
-				if (left == null || right == null) {
-					return;
-				}
-
-				left = UnpackExpression(left);
-				right = UnpackExpression(right);
-
-				var conditionLeft = UnpackExpression((ifElseStatement.Condition as BinaryOperatorExpression).Left);
-				var conditionRight = UnpackExpression((ifElseStatement.Condition as BinaryOperatorExpression).Right);
-
-				if (left.ToString().Equals(conditionLeft.ToString())) {
-					if (right.ToString().Equals(conditionRight.ToString()))
-						AddIssue(ifElseStatement, ctx.TranslateString("Redundant condition check before assignment."));
-				} else if (left.ToString().Equals(conditionRight.ToString())) {
-					if (right.ToString().Equals(conditionLeft.ToString()))
-						AddIssue(ifElseStatement, ctx.TranslateString("Redundant condition check before assignment."));
+				
+				Match m = pattern.Match(ifElseStatement);
+				
+				if (m.Success)
+				{
+					AddIssue(ifElseStatement.Condition, ctx.TranslateString("Redundant condition check before assignment."));
 				}
 			}
 		}

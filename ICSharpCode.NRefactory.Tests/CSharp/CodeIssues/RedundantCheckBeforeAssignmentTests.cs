@@ -44,7 +44,7 @@ namespace resharper_test
 	{
 		public void method()
 		{
-			int q;
+			int q = 1;
 			if (q != 1)
 			{
 				q = 1;
@@ -69,11 +69,9 @@ namespace resharper_test
 	{
 		public void method()
 		{
-			int q;
-			if ((1+0) != q)
-			{
-				q = 1 + 0;
-			}
+			int q = 1;
+			if (q != 1)
+				q = 1;
 		}
 	}
 }
@@ -83,7 +81,7 @@ namespace resharper_test
 			var issues = GetIssues(new RedundantCheckBeforeAssignmentIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 		}
-
+		
 		[Test]
 		public void TestInspectorCase3()
 		{
@@ -94,7 +92,7 @@ namespace resharper_test
 	{
 		public void method()
 		{
-			int q;
+			int q = 1;
 			if (1+0 != q)
 			{
 				q = 1 + 0;
@@ -110,7 +108,7 @@ namespace resharper_test
 			var issues = GetIssues(new RedundantCheckBeforeAssignmentIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
-
+		
 		[Test]
 		public void TestInspectorCase4()
 		{
@@ -121,7 +119,7 @@ namespace resharper_test
 	{
 		public void method()
 		{
-			int q;
+			int q = 1;
 			if (1+0 != q)
 			{
 				q = 1 + 0;
@@ -137,7 +135,7 @@ namespace resharper_test
 			var issues = GetIssues(new RedundantCheckBeforeAssignmentIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
-
+		
 		[Test]
 		public void TestResharperDisableRestore()
 		{
@@ -148,7 +146,7 @@ namespace resharper_test
 	{
 		public void method()
 		{
-			int q;
+			int q = 1;
 //Resharper disable RedundantCheckBeforeAssignment
 			if (q != 1)
 			{
