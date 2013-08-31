@@ -560,6 +560,7 @@
     <Compile Include="CSharp\CodeIssues\ConvertToLambdaExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\AddOptionalParameterToInvocationTests.cs" />
     <Compile Include="CSharp\CodeActions\ComputeConstantValueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithIsOperatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

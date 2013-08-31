@@ -389,6 +389,7 @@
     <Compile Include="CodeActions\AddOptionalParameterToInvocationAction.cs" />
     <Compile Include="CodeActions\ComputeConstantValueAction.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCheckBeforeAssignmentIssue.cs" />
+    <Compile Include="CodeIssues\Uncategorized\ReplaceWithIsOperatorIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
