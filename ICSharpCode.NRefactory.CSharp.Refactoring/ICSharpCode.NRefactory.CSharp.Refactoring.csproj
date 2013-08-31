@@ -388,6 +388,7 @@
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertToLambdaExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentNameIssue.cs" />
     <Compile Include="CodeActions\AddOptionalParameterToInvocationAction.cs" />
+    <Compile Include="CodeActions\ComputeConstantValueAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
