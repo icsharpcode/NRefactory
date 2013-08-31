@@ -36,13 +36,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var expression = context.GetNode(i => i is BinaryOperatorExpression || i is UnaryOperatorExpression);
 			if (expression == null)
 				yield break;
+			var node = context.GetNode();
+			if (node == null)
+				yield break;
+
 			var rr = context.Resolve(expression);
 			if (rr.ConstantValue == null)
 				yield break;
 			yield return new CodeAction(
 				context.TranslateString("Compute constant value"),
 				script => script.Replace(expression, new PrimitiveExpression(rr.ConstantValue)), 
-				expression
+				node
 			);
 		}
 	}
