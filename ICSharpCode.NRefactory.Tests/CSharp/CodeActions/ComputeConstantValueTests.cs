@@ -262,5 +262,19 @@ class TestClass
 	}
 }");
 		}
+
+
+		[Test]
+		public void TestWrongHotSpot()
+		{
+			TestWrongContext<ComputeConstantValueAction>(@"
+class TestClass
+{
+	public void F()
+	{
+		int a = 1 +$ 1;
+	}
+}");
+		}
 	}
 }

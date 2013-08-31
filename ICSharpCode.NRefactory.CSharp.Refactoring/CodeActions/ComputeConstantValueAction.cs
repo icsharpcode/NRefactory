@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (expression == null)
 				yield break;
 			var node = context.GetNode();
-			if (node == null)
+			if (node == null || !(node is PrimitiveExpression) && node.StartLocation != context.Location)
 				yield break;
 
 			var rr = context.Resolve(expression);
