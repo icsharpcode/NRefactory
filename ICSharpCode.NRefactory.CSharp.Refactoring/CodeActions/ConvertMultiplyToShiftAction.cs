@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						new PrimitiveExpression(log2)
 					)
 				),
-				node
+				node.OperatorToken
 			);
 		}
 	}

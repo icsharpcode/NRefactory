@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						new PrimitiveExpression(1 << (int)value)
 					)
 				),
-				node
+				node.OperatorToken
 			);
 		}
 	}
