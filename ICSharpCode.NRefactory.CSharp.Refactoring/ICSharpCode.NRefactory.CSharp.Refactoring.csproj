@@ -384,11 +384,11 @@
     <Compile Include="CodeIssues\Custom\AdditionalOfTypeIssues.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaParameterTypeIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaSignatureParenthesesIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\RedundantCheckBeforeAssignmentIssue.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertToLambdaExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentNameIssue.cs" />
     <Compile Include="CodeActions\AddOptionalParameterToInvocationAction.cs" />
     <Compile Include="CodeActions\ComputeConstantValueAction.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCheckBeforeAssignmentIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

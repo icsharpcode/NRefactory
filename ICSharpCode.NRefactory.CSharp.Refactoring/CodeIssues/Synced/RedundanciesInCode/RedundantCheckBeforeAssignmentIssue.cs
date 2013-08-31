@@ -3,8 +3,10 @@
 // 
 // Author:
 //      Ji Kun <jikun.nus@gmail.com>
-// 
+//      Mike Krüger <mkrueger@xamarin.com>
+//
 // Copyright (c) 2013 Ji Kun <jikun.nus@gmail.com>
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +25,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Collections.Generic;
+
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Check for inequality before assignment is redundant if (x!=value) x=value",
-	                   Description = "Remove redundant check before assignment",
+	[IssueDescription("Redundant condition check before assignment",
+	                   Description = "Check for inequality before assignment is redundant if (x != value) x = value;",
 	                   Category = IssueCategories.RedundanciesInCode,
-	                   Severity = Severity.Hint,
+	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.WavedLine, 
 	                   ResharperDisableKeyword = "RedundantCheckBeforeAssignment")]
 	public class RedundantCheckBeforeAssignmentIssue : GatherVisitorCodeIssueProvider
@@ -42,35 +44,37 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			return new GatherVisitor(context);
 		}
-		
+
 		class GatherVisitor : GatherVisitorBase<RedundantCheckBeforeAssignmentIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
 			{
 			}
-			
-			private static readonly Pattern pattern
-			= new Choice {
+
+			static readonly AstNode pattern = 
 				new IfElseStatement(
-					PatternHelper.CommutativeOperator(new AnyNode("a"),BinaryOperatorType.InEquality, new AnyNode("b")),
-					new ExpressionStatement(new AssignmentExpression(new Backreference("a"), new Backreference("b"))))
-				,
-				new IfElseStatement(
-					PatternHelper.CommutativeOperator(new AnyNode("a"),BinaryOperatorType.InEquality, new AnyNode("b")),
-					new BlockStatement{new AssignmentExpression(new Backreference("a"), new Backreference("b"))})
-			};
-			
+					PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.InEquality, new AnyNode("b")),
+					PatternHelper.EmbeddedStatement(new AssignmentExpression(new Backreference("a"), PatternHelper.OptionalParentheses(new Backreference("b"))))
+				);
+
 			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
 			{
 				base.VisitIfElseStatement(ifElseStatement);
-				
-				Match m = pattern.Match(ifElseStatement);
-				
-				if (m.Success)
-				{
-					AddIssue(ifElseStatement.Condition, ctx.TranslateString("Redundant condition check before assignment."));
-				}
+				var m = pattern.Match(ifElseStatement);
+				if (!m.Success)
+					return;
+				AddIssue(
+					ifElseStatement.Condition,
+					ctx.TranslateString("Redundant condition check before assignment"),
+					ctx.TranslateString("Remove redundant check"),
+					script => {
+						var stmt = ifElseStatement.TrueStatement;
+						var block = stmt as BlockStatement;
+						if (block != null)
+							stmt = block.Statements.First();
+						script.Replace(ifElseStatement, stmt.Clone());
+					}
+				);
 			}
 		}
 	}

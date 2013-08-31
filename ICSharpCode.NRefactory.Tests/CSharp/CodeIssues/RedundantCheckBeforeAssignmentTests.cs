@@ -37,26 +37,27 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"using System;
-namespace resharper_test
+			Test<RedundantCheckBeforeAssignmentIssue>(@"using System;
+class baseClass
 {
-	public class baseClass
+	public void method()
 	{
-		public void method()
-		{
-			int q = 1;
-			if (q != 1)
-			{
-				q = 1;
-			}
+		int q = 1;
+		if (q != 1) {
+			q = 1;
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCheckBeforeAssignmentIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+", @"using System;
+class baseClass
+{
+	public void method()
+	{
+		int q = 1;
+		q = 1;
+	}
+}
+");
 		}
 		
 		[Test]
