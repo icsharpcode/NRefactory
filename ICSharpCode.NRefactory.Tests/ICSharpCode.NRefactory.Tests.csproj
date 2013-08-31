@@ -562,6 +562,7 @@
     <Compile Include="CSharp\CodeActions\ComputeConstantValueTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertShiftToMultiplyActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertMultiplyToShiftActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ForStatementConditionIsTrueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

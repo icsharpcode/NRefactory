@@ -391,6 +391,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCheckBeforeAssignmentIssue.cs" />
     <Compile Include="CodeActions\ConvertShiftToMultiplyAction.cs" />
     <Compile Include="CodeActions\ConvertMultiplyToShiftAction.cs" />
+    <Compile Include="CodeIssues\Uncategorized\ForStatementConditionIsTrueIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
