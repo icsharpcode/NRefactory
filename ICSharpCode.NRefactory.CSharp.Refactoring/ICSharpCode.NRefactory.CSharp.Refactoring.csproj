@@ -397,6 +397,8 @@
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertToStaticTypeIssue.cs" />
     <Compile Include="CodeActions\ReplaceAssignmentWithPostfixExpressionAction.cs" />
     <Compile Include="CodeActions\ReplacePostfixExpressionWithAssignmentAction.cs" />
+    <Compile Include="CodeActions\ReplaceWithOperatorAssignmentAction.cs" />
+    <Compile Include="CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

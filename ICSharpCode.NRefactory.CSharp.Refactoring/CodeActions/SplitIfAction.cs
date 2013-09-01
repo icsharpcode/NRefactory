@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 
-		static Expression GetRightSide(BinaryOperatorExpression expression)
+		internal static Expression GetRightSide(BinaryOperatorExpression expression)
 		{
 			var parent = expression.Parent as BinaryOperatorExpression;
 			if (parent != null) {
@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return expression.Right.Clone();
 		}
 
-		static Expression GetLeftSide(BinaryOperatorExpression expression)
+		internal static Expression GetLeftSide(BinaryOperatorExpression expression)
 		{
 			var parent = expression.Parent as BinaryOperatorExpression;
 			if (parent != null) {

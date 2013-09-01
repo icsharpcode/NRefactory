@@ -568,6 +568,8 @@
     <Compile Include="CSharp\CodeIssues\ConvertToStaticTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceAssignmentWithPostfixExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplacePostfixExpressionWithAssignmentActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceWithOperatorAssignmentActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
