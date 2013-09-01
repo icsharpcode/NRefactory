@@ -393,6 +393,7 @@
     <Compile Include="CodeActions\ConvertMultiplyToShiftAction.cs" />
     <Compile Include="CodeIssues\Uncategorized\ForStatementConditionIsTrueIssue.cs" />
     <Compile Include="CodeActions\SplitIfAction.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
