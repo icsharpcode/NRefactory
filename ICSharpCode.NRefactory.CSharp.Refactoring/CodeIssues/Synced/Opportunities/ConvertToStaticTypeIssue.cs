@@ -23,13 +23,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
+
 using ICSharpCode.NRefactory.CSharp;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -52,6 +50,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
+			static bool IsMainMethod(IMember f)
+			{
+				return 
+					f.SymbolKind == SymbolKind.Method &&
+					(f.ReturnType.IsKnownType(KnownTypeCode.Void) || f.ReturnType.IsKnownType(KnownTypeCode.Int32)) &&
+					f.IsStatic &&
+					f.Name == "Main";
+			}
+
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
 				base.VisitTypeDeclaration(typeDeclaration);
@@ -61,6 +68,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!typeDeclaration.Members.Any())
 					return;
 				if (typeDeclaration.Members.Any(f => !f.HasModifier(Modifiers.Static) && !f.HasModifier(Modifiers.Const)))
+					return;
+				var rr = ctx.Resolve(typeDeclaration);
+				if (rr.IsError || rr.Type.GetMembers().Any(IsMainMethod))
 					return;
 				AddIssue(
 					typeDeclaration.NameToken, 

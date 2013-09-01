@@ -129,6 +129,27 @@ namespace Demo
 
 
 		[Test]
+		public void TestEntryPoint()
+		{
+			TestWrongContext<ConvertToStaticTypeIssue>(@"
+using System;
+
+namespace Demo
+{
+	public sealed class TestClass
+	{
+		static public int A;
+		public static int Main()
+		{
+			return A + 1;
+		}
+	}
+}
+");
+		}
+
+
+		[Test]
 		public void TestResharperDisable()
 		{
 			var input = @"using System;
