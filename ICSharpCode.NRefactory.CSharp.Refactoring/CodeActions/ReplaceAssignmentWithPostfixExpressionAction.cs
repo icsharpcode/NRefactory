@@ -38,6 +38,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
 		{
+			if (!node.OperatorToken.Contains(context.Location))
+				return null;
+			node = ReplaceWithOperatorAssignmentAction.CreateAssignment(node) ?? node;
 			if (node.Operator != AssignmentOperatorType.Add && node.Operator != AssignmentOperatorType.Subtract || !onePattern.IsMatch (node.Right))
 				return null;
 			string desc = node.Operator == AssignmentOperatorType.Add ? context.TranslateString("Replace with '{0}++'") : context.TranslateString("Replace with '{0}--'");

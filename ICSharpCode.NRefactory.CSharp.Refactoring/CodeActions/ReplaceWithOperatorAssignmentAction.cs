@@ -34,11 +34,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Replace assignment with operator assignment", Description = "Replace assignment with operator assignment")]
 	public class ReplaceWithOperatorAssignmentAction : SpecializedCodeAction<AssignmentExpression>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
+		internal static AssignmentExpression CreateAssignment(AssignmentExpression node)
 		{
-			if (node.Operator != AssignmentOperatorType.Assign || !node.OperatorToken.Contains(context.Location))
-				return null;
-
 			var bop = node.Right as BinaryOperatorExpression;
 			if (bop == null)
 				return null;
@@ -48,17 +45,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var op = GetAssignmentOperator(bop.Operator);
 			if (op == AssignmentOperatorType.Any)
 				return null;
+			return new AssignmentExpression(node.Left.Clone(), op, SplitIfAction.GetRightSide((BinaryOperatorExpression)outerLeft.Parent));
+		}
 
+		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
+		{
+			if (!node.OperatorToken.Contains(context.Location))
+				return null;
+
+			var ae = CreateAssignment(node);
+			if (ae == null)
+				return null;
 			return new CodeAction (
-				string.Format(context.TranslateString("Replace with '{0}='"), bop.OperatorToken),
-				s => s.Replace(
-						node,
-						new AssignmentExpression(
-							node.Left.Clone(), 
-							op,
-							SplitIfAction.GetRightSide ((BinaryOperatorExpression)outerLeft.Parent)
-						)
-					),
+				string.Format(context.TranslateString("Replace with '{0}='"), ((BinaryOperatorExpression)node.Right).OperatorToken),
+				s => s.Replace(node, ae),
 				node.OperatorToken
 			);
 		}
@@ -91,14 +91,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		Expression GetOuterLeft (BinaryOperatorExpression bop)
+		static Expression GetOuterLeft (BinaryOperatorExpression bop)
 		{
 			var leftBop = bop.Left as BinaryOperatorExpression;
 			if (leftBop != null && bop.Operator == leftBop.Operator)
 				return GetOuterLeft(leftBop);
 			return bop.Left;
 		}
-
 	}
 }
 

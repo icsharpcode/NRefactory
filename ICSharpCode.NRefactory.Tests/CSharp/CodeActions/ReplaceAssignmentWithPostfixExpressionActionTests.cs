@@ -71,6 +71,28 @@ class Test
 	}
 }");
 		}
+	
+
+		[Test]
+		public void TestAddCase2 ()
+		{
+			Test<ReplaceAssignmentWithPostfixExpressionAction> (@"
+class Test
+{
+	void Foo (int i)
+	{
+		i $= i + 1;
+	}
+}", @"
+class Test
+{
+	void Foo (int i)
+	{
+		i++;
+	}
+}");
+		}
+
 	}
 }
 
