@@ -391,11 +391,10 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCheckBeforeAssignmentIssue.cs" />
     <Compile Include="CodeActions\ConvertShiftToMultiplyAction.cs" />
     <Compile Include="CodeActions\ConvertMultiplyToShiftAction.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ForStatementConditionIsTrueIssue.cs" />
     <Compile Include="CodeActions\SplitIfAction.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ForStatementConditionIsTrueIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ConvertToStaticTypeIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\ForStatementConditionIsTrueIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -31,8 +31,8 @@ using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("true is redundant as for statement condition, thus can be safely ommited",
-	                   Description = "Remove redundant true in for statement condition",
+	[IssueDescription ("'true' is redundant as for statement condition",
+	                   Description = "true is redundant as for statement condition, thus can be safely ommited",
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
 	                   IssueMarker = IssueMarker.GrayOut, 
@@ -58,8 +58,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var m = pattern.Match(forstatement.Condition);
 				if (m.Success) {
-					AddIssue(forstatement.Condition, ctx.TranslateString("true condition is redundant in for statement"), ctx.TranslateString("Remove redundant condition"),
-							Script => Script.Remove(forstatement.Condition));
+					AddIssue(
+						forstatement.Condition, 
+						ctx.TranslateString("'true' is redundant as for statement condition"), 
+						ctx.TranslateString("Remove 'true'"),
+						script => script.Remove(forstatement.Condition)
+					);
 				}
 			}
 		}
