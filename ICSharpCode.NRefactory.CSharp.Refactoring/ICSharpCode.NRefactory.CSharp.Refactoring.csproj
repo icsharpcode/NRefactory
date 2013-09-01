@@ -395,6 +395,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ForStatementConditionIsTrueIssue.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertToStaticTypeIssue.cs" />
+    <Compile Include="CodeIssues\Uncategorized\RedundantBlockInDifferentBranchesIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
