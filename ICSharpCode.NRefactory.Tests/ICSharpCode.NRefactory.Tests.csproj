@@ -566,6 +566,8 @@
     <Compile Include="CSharp\CodeActions\SplitIfActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantLogicalConditionalExpressionOperandIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertToStaticTypeTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceAssignmentWithPostfixExpressionActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplacePostfixExpressionWithAssignmentActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
