@@ -122,9 +122,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					entity.ModifierTokens.First(t => t.Modifier == Modifiers.Virtual),
 					ctx.TranslateString("'virtual' modifier is not usable in a sealed class"),
 					ctx.TranslateString("Remove 'virtual' modifier"), 
-					s => {
-					s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Virtual);
-				}
+					s => s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Virtual)
 				);
 			}
 
@@ -132,6 +130,31 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				CheckStaticRequired(methodDeclaration);
 				CheckVirtual(methodDeclaration);
+				if (methodDeclaration.IsExtensionMethod) {
+					var parent = methodDeclaration.Parent as TypeDeclaration;
+					if (parent != null && !parent.HasModifier(Modifiers.Static)) {
+						var actions = new List<CodeAction>();
+						var token = methodDeclaration.Parameters.First().FirstChild;
+						actions.Add(new CodeAction(
+							ctx.TranslateString("Make class 'static'"),
+							s => s.ChangeModifier(parent, (parent.Modifiers & ~Modifiers.Sealed) | Modifiers.Static),
+							token
+							));
+
+						actions.Add(new CodeAction(
+							ctx.TranslateString("Remove 'this'"),
+							s => s.ChangeModifier(methodDeclaration.Parameters.First(), ParameterModifier.None),
+							token
+						));
+
+						AddIssue(
+							token,
+							ctx.TranslateString("Extension methods are only allowed in static classes"),
+							actions
+						);
+					}
+				}
+
 				base.VisitMethodDeclaration(methodDeclaration);
 			}
 
