@@ -31,9 +31,9 @@ using ICSharpCode.NRefactory.PatternMatching;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Use 'is' operator",
-	                  Description = "'is' operator can be used instead of comparing type objects.",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
+	                  Description = "'is' operator can be used",
+	                  Category = IssueCategories.PracticesAndImprovements,
+	                  Severity = Severity.Suggestion,
 	                  ResharperDisableKeyword = "UseIsOperator")]
 	public class UseIsOperatorIssue : GatherVisitorCodeIssueProvider
 	{
