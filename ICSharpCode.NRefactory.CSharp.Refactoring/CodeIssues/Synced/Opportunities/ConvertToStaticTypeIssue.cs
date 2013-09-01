@@ -33,45 +33,41 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	/// <summary>
-	/// Type declaration can be converted to static.
-	/// </summary>
-	[IssueDescription("Type declaration can be converted to static",
-	                  Description= "If all fields, properties and methods members are static, the type declaration can be made static.",
-		   Category = IssueCategories.Opportunities,
-		   Severity = Severity.Hint,
-		   IssueMarker = IssueMarker.WavedLine,
-		   ResharperDisableKeyword = "ConvertToStaticType")]
+	[IssueDescription("Class can be converted to static",
+	                  Description = "If all fields, properties and methods members are static, the class can be made static.",
+	                  Category = IssueCategories.Opportunities,
+	                  Severity = Severity.Hint,
+	                  IssueMarker = IssueMarker.WavedLine,
+	                  ResharperDisableKeyword = "ConvertToStaticType")]
 	public class ConvertToStaticTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
-		
+
 		class GatherVisitor : GatherVisitorBase<ConvertToStaticTypeIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
-				: base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
 			{
 			}
 
-			public override void VisitTypeDeclaration(TypeDeclaration typedeclaration)
+			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
-				base.VisitTypeDeclaration(typedeclaration);
+				base.VisitTypeDeclaration(typeDeclaration);
 
-				if (typedeclaration == null || typedeclaration.HasModifier(Modifiers.Static))
+				if (typeDeclaration == null || typeDeclaration.ClassType != ClassType.Class || typeDeclaration.HasModifier(Modifiers.Static))
 					return;
-
-				var members = typedeclaration.Members;
-
-				if (members.Count == 0)
+				if (!typeDeclaration.Members.Any())
 					return;
-
-				if (members.Any(f => !f.HasModifier(Modifiers.Static)))
+				if (typeDeclaration.Members.Any(f => !f.HasModifier(Modifiers.Static) && !f.HasModifier(Modifiers.Const)))
 					return;
-			
-				AddIssue(typedeclaration.NameToken, ctx.TranslateString("This class is recommended to be defined as static."));
+				AddIssue(
+					typeDeclaration.NameToken, 
+					ctx.TranslateString("This class is recommended to be defined as static"),
+					ctx.TranslateString("Make class static"),
+					s => s.ChangeModifier(typeDeclaration, (typeDeclaration.Modifiers & ~Modifiers.Sealed) | Modifiers.Static)
+				);
 			}
 		}
 	}
