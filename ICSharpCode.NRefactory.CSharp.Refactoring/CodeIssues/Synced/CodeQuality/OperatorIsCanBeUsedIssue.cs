@@ -23,45 +23,39 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.using System;
-using System.Collections.Generic;
-using System;
+
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory.Semantics;
-using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Replace with Is operator",
+	[IssueDescription("Operator 'is' can be used",
 	                  Description = "Operator Is can be used instead of comparing object GetType() and instances of System.Type object.",
-	                  Category = IssueCategories.Opportunities,
+	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "ReplaceWithIsOpeartor",
+	                  ResharperDisableKeyword = "OperatorIsCanBeUsed",
 	                  IssueMarker = IssueMarker.WavedLine)]
-	public class ReplaceWithIsOperatorIssue : GatherVisitorCodeIssueProvider
+	public class OperatorIsCanBeUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
-		
-		sealed class GatherVisitor : GatherVisitorBase<ReplaceWithIsOperatorIssue>
+
+		sealed class GatherVisitor : GatherVisitorBase<OperatorIsCanBeUsedIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base(ctx)
+			public GatherVisitor(BaseRefactoringContext ctx) : base(ctx)
 			{
 			}
 
 			static readonly AstNode pattern = 
 				PatternHelper.CommutativeOperatorWithOptionalParentheses(
-					new InvocationExpression(
-						new MemberReferenceExpression(new AnyNode("a"), "GetType"), null),
+					new InvocationExpression(new MemberReferenceExpression(new AnyNode("a"), "GetType"), null),
 					BinaryOperatorType.Equality,
 					new TypeOfExpression(new AnyNode("b"))
-			);
+				);
 
 			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
 			{
@@ -74,20 +68,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				Expression identifier = null;
 				AstType type = null;
 
-				if (binaryOperatorExpression.Left is TypeOfExpression && binaryOperatorExpression.Right is InvocationExpression) 
-				{
+				if (binaryOperatorExpression.Left is TypeOfExpression && binaryOperatorExpression.Right is InvocationExpression) {
 					type = (binaryOperatorExpression.Left as TypeOfExpression).Type;
-					InvocationExpression right = binaryOperatorExpression.Right as InvocationExpression;
+					var right = binaryOperatorExpression.Right as InvocationExpression;
 					identifier = (right.Target as MemberReferenceExpression).Target;
-				}
-
-				else if (binaryOperatorExpression.Right is TypeOfExpression && binaryOperatorExpression.Left is InvocationExpression) 
-				{
+				} else if (binaryOperatorExpression.Right is TypeOfExpression && binaryOperatorExpression.Left is InvocationExpression) {
 					type = (binaryOperatorExpression.Right as TypeOfExpression).Type;
-					InvocationExpression left = binaryOperatorExpression.Left as InvocationExpression;
+					var left = binaryOperatorExpression.Left as InvocationExpression;
 					identifier = (left.Target as MemberReferenceExpression).Target;
-				}
-				else 
+				} else
 					return;
 
 				if (identifier == null || type == null)
@@ -95,20 +84,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var typeResolved = ctx.Resolve(type) as TypeResolveResult; 
 
-				if (typeResolved.Type.Kind == TypeKind.Class){
-					if (!typeResolved.Type.GetDefinition().IsSealed){
+				if (typeResolved.Type.Kind == TypeKind.Class) {
+					if (!typeResolved.Type.GetDefinition().IsSealed) {
 						return;
 					}
 				}
 
-				AddIssue(binaryOperatorExpression, ctx.TranslateString("Operator Is can be used instead of comparing object GetType() and instances of System.Type object"), 
-					ctx.TranslateString("Replace with Is operator"), script => {
-					var isExpr = new IsExpression();
-					isExpr.Type = type.Clone();
-					isExpr.Expression = identifier.Clone();
-					script.Replace(binaryOperatorExpression, isExpr);
-				});
-				return;
+				AddIssue(
+					binaryOperatorExpression, 
+					ctx.TranslateString("Operator 'is' can be used"), 
+					ctx.TranslateString("Replace with 'is' operator"), 
+					script => {
+						var isExpr = new IsExpression(identifier.Clone(), type.Clone());
+						script.Replace(binaryOperatorExpression, isExpr);
+					}
+				);
 			}
 		}
 	}

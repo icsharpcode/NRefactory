@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ReplaceWithIsOperatorTests : InspectionActionTestBase
+	public class OperatorIsCanBeUsedIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestInspectorCase1()
@@ -51,7 +51,7 @@ namespace Demo
 			if (typeof (int) == a.GetType()){}}}}
 ";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
+			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 
 			
@@ -90,7 +90,7 @@ namespace Demo
 			if (a.GetType() == typeof (int)){}}}}
 ";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
+			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 
 			CheckFix(context, issues, @"
@@ -128,7 +128,7 @@ namespace Demo
 		if (BaseClass.a.GetType() == typeof (int)){}}}}
 ";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
+			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			
 			
@@ -168,7 +168,7 @@ namespace Demo
 			BaseClass b = new BaseClass();if (typeof (TestClass) == b.GetType()){}}}}
 ";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
+			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 
 			CheckFix(context, issues, @"
@@ -216,7 +216,7 @@ namespace Demo
 }
 ";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
+			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 
@@ -234,18 +234,18 @@ namespace Demo
 		public static void main(string[] args)
 		{
 			int a = 1;
-//Resharper disable ReplaceWithIsOpeartor
+//Resharper disable OperatorIsCanBeUsed
 			if ((typeof (int) == a.GetType()))
 			{
 
 			}
-//Resharper restore ReplaceWithIsOpeartor
+//Resharper restore OperatorIsCanBeUsed
 		}
 	}
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues(new ReplaceWithIsOperatorIssue(), input, out context);
+			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 	}
