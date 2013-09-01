@@ -399,6 +399,7 @@
     <Compile Include="CodeActions\ReplacePostfixExpressionWithAssignmentAction.cs" />
     <Compile Include="CodeActions\ReplaceWithOperatorAssignmentAction.cs" />
     <Compile Include="CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs" />
+    <Compile Include="CodeIssues\Uncategorized\ReplaceWithIsOperatorIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
