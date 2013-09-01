@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (ifStatement == null)
 				yield break;
 			var bOp = ifStatement.GetNodeAt<BinaryOperatorExpression>(context.Location);
-			if (!bOp.OperatorToken.Contains(context.Location))
+			if (bOp == null || !bOp.OperatorToken.Contains(context.Location))
 				yield break;
 			if (bOp.Ancestors.OfType<BinaryOperatorExpression>().Any(b => b.Operator != bOp.Operator))
 				yield break;

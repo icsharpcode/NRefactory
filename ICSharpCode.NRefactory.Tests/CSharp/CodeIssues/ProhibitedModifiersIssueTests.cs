@@ -176,7 +176,45 @@ class Foo
 		}
 
 
+		[Test]
+		public void TestExtensionMethodInNonStaticClass ()
+		{
+			Test<ProhibitedModifiersIssue>(@"
+class Foo
+{
+	public static void Bar (this int i) 
+	{
+	}
+}
+", @"
+static class Foo
+{
+	public static void Bar (this int i) 
+	{
+	}
+}
+");
+		}
 
+		[Test]
+		public void TestExtensionMethodInNonStaticClassFix2 ()
+		{
+			Test<ProhibitedModifiersIssue>(@"
+class Foo
+{
+	public static void Bar (this int i) 
+	{
+	}
+}
+", @"
+class Foo
+{
+	public static void Bar (int i) 
+	{
+	}
+}
+", 1);
+		}
 
 	}
 }
