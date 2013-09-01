@@ -566,6 +566,7 @@
     <Compile Include="CSharp\CodeActions\SplitIfActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantLogicalConditionalExpressionOperandIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ForStatementConditionIsTrueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertToStaticTypeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
