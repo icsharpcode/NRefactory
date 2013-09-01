@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -48,19 +49,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
 			}
+
+			static readonly AstNode pattern =  new PrimitiveExpression(true);
 		
 			public override void VisitForStatement (ForStatement forstatement)
 			{
 				base.VisitForStatement(forstatement);
 
-				var condition = forstatement.Condition;
-				if (condition == null)
-					return;
-
-				if (!(forstatement.Condition is PrimitiveExpression) )
-					return;
-				if (((PrimitiveExpression)forstatement.Condition).LiteralValue.Equals("true"))
-				{
+				var m = pattern.Match(forstatement.Condition);
+				if (m.Success) {
 					AddIssue(forstatement.Condition, ctx.TranslateString("true condition is redundant in for statement"), ctx.TranslateString("Remove redundant condition"),
 							Script => Script.Remove(forstatement.Condition));
 				}
