@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (typedeclaration == null || typedeclaration.HasModifier(Modifiers.Static))
 					return;
 
-				var members = typedeclaration.GetChildrenByRole(Roles.TypeMemberRole);
+				var members = typedeclaration.Members;
 
 				if (members.Count == 0)
 					return;
@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (members.Any(f => !f.HasModifier(Modifiers.Static)))
 					return;
 			
-				AddIssue(typedeclaration, ctx.TranslateString("This class is recommended to be defined as static."));
+				AddIssue(typedeclaration.NameToken, ctx.TranslateString("This class is recommended to be defined as static."));
 			}
 		}
 	}
