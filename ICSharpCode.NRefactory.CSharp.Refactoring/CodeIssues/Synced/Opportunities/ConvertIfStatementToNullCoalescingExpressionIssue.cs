@@ -36,6 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
 	                  IssueMarker = IssueMarker.DottedLine,
+	                  ActionProvider = typeof(ConvertIfStatementToNullCoalescingExpressionAction),
 	                  ResharperDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
 	public class ConvertIfStatementToNullCoalescingExpressionIssue : GatherVisitorCodeIssueProvider
 	{

@@ -35,6 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Convert 'if...return' to 'return'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
+	                  ActionProvider = typeof(ConvertIfStatementToReturnStatementAction),
 	                  IssueMarker = IssueMarker.DottedLine)]
 	public class RewriteIfReturnToReturnIssue : GatherVisitorCodeIssueProvider
 	{

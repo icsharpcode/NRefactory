@@ -32,6 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Convert 'if' to 'switch'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
+	                  ActionProvider = typeof(ConvertIfStatementToSwitchStatementAction),
 	                  IssueMarker = IssueMarker.DottedLine)]
 	public class ConvertIfStatementToSwitchStatementIssue : GatherVisitorCodeIssueProvider
 	{

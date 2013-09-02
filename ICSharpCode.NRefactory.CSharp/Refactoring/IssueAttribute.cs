@@ -1,7 +1,4 @@
 ﻿// 
-using System.Diagnostics.CodeAnalysis;
-
-
 // IssueAttribute.cs
 //  
 // Author:
@@ -27,6 +24,7 @@ using System.Diagnostics.CodeAnalysis;
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp
@@ -48,6 +46,8 @@ namespace ICSharpCode.NRefactory.CSharp
 		public Severity Severity { get; set; }
 
 		public IssueMarker IssueMarker { get; set; }
+
+		public Type ActionProvider { get; set; }
 
 		public IssueDescriptionAttribute (string title)
 		{
