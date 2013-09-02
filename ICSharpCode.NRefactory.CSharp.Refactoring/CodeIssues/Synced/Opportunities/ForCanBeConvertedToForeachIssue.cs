@@ -190,9 +190,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				var analyze = new ConvertToConstantIssue.VariableUsageAnalyzation(ctx);
+				analyze.SetAnalyzedRange(
+					varDeclStmt,
+					forStatement.EmbeddedStatement,
+					false
+				);
 				forStatement.EmbeddedStatement.AcceptVisitor(analyze);
 				if (analyze.GetStatus(lr.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
-				analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed)
+				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
+				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Used)
 					return;
 
 				AddIssue(
