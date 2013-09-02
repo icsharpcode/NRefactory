@@ -85,6 +85,20 @@ class Test
 ");
 		}
 
+		[Test]
+		public void TestInvalidCase()
+		{
+			TestWrongContext<EmptyStatementIssue>(@"
+class Test
+{
+	public void Foo ()
+	{
+		label:
+			;
+	}
+}
+");
+		}
 
 	}
 }

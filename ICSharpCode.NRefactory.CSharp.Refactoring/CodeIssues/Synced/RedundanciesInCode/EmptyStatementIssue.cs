@@ -55,6 +55,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (UseAsAndNullCheckAction.IsEmbeddedStatement(emptyStatement))
 					return;
+				if (emptyStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) is LabelStatement)
+					return;
 				AddIssue(
 					emptyStatement,
 					ctx.TranslateString("Empty statement is redundant"),
