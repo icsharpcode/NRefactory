@@ -34,8 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction (
 		"Convert 'if' to 'switch'", 
-		Description = "Convert 'if' statement to 'switch' statement",
-		BoundToIssue = typeof (ConvertIfStatementToSwitchStatementIssue))]
+		Description = "Convert 'if' statement to 'switch' statement")]
 	public class ConvertIfStatementToSwitchStatementAction : SpecializedCodeAction<IfElseStatement>
 	{
 		protected override CodeAction GetAction (RefactoringContext context, IfElseStatement node)

@@ -34,9 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction(
 		"Use 'as' and null check", 
-		Description = "Converts a 'is' into an 'as' and null check",
-		BoundToIssue = typeof (CanBeReplacedWithTryCastAndCheckForNullIssue)
-	)]
+		Description = "Converts a 'is' into an 'as' and null check")]
 	public class UseAsAndNullCheckAction : SpecializedCodeAction<IfElseStatement>
 	{
 		static readonly AstNode pattern = 
