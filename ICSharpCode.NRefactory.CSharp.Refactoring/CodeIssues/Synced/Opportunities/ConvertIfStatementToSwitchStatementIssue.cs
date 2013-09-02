@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -55,15 +56,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression (ctx, ifElseStatement.Condition);
-				if (switchExpr == null) {
+				if (switchExpr == null)
 					return;
-				}
-
 				var switchSections = new List<SwitchSection> ();
 				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr)) {
 					return;
 				}
-				if (switchSections.Count <= 1)
+				if (switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)) <= 1)
 					return;
 
 				AddIssue(

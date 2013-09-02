@@ -246,8 +246,10 @@ class TestClass
 	{
 		$if (a == TestEnum.First) {
 			return 1;
-		} else {
+		} else if (a == TestEnum.Second) {
 			return -1;
+		} else {
+			return 0;
 		}
 	}
 }");
@@ -275,7 +277,7 @@ class TestClass
 	{
 		$if (a == " + caseValue + @") {
 			return 1;
-		} else {
+		} else if (a == default("  + type +  @")) {
 			return -1;
 		}
 	}
@@ -332,6 +334,25 @@ class TestClass
 				return;
 		} else if (a == 2 || a == 3) {
 			b = 2;
+		}
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestτooSimple()
+		{
+			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+class TestClass
+{
+	void TestMethod (int a)
+	{
+		int b;
+		$if (a == 0) {
+			b = 0;
+		} else {
+			b = 1;
 		}
 	}
 }");
