@@ -32,8 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Convert 'if' to '??' expression",
 	                Category = IssueCategories.Opportunities,
-	                Description = "Convert 'if' statement to '??' expression.",
-	                BoundToIssue = typeof (ConvertIfStatementToNullCoalescingExpressionIssue))]
+	                Description = "Convert 'if' statement to '??' expression.")]
 	public class ConvertIfStatementToNullCoalescingExpressionAction : SpecializedCodeAction <IfElseStatement>
 	{
 		const string expressionGroupName = "expression";

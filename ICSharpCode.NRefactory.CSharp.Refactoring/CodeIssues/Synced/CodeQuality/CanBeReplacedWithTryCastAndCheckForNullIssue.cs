@@ -38,6 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Type check and casts can be replaced with 'as' and null check",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Suggestion,
+	                  ActionProvider = typeof(UseAsAndNullCheckAction),
 	                  ResharperDisableKeyword = "CanBeReplacedWithTryCastAndCheckForNull")]
 	public class CanBeReplacedWithTryCastAndCheckForNullIssue : GatherVisitorCodeIssueProvider
 	{

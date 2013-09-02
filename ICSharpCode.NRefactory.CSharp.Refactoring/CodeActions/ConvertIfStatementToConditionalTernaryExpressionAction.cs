@@ -30,8 +30,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Convert 'if' to '?:'",
-	               Description = "Convert 'if' to '?:'",
-	               BoundToIssue = typeof (ConvertIfStatementToConditionalTernaryExpressionIssue))]
+	               Description = "Convert 'if' to '?:'")]
 	public class ConvertIfStatementToConditionalTernaryExpressionAction : SpecializedCodeAction <IfElseStatement>
 	{
 		static readonly AstNode Pattern = 
