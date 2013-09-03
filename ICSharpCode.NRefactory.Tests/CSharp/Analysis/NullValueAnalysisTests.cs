@@ -905,6 +905,35 @@ class TestClass
 		}
 
 		[Test]
+		public void TestLinqGroupBy()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int?[] collection = new int?[10];
+		foreach (var x in from item in collection
+		                  group new { x = item } by item != null) {
+		}
+	}
+}
+", "test.cs");
+
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var foreachStatement = (ForeachStatement)method.Body.Statements.Last();
+			var foreachBody = foreachStatement.EmbeddedStatement;
+			
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(foreachBody, "x"));
+		}
+
+		[Test]
 		public void TestNoExecutionLinq()
 		{
 			var parser = new CSharpParser();
