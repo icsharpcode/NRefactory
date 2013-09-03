@@ -34,7 +34,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Label is never referenced",
 		Category = IssueCategories.RedundanciesInDeclarations,
 		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.GrayOut,
 		PragmaWarning = 164,
 		ResharperDisableKeyword = "UnusedLabel")]
 	public class UnusedLabelIssue : GatherVisitorCodeIssueProvider
@@ -89,6 +88,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						AddIssue(
 							stmt.LabelToken.StartLocation,
 							stmt.ColonToken.EndLocation,
+							IssueMarker.GrayOut,
 							ctx.TranslateString("Label is unused"),
 							ctx.TranslateString("Remove unused label"),
 							s => { s.Remove(stmt); s.FormatText(stmt.Parent); }

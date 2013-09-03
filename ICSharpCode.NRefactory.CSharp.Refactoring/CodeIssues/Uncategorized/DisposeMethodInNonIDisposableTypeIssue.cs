@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Type does not implement IDisposable despite having a Dispose method",
 	                  Description="This type declares a method named Dispose, but it does not implement the System.IDisposable interface",
 	                  Category=IssueCategories.CodeQualityIssues,
-	                  Severity=Severity.Warning,
-	                  IssueMarker=IssueMarker.WavedLine)]
+	                  Severity=Severity.Warning)]
 	public class DisposeMethodInNonIDisposableTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

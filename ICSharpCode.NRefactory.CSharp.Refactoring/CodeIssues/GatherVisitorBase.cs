@@ -30,6 +30,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 using Mono.CSharp;
+using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
@@ -257,98 +258,125 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			return isDisabled || isGloballySuppressed || isPragmaDisabled || suppressedRegions.Any(r => r.IsInside(location));
 		}
-		//		protected void AddIssue(AstNode node, string issueDescription, string actionDescription, object siblingKey, System.Action<Script> fix)
-		//		{
-		//			if (IsSuppressed(node.StartLocation))
-		//				return;
-		//			FoundIssues.Add(new CodeIssue (issueDescription, node.StartLocation, node.EndLocation, fix != null ? new CodeAction (actionDescription, fix, node, siblingKey) : null));
-		//		}
-		//		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription, string actionDescription, object siblingKey, System.Action<Script> fix)
-		//		{
-		//			if (IsSuppressed(start))
-		//				return;
-		//			FoundIssues.Add(new CodeIssue(issueDescription, start, end, fix != null ? new CodeAction(actionDescription, fix, start, end, siblingKey) : null));
-		//		}
+
 		protected void AddIssue(AstNode node, string issueDescription, string actionDescription, System.Action<Script> fix)
+		{
+			AddIssue(node, IssueMarker.WavedLine, issueDescription, actionDescription, fix);
+		}
+
+		protected void AddIssue(AstNode node, IssueMarker marker, string issueDescription, string actionDescription, System.Action<Script> fix)
 		{
 			if (IsSuppressed(node.StartLocation))
 				return;
-			FoundIssues.Add(new CodeIssue(issueDescription, node.StartLocation, node.EndLocation, fix != null ? new CodeAction(actionDescription, fix, node) : null));
+			FoundIssues.Add(new CodeIssue(marker, issueDescription, node.StartLocation, node.EndLocation, fix != null ? new CodeAction(actionDescription, fix, node) : null));
 		}
 
 		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription, string actionDescription, System.Action<Script> fix)
 		{
+			AddIssue(start, end, IssueMarker.WavedLine, issueDescription, actionDescription, fix);
+		}
+
+		protected void AddIssue(TextLocation start, TextLocation end, IssueMarker marker, string issueDescription, string actionDescription, System.Action<Script> fix)
+		{
 			if (IsSuppressed(start))
 				return;
-			FoundIssues.Add(new CodeIssue(issueDescription, start, end, fix != null ? new CodeAction(actionDescription, fix, start, end) : null));
+			FoundIssues.Add(new CodeIssue(marker,issueDescription, start, end, fix != null ? new CodeAction(actionDescription, fix, start, end) : null));
 		}
-		//		protected void AddIssue(AstNode node, string issueDescription, object siblingKey)
-		//		{
-		//			if (IsSuppressed(node.StartLocation))
-		//				return;
-		//			FoundIssues.Add(new CodeIssue (issueDescription, node.StartLocation, node.EndLocation));
-		//		}
-		//
-		//		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription, object siblingKey)
-		//		{
-		//			if (IsSuppressed(start))
-		//				return;
-		//			FoundIssues.Add(new CodeIssue(issueDescription, start, end));
-		//		}
+
 		protected void AddIssue(AstNode node, string issueDescription)
+		{
+			AddIssue(node, IssueMarker.WavedLine, issueDescription);
+		}
+
+		protected void AddIssue(AstNode node, IssueMarker marker, string issueDescription)
 		{
 			if (IsSuppressed(node.StartLocation))
 				return;
-			FoundIssues.Add(new CodeIssue(issueDescription, node.StartLocation, node.EndLocation));
+			FoundIssues.Add(new CodeIssue(marker,issueDescription, node.StartLocation, node.EndLocation));
 		}
 
 		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription)
 		{
+			AddIssue(start, end, IssueMarker.WavedLine, issueDescription);
+		}
+
+		protected void AddIssue(TextLocation start, TextLocation end, IssueMarker marker, string issueDescription)
+		{
 			if (IsSuppressed(start))
 				return;
-			FoundIssues.Add(new CodeIssue(issueDescription, start, end));
+			FoundIssues.Add(new CodeIssue(marker, issueDescription, start, end));
 		}
 
 		protected void AddIssue(AstNode node, string title, CodeAction fix)
 		{
+			AddIssue(node, IssueMarker.WavedLine, title, fix);
+		}
+
+		protected void AddIssue(AstNode node, IssueMarker marker, string title, CodeAction fix)
+		{
 			if (IsSuppressed(node.StartLocation))
 				return;
-			FoundIssues.Add(new CodeIssue(title, node.StartLocation, node.EndLocation, fix));
+			FoundIssues.Add(new CodeIssue(marker, title, node.StartLocation, node.EndLocation, fix));
 		}
 
 		protected void AddIssue(TextLocation start, TextLocation end, string title, CodeAction fix)
 		{
+			AddIssue(start, end, IssueMarker.WavedLine, title, fix);
+		}
+
+		protected void AddIssue(TextLocation start, TextLocation end, IssueMarker marker, string title, CodeAction fix)
+		{
 			if (IsSuppressed(start))
 				return;
-			FoundIssues.Add(new CodeIssue(title, start, end, fix));
+			FoundIssues.Add(new CodeIssue(marker, title, start, end, fix));
 		}
 
 		protected void AddIssue(AstNode node, string title, IEnumerable<CodeAction> fixes)
 		{
+			AddIssue(node, IssueMarker.WavedLine, title, fixes);
+		}
+
+		protected void AddIssue(AstNode node, IssueMarker marker, string title, IEnumerable<CodeAction> fixes)
+		{
 			if (IsSuppressed(node.StartLocation))
 				return;
-			FoundIssues.Add(new CodeIssue(title, node.StartLocation, node.EndLocation, fixes));
+			FoundIssues.Add(new CodeIssue(marker, title, node.StartLocation, node.EndLocation, fixes));
 		}
 
 		protected void AddIssue(AstNode node, string title, params CodeAction[] fixes)
 		{
+			AddIssue(node, IssueMarker.WavedLine, title, fixes);
+		}
+
+		protected void AddIssue(AstNode node, IssueMarker marker, string title, params CodeAction[] fixes)
+		{
 			if (IsSuppressed(node.StartLocation))
 				return;
-			FoundIssues.Add(new CodeIssue(title, node.StartLocation, node.EndLocation, fixes));
+			FoundIssues.Add(new CodeIssue(marker, title, node.StartLocation, node.EndLocation, fixes));
 		}
 
 		protected void AddIssue(TextLocation start, TextLocation end, string title, IEnumerable<CodeAction> fixes)
 		{
+			AddIssue(start, end, IssueMarker.WavedLine, title, fixes);
+		}
+
+		protected void AddIssue(TextLocation start, TextLocation end, IssueMarker marker, string title, IEnumerable<CodeAction> fixes)
+		{
 			if (IsSuppressed(start))
 				return;
-			FoundIssues.Add(new CodeIssue(title, start, end, fixes));
+			FoundIssues.Add(new CodeIssue(marker, title, start, end, fixes));
 		}
 
 		protected void AddIssue(TextLocation start, TextLocation end, string title, params CodeAction[] fixes)
 		{
+			AddIssue(start, end, IssueMarker.WavedLine, title, fixes);
+		}
+
+		protected void AddIssue(TextLocation start, TextLocation end, IssueMarker marker, string title, params CodeAction[] fixes)
+		{
 			if (IsSuppressed(start))
 				return;
-			FoundIssues.Add(new CodeIssue(title, start, end, fixes));
+			FoundIssues.Add(new CodeIssue(marker, title, start, end, fixes));
 		}
 	}
 }

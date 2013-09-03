@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Empty destructor is redundant",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "EmptyDestructor"
 	                   )]
 	public class EmptyDestructorIssue : GatherVisitorCodeIssueProvider
@@ -56,6 +55,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (IsEmpty (destructorDeclaration.Body)) {
 					AddIssue(destructorDeclaration.NameToken,
+					         IssueMarker.GrayOut,
 					         ctx.TranslateString("Empty destructor is redundant"),
 					         GetFixAction(destructorDeclaration));
 				}

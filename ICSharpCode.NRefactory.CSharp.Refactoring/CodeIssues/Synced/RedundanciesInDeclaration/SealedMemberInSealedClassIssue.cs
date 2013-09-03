@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "'sealed' modifier is redundant in sealed classes",
 	                  Category = IssueCategories.RedundanciesInDeclarations,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "SealedMemberInSealedClass")]
 	public class SealedMemberInSealedClassIssue : GatherVisitorCodeIssueProvider
 	{
@@ -62,11 +61,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (token.Modifier == Modifiers.Sealed) {
 						AddIssue(
 							token, 
+							IssueMarker.GrayOut,
 							ctx.TranslateString("Keyword 'sealed' is redundant in sealed classes."), 
 							ctx.TranslateString("Remove redundant 'sealed' modifier"), 
-							script => {
-								script.ChangeModifier (node, node.Modifiers & ~Modifiers.Sealed);
-							}
+							script => script.ChangeModifier(node, node.Modifiers & ~Modifiers.Sealed)
 						);
 					}
 				}

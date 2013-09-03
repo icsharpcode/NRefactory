@@ -37,7 +37,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "A member doesn't use 'this' object neither explicit nor implicit. It can be made static.",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine,
 	                  ResharperDisableKeyword = "MemberCanBeMadeStatic.Local"
 	                  )]
 	[SubIssueAttribute(CommonSubIssues.PrivateMember)]
@@ -108,6 +107,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				
 				AddIssue(methodDeclaration.NameToken.StartLocation, methodDeclaration.NameToken.EndLocation,
+				         IssueMarker.DottedLine,
 				         string.Format(context.TranslateString("Method '{0}' can be made static."), methodDeclaration.Name),
 				         string.Format(context.TranslateString("Make '{0}' static"), methodDeclaration.Name),
 				         script => script.ChangeModifier(methodDeclaration, methodDeclaration.Modifiers | Modifiers.Static));
@@ -145,6 +145,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				AddIssue(propertyDeclaration.NameToken.StartLocation, propertyDeclaration.NameToken.EndLocation,
+				         IssueMarker.DottedLine,
 				         string.Format(ctx.TranslateString("Property '{0}' can be made static."), propertyDeclaration.Name),
 				         string.Format(ctx.TranslateString("Make '{0}' static"), propertyDeclaration.Name),
 				         script => script.ChangeModifier(propertyDeclaration, propertyDeclaration.Modifiers | Modifiers.Static));
@@ -175,6 +176,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				AddIssue(eventDeclaration.NameToken.StartLocation, eventDeclaration.NameToken.EndLocation,
+				         IssueMarker.DottedLine,
 				         string.Format(ctx.TranslateString("Event '{0}' can be made static."), eventDeclaration.Name),
 				         string.Format(ctx.TranslateString("Make '{0}' static"), eventDeclaration.Name),
 				         script => script.ChangeModifier(eventDeclaration, eventDeclaration.Modifiers | Modifiers.Static));

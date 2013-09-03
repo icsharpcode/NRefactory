@@ -38,7 +38,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Type parameter is never used.",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.GrayOut,
                        ResharperDisableKeyword = "UnusedTypeParameter")]
 	public class UnusedTypeParameterIssue : GatherVisitorCodeIssueProvider
 	{
@@ -93,7 +92,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (FindUsage (ctx, unit, typeParameter, decl))
 					return;
 
-				AddIssue (decl.NameToken, ctx.TranslateString ("Type parameter is never used"));
+				AddIssue (decl.NameToken, IssueMarker.GrayOut, ctx.TranslateString ("Type parameter is never used"));
 			}
 		}
 	}

@@ -384,7 +384,6 @@
     <Compile Include="CSharp\CodeIssues\RedundantToStringCallIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CallToObjectEqualsViaBaseTests.cs" />
     <Compile Include="CSharp\CodeIssues\IncorrectCallToGetHashCodeTests.cs" />
-    <Compile Include="CSharp\CodeIssues\FormatStringIssues\FormatStringTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertToInitializer\ConvertInitializerToExplicitIntializationsTests.cs" />
     <Compile Include="CSharp\CodeCompletion\BrowsableAttributeTests.cs" />
     <Compile Include="CSharp\CodeIssues\ExceptionRethrowTests.cs" />
@@ -571,6 +570,8 @@
     <Compile Include="CSharp\CodeActions\ReplaceWithOperatorAssignmentActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\OperatorIsCanBeUsedIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantStringFormatArgumentIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\FormatStringProblemIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

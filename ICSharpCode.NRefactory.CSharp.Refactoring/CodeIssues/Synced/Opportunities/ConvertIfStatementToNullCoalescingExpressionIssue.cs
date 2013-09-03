@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Convert 'if' to '??'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine,
 	                  ActionProvider = typeof(ConvertIfStatementToNullCoalescingExpressionAction),
 	                  ResharperDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
 	public class ConvertIfStatementToNullCoalescingExpressionIssue : GatherVisitorCodeIssueProvider
@@ -67,6 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				AddIssue(
 					ifElseStatement.IfToken,
+					IssueMarker.DottedLine,
 					ctx.TranslateString("Convert to '??' expresssion"));
 			}
 		}

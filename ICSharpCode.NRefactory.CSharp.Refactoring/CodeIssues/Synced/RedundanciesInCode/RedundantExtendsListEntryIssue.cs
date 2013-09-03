@@ -38,7 +38,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Type is either mentioned in the base type list of another part or in another base type",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantExtendsListEntry")]
 	public class RedundantExtendsListEntryIssue : GatherVisitorCodeIssueProvider
 	{
@@ -124,6 +123,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					AddIssue(
 						node,
+						IssueMarker.GrayOut,
 						string.Format(issueText, nodeType.Name), 
 						new CodeAction (
 							ctx.TranslateString("Remove redundant base type reference"),

@@ -31,12 +31,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Redundant field initializer",
-						Description = "Initializing field with default value is redundant.",
+	[IssueDescription("Redundant field initializer",
+	                   Description = "Initializing field with default value is redundant.",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
-						Severity = Severity.Hint,
-						IssueMarker = IssueMarker.GrayOut,
-                        ResharperDisableKeyword = "RedundantDefaultFieldInitializer")]
+	                   Severity = Severity.Hint,
+	                   ResharperDisableKeyword = "RedundantDefaultFieldInitializer")]
 	public class RedundantDefaultFieldInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -65,10 +64,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (!defaultValueExpr.Match(variable.Initializer).Success)
 						continue;
 
-					AddIssue(variable.Initializer, ctx.TranslateString("Initializing field by default value is redundant"),
-					          new CodeAction(ctx.TranslateString("Remove field initializer"),
-					                                  script => script.Replace(variable, new VariableInitializer(variable.Name)),
-					                                  variable.Initializer));
+					AddIssue(variable.Initializer, IssueMarker.GrayOut, ctx.TranslateString("Initializing field by default value is redundant"),
+					         new CodeAction(ctx.TranslateString("Remove field initializer"),
+					                         script => script.Replace(variable, new VariableInitializer(variable.Name)),
+					                         variable.Initializer));
 				}
 			}
 
@@ -96,21 +95,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							return new PrimitiveExpression(0);
 
 						case KnownTypeCode.Int64:
-							return new Choice { new PrimitiveExpression (0), new PrimitiveExpression (0L) };
+							return new Choice { new PrimitiveExpression(0), new PrimitiveExpression(0L) };
 						case KnownTypeCode.UInt32:
-							return new Choice { new PrimitiveExpression (0), new PrimitiveExpression (0U) };
+							return new Choice { new PrimitiveExpression(0), new PrimitiveExpression(0U) };
 						case KnownTypeCode.UInt64:
 							return new Choice {
-								new PrimitiveExpression (0), new PrimitiveExpression (0U), new PrimitiveExpression (0UL)
+								new PrimitiveExpression(0), new PrimitiveExpression(0U), new PrimitiveExpression(0UL)
 							};
 						case KnownTypeCode.Single:
-							return new Choice { new PrimitiveExpression (0), new PrimitiveExpression (0F) };
+							return new Choice { new PrimitiveExpression(0), new PrimitiveExpression(0F) };
 						case KnownTypeCode.Double:
 							return new Choice {
-								new PrimitiveExpression (0), new PrimitiveExpression (0F), new PrimitiveExpression (0D)
+								new PrimitiveExpression(0), new PrimitiveExpression(0F), new PrimitiveExpression(0D)
 							};
 						case KnownTypeCode.Decimal:
-							return new Choice { new PrimitiveExpression (0), new PrimitiveExpression (0M) };
+							return new Choice { new PrimitiveExpression(0), new PrimitiveExpression(0M) };
 
 						case KnownTypeCode.NullableOfT:
 							return new NullReferenceExpression();

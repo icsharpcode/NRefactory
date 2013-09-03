@@ -37,7 +37,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Redundant lambda signature parentheses",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantLambdaSignatureParentheses")]
 	public class RedundantLambdaSignatureParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
@@ -71,8 +70,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var issueText = ctx.TranslateString("Redundant lambda signature parentheses");
 				var fixText = ctx.TranslateString("Remove signature parentheses");
-				AddIssue(lambdaExpression.LParToken, issueText, fixText, action);
-				AddIssue(lambdaExpression.RParToken, issueText, fixText, action);
+				AddIssue(lambdaExpression.LParToken, IssueMarker.GrayOut, issueText, fixText, action);
+				AddIssue(lambdaExpression.RParToken, IssueMarker.GrayOut, issueText, fixText, action);
 			}
 		}
 	}

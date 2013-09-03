@@ -34,7 +34,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "'params' is ignored on overrides",
 	                  Category = IssueCategories.RedundanciesInDeclarations,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantParams")]
 	public class RedundantParamsIssue : GatherVisitorCodeIssueProvider
 	{
@@ -67,6 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				AddIssue(
 					lastParam.GetChildByRole(ParameterDeclaration.ParamsModifierRole),
+					IssueMarker.GrayOut,
 					ctx.TranslateString("'params' is always ignored in overrides"),
 					ctx.TranslateString("Remove 'params' modifier"),
 					script => {

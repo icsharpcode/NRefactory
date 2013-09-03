@@ -33,8 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Convert 'if' to 'switch'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
-	                  ActionProvider = typeof(ConvertIfStatementToSwitchStatementAction),
-	                  IssueMarker = IssueMarker.DottedLine)]
+	                  ActionProvider = typeof(ConvertIfStatementToSwitchStatementAction))]
 	public class ConvertIfStatementToSwitchStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -67,6 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				AddIssue(
 					ifElseStatement.IfToken,
+					IssueMarker.DottedLine,
 					ctx.TranslateString("Convert to 'switch' statement"));
 
 			}

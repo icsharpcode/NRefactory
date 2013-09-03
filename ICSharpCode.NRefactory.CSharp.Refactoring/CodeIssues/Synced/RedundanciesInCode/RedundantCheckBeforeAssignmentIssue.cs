@@ -36,7 +36,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Check for inequality before assignment is redundant if (x != value) x = value;",
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.WavedLine, 
 	                   ResharperDisableKeyword = "RedundantCheckBeforeAssignment")]
 	public class RedundantCheckBeforeAssignmentIssue : GatherVisitorCodeIssueProvider
 	{

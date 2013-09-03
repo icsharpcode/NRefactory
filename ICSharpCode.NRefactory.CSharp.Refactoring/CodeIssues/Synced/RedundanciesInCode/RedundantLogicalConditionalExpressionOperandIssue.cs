@@ -38,7 +38,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Redundant operand in logical conditional expression",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantLogicalConditionalExpressionOperand")]
 	public class RedundantLogicalConditionalExpressionOperandIssue: GatherVisitorCodeIssueProvider
 	{
@@ -68,6 +67,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var expr = match.Get<Expression>("expr").Single();
 				AddIssue(
 					redundant,
+					IssueMarker.GrayOut,
 					ctx.TranslateString("Redundant operand in logical conditional expression"),
 					ctx.TranslateString("Remove expression"),
 					script => script.Replace(binaryOperatorExpression, expr.Clone())

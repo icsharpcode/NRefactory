@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Convert 'if' to '?:'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine,
 	                  ActionProvider = typeof(ConvertIfStatementToConditionalTernaryExpressionAction),
 	                  ResharperDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
 	public class ConvertIfStatementToConditionalTernaryExpressionIssue : GatherVisitorCodeIssueProvider
@@ -71,6 +70,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				AddIssue(
 					ifElseStatement.IfToken,
+					IssueMarker.DottedLine,
 					ctx.TranslateString("Convert to '?:' expression")
 				);
 			}

@@ -37,8 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("CS0029: Cannot implicitly convert type 'A' to 'B'.",
 	                  Description = "This error occurs when trying to assign a value of an incompatible type.",
 	                  Category = IssueCategories.CompilerErrors,
-	                  Severity = Severity.Error,
-	                  IssueMarker = IssueMarker.WavedLine)]
+	                  Severity = Severity.Error)]
 	public class CS0029InvalidConversionIssue : GatherVisitorCodeIssueProvider
 	{
 		// This class handles both
@@ -186,7 +185,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					}
 				}
-				AddIssue(expression, title, fixes);
+				AddIssue(expression, IssueMarker.WavedLine, title, fixes);
 			}
 		}
 	}

@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Convert to lambda with expression",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Suggestion,
-	                  IssueMarker = IssueMarker.WavedLine,
 	                  ResharperDisableKeyword = "ConvertToLambdaExpression")]
 	public class ConvertToLambdaExpressionIssue : GatherVisitorCodeIssueProvider
 	{

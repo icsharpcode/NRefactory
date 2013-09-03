@@ -40,7 +40,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Explicit type specification can be removed as it can be implicitly inferred",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantLambdaParameterType")]
 	public class RedundantLambdaParameterTypeIssue : GatherVisitorCodeIssueProvider
 	{
@@ -68,6 +67,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var argument in arguments) {
 					AddIssue(
 						argument.Type,
+						IssueMarker.GrayOut,
 						ctx.TranslateString("Redundant lambda explicit type specification"), 
 						ctx.TranslateString("Remove parameter type specification"),
 						script => {

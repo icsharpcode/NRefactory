@@ -317,8 +317,6 @@
     <Compile Include="CodeIssues\Uncategorized\ExplicitConversionInForEachIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExpressionIsNeverOfProvidedTypeIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\FormatStringIssues\FormatStringHelper.cs" />
-    <Compile Include="CodeIssues\Uncategorized\FormatStringIssues\FormatStringIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\IncorrectCallToObjectGetHashCodeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\MethodOverloadHidesOptionalParameterIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\MultipleEnumerationIssue.cs" />
@@ -400,6 +398,8 @@
     <Compile Include="CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\OperatorIsCanBeUsedIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\UseIsOperatorIssue.cs" />
+    <Compile Include="CodeIssues\Custom\RedundantStringFormatArgumentIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\FormatStringProblemIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

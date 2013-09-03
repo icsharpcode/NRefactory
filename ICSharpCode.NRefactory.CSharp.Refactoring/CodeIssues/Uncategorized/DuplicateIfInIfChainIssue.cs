@@ -34,7 +34,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "One Else-if was checked before so is not be true",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class DuplicateIfInIfChainIssue : GatherVisitorCodeIssueProvider
 	{
@@ -70,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                                                     script => RemoveRedundantIf(script, rightIf),
 						                            rightCondition);
 						
-						AddIssue(rightCondition,
+						AddIssue(rightCondition, IssueMarker.GrayOut,
 						         ctx.TranslateString(string.Format("The expression '{0}' is identical in the left branch",
 						                                  rightCondition)), action);
 						

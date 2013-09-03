@@ -34,7 +34,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Empty namespace declaration is redundant",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "EmptyNamespace")]
 	public class EmptyNamespaceIssue : GatherVisitorCodeIssueProvider
 	{
@@ -64,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (!hasContents) {
-					AddIssue(namespaceDeclaration.NamespaceToken, ctx.TranslateString("Empty namespace declaration is redundant"),
+					AddIssue(namespaceDeclaration.NamespaceToken, IssueMarker.GrayOut, ctx.TranslateString("Empty namespace declaration is redundant"),
 					         GetFixAction(namespaceDeclaration));
 				}
 			}

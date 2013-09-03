@@ -37,7 +37,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Description = "If two objects are equal then they must both have the same hash code",
 					Category = IssueCategories.CompilerErrors,
 					Severity = Severity.Warning,
-					IssueMarker = IssueMarker.WavedLine,
 					PragmaWarning = 1717,
 					ResharperDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorCodeIssueProvider

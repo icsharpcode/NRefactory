@@ -33,9 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	public class IssueDescriptionAttribute : System.Attribute
 	{
 		public string Title { get; private set;}
-		
 		public string Description { get; set; }
-		
 		public string Category { get; set; }
 
 		public string ResharperDisableKeyword { get; set; }
@@ -45,18 +43,14 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public Severity Severity { get; set; }
 
-		public IssueMarker IssueMarker { get; set; }
-
 		public Type ActionProvider { get; set; }
 
 		public IssueDescriptionAttribute (string title)
 		{
 			Title = title;
 			Severity = Severity.Suggestion;
-			IssueMarker = IssueMarker.WavedLine;
 		}
 	}
-
 
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 	public class SubIssueAttribute : System.Attribute

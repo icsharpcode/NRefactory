@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Code is unreachable",
 						Description = "Code is unreachable.",
 						Category = IssueCategories.RedundanciesInCode,
-						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.GrayOut)]
+						Severity = Severity.Warning)]
 	public class UnreachableCodeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -92,7 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					unreachableNodes.Add (unreachableExpr);
 
-					AddIssue (unreachableExpr, ctx.TranslateString ("Code is unreachable"), ctx.TranslateString ("Remove unreachable code"),
+					AddIssue (unreachableExpr, IssueMarker.GrayOut, ctx.TranslateString ("Code is unreachable"), ctx.TranslateString ("Remove unreachable code"),
 						script => script.Replace (conditionalExpression, resultExpr.Clone ()));
 				}
 				base.VisitConditionalExpression (conditionalExpression);
@@ -175,7 +174,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						script.InsertText(endOffset, Environment.NewLine + "*/");
 					}, collectedStatements.First().StartLocation, collectedStatements.Last().EndLocation);
 					var actions = new [] { removeAction, commentAction };
-					visitor.AddIssue (start, end, visitor.ctx.TranslateString ("Code is unreachable"), actions);
+					visitor.AddIssue (start, end, IssueMarker.GrayOut, visitor.ctx.TranslateString ("Code is unreachable"), actions);
 					return true;
 				}
 

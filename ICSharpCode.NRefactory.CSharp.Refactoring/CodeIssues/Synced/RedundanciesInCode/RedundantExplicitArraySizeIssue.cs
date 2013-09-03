@@ -36,7 +36,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Redundant explicit size in array creation",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.GrayOut,
 		ResharperDisableKeyword = "RedundantExplicitArraySize")]
 	public class RedundantExplicitArraySizeIssue : GatherVisitorCodeIssueProvider
 	{
@@ -66,6 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (arrayCreateExpression.Initializer.Elements.Count() == value) {
 					AddIssue(
 						arg,
+						IssueMarker.GrayOut,
 						ctx.TranslateString("Redundant explicit size in array creation"),
 						string.Format(ctx.TranslateString("Remove '{0}'"), arg),
 						s => { s.Remove(arg); }

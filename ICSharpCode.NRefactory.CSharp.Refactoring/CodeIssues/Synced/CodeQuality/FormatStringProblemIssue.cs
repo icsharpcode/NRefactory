@@ -32,18 +32,19 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Format string syntax error",
+	[IssueDescription("String formatting problems",
 	                  Description = "Finds issues with format strings.",
-	                  Category = IssueCategories.ConstraintViolations,
-	                  Severity = Severity.Error)]
-	public class FormatStringIssue : GatherVisitorCodeIssueProvider
+	                  Category = IssueCategories.CodeQualityIssues,
+	                  Severity = Severity.Warning,
+	                  ResharperDisableKeyword = "FormatStringProblem")]
+	public class FormatStringProblemIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 		
-		class GatherVisitor : GatherVisitorBase<FormatStringIssue>
+		class GatherVisitor : GatherVisitorBase<FormatStringProblemIssue>
 		{
 			readonly BaseRefactoringContext context;
 			

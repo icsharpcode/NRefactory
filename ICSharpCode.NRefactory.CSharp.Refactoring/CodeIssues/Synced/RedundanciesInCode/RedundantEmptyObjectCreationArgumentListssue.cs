@@ -32,7 +32,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "When object creation uses object or collection initializer, empty argument list is redundant.",
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "RedundantEmptyObjectCreationArgumentList")]
 	public class RedundantObjectCreationArgumentListIssue : GatherVisitorCodeIssueProvider
 	{
@@ -58,6 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				AddIssue(objectCreateExpression.LParToken.StartLocation, objectCreateExpression.RParToken.EndLocation,
+				         IssueMarker.GrayOut,
 				         ctx.TranslateString("Empty argument list is redundant"),
 				         ctx.TranslateString("Remove '()'"), script => {
 					var l1 = objectCreateExpression.LParToken.GetPrevNode().EndLocation;

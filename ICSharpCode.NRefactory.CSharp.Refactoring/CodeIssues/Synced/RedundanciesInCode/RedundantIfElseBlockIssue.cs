@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Redundant 'else' keyword.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantIfElseBlock")]
 	public class RedundantIfElseBlockIssue : GatherVisitorCodeIssueProvider
 	{
@@ -89,7 +88,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!ElseIsRedundantControlFlow(ifElseStatement) || HasConflictingNames(ifElseStatement.Parent, ifElseStatement.FalseStatement))
 					return;
 
-				AddIssue(ifElseStatement.ElseToken, ctx.TranslateString("Redundant 'else' keyword"), ctx.TranslateString("Remove redundant 'else'"), script =>  {
+				AddIssue(ifElseStatement.ElseToken, IssueMarker.GrayOut, ctx.TranslateString("Redundant 'else' keyword"), ctx.TranslateString("Remove redundant 'else'"), script =>  {
 					int start = script.GetCurrentOffset(ifElseStatement.ElseToken.GetPrevNode(n => !(n is NewLineNode)).EndLocation);
 					int end;
 					var blockStatement = ifElseStatement.FalseStatement as BlockStatement;

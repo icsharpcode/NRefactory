@@ -34,7 +34,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       Description = "Catch clause with a single 'throw' statement is redundant.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.GrayOut,
                       ResharperDisableKeyword = "RedundantCatchClause")]
 	public class RedundantCatchIssue : GatherVisitorCodeIssueProvider
 	{
@@ -88,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (redundantCatchClauses.Count > 1) {
 						actions.Add(removeAllRedundantClausesAction);
 					}
-					AddIssue(closureLocalCatchClause, redundantCatchClauseMessage, actions);
+					AddIssue(closureLocalCatchClause, IssueMarker.GrayOut, redundantCatchClauseMessage, actions);
 				}
 			}
 
@@ -121,7 +120,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var fixes = new [] {
 					removeTryStatementAction
 				};
-				AddIssue(tryCatchStatement.TryBlock.EndLocation, lastCatch.EndLocation, removeTryCatchMessage, fixes);
+				AddIssue(tryCatchStatement.TryBlock.EndLocation, lastCatch.EndLocation, IssueMarker.GrayOut, removeTryCatchMessage, fixes);
 			}
 
 			static bool IsThrowsClause (CatchClause catchClause)

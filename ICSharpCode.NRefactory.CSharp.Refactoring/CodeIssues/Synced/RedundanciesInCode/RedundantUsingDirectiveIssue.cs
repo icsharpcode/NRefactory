@@ -42,7 +42,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Using directive is not required and can safely be removed.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantUsingDirective"
 	                  )]
 	public class RedundantUsingDirectiveIssue : CodeIssueProvider
@@ -98,6 +97,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var decl in unused) {
 					AddIssue(
 						decl,
+						IssueMarker.GrayOut,
 						ctx.TranslateString("Using directive is not used by code and can be removed safely."), ctx.TranslateString("Remove redundant using directives"),
 						script => {
 						foreach (var u2 in unused) {

@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Redundant assignment",
 	                  Description = "Value assigned to a variable or parameter is not used in all execution path.",
 	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut)]
+	                  Severity = Severity.Warning)]
 	public class RedundantAssignmentIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -285,7 +284,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					}
 
-					AddIssue(grayOutNode, issueDescription, actionDescription, script => {
+					AddIssue(grayOutNode, IssueMarker.GrayOut, issueDescription, actionDescription, script => {
 						var variableNode = (VariableInitializer)node;
 						if (containsInvocations && isDeclareStatement) {
 							//add the column ';' that will be removed after the next line replacement
@@ -320,9 +319,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (assignmentExpr == null)
 					return;
 				if (assignmentExpr.Parent is ExpressionStatement) {
-					AddIssue(assignmentExpr.Parent, issueDescription, actionDescription, script => script.Remove(assignmentExpr.Parent));
+					AddIssue(assignmentExpr.Parent, IssueMarker.GrayOut, issueDescription, actionDescription, script => script.Remove(assignmentExpr.Parent));
 				} else {
-					AddIssue(assignmentExpr.Left.StartLocation, assignmentExpr.OperatorToken.EndLocation, issueDescription, actionDescription,
+					AddIssue(assignmentExpr.Left.StartLocation, assignmentExpr.OperatorToken.EndLocation, IssueMarker.GrayOut, issueDescription, actionDescription,
 					         script => script.Replace(assignmentExpr, assignmentExpr.Right.Clone()));
 				}
 			}

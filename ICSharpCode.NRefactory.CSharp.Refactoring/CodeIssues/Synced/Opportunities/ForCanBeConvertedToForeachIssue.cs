@@ -37,7 +37,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Foreach loops are more efficient",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Suggestion,
-	                  IssueMarker = IssueMarker.DottedLine,
 	                  ResharperDisableKeyword = "ForCanBeConvertedToForeach")]
 	public class ForCanBeConvertedToForeachIssue : GatherVisitorCodeIssueProvider
 	{
@@ -203,6 +202,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				AddIssue(
 					forStatement.ForToken,
+					IssueMarker.DottedLine,
 					ctx.TranslateString("'for' loop can be converted to 'foreach'"),
 					ctx.TranslateString("Convert to 'foreach'"),
 					script => {

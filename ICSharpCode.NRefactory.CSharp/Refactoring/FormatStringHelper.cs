@@ -31,9 +31,9 @@ using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
-	class FormatStringHelper
+	static class FormatStringHelper
 	{
-		static string[] parameterNames = { "format", "frmt", "fmt" };
+		static readonly string[] parameterNames = { "format", "frmt", "fmt" };
 		
 		public static bool TryGetFormattingParameters(CSharpInvocationResolveResult invocationResolveResult, InvocationExpression invocationExpression,
 		                                     		  out Expression formatArgument, out IList<Expression> arguments,

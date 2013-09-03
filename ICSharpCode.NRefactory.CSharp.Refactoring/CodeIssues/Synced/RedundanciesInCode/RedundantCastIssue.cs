@@ -38,7 +38,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "Type cast can be safely removed.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.GrayOut,
                         ResharperDisableKeyword = "RedundantCast")]
 	public class RedundantCastIssue : GatherVisitorCodeIssueProvider
 	{
@@ -126,7 +125,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					type = ((CastExpression)typeCastNode).Type;
 				else 
 					type = ((AsExpression)typeCastNode).Type;
-				AddIssue (start, end, ctx.TranslateString ("Type cast is redundant"), string.Format(ctx.TranslateString ("Remove cast to '{0}'"), type),
+				AddIssue (start, end, IssueMarker.GrayOut, ctx.TranslateString ("Type cast is redundant"), string.Format(ctx.TranslateString ("Remove cast to '{0}'"), type),
 				          script => script.Replace (outerTypeCastNode, expr.Clone ()));
 			}
 

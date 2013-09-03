@@ -37,7 +37,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Class is declared partial but has only one part",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "PartialTypeWithSinglePart")]
 	public class PartialTypeWithSinglePartIssue : GatherVisitorCodeIssueProvider
 	{
@@ -76,6 +75,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						child.AcceptVisitor(this);
 					}
 					AddIssue(partialModifierToken,
+					         IssueMarker.GrayOut,
 					         ctx.TranslateString("Partial class with single part"),
 					         GetFixAction(typeDeclaration, partialModifierToken));
 				}

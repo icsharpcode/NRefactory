@@ -1,5 +1,5 @@
 //
-// FormatStringIssueTests.cs
+// FormatStringProblemIssueTests.cs
 //
 // Author:
 //       Simon Lindgren <simon.n.lindgren@gmail.com>
@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class FormatStringTests : InspectionActionTestBase
+	public class FormatStringProblemIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TooFewArguments()
@@ -45,10 +45,11 @@ class TestClass
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
-		
+
+
 		[Test]
 		public void SupportsFixedArguments()
 		{
@@ -66,7 +67,7 @@ class TestClass
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 
@@ -83,7 +84,7 @@ class TestClass
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 
@@ -100,7 +101,7 @@ class TestClass
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
 		
@@ -117,7 +118,7 @@ class TestClass
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
 		
@@ -134,7 +135,7 @@ class TestClass
 }";
 
 			TestRefactoringContext context;
-			var issues = GetIssues(new FormatStringIssue(), input, out context);
+			var issues = GetIssues(new FormatStringProblemIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 		}
 			
@@ -151,7 +152,7 @@ class TestClass
 }";
 
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
 
@@ -168,7 +169,7 @@ class TestClass
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 
@@ -185,7 +186,7 @@ class TestClass
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 
@@ -202,7 +203,7 @@ class TestClass
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 		
@@ -219,7 +220,7 @@ class TestClass
 }";
 			
 			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringIssue (), input, out context);
+			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
 	}

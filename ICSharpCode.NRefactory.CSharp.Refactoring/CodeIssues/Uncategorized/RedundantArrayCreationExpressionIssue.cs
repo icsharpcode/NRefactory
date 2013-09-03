@@ -33,8 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-						ResharperDisableKeyword = "RedundantArrayCreationExpression",
-						IssueMarker = IssueMarker.GrayOut)]
+						ResharperDisableKeyword = "RedundantArrayCreationExpression")]
 	public class RedundantArrayCreationExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 
@@ -52,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			private void AddIssue(AstNode node, AstNode initializer)
 			{
-				AddIssue(node.StartLocation, initializer.StartLocation, ctx.TranslateString("Array creation expression can be replaced with initializer"), ctx.TranslateString("Use Array Initializer"),
+				AddIssue(node.StartLocation, initializer.StartLocation, IssueMarker.GrayOut, ctx.TranslateString("Array creation expression can be replaced with initializer"), ctx.TranslateString("Use Array Initializer"),
 				script =>
 				{
 					var startOffset = script.GetCurrentOffset(node.StartLocation);

@@ -38,7 +38,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Description = "Use 'var' keyword when possible",
 	       Category = IssueCategories.Opportunities,
 	       Severity = Severity.Hint,
-	       IssueMarker = IssueMarker.None,
 	       ActionProvider = typeof(UseVarKeywordAction),
            ResharperDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentIssue : GatherVisitorCodeIssueProvider
@@ -95,7 +94,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			void AddIssue(VariableDeclarationStatement variableDeclarationStatement)
 			{
-				AddIssue(variableDeclarationStatement.Type, ctx.TranslateString("Use 'var' keyword"));
+				AddIssue(variableDeclarationStatement.Type, IssueMarker.DottedLine, ctx.TranslateString("Use 'var' keyword"));
 			}
 		}
 	}

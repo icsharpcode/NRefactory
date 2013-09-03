@@ -34,7 +34,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Parameter has the same name as a member and hides it.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.WavedLine,
                        ResharperDisableKeyword = "ParameterHidesMember")]
     public class ParameterHidesMemberIssue : VariableHidesMemberIssue
 	{

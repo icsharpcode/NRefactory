@@ -1,5 +1,5 @@
 //
-// EmptyStatementIssue.cs
+// RedundantStringFormatArgumentIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,47 +23,42 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
-
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	[IssueDescription(
-		"Empty statement is redundant",
-		Description = "Empty statement is redundant",
-		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning,
-		ResharperDisableKeyword = "EmptyStatement")]
-	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
+	[TestFixture]
+	public class RedundantStringFormatArgumentIssueTests : InspectionActionTestBase
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		[Test]
+		public void TooManyArguments()
 		{
-			return new GatherVisitor(context);
+			TestIssue<RedundantStringFormatArgumentIssue>(@"
+class TestClass
+{
+	void Foo()
+	{
+		string.Format(""{0}"", 1, 2);
+	}
+}");
 		}
 
-		class GatherVisitor : GatherVisitorBase<EmptyStatementIssue>
-		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
-			{
-			}
 
-			public override void VisitEmptyStatement(EmptyStatement emptyStatement)
-			{
-				if (UseAsAndNullCheckAction.IsEmbeddedStatement(emptyStatement))
-					return;
-				if (emptyStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) is LabelStatement)
-					return;
-				AddIssue(
-					emptyStatement,
-					IssueMarker.GrayOut,
-					ctx.TranslateString("Empty statement is redundant"),
-					ctx.TranslateString("Remove ';'"),
-					s => s.Remove(emptyStatement)
-				);
-			}
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<RedundantStringFormatArgumentIssue>(@"
+class TestClass
+{
+	void Foo()
+	{
+		// ReSharper disable once FormatStringProblem
+		string.Format(""{0}"", 1, 2);
+	}
+}");
 		}
 	}
 }
+

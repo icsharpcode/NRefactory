@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Redundant explicit argument name specification",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Suggestion,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "RedundantArgumentName")]
 	public class RedundantArgumentNameIssue : GatherVisitorCodeIssueProvider
 	{
@@ -65,6 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						AddIssue(
 							na.NameToken.StartLocation,
 							na.ColonToken.EndLocation,
+							IssueMarker.GrayOut,
 							ctx.TranslateString("Redundant argument name specification"), 
 							ctx.TranslateString("Remove argument name specification"),
 							script => {

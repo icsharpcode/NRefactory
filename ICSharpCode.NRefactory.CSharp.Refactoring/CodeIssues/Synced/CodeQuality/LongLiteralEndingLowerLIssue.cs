@@ -33,7 +33,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Lowercase 'l' is often confused with '1'",
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.WavedLine,
 	                   ResharperDisableKeyword = "LongLiteralEndingLowerL")]
 	public class LongLiteralEndingLowerLIssue : GatherVisitorCodeIssueProvider
 	{

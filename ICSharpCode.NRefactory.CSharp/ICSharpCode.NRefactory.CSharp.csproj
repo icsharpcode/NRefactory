@@ -373,6 +373,7 @@
     <Compile Include="Analysis\DeclarationSpace\LocalDeclarationSpaceVisitor.cs" />
     <Compile Include="Refactoring\WordParser.cs" />
     <Compile Include="Refactoring\TypeGuessing.cs" />
+    <Compile Include="Refactoring\FormatStringHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

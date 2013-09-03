@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Anonymous method signature is not required",
 	                   Description = "Detects when no delegate parameter is used in the anonymous method body.",
 	                   Category = IssueCategories.RedundanciesInCode,
-	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut)]
+	                   Severity = Severity.Warning)]
 	public class UnusedAnonymousMethodSignatureIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -74,6 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				AddIssue(anonymousMethodExpression.LParToken.StartLocation,
 				         anonymousMethodExpression.RParToken.EndLocation,
+				         IssueMarker.GrayOut,
 				         ctx.TranslateString("Redundant parameter list (all parameters are unused)"),
 				         ctx.TranslateString("Remove delegate parameter list"),
 				         script => {

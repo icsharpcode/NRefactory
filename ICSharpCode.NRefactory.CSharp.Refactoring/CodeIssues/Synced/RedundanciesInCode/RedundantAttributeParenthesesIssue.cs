@@ -33,7 +33,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Parentheses are redundant if attribute has no arguments.",
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut,
 	                   ResharperDisableKeyword = "RedundantAttributeParentheses")]
 	public class RedundantAttributeParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
@@ -56,7 +55,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (attribute.Arguments.Count > 0 || !attribute.HasArgumentList)
 					return;
 
-				AddIssue (attribute.LParToken.StartLocation, attribute.RParToken.StartLocation, ctx.TranslateString ("Parentheses are redundant if attribute has no arguments"), ctx.TranslateString ("Remove '()'"), script =>
+				AddIssue (attribute.LParToken.StartLocation, attribute.RParToken.StartLocation, IssueMarker.GrayOut, ctx.TranslateString ("Parentheses are redundant if attribute has no arguments"), ctx.TranslateString ("Remove '()'"), script =>
 					script.Replace (attribute, new Attribute { Type = attribute.Type.Clone () }));
 			}
 		}

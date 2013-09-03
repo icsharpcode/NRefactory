@@ -34,8 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("'if' statement can be re-written as '&&' expression",
 	                  Description = "Convert 'if' to '&&' expression",
 	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine)]
+	                  Severity = Severity.Hint)]
 	public class ConvertIfToAndExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -83,6 +82,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var expr = match.Get<Expression>("condition").Single();
 						AddIssue(
 							ifElseStatement.IfToken,
+							IssueMarker.DottedLine,
 							ctx.TranslateString("Convert to '&&' expresssion"),
 							ctx.TranslateString("Replace with '&&'"),
 							script => {
@@ -107,6 +107,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var expr = match.Get<Expression>("condition").Single();
 						AddIssue(
 							ifElseStatement.IfToken,
+							IssueMarker.DottedLine,
 							ctx.TranslateString("Convert to '&=' expresssion"),
 							ctx.TranslateString("Replace with '&='"),
 							script => {

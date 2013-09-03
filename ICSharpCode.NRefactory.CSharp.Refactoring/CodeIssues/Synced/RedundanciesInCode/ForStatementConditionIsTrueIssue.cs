@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "true is redundant as for statement condition, thus can be safely ommited",
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut, 
 	                   ResharperDisableKeyword = "ForStatementConditionIsTrue")]
 	public class ForStatementConditionIsTrueIssue : GatherVisitorCodeIssueProvider
 	{
@@ -60,6 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (m.Success) {
 					AddIssue(
 						forstatement.Condition, 
+						IssueMarker.GrayOut,
 						ctx.TranslateString("'true' is redundant as for statement condition"), 
 						ctx.TranslateString("Remove 'true'"),
 						script => script.Remove(forstatement.Condition)
