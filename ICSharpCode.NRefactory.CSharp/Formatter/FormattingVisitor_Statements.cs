@@ -141,7 +141,10 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 			}
 			bool pushed = false;
-			if (policy.IndentBlocks && !(policy.AlignEmbeddedIfStatements && node is IfElseStatement && node.Parent is IfElseStatement || policy.AlignEmbeddedUsingStatements && node is UsingStatement && node.Parent is UsingStatement)) { 
+
+			if (policy.IndentBlocks && !(
+					policy.AlignEmbeddedIfStatements && node is IfElseStatement && node.Parent is IfElseStatement || 
+					policy.AlignEmbeddedUsingStatements && node is UsingStatement && node.Parent is UsingStatement)) { 
 				curIndent.Push(IndentType.Block);
 				pushed = true;
 			}
@@ -236,15 +239,17 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 					ForceSpacesBefore(node, policy.SpaceBeforeForSemicolon);
 					ForceSpacesAfter(node, policy.SpaceAfterForSemicolon);
+				} else if (node.Role == Roles.LPar) {
+					ForceSpacesBeforeRemoveNewLines(node, policy.SpaceBeforeForParentheses);
+					ForceSpacesAfter(node, policy.SpacesWithinForParentheses);
+				} else if (node.Role == Roles.RPar) {
+					ForceSpacesBeforeRemoveNewLines(node, policy.SpacesWithinForParentheses);
+				} else if (node.Role == Roles.EmbeddedStatement) {
+					FixEmbeddedStatment(policy.StatementBraceStyle, node);
+				} else {
+					node.AcceptVisitor(this); 
 				}
 			}
-
-			ForceSpacesBeforeRemoveNewLines(forStatement.LParToken, policy.SpaceBeforeForParentheses);
-
-			ForceSpacesAfter(forStatement.LParToken, policy.SpacesWithinForParentheses);
-			ForceSpacesBeforeRemoveNewLines(forStatement.RParToken, policy.SpacesWithinForParentheses);
-
-			FixEmbeddedStatment(policy.StatementBraceStyle, forStatement.EmbeddedStatement);
 		}
 
 		public override void VisitGotoStatement(GotoStatement gotoStatement)
@@ -400,7 +405,8 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			ForceSpacesBeforeRemoveNewLines(usingStatement.LParToken, policy.SpaceBeforeUsingParentheses);
 
-			ForceSpacesAfter(usingStatement.LParToken, policy.SpacesWithinUsingParentheses);
+			Align(usingStatement.LParToken, usingStatement.ResourceAcquisition, policy.SpacesWithinUsingParentheses);
+
 			ForceSpacesBeforeRemoveNewLines(usingStatement.RParToken, policy.SpacesWithinUsingParentheses);
 
 			FixEmbeddedStatment(policy.StatementBraceStyle, usingStatement.EmbeddedStatement);

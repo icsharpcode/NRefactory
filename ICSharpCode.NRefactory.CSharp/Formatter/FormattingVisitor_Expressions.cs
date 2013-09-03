@@ -680,20 +680,16 @@ namespace ICSharpCode.NRefactory.CSharp
 				case UnaryOperatorType.Any:
 					break;
 				case UnaryOperatorType.Not:
-					break;
 				case UnaryOperatorType.BitNot:
-					break;
 				case UnaryOperatorType.Minus:
-					break;
 				case UnaryOperatorType.Plus:
-					break;
 				case UnaryOperatorType.Increment:
-					break;
 				case UnaryOperatorType.Decrement:
+					ForceSpacesBeforeRemoveNewLines(unaryOperatorExpression.Expression, false);
 					break;
 				case UnaryOperatorType.PostIncrement:
-					break;
 				case UnaryOperatorType.PostDecrement:
+					ForceSpacesBeforeRemoveNewLines(unaryOperatorExpression.OperatorToken, false);
 					break;
 				case UnaryOperatorType.Dereference:
 					ForceSpacesAfter(unaryOperatorExpression.OperatorToken, policy.SpaceAfterUnsafeAsteriskOfOperator);
@@ -702,6 +698,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					ForceSpacesAfter(unaryOperatorExpression.OperatorToken, policy.SpaceAfterUnsafeAddressOfOperator);
 					break;
 				case UnaryOperatorType.Await:
+					ForceSpacesBeforeRemoveNewLines(unaryOperatorExpression.Expression, true);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();

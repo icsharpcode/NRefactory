@@ -258,7 +258,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
 	void Test ()
 	{
-		$using (var a = new A()) {
+		$using (var a = new A ()) {
 			Console.WriteLine (""Hello"");
 		}
 	}
@@ -266,7 +266,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
 	void Test ()
 	{
-		using (var a = new A())
+		using (var a = new A ())
 			Console.WriteLine (""Hello"");
 	}
 }");

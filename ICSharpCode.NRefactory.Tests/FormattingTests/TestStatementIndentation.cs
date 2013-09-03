@@ -359,6 +359,31 @@ for (;;) {
 		}
 
 		[Test]
+		public void TestForInitializerIteratorConditionFormatting ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono ();
+			Test (policy, @"
+class Test
+{
+	void Init ()
+	{
+		for (int i     =        12; i <           10; i               ++) {
+		}
+	}
+}", @"
+class Test
+{
+	void Init ()
+	{
+		for (int i = 12; i < 10; i++) {
+		}
+	}
+}");
+		}
+
+
+
+		[Test]
 		public void TestGotoIndentation()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
@@ -535,13 +560,13 @@ unsafe {
 			Test(policy, @"class Test {
 	Test TestMethod ()
 	{
-using (var o = new MyObj()) {
+using (var o = new MyObj ()) {
 }
 	}
 }", @"class Test {
 	Test TestMethod ()
 	{
-		using (var o = new MyObj()) {
+		using (var o = new MyObj ()) {
 		}
 	}
 }");
@@ -557,16 +582,16 @@ using (var o = new MyObj()) {
 			var adapter = Test(policy, @"class Test {
 	Test TestMethod ()
 	{
-using (var p = new MyObj())
-using (var o = new MyObj()) {
+using (var p = new MyObj ())
+using (var o = new MyObj ()) {
 }
 	}
 }",
 			                   @"class Test {
 	Test TestMethod ()
 	{
-		using (var p = new MyObj())
-		using (var o = new MyObj()) {
+		using (var p = new MyObj ())
+		using (var o = new MyObj ()) {
 		}
 	}
 }");
@@ -574,12 +599,37 @@ using (var o = new MyObj()) {
 			Continue(policy, adapter, @"class Test {
 	Test TestMethod ()
 	{
-		using (var p = new MyObj())
-			using (var o = new MyObj()) {
+		using (var p = new MyObj ())
+			using (var o = new MyObj ()) {
 			}
 	}
 }");
 		}
+
+		[Test]
+		public void TestUsingExpressionFormatting ()
+		{
+			var policy = FormattingOptionsFactory.CreateMono ();
+			Test (policy, @"
+class Test
+{
+	void Init ()
+	{
+		using (var o = new object(              )) {
+		}
+	}
+}", @"
+class Test
+{
+	void Init ()
+	{
+		using (var o = new object ()) {
+		}
+	}
+}");
+		}
+
+
 
 		[Test]
 		public void TestVariableDeclarationIndentation()
@@ -1386,7 +1436,7 @@ if (i == 2) {
 {
 	Test TestMethod ()
 	{
-		using (var e = new E())
+		using (var e = new E ())
 		{
 			;
 		}
@@ -1396,7 +1446,7 @@ if (i == 2) {
 {
 	Test TestMethod ()
 	{
-		using (var e = new E()) {
+		using (var e = new E ()) {
 			;
 		}
 	}
