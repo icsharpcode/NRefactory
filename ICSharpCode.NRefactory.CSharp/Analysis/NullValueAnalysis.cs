@@ -711,17 +711,24 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement, VariableStatusInfo data)
 			{
 				foreach (var variable in variableDeclarationStatement.Variables) {
-					if (variable.Initializer.IsNull) {
-						data = data.Clone();
-						data [variable.Name] = NullValueStatus.Unassigned;
-					} else {
-						var result = variable.Initializer.AcceptVisitor(this, data);
-						data = result.Variables.Clone();
-						data [variable.Name] = result.NullableReturnResult;
-					}
+					data = variable.AcceptVisitor(this, data).Variables;
 				}
 
 				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitVariableInitializer(VariableInitializer variableInitializer, VariableStatusInfo data)
+			{
+				if (variableInitializer.Initializer.IsNull) {
+					data = data.Clone();
+					data [variableInitializer.Name] = NullValueStatus.Unassigned;
+				} else {
+					var result = variableInitializer.Initializer.AcceptVisitor(this, data);
+					data = result.Variables.Clone();
+					data [variableInitializer.Name] = result.NullableReturnResult;
+				}
+
+				return VisitorResult.ForValue(data, data [variableInitializer.Name]);
 			}
 
 			public override VisitorResult VisitIfElseStatement(IfElseStatement ifElseStatement, VariableStatusInfo data)
@@ -769,6 +776,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitUsingStatement(UsingStatement usingStatement, VariableStatusInfo data)
 			{
 				return usingStatement.ResourceAcquisition.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitFixedStatement(FixedStatement fixedStatement, VariableStatusInfo data)
+			{
+				foreach (var variable in fixedStatement.Variables) {
+					data = variable.AcceptVisitor(this, data).Variables;
+				}
+
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
 
 			public override VisitorResult VisitSwitchStatement(SwitchStatement switchStatement, VariableStatusInfo data)

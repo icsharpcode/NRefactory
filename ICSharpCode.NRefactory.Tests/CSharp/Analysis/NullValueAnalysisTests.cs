@@ -926,6 +926,35 @@ class TestClass
 
 			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(content, "x"));
 		}
+
+		[Test]
+		public void TestFixed()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	unsafe void TestMethod()
+	{
+		int y = 0;
+		fixed (int* x = &y)
+		{
+			*x = 1;
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var fixedStatement = (FixedStatement)method.Body.Statements.Last();
+			var content = fixedStatement.EmbeddedStatement;
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(content, "x"));
+		}
 	}
 }
 
