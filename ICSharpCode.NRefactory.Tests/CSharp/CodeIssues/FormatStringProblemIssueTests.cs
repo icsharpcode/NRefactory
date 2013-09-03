@@ -153,7 +153,7 @@ class TestClass
 
 			TestRefactoringContext context;
 			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+			Assert.AreEqual (2, issues.Count);
 		}
 
 		[Test]

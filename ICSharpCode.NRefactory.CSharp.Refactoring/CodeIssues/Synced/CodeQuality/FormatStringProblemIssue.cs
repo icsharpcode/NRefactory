@@ -43,11 +43,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			return new GatherVisitor(context);
 		}
-		
+
 		class GatherVisitor : GatherVisitorBase<FormatStringProblemIssue>
 		{
 			readonly BaseRefactoringContext context;
-			
+
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
 				this.context = context;
@@ -81,8 +81,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var parsingResult = context.ParseFormatString(format);
 				CheckSegments(parsingResult.Segments, formatArgument.StartLocation, formatArguments, invocationExpression);
 
-				int maxIndex = parsingResult.Segments.OfType<FormatItem>().Max(s => s.Index);
-
+				int maxIndex = -1;
+				foreach (var item in parsingResult.Segments) {
+					var fi = item as FormatItem;
+					if (fi == null)
+						continue;
+					maxIndex = Math.Max(maxIndex, fi.Index);
+				}
 				foreach (var arg in invocationExpression.Arguments.Skip(maxIndex + 2)) {
 					AddIssue(arg, IssueMarker.GrayOut, ctx.TranslateString("Argument is not used in format string"));
 				}
