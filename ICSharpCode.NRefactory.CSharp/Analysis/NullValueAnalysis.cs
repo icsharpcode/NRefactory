@@ -711,17 +711,24 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement, VariableStatusInfo data)
 			{
 				foreach (var variable in variableDeclarationStatement.Variables) {
-					if (variable.Initializer.IsNull) {
-						data = data.Clone();
-						data [variable.Name] = NullValueStatus.Unassigned;
-					} else {
-						var result = variable.Initializer.AcceptVisitor(this, data);
-						data = result.Variables.Clone();
-						data [variable.Name] = result.NullableReturnResult;
-					}
+					data = variable.AcceptVisitor(this, data).Variables;
 				}
 
 				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitVariableInitializer(VariableInitializer variableInitializer, VariableStatusInfo data)
+			{
+				if (variableInitializer.Initializer.IsNull) {
+					data = data.Clone();
+					data [variableInitializer.Name] = NullValueStatus.Unassigned;
+				} else {
+					var result = variableInitializer.Initializer.AcceptVisitor(this, data);
+					data = result.Variables.Clone();
+					data [variableInitializer.Name] = result.NullableReturnResult;
+				}
+
+				return VisitorResult.ForValue(data, data [variableInitializer.Name]);
 			}
 
 			public override VisitorResult VisitIfElseStatement(IfElseStatement ifElseStatement, VariableStatusInfo data)
@@ -744,6 +751,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			{
 				//The initializers, the embedded statement and the iterators aren't visited here
 				//because they have their own CFG nodes.
+				if (forStatement.Condition.IsNull)
+					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 				return forStatement.Condition.AcceptVisitor(this, data);
 			}
 
@@ -767,6 +776,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitUsingStatement(UsingStatement usingStatement, VariableStatusInfo data)
 			{
 				return usingStatement.ResourceAcquisition.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitFixedStatement(FixedStatement fixedStatement, VariableStatusInfo data)
+			{
+				foreach (var variable in fixedStatement.Variables) {
+					data = variable.AcceptVisitor(this, data).Variables;
+				}
+
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
 
 			public override VisitorResult VisitSwitchStatement(SwitchStatement switchStatement, VariableStatusInfo data)
@@ -844,6 +862,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public override VisitorResult VisitThrowStatement(ThrowStatement throwStatement, VariableStatusInfo data)
 			{
+				if (throwStatement.Expression.IsNull)
+					return VisitorResult.ForValue(data, NullValueStatus.DefinitelyNotNull);
 				return throwStatement.Expression.AcceptVisitor(this, data);
 			}
 
@@ -855,6 +875,16 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitYieldReturnStatement(YieldReturnStatement yieldReturnStatement, VariableStatusInfo data)
 			{
 				return yieldReturnStatement.Expression.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitCheckedStatement(CheckedStatement checkedStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitUncheckedStatement(UncheckedStatement uncheckedStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
 
 			void RegisterExpressionResult(Expression expression, NullValueStatus expressionResult)
@@ -1381,11 +1411,30 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitAsExpression(AsExpression asExpression, VariableStatusInfo data)
 			{
 				var tentativeResult = asExpression.Expression.AcceptVisitor(this, data);
+
 				NullValueStatus result;
 				if (tentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
 					result = NullValueStatus.DefinitelyNull;
 				} else {
-					result = NullValueStatus.Unknown;
+					var asResolveResult = analysis.context.Resolve(asExpression) as CastResolveResult;
+					if (asResolveResult == null ||
+					    asResolveResult.IsError ||
+					    asResolveResult.Input.Type.Kind == TypeKind.Unknown ||
+					    asResolveResult.Type.Kind == TypeKind.Unknown) {
+
+						result = NullValueStatus.Unknown;
+					} else {
+						var conversion = new CSharpConversions(analysis.context.Compilation);
+						var foundConversion = conversion.ExplicitConversion(asResolveResult.Input.Type, asResolveResult.Type);
+
+						if (foundConversion == Conversion.None) {
+							result = NullValueStatus.DefinitelyNull;
+						} else if (foundConversion == Conversion.IdentityConversion) {
+							result = tentativeResult.NullableReturnResult;
+						} else {
+							result = NullValueStatus.PotentiallyNull;
+						}
+					}
 				}
 				return HandleExpressionResult(asExpression, tentativeResult.Variables, result);
 			}
