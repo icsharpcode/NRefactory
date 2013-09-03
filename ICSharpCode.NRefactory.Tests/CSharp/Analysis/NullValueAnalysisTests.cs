@@ -378,6 +378,40 @@ class TestClass
 		}
 
 		[Test]
+		public void TestAs()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+delegate void MyDelegate(string p1, out string p2);
+class TestClass
+{
+	void TestMethod(object o)
+	{
+		string p1 = o as string;
+		o = new object();
+		string p2 = o as string;
+		string p3 = typeof(string) as string;
+		o = null;
+		string p4 = o as string;
+		string p5 = """" as string;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var p5Statement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(p5Statement, "p1"));
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(p5Statement, "p2"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(p5Statement, "p3"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(p5Statement, "p4"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(p5Statement, "p5"));
+		}
+
+		[Test]
 		public void TestUncaptureVariable()
 		{
 			var parser = new CSharpParser();

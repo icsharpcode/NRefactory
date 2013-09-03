@@ -1411,11 +1411,30 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitAsExpression(AsExpression asExpression, VariableStatusInfo data)
 			{
 				var tentativeResult = asExpression.Expression.AcceptVisitor(this, data);
+
 				NullValueStatus result;
 				if (tentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
 					result = NullValueStatus.DefinitelyNull;
 				} else {
-					result = NullValueStatus.Unknown;
+					var asResolveResult = analysis.context.Resolve(asExpression) as CastResolveResult;
+					if (asResolveResult == null ||
+					    asResolveResult.IsError ||
+					    asResolveResult.Input.Type.Kind == TypeKind.Unknown ||
+					    asResolveResult.Type.Kind == TypeKind.Unknown) {
+
+						result = NullValueStatus.Unknown;
+					} else {
+						var conversion = new CSharpConversions(analysis.context.Compilation);
+						var foundConversion = conversion.ExplicitConversion(asResolveResult.Input.Type, asResolveResult.Type);
+
+						if (foundConversion == Conversion.None) {
+							result = NullValueStatus.DefinitelyNull;
+						} else if (foundConversion == Conversion.IdentityConversion) {
+							result = tentativeResult.NullableReturnResult;
+						} else {
+							result = NullValueStatus.PotentiallyNull;
+						}
+					}
 				}
 				return HandleExpressionResult(asExpression, tentativeResult.Variables, result);
 			}
