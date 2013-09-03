@@ -1712,7 +1712,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public override VisitorResult VisitQueryGroupClause(QueryGroupClause queryGroupClause, VariableStatusInfo data)
 			{
-				throw new NotImplementedException();
+				var projectionResult = queryGroupClause.Projection.AcceptVisitor(this, data);
+				data = projectionResult.Variables;
+				data = queryGroupClause.Key.AcceptVisitor(this, data).Variables;
+
+				return VisitorResult.ForEnumeratedValue(data, projectionResult.NullableReturnResult);
 			}
 		}
 	}
