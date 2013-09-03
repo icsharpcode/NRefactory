@@ -326,10 +326,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			if (type.IsReferenceType == null) {
 				return NullValueStatus.Error;
 			}
-			Console.WriteLine(IsParametersAreUninitialized);
-			if (!IsParametersAreUninitialized) {
+			if (!IsParametersAreUninitialized)
 				return NullValueStatus.DefinitelyNotNull;
-			}
 			return IsTypeNullable(type) ? NullValueStatus.PotentiallyNull : NullValueStatus.DefinitelyNotNull;
 		}
 
