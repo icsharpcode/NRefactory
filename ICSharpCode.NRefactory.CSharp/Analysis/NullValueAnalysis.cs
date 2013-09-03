@@ -867,6 +867,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
 
+			public override VisitorResult VisitUnsafeStatement(UnsafeStatement unsafeStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
 			public override VisitorResult VisitLockStatement(LockStatement lockStatement, VariableStatusInfo data)
 			{
 				//TODO: We know lock(null) is invalid
