@@ -81,15 +81,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var parsingResult = context.ParseFormatString(format);
 				CheckSegments(parsingResult.Segments, formatArgument.StartLocation, formatArguments, invocationExpression);
 
-				int maxIndex = -1;
+				var argUsed = new HashSet<int> ();
+
 				foreach (var item in parsingResult.Segments) {
 					var fi = item as FormatItem;
 					if (fi == null)
 						continue;
-					maxIndex = Math.Max(maxIndex, fi.Index);
+					argUsed.Add(fi.Index);
 				}
-				foreach (var arg in invocationExpression.Arguments.Skip(maxIndex + 2)) {
-					AddIssue(arg, IssueMarker.GrayOut, ctx.TranslateString("Argument is not used in format string"));
+				for (int i = 0; i < formatArguments.Count; i++) {
+					if (!argUsed.Contains(i)) {
+						AddIssue(formatArguments[i], IssueMarker.GrayOut, ctx.TranslateString("Argument is not used in format string"));
+					}
 				}
 			}
 

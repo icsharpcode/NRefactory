@@ -181,7 +181,7 @@ class TestClass
 {
 	void Foo()
 	{
-		string.Format(""{1}"", new object[] { ""arg0"", ""arg1"" });
+		string.Format(""{0} {1}"", new object[] { ""arg0"", ""arg1"" });
 	}
 }";
 			
@@ -238,6 +238,18 @@ class TestClass
 }");
 		}
 
+		[Test]
+		public void UnreferencedArgument()
+		{
+			TestIssue<FormatStringProblemIssue>(@"
+class TestClass
+{
+	void Foo()
+	{
+		string.Format(""{0} {2}"", 1, 2, 3);
+	}
+}");
+		}
 
 		[Test]
 		public void TestDisable()
