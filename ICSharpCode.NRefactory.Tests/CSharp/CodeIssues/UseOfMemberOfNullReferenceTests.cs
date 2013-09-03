@@ -222,5 +222,20 @@ class TestClass
 			Test<UseOfMemberOfNullReference> (input, 1);
 		}
 
+
+		
+		[Test]
+		public void TestParameter ()
+		{
+			TestWrongContext<UseOfMemberOfNullReference> (@"
+class TestClass
+{
+	void TestMethod(TestClass test) 
+	{
+		test.TestMethod(this);
+	}
+}");
+		}
+
 	}
 }

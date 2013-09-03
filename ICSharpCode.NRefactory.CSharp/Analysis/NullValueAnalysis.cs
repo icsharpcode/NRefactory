@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 	{
 		sealed class VariableStatusInfo : IEquatable<VariableStatusInfo>, IEnumerable<KeyValuePair<string, NullValueStatus>>
 		{
-			Dictionary<string, NullValueStatus> VariableStatus = new Dictionary<string, NullValueStatus>();
+			readonly Dictionary<string, NullValueStatus> VariableStatus = new Dictionary<string, NullValueStatus>();
 
 			public NullValueStatus this[string name]
 			{
@@ -265,16 +265,21 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 		readonly BaseRefactoringContext context;
 		readonly NullAnalysisVisitor visitor;
-		readonly List<NullAnalysisNode> allNodes;
+		List<NullAnalysisNode> allNodes;
 		readonly HashSet<PendingNode> nodesToVisit = new HashSet<PendingNode>();
-		readonly Dictionary<Statement, NullAnalysisNode> nodeBeforeStatementDict;
-		readonly Dictionary<Statement, NullAnalysisNode> nodeAfterStatementDict;
+		Dictionary<Statement, NullAnalysisNode> nodeBeforeStatementDict;
+		Dictionary<Statement, NullAnalysisNode> nodeAfterStatementDict;
 		readonly Dictionary<Expression, NullValueStatus> expressionResult = new Dictionary<Expression, NullValueStatus>();
 
 		public NullValueAnalysis(BaseRefactoringContext context, MethodDeclaration methodDeclaration, CancellationToken cancellationToken)
 			: this(context, methodDeclaration.Body, methodDeclaration.Parameters, cancellationToken)
 		{
 		}
+
+		readonly IEnumerable<ParameterDeclaration> parameters;
+		readonly Statement rootStatement;
+
+		readonly CancellationToken cancellationToken;
 
 		public NullValueAnalysis(BaseRefactoringContext context, Statement rootStatement, IEnumerable<ParameterDeclaration> parameters, CancellationToken cancellationToken)
 		{
@@ -284,24 +289,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				throw new ArgumentNullException("resolver");
 
 			this.context = context;
+			this.rootStatement = rootStatement;
+			this.parameters = parameters;
 			this.visitor = new NullAnalysisVisitor(this);
-
-			var cfgBuilder = new NullAnalysisGraphBuilder();
-			allNodes = cfgBuilder.BuildControlFlowGraph(rootStatement, cancellationToken).Cast<NullAnalysisNode>().ToList();
-			nodeBeforeStatementDict = allNodes.Where(node => node.Type == ControlFlowNodeType.StartNode || node.Type == ControlFlowNodeType.BetweenStatements)
-				.ToDictionary(node => node.NextStatement);
-			nodeAfterStatementDict = allNodes.Where(node => node.Type == ControlFlowNodeType.BetweenStatements || node.Type == ControlFlowNodeType.EndNode)
-				.ToDictionary(node => node.PreviousStatement);
-
-			foreach (var node in allNodes) {
-				if (node.Type == ControlFlowNodeType.StartNode && node.NextStatement == rootStatement) {
-					Debug.Assert(!nodesToVisit.Any());
-					
-					SetupNode(node, parameters);
-				}
-			}
-
-			VisitNodes();
+			this.cancellationToken = cancellationToken;
 		}
 
 		void SetupNode(NullAnalysisNode node, IEnumerable<ParameterDeclaration> parameters)
@@ -320,7 +311,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			return type.IsReferenceType == true || type.FullName == "System.Nullable";
 		}
 
-		static NullValueStatus GetInitialVariableStatus(ResolveResult resolveResult)
+		public bool IsParametersAreUninitialized {
+			get;
+			set;
+		}
+
+		NullValueStatus GetInitialVariableStatus(ResolveResult resolveResult)
 		{
 			var typeResolveResult = resolveResult as TypeResolveResult;
 			if (typeResolveResult == null) {
@@ -330,11 +326,30 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			if (type.IsReferenceType == null) {
 				return NullValueStatus.Error;
 			}
+			Console.WriteLine(IsParametersAreUninitialized);
+			if (!IsParametersAreUninitialized) {
+				return NullValueStatus.DefinitelyNotNull;
+			}
 			return IsTypeNullable(type) ? NullValueStatus.PotentiallyNull : NullValueStatus.DefinitelyNotNull;
 		}
 
-		void VisitNodes()
+		public void Analyze()
 		{
+			var cfgBuilder = new NullAnalysisGraphBuilder();
+			allNodes = cfgBuilder.BuildControlFlowGraph(rootStatement, cancellationToken).Cast<NullAnalysisNode>().ToList();
+			nodeBeforeStatementDict = allNodes.Where(node => node.Type == ControlFlowNodeType.StartNode || node.Type == ControlFlowNodeType.BetweenStatements)
+				.ToDictionary(node => node.NextStatement);
+			nodeAfterStatementDict = allNodes.Where(node => node.Type == ControlFlowNodeType.BetweenStatements || node.Type == ControlFlowNodeType.EndNode)
+				.ToDictionary(node => node.PreviousStatement);
+
+			foreach (var node in allNodes) {
+				if (node.Type == ControlFlowNodeType.StartNode && node.NextStatement == rootStatement) {
+					Debug.Assert(!nodesToVisit.Any());
+
+					SetupNode(node, parameters);
+				}
+			}
+
 			while (nodesToVisit.Any()) {
 				var nodeToVisit = nodesToVisit.First();
 				nodesToVisit.Remove(nodeToVisit);

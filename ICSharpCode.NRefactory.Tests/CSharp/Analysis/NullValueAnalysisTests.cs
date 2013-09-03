@@ -94,7 +94,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		static NullValueAnalysis CreateNullValueAnalysis(SyntaxTree tree, MethodDeclaration methodDeclaration, bool supportsCSharp5 = true)
 		{
 			var ctx = StubbedRefactoringContext.Create(tree, supportsCSharp5);
-			return new NullValueAnalysis(ctx, methodDeclaration, CancellationToken.None);
+			var analysis =  new NullValueAnalysis(ctx, methodDeclaration, CancellationToken.None) {
+				IsParametersAreUninitialized = true
+			};
+			analysis.Analyze();
+			return analysis;
 		}
 
 		static NullValueAnalysis CreateNullValueAnalysis(MethodDeclaration methodDeclaration)

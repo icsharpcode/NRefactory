@@ -100,6 +100,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				analysis = new NullValueAnalysis(ctx, parentFunction.GetChildByRole(Roles.Body), parentFunction.GetChildrenByRole(Roles.Parameter), ctx.CancellationToken);
+				analysis.Analyze();
 				cachedNullAnalysis [parentFunction] = analysis;
 				return analysis;
 			}
