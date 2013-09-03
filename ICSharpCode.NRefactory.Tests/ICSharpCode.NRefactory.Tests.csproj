@@ -570,7 +570,6 @@
     <Compile Include="CSharp\CodeActions\ReplaceWithOperatorAssignmentActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\OperatorIsCanBeUsedIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantStringFormatArgumentIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\FormatStringProblemIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>

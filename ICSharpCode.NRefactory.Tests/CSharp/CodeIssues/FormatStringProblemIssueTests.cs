@@ -223,6 +223,35 @@ class TestClass
 			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
 		}
+
+
+		[Test]
+		public void TooManyArguments()
+		{
+			TestIssue<FormatStringProblemIssue>(@"
+class TestClass
+{
+	void Foo()
+	{
+		string.Format(""{0}"", 1, 2);
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<FormatStringProblemIssue>(@"
+class TestClass
+{
+	void Foo()
+	{
+		// ReSharper disable once FormatStringProblem
+		string.Format(""{0}"", 1, 2);
+	}
+}");
+		}
 	}
 }
 

@@ -398,7 +398,6 @@
     <Compile Include="CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\OperatorIsCanBeUsedIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\UseIsOperatorIssue.cs" />
-    <Compile Include="CodeIssues\Custom\RedundantStringFormatArgumentIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\FormatStringProblemIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

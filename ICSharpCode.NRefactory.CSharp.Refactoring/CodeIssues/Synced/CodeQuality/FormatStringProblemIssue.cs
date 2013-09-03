@@ -80,6 +80,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var format = (string)primitiveArgument.Value;
 				var parsingResult = context.ParseFormatString(format);
 				CheckSegments(parsingResult.Segments, formatArgument.StartLocation, formatArguments, invocationExpression);
+
+				int maxIndex = parsingResult.Segments.OfType<FormatItem>().Max(s => s.Index);
+
+				foreach (var arg in invocationExpression.Arguments.Skip(maxIndex + 2)) {
+					AddIssue(arg, IssueMarker.GrayOut, ctx.TranslateString("Argument is not used in format string"));
+				}
 			}
 
 			void CheckSegments(IList<IFormatStringSegment> segments, TextLocation formatStart, IList<Expression> formatArguments, AstNode anchor)
