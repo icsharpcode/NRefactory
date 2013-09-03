@@ -744,6 +744,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			{
 				//The initializers, the embedded statement and the iterators aren't visited here
 				//because they have their own CFG nodes.
+				if (forStatement.Condition.IsNull)
+					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 				return forStatement.Condition.AcceptVisitor(this, data);
 			}
 
@@ -844,6 +846,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public override VisitorResult VisitThrowStatement(ThrowStatement throwStatement, VariableStatusInfo data)
 			{
+				if (throwStatement.Expression.IsNull)
+					return VisitorResult.ForValue(data, NullValueStatus.DefinitelyNotNull);
 				return throwStatement.Expression.AcceptVisitor(this, data);
 			}
 
@@ -855,6 +859,16 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public override VisitorResult VisitYieldReturnStatement(YieldReturnStatement yieldReturnStatement, VariableStatusInfo data)
 			{
 				return yieldReturnStatement.Expression.AcceptVisitor(this, data);
+			}
+
+			public override VisitorResult VisitCheckedStatement(CheckedStatement checkedStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+			}
+
+			public override VisitorResult VisitUncheckedStatement(UncheckedStatement uncheckedStatement, VariableStatusInfo data)
+			{
+				return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 			}
 
 			void RegisterExpressionResult(Expression expression, NullValueStatus expressionResult)
