@@ -111,6 +111,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			ContinuationIndent = 4;
 			WrapLineLength = 0;
 			EolMarker = Environment.NewLine;
+			IndentBlankLines = true;
 		}
 	}
 }

@@ -85,6 +85,7 @@
     <Compile Include="Analysis\AbiComparer.cs" />
     <Compile Include="Analysis\TypeGraph.cs" />
     <Compile Include="Analysis\TypeGraphNode.cs" />
+    <Compile Include="Completion\FrameworkLookup.cs" />
     <Compile Include="Documentation\DocumentationComment.cs" />
     <Compile Include="Documentation\GetPotentiallyNestedClassTypeReference.cs" />
     <Compile Include="Documentation\IDocumentationProvider.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Editor\IDocumentLine.cs" />
     <Compile Include="Editor\ISegment.cs" />
     <Compile Include="Editor\ITextAnchor.cs" />
+    <Compile Include="Editor\ITextPasteHandler.cs" />
     <Compile Include="Editor\ITextSource.cs" />
     <Compile Include="Editor\ReadOnlyDocument.cs" />
     <Compile Include="Editor\StringBuilderDocument.cs" />

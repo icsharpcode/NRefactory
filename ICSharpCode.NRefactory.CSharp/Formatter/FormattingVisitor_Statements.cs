@@ -57,7 +57,10 @@ namespace ICSharpCode.NRefactory.CSharp
 					// ignore
 				} else {
 					// pre processor directives at line start, if they are there.
-					if (child.StartLocation.Column > 1)
+					if (policy.IndentPreprocessorStatements) {
+						// TODO: leave the directive at block indent level
+					}
+					else if (child.StartLocation.Column > 1)
 						FixStatementIndentation(child.StartLocation);
 				}
 			});
@@ -331,7 +334,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			foreach (var stmt in switchSection.Statements) {
-				if (stmt is BreakStatement && !policy.IndentBreakStatements && policy.IndentCaseBody) {
+				if ((stmt is BreakStatement || stmt is ContinueStatement || stmt is ReturnStatement || stmt is GotoCaseStatement || stmt is GotoDefaultStatement) &&
+					!policy.IndentBreakStatements && policy.IndentCaseBody) 
+				{
 					curIndent.Pop();
 					FixStatementIndentation(stmt.StartLocation);
 					stmt.AcceptVisitor(this);

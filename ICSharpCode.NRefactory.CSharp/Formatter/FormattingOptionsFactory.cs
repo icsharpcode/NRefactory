@@ -58,6 +58,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				IndentSwitchBody = false,
 				IndentCaseBody = true,
 				IndentBreakStatements = true,
+				IndentPreprocessorStatements = false,
 				NamespaceBraceStyle = BraceStyle.NextLine,
 				ClassBraceStyle = BraceStyle.NextLine,
 				InterfaceBraceStyle = BraceStyle.NextLine,
@@ -67,6 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				ConstructorBraceStyle = BraceStyle.NextLine,
 				DestructorBraceStyle = BraceStyle.NextLine,
 				AnonymousMethodBraceStyle = BraceStyle.EndOfLine,
+				SwitchBraceStyle = BraceStyle.NextLine,
 	
 				PropertyBraceStyle = BraceStyle.EndOfLine,
 				PropertyGetBraceStyle = BraceStyle.EndOfLine,
@@ -220,6 +222,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				IndentSwitchBody = true,
 				IndentCaseBody = true,
 				IndentBreakStatements = true,
+				IndentPreprocessorStatements = false,
 
 				NamespaceBraceStyle = BraceStyle.NextLine,
 				ClassBraceStyle = BraceStyle.NextLine,
@@ -233,6 +236,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				PropertyBraceStyle = BraceStyle.EndOfLine,
 				PropertyGetBraceStyle = BraceStyle.EndOfLine,
 				PropertySetBraceStyle = BraceStyle.EndOfLine,
+				SwitchBraceStyle = BraceStyle.NextLine,
 				AllowPropertyGetBlockInline = true,
 				AllowPropertySetBlockInline = true,
 	
@@ -396,6 +400,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			baseOptions.PropertyBraceStyle = BraceStyle.NextLineShifted;
 			baseOptions.PropertyGetBraceStyle = BraceStyle.NextLineShifted;
 			baseOptions.PropertySetBraceStyle = BraceStyle.NextLineShifted;
+			baseOptions.SwitchBraceStyle = BraceStyle.NextLineShifted;
 	
 			baseOptions.EventBraceStyle = BraceStyle.NextLineShifted;
 			baseOptions.EventAddBraceStyle = BraceStyle.NextLineShifted;
