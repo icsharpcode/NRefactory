@@ -278,5 +278,29 @@ class Derived : Base
 }");
 		}
 
+		[Test]
+		public void TestEnumValue ()
+		{
+			Test<OptionalParameterHierarchyMismatchIssue>(@"
+enum FooBar { Foo, Bar }
+class Base
+{
+	public virtual void TestMethod(FooBar value = FooBar.Foo) {}
+}
+class Derived : Base
+{
+	public override void TestMethod(FooBar value) {}
+}", @"
+enum FooBar { Foo, Bar }
+class Base
+{
+	public virtual void TestMethod(FooBar value = FooBar.Foo) {}
+}
+class Derived : Base
+{
+	public override void TestMethod(FooBar value = FooBar.Foo) {}
+}");
+		}
+
 	}
 }
