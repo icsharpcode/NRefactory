@@ -96,7 +96,6 @@ class TestClass
 			TestWrongContext<UseOfMemberOfNullReference> (input);
 		}
 
-		[Ignore("fixme")]
 		[Test]
 		public void TestAs ()
 		{

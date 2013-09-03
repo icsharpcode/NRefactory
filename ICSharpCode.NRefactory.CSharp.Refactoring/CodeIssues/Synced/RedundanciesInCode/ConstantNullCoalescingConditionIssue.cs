@@ -40,7 +40,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Finds redundant null coalescing expressions such as expr ?? expr",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
 	                  ResharperDisableKeyword = "ConstantNullCoalescingCondition")]
 	public class ConstantNullCoalescingConditionIssue : GatherVisitorCodeIssueProvider
 	{
@@ -74,6 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (leftStatus == NullValueStatus.DefinitelyNotNull) {
 					AddIssue(binaryOperatorExpression.OperatorToken.StartLocation,
 					         binaryOperatorExpression.Right.EndLocation,
+					         IssueMarker.GrayOut,
 					         ctx.TranslateString("Redundant ??. Left side is never null."),
 					         ctx.TranslateString("Remove redundant right side"),
 					         script => {
