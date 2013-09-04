@@ -175,6 +175,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
+		public bool IndentPreprocessorStatements {
+			get;
+			set;
+		}
 		#endregion
 		
 		#region Braces
