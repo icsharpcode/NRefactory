@@ -943,5 +943,50 @@ class Foo
 ");
 		}
 
+		[Test]
+		public void TestIndentPreprocessorStatementsAdd()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+			policy.IndentPreprocessorStatements = true;
+			
+			Test(policy,
+			     @"class Test
+{
+#region DEBUG
+#endregion
+}", @"class Test
+{
+
+	#region DEBUG
+
+	#endregion
+
+}");
+		}
+	
+		[Test]
+		public void TestIndentPreprocessorStatementsRemove()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+			policy.IndentPreprocessorStatements = false;
+			
+			Test(policy,
+			     @"class Test
+{
+
+	#region DEBUG
+
+	#endregion
+
+}", @"class Test
+{
+
+#region DEBUG
+
+#endregion
+
+}");
+		}
+
 	}
 }
