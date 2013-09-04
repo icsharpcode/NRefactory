@@ -251,6 +251,22 @@ class TestClass
 }");
 		}
 
+		/// <summary>
+		/// Bug 14405 - Incorrect "argument not used in string format" warning
+		/// </summary>
+		[Test]
+		public void TestBug14405()
+		{
+			TestWrongContext<FormatStringProblemIssue>(@"
+using System;
+class TestClass
+{
+	void Foo()
+	{
+		DateTime.ParseExact(""expiresString"", ""s"", System.Globalization.CultureInfo.InvariantCulture);
+	}
+}");
+		}
 		[Test]
 		public void TestDisable()
 		{
