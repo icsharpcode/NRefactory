@@ -95,6 +95,13 @@ namespace ICSharpCode.NRefactory.CSharp
 			bool isNewLine = false, gotNewLine = false;
 			for (int i = 0; i < text.Length; i++) {
 				var ch = text [i];
+
+				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment) {
+					clonedEngine.Push(ch);
+					indentedText.Append(ch);
+					continue;
+				}
+
 				if (NewLine.GetDelimiterLength(ch, i + 1 < text.Length ? text [i + 1] : ' ') > 0) {
 					isNewLine = true;
 					if (gotNewLine)
@@ -112,6 +119,13 @@ namespace ICSharpCode.NRefactory.CSharp
 					curLine.Append(ch);
 				}
 				clonedEngine.Push(ch);
+				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment) {
+					if (gotNewLine)
+						indentedText.Append(clonedEngine.ThisLineIndent);
+					indentedText.Append(curLine);
+					curLine.Length = 0;
+					continue;
+				}
 			}
 			if (gotNewLine)
 				indentedText.Append(clonedEngine.ThisLineIndent);

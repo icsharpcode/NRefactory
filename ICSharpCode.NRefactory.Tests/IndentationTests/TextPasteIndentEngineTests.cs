@@ -133,6 +133,23 @@ class Foo
 			Assert.AreEqual("int i;\n\t", text);
 		}
 
+		[Test]
+		public void PasteVerbatimString()
+		{
+			var indent = CreateEngine(@"
+class Foo
+{
+void Bar ()
+{
+	
+}
+}");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
+			var str = "string str = @\"\n1\n\t2 \n\t\t3\n\";";
+			var text = handler.FormatPlainText(indent.Offset, str, null);
+			Assert.AreEqual(str, text);
+		}
+
 	}
 }
 
