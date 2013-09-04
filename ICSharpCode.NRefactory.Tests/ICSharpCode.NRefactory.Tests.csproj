@@ -577,6 +577,7 @@
     <Compile Include="IndentationTests\PreProcessorTests.cs" />
     <Compile Include="IndentationTests\StringTests.cs" />
     <Compile Include="IndentationTests\TextPasteIndentEngineTests.cs" />
+    <Compile Include="IndentationTests\AlignmentTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

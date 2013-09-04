@@ -1,5 +1,5 @@
-﻿//
-// AllInOneTests.cs
+//
+// AlignmentTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,68 +23,41 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-using ICSharpCode.NRefactory.CSharp;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp;
 
 namespace ICSharpCode.NRefactory.IndentationTests
 {
 	[TestFixture]
-	public class AllInOneTests
+	public class AlignmentTests
 	{
-		const string ProjectDir = "../../";
-		const string TestFilesPath = "ICSharpCode.NRefactory.Tests/IndentationTests/TestFiles";
-
-		public void BeginFileTest(string fileName, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
+		[Test]
+		public void MethodCallAlignment()
 		{
-			Helper.ReadAndTest(System.IO.Path.Combine(ProjectDir, TestFilesPath, fileName), policy, options);
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		Call(A,$", fmt);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
-		public void TestAllInOne_Simple()
+		public void IndexerAlignment()
 		{
-			BeginFileTest("Simple.cs");   
-		}
-
-		[Test]
-		public void TestAllInOne_PreProcessorDirectives()
-		{
-			BeginFileTest("PreProcessorDirectives.cs");
-		}
-
-		[Test]
-		public void TestAllInOne_Comments()
-		{
-			BeginFileTest("Comments.cs");
-		}
-
-		[Test]
-		public void TestAllInOne_Strings()
-		{
-			BeginFileTest("Strings.cs");
-		}
-
-		[Test]
-		public void TestAllInOne_IndentEngine()
-		{
-			BeginFileTest("IndentEngine.cs");
-		}
-
-		[Test]
-		public void TestAllInOne_IndentState()
-		{
-			BeginFileTest("IndentState.cs");
-		}
-
-		[Test]
-		public void TestAllInOne_SwitchCase()
-		{
-			var policy = FormattingOptionsFactory.CreateMono();
-			policy.IndentSwitchBody = true;
-			policy.IndentCaseBody = true;
-			policy.IndentBreakStatements = false;
-
-			BeginFileTest("SwitchCase.cs", policy);
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstIndexerArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+void Test ()
+{
+Call[A,$", fmt);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 	}
 }
+
