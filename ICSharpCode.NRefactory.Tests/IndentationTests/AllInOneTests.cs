@@ -46,6 +46,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			BeginFileTest("Simple.cs");   
 		}
 
+		[Ignore("FixMe")]
 		[Test]
 		public void TestAllInOne_PreProcessorDirectives()
 		{

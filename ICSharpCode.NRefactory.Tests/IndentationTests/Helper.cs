@@ -36,7 +36,11 @@ namespace ICSharpCode.NRefactory.IndentationTests
 	{
 		public static IDocumentIndentEngine CreateEngine(string text, CSharpFormattingOptions formatOptions = null)
 		{
-			var policy = formatOptions ?? FormattingOptionsFactory.CreateMono();
+			var policy = formatOptions;
+			if ( policy == null) {
+				policy = FormattingOptionsFactory.CreateMono();
+				policy.IndentPreprocessorStatements = false;
+			}
 
 			var sb = new StringBuilder();
 			int offset = 0;
