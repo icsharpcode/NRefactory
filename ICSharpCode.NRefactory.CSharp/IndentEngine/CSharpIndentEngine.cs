@@ -104,10 +104,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				// OPTION: IndentBlankLines
 				// remove the indentation of this line if isLineStart is true
-				if (!textEditorOptions.IndentBlankLines && isLineStart)
-				{
-					return string.Empty;
-				}
+//				if (!textEditorOptions.IndentBlankLines && isLineStart)
+//				{
+//					return string.Empty;
+//				}
 
 				return currentState.ThisLineIndent.IndentString;
 			}

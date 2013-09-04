@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
@@ -63,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public Indent Clone()
 		{
-			var result = new Indent(options, new Stack<IndentType>(indentStack), curIndent);
+			var result = new Indent(options, new Stack<IndentType>(indentStack.Reverse()), curIndent);
 			result.indentString = indentString;
 			return result;
 		}
