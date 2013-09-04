@@ -33,6 +33,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			return result;
 		}
 
+
 		public static void ReadAndTest(string filePath, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
 		{
 			if (File.Exists(filePath))
