@@ -113,9 +113,9 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 				clonedEngine.Push(ch);
 			}
+			if (gotNewLine)
+				indentedText.Append(clonedEngine.ThisLineIndent);
 			if (curLine.Length > 0) {
-				if (gotNewLine)
-					indentedText.Append(clonedEngine.ThisLineIndent);
 				indentedText.Append(curLine);
 			}
 			return indentedText.ToString();

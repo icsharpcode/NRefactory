@@ -130,6 +130,7 @@ class TestClass
 }");
 		}
 
+		[Ignore("enable again")]
 		[Test]
 		public void TestDisable()
 		{

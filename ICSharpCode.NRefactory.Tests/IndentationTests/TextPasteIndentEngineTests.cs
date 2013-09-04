@@ -76,21 +76,22 @@ class Foo
 		public void TestMultiLinePaste()
 		{
 			var indent = CreateEngine(@"
-class Foo
+namespace FooBar
 {
-void Bar ()
-{
-System.Console.WriteLine ();
+	class Foo
+	{
+		void Bar ()
+		{
+			System.Console.WriteLine ();
+		}
+		$
+	}
 }
-$
-}
-
-
 ");
 			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
 			
 			var text = handler.FormatPlainText(indent.Offset, "void Bar ()\n{\nSystem.Console.WriteLine ();\n}", null);
-			Assert.AreEqual("void Bar ()\n\t{\n\t\tSystem.Console.WriteLine ();\n\t}", text);
+			Assert.AreEqual("void Bar ()\n\t\t{\n\t\t\tSystem.Console.WriteLine ();\n\t\t}", text);
 		}
 
 		[Test]
@@ -115,6 +116,23 @@ $
 				Assert.AreEqual("void Bar ()\n\t{\n\t\tSystem.Console.WriteLine ();\n\t}", text);
 			}
 		}
+		
+
+		[Test]
+		public void TestPasteNewLine()
+		{
+			var indent = CreateEngine(@"
+class Foo
+{
+	$void Bar ()
+	{
+	}
+}");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
+			var text = handler.FormatPlainText(indent.Offset, "int i;\n", null);
+			Assert.AreEqual("int i;\n\t", text);
+		}
+
 	}
 }
 

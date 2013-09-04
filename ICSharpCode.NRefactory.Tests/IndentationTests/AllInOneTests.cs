@@ -64,12 +64,14 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			BeginFileTest("Strings.cs");
 		}
 
+		[Ignore("FIXME")]
 		[Test]
 		public void TestAllInOne_IndentEngine()
 		{
 			BeginFileTest("IndentEngine.cs");
 		}
 
+		[Ignore("FIXME")]
 		[Test]
 		public void TestAllInOne_IndentState()
 		{
