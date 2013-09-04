@@ -91,13 +91,14 @@ namespace ICSharpCode.NRefactory.CSharp
 			
 			var indentedText = new StringBuilder();
 			var curLine = new StringBuilder();
+			var clonedEngine = engine.Clone();
 			bool isNewLine = false, gotNewLine = false;
 			for (int i = 0; i < text.Length; i++) {
 				var ch = text [i];
 				if (NewLine.GetDelimiterLength(ch, i + 1 < text.Length ? text [i + 1] : ' ') > 0) {
 					isNewLine = true;
 					if (gotNewLine)
-						indentedText.Append(engine.ThisLineIndent);
+						indentedText.Append(clonedEngine.ThisLineIndent);
 					indentedText.Append(curLine);
 					indentedText.Append(textEditorOptions.EolMarker);
 					curLine.Length = 0;
@@ -110,11 +111,11 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 					curLine.Append(ch);
 				}
-				engine.Push(ch);
+				clonedEngine.Push(ch);
 			}
 			if (curLine.Length > 0) {
 				if (gotNewLine)
-					indentedText.Append(engine.ThisLineIndent);
+					indentedText.Append(clonedEngine.ThisLineIndent);
 				indentedText.Append(curLine);
 			}
 			return indentedText.ToString();
