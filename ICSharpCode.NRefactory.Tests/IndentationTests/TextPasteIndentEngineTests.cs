@@ -100,11 +100,11 @@ namespace FooBar
 			var indent = CreateEngine(@"
 class Foo
 {
-void Bar ()
-{
-System.Console.WriteLine ();
-}
-$
+	void Bar ()
+	{
+		System.Console.WriteLine ();
+	}
+	$
 }
 
 
@@ -131,6 +131,21 @@ class Foo
 			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
 			var text = handler.FormatPlainText(indent.Offset, "int i;\n", null);
 			Assert.AreEqual("int i;\n\t", text);
+		}
+
+		[Test]
+		public void TestPasteNewLineCase2()
+		{
+			var indent = CreateEngine(@"
+class Foo
+{
+$	void Bar ()
+	{
+	}
+}");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
+			var text = handler.FormatPlainText(indent.Offset, "int i;\n", null);
+			Assert.AreEqual("\tint i;\n", text);
 		}
 
 		[Test]

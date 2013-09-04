@@ -88,7 +88,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			} else if (engine.IsInsideVerbatimString) {
 				return TextPasteUtils.VerbatimStringStrategy.Encode(text);
 			}
-			
+			var line = engine.Document.GetLineByOffset(offset);
+			var pasteAtLineStart = line.Offset == offset;
 			var indentedText = new StringBuilder();
 			var curLine = new StringBuilder();
 			var clonedEngine = engine.Clone();
@@ -104,7 +105,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 				if (NewLine.GetDelimiterLength(ch, i + 1 < text.Length ? text [i + 1] : ' ') > 0) {
 					isNewLine = true;
-					if (gotNewLine)
+					if (gotNewLine || pasteAtLineStart)
 						indentedText.Append(clonedEngine.ThisLineIndent);
 					indentedText.Append(curLine);
 					indentedText.Append(textEditorOptions.EolMarker);
@@ -127,7 +128,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					continue;
 				}
 			}
-			if (gotNewLine)
+			if (gotNewLine && !pasteAtLineStart)
 				indentedText.Append(clonedEngine.ThisLineIndent);
 			if (curLine.Length > 0) {
 				indentedText.Append(curLine);
@@ -460,7 +461,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			#endregion
 
 			Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>> {
- { '\"', "\"\"" },
+				{ '\"', "\"\"" },
 			};
 
 			/// <inheritdoc />
