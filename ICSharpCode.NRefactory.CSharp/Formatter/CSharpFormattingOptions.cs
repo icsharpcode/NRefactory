@@ -175,7 +175,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
-		public bool IndentPreprocessorStatements {
+		public bool IndentPreprocessorDirectives { // tested
 			get;
 			set;
 		}

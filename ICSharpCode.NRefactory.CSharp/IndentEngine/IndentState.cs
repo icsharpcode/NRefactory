@@ -1114,7 +1114,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void InitializeState()
 		{
 			// OPTION: IndentPreprocessorStatements
-			if (Engine.formattingOptions.IndentPreprocessorStatements)
+			if (Engine.formattingOptions.IndentPreprocessorDirectives)
 			{
 				ThisLineIndent = Parent.ThisLineIndent.Clone();
 			}

@@ -482,7 +482,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			var directive = node as PreProcessorDirective;
 			if (node.GetPrevNode () is NewLineNode) {
-				if (directive != null && !policy.IndentPreprocessorStatements) {
+				if (directive != null && !policy.IndentPreprocessorDirectives) {
 					var startNode = node.GetPrevNode ();
 					var startOffset = document.GetOffset(startNode.EndLocation);
 					int endOffset = document.GetOffset(node.StartLocation);
@@ -500,7 +500,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				var startNode = node.GetPrevSibling(n => !(n is WhitespaceNode)) ?? node;
 				var startOffset = document.GetOffset(startNode.EndLocation);
 				int endOffset = document.GetOffset(node.StartLocation);
-				if (directive != null && !policy.IndentPreprocessorStatements) {
+				if (directive != null && !policy.IndentPreprocessorDirectives) {
 					AddChange(startOffset, endOffset - startOffset, "");
 					return;
 				}

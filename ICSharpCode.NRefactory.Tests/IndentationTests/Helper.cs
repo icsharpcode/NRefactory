@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			var policy = formatOptions;
 			if ( policy == null) {
 				policy = FormattingOptionsFactory.CreateMono();
-				policy.IndentPreprocessorStatements = false;
+				policy.IndentPreprocessorDirectives = false;
 			}
 
 			var sb = new StringBuilder();

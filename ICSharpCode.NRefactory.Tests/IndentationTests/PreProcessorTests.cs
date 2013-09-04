@@ -277,7 +277,7 @@ namespace Foo {
 		public void TestPreProcessor_IndentPreprocessor()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.IndentPreprocessorStatements = true;
+			policy.IndentPreprocessorDirectives = true;
 
 			var indent = Helper.CreateEngine(@"
 namespace Foo {

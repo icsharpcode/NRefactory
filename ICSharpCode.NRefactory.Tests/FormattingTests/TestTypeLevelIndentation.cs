@@ -947,7 +947,7 @@ class Foo
 		public void TestIndentPreprocessorStatementsAdd()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
-			policy.IndentPreprocessorStatements = true;
+			policy.IndentPreprocessorDirectives = true;
 			
 			Test(policy,
 			     @"class Test
@@ -968,7 +968,7 @@ class Foo
 		public void TestIndentPreprocessorStatementsRemove()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
-			policy.IndentPreprocessorStatements = false;
+			policy.IndentPreprocessorDirectives = false;
 			
 			Test(policy,
 			     @"class Test
