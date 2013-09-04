@@ -307,6 +307,19 @@ namespace ICSharpCode.NRefactory.CSharp
 				lParToken = methodDeclaration.LParToken;
 				rParToken = methodDeclaration.RParToken;
 				arguments = methodDeclaration.Parameters.Cast<AstNode>().ToList();
+			}  else if (node is ConstructorInitializer) {
+				var constructorInitializer = node as ConstructorInitializer;
+				methodCallArgumentWrapping = policy.MethodDeclarationParameterWrapping;
+				newLineAferMethodCallOpenParentheses = policy.NewLineAferMethodDeclarationOpenParentheses;
+				methodClosingParenthesesOnNewLine = policy.MethodDeclarationClosingParenthesesOnNewLine;
+				doAlignToFirstArgument = policy.AlignToFirstMethodDeclarationParameter;
+				spaceWithinMethodCallParentheses = policy.SpaceWithinMethodDeclarationParentheses;
+				spaceAfterMethodCallParameterComma = policy.SpaceAfterMethodDeclarationParameterComma;
+				spaceBeforeMethodCallParameterComma = policy.SpaceBeforeMethodDeclarationParameterComma;
+				spaceWithinEmptyParentheses = policy.SpaceBetweenEmptyMethodDeclarationParentheses;
+				lParToken = constructorInitializer.LParToken;
+				rParToken = constructorInitializer.RParToken;
+				arguments = constructorInitializer.Arguments.Cast<AstNode>().ToList();
 			} else {
 				InvocationExpression invocationExpression = node as InvocationExpression;
 				methodCallArgumentWrapping = policy.MethodCallArgumentWrapping;

@@ -900,5 +900,48 @@ set { test = value; } }
 }");
 		}
 
+		[Test]
+		public void TestConstructorInitializer()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			Test(policy, @"
+class Foo
+{
+	public Foo ():         base         (0)
+	{
+	}
+}
+", @"
+class Foo
+{
+	public Foo () : base (0)
+	{
+	}
+}
+");
+		}
+		[Test]
+		public void TestConstructorInitializerCase2()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			Test(policy, @"
+class Foo
+{
+public Foo ()         :
+base         (0)
+{
+}
+}
+", @"
+class Foo
+{
+	public Foo () :
+		base (0)
+	{
+	}
+}
+");
+		}
+
 	}
 }
