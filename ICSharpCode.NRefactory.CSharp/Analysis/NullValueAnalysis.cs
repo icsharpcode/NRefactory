@@ -360,6 +360,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 		void Visit(PendingNode nodeInfo)
 		{
+			cancellationToken.ThrowIfCancellationRequested();
+
 			var node = nodeInfo.nodeToVisit;
 			var statusInfo = nodeInfo.statusInfo;
 
