@@ -27,6 +27,8 @@
 using System;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -44,25 +46,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<ParameterHidesMemberIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
-				: base (ctx)
+			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
-			}
-
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				if (methodDeclaration.HasModifier(Modifiers.Abstract))
-					return;
-				base.VisitMethodDeclaration(methodDeclaration);
 			}
 
 			public override void VisitParameterDeclaration (ParameterDeclaration parameterDeclaration)
 			{
 				base.VisitParameterDeclaration (parameterDeclaration);
 
-				if (parameterDeclaration.Parent is ConstructorDeclaration)
+				var rr = ctx.Resolve(parameterDeclaration.Parent) as MemberResolveResult;
+				if (rr == null || rr.IsError)
 					return;
-			    IMember member;
+				var parent = rr.Member;
+				if (parent.SymbolKind == SymbolKind.Constructor || parent.ImplementedInterfaceMembers.Any ())
+					return;
+				if (parent.IsOverride || parent.IsAbstract || parent.IsPublic || parent.IsProtected)
+					return;
+					
+				IMember member;
                 if (HidesMember(ctx, parameterDeclaration, parameterDeclaration.Name, out member)) {
                     string msg;
                     switch (member.SymbolKind) {
