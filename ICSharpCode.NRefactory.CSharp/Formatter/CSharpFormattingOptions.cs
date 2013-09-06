@@ -179,6 +179,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			get;
 			set;
 		}
+
+		public bool AlignToMemberReferenceDot { // TODO!
+			get;
+			set;
+		}
 		#endregion
 		
 		#region Braces

@@ -427,7 +427,6 @@ namespace ICSharpCode.NRefactory.CSharp
 					NextLineIndent.ExtraSpaces = 0;
 					NextLineIndent.Push(IndentType.Continuation);
 				} else {
-					Console.WriteLine("2");
 					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 				}
 			}
@@ -591,7 +590,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				// only add continuation for 'else' in 'else if' statement.
 				if (!(statements[keyword] == Statement.If && CurrentStatement == Statement.Else))
 				{
-					NextLineIndent.Push(IndentType.Continuation);
+							NextLineIndent.Push(IndentType.Continuation);
 				}
 				CurrentStatement = statements[keyword];
 			}

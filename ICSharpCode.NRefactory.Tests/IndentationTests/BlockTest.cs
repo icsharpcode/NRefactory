@@ -403,8 +403,8 @@ class Foo {
 	void Test ()
 	{
 		var v = I.Where(i => i == ';')
-		         .Select(i => i); $");
-			Assert.AreEqual("\t\t         ", indent.ThisLineIndent);
+			.Select(i => i); $");
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
