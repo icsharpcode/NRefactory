@@ -61,7 +61,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr)) {
 					return;
 				}
-				if (switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)) <= 1)
+				System.Console.WriteLine(switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)));
+
+				if (switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)) <= 2)
 					return;
 
 				AddIssue(
