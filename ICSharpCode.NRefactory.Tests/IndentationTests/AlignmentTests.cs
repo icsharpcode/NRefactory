@@ -60,6 +60,25 @@ void Test ()
 Call[A,$", fmt);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
+
+		[Ignore("FIXME - important!")]
+		[Test]
+		public void BinaryExpressionAlignment()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstIndexerArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		public static bool IsComplexExpression(AstNode expr)
+		{
+			return expr.StartLocation.Line != expr.EndLocation.Line ||
+			       expr is ConditionalExpression ||$", fmt);
+			Assert.AreEqual("\t\t\t       ", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t       ", indent.NextLineIndent);
+		}
 	}
 }
 
