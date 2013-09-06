@@ -490,5 +490,23 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
+
+		[Ignore("FIXME")]
+		[Test]
+		public void TestBrackets_AnonymousMethodAsParameter()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		Foo (
+			a,
+			delegate {
+				evlel();
+				$
+");
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
 	}
 }
