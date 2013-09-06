@@ -162,6 +162,24 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+		[Test]
+		public void TestCastCase2 ()
+		{
+			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+{
+	void Bar (Foo o, Bar b)
+	{
+		IDisposable c = o == null ? (IDisposable)b : o;
+	}
+}", @"class Foo
+{
+	void Bar (Foo o, Bar b)
+	{
+		IDisposable c = (IDisposable)o ?? b;
+	}
+}");
+		}
+
 	}
 }
 
