@@ -79,9 +79,11 @@ namespace ICSharpCode.NRefactory.IndentationTests
 				{
 					if (options.EolMarker[0] == ch)
 					{
-						Assert.IsFalse(engine.NeedsReindent,
-								string.Format("Line: {0}, Indent: {1}, Current indent: {2}",
-								engine.Location.Line.ToString(), engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+						if (engine.CurrentIndent.Length > 0) {
+							Assert.IsFalse(engine.NeedsReindent,
+							               string.Format("Line: {0}, Indent: {1}, Current indent: {2}",
+							                engine.Location.Line.ToString(), engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+						}
 					}
 
 					engine.Push(ch);

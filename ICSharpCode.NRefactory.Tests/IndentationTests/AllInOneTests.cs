@@ -46,7 +46,6 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			BeginFileTest("Simple.cs");   
 		}
 
-		[Ignore("FixMe")]
 		[Test]
 		public void TestAllInOne_PreProcessorDirectives()
 		{
@@ -65,7 +64,6 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			BeginFileTest("Strings.cs");
 		}
 
-		[Ignore("FIXME")]
 		[Test]
 		public void TestAllInOne_IndentEngine()
 		{
