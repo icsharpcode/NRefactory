@@ -423,6 +423,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 			}
+			else if (ch == ',' && IsRightHandExpression)
+			{
+				NextLineIndent.ExtraSpaces = 0;
+				IsRightHandExpression = false;
+			}
 			else if (ch == Engine.newLineChar && NextLineIndent.ExtraSpaces > 0 &&
 					(Engine.previousChar == '=' || Engine.previousChar == '.'))
 			{

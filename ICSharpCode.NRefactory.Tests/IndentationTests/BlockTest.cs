@@ -472,5 +472,23 @@ void Test ()
 	$", fmt);
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 		}
+
+		[Test]
+		public void ThisLineIndentInCollectionInitializer()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		public static CSharpFormattingOptions CreateMono()
+		{
+			return new CSharpFormattingOptions {
+				IndentNamespaceBody = true,
+				IndentClassBody = true,
+				$
+");
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
 	}
 }
