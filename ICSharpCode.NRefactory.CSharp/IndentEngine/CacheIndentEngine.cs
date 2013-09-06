@@ -236,6 +236,28 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
+		public IStateMachineIndentEngine GetEngine(int offset)
+		{
+			// map the given offset to the [0, document.TextLength] interval
+			// using modulo arithmetics
+			offset %= Document.TextLength + 1;
+			if (offset < 0)
+			{
+				offset += Document.TextLength + 1;
+			}
+			
+			// check if the engine has to be updated to some previous offset
+			if (currentEngine.Offset > offset)
+			{
+				// replace the currentEngine with the first one whose offset
+				// is less then the given <paramref name="offset"/>
+				lastCachedEngine =  offset / cacheRate;
+				return cachedEngines[lastCachedEngine].Clone();
+			}
+			
+			return currentEngine;
+		}
+
 		#endregion
 
 		#region IClonable
