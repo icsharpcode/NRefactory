@@ -90,7 +90,23 @@ class Foo
 		var a = Call(A)
 			.Foo ()$", fmt);
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void MethodContinuationDeep()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		var a = Call(A)
+			.Foo ()
+			.Foo ()
+			.Foo ()$", fmt);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 		}
 	}
 }

@@ -1169,7 +1169,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				{
 					s = s.Substring(1);
 					bool val = pp_expr(ref s, false);
-					if (s.Length > 0 && s[0] == ')')
+					f (s.Length > 0 && s[0] == ')')
 					{
 						s = s.Substring(1);
 						return val;

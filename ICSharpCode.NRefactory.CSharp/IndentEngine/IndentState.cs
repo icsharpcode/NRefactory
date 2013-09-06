@@ -424,8 +424,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				if (Engine.previousChar == ')') {
 					ThisLineIndent.ExtraSpaces = 0;
 					ThisLineIndent.Push(IndentType.Continuation);
-					NextLineIndent.ExtraSpaces = 0;
-					NextLineIndent.Push(IndentType.Continuation);
 				} else {
 //					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 				}
