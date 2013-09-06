@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("'if' statement can be re-written as '?:' expression",
-	                  Description="Convert 'if' to '?:'",
+	                  Description = "Convert 'if' to '?:'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
 	                  ActionProvider = typeof(ConvertIfStatementToConditionalTernaryExpressionAction),
@@ -46,7 +46,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		public static bool IsComplexExpression(AstNode expr)
 		{
-			return expr.StartLocation.Line != expr.EndLocation.Line;
+			return expr.StartLocation.Line != expr.EndLocation.Line ||
+			expr is ConditionalExpression ||
+			expr is BinaryOperatorExpression;
 		}
 
 		public static bool IsComplexCondition(Expression expr)
@@ -68,18 +70,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var bop = expr as BinaryOperatorExpression;
 			if (bop == null)
 				return true;
-			return !(bop.Operator == BinaryOperatorType.GreaterThan || 
-			         bop.Operator == BinaryOperatorType.GreaterThanOrEqual ||
-			         bop.Operator == BinaryOperatorType.Equality ||
-			         bop.Operator == BinaryOperatorType.InEquality ||
-			         bop.Operator == BinaryOperatorType.LessThan ||
-			         bop.Operator == BinaryOperatorType.LessThanOrEqual);
+			return !(bop.Operator == BinaryOperatorType.GreaterThan ||
+			bop.Operator == BinaryOperatorType.GreaterThanOrEqual ||
+			bop.Operator == BinaryOperatorType.Equality ||
+			bop.Operator == BinaryOperatorType.InEquality ||
+			bop.Operator == BinaryOperatorType.LessThan ||
+			bop.Operator == BinaryOperatorType.LessThanOrEqual);
 		}
-
 
 		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToConditionalTernaryExpressionIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx) : base(ctx)
 			{
 			}
 

@@ -108,7 +108,9 @@
     <Compile Include="Ast\ErrorNode.cs" />
     <Compile Include="Ast\Expressions\AnonymousMethodExpression.cs" />
     <Compile Include="Ast\Expressions\AnonymousTypeCreateExpression.cs" />
-    <Compile Include="Ast\Expressions\ArrayCreateExpression.cs" />
+    <Compile Include="Ast\Expressions\ArrayCreateExpression.cs">
+      <DependentUpon>ArrayInitializerExpression.cs</DependentUpon>
+    </Compile>
     <Compile Include="Ast\Expressions\ArrayInitializerExpression.cs" />
     <Compile Include="Ast\Expressions\AsExpression.cs" />
     <Compile Include="Ast\Expressions\AssignmentExpression.cs" />

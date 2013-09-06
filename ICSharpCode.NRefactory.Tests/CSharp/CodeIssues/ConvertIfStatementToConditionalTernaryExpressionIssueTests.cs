@@ -142,6 +142,23 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+		[Test]
+		public void TestSkipAnnoyingCase1 ()
+		{
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+{
+	int Bar(string example)
+	{
+		if (!string.IsNullOrEmpty (example)) {
+			text = Environment.NewLine != ""\n"" ? example.Replace (""\n"", Environment.NewLine) : example;
+		} else {
+			text = """";
+		}
+	}
+}");
+		}
+		
+
 	}
 }
 
