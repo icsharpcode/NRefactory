@@ -538,6 +538,39 @@ namespace ICSharpCode.NRefactory.CSharp
 			Return
 		}
 
+		static readonly Dictionary<string, Body> blocks = new Dictionary<string, Body>
+		{
+			{ "namespace", Body.Namespace },
+			{ "class", Body.Class },
+			{ "struct", Body.Struct },
+			{ "interface", Body.Interface },
+			{ "enum", Body.Enum },
+			{ "switch", Body.Switch },
+		};
+		
+		static readonly Dictionary<string, Statement> statements = new Dictionary<string, Statement>
+		{
+			{ "if", Statement.If },
+			{ "else", Statement.Else },
+			{ "do", Statement.Do },
+			{ "while", Statement.While },
+			{ "for", Statement.For },
+			{ "foreach", Statement.Foreach },
+			{ "lock", Statement.Lock },
+			{ "using", Statement.Using },
+			{ "return", Statement.Return },
+		};
+
+		readonly string[] caseDefaultKeywords = {
+			"case",
+			"default"
+		};
+
+		readonly string[] classStructKeywords = {
+			"class",
+			"struct"
+		};
+
 		/// <summary>
 		///     Checks if the given string is a keyword and sets the
 		///     <see cref="NextBody"/> and the <see cref="CurrentStatement"/>
@@ -548,38 +581,15 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </param>
 		public override void CheckKeyword(string keyword)
 		{
-			var blocks = new Dictionary<string, Body>
-			{
-				{ "namespace", Body.Namespace },
-				{ "class", Body.Class },
-				{ "struct", Body.Struct },
-				{ "interface", Body.Interface },
-				{ "enum", Body.Enum },
-				{ "switch", Body.Switch },
-			};
-
-			var statements = new Dictionary<string, Statement>
-			{
-				{ "if", Statement.If },
-				{ "else", Statement.Else },
-				{ "do", Statement.Do },
-				{ "while", Statement.While },
-				{ "for", Statement.For },
-				{ "foreach", Statement.Foreach },
-				{ "lock", Statement.Lock },
-				{ "using", Statement.Using },
-				{ "return", Statement.Return },
-			};
-
 			if (blocks.ContainsKey(keyword))
 			{
-				var isKeywordTemplateConstraint = keyword == "class" || keyword == "struct";
+				var isKeywordTemplateConstraint = classStructKeywords.Contains (keyword);
 				if (!(isKeywordTemplateConstraint && (NextBody == Body.Class || NextBody == Body.Struct || NextBody == Body.Interface)))
 				{
 					NextBody = blocks[keyword];
 				}
 			}
-			else if (new string[] { "case", "default" }.Contains(keyword) && CurrentBody == Body.Switch)
+			else if (caseDefaultKeywords.Contains(keyword) && CurrentBody == Body.Switch)
 			{
 				ChangeState<SwitchCaseState>();
 			}
@@ -814,14 +824,25 @@ namespace ICSharpCode.NRefactory.CSharp
 				NextLineIndent.Push(IndentType.Empty);
 		}
 
+		static readonly string[] caseDefaultKeywords = {
+			"case",
+			"default"
+		};
+
+		static readonly string[] breakContinueReturnKeywords = {
+			"break",
+			"continue",
+			"return"
+		};
+
 		public override void CheckKeyword(string keyword)
 		{
-			if (new string[] { "case", "default" }.Contains(keyword))
+			if (caseDefaultKeywords.Contains(keyword))
 			{
 				ExitState();
 				ChangeState<SwitchCaseState>();
 			}
-			else if (new string[] { "break", "continue", "return" }.Contains(keyword))
+			else if (breakContinueReturnKeywords.Contains(keyword))
 			{
 				// OPTION: Engine.formattingOptions.IndentBreakStatements
 				if (!Engine.formattingOptions.IndentBreakStatements)
@@ -1136,6 +1157,22 @@ namespace ICSharpCode.NRefactory.CSharp
 			NextLineIndent = Parent.NextLineIndent.Clone();
 		}
 
+		static readonly Dictionary<string, PreProcessorDirective> preProcessorDirectives = new Dictionary<string, PreProcessorDirective>
+		{
+			{ "if", PreProcessorDirective.If },
+			{ "elif", PreProcessorDirective.If },
+			{ "else", PreProcessorDirective.Else },
+			{ "endif", PreProcessorDirective.Endif },
+			{ "region", PreProcessorDirective.Region },
+			{ "endregion", PreProcessorDirective.Region },
+			{ "pragma", PreProcessorDirective.Pragma },
+			{ "warning", PreProcessorDirective.Warning },
+			{ "error", PreProcessorDirective.Error },
+			{ "line", PreProcessorDirective.Line },
+			{ "define", PreProcessorDirective.Define },
+			{ "undef", PreProcessorDirective.Undef }
+		};
+
 		public override void CheckKeyword(string keyword)
 		{
 			// check if the directive type has already been set
@@ -1143,22 +1180,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				return;
 			}
-
-			var preProcessorDirectives = new Dictionary<string, PreProcessorDirective>
-			{
-				{ "if", PreProcessorDirective.If },
-				{ "elif", PreProcessorDirective.If },
-				{ "else", PreProcessorDirective.Else },
-				{ "endif", PreProcessorDirective.Endif },
-				{ "region", PreProcessorDirective.Region },
-				{ "endregion", PreProcessorDirective.Region },
-				{ "pragma", PreProcessorDirective.Pragma },
-				{ "warning", PreProcessorDirective.Warning },
-				{ "error", PreProcessorDirective.Error },
-				{ "line", PreProcessorDirective.Line },
-				{ "define", PreProcessorDirective.Define },
-				{ "undef", PreProcessorDirective.Undef }
-			};
 
 			if (preProcessorDirectives.ContainsKey(keyword))
 			{
