@@ -1369,7 +1369,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				var targetResult = invocationExpression.Target.AcceptVisitor(this, data);
 				if (targetResult.ThrowsException)
-					return targetResult;
+					return HandleExpressionResult(invocationExpression, targetResult);
 
 				data = targetResult.Variables;
 
@@ -1387,8 +1387,23 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 					var result = argument.AcceptVisitor(this, data);
 					if (result.ThrowsException)
-						return result;
+						return HandleExpressionResult(invocationExpression, result);
+
 					data = result.Variables;
+				}
+
+				var identifierExpression = CSharpUtil.GetInnerMostExpression(invocationExpression.Target) as IdentifierExpression;
+				if (identifierExpression != null) {
+					if (targetResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
+						return HandleExpressionResult(invocationExpression, VisitorResult.ForException(data));
+					}
+
+					var descendentIdentifiers = invocationExpression.Arguments.SelectMany(argument => argument.DescendantsAndSelf).OfType<IdentifierExpression>();
+					if (!descendentIdentifiers.Any(identifier => identifier.Identifier == identifierExpression.Identifier)) {
+						//TODO: We can make this check better (see VisitIndexerExpression for more details)
+						data = data.Clone();
+						analysis.SetLocalVariableValue(data, identifierExpression, NullValueStatus.DefinitelyNotNull);
+					}
 				}
 
 				//TODO: Some functions return non-nullable types
@@ -1416,7 +1431,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					if (memberResolveResult != null && memberResolveResult.Member.FullName != "System.Nullable.HasValue") {
 						var method = memberResolveResult.Member as IMethod;
 						if (method == null || !method.IsExtensionMethod) {
-							if (variables [targetIdentifier.Identifier] == NullValueStatus.DefinitelyNull) {
+							if (targetResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
 								return HandleExpressionResult(memberReferenceExpression, VisitorResult.ForException(variables));
 							}
 							if (variables [targetIdentifier.Identifier] != NullValueStatus.CapturedUnknown) {
@@ -1676,17 +1691,25 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					data = result.Variables.Clone();
 				}
 
-				IdentifierExpression targetAsIdentifier = indexerExpression.Target as IdentifierExpression;
+				IdentifierExpression targetAsIdentifier = CSharpUtil.GetInnerMostExpression(indexerExpression.Target) as IdentifierExpression;
 				if (targetAsIdentifier != null) {
-					if (data [targetAsIdentifier.Identifier] == NullValueStatus.DefinitelyNull)
+					if (tentativeResult.NullableReturnResult == NullValueStatus.DefinitelyNull)
 						return HandleExpressionResult(indexerExpression, VisitorResult.ForException(data));
 
 					//If this doesn't cause an exception, then the target is not null
-					analysis.SetLocalVariableValue(data, targetAsIdentifier, NullValueStatus.DefinitelyNotNull);
+					//But we won't set it if it has been changed
+					var descendentIdentifiers = indexerExpression.Arguments
+						.SelectMany(argument => argument.DescendantsAndSelf).OfType<IdentifierExpression>();
+					if (!descendentIdentifiers.Any(identifier => identifier.Identifier == targetAsIdentifier.Identifier)) {
+						//TODO: this check might be improved to include more legitimate cases
+						//A good check will necessarily have to consider captured variables
+						data = data.Clone();
+						analysis.SetLocalVariableValue(data, targetAsIdentifier, NullValueStatus.DefinitelyNotNull);
+					}
 				}
 
 				//TODO: Check for non-nullable array types (e.g. x[0] is never null if x is an int array)
-				return HandleExpressionResult(indexerExpression, tentativeResult.Variables, NullValueStatus.Unknown);
+				return HandleExpressionResult(indexerExpression, data, NullValueStatus.Unknown);
 			}
 
 			public override VisitorResult VisitBaseReferenceExpression(BaseReferenceExpression baseReferenceExpression, VariableStatusInfo data)

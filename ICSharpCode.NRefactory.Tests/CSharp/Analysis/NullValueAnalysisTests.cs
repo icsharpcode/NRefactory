@@ -1063,6 +1063,115 @@ class TestClass
 		}
 
 		[Test]
+		public void TestIndexer()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	int[] MaybeNull() { return null; }
+	void TestMethod()
+	{
+		int[] x = MaybeNull();
+		x[(x = null) != null ? 0 : 1] = 2;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = (ExpressionStatement) method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestIndexer2()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	int[] MaybeNull() { return null; }
+	void TestMethod()
+	{
+		int[] x = MaybeNull();
+		object o = null;
+		x[(x == null ? o = null : o = 1) != null ? 1 : 2] = 2;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = (ExpressionStatement) method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
+		}
+
+		[Test]
+		public void TestLocalInvocation()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		Action<int> x = i => {};
+		x((x = null) != null ? 1 : 0);
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestLocalInvocation2()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	Action<int> MaybeNull()
+	{
+		Action<int> x = i => {};
+		return x;
+	}
+	void TestMethod()
+	{
+		Action<int> x = MaybeNull();
+		object o = null;
+		x((x == null ? o = null : o = 1) == null ? 1 : 2);
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
+		}
+
+		[Test]
 		public void TestLinq()
 		{
 			var parser = new CSharpParser();
