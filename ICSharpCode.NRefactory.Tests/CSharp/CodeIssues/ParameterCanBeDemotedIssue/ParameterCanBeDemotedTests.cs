@@ -47,7 +47,7 @@ class B : A
 }
 class C
 {
-	void F(B b)
+	public void F(B b)
 	{
 		b.Foo();
 	}
@@ -69,7 +69,7 @@ class B : A
 }
 class C
 {
-	void F(A b)
+	public void F(A b)
 	{
 		b.Foo();
 	}
@@ -207,7 +207,7 @@ class B : IA
 }
 class C
 {
-	void F(B b)
+	public void F(B b)
 	{
 		b.Foo();
 	}
@@ -230,7 +230,7 @@ class B : IA
 }
 class C
 {
-	void F(IA b)
+	public void F(IA b)
 	{
 		b.Foo();
 	}
@@ -274,7 +274,7 @@ class B : IA1, IA2
 class C : B {}
 class Test
 {
-	void F(C c)
+	public void F(C c)
 	{
 		c.Foo();
 		c.Bar();
@@ -303,7 +303,7 @@ class B : IA1, IA2
 class C : B {}
 class Test
 {
-	void F(B c)
+	public void F(B c)
 	{
 		c.Foo();
 		c.Bar();
@@ -453,13 +453,13 @@ class Test
 			var input = baseInput + @"
 class Test
 {
-	void F(E e)
+	public void F(E e)
 	{
 		e.Foo();
 		DemandType(e);
 	}
 
-	void DemandType(D d)
+	public void DemandType(D d)
 	{
 	}
 }";
@@ -472,13 +472,13 @@ class Test
 			CheckFix(context, issues [0], baseInput + @"
 class Test
 {
-	void F(D e)
+	public void F(D e)
 	{
 		e.Foo();
 		DemandType(e);
 	}
 
-	void DemandType(D d)
+	public void DemandType(D d)
 	{
 	}
 }");
@@ -705,7 +705,7 @@ class TestBase
 }
 class Test : TestBase
 {
-	void F (Test t)
+	public void F (Test t)
 	{
 		t.Foo();
 	}
@@ -729,7 +729,7 @@ class TestBase
 }
 class Test : TestBase
 {
-	void F (TestBase t)
+	public void F (TestBase t)
 	{
 		t.Foo();
 	}
@@ -784,7 +784,7 @@ class TestBase : TestBaseBase
 }
 class Test : TestBase
 {
-	void F (Test t)
+	public void F (Test t)
 	{
 		t.Foo();
 	}
@@ -814,7 +814,7 @@ class TestBase : TestBaseBase
 }
 class Test : TestBase
 {
-	void F (TestBase t)
+	public void F (TestBase t)
 	{
 		t.Foo();
 	}
@@ -847,7 +847,7 @@ class TestBase : TestBaseBase
 }
 class Test : TestBase
 {
-	void F (Test t)
+	public void F (Test t)
 	{
 		t.Foo();
 	}
@@ -881,7 +881,7 @@ class TestBase : TestBaseBase
 }
 class Test : TestBase
 {
-	void F (TestBase t)
+	public void F (TestBase t)
 	{
 		t.Foo();
 	}
@@ -900,13 +900,13 @@ class Test : TestBase
 		{
 			Test<ParameterCanBeDemotedIssue>(@"class Test
 {
-	object Foo (object[] arr)
+	public object Foo (object[] arr)
 	{
 	    return arr [0];
 	}
 }", 1, @"class Test
 {
-	object Foo (System.Collections.IList arr)
+	public object Foo (System.Collections.IList arr)
 	{
 	    return arr [0];
 	}
@@ -918,13 +918,13 @@ class Test : TestBase
 		{
 			Test<ParameterCanBeDemotedIssue>(@"class Test
 {
-	int Foo (int[] arr)
+	public int Foo (int[] arr)
 	{
 	    return arr [0];
 	}
 }", 1, @"class Test
 {
-	int Foo (System.Collections.Generic.IList<int> arr)
+	public int Foo (System.Collections.Generic.IList<int> arr)
 	{
 	    return arr [0];
 	}
