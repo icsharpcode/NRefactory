@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				return new Task (() => {});
 			}
 			
-			public override Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, IEnumerable<AstNode> nodes)
+			public override Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, IList<AstNode> nodes)
 			{
 				EntityDeclaration entity = context.GetNode<EntityDeclaration>();
 				if (entity is Accessor) {
@@ -117,7 +117,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				return tcs.Task;
 			}
 
-			public override Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, IEnumerable<AstNode>> nodeCallback)
+			public override Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, IList<AstNode>> nodeCallback)
 			{
 				var unit = context.RootNode;
 				var insertType = unit.GetNodeAt<TypeDeclaration> (parentType.Region.Begin);
