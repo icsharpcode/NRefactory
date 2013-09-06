@@ -590,7 +590,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				foreach (var child in arrayInitializerExpression.Children) {
 					if (child.Role == Roles.LBrace) {
 						if (lBrace.StartLocation.Line == rBrace.StartLocation.Line && policy.AllowOneLinedArrayInitialziers) {
-							ForceSpaceBefore(child, true);
 							ForceSpacesAfter(child, true);
 						} else {
 							FixOpenBrace(policy.ArrayInitializerBraceStyle, child);

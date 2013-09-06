@@ -988,5 +988,38 @@ class Foo
 }");
 		}
 
+
+		[Test]
+		public void TestCollectionFieldInitializer ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+
+			Test(policy, 
+@"using System.Collections.Generic;
+
+class Foo
+{
+new Dictionary<int,int> o = new Dictionary<int,int> () { 
+		{1, 2 },
+	{1, 2 },
+				{1, 2 },
+		{1, 2 }
+				}; 
+}
+", 
+@"using System.Collections.Generic;
+
+class Foo
+{
+	new Dictionary<int,int> o = new Dictionary<int,int> () { 
+		{ 1, 2 },
+		{ 1, 2 },
+		{ 1, 2 },
+		{ 1, 2 }
+	};
+}
+");
+		}
+
 	}
 }
