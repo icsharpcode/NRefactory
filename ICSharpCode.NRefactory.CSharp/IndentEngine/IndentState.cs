@@ -866,7 +866,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
-			if (ch == Engine.newLineChar && Engine.previousChar == '(')
+			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstMethodCallArgument) && Engine.previousChar == '(')
 			{
 				NextLineIndent.ExtraSpaces = 0;
 				NextLineIndent.Push(IndentType.Continuation);
@@ -916,7 +916,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
-			if (ch == Engine.newLineChar && Engine.previousChar == '[')
+			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstIndexerArgument) && Engine.previousChar == '[')
 			{
 				NextLineIndent.ExtraSpaces = 0;
 				NextLineIndent.Push(IndentType.Continuation);

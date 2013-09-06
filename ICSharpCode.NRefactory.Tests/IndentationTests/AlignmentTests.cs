@@ -31,7 +31,6 @@ namespace ICSharpCode.NRefactory.IndentationTests
 	[TestFixture]
 	public class AlignmentTests
 	{
-		[Ignore("FIXME")]
 		[Test]
 		public void MethodCallAlignment()
 		{
@@ -46,7 +45,6 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("FIXME")]
 		[Test]
 		public void IndexerAlignment()
 		{
@@ -76,8 +74,25 @@ class Foo
 		{
 			return expr.StartLocation.Line != expr.EndLocation.Line ||
 			       expr is ConditionalExpression ||$", fmt);
-			Assert.AreEqual("\t\t\t       ", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t\t       ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
+
+		[Ignore("FIXME - important!")]
+		[Test]
+		public void MethodContinuation()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		var a = Call(A)
+			.Foo ()$", fmt);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 	}
 }
