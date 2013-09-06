@@ -88,8 +88,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			public static NullValueStatus CombineStatus(NullValueStatus oldValue, NullValueStatus incomingValue)
 			{
-				Debug.Assert(incomingValue != NullValueStatus.UnreachableOrInexistent);
-
 				if (oldValue == NullValueStatus.Error || incomingValue == NullValueStatus.Error)
 					return NullValueStatus.Error;
 
