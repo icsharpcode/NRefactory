@@ -409,7 +409,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			End
 		}
 		
-		public virtual Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, IList<AstNode> node)
+		public virtual Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, IList<AstNode> nodes)
 		{
 			throw new NotImplementedException();
 		}
@@ -481,7 +481,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		protected class NodeOutput
 		{
 			string text;
-			List<KeyValuePair<AstNode, Segment>> newSegments;
+			readonly List<KeyValuePair<AstNode, Segment>> newSegments;
 			int trimmedLength;
 			
 			internal NodeOutput(string text, List<KeyValuePair<AstNode, Segment>> newSegments)
@@ -531,7 +531,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 		}
 		
-		public virtual void DoGlobalOperationOn(IEnumerable<IEntity> entity, Action<RefactoringContext, Script, IEnumerable<AstNode>> callback, string operationDescripton = null)
+		public virtual void DoGlobalOperationOn(IEnumerable<IEntity> entities, Action<RefactoringContext, Script, IEnumerable<AstNode>> callback, string operationDescripton = null)
 		{
 		}
 
