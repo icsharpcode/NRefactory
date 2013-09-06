@@ -35,14 +35,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Hint,
                       ResharperDisableKeyword = "RedundantCatchClause")]
-	public class RedundantCatchIssue : GatherVisitorCodeIssueProvider
+	public class RedundantCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 		
-		class GatherVisitor : GatherVisitorBase<RedundantCatchIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantCatchClauseIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext context) : base (context)
 			{
@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (firstStatement.IsNull)
 					return false;
 				var throwStatement = firstStatement as ThrowStatement;
-				if (throwStatement == null)
+				if (throwStatement == null || !throwStatement.Expression.IsNull)
 					return false;
 				return true;
 			}
