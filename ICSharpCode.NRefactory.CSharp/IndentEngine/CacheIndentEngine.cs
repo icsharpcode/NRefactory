@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using ICSharpCode.NRefactory.Editor;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
@@ -38,44 +40,11 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class CacheIndentEngine : IStateMachineIndentEngine
 	{
+
 		#region Properties
 
-		/// <summary>
-		///     Represents the cache interval in number of chars pushed to the engine.
-		/// </summary>
-		/// <remarks>
-		///     When this many new chars are pushed to the engine, the currently active
-		///     engine gets cloned and added to the end of <see cref="cachedEngines"/>.
-		/// </remarks>
-		readonly int cacheRate;
-
-		/// <summary>
-		///     Determines how much memory to reserve on initialization for the
-		///     cached engines.
-		/// </summary>
-		const int cacheCapacity = 25;
-
-		/// <summary>
-		///     Currently active engine.
-		/// </summary>
-		/// <remarks>
-		///     Should be equal to the last engine in <see cref="cachedEngines"/>.
-		/// </remarks>
 		IStateMachineIndentEngine currentEngine;
-
-		/// <summary>
-		///     List of cached engines sorted ascending by 
-		///     <see cref="IDocumentIndentEngine.Offset"/>.
-		/// </summary>
-		IStateMachineIndentEngine[] cachedEngines;
-
-		/// <summary>
-		///     The index of the last cached engine in cachedEngines.
-		/// </summary>
-		/// <remarks>
-		///     Should be equal to: currentEngine.Offset / CacheRate
-		/// </remarks>
-		int lastCachedEngine;
+		Stack<IStateMachineIndentEngine> cachedEngines = new Stack<IStateMachineIndentEngine>();
 
 		#endregion
 
@@ -93,11 +62,14 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </param>
 		public CacheIndentEngine(IStateMachineIndentEngine decoratedEngine, int cacheRate = 2000)
 		{
-			this.cachedEngines = new IStateMachineIndentEngine[cacheCapacity];
+			this.currentEngine = decoratedEngine;
+			decoratedEngine.Document.TextChanged += HandleTextChanged;
+		}
 
-			this.cachedEngines[0] = decoratedEngine.Clone();
-			this.currentEngine = this.cachedEngines[0].Clone();
-			this.cacheRate = cacheRate;
+		void HandleTextChanged(object sender, TextChangeEventArgs e)
+		{
+			if (e.Offset < currentEngine.Offset)
+				ResetEngineToPosition(e.Offset);
 		}
 
 		/// <summary>
@@ -108,37 +80,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </param>
 		public CacheIndentEngine(CacheIndentEngine prototype)
 		{
-			this.cachedEngines = new IStateMachineIndentEngine[prototype.cachedEngines.Length];
-			Array.Copy(prototype.cachedEngines, this.cachedEngines, prototype.cachedEngines.Length);
-
-			this.lastCachedEngine = prototype.lastCachedEngine;
 			this.currentEngine = prototype.currentEngine.Clone();
-			this.cacheRate = prototype.cacheRate;
-		}
-
-		#endregion
-
-		#region Methods
-
-		/// <summary>
-		///     Performs caching of the <see cref="CacheIndentEngine.currentEngine"/>.
-		/// </summary>
-		void cache()
-		{
-			if (currentEngine.Offset % cacheRate != 0)
-			{
-				throw new Exception("The current engine's offset is not divisable with the cacheRate.");
-			}
-
-			// determine the new current engine from cachedEngines
-			lastCachedEngine = currentEngine.Offset / cacheRate;
-
-			if (cachedEngines.Length < lastCachedEngine + 1)
-			{
-				Array.Resize(ref cachedEngines, lastCachedEngine * 2);
-			}
-
-			cachedEngines[lastCachedEngine] = currentEngine.Clone();
+			foreach (var e in prototype.cachedEngines.Reverse ())
+				this.cachedEngines.Push(e.Clone());
 		}
 
 		#endregion
@@ -146,44 +90,37 @@ namespace ICSharpCode.NRefactory.CSharp
 		#region IDocumentIndentEngine
 
 		/// <inheritdoc />
-		public IDocument Document
-		{
+		public IDocument Document {
 			get { return currentEngine.Document; }
 		}
 
 		/// <inheritdoc />
-		public string ThisLineIndent
-		{
+		public string ThisLineIndent {
 			get { return currentEngine.ThisLineIndent; }
 		}
 
 		/// <inheritdoc />
-		public string NextLineIndent
-		{
+		public string NextLineIndent {
 			get { return currentEngine.NextLineIndent; }
 		}
 
 		/// <inheritdoc />
-		public string CurrentIndent
-		{
+		public string CurrentIndent {
 			get { return currentEngine.CurrentIndent; }
 		}
 
 		/// <inheritdoc />
-		public bool NeedsReindent
-		{
+		public bool NeedsReindent {
 			get { return currentEngine.NeedsReindent; }
 		}
 
 		/// <inheritdoc />
-		public int Offset
-		{
+		public int Offset {
 			get { return currentEngine.Offset; }
 		}
 
 		/// <inheritdoc />
-		public TextLocation Location
-		{
+		public TextLocation Location {
 			get { return currentEngine.Location; }
 		}
 
@@ -191,17 +128,31 @@ namespace ICSharpCode.NRefactory.CSharp
 		public void Push(char ch)
 		{
 			currentEngine.Push(ch);
-
-			if (currentEngine.Offset % cacheRate == 0)
-			{
-				cache();
-			}
 		}
 
 		/// <inheritdoc />
 		public void Reset()
 		{
-			currentEngine = cachedEngines[lastCachedEngine = 0];
+			currentEngine.Reset();
+			cachedEngines.Clear();
+		}
+
+		void ResetEngineToPosition(int position)
+		{
+			bool gotCachedEngine = false;
+			while (cachedEngines.Count > 0) {
+				var topEngine = cachedEngines.Peek();
+				if (topEngine.Offset <= position) {
+					currentEngine = topEngine.Clone();
+					gotCachedEngine = true;
+					break;
+				} else {
+					cachedEngines.Pop();
+				}
+			}
+			if (!gotCachedEngine) {
+				currentEngine.Reset();
+			}
 		}
 
 		/// <inheritdoc />
@@ -210,51 +161,48 @@ namespace ICSharpCode.NRefactory.CSharp
 		///     update to: document.TextLength + (offset % document.TextLength+1)
 		///     Otherwise it will update to: offset % document.TextLength+1
 		/// </remarks>
-		public void Update(int offset)
+		public void Update(int position)
 		{
-			// map the given offset to the [0, document.TextLength] interval
-			// using modulo arithmetics
-			offset %= Document.TextLength + 1;
-			if (offset < 0)
-			{
-				offset += Document.TextLength + 1;
-			}
+			const int BUFFER_SIZE = 2000;
 
-			// check if the engine has to be updated to some previous offset
-			if (currentEngine.Offset > offset)
-			{
-				// replace the currentEngine with the first one whose offset
-				// is less then the given <paramref name="offset"/>
-				lastCachedEngine =  offset / cacheRate;
-				currentEngine = cachedEngines[lastCachedEngine].Clone();
+			if (currentEngine.Offset == position) {
+				//positions match, nothing to be done
+				return;
+			} else if (currentEngine.Offset > position) {
+				//moving backwards, so reset from previous saved location
+				ResetEngineToPosition(position);
 			}
-
-			// update the engine to the given offset
-			while (Offset < offset)
-			{
-				Push(Document.GetCharAt(Offset));
+			
+			// get the engine caught up
+			int nextSave = (cachedEngines.Count == 0) ? BUFFER_SIZE : cachedEngines.Peek().Offset + BUFFER_SIZE;
+			if (currentEngine.Offset + 1 == position) {
+				char ch = currentEngine.Document.GetCharAt(currentEngine.Offset);
+				currentEngine.Push(ch);
+				if (currentEngine.Offset == nextSave)
+					cachedEngines.Push(currentEngine.Clone());
+			} else {
+				//bulk copy characters in case buffer is unmanaged 
+				//(faster if we reduce managed/unmanaged transitions)
+				while (currentEngine.Offset < position) {
+					int endCut = currentEngine.Offset + BUFFER_SIZE;
+					if (endCut > position)
+						endCut = position;
+					string buffer = currentEngine.Document.GetText(currentEngine.Offset, endCut);
+					foreach (char ch in buffer) {
+						currentEngine.Push(ch);
+						//ConsoleWrite ("pushing character '{0}'", ch);
+						if (currentEngine.Offset == nextSave) {
+							cachedEngines.Push(currentEngine.Clone());
+							nextSave += BUFFER_SIZE;
+						}
+					}
+				}
 			}
 		}
 
 		public IStateMachineIndentEngine GetEngine(int offset)
 		{
-			// map the given offset to the [0, document.TextLength] interval
-			// using modulo arithmetics
-			offset %= Document.TextLength + 1;
-			if (offset < 0)
-			{
-				offset += Document.TextLength + 1;
-			}
-			
-			// check if the engine has to be updated to some previous offset
-			if (currentEngine.Offset > offset)
-			{
-				// replace the currentEngine with the first one whose offset
-				// is less then the given <paramref name="offset"/>
-				lastCachedEngine =  offset / cacheRate;
-				return cachedEngines[lastCachedEngine].Clone();
-			}
-			
+			ResetEngineToPosition(offset);
 			return currentEngine;
 		}
 
@@ -283,76 +231,392 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		#region IStateMachineIndentEngine
 
-		public bool IsInsidePreprocessorDirective
-		{
+		public bool IsInsidePreprocessorDirective {
 			get { return currentEngine.IsInsidePreprocessorDirective; }
 		}
 
-		public bool IsInsidePreprocessorComment
-		{
+		public bool IsInsidePreprocessorComment {
 			get { return currentEngine.IsInsidePreprocessorComment; }
 		}
 
-		public bool IsInsideStringLiteral
-		{
+		public bool IsInsideStringLiteral {
 			get { return currentEngine.IsInsideStringLiteral; }
 		}
 
-		public bool IsInsideVerbatimString
-		{
+		public bool IsInsideVerbatimString {
 			get { return currentEngine.IsInsideVerbatimString; }
 		}
 
-		public bool IsInsideCharacter
-		{
+		public bool IsInsideCharacter {
 			get { return currentEngine.IsInsideCharacter; }
 		}
 
-		public bool IsInsideString
-		{
+		public bool IsInsideString {
 			get { return currentEngine.IsInsideString; }
 		}
 
-		public bool IsInsideLineComment
-		{
+		public bool IsInsideLineComment {
 			get { return currentEngine.IsInsideLineComment; }
 		}
 
-		public bool IsInsideMultiLineComment
-		{
+		public bool IsInsideMultiLineComment {
 			get { return currentEngine.IsInsideMultiLineComment; }
 		}
 
-		public bool IsInsideDocLineComment
-		{
+		public bool IsInsideDocLineComment {
 			get { return currentEngine.IsInsideDocLineComment; }
 		}
 
-		public bool IsInsideComment
-		{
+		public bool IsInsideComment {
 			get { return currentEngine.IsInsideComment; }
 		}
 
-		public bool IsInsideOrdinaryComment
-		{
+		public bool IsInsideOrdinaryComment {
 			get { return currentEngine.IsInsideOrdinaryComment; }
 		}
 
-		public bool IsInsideOrdinaryCommentOrString
-		{
+		public bool IsInsideOrdinaryCommentOrString {
 			get { return currentEngine.IsInsideOrdinaryCommentOrString; }
 		}
 
-		public bool LineBeganInsideVerbatimString
-		{
+		public bool LineBeganInsideVerbatimString {
 			get { return currentEngine.LineBeganInsideVerbatimString; }
 		}
 
-		public bool LineBeganInsideMultiLineComment
-		{
+		public bool LineBeganInsideMultiLineComment {
 			get { return currentEngine.LineBeganInsideMultiLineComment; }
 		}
 
 		#endregion
+
 	}
 }
+/*
+	/   // <summary>
+///     Represents a decorator of an IStateMachineIndentEngine instance that provides
+///     logic for reseting and updating the engine on text changed events.
+/// </summary>
+/// <remarks>
+///     The decorator is based on periodical caching of the engine's state and
+///     delegating all logic behind indentation to the currently active engine.
+/// </remarks>
+public class CacheIndentEngine : IStateMachineIndentEngine
+{
+	#region Properties
+	
+	/// <summary>
+	///     Represents the cache interval in number of chars pushed to the engine.
+	/// </summary>
+	/// <remarks>
+	///     When this many new chars are pushed to the engine, the currently active
+	///     engine gets cloned and added to the end of <see cref="cachedEngines"/>.
+	/// </remarks>
+	readonly int cacheRate;
+	
+	/// <summary>
+	///     Determines how much memory to reserve on initialization for the
+	///     cached engines.
+	/// </summary>
+	const int cacheCapacity = 25;
+	
+	/// <summary>
+	///     Currently active engine.
+	/// </summary>
+	/// <remarks>
+	///     Should be equal to the last engine in <see cref="cachedEngines"/>.
+	/// </remarks>
+	IStateMachineIndentEngine currentEngine;
+	
+	/// <summary>
+	///     List of cached engines sorted ascending by 
+	///     <see cref="IDocumentIndentEngine.Offset"/>.
+	/// </summary>
+	IStateMachineIndentEngine[] cachedEngines;
+	
+	/// <summary>
+	///     The index of the last cached engine in cachedEngines.
+	/// </summary>
+	/// <remarks>
+	///     Should be equal to: currentEngine.Offset / CacheRate
+	/// </remarks>
+	int lastCachedEngine;
+	
+	#endregion
+	
+	#region Constructors
+	
+	/// <summary>
+	///     Creates a new CacheIndentEngine instance.
+	/// </summary>
+	/// <param name="decoratedEngine">
+	///     An instance of <see cref="IStateMachineIndentEngine"/> to which the
+	///     logic for indentation will be delegated.
+	/// </param>
+	/// <param name="cacheRate">
+	///     The number of chars between caching.
+	/// </param>
+	public CacheIndentEngine(IStateMachineIndentEngine decoratedEngine, int cacheRate = 2000)
+	{
+		this.cachedEngines = new IStateMachineIndentEngine[cacheCapacity];
+		
+		this.cachedEngines[0] = decoratedEngine.Clone();
+		this.currentEngine = this.cachedEngines[0].Clone();
+		this.cacheRate = cacheRate;
+	}
+	
+	/// <summary>
+	///     Creates a new CacheIndentEngine instance from the given prototype.
+	/// </summary>
+	/// <param name="prototype">
+	///     A CacheIndentEngine instance.
+	/// </param>
+	public CacheIndentEngine(CacheIndentEngine prototype)
+	{
+		this.cachedEngines = new IStateMachineIndentEngine[prototype.cachedEngines.Length];
+		Array.Copy(prototype.cachedEngines, this.cachedEngines, prototype.cachedEngines.Length);
+		
+		this.lastCachedEngine = prototype.lastCachedEngine;
+		this.currentEngine = prototype.currentEngine.Clone();
+		this.cacheRate = prototype.cacheRate;
+	}
+	
+	#endregion
+	
+	#region Methods
+	
+	/// <summary>
+	///     Performs caching of the <see cref="CacheIndentEngine.currentEngine"/>.
+	/// </summary>
+	void cache()
+	{
+		if (currentEngine.Offset % cacheRate != 0)
+		{
+			throw new Exception("The current engine's offset is not divisable with the cacheRate.");
+		}
+		
+		// determine the new current engine from cachedEngines
+		lastCachedEngine = currentEngine.Offset / cacheRate;
+		
+		if (cachedEngines.Length < lastCachedEngine + 1)
+		{
+			Array.Resize(ref cachedEngines, lastCachedEngine * 2);
+		}
+		
+		cachedEngines[lastCachedEngine] = currentEngine.Clone();
+	}
+	
+	#endregion
+	
+	#region IDocumentIndentEngine
+	
+	/// <inheritdoc />
+	public IDocument Document
+	{
+		get { return currentEngine.Document; }
+	}
+	
+	/// <inheritdoc />
+	public string ThisLineIndent
+	{
+		get { return currentEngine.ThisLineIndent; }
+	}
+	
+	/// <inheritdoc />
+	public string NextLineIndent
+	{
+		get { return currentEngine.NextLineIndent; }
+	}
+	
+	/// <inheritdoc />
+	public string CurrentIndent
+	{
+		get { return currentEngine.CurrentIndent; }
+	}
+	
+	/// <inheritdoc />
+	public bool NeedsReindent
+	{
+		get { return currentEngine.NeedsReindent; }
+	}
+	
+	/// <inheritdoc />
+	public int Offset
+	{
+		get { return currentEngine.Offset; }
+	}
+	
+	/// <inheritdoc />
+	public TextLocation Location
+	{
+		get { return currentEngine.Location; }
+	}
+	
+	/// <inheritdoc />
+	public void Push(char ch)
+	{
+		currentEngine.Push(ch);
+		
+		if (currentEngine.Offset % cacheRate == 0)
+		{
+			cache();
+		}
+	}
+	
+	/// <inheritdoc />
+	public void Reset()
+	{
+		currentEngine = cachedEngines[lastCachedEngine = 0];
+	}
+	
+	/// <inheritdoc />
+	/// <remarks>
+	///     If the <paramref name="offset"/> is negative, the engine will
+	///     update to: document.TextLength + (offset % document.TextLength+1)
+	///     Otherwise it will update to: offset % document.TextLength+1
+	/// </remarks>
+	public void Update(int offset)
+	{
+		// map the given offset to the [0, document.TextLength] interval
+		// using modulo arithmetics
+		offset %= Document.TextLength + 1;
+		if (offset < 0)
+		{
+			offset += Document.TextLength + 1;
+		}
+		
+		// check if the engine has to be updated to some previous offset
+		if (currentEngine.Offset > offset)
+		{
+			// replace the currentEngine with the first one whose offset
+			// is less then the given <paramref name="offset"/>
+			lastCachedEngine =  offset / cacheRate;
+			currentEngine = cachedEngines[lastCachedEngine].Clone();
+		}
+		
+		// update the engine to the given offset
+		while (Offset < offset)
+		{
+			Push(Document.GetCharAt(Offset));
+		}
+	}
+	
+	public IStateMachineIndentEngine GetEngine(int offset)
+	{
+		// map the given offset to the [0, document.TextLength] interval
+		// using modulo arithmetics
+		offset %= Document.TextLength + 1;
+		if (offset < 0)
+		{
+			offset += Document.TextLength + 1;
+		}
+		
+		// check if the engine has to be updated to some previous offset
+		if (currentEngine.Offset > offset)
+		{
+			// replace the currentEngine with the first one whose offset
+			// is less then the given <paramref name="offset"/>
+			lastCachedEngine =  offset / cacheRate;
+			return cachedEngines[lastCachedEngine].Clone();
+		}
+		
+		return currentEngine;
+	}
+	
+	#endregion
+	
+	#region IClonable
+	
+	/// <inheritdoc />
+	public IStateMachineIndentEngine Clone()
+	{
+		return new CacheIndentEngine(this);
+	}
+	
+	/// <inheritdoc />
+	IDocumentIndentEngine IDocumentIndentEngine.Clone()
+	{
+		return Clone();
+	}
+	
+	object ICloneable.Clone()
+	{
+		return Clone();
+	}
+	
+	#endregion
+	
+	#region IStateMachineIndentEngine
+	
+	public bool IsInsidePreprocessorDirective
+	{
+		get { return currentEngine.IsInsidePreprocessorDirective; }
+	}
+	
+	public bool IsInsidePreprocessorComment
+	{
+		get { return currentEngine.IsInsidePreprocessorComment; }
+	}
+	
+	public bool IsInsideStringLiteral
+	{
+		get { return currentEngine.IsInsideStringLiteral; }
+	}
+	
+	public bool IsInsideVerbatimString
+	{
+		get { return currentEngine.IsInsideVerbatimString; }
+	}
+	
+	public bool IsInsideCharacter
+	{
+		get { return currentEngine.IsInsideCharacter; }
+	}
+	
+	public bool IsInsideString
+	{
+		get { return currentEngine.IsInsideString; }
+	}
+	
+	public bool IsInsideLineComment
+	{
+		get { return currentEngine.IsInsideLineComment; }
+	}
+	
+	public bool IsInsideMultiLineComment
+	{
+		get { return currentEngine.IsInsideMultiLineComment; }
+	}
+	
+	public bool IsInsideDocLineComment
+	{
+		get { return currentEngine.IsInsideDocLineComment; }
+	}
+	
+	public bool IsInsideComment
+	{
+		get { return currentEngine.IsInsideComment; }
+	}
+	
+	public bool IsInsideOrdinaryComment
+	{
+		get { return currentEngine.IsInsideOrdinaryComment; }
+	}
+	
+	public bool IsInsideOrdinaryCommentOrString
+	{
+		get { return currentEngine.IsInsideOrdinaryCommentOrString; }
+	}
+	
+	public bool LineBeganInsideVerbatimString
+	{
+		get { return currentEngine.LineBeganInsideVerbatimString; }
+	}
+	
+	public bool LineBeganInsideMultiLineComment
+	{
+		get { return currentEngine.LineBeganInsideMultiLineComment; }
+	}
+	
+	#endregion
+}
+ */
