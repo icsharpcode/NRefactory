@@ -531,7 +531,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 		}
 		
-		public virtual void DoGlobalOperationOn(IEnumerable<IEntity> entities, Action<RefactoringContext, Script, IEnumerable<AstNode>> callback, string operationDescripton = null)
+		public virtual void DoGlobalOperationOn(IEnumerable<IEntity> entities, Action<RefactoringContext, Script, IEnumerable<AstNode>> callback, string operationDescription = null)
 		{
 		}
 
