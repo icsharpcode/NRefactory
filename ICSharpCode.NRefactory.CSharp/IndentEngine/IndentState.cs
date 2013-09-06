@@ -414,7 +414,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				IsRightHandExpression = false;
 				CurrentStatement = Statement.None;
 			}
-			else if (ch == '=' && !IsRightHandExpression)
+			else if (ch == '=' && !char.IsPunctuation(Engine.previousChar) && !IsRightHandExpression)
 			{
 				IsRightHandExpression = true;
 				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent + 1);
@@ -427,7 +427,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					NextLineIndent.ExtraSpaces = 0;
 					NextLineIndent.Push(IndentType.Continuation);
 				} else {
-					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+//					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 				}
 			}
 			else if (ch == ',' && IsRightHandExpression)

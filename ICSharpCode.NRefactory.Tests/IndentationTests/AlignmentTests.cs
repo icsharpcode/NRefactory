@@ -59,7 +59,6 @@ Call[A,$", fmt);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("FIXME - important!")]
 		[Test]
 		public void BinaryExpressionAlignment()
 		{
