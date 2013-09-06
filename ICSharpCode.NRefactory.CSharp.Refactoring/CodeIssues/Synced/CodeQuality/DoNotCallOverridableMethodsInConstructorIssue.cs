@@ -133,6 +133,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (targetMethod == null)
 					return;
 				if (targetMethod.IsVirtualCall) {
+					if (targetMethod.Member.DeclaringType.Kind == ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate)
+						return;
 					AddIssue(invocationExpression,
                              context.TranslateString("Virtual member call in constructor"),
                              new CodeAction(string.Format(context.TranslateString("Make class '{0}' sealed"), CurrentType.Name),

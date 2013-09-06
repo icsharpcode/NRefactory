@@ -43,9 +43,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <summary>
 		/// Creates mono indent style CSharpFormatting options.
 		/// </summary>
-		public static CSharpFormattingOptions CreateMono ()
+		public static CSharpFormattingOptions CreateMono()
 		{
-			return new CSharpFormattingOptions () {
+			return new CSharpFormattingOptions {
 				IndentNamespaceBody = true,
 				IndentClassBody = true,
 				IndentInterfaceBody = true,
@@ -58,6 +58,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				IndentSwitchBody = false,
 				IndentCaseBody = true,
 				IndentBreakStatements = true,
+				IndentPreprocessorDirectives = true,
 				NamespaceBraceStyle = BraceStyle.NextLine,
 				ClassBraceStyle = BraceStyle.NextLine,
 				InterfaceBraceStyle = BraceStyle.NextLine,
@@ -210,9 +211,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// The K&R style, so named because it was used in Kernighan and Ritchie's book The C Programming Language,
 		/// is commonly used in C. It is less common for C++, C#, and others.
 		/// </summary>
-		public static CSharpFormattingOptions CreateKRStyle ()
+		public static CSharpFormattingOptions CreateKRStyle()
 		{
-			return new CSharpFormattingOptions () {
+			return new CSharpFormattingOptions() {
 				IndentNamespaceBody = true,
 				IndentClassBody = true,
 				IndentInterfaceBody = true,
@@ -225,7 +226,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				IndentSwitchBody = true,
 				IndentCaseBody = true,
 				IndentBreakStatements = true,
-
+				IndentPreprocessorDirectives = true,
 				NamespaceBraceStyle = BraceStyle.NextLine,
 				ClassBraceStyle = BraceStyle.NextLine,
 				InterfaceBraceStyle = BraceStyle.NextLine,
@@ -389,7 +390,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			return baseOptions;
 		}
-	
+
 		/// <summary>
 		/// The Whitesmiths style, also called Wishart style to a lesser extent, is less common today than the previous three. It was originally used in the documentation for the first commercial C compiler, the Whitesmiths Compiler.
 		/// </summary>
@@ -434,7 +435,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			baseOptions.StatementBraceStyle = BraceStyle.NextLineShifted2;
 			return baseOptions;
 		}
-
 	}
 }
 

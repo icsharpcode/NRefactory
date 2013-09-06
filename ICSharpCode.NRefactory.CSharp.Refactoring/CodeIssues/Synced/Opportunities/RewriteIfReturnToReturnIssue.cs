@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				AstNode rs;
 				if (!ConvertIfStatementToReturnStatementAction.GetMatch(ifElseStatement, out c, out e1, out e2, out rs))
 					return;
-				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(c) || 
+				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexCondition(c) || 
 				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e1) || 
 				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e2))
 					return;

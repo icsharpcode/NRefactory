@@ -108,7 +108,9 @@
     <Compile Include="Ast\ErrorNode.cs" />
     <Compile Include="Ast\Expressions\AnonymousMethodExpression.cs" />
     <Compile Include="Ast\Expressions\AnonymousTypeCreateExpression.cs" />
-    <Compile Include="Ast\Expressions\ArrayCreateExpression.cs" />
+    <Compile Include="Ast\Expressions\ArrayCreateExpression.cs">
+      <DependentUpon>ArrayInitializerExpression.cs</DependentUpon>
+    </Compile>
     <Compile Include="Ast\Expressions\ArrayInitializerExpression.cs" />
     <Compile Include="Ast\Expressions\AsExpression.cs" />
     <Compile Include="Ast\Expressions\AssignmentExpression.cs" />
@@ -350,7 +352,6 @@
     <Compile Include="Refactoring\NamingHelper.cs" />
     <Compile Include="Parser\SeekableStreamReader.cs" />
     <Compile Include="Refactoring\LocalReferenceFinder.cs" />
-    <Compile Include="Formatter\CSharpIndentEngine.cs" />
     <Compile Include="Resolver\AliasTypeResolveResult.cs" />
     <Compile Include="Resolver\AliasNamespaceResolveResult.cs" />
     <Compile Include="Resolver\ReducedExtensionMethod.cs" />
@@ -374,6 +375,12 @@
     <Compile Include="Refactoring\WordParser.cs" />
     <Compile Include="Refactoring\TypeGuessing.cs" />
     <Compile Include="Refactoring\FormatStringHelper.cs" />
+    <Compile Include="IndentEngine\CSharpIndentEngine.cs" />
+    <Compile Include="IndentEngine\CacheIndentEngine.cs" />
+    <Compile Include="IndentEngine\IDocumentIndentEngine.cs" />
+    <Compile Include="IndentEngine\IStateMachineIndentEngine.cs" />
+    <Compile Include="IndentEngine\IndentState.cs" />
+    <Compile Include="IndentEngine\TextPasteIndentEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
@@ -400,5 +407,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PatternMatching\" />
+    <Folder Include="IndentEngine\" />
   </ItemGroup>
 </Project>

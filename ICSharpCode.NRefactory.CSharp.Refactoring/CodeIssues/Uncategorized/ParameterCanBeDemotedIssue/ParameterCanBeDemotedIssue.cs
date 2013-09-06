@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
 				methodDeclaration.Attributes.AcceptVisitor(this);
-				if (HasEntryPointSignature(methodDeclaration))
+				if (HasEntryPointSignature(methodDeclaration) || !methodDeclaration.HasModifier(Modifiers.Public) && !methodDeclaration.HasModifier(Modifiers.Protected))
 					return;
 				var eligibleParameters = methodDeclaration.Parameters
 					.Where(p => p.ParameterModifier != ParameterModifier.Out && p.ParameterModifier != ParameterModifier.Ref)

@@ -297,7 +297,6 @@
     <Compile Include="CSharp\CodeCompletion\CodeCompletionBugTests.cs" />
     <Compile Include="CSharp\CodeCompletion\CodeCompletionCSharp3Tests.cs" />
     <Compile Include="CSharp\CodeCompletion\CodeCompletionCSharpTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\CodeComplteionOperatorTests.cs" />
     <Compile Include="CSharp\CodeCompletion\CompletionDataList.cs" />
     <Compile Include="CSharp\CodeCompletion\EnumContextTests.cs" />
     <Compile Include="CSharp\CodeCompletion\KeywordTests.cs" />
@@ -380,7 +379,6 @@
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\IsTypeCriterionTests.cs" />
     <Compile Include="Utils\CompositeFormatStringParser\CompositeFormatStringParserTests.cs" />
     <Compile Include="CSharp\CodeIssues\OptionalParameterCouldBeSkippedTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantCatchIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantToStringCallIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CallToObjectEqualsViaBaseTests.cs" />
     <Compile Include="CSharp\CodeIssues\IncorrectCallToGetHashCodeTests.cs" />
@@ -395,7 +393,6 @@
     <Compile Include="CSharp\CodeIssues\RedundantWhereWithPredicateIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\SortUsingsTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateEventInvocatorTests.cs" />
-    <Compile Include="IndentationTests\IndentationTests.cs" />
     <Compile Include="CSharp\CodeCompletion\ImportCompletionTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateEnumValueTests.cs" />
     <Compile Include="CSharp\CodeCompletion\GetCurrentParameterIndexTests.cs" />
@@ -571,6 +568,16 @@
     <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\OperatorIsCanBeUsedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\FormatStringProblemIssueTests.cs" />
+    <Compile Include="IndentationTests\AllInOneTests.cs" />
+    <Compile Include="IndentationTests\BlockTest.cs" />
+    <Compile Include="IndentationTests\CommentTests.cs" />
+    <Compile Include="IndentationTests\Helper.cs" />
+    <Compile Include="IndentationTests\PreProcessorTests.cs" />
+    <Compile Include="IndentationTests\StringTests.cs" />
+    <Compile Include="IndentationTests\TextPasteIndentEngineTests.cs" />
+    <Compile Include="IndentationTests\AlignmentTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantCatchClauseIssueTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\CodeCompletionOperatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
@@ -619,4 +626,16 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="IndentationTests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IndentationTests\TestFiles\Comments.cs" />
+    <None Include="IndentationTests\TestFiles\IndentEngine.cs" />
+    <None Include="IndentationTests\TestFiles\IndentState.cs" />
+    <None Include="IndentationTests\TestFiles\PreProcessorDirectives.cs" />
+    <None Include="IndentationTests\TestFiles\Simple.cs" />
+    <None Include="IndentationTests\TestFiles\Strings.cs" />
+    <None Include="IndentationTests\TestFiles\SwitchCase.cs" />
+  </ItemGroup>
 </Project>

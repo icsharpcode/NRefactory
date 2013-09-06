@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 				var parameter = resolvedParameters[parameterIndex];
 				var argument = allArguments[i];
-				if (parameter.Type.IsKnownType(KnownTypeCode.String) && parameterNames.Contains(parameter.Name)) {
+				if (i == 0 && parameter.Type.IsKnownType(KnownTypeCode.String) && parameterNames.Contains(parameter.Name)) {
 					formatArgument = argument;
 				} else if (formatArgument != null && parameter.IsParams && !invocationResolveResult.IsExpandedForm) {
 					var ace = argument as ArrayCreateExpression;

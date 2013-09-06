@@ -114,6 +114,21 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+
+		[Test]
+		public void TestSkipAnnoyingSuggestionCase1 ()
+		{
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+{
+	int Bar (int a, int b)
+	{
+		if (a < 1 && a > 2 && b < a) {
+			return a;
+		}
+		return b;
+	}
+}");
+		}
 	}
 }
 

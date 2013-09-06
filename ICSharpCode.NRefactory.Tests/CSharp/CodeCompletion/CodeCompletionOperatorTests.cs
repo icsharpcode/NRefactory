@@ -34,6 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 	[TestFixture()]
 	public class CodeCompletionOperatorTests : TestBase
 	{
+
 		[Test()]
 		public void TestAddOperator ()
 		{

@@ -281,7 +281,6 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantBoolCompareIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCaseLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCastIssue.cs" />
-    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCatchIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCommaInArrayInitializerIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantComparisonWithNullIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyObjectCreationArgumentListssue.cs" />
@@ -399,6 +398,7 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\OperatorIsCanBeUsedIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\UseIsOperatorIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\FormatStringProblemIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCatchClauseIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

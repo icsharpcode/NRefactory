@@ -480,11 +480,19 @@ namespace ICSharpCode.NRefactory.CSharp
 		
 		void FixIndentationForceNewLine(AstNode node)
 		{
+			var directive = node as PreProcessorDirective;
 			if (node.GetPrevNode () is NewLineNode) {
-				FixIndentation(node);
+				if (directive != null && !policy.IndentPreprocessorDirectives) {
+					var startNode = node.GetPrevNode ();
+					var startOffset = document.GetOffset(startNode.EndLocation);
+					int endOffset = document.GetOffset(node.StartLocation);
+					AddChange(startOffset, endOffset - startOffset, "");
+					return;
+				} else {
+					FixIndentation(node);
+				}
 			} else {
 				// if no new line preceeds an #endif directive it's excluded
-				var directive = node as PreProcessorDirective;
 				if (directive != null) {
 					if (directive.Type == PreProcessorDirectiveType.Endif)
 						return;
@@ -492,6 +500,10 @@ namespace ICSharpCode.NRefactory.CSharp
 				var startNode = node.GetPrevSibling(n => !(n is WhitespaceNode)) ?? node;
 				var startOffset = document.GetOffset(startNode.EndLocation);
 				int endOffset = document.GetOffset(node.StartLocation);
+				if (directive != null && !policy.IndentPreprocessorDirectives) {
+					AddChange(startOffset, endOffset - startOffset, "");
+					return;
+				}
 				AddChange(startOffset, endOffset - startOffset, curIndent.IndentString);
 			}
 		}

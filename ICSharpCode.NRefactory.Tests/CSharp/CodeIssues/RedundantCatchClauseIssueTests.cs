@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantCatchIssueTests : InspectionActionTestBase
+	public class RedundantCatchClauseIssueTests : InspectionActionTestBase
 	{
 		const string BaseInput = @"
 using System;
@@ -55,7 +55,7 @@ class A
 		}
 	}
 }";
-            TestWrongContext<RedundantCatchIssue>(input);
+            TestWrongContext<RedundantCatchClauseIssue>(input);
         }
 
 		[Test]
@@ -74,7 +74,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-            var issues = GetIssues(new RedundantCatchIssue(), input, out context);
+            var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(2, issues.Count);
 			
 			CheckFix(context, issues, BaseInput + @"
@@ -100,7 +100,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			
 			CheckFix(context, issues, BaseInput + @"
@@ -124,7 +124,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			
 			CheckFix(context, issues, BaseInput + @"
@@ -149,7 +149,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			
 			CheckFix(context, issues, BaseInput + @"
@@ -169,7 +169,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -186,7 +186,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			
 			CheckFix(context, issues, BaseInput + @"
@@ -206,7 +206,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchIssue(), input, out context, true);
+			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context, true);
 			Assert.AreEqual(0, issues.Count);
 		}
 
@@ -224,7 +224,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			
 			CheckFix(context, issues, BaseInput + @"
@@ -254,7 +254,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 
 			input = BaseInput + @"
@@ -267,7 +267,7 @@ class A
 		}
 	}
 }";
-			issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			CheckFix(context, issues, BaseInput + @"
 		F ();
@@ -293,7 +293,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 
 			input = BaseInput + @"
@@ -306,8 +306,29 @@ class A
 		}
 	}
 }";
-			issues = GetIssues(new RedundantCatchIssue(), input, out context);
+			issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
+		}
+	
+		/// <summary>
+		/// Bug 14451 - False positive of "Redundant catch clause" 
+		/// </summary>
+		[Test]
+		public void TestBugBug14451()
+		{
+			TestWrongContext<RedundantCatchClauseIssue>(@"
+using System;
+public class Test {
+    public void Foo() {
+        try {
+            Foo();
+        }
+        catch (Exception ex) {
+            throw new Exception(""Some additional information: "" + ex.Message, ex);
+        }
+    }
+}
+");
 		}
 	}
 }
