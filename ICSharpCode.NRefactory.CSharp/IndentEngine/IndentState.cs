@@ -421,7 +421,15 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (ch == '.' && IsRightHandExpression)
 			{
-				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+				if (Engine.previousChar == ')') {
+					ThisLineIndent.ExtraSpaces = 0;
+					ThisLineIndent.Push(IndentType.Continuation);
+					NextLineIndent.ExtraSpaces = 0;
+					NextLineIndent.Push(IndentType.Continuation);
+				} else {
+					Console.WriteLine("2");
+					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+				}
 			}
 			else if (ch == ',' && IsRightHandExpression)
 			{

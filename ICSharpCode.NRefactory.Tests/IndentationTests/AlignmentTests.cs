@@ -78,7 +78,6 @@ class Foo
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("FIXME - important!")]
 		[Test]
 		public void MethodContinuation()
 		{
