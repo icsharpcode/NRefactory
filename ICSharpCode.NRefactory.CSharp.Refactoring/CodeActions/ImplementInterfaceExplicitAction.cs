@@ -56,13 +56,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (toImplement.Count == 0)
 				yield break;
 
-			yield return new CodeAction(context.TranslateString("Implement interface explicit"), script => {
+			yield return new CodeAction(context.TranslateString("Implement interface explicit"), script =>
 				script.InsertWithCursor(
 					context.TranslateString("Implement Interface"),
 					state.CurrentTypeDefinition,
-					(s, c) => ImplementInterfaceAction.GenerateImplementation (c, toImplement.Select (t => Tuple.Create (t.Item1, true)))
-				);
-			}, type);
+				(s, c) => ImplementInterfaceAction.GenerateImplementation (c, toImplement.Select (t => Tuple.Create (t.Item1, true))).ToList()
+				)
+			, type);
 		}
 	}
 }

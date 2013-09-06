@@ -52,13 +52,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (toImplement.Count == 0)
 				yield break;
 			
-			yield return new CodeAction(context.TranslateString("Implement interface"), script => {
+			yield return new CodeAction(context.TranslateString("Implement interface"), script =>
 				script.InsertWithCursor(
 					context.TranslateString("Implement Interface"),
 					state.CurrentTypeDefinition,
-					(s, c) => GenerateImplementation(c, toImplement)
-				);
-			}, type);
+					(s, c) => GenerateImplementation(c, toImplement).ToList()
+				)
+			, type);
 		}
 		
 		public static IEnumerable<AstNode> GenerateImplementation(RefactoringContext context, IEnumerable<Tuple<IMember, bool>> toImplement)

@@ -61,8 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (decl != null)
 						decl.Modifiers |= Modifiers.Override;
 					return entity;
-				}
-			)), type);
+				}).ToList()), type);
 		}
 
 		public static List<IMember> CollectMembersToImplement(ITypeDefinition implementingType, IType abstractType)

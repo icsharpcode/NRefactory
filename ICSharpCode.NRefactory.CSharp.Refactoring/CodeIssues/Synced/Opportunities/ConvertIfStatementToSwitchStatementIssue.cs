@@ -58,14 +58,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (switchExpr == null)
 					return;
 				var switchSections = new List<SwitchSection> ();
-				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr)) {
+				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr))
 					return;
-				}
-				System.Console.WriteLine(switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)));
-
 				if (switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)) <= 2)
 					return;
-
 				AddIssue(
 					ifElseStatement.IfToken,
 					IssueMarker.DottedLine,
