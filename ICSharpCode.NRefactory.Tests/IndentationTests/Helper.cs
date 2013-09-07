@@ -82,10 +82,8 @@ namespace ICSharpCode.NRefactory.IndentationTests
 					engine.Update(offset);
 					if (engine.CurrentIndent.Length == 0)
 						continue;
-					Assert.IsFalse(engine.NeedsReindent,
-					           string.Format("Line: {0}, Indent: {1}, Current indent: {2}",
-					           engine.Location.Line.ToString(), engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
 				}
+
 			}
 			else
 			{
@@ -98,26 +96,31 @@ namespace ICSharpCode.NRefactory.IndentationTests
 		{
 			if (File.Exists(filePath))
 			{
+				filePath = Path.GetFullPath(filePath);
 				var code = File.ReadAllText(filePath);
 				var document = new ReadOnlyDocument(code);
 				policy = policy ?? FormattingOptionsFactory.CreateMono();
 				options = options ?? new TextEditorOptions { IndentBlankLines = false };
 
 				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
+				int errors = 0;
 
 				foreach (var ch in code)
 				{
 					if (options.EolMarker[0] == ch)
 					{
 						if (engine.CurrentIndent.Length > 0) {
-							Assert.IsFalse(engine.NeedsReindent,
-							               string.Format("Line: {0}, Indent: {1}, Current indent: {2}",
-							                engine.Location.Line.ToString(), engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+							if (engine.NeedsReindent) {
+								errors++;
+								Console.WriteLine(string.Format("Indent: {2}, Current indent: {3} in {0}:{1}", filePath, engine.Location.Line, engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+							}
 						}
 					}
 
 					engine.Push(ch);
 				}
+				Assert.AreEqual(0, errors);
+
 			}
 			else
 			{
