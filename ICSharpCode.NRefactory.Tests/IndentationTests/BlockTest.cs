@@ -491,7 +491,6 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("FIXME")]
 		[Test]
 		public void TestBrackets_AnonymousMethodAsParameter()
 		{
