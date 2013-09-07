@@ -382,6 +382,180 @@ class TestClass
 		}
 
 		[Test]
+		public void TestLock()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	void TestMethod()
+	{
+		object o = null;
+		lock (o) {
+			//Impossible
+			int x1 = 1;
+		}
+		//Impossible
+		int x2 = 1;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lockStatement = (LockStatement)method.Body.Statements.ElementAt(1);
+			var lockBlock = (BlockStatement)lockStatement.EmbeddedStatement;
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lockBlock.Statements.Single(), "x1"));
+			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "x2"));
+		}
+
+		[Test]
+		public void TestLock2()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	object MaybeNull() { return null; }
+	void TestMethod()
+	{
+		object o = MaybeNull();
+		try {
+			lock (o) {
+			}
+		} catch (NullReferenceException e) {
+
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var tryStatement = (TryCatchStatement) method.Body.Statements.Last();
+			var tryBlock = tryStatement.TryBlock;
+			var catchBlock = tryStatement.CatchClauses.Single().Body;
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(tryBlock, "o"));
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusAfterStatement(catchBlock, "o"));
+		}
+
+		[Test]
+		public void TestMemberAccess()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	void TestMethod()
+	{
+		object o = null;
+		string s = o.ToString();
+		int x2 = 1;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
+			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "x2"));
+		}
+
+		[Test]
+		public void TestMemberAccess2()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	object MaybeNull()
+	{
+		return null;
+	}
+	void TestMethod()
+	{
+		object o = MaybeNull();
+		string s = o.ToString();
+		int x2 = 1;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
+		}
+
+		[Test]
+		public void TestNullableHasValue()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	void TestMethod()
+	{
+		int? x = null;
+		bool y = x.HasValue;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestMemberAccessExtensionMethod()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+static class ObjectExtensions {
+	static internal string Extension(this object obj) {
+		return """";
+	}
+}
+class TestClass
+{
+	void TestMethod()
+	{
+		object o = null;
+		string s = o.Extension();
+		int x2 = 1;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
+		}
+
+		[Test]
 		public void TestAs()
 		{
 			var parser = new CSharpParser();
@@ -627,6 +801,30 @@ class TestClass
 		}
 
 		[Test]
+		public void TestField()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	static object o;
+	string TestMethod()
+	{
+		o = null;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
+		}
+
+		[Test]
 		public void TestCompileConstants()
 		{
 			var parser = new CSharpParser();
@@ -865,6 +1063,115 @@ class TestClass
 		}
 
 		[Test]
+		public void TestIndexer()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	int[] MaybeNull() { return null; }
+	void TestMethod()
+	{
+		int[] x = MaybeNull();
+		x[(x = null) != null ? 0 : 1] = 2;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = (ExpressionStatement) method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestIndexer2()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	int[] MaybeNull() { return null; }
+	void TestMethod()
+	{
+		int[] x = MaybeNull();
+		object o = null;
+		x[(x == null ? o = null : o = 1) != null ? 1 : 2] = 2;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = (ExpressionStatement) method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
+		}
+
+		[Test]
+		public void TestLocalInvocation()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		Action<int> x = i => {};
+		x((x = null) != null ? 1 : 0);
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestLocalInvocation2()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	Action<int> MaybeNull()
+	{
+		Action<int> x = i => {};
+		return x;
+	}
+	void TestMethod()
+	{
+		Action<int> x = MaybeNull();
+		object o = null;
+		x((x == null ? o = null : o = 1) == null ? 1 : 2);
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
+		}
+
+		[Test]
 		public void TestLinq()
 		{
 			var parser = new CSharpParser();
@@ -902,6 +1209,35 @@ class TestClass
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetExpressionResult(itemInSelect));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetExpressionResult(item2InLet));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetExpressionResult(item3InSelect));
+		}
+
+		[Test]
+		public void TestLinqMember()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+class TestClass
+{
+	void TestMethod()
+	{
+		int?[] collection = new int?[10];
+		foreach (var x in from item in collection
+                 where item.Value > 1
+				 select item) {
+			/* x is not null, or else item.Value would trigger an exception */
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var foreachStatement = (ForeachStatement) method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(foreachStatement.EmbeddedStatement, "x"));
 		}
 
 		[Test]
@@ -958,6 +1294,36 @@ class TestClass
 			var linqStatement = (VariableDeclarationStatement) method.Body.Statements.Last();
 
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(linqStatement, "collection"));
+		}
+
+		[Test]
+		public void TestLinqMemberNoExecution()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+using System;
+abstract class TestClass
+{
+	abstract int?[] Collection { get; }
+	void TestMethod()
+	{
+		object o = null;
+		int?[] collection = Collection;
+		var x = from item in collection
+                where o.ToString() == """"
+				select item;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var lastStatement = method.Body.Statements.Last();
+
+			//o.ToString always throws an exception, but the query might not be executed at all
+			Assert.AreEqual(NullValueStatus.DefinitelyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
 		}
 
 		[Test]
