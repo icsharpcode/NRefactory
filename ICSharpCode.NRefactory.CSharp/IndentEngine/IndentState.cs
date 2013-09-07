@@ -445,6 +445,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			// try to capture ': base(...)' and inherit statements when they are on a new line
+			// TODO: Try to capture ': this(...)' and ': base(...)' on methods
 			if (ch == ':' && Engine.isLineStart && new[] { Body.Class, Body.Interface, Body.Struct }.Contains(NextBody))
 			{
 				ThisLineIndent.Push(IndentType.Continuation);
@@ -594,12 +595,16 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (statements.ContainsKey(keyword))
 			{
+				CurrentStatement = statements[keyword];
 				// only add continuation for 'else' in 'else if' statement.
-				if (!(statements[keyword] == Statement.If && CurrentStatement == Statement.Else))
+				if (!(CurrentStatement == Statement.If && Engine.previousKeyword == "else"))
 				{
 					NextLineIndent.Push(IndentType.Continuation);
 				}
-				CurrentStatement = statements[keyword];
+			}
+			else if (keyword == "where" && Engine.isLineStartBeforeWordToken)
+			{
+				ThisLineIndent.Push(IndentType.Continuation);
 			}
 		}
 
