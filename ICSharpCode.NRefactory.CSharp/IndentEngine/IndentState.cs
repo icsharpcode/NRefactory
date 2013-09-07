@@ -461,13 +461,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				NextLineIndent.Push(IndentType.Continuation);
 			}
 
-			// try to capture ': base(...)' and inherit statements when they are on a new line
-			// TODO: Try to capture ': this(...)' and ': base(...)' on methods
-			if (ch == ':' && Engine.isLineStart && new[] { Body.Class, Body.Interface, Body.Struct }.Contains(NextBody))
-			{
-				ThisLineIndent.Push(IndentType.Continuation);
-			}
-
 			base.Push(ch);
 
 			if (ch == '#' && Engine.isLineStart)
@@ -783,6 +776,18 @@ namespace ICSharpCode.NRefactory.CSharp
 		public BracesBodyState(BracesBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
 		{ }
+
+		public override void Push(char ch)
+		{
+			// try to capture ': base(...)', ': this(...)' and inherit statements when they are on a new line
+			if (ch == ':' && Engine.isLineStart && !IsRightHandExpression)
+			{
+				ThisLineIndent.Push(IndentType.Continuation);
+				NextLineIndent = ThisLineIndent.Clone();
+			}
+
+			base.Push(ch);
+		}
 
 		public override void InitializeState()
 		{

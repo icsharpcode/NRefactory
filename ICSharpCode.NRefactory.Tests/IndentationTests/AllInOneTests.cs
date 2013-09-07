@@ -70,26 +70,27 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			BeginFileTest("IndentEngine.cs");
 		}
 
-		[Ignore("FIXME")]
 		[Test]
 		public void TestAllInOne_CSharpParser()
 		{
 			BeginFileTest("CSharpParser.cs", FormattingOptionsFactory.CreateSharpDevelop());
 		}
 
-		[Ignore("FIXME")]
 		[Test]
 		public void TestAllInOne_TextArea()
 		{
 			BeginFileTest("TextArea.cs");
 		}
 
-
-		[Ignore("FIXME")]
 		[Test]
 		public void TestAllInOne_IndentState()
 		{
-			BeginFileTest("IndentState.cs");
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.IndentSwitchBody = true;
+			policy.IndentCaseBody = true;
+			policy.IndentBreakStatements = true;
+
+			BeginFileTest("IndentState.cs", policy);
 		}
 
 		[Test]
@@ -101,6 +102,12 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			policy.IndentBreakStatements = false;
 
 			BeginFileTest("SwitchCase.cs", policy);
+		}
+
+		[Test]
+		public void TestAllInOne_InheritStatements()
+		{
+			BeginFileTest("InheritStatements.cs");
 		}
 	}
 }
