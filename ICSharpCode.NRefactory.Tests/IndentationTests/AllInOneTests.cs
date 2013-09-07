@@ -72,10 +72,18 @@ namespace ICSharpCode.NRefactory.IndentationTests
 
 		[Ignore("FIXME")]
 		[Test]
-		public void TestAllInOne_CSharpParser_Randomized()
+		public void TestAllInOne_CSharpParser()
 		{
-			BeginFileTest("CSharpParser.cs");
+			BeginFileTest("CSharpParser.cs", FormattingOptionsFactory.CreateSharpDevelop());
 		}
+
+		[Ignore("FIXME")]
+		[Test]
+		public void TestAllInOne_TextArea()
+		{
+			BeginFileTest("TextArea.cs");
+		}
+
 
 		[Ignore("FIXME")]
 		[Test]
