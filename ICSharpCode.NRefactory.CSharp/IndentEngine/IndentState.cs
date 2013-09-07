@@ -421,11 +421,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (ch == '.' && IsRightHandExpression)
 			{
-				if (Engine.previousChar == ')') {
+				if (Engine.previousChar == ')' && ThisLineIndent.ExtraSpaces > 0) {
 					ThisLineIndent.ExtraSpaces = 0;
 					ThisLineIndent.Push(IndentType.Continuation);
 				} else {
-//					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+					// NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 				}
 			}
 			else if (ch == ',' && IsRightHandExpression)
@@ -481,7 +481,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (OpenBrackets.ContainsKey(ch))
 			{
-				// TODO: remove extra spaces if this == BracesBody
 				OpenBrackets[ch](this);
 			}
 			else if (ch == ClosedBracket)
@@ -598,7 +597,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				// only add continuation for 'else' in 'else if' statement.
 				if (!(statements[keyword] == Statement.If && CurrentStatement == Statement.Else))
 				{
-							NextLineIndent.Push(IndentType.Continuation);
+					NextLineIndent.Push(IndentType.Continuation);
 				}
 				CurrentStatement = statements[keyword];
 			}
