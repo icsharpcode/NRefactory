@@ -1613,9 +1613,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			// add extra spaces so that the next line of the comment is align
-			// to the first character in the first line of the comment
-			NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent + 1);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)

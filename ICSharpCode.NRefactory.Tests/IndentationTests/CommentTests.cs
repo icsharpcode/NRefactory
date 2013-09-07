@@ -108,7 +108,7 @@ class Foo {
 		{
 			var indent = Helper.CreateEngine(@"/* comment $");
 			Assert.AreEqual("", indent.ThisLineIndent);
-			Assert.AreEqual("   ", indent.NextLineIndent);
+			Assert.AreEqual("", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -117,21 +117,10 @@ class Foo {
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	/* line 1 
-		* line 2
-		**/$");
-			Assert.AreEqual("\t   ", indent.ThisLineIndent);
+	line 2
+	*/$");
+			Assert.AreEqual("\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t", indent.NextLineIndent);
-		}
-
-		[Test]
-		public void TestMultiLineComment_MultiLinesExtraSpaces()
-		{
-			var indent = Helper.CreateEngine(@"
-class Foo { /* line 1 
-				* line 2
-				* $");
-			Assert.AreEqual("               ", indent.ThisLineIndent);
-			Assert.AreEqual("               ", indent.NextLineIndent);
 		}
 	}
 }

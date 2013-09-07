@@ -25,9 +25,9 @@ namespace Comments
 		{
 			int i; // i
 			
-			for (i = 0; i < 42 /* 42; */; i++) /* *
-			                                      * Multi-line 
-			                                      */
+			for (i = 0; i < 42 /* 42; */; i++) /*
+			* Multi-line 
+			*/
 			{
 				// break
 				break;
