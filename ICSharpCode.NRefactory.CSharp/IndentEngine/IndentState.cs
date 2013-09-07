@@ -892,10 +892,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
-			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstMethodCallArgument) && Engine.previousChar == '(')
+			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstMethodCallArgument) && Engine.previousChar == '(' && !Engine.isLineStart)
 			{
 				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Continuation);
+				NextLineIndent.Push(IndentType.Block);
 			}
 
 			base.Push(ch);
