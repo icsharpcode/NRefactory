@@ -29,6 +29,7 @@ using ICSharpCode.NRefactory.Editor;
 using NUnit.Framework;
 using System.IO;
 using System.Text;
+using System;
 
 namespace ICSharpCode.NRefactory.IndentationTests
 {
@@ -61,6 +62,35 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
 			result.Update(offset);
 			return result;
+		}
+
+
+		public static void RandomTests(string filePath, int count, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
+		{
+			if (File.Exists(filePath))
+			{
+				var code = File.ReadAllText(filePath);
+				var document = new ReadOnlyDocument(code);
+				policy = policy ?? FormattingOptionsFactory.CreateMono();
+				options = options ?? new TextEditorOptions { IndentBlankLines = false };
+				
+				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
+				Random rnd = new Random();
+
+				for (int i = 0; i < count; i++) {
+					int offset = rnd.Next(document.TextLength);
+					engine.Update(offset);
+					if (engine.CurrentIndent.Length == 0)
+						continue;
+					Assert.IsFalse(engine.NeedsReindent,
+					           string.Format("Line: {0}, Indent: {1}, Current indent: {2}",
+					           engine.Location.Line.ToString(), engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+				}
+			}
+			else
+			{
+				Assert.Fail("File " + filePath + " doesn't exist.");
+			}
 		}
 
 
