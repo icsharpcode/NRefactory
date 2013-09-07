@@ -369,9 +369,15 @@ namespace ICSharpCode.NRefactory.CSharp
 		public Statement CurrentStatement;
 
 		/// <summary>
-		///     True if the '=' char has been pushed.
+		///     True if the engine is on the right side of the equal operator '='.
 		/// </summary>
 		public bool IsRightHandExpression;
+
+		/// <summary>
+		///     True if the '=' char has been pushed and it's not
+		///     a part of a relational operator (&gt;=, &lt;=, !=, ==).
+		/// </summary>
+		public bool IsEqualCharPushed;
 
 		protected BracketsBodyBaseState(CSharpIndentEngine engine, IndentState parent = null)
 			: base(engine, parent)
@@ -384,6 +390,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			NextBody = prototype.NextBody;
 			CurrentStatement = prototype.CurrentStatement;
 			IsRightHandExpression = prototype.IsRightHandExpression;
+			IsEqualCharPushed = prototype.IsEqualCharPushed;
 		}
 
 		/// <summary>
@@ -404,6 +411,16 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
+			if (IsEqualCharPushed && Engine.previousChar == '=')
+			{
+				IsEqualCharPushed = false;
+				if (ch != '=' && ch != '>')
+				{
+					IsRightHandExpression = true;
+					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
+				}
+			}
+
 			if (ch == ';' || ch == ':')
 			{
 				while (NextLineIndent.Count > 0 && NextLineIndent.Peek() == IndentType.Continuation)
@@ -414,10 +431,9 @@ namespace ICSharpCode.NRefactory.CSharp
 				IsRightHandExpression = false;
 				CurrentStatement = Statement.None;
 			}
-			else if (ch == '=' && !char.IsPunctuation(Engine.previousChar) && !IsRightHandExpression)
+			else if (ch == '=' && !IsRightHandExpression && !new[] {'=', '<', '>', '!'}.Contains(Engine.previousChar))
 			{
-				IsRightHandExpression = true;
-				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent + 1);
+				IsEqualCharPushed = true;
 			}
 			else if (ch == '.' && IsRightHandExpression)
 			{
