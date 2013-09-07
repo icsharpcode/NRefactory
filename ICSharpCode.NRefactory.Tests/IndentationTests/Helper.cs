@@ -109,10 +109,12 @@ namespace ICSharpCode.NRefactory.IndentationTests
 				{
 					if (options.EolMarker[0] == ch)
 					{
-						if (engine.CurrentIndent.Length > 0) {
-							if (engine.NeedsReindent) {
-								errors++;
-								Console.WriteLine(string.Format("Indent: {2}, Current indent: {3} in {0}:{1}", filePath, engine.Location.Line, engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+						if (!(engine.LineBeganInsideMultiLineComment || engine.LineBeganInsideVerbatimString)) {
+							if (engine.CurrentIndent.Length > 0) {
+								if (engine.NeedsReindent) {
+									errors++;
+									Console.WriteLine(string.Format("Indent: {2}, Current indent: {3} in {0}:{1}", filePath, engine.Location.Line, engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+								}
 							}
 						}
 					}

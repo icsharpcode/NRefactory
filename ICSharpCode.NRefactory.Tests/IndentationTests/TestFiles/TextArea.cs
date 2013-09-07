@@ -911,7 +911,7 @@ namespace Mono.TextEditor
 		{
 			ModifierType filteredModifiers = modifier & (ModifierType.ShiftMask | ModifierType.Mod1Mask |
 			                                             ModifierType.ControlMask | ModifierType.MetaMask |
-														 ModifierType.SuperMask);
+			                                             ModifierType.SuperMask);
 			CurrentMode.InternalHandleKeypress (textEditorData.Parent, textEditorData, key, unicodeChar, filteredModifiers);
 			RequestResetCaretBlink ();
 		}
