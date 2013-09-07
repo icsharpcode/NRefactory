@@ -31,6 +31,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using ICSharpCode.NRefactory.CSharp;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
+using System.Diagnostics;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -411,6 +412,33 @@ class TestClass
 
 			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lockBlock.Statements.Single(), "x1"));
 			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "x2"));
+		}
+
+		[Test]
+		public void TestComparisonWithNonNull()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	string SomeValue () { return null; }
+	bool PathMatches ()
+	{
+		string handlerPath = SomeValue();
+		if (handlerPath == ""*"")
+			return false;
+		return true;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			var end = method.Body.Statements.Last();
+
+			Assert.AreEqual(NullValueStatus.Unknown, analysis.GetVariableStatusBeforeStatement(end, "handlerPath"));
 		}
 
 		[Test]
