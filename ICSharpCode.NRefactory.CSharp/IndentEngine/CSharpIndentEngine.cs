@@ -348,12 +348,12 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			offset++;
 			// ignore whitespace and newline chars
-			if (!char.IsWhiteSpace(currentChar) && !textEditorOptions.EolMarker.Contains(currentChar))
+			if (!char.IsWhiteSpace(currentChar) && !NewLine.IsNewLine(currentChar))
 			{
 				previousChar = currentChar;
 			}
 
-			if (!textEditorOptions.EolMarker.Contains(ch))
+			if (!NewLine.IsNewLine(ch))
 			{
 				isLineStart &= char.IsWhiteSpace(ch);
 
@@ -380,7 +380,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				{
 					return;
 				}
-
 				currentIndent.Length = 0;
 				isLineStart = true;
 				isLineStartBeforeWordToken = true;

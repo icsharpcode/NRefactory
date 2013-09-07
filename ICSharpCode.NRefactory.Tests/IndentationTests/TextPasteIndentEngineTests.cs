@@ -165,6 +165,16 @@ void Bar ()
 			Assert.AreEqual(str, text);
 		}
 
+		[Test]
+		public void TestWindowsLineEnding()
+		{
+			var indent = CreateEngine("\r\nclass Foo\r\n{\r\n\tvoid Bar ()\r\n\t{\r\n\t\tSystem.Console.WriteLine ($);\r\n\t}\r\n}");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
+			var text = handler.FormatPlainText(indent.Offset, "Foo();\r\nBar();\r\nTest();", null);
+			System.Console.WriteLine(text);
+			Assert.AreEqual("Foo();\n\t\tBar();\n\t\tTest();", text);
+		}
+
 	}
 }
 
