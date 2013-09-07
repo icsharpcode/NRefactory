@@ -268,6 +268,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			this.conditionalSymbols = new HashSet<string>();
 			this.wordToken = new StringBuilder();
+			this.previousKeyword = string.Empty;
 			this.newLineChar = textEditorOptions.EolMarker[0];
 		}
 
