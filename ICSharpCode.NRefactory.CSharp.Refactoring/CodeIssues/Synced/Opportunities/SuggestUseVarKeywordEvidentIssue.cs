@@ -27,6 +27,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
+using System;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -52,6 +53,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public GatherVisitor (BaseRefactoringContext ctx, SuggestUseVarKeywordEvidentIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
             }
+
+			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
+			{
+				if (!ctx.Supports(UseVarKeywordAction.minimumVersion))
+					return;
+				base.VisitSyntaxTree(syntaxTree);
+			}
 
 			public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)
 			{

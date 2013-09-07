@@ -103,7 +103,8 @@ namespace ICSharpCode.NRefactory.CSharp
 					continue;
 				}
 
-				if (NewLine.GetDelimiterLength(ch, i + 1 < text.Length ? text [i + 1] : ' ') > 0) {
+				var delimiterLength = NewLine.GetDelimiterLength(ch, i + 1 < text.Length ? text[i + 1] : ' ');
+				if (delimiterLength > 0) {
 					isNewLine = true;
 					if (gotNewLine || pasteAtLineStart)
 						indentedText.Append(clonedEngine.ThisLineIndent);
@@ -111,6 +112,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					indentedText.Append(textEditorOptions.EolMarker);
 					curLine.Length = 0;
 					gotNewLine = true;
+					i += delimiterLength - 1;
 				} else {
 					if (isNewLine) {
 						if (ch == '\t' || ch == ' ')

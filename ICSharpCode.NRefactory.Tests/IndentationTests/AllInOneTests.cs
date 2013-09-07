@@ -70,7 +70,6 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			BeginFileTest("IndentEngine.cs");
 		}
 
-		[Ignore("FIXME")]
 		[Test]
 		public void TestAllInOne_CSharpParser()
 		{

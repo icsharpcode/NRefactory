@@ -4026,7 +4026,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			// TODO: add support for parsing a part of a file
 			throw new NotImplementedException ();
 		}
-		 */
+		*/
 		public DocumentationReference ParseDocumentationReference(string cref)
 		{
 			// see Mono.CSharp.DocumentationBuilder.HandleXrefCommon
