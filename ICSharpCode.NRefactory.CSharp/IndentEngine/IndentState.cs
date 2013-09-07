@@ -421,11 +421,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (ch == '.' && IsRightHandExpression)
 			{
-				if (Engine.previousChar == ')') {
+				if (Engine.previousChar == ')' && ThisLineIndent.ExtraSpaces > 0) {
 					ThisLineIndent.ExtraSpaces = 0;
 					ThisLineIndent.Push(IndentType.Continuation);
+					// TODO: NextLineIndent = ThisLineIndent ???
 				} else {
-//					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+					// NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 				}
 			}
 			else if (ch == ',' && IsRightHandExpression)
@@ -445,6 +446,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			// try to capture ': base(...)' and inherit statements when they are on a new line
+			// TODO: Try to capture ': this(...)' and ': base(...)' on methods
 			if (ch == ':' && Engine.isLineStart && new[] { Body.Class, Body.Interface, Body.Struct }.Contains(NextBody))
 			{
 				ThisLineIndent.Push(IndentType.Continuation);
@@ -481,7 +483,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (OpenBrackets.ContainsKey(ch))
 			{
-				// TODO: remove extra spaces if this == BracesBody
 				OpenBrackets[ch](this);
 			}
 			else if (ch == ClosedBracket)
@@ -595,12 +596,33 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (statements.ContainsKey(keyword))
 			{
-				// only add continuation for 'else' in 'else if' statement.
-				if (!(statements[keyword] == Statement.If && CurrentStatement == Statement.Else))
+				if (ThisLineIndent.Count > 0 && ThisLineIndent.Peek() == IndentType.Continuation)
 				{
-							NextLineIndent.Push(IndentType.Continuation);
+					// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
+					if (Engine.formattingOptions.AlignEmbeddedIfStatements &&
+						new[] { Statement.If, Statement.Else }.Contains(CurrentStatement) &&
+						new[] { Statement.If, Statement.Else }.Contains(statements[keyword]))
+						ThisLineIndent.Pop();
+
+					// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
+					if (Engine.formattingOptions.AlignEmbeddedUsingStatements &&
+						CurrentStatement == Statement.Using &&
+						statements[keyword] == Statement.Using)
+						ThisLineIndent.Pop();
+
+					return;
 				}
+
 				CurrentStatement = statements[keyword];
+				// only add continuation for 'else' in 'else if' statement.
+				if (!(CurrentStatement == Statement.If && Engine.previousKeyword == "else"))
+				{
+					NextLineIndent.Push(IndentType.Continuation);
+				}
+			}
+			else if (keyword == "where" && Engine.isLineStartBeforeWordToken)
+			{
+				ThisLineIndent.Push(IndentType.Continuation);
 			}
 		}
 
@@ -942,10 +964,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
-			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstIndexerArgument) && Engine.previousChar == '[')
+			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstIndexerArgument) && Engine.previousChar == '[' && !Engine.isLineStart)
 			{
 				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Continuation);
+				NextLineIndent.Push(IndentType.Block);
 			}
 
 			base.Push(ch);
@@ -1614,9 +1636,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			// add extra spaces so that the next line of the comment is align
-			// to the first character in the first line of the comment
-			NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent + 1);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)

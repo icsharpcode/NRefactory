@@ -87,6 +87,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		internal StringBuilder wordToken;
 
+		/// <summary>
+		///     Stores the previous sequence of chars that formed a
+		///     valid keyword or variable name.
+		/// </summary>
+		internal string previousKeyword;
+
 		#endregion
 
 		#region IDocumentIndentEngine
@@ -206,6 +212,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		internal bool isLineStart = true;
 
 		/// <summary>
+		///    True if <see cref="isLineStart"/> was true before the current
+		///    <see cref="wordToken"/>.
+		/// </summary>
+		internal bool isLineStartBeforeWordToken = true;
+
+		/// <summary>
 		///    Current char that's being pushed.
 		/// </summary>
 		internal char currentChar = '\0';
@@ -256,6 +268,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			this.conditionalSymbols = new HashSet<string>();
 			this.wordToken = new StringBuilder();
+			this.previousKeyword = string.Empty;
 			this.newLineChar = textEditorOptions.EolMarker[0];
 		}
 
@@ -275,12 +288,14 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.currentState = prototype.currentState.Clone(this);
 			this.conditionalSymbols = new HashSet<string>(prototype.conditionalSymbols);
 			this.wordToken = new StringBuilder(prototype.wordToken.ToString());
+			this.previousKeyword = string.Copy(prototype.previousKeyword);
 			this.ifDirectiveEvalResult = prototype.ifDirectiveEvalResult;
 
 			this.offset = prototype.offset;
 			this.line = prototype.line;
 			this.column = prototype.column;
 			this.isLineStart = prototype.isLineStart;
+			this.isLineStartBeforeWordToken = prototype.isLineStartBeforeWordToken;
 			this.currentChar = prototype.currentChar;
 			this.previousChar = prototype.previousChar;
 			this.currentIndent = new StringBuilder(prototype.CurrentIndent.ToString());
@@ -324,7 +339,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			else
 			{
 				currentState.CheckKeyword(wordToken.ToString());
+				previousKeyword = wordToken.ToString();
 				wordToken.Length = 0;
+				isLineStartBeforeWordToken &= char.IsWhiteSpace(ch);
 			}
 
 			currentState.Push(currentChar = ch);
@@ -366,6 +383,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 				currentIndent.Length = 0;
 				isLineStart = true;
+				isLineStartBeforeWordToken = true;
 				column = 1;
 				line++;
 

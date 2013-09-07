@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			}
 			
 			var document = new ReadOnlyDocument(sb.ToString());
-			var options = new TextEditorOptions();
+			var options = new TextEditorOptions { EolMarker = "\n" };
 			
 			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
 			result.Update(offset);
@@ -88,7 +88,7 @@ namespace FooBar
 	}
 }
 ");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" });
 			
 			var text = handler.FormatPlainText(indent.Offset, "void Bar ()\n{\nSystem.Console.WriteLine ();\n}", null);
 			Assert.AreEqual("void Bar ()\n\t\t{\n\t\t\tSystem.Console.WriteLine ();\n\t\t}", text);
@@ -109,7 +109,7 @@ class Foo
 
 
 ");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" });
 			
 			for (int i = 0; i < 2; i++) {
 				var text = handler.FormatPlainText(indent.Offset, "void Bar ()\n{\nSystem.Console.WriteLine ();\n}", null);
@@ -128,7 +128,7 @@ class Foo
 	{
 	}
 }");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" });
 			var text = handler.FormatPlainText(indent.Offset, "int i;\n", null);
 			Assert.AreEqual("int i;\n\t", text);
 		}
@@ -143,7 +143,7 @@ $	void Bar ()
 	{
 	}
 }");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" });
 			var text = handler.FormatPlainText(indent.Offset, "int i;\n", null);
 			Assert.AreEqual("\tint i;\n", text);
 		}
@@ -159,7 +159,7 @@ void Bar ()
 	
 }
 }");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" });
 			var str = "string str = @\"\n1\n\t2 \n\t\t3\n\";";
 			var text = handler.FormatPlainText(indent.Offset, str, null);
 			Assert.AreEqual(str, text);

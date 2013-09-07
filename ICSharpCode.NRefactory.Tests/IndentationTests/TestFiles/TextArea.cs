@@ -854,7 +854,7 @@ namespace Mono.TextEditor
 		{
 			base.QueueDraw ();
 #if DEBUG_EXPOSE
-				Console.WriteLine ("invalidated entire widget");
+			Console.WriteLine ("invalidated entire widget");
 #endif
 		}
 
@@ -909,8 +909,9 @@ namespace Mono.TextEditor
 		/// <param name="modifier">Keyboard modifier, excluding any consumed by key mapping or IM.</param>
 		public void SimulateKeyPress (Gdk.Key key, uint unicodeChar, ModifierType modifier)
 		{
-			ModifierType filteredModifiers = modifier & (ModifierType.ShiftMask | ModifierType.Mod1Mask
-			                                 | ModifierType.ControlMask | ModifierType.MetaMask | ModifierType.SuperMask);
+			ModifierType filteredModifiers = modifier & (ModifierType.ShiftMask | ModifierType.Mod1Mask |
+			                                             ModifierType.ControlMask | ModifierType.MetaMask |
+														 ModifierType.SuperMask);
 			CurrentMode.InternalHandleKeypress (textEditorData.Parent, textEditorData, key, unicodeChar, filteredModifiers);
 			RequestResetCaretBlink ();
 		}
@@ -1614,7 +1615,7 @@ namespace Mono.TextEditor
 			var modifier = !Platform.IsMac ? Gdk.ModifierType.ControlMask
 			               //Mac window manager already uses control-scroll, so use command
 			               //Command might be either meta or mod1, depending on GTK version
-				: (Gdk.ModifierType.MetaMask | Gdk.ModifierType.Mod1Mask);
+			               : (Gdk.ModifierType.MetaMask | Gdk.ModifierType.Mod1Mask);
 
 			var hasZoomModifier = (evnt.State & modifier) != 0;
 			if (hasZoomModifier && lastScrollTime != 0 && (evnt.Time - lastScrollTime) < 100)
@@ -1781,8 +1782,8 @@ namespace Mono.TextEditor
 		/*
 		protected override bool OnWidgetEvent (Event evnt)
 		{
-			System.Console.WriteLine(evnt);
-			return base.OnWidgetEvent (evnt);
+		System.Console.WriteLine(evnt);
+		return base.OnWidgetEvent (evnt);
 		}*/
 		double oldVadjustment = 0;
 
@@ -1824,7 +1825,7 @@ namespace Mono.TextEditor
 			
 #if DEBUG_EXPOSE
 				Console.WriteLine ("{0} expose {1},{2} {3}x{4}", (long)(DateTime.Now - started).TotalMilliseconds,
-					e.Area.X, e.Area.Y, e.Area.Width, e.Area.Height);
+				e.Area.X, e.Area.Y, e.Area.Width, e.Area.Height);
 #endif
 				if (requestResetCaretBlink && HasFocus) {
 					textViewMargin.ResetCaretBlink (200);
