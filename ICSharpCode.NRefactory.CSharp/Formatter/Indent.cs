@@ -43,6 +43,8 @@ namespace ICSharpCode.NRefactory.CSharp
 		readonly Stack<IndentType> indentStack = new Stack<IndentType>();
 		readonly TextEditorOptions options;
 		int curIndent;
+		int extraSpaces;
+		string indentString;
 
 		public int CurIndent {
 			get {
@@ -56,17 +58,18 @@ namespace ICSharpCode.NRefactory.CSharp
 			Reset();
 		}
 
-		Indent(TextEditorOptions options, Stack<IndentType> indentStack, int curIndent) : this(options)
+		Indent(Indent engine)
 		{
-			this.indentStack = indentStack;
-			this.curIndent = curIndent;
+			this.indentStack = new Stack<IndentType>(engine.indentStack.Reverse());
+			this.options = engine.options;
+			this.curIndent = engine.curIndent;
+			this.extraSpaces = engine.extraSpaces;
+			this.indentString = engine.indentString;
 		}
 
 		public Indent Clone()
 		{
-			var result = new Indent(options, new Stack<IndentType>(indentStack.Reverse()), curIndent);
-			result.indentString = indentString;
-			return result;
+			return new Indent(this);
 		}
 
 		public void Reset()
@@ -133,8 +136,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			indentString = new string('\t', curIndent / options.TabSize) + new string(' ', curIndent % options.TabSize) + new string(' ', ExtraSpaces);
 		}
 
-		int extraSpaces;
-
 		public int ExtraSpaces {
 			get {
 				return extraSpaces;
@@ -147,7 +148,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
-		string indentString;
 
 		public string IndentString {
 			get {
@@ -167,6 +167,5 @@ namespace ICSharpCode.NRefactory.CSharp
 					result.Push(i);
 			return result;
 		}
-
 	}
 }
