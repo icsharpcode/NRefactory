@@ -72,7 +72,7 @@ class Foo
 		public static bool IsComplexExpression(AstNode expr)
 		{
 			return expr.StartLocation.Line != expr.EndLocation.Line ||
-			       expr is ConditionalExpression ||$", fmt);
+				expr is ConditionalExpression ||$", fmt);
 			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
@@ -107,6 +107,38 @@ class Foo
 			.Foo ()
 			.Foo ()$", fmt);
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+		}
+
+		[Test]
+		public void AlignEmbeddedIfStatements()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = true;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		if (true)
+		if (true) $", fmt);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void AlignEmbeddedUsingStatements()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedUsingStatements = true;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test (IDisposable a, IDisposable b)
+	{
+		using (a)
+		using (b) $", fmt);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 	}
 }
