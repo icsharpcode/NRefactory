@@ -1825,7 +1825,7 @@ namespace Mono.TextEditor
 			
 #if DEBUG_EXPOSE
 				Console.WriteLine ("{0} expose {1},{2} {3}x{4}", (long)(DateTime.Now - started).TotalMilliseconds,
-					e.Area.X, e.Area.Y, e.Area.Width, e.Area.Height);
+				e.Area.X, e.Area.Y, e.Area.Width, e.Area.Height);
 #endif
 				if (requestResetCaretBlink && HasFocus) {
 					textViewMargin.ResetCaretBlink (200);

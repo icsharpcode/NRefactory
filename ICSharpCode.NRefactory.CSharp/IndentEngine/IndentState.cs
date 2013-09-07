@@ -424,6 +424,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				if (Engine.previousChar == ')' && ThisLineIndent.ExtraSpaces > 0) {
 					ThisLineIndent.ExtraSpaces = 0;
 					ThisLineIndent.Push(IndentType.Continuation);
+					// TODO: NextLineIndent = ThisLineIndent ???
 				} else {
 					// NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 				}
@@ -595,6 +596,23 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (statements.ContainsKey(keyword))
 			{
+				if (ThisLineIndent.Count > 0 && ThisLineIndent.Peek() == IndentType.Continuation)
+				{
+					// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
+					if (Engine.formattingOptions.AlignEmbeddedIfStatements &&
+						new[] { Statement.If, Statement.Else }.Contains(CurrentStatement) &&
+						new[] { Statement.If, Statement.Else }.Contains(statements[keyword]))
+						ThisLineIndent.Pop();
+
+					// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
+					if (Engine.formattingOptions.AlignEmbeddedUsingStatements &&
+						CurrentStatement == Statement.Using &&
+						statements[keyword] == Statement.Using)
+						ThisLineIndent.Pop();
+
+					return;
+				}
+
 				CurrentStatement = statements[keyword];
 				// only add continuation for 'else' in 'else if' statement.
 				if (!(CurrentStatement == Statement.If && Engine.previousKeyword == "else"))
