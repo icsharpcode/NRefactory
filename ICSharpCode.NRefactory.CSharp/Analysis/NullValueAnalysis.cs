@@ -1229,7 +1229,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				if (tentativeLeftResult.NullableReturnResult.IsDefiniteValue()) {
 					if (tentativeRightResult.NullableReturnResult.IsDefiniteValue()) {
-						return VisitorResult.ForBoolValue(tentativeRightResult.Variables, tentativeLeftResult.NullableReturnResult == tentativeRightResult.NullableReturnResult);
+						if (tentativeLeftResult.NullableReturnResult == NullValueStatus.DefinitelyNull || tentativeRightResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
+							return VisitorResult.ForBoolValue(tentativeRightResult.Variables, tentativeLeftResult.NullableReturnResult == tentativeRightResult.NullableReturnResult);
+						}
 					}
 				}
 
