@@ -637,5 +637,7 @@
     <None Include="IndentationTests\TestFiles\Simple.cs" />
     <None Include="IndentationTests\TestFiles\Strings.cs" />
     <None Include="IndentationTests\TestFiles\SwitchCase.cs" />
+    <None Include="IndentationTests\TestFiles\CSharpParser.cs" />
+    <None Include="IndentationTests\TestFiles\TextArea.cs" />
   </ItemGroup>
 </Project>

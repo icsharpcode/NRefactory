@@ -337,7 +337,8 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 		{
 			string parsedText;
 			string editorText;
-			cursorPosition = text.IndexOf('$');
+			var selectionStart = text.IndexOf('$');
+			cursorPosition = selectionStart;
 			int endPos = text.IndexOf('$', cursorPosition + 1);
 			if (endPos == -1) {
 				parsedText = editorText = cursorPosition < 0 ? text : text.Substring(0, cursorPosition) + text.Substring(cursorPosition + 1);
@@ -354,19 +355,19 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 			CreateCompilation (parsedText, out pctx, out syntaxTree, out unresolvedFile, true, references);
 			var cmp = pctx.CreateCompilation();
 
-			var loc = cursorPosition > 0 ? doc.GetLocation(cursorPosition) : new TextLocation (1, 1);
+			var loc = cursorPosition > 0 ? doc.GetLocation(selectionStart) : new TextLocation (1, 1);
 
 			var rctx = new CSharpTypeResolveContext(cmp.MainAssembly);
 			rctx = rctx.WithUsingScope(unresolvedFile.GetUsingScope(loc).Resolve(cmp));
 
 			var curDef = unresolvedFile.GetInnermostTypeDefinition(loc);
 			if (curDef != null) {
-					var resolvedDef = curDef.Resolve(rctx).GetDefinition();
-					rctx = rctx.WithCurrentTypeDefinition(resolvedDef);
-					var curMember = resolvedDef.Members.FirstOrDefault(m => m.Region.Begin <= loc && loc < m.BodyRegion.End);
-					if (curMember != null) {
-							rctx = rctx.WithCurrentMember(curMember);
-					}
+				var resolvedDef = curDef.Resolve(rctx).GetDefinition();
+				rctx = rctx.WithCurrentTypeDefinition(resolvedDef);
+				var curMember = resolvedDef.Members.FirstOrDefault(m => m.Region.Begin <= loc && loc < m.BodyRegion.End);
+				if (curMember != null) {
+					rctx = rctx.WithCurrentMember(curMember);
+				}
 			}
 			var mb = new DefaultCompletionContextProvider(doc, unresolvedFile);
 			mb.AddSymbol ("TEST");
@@ -3443,7 +3444,44 @@ namespace B
 			Assert.IsNull (provider.Find ("Foo"), "enum 'Foo' found, but shouldn't.");
 			Assert.IsNotNull (provider.Find ("A.Foo"), "enum 'A.Foo' not found.");
 		}
+
+		[Test]
+		public void TestBug614045_IndexerCase ()
+		{
+			CompletionDataList provider = CreateProvider (
+				@"
+namespace A
+{
+	enum Foo
+	{
+		One,
+		Two,
+		Three
+	}
+}
+
+namespace B
+{
+	using A;
+	
+	public class Baz
+	{
+		public string Foo;
 		
+		int this[Foo b] {
+			get {}
+			set {
+				$switch (b) {
+				case $
+			}
+		}
+	}
+}
+");
+			Assert.IsNotNull (provider, "provider not found.");
+			Assert.IsNull (provider.Find ("Foo"), "enum 'Foo' found, but shouldn't.");
+			Assert.IsNotNull (provider.Find ("A.Foo"), "enum 'A.Foo' not found.");
+		}
 		/// <summary>
 		/// Bug 615992 - Intellisense broken when calling generic method.
 		/// </summary>

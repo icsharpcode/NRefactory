@@ -29,6 +29,7 @@ using ICSharpCode.NRefactory.Editor;
 using NUnit.Framework;
 using System.IO;
 using System.Text;
+using System;
 
 namespace ICSharpCode.NRefactory.IndentationTests
 {
@@ -64,7 +65,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 		}
 
 
-		public static void ReadAndTest(string filePath, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
+		public static void RandomTests(string filePath, int count, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
 		{
 			if (File.Exists(filePath))
 			{
@@ -72,22 +73,54 @@ namespace ICSharpCode.NRefactory.IndentationTests
 				var document = new ReadOnlyDocument(code);
 				policy = policy ?? FormattingOptionsFactory.CreateMono();
 				options = options ?? new TextEditorOptions { IndentBlankLines = false };
+				
+				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
+				Random rnd = new Random();
+
+				for (int i = 0; i < count; i++) {
+					int offset = rnd.Next(document.TextLength);
+					engine.Update(offset);
+					if (engine.CurrentIndent.Length == 0)
+						continue;
+				}
+
+			}
+			else
+			{
+				Assert.Fail("File " + filePath + " doesn't exist.");
+			}
+		}
+
+
+		public static void ReadAndTest(string filePath, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
+		{
+			if (File.Exists(filePath))
+			{
+				filePath = Path.GetFullPath(filePath);
+				var code = File.ReadAllText(filePath);
+				var document = new ReadOnlyDocument(code);
+				policy = policy ?? FormattingOptionsFactory.CreateMono();
+				options = options ?? new TextEditorOptions { IndentBlankLines = false };
 
 				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
+				int errors = 0;
 
 				foreach (var ch in code)
 				{
 					if (options.EolMarker[0] == ch)
 					{
 						if (engine.CurrentIndent.Length > 0) {
-							Assert.IsFalse(engine.NeedsReindent,
-							               string.Format("Line: {0}, Indent: {1}, Current indent: {2}",
-							                engine.Location.Line.ToString(), engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+							if (engine.NeedsReindent) {
+								errors++;
+								Console.WriteLine(string.Format("Indent: {2}, Current indent: {3} in {0}:{1}", filePath, engine.Location.Line, engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+							}
 						}
 					}
 
 					engine.Push(ch);
 				}
+				Assert.AreEqual(0, errors);
+
 			}
 			else
 			{
