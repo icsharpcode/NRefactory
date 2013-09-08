@@ -908,7 +908,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		public override void OnExit()
-		{ }
+		{
+			// override the base.OnExit() logic
+		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
 		{
@@ -928,6 +930,11 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class ParenthesesBodyState : BracketsBodyBaseState
 	{
+		/// <summary>
+		///     True if any char has been pushed.
+		/// </summary>
+		public bool IsSomethingPushed;
+
 		public override char ClosedBracket
 		{
 			get { return ')'; }
@@ -939,25 +946,29 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public ParenthesesBodyState(ParenthesesBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
-		{ }
+		{
+			IsSomethingPushed = prototype.IsSomethingPushed;
+		}
 
 		public override void Push(char ch)
 		{
-			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstMethodCallArgument) && Engine.previousChar == '(' && !Engine.isLineStart)
+			// OPTION: CSharpFormattingOptions.AlignToFirstMethodCallArgument
+			if (ch != Engine.newLineChar && !IsSomethingPushed && Engine.formattingOptions.AlignToFirstMethodCallArgument)
 			{
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Block);
+				// align the next line at the beginning of the open bracket
+				NextLineIndent.Pop();
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 			}
 
 			base.Push(ch);
+			IsSomethingPushed = true;
 		}
 
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			// align the next line at the beginning of the open bracket
-			NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
+			NextLineIndent.Push(IndentType.Block);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
@@ -978,6 +989,11 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class SquareBracketsBodyState : BracketsBodyBaseState
 	{
+		/// <summary>
+		///     True if any char has been pushed.
+		/// </summary>
+		public bool IsSomethingPushed;
+
 		public override char ClosedBracket
 		{
 			get { return ']'; }
@@ -989,25 +1005,29 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public SquareBracketsBodyState(SquareBracketsBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
-		{ }
+		{
+			IsSomethingPushed = prototype.IsSomethingPushed;
+		}
 
 		public override void Push(char ch)
 		{
-			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstIndexerArgument) && Engine.previousChar == '[' && !Engine.isLineStart)
+			// OPTION: CSharpFormattingOptions.AlignToFirstIndexerArgument
+			if (ch != Engine.newLineChar && !IsSomethingPushed && Engine.formattingOptions.AlignToFirstIndexerArgument)
 			{
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Block);
+				// align the next line at the beginning of the open bracket
+				NextLineIndent.Pop();
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 			}
 
 			base.Push(ch);
+			IsSomethingPushed = true;
 		}
 
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			// align the next line at the beginning of the open bracket
-			NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
+			NextLineIndent.Push(IndentType.Block);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
@@ -1028,6 +1048,11 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class AngleBracketsBodyState : BracketsBodyBaseState
 	{
+		/// <summary>
+		///     True if any char has been pushed.
+		/// </summary>
+		public bool IsSomethingPushed;
+
 		public override char ClosedBracket
 		{
 			get { return '>'; }
@@ -1039,25 +1064,28 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public AngleBracketsBodyState(AngleBracketsBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
-		{ }
+		{
+			IsSomethingPushed = prototype.IsSomethingPushed;
+		}
 
 		public override void Push(char ch)
 		{
-			if (ch == Engine.newLineChar && Engine.previousChar == '<')
+			if (ch != Engine.newLineChar && !IsSomethingPushed)
 			{
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Continuation);
+				// align the next line at the beginning of the open bracket
+				NextLineIndent.Pop();
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 			}
 
 			base.Push(ch);
+			IsSomethingPushed = true;
 		}
 
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			// align the next line at the beginning of the open bracket
-			NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
+			NextLineIndent.Push(IndentType.Block);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)

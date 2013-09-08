@@ -271,7 +271,7 @@ class Foo {
 	{
 		Foo($");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t    ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
