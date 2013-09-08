@@ -615,17 +615,19 @@ namespace ICSharpCode.NRefactory.CSharp
 				{
 					// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
 					if (Engine.formattingOptions.AlignEmbeddedIfStatements &&
-						new[] { Statement.If, Statement.Else }.Contains(CurrentStatement) &&
-						new[] { Statement.If, Statement.Else }.Contains(statements[keyword]))
+					    new[] { Statement.If, Statement.Else }.Contains(CurrentStatement) &&
+					    new[] { Statement.If, Statement.Else }.Contains(statements [keyword])) {
 						ThisLineIndent.Pop();
+						return;
+					}
 
 					// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
 					if (Engine.formattingOptions.AlignEmbeddedUsingStatements &&
-						CurrentStatement == Statement.Using &&
-						statements[keyword] == Statement.Using)
+					    CurrentStatement == Statement.Using &&
+					    statements [keyword] == Statement.Using) {
 						ThisLineIndent.Pop();
-
-					return;
+						return;
+					}
 				}
 
 				CurrentStatement = statements[keyword];

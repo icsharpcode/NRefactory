@@ -120,9 +120,27 @@ class Foo
 	void Test ()
 	{
 		if (true)
+		if (true)
 		if (true) $", fmt);
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void UnalignEmbeddedIfStatements()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		if (true)
+			if (true)
+				if (true) $", fmt);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -136,9 +154,27 @@ class Foo
 	void Test (IDisposable a, IDisposable b)
 	{
 		using (a)
+		using (a)
 		using (b) $", fmt);
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+	
+		[Test]
+		public void UnalignEmbeddedUsingStatements()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedUsingStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test (IDisposable a, IDisposable b)
+	{
+		using (a)
+			using (a)
+				using (b) $", fmt);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t\t", indent.NextLineIndent);
 		}
 	}
 }
