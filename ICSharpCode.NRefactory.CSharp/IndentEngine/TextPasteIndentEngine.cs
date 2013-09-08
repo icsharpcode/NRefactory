@@ -126,6 +126,16 @@ namespace ICSharpCode.NRefactory.CSharp
 					curLine.Append(ch);
 					clonedEngine.Push(ch);
 				}
+				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment && 
+				    !(clonedEngine.LineBeganInsideVerbatimString || clonedEngine.LineBeganInsideMultiLineComment)) {
+					if (gotNewLine) {
+						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
+							indentedText.Append(clonedEngine.ThisLineIndent);
+					}
+					indentedText.Append(curLine);
+					curLine.Length = 0;
+					continue;
+				}
 			}
 			if (gotNewLine && !pasteAtLineStart) {
 				indentedText.Append(clonedEngine.ThisLineIndent);
