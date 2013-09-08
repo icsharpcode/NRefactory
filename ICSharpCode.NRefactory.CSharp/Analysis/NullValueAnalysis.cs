@@ -1083,12 +1083,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			{
 				var resolveResult = analysis.context.Resolve(defaultValueExpression);
 				if (resolveResult.IsError) {
-					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
+					return HandleExpressionResult(defaultValueExpression, data, NullValueStatus.Unknown);
 				}
 
 				Debug.Assert(resolveResult.IsCompileTimeConstant);
 
-				return VisitorResult.ForValue(data, resolveResult.ConstantValue == null ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull);
+				return HandleExpressionResult(defaultValueExpression, data, resolveResult.ConstantValue == null ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull);
 			}
 
 			public override VisitorResult VisitNullReferenceExpression(NullReferenceExpression nullReferenceExpression, VariableStatusInfo data)
@@ -1112,10 +1112,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (tentativeBaseResult.ThrowsException)
 					return HandleExpressionResult(conditionalExpression, tentativeBaseResult);
 
-				if (tentativeBaseResult.KnownBoolResult == true) {
+				var conditionResolveResult = analysis.context.Resolve(conditionalExpression.Condition);
+
+				if (tentativeBaseResult.KnownBoolResult == true || true.Equals(conditionResolveResult.ConstantValue)) {
 					return HandleExpressionResult(conditionalExpression, conditionalExpression.TrueExpression.AcceptVisitor(this, tentativeBaseResult.TruePathVariables));
 				}
-				if (tentativeBaseResult.KnownBoolResult == false) {
+				if (tentativeBaseResult.KnownBoolResult == false || false.Equals(conditionResolveResult.ConstantValue)) {
 					return HandleExpressionResult(conditionalExpression, conditionalExpression.FalseExpression.AcceptVisitor(this, tentativeBaseResult.FalsePathVariables));
 				}
 
@@ -1416,7 +1418,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			{
 				var targetResult = memberReferenceExpression.Target.AcceptVisitor(this, data);
 				if (targetResult.ThrowsException)
-					return targetResult;
+					return HandleExpressionResult(memberReferenceExpression, targetResult);
 
 				var variables = targetResult.Variables;
 
