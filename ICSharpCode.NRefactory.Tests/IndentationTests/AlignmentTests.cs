@@ -176,6 +176,20 @@ class Foo
 			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t\t\t", indent.NextLineIndent);
 		}
+
+		[Ignore("fixme")]
+		[Test]
+		public void TestNamedAttributeArgumentAlign()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedUsingStatements = false;
+			var indent = Helper.CreateEngine(@"
+[Attr (1,
+       Foo = 2,$
+       Bar = 3", fmt);
+			Assert.AreEqual("       ", indent.ThisLineIndent, "this line indent doesn't match");
+			Assert.AreEqual("       ", indent.NextLineIndent, "next line indent doesn't match");
+		}
 	}
 }
 
