@@ -40,6 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public string SuppressMessageCategory { get; set; }
 		public string SuppressMessageCheckId { get; set; }
 		public int PragmaWarning { get; set; }
+		public bool IsEnabledByDefault { get; set; }
 
 		public Severity Severity { get; set; }
 
@@ -49,6 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			Title = title;
 			Severity = Severity.Suggestion;
+			IsEnabledByDefault = true;
 		}
 	}
 
@@ -58,23 +60,33 @@ namespace ICSharpCode.NRefactory.CSharp
 		public string Title { get; private set;}
 		public string Description { get; set; }
 
-		Severity severity;
-		public bool HasOwnSeverity { get; set; }
-
-		public Severity Severity {
-			get {
-				return severity;
-			}
-			set {
-				severity = value;
-				HasOwnSeverity = true;
-			}
-		}
+		public bool? IsEnabledByDefault { get; set; }
+		public Severity? Severity { get; set; }
 
 		public SubIssueAttribute (string title)
 		{
 			Title = title;
 		}
+
+		public SubIssueAttribute (string title, Severity severity)
+		{
+			Title = title;
+			this.Severity = severity;
+		}
+
+		public SubIssueAttribute (string title, bool isEnabledByDefault)
+		{
+			Title = title;
+			this.IsEnabledByDefault = isEnabledByDefault;
+		}
+
+		public SubIssueAttribute (string title, Severity severity, bool isEnabledByDefault)
+		{
+			Title = title;
+			this.Severity = severity;
+			this.IsEnabledByDefault = isEnabledByDefault;
+		}
+
 	}
 }
 

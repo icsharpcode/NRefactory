@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  ResharperDisableKeyword = "MemberCanBeMadeStatic.Local"
 	                  )]
 	[SubIssueAttribute(CommonSubIssues.PrivateMember)]
-	[SubIssueAttribute(CommonSubIssues.NonPrivateMember)]
+	[SubIssueAttribute(CommonSubIssues.NonPrivateMember, false)]
 	public class MemberCanBeMadeStaticIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
