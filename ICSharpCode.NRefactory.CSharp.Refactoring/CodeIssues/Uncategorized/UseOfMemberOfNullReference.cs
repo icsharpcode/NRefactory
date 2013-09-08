@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
 			{
 				IMember member = GetMember(memberReferenceExpression);
-				if (member == null || member.IsStatic) {
+				if (member == null || member.IsStatic || member.FullName == "System.Nullable.HasValue") {
 					base.VisitMemberReferenceExpression(memberReferenceExpression);
 					return;
 				}
@@ -69,8 +69,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var nullStatus = analysis.GetExpressionResult(memberReferenceExpression.Target);
 				if (ProblematicNullStates.Contains(nullStatus)) {
-					//Depending on how reliable the null analysis turns out to be, we may also want to include PotentiallyNull here
-
 					AddIssue(memberReferenceExpression,
 					         ctx.TranslateString("Using member of null value will cause a NullReferenceException"));
 				}
