@@ -507,5 +507,23 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
+
+		[Ignore("fixme")]
+		[Test]
+		public void TestBrackets_StackedIfElseWithoutBrackets()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		if (true)
+			if (true)
+				;
+			else $ ", fmt);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
 	}
 }
