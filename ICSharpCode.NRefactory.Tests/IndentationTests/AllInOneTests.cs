@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			policy.IndentSwitchBody = true;
 			policy.IndentCaseBody = true;
 			policy.IndentBreakStatements = true;
-
+			policy.AlignToFirstIndexerArgument = policy.AlignToFirstMethodCallArgument = true;
 			BeginFileTest("IndentState.cs", policy);
 		}
 

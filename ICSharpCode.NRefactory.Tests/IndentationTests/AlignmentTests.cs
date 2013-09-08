@@ -182,6 +182,7 @@ class Foo
 		public void AlignNamedAttributeArgument()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = true;
 			var indent = Helper.CreateEngine(@"
 [Attr (1,
        Foo = 2,$

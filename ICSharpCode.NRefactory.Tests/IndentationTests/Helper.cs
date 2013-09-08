@@ -41,6 +41,8 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			if ( policy == null) {
 				policy = FormattingOptionsFactory.CreateMono();
 				policy.IndentPreprocessorDirectives = false;
+				policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = true;
+
 			}
 
 			var sb = new StringBuilder();
@@ -99,7 +101,10 @@ namespace ICSharpCode.NRefactory.IndentationTests
 				filePath = Path.GetFullPath(filePath);
 				var code = File.ReadAllText(filePath);
 				var document = new ReadOnlyDocument(code);
-				policy = policy ?? FormattingOptionsFactory.CreateMono();
+				if (policy == null) {
+					policy = FormattingOptionsFactory.CreateMono();
+					policy.AlignToFirstIndexerArgument = policy.AlignToFirstMethodCallArgument = true;
+				}
 				options = options ?? new TextEditorOptions { IndentBlankLines = false };
 
 				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));

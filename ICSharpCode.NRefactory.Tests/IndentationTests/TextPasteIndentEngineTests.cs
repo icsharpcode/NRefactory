@@ -35,7 +35,10 @@ namespace ICSharpCode.NRefactory.IndentationTests
 	{
 		public static CacheIndentEngine CreateEngine(string text, CSharpFormattingOptions formatOptions = null, TextEditorOptions options = null)
 		{
-			var policy = formatOptions ?? FormattingOptionsFactory.CreateMono();
+			if (formatOptions == null) {
+				formatOptions = FormattingOptionsFactory.CreateMono();
+				formatOptions.AlignToFirstIndexerArgument = formatOptions.AlignToFirstMethodCallArgument = true;
+			}
 			
 			var sb = new StringBuilder();
 			int offset = 0;
@@ -51,7 +54,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			var document = new ReadOnlyDocument(sb.ToString());
 			options = options ?? new TextEditorOptions { EolMarker = "\n" };
 			
-			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
+			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options, formatOptions));
 			result.Update(offset);
 			return result;
 		}
