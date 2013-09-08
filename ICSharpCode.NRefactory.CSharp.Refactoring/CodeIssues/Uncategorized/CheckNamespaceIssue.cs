@@ -43,27 +43,31 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<CheckNamespaceIssue>
 		{
+			readonly string defaultNamespace;
+
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
+				defaultNamespace = ctx.DefaultNamespace;
 			}
 
 			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
 			{
-				if (string.IsNullOrEmpty(ctx.DefaultNamespace))
+				if (string.IsNullOrEmpty(defaultNamespace))
 					return;
 				base.VisitSyntaxTree(syntaxTree);
 			}
+
 			public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
 			{
 				base.VisitNamespaceDeclaration(namespaceDeclaration);
-				if (namespaceDeclaration.Parent is NamespaceDeclaration)
+				// only check top level namespaces
+				if (namespaceDeclaration.Parent is NamespaceDeclaration ||
+				    namespaceDeclaration.FullName == defaultNamespace)
 					return;
-				if (!namespaceDeclaration.FullName.StartsWith(ctx.DefaultNamespace, System.StringComparison.Ordinal)) {
-					AddIssue(
-						namespaceDeclaration.NamespaceName,
-						string.Format(ctx.TranslateString("Namespace does not correspond to file location, should be: '{0}'"), ctx.DefaultNamespace)
-					);
-				}
+				AddIssue(
+					namespaceDeclaration.NamespaceName,
+					string.Format(ctx.TranslateString("Namespace does not correspond to file location, should be: '{0}'"), ctx.DefaultNamespace)
+				);
 			}
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)

@@ -38,6 +38,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestSubstring ()
+		{
+			TestIssue<CheckNamespaceIssue>(@"namespace TestFoo {}");
+		}
+
+
+		[Test]
 		public void TestGlobalClass ()
 		{
 			TestIssue<CheckNamespaceIssue>(@"class Foo {}");
