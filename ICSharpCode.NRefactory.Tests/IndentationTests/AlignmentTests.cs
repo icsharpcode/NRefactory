@@ -179,16 +179,28 @@ class Foo
 
 		[Ignore("fixme")]
 		[Test]
-		public void TestNamedAttributeArgumentAlign()
+		public void AlignNamedAttributeArgument()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedUsingStatements = false;
 			var indent = Helper.CreateEngine(@"
 [Attr (1,
        Foo = 2,$
        Bar = 3", fmt);
 			Assert.AreEqual("       ", indent.ThisLineIndent, "this line indent doesn't match");
 			Assert.AreEqual("       ", indent.NextLineIndent, "next line indent doesn't match");
+		}
+
+		[Test]
+		public void UnalignNamedAttributeArguments()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = false;
+			var indent = Helper.CreateEngine(@"
+[Attr (1,
+	Foo = 2,$
+	Bar = 3", fmt);
+			Assert.AreEqual("\t", indent.ThisLineIndent, "this line indent doesn't match");
+			Assert.AreEqual("\t", indent.NextLineIndent, "next line indent doesn't match");
 		}
 	}
 }
