@@ -399,6 +399,7 @@
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\UseIsOperatorIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\FormatStringProblemIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCatchClauseIssue.cs" />
+    <Compile Include="CodeIssues\Uncategorized\CheckNamespaceIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

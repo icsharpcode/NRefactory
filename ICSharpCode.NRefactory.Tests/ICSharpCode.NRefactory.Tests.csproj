@@ -578,6 +578,7 @@
     <Compile Include="IndentationTests\AlignmentTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCatchClauseIssueTests.cs" />
     <Compile Include="CSharp\CodeCompletion\CodeCompletionOperatorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CheckNamespaceIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

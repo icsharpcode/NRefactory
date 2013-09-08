@@ -42,6 +42,13 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		{
 			bool supportsVersion5;
 
+			internal string defaultNamespace;
+			public override string DefaultNamespace {
+				get {
+					return defaultNamespace;
+				}
+			}
+
 			StubbedRefactoringContext(CSharpAstResolver resolver, bool supportsVersion5) :
 				base(resolver, CancellationToken.None) {
 				this.supportsVersion5 = supportsVersion5;

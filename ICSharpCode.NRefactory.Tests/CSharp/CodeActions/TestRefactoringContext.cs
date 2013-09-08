@@ -46,6 +46,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			set;
 		}
 
+		internal string defaultNamespace;
+		public override string DefaultNamespace {
+			get {
+				return defaultNamespace;
+			}
+		}
+
 		internal readonly IDocument doc;
 		readonly TextLocation location;
 		List<TestRefactoringContext> projectContexts;
@@ -352,7 +359,8 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 					selectionStart = selectionStarts[documentIndex],
 					selectionEnd = selectionEnds[documentIndex],
 					projectContexts = contexts,
-					version = parser.CompilerSettings.LanguageVersion
+					version = parser.CompilerSettings.LanguageVersion,
+					defaultNamespace = "Test"
 				};
 
 				contexts.Add(context);

@@ -52,6 +52,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
+		/// Gets the default namespace which should be defined in this file.
+		/// </summary>
+		public abstract string DefaultNamespace {
+			get;
+		}
+
+		/// <summary>
 		/// Gets a value indicating if 'var' keyword should be used or explicit types.
 		/// </summary>
 		public virtual bool UseExplicitTypes {
