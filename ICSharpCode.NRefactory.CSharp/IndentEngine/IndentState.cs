@@ -1543,7 +1543,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public LineCommentState(CSharpIndentEngine engine, IndentState parent = null)
 			: base(engine, parent)
-		{ }
+		{
+			if (engine.formattingOptions.KeepCommentsAtFirstColumn && engine.column == 2)
+				ThisLineIndent.Reset();
+		}
 
 		public LineCommentState(LineCommentState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)

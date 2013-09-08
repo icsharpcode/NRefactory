@@ -202,6 +202,32 @@ class Foo
 			Assert.AreEqual("\t", indent.ThisLineIndent, "this line indent doesn't match");
 			Assert.AreEqual("\t", indent.NextLineIndent, "next line indent doesn't match");
 		}
+
+		[Test]
+		public void TestFormatFirstLineKeepFalse()
+		{
+			var fmt = FormattingOptionsFactory.CreateMono();
+			fmt.KeepCommentsAtFirstColumn = false;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+ // Hello World$", fmt);
+			Assert.AreEqual("\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestFormatFirstLineKeepTrue()
+		{
+			var fmt = FormattingOptionsFactory.CreateMono();
+			fmt.KeepCommentsAtFirstColumn = true;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+// Hello World$", fmt);
+			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t", indent.NextLineIndent);
+		}
 	}
 }
 
