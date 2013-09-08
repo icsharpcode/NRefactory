@@ -355,6 +355,31 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		}
 
 		[Test]
+		public void TestVariableVisitsCount()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+class TestClass
+{
+	void TestMethod()
+	{
+		string s = null;
+		while (s == null) {
+			string s2 = null;
+		}
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Single();
+			var analysis = CreateNullValueAnalysis(tree, method);
+
+			Assert.AreEqual(8, analysis.NodeVisits);
+		}
+
+
+		[Test]
 		public void TestInvocation()
 		{
 			var parser = new CSharpParser();

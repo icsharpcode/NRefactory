@@ -284,7 +284,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			if (rootStatement == null)
 				throw new ArgumentNullException("rootStatement");
 			if (context == null)
-				throw new ArgumentNullException("resolver");
+				throw new ArgumentNullException("context");
 
 			this.context = context;
 			this.rootStatement = rootStatement;
@@ -323,7 +323,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			return SetLocalVariableValue(data, identifier, identifier.Name, value);
 		}
 
-		void SetupNode(NullAnalysisNode node, IEnumerable<ParameterDeclaration> parameters)
+		void SetupNode(NullAnalysisNode node)
 		{
 			foreach (var parameter in parameters) {
 				var resolveResult = context.Resolve(parameter.Type);
@@ -371,7 +371,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (node.Type == ControlFlowNodeType.StartNode && node.NextStatement == rootStatement) {
 					Debug.Assert(!nodesToVisit.Any());
 
-					SetupNode(node, parameters);
+					SetupNode(node);
 				}
 			}
 
@@ -384,6 +384,13 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		}
 
 		int visits = 0;
+
+		public int NodeVisits
+		{
+			get {
+				return visits;
+			}
+		}
 
 		void Visit(PendingNode nodeInfo)
 		{
@@ -410,6 +417,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				result = nextStatement.AcceptVisitor(visitor, statusInfo);
 				if (result == null) {
 					Console.WriteLine("Failure in {0}", nextStatement);
+					throw new InvalidOperationException();
 				}
 
 				outgoingStatusInfo = result.Variables;
@@ -421,6 +429,23 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				foreach (var outgoingEdge in node.Outgoing) {
 					VariableStatusInfo edgeInfo;
 					edgeInfo = outgoingStatusInfo.Clone();
+
+					if (node.Type == ControlFlowNodeType.EndNode) {
+						var previousBlock = node.PreviousStatement as BlockStatement;
+						if (previousBlock != null) {
+							//We're leaving a block statement.
+							//As such, we'll remove the variables that were declared *in* the loop
+							//This helps GetVariableStatusAfter/BeforeStatement be more accurate
+							//and prevents some redundant revisiting.
+
+							foreach (var variableInitializer in previousBlock.Statements
+							         .OfType<VariableDeclarationStatement>()
+							         .SelectMany(declaration => declaration.Variables)) {
+
+								edgeInfo [variableInitializer.Name] = NullValueStatus.UnreachableOrInexistent;
+							}
+						}
+					}
 
 					if (tryFinallyStatement != null) {
 						//With the exception of try statements, this needs special handling:
