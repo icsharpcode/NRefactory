@@ -204,6 +204,17 @@ void Bar ()
 			var text = handler.FormatPlainText(indent.Offset, "if (true)\r\nBar();\r\nTest();", null);
 			Assert.AreEqual("if (true)\r\n\t\t\tBar();\r\n\t\tTest();", text);
 		}
+
+		[Test]
+		public void PasteVerbatimStringBug()
+		{
+			var textEditorOptions = new TextEditorOptions();
+			textEditorOptions.EolMarker = "\r\n";
+			var indent = CreateEngine("\r\nclass Foo\r\n{\r\n\tvoid Bar ()\r\n\t{\r\n\t\t$\r\n\t}\r\n}", FormattingOptionsFactory.CreateMono(), textEditorOptions);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, textEditorOptions, FormattingOptionsFactory.CreateMono());
+			var text = handler.FormatPlainText(indent.Offset, "Console.WriteLine (@\"Hello World!\");\n", null);
+			Assert.AreEqual("Console.WriteLine (@\"Hello World!\");\r\n\t\t", text);
+		}
 	}
 }
 

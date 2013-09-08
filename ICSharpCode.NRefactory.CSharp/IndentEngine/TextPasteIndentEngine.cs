@@ -97,10 +97,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			bool isNewLine = false, gotNewLine = false;
 			for (int i = 0; i < text.Length; i++) {
 				var ch = text [i];
-
 				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment) {
 					clonedEngine.Push(ch);
-					indentedText.Append(ch);
+					curLine.Append(ch);
 					continue;
 				}
 
@@ -126,15 +125,6 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 					curLine.Append(ch);
 					clonedEngine.Push(ch);
-				}
-				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment) {
-					if (gotNewLine) {
-						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
-							indentedText.Append(clonedEngine.ThisLineIndent);
-					}
-					indentedText.Append(curLine);
-					curLine.Length = 0;
-					continue;
 				}
 			}
 			if (gotNewLine && !pasteAtLineStart) {
