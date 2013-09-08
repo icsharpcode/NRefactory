@@ -795,6 +795,17 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			base.Push(ch);
+
+			if (ch == ClosedBracket)
+			{
+				if (Parent != null)
+				{
+					while (Parent.NextLineIndent.Count > 0 && Parent.NextLineIndent.Peek() == IndentType.Continuation)
+					{
+						Parent.NextLineIndent.Pop();
+					}
+				}
+			}
 		}
 
 		public override void InitializeState()

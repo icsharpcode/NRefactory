@@ -525,5 +525,24 @@ class Foo {
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestBrackets_RemoveStatementContinuationWhenNoSemicolon()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		if (true)
+			using (this)
+				if (true)
+				{
+					// ...
+				} $ ", fmt);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
 	}
 }
