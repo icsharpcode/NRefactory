@@ -795,17 +795,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			base.Push(ch);
-
-			if (ch == ClosedBracket)
-			{
-				if (Parent != null)
-				{
-					while (Parent.NextLineIndent.Count > 0 && Parent.NextLineIndent.Peek() == IndentType.Continuation)
-					{
-						Parent.NextLineIndent.Pop();
-					}
-				}
-			}
 		}
 
 		public override void InitializeState()
@@ -831,6 +820,24 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override IndentState Clone(CSharpIndentEngine engine)
 		{
 			return new BracesBodyState(this, engine);
+		}
+
+		public override void OnExit()
+		{
+			// remove continuations and extra-spaces from the parent state 
+			// if this block was a part of some statement
+			var parent = Parent as BracketsBodyBaseState;
+			if (parent != null && parent.CurrentStatement != Statement.None)
+			{
+				parent.CurrentStatement = Statement.None;
+				parent.NextLineIndent.ExtraSpaces = 0;
+				while (parent.NextLineIndent.Count > 0 && parent.NextLineIndent.Peek() == IndentType.Continuation)
+				{
+					parent.NextLineIndent.Pop();
+				}
+			}
+
+			base.OnExit();
 		}
 	}
 
