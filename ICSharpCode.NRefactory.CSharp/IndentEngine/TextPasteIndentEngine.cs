@@ -116,6 +116,8 @@ namespace ICSharpCode.NRefactory.CSharp
 					curLine.Length = 0;
 					gotNewLine = true;
 					i += delimiterLength - 1;
+					// textEditorOptions.EolMarker[0] is the newLineChar used by the indentation engine.
+					clonedEngine.Push(textEditorOptions.EolMarker[0]);
 				} else {
 					if (isNewLine) {
 						if (ch == '\t' || ch == ' ')
@@ -123,8 +125,8 @@ namespace ICSharpCode.NRefactory.CSharp
 						isNewLine = false;
 					}
 					curLine.Append(ch);
+					clonedEngine.Push(ch);
 				}
-				clonedEngine.Push(ch);
 				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment) {
 					if (gotNewLine) {
 						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)

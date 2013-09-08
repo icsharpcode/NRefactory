@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 	[TestFixture]
 	public class TextPasteIndentEngineTests
 	{
-		public static CacheIndentEngine CreateEngine(string text, CSharpFormattingOptions formatOptions = null)
+		public static CacheIndentEngine CreateEngine(string text, CSharpFormattingOptions formatOptions = null, TextEditorOptions options = null)
 		{
 			var policy = formatOptions ?? FormattingOptionsFactory.CreateMono();
 			
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			}
 			
 			var document = new ReadOnlyDocument(sb.ToString());
-			var options = new TextEditorOptions { EolMarker = "\n" };
+			options = options ?? new TextEditorOptions { EolMarker = "\n" };
 			
 			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
 			result.Update(offset);
@@ -194,6 +194,16 @@ void Bar ()
 			Assert.AreEqual("\n\t\t\t\n\t\t\t\n\t\t\t", text);
 		}
 
+		[Test]
+		public void TestWindowsLineEndingCase2()
+		{
+			var textEditorOptions = new TextEditorOptions();
+			textEditorOptions.EolMarker = "\r\n";
+			var indent = CreateEngine("\r\nclass Foo\r\n{\r\n\tvoid Bar ()\r\n\t{\r\n\t\t$\r\n\t}\r\n}", FormattingOptionsFactory.CreateMono(), textEditorOptions);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, textEditorOptions, FormattingOptionsFactory.CreateMono());
+			var text = handler.FormatPlainText(indent.Offset, "if (true)\r\nBar();\r\nTest();", null);
+			Assert.AreEqual("if (true)\r\n\t\t\tBar();\r\n\t\tTest();", text);
+		}
 	}
 }
 
