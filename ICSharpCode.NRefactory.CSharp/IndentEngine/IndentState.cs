@@ -144,6 +144,8 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public virtual void OnExit()
 		{
+			if (Parent == null)
+				return;
 			// if a state exits on the newline character, it has to push
 			// it back to its parent (and so on recursively if the parent 
 			// state also exits). Otherwise, the parent state wouldn't
@@ -179,7 +181,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public void ExitState()
 		{
 			OnExit();
-			Engine.currentState = Engine.currentState.Parent;
+			Engine.currentState = Engine.currentState.Parent ?? Engine.currentState;
 		}
 
 		/// <summary>
@@ -498,7 +500,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				if (Engine.isLineStart)
 				{
-					ThisLineIndent = Parent.ThisLineIndent.Clone();
+					if (Parent != null) {
+						ThisLineIndent = Parent.ThisLineIndent.Clone();
+					} else {
+						ThisLineIndent.Reset();
+					}
 				}
 
 				ExitState();

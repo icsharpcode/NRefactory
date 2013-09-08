@@ -26,6 +26,7 @@
 
 using ICSharpCode.NRefactory.CSharp;
 using NUnit.Framework;
+using System;
 
 namespace ICSharpCode.NRefactory.IndentationTests
 {
@@ -81,6 +82,14 @@ namespace ICSharpCode.NRefactory.IndentationTests
 		{
 			BeginFileTest("TextArea.cs");
 		}
+
+//		[Test]
+//		public void TestAll()
+//		{
+//			foreach (var file in System.IO.Directory.EnumerateFiles("/home/mkrueger/work/monodevelop", "*.cs", System.IO.SearchOption.AllDirectories)) {
+//				Helper.ReadAndTest(file, null, null);
+//			}
+//		}
 
 		[Test]
 		public void TestAllInOne_IndentState()
