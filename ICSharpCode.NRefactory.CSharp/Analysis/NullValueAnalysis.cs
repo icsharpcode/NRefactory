@@ -402,8 +402,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				statusInfo = node.VariableState;
 			}
 
-
-
 			var nextStatement = node.NextStatement;
 			VariableStatusInfo outgoingStatusInfo = statusInfo;
 			VisitorResult result = null;
@@ -1231,7 +1229,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				if (tentativeLeftResult.NullableReturnResult.IsDefiniteValue()) {
 					if (tentativeRightResult.NullableReturnResult.IsDefiniteValue()) {
-						return VisitorResult.ForBoolValue(tentativeRightResult.Variables, tentativeLeftResult.NullableReturnResult == tentativeRightResult.NullableReturnResult);
+						if (tentativeLeftResult.NullableReturnResult == NullValueStatus.DefinitelyNull || tentativeRightResult.NullableReturnResult == NullValueStatus.DefinitelyNull) {
+							return VisitorResult.ForBoolValue(tentativeRightResult.Variables, tentativeLeftResult.NullableReturnResult == tentativeRightResult.NullableReturnResult);
+						}
 					}
 				}
 
@@ -1248,7 +1248,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						if (localVariableResult != null) {
 							bool isNull = (tentativeRightResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
 							result.ConditionalBranchInfo.TrueResultVariableNullStates [identifier.Identifier] = isNull;
-							result.ConditionalBranchInfo.FalseResultVariableNullStates [identifier.Identifier] = !isNull;
+							if (isNull) {
+								result.ConditionalBranchInfo.FalseResultVariableNullStates [identifier.Identifier] = false;
+							}
 						}
 					}
 				}
@@ -1261,7 +1263,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						if (localVariableResult != null) {
 							bool isNull = (tentativeLeftResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
 							result.ConditionalBranchInfo.TrueResultVariableNullStates [identifier.Identifier] = isNull;
-							result.ConditionalBranchInfo.FalseResultVariableNullStates [identifier.Identifier] = !isNull;
+							if (isNull) {
+								result.ConditionalBranchInfo.FalseResultVariableNullStates [identifier.Identifier] = false;
+							}
 						}
 					}
 				}
