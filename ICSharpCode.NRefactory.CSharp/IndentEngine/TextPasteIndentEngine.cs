@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		///     Text editor options.
 		/// </summary>
 		internal readonly TextEditorOptions textEditorOptions;
-
+		internal readonly CSharpFormattingOptions formattingOptions;
 		#endregion
 
 		#region Constructors
@@ -65,10 +65,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <param name="textEditorOptions">
 		///    Text editor options for indentation.
 		/// </param>
-		public TextPasteIndentEngine(IStateMachineIndentEngine decoratedEngine, TextEditorOptions textEditorOptions)
+		public TextPasteIndentEngine(IStateMachineIndentEngine decoratedEngine, TextEditorOptions textEditorOptions, CSharpFormattingOptions formattingOptions)
 		{
 			this.engine = decoratedEngine;
 			this.textEditorOptions = textEditorOptions;
+			this.formattingOptions = formattingOptions;
 		}
 
 		#endregion
@@ -106,8 +107,10 @@ namespace ICSharpCode.NRefactory.CSharp
 				var delimiterLength = NewLine.GetDelimiterLength(ch, i + 1 < text.Length ? text[i + 1] : ' ');
 				if (delimiterLength > 0) {
 					isNewLine = true;
-					if (gotNewLine || pasteAtLineStart)
-						indentedText.Append(clonedEngine.ThisLineIndent);
+					if (gotNewLine || pasteAtLineStart) {
+						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
+							indentedText.Append(clonedEngine.ThisLineIndent);
+					}
 					indentedText.Append(curLine);
 					indentedText.Append(textEditorOptions.EolMarker);
 					curLine.Length = 0;
@@ -123,15 +126,18 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 				clonedEngine.Push(ch);
 				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment) {
-					if (gotNewLine)
-						indentedText.Append(clonedEngine.ThisLineIndent);
+					if (gotNewLine) {
+						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
+							indentedText.Append(clonedEngine.ThisLineIndent);
+					}
 					indentedText.Append(curLine);
 					curLine.Length = 0;
 					continue;
 				}
 			}
-			if (gotNewLine && !pasteAtLineStart)
+			if (gotNewLine && !pasteAtLineStart) {
 				indentedText.Append(clonedEngine.ThisLineIndent);
+			}
 			if (curLine.Length > 0) {
 				indentedText.Append(curLine);
 			}
@@ -215,7 +221,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public IDocumentIndentEngine Clone()
 		{
-			return new TextPasteIndentEngine(engine, textEditorOptions);
+			return new TextPasteIndentEngine(engine, textEditorOptions, formattingOptions);
 		}
 
 		object ICloneable.Clone()
