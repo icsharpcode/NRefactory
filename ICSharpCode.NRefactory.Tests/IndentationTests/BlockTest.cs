@@ -617,6 +617,34 @@ class Foo {
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("fixme")]
+		[Test]
+		public void TestBrackets_StackedIfElseWithoutBrackets6()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = true;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		if (true)
+		if (true)
+			lock (this)
+				if (true)
+					lock(this)
+						if (true)
+							;
+						else if (false)
+						{ }
+						else 
+							;
+		lock (this) // any statement should break the nested statements
+			;
+				else $ ", fmt);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
 		[Test]
 		public void TestBrackets_RemoveStatementContinuationWhenNoSemicolon()
 		{
