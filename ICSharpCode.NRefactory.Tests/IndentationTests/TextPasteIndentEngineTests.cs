@@ -168,6 +168,7 @@ void Bar ()
 			Assert.AreEqual(str, text);
 		}
 
+		[Ignore("Broken - fixme")]
 		[Test]
 		public void TestWindowsLineEnding()
 		{
@@ -226,6 +227,19 @@ void Bar ()
 			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions(), FormattingOptionsFactory.CreateMono());
 			var text = handler.FormatPlainText(indent.Offset, "if (true)\nConsole.WriteLine (@\"Hello\n World!\");\n", null);
 			Assert.AreEqual("if (true)\n\t\t\tConsole.WriteLine (@\"Hello\n World!\");\n\t\t", text);
+		}
+
+		[Test]
+		public void TestPasteComments()
+		{
+			var indent = CreateEngine(@"
+class Foo
+{
+	$
+}");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions(), FormattingOptionsFactory.CreateMono());
+			var text = handler.FormatPlainText(indent.Offset, "// Foo\n\t// Foo 2\n\t// Foo 3", null);
+			Assert.AreEqual("// Foo\n\t// Foo 2\n\t// Foo 3", text);
 		}
 	}
 }

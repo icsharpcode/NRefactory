@@ -119,8 +119,10 @@ namespace ICSharpCode.NRefactory.CSharp
 					clonedEngine.Push(textEditorOptions.EolMarker[0]);
 				} else {
 					if (isNewLine) {
-						if (ch == '\t' || ch == ' ')
+						if (ch == '\t' || ch == ' ') {
+							clonedEngine.Push(ch);
 							continue;
+						}
 						isNewLine = false;
 					}
 					curLine.Append(ch);
