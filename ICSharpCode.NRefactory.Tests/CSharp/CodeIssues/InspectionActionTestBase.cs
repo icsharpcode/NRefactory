@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			Assert.AreEqual (expectedOutput, ctx.Text);
 		}
 
-		protected static void Test<T> (string input, int issueCount, string output = null, int issueToFix = -1)
+		protected static void Test<T> (string input, int issueCount, string output = null, int issueToFix = -1, int actionToRun = 0)
 			where T : CodeIssueProvider, new ()
 		{
 			TestRefactoringContext context;
@@ -108,9 +108,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			if (issueCount == 0 || output == null) 
 				return;
 			if (issueToFix == -1)
-				CheckFix (context, issues, output);
+				CheckFix (context, issues, output, actionToRun);
 			else
-				CheckFix (context, issues [issueToFix], output);
+				CheckFix (context, issues [issueToFix], output, actionToRun);
 		}
 
 		protected static void TestIssue<T> (string input, int issueCount = 1)

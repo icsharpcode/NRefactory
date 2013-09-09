@@ -318,7 +318,6 @@
     <Compile Include="CodeIssues\Uncategorized\ExpressionIsNeverOfProvidedTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\IncorrectCallToObjectGetHashCodeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\MethodOverloadHidesOptionalParameterIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\MultipleEnumerationIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\OptionalParameterCouldBeSkippedIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\HasMemberCriterion.cs" />
     <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\IsArrayTypeCriterion.cs" />
@@ -400,6 +399,7 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\FormatStringProblemIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCatchClauseIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\CheckNamespaceIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\PossibleMultipleEnumerationIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

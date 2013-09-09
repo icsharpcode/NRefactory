@@ -35,11 +35,11 @@ using ICSharpCode.NRefactory.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Possible multiple enumeration of IEnumerable",
-					   Description = "Possible multiple enumeration of IEnumerable.",
-					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning,
-                       ResharperDisableKeyword = "PossibleNullReferenceException")]
-	public class MultipleEnumerationIssue : GatherVisitorCodeIssueProvider
+		Description = "Possible multiple enumeration of IEnumerable",
+		Category = IssueCategories.CodeQualityIssues,
+		Severity = Severity.Warning,
+		ResharperDisableKeyword = "PossibleMultipleEnumeration")]
+	public class PossibleMultipleEnumerationIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		class GatherVisitor : GatherVisitorBase<MultipleEnumerationIssue>
+		class GatherVisitor : GatherVisitorBase<PossibleMultipleEnumerationIssue>
 		{
 			HashSet<AstNode> collectedAstNodes;
 
@@ -115,16 +115,68 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				this.collectedAstNodes = new HashSet<AstNode> ();
 			}
 
-			void AddIssue (AstNode node)
+			void ResolveIssue(Script s, AstNode node, Func<TypeSystemAstBuilder, AstType> type, string methodCall)
 			{
-				if (collectedAstNodes.Add (node))
-					AddIssue (node, ctx.TranslateString ("Possible multiple enumeration of IEnumerable"));
+				var rr = ctx.Resolve(node) as LocalResolveResult;
+				if (rr == null || rr.IsError)
+					return;
+				var refs = ctx.FindReferences(ctx.RootNode, rr.Variable);
+				var nodes = refs.Select(r => r.Node).Where(IsEnumeration).OfType<Expression>().ToList(); 
+				if (nodes.Count == 0)
+					return;
+				var first = nodes.First().GetParent<Statement>();
+				var varName = ctx.GetNameProposal("enumerable", first.StartLocation);
+				var astBuilder = ctx.CreateTypeSystemAstBuilder(first);
+
+				var links = new List<AstNode>();
+				var varDec = new VariableDeclarationStatement(new PrimitiveType("var"), varName, new BinaryOperatorExpression(new AsExpression((Expression)node.Clone(), type (astBuilder)), BinaryOperatorType.NullCoalescing, new InvocationExpression(new MemberReferenceExpression((Expression)node.Clone(), methodCall))));
+
+				links.Add(varDec.Variables.First().NameToken);
+				s.InsertBefore(first, varDec);
+				foreach (var n in nodes) {
+					var id = new IdentifierExpression(varName);
+					links.Add(id);
+					s.Replace(n, id);
+				}
+				s.Link(links);
 			}
 
-			void AddIssues (IEnumerable<AstNode> nodes)
+			void AddIssue (AstNode node, IType elementType, IList<AstNode> nodes)
 			{
+				if (collectedAstNodes.Add(node)) {
+					var actions = new List<CodeAction>();
+					actions.Add(
+						new CodeAction(
+							ctx.TranslateString("Enumerate to array"),
+							s => ResolveIssue(s, node, ab => new ComposedType { BaseType = ab.ConvertType(elementType), ArraySpecifiers =  { new ArraySpecifier() } }, "ToArray"),
+							node
+						)
+					);
+
+					actions.Add(
+						new CodeAction(
+							ctx.TranslateString("Enumerate to list"),
+							s => {
+								var listType = ctx.Compilation.FindType(typeof(IList<>));
+								ResolveIssue(s, node, ab => ab.ConvertType(new ParameterizedType(listType.GetDefinition(), new IType[]{ elementType })), "ToList");
+							},
+							node
+						)
+					);
+
+					AddIssue(node, ctx.TranslateString("Possible multiple enumeration of IEnumerable"), actions);
+				}
+			}
+
+			void AddIssues (IList<AstNode> nodes)
+			{
+				if (nodes.Count == 0)
+					return;
+				var rr = ctx.Resolve(nodes[0]);
+				var elementType = TypeGuessing.GetElementType(ctx.Resolver, rr.Type);
+
 				foreach (var node in nodes)
-					AddIssue (node);
+					AddIssue (node, elementType, nodes);
 			}
 
 			public override void VisitParameterDeclaration (ParameterDeclaration parameterDeclaration)

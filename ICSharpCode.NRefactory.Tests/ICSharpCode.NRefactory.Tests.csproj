@@ -133,7 +133,6 @@
     <Compile Include="CSharp\CodeIssues\LocalVariableHidesMemberIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LocalVariableNotUsedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MethodOverloadHidesOptionalParameterIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\MultipleEnumerationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\NegativeRelationalExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterHidesMemberIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterNotUsedIssueTests.cs" />
@@ -579,6 +578,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantCatchClauseIssueTests.cs" />
     <Compile Include="CSharp\CodeCompletion\CodeCompletionOperatorTests.cs" />
     <Compile Include="CSharp\CodeIssues\CheckNamespaceIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\PossibleMultipleEnumerationIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

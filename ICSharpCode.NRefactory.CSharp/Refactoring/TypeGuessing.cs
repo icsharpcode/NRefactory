@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
-		static IType GetElementType(CSharpAstResolver resolver, IType type)
+		public static IType GetElementType(CSharpAstResolver resolver, IType type)
 		{
 			// TODO: A better get element type method.
 			if (type.Kind == TypeKind.Array || type.Kind == TypeKind.Dynamic) {
