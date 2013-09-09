@@ -177,7 +177,6 @@ class Foo
 			Assert.AreEqual("\t\t\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("fixme")]
 		[Test]
 		public void AlignNamedAttributeArgument()
 		{
