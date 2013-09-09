@@ -91,8 +91,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				AddIssue(
 					expr, 
-					string.Format(ctx.TranslateString("Expression is always '{0}'"), result), 
-					string.Format(ctx.TranslateString("Replace with '{0}'"), result), 
+					string.Format(ctx.TranslateString("Expression is always '{0}'"), result ? "true" : "false"), 
+					string.Format(ctx.TranslateString("Replace with '{0}'"), result ? "true" : "false"), 
 					s => s.Replace(expr, new PrimitiveExpression(result))
 				);
 			}
