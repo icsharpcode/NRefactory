@@ -580,14 +580,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 						if (CurrentStatement == Statement.If)
 						{
-							if (previousStatement == Statement.None)
-							{
-								NestedIfStatementLevels.Clear();
-							}
-							else
-							{
-								NestedIfStatementLevels.Push(ThisLineIndent);
-							}
+							NestedIfStatementLevels.Push(ThisLineIndent);
 						}
 
 						return;
@@ -603,9 +596,9 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 				}
 
+				// else statement is handled differently
 				if (CurrentStatement == Statement.Else)
 				{
-					// else statement is handled differently
 					if (NestedIfStatementLevels.Count > 0)
 					{
 						ThisLineIndent = NestedIfStatementLevels.Pop().Clone();
@@ -615,6 +608,12 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 				else
 				{
+					// check if the nested statements expression has been broken
+					if (previousStatement == Statement.None)
+					{
+						NestedIfStatementLevels.Clear();
+					}
+
 					// only add continuation for 'else' in 'else if' statement.
 					if (!(CurrentStatement == Statement.If && Engine.previousKeyword == "else"))
 					{
@@ -623,14 +622,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 					if (CurrentStatement == Statement.If)
 					{
-						if (previousStatement == Statement.None)
-						{
-							NestedIfStatementLevels.Clear();
-						}
-						else
-						{
-							NestedIfStatementLevels.Push(ThisLineIndent);
-						}
+						NestedIfStatementLevels.Push(ThisLineIndent);
 					}
 				}
 			}
