@@ -33,6 +33,7 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using System.Runtime.InteropServices.ComTypes;
 using ICSharpCode.NRefactory.CSharp.Analysis;
+using ICSharpCode.NRefactory.CSharp.Resolver;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -55,25 +56,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 
-
 			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
 			{
 				if (CheckConstant(binaryOperatorExpression))
 					return;
 				if (CSharpUtil.GetInnerMostExpression(binaryOperatorExpression.Left) is NullReferenceExpression) {
-					if (CheckNullComparison(binaryOperatorExpression, binaryOperatorExpression.Right))
+					if (CheckNullComparison(binaryOperatorExpression, binaryOperatorExpression.Right, binaryOperatorExpression.Left))
 						return;
 				}
 
 				if (CSharpUtil.GetInnerMostExpression(binaryOperatorExpression.Right) is NullReferenceExpression) {
-					if (CheckNullComparison(binaryOperatorExpression, binaryOperatorExpression.Left))
+					if (CheckNullComparison(binaryOperatorExpression, binaryOperatorExpression.Left, binaryOperatorExpression.Right))
 						return;
 				}
 
 				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
 			}
 
-			bool CheckNullComparison(BinaryOperatorExpression binaryOperatorExpression, Expression right)
+			bool CheckNullComparison(BinaryOperatorExpression binaryOperatorExpression, Expression right, Expression nullNode)
 			{
 				if (binaryOperatorExpression.Operator != BinaryOperatorType.Equality && binaryOperatorExpression.Operator != BinaryOperatorType.InEquality)
 					return false;
@@ -81,6 +81,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var expr = CSharpUtil.GetInnerMostExpression(right);
 				var rr = ctx.Resolve(expr);
 				if (rr.Type.IsReferenceType == false) {
+					// nullable check
+					if (NullableType.IsNullable(rr.Type))
+						return false;
+
+					// check for user operators
+					foreach (var op in rr.Type.GetMethods(m => m.SymbolKind == SymbolKind.Operator && m.Parameters.Count == 2)) {
+						if (op.Parameters[0].Type.IsReferenceType == false && op.Parameters[1].Type.IsReferenceType == false)
+							continue;
+						if (binaryOperatorExpression.Operator == BinaryOperatorType.Equality && op.Name == "op_Equality")
+							return false;
+						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality && op.Name == "op_Inequality")
+							return false;
+					}
 					AddIssue(binaryOperatorExpression, binaryOperatorExpression.Operator != BinaryOperatorType.Equality);
 					return true;
 				}

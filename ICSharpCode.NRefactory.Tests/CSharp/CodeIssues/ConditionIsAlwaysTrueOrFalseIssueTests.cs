@@ -151,6 +151,83 @@ class Test
 ");
 		}
 
+
+		[Test]
+		public void CompareWithNullable ()
+		{
+			TestWrongContext<ConditionIsAlwaysTrueOrFalseIssue>(@"
+class Bar
+{
+	public void Test(int? a)
+	{
+		if (a != null) {
+
+		}
+	}
+}
+");
+		}
+
+		[Test]
+		public void UserDefinedOperatorsNoReferences()
+		{
+			TestIssue<ConditionIsAlwaysTrueOrFalseIssue>(@"
+struct Foo 
+{
+	public static bool operator ==(Foo value, Foo o)
+	{
+		return false;
+	}
+
+	public static bool operator !=(Foo value, Foo o)
+	{
+		return false;
+	}
+}
+
+class Bar
+{
+	public void Test(Foo a)
+	{
+		if (a != null) {
+
+		}
+	}
+}
+");
+		}
+		[Test]
+		public void UserDefinedOperators()
+		{
+			TestWrongContext<ConditionIsAlwaysTrueOrFalseIssue>(@"
+struct Foo 
+{
+	public static bool operator ==(Foo value, object o)
+	{
+		return false;
+	}
+
+	public static bool operator !=(Foo value, object o)
+	{
+		return false;
+	}
+}
+
+class Bar
+{
+	public void Test(Foo a)
+	{
+		if (a != null) {
+
+		}
+	}
+}
+");
+		}
+
+
+
+
 	}
 }
 
