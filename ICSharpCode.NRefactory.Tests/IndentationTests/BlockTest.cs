@@ -509,7 +509,7 @@ class Foo {
 		}
 
 		[Test]
-		public void TestBrackets_StackedIfElseWithoutBrackets()
+		public void TestBrackets_StackedIfElse_AlignElseToCorrectIf()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
@@ -526,7 +526,7 @@ class Foo {
 		}
 
 		[Test]
-		public void TestBrackets_StackedIfElseWithoutBrackets2()
+		public void TestBrackets_StackedIfElse_AlignElseToCorrectIf2()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
@@ -547,7 +547,7 @@ class Foo {
 		}
 
 		[Test]
-		public void TestBrackets_StackedIfElseWithoutBrackets3()
+		public void TestBrackets_StackedIfElse_BreakNestedStatementsOnSemicolon()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
@@ -567,7 +567,7 @@ class Foo {
 		}
 
 		[Test]
-		public void TestBrackets_StackedIfElseWithoutBrackets4()
+		public void TestBrackets_StackedIfElse_ElseIf()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
@@ -589,7 +589,7 @@ class Foo {
 		}
 
 		[Test]
-		public void TestBrackets_StackedIfElseWithoutBrackets5()
+		public void TestBrackets_StackedIfElse_BreakNestedStatementsOnIf()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = true;
@@ -618,7 +618,7 @@ class Foo {
 		}
 
 		[Test]
-		public void TestBrackets_StackedIfElseWithoutBrackets6()
+		public void TestBrackets_StackedIfElse_BreakNestedStatementsOnAnyStatement()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = true;
@@ -639,13 +639,13 @@ class Foo {
 							;
 		lock (this) // any statement should break the nested statements
 			;
-				else $ ", fmt);
+		else $ ", fmt);
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
-		public void TestBrackets_StackedIfElseWithoutBrackets7()
+		public void TestBrackets_StackedIfElse_BreakNestedStatementsOnAnonymousBlock()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;

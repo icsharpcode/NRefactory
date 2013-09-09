@@ -615,7 +615,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 
 					// only add continuation for 'else' in 'else if' statement.
-					if (!(CurrentStatement == Statement.If && Engine.previousKeyword == "else"))
+					if (!(CurrentStatement == Statement.If && previousStatement == Statement.Else))
 					{
 						NextLineIndent.Push(IndentType.Continuation);
 					}
@@ -880,18 +880,20 @@ namespace ICSharpCode.NRefactory.CSharp
 			// remove continuations and extra-spaces from the parent state 
 			// if this block was a part of some statement
 			var parent = Parent as BracketsBodyBaseState;
-			if (parent != null && parent.CurrentStatement != Statement.None)
+			if (parent != null)
 			{
 				if (parent.CurrentStatement == Statement.None)
 				{
 					parent.NestedIfStatementLevels.Clear();
 				}
-				parent.CurrentStatement = Statement.None;
-
-				parent.NextLineIndent.ExtraSpaces = 0;
-				while (parent.NextLineIndent.Count > 0 && parent.NextLineIndent.Peek() == IndentType.Continuation)
+				else
 				{
-					parent.NextLineIndent.Pop();
+					parent.CurrentStatement = Statement.None;
+					parent.NextLineIndent.ExtraSpaces = 0;
+					while (parent.NextLineIndent.Count > 0 && parent.NextLineIndent.Peek() == IndentType.Continuation)
+					{
+						parent.NextLineIndent.Pop();
+					}
 				}
 			}
 
