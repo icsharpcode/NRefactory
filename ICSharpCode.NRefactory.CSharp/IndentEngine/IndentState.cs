@@ -477,7 +477,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			Interface,
 			Enum,
 			Switch,
-			Case
+			Case,
+			Try,
+			Catch,
+			Finally
 		}
 
 		/// <summary>
@@ -505,6 +508,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			{ "interface", Body.Interface },
 			{ "enum", Body.Enum },
 			{ "switch", Body.Switch },
+			{ "try", Body.Try },
+			{ "catch", Body.Catch },
+			{ "finally", Body.Finally },
 		};
 		
 		static readonly Dictionary<string, Statement> statements = new Dictionary<string, Statement>
@@ -699,6 +705,11 @@ namespace ICSharpCode.NRefactory.CSharp
 						AddIndentation(Engine.formattingOptions.StatementBraceStyle);
 					else
 						NextLineIndent.Push(IndentType.Empty);
+					break;
+				case Body.Try:
+				case Body.Catch:
+				case Body.Finally:
+					AddIndentation(Engine.formattingOptions.StatementBraceStyle);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
