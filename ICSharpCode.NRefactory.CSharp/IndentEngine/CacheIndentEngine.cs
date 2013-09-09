@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	///     The decorator is based on periodical caching of the engine's state and
 	///     delegating all logic behind indentation to the currently active engine.
 	/// </remarks>
-	public class CacheIndentEngine : IStateMachineIndentEngine, IDisposable
+	public class CacheIndentEngine : IStateMachineIndentEngine
 	{
 
 		#region Properties
@@ -63,13 +63,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		public CacheIndentEngine(IStateMachineIndentEngine decoratedEngine, int cacheRate = 2000)
 		{
 			this.currentEngine = decoratedEngine;
-			decoratedEngine.Document.TextChanged += HandleTextChanged;
-		}
-
-		void HandleTextChanged(object sender, TextChangeEventArgs e)
-		{
-			if (e.Offset < currentEngine.Offset)
-				ResetEngineToPosition(e.Offset);
 		}
 
 		/// <summary>
@@ -83,15 +76,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.currentEngine = prototype.currentEngine.Clone();
 		}
 
-		#endregion
-
-		#region IDisposable implementation
-		
-		public void Dispose ()
-		{
-			currentEngine.Document.TextChanged -= HandleTextChanged;
-		}
-		
 		#endregion
 
 		#region IDocumentIndentEngine
@@ -144,16 +128,19 @@ namespace ICSharpCode.NRefactory.CSharp
 			cachedEngines.Clear();
 		}
 
-		void ResetEngineToPosition(int position)
+		/// <summary>
+		/// Resets the engine to offset. Clears all cached engines after the given offset.
+		/// </summary>
+		public void ResetEngineToPosition(int offset)
 		{
 			// We are already there
-			if (currentEngine.Offset <= position)
+			if (currentEngine.Offset <= offset)
 				return;
 			
 			bool gotCachedEngine = false;
 			while (cachedEngines.Count > 0) {
 				var topEngine = cachedEngines.Peek();
-				if (topEngine.Offset <= position) {
+				if (topEngine.Offset <= offset) {
 					currentEngine = topEngine.Clone();
 					gotCachedEngine = true;
 					break;
