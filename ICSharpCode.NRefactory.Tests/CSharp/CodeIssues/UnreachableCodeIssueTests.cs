@@ -334,5 +334,58 @@ namespace TestProjectForBug
 }";
 			Test<UnreachableCodeIssue> (input, 0);
 		}
+
+		[Test]
+		public void TestIfTrueBranch ()
+		{
+			Test<UnreachableCodeIssue> (@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		if (true) {
+			System.Console.WriteLine (1);
+		} else {
+			System.Console.WriteLine (2);
+		}
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		if (true) {
+			System.Console.WriteLine (1);
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestIfFalseBranch ()
+		{
+			Test<UnreachableCodeIssue> (@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		if (false) {
+			System.Console.WriteLine (1);
+		} else {
+			System.Console.WriteLine (2);
+		}
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		{
+			System.Console.WriteLine (2);
+		}
+	}
+}");
+		}
+
 	}
 }
