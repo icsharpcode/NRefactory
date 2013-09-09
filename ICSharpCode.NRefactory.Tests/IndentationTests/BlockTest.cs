@@ -588,7 +588,6 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("fixme")]
 		[Test]
 		public void TestBrackets_StackedIfElseWithoutBrackets5()
 		{
@@ -613,7 +612,7 @@ class Foo {
 			;
 		else 
 			;
-				else $ ", fmt);
+		else $ ", fmt);
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}

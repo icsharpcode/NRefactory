@@ -577,7 +577,19 @@ namespace ICSharpCode.NRefactory.CSharp
 					    Engine.previousKeyword != "else")
 					{
 						ThisLineIndent.Pop();
-						NestedIfStatementLevels.Push(ThisLineIndent);
+
+						if (CurrentStatement == Statement.If)
+						{
+							if (previousStatement == Statement.None)
+							{
+								NestedIfStatementLevels.Clear();
+							}
+							else
+							{
+								NestedIfStatementLevels.Push(ThisLineIndent);
+							}
+						}
+
 						return;
 					}
 
@@ -590,8 +602,6 @@ namespace ICSharpCode.NRefactory.CSharp
 						return;
 					}
 				}
-
-				
 
 				if (CurrentStatement == Statement.Else)
 				{
@@ -613,7 +623,14 @@ namespace ICSharpCode.NRefactory.CSharp
 
 					if (CurrentStatement == Statement.If)
 					{
-						NestedIfStatementLevels.Push(ThisLineIndent);
+						if (previousStatement == Statement.None)
+						{
+							NestedIfStatementLevels.Clear();
+						}
+						else
+						{
+							NestedIfStatementLevels.Push(ThisLineIndent);
+						}
 					}
 				}
 			}
