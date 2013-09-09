@@ -370,6 +370,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public Statement CurrentStatement;
 
+		/// <summary>
+		///    Contains indent levels of nested if statements.
+		/// </summary>
+		public Stack<Indent> NestedIfStatementLevels = new Stack<Indent>();
+
 		protected BracketsBodyBaseState(CSharpIndentEngine engine, IndentState parent = null)
 			: base(engine, parent)
 		{ }
@@ -380,6 +385,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			CurrentBody = prototype.CurrentBody;
 			NextBody = prototype.NextBody;
 			CurrentStatement = prototype.CurrentStatement;
+			NestedIfStatementLevels = new Stack<Indent>(prototype.NestedIfStatementLevels);
 		}
 
 		/// <summary>
@@ -536,48 +542,79 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			if (blocks.ContainsKey(keyword))
 			{
-				var isKeywordTemplateConstraint = classStructKeywords.Contains (keyword);
+				var isKeywordTemplateConstraint = classStructKeywords.Contains(keyword);
 				if (!(isKeywordTemplateConstraint && (NextBody == Body.Class || NextBody == Body.Struct || NextBody == Body.Interface)))
 				{
 					NextBody = blocks[keyword];
 				}
 			}
-			else if (caseDefaultKeywords.Contains(keyword) && CurrentBody == Body.Switch) {
+			else if (caseDefaultKeywords.Contains(keyword) && CurrentBody == Body.Switch)
+			{
 				ChangeState<SwitchCaseState>();
-			} else {
-				Statement currentKeyword;
-				if (statements.TryGetValue(keyword, out currentKeyword)) {
-					// check if the using is a using declaration
-					if (currentKeyword == Statement.Using) {
-						if ((this is GlobalBodyState) || CurrentBody == Body.Namespace) {
-							return;
-						}
+			}
+			else if (keyword == "where" && Engine.isLineStartBeforeWordToken)
+			{
+				ThisLineIndent.Push(IndentType.Continuation);
+			}
+			else if (statements.ContainsKey(keyword))
+			{
+				Statement previousStatement = CurrentStatement;
+				CurrentStatement = statements[keyword];
+
+				// check if the using is a using declaration
+				if (CurrentStatement == Statement.Using &&
+				   (this is GlobalBodyState || CurrentBody == Body.Namespace))
+				{
+					return;
+				}
+
+				if (ThisLineIndent.Count > 0 && ThisLineIndent.Peek() == IndentType.Continuation)
+				{
+					// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
+					if (Engine.formattingOptions.AlignEmbeddedIfStatements &&
+					    previousStatement == Statement.If &&
+					    CurrentStatement == Statement.If &&
+					    Engine.previousKeyword != "else")
+					{
+						ThisLineIndent.Pop();
+						NestedIfStatementLevels.Push(ThisLineIndent);
+						return;
 					}
-					if (ThisLineIndent.Count > 0 && ThisLineIndent.Peek() == IndentType.Continuation) {
-						// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
-						if (Engine.formattingOptions.AlignEmbeddedIfStatements && new[] {
-							Statement.If,
-							Statement.Else
-						}.Contains(CurrentStatement) && new[] {
-							Statement.If,
-							Statement.Else
-						}.Contains(currentKeyword)) {
-							ThisLineIndent.Pop();
-							return;
-						}
-						// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
-						if (Engine.formattingOptions.AlignEmbeddedUsingStatements && CurrentStatement == Statement.Using && currentKeyword == Statement.Using) {
-							ThisLineIndent.Pop();
-							return;
-						}
+
+					// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
+					if (Engine.formattingOptions.AlignEmbeddedUsingStatements &&
+					    previousStatement == Statement.Using &&
+					    CurrentStatement == Statement.Using)
+					{
+						ThisLineIndent.Pop();
+						return;
 					}
-					CurrentStatement = currentKeyword;
+				}
+
+				
+
+				if (CurrentStatement == Statement.Else)
+				{
+					// else statement is handled differently
+					if (NestedIfStatementLevels.Count > 0)
+					{
+						ThisLineIndent = NestedIfStatementLevels.Pop().Clone();
+						NextLineIndent = ThisLineIndent.Clone();
+					}
+					NextLineIndent.Push(IndentType.Continuation);
+				}
+				else
+				{
 					// only add continuation for 'else' in 'else if' statement.
-					if (!(CurrentStatement == Statement.If && Engine.previousKeyword == "else")) {
+					if (!(CurrentStatement == Statement.If && Engine.previousKeyword == "else"))
+					{
 						NextLineIndent.Push(IndentType.Continuation);
 					}
-				} else if (keyword == "where" && Engine.isLineStartBeforeWordToken) {
-					ThisLineIndent.Push(IndentType.Continuation);
+
+					if (CurrentStatement == Statement.If)
+					{
+						NestedIfStatementLevels.Push(ThisLineIndent);
+					}
 				}
 			}
 		}
@@ -756,6 +793,11 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 				NextLineIndent.ExtraSpaces = 0;
 				IsRightHandExpression = false;
+
+				if (CurrentStatement == Statement.None)
+				{
+					NestedIfStatementLevels.Clear();
+				}
 				CurrentStatement = Statement.None;
 			}
 			else if (ch == ',' && IsRightHandExpression)
@@ -831,7 +873,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			var parent = Parent as BracketsBodyBaseState;
 			if (parent != null && parent.CurrentStatement != Statement.None)
 			{
+				if (parent.CurrentStatement == Statement.None)
+				{
+					parent.NestedIfStatementLevels.Clear();
+				}
 				parent.CurrentStatement = Statement.None;
+
 				parent.NextLineIndent.ExtraSpaces = 0;
 				while (parent.NextLineIndent.Count > 0 && parent.NextLineIndent.Peek() == IndentType.Continuation)
 				{

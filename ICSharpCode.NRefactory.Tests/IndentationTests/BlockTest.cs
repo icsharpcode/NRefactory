@@ -508,7 +508,6 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("fixme")]
 		[Test]
 		public void TestBrackets_StackedIfElseWithoutBrackets()
 		{
@@ -524,6 +523,99 @@ class Foo {
 			else $ ", fmt);
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_StackedIfElseWithoutBrackets2()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		if (true)
+			lock (this)
+				if (true)
+					if (false)
+					{ }
+					else
+						;
+				else $ ", fmt);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_StackedIfElseWithoutBrackets3()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		if (true)
+			lock (this)
+				if (true)
+					if (false)
+						;
+		; // this should break the nested statements
+		else $ ", fmt);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_StackedIfElseWithoutBrackets4()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		if (true)
+			;
+		else if (false)
+			lock (this)
+				if (true)
+					;
+				else if (false)
+				{ }
+				else $ ", fmt);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t\t", indent.NextLineIndent);
+		}
+
+		[Ignore("fixme")]
+		[Test]
+		public void TestBrackets_StackedIfElseWithoutBrackets5()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = true;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		if (true)
+		if (true)
+			lock (this)
+				if (true)
+					lock(this)
+						if (true)
+							;
+						else if (false)
+						{ }
+						else 
+							;
+		if (true) // this if should break the nested statements
+			;
+		else 
+			;
+				else $ ", fmt);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
