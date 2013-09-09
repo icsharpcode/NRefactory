@@ -547,8 +547,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			} else {
 				Statement currentKeyword;
 				if (statements.TryGetValue(keyword, out currentKeyword)) {
+					// check if the using is a using declaration
 					if (currentKeyword == Statement.Using) {
-						if (ThisLineIndent.Count == 0 || CurrentBody == Body.Namespace) {
+						if ((this is GlobalBodyState) || CurrentBody == Body.Namespace) {
 							return;
 						}
 					}
