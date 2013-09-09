@@ -370,17 +370,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public Statement CurrentStatement;
 
-		/// <summary>
-		///     True if the engine is on the right side of the equal operator '='.
-		/// </summary>
-		public bool IsRightHandExpression;
-
-		/// <summary>
-		///     True if the '=' char has been pushed and it's not
-		///     a part of a relational operator (&gt;=, &lt;=, !=, ==).
-		/// </summary>
-		public bool IsEqualCharPushed;
-
 		protected BracketsBodyBaseState(CSharpIndentEngine engine, IndentState parent = null)
 			: base(engine, parent)
 		{ }
@@ -391,8 +380,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			CurrentBody = prototype.CurrentBody;
 			NextBody = prototype.NextBody;
 			CurrentStatement = prototype.CurrentStatement;
-			IsRightHandExpression = prototype.IsRightHandExpression;
-			IsEqualCharPushed = prototype.IsEqualCharPushed;
 		}
 
 		/// <summary>
@@ -413,56 +400,6 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
-			if (IsEqualCharPushed && Engine.previousChar == '=')
-			{
-				IsEqualCharPushed = false;
-				if (ch != '=' && ch != '>')
-				{
-					IsRightHandExpression = true;
-					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
-				}
-			}
-
-			if (ch == ';' || ch == ':')
-			{
-				while (NextLineIndent.Count > 0 && NextLineIndent.Peek() == IndentType.Continuation)
-				{
-					NextLineIndent.Pop();
-				}
-				NextLineIndent.ExtraSpaces = 0;
-				IsRightHandExpression = false;
-				CurrentStatement = Statement.None;
-			}
-			else if (ch == '=' && !IsRightHandExpression && !new[] {'=', '<', '>', '!'}.Contains(Engine.previousChar))
-			{
-				IsEqualCharPushed = true;
-			}
-			else if (ch == '.' && IsRightHandExpression)
-			{
-				if (Engine.previousChar == ')' && ThisLineIndent.ExtraSpaces > 0) {
-					ThisLineIndent.ExtraSpaces = 0;
-					ThisLineIndent.Push(IndentType.Continuation);
-					// TODO: NextLineIndent = ThisLineIndent ???
-				} else {
-					// NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
-				}
-			}
-			else if (ch == ',' && IsRightHandExpression)
-			{
-				NextLineIndent.ExtraSpaces = 0;
-				IsRightHandExpression = false;
-			}
-			else if (ch == Engine.newLineChar && NextLineIndent.ExtraSpaces > 0 &&
-					(Engine.previousChar == '=' || Engine.previousChar == '.'))
-			{
-				// the last significant pushed char was '=' or '.' and we added
-				// extra spaces to align the next line, but the newline char was
-				// pushed afterwards so it's better to replace the extra spaces
-				// with one continuation indent.
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Continuation);
-			}
-
 			base.Push(ch);
 
 			if (ch == '#' && Engine.isLineStart)
@@ -772,6 +709,17 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class BracesBodyState : BracketsBodyBaseState
 	{
+		/// <summary>
+		///     True if the engine is on the right side of the equal operator '='.
+		/// </summary>
+		public bool IsRightHandExpression;
+
+		/// <summary>
+		///     True if the '=' char has been pushed and it's not
+		///     a part of a relational operator (&gt;=, &lt;=, !=, ==).
+		/// </summary>
+		public bool IsEqualCharPushed;
+
 		public override char ClosedBracket
 		{
 			get { return '}'; }
@@ -783,15 +731,67 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public BracesBodyState(BracesBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
-		{ }
+		{
+			IsRightHandExpression = prototype.IsRightHandExpression;
+			IsEqualCharPushed = prototype.IsEqualCharPushed;
+		}
 
 		public override void Push(char ch)
 		{
-			// try to capture ': base(...)', ': this(...)' and inherit statements when they are on a new line
-			if (ch == ':' && Engine.isLineStart && !IsRightHandExpression)
+			// handle IsRightHandExpression property
+			if (IsEqualCharPushed && ch != '=' && ch != '>')
 			{
+				IsRightHandExpression = true;
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
+			}
+			IsEqualCharPushed = false;
+
+			if (ch == ';')
+			{
+				while (NextLineIndent.Count > 0 && NextLineIndent.Peek() == IndentType.Continuation)
+				{
+					NextLineIndent.Pop();
+				}
+				NextLineIndent.ExtraSpaces = 0;
+				IsRightHandExpression = false;
+				CurrentStatement = Statement.None;
+			}
+			else if (ch == ',' && IsRightHandExpression)
+			{
+				NextLineIndent.ExtraSpaces = 0;
+				IsRightHandExpression = false;
+			}
+			else if (ch == '=' && !IsRightHandExpression && !new[] { '=', '<', '>', '!' }.Contains(Engine.previousChar))
+			{
+				IsEqualCharPushed = true;
+			}
+			else if (ch == '.' && IsRightHandExpression)
+			{
+				if (Engine.previousChar == ')' && ThisLineIndent.ExtraSpaces > 0)
+				{
+					ThisLineIndent.ExtraSpaces = 0;
+					ThisLineIndent.Push(IndentType.Continuation);
+					// TODO: NextLineIndent = ThisLineIndent ???
+				}
+				else
+				{
+					// NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+				}
+			}
+			else if (ch == Engine.newLineChar && NextLineIndent.ExtraSpaces > 0 &&
+					(Engine.previousChar == '=' || Engine.previousChar == '.'))
+			{
+				// the last significant pushed char was '=' or '.' and we added
+				// extra spaces to align the next line, but the newline char was
+				// pushed afterwards so it's better to replace the extra spaces
+				// with one continuation indent.
+				NextLineIndent.ExtraSpaces = 0;
+				NextLineIndent.Push(IndentType.Continuation);
+			}
+			else if (ch == ':' && Engine.isLineStart && !IsRightHandExpression)
+			{
+				// try to capture ': base(...)', ': this(...)' and inherit statements when they are on a new line
 				ThisLineIndent.Push(IndentType.Continuation);
-				NextLineIndent = ThisLineIndent.Clone();
 			}
 
 			base.Push(ch);
@@ -821,6 +821,24 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return new BracesBodyState(this, engine);
 		}
+
+		public override void OnExit()
+		{
+			// remove continuations and extra-spaces from the parent state 
+			// if this block was a part of some statement
+			var parent = Parent as BracketsBodyBaseState;
+			if (parent != null && parent.CurrentStatement != Statement.None)
+			{
+				parent.CurrentStatement = Statement.None;
+				parent.NextLineIndent.ExtraSpaces = 0;
+				while (parent.NextLineIndent.Count > 0 && parent.NextLineIndent.Peek() == IndentType.Continuation)
+				{
+					parent.NextLineIndent.Pop();
+				}
+			}
+
+			base.OnExit();
+		}
 	}
 
 	#endregion
@@ -833,7 +851,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// <remarks>
 	///     Represents the block of code in one switch case (including default).
 	/// </remarks>
-	public class SwitchCaseState : BracketsBodyBaseState
+	public class SwitchCaseState : BracesBodyState
 	{
 		public override char ClosedBracket
 		{
@@ -908,7 +926,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		public override void OnExit()
-		{ }
+		{
+			// override the base.OnExit() logic
+		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
 		{
@@ -928,6 +948,11 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class ParenthesesBodyState : BracketsBodyBaseState
 	{
+		/// <summary>
+		///     True if any char has been pushed.
+		/// </summary>
+		public bool IsSomethingPushed;
+
 		public override char ClosedBracket
 		{
 			get { return ')'; }
@@ -939,25 +964,29 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public ParenthesesBodyState(ParenthesesBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
-		{ }
+		{
+			IsSomethingPushed = prototype.IsSomethingPushed;
+		}
 
 		public override void Push(char ch)
 		{
-			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstMethodCallArgument) && Engine.previousChar == '(' && !Engine.isLineStart)
+			// OPTION: CSharpFormattingOptions.AlignToFirstMethodCallArgument
+			if (ch != Engine.newLineChar && !IsSomethingPushed && Engine.formattingOptions.AlignToFirstMethodCallArgument)
 			{
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Block);
+				// align the next line at the beginning of the open bracket
+				NextLineIndent.Pop();
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 			}
 
 			base.Push(ch);
+			IsSomethingPushed = true;
 		}
 
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			// align the next line at the beginning of the open bracket
-			NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
+			NextLineIndent.Push(IndentType.Block);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
@@ -978,6 +1007,11 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class SquareBracketsBodyState : BracketsBodyBaseState
 	{
+		/// <summary>
+		///     True if any char has been pushed.
+		/// </summary>
+		public bool IsSomethingPushed;
+
 		public override char ClosedBracket
 		{
 			get { return ']'; }
@@ -989,25 +1023,29 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public SquareBracketsBodyState(SquareBracketsBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
-		{ }
+		{
+			IsSomethingPushed = prototype.IsSomethingPushed;
+		}
 
 		public override void Push(char ch)
 		{
-			if ((ch == Engine.newLineChar || !Engine.formattingOptions.AlignToFirstIndexerArgument) && Engine.previousChar == '[' && !Engine.isLineStart)
+			// OPTION: CSharpFormattingOptions.AlignToFirstIndexerArgument
+			if (ch != Engine.newLineChar && !IsSomethingPushed && Engine.formattingOptions.AlignToFirstIndexerArgument)
 			{
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Block);
+				// align the next line at the beginning of the open bracket
+				NextLineIndent.Pop();
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 			}
 
 			base.Push(ch);
+			IsSomethingPushed = true;
 		}
 
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			// align the next line at the beginning of the open bracket
-			NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
+			NextLineIndent.Push(IndentType.Block);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
@@ -1028,6 +1066,11 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class AngleBracketsBodyState : BracketsBodyBaseState
 	{
+		/// <summary>
+		///     True if any char has been pushed.
+		/// </summary>
+		public bool IsSomethingPushed;
+
 		public override char ClosedBracket
 		{
 			get { return '>'; }
@@ -1039,25 +1082,28 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public AngleBracketsBodyState(AngleBracketsBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
-		{ }
+		{
+			IsSomethingPushed = prototype.IsSomethingPushed;
+		}
 
 		public override void Push(char ch)
 		{
-			if (ch == Engine.newLineChar && Engine.previousChar == '<')
+			if (ch != Engine.newLineChar && !IsSomethingPushed)
 			{
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Continuation);
+				// align the next line at the beginning of the open bracket
+				NextLineIndent.Pop();
+				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 			}
 
 			base.Push(ch);
+			IsSomethingPushed = true;
 		}
 
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			// align the next line at the beginning of the open bracket
-			NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
+			NextLineIndent.Push(IndentType.Block);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
