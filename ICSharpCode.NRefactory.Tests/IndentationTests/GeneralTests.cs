@@ -30,7 +30,6 @@ namespace ICSharpCode.NRefactory.IndentationTests
 	[TestFixture]
 	public class GeneralTests
 	{
-		[Ignore]
 		[Test]
 		public void UsingDeclarationTests()
 		{
@@ -39,6 +38,16 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			Assert.AreEqual("", indent.NextLineIndent);
 		}
 
+		[Test]
+		public void NestedUsingDeclarationTest()
+		{
+			var indent = Helper.CreateEngine(@"
+namespace Foo {
+	namespace Bar {
+		using NUnit.Framework;$");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
 	}
 }
 

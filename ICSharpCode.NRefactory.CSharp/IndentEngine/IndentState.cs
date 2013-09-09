@@ -542,41 +542,42 @@ namespace ICSharpCode.NRefactory.CSharp
 					NextBody = blocks[keyword];
 				}
 			}
-			else if (caseDefaultKeywords.Contains(keyword) && CurrentBody == Body.Switch)
-			{
+			else if (caseDefaultKeywords.Contains(keyword) && CurrentBody == Body.Switch) {
 				ChangeState<SwitchCaseState>();
-			}
-			else if (statements.ContainsKey(keyword))
-			{
-				if (ThisLineIndent.Count > 0 && ThisLineIndent.Peek() == IndentType.Continuation)
-				{
-					// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
-					if (Engine.formattingOptions.AlignEmbeddedIfStatements &&
-					    new[] { Statement.If, Statement.Else }.Contains(CurrentStatement) &&
-					    new[] { Statement.If, Statement.Else }.Contains(statements [keyword])) {
-						ThisLineIndent.Pop();
-						return;
+			} else {
+				Statement currentKeyword;
+				if (statements.TryGetValue(keyword, out currentKeyword)) {
+					if (currentKeyword == Statement.Using) {
+						if (ThisLineIndent.Count == 0 || CurrentBody == Body.Namespace) {
+							return;
+						}
 					}
-
-					// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
-					if (Engine.formattingOptions.AlignEmbeddedUsingStatements &&
-					    CurrentStatement == Statement.Using &&
-					    statements [keyword] == Statement.Using) {
-						ThisLineIndent.Pop();
-						return;
+					if (ThisLineIndent.Count > 0 && ThisLineIndent.Peek() == IndentType.Continuation) {
+						// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
+						if (Engine.formattingOptions.AlignEmbeddedIfStatements && new[] {
+							Statement.If,
+							Statement.Else
+						}.Contains(CurrentStatement) && new[] {
+							Statement.If,
+							Statement.Else
+						}.Contains(currentKeyword)) {
+							ThisLineIndent.Pop();
+							return;
+						}
+						// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
+						if (Engine.formattingOptions.AlignEmbeddedUsingStatements && CurrentStatement == Statement.Using && currentKeyword == Statement.Using) {
+							ThisLineIndent.Pop();
+							return;
+						}
 					}
+					CurrentStatement = currentKeyword;
+					// only add continuation for 'else' in 'else if' statement.
+					if (!(CurrentStatement == Statement.If && Engine.previousKeyword == "else")) {
+						NextLineIndent.Push(IndentType.Continuation);
+					}
+				} else if (keyword == "where" && Engine.isLineStartBeforeWordToken) {
+					ThisLineIndent.Push(IndentType.Continuation);
 				}
-
-				CurrentStatement = statements[keyword];
-				// only add continuation for 'else' in 'else if' statement.
-				if (!(CurrentStatement == Statement.If && Engine.previousKeyword == "else"))
-				{
-					NextLineIndent.Push(IndentType.Continuation);
-				}
-			}
-			else if (keyword == "where" && Engine.isLineStartBeforeWordToken)
-			{
-				ThisLineIndent.Push(IndentType.Continuation);
 			}
 		}
 
