@@ -645,6 +645,26 @@ class Foo {
 		}
 
 		[Test]
+		public void TestBrackets_StackedIfElseWithoutBrackets7()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		if (true)
+			lock (this)
+				if (true)
+					if (false)
+						;
+		{ } // this should break the nested statements
+		else $ ", fmt);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
 		public void TestBrackets_RemoveStatementContinuationWhenNoSemicolon()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
