@@ -125,6 +125,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return NullValueStatus.PotentiallyNull;
 			}
 
+			public bool HasVariable(string variable) {
+				return VariableStatus.ContainsKey(variable);
+			}
+
 			public VariableStatusInfo Clone() {
 				var clone = new VariableStatusInfo();
 				foreach (var item in VariableStatus) {
@@ -1101,7 +1105,13 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 					return HandleExpressionResult(identifierExpression, data, NullValueStatus.DefinitelyNotNull);
 				}
-				return HandleExpressionResult(identifierExpression, data, NullValueStatus.Unknown);
+
+				var memberResolveResult = resolveResult as MemberResolveResult;
+
+				bool isNullable = memberResolveResult == null || IsTypeNullable(memberResolveResult.Type);
+				var returnValue = isNullable ? NullValueStatus.Unknown : NullValueStatus.DefinitelyNotNull;
+
+				return HandleExpressionResult(identifierExpression, data, returnValue);
 			}
 
 			public override VisitorResult VisitDefaultValueExpression(DefaultValueExpression defaultValueExpression, VariableStatusInfo data)
@@ -1407,10 +1417,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					if (directionExpression != null) {
 						var identifier = directionExpression.Expression as IdentifierExpression;
 						if (identifier != null) {
-							//TODO: Check for nullable types
 							//out and ref parameters do *NOT* capture the variable (since they must stop changing it by the time they return)
-							data = data.Clone();
-							analysis.SetLocalVariableValue(data, identifier, NullValueStatus.Unknown);
+							var identifierResolveResult = analysis.context.Resolve(identifier) as LocalResolveResult;
+							if (identifierResolveResult != null && IsTypeNullable(identifierResolveResult.Type)) {
+								data = data.Clone();
+								analysis.SetLocalVariableValue(data, identifier, NullValueStatus.Unknown);
+							}
 						}
 						continue;
 					}
@@ -1435,8 +1447,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 
-				//TODO: Some functions return non-nullable types
-				return HandleExpressionResult(invocationExpression, data, NullValueStatus.Unknown);
+				var methodResolveResult = analysis.context.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+				bool isNullable = methodResolveResult == null || IsTypeNullable(methodResolveResult.Type);
+
+				var returnValue = isNullable ? NullValueStatus.Unknown : NullValueStatus.DefinitelyNotNull;
+
+				return HandleExpressionResult(invocationExpression, data, returnValue);
 			}
 
 			public override VisitorResult VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression, VariableStatusInfo data)
@@ -1447,9 +1463,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				var variables = targetResult.Variables;
 
+				var memberResolveResult = analysis.context.Resolve(memberReferenceExpression) as MemberResolveResult;
+
 				var targetIdentifier = CSharpUtil.GetInnerMostExpression(memberReferenceExpression.Target) as IdentifierExpression;
 				if (targetIdentifier != null) {
-					var memberResolveResult = analysis.context.Resolve(memberReferenceExpression) as MemberResolveResult;
 					if (memberResolveResult == null) {
 						var invocation = memberReferenceExpression.Parent as InvocationExpression;
 						if (invocation != null) {
@@ -1471,8 +1488,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 
-				//TODO: Check if type is not nullable
-				return HandleExpressionResult(memberReferenceExpression, variables, NullValueStatus.Unknown);
+				bool isNullable = memberResolveResult == null || IsTypeNullable(memberResolveResult.Type);
+				NullValueStatus returnValue = isNullable ? NullValueStatus.Unknown : NullValueStatus.DefinitelyNotNull;
+				return HandleExpressionResult(memberReferenceExpression, variables, returnValue);
 			}
 
 			public override VisitorResult VisitTypeReferenceExpression(TypeReferenceExpression typeReferenceExpression, VariableStatusInfo data)
@@ -1578,9 +1596,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 
 					//At this point, we know there's a good chance the variable has been changed
-					//TODO: Do we need to check if the type is nullable
-
-					analysis.SetLocalVariableValue(newData, identifier, NullValueStatus.CapturedUnknown);
+					var identifierResolveResult = analysis.context.Resolve(identifier) as LocalResolveResult;
+					if (identifierResolveResult != null && IsTypeNullable(identifierResolveResult.Type)) {
+						analysis.SetLocalVariableValue(newData, identifier, NullValueStatus.CapturedUnknown);
+					}
 				}
 
 				//The lambda itself is known not to be null
@@ -1608,9 +1627,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 
 					//At this point, we know there's a good chance the variable has been changed
-					//TODO: Do we need to check if the type is nullable
-
-					analysis.SetLocalVariableValue(newData, identifier, NullValueStatus.CapturedUnknown);
+					var identifierResolveResult = analysis.context.Resolve(identifier) as LocalResolveResult;
+					if (identifierResolveResult != null && IsTypeNullable(identifierResolveResult.Type)) {
+						analysis.SetLocalVariableValue(newData, identifier, NullValueStatus.CapturedUnknown);
+					}
 				}
 
 				//The anonymous method itself is known not to be null
@@ -1669,10 +1689,32 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					result = NullValueStatus.Unknown;
 				}
 
-				//TODO: if the result of the cast is not nullable, then (T)null_value will throw
-				//an exception. We can explore that to further improve the analysis
+				VariableStatusInfo variables = tentativeResult.Variables;
 
-				return HandleExpressionResult(castExpression, tentativeResult.Variables, result);
+				var resolveResult = analysis.context.Resolve(castExpression) as CastResolveResult;
+				if (resolveResult != null && !IsTypeNullable(resolveResult.Type)) {
+					if (result == NullValueStatus.DefinitelyNull) {
+						return HandleExpressionResult(castExpression, VisitorResult.ForException(tentativeResult.Variables));
+					}
+
+					var identifierExpression = CSharpUtil.GetInnerMostExpression(castExpression.Expression) as IdentifierExpression;
+					if (identifierExpression != null) {
+						var currentValue = variables [identifierExpression.Identifier];
+						if (currentValue != NullValueStatus.CapturedUnknown &&
+						    currentValue != NullValueStatus.UnreachableOrInexistent &&
+						    currentValue != NullValueStatus.DefinitelyNotNull) {
+							//DefinitelyNotNull is included in this list because if that's the status
+							// then we don't need to change anything
+
+							variables = variables.Clone();
+							variables [identifierExpression.Identifier] = NullValueStatus.DefinitelyNotNull;
+						}
+					}
+
+					result = NullValueStatus.DefinitelyNotNull;
+				}
+
+				return HandleExpressionResult(castExpression, variables, result);
 			}
 
 			public override VisitorResult VisitIsExpression(IsExpression isExpression, VariableStatusInfo data)
@@ -1681,7 +1723,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (tentativeResult.ThrowsException)
 					return tentativeResult;
 
-				//TODO: Consider, for instance: new X() is X. The result is known to be null, so we can use KnownBoolValue
+				//TODO: Consider, for instance: new X() is X. The result is known to be true, so we can use KnownBoolValue
 				return HandleExpressionResult(isExpression, tentativeResult.Variables, NullValueStatus.DefinitelyNotNull);
 			}
 
@@ -1737,8 +1779,11 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 
-				//TODO: Check for non-nullable array types (e.g. x[0] is never null if x is an int array)
-				return HandleExpressionResult(indexerExpression, data, NullValueStatus.Unknown);
+				var indexerResolveResult = analysis.context.Resolve(indexerExpression) as CSharpInvocationResolveResult;
+				bool isNullable = indexerResolveResult == null || IsTypeNullable(indexerResolveResult.Type);
+				
+				var returnValue = isNullable ? NullValueStatus.Unknown : NullValueStatus.DefinitelyNotNull;
+				return HandleExpressionResult(indexerExpression, data, returnValue);
 			}
 
 			public override VisitorResult VisitBaseReferenceExpression(BaseReferenceExpression baseReferenceExpression, VariableStatusInfo data)
