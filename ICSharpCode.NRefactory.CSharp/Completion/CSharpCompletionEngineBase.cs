@@ -877,7 +877,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					state = state.WithCurrentTypeDefinition(curState.CurrentTypeDefinition);
 				if (state.CurrentUsingScope == null)
 					state = state.WithCurrentUsingScope(curState.CurrentUsingScope);
-				Console.WriteLine (result);
 				return new ExpressionResolveResult(result, state, csResolver);
 			} catch (Exception e) {
 				Console.WriteLine(e);
