@@ -372,7 +372,6 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArraySizeIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantUnsafeContextIssue.cs" />
     <Compile Include="CodeIssues\Synced\CompilerErrors\ProhibitedModifiersIssue.cs" />
-    <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RemoveRedundantOrStatementIssue.cs" />
     <Compile Include="CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs" />
     <Compile Include="CodeActions\ReverseDirectionForForLoopAction.cs" />
@@ -401,6 +400,10 @@
     <Compile Include="CodeIssues\Uncategorized\CheckNamespaceIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\PossibleMultipleEnumerationIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedLabelIssue.cs" />
+    <Compile Include="CodeIssues\TODO\MemberHidesStaticFromOuterClassIssue.cs" />
+    <Compile Include="CodeIssues\TODO\PossibleAssignmentToReadonlyFieldIssue.cs" />
+    <Compile Include="CodeIssues\TODO\MethodOverloadWithOptionalParameterIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -433,5 +436,6 @@
   <ItemGroup>
     <Folder Include="CodeIssues\Custom\CompilerErrors\" />
     <Folder Include="CodeIssues\Synced\CompilerErrors\" />
+    <Folder Include="CodeIssues\TODO\" />
   </ItemGroup>
 </Project>
