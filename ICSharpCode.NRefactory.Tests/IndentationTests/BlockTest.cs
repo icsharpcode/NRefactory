@@ -664,7 +664,6 @@ class Foo {
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Implement me")]
 		[Test]
 		public void TestBrackets_StackedIfElseIf_IfInNewLine()
 		{
