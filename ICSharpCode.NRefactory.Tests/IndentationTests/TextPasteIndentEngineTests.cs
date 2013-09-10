@@ -240,6 +240,26 @@ class Foo
 			var text = handler.FormatPlainText(indent.Offset, "// Foo\n\t// Foo 2\n\t// Foo 3", null);
 			Assert.AreEqual("// Foo\n\t// Foo 2\n\t// Foo 3", text);
 		}
+
+		[Test]
+		public void PastemultilineAtFirstColumnCorrection()
+		{
+			var indent = CreateEngine(@"
+class Foo
+{
+$
+}");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions(), FormattingOptionsFactory.CreateMono());
+			var text = handler.FormatPlainText(indent.Offset, @"void Bar ()
+{
+	System.Console.WriteLine ();
+}", null);
+			Assert.AreEqual(@"	void Bar ()
+	{
+		System.Console.WriteLine ();
+	}", text);
+		}
+
 	}
 }
 

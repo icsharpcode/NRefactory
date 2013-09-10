@@ -139,7 +139,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					continue;
 				}
 			}
-			if (gotNewLine && !pasteAtLineStart) {
+			if (gotNewLine && (!pasteAtLineStart || curLine.Length > 0)) {
 				indentedText.Append(clonedEngine.ThisLineIndent);
 			}
 			if (curLine.Length > 0) {
