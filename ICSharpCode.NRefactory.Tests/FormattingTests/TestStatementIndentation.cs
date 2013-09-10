@@ -1979,5 +1979,38 @@ class Test
 }
 ");
 		}
+
+		[Ignore("fixme")]
+		[Test]
+		public void AlignmentTest_StackedIfElse_ElseIf()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+
+			Test(policy, @"
+class Foo
+{
+	void Test ()
+	{ 
+		if (true)
+			FooBar ();
+		else
+		if (true) {
+		}
+	}
+}
+", @"
+class Foo
+{
+	void Test ()
+	{ 
+		if (true)
+			FooBar ();
+		else 
+			if (true) {
+			}
+	}
+}
+");
+		}
 	}
 }
