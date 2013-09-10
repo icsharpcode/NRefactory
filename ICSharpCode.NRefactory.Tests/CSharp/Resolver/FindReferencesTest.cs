@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			findReferences = new FindReferences();
 		}
 		
-		AstNode[] FindReferences(IEntity entity)
+		AstNode[] FindReferences(ISymbol entity)
 		{
 			var result = new List<AstNode>();
 			var searchScopes = findReferences.GetSearchScopes(entity);
@@ -63,6 +63,28 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			                                    (node, rr) => result.Add(node), CancellationToken.None);
 			return result.OrderBy(n => n.StartLocation).ToArray();
 		}
+
+		#region Parameters
+		[Test]
+		public void FindParameterReferences()
+		{
+			Init(@"using System;
+class Test {
+	void M(string par) {
+		Console.WriteLine (par);
+	}
+
+	void Other()
+	{
+		M(par:null);
+	}
+}");
+			var test = compilation.MainAssembly.TopLevelTypeDefinitions.Single();
+			var method = test.Methods.Single(m => m.Name == "M");
+			Assert.AreEqual(new int[] { 3, 4, 9 }, FindReferences(method.Parameters[0]).Select(n => n.StartLocation.Line).ToArray());
+		}
+		#endregion
+
 
 		#region Method Group
 		[Test]
