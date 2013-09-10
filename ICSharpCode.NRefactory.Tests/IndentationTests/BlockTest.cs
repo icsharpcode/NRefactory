@@ -737,5 +737,43 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Fixme")]
+		[Test]
+		public void TestBrackets_ArrayCreationAsFirstParameterWithoutAlignment()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		Foo (new int[] {
+			$
+", policy);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestBrackets_ObjectCreationAsFirstParameterWithoutAlignment()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		Foo (new MyOBject {
+			$
+", policy);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
 	}
 }
