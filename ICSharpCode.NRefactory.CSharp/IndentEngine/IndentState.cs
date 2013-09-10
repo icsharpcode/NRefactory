@@ -1042,11 +1042,15 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void Push(char ch)
 		{
 			// OPTION: CSharpFormattingOptions.AlignToFirstMethodCallArgument
-			if (ch != Engine.newLineChar && !IsSomethingPushed && Engine.formattingOptions.AlignToFirstMethodCallArgument)
+			if (ch != Engine.newLineChar && !IsSomethingPushed)
 			{
-				// align the next line at the beginning of the open bracket
 				NextLineIndent.Pop();
-				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+				if (Engine.formattingOptions.AlignToFirstMethodCallArgument) {
+					// align the next line at the beginning of the open bracket
+					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+				} else {
+					NextLineIndent.Push(IndentType.Continuation);
+				}
 			}
 
 			base.Push(ch);
@@ -1101,11 +1105,15 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void Push(char ch)
 		{
 			// OPTION: CSharpFormattingOptions.AlignToFirstIndexerArgument
-			if (ch != Engine.newLineChar && !IsSomethingPushed && Engine.formattingOptions.AlignToFirstIndexerArgument)
+			if (ch != Engine.newLineChar && !IsSomethingPushed)
 			{
 				// align the next line at the beginning of the open bracket
 				NextLineIndent.Pop();
-				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+				if (Engine.formattingOptions.AlignToFirstIndexerArgument) {
+					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+				} else {
+					NextLineIndent.Push(IndentType.Continuation);
+				}
 			}
 
 			base.Push(ch);
