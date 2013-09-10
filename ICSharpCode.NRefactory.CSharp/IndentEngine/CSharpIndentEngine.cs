@@ -336,12 +336,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				wordToken.Append(ch);
 			}
-			else
+			else if (wordToken.Length > 0)
 			{
 				currentState.CheckKeyword(wordToken.ToString());
 				previousKeyword = wordToken.ToString();
 				wordToken.Length = 0;
-				isLineStartBeforeWordToken &= char.IsWhiteSpace(ch);
+				isLineStartBeforeWordToken = false;
 			}
 
 			currentState.Push(currentChar = ch);

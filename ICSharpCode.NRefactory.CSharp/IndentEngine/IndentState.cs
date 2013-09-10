@@ -621,7 +621,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 
 					// only add continuation for 'else' in 'else if' statement.
-					if (!(CurrentStatement == Statement.If && previousStatement == Statement.Else))
+					if (!(CurrentStatement == Statement.If && previousStatement == Statement.Else && !Engine.isLineStartBeforeWordToken))
 					{
 						NextLineIndent.Push(IndentType.Continuation);
 					}
