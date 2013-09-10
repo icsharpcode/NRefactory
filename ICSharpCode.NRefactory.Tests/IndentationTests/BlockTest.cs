@@ -683,6 +683,7 @@ class Foo {
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Fixme")]
 		[Test]
 		public void TestBrackets_CustomIndent()
 		{
@@ -700,6 +701,7 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Fixme")]
 		[Test]
 		public void TestBrackets_CustomIndent2()
 		{
@@ -715,5 +717,25 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestBrackets_AnonymousMethodAsFirstParameterWithoutAlignment()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		Foo (delegate {
+			$
+", policy);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
 	}
 }
