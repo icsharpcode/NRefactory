@@ -144,21 +144,21 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public virtual void OnExit()
 		{
-			if (Parent == null)
-				return;
-			// if a state exits on the newline character, it has to push
-			// it back to its parent (and so on recursively if the parent 
-			// state also exits). Otherwise, the parent state wouldn't
-			// know that the engine isn't on the same line anymore.
-			if (Engine.currentChar == Engine.newLineChar)
+			if (Parent != null)
 			{
-				Parent.Push(Engine.newLineChar);
+				// if a state exits on the newline character, it has to push
+				// it back to its parent (and so on recursively if the parent 
+				// state also exits). Otherwise, the parent state wouldn't
+				// know that the engine isn't on the same line anymore.
+				if (Engine.currentChar == Engine.newLineChar)
+				{
+					Parent.Push(Engine.newLineChar);
+				}
+
+				// when a state exits the engine stays on the same line and this
+				// state has to override the Parent.ThisLineIndent.
+				Parent.ThisLineIndent = ThisLineIndent.Clone();
 			}
-            
-			// when a state exits the engine stays on the same line and this
-			// state has to adjust the current indent of its parent so that 
-			// it's equal to this line indent.
-			Parent.ThisLineIndent = ThisLineIndent.Clone();
 		}
 
 		/// <summary>
@@ -181,7 +181,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public void ExitState()
 		{
 			OnExit();
-			Engine.currentState = Engine.currentState.Parent ?? Engine.currentState;
+			Engine.currentState = Engine.currentState.Parent ?? IndentStateFactory.Default(Engine);
 		}
 
 		/// <summary>
@@ -340,11 +340,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			{ '{', state => state.ChangeState<BracesBodyState>() }, 
 			{ '(', state => state.ChangeState<ParenthesesBodyState>() }, 
 			{ '[', state => state.ChangeState<SquareBracketsBodyState>() },
-			// TODO: Since the '<' char is also used as the 'less-than' operator,
-			// until the logic for distinguishing this two cases is implemented
-			// this state must not define this next transition.
-			// FIX: Ignore this bracket completely or maybe just check if we're not in a right hand expression? 
-			// { '<', state => state.ChangeState<AngleBracketsBody>() }
 		};
 
 		/// <summary>
@@ -353,64 +348,13 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public abstract char ClosedBracket { get; }
 
-		/// <summary>
-		///     Type of the current block body.
-		/// </summary>
-		public Body CurrentBody;
-
-		/// <summary>
-		///     Type of the next block body.
-		///     Same as <see cref="CurrentBody"/> if none of the
-		///     <see cref="Body"/> keywords have been read.
-		/// </summary>
-		public Body NextBody;
-
-		/// <summary>
-		///     Type of the current statement.
-		/// </summary>
-		public Statement CurrentStatement;
-
-		/// <summary>
-		///    Contains indent levels of nested if statements.
-		/// </summary>
-		public Stack<Indent> NestedIfStatementLevels = new Stack<Indent>();
-
-		/// <summary>
-		///    Contains the indent level of the last statement or body keyword.
-		/// </summary>
-		public Indent LastBlockIndent;
-
 		protected BracketsBodyBaseState(CSharpIndentEngine engine, IndentState parent = null)
 			: base(engine, parent)
 		{ }
 
 		protected BracketsBodyBaseState(BracketsBodyBaseState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
-		{
-			CurrentBody = prototype.CurrentBody;
-			NextBody = prototype.NextBody;
-			CurrentStatement = prototype.CurrentStatement;
-			NestedIfStatementLevels = new Stack<Indent>(prototype.NestedIfStatementLevels);
-
-			if (prototype.LastBlockIndent != null)
-				LastBlockIndent = prototype.LastBlockIndent.Clone();
-		}
-
-		/// <summary>
-		///     Extracts the <see cref="CurrentBody"/> from the given state.
-		/// </summary>
-		/// <returns>
-		///     The correct <see cref="Body"/> type for this state.
-		/// </returns>
-		static Body extractBody(IndentState state)
-		{
-			if (state != null && state is BracketsBodyBaseState)
-			{
-				return ((BracketsBodyBaseState)state).NextBody;
-			}
-
-			return Body.None;
-		}
+		{ }
 
 		public override void Push(char ch)
 		{
@@ -452,14 +396,219 @@ namespace ICSharpCode.NRefactory.CSharp
 				ExitState();
 			}
 		}
+	}
+
+	#endregion
+
+	#region Braces body state
+
+	/// <summary>
+	///     Braces body state.
+	/// </summary>
+	/// <remarks>
+	///     Represents a block of code between { and }.
+	/// </remarks>
+	public class BracesBodyState : BracketsBodyBaseState
+	{
+		/// <summary>
+		///     Type of the current block body.
+		/// </summary>
+		public Body CurrentBody;
+
+		/// <summary>
+		///     Type of the next block body.
+		///     Same as <see cref="CurrentBody"/> if none of the
+		///     <see cref="Body"/> keywords have been read.
+		/// </summary>
+		public Body NextBody;
+
+		/// <summary>
+		///     Type of the current statement.
+		/// </summary>
+		public Statement CurrentStatement
+		{
+			get
+			{
+				return currentStatement;
+			}
+			set
+			{
+				// clear NestedIfStatementLevels if this statement breaks the sequence
+				if (currentStatement == Statement.None && value != Statement.Else)
+				{
+					NestedIfStatementLevels.Clear();
+				}
+
+				currentStatement = value;
+			}
+		}
+		Statement currentStatement;
+
+		/// <summary>
+		///    Contains indent levels of nested if statements.
+		/// </summary>
+		public Stack<Indent> NestedIfStatementLevels = new Stack<Indent>();
+
+		/// <summary>
+		///    Contains the indent level of the last statement or body keyword.
+		/// </summary>
+		public Indent LastBlockIndent;
+
+		/// <summary>
+		///     True if the engine is on the right side of the equal operator '='.
+		/// </summary>
+		public bool IsRightHandExpression;
+
+		/// <summary>
+		///     True if the '=' char has been pushed and it's not
+		///     a part of a relational operator (&gt;=, &lt;=, !=, ==).
+		/// </summary>
+		public bool IsEqualCharPushed;
+
+		public override char ClosedBracket
+		{
+			get { return '}'; }
+		}
+
+		public BracesBodyState(CSharpIndentEngine engine, IndentState parent = null)
+			: base(engine, parent)
+		{ }
+
+		public BracesBodyState(BracesBodyState prototype, CSharpIndentEngine engine)
+			: base(prototype, engine)
+		{
+			CurrentBody = prototype.CurrentBody;
+			NextBody = prototype.NextBody;
+			CurrentStatement = prototype.CurrentStatement;
+			NestedIfStatementLevels = new Stack<Indent>(prototype.NestedIfStatementLevels);
+			IsRightHandExpression = prototype.IsRightHandExpression;
+			IsEqualCharPushed = prototype.IsEqualCharPushed;
+			LastBlockIndent = prototype.LastBlockIndent;
+		}
+
+		public override void Push(char ch)
+		{
+			// handle IsRightHandExpression property
+			if (IsEqualCharPushed)
+			{
+				// if IsRightHandExpression == true && IsEqualCharPushed == true
+				if (IsRightHandExpression)
+				{
+					// replace continuation with extra-spaces if ch is a significant char
+					if (ch != Engine.newLineChar && ch != ' ' && ch != '\t')
+					{
+						IsEqualCharPushed = false;
+						NextLineIndent.PopIf(IndentType.Continuation);
+						NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+					}
+					else
+					{
+						// give NextLineIndent.ExtraSpaces another chance on next push
+						IsEqualCharPushed = ch == ' ' || ch == '\t';
+					}
+				}
+				else if (ch != '=' && ch != '>') // ignore "==" and "=>" operators
+				{
+					IsRightHandExpression = true;
+					IsEqualCharPushed = true;
+				}
+			}
+
+			if (ch == ';' || (ch == ',' && IsRightHandExpression))
+			{
+				OnStatementExit();
+			}
+			else if (ch == '=' && !IsRightHandExpression && 
+			         !new[] { '=', '<', '>', '!' }.Contains(Engine.previousChar))
+			{
+				IsEqualCharPushed = true;
+				NextLineIndent.Push(IndentType.Continuation);
+			}
+			else if (ch == '.' && IsRightHandExpression)
+			{
+				// OPTION: CSharpFormattingOptions.AlignToMemberReferenceDot
+				if (Engine.formattingOptions.AlignToMemberReferenceDot)
+				{
+					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+				}
+				else if (Engine.previousChar == ')' && ThisLineIndent.ExtraSpaces > 0 && Engine.isLineStart)
+				{
+					ThisLineIndent.ExtraSpaces = 0;
+					ThisLineIndent.Push(IndentType.Continuation);
+					NextLineIndent = ThisLineIndent.Clone();
+				}
+			}
+			else if (ch == ':' && Engine.isLineStart && !IsRightHandExpression)
+			{
+				// try to capture ': base(...)', ': this(...)' and inherit statements when they are on a new line
+				ThisLineIndent.Push(IndentType.Continuation);
+			}
+
+			base.Push(ch);
+		}
 
 		public override void InitializeState()
 		{
-			CurrentBody = BracketsBodyBaseState.extractBody(Parent);
+			ThisLineIndent = Parent.ThisLineIndent.Clone();
+			NextLineIndent = Parent.NextLineIndent.Clone();
+
+			// OPTION: IDocumentIndentEngine.EnableCustomIndentLevels
+			var parent = Parent as BracesBodyState;
+			if (parent == null || parent.LastBlockIndent == null || !Engine.EnableCustomIndentLevels)
+			{
+				NextLineIndent.ExtraSpaces = 0;
+				NextLineIndent.PopIf(IndentType.Continuation);
+			}
+			else
+			{
+				NextLineIndent = parent.LastBlockIndent.Clone();
+			}
+
+			if (Engine.isLineStart)
+			{
+				ThisLineIndent = NextLineIndent.Clone();
+			}
+
+			CurrentBody = extractBody(Parent);
 			NextBody = Body.None;
 			CurrentStatement = Statement.None;
 
 			AddIndentation(CurrentBody);
+		}
+
+		public override IndentState Clone(CSharpIndentEngine engine)
+		{
+			return new BracesBodyState(this, engine);
+		}
+
+		public override void OnExit()
+		{
+			if (Parent is BracesBodyState)
+			{
+				((BracesBodyState)Parent).OnStatementExit();
+			}
+
+			if (Engine.isLineStart)
+			{
+				ThisLineIndent.ExtraSpaces = 0;
+				ThisLineIndent.PopTry();
+			}
+
+			base.OnExit();
+		}
+
+		/// <summary>
+		///     Actions performed when the current statement exits.
+		/// </summary>
+		public virtual void OnStatementExit()
+		{
+			IsRightHandExpression = false;
+
+			NextLineIndent.ExtraSpaces = 0;
+			NextLineIndent.PopWhile(IndentType.Continuation);
+
+			CurrentStatement = Statement.None;
+			LastBlockIndent = null;
 		}
 
 		#region Helpers
@@ -511,7 +660,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			{ "catch", Body.Catch },
 			{ "finally", Body.Finally },
 		};
-		
+
 		static readonly Dictionary<string, Statement> statements = new Dictionary<string, Statement>
 		{
 			{ "if", Statement.If },
@@ -523,6 +672,27 @@ namespace ICSharpCode.NRefactory.CSharp
 			{ "lock", Statement.Lock },
 			{ "using", Statement.Using },
 			{ "return", Statement.Return },
+		};
+
+		static readonly HashSet<string> blocks = new HashSet<string>
+		{
+			"namespace",
+			"class",
+			"struct",
+			"interface",
+			"enum",
+			"switch",
+			"try",
+			"catch",
+			"finally",
+			"if",
+			"else",
+			"do",
+			"while",
+			"for",
+			"foreach",
+			"lock",
+			"using",
 		};
 
 		readonly string[] caseDefaultKeywords = {
@@ -547,21 +717,22 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			if (bodies.ContainsKey(keyword))
 			{
-				var isKeywordTemplateConstraint = classStructKeywords.Contains(keyword);
-				if (!(isKeywordTemplateConstraint && (NextBody == Body.Class || NextBody == Body.Struct || NextBody == Body.Interface)))
+				var isKeywordTemplateConstraint =
+					classStructKeywords.Contains(keyword) &&
+					(NextBody == Body.Class || NextBody == Body.Struct || NextBody == Body.Interface);
+				
+				if (!isKeywordTemplateConstraint)
 				{
 					NextBody = bodies[keyword];
 				}
-
-				if (Engine.NeedsReindent && Engine.EnableCustomIndentLevels)
-					LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
 			}
-			else if (caseDefaultKeywords.Contains(keyword) && CurrentBody == Body.Switch)
+			else if (caseDefaultKeywords.Contains(keyword) && CurrentBody == Body.Switch && Engine.isLineStartBeforeWordToken)
 			{
 				ChangeState<SwitchCaseState>();
 			}
 			else if (keyword == "where" && Engine.isLineStartBeforeWordToken)
 			{
+				// try to capture where (generic type constraint)
 				ThisLineIndent.Push(IndentType.Continuation);
 			}
 			else if (statements.ContainsKey(keyword))
@@ -569,42 +740,29 @@ namespace ICSharpCode.NRefactory.CSharp
 				Statement previousStatement = CurrentStatement;
 				CurrentStatement = statements[keyword];
 
-				// check if the using is a using declaration
+				// return if this is a using declaration or alias
 				if (CurrentStatement == Statement.Using &&
 				   (this is GlobalBodyState || CurrentBody == Body.Namespace))
 				{
 					return;
 				}
 
-				if (ThisLineIndent.Count > 0 && ThisLineIndent.Peek() == IndentType.Continuation)
+				// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
+				if (Engine.formattingOptions.AlignEmbeddedIfStatements &&
+					previousStatement == Statement.If &&
+					CurrentStatement == Statement.If)
 				{
-					// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
-					if (Engine.formattingOptions.AlignEmbeddedIfStatements &&
-					    previousStatement == Statement.If &&
-					    CurrentStatement == Statement.If &&
-					    Engine.previousKeyword != "else")
-					{
-						ThisLineIndent.Pop();
-						NestedIfStatementLevels.Push(ThisLineIndent);
+					ThisLineIndent.PopIf(IndentType.Continuation);
+					NextLineIndent.PopIf(IndentType.Continuation);
+				}
 
-						if (Engine.NeedsReindent && Engine.EnableCustomIndentLevels)
-							LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
-
-						return;
-					}
-
-					// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
-					if (Engine.formattingOptions.AlignEmbeddedUsingStatements &&
-					    previousStatement == Statement.Using &&
-					    CurrentStatement == Statement.Using)
-					{
-						ThisLineIndent.Pop();
-
-						if (Engine.NeedsReindent && Engine.EnableCustomIndentLevels)
-							LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
-
-						return;
-					}
+				// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
+				if (Engine.formattingOptions.AlignEmbeddedUsingStatements &&
+					previousStatement == Statement.Using &&
+					CurrentStatement == Statement.Using)
+				{
+					ThisLineIndent.PopIf(IndentType.Continuation);
+					NextLineIndent.PopIf(IndentType.Continuation);
 				}
 
 				// else statement is handled differently
@@ -620,12 +778,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 				else
 				{
-					// check if the nested statements expression has been broken
-					if (previousStatement == Statement.None)
-					{
-						NestedIfStatementLevels.Clear();
-					}
-
 					// only add continuation for 'else' in 'else if' statement.
 					if (!(CurrentStatement == Statement.If && previousStatement == Statement.Else && !Engine.isLineStartBeforeWordToken))
 					{
@@ -637,9 +789,11 @@ namespace ICSharpCode.NRefactory.CSharp
 						NestedIfStatementLevels.Push(ThisLineIndent);
 					}
 				}
-
-				if (Engine.NeedsReindent && Engine.EnableCustomIndentLevels)
-					LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
+			}
+			
+			if (blocks.Contains(keyword) && Engine.NeedsReindent)
+			{
+				LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
 			}
 		}
 
@@ -725,6 +879,22 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
+		/// <summary>
+		///     Extracts the <see cref="CurrentBody"/> from the given state.
+		/// </summary>
+		/// <returns>
+		///     The correct <see cref="Body"/> type for this state.
+		/// </returns>
+		static Body extractBody(IndentState state)
+		{
+			if (state != null && state is BracesBodyState)
+			{
+				return ((BracesBodyState)state).NextBody;
+			}
+
+			return Body.None;
+		}
+
 		#endregion
 	}
 
@@ -738,7 +908,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// <remarks>
 	///     Represents the global space of the program.
 	/// </remarks>
-	public class GlobalBodyState : BracketsBodyBaseState
+	public class GlobalBodyState : BracesBodyState
 	{
 		public override char ClosedBracket
 		{
@@ -767,163 +937,6 @@ namespace ICSharpCode.NRefactory.CSharp
 
 	#endregion
 
-	#region Braces body state
-
-	/// <summary>
-	///     Braces body state.
-	/// </summary>
-	/// <remarks>
-	///     Represents a block of code between { and }.
-	/// </remarks>
-	public class BracesBodyState : BracketsBodyBaseState
-	{
-		/// <summary>
-		///     True if the engine is on the right side of the equal operator '='.
-		/// </summary>
-		public bool IsRightHandExpression;
-
-		/// <summary>
-		///     True if the '=' char has been pushed and it's not
-		///     a part of a relational operator (&gt;=, &lt;=, !=, ==).
-		/// </summary>
-		public bool IsEqualCharPushed;
-
-		public override char ClosedBracket
-		{
-			get { return '}'; }
-		}
-
-		public BracesBodyState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
-		{ }
-
-		public BracesBodyState(BracesBodyState prototype, CSharpIndentEngine engine)
-			: base(prototype, engine)
-		{
-			IsRightHandExpression = prototype.IsRightHandExpression;
-			IsEqualCharPushed = prototype.IsEqualCharPushed;
-		}
-
-		public override void Push(char ch)
-		{
-			// handle IsRightHandExpression property
-			if (IsEqualCharPushed && ch != '=' && ch != '>')
-			{
-				IsRightHandExpression = true;
-				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
-			}
-			IsEqualCharPushed = false;
-
-			if (ch == ';')
-			{
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.PopWhile(IndentType.Continuation);
-
-				IsRightHandExpression = false;
-
-				if (CurrentStatement == Statement.None)
-					NestedIfStatementLevels.Clear();
-				CurrentStatement = Statement.None;
-
-				LastBlockIndent = null;
-			}
-			else if (ch == ',' && IsRightHandExpression)
-			{
-				NextLineIndent.ExtraSpaces = 0;
-				IsRightHandExpression = false;
-			}
-			else if (ch == '=' && !IsRightHandExpression && !new[] { '=', '<', '>', '!' }.Contains(Engine.previousChar))
-			{
-				IsEqualCharPushed = true;
-			}
-			else if (ch == '.' && IsRightHandExpression)
-			{
-				if (Engine.previousChar == ')' && ThisLineIndent.ExtraSpaces > 0)
-				{
-					ThisLineIndent.ExtraSpaces = 0;
-					ThisLineIndent.Push(IndentType.Continuation);
-					// TODO: NextLineIndent = ThisLineIndent ???
-				}
-				else
-				{
-					// NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
-				}
-			}
-			else if (ch == Engine.newLineChar && NextLineIndent.ExtraSpaces > 0 &&
-					(Engine.previousChar == '=' || Engine.previousChar == '.'))
-			{
-				// the last significant pushed char was '=' or '.' and we added
-				// extra spaces to align the next line, but the newline char was
-				// pushed afterwards so it's better to replace the extra spaces
-				// with one continuation indent.
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.Push(IndentType.Continuation);
-			}
-			else if (ch == ':' && Engine.isLineStart && !IsRightHandExpression)
-			{
-				// try to capture ': base(...)', ': this(...)' and inherit statements when they are on a new line
-				ThisLineIndent.Push(IndentType.Continuation);
-			}
-
-			base.Push(ch);
-		}
-
-		public override void InitializeState()
-		{
-			ThisLineIndent = Parent.ThisLineIndent.Clone();
-			NextLineIndent = Parent.NextLineIndent.Clone();
-
-			var parent = Parent as BracketsBodyBaseState;
-			if (parent == null || parent.LastBlockIndent == null)
-			{
-				NextLineIndent.ExtraSpaces = 0;
-				NextLineIndent.PopIf(IndentType.Continuation);
-			}
-			else
-			{
-				NextLineIndent = parent.LastBlockIndent.Clone();
-			}
-
-			if (Engine.isLineStart)
-			{
-				ThisLineIndent = NextLineIndent.Clone();
-			}
-
-			base.InitializeState();
-		}
-
-		public override IndentState Clone(CSharpIndentEngine engine)
-		{
-			return new BracesBodyState(this, engine);
-		}
-
-		public override void OnExit()
-		{
-			var parent = Parent as BracketsBodyBaseState;
-			if (parent != null)
-			{
-				if (parent.CurrentStatement == Statement.None)
-					parent.NestedIfStatementLevels.Clear();
-				parent.CurrentStatement = Statement.None;
-
-				parent.NextLineIndent.ExtraSpaces = 0;
-				parent.NextLineIndent.PopWhile(IndentType.Continuation);
-
-				if (Engine.isLineStart)
-				{
-					ThisLineIndent.ExtraSpaces = 0;
-					ThisLineIndent.PopTry();
-				}
-
-				parent.LastBlockIndent = null;
-			}
-
-			base.OnExit();
-		}
-	}
-
-	#endregion
-
 	#region Switch-case body state
 
 	/// <summary>
@@ -934,10 +947,6 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class SwitchCaseState : BracesBodyState
 	{
-		public override char ClosedBracket
-		{
-			get { return '}'; }
-		}
 		public SwitchCaseState(CSharpIndentEngine engine, IndentState parent = null)
 			: base(engine, parent)
 		{ }
@@ -948,6 +957,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
+			// on ClosedBracket both this state (a case or a default statement)
+			// and also the whole switch block (handled in the base class) must exit.
 			if (ch == ClosedBracket)
 			{
 				ExitState();
@@ -959,16 +970,22 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
-
-			// remove all continuations and extra spaces from this line indent
-			ThisLineIndent.ExtraSpaces = 0;
-			ThisLineIndent.PopIf(IndentType.Continuation);
-
 			NextLineIndent = ThisLineIndent.Clone();
+
+			// remove all continuations and extra spaces
+			ThisLineIndent.ExtraSpaces = 0;
+			ThisLineIndent.PopWhile(IndentType.Continuation);
+			NextLineIndent.ExtraSpaces = 0;
+			NextLineIndent.PopWhile(IndentType.Continuation);
+
 			if (Engine.formattingOptions.IndentCaseBody)
+			{
 				NextLineIndent.Push(IndentType.Block);
+			}
 			else
+			{
 				NextLineIndent.Push(IndentType.Empty);
+			}
 		}
 
 		static readonly string[] caseDefaultKeywords = {
@@ -976,20 +993,21 @@ namespace ICSharpCode.NRefactory.CSharp
 			"default"
 		};
 
-		static readonly string[] breakContinueReturnKeywords = {
+		static readonly string[] breakContinueReturnGotoKeywords = {
 			"break",
 			"continue",
-			"return"
+			"return",
+			"goto"
 		};
 
 		public override void CheckKeyword(string keyword)
 		{
-			if (caseDefaultKeywords.Contains(keyword))
+			if (caseDefaultKeywords.Contains(keyword) && Engine.isLineStartBeforeWordToken)
 			{
 				ExitState();
 				ChangeState<SwitchCaseState>();
 			}
-			else if (breakContinueReturnKeywords.Contains(keyword))
+			else if (breakContinueReturnGotoKeywords.Contains(keyword) && Engine.isLineStartBeforeWordToken)
 			{
 				// OPTION: Engine.formattingOptions.IndentBreakStatements
 				if (!Engine.formattingOptions.IndentBreakStatements)
@@ -997,10 +1015,8 @@ namespace ICSharpCode.NRefactory.CSharp
 					ThisLineIndent = Parent.ThisLineIndent.Clone();
 				}
 			}
-			else
-			{
-				base.CheckKeyword(keyword);
-			}
+			
+			base.CheckKeyword(keyword);
 		}
 
 		public override void OnExit()
@@ -1052,10 +1068,13 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (ch != Engine.newLineChar && !IsSomethingPushed)
 			{
 				NextLineIndent.Pop();
-				if (Engine.formattingOptions.AlignToFirstMethodCallArgument) {
+				if (Engine.formattingOptions.AlignToFirstMethodCallArgument)
+				{
 					// align the next line at the beginning of the open bracket
 					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
-				} else {
+				}
+				else
+				{
 					NextLineIndent.Push(IndentType.Continuation);
 				}
 			}
@@ -1131,11 +1150,14 @@ namespace ICSharpCode.NRefactory.CSharp
 			// OPTION: CSharpFormattingOptions.AlignToFirstIndexerArgument
 			if (ch != Engine.newLineChar && !IsSomethingPushed)
 			{
-				// align the next line at the beginning of the open bracket
 				NextLineIndent.Pop();
-				if (Engine.formattingOptions.AlignToFirstIndexerArgument) {
+				if (Engine.formattingOptions.AlignToFirstIndexerArgument)
+				{
+					// align the next line at the beginning of the open bracket
 					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
-				} else {
+				}
+				else
+				{
 					NextLineIndent.Push(IndentType.Continuation);
 				}
 			}
@@ -1154,81 +1176,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override IndentState Clone(CSharpIndentEngine engine)
 		{
 			return new SquareBracketsBodyState(this, engine);
-		}
-
-		public override void OnExit()
-		{
-			if (Engine.isLineStart)
-			{
-				if (ThisLineIndent.ExtraSpaces > 0)
-				{
-					ThisLineIndent.ExtraSpaces--;
-				}
-				else
-				{
-					ThisLineIndent.PopTry();
-				}
-			}
-
-			base.OnExit();
-		}
-	}
-
-	#endregion
-
-	#region Angle brackets body state
-
-	/// <summary>
-	///     Angle brackets body state.
-	/// </summary>
-	/// <remarks>
-	///     Represents a block of code between < and >.
-	/// </remarks>
-	public class AngleBracketsBodyState : BracketsBodyBaseState
-	{
-		/// <summary>
-		///     True if any char has been pushed.
-		/// </summary>
-		public bool IsSomethingPushed;
-
-		public override char ClosedBracket
-		{
-			get { return '>'; }
-		}
-
-		public AngleBracketsBodyState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
-		{ }
-
-		public AngleBracketsBodyState(AngleBracketsBodyState prototype, CSharpIndentEngine engine)
-			: base(prototype, engine)
-		{
-			IsSomethingPushed = prototype.IsSomethingPushed;
-		}
-
-		public override void Push(char ch)
-		{
-			if (ch != Engine.newLineChar && !IsSomethingPushed)
-			{
-				// align the next line at the beginning of the open bracket
-				NextLineIndent.Pop();
-				NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
-			}
-
-			base.Push(ch);
-			IsSomethingPushed = true;
-		}
-
-		public override void InitializeState()
-		{
-			ThisLineIndent = Parent.ThisLineIndent.Clone();
-			NextLineIndent = ThisLineIndent.Clone();
-			NextLineIndent.Push(IndentType.Block);
-		}
-
-		public override IndentState Clone(CSharpIndentEngine engine)
-		{
-			return new AngleBracketsBodyState(this, engine);
 		}
 
 		public override void OnExit()
@@ -1293,9 +1240,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			// HACK: if this change would be left for the CheckKeyword method, we will lose
 			//       it if the next pushed char is newLineChar since ThisLineIndent will be 
-			//       immediately replaced with NextLineIndent
-			if (Engine.wordToken.Length == "endregion".Length && 
-			    Engine.wordToken.ToString() == "endregion")
+			//       immediately replaced with NextLineIndent. As this most likely will
+			//       happen, we check for "endregion" on every push.
+			if (Engine.wordToken.ToString() == "endregion")
 			{
 				ThisLineIndent = Parent.NextLineIndent.Clone();
 			}
