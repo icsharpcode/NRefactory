@@ -110,6 +110,23 @@ class Foo
 		}
 
 		[Test]
+		public void MethodContinuation_AlignToMemberReferenceDot()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = false;
+			fmt.AlignToMemberReferenceDot = true;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		var a = Call(A).Foo ()
+		               .Foo ()
+		               .Foo ()$", fmt);
+			Assert.AreEqual("\t\t               ", indent.ThisLineIndent);
+		}
+
+		[Test]
 		public void AlignEmbeddedIfStatements()
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
