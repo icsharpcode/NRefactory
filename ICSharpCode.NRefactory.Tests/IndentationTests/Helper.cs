@@ -30,12 +30,13 @@ using NUnit.Framework;
 using System.IO;
 using System.Text;
 using System;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.IndentationTests
 {
 	internal static class Helper
 	{
-		public static IDocumentIndentEngine CreateEngine(string text, CSharpFormattingOptions formatOptions = null)
+		public static IDocumentIndentEngine CreateEngine(string text, CSharpFormattingOptions formatOptions = null, IEnumerable<string> symbols = null)
 		{
 			var policy = formatOptions;
 			if ( policy == null) {
@@ -61,7 +62,15 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			var document = new ReadOnlyDocument(sb.ToString());
 			var options = new TextEditorOptions();
 
-			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy) { EnableCustomIndentLevels = true });
+			var csi = new CSharpIndentEngine(document, options, policy) {
+				EnableCustomIndentLevels = true
+			};
+			if (symbols != null) {
+				foreach (var sym in symbols) {
+					csi.DefineSymbol(sym);
+				}
+			}
+			var result = new CacheIndentEngine(csi);
 			result.Update(offset);
 			return result;
 		}
