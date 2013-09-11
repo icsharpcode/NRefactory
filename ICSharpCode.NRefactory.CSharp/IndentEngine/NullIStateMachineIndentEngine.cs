@@ -194,6 +194,14 @@ namespace ICSharpCode.NRefactory.CSharp
 				return TextLocation.Empty;
 			}
 		}
+
+		/// <inheritdoc />
+		public bool EnableCustomIndentLevels
+		{
+			get { return false; }
+			set { }
+		}
+
 		#endregion
 
 		#region ICloneable implementation

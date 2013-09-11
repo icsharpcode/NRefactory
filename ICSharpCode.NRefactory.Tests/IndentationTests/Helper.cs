@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 			var document = new ReadOnlyDocument(sb.ToString());
 			var options = new TextEditorOptions();
 
-			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
+			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy) { EnableCustomIndentLevels = true });
 			result.Update(offset);
 			return result;
 		}
@@ -75,8 +75,8 @@ namespace ICSharpCode.NRefactory.IndentationTests
 				var document = new ReadOnlyDocument(code);
 				policy = policy ?? FormattingOptionsFactory.CreateMono();
 				options = options ?? new TextEditorOptions { IndentBlankLines = false };
-				
-				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
+
+				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy) { EnableCustomIndentLevels = true });
 				Random rnd = new Random();
 
 				for (int i = 0; i < count; i++) {
@@ -107,7 +107,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 				}
 				options = options ?? new TextEditorOptions { IndentBlankLines = false };
 
-				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy));
+				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy) { EnableCustomIndentLevels = true });
 				int errors = 0;
 
 				foreach (var ch in code)
