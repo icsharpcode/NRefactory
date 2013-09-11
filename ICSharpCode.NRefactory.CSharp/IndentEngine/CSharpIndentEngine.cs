@@ -79,7 +79,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		///     True if any of the preprocessor if/elif directives in the current
 		///     block (between #if and #endif) were evaluated to true.
 		/// </summary>
-		internal bool ifDirectiveEvalResult;
+		internal Stack<bool> ifDirectiveEvalResult = new Stack<bool> ();
 
 		/// <summary>
 		///     Stores the last sequence of characters that can form a
@@ -308,6 +308,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.currentIndent = new StringBuilder(prototype.CurrentIndent.ToString());
 			this.lineBeganInsideMultiLineComment = prototype.lineBeganInsideMultiLineComment;
 			this.lineBeganInsideVerbatimString = prototype.lineBeganInsideVerbatimString;
+			this.ifDirectiveEvalResult = new Stack<bool>(prototype.ifDirectiveEvalResult.Reverse());
 		}
 
 		#endregion
@@ -403,7 +404,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			currentState = IndentStateFactory.Default(this);
 			conditionalSymbols.Clear();
-			ifDirectiveEvalResult = false;
+			ifDirectiveEvalResult.Clear();
 
 			offset = 0;
 			line = 1;

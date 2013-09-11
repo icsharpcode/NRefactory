@@ -1257,33 +1257,33 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (ch == Engine.newLineChar)
 			{
 				ExitState();
-
 				switch (DirectiveType)
 				{
 					case PreProcessorDirective.If:
-						if (!Engine.ifDirectiveEvalResult)
+						Engine.ifDirectiveEvalResult.Push (eval(DirectiveStatement.ToString()));
+						if (Engine.ifDirectiveEvalResult.Peek())
 						{
-							Engine.ifDirectiveEvalResult = eval(DirectiveStatement.ToString());
-							if (Engine.ifDirectiveEvalResult)
-							{
-								// the if/elif directive is true -> continue with the previous state
-							}
-							else
-							{
-								// the if/elif directive is false -> change to a state that will 
-								// ignore any chars until #endif or #elif
-								ChangeState<PreProcessorCommentState>();
-							}
+							// the if/elif directive is true -> continue with the previous state
 						}
 						else
 						{
-							// one of the if/elif directives in this block was true -> 
-							// change to a state that will ignore any chars until #endif
+							// the if/elif directive is false -> change to a state that will 
+							// ignore any chars until #endif or #elif
 							ChangeState<PreProcessorCommentState>();
 						}
 						break;
+					case PreProcessorDirective.Elif:
+						if (Engine.ifDirectiveEvalResult.Count > 0) {
+							if (!Engine.ifDirectiveEvalResult.Peek()) {
+								Engine.ifDirectiveEvalResult.Pop();
+								goto case PreProcessorDirective.If;
+							}
+						}
+						// previous if was true -> comment
+						ChangeState<PreProcessorCommentState>();
+						break;
 					case PreProcessorDirective.Else:
-						if (Engine.ifDirectiveEvalResult)
+						if (Engine.ifDirectiveEvalResult.Count > 0 && Engine.ifDirectiveEvalResult.Peek())
 						{
 							// some if/elif directive was true -> change to a state that will 
 							// ignore any chars until #endif
@@ -1310,7 +1310,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						break;
 					case PreProcessorDirective.Endif:
 						// marks the end of this block
-						Engine.ifDirectiveEvalResult = false;
+						Engine.ifDirectiveEvalResult.Pop();
 						break;
 					case PreProcessorDirective.Region:
 					case PreProcessorDirective.Pragma:
@@ -1341,7 +1341,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		static readonly Dictionary<string, PreProcessorDirective> preProcessorDirectives = new Dictionary<string, PreProcessorDirective>
 		{
 			{ "if", PreProcessorDirective.If },
-			{ "elif", PreProcessorDirective.If },
+			{ "elif", PreProcessorDirective.Elif },
 			{ "else", PreProcessorDirective.Else },
 			{ "endif", PreProcessorDirective.Endif },
 			{ "region", PreProcessorDirective.Region },
@@ -1386,7 +1386,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			None,
 			If,
-			// Elif, // use If instead
+			Elif,
 			Else,
 			Endif,
 			Region,

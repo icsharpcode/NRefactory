@@ -287,5 +287,49 @@ namespace Foo {
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestStateAfterDoublePreprocessorIf()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		#if true
+		#if true
+		if (true)
+			return;$
+", policy);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
+
+
+		[Test]
+		public void TestComplexIfElse()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		#if false
+		#elif true
+		#if false
+		#endif
+		if (true)
+			return;$
+		#endif
+", policy);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
 	}
 }
