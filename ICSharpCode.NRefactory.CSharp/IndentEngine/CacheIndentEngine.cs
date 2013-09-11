@@ -116,6 +116,13 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		/// <inheritdoc />
+		public bool EnableCustomIndentLevels
+		{
+			get { return currentEngine.EnableCustomIndentLevels; }
+			set { currentEngine.EnableCustomIndentLevels = value; }
+		}
+
+		/// <inheritdoc />
 		public void Push(char ch)
 		{
 			currentEngine.Push(ch);
@@ -154,7 +161,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		/// <inheritdoc />
 		/// <remarks>
-		///     If the <paramref name="offset"/> is negative, the engine will
+		///     If the <paramref name="position"/> is negative, the engine will
 		///     update to: document.TextLength + (offset % document.TextLength+1)
 		///     Otherwise it will update to: offset % document.TextLength+1
 		/// </remarks>

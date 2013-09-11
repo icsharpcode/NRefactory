@@ -375,6 +375,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public Stack<Indent> NestedIfStatementLevels = new Stack<Indent>();
 
+		/// <summary>
+		///    Contains the indent level of the last statement or body keyword.
+		/// </summary>
+		public Indent LastBlockIndent;
+
 		protected BracketsBodyBaseState(CSharpIndentEngine engine, IndentState parent = null)
 			: base(engine, parent)
 		{ }
@@ -386,6 +391,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			NextBody = prototype.NextBody;
 			CurrentStatement = prototype.CurrentStatement;
 			NestedIfStatementLevels = new Stack<Indent>(prototype.NestedIfStatementLevels);
+
+			if (prototype.LastBlockIndent != null)
+				LastBlockIndent = prototype.LastBlockIndent.Clone();
 		}
 
 		/// <summary>
@@ -441,15 +449,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else if (ch == ClosedBracket)
 			{
-				if (Engine.isLineStart)
-				{
-					if (Parent != null) {
-						ThisLineIndent = Parent.ThisLineIndent.Clone();
-					} else {
-						ThisLineIndent.Reset();
-					}
-				}
-
 				ExitState();
 			}
 		}
@@ -500,7 +499,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			Return
 		}
 
-		static readonly Dictionary<string, Body> blocks = new Dictionary<string, Body>
+		static readonly Dictionary<string, Body> bodies = new Dictionary<string, Body>
 		{
 			{ "namespace", Body.Namespace },
 			{ "class", Body.Class },
@@ -546,13 +545,16 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </param>
 		public override void CheckKeyword(string keyword)
 		{
-			if (blocks.ContainsKey(keyword))
+			if (bodies.ContainsKey(keyword))
 			{
 				var isKeywordTemplateConstraint = classStructKeywords.Contains(keyword);
 				if (!(isKeywordTemplateConstraint && (NextBody == Body.Class || NextBody == Body.Struct || NextBody == Body.Interface)))
 				{
-					NextBody = blocks[keyword];
+					NextBody = bodies[keyword];
 				}
+
+				if (Engine.NeedsReindent && Engine.EnableCustomIndentLevels)
+					LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
 			}
 			else if (caseDefaultKeywords.Contains(keyword) && CurrentBody == Body.Switch)
 			{
@@ -583,11 +585,10 @@ namespace ICSharpCode.NRefactory.CSharp
 					    Engine.previousKeyword != "else")
 					{
 						ThisLineIndent.Pop();
+						NestedIfStatementLevels.Push(ThisLineIndent);
 
-						if (CurrentStatement == Statement.If)
-						{
-							NestedIfStatementLevels.Push(ThisLineIndent);
-						}
+						if (Engine.NeedsReindent && Engine.EnableCustomIndentLevels)
+							LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
 
 						return;
 					}
@@ -598,6 +599,10 @@ namespace ICSharpCode.NRefactory.CSharp
 					    CurrentStatement == Statement.Using)
 					{
 						ThisLineIndent.Pop();
+
+						if (Engine.NeedsReindent && Engine.EnableCustomIndentLevels)
+							LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
+
 						return;
 					}
 				}
@@ -610,6 +615,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						ThisLineIndent = NestedIfStatementLevels.Pop().Clone();
 						NextLineIndent = ThisLineIndent.Clone();
 					}
+
 					NextLineIndent.Push(IndentType.Continuation);
 				}
 				else
@@ -631,6 +637,9 @@ namespace ICSharpCode.NRefactory.CSharp
 						NestedIfStatementLevels.Push(ThisLineIndent);
 					}
 				}
+
+				if (Engine.NeedsReindent && Engine.EnableCustomIndentLevels)
+					LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
 			}
 		}
 
@@ -807,18 +816,16 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			if (ch == ';')
 			{
-				while (NextLineIndent.Count > 0 && NextLineIndent.Peek() == IndentType.Continuation)
-				{
-					NextLineIndent.Pop();
-				}
 				NextLineIndent.ExtraSpaces = 0;
+				NextLineIndent.PopWhile(IndentType.Continuation);
+
 				IsRightHandExpression = false;
 
 				if (CurrentStatement == Statement.None)
-				{
 					NestedIfStatementLevels.Clear();
-				}
 				CurrentStatement = Statement.None;
+
+				LastBlockIndent = null;
 			}
 			else if (ch == ',' && IsRightHandExpression)
 			{
@@ -863,20 +870,24 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void InitializeState()
 		{
-			// remove all continuations and extra spaces from the previous state
-			Parent.NextLineIndent.ExtraSpaces = 0;
-			if (Parent.NextLineIndent.Count > 0 && Parent.NextLineIndent.Peek() == IndentType.Continuation)
+			ThisLineIndent = Parent.ThisLineIndent.Clone();
+			NextLineIndent = Parent.NextLineIndent.Clone();
+
+			var parent = Parent as BracketsBodyBaseState;
+			if (parent == null || parent.LastBlockIndent == null)
 			{
-				Parent.NextLineIndent.Pop();
+				NextLineIndent.ExtraSpaces = 0;
+				NextLineIndent.PopIf(IndentType.Continuation);
+			}
+			else
+			{
+				NextLineIndent = parent.LastBlockIndent.Clone();
 			}
 
 			if (Engine.isLineStart)
 			{
-				Parent.ThisLineIndent = Parent.NextLineIndent.Clone();
+				ThisLineIndent = NextLineIndent.Clone();
 			}
-
-			ThisLineIndent = Parent.ThisLineIndent.Clone();
-			NextLineIndent = Parent.NextLineIndent.Clone();
 
 			base.InitializeState();
 		}
@@ -888,24 +899,23 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void OnExit()
 		{
-			// remove continuations and extra-spaces from the parent state 
-			// if this block was a part of some statement
 			var parent = Parent as BracketsBodyBaseState;
 			if (parent != null)
 			{
 				if (parent.CurrentStatement == Statement.None)
-				{
 					parent.NestedIfStatementLevels.Clear();
-				}
-				else
+				parent.CurrentStatement = Statement.None;
+
+				parent.NextLineIndent.ExtraSpaces = 0;
+				parent.NextLineIndent.PopWhile(IndentType.Continuation);
+
+				if (Engine.isLineStart)
 				{
-					parent.CurrentStatement = Statement.None;
-					parent.NextLineIndent.ExtraSpaces = 0;
-					while (parent.NextLineIndent.Count > 0 && parent.NextLineIndent.Peek() == IndentType.Continuation)
-					{
-						parent.NextLineIndent.Pop();
-					}
+					ThisLineIndent.ExtraSpaces = 0;
+					ThisLineIndent.PopTry();
 				}
+
+				parent.LastBlockIndent = null;
 			}
 
 			base.OnExit();
@@ -952,10 +962,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			// remove all continuations and extra spaces from this line indent
 			ThisLineIndent.ExtraSpaces = 0;
-			if (ThisLineIndent.Count > 0 && ThisLineIndent.Peek() == IndentType.Continuation)
-			{
-				ThisLineIndent.Pop();
-			}
+			ThisLineIndent.PopIf(IndentType.Continuation);
 
 			NextLineIndent = ThisLineIndent.Clone();
 			if (Engine.formattingOptions.IndentCaseBody)
@@ -1068,6 +1075,23 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return new ParenthesesBodyState(this, engine);
 		}
+
+		public override void OnExit()
+		{
+			if (Engine.isLineStart)
+			{
+				if (ThisLineIndent.ExtraSpaces > 0)
+				{
+					ThisLineIndent.ExtraSpaces--;
+				}
+				else
+				{
+					ThisLineIndent.PopTry();
+				}
+			}
+
+			base.OnExit();
+		}
 	}
 
 	#endregion
@@ -1131,6 +1155,23 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return new SquareBracketsBodyState(this, engine);
 		}
+
+		public override void OnExit()
+		{
+			if (Engine.isLineStart)
+			{
+				if (ThisLineIndent.ExtraSpaces > 0)
+				{
+					ThisLineIndent.ExtraSpaces--;
+				}
+				else
+				{
+					ThisLineIndent.PopTry();
+				}
+			}
+
+			base.OnExit();
+		}
 	}
 
 	#endregion
@@ -1188,6 +1229,23 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override IndentState Clone(CSharpIndentEngine engine)
 		{
 			return new AngleBracketsBodyState(this, engine);
+		}
+
+		public override void OnExit()
+		{
+			if (Engine.isLineStart)
+			{
+				if (ThisLineIndent.ExtraSpaces > 0)
+				{
+					ThisLineIndent.ExtraSpaces--;
+				}
+				else
+				{
+					ThisLineIndent.PopTry();
+				}
+			}
+
+			base.OnExit();
 		}
 	}
 

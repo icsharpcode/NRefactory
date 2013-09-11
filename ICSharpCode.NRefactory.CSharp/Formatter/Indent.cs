@@ -98,6 +98,33 @@ namespace ICSharpCode.NRefactory.CSharp
 			Update();
 		}
 
+		public void PopIf(IndentType type)
+		{
+			if (Count > 0 && Peek() == type)
+			{
+				Pop();
+			}
+		}
+
+		public void PopWhile(IndentType type)
+		{
+			while (Count > 0 && Peek() == type)
+			{
+				Pop();
+			}
+		}
+
+		public bool PopTry()
+		{
+			if (Count > 0)
+			{
+				Pop();
+				return true;
+			}
+
+			return false;
+		}
+
 		public int Count {
 			get {
 				return indentStack.Count;
@@ -165,6 +192,30 @@ namespace ICSharpCode.NRefactory.CSharp
 			var result = new Indent(options);
 			foreach (var i in indentStack)
 					result.Push(i);
+			return result;
+		}
+
+		public static Indent ConvertFrom(string indentString, Indent correctIndent, TextEditorOptions options = null)
+		{
+			options = options ?? TextEditorOptions.Default;
+			var result = new Indent(options);
+
+			var indent = string.Concat(indentString.Where(c => c == ' ' || c == '\t'));
+			var indentTypes = new Stack<IndentType>(correctIndent.indentStack);
+
+			foreach (var _ in indent.TakeWhile(c => c == '\t'))
+			{
+				if (indentTypes.Count > 0)
+					result.Push(indentTypes.Pop());
+				else
+					result.Push(IndentType.Continuation);
+			}
+
+			result.ExtraSpaces = indent
+				.SkipWhile(c => c == '\t')
+				.TakeWhile(c => c == ' ')
+				.Count();
+
 			return result;
 		}
 	}
