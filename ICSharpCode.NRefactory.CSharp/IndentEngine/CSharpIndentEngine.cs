@@ -431,6 +431,25 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
+		/// <summary>
+		/// Defines the conditional symbol.
+		/// </summary>
+		/// <param name="defineSymbol">The symbol to define.</param>
+		public void DefineSymbol(string defineSymbol)
+		{
+			if (!conditionalSymbols.Contains(defineSymbol))
+				conditionalSymbols.Add(defineSymbol);
+		}
+
+		/// <summary>
+		/// Removes the symbol.
+		/// </summary>
+		/// <param name="undefineSymbol">The symbol to undefine.</param>
+		public void RemoveSymbol(string undefineSymbol)
+		{
+			if (conditionalSymbols.Contains(undefineSymbol))
+				conditionalSymbols.Remove(undefineSymbol);
+		}
 		#endregion
 
 		#region IStateMachineIndentEngine

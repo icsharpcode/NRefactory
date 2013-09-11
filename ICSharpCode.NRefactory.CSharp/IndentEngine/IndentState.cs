@@ -1296,17 +1296,11 @@ namespace ICSharpCode.NRefactory.CSharp
 						break;
 					case PreProcessorDirective.Define:
 						var defineSymbol = DirectiveStatement.ToString().Trim();
-						if (!Engine.conditionalSymbols.Contains(defineSymbol))
-						{
-							Engine.conditionalSymbols.Add(defineSymbol);
-						}
+						Engine.DefineSymbol(defineSymbol);
 						break;
 					case PreProcessorDirective.Undef:
 						var undefineSymbol = DirectiveStatement.ToString().Trim();
-						if (Engine.conditionalSymbols.Contains(undefineSymbol))
-						{
-							Engine.conditionalSymbols.Remove(undefineSymbol);
-						}
+						Engine.RemoveSymbol(undefineSymbol);
 						break;
 					case PreProcessorDirective.Endif:
 						// marks the end of this block
