@@ -362,8 +362,8 @@ class Foo {
 	void Test ()
 	{
 		Foo(a, b, bar(c, d[T,  // T
-							G], // G
-						e), $    // e
+		                   G], // G
+		              e), $    // e
 			f);");
 			Assert.AreEqual("\t\t              ", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t    ", indent.NextLineIndent);
@@ -519,7 +519,7 @@ class Foo {
 	{ 
 		if (true)
 			if (true)
-				;
+			{ }
 			else $ ", fmt);
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
@@ -702,7 +702,6 @@ class Foo {
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestBrackets_CustomIndent()
 		{
@@ -713,6 +712,7 @@ class Foo {
 	void Test ()
 	{
 		// ...
+			if (true)
 			{
 				$ 
 			}", fmt);
@@ -720,7 +720,6 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestBrackets_CustomIndent2()
 		{
@@ -730,11 +729,80 @@ class Foo {
 class Foo {
 	void Test ()
 	{
+				if (true)
 				{
 					// ...
 				} $ ", fmt);
 			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_CustomIndent3()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{
+		using (this)
+					if (true)
+					{ } $ ", fmt);
+			Assert.AreEqual("\t\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_CustomIndent4()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{
+			using (this)
+			{
+					if (true)
+					{ } $ 
+			}", fmt);
+			Assert.AreEqual("\t\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_CustomIndent5()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{
+		using (this)
+if (true)
+{ } $ ", fmt);
+			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_CustomIndent6()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignEmbeddedIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{
+		using (this)
+			if (true)
+	{
+				$	
+	}", fmt);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]

@@ -183,6 +183,13 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
+		/// <inheritdoc />
+		public bool EnableCustomIndentLevels
+		{
+			get;
+			set;
+		}
+
 		#endregion
 
 		#region Fields

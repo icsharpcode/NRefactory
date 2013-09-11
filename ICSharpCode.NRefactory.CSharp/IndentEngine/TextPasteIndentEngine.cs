@@ -65,11 +65,16 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <param name="textEditorOptions">
 		///    Text editor options for indentation.
 		/// </param>
+		/// <param name="formattingOptions">
+		///     C# formatting options.
+		/// </param>
 		public TextPasteIndentEngine(IStateMachineIndentEngine decoratedEngine, TextEditorOptions textEditorOptions, CSharpFormattingOptions formattingOptions)
 		{
 			this.engine = decoratedEngine;
 			this.textEditorOptions = textEditorOptions;
 			this.formattingOptions = formattingOptions;
+
+			this.engine.EnableCustomIndentLevels = false;
 		}
 
 		#endregion
@@ -201,6 +206,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			get { return engine.Location; }
 		}
 
+		/// <inheritdoc />
+		public bool EnableCustomIndentLevels {
+			get { return engine.EnableCustomIndentLevels; }
+			set { engine.EnableCustomIndentLevels = value; }
+		}
+		
 		/// <inheritdoc />
 		public void Push(char ch)
 		{
