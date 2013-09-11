@@ -1296,11 +1296,17 @@ namespace ICSharpCode.NRefactory.CSharp
 						break;
 					case PreProcessorDirective.Define:
 						var defineSymbol = DirectiveStatement.ToString().Trim();
-						Engine.DefineSymbol(defineSymbol);
+						if (!Engine.conditionalSymbols.Contains(defineSymbol))
+						{
+							Engine.conditionalSymbols.Add(defineSymbol);
+						}
 						break;
 					case PreProcessorDirective.Undef:
 						var undefineSymbol = DirectiveStatement.ToString().Trim();
-						Engine.RemoveSymbol(undefineSymbol);
+						if (Engine.conditionalSymbols.Contains(undefineSymbol))
+						{
+							Engine.conditionalSymbols.Remove(undefineSymbol);
+						}
 						break;
 					case PreProcessorDirective.Endif:
 						// marks the end of this block
@@ -1424,7 +1430,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (s == "false")
 				return false;
 
-			return Engine.conditionalSymbols != null && Engine.conditionalSymbols.Contains(s);
+			return Engine.conditionalSymbols != null && Engine.conditionalSymbols.Contains(s) ||
+				Engine.customConditionalSymbols != null && Engine.customConditionalSymbols.Contains(s);
 		}
 
 		bool pp_primary(ref string s)

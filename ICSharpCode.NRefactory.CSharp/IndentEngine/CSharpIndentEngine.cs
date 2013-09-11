@@ -76,6 +76,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		internal HashSet<string> conditionalSymbols;
 
 		/// <summary>
+		///     Stores custom conditional symbols.
+		/// </summary>
+		internal HashSet<string> customConditionalSymbols;
+
+
+		/// <summary>
 		///     True if any of the preprocessor if/elif directives in the current
 		///     block (between #if and #endif) were evaluated to true.
 		/// </summary>
@@ -274,6 +280,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.currentState = IndentStateFactory.Default(this);
 
 			this.conditionalSymbols = new HashSet<string>();
+			this.customConditionalSymbols = new HashSet<string>();
 			this.wordToken = new StringBuilder();
 			this.previousKeyword = string.Empty;
 			this.newLineChar = textEditorOptions.EolMarker[0];
@@ -294,6 +301,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.newLineChar = prototype.newLineChar;
 			this.currentState = prototype.currentState.Clone(this);
 			this.conditionalSymbols = new HashSet<string>(prototype.conditionalSymbols);
+			this.customConditionalSymbols = new HashSet<string>(prototype.customConditionalSymbols);
+
 			this.wordToken = new StringBuilder(prototype.wordToken.ToString());
 			this.previousKeyword = string.Copy(prototype.previousKeyword);
 			this.ifDirectiveEvalResult = prototype.ifDirectiveEvalResult;
@@ -437,8 +446,8 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <param name="defineSymbol">The symbol to define.</param>
 		public void DefineSymbol(string defineSymbol)
 		{
-			if (!conditionalSymbols.Contains(defineSymbol))
-				conditionalSymbols.Add(defineSymbol);
+			if (!customConditionalSymbols.Contains(defineSymbol))
+				customConditionalSymbols.Add(defineSymbol);
 		}
 
 		/// <summary>
@@ -447,8 +456,8 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <param name="undefineSymbol">The symbol to undefine.</param>
 		public void RemoveSymbol(string undefineSymbol)
 		{
-			if (conditionalSymbols.Contains(undefineSymbol))
-				conditionalSymbols.Remove(undefineSymbol);
+			if (customConditionalSymbols.Contains(undefineSymbol))
+				customConditionalSymbols.Remove(undefineSymbol);
 		}
 		#endregion
 
