@@ -244,11 +244,12 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		{
 			if (expr == null)
 				return null;
-			// do not complete <number>. (but <number>.<number>.)
+
+			// do not auto select <number>. (but <number>.<number>.) (0.ToString() is valid)
 			if (expr.Node is PrimitiveExpression) {
 				var pexpr = (PrimitiveExpression)expr.Node;
 				if (!(pexpr.Value is string || pexpr.Value is char) && !pexpr.LiteralValue.Contains('.')) {
-					return null;
+					AutoSelect = false;
 				}
 			}
 			var resolveResult = ResolveExpression(expr);

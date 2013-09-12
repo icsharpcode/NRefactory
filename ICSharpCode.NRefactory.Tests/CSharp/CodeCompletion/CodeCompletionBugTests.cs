@@ -610,7 +610,7 @@ public class Test {
 }
 
 ");
-			Assert.IsTrue (provider == null || provider.Count == 0);
+			Assert.IsFalse(provider.AutoSelect);
 		}
 		
 		[Test]
@@ -627,6 +627,7 @@ public class Test {
 
 ");
 			Assert.IsNotNull (provider);
+			Assert.IsTrue(provider.AutoSelect);
 		}
 
 		/// <summary>
