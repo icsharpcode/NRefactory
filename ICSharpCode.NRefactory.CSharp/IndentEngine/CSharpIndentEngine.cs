@@ -325,6 +325,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.lineBeganInsideMultiLineComment = prototype.lineBeganInsideMultiLineComment;
 			this.lineBeganInsideVerbatimString = prototype.lineBeganInsideVerbatimString;
 			this.ifDirectiveEvalResult = new Stack<bool>(prototype.ifDirectiveEvalResult.Reverse());
+
+			this.EnableCustomIndentLevels = prototype.EnableCustomIndentLevels;
 		}
 
 		#endregion
