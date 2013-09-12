@@ -1411,8 +1411,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				data = targetResult.Variables;
 
-				foreach (var argument in invocationExpression.Arguments) {
-					var directionExpression = argument as DirectionExpression;
+				var methodResolveResult = analysis.context.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+
+				foreach (var argumentToHandle in invocationExpression.Arguments.Select((argument, parameterIndex) => new { argument, parameterIndex })) {
+					var argument = argumentToHandle.argument;
+					var parameterIndex = argumentToHandle.parameterIndex;
+
+					var namedArgument = argument as NamedArgumentExpression;
+					
+					var directionExpression = (namedArgument == null ? argument : namedArgument.Expression) as DirectionExpression;
 					if (directionExpression != null) {
 						var identifier = directionExpression.Expression as IdentifierExpression;
 						if (identifier != null) {
@@ -1420,7 +1427,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 							var identifierResolveResult = analysis.context.Resolve(identifier) as LocalResolveResult;
 							if (identifierResolveResult != null && IsTypeNullable(identifierResolveResult.Type)) {
 								data = data.Clone();
-								analysis.SetLocalVariableValue(data, identifier, NullValueStatus.Unknown);
+								FixParameter(argument, methodResolveResult.Member.Parameters, parameterIndex, identifier, data);
 							}
 						}
 						continue;
@@ -1446,7 +1453,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 
-				var methodResolveResult = analysis.context.Resolve(invocationExpression) as CSharpInvocationResolveResult;
 				var returnValue = GetMethodReturnValue(methodResolveResult, data);
 
 				return HandleExpressionResult(invocationExpression, data, returnValue);
@@ -1475,10 +1481,21 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					//Handle Delegate.Invoke method
 					return GetNullableStatus(entity.DeclaringTypeDefinition);
 				}
-				if (entity.GetAttribute(new FullTypeName("JetBrains.Annotations.NotNullAttribute")) != null) {
+
+				return GetNullableStatus(fullTypeName => entity.GetAttribute(new FullTypeName(fullTypeName)));
+			}
+
+			static NullValueStatus GetNullableStatus(IParameter parameter)
+			{
+				return GetNullableStatus(fullTypeName => parameter.Attributes.FirstOrDefault(attribute => attribute.AttributeType.FullName == fullTypeName));
+			}
+
+			static NullValueStatus GetNullableStatus(Func<string, IAttribute> attributeGetter)
+			{
+				if (attributeGetter("JetBrains.Annotations.NotNullAttribute") != null) {
 					return NullValueStatus.DefinitelyNotNull;
 				}
-				if (entity.GetAttribute(new FullTypeName("JetBrains.Annotations.CanBeNullAttribute")) != null) {
+				if (attributeGetter("JetBrains.Annotations.CanBeNullAttribute") != null) {
 					return NullValueStatus.PotentiallyNull;
 				}
 				return NullValueStatus.Unknown;
@@ -1541,17 +1558,40 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			}
 
+			void FixParameter(Expression argument, IList<IParameter> parameters, int parameterIndex, IdentifierExpression identifier, VariableStatusInfo data)
+			{
+				NullValueStatus newValue = NullValueStatus.Unknown;
+				if (argument is NamedArgumentExpression) {
+					var namedResolveResult = analysis.context.Resolve(argument) as NamedArgumentResolveResult;
+					if (namedResolveResult != null) {
+						newValue = GetNullableStatus(namedResolveResult.Parameter);
+					}
+				}
+				else {
+					var parameter = parameters[parameterIndex];
+					newValue = GetNullableStatus(parameter);
+				}
+				analysis.SetLocalVariableValue(data, identifier, newValue);
+			}
+
 			public override VisitorResult VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression, VariableStatusInfo data)
 			{
-				foreach (var argument in objectCreateExpression.Arguments) {
-					var directionExpression = argument as DirectionExpression;
+				var constructorResolveResult = analysis.context.Resolve(objectCreateExpression) as CSharpInvocationResolveResult;
+
+				foreach (var argumentToHandle in objectCreateExpression.Arguments.Select((argument, parameterIndex) => new { argument, parameterIndex })) {
+					var argument = argumentToHandle.argument;
+					var parameterIndex = argumentToHandle.parameterIndex;
+
+					var namedArgument = argument as NamedArgumentExpression;
+
+					var directionExpression = (namedArgument == null ? argument : namedArgument.Expression) as DirectionExpression;
 					if (directionExpression != null) {
 						var identifier = directionExpression.Expression as IdentifierExpression;
 						if (identifier != null && data [identifier.Identifier] != NullValueStatus.CapturedUnknown) {
-							//TODO: Check for nullable types
 							//out and ref parameters do *NOT* capture the variable (since they must stop changing it by the time they return)
 							data = data.Clone();
-							analysis.SetLocalVariableValue (data, identifier, NullValueStatus.Unknown);
+
+							FixParameter(argument, constructorResolveResult.Member.Parameters, parameterIndex, identifier, data);
 						}
 						continue;
 					}
