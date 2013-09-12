@@ -241,6 +241,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		internal char previousChar = '\0';
 
 		/// <summary>
+		///    Previous new line char
+		/// </summary>
+		internal char previousNewline = '\0';
+
+
+		/// <summary>
 		///    Current indent level on this line.
 		/// </summary>
 		internal StringBuilder currentIndent = new StringBuilder();
@@ -314,6 +320,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.isLineStartBeforeWordToken = prototype.isLineStartBeforeWordToken;
 			this.currentChar = prototype.currentChar;
 			this.previousChar = prototype.previousChar;
+			this.previousNewline = prototype.previousNewline;
 			this.currentIndent = new StringBuilder(prototype.CurrentIndent.ToString());
 			this.lineBeganInsideMultiLineComment = prototype.lineBeganInsideMultiLineComment;
 			this.lineBeganInsideVerbatimString = prototype.lineBeganInsideVerbatimString;
@@ -361,17 +368,28 @@ namespace ICSharpCode.NRefactory.CSharp
 				isLineStartBeforeWordToken = false;
 			}
 
-			currentState.Push(currentChar = ch);
-
-			offset++;
-			// ignore whitespace and newline chars
-			if (!char.IsWhiteSpace(currentChar) && !NewLine.IsNewLine(currentChar))
-			{
-				previousChar = currentChar;
+			var isNewLine = NewLine.IsNewLine(ch);
+			if (!isNewLine) {
+				currentState.Push(currentChar = ch);
+			} else {
+				if (ch != NewLine.LF || previousChar != NewLine.CR) {
+					currentState.Push(currentChar = ch = newLineChar);
+				} else {
+					currentChar = ch;
+				}
 			}
 
-			if (!NewLine.IsNewLine(ch))
+			offset++;
+
+			if (!isNewLine)
 			{
+				previousNewline = '\0';
+				// ignore whitespace and newline chars
+				if (!char.IsWhiteSpace(currentChar))
+				{
+					previousChar = currentChar;
+				}
+
 				isLineStart &= char.IsWhiteSpace(ch);
 
 				if (isLineStart)
@@ -391,6 +409,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			else
 			{
+				previousNewline = ch;
 				// there can be more than one chars that determine the EOL,
 				// the engine uses only one of them defined with newLineChar
 				if (ch != newLineChar)

@@ -260,6 +260,15 @@ $
 	}", text);
 		}
 
+
+		[Test]
+		public void TestPasteToWindowsEol()
+		{
+			var indent = CreateEngine("$");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\r\n" }, FormattingOptionsFactory.CreateMono());
+			var text = handler.FormatPlainText(indent.Offset, "namespace Foo\n{\n\tpublic static class FooExtensions\n\t{\n\t\tpublic static int ObjectExtension (this object value)\n\t\t{\n\t\t\treturn 0;\n\t\t}\n\n\t\tpublic static int IntExtension (this int value)\n\t\t{\n\t\t\treturn 0;\n\t\t}\n\t}\n\n\tpublic class Client\n\t{\n\t\tpublic void Method ()\n\t\t{\n\t\t\t0.ToString ();\n\t\t}\n\t}\n}", null);
+			Assert.AreEqual("namespace Foo\r\n{\r\n\tpublic static class FooExtensions\r\n\t{\r\n\t\tpublic static int ObjectExtension (this object value)\r\n\t\t{\r\n\t\t\treturn 0;\r\n\t\t}\r\n\r\n\t\tpublic static int IntExtension (this int value)\r\n\t\t{\r\n\t\t\treturn 0;\r\n\t\t}\r\n\t}\r\n\r\n\tpublic class Client\r\n\t{\r\n\t\tpublic void Method ()\r\n\t\t{\r\n\t\t\t0.ToString ();\r\n\t\t}\r\n\t}\r\n}", text);
+		}
 	}
 }
 
