@@ -374,8 +374,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				NamespaceDeclaration nDecl = null;
 				var loc = LocationsBag.GetLocations(ns);
-				
-				if (ns.NS != null && !string.IsNullOrEmpty(ns.NS.Name)) {
+				// <invalid> is caused by the parser - see Bug 12383 - [AST] Non existing namespaces generated
+				if (ns.NS != null && !string.IsNullOrEmpty(ns.NS.Name) && !ns.NS.Name.EndsWith("<invalid>", StringComparison.Ordinal)) {
 					nDecl = new NamespaceDeclaration();
 					if (loc != null) {
 						nDecl.AddChild(new CSharpTokenNode(Convert(loc [0]), Roles.NamespaceKeyword), Roles.NamespaceKeyword);
