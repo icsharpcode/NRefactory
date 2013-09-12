@@ -1108,8 +1108,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				var memberResolveResult = resolveResult as MemberResolveResult;
 
-				bool isNullable = memberResolveResult == null || IsTypeNullable(memberResolveResult.Type);
-				var returnValue = isNullable ? NullValueStatus.Unknown : NullValueStatus.DefinitelyNotNull;
+				var returnValue = GetFieldReturnValue(memberResolveResult, data);
 
 				return HandleExpressionResult(identifierExpression, data, returnValue);
 			}
@@ -1448,11 +1447,41 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 
 				var methodResolveResult = analysis.context.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-				bool isNullable = methodResolveResult == null || IsTypeNullable(methodResolveResult.Type);
-
-				var returnValue = isNullable ? NullValueStatus.Unknown : NullValueStatus.DefinitelyNotNull;
+				var returnValue = GetMethodReturnValue(methodResolveResult, data);
 
 				return HandleExpressionResult(invocationExpression, data, returnValue);
+			}
+
+			static NullValueStatus GetMethodReturnValue(CSharpInvocationResolveResult methodResolveResult, VariableStatusInfo data)
+			{
+				bool isNullable = methodResolveResult == null || IsTypeNullable(methodResolveResult.Type);
+				if (!isNullable) {
+					return NullValueStatus.DefinitelyNotNull;
+				}
+
+				if (methodResolveResult == null)
+					return NullValueStatus.Unknown;
+
+				var method = methodResolveResult.Member as IMethod;
+				if (method != null)
+					return GetNullableStatus(method);
+
+				return GetNullableStatus(methodResolveResult.TargetResult.Type.GetDefinition());
+			}
+
+			static NullValueStatus GetNullableStatus(IEntity entity)
+			{
+				if (entity.DeclaringType != null && entity.DeclaringType.Kind == TypeKind.Delegate) {
+					//Handle Delegate.Invoke method
+					return GetNullableStatus(entity.DeclaringTypeDefinition);
+				}
+				if (entity.GetAttribute(new FullTypeName("JetBrains.Annotations.NotNullAttribute")) != null) {
+					return NullValueStatus.DefinitelyNotNull;
+				}
+				if (entity.GetAttribute(new FullTypeName("JetBrains.Annotations.CanBeNullAttribute")) != null) {
+					return NullValueStatus.PotentiallyNull;
+				}
+				return NullValueStatus.Unknown;
 			}
 
 			public override VisitorResult VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression, VariableStatusInfo data)
@@ -1488,9 +1517,22 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 
-				bool isNullable = memberResolveResult == null || IsTypeNullable(memberResolveResult.Type);
-				NullValueStatus returnValue = isNullable ? NullValueStatus.Unknown : NullValueStatus.DefinitelyNotNull;
+				var returnValue = GetFieldReturnValue(memberResolveResult, data);
 				return HandleExpressionResult(memberReferenceExpression, variables, returnValue);
+			}
+
+			static NullValueStatus GetFieldReturnValue(MemberResolveResult memberResolveResult, VariableStatusInfo data)
+			{
+				bool isNullable = memberResolveResult == null || IsTypeNullable(memberResolveResult.Type);
+				if (!isNullable) {
+					return NullValueStatus.DefinitelyNotNull;
+				}
+
+				if (memberResolveResult != null) {
+					return GetNullableStatus(memberResolveResult.Member);
+				}
+
+				return NullValueStatus.Unknown;
 			}
 
 			public override VisitorResult VisitTypeReferenceExpression(TypeReferenceExpression typeReferenceExpression, VariableStatusInfo data)

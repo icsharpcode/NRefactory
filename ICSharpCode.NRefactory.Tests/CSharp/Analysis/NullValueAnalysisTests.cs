@@ -1556,6 +1556,108 @@ class TestClass
 
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(content, "x"));
 		}
+
+		[Test]
+		public void TestNotNullInvocation()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class NotNullAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.NotNull]
+	object NotNull() {
+		return 1;
+	}
+
+	void TestMethod()
+	{
+		string p1 = NotNull();
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p1"));
+		}
+
+		[Test]
+		public void TestNotNullDelegateInvocation()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	[System.AttributeUsage(System.AttributeTargets.Delegate)]
+	class NotNullAttribute : System.Attribute
+	{
+	}
+}
+[JetBrains.Annotations.NotNull]
+delegate object NotNullDelegate();
+class TestClass
+{
+	NotNullDelegate myDelegate;
+	void TestMethod()
+	{
+		string p1 = myDelegate();
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p1"));
+		}
+
+		[Test]
+		public void TestNotNullField()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	[System.AttributeUsage(System.AttributeTargets.Field)]
+	class NotNullAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.NotNull]
+	string x = """";
+	void TestMethod()
+	{
+		string p1 = this.x;
+		string p2 = x;
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p1"));
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p2"));
+		}
 	}
 }
 
