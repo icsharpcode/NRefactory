@@ -417,7 +417,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			VariableStatusInfo outgoingStatusInfo = statusInfo;
 			VisitorResult result = null;
 
-			if (nextStatement != null) {
+			if (nextStatement != null && (!(nextStatement is DoWhileStatement) || node.Type == ControlFlowNodeType.LoopCondition)) {
 				result = nextStatement.AcceptVisitor(visitor, statusInfo);
 				if (result == null) {
 					Console.WriteLine("Failure in {0}", nextStatement);

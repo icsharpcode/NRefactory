@@ -248,5 +248,21 @@ class TestClass
 }");
 		}
 
+		[Test]
+		public void TestDoWhile()
+		{
+			TestWrongContext<UseOfMemberOfNullReference> (@"
+public class TestClass {
+	static string GetElement ()
+	{
+		string x = """";
+		do {
+			break;
+		} while ((x = null) == null);
+		x.ToString();
+	}
+}");
+		}
+
 	}
 }
