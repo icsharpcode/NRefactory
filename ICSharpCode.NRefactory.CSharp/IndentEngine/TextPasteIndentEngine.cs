@@ -36,21 +36,26 @@ namespace ICSharpCode.NRefactory.CSharp
 	///     Represents a decorator of an IStateMachineIndentEngine instance
 	///     that provides logic for text paste events.
 	/// </summary>
-	public class TextPasteIndentEngine : IDocumentIndentEngine, ITextPasteHandler
+	public class TextPasteIndentEngine : IStateMachineIndentEngine, ITextPasteHandler
 	{
-
 		#region Properties
 
 		/// <summary>
 		///     An instance of IStateMachineIndentEngine which handles
 		///     the indentation logic.
 		/// </summary>
-		IStateMachineIndentEngine engine;
+		internal readonly IStateMachineIndentEngine engine;
+
 		/// <summary>
 		///     Text editor options.
 		/// </summary>
 		internal readonly TextEditorOptions textEditorOptions;
+
+		/// <summary>
+		///     C# formatting options.
+		/// </summary>
 		internal readonly CSharpFormattingOptions formattingOptions;
+
 		#endregion
 
 		#region Constructors
@@ -73,8 +78,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.engine = decoratedEngine;
 			this.textEditorOptions = textEditorOptions;
 			this.formattingOptions = formattingOptions;
-
-			this.engine.EnableCustomIndentLevels = false;
 		}
 
 		#endregion
@@ -84,86 +87,178 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <inheritdoc />
 		string ITextPasteHandler.FormatPlainText(int offset, string text, byte[] copyData)
 		{
-			if (copyData != null && copyData.Length == 1) {
-				var strategy = TextPasteUtils.Strategies [(PasteStrategy)copyData [0]];
+			if (copyData != null && copyData.Length == 1)
+			{
+				var strategy = TextPasteUtils.Strategies[(PasteStrategy)copyData[0]];
 				text = strategy.Decode(text);
 			}
+
+			var result = new StringBuilder();
+
 			engine.Update(offset);
-			if (engine.IsInsideStringLiteral) {
-				return TextPasteUtils.StringLiteralStrategy.Encode(text);
-			} else if (engine.IsInsideVerbatimString) {
-				return TextPasteUtils.VerbatimStringStrategy.Encode(text);
+			if (engine.IsInsideStringLiteral)
+			{
+				result.Append(TextPasteUtils.StringLiteralStrategy.Encode(text));
 			}
-			var line = engine.Document.GetLineByOffset(offset);
-			var pasteAtLineStart = line.Offset == offset;
-			var indentedText = new StringBuilder();
-			var curLine = new StringBuilder();
-			var clonedEngine = engine.Clone();
-			bool isNewLine = false, gotNewLine = false;
-			for (int i = 0; i < text.Length; i++) {
-				var ch = text [i];
-				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment) {
-					clonedEngine.Push(ch);
-					curLine.Append(ch);
-					continue;
+			else if (engine.IsInsideVerbatimString)
+			{
+				result.Append(TextPasteUtils.VerbatimStringStrategy.Encode(text));
+			}
+			else
+			{
+				var clone = new CSharpIndentEngine(new StringBuilderDocument(engine.Document.Text), textEditorOptions, formattingOptions)
+				{
+					EnableCustomIndentLevels = engine.EnableCustomIndentLevels
+				};
+
+				var insertedTextEndAnchor = clone.Document.CreateAnchor(offset);
+				insertedTextEndAnchor.MovementType = AnchorMovementType.AfterInsertion;
+
+				clone.Document.Insert(offset, text);
+
+				var line = clone.Document.GetLineByOffset(offset);
+				if (insertedTextEndAnchor.Offset > line.EndOffset)
+				{
+					// first line
+					result.Append(calculateLineText(clone, line, offset, line.EndOffset, useDeltaIndent: true) + textEditorOptions.EolMarker);
+
+					// central lines
+					for (line = line.NextLine; line.EndOffset < insertedTextEndAnchor.Offset; line = line.NextLine)
+					{
+						result.Append(calculateLineText(clone, line, line.Offset, line.EndOffset) + textEditorOptions.EolMarker);
+					}
+
+					// last line
+					result.Append(calculateLineText(clone, line, line.Offset, insertedTextEndAnchor.Offset, useDeltaIndent: true));
+				}
+				else
+				{
+					// single line
+					result.Append(calculateLineText(clone, line, offset, insertedTextEndAnchor.Offset, useDeltaIndent: true));
+				}
+			}
+
+			return result.ToString();
+		}
+
+		/// <summary>
+		///     Uses the given engine to calculate the indent level missing from the
+		///     correct indentation of the given instance of IDocumentLine.
+		/// </summary>
+		/// <param name="engine">
+		///     An instance of CSharpIndentEngine.
+		/// </param>
+		/// <param name="line">
+		///	    Line in the engine's document for which the delta indent is calculated.
+		/// </param>
+		/// <returns>
+		///     The delta indent missing from the correct indentation of the given line.
+		/// </returns>
+		internal string calculateDeltaIndent(CSharpIndentEngine engine, IDocumentLine line)
+		{
+			if (engine == null)
+			{
+				return string.Empty;
+			}
+
+			engine.Update(line.EndOffset);
+
+			var deltaIndent = new Indent(textEditorOptions);
+			var correctIndent = engine.currentState.ThisLineIndent;
+			var currentIndent = Indent.ConvertFrom(
+				string.Concat(engine.Document.GetText(line).TakeWhile(c => char.IsWhiteSpace(c))), 
+				engine.currentState.ThisLineIndent, 
+				textEditorOptions);
+
+			if (currentIndent.CurIndent <= correctIndent.CurIndent)
+			{
+				while (currentIndent.CurIndent + textEditorOptions.ContinuationIndent <= correctIndent.CurIndent)
+				{
+					currentIndent.Push(IndentType.Continuation);
+					deltaIndent.Push(IndentType.Continuation);
 				}
 
-				var delimiterLength = NewLine.GetDelimiterLength(ch, i + 1 < text.Length ? text[i + 1] : ' ');
-				if (delimiterLength > 0) {
-					isNewLine = true;
-					if (gotNewLine || pasteAtLineStart) {
-						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
-							indentedText.Append(clonedEngine.ThisLineIndent);
-					}
-					indentedText.Append(curLine);
-					indentedText.Append(textEditorOptions.EolMarker);
-					curLine.Length = 0;
-					gotNewLine = true;
-					i += delimiterLength - 1;
-					// textEditorOptions.EolMarker[0] is the newLineChar used by the indentation engine.
-					clonedEngine.Push(textEditorOptions.EolMarker[0]);
-				} else {
-					if (isNewLine) {
-						if (ch == '\t' || ch == ' ') {
-							clonedEngine.Push(ch);
-							continue;
-						}
-						isNewLine = false;
-					}
-					curLine.Append(ch);
-					clonedEngine.Push(ch);
+				deltaIndent.ExtraSpaces = correctIndent.ExtraSpaces - currentIndent.ExtraSpaces;
+			}
+			else
+			{
+				// TODO: too much indent already on this line, try to delete it with '\b'?
+			}
+
+			return deltaIndent.IndentString;
+		}
+
+		/// <summary>
+		///     Uses the given engine to calculate the correct string representation
+		///     of a segment in the given instance of IDocumentLine.
+		/// </summary>
+		/// <param name="engine">
+		///     An instance of IStateMachineIndentEngine.
+		/// </param>
+		/// <param name="line">
+		///     Line in the engine's document that contains the given segment.
+		/// </param>
+		/// <param name="start">
+		///     Segment's starting offset.
+		///     Should be less or equal than end and between [line.Offset, line.EndOffset].
+		/// </param>
+		/// <param name="end">
+		///     Segment's ending offset.
+		///     Should be greater or equal than start and between [line.Offset, line.EndOffset].
+		/// </param>
+		/// <param name="useDeltaIndent">
+		///     If this is true, the current indentation on this line's beginning will be used to
+		///     calculate the delta indent level, which will become the indentation of the segment.
+		///     <see cref="calculateDeltaIndent"/>
+		/// </param>
+		/// <returns>
+		///     The correct string representation of the segment on the given line.
+		/// </returns>
+		internal string calculateLineText(IStateMachineIndentEngine engine, IDocumentLine line, int start, int end, bool useDeltaIndent = false)
+		{
+			if (!(start <= end && (start >= line.Offset && start <= line.EndOffset) && (end >= line.Offset && end <= line.EndOffset)))
+			{
+				throw new ArgumentOutOfRangeException("start <= end && start, end € [line.Offset, line.EndOffset]");
+			}
+
+			// OPTION: CSharpFormattingOptions.EmptyLineFormatting
+			if (line.Length == 0 && formattingOptions.EmptyLineFormatting == EmptyLineFormatting.DoNotIndent)
+			{
+				return string.Empty;
+			}
+
+			var text = engine.Document.GetText(start, end - start);
+
+			engine.Update(start);
+			if (!(engine.IsInsideMultiLineComment || engine.IsInsideVerbatimString || engine.IsInsidePreprocessorComment))
+			{
+				engine.Update(line.EndOffset);
+
+				if (!useDeltaIndent)
+				{
+					return engine.ThisLineIndent + text.TrimStart(' ', '\t');
 				}
-				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment && 
-				    !(clonedEngine.LineBeganInsideVerbatimString || clonedEngine.LineBeganInsideMultiLineComment)) {
-					if (gotNewLine) {
-						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
-							indentedText.Append(clonedEngine.ThisLineIndent);
-					}
-					indentedText.Append(curLine);
-					curLine.Length = 0;
-					continue;
-				}
+
+				return calculateDeltaIndent(engine as CSharpIndentEngine, line) + text;
 			}
-			if (gotNewLine && (!pasteAtLineStart || curLine.Length > 0)) {
-				indentedText.Append(clonedEngine.ThisLineIndent);
-			}
-			if (curLine.Length > 0) {
-				indentedText.Append(curLine);
-			}
-			return indentedText.ToString();
+
+			return text;
 		}
 
 		/// <inheritdoc />
 		byte[] ITextPasteHandler.GetCopyData(ISegment segment)
 		{
 			engine.Update(segment.Offset);
-			
-			if (engine.IsInsideStringLiteral) {
+
+			if (engine.IsInsideStringLiteral)
+			{
 				return new[] { (byte)PasteStrategy.StringLiteral };
-			} else if (engine.IsInsideVerbatimString) {
+			}
+			else if (engine.IsInsideVerbatimString)
+			{
 				return new[] { (byte)PasteStrategy.VerbatimString };
 			}
-			
+
 			return null;
 		}
 
@@ -172,46 +267,54 @@ namespace ICSharpCode.NRefactory.CSharp
 		#region IDocumentIndentEngine
 
 		/// <inheritdoc />
-		public IDocument Document {
+		public IDocument Document
+		{
 			get { return engine.Document; }
 		}
 
 		/// <inheritdoc />
-		public string ThisLineIndent {
+		public string ThisLineIndent
+		{
 			get { return engine.ThisLineIndent; }
 		}
 
 		/// <inheritdoc />
-		public string NextLineIndent {
+		public string NextLineIndent
+		{
 			get { return engine.NextLineIndent; }
 		}
 
 		/// <inheritdoc />
-		public string CurrentIndent {
+		public string CurrentIndent
+		{
 			get { return engine.CurrentIndent; }
 		}
 
 		/// <inheritdoc />
-		public bool NeedsReindent {
+		public bool NeedsReindent
+		{
 			get { return engine.NeedsReindent; }
 		}
 
 		/// <inheritdoc />
-		public int Offset {
+		public int Offset
+		{
 			get { return engine.Offset; }
 		}
 
 		/// <inheritdoc />
-		public TextLocation Location {
+		public TextLocation Location
+		{
 			get { return engine.Location; }
 		}
 
 		/// <inheritdoc />
-		public bool EnableCustomIndentLevels {
+		public bool EnableCustomIndentLevels 
+		{
 			get { return engine.EnableCustomIndentLevels; }
-			set { engine.EnableCustomIndentLevels = value; }
+			set { engine.EnableCustomIndentLevels = value; } 
 		}
-		
+
 		/// <inheritdoc />
 		public void Push(char ch)
 		{
@@ -232,11 +335,90 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		#endregion
 
+		#region IStateMachineIndentEngine
+
+		public bool IsInsidePreprocessorDirective
+		{
+			get { return engine.IsInsidePreprocessorDirective; }
+		}
+
+		public bool IsInsidePreprocessorComment
+		{
+			get { return engine.IsInsidePreprocessorComment; }
+		}
+
+		public bool IsInsideStringLiteral
+		{
+			get { return engine.IsInsideStringLiteral; }
+		}
+
+		public bool IsInsideVerbatimString
+		{
+			get { return engine.IsInsideVerbatimString; }
+		}
+
+		public bool IsInsideCharacter
+		{
+			get { return engine.IsInsideCharacter; }
+		}
+
+		public bool IsInsideString
+		{
+			get { return engine.IsInsideString; }
+		}
+
+		public bool IsInsideLineComment
+		{
+			get { return engine.IsInsideLineComment; }
+		}
+
+		public bool IsInsideMultiLineComment
+		{
+			get { return engine.IsInsideMultiLineComment; }
+		}
+
+		public bool IsInsideDocLineComment
+		{
+			get { return engine.IsInsideDocLineComment; }
+		}
+
+		public bool IsInsideComment
+		{
+			get { return engine.IsInsideComment; }
+		}
+
+		public bool IsInsideOrdinaryComment
+		{
+			get { return engine.IsInsideOrdinaryComment; }
+		}
+
+		public bool IsInsideOrdinaryCommentOrString
+		{
+			get { return engine.IsInsideOrdinaryCommentOrString; }
+		}
+
+		public bool LineBeganInsideVerbatimString
+		{
+			get { return engine.LineBeganInsideVerbatimString; }
+		}
+
+		public bool LineBeganInsideMultiLineComment
+		{
+			get { return engine.LineBeganInsideMultiLineComment; }
+		}
+
+		#endregion
+
 		#region IClonable
 
-		public IDocumentIndentEngine Clone()
+		public IStateMachineIndentEngine Clone()
 		{
 			return new TextPasteIndentEngine(engine, textEditorOptions, formattingOptions);
+		}
+
+		IDocumentIndentEngine IDocumentIndentEngine.Clone()
+		{
+			return Clone();
 		}
 
 		object ICloneable.Clone()
@@ -245,7 +427,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		#endregion
-
 	}
 
 	/// <summary>
@@ -319,11 +500,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			/// </summary>
 			public TextPasteStrategies()
 			{
-				strategies = Assembly.GetExecutingAssembly()
-				     .GetTypes()
-				.Where(t => typeof(IPasteStrategy).IsAssignableFrom(t) && t.IsClass)
-				.Select(t => (IPasteStrategy)t.GetProperty("Instance").GetValue(null, null))
-				.ToDictionary(s => s.Type);
+				strategies = Assembly
+					.GetExecutingAssembly()
+					.GetTypes()
+					.Where(t => typeof(IPasteStrategy).IsAssignableFrom(t) && t.IsClass)
+					.Select(t => (IPasteStrategy)t.GetProperty("Instance").GetValue(null, null))
+					.ToDictionary(s => s.Type);
 			}
 
 			/// <summary>
@@ -336,12 +518,15 @@ namespace ICSharpCode.NRefactory.CSharp
 			///     A strategy instance of the requested type,
 			///     or <see cref="DefaultStrategy"/> if it wasn't found.
 			/// </returns>
-			public IPasteStrategy this [PasteStrategy strategy] {
-				get {
-					if (strategies.ContainsKey(strategy)) {
-						return strategies [strategy];
+			public IPasteStrategy this[PasteStrategy strategy]
+			{
+				get
+				{
+					if (strategies.ContainsKey(strategy))
+					{
+						return strategies[strategy];
 					}
-					
+
 					return DefaultStrategy;
 				}
 			}
@@ -352,11 +537,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public class PlainTextPasteStrategy : IPasteStrategy
 		{
-
 			#region Singleton
 
-			public static IPasteStrategy Instance {
-				get {
+			public static IPasteStrategy Instance
+			{
+				get
+				{
 					return instance ?? (instance = new PlainTextPasteStrategy());
 				}
 			}
@@ -382,7 +568,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			/// <inheritdoc />
-			public PasteStrategy Type {
+			public PasteStrategy Type
+			{
 				get { return PasteStrategy.PlainText; }
 			}
 		}
@@ -393,11 +580,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public class StringLiteralPasteStrategy : IPasteStrategy
 		{
-
 			#region Singleton
 
-			public static IPasteStrategy Instance {
-				get {
+			public static IPasteStrategy Instance
+			{
+				get
+				{
 					return instance ?? (instance = new StringLiteralPasteStrategy());
 				}
 			}
@@ -417,6 +605,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				{ '\r', "\\r" },
 				{ '\t', "\\t" },
 			};
+
 			Dictionary<char, char> decodeReplace = new Dictionary<char, char> {
 				{ '"', '"' },
 				{ '\\', '\\' },
@@ -428,7 +617,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			/// <inheritdoc />
 			public string Encode(string text)
 			{
-				return string.Concat(text.SelectMany(c => encodeReplace.ContainsKey(c) ? encodeReplace [c] : new[] { c }));
+				return string.Concat(text.SelectMany(c => encodeReplace.ContainsKey(c) ? encodeReplace[c] : new[] { c }));
 			}
 
 			/// <inheritdoc />
@@ -436,26 +625,34 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				var result = new StringBuilder();
 				bool isEscaped = false;
-				
-				foreach (var ch in text) {
-					if (isEscaped) {
-						if (decodeReplace.ContainsKey(ch)) {
-							result.Append(decodeReplace [ch]);
-						} else {
+
+				foreach (var ch in text)
+				{
+					if (isEscaped)
+					{
+						if (decodeReplace.ContainsKey(ch))
+						{
+							result.Append(decodeReplace[ch]);
+						}
+						else
+						{
 							result.Append('\\', ch);
 						}
-					} else if (ch != '\\') {
+					}
+					else if (ch != '\\')
+					{
 						result.Append(ch);
 					}
-					
+
 					isEscaped = !isEscaped && ch == '\\';
 				}
-				
+
 				return result.ToString();
 			}
 
 			/// <inheritdoc />
-			public PasteStrategy Type {
+			public PasteStrategy Type
+			{
 				get { return PasteStrategy.StringLiteral; }
 			}
 		}
@@ -466,11 +663,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public class VerbatimStringPasteStrategy : IPasteStrategy
 		{
-
 			#region Singleton
 
-			public static IPasteStrategy Instance {
-				get {
+			public static IPasteStrategy Instance
+			{
+				get
+				{
 					return instance ?? (instance = new VerbatimStringPasteStrategy());
 				}
 			}
@@ -490,7 +688,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			/// <inheritdoc />
 			public string Encode(string text)
 			{
-				return string.Concat(text.SelectMany(c => encodeReplace.ContainsKey(c) ? encodeReplace [c] : new[] { c }));
+				return string.Concat(text.SelectMany(c => encodeReplace.ContainsKey(c) ? encodeReplace[c] : new[] { c }));
 			}
 
 			/// <inheritdoc />
@@ -501,7 +699,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			/// <inheritdoc />
-			public PasteStrategy Type {
+			public PasteStrategy Type
+			{
 				get { return PasteStrategy.VerbatimString; }
 			}
 		}
@@ -510,10 +709,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		///     The default text-paste strategy.
 		/// </summary>
 		public static IPasteStrategy DefaultStrategy = PlainTextPasteStrategy.Instance;
+
 		/// <summary>
 		///     String literal text-paste strategy.
 		/// </summary>
 		public static IPasteStrategy StringLiteralStrategy = StringLiteralPasteStrategy.Instance;
+
 		/// <summary>
 		///     Verbatim string text-paste strategy.
 		/// </summary>
