@@ -134,7 +134,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				return new [] { resolver.Compilation.FindType (KnownTypeCode.Boolean) };
 			}
 
-			if (expr.Parent is ParenthesizedExpression) {
+			if (expr.Parent is ParenthesizedExpression || expr.Parent is NamedArgumentExpression) {
 				return GetValidTypes(resolver, expr.Parent);
 			}
 			if (expr.Parent is DirectionExpression) {

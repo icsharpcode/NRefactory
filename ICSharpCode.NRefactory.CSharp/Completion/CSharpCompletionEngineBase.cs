@@ -639,9 +639,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			return bracketStack;
 		}
 		
-		public static void AppendMissingClosingBrackets (StringBuilder wrapper, string memberText, bool appendSemicolon)
+		public static void AppendMissingClosingBrackets (StringBuilder wrapper, bool appendSemicolon)
 		{
-			var bracketStack = GetBracketStack (memberText);
+			var memberText = wrapper.ToString();
+			var bracketStack = GetBracketStack(memberText);
 			bool didAppendSemicolon = !appendSemicolon;
 			//char lastBracket = '\0';
 			while (bracketStack.Count > 0) {
@@ -705,7 +706,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			}
 			wrapper.Append(memberText);
 			wrapper.Append(continuation);
-			AppendMissingClosingBrackets(wrapper, memberText, appendSemicolon);
+			AppendMissingClosingBrackets(wrapper, appendSemicolon);
 			wrapper.Append(afterContinuation);
 			if (closingBrackets > 0) {
 				wrapper.Append(new string('}', closingBrackets));

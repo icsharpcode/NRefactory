@@ -1607,7 +1607,23 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				var resolved = astResolver.Resolve(node);
 				AddAttributeProperties(wrapper, resolved);
 			}
-			
+
+
+			if (node == null) {
+				// try lambda
+				unit = ParseStub("foo) => {}", true);
+				var pd = unit.GetNodeAt<ParameterDeclaration>(
+					location.Line,
+					location.Column
+				);
+				if (pd != null) {
+					var astResolver = unit != null ? CompletionContextProvider.GetResolver(GetState(), unit) : null;
+					var parameterType = astResolver.Resolve(pd.Type);
+					// Type <name> is always a name context -> return null
+					if (parameterType != null && !parameterType.IsError)
+						return null;
+				}
+			}
 
 			AddContextCompletion(wrapper, csResolver, node);
 			
