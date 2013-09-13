@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Foreach loops are more efficient",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ForCanBeConvertedToForeach")]
+	                  AnalysisDisableKeyword = "ForCanBeConvertedToForeach")]
 	public class ForCanBeConvertedToForeachIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

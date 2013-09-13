@@ -117,8 +117,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			var attr = (IssueDescriptionAttribute)typeof(T).GetCustomAttributes(false).FirstOrDefault(a => a is IssueDescriptionAttribute);
 			if (attr == null)
 				return;
-			if (attr.ResharperDisableKeyword != null) 
-				SetDisableKeyword(attr.ResharperDisableKeyword);
+			if (attr.AnalysisDisableKeyword != null) 
+				SetDisableKeyword(attr.AnalysisDisableKeyword);
 			suppressMessageCheckId = attr.SuppressMessageCheckId;
 			suppressMessageCategory = attr.SuppressMessageCategory;
 			pragmaWarning = attr.PragmaWarning;

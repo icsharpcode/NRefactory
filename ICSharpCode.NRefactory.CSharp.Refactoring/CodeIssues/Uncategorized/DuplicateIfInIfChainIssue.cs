@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "One Else-if was checked before so is not be true",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "ConditionalTernaryEqualBranch")]
+	                  AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class DuplicateIfInIfChainIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -58,7 +58,7 @@ Possible actions: 'Add class constraint' -or- remove 'readonly' from field.
 //		Description = "Check if a namespace corresponds to a file location",
 //		Category = IssueCategories.CodeQualityIssues,
 //		Severity = Severity.Warning,
-//		ResharperDisableKeyword = "PossibleAssignmentToReadonlyField")]
+//		AnalysisDisableKeyword = "PossibleAssignmentToReadonlyField")]
 //	public class PossibleAssignmentToReadonlyFieldIssue : GatherVisitorCodeIssueProvider
 //	{
 //		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

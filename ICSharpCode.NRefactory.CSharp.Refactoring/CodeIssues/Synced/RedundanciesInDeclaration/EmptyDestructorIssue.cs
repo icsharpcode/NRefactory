@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Empty destructor is redundant",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "EmptyDestructor"
+	                   AnalysisDisableKeyword = "EmptyDestructor"
 	                   )]
 	public class EmptyDestructorIssue : GatherVisitorCodeIssueProvider
 	{

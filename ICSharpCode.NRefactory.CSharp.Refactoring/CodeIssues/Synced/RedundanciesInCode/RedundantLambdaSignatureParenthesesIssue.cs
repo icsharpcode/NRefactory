@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Redundant lambda signature parentheses",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "RedundantLambdaSignatureParentheses")]
+	                  AnalysisDisableKeyword = "RedundantLambdaSignatureParentheses")]
 	public class RedundantLambdaSignatureParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

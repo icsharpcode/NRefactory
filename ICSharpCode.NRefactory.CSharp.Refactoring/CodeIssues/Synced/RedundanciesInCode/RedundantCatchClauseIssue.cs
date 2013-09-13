@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       Description = "Catch clause with a single 'throw' statement is redundant.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Hint,
-                      ResharperDisableKeyword = "RedundantCatchClause")]
+                      AnalysisDisableKeyword = "RedundantCatchClause")]
 	public class RedundantCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

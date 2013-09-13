@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public string Description { get; set; }
 		public string Category { get; set; }
 
-		public string ResharperDisableKeyword { get; set; }
+		public string AnalysisDisableKeyword { get; set; }
 		public string SuppressMessageCategory { get; set; }
 		public string SuppressMessageCheckId { get; set; }
 		public int PragmaWarning { get; set; }

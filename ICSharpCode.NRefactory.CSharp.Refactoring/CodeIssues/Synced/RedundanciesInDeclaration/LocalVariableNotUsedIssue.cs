@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 					   Severity = Severity.Warning,
                        PragmaWarning = 163,
-                       ResharperDisableKeyword = "UnusedVariable.Compiler")]
+                       AnalysisDisableKeyword = "UnusedVariable.Compiler")]
 	public class LocalVariableNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation

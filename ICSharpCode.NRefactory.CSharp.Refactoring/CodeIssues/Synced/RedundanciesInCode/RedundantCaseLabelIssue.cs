@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "'case' label is redundant.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-                        ResharperDisableKeyword = "RedundantCaseLabel")]
+                        AnalysisDisableKeyword = "RedundantCaseLabel")]
 	public class RedundantCaseLabelIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

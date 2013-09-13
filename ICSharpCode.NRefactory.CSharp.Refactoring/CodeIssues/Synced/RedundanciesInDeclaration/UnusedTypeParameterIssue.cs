@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Type parameter is never used.",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 					   Severity = Severity.Warning,
-                       ResharperDisableKeyword = "UnusedTypeParameter")]
+                       AnalysisDisableKeyword = "UnusedTypeParameter")]
 	public class UnusedTypeParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		static FindReferences refFinder = new FindReferences ();

@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Category = IssueCategories.CompilerErrors,
 					Severity = Severity.Warning,
 					PragmaWarning = 1717,
-					ResharperDisableKeyword = "CSharpWarnings::CS0659")]
+					AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       Description = "Replace with single call to Any(...)",
                       Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-                      ResharperDisableKeyword = "ReplaceWithSingleCallToAny")]
+                      AnalysisDisableKeyword = "ReplaceWithSingleCallToAny")]
     public class ReplaceWithSingleCallToAnyIssue : GatherVisitorCodeIssueProvider
 	{
 		static readonly AstNode pattern =

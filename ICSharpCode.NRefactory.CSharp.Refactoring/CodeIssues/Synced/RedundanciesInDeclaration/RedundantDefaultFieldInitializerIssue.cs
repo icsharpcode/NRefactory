@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Initializing field with default value is redundant.",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Hint,
-	                   ResharperDisableKeyword = "RedundantDefaultFieldInitializer")]
+	                   AnalysisDisableKeyword = "RedundantDefaultFieldInitializer")]
 	public class RedundantDefaultFieldInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

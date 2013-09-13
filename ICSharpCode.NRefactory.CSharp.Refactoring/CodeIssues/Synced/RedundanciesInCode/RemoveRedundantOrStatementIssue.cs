@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Remove redundant statement",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		ResharperDisableKeyword = "RemoveRedundantOrStatement")]
+		AnalysisDisableKeyword = "RemoveRedundantOrStatement")]
 	public class RemoveRedundantOrStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

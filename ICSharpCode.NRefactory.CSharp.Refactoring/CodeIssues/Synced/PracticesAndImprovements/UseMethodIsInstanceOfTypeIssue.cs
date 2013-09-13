@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Use method IsInstanceOfType",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "UseMethodIsInstanceOfType")]
+	                  AnalysisDisableKeyword = "UseMethodIsInstanceOfType")]
 	public class UseMethodIsInstanceOfTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

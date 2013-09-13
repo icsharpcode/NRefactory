@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Non public methods are not found by NUnit.",
 	                  Category = IssueCategories.NUnit,
 	                  Severity = Severity.Hint,
-	                  ResharperDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
+	                  AnalysisDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
 	public class NonPublicMethodWithTestAttributeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

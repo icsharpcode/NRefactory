@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning,
 	                  SuppressMessageCategory = "Microsoft.Design",
 	                  SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes",
-                      ResharperDisableKeyword = "StaticFieldInGenericType"
+                      AnalysisDisableKeyword = "StaticFieldInGenericType"
 	                  )]
 	public class StaticFieldInGenericTypeIssue : GatherVisitorCodeIssueProvider
 	{

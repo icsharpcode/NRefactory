@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Possible multiple enumeration of IEnumerable",
 		Category = IssueCategories.CodeQualityIssues,
 		Severity = Severity.Warning,
-		ResharperDisableKeyword = "PossibleMultipleEnumeration")]
+		AnalysisDisableKeyword = "PossibleMultipleEnumeration")]
 	public class PossibleMultipleEnumerationIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

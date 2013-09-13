@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Redundant explicit size in array creation",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		ResharperDisableKeyword = "RedundantExplicitArraySize")]
+		AnalysisDisableKeyword = "RedundantExplicitArraySize")]
 	public class RedundantExplicitArraySizeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

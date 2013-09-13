@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Comparison of a boolean value with 'true' or 'false' constant.",
 					   Category = IssueCategories.RedundanciesInCode,
 					   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "RedundantBoolCompare")]
+	                   AnalysisDisableKeyword = "RedundantBoolCompare")]
 	public class RedundantBoolCompareIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

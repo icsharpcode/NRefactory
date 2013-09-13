@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Empty namespace declaration is redundant",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "EmptyNamespace")]
+	                   AnalysisDisableKeyword = "EmptyNamespace")]
 	public class EmptyNamespaceIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

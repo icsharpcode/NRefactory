@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Warns when a culture-aware 'LastIndexOf' call is used by default.",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "StringLastIndexOfIsCultureSpecific")]
+	                  AnalysisDisableKeyword = "StringLastIndexOfIsCultureSpecific")]
 	public class StringLastIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

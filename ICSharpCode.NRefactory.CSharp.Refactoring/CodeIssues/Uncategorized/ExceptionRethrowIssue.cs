@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Finds throws that throws the caught exception and therefore should be empty.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-                      ResharperDisableKeyword = "PossibleIntendedRethrow")]
+                      AnalysisDisableKeyword = "PossibleIntendedRethrow")]
 	public class ExceptionRethrowIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

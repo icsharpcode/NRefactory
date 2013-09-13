@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Empty statement is redundant",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		ResharperDisableKeyword = "EmptyStatement")]
+		AnalysisDisableKeyword = "EmptyStatement")]
 	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

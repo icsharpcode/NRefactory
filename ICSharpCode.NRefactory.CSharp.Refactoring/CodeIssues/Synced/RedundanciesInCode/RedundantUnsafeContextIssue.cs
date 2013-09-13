@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Unsafe modifier in redundant in unsafe context or when no unsafe constructs are used.",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		ResharperDisableKeyword = "RedundantUnsafeContext")]
+		AnalysisDisableKeyword = "RedundantUnsafeContext")]
 	public class RedundantUnsafeContextIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

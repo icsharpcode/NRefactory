@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "The override of a virtual member is redundant because it consists of only a call to the base",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "RedundantOverridenMember")]
+	                   AnalysisDisableKeyword = "RedundantOverridenMember")]
 	public class RedundantOverridenMemberIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

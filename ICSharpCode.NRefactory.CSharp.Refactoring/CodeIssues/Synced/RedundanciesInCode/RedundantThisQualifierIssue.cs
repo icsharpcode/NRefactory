@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "'this.' is redundant and can be removed safely.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "RedundantThisQualifier")]
+	                  AnalysisDisableKeyword = "RedundantThisQualifier")]
 	[SubIssueAttribute(RedundantThisQualifierIssue.InsideConstructors, false)]
 	[SubIssueAttribute(RedundantThisQualifierIssue.EverywhereElse)]
 	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider

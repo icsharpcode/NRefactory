@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Category = IssueCategories.CompilerWarnings,
 					   Severity = Severity.Warning,
                        PragmaWarning = 1717,
-                       ResharperDisableKeyword = "CSharpWarnings::CS1717")]
+                       AnalysisDisableKeyword = "CSharpWarnings::CS1717")]
     public class CS1717AssignmentMadeToSameVariableIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Warns about calls to virtual member functions occuring in the constructor.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-                      ResharperDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
+                      AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
 	public class DoNotCallOverridableMethodsInConstructorIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)

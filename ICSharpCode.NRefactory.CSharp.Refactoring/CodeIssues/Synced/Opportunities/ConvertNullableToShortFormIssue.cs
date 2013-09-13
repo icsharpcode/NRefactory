@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Convert 'Nullable<T>' to the short form 'T?'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ConvertNullableToShortForm")]
+	                  AnalysisDisableKeyword = "ConvertNullableToShortForm")]
 	public class ConvertNullableToShortFormIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

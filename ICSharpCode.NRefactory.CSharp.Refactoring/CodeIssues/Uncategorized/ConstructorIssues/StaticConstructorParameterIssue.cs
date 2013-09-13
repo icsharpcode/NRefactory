@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        Description = "Static constructor should be parameterless",
                        Category = IssueCategories.CompilerErrors,
                        Severity = Severity.Error,
-                       ResharperDisableKeyword = "StaticConstructorParameterless")]
+                       AnalysisDisableKeyword = "StaticConstructorParameterless")]
 	public class StaticConstructorParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

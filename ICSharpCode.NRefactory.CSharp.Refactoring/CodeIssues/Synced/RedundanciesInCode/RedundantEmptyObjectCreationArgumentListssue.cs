@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "When object creation uses object or collection initializer, empty argument list is redundant.",
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "RedundantEmptyObjectCreationArgumentList")]
+	                   AnalysisDisableKeyword = "RedundantEmptyObjectCreationArgumentList")]
 	public class RedundantObjectCreationArgumentListIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

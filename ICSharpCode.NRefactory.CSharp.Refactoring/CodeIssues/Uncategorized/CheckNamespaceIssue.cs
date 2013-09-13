@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Check if a namespace corresponds to a file location",
 		Category = IssueCategories.CodeQualityIssues,
 		Severity = Severity.Warning,
-		ResharperDisableKeyword = "CheckNamespace")]
+		AnalysisDisableKeyword = "CheckNamespace")]
 	public class CheckNamespaceIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

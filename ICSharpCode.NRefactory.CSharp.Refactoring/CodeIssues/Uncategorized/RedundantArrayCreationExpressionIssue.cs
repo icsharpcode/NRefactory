@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-						ResharperDisableKeyword = "RedundantArrayCreationExpression")]
+						AnalysisDisableKeyword = "RedundantArrayCreationExpression")]
 	public class RedundantArrayCreationExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 

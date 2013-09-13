@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Redundant conditional expression",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "RedundantTernaryExpression")]
+	                  AnalysisDisableKeyword = "RedundantTernaryExpression")]
 	public class RedundantTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "'params' is ignored on overrides",
 	                  Category = IssueCategories.RedundanciesInDeclarations,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "RedundantParams")]
+	                  AnalysisDisableKeyword = "RedundantParams")]
 	public class RedundantParamsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

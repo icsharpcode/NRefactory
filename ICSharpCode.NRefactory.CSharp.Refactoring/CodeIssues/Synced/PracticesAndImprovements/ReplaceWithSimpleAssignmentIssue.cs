@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Replace with simple assignment",
 		Category = IssueCategories.PracticesAndImprovements,
 		Severity = Severity.Suggestion,
-		ResharperDisableKeyword = "ReplaceWithSimpleAssignment")]
+		AnalysisDisableKeyword = "ReplaceWithSimpleAssignment")]
 	public class ReplaceWithSimpleAssignmentIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

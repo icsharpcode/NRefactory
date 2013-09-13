@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Value of the expression can be determined at compile time",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		ResharperDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
+		AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
 	public class ConditionIsAlwaysTrueOrFalseIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

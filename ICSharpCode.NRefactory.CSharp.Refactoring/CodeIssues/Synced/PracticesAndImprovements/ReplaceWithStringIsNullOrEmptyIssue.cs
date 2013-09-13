@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Description = "Uses shorter string.IsNullOrEmpty call instead of a longer condition.",
            Category = IssueCategories.PracticesAndImprovements,
 	       Severity = Severity.Suggestion,
-           ResharperDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
+           AnalysisDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
 	public class ReplaceWithStringIsNullOrEmptyIssue : GatherVisitorCodeIssueProvider
 	{
 		static readonly Pattern pattern = new Choice {

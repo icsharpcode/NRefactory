@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Redundant empty 'default' switch branch",
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "RedundantEmptyDefaultSwitchBranch")]
+	                   AnalysisDisableKeyword = "RedundantEmptyDefaultSwitchBranch")]
 	public class RedundantEmptyDefaultSwitchBranchIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

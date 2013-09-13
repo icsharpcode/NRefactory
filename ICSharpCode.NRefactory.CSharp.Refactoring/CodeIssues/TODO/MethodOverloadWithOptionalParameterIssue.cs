@@ -52,7 +52,7 @@ No resolution - ps. should work for indexers as well.
 //		Description = "Method with optional parameter is hidden by overload",
 //		Category = IssueCategories.CodeQualityIssues,
 //		Severity = Severity.Warning,
-//		ResharperDisableKeyword = "MethodOverloadWithOptionalParameter")]
+//		AnalysisDisableKeyword = "MethodOverloadWithOptionalParameter")]
 //	public class MethodOverloadWithOptionalParameterIssue : GatherVisitorCodeIssueProvider
 //	{
 //		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

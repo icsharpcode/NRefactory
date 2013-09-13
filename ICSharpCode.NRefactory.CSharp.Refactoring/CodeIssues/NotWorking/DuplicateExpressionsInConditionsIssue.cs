@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		                   Description = "Expression has some redundant items",
 		                   Category = IssueCategories.CodeQualityIssues,
 		                   Severity = Severity.Warning,
-		                   ResharperDisableKeyword = "ConditionalTernaryEqualBranch")]
+		                   AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class DuplicateExpressionsInConditionsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

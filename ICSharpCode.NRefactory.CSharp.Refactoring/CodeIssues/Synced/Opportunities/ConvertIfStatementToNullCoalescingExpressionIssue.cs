@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
 	                  ActionProvider = typeof(ConvertIfStatementToNullCoalescingExpressionAction),
-	                  ResharperDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
+	                  AnalysisDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
 	public class ConvertIfStatementToNullCoalescingExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

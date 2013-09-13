@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "Type cast can be safely removed.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-                        ResharperDisableKeyword = "RedundantCast")]
+                        AnalysisDisableKeyword = "RedundantCast")]
 	public class RedundantCastIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "A member doesn't use 'this' object neither explicit nor implicit. It can be made static.",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Hint,
-	                  ResharperDisableKeyword = "MemberCanBeMadeStatic.Local"
+	                  AnalysisDisableKeyword = "MemberCanBeMadeStatic.Local"
 	                  )]
 	[SubIssueAttribute(CommonSubIssues.PrivateMember)]
 	[SubIssueAttribute(CommonSubIssues.NonPrivateMember, false)]

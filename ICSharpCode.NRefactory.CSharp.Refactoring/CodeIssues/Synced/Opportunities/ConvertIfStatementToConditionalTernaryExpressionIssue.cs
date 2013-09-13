@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
 	                  ActionProvider = typeof(ConvertIfStatementToConditionalTernaryExpressionAction),
-	                  ResharperDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
+	                  AnalysisDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
 	public class ConvertIfStatementToConditionalTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

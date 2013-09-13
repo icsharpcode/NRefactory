@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "The value of an optional parameter in a method does not match the base method.",
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "OptionalParameterHierarchyMismatch")]
+	                   AnalysisDisableKeyword = "OptionalParameterHierarchyMismatch")]
 	public class OptionalParameterHierarchyMismatchIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

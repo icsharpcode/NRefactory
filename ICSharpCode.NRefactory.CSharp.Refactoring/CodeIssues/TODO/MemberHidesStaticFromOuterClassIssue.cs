@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 //		Description = "Member hides static member from outer class",
 //		Category = IssueCategories.CodeQualityIssues,
 //		Severity = Severity.Warning,
-//		ResharperDisableKeyword = "MemberHidesStaticFromOuterClass")]
+//		AnalysisDisableKeyword = "MemberHidesStaticFromOuterClass")]
 //	public class MemberHidesStaticFromOuterClassIssue : GatherVisitorCodeIssueProvider
 //	{
 //		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

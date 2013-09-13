@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Function does not reach its end or a 'return' statement by any of possible execution paths.",
 		Category = IssueCategories.CodeQualityIssues,
 		Severity = Severity.Warning,
-		ResharperDisableKeyword = "FunctionNeverReturns")]
+		AnalysisDisableKeyword = "FunctionNeverReturns")]
 	public class FunctionNeverReturnsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

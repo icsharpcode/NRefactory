@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "The default underlying type of enums is int, so defining it explicitly is redundant.",
 	                  Category = IssueCategories.RedundanciesInDeclarations,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "EnumUnderlyingTypeIsInt")]
+	                  AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
 	public class EnumUnderlyingTypeIsIntIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)

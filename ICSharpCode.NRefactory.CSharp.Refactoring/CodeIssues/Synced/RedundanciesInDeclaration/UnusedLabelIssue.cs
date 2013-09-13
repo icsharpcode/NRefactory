@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Category = IssueCategories.RedundanciesInDeclarations,
 		Severity = Severity.Warning,
 		PragmaWarning = 164,
-		ResharperDisableKeyword = "UnusedLabel")]
+		AnalysisDisableKeyword = "UnusedLabel")]
 	public class UnusedLabelIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

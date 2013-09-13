@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Category = IssueCategories.Opportunities,
 	       Severity = Severity.Hint,
 	       ActionProvider = typeof(UseVarKeywordAction),
-           ResharperDisableKeyword = "SuggestUseVarKeywordEvident")]
+           AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

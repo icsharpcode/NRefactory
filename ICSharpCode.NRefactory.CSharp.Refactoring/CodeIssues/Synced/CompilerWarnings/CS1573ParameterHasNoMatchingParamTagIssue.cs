@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.CompilerWarnings,
 	                  Severity = Severity.Warning,
 	                  PragmaWarning = 1573,
-	                  ResharperDisableKeyword = "CSharpWarnings::CS1573")]
+	                  AnalysisDisableKeyword = "CSharpWarnings::CS1573")]
 	public class CS1573ParameterHasNoMatchingParamTagIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

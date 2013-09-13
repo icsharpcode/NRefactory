@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Parentheses are redundant if attribute has no arguments.",
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "RedundantAttributeParentheses")]
+	                   AnalysisDisableKeyword = "RedundantAttributeParentheses")]
 	public class RedundantAttributeParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

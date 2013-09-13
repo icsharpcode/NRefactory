@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	                  Description="Call to base member with implicit default parameters",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "BaseMethodCallWithDefaultParameter")]
+	                  AnalysisDisableKeyword = "BaseMethodCallWithDefaultParameter")]
 	public class BaseMethodCallWithDefaultParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

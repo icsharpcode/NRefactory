@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Bitwise operation on enum which has no [Flags] attribute",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-                       ResharperDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
+                       AnalysisDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
 	public class BitwiseOperatorOnEnumWithoutFlagsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

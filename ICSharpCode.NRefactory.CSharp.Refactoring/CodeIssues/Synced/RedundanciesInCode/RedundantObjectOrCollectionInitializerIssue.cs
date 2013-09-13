@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Redundant empty object or collection initializer.",
 					   Category = IssueCategories.RedundanciesInCode,
 					   Severity = Severity.Warning,
-                       ResharperDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
+                       AnalysisDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
 	public class RedundantObjectOrCollectionInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

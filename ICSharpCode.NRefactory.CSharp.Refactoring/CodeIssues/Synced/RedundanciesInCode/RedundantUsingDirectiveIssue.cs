@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Using directive is not required and can safely be removed.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Hint,
-	                  ResharperDisableKeyword = "RedundantUsingDirective"
+	                  AnalysisDisableKeyword = "RedundantUsingDirective"
 	                  )]
 	public class RedundantUsingDirectiveIssue : CodeIssueProvider
 	{

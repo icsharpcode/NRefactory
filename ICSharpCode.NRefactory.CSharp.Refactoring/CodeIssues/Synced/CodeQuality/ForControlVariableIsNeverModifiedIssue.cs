@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "'for' loop control variable is never modified.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-                       ResharperDisableKeyword = "ForControlVariableIsNeverModified")]
+                       AnalysisDisableKeyword = "ForControlVariableIsNeverModified")]
     public class ForControlVariableIsNeverModifiedIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

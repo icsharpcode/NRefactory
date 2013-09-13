@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Redundant explicit argument name specification",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "RedundantArgumentName")]
+	                  AnalysisDisableKeyword = "RedundantArgumentName")]
 	public class RedundantArgumentNameIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Local variable has the same name as a member and hides it.",
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "LocalVariableHidesMember")]
+	                   AnalysisDisableKeyword = "LocalVariableHidesMember")]
 	public class LocalVariableHidesMemberIssue : VariableHidesMemberIssue
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

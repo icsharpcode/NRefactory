@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Base parameter has 'params' modifier, but missing in overrider",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "BaseMemberHasParams")]
+	                  AnalysisDisableKeyword = "BaseMemberHasParams")]
 	public class BaseMemberHasParamsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

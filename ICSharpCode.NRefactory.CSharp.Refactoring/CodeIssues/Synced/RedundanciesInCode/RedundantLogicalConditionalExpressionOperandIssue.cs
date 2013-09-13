@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Redundant operand in logical conditional expression",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "RedundantLogicalConditionalExpressionOperand")]
+	                  AnalysisDisableKeyword = "RedundantLogicalConditionalExpressionOperand")]
 	public class RedundantLogicalConditionalExpressionOperandIssue: GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

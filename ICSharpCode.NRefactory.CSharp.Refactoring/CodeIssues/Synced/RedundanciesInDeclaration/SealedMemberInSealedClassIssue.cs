@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "'sealed' modifier is redundant in sealed classes",
 	                  Category = IssueCategories.RedundanciesInDeclarations,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "SealedMemberInSealedClass")]
+	                  AnalysisDisableKeyword = "SealedMemberInSealedClass")]
 	public class SealedMemberInSealedClassIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
