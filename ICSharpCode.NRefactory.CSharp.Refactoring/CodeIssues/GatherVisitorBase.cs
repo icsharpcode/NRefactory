@@ -36,8 +36,8 @@ namespace ICSharpCode.NRefactory.CSharp
 {
 	class GatherVisitorConstants
 	{
-		public const string DisableAllString = "ReSharper disable All";
-		public const string RestoreAllString = "ReSharper restore All";
+		public const string DisableAllString = "disable All";
+		public const string RestoreAllString = "restore All";
 
 	}
 
