@@ -1771,9 +1771,18 @@ class TestClass
 			var tree = parser.Parse(@"
 namespace JetBrains.Annotations
 {
+	enum AssertionConditionType
+	{
+		IS_FALSE,
+		IS_TRUE,
+		IS_NULL,
+		IS_NOT_NULL
+	}
+
 	[System.AttributeUsage(System.AttributeTargets.Parameter)]
 	class AssertionConditionAttribute : System.Attribute
 	{
+		public AssertionConditionAttribute(AssertionConditionType conditionType) {}
 	}
 	[System.AttributeUsage(System.AttributeTargets.Method)]
 	class AssertionMethodAttribute : System.Attribute
@@ -1783,7 +1792,7 @@ namespace JetBrains.Annotations
 class TestClass
 {
 	[JetBrains.Annotations.AssertionMethod]
-	void Assert([JetBrains.Annotations.AssertionCondition] bool condition, string message) {
+	void Assert([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_TRUE)] bool condition, string message) {
 	}
 	
 	void TestMethod(string x)
@@ -1809,9 +1818,18 @@ class TestClass
 			var tree = parser.Parse(@"
 namespace JetBrains.Annotations
 {
+	enum AssertionConditionType
+	{
+		IS_FALSE,
+		IS_TRUE,
+		IS_NULL,
+		IS_NOT_NULL
+	}
+
 	[System.AttributeUsage(System.AttributeTargets.Parameter)]
 	class AssertionConditionAttribute : System.Attribute
 	{
+		public AssertionConditionAttribute(AssertionConditionType conditionType) {}
 	}
 	[System.AttributeUsage(System.AttributeTargets.Method)]
 	class AssertionMethodAttribute : System.Attribute
@@ -1821,7 +1839,7 @@ namespace JetBrains.Annotations
 class TestClass
 {
 	[JetBrains.Annotations.AssertionMethod]
-	void Assert([JetBrains.Annotations.AssertionCondition] bool condition, string message) {
+	void Assert([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_TRUE)] bool condition, string message) {
 	}
 	
 	void TestMethod(string x)
@@ -1847,9 +1865,18 @@ class TestClass
 			var tree = parser.Parse(@"
 namespace JetBrains.Annotations
 {
+	enum AssertionConditionType
+	{
+		IS_FALSE,
+		IS_TRUE,
+		IS_NULL,
+		IS_NOT_NULL
+	}
+
 	[System.AttributeUsage(System.AttributeTargets.Parameter)]
 	class AssertionConditionAttribute : System.Attribute
 	{
+		public AssertionConditionAttribute(AssertionConditionType conditionType) {}
 	}
 	[System.AttributeUsage(System.AttributeTargets.Method)]
 	class AssertionMethodAttribute : System.Attribute
@@ -1859,12 +1886,294 @@ namespace JetBrains.Annotations
 class TestClass
 {
 	[JetBrains.Annotations.AssertionMethod]
-	void Assert([JetBrains.Annotations.AssertionCondition] bool condition = false) {
+	void Assert([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_TRUE)] bool condition = false) {
 	}
 	
 	void TestMethod(string x)
 	{
 		Assert();
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestAssertion4()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	enum AssertionConditionType
+	{
+		IS_FALSE,
+		IS_TRUE,
+		IS_NULL,
+		IS_NOT_NULL
+	}
+
+	[System.AttributeUsage(System.AttributeTargets.Parameter)]
+	class AssertionConditionAttribute : System.Attribute
+	{
+		public AssertionConditionAttribute(AssertionConditionType conditionType) {}
+	}
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class AssertionMethodAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.AssertionMethod]
+	void Assert([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_FALSE)] bool condition = true) {
+	}
+	
+	void TestMethod(string x)
+	{
+		Assert();
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestAssertion5()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	enum AssertionConditionType
+	{
+		IS_FALSE,
+		IS_TRUE,
+		IS_NULL,
+		IS_NOT_NULL
+	}
+
+	[System.AttributeUsage(System.AttributeTargets.Parameter)]
+	class AssertionConditionAttribute : System.Attribute
+	{
+		public AssertionConditionAttribute(AssertionConditionType conditionType) {}
+	}
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class AssertionMethodAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.AssertionMethod]
+	void Assert([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_FALSE)] bool condition = false) {
+	}
+	
+	void TestMethod(string x)
+	{
+		Assert();
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreNotEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestAssertion6()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	enum AssertionConditionType
+	{
+		IS_FALSE,
+		IS_TRUE,
+		IS_NULL,
+		IS_NOT_NULL
+	}
+
+	[System.AttributeUsage(System.AttributeTargets.Parameter)]
+	class AssertionConditionAttribute : System.Attribute
+	{
+		public AssertionConditionAttribute(AssertionConditionType conditionType) {}
+	}
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class AssertionMethodAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.AssertionMethod]
+	void AssertNotNull([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_NOT_NULL)] object condition) {
+	}
+	
+	void TestMethod(string x)
+	{
+		AssertNotNull(x);
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestAssertion7()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	enum AssertionConditionType
+	{
+		IS_FALSE,
+		IS_TRUE,
+		IS_NULL,
+		IS_NOT_NULL
+	}
+
+	[System.AttributeUsage(System.AttributeTargets.Parameter)]
+	class AssertionConditionAttribute : System.Attribute
+	{
+		public AssertionConditionAttribute(AssertionConditionType conditionType) {}
+	}
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class AssertionMethodAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.AssertionMethod]
+	void Assert([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_FALSE)] bool condition) {
+	}
+	
+	void TestMethod(string x)
+	{
+		Assert(x == null);
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestAssertion8()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	enum AssertionConditionType
+	{
+		IS_FALSE,
+		IS_TRUE,
+		IS_NULL,
+		IS_NOT_NULL
+	}
+
+	[System.AttributeUsage(System.AttributeTargets.Parameter)]
+	class AssertionConditionAttribute : System.Attribute
+	{
+		public AssertionConditionAttribute(AssertionConditionType conditionType) {}
+	}
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class AssertionMethodAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.AssertionMethod]
+	void AssertNotNull([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_NOT_NULL)] object condition = 1) {
+	}
+	
+	void TestMethod(string x)
+	{
+		AssertNotNull();
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreNotEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestAssertion9()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	enum AssertionConditionType
+	{
+		IS_FALSE,
+		IS_TRUE,
+		IS_NULL,
+		IS_NOT_NULL
+	}
+
+	[System.AttributeUsage(System.AttributeTargets.Parameter)]
+	class AssertionConditionAttribute : System.Attribute
+	{
+		public AssertionConditionAttribute(AssertionConditionType conditionType) {}
+	}
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class AssertionMethodAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.AssertionMethod]
+	void AssertNotNull([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_NOT_NULL)] object condition) {
+	}
+	
+	void TestMethod(string x)
+	{
+		AssertNotNull(null);
 	}
 }
 ", "test.cs");

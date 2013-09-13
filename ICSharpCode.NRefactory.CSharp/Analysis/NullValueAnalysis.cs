@@ -770,9 +770,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 		class NullAnalysisVisitor : DepthFirstAstVisitor<VariableStatusInfo, VisitorResult>
 		{
-			static readonly Expression IdentifierPattern = PatternHelper.OptionalParentheses(
-				new IdentifierExpression(Pattern.AnyString).WithName("identifier"));
-
 			NullValueAnalysis analysis;
 
 			public NullAnalysisVisitor(NullValueAnalysis analysis) {
@@ -1244,6 +1241,18 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				}
 			}
 
+			VisitorResult WithVariableValue(VisitorResult result, IdentifierExpression identifier, bool isNull)
+			{
+				var localVariableResult = analysis.context.Resolve(identifier) as LocalResolveResult;
+				if (localVariableResult != null) {
+					result.ConditionalBranchInfo.TrueResultVariableNullStates[identifier.Identifier] = isNull;
+					if (isNull) {
+						result.ConditionalBranchInfo.FalseResultVariableNullStates[identifier.Identifier] = false;
+					}
+				}
+				return result;
+			}
+
 			VisitorResult VisitEquality(BinaryOperatorExpression binaryOperatorExpression, VariableStatusInfo data)
 			{
 				//TODO: Should this check for user operators?
@@ -1280,14 +1289,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					var identifier = CSharpUtil.GetInnerMostExpression(binaryOperatorExpression.Left) as IdentifierExpression;
 
 					if (identifier != null) {
-						var localVariableResult = analysis.context.Resolve(identifier) as LocalResolveResult;
-						if (localVariableResult != null) {
-							bool isNull = (tentativeRightResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
-							result.ConditionalBranchInfo.TrueResultVariableNullStates [identifier.Identifier] = isNull;
-							if (isNull) {
-								result.ConditionalBranchInfo.FalseResultVariableNullStates [identifier.Identifier] = false;
-							}
-						}
+						bool isNull = (tentativeRightResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
+
+						WithVariableValue(result, identifier, isNull);
 					}
 				}
 
@@ -1295,14 +1299,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					var identifier = CSharpUtil.GetInnerMostExpression(binaryOperatorExpression.Right) as IdentifierExpression;
 
 					if (identifier != null) {
-						var localVariableResult = analysis.context.Resolve(identifier) as LocalResolveResult;
-						if (localVariableResult != null) {
-							bool isNull = (tentativeLeftResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
-							result.ConditionalBranchInfo.TrueResultVariableNullStates [identifier.Identifier] = isNull;
-							if (isNull) {
-								result.ConditionalBranchInfo.FalseResultVariableNullStates [identifier.Identifier] = false;
-							}
-						}
+						bool isNull = (tentativeLeftResult.NullableReturnResult == NullValueStatus.DefinitelyNull);
+
+						WithVariableValue(result, identifier, isNull);
 					}
 				}
 
@@ -1471,10 +1470,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				if (method != null) {
 					if (method.GetAttribute(new FullTypeName("JetBrains.Annotations.AssertionMethodAttribute")) != null) {
 						var assertionParameters = method.Parameters.Select((parameter, index) => new { index, parameter })
-							.Where(parameter => parameter.parameter.Attributes.Any(attribute => attribute.AttributeType.FullName == "JetBrains.Annotations.AssertionConditionAttribute"))
+							.Select(parameter => new { parameter.index, parameter.parameter, attributes = parameter.parameter.Attributes.Where(attribute => attribute.AttributeType.FullName == "JetBrains.Annotations.AssertionConditionAttribute").ToList() })
+							.Where(parameter => parameter.attributes.Count() == 1)
+							.Select(parameter => new { parameter.index, parameter.parameter, attribute = parameter.attributes[0] })
 							.ToList();
-
-						//TODO: Should we require assertion parameters to be booleans?
 
 						//Unclear what should be done if there are multiple assertion conditions
 						if (assertionParameters.Count() == 1) {
@@ -1482,6 +1481,27 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 							var assertionParameter = assertionParameters [0];
 							VisitorResult assertionParameterResult = null;
+
+							object intendedResult = true;
+							var positionalArgument = assertionParameter.attribute.PositionalArguments.FirstOrDefault() as MemberResolveResult;
+							if (positionalArgument != null && positionalArgument.Type.FullName == "JetBrains.Annotations.AssertionConditionType") {
+								switch (positionalArgument.Member.FullName) {
+									case "JetBrains.Annotations.AssertionConditionType.IS_TRUE":
+										intendedResult = true;
+										break;
+									case "JetBrains.Annotations.AssertionConditionType.IS_FALSE":
+										intendedResult = false;
+										break;
+									case "JetBrains.Annotations.AssertionConditionType.IS_NULL":
+										intendedResult = null;
+										break;
+									case "JetBrains.Annotations.AssertionConditionType.IS_NOT_NULL":
+										intendedResult = "<not-null>";
+										break;
+								}
+							}
+
+							int parameterIndex = assertionParameter.index;
 							if (assertionParameter.index < methodResolveResult.Arguments.Count && !(methodResolveResult.Arguments [assertionParameter.index] is NamedArgumentResolveResult)) {
 								//Use index
 								assertionParameterResult = parameterResults [assertionParameter.index];
@@ -1494,12 +1514,19 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 									}).Select(argument => (int?)argument.index).FirstOrDefault();
 
 								if (nameIndex != null) {
+									parameterIndex = nameIndex.Value;
 									assertionParameterResult = parameterResults [nameIndex.Value];
 								} else if (assertionParameter.parameter.IsOptional) {
 									//Try to use default value
 
-									if (!object.Equals(assertionParameter.parameter.ConstantValue, true)) {
-										return VisitorResult.ForException(data);
+									if (intendedResult is string) {
+										if (assertionParameter.parameter.ConstantValue == null) {
+											return VisitorResult.ForException(data);
+										}
+									} else {
+										if (!object.Equals(assertionParameter.parameter.ConstantValue, intendedResult)) {
+											return VisitorResult.ForException(data);
+										}
 									}
 								} else {
 									//The parameter was not specified, yet it is not optional?
@@ -1509,11 +1536,41 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 							//Now check assertion
 							if (assertionParameterResult != null) {
-								if (assertionParameterResult.KnownBoolResult == false) {
-									return VisitorResult.ForException(data);
-								}
+								if (intendedResult is bool) {
+									if (assertionParameterResult.KnownBoolResult == !(bool)intendedResult) {
+										return VisitorResult.ForException(data);
+									}
 
-								data = assertionParameterResult.TruePathVariables;
+									data = (bool)intendedResult ? assertionParameterResult.TruePathVariables : assertionParameterResult.FalsePathVariables;
+								} else {
+									bool shouldBeNull = intendedResult == null;
+
+									if (assertionParameterResult.NullableReturnResult == (shouldBeNull ? NullValueStatus.DefinitelyNotNull : NullValueStatus.DefinitelyNull)) {
+										return VisitorResult.ForException(data);
+									}
+
+									var parameterResolveResult = methodResolveResult.Arguments [parameterIndex];
+
+									LocalResolveResult localVariableResult = null;
+
+									var conversionResolveResult = parameterResolveResult as ConversionResolveResult;
+									if (conversionResolveResult != null) {
+										if (!IsTypeNullable(conversionResolveResult.Type)) {
+											if (intendedResult == null) {
+												return VisitorResult.ForException(data);
+											}
+										} else {
+											localVariableResult = conversionResolveResult.Input as LocalResolveResult;
+										}
+									} else {
+										localVariableResult = parameterResolveResult as LocalResolveResult;
+									}
+
+									if (localVariableResult != null && data[localVariableResult.Variable.Name] != NullValueStatus.CapturedUnknown) {
+										data = data.Clone();
+										data [localVariableResult.Variable.Name] = shouldBeNull ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+									}
+								}
 							}
 						}
 					}

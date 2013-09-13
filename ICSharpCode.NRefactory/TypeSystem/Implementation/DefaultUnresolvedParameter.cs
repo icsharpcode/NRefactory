@@ -252,8 +252,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					}
 					if (rr is ConversionResolveResult) {
 						var crr = (ConversionResolveResult)rr;
-						if (crr.Conversion.IsNullableConversion)
-							return crr.Input.ConstantValue;
+						return crr.Input.ConstantValue;
 					}
 					return rr.ConstantValue;
 
