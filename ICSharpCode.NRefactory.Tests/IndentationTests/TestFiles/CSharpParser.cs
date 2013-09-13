@@ -3382,8 +3382,11 @@ namespace ICSharpCode.NRefactory.CSharp
 				result.AddChild(new CSharpTokenNode(Convert(groupBy.Location), QueryGroupClause.GroupKeywordRole), QueryGroupClause.GroupKeywordRole);
 				if (groupBy.ElementSelector != null)
 					result.AddChild((Expression)groupBy.ElementSelector.Accept(this), QueryGroupClause.ProjectionRole);
-				if (location != null)
-					result.AddChild(new CSharpTokenNode(Convert(location [0]), QueryGroupClause.ByKeywordRole), QueryGroupClause.ByKeywordRole);
+				if (location != null) {
+					var byLoc = Convert(location[0]);
+					if (byLoc.Line > 1 || byLoc.Column > 1)
+						result.AddChild(new CSharpTokenNode(byLoc, QueryGroupClause.ByKeywordRole), QueryGroupClause.ByKeywordRole);
+				}
 				if (groupBy.Expr != null)
 					result.AddChild((Expression)groupBy.Expr.Accept(this), QueryGroupClause.KeyRole);
 				return result;

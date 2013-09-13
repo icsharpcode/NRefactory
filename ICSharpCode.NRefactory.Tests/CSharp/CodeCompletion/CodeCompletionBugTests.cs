@@ -6226,5 +6226,27 @@ namespace Foo
 }
 ", provider => provider.Data.Single(d => d.DisplayText == "Foo"));
 		}
+	
+		/// <summary>
+		/// Bug 10228 - [AST] Incomplete linq statements missing 
+		/// </summary>
+		[Test]
+		public void TestBug10228 ()
+		{
+			CombinedProviderTest(@"using System;
+using System.Linq;
+using System.Collections.Generic;
+
+class Program
+{
+	public void Hello()
+	{
+		var somelist = new List<object>();
+		$var query = from item in somelist group i$
+	}
+}
+
+", provider => Assert.IsNotNull(provider.Find("item"), "'item' not found."));
+		}
 	}
 }
