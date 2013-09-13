@@ -1763,6 +1763,120 @@ class TestClass
 			
 			Assert.AreEqual(NullValueStatus.PotentiallyNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p1"));
 		}
+
+		[Test]
+		public void TestAssertion()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	[System.AttributeUsage(System.AttributeTargets.Parameter)]
+	class AssertionConditionAttribute : System.Attribute
+	{
+	}
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class AssertionMethodAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.AssertionMethod]
+	void Assert([JetBrains.Annotations.AssertionCondition] bool condition, string message) {
+	}
+	
+	void TestMethod(string x)
+	{
+		Assert(x != null, ""x is null"");
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestAssertion2()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	[System.AttributeUsage(System.AttributeTargets.Parameter)]
+	class AssertionConditionAttribute : System.Attribute
+	{
+	}
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class AssertionMethodAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.AssertionMethod]
+	void Assert([JetBrains.Annotations.AssertionCondition] bool condition, string message) {
+	}
+	
+	void TestMethod(string x)
+	{
+		Assert(message: ""x is null"", condition: x != null);
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
+
+		[Test]
+		public void TestAssertion3()
+		{
+			var parser = new CSharpParser();
+			var tree = parser.Parse(@"
+namespace JetBrains.Annotations
+{
+	[System.AttributeUsage(System.AttributeTargets.Parameter)]
+	class AssertionConditionAttribute : System.Attribute
+	{
+	}
+	[System.AttributeUsage(System.AttributeTargets.Method)]
+	class AssertionMethodAttribute : System.Attribute
+	{
+	}
+}
+class TestClass
+{
+	[JetBrains.Annotations.AssertionMethod]
+	void Assert([JetBrains.Annotations.AssertionCondition] bool condition = false) {
+	}
+	
+	void TestMethod(string x)
+	{
+		Assert();
+	}
+}
+", "test.cs");
+			Assert.AreEqual(0, tree.Errors.Count);
+			
+			var method = tree.Descendants.OfType<MethodDeclaration>().Last();
+			var analysis = CreateNullValueAnalysis(tree, method);
+			
+			var lastStatement = method.Body.Statements.Last();
+			
+			Assert.AreEqual(NullValueStatus.UnreachableOrInexistent, analysis.GetVariableStatusAfterStatement(lastStatement, "x"));
+		}
 	}
 }
 
