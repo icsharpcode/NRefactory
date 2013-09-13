@@ -1413,9 +1413,16 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				var methodResolveResult = analysis.context.Resolve(invocationExpression) as CSharpInvocationResolveResult;
 
+				List<VisitorResult> parameterResults = new List<VisitorResult>();
+
 				foreach (var argumentToHandle in invocationExpression.Arguments.Select((argument, parameterIndex) => new { argument, parameterIndex })) {
 					var argument = argumentToHandle.argument;
 					var parameterIndex = argumentToHandle.parameterIndex;
+
+					var result = argument.AcceptVisitor(this, data);
+					if (result.ThrowsException)
+						return HandleExpressionResult(invocationExpression, result);
+					parameterResults.Add(result);
 
 					var namedArgument = argument as NamedArgumentExpression;
 					
@@ -1430,11 +1437,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 								FixParameter(argument, methodResolveResult.Member.Parameters, parameterIndex, identifier, data);
 							}
 						}
+
+
 						continue;
 					}
-					var result = argument.AcceptVisitor(this, data);
-					if (result.ThrowsException)
-						return HandleExpressionResult(invocationExpression, result);
 
 					data = result.Variables;
 				}
@@ -1453,26 +1459,75 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					}
 				}
 
-				var returnValue = GetMethodReturnValue(methodResolveResult, data);
-
-				return HandleExpressionResult(invocationExpression, data, returnValue);
+				return HandleExpressionResult(invocationExpression, GetMethodVisitorResult(methodResolveResult, data, parameterResults));
 			}
 
-			static NullValueStatus GetMethodReturnValue(CSharpInvocationResolveResult methodResolveResult, VariableStatusInfo data)
+			static VisitorResult GetMethodVisitorResult(CSharpInvocationResolveResult methodResolveResult, VariableStatusInfo data, List<VisitorResult> parameterResults)
 			{
-				bool isNullable = methodResolveResult == null || IsTypeNullable(methodResolveResult.Type);
-				if (!isNullable) {
-					return NullValueStatus.DefinitelyNotNull;
-				}
-
 				if (methodResolveResult == null)
-					return NullValueStatus.Unknown;
+					return VisitorResult.ForValue(data, NullValueStatus.Unknown);
 
 				var method = methodResolveResult.Member as IMethod;
-				if (method != null)
-					return GetNullableStatus(method);
+				if (method != null) {
+					if (method.GetAttribute(new FullTypeName("JetBrains.Annotations.AssertionMethodAttribute")) != null) {
+						var assertionParameters = method.Parameters.Select((parameter, index) => new { index, parameter })
+							.Where(parameter => parameter.parameter.Attributes.Any(attribute => attribute.AttributeType.FullName == "JetBrains.Annotations.AssertionConditionAttribute"))
+							.ToList();
 
-				return GetNullableStatus(methodResolveResult.TargetResult.Type.GetDefinition());
+						//TODO: Should we require assertion parameters to be booleans?
+
+						//Unclear what should be done if there are multiple assertion conditions
+						if (assertionParameters.Count() == 1) {
+							Debug.Assert(methodResolveResult.Arguments.Count == parameterResults.Count);
+
+							var assertionParameter = assertionParameters [0];
+							VisitorResult assertionParameterResult = null;
+							if (assertionParameter.index < methodResolveResult.Arguments.Count && !(methodResolveResult.Arguments [assertionParameter.index] is NamedArgumentResolveResult)) {
+								//Use index
+								assertionParameterResult = parameterResults [assertionParameter.index];
+							} else {
+								//Use named argument
+								int? nameIndex = methodResolveResult.Arguments.Select((argument, index) => new { argument, index})
+									.Where(argument => {
+										var namedArgument = argument.argument as NamedArgumentResolveResult;
+										return namedArgument != null && namedArgument.ParameterName == assertionParameter.parameter.Name;
+									}).Select(argument => (int?)argument.index).FirstOrDefault();
+
+								if (nameIndex != null) {
+									assertionParameterResult = parameterResults [nameIndex.Value];
+								} else if (assertionParameter.parameter.IsOptional) {
+									//Try to use default value
+
+									if (!object.Equals(assertionParameter.parameter.ConstantValue, true)) {
+										return VisitorResult.ForException(data);
+									}
+								} else {
+									//The parameter was not specified, yet it is not optional?
+									return VisitorResult.ForException(data);
+								}
+							}
+
+							//Now check assertion
+							if (assertionParameterResult != null) {
+								if (assertionParameterResult.KnownBoolResult == false) {
+									return VisitorResult.ForException(data);
+								}
+
+								data = assertionParameterResult.TruePathVariables;
+							}
+						}
+					}
+				}
+
+				bool isNullable = IsTypeNullable(methodResolveResult.Type);
+				if (!isNullable) {
+					return VisitorResult.ForValue(data, NullValueStatus.DefinitelyNotNull);
+				}
+
+				if (method != null)
+					return VisitorResult.ForValue(data, GetNullableStatus(method));
+
+				return VisitorResult.ForValue(data, GetNullableStatus(methodResolveResult.TargetResult.Type.GetDefinition()));
 			}
 
 			static NullValueStatus GetNullableStatus(IEntity entity)
@@ -1481,7 +1536,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					//Handle Delegate.Invoke method
 					return GetNullableStatus(entity.DeclaringTypeDefinition);
 				}
-
+				
 				return GetNullableStatus(fullTypeName => entity.GetAttribute(new FullTypeName(fullTypeName)));
 			}
 
