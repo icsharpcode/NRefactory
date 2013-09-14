@@ -30,11 +30,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-    [IssueDescription("Expression has some redundant items",
-		                   Description = "Expression has some redundant items",
-		                   Category = IssueCategories.CodeQualityIssues,
-		                   Severity = Severity.Warning,
-		                   AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
+//    [IssueDescription("Expression has some redundant items",
+//		                   Description = "Expression has some redundant items",
+//		                   Category = IssueCategories.CodeQualityIssues,
+//		                   Severity = Severity.Warning,
+//		                   AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class DuplicateExpressionsInConditionsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

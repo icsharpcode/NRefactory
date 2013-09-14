@@ -30,11 +30,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Else branch has some redundant if",
-	                  Description = "One Else-if was checked before so is not be true",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
+//	[IssueDescription("Else branch has some redundant if",
+//	                  Description = "One Else-if was checked before so is not be true",
+//	                  Category = IssueCategories.CodeQualityIssues,
+//	                  Severity = Severity.Warning,
+//	                  AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class DuplicateIfInIfChainIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

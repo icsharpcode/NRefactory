@@ -311,7 +311,6 @@
     <Compile Include="CodeIssues\Uncategorized\ConstructorIssues\StaticConstructorParameterIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\DuplicatedLinqToListOrArrayIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\DuplicateIfInIfChainIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExceptionRethrowIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExplicitConversionInForEachIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
@@ -404,6 +403,7 @@
     <Compile Include="CodeIssues\TODO\PossibleAssignmentToReadonlyFieldIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\MemberHidesStaticFromOuterClassIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\MethodOverloadWithOptionalParameterIssue.cs" />
+    <Compile Include="CodeIssues\NotWorking\DuplicateIfInIfChainIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
