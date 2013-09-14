@@ -582,6 +582,7 @@
     <Compile Include="CSharp\CodeIssues\ConditionIsAlwaysTrueOrFalseIssueTests.cs" />
     <Compile Include="IndentationTests\GeneralTests.cs" />
     <Compile Include="CSharp\CodeIssues\MemberHidesStaticFromOuterClassIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\MethodOverloadWithOptionalParameterIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
