@@ -169,5 +169,36 @@ class Test
 	}
 }", 1);
 		}
+
+		[Test]
+		public void TestEnumerableConversion ()
+		{
+			Test<ConvertForeachToForAction>(@"
+using System;
+using System.Collections.Generic;
+
+class Test
+{
+	public void Foo (IEnumerable<string> bar)
+	{
+		$foreach (var b in bar) {
+			Console.WriteLine (b);
+		}
+	}
+}", @"
+using System;
+using System.Collections.Generic;
+
+class Test
+{
+	public void Foo (IEnumerable<string> bar)
+	{
+		for (var i = bar.GetEnumerator (); i.MoveNext ();) {
+			var b = i.Current;
+			Console.WriteLine (b);
+		}
+	}
+}");
+		}
 	}
 }
