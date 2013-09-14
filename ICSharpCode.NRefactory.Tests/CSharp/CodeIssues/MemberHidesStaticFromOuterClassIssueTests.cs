@@ -1,5 +1,5 @@
 //
-// MemberHidesStaticFromOuterClass.cs
+// MemberHidesStaticFromOuterClassIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,44 +23,49 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using ICSharpCode.NRefactory.Refactoring;
+using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	/* Case:
+	[TestFixture]
+	public class MemberHidesStaticFromOuterClassIssueTests : InspectionActionTestBase
+	{
+		[Test]
+		public void TestSimpleCase()
+		{
+			TestIssue<MemberHidesStaticFromOuterClassIssue>(@"
+public class Foo
+{
+	public class Bar
+	{
+		public string Test { get; set; }
+	}
 
-    public static class Super
-    {
-        public static class Inner
-        {
-            public static string SomeValue { get; set; }
-        }
+	public static string Test { get; set; }
+}
+");
+		}
 
-        public static string SomeValue { get; set; }
-    }
 
-- no resolution
-	*/
-//	[IssueDescription (
-//		"Member hides static member from outer class",
-//		Description = "Member hides static member from outer class",
-//		Category = IssueCategories.CodeQualityIssues,
-//		Severity = Severity.Warning,
-//		AnalysisDisableKeyword = "MemberHidesStaticFromOuterClass")]
-//	public class MemberHidesStaticFromOuterClassIssue : GatherVisitorCodeIssueProvider
-//	{
-//		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
-//		{
-//			return new GatherVisitor(context);
-//		}
-//
-//		class GatherVisitor : GatherVisitorBase<MemberHidesStaticFromOuterClassIssue>
-//		{
-//			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
-//			{
-//			}
-//		}
-//	}
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<MemberHidesStaticFromOuterClassIssue>(@"
+public class Foo
+{
+	public class Bar
+	{
+		// ReSharper disable once MemberHidesStaticFromOuterClass
+		public string Test { get; set; }
+	}
+
+	public static string Test { get; set; }
+}
+");
+		}
+
+
+	}
 }
 

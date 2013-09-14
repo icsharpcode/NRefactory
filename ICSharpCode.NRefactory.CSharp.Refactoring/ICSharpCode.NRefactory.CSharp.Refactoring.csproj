@@ -401,9 +401,9 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\PossibleMultipleEnumerationIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedLabelIssue.cs" />
-    <Compile Include="CodeIssues\TODO\MemberHidesStaticFromOuterClassIssue.cs" />
     <Compile Include="CodeIssues\TODO\PossibleAssignmentToReadonlyFieldIssue.cs" />
     <Compile Include="CodeIssues\TODO\MethodOverloadWithOptionalParameterIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\MemberHidesStaticFromOuterClassIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
