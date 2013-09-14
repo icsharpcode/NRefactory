@@ -78,10 +78,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				         ctx.TranslateString("Remove delegate parameter list"),
 				         script => {
 
-					int start = script.GetCurrentOffset(anonymousMethodExpression.LParToken.StartLocation);
-					int end = script.GetCurrentOffset(anonymousMethodExpression.RParToken.EndLocation);
+					int start = script.GetCurrentOffset(anonymousMethodExpression.DelegateToken.EndLocation);
+					int end = script.GetCurrentOffset(anonymousMethodExpression.Body.StartLocation);
 
-					script.RemoveText(start, end - start);
+					script.Replace(start, end - start, " ");
 
 				});
 
