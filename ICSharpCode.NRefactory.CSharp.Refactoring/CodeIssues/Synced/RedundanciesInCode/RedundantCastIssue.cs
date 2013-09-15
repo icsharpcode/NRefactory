@@ -132,8 +132,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			void CheckTypeCast (Expression typeCastNode, Expression expr, TextLocation castStart, TextLocation castEnd)
 			{
 				var outerTypeCastNode = typeCastNode;
-				while (outerTypeCastNode.Parent != null && outerTypeCastNode.Parent is ParenthesizedExpression)
+				while (outerTypeCastNode.Parent is ParenthesizedExpression)
 					outerTypeCastNode = (Expression)outerTypeCastNode.Parent;
+
 				IMember accessingMember;
 				var expectedType = GetExpectedType (outerTypeCastNode, out accessingMember);
 				var exprType = ctx.Resolve (expr).Type;
@@ -142,6 +143,25 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var baseTypes = exprType.GetAllBaseTypes().ToList();
 				if (!baseTypes.Any(t => t.Equals(expectedType)))
 					return;
+
+				var cond = outerTypeCastNode.Parent as ConditionalExpression;
+				if (cond != null) {
+					if (outerTypeCastNode == cond.TrueExpression) {
+						var rr = ctx.Resolve(cond.FalseExpression).Type;
+						if (rr != exprType)
+							return;
+					}
+				}
+
+				var bop = outerTypeCastNode.Parent as BinaryOperatorExpression;
+				if (bop != null && bop.Operator == BinaryOperatorType.NullCoalescing) {
+					if (outerTypeCastNode == bop.Left) {
+						var rr = ctx.Resolve(bop.Right).Type;
+						if (rr != exprType)
+							return;
+					}
+				}
+
 
 				// check if the called member doesn't change it's virtual slot when changing types
 				if (accessingMember != null) {
