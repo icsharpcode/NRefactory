@@ -103,9 +103,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (returnConv.IsExplicit || !(returnConv.IsIdentityConversion || returnConv.IsReferenceConversion))
 					return;
 				var validTypes = TypeGuessing.GetValidTypes (ctx.Resolver, expression).ToList ();
-				if (validTypes.Any(t => t.FullName == "System.Func" && t.TypeParameterCount == 1 + parameters.Count) && validTypes.Any(t => t.FullName == "System.Action"))
-				if (rr != null && rr.Member.ReturnType.Kind != TypeKind.Void)
+
+				bool isValidReturnType = false;
+				foreach (var t in validTypes) {
+					if (t.Kind != TypeKind.Delegate)
+						continue;
+					var invokeMethod = t.GetDelegateInvokeMethod();
+					isValidReturnType = rr.Member.ReturnType == invokeMethod.ReturnType || rr.Member.ReturnType.GetAllBaseTypes().Contains(invokeMethod.ReturnType);
+					if (isValidReturnType)
+						break;
+				}
+				if (!isValidReturnType)
 					return;
+
 				AddIssue(expression,
 				         expression is AnonymousMethodExpression ? ctx.TranslateString("Anonymous method can be simplified to method group") : ctx.TranslateString("Lambda expression can be simplified to method group"), 
 				         ctx.TranslateString("Replace with method group"), script =>  {
