@@ -1,5 +1,5 @@
 //
-// RedundantEmptyDefaultSwitchBranchIssueTests.cs
+// RedundantDelegateCreationIssueTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -30,58 +30,76 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantEmptyDefaultSwitchBranchIssueTests : InspectionActionTestBase
+	public class RedundantDelegateCreationIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestDefaultRedundantCase ()
+		public void TestAdd ()
 		{
-			Test<RedundantEmptyDefaultSwitchBranchIssue>(@"
-class Test
+			Test<RedundantDelegateCreationIssue>(@"
+using System;
+
+public class FooBase
 {
-	void TestMethod (int i = 0)
+	public event EventHandler<EventArgs> Changed;
+
+	FooBase()
 	{
-		switch (i) {
-		case 0:
-			System.Console.WriteLine();
-			break;
-		default:
-			break;
-		}
+		Changed += new EventHandler<EventArgs>(HandleChanged);
+	}
+
+	void HandleChanged(object sender, EventArgs e)
+	{
 	}
 }", @"
-class Test
+using System;
+
+public class FooBase
 {
-	void TestMethod (int i = 0)
+	public event EventHandler<EventArgs> Changed;
+
+	FooBase()
 	{
-		switch (i) {
-		case 0:
-			System.Console.WriteLine();
-			break;
-		}
+		Changed += HandleChanged;
+	}
+
+	void HandleChanged(object sender, EventArgs e)
+	{
 	}
 }");
 		}
 
 		[Test]
-		public void TestMinimal ()
+		public void TestRemove ()
 		{
-			Test<RedundantEmptyDefaultSwitchBranchIssue>(@"
-class Test
+			Test<RedundantDelegateCreationIssue>(@"
+using System;
+
+public class FooBase
 {
-	void TestMethod (int i = 0)
+	public event EventHandler<EventArgs> Changed;
+
+	FooBase()
 	{
-		switch (i) {
-		default:
-			break;
-		}
+		Changed -= new EventHandler<EventArgs>(HandleChanged);
+	}
+
+	void HandleChanged(object sender, EventArgs e)
+	{
 	}
 }", @"
-class Test
+using System;
+
+public class FooBase
 {
-	void TestMethod (int i = 0)
+	public event EventHandler<EventArgs> Changed;
+
+	FooBase()
 	{
-		switch (i) {
-		}
+		Changed -= HandleChanged;
+	}
+
+	void HandleChanged(object sender, EventArgs e)
+	{
 	}
 }");
 		}
@@ -89,19 +107,21 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<RedundantEmptyDefaultSwitchBranchIssue>(@"
-class Test
+			TestWrongContext<RedundantDelegateCreationIssue>(@"
+using System;
+
+public class FooBase
 {
-	void TestMethod (int i = 0)
+	public event EventHandler<EventArgs> Changed;
+
+	FooBase()
 	{
-		switch (i) {
-		case 0:
-			System.Console.WriteLine();
-			break;
-		// ReSharper disable once RedundantEmptyDefaultSwitchBranch
-		default:
-			break;
-		}
+		// ReSharper disable once RedundantDelegateCreation
+		Changed += new EventHandler<EventArgs>(HandleChanged);
+	}
+
+	void HandleChanged(object sender, EventArgs e)
+	{
 	}
 }");
 		}

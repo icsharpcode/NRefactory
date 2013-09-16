@@ -584,6 +584,7 @@
     <Compile Include="CSharp\CodeIssues\MethodOverloadWithOptionalParameterIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReferenceEqualsWithValueTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CompareNonConstrainedGenericWithNullIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantDelegateCreationIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
