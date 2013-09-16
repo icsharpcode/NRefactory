@@ -407,6 +407,7 @@
     <Compile Include="CodeIssues\TODO\RedundantCastToObjectIssue.cs" />
     <Compile Include="CodeIssues\TODO\RedundantDelegateCreationIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ReferenceEqualsWithValueTypeIssue.cs" />
+    <Compile Include="CodeIssues\TODO\CompareNonConstrainedGenericWithNullIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
