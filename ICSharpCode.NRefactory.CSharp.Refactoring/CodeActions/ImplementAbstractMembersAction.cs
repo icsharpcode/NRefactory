@@ -36,6 +36,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
+			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
+			if (service == null)
+				yield break;
+
 			var type = context.GetNode<AstType>();
 			if (type == null || type.Role != Roles.BaseType)
 				yield break;

@@ -36,6 +36,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
+			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
+			if (service == null)
+				yield break;
+
 			var type = context.GetNode<AstType>();
 			if (type == null || type.Role != Roles.BaseType)
 				yield break;
@@ -43,7 +47,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var state = context.GetResolverStateBefore(type);
 			if (state.CurrentTypeDefinition == null)
 				yield break;
-			
+
 			var resolveResult = context.Resolve(type);
 			if (resolveResult.Type.Kind != TypeKind.Interface)
 				yield break;
@@ -63,12 +67,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		public static IEnumerable<AstNode> GenerateImplementation(RefactoringContext context, IEnumerable<Tuple<IMember, bool>> toImplement)
 		{
+			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
+			if (service == null)
+				yield break;
 			var nodes = new Dictionary<IType, List<AstNode>>();
 			
 			foreach (var member in toImplement) {
 				if (!nodes.ContainsKey(member.Item1.DeclaringType)) 
 					nodes [member.Item1.DeclaringType] = new List<AstNode>();
-				nodes [member.Item1.DeclaringType].Add(GenerateMemberImplementation(context, member.Item1, member.Item2));
+				nodes [member.Item1.DeclaringType].Add(service.GenerateMemberImplementation(context, member.Item1, member.Item2));
 			}
 			
 			foreach (var kv in nodes) {
@@ -88,31 +95,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				);
 			}
 		}
-		
-		static EntityDeclaration GenerateMemberImplementation(RefactoringContext context, IMember member, bool explicitImplementation)
-		{
-			var builder = context.CreateTypeSystemAstBuilder();
-			builder.GenerateBody = true;
-			builder.ShowModifiers = false;
-			builder.ShowAccessibility = true;
-			builder.ShowConstantValues = !explicitImplementation;
-			builder.ShowTypeParameterConstraints = !explicitImplementation;
-			builder.UseCustomEvents = explicitImplementation;
-			var decl = builder.ConvertEntity(member);
-			if (explicitImplementation) {
-				decl.Modifiers = Modifiers.None;
-				decl.AddChild(builder.ConvertType(member.DeclaringType), EntityDeclaration.PrivateImplementationTypeRole);
-			} else if (member.DeclaringType.Kind == TypeKind.Interface) {
-				decl.Modifiers |= Modifiers.Public;
-			} else {
-				// Remove 'internal' modifier from 'protected internal' members if the override is in a different assembly than the member
-				if (!member.ParentAssembly.InternalsVisibleTo(context.Compilation.MainAssembly)) {
-					decl.Modifiers &= ~Modifiers.Internal;
-				}
-			}
-			return decl;
-		}
-		
+
 		public static List<Tuple<IMember, bool>> CollectMembersToImplement(ITypeDefinition implementingType, IType interfaceType, bool explicitly)
 		{
 			//var def = interfaceType.GetDefinition();

@@ -65,6 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			this.FormattingOptions = FormattingOptionsFactory.CreateMono ();
 			UseExplict = false;
 			Services.AddService (typeof(NamingConventionService), new TestNameService ());
+			Services.AddService (typeof(CodeGenerationService), new DefaultCodeGenerationService ());
 		}
 		
 		class TestNameService : NamingConventionService

@@ -382,6 +382,7 @@
     <Compile Include="IndentEngine\IndentState.cs" />
     <Compile Include="IndentEngine\TextPasteIndentEngine.cs" />
     <Compile Include="IndentEngine\NullIStateMachineIndentEngine.cs" />
+    <Compile Include="Refactoring\CodeGenerationService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
