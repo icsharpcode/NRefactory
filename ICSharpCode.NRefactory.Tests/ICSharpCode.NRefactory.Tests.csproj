@@ -146,7 +146,6 @@
     <Compile Include="CSharp\CodeIssues\RedundantObjectCreationArgumentListIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantObjectOrCollectionInitializerIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCastIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\ReferenceEqualsCalledWithValueTypeIssueTest.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithSingleCallToCountIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithSingleCallToFirstIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithSingleCallToFirstOrDefaultIssueTests.cs" />
@@ -583,6 +582,7 @@
     <Compile Include="IndentationTests\GeneralTests.cs" />
     <Compile Include="CSharp\CodeIssues\MemberHidesStaticFromOuterClassIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MethodOverloadWithOptionalParameterIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReferenceEqualsWithValueTypeIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
