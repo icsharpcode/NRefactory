@@ -508,6 +508,26 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore]
+		[Test]
+		public void TestBrackets_AnonymousMethodAsParameterCase2()
+		{
+			var opt = FormattingOptionsFactory.CreateMono();
+			opt.AlignToFirstMethodCallArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{ 
+		Foo (a,
+			b,
+			delegate {
+				evlel();
+				$
+", opt);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
+
 		[Test]
 		public void TestBrackets_StackedIfElse_AlignElseToCorrectIf()
 		{
