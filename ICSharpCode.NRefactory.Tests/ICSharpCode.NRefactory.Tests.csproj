@@ -583,6 +583,7 @@
     <Compile Include="CSharp\CodeIssues\MemberHidesStaticFromOuterClassIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MethodOverloadWithOptionalParameterIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReferenceEqualsWithValueTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CompareNonConstrainedGenericWithNullIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
