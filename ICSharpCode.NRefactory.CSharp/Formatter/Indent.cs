@@ -98,12 +98,15 @@ namespace ICSharpCode.NRefactory.CSharp
 			Update();
 		}
 
-		public void PopIf(IndentType type)
+		public bool PopIf(IndentType type)
 		{
 			if (Count > 0 && Peek() == type)
 			{
 				Pop();
+				return true;
 			}
+
+			return false;
 		}
 
 		public void PopWhile(IndentType type)

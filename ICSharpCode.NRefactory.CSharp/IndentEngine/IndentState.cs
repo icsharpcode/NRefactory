@@ -1064,18 +1064,21 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
-			// OPTION: CSharpFormattingOptions.AlignToFirstMethodCallArgument
-			if (ch != Engine.newLineChar && !IsSomethingPushed)
+			if (ch == Engine.newLineChar)
 			{
-				NextLineIndent.Pop();
+				if (NextLineIndent.PopIf(IndentType.Continuation))
+				{
+					NextLineIndent.Push(IndentType.Block);
+				}
+			}
+			else if (!IsSomethingPushed)
+			{
+				// OPTION: CSharpFormattingOptions.AlignToFirstMethodCallArgument
 				if (Engine.formattingOptions.AlignToFirstMethodCallArgument)
 				{
+					NextLineIndent.PopTry();
 					// align the next line at the beginning of the open bracket
 					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
-				}
-				else
-				{
-					NextLineIndent.Push(IndentType.Continuation);
 				}
 			}
 
@@ -1087,7 +1090,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			NextLineIndent.Push(IndentType.Block);
+			NextLineIndent.Push(IndentType.Continuation);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
@@ -1147,18 +1150,21 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void Push(char ch)
 		{
-			// OPTION: CSharpFormattingOptions.AlignToFirstIndexerArgument
-			if (ch != Engine.newLineChar && !IsSomethingPushed)
+			if (ch == Engine.newLineChar)
 			{
-				NextLineIndent.Pop();
+				if (NextLineIndent.PopIf(IndentType.Continuation))
+				{
+					NextLineIndent.Push(IndentType.Block);
+				}
+			}
+			else if (!IsSomethingPushed)
+			{
+				// OPTION: CSharpFormattingOptions.AlignToFirstIndexerArgument
 				if (Engine.formattingOptions.AlignToFirstIndexerArgument)
 				{
+					NextLineIndent.PopTry();
 					// align the next line at the beginning of the open bracket
 					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
-				}
-				else
-				{
-					NextLineIndent.Push(IndentType.Continuation);
 				}
 			}
 
@@ -1170,7 +1176,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
 			NextLineIndent = ThisLineIndent.Clone();
-			NextLineIndent.Push(IndentType.Block);
+			NextLineIndent.Push(IndentType.Continuation);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
