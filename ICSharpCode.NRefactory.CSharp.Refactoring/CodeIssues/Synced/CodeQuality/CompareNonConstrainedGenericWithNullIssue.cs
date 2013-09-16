@@ -58,7 +58,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void CheckCase(IType type, BinaryOperatorExpression binaryOperatorExpression, Expression expr)
 			{
-				Console.WriteLine(type.IsReferenceType);
 				if (type.Kind != TypeKind.TypeParameter || type.IsReferenceType == true)
 					return;
 				AddIssue(
