@@ -122,5 +122,16 @@ class Foo {
 			Assert.AreEqual("\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestCommentBug()
+		{
+			var indent = Helper.CreateEngine(@"
+namespace FooBar
+{
+//
+// $");
+			Assert.AreEqual("", indent.ThisLineIndent);
+		}
 	}
 }

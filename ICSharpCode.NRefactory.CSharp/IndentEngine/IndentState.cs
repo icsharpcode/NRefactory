@@ -1691,6 +1691,9 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			if (ch == Engine.newLineChar)
 			{
+				// to handle cases like //\n/*
+				// Otherwise line 2 would be treated as line comment.
+				Engine.previousChar = '\0';
 				ExitState();
 			}
 			else if (ch == '/' && CheckForDocComment)
