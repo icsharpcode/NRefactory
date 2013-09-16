@@ -95,24 +95,6 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				"	}" + Environment.NewLine +
 				"}", result);
 		}
-		
-		[Test]
-		public void TestEnumerableOfT ()
-		{
-			TestWrongContext<ConvertForeachToForAction> (
-				"using System;" + Environment.NewLine +
-				"using System.Collections.Generic;" + Environment.NewLine +
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test (IEnumerable<string> args)" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		$foreach (var v in args) {" + Environment.NewLine +
-				"			Console.WriteLine (v);" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-		}
 
 		/// <summary>
 		/// Bug 9876 - Convert to for loop created invalid code if iteration variable is called i
