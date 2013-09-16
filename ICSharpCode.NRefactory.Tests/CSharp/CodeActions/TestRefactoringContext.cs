@@ -46,6 +46,13 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			set;
 		}
 
+		internal string defaultNamespace;
+		public override string DefaultNamespace {
+			get {
+				return defaultNamespace;
+			}
+		}
+
 		internal readonly IDocument doc;
 		readonly TextLocation location;
 		List<TestRefactoringContext> projectContexts;
@@ -58,6 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			this.FormattingOptions = FormattingOptionsFactory.CreateMono ();
 			UseExplict = false;
 			Services.AddService (typeof(NamingConventionService), new TestNameService ());
+			Services.AddService (typeof(CodeGenerationService), new DefaultCodeGenerationService ());
 		}
 		
 		class TestNameService : NamingConventionService
@@ -71,15 +79,17 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 
 		public override bool Supports(Version version)
 		{
-			return true;
+			return this.version == null || this.version.CompareTo(version) >= 0;
 		}
 		
 		public override TextLocation Location {
 			get { return location; }
 		}
+
+		public Version version;
 		
 		public CSharpFormattingOptions FormattingOptions { get; set; }
-		
+
 		public Script StartScript ()
 		{
 			return new TestScript (this);
@@ -102,7 +112,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				return new Task (() => {});
 			}
 			
-			public override Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, IEnumerable<AstNode> nodes)
+			public override Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, IList<AstNode> nodes)
 			{
 				EntityDeclaration entity = context.GetNode<EntityDeclaration>();
 				if (entity is Accessor) {
@@ -117,7 +127,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				return tcs.Task;
 			}
 
-			public override Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, IEnumerable<AstNode>> nodeCallback)
+			public override Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, IList<AstNode>> nodeCallback)
 			{
 				var unit = context.RootNode;
 				var insertType = unit.GetNodeAt<TypeDeclaration> (parentType.Region.Begin);
@@ -275,12 +285,12 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			}
 		}
 
-		public static TestRefactoringContext Create (string content, bool expectErrors = false)
+		public static TestRefactoringContext Create (string content, bool expectErrors = false, CSharpParser parser = null)
 		{
-			return Create(new List<string>() { content }, 0, expectErrors);
+			return Create(new List<string>() { content }, 0, expectErrors, parser);
 		}
 
-		public static TestRefactoringContext Create (List<string> contents, int mainIndex, bool expectErrors = false)
+		public static TestRefactoringContext Create (List<string> contents, int mainIndex, bool expectErrors = false, CSharpParser parser = null)
 		{
 			List<int> indexes = new List<int>();
 			List<int> selectionStarts = new List<int>();
@@ -309,7 +319,8 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				selectionStarts.Add(selectionStart);
 				selectionEnds.Add(selectionEnd);
 				var doc = new StringBuilderDocument(content);
-				var parser = new CSharpParser();
+				if (parser == null)
+					parser = new CSharpParser();
 				var unit = parser.Parse(content, "program_" + i + ".cs");
 				if (!expectErrors) {
 					if (parser.HasErrors) {
@@ -348,7 +359,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 				var context = new TestRefactoringContext(doc, location, resolver) {
 					selectionStart = selectionStarts[documentIndex],
 					selectionEnd = selectionEnds[documentIndex],
-					projectContexts = contexts
+					projectContexts = contexts,
+					version = parser.CompilerSettings.LanguageVersion,
+					defaultNamespace = "Test"
 				};
 
 				contexts.Add(context);

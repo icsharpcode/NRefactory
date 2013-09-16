@@ -307,6 +307,19 @@ namespace ICSharpCode.NRefactory.CSharp
 				lParToken = methodDeclaration.LParToken;
 				rParToken = methodDeclaration.RParToken;
 				arguments = methodDeclaration.Parameters.Cast<AstNode>().ToList();
+			}  else if (node is ConstructorInitializer) {
+				var constructorInitializer = node as ConstructorInitializer;
+				methodCallArgumentWrapping = policy.MethodDeclarationParameterWrapping;
+				newLineAferMethodCallOpenParentheses = policy.NewLineAferMethodDeclarationOpenParentheses;
+				methodClosingParenthesesOnNewLine = policy.MethodDeclarationClosingParenthesesOnNewLine;
+				doAlignToFirstArgument = policy.AlignToFirstMethodDeclarationParameter;
+				spaceWithinMethodCallParentheses = policy.SpaceWithinMethodDeclarationParentheses;
+				spaceAfterMethodCallParameterComma = policy.SpaceAfterMethodDeclarationParameterComma;
+				spaceBeforeMethodCallParameterComma = policy.SpaceBeforeMethodDeclarationParameterComma;
+				spaceWithinEmptyParentheses = policy.SpaceBetweenEmptyMethodDeclarationParentheses;
+				lParToken = constructorInitializer.LParToken;
+				rParToken = constructorInitializer.RParToken;
+				arguments = constructorInitializer.Arguments.Cast<AstNode>().ToList();
 			} else {
 				InvocationExpression invocationExpression = node as InvocationExpression;
 				methodCallArgumentWrapping = policy.MethodCallArgumentWrapping;
@@ -353,7 +366,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						}
 						curIndent.Pop();
 					} else {
-						int extraSpaces = arguments.First().StartLocation.Column - 1 - curIndent.IndentString.Length;
+						int extraSpaces = Math.Max(0, arguments.First().StartLocation.Column - 1 - curIndent.IndentString.Length);
 						curIndent.ExtraSpaces += extraSpaces;
 						foreach (var arg in arguments.Take (argumentStart)) {
 							arg.AcceptVisitor(this);
@@ -457,7 +470,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitIndexerExpression(IndexerExpression indexerExpression)
 		{
-			ForceSpacesBefore(indexerExpression.LBracketToken, policy.SpacesBeforeBrackets);
+			ForceSpacesBeforeRemoveNewLines(indexerExpression.LBracketToken, policy.SpacesBeforeBrackets);
 			ForceSpacesAfter(indexerExpression.LBracketToken, policy.SpacesWithinBrackets);
 
 			if (!indexerExpression.Target.IsNull)
@@ -496,37 +509,37 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void VisitSizeOfExpression(SizeOfExpression sizeOfExpression)
 		{
-			ForceSpacesBefore(sizeOfExpression.LParToken, policy.SpaceBeforeSizeOfParentheses);
+			ForceSpacesBeforeRemoveNewLines(sizeOfExpression.LParToken, policy.SpaceBeforeSizeOfParentheses);
 			ForceSpacesAfter(sizeOfExpression.LParToken, policy.SpacesWithinSizeOfParentheses);
-			ForceSpacesBefore(sizeOfExpression.RParToken, policy.SpacesWithinSizeOfParentheses);
+			ForceSpacesBeforeRemoveNewLines(sizeOfExpression.RParToken, policy.SpacesWithinSizeOfParentheses);
 			base.VisitSizeOfExpression(sizeOfExpression);
 		}
 
 		public override void VisitTypeOfExpression(TypeOfExpression typeOfExpression)
 		{
-			ForceSpacesBefore(typeOfExpression.LParToken, policy.SpaceBeforeTypeOfParentheses);
+			ForceSpacesBeforeRemoveNewLines(typeOfExpression.LParToken, policy.SpaceBeforeTypeOfParentheses);
 			ForceSpacesAfter(typeOfExpression.LParToken, policy.SpacesWithinTypeOfParentheses);
-			ForceSpacesBefore(typeOfExpression.RParToken, policy.SpacesWithinTypeOfParentheses);
+			ForceSpacesBeforeRemoveNewLines(typeOfExpression.RParToken, policy.SpacesWithinTypeOfParentheses);
 			base.VisitTypeOfExpression(typeOfExpression);
 		}
 
 		public override void VisitCheckedExpression(CheckedExpression checkedExpression)
 		{
 			ForceSpacesAfter(checkedExpression.LParToken, policy.SpacesWithinCheckedExpressionParantheses);
-			ForceSpacesBefore(checkedExpression.RParToken, policy.SpacesWithinCheckedExpressionParantheses);
+			ForceSpacesBeforeRemoveNewLines(checkedExpression.RParToken, policy.SpacesWithinCheckedExpressionParantheses);
 			base.VisitCheckedExpression(checkedExpression);
 		}
 
 		public override void VisitUncheckedExpression(UncheckedExpression uncheckedExpression)
 		{
 			ForceSpacesAfter(uncheckedExpression.LParToken, policy.SpacesWithinCheckedExpressionParantheses);
-			ForceSpacesBefore(uncheckedExpression.RParToken, policy.SpacesWithinCheckedExpressionParantheses);
+			ForceSpacesBeforeRemoveNewLines(uncheckedExpression.RParToken, policy.SpacesWithinCheckedExpressionParantheses);
 			base.VisitUncheckedExpression(uncheckedExpression);
 		}
 
 		public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
 		{
-			ForceSpacesBefore(objectCreateExpression.LParToken, policy.SpaceBeforeNewParentheses);
+			ForceSpacesBeforeRemoveNewLines(objectCreateExpression.LParToken, policy.SpaceBeforeNewParentheses);
 
 			if (objectCreateExpression.Arguments.Any()) {
 				if (!objectCreateExpression.LParToken.IsNull)
@@ -577,7 +590,6 @@ namespace ICSharpCode.NRefactory.CSharp
 				foreach (var child in arrayInitializerExpression.Children) {
 					if (child.Role == Roles.LBrace) {
 						if (lBrace.StartLocation.Line == rBrace.StartLocation.Line && policy.AllowOneLinedArrayInitialziers) {
-							ForceSpaceBefore(child, true);
 							ForceSpacesAfter(child, true);
 						} else {
 							FixOpenBrace(policy.ArrayInitializerBraceStyle, child);
@@ -627,7 +639,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
 		{
 			FormatArguments(lambdaExpression);
-			ForceSpacesBefore(lambdaExpression.ArrowToken, true);
+			ForceSpacesBeforeRemoveNewLines(lambdaExpression.ArrowToken, true);
 
 			if (!lambdaExpression.Body.IsNull) {
 				var body = lambdaExpression.Body as BlockStatement;
@@ -680,20 +692,16 @@ namespace ICSharpCode.NRefactory.CSharp
 				case UnaryOperatorType.Any:
 					break;
 				case UnaryOperatorType.Not:
-					break;
 				case UnaryOperatorType.BitNot:
-					break;
 				case UnaryOperatorType.Minus:
-					break;
 				case UnaryOperatorType.Plus:
-					break;
 				case UnaryOperatorType.Increment:
-					break;
 				case UnaryOperatorType.Decrement:
+					ForceSpacesBeforeRemoveNewLines(unaryOperatorExpression.Expression, false);
 					break;
 				case UnaryOperatorType.PostIncrement:
-					break;
 				case UnaryOperatorType.PostDecrement:
+					ForceSpacesBeforeRemoveNewLines(unaryOperatorExpression.OperatorToken, false);
 					break;
 				case UnaryOperatorType.Dereference:
 					ForceSpacesAfter(unaryOperatorExpression.OperatorToken, policy.SpaceAfterUnsafeAsteriskOfOperator);
@@ -702,6 +710,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					ForceSpacesAfter(unaryOperatorExpression.OperatorToken, policy.SpaceAfterUnsafeAddressOfOperator);
 					break;
 				case UnaryOperatorType.Await:
+					ForceSpacesBeforeRemoveNewLines(unaryOperatorExpression.Expression, true);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();

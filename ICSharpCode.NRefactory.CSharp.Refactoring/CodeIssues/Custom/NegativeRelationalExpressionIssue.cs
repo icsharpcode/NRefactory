@@ -33,8 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Simplify negative relational expression",
 					   Description = "Simplify negative relational expression",
                        Category = IssueCategories.PracticesAndImprovements,
-					   Severity = Severity.Suggestion,
-					   IssueMarker = IssueMarker.WavedLine)]
+					   Severity = Severity.Suggestion)]
 	public class NegativeRelationalExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

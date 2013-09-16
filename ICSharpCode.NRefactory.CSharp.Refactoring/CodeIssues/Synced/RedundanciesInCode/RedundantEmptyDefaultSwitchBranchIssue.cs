@@ -32,8 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Redundant empty 'default' switch branch",
 	                   Category = IssueCategories.RedundanciesInCode,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut,
-	                   ResharperDisableKeyword = "RedundantEmptyDefaultSwitchBranch")]
+	                   AnalysisDisableKeyword = "RedundantEmptyDefaultSwitchBranch")]
 	public class RedundantEmptyDefaultSwitchBranchIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -60,11 +59,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				AddIssue(
 					switchSection,
+					IssueMarker.GrayOut,
 					ctx.TranslateString("Redundant empty 'default' switch branch"),
 					ctx.TranslateString("Remove redundant 'default' branch"),
-					script => {
-						script.Remove (switchSection);
-					}
+					script => script.Remove(switchSection)
 				);
 			}
 		}

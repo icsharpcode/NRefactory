@@ -36,12 +36,11 @@ using ICSharpCode.NRefactory.CSharp.Analysis;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-//	[IssueDescription("'??' condition is known to be null or not null",
-//	                  Description = "Finds redundant null coalescing expressions such as expr ?? expr",
-//	                  Category = IssueCategories.RedundanciesInCode,
-//	                  Severity = Severity.Warning,
-//	                  IssueMarker = IssueMarker.GrayOut,
-//	                  ResharperDisableKeyword = "ConstantNullCoalescingCondition")]
+	[IssueDescription("'??' condition is known to be null or not null",
+	                  Description = "Finds redundant null coalescing expressions such as expr ?? expr",
+	                  Category = IssueCategories.RedundanciesInCode,
+	                  Severity = Severity.Warning,
+	                  AnalysisDisableKeyword = "ConstantNullCoalescingCondition")]
 	public class ConstantNullCoalescingConditionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -74,6 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (leftStatus == NullValueStatus.DefinitelyNotNull) {
 					AddIssue(binaryOperatorExpression.OperatorToken.StartLocation,
 					         binaryOperatorExpression.Right.EndLocation,
+					         IssueMarker.GrayOut,
 					         ctx.TranslateString("Redundant ??. Left side is never null."),
 					         ctx.TranslateString("Remove redundant right side"),
 					         script => {
@@ -118,6 +118,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				analysis = new NullValueAnalysis(ctx, parentFunction.GetChildByRole(Roles.Body), parentFunction.GetChildrenByRole(Roles.Parameter), ctx.CancellationToken);
+				analysis.IsParametersAreUninitialized = true;
+				analysis.Analyze();
 				cachedNullAnalysis [parentFunction] = analysis;
 				return analysis;
 			}

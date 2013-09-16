@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Replace with call to OfType<T>().Last()",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ReplaceWithOfType.Last")]
+	                  AnalysisDisableKeyword = "ReplaceWithOfType.Last")]
 	public class ReplaceWithOfTypeLastIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			string input = @"
 class TestClass
 {
-	void TestMethod() {
+	int TestMethod() {
 		string x = null;
 		return x.Length;
 	}
@@ -53,9 +53,23 @@ class TestClass
 			string input = @"
 class TestClass
 {
-	void TestMethod() {
+	int TestMethod() {
 		string x = """";
 		return x.Length;
+	}
+}";
+			TestWrongContext<UseOfMemberOfNullReference> (input);
+		}
+
+		[Test]
+		public void TestDisabledForHasValue ()
+		{
+			string input = @"
+class TestClass
+{
+	bool TestMethod() {
+		int? x = null;
+		return x.HasValue;
 	}
 }";
 			TestWrongContext<UseOfMemberOfNullReference> (input);
@@ -70,7 +84,7 @@ static class X {
 }
 class TestClass
 {
-	void TestMethod() {
+	object TestMethod() {
 		string x = null;
 		return x.Clone();
 	}
@@ -90,13 +104,12 @@ class TestClass
 {
 	void TestMethod() {
 		string x = """";
-		return x.Foo();
+		x.Foo();
 	}
 }";
 			TestWrongContext<UseOfMemberOfNullReference> (input);
 		}
 
-		[Ignore("fixme")]
 		[Test]
 		public void TestAs ()
 		{
@@ -181,46 +194,74 @@ class TestClass
 			Test<UseOfMemberOfNullReference> (input, 1);
 		}
 
-		[Ignore("fixme")]
 		[Test]
 		public void TestNullExpression ()
 		{
 			string input = @"
 class TestClass
 {
-	void TestMethod() {
-		return (null).Length;
+	int TestMethod() {
+		return default(string).Length;
 	}
 }";
 			Test<UseOfMemberOfNullReference> (input, 1);
 		}
 
-		[Ignore("fixme")]
 		[Test]
 		public void TestNullExpressionCase2 ()
 		{
 			string input = @"
 class TestClass
 {
-	void TestMethod() {
-		return (null ?? null).Length;
+	int TestMethod() {
+		return (default(string) ?? default(string)).Length;
 	}
 }";
 			Test<UseOfMemberOfNullReference> (input, 1);
 		}
 
-		[Ignore("fixme")]
 		[Test]
 		public void TestNullExpressionCase3 ()
 		{
 			string input = @"
 class TestClass
 {
-	void TestMethod() {
-		return (1 == 1 ? null : "").Length;
+	int TestMethod() {
+		return (1 == 1 ? default(string) : """").Length;
 	}
 }";
 			Test<UseOfMemberOfNullReference> (input, 1);
+		}
+
+
+		
+		[Test]
+		public void TestParameter ()
+		{
+			TestWrongContext<UseOfMemberOfNullReference> (@"
+class TestClass
+{
+	void TestMethod(TestClass test) 
+	{
+		test.TestMethod(this);
+	}
+}");
+		}
+
+		[Test]
+		public void TestDoWhile()
+		{
+			TestWrongContext<UseOfMemberOfNullReference> (@"
+public class TestClass {
+	static string GetElement ()
+	{
+		string x = """";
+		do {
+			break;
+		} while ((x = null) == null);
+		x.ToString();
+	}
+}");
 		}
 
 	}

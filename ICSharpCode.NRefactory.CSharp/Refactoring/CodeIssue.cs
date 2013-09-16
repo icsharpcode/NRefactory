@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -66,9 +67,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			private set;
 		}
 
+		public IssueMarker IssueMarker {
+			get;
+			private set;
+		}
+
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
+		/// <param name = "marker">The issue marker used to mark this issue.</param>
 		/// <param name='description'>
 		/// The desription of the issue.
 		/// </param>
@@ -81,8 +89,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name='actions'>
 		/// A list of potential solutions for the issue.
 		/// </param>
-		public CodeIssue(string description, TextLocation start, TextLocation end, IEnumerable<CodeAction> actions = null)
+		public CodeIssue(IssueMarker marker, string description, TextLocation start, TextLocation end, IEnumerable<CodeAction> actions = null)
 		{
+			IssueMarker = marker;
 			Description = description;
 			Start = start;
 			End = end;
@@ -95,6 +104,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
+		/// <param name = "marker">The issue marker used to mark this issue.</param>
 		/// <param name='description'>
 		/// The desription of the issue.
 		/// </param>
@@ -107,7 +117,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name='action'>
 		/// A potential solution for the issue.
 		/// </param>
-		public CodeIssue(string description, TextLocation start, TextLocation end, CodeAction action) : this (description, start, end, action != null ? new [] { action } : null)
+		public CodeIssue(IssueMarker marker, string description, TextLocation start, TextLocation end, CodeAction action) : this (marker, description, start, end, action != null ? new [] { action } : null)
 		{
 		}
 	}

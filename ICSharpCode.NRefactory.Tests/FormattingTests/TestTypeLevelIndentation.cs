@@ -900,5 +900,126 @@ set { test = value; } }
 }");
 		}
 
+		[Test]
+		public void TestConstructorInitializer()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			Test(policy, @"
+class Foo
+{
+	public Foo ():         base         (0)
+	{
+	}
+}
+", @"
+class Foo
+{
+	public Foo () : base (0)
+	{
+	}
+}
+");
+		}
+		[Test]
+		public void TestConstructorInitializerCase2()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			Test(policy, @"
+class Foo
+{
+public Foo ()         :
+base         (0)
+{
+}
+}
+", @"
+class Foo
+{
+	public Foo () :
+		base (0)
+	{
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestIndentPreprocessorStatementsAdd()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+			policy.IndentPreprocessorDirectives = true;
+			
+			Test(policy,
+			     @"class Test
+{
+#region DEBUG
+#endregion
+}", @"class Test
+{
+
+	#region DEBUG
+
+	#endregion
+
+}");
+		}
+	
+		[Test]
+		public void TestIndentPreprocessorStatementsRemove()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+			policy.IndentPreprocessorDirectives = false;
+			
+			Test(policy,
+			     @"class Test
+{
+
+	#region DEBUG
+
+	#endregion
+
+}", @"class Test
+{
+
+#region DEBUG
+
+#endregion
+
+}");
+		}
+
+
+		[Test]
+		public void TestCollectionFieldInitializer ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+
+			Test(policy, 
+@"using System.Collections.Generic;
+
+class Foo
+{
+new Dictionary<int,int> o = new Dictionary<int,int> () { 
+		{1, 2 },
+	{1, 2 },
+				{1, 2 },
+		{1, 2 }
+				}; 
+}
+", 
+@"using System.Collections.Generic;
+
+class Foo
+{
+	new Dictionary<int,int> o = new Dictionary<int,int> () { 
+		{ 1, 2 },
+		{ 1, 2 },
+		{ 1, 2 },
+		{ 1, 2 }
+	};
+}
+");
+		}
+
 	}
 }

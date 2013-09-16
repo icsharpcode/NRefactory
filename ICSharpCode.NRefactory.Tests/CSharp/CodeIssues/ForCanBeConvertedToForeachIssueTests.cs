@@ -113,6 +113,23 @@ class Test
 	{
 		for (int i = 0; i < o.Length; i++) {
 			var p = o [i];
+			System.Console.WriteLine (p);
+			System.Console.WriteLine (i);
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestInvalidCase3 ()
+		{
+			TestWrongContext<ForCanBeConvertedToForeachIssue>(@"
+class Test
+{
+	void Foo (object[] o)
+	{
+		for (int i = 0; i < o.Length; i++) {
+			var p = o [i];
 			p = o[0];
 			System.Console.WriteLine (p);
 		}

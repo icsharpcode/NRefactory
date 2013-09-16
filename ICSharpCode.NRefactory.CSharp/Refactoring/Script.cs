@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		readonly CSharpFormattingOptions formattingOptions;
 		readonly TextEditorOptions options;
-		Dictionary<AstNode, ISegment> segmentsForInsertedNodes = new Dictionary<AstNode, ISegment>();
+		readonly Dictionary<AstNode, ISegment> segmentsForInsertedNodes = new Dictionary<AstNode, ISegment>();
 		
 		protected Script(CSharpFormattingOptions formattingOptions, TextEditorOptions options)
 		{
@@ -377,9 +377,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		public abstract void FormatText (IEnumerable<AstNode> nodes);
 
-		public void FormatText (params AstNode[] node)
+		public void FormatText (params AstNode[] nodes)
 		{
-			FormatText ((IEnumerable<AstNode>)node);
+			FormatText ((IEnumerable<AstNode>)nodes);
 		}
 
 		public virtual void Select (AstNode node)
@@ -409,24 +409,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			End
 		}
 		
-		public virtual Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, IEnumerable<AstNode> node)
+		public virtual Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, IList<AstNode> nodes)
 		{
 			throw new NotImplementedException();
 		}
 		
-		public virtual Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, IEnumerable<AstNode>> nodeCallback)
+		public virtual Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, IList<AstNode>> nodeCallback)
 		{
 			throw new NotImplementedException();
 		}
 		
 		public Task<Script> InsertWithCursor(string operation, InsertPosition defaultPosition, params AstNode[] nodes)
 		{
-			return InsertWithCursor(operation, defaultPosition, (IEnumerable<AstNode>)nodes);
+			return InsertWithCursor(operation, defaultPosition, (IList<AstNode>)nodes);
 		}
 
 		public Task<Script> InsertWithCursor(string operation, ITypeDefinition parentType, Func<Script, RefactoringContext, AstNode> nodeCallback)
 		{
-			return InsertWithCursor(operation, parentType, (Func<Script, RefactoringContext, IEnumerable<AstNode>>)delegate (Script s, RefactoringContext ctx) {
+			return InsertWithCursor(operation, parentType, (Func<Script, RefactoringContext, IList<AstNode>>)delegate (Script s, RefactoringContext ctx) {
 				return new AstNode[] { nodeCallback(s, ctx) };
 			});
 		}
@@ -439,7 +439,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		sealed class SegmentTrackingOutputFormatter : TextWriterOutputFormatter
 		{
 			internal List<KeyValuePair<AstNode, Segment>> NewSegments = new List<KeyValuePair<AstNode, Segment>>();
-			Stack<int> startOffsets = new Stack<int>();
+			readonly Stack<int> startOffsets = new Stack<int>();
 			readonly StringWriter stringWriter;
 			
 			public SegmentTrackingOutputFormatter (StringWriter stringWriter)
@@ -481,7 +481,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		protected class NodeOutput
 		{
 			string text;
-			List<KeyValuePair<AstNode, Segment>> newSegments;
+			readonly List<KeyValuePair<AstNode, Segment>> newSegments;
 			int trimmedLength;
 			
 			internal NodeOutput(string text, List<KeyValuePair<AstNode, Segment>> newSegments)
@@ -531,7 +531,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 		}
 		
-		public virtual void DoGlobalOperationOn(IEnumerable<IEntity> entity, Action<RefactoringContext, Script, IEnumerable<AstNode>> callback, string operationDescripton = null)
+		public virtual void DoGlobalOperationOn(IEnumerable<IEntity> entities, Action<RefactoringContext, Script, IEnumerable<AstNode>> callback, string operationDescription = null)
 		{
 		}
 

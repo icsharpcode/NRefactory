@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Convert local variable or field to constant",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ConvertToConstant.Local")]
+	                  AnalysisDisableKeyword = "ConvertToConstant.Local")]
 	public class ConvertToConstantIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

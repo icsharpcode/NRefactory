@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Unsafe modifier in redundant in unsafe context or when no unsafe constructs are used.",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.GrayOut,
-		ResharperDisableKeyword = "RedundantUnsafeContext")]
+		AnalysisDisableKeyword = "RedundantUnsafeContext")]
 	public class RedundantUnsafeContextIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -87,6 +86,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (unsafeIsRedundant) {
 					AddIssue(
 						typeDeclaration.ModifierTokens.First (t => t.Modifier == Modifiers.Unsafe),
+						IssueMarker.GrayOut,
 						ctx.TranslateString("'unsafe' modifier is redundant."), 
 						ctx.TranslateString("Remove redundant 'unsafe' modifier"), 
 						script => {

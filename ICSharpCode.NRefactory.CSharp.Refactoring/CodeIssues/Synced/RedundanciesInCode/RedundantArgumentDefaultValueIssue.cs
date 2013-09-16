@@ -37,8 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "The parameter is optional with the same default value",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.GrayOut,
-		ResharperDisableKeyword = "RedundantArgumentDefaultValue")]
+		AnalysisDisableKeyword = "RedundantArgumentDefaultValue")]
 	public class RedundantArgumentDefaultValueIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -110,6 +109,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var _i = j;
 						AddIssue(
 							arguments[j],
+							IssueMarker.GrayOut,
 							i + 1 < arguments.Count ? ctx.TranslateString("Argument values are redundant") : ctx.TranslateString("Argument value is redundant"),
 							i + 1 < arguments.Count ? ctx.TranslateString("Remove redundant arguments") : ctx.TranslateString("Remove redundant argument"),
 							script => {

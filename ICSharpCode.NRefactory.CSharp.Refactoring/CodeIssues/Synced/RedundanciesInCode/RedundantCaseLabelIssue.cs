@@ -34,8 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "'case' label is redundant.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.GrayOut,
-                        ResharperDisableKeyword = "RedundantCaseLabel")]
+                        AnalysisDisableKeyword = "RedundantCaseLabel")]
 	public class RedundantCaseLabelIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -65,6 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 					AddIssue(
 						caseLabel,
+						IssueMarker.GrayOut,
 						ctx.TranslateString("Redundant case label"),
 						string.Format(ctx.TranslateString("Remove 'case {0}'"), caseLabel.Expression),
 						scipt => {

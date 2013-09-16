@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Finds calls to Object.GetHashCode inside overridden GetHashCode.",
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
-                       ResharperDisableKeyword = "BaseObjectGetHashCodeCallInGetHashCode")]
+                       AnalysisDisableKeyword = "BaseObjectGetHashCodeCallInGetHashCode")]
 	public class IncorrectCallToObjectGetHashCodeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

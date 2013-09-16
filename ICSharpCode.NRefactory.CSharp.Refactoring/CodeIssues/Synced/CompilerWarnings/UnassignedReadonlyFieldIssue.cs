@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.CompilerWarnings,
 	                  Severity = Severity.Warning,
 	                  PragmaWarning = 649,
-	                  ResharperDisableKeyword = "UnassignedReadonlyField.Compiler")]
+	                  AnalysisDisableKeyword = "UnassignedReadonlyField.Compiler")]
 	public class UnassignedReadonlyFieldIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

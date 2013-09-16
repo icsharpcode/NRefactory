@@ -117,7 +117,20 @@ class TestClass
 }");
 		}
 
-		[Ignore]
+		[Test]
+		public void TestSmartUsageInParam()
+		{
+			TestWrongContext<ConstantNullCoalescingConditionIssue>(@"
+class TestClass
+{
+	void Foo(object o)
+	{
+		object p = o ?? """";
+	}
+}");
+		}
+
+		[Ignore("enable again")]
 		[Test]
 		public void TestDisable()
 		{

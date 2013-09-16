@@ -34,8 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction (
 		"Convert 'if' to 'switch'", 
-		Description = "Convert 'if' statement to 'switch' statement",
-		BoundToIssue = typeof (ConvertIfStatementToSwitchStatementIssue))]
+		Description = "Convert 'if' statement to 'switch' statement")]
 	public class ConvertIfStatementToSwitchStatementAction : SpecializedCodeAction<IfElseStatement>
 	{
 		protected override CodeAction GetAction (RefactoringContext context, IfElseStatement node)
@@ -126,6 +125,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			CollectSwitchSectionStatements (section.Statements, context, ifStatement.TrueStatement);
 			result.Add (section);
 
+			if (ifStatement.TrueStatement.Descendants.Any(n => n is BreakStatement))
+				return false;
+
 			if (ifStatement.FalseStatement.IsNull)
 				return true;
 
@@ -134,6 +136,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (falseStatement != null)
 				return CollectSwitchSections (result, context, falseStatement, switchExpr);
 
+			if (ifStatement.FalseStatement.Descendants.Any(n => n is BreakStatement))
+				return false;
 			// else (default label)
 			var defaultSection = new SwitchSection ();
 			defaultSection.CaseLabels.Add (new CaseLabel ());

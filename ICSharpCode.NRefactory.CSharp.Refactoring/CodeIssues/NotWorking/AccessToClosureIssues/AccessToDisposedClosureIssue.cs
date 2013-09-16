@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
     //                   Category = IssueCategories.CodeQualityIssues,
     //                   Severity = Severity.Warning,
     //                   IssueMarker = IssueMarker.Underline,
-    //                   ResharperDisableKeyword = "AccessToDisposedClosure")]
+	//                   AnalysisDisableKeyword = "AccessToDisposedClosure")]
 	public class AccessToDisposedClosureIssue : AccessToClosureIssue
 	{
 		public AccessToDisposedClosureIssue ()

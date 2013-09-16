@@ -450,6 +450,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				else
 					return new DefaultValueExpression(ConvertType(type));
 			} else if (type.Kind == TypeKind.Enum) {
+				// TODO: Improve flags parameter Foo.A | Foo.B etc.
+				foreach (var member in type.GetFields(m => m.IsPublic && m.IsConst)) {
+					if (Equals (member.ConstantValue, constantValue)) {
+						return new MemberReferenceExpression(ConvertType(type), member.Name);
+					}
+				}
 				return new CastExpression(ConvertType(type), ConvertConstantValue(type.GetDefinition().EnumUnderlyingType, constantValue));
 			} else {
 				return new PrimitiveExpression(constantValue);

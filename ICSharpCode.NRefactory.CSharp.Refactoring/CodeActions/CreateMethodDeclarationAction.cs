@@ -216,10 +216,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					script
 						.InsertWithCursor(context.TranslateString("Create method"), targetResolveResult.Type.GetDefinition(), (s, c) => {
-							throwStatement.Expression = new ObjectCreateExpression(c.CreateShortType("System", "NotImplementedException"));
-							return decl;
-						})
-						.ContinueScript (s => s.Select(throwStatement));
+						throwStatement.Expression = new ObjectCreateExpression(c.CreateShortType("System", "NotImplementedException"));
+						return decl;
+					})
+						.ContinueScript(s => s.Select(throwStatement));
 					return;
 				} else {
 					throwStatement.Expression = new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException"));
@@ -227,8 +227,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				script
 					.InsertWithCursor(context.TranslateString("Create method"), Script.InsertPosition.Before, decl)
-					.ContinueScript (() => script.Select(throwStatement));
-			}, createFromNode.GetNodeAt(context.Location));
+					.ContinueScript(() => script.Select(throwStatement));
+			}, createFromNode.GetNodeAt(context.Location) ?? createFromNode);
 		}
 
 		public static IEnumerable<ParameterDeclaration> GenerateParameters(RefactoringContext context, IEnumerable<Expression> arguments)

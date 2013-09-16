@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Replace with call to OfType<T>().Any()",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ReplaceWithOfType.Any")]
+	                  AnalysisDisableKeyword = "ReplaceWithOfType.Any")]
 	public class ReplaceWithOfTypeAnyIssue : GatherVisitorCodeIssueProvider
 	{
 		static readonly AstNode selectPattern =

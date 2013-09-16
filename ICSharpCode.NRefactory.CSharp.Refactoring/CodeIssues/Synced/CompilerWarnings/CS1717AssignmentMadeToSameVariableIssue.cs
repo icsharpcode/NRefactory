@@ -38,9 +38,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "CS1717:Assignment made to same variable.",
 					   Category = IssueCategories.CompilerWarnings,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.GrayOut,
                        PragmaWarning = 1717,
-                       ResharperDisableKeyword = "CSharpWarnings::CS1717")]
+                       AnalysisDisableKeyword = "CSharpWarnings::CS1717")]
     public class CS1717AssignmentMadeToSameVariableIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -87,7 +86,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					node = assignmentExpression;
 					action = script => script.Replace (assignmentExpression, assignmentExpression.Left.Clone ());
 				}
-				AddIssue (node, ctx.TranslateString ("CS1717:Assignment made to same variable"),
+				AddIssue (node, IssueMarker.GrayOut, ctx.TranslateString ("CS1717:Assignment made to same variable"),
 					new [] { new CodeAction (ctx.TranslateString ("Remove assignment"), action, node) });
 			}
 

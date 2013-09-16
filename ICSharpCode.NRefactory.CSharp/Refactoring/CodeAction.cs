@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -79,6 +80,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public object SiblingKey {
 			get;
 			private set;
+		}
+
+		Severity severity = Severity.Suggestion;
+
+		/// <summary>
+		/// Gets or sets the severity of the code action. 
+		/// Actions are sorted according to their Severity.
+		/// </summary>
+		/// <value>The severity.</value>
+		public Severity Severity {
+			get {
+				return severity;
+			}
+			set {
+				severity = value;
+			}
 		}
 
 		const string defaultSiblingKey = "default";

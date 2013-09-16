@@ -42,11 +42,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		static readonly AstNode whereSimpleCase =
 			new InvocationExpression(
 				new MemberReferenceExpression(new AnyNode("target"), "Where"),
-				new LambdaExpression {
-				Parameters = { PatternHelper.NamedParameter("param1", PatternHelper.AnyType("paramType", true), Pattern.AnyString) },
-				Body = PatternHelper.OptionalParentheses(new IsExpression(PatternHelper.OptionalParentheses(new AnyNode("expr1")), new AnyNode("type")))
-			}
-		);
+				new NamedNode("lambda", 
+					new LambdaExpression {
+						Parameters = { PatternHelper.NamedParameter("param1", PatternHelper.AnyType("paramType", true), Pattern.AnyString) },
+						Body = PatternHelper.OptionalParentheses(
+								new IsExpression(PatternHelper.OptionalParentheses(new NamedNode("expr1", new IdentifierExpression(Pattern.AnyString))), new AnyNode("type"))
+						)
+					}
+				)
+			);
 
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
@@ -76,6 +80,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				// Warning: The simple case is not 100% equal in semantic, but it's one common code smell
 				match = whereSimpleCase.Match (anyInvoke); 
 				if (!match.Success)
+					return;
+				var lambda = match.Get<LambdaExpression>("lambda").Single();
+				var expr = match.Get<IdentifierExpression>("expr1").Single();
+				if (lambda.Parameters.Count != 1)
+					return;
+				if (expr.Identifier != lambda.Parameters.Single().Name)
 					return;
 				AddIssue (
 					anyInvoke,

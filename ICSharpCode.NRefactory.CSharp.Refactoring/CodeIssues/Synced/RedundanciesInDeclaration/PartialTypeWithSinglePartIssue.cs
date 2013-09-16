@@ -33,12 +33,12 @@ using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
+
 	[IssueDescription ("Redundant 'partial' modifier in type declaration",
 	                   Description = "Class is declared partial but has only one part",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut,
-	                   ResharperDisableKeyword = "PartialTypeWithSinglePart")]
+	                   AnalysisDisableKeyword = "PartialTypeWithSinglePart")]
 	public class PartialTypeWithSinglePartIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -76,6 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						child.AcceptVisitor(this);
 					}
 					AddIssue(partialModifierToken,
+					         IssueMarker.GrayOut,
 					         ctx.TranslateString("Partial class with single part"),
 					         GetFixAction(typeDeclaration, partialModifierToken));
 				}

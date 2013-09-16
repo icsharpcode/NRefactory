@@ -26,7 +26,6 @@
 using System;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
-using System.Threading;
 using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
@@ -37,8 +36,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Convert 'foreach' loop to 'for'", Description = "Works on 'foreach' loops that allow direct access to its elements.")]
 	public class ConvertForeachToForAction : CodeActionProvider
 	{
-		static string[] VariableNames = new string[] { "i", "j", "k", "l", "n", "m", "x", "y", "z"};
-		static string[] CollectionNames = new string[] { "list" };
+		static readonly string[] VariableNames = { "i", "j", "k", "l", "n", "m", "x", "y", "z"};
+		static readonly string[] CollectionNames = { "list" };
 
 		static string GetName(ICSharpCode.NRefactory.CSharp.Resolver.CSharpResolver state, string[] variableNames)
 		{
@@ -55,8 +54,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		string GetBoundName(Expression inExpression)
 		{
-			if (inExpression is IdentifierExpression)
-				return ((IdentifierExpression)inExpression).Identifier;
+			var ie = inExpression as IdentifierExpression;
+			if (ie != null)
+				return ie.Identifier;
 			var mre = inExpression as MemberReferenceExpression;
 			if (mre != null)
 				return GetBoundName(mre.Target) + mre.MemberName;
@@ -65,11 +65,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
-			var foreachStatement = GetForeachStatement(context);
-			if (foreachStatement == null) {
+			bool hasIndexAccess;
+			var foreachStatement = GetForeachStatement(context, out hasIndexAccess);
+			if (foreachStatement == null)
 				yield break;
-			}
-
 			var state = context.GetResolverStateBefore (foreachStatement.EmbeddedStatement);
 			string name = GetName(state, VariableNames);
 			if (name == null) // very unlikely, but just in case ...
@@ -78,13 +77,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			yield return new CodeAction(context.TranslateString("Convert 'foreach' loop to 'for'"), script => {
 				var result = context.Resolve(foreachStatement.InExpression);
 				var countProperty = GetCountProperty(result.Type);
+				var inExpression = foreachStatement.InExpression;
 
-				// TODO: use another variable name if 'i' is already in use
-				var initializer = new VariableDeclarationStatement(new PrimitiveType("int"), name, new PrimitiveExpression(0));
+				var initializer = hasIndexAccess ? new VariableDeclarationStatement(new PrimitiveType("int"), name, new PrimitiveExpression(0)) :
+				                  new VariableDeclarationStatement(new SimpleType("var"), name, new InvocationExpression(new MemberReferenceExpression (inExpression.Clone (), "GetEnumerator")));
 				var id1 = new IdentifierExpression(name);
 				var id2 = id1.Clone();
 				var id3 = id1.Clone();
-				var inExpression = foreachStatement.InExpression;
 				Statement declarationStatement = null;
 				if (inExpression is ObjectCreateExpression || inExpression is ArrayCreateExpression) {
 					string listName = GetName(state, CollectionNames) ?? "col";
@@ -99,17 +98,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var variableDeclarationStatement = new VariableDeclarationStatement(
 					foreachStatement.VariableType.Clone(),
 					foreachStatement.VariableName,
-					new IndexerExpression(inExpression.Clone(), id3)
-					);
-				var forStatement = new ForStatement() {
+					hasIndexAccess ? (Expression)new IndexerExpression(inExpression.Clone(), id3) : new MemberReferenceExpression(id1, "Current")
+				);
+
+				var forStatement = new ForStatement {
 					Initializers = { initializer },
-					Condition = new BinaryOperatorExpression (id1, BinaryOperatorType.LessThan, new MemberReferenceExpression (inExpression.Clone (), countProperty)),
-					Iterators = { new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, id2) },
+					Condition = hasIndexAccess ? (Expression)new BinaryOperatorExpression (id1, BinaryOperatorType.LessThan, new MemberReferenceExpression (inExpression.Clone (), countProperty)) :
+					            new InvocationExpression(new MemberReferenceExpression (id2, "MoveNext")),
 					EmbeddedStatement = new BlockStatement {
 						variableDeclarationStatement
 					}
 				};
-				
+
+				if (hasIndexAccess)
+					forStatement.Iterators.Add(new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, id2));
+
 				if (foreachStatement.EmbeddedStatement is BlockStatement) {
 					variableDeclarationStatement.Remove();
 					var oldBlock = (BlockStatement)foreachStatement.EmbeddedStatement.Clone();
@@ -125,14 +128,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (declarationStatement != null)
 					script.InsertBefore (foreachStatement, declarationStatement);
 				script.Replace (foreachStatement, forStatement);
-				script.Link (initializer.Variables.First ().NameToken, id1, id2, id3);
+				if (hasIndexAccess) {
+					script.Link (initializer.Variables.First ().NameToken, id1, id2, id3);
+				} else {
+					script.Link (initializer.Variables.First ().NameToken, id1, id2);
+				}
 			}, foreachStatement);
 
+			if (!hasIndexAccess)
+				yield break;
 			yield return new CodeAction(context.TranslateString("Convert 'foreach' loop to optimized 'for'"), script => {
 				var result = context.Resolve(foreachStatement.InExpression);
 				var countProperty = GetCountProperty(result.Type);
 
-				// TODO: use another variable name if 'i' is already in use
 				var initializer = new VariableDeclarationStatement(new PrimitiveType("int"), name, new PrimitiveExpression(0));
 				var id1 = new IdentifierExpression(name);
 				var id2 = id1.Clone();
@@ -187,23 +195,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		static string GetCountProperty(IType type)
 		{
-			if (type.Kind == TypeKind.Array) {
-				return "Length";
-			}
-			return "Count";
+			return type.Kind == TypeKind.Array ? "Length" : "Count";
 		}
 
-		static ForeachStatement GetForeachStatement (RefactoringContext context)
+		static ForeachStatement GetForeachStatement (RefactoringContext context, out bool hasIndexAccess)
 		{
 			var astNode = context.GetNode ();
-			if (astNode == null)
+			if (astNode == null) {
+				hasIndexAccess = false;
 				return null;
+			}
 			var result = (astNode as ForeachStatement) ?? astNode.Parent as ForeachStatement;
-			if (result == null)
+			if (result == null) {
+				hasIndexAccess = false;
 				return null;
+			}
 			var collection = context.Resolve (result.InExpression);
-			if (collection.Type.Kind != TypeKind.Array && !collection.Type.GetProperties(p => p.IsIndexer).Any())
-				return null;
+			hasIndexAccess = collection.Type.Kind == TypeKind.Array || collection.Type.GetProperties(p => p.IsIndexer).Any();
 			return result;
 		}
 	}

@@ -32,12 +32,15 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Use 'var' keyword",
-	               Description = "Converts local variable declaration to be implicit typed.",
-	               BoundToIssue = typeof (ICSharpCode.NRefactory.CSharp.Refactoring.SuggestUseVarKeywordEvidentIssue))]
+	               Description = "Converts local variable declaration to be implicit typed.")]
 	public class UseVarKeywordAction : CodeActionProvider
 	{
+		internal static readonly Version minimumVersion = new Version (3, 0, 0);
+
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
+			if (!context.Supports(minimumVersion))
+				yield break;
 			var varDecl = GetVariableDeclarationStatement(context);
 			var foreachStmt = GetForeachStatement(context);
 			if (varDecl == null && foreachStmt == null) {

@@ -41,8 +41,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Removes namespace usages that are obsolete.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
-                      ResharperDisableKeyword = "RedundantNameQualifier")]
+                      AnalysisDisableKeyword = "RedundantNameQualifier")]
 	public class RedundantNameQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -95,6 +94,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					AddIssue(
 						wholeNode.StartLocation, 
 						memberName.StartLocation, 
+						IssueMarker.GrayOut,
 						ctx.TranslateString("Qualifier is redundant"), 
 						ctx.TranslateString("Remove redundant qualifier"), 
 						action);

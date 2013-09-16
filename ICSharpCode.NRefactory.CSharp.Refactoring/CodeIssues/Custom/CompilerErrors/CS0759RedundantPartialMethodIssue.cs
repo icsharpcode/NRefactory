@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("CS0759: A partial method implementation is missing a partial method declaration",
 	                   Description = "A partial method must have a defining declaration that defines the signature (name, return type and parameters) of the method. The implementation or method body is optional.",
 	                   Category = IssueCategories.CompilerErrors,
-	                   Severity = Severity.Error,
-	                   IssueMarker = IssueMarker.WavedLine)]
+	                   Severity = Severity.Error)]
 	public class CS0759RedundantPartialMethodIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

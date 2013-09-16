@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Suggests using the class declaring a static function when calling it.",
 	                   Category = IssueCategories.PracticesAndImprovements,
 	                   Severity = Severity.Warning,
-                       ResharperDisableKeyword = "AccessToStaticMemberViaDerivedType")]
+                       AnalysisDisableKeyword = "AccessToStaticMemberViaDerivedType")]
 	public class AccessToStaticMemberViaDerivedTypeIssue : GatherVisitorCodeIssueProvider
 	{
 

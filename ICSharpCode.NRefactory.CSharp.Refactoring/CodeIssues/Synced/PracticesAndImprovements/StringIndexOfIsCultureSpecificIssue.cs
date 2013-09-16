@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Warns when a culture-aware 'IndexOf' call is used by default.",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "StringIndexOfIsCultureSpecific")]
+	                  AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
 	public class StringIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

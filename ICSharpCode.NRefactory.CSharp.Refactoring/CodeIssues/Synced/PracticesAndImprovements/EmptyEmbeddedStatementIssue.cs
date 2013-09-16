@@ -32,8 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "';' should be avoided. Use '{}' instead",
 	                   Category = IssueCategories.PracticesAndImprovements,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.WavedLine,
-	                   ResharperDisableKeyword = "EmptyEmbeddedStatement")]
+	                   AnalysisDisableKeyword = "EmptyEmbeddedStatement")]
 	public class EmptyEmbeddedStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

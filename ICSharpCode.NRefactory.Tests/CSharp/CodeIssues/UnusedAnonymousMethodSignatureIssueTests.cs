@@ -40,7 +40,7 @@ class TestClass
 {
 	void TestMethod()
 	{
-		Action<int> x = delegate(int p) {};
+		Action<int> x = delegate (int p) {};
 	}
 }", @"
 class TestClass

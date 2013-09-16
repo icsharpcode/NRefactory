@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Redundant empty finally block",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.GrayOut,
-		ResharperDisableKeyword = "RedundantEmptyFinallyBlock")]
+		AnalysisDisableKeyword = "RedundantEmptyFinallyBlock")]
 	public class RedundantEmptyFinallyBlockIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -68,6 +67,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				AddIssue(
 					tryCatch.FinallyToken.StartLocation,
 					blockStatement.EndLocation,
+					IssueMarker.GrayOut,
 					ctx.TranslateString("Redundant empty finally block"),
 					ctx.TranslateString("Remove 'finally'"),
 					s => {

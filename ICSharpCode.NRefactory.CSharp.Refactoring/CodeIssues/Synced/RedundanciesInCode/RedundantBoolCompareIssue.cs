@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Comparison of a boolean value with 'true' or 'false' constant.",
 					   Category = IssueCategories.RedundanciesInCode,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.GrayOut,
-	                   ResharperDisableKeyword = "RedundantBoolCompare")]
+	                   AnalysisDisableKeyword = "RedundantBoolCompare")]
 	public class RedundantBoolCompareIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -81,6 +80,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var boolConstant = (bool)match.Get<PrimitiveExpression> ("const").First ().Value;
 				AddIssue (
 					binaryOperatorExpression, 
+					IssueMarker.GrayOut,
 					boolConstant ? ctx.TranslateString ("Comparison with 'true' is redundant") : ctx.TranslateString ("Comparison with 'false' is redundant"),
 					ctx.TranslateString ("Remove redundant comparison"), 
 					script => {

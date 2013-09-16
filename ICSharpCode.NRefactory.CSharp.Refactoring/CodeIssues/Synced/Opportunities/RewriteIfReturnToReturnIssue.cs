@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Convert 'if...return' to 'return'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine)]
+	                  ActionProvider = typeof(ConvertIfStatementToReturnStatementAction))]
 	public class RewriteIfReturnToReturnIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -59,12 +59,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				AstNode rs;
 				if (!ConvertIfStatementToReturnStatementAction.GetMatch(ifElseStatement, out c, out e1, out e2, out rs))
 					return;
-				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(c) || 
+				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexCondition(c) || 
 				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e1) || 
 				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e2))
 					return;
 				AddIssue(
 					ifElseStatement.IfToken,
+					IssueMarker.DottedLine,
 					ctx.TranslateString("Convert to 'return' statement")
 				);
 			}

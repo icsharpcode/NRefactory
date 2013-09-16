@@ -312,7 +312,7 @@ class TestClass
 {
 	public void F()
 	{
-		using (int[] i = new int[] {}) {
+		using (int[] i = new int[] { }) {
 			foreach (var j in i) {
 			}
 		}

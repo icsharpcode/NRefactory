@@ -438,5 +438,56 @@ class TestClass
 }";
 			TestWrongContext<FunctionNeverReturnsIssue> (input);
 		}
+
+		[Test]
+		public void TestForeach ()
+		{
+			//https://bugzilla.xamarin.com/show_bug.cgi?id=14732
+			var input = @"
+using System.Linq;
+class TestClass
+{
+	void TestMethod()
+	{
+		foreach (var x in new int[0])
+			TestMethod();
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
+
+		[Test]
+		public void TestNoExecutionFor ()
+		{
+			var input = @"
+using System.Linq;
+class TestClass
+{
+	void TestMethod()
+	{
+		for (int i = 0; i < 0; ++i)
+			TestMethod ();
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
+
+		[Test]
+		public void TestNullCoalescing ()
+		{
+			//https://bugzilla.xamarin.com/show_bug.cgi?id=14732
+			var input = @"
+using System.Linq;
+class TestClass
+{
+	TestClass parent;
+	int? value;
+	int TestMethod()
+	{
+		return value ?? parent.TestMethod();
+	}
+}";
+			TestWrongContext<FunctionNeverReturnsIssue> (input);
+		}
 	}
 }

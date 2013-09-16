@@ -37,8 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Foreach loops are more efficient",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Suggestion,
-	                  IssueMarker = IssueMarker.DottedLine,
-	                  ResharperDisableKeyword = "ForCanBeConvertedToForeach")]
+	                  AnalysisDisableKeyword = "ForCanBeConvertedToForeach")]
 	public class ForCanBeConvertedToForeachIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -190,13 +189,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				var analyze = new ConvertToConstantIssue.VariableUsageAnalyzation(ctx);
+				analyze.SetAnalyzedRange(
+					varDeclStmt,
+					forStatement.EmbeddedStatement,
+					false
+				);
 				forStatement.EmbeddedStatement.AcceptVisitor(analyze);
 				if (analyze.GetStatus(lr.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
-				analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed)
+				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
+				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Used)
 					return;
 
 				AddIssue(
 					forStatement.ForToken,
+					IssueMarker.DottedLine,
 					ctx.TranslateString("'for' loop can be converted to 'foreach'"),
 					ctx.TranslateString("Convert to 'foreach'"),
 					script => {

@@ -217,7 +217,6 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\ParameterHidesMemberIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\StaticFieldInGenericTypeIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\ThreadStaticAtInstanceFieldIssue.cs" />
-    <Compile Include="CodeIssues\Synced\CodeQuality\UseIsOperatorIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\ValueParameterNotUsedIssue.cs" />
     <Compile Include="CodeIssues\Synced\CompilerWarnings\CS1573ParameterHasNoMatchingParamTagIssue.cs" />
     <Compile Include="CodeIssues\Synced\CompilerWarnings\CS1717AssignmentMadeToSameVariableIssue.cs" />
@@ -282,7 +281,6 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantBoolCompareIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCaseLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCastIssue.cs" />
-    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCatchIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCommaInArrayInitializerIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantComparisonWithNullIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyObjectCreationArgumentListssue.cs" />
@@ -313,16 +311,12 @@
     <Compile Include="CodeIssues\Uncategorized\ConstructorIssues\StaticConstructorParameterIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\DuplicatedLinqToListOrArrayIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\DuplicateIfInIfChainIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExceptionRethrowIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExplicitConversionInForEachIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExpressionIsNeverOfProvidedTypeIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\FormatStringIssues\FormatStringHelper.cs" />
-    <Compile Include="CodeIssues\Uncategorized\FormatStringIssues\FormatStringIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\IncorrectCallToObjectGetHashCodeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\MethodOverloadHidesOptionalParameterIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\MultipleEnumerationIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\OptionalParameterCouldBeSkippedIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\HasMemberCriterion.cs" />
     <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\IsArrayTypeCriterion.cs" />
@@ -333,7 +327,6 @@
     <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\TypeCriteriaCollector.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantArrayCreationExpressionIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantAssignmentIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ReferenceEqualsCalledWithValueTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ResultOfAsyncCallShouldNotBeIgnoredIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\UnreachableCodeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\UseOfMemberOfNullReference.cs" />
@@ -377,15 +370,44 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArraySizeIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantUnsafeContextIssue.cs" />
     <Compile Include="CodeIssues\Synced\CompilerErrors\ProhibitedModifiersIssue.cs" />
-    <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RemoveRedundantOrStatementIssue.cs" />
     <Compile Include="CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs" />
     <Compile Include="CodeActions\ReverseDirectionForForLoopAction.cs" />
-    <Compile Include="CodeIssues\Uncategorized\RedundantArgumentNameIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\AutoAsyncIssue.cs" />
     <Compile Include="CodeIssues\Custom\AdditionalOfTypeIssues.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaParameterTypeIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaSignatureParenthesesIssue.cs" />
+    <Compile Include="CodeIssues\Synced\Opportunities\ConvertToLambdaExpressionIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentNameIssue.cs" />
+    <Compile Include="CodeActions\AddOptionalParameterToInvocationAction.cs" />
+    <Compile Include="CodeActions\ComputeConstantValueAction.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCheckBeforeAssignmentIssue.cs" />
+    <Compile Include="CodeActions\ConvertShiftToMultiplyAction.cs" />
+    <Compile Include="CodeActions\ConvertMultiplyToShiftAction.cs" />
+    <Compile Include="CodeActions\SplitIfAction.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\ForStatementConditionIsTrueIssue.cs" />
+    <Compile Include="CodeIssues\Synced\Opportunities\ConvertToStaticTypeIssue.cs" />
+    <Compile Include="CodeActions\ReplaceAssignmentWithPostfixExpressionAction.cs" />
+    <Compile Include="CodeActions\ReplacePostfixExpressionWithAssignmentAction.cs" />
+    <Compile Include="CodeActions\ReplaceWithOperatorAssignmentAction.cs" />
+    <Compile Include="CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\OperatorIsCanBeUsedIssue.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\UseIsOperatorIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\FormatStringProblemIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCatchClauseIssue.cs" />
+    <Compile Include="CodeIssues\Uncategorized\CheckNamespaceIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\PossibleMultipleEnumerationIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedLabelIssue.cs" />
+    <Compile Include="CodeIssues\TODO\PossibleAssignmentToReadonlyFieldIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\MemberHidesStaticFromOuterClassIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\MethodOverloadWithOptionalParameterIssue.cs" />
+    <Compile Include="CodeIssues\NotWorking\DuplicateIfInIfChainIssue.cs" />
+    <Compile Include="CodeIssues\TODO\RedundantEnumerableCastCallIssue.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ReferenceEqualsWithValueTypeIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\CompareNonConstrainedGenericWithNullIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantDelegateCreationIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -418,5 +440,6 @@
   <ItemGroup>
     <Folder Include="CodeIssues\Custom\CompilerErrors\" />
     <Folder Include="CodeIssues\Synced\CompilerErrors\" />
+    <Folder Include="CodeIssues\TODO\" />
   </ItemGroup>
 </Project>

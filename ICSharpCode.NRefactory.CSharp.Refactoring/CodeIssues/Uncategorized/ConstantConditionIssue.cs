@@ -32,8 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Condition is always 'true' or always 'false'",
 					   Description = "Condition is always 'true' or always 'false'.",
 					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.WavedLine)]
+					   Severity = Severity.Warning)]
 	public class ConstantConditionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Conditional expression can be simplified",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "SimplifyConditionalTernaryExpression")]
+	                  AnalysisDisableKeyword = "SimplifyConditionalTernaryExpression")]
 	public class SimplifyConditionalTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

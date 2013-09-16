@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Convert 'if' to '||' expression",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  IssueMarker = IssueMarker.DottedLine,
-	                  ResharperDisableKeyword = "ConvertIfToOrExpression")]
+	                  AnalysisDisableKeyword = "ConvertIfToOrExpression")]
 	public class ConvertIfToOrExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -86,6 +85,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var expr = match.Get<Expression>("condition").Single();
 						AddIssue(
 							ifElseStatement.IfToken,
+							IssueMarker.DottedLine,
 							ctx.TranslateString("Convert to '||' expresssion"),
 							ctx.TranslateString("Replace with '||'"),
 							script => {

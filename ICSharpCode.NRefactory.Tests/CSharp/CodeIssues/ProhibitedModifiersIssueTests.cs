@@ -142,6 +142,80 @@ class Foo
 		}
 
 
+		[Test]
+		public void TestSealed ()
+		{
+			Test<ProhibitedModifiersIssue>(@"
+class Foo
+{
+	public sealed void Bar () 
+	{
+	}
+}
+", @"
+class Foo
+{
+	public void Bar () 
+	{
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestValidSealed ()
+		{
+			TestWrongContext<ProhibitedModifiersIssue>(@"
+class Foo
+{
+	public override sealed void Bar () 
+	{
+	}
+}
+");
+		}
+
+
+		[Test]
+		public void TestExtensionMethodInNonStaticClass ()
+		{
+			Test<ProhibitedModifiersIssue>(@"
+class Foo
+{
+	public static void Bar (this int i) 
+	{
+	}
+}
+", @"
+static class Foo
+{
+	public static void Bar (this int i) 
+	{
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestExtensionMethodInNonStaticClassFix2 ()
+		{
+			Test<ProhibitedModifiersIssue>(@"
+class Foo
+{
+	public static void Bar (this int i) 
+	{
+	}
+}
+", @"
+class Foo
+{
+	public static void Bar (int i) 
+	{
+	}
+}
+", 1);
+		}
+
 	}
 }
 

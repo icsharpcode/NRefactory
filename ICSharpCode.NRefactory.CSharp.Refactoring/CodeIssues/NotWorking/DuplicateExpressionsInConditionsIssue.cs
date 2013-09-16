@@ -30,12 +30,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-    [IssueDescription("Expression has some redundant items",
-		                   Description = "Expression has some redundant items",
-		                   Category = IssueCategories.CodeQualityIssues,
-		                   Severity = Severity.Warning,
-		                   IssueMarker = IssueMarker.GrayOut,
-		                   ResharperDisableKeyword = "ConditionalTernaryEqualBranch")]
+//    [IssueDescription("Expression has some redundant items",
+//		                   Description = "Expression has some redundant items",
+//		                   Category = IssueCategories.CodeQualityIssues,
+//		                   Severity = Severity.Warning,
+//		                   AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class DuplicateExpressionsInConditionsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -84,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                                                     script => RemoveRedundantExpression(script, expressionRight),
                                                     expressionRight);
                     
-	                    AddIssue(expressionRight,
+						AddIssue(expressionRight, IssueMarker.GrayOut,
 	                              ctx.TranslateString(string.Format("The expression '{0}' is identical in the left branch",
 	                                expressionRight)), action);
 

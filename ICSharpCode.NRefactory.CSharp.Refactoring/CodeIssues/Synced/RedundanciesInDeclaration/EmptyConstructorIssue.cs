@@ -33,8 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "An empty public constructor without paramaters is redundant.",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   ResharperDisableKeyword = "EmptyConstructor",
-	                   IssueMarker = IssueMarker.GrayOut)]
+	                   AnalysisDisableKeyword = "EmptyConstructor")]
 	public class EmptyConstructorIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -74,6 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!hasUnemptyConstructor && hasEmptyConstructor) {
 					AddIssue(
 						emptyContructorNode.NameToken,
+						IssueMarker.GrayOut,
 						ctx.TranslateString("Empty constructor is redundant."), 
 						new CodeAction(
 							ctx.TranslateString("Remove redundant constructor"),

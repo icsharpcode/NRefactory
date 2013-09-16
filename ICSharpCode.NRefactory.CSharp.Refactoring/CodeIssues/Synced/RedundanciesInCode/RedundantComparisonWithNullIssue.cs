@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "When 'is' keyword is used, which implicitly check null.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-                      ResharperDisableKeyword = "RedundantComparisonWithNull",
-	                  IssueMarker = IssueMarker.GrayOut)]
+                      AnalysisDisableKeyword = "RedundantComparisonWithNull")]
 	public class RedundantComparisonWithNullIssue : GatherVisitorCodeIssueProvider
 	{
 		private static readonly Pattern pattern1
@@ -85,6 +84,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				Match m1 = pattern1.Match(binaryOperatorExpression);
 				if (m1.Success) {
 					AddIssue(binaryOperatorExpression,
+					         IssueMarker.GrayOut,
 					         ctx.TranslateString("Redundant comparison with 'null'"),
 					         ctx.TranslateString("Remove expression"), 
 					         script => {

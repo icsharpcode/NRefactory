@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
         Description = "Replace with single call to Single(...)",
         Category = IssueCategories.PracticesAndImprovements,
         Severity = Severity.Suggestion,
-        ResharperDisableKeyword = "ReplaceWithSingleCallToSingle")]
+        AnalysisDisableKeyword = "ReplaceWithSingleCallToSingle")]
 	public class ReplaceWithSingleCallToSingleIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

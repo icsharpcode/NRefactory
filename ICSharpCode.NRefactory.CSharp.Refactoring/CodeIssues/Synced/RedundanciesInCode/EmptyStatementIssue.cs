@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Empty statement is redundant",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.GrayOut,
-		ResharperDisableKeyword = "EmptyStatement")]
+		AnalysisDisableKeyword = "EmptyStatement")]
 	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -55,8 +54,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (UseAsAndNullCheckAction.IsEmbeddedStatement(emptyStatement))
 					return;
+				if (emptyStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) is LabelStatement)
+					return;
 				AddIssue(
 					emptyStatement,
+					IssueMarker.GrayOut,
 					ctx.TranslateString("Empty statement is redundant"),
 					ctx.TranslateString("Remove ';'"),
 					s => s.Remove(emptyStatement)

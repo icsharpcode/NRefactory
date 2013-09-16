@@ -180,6 +180,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					AddIssue(
 						returnStatement, 
+						IssueMarker.WavedLine, 
 						string.Format(ctx.TranslateString("`{0}': A return keyword must be followed by any expression when method returns a value"), currentMethodName),
 						actions
 					);

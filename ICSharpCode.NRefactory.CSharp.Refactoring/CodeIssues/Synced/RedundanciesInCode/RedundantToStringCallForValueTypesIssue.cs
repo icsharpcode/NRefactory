@@ -37,8 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Redundant 'object.ToString()' call for value types",
 	                  Description = "Finds calls to ToString() which would be generated automatically by the compiler.",
 	                  Category = IssueCategories.RedundanciesInCode,
-	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.GrayOut)]
+	                  Severity = Severity.Hint)]
 	public class RedundantToStringCallForValueTypesIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -95,6 +94,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				processedNodes.Add(invocationExpression);
 
 				AddIssue(memberExpression.DotToken.StartLocation, invocationExpression.RParToken.EndLocation,
+				         IssueMarker.GrayOut,
 				         ctx.TranslateString("Redundant ToString() call"), 
 				         ctx.TranslateString("Remove redundant '.ToString()'"), script =>  {
 					script.Replace(invocationExpression, memberExpression.Target.Clone());

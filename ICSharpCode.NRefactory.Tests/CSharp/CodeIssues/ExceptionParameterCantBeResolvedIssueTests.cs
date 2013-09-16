@@ -245,7 +245,31 @@ class A
 		if (foo != null)
 			throw new ArgumentNullException (""foo"");
 	}
-}");
+}", 1);
+		}
+
+		[Test]
+		public void TestArgumentNullGuessingResolve2()
+		{
+			Test<ExceptionParameterCantBeResolvedIssue>(@"
+using System;
+class A
+{
+	void F (object foo)
+	{
+		if (foo != null)
+			throw new ArgumentNullException (""bar"");
+	}
+}", @"
+using System;
+class A
+{
+	void F (object foo)
+	{
+		if (foo != null)
+			throw new ArgumentNullException (""foo"", ""bar"");
+	}
+}", 0);
 		}
 
 		[Test]

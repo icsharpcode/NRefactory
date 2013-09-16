@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Add name for argument", Description = "Add name for argument including method, indexer invocation and Attibute Usage")]
 	public class AddArgumentNameAction : SpecializedCodeAction<Expression>
 	{
-		private List<Expression> CollectNodes(AstNode parant, AstNode node)
+		List<Expression> CollectNodes(AstNode parant, AstNode node)
 		{
 			List<Expression> returned = new List<Expression>();
 
@@ -66,6 +66,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (expression == null)
 				return null;
 			if (expression.Role != Roles.Argument || expression is NamedArgumentExpression)
+				return null;
+			if (context.Location != expression.StartLocation)
 				return null;
 			var parent = expression.Parent;
 			if (!(parent is CSharp.Attribute) && !(parent is IndexerExpression) && !(parent is InvocationExpression))

@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
         Description = "Replace with single call to LongCount(...)",
         Category = IssueCategories.PracticesAndImprovements,
         Severity = Severity.Suggestion,
-        ResharperDisableKeyword = "ReplaceWithSingleCallToLongCount")]
+        AnalysisDisableKeyword = "ReplaceWithSingleCallToLongCount")]
 	public class ReplaceWithSingleCallToLongCountIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

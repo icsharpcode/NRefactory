@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Warns when a culture-aware 'StartsWith' call is used by default.",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "StringStartsWithIsCultureSpecific")]
+	                  AnalysisDisableKeyword = "StringStartsWithIsCultureSpecific")]
 	public class StringStartsWithIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -37,8 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "The override of a virtual member is redundant because it consists of only a call to the base",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut, 
-	                   ResharperDisableKeyword = "RedundantOverridenMember")]
+	                   AnalysisDisableKeyword = "RedundantOverridenMember")]
 	public class RedundantOverridenMemberIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -74,7 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
 						return;
 					var title = ctx.TranslateString("Redundant method override");
-					AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => {
+					AddIssue(methodDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove redundant method override"), script => {
 						script.Remove(methodDeclaration);
 					});
 				} else if (expr.FirstChild is CSharpTokenNode && expr.FirstChild.ToString().Equals("return")) {
@@ -87,7 +86,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
 						return;
 					var title = ctx.TranslateString("Redundant method override");
-					AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => {
+					AddIssue(methodDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove redundant method override"), script => {
 						script.Remove(methodDeclaration);
 					});
 				}
@@ -157,7 +156,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				
 				var title = ctx.TranslateString("Redundant property override");
-				AddIssue(propertyDeclaration, title, ctx.TranslateString("Remove redundant property override"), script => {
+				AddIssue(propertyDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove redundant property override"), script => {
 					script.Remove(propertyDeclaration);
 				});
 			}
@@ -225,7 +224,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				
 				var title = ctx.TranslateString("Redundant indexer override");
-				AddIssue(indexerDeclaration, title, ctx.TranslateString("Remove redundant indexer override"), script => {
+				AddIssue(indexerDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove redundant indexer override"), script => {
 					script.Remove(indexerDeclaration);
 				});
 			}
@@ -265,7 +264,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				var title = ctx.TranslateString("Redundant event override");
-				AddIssue(eventDeclaration, title, ctx.TranslateString("Remove event override"), script => {
+				AddIssue(eventDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove event override"), script => {
 					script.Remove(eventDeclaration);
 				});
 			}

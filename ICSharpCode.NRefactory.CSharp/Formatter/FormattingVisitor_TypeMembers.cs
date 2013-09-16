@@ -427,13 +427,38 @@ namespace ICSharpCode.NRefactory.CSharp
 				ForceSpacesBefore(constructorDeclaration.RParToken, policy.SpaceBetweenEmptyConstructorDeclarationParentheses);
 			}
 
+			var initializer = constructorDeclaration.Initializer;
+			if (!initializer.IsNull) {
+				ForceSpacesBefore(constructorDeclaration.ColonToken, true);
+				ForceSpacesAfter(constructorDeclaration.ColonToken, true);
+				bool popIndent = initializer.StartLocation.Line != constructorDeclaration.ColonToken.StartLocation.Line;
+				if (popIndent) {
+					curIndent.Push(IndentType.Block);
+					FixIndentation(initializer);
+				}
+				initializer.AcceptVisitor(this);
+				if (popIndent)
+					curIndent.Pop();
+			}
 			if (!constructorDeclaration.Body.IsNull) {
 				FixOpenBrace(policy.ConstructorBraceStyle, constructorDeclaration.Body.LBraceToken);
 				VisitBlockWithoutFixingBraces(constructorDeclaration.Body, policy.IndentMethodBody);
 				FixClosingBrace(policy.ConstructorBraceStyle, constructorDeclaration.Body.RBraceToken);
 			}
 		}
+		public override void VisitConstructorInitializer(ConstructorInitializer constructorInitializer)
+		{
+			ForceSpacesBefore(constructorInitializer.LParToken, policy.SpaceBeforeMethodCallParentheses);
+			if (constructorInitializer.Arguments.Any()) {
+				ForceSpacesAfter(constructorInitializer.LParToken, policy.SpaceWithinMethodCallParentheses);
+			} else {
+				ForceSpacesAfter(constructorInitializer.LParToken, policy.SpaceBetweenEmptyMethodCallParentheses);
+				ForceSpacesBefore(constructorInitializer.RParToken, policy.SpaceBetweenEmptyMethodCallParentheses);
+			}
 
+			FormatArguments(constructorInitializer);
+
+		}
 		public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
 		{
 			FixAttributesAndDocComment(destructorDeclaration);

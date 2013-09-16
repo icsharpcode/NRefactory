@@ -35,9 +35,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Local variable is never used.",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.GrayOut,
                        PragmaWarning = 163,
-                       ResharperDisableKeyword = "UnusedVariable.Compiler")]
+                       AnalysisDisableKeyword = "UnusedVariable.Compiler")]
 	public class LocalVariableNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
@@ -75,6 +74,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				AddIssue (variableInitializer.NameToken, 
+				          IssueMarker.GrayOut,
 				          string.Format(ctx.TranslateString ("Local variable '{0}' is never used"), resolveResult.Variable.Name),  ctx.TranslateString ("Remove unused local variable"),
 					script =>
 					{

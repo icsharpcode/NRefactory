@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="C# doesn't support optional 'ref' or 'out' parameters",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "OptionalParameterRefOut")]
+	                  AnalysisDisableKeyword = "OptionalParameterRefOut")]
 	public class OptionalParameterRefOutIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

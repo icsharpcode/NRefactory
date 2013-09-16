@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Warns when a culture-aware 'EndsWith' call is used by default.",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "StringEndsWithIsCultureSpecific")]
+	                  AnalysisDisableKeyword = "StringEndsWithIsCultureSpecific")]
 	public class StringEndsWithIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

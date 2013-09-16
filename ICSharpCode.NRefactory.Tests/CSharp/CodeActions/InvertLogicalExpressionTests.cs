@@ -247,5 +247,28 @@ class Foo
 }
 ");
 		}
+
+
+		[Test]
+		public void TestUnaryExpression()
+		{
+			Test<InvertLogicalExpressionAction>(@"
+class Foo
+{
+	void Bar (bool a, bool b)
+	{
+		Console.WriteLine ($!(a && b));
+	}
+}
+", @"
+class Foo
+{
+	void Bar (bool a, bool b)
+	{
+		Console.WriteLine (!a || !b);
+	}
+}
+");
+		}
 	}
 }

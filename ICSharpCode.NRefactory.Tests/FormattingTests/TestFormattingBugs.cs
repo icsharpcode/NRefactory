@@ -375,6 +375,35 @@ foo ();
 }");
 		}
 
+		/// <summary>
+		/// Bug 14324 - System.ArgumentOutOfRangeException while formatting C# code
+		/// </summary>
+		[Test]
+		public void TestBug14324()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+
+			Test(policy,
+			     @"class C
+{
+	public void Test ()
+	{
+		if
+(true ||
+false) {
+}
+	}
+}",
+			     @"class C
+{
+	public void Test ()
+	{
+		if (true ||
+		false) {
+		}
+	}
+}");
+		}
 
 	}
 }

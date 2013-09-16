@@ -42,8 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "'base.' is redundant and can safely be removed.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantBaseQualifier")]
+	                  AnalysisDisableKeyword = "RedundantBaseQualifier")]
 	public class RedundantBaseQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -135,6 +134,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					AddIssue(
 						baseReferenceExpression.StartLocation, 
 						memberReference.MemberNameToken.StartLocation, 
+						IssueMarker.GrayOut,
 						ctx.TranslateString("'base.' is redundant and can be removed safely."), 
 						ctx.TranslateString("Remove 'base.'"), 
 						script => {

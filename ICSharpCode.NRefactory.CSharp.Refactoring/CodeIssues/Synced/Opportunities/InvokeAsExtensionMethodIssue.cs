@@ -39,8 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "If an extension method is called as static method convert it to method syntax",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Suggestion,
-	                  IssueMarker = IssueMarker.WavedLine,
-	                  ResharperDisableKeyword = "InvokeAsExtensionMethod")]
+	                  AnalysisDisableKeyword = "InvokeAsExtensionMethod")]
 	public class InvokeAsExtensionMethodIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

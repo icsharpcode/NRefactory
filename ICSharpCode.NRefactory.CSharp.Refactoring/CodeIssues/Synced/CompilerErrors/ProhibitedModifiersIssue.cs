@@ -103,15 +103,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 
 				}
+
+				if (entity.HasModifier(Modifiers.Sealed) && !entity.HasModifier(Modifiers.Override)) {
+					AddIssue(
+						entity.ModifierTokens.First(t => t.Modifier == Modifiers.Sealed),
+						ctx.TranslateString("'sealed' modifier is not usable without override"),
+						ctx.TranslateString("Remove 'sealed' modifier"), 
+						s => {
+							s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Sealed);
+						}
+					);
+
+				}
+
 				if (!curType.Peek().HasModifier(Modifiers.Sealed) || !entity.HasModifier(Modifiers.Virtual))
 					return;
 				AddIssue(
 					entity.ModifierTokens.First(t => t.Modifier == Modifiers.Virtual),
 					ctx.TranslateString("'virtual' modifier is not usable in a sealed class"),
 					ctx.TranslateString("Remove 'virtual' modifier"), 
-					s => {
-					s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Virtual);
-				}
+					s => s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Virtual)
 				);
 			}
 
@@ -119,6 +130,31 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				CheckStaticRequired(methodDeclaration);
 				CheckVirtual(methodDeclaration);
+				if (methodDeclaration.IsExtensionMethod) {
+					var parent = methodDeclaration.Parent as TypeDeclaration;
+					if (parent != null && !parent.HasModifier(Modifiers.Static)) {
+						var actions = new List<CodeAction>();
+						var token = methodDeclaration.Parameters.First().FirstChild;
+						actions.Add(new CodeAction(
+							ctx.TranslateString("Make class 'static'"),
+							s => s.ChangeModifier(parent, (parent.Modifiers & ~Modifiers.Sealed) | Modifiers.Static),
+							token
+							));
+
+						actions.Add(new CodeAction(
+							ctx.TranslateString("Remove 'this'"),
+							s => s.ChangeModifier(methodDeclaration.Parameters.First(), ParameterModifier.None),
+							token
+						));
+
+						AddIssue(
+							token,
+							ctx.TranslateString("Extension methods are only allowed in static classes"),
+							actions
+						);
+					}
+				}
+
 				base.VisitMethodDeclaration(methodDeclaration);
 			}
 

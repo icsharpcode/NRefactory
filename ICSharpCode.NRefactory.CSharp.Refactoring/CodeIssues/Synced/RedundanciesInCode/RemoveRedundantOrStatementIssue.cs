@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Remove redundant statement",
 		Category = IssueCategories.RedundanciesInCode,
 		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.GrayOut,
-		ResharperDisableKeyword = "RemoveRedundantOrStatement")]
+		AnalysisDisableKeyword = "RemoveRedundantOrStatement")]
 	public class RemoveRedundantOrStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -65,9 +64,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (pattern.IsMatch(expressionStatement)) {
 					AddIssue(
 						expressionStatement,
+						IssueMarker.GrayOut,
 						ctx.TranslateString("Statement is redundant"),
 						ctx.TranslateString("Remove redundant statement"),
-						s => { s.Remove(expressionStatement); }
+						s => s.Remove(expressionStatement)
 					);
 				}
 			}

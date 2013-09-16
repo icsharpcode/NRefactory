@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantEmptyDefaultSwitchBranchIssueTests: InspectionActionTestBase
+	public class RedundantEmptyDefaultSwitchBranchIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestDefaultRedundantCase ()

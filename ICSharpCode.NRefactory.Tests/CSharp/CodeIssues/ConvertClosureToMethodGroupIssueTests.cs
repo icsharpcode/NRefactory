@@ -256,7 +256,7 @@ class C
 }");*/
 
 		}
-		
+
 		[Test]
 		public void Return_ReferenceConversion ()
 		{
@@ -327,6 +327,32 @@ class Foo
 			TestRefactoringContext context;
 			var issues = GetIssues (new ConvertClosureToMethodGroupIssue (), input, out context);
 			Assert.AreEqual (0, issues.Count);
+		}
+
+		/// <summary>
+		/// Bug 14759 - Lambda expression can be simplified to method group issue
+		/// </summary>
+		[Test]
+		public void TestBug14759 ()
+		{
+			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"using System;
+using System.Collections.Generic;
+
+class C
+{
+	static bool DoStuff (int i)
+	{
+		return true;
+	}
+ 
+	public static void Main(string[] args)
+	{
+		List<int> list = new List<int> (2);
+		list.Add (1);
+		list.Add (3);
+		list.ForEach (u => DoStuff (u));
+	}
+}");
 		}
 	}
 }

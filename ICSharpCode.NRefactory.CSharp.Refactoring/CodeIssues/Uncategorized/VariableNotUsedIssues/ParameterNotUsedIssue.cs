@@ -37,8 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Unused parameter",
 	                   Description = "Parameter is never used.",
 	                   Category = IssueCategories.RedundanciesInCode,
-	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut)]
+	                   Severity = Severity.Warning)]
 	public class ParameterNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
@@ -155,7 +154,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (ctx.FindReferences (parameterDeclaration.Parent, resolveResult.Variable).Any(r => r.Node != parameterDeclaration))
 					return;
 
-				AddIssue (parameterDeclaration.NameToken, ctx.TranslateString ("Parameter is never used"));
+				AddIssue (parameterDeclaration.NameToken, IssueMarker.GrayOut, ctx.TranslateString ("Parameter is never used"));
 			}
 		}
 	}

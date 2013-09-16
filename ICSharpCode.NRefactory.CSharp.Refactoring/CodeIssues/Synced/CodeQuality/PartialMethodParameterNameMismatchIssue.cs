@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Parameter name differs in partial method declaration",
 		Category = IssueCategories.CodeQualityIssues,
 		Severity = Severity.Warning,
-		ResharperDisableKeyword = "PartialMethodParameterNameMismatch")]
+		AnalysisDisableKeyword = "PartialMethodParameterNameMismatch")]
 	public class PartialMethodParameterNameMismatchIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

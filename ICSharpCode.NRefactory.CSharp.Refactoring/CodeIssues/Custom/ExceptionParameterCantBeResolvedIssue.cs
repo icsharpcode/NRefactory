@@ -67,11 +67,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 
 
-			bool CheckExceptionType(ObjectCreateExpression objectCreateExpression, out Expression paramNode, out Expression altParam)
+			bool CheckExceptionType(ObjectCreateExpression objectCreateExpression, out Expression paramNode, out Expression altParam, out bool canAddParameterName)
 			{
 				paramNode = null;
 				altParam = null;
-
+				canAddParameterName = false;
 				var rr = context.Resolve(objectCreateExpression.Type) as TypeResolveResult;
 				if (rr == null)
 					return false;
@@ -81,12 +81,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (objectCreateExpression.Arguments.Count >= 2) {
 						altParam = objectCreateExpression.Arguments.ElementAt(0);
 						paramNode = objectCreateExpression.Arguments.ElementAt(1);
+
 					}
 					return paramNode != null;
 				}
 				if (type.Name == typeof(ArgumentNullException).Name && type.Namespace == typeof(ArgumentNullException).Namespace ||
 				    type.Name == typeof(ArgumentOutOfRangeException).Name && type.Namespace == typeof(ArgumentOutOfRangeException).Namespace ||
 				    type.Name == typeof(DuplicateWaitObjectException).Name && type.Namespace == typeof(DuplicateWaitObjectException).Namespace) {
+					canAddParameterName = objectCreateExpression.Arguments.Count == 1;
 					if (objectCreateExpression.Arguments.Count >= 1) {
 						paramNode = objectCreateExpression.Arguments.FirstOrDefault();
 						if (objectCreateExpression.Arguments.Count == 2) {
@@ -164,7 +166,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				Expression paramNode;
 				Expression altParamNode;
-				if (!CheckExceptionType(objectCreateExpression, out paramNode, out altParamNode))
+				bool canAddParameterName;
+				if (!CheckExceptionType(objectCreateExpression, out paramNode, out altParamNode, out canAddParameterName))
 					return;
 
 				var paramName = GetArgumentParameterName(paramNode);
@@ -200,13 +203,32 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					var guessName = GuessParameterName(objectCreateExpression, validNames);
 					if (guessName != null) {
+
+						var actions = new List<CodeAction>();
+						if (canAddParameterName) {
+							actions.Add(new CodeAction(
+								string.Format(context.TranslateString("Add '\"{0}\"' parameter."), guessName),
+								script => {
+									var oce = (ObjectCreateExpression)objectCreateExpression.Clone();
+									oce.Arguments.Clear();
+									oce.Arguments.Add(new PrimitiveExpression(guessName));
+									oce.Arguments.Add(objectCreateExpression.Arguments.First().Clone());
+									script.Replace(objectCreateExpression, oce);
+								}, paramNode
+							)); 
+						}
+
+						actions.Add(new CodeAction (
+							string.Format(context.TranslateString("Replace with '\"{0}\"'."), guessName),
+							script => {
+								script.Replace(paramNode, new PrimitiveExpression(guessName));
+							}, paramNode
+						)); 
+
 						AddIssue(
 							paramNode,
 							string.Format(context.TranslateString("The parameter '{0}' can't be resolved"), paramName),
-							string.Format(context.TranslateString("Replace with '\"{0}\"'."), guessName),
-							script => {
-							script.Replace(paramNode, new PrimitiveExpression(guessName));
-						}
+							actions
 						);
 						return;
 					}
