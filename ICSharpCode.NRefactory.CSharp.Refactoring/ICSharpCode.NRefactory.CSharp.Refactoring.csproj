@@ -373,6 +373,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RemoveRedundantOrStatementIssue.cs" />
     <Compile Include="CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs" />
     <Compile Include="CodeActions\ReverseDirectionForForLoopAction.cs" />
+    <Compile Include="CodeIssues\Uncategorized\AutoAsyncIssue.cs" />
     <Compile Include="CodeIssues\Custom\AdditionalOfTypeIssues.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaParameterTypeIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaSignatureParenthesesIssue.cs" />

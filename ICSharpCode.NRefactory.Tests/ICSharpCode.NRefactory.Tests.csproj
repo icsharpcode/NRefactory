@@ -548,6 +548,7 @@
     <Compile Include="CSharp\CodeActions\ExtractWhileConditionToInternalIfStatementActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReverseDirectionForForLoopTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantArgumentNameTests.cs" />
+    <Compile Include="CSharp\CodeIssues\AutoAsyncTests.cs" />
     <Compile Include="CSharp\CodeIssues\AdditionalOfTypeIssuesTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantLambdaSignatureParenthesesIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCheckBeforeAssignmentTests.cs" />
