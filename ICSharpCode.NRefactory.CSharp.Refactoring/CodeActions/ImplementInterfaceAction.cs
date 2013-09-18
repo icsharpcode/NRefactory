@@ -146,7 +146,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (!alreadyImplemented) {
 						toImplement.Add(new Tuple<IMember, bool>(method, needsExplicitly));
 					} else {
-						Console.WriteLine("!");
 						interfaceMissing = false;
 					}
 				}
