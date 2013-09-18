@@ -408,6 +408,7 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\CompareNonConstrainedGenericWithNullIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantDelegateCreationIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEnumerableCastCallIssue.cs" />
+    <Compile Include="CodeIssues\Custom\CompilerErrors\MissingInterfaceMemberImplementationIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

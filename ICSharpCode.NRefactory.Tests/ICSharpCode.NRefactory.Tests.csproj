@@ -587,6 +587,7 @@
     <Compile Include="CSharp\CodeIssues\CompareNonConstrainedGenericWithNullIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantDelegateCreationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantEnumerableCastCallIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\MissingInterfaceMemberImplementationIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

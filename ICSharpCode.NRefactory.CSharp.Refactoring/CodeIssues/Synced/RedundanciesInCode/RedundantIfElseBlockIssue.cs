@@ -26,7 +26,6 @@
 
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.CSharp.Analysis;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
@@ -45,7 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantIfElseBlockIssue>
 		{
-			LocalDeclarationSpaceVisitor declarationSpaceVisitor;
+			readonly LocalDeclarationSpaceVisitor declarationSpaceVisitor;
 
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base(ctx)
