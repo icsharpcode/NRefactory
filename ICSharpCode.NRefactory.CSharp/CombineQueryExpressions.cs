@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				TypeArguments = { new AnyNode("targetType") }
 			}};
 
-		public void CombineQuery(AstNode node, AstNode rootQuery = null)
+		public string CombineQuery(AstNode node, AstNode rootQuery = null)
 		{
 			if (rootQuery == null) {
 				rootQuery = node;
@@ -50,6 +50,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			QueryExpression query = node as QueryExpression;
 			if (query != null) {
+				string continuationIdentifier = null;
+
 				foreach (var clause in query.Clauses) {
 					var continuation = clause as QueryContinuationClause;
 					if (continuation != null) {
@@ -58,15 +60,17 @@ namespace ICSharpCode.NRefactory.CSharp
 
 					var from = clause as QueryFromClause;
 					if (from != null) {
-						CombineQuery(from.Expression, rootQuery);
+						continuationIdentifier = CombineQuery(from.Expression, rootQuery);
 					}
 				}
 
 				QueryFromClause fromClause = (QueryFromClause)query.Clauses.First();
 				QueryExpression innerQuery = fromClause.Expression as QueryExpression;
 				if (innerQuery != null) {
+					continuationIdentifier = continuationIdentifier ?? ((QueryFromClause)innerQuery.Clauses.First()).Identifier;
+
 					string transparentIdentifier;
-					if (TryRemoveTransparentIdentifier(query, fromClause, innerQuery, out transparentIdentifier)) {
+					if (TryRemoveTransparentIdentifier(query, fromClause, innerQuery, continuationIdentifier, out transparentIdentifier)) {
 						RemoveTransparentIdentifierReferences(rootQuery, transparentIdentifier);
 					} else if (fromClause.Type.IsNull) {
 						QueryContinuationClause continuation = new QueryContinuationClause();
@@ -74,6 +78,8 @@ namespace ICSharpCode.NRefactory.CSharp
 						continuation.Identifier = fromClause.Identifier;
 						fromClause.ReplaceWith(continuation);
 					}
+
+					return transparentIdentifier;
 				} else {
 					Match m = castPattern.Match(fromClause.Expression);
 					if (m.Success) {
@@ -82,6 +88,8 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 				}
 			}
+
+			return null;
 		}
 
 		static readonly QuerySelectClause selectTransparentIdentifierPattern = new QuerySelectClause {
@@ -93,7 +101,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 			};
 
-		bool TryRemoveTransparentIdentifier(QueryExpression query, QueryFromClause fromClause, QueryExpression innerQuery, out string transparentIdentifier)
+		bool TryRemoveTransparentIdentifier(QueryExpression query, QueryFromClause fromClause, QueryExpression innerQuery, string continuationIdentifier, out string transparentIdentifier)
 		{
 			transparentIdentifier = fromClause.Identifier;
 
@@ -111,6 +119,35 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (nae1Name == null)
 				return false;
 
+			bool introduceLetClause = true;
+			var nae1Identifier = nae1 as IdentifierExpression;
+			var nae2Identifier = nae2 as IdentifierExpression;
+			if (nae1Identifier != null && nae2Identifier != null && nae1Identifier.Identifier == nae1Name && nae2Identifier.Identifier == nae2Name) {
+				introduceLetClause = false;
+			}
+
+			if (nae1Name != continuationIdentifier) {
+				if (nae2Name == continuationIdentifier) {
+					//Members are in reversed order
+					string tempName = nae1Name;
+					Expression tempNae = nae1;
+
+					nae1Name = nae2Name;
+					nae1 = nae2;
+					nae2Name = tempName;
+					nae2 = tempNae;
+				} else {
+					return false;
+				}
+			}
+
+			if (introduceLetClause && innerQuery.Clauses.OfType<QueryFromClause>().Any(from => from.Identifier == nae2Name)) {
+				return false;
+			}
+			if (introduceLetClause && innerQuery.Clauses.OfType<QueryJoinClause>().Any(join => join.JoinIdentifier == nae2Name)) {
+				return false;
+			}
+
 			// from * in (from x in ... select new { x = x, y = expr }) ...
 			// =>
 			// from x in ... let y = expr ...
@@ -121,7 +158,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			foreach (var clause in innerQuery.Clauses) {
 				query.Clauses.InsertAfter(insertionPos, insertionPos = clause.Detach());
 			}
-			query.Clauses.InsertAfter(insertionPos, new QueryLetClause { Identifier = nae2Name, Expression = nae2.Detach() });
+			if (introduceLetClause) {
+				query.Clauses.InsertAfter(insertionPos, new QueryLetClause { Identifier = nae2Name, Expression = nae2.Detach() });
+			}
 			return true;
 		}
 
