@@ -57,7 +57,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var bt = ctx.Resolve(baseType);
 					if (bt.IsError || bt.Type.Kind != TypeKind.Interface)
 						continue;
-					var toImplement = ImplementInterfaceAction.CollectMembersToImplement(rr.Type.GetDefinition(), bt.Type, false);
+					bool interfaceMissing;
+					var toImplement = ImplementInterfaceAction.CollectMembersToImplement(rr.Type.GetDefinition(), bt.Type, false, out interfaceMissing);
 					if (toImplement.Count == 0)
 						continue;
 

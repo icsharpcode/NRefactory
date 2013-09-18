@@ -52,7 +52,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (resolveResult.Type.Kind != TypeKind.Interface)
 				yield break;
 			
-			var toImplement = CollectMembersToImplement(state.CurrentTypeDefinition, resolveResult.Type, false);
+			bool interfaceMissing;
+			var toImplement = CollectMembersToImplement(state.CurrentTypeDefinition, resolveResult.Type, false, out interfaceMissing);
 			if (toImplement.Count == 0)
 				yield break;
 			
@@ -60,12 +61,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				script.InsertWithCursor(
 					context.TranslateString("Implement Interface"),
 					state.CurrentTypeDefinition,
-					(s, c) => GenerateImplementation(c, toImplement).ToList()
+					(s, c) => GenerateImplementation(c, toImplement, interfaceMissing).ToList()
 				)
 			, type);
 		}
 		
-		public static IEnumerable<AstNode> GenerateImplementation(RefactoringContext context, IEnumerable<Tuple<IMember, bool>> toImplement)
+		public static IEnumerable<AstNode> GenerateImplementation(RefactoringContext context, IEnumerable<Tuple<IMember, bool>> toImplement, bool generateRegion)
 		{
 			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
 			if (service == null)
@@ -79,45 +80,56 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			
 			foreach (var kv in nodes) {
-				if (kv.Key.Kind == TypeKind.Interface) {
-					yield return new PreProcessorDirective(
-						PreProcessorDirectiveType.Region,
-						string.Format("{0} implementation", kv.Key.Name));
-				} else {
-					yield return new PreProcessorDirective(
-						PreProcessorDirectiveType.Region,
-						string.Format("implemented abstract members of {0}", kv.Key.Name));
+				if (generateRegion) {
+					if (kv.Key.Kind == TypeKind.Interface) {
+						yield return new PreProcessorDirective(
+							PreProcessorDirectiveType.Region,
+							string.Format("{0} implementation", kv.Key.Name));
+					} else {
+						yield return new PreProcessorDirective(
+							PreProcessorDirectiveType.Region,
+							string.Format("implemented abstract members of {0}", kv.Key.Name));
+					}
 				}
 				foreach (var member in kv.Value)
 					yield return member;
-				yield return new PreProcessorDirective(
-					PreProcessorDirectiveType.Endregion
-				);
+				if (generateRegion) {
+					yield return new PreProcessorDirective(
+						PreProcessorDirectiveType.Endregion
+					);
+				}
 			}
 		}
 
-		public static List<Tuple<IMember, bool>> CollectMembersToImplement(ITypeDefinition implementingType, IType interfaceType, bool explicitly)
+		public static List<Tuple<IMember, bool>> CollectMembersToImplement(ITypeDefinition implementingType, IType interfaceType, bool explicitly, out bool interfaceMissing)
 		{
 			//var def = interfaceType.GetDefinition();
 			List<Tuple<IMember, bool>> toImplement = new List<Tuple<IMember, bool>>();
 			bool alreadyImplemented;
-			
+			interfaceMissing = true;
 			// Stub out non-implemented events defined by @iface
 			foreach (var evGroup in interfaceType.GetEvents (e => !e.IsSynthetic).GroupBy (m => m.DeclaringType).Reverse ())
 				foreach (var ev in evGroup) {
+					if (ev.DeclaringType.Kind != TypeKind.Interface)
+						continue;
+
 					bool needsExplicitly = explicitly;
 					alreadyImplemented = implementingType.GetAllBaseTypeDefinitions().Any(
 					x => x.Kind != TypeKind.Interface && x.Events.Any(y => y.Name == ev.Name)
 					);
 				
-					if (!alreadyImplemented)
+					if (!alreadyImplemented) {
 						toImplement.Add(new Tuple<IMember, bool>(ev, needsExplicitly));
+					} else {
+						interfaceMissing = false;
+					}
 				}
 			
 			// Stub out non-implemented methods defined by @iface
 			foreach (var methodGroup in interfaceType.GetMethods (d => !d.IsSynthetic).GroupBy (m => m.DeclaringType).Reverse ())
 				foreach (var method in methodGroup) {
-				
+					if (method.DeclaringType.Kind != TypeKind.Interface)
+						continue;
 					bool needsExplicitly = explicitly;
 					alreadyImplemented = false;
 				
@@ -131,13 +143,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					if (toImplement.Where(t => t.Item1 is IMethod).Any(t => CompareMembers(method, (IMethod)t.Item1)))
 						needsExplicitly = true;
-					if (!alreadyImplemented) 
+					if (!alreadyImplemented) {
 						toImplement.Add(new Tuple<IMember, bool>(method, needsExplicitly));
+					} else {
+						Console.WriteLine("!");
+						interfaceMissing = false;
+					}
 				}
 			
 			// Stub out non-implemented properties defined by @iface
 			foreach (var propGroup in interfaceType.GetProperties (p => !p.IsSynthetic).GroupBy (m => m.DeclaringType).Reverse ())
 				foreach (var prop in propGroup) {
+					if (prop.DeclaringType.Kind != TypeKind.Interface)
+						continue;
+
 					bool needsExplicitly = explicitly;
 					alreadyImplemented = false;
 					foreach (var t in implementingType.GetAllBaseTypeDefinitions ()) {
@@ -159,8 +178,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}
 						}
 					}
-					if (!alreadyImplemented)
+					if (!alreadyImplemented) {
 						toImplement.Add(new Tuple<IMember, bool>(prop, needsExplicitly));
+					} else {
+						interfaceMissing = false;
+					}
 				}
 			return toImplement;
 		}

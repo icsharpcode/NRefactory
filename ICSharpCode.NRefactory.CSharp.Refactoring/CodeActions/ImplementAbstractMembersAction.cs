@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				context.TranslateString("Implement abstract members"), 
 				script => script.InsertWithCursor(
 					context.TranslateString("Implement abstract members"), 
-					state.CurrentTypeDefinition, (s, c) => ImplementInterfaceAction.GenerateImplementation(c, toImplement.Select(m => Tuple.Create(m, false)))
+					state.CurrentTypeDefinition, (s, c) => ImplementInterfaceAction.GenerateImplementation(c, toImplement.Select(m => Tuple.Create(m, false)), true)
 				.Select(entity => {
 					var decl = entity as EntityDeclaration;
 					if (decl != null)
