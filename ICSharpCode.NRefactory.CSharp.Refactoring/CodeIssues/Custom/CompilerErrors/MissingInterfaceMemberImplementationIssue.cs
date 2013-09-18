@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<NegativeRelationalExpressionIssue>
+		class GatherVisitor : GatherVisitorBase<MissingInterfaceMemberImplementationIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base (ctx)
