@@ -404,10 +404,10 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\MemberHidesStaticFromOuterClassIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\MethodOverloadWithOptionalParameterIssue.cs" />
     <Compile Include="CodeIssues\NotWorking\DuplicateIfInIfChainIssue.cs" />
-    <Compile Include="CodeIssues\TODO\RedundantEnumerableCastCallIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ReferenceEqualsWithValueTypeIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\CompareNonConstrainedGenericWithNullIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantDelegateCreationIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEnumerableCastCallIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
