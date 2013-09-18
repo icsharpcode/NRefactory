@@ -178,12 +178,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}, returnStatement));
 					}
 
-					AddIssue(
+					AddIssue(new CodeIssue(
 						returnStatement, 
-						IssueMarker.WavedLine, 
 						string.Format(ctx.TranslateString("`{0}': A return keyword must be followed by any expression when method returns a value"), currentMethodName),
 						actions
-					);
+					));
 				}
 			}
 		}

@@ -69,9 +69,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                                                     script => RemoveRedundantIf(script, rightIf),
 						                            rightCondition);
 						
-						AddIssue(rightCondition, IssueMarker.GrayOut,
+						AddIssue(new CodeIssue(rightCondition,
 						         ctx.TranslateString(string.Format("The expression '{0}' is identical in the left branch",
-						                                  rightCondition)), action);
+								rightCondition)), action) { IssueMarker = IssueMarker.GrayOut });
 						
 					}
 				}

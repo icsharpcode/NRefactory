@@ -75,10 +75,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					foreach (var child in typeDeclaration.Children.TakeWhile (child => child != partialModifierToken)) {
 						child.AcceptVisitor(this);
 					}
-					AddIssue(partialModifierToken,
-					         IssueMarker.GrayOut,
+					AddIssue(new CodeIssue(partialModifierToken,
 					         ctx.TranslateString("Partial class with single part"),
-					         GetFixAction(typeDeclaration, partialModifierToken));
+						GetFixAction(typeDeclaration, partialModifierToken)) { IssueMarker = IssueMarker.GrayOut });
 				}
 				base.VisitTypeDeclaration(typeDeclaration);
 			}

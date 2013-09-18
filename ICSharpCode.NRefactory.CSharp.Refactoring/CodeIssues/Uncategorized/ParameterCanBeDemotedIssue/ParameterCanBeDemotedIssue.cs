@@ -152,7 +152,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					 where (!tryResolve || TypeChangeResolvesCorrectly(ctx, parameter, rootResolutionNode, type)) && !FilterOut (variable.Type, type)
 					 select type).ToList();
 				if (validTypes.Any()) {
-					AddIssue(parameter, ctx.TranslateString("Parameter can be demoted to base class"), GetActions(parameter, validTypes));
+					AddIssue(new CodeIssue(parameter, ctx.TranslateString("Parameter can be demoted to base class"), GetActions(parameter, validTypes)));
 					MembersWithIssues++;
 				}
 			}

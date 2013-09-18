@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Check for reference equality instead",
+	[IssueDescription("Check for reference equality instead",
 		Description = "Check for reference equality instead",
 		Category = IssueCategories.CodeQualityIssues,
 		Severity = Severity.Suggestion,
@@ -48,37 +48,37 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<ReferenceEqualsWithValueTypeIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
+				: base(ctx)
 			{
 			}
 
-			public override void VisitInvocationExpression (InvocationExpression invocationExpression)
+			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
 			{
-				base.VisitInvocationExpression (invocationExpression);
+				base.VisitInvocationExpression(invocationExpression);
 
 				// Quickly determine if this invocation is eligible to speed up the inspector
 				var nameToken = invocationExpression.Target.GetChildByRole(Roles.Identifier);
 				if (nameToken.Name != "ReferenceEquals")
 					return;
 
-				var resolveResult = ctx.Resolve (invocationExpression) as InvocationResolveResult;
-				if (resolveResult == null || 
-					resolveResult.Member.DeclaringTypeDefinition == null ||
-					resolveResult.Member.DeclaringTypeDefinition.KnownTypeCode != KnownTypeCode.Object ||
-					resolveResult.Member.Name != "ReferenceEquals" ||
-					invocationExpression.Arguments.All(arg => ctx.Resolve(arg).Type.IsReferenceType ?? true))
+				var resolveResult = ctx.Resolve(invocationExpression) as InvocationResolveResult;
+				if (resolveResult == null ||
+				    resolveResult.Member.DeclaringTypeDefinition == null ||
+				    resolveResult.Member.DeclaringTypeDefinition.KnownTypeCode != KnownTypeCode.Object ||
+				    resolveResult.Member.Name != "ReferenceEquals" ||
+				    invocationExpression.Arguments.All(arg => ctx.Resolve(arg).Type.IsReferenceType ?? true))
 					return;
 
-				var action1 = new CodeAction (ctx.TranslateString ("Replace expression with 'false'"),
-					script => script.Replace (invocationExpression, new PrimitiveExpression(false)), invocationExpression);
+				var action1 = new CodeAction(ctx.TranslateString("Replace expression with 'false'"),
+					              script => script.Replace(invocationExpression, new PrimitiveExpression(false)), invocationExpression);
 
-				var action2 = new CodeAction (ctx.TranslateString ("Use Equals()"),
-					script => script.Replace (invocationExpression.Target, new MemberReferenceExpression (
-						new PrimitiveType ("object"), "Equals")), invocationExpression);
+				var action2 = new CodeAction(ctx.TranslateString("Use Equals()"),
+					              script => script.Replace(invocationExpression.Target, new MemberReferenceExpression(
+						              new PrimitiveType("object"), "Equals")), invocationExpression);
 
-				AddIssue (invocationExpression,
-					ctx.TranslateString ("'Object.ReferenceEquals' is always false because it is called with value type"),
-					new [] { action1, action2 });
+				AddIssue(new CodeIssue(invocationExpression,
+					ctx.TranslateString("'Object.ReferenceEquals' is always false because it is called with value type"),
+					new [] { action1, action2 }));
 			}
 		}
 	}

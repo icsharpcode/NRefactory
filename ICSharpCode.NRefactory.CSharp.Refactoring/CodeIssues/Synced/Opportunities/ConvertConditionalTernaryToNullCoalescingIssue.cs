@@ -101,11 +101,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					}
 
-					AddIssue(conditionalExpression, ctx.TranslateString("'?:' expression can be re-written as '??' expression"), new CodeAction (
+					AddIssue(new CodeIssue(conditionalExpression, ctx.TranslateString("'?:' expression can be re-written as '??' expression"), new CodeAction (
 						ctx.TranslateString("Replace '?:'  operator with '??"), script => {
 							var expr = new BinaryOperatorExpression (a.Clone (), BinaryOperatorType.NullCoalescing, other.Clone ());
 							script.Replace (conditionalExpression, expr);
-						}, conditionalExpression));
+						}, conditionalExpression)));
 				}
 				base.VisitConditionalExpression (conditionalExpression);
 			}

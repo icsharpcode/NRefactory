@@ -102,12 +102,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddIssue(Expression expr, bool result)
 			{
-				AddIssue(
+				AddIssue(new CodeIssue(
 					expr, 
 					string.Format(ctx.TranslateString("Expression is always '{0}'"), result ? "true" : "false"), 
 					string.Format(ctx.TranslateString("Replace with '{0}'"), result ? "true" : "false"), 
 					s => s.Replace(expr, new PrimitiveExpression(result))
-				);
+				));
 			}
 
 			bool CheckConstant(Expression expr)

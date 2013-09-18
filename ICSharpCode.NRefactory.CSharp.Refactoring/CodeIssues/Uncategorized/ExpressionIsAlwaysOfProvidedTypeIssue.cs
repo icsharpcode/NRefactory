@@ -32,10 +32,10 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("CS0183:Given expression is always of the provided type",
-					   Description = "CS0183:Given expression is always of the provided type.",
-					   Category = IssueCategories.CompilerWarnings,
-					   Severity = Severity.Warning)]
+	[IssueDescription("CS0183:Given expression is always of the provided type",
+		Description = "CS0183:Given expression is always of the provided type.",
+		Category = IssueCategories.CompilerWarnings,
+		Severity = Severity.Warning)]
 	public class ExpressionIsAlwaysOfProvidedTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -46,18 +46,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<ExpressionIsAlwaysOfProvidedTypeIssue>
 		{
 			readonly CSharpConversions conversions;
-			public GatherVisitor (BaseRefactoringContext ctx)
-				: base (ctx)
+
+			public GatherVisitor(BaseRefactoringContext ctx)
+				: base(ctx)
 			{
 				conversions = CSharpConversions.Get(ctx.Compilation);
 			}
 
-			public override void VisitIsExpression (IsExpression isExpression)
+			public override void VisitIsExpression(IsExpression isExpression)
 			{
-				base.VisitIsExpression (isExpression);
+				base.VisitIsExpression(isExpression);
 
-				var type = ctx.Resolve (isExpression.Expression).Type;
-				var providedType = ctx.ResolveType (isExpression.Type);
+				var type = ctx.Resolve(isExpression.Expression).Type;
+				var providedType = ctx.ResolveType(isExpression.Type);
 
 				if (type.Kind == TypeKind.Unknown || providedType.Kind == TypeKind.Unknown)
 					return;
@@ -65,16 +66,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!IsValidReferenceOrBoxingConversion(type, providedType))
 					return;
 
-				var action = new CodeAction (
-					ctx.TranslateString ("Compare with 'null'"), 
-					script => script.Replace (isExpression, new BinaryOperatorExpression (
-						isExpression.Expression.Clone (), BinaryOperatorType.InEquality, new PrimitiveExpression (null))),
-					isExpression
-				);
-				AddIssue (isExpression, ctx.TranslateString ("Given expression is always of the provided type. " +
-					"Consider comparing with 'null' instead"), new [] { action });
+				var action = new CodeAction(
+					             ctx.TranslateString("Compare with 'null'"), 
+					             script => script.Replace(isExpression, new BinaryOperatorExpression(
+						             isExpression.Expression.Clone(), BinaryOperatorType.InEquality, new PrimitiveExpression(null))),
+					             isExpression
+				             );
+				AddIssue(new CodeIssue(isExpression, ctx.TranslateString("Given expression is always of the provided type. Consider comparing with 'null' instead"), new [] { action }));
 			}
-			
+
 			bool IsValidReferenceOrBoxingConversion(IType fromType, IType toType)
 			{
 				Conversion c = conversions.ImplicitConversion(fromType, toType);

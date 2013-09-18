@@ -59,13 +59,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var token_ in node.ModifierTokens) {
 					var token = token_;
 					if (token.Modifier == Modifiers.Sealed) {
-						AddIssue(
+						AddIssue(new CodeIssue(
 							token, 
-							IssueMarker.GrayOut,
 							ctx.TranslateString("Keyword 'sealed' is redundant in sealed classes."), 
 							ctx.TranslateString("Remove redundant 'sealed' modifier"), 
 							script => script.ChangeModifier(node, node.Modifiers & ~Modifiers.Sealed)
-						);
+						) { IssueMarker = IssueMarker.GrayOut });
 					}
 				}
 			}

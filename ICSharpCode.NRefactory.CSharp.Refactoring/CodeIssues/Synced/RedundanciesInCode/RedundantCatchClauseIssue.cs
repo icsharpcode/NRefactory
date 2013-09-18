@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (redundantCatchClauses.Count > 1) {
 						actions.Add(removeAllRedundantClausesAction);
 					}
-					AddIssue(closureLocalCatchClause, IssueMarker.GrayOut, redundantCatchClauseMessage, actions);
+					AddIssue(new CodeIssue(closureLocalCatchClause, redundantCatchClauseMessage, actions) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 
@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var fixes = new [] {
 					removeTryStatementAction
 				};
-				AddIssue(tryCatchStatement.TryBlock.EndLocation, lastCatch.EndLocation, IssueMarker.GrayOut, removeTryCatchMessage, fixes);
+				AddIssue(new CodeIssue(tryCatchStatement.TryBlock.EndLocation, lastCatch.EndLocation, removeTryCatchMessage, fixes) { IssueMarker = IssueMarker.GrayOut });
 			}
 
 			static bool IsThrowsClause (CatchClause catchClause)

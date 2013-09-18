@@ -360,7 +360,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				invocations.RemoveAll(invocation => invocation != returnedContinuation &&
 				                      invocation.Arguments.First().Children.OfType<Statement>().First().DescendantNodesAndSelf(node => node is Statement).OfType<ReturnStatement>().Any(returnStatement => !returnStatement.Expression.IsNull));
 
-				AddIssue(GetFunctionToken(currentFunction),
+				AddIssue(new CodeIssue(GetFunctionToken(currentFunction),
 				         ctx.TranslateString("Function can be converted to C# 5-style async function"),
 				         ctx.TranslateString("Convert to C# 5-style async function"),
 				                            script => {
@@ -382,7 +382,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					TransformBody(invocations, isVoid, resultType != null, returnedContinuation, taskCompletionSourceIdentifier, newFunction.GetChildByRole(Roles.Body));
 
 					script.Replace(currentFunction, newFunction);
-				});
+					}));
 			}
 
 			void TransformBody(List<InvocationExpression> validInvocations, bool isVoid, bool isParameterizedTask, InvocationExpression returnedContinuation, string taskCompletionSourceIdentifier, BlockStatement blockStatement)

@@ -183,7 +183,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}, identifier));
 						}
 
-						AddIssue(identifier, msg, actions);
+						AddIssue(new CodeIssue(identifier, msg, actions));
 					}
 				}
 				return wasHandled;

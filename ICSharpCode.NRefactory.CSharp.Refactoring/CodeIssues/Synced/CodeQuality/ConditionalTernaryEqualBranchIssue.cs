@@ -58,8 +58,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				var action = new CodeAction (ctx.TranslateString ("Replace '?:' with branch"),
 					script => script.Replace (conditionalExpression, conditionalExpression.TrueExpression.Clone ()), conditionalExpression.QuestionMarkToken);
-				AddIssue (conditionalExpression, 
-					ctx.TranslateString ("'?:' expression has identical true and false branches"), new [] { action });
+				AddIssue (new CodeIssue(conditionalExpression, 
+					ctx.TranslateString ("'?:' expression has identical true and false branches"), new [] { action }));
 			}
 		}
 	}

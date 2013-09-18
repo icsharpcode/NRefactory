@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!constructorDeclaration.HasModifier(Modifiers.Static))
 					return;
 				if (constructorDeclaration.Parameters.Count != 0) {
-					AddIssue(constructorDeclaration, ctx.TranslateString("Static constructor cannot take parameters"));
+					AddIssue(new CodeIssue(constructorDeclaration, ctx.TranslateString("Static constructor cannot take parameters")));
 				}
 			}
 		}

@@ -91,8 +91,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 					unreachableNodes.Add(unreachableExpr);
 
-					AddIssue(unreachableExpr, IssueMarker.GrayOut, ctx.TranslateString("Code is unreachable"), ctx.TranslateString("Remove unreachable code"),
-						script => script.Replace(conditionalExpression, resultExpr.Clone()));
+					AddIssue(new CodeIssue(unreachableExpr, ctx.TranslateString("Code is unreachable"), ctx.TranslateString("Remove unreachable code"),
+						script => script.Replace(conditionalExpression, resultExpr.Clone())) { IssueMarker = IssueMarker.GrayOut });
 				}
 				base.VisitConditionalExpression(conditionalExpression);
 			}
@@ -200,7 +200,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							script.InsertText(endOffset, Environment.NewLine + "*/");
 						}, collectedStatements.First().StartLocation, collectedStatements.Last().EndLocation);
 					var actions = new [] { removeAction, commentAction };
-					visitor.AddIssue(start, end, IssueMarker.GrayOut, visitor.ctx.TranslateString("Code is unreachable"), actions);
+					visitor.AddIssue(new CodeIssue(start, end, visitor.ctx.TranslateString("Code is unreachable"), actions) { IssueMarker = IssueMarker.GrayOut });
 					return true;
 				}
 				// skip lambda and anonymous method

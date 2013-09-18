@@ -164,7 +164,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						)
 					);
 
-					AddIssue(node, ctx.TranslateString("Possible multiple enumeration of IEnumerable"), actions);
+					AddIssue(new CodeIssue(node, ctx.TranslateString("Possible multiple enumeration of IEnumerable"), actions));
 				}
 			}
 

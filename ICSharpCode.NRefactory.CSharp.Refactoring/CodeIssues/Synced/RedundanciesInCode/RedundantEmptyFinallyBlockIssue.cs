@@ -64,10 +64,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var tryCatch = blockStatement.Parent as TryCatchStatement;
 				if (tryCatch == null)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					tryCatch.FinallyToken.StartLocation,
 					blockStatement.EndLocation,
-					IssueMarker.GrayOut,
 					ctx.TranslateString("Redundant empty finally block"),
 					ctx.TranslateString("Remove 'finally'"),
 					s => {
@@ -84,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						s.Remove(tryCatch.FinallyBlock); 
 						s.FormatText(tryCatch.Parent);
 					}
-				);
+				) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

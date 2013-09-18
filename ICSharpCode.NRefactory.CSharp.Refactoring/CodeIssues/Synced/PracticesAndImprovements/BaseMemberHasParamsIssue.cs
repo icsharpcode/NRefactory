@@ -64,14 +64,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var baseMember = InheritanceHelper.GetBaseMember(rr.Member) as IMethod;
 				if (baseMember == null || baseMember.Parameters.Count == 0 || !baseMember.Parameters.Last().IsParams)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					lastParam.NameToken,
 					string.Format(ctx.TranslateString("Base method '{0}' has a 'params' modifier"), baseMember.FullName),
 					ctx.TranslateString("Add 'params' modifier"),
 					script => {
 						script.ChangeModifier(lastParam, ParameterModifier.Params);
 					}
-				);
+				));
 			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)

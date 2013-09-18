@@ -71,12 +71,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var rr = ctx.Resolve(typeDeclaration);
 				if (rr.IsError || rr.Type.GetMembers().Any(IsMainMethod))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					typeDeclaration.NameToken, 
 					ctx.TranslateString("This class is recommended to be defined as static"),
 					ctx.TranslateString("Make class static"),
 					s => s.ChangeModifier(typeDeclaration, (typeDeclaration.Modifiers & ~Modifiers.Sealed) | Modifiers.Static)
-				);
+				));
 			}
 		}
 	}

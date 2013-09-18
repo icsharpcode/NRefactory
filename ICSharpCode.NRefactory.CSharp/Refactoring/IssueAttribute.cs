@@ -44,8 +44,6 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public Severity Severity { get; set; }
 
-		public Type ActionProvider { get; set; }
-
 		public IssueDescriptionAttribute (string title)
 		{
 			Title = title;

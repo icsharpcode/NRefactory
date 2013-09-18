@@ -101,10 +101,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				}
 
-				AddIssue(methodDeclaration.NameToken,
+				AddIssue(new CodeIssue(methodDeclaration.NameToken,
 				         ctx.TranslateString("Type does not implement IDisposable despite having a Dispose method"),
 				         ctx.TranslateString("Implement IDisposable"),
-				         script => Fix(script, methodDeclaration, type));
+					script => Fix(script, methodDeclaration, type)));
 			}
 
 			static IEnumerable<MethodDeclaration> DisposeMethods(TypeDeclaration newTypeDeclaration)

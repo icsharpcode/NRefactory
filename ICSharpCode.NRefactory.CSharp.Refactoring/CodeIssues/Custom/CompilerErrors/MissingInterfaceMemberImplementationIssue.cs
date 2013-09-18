@@ -32,7 +32,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Missing interface members",
 		Description = "",
 		Category = IssueCategories.CompilerErrors,
-		ActionProvider = typeof(ImplementInterfaceAction),
 		Severity = Severity.Error)]
 	public class MissingInterfaceMemberImplementationIssue : GatherVisitorCodeIssueProvider
 	{
@@ -62,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (toImplement.Count == 0)
 						continue;
 
-					AddIssue(baseType, ctx.TranslateString("Missing interface member implementations"));
+					AddIssue(new CodeIssue(baseType, ctx.TranslateString("Missing interface member implementations")) { ActionProvider = { typeof(ImplementInterfaceAction), typeof(ImplementInterfaceExplicitAction)} });
 				}
 			}
 		}

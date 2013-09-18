@@ -83,9 +83,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (initializer == null || !(target is IdentifierExpression) || ((IdentifierExpression)target).Identifier != initializer.Name)
 							return;
 						var expr = match.Get<Expression>("condition").Single();
-						AddIssue(
+						AddIssue(new CodeIssue(
 							ifElseStatement.IfToken,
-							IssueMarker.DottedLine,
 							ctx.TranslateString("Convert to '||' expresssion"),
 							ctx.TranslateString("Replace with '||'"),
 							script => {
@@ -100,11 +99,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 									);
 								script.Remove(ifElseStatement); 
 							}
-						);
+						) { IssueMarker = IssueMarker.DottedLine });
 						return;
 					} else {
 						var expr = match.Get<Expression>("condition").Single();
-						AddIssue(
+						AddIssue(new CodeIssue(
 							ifElseStatement.IfToken,
 							ctx.TranslateString("Convert to '|=' expresssion"),
 							ctx.TranslateString("Replace with '|='"),
@@ -119,7 +118,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 										)
 									);
 							}
-						);
+						));
 					}
 				}
 			}

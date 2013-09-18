@@ -95,16 +95,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				foreach (var decl in unused) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						decl,
-						IssueMarker.GrayOut,
 						ctx.TranslateString("Using directive is not used by code and can be removed safely."), ctx.TranslateString("Remove redundant using directives"),
 						script => {
 						foreach (var u2 in unused) {
 							script.Remove (u2);
 						}
 					}
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 

@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			void Collect()
 			{
 				foreach (var varDecl in fieldStack.Peek()) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						varDecl.Item1.NameToken,
 						ctx.TranslateString("Convert to constant"),
 						ctx.TranslateString("To const"),
@@ -107,7 +107,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var constVarDecl = (FieldDeclaration)varDecl.Item1.Parent;
 							script.ChangeModifier(constVarDecl, (constVarDecl.Modifiers & ~Modifiers.Static) | Modifiers.Const);
 						}
-					);
+					));
 				}
 			}
 
@@ -192,7 +192,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (assignmentAnalysis.GetStatus(vr.Variable) == VariableState.Changed)
 					return;
-				AddIssue (
+				AddIssue (new CodeIssue(
 					varDecl.Variables.First().NameToken,
 					ctx.TranslateString ("Convert to constant"),
 					ctx.TranslateString ("To const"),
@@ -201,7 +201,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						constVarDecl.Modifiers |= Modifiers.Const;
 						script.Replace (varDecl, constVarDecl);
 					}
-				);
+				));
 			}
 		}
 	

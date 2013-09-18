@@ -84,15 +84,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				unsafeIsRedundant |= typeDeclaration.HasModifier(Modifiers.Unsafe) && !state.UseUnsafeConstructs;
 
 				if (unsafeIsRedundant) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						typeDeclaration.ModifierTokens.First (t => t.Modifier == Modifiers.Unsafe),
-						IssueMarker.GrayOut,
 						ctx.TranslateString("'unsafe' modifier is redundant."), 
 						ctx.TranslateString("Remove redundant 'unsafe' modifier"), 
 						script => {
 							script.ChangeModifier (typeDeclaration, typeDeclaration.Modifiers & ~Modifiers.Unsafe);
 						}
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 
@@ -132,7 +131,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				isRedundant |= !unsafeStateStack.Pop().UseUnsafeConstructs;
 
 				if (isRedundant) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						unsafeStatement.UnsafeToken,
 						ctx.TranslateString("'unsafe' statement is redundant."), 
 						ctx.TranslateString("Replace 'unsafe' statement with it's body"), 
@@ -142,7 +141,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							s.Remove(unsafeStatement.Body.RBraceToken);
 							s.FormatText(unsafeStatement.Parent);
 						}
-					);
+					));
 				}
 			}
 		}

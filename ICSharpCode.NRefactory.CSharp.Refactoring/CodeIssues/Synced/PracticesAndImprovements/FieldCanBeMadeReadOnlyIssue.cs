@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			void Collect()
 			{
 				foreach (var varDecl in fieldStack.Peek()) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						varDecl.Item1.NameToken,
 						ctx.TranslateString("Convert to readonly"),
 						ctx.TranslateString("To readonly"),
@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var field = (FieldDeclaration)varDecl.Item1.Parent;
 						script.ChangeModifier(field, field.Modifiers | Modifiers.Readonly);
 					}
-					);
+					));
 				}
 			}
 

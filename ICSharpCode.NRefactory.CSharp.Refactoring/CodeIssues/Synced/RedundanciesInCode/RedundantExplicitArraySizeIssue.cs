@@ -63,13 +63,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (value == 0)
 					return;
 				if (arrayCreateExpression.Initializer.Elements.Count() == value) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						arg,
-						IssueMarker.GrayOut,
 						ctx.TranslateString("Redundant explicit size in array creation"),
 						string.Format(ctx.TranslateString("Remove '{0}'"), arg),
 						s => { s.Remove(arg); }
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

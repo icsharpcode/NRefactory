@@ -54,10 +54,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
 			{
 				if (IsEmpty (destructorDeclaration.Body)) {
-					AddIssue(destructorDeclaration.NameToken,
-					         IssueMarker.GrayOut,
+					AddIssue(new CodeIssue(destructorDeclaration.NameToken,
 					         ctx.TranslateString("Empty destructor is redundant"),
-					         GetFixAction(destructorDeclaration));
+						GetFixAction(destructorDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 

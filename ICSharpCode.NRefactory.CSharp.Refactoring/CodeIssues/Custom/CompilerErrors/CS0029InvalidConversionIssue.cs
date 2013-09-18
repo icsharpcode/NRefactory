@@ -185,7 +185,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					}
 				}
-				AddIssue(expression, IssueMarker.WavedLine, title, fixes);
+				AddIssue(new CodeIssue(expression, title, fixes));
 			}
 		}
 	}

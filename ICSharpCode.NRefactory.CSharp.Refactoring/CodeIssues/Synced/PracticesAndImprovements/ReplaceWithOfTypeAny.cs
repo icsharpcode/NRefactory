@@ -124,7 +124,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (!ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param1"), match.Get("expr1")) ||
 							!ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param2"), match.Get("expr2")))
 							return;
-						AddIssue(
+						AddIssue(new CodeIssue(
 							anyInvoke,
 							string.Format(ctx.TranslateString("Replace with OfType<T>().{0}()"), member),
 							string.Format(ctx.TranslateString("Replace with call to OfType<T>().{0}()"), member),
@@ -141,7 +141,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							)
 							);
 						}
-						);
+						));
 						return;
 					}
 				}
@@ -151,7 +151,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (!ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param1"), match.Get("expr1")) ||
 					    !ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param2"), match.Get("expr2")))
 						return;
-					AddIssue (
+					AddIssue(new CodeIssue(
 						anyInvoke,
 						string.Format(ctx.TranslateString("Replace with OfType<T>().{0}()"), member),
 						string.Format(ctx.TranslateString("Replace with call to OfType<T>().{0}()"), member),
@@ -173,7 +173,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								)
 							 );
 						}
-					);
+					));
 					return;
 				}
 			}

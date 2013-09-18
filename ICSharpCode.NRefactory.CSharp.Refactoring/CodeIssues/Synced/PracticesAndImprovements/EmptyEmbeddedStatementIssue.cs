@@ -54,9 +54,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (statement == null)
 					return;
 
-				AddIssue(whileStatement.EmbeddedStatement,
+				AddIssue(new CodeIssue(whileStatement.EmbeddedStatement,
 				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-				                     script => script.Replace(whileStatement.EmbeddedStatement, new BlockStatement()));
+					script => script.Replace(whileStatement.EmbeddedStatement, new BlockStatement())));
 			}
 
 			public override void VisitForeachStatement(ForeachStatement foreachStatement)
@@ -66,9 +66,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (statement == null)
 					return;
 
-				AddIssue(foreachStatement.EmbeddedStatement,
+				AddIssue(new CodeIssue(foreachStatement.EmbeddedStatement,
 				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-				                     script => script.Replace(foreachStatement.EmbeddedStatement, new BlockStatement()));
+					script => script.Replace(foreachStatement.EmbeddedStatement, new BlockStatement())));
 			}
 
 			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
@@ -77,9 +77,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var statement = ifElseStatement.TrueStatement as EmptyStatement;
 				if (statement == null)
 					return;
-				AddIssue(ifElseStatement.TrueStatement, 
+				AddIssue(new CodeIssue(ifElseStatement.TrueStatement, 
 				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-				                     script => script.Replace(ifElseStatement.TrueStatement, new BlockStatement()));
+					script => script.Replace(ifElseStatement.TrueStatement, new BlockStatement())));
 			}
 
 			public override void VisitForStatement(ForStatement forStatement)
@@ -90,9 +90,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (statement == null)
 					return;
 
-				AddIssue(forStatement.EmbeddedStatement,
+				AddIssue(new CodeIssue(forStatement.EmbeddedStatement,
 				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-				                     script => script.Replace(forStatement.EmbeddedStatement, new BlockStatement()));
+					script => script.Replace(forStatement.EmbeddedStatement, new BlockStatement())));
 			}
 		}
 	}

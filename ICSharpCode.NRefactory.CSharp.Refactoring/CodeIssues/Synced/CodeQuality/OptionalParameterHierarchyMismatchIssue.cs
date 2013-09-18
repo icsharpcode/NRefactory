@@ -109,31 +109,32 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					if (overridenParameter.IsOptional) {
 						if (!baseParameter.IsOptional) {
-							AddIssue(parameterDeclaration,
+							AddIssue(new CodeIssue(parameterDeclaration,
 							         string.Format(ctx.TranslateString("Optional parameter value {0} differs from base " + memberType + " '{1}'"), parameterName, baseMethod.DeclaringType.FullName),
 							         ctx.TranslateString("Remove parameter default value"),
 							         script => {
 								script.Remove(parameterDeclaration.AssignToken);
 								script.Remove(parameterDeclaration.DefaultExpression);
 								script.FormatText(parameterDeclaration);
-							});
+								}));
 						} else if (!object.Equals(overridenParameter.ConstantValue, baseParameter.ConstantValue)) {
-							AddIssue(parameterDeclaration,
+							AddIssue(new CodeIssue(parameterDeclaration,
 							         string.Format(ctx.TranslateString("Optional parameter value {0} differs from base " + memberType + " '{1}'"), parameterName, baseMethod.DeclaringType.FullName),
 							         string.Format(ctx.TranslateString("Change default value to {0}"), baseParameter.ConstantValue),
-							         script => script.Replace(parameterDeclaration.DefaultExpression, CreateDefaultValueExpression(ctx, parameterDeclaration, baseParameter.Type, baseParameter.ConstantValue)));
+								script => script.Replace(parameterDeclaration.DefaultExpression, CreateDefaultValueExpression(ctx, parameterDeclaration, baseParameter.Type, baseParameter.ConstantValue))));
 						}
 					} else {
 						if (!baseParameter.IsOptional)
 							continue;
-						AddIssue(parameterDeclaration,
-						         string.Format(ctx.TranslateString("Parameter {0} has default value in base method '{1}'"), parameterName, baseMethod.FullName),
-						         string.Format(ctx.TranslateString("Add default value from base '{0}'"), CreateDefaultValueExpression(ctx, parameterDeclaration, baseParameter.Type, baseParameter.ConstantValue)),
-						         script => {
-							var newParameter = (ParameterDeclaration)parameterDeclaration.Clone();
-							newParameter.DefaultExpression = CreateDefaultValueExpression(ctx, parameterDeclaration, baseParameter.Type, baseParameter.ConstantValue);
-							script.Replace(parameterDeclaration, newParameter);
-						});
+						AddIssue(new CodeIssue(parameterDeclaration,
+							string.Format(ctx.TranslateString("Parameter {0} has default value in base method '{1}'"), parameterName, baseMethod.FullName),
+							string.Format(ctx.TranslateString("Add default value from base '{0}'"), CreateDefaultValueExpression(ctx, parameterDeclaration, baseParameter.Type, baseParameter.ConstantValue)),
+							script => {
+								var newParameter = (ParameterDeclaration)parameterDeclaration.Clone();
+								newParameter.DefaultExpression = CreateDefaultValueExpression(ctx, parameterDeclaration, baseParameter.Type, baseParameter.ConstantValue);
+								script.Replace(parameterDeclaration, newParameter);
+							}
+						));
 					}
 				}
 			}

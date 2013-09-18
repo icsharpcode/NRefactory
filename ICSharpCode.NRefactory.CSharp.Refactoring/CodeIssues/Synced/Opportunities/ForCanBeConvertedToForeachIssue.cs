@@ -200,23 +200,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Used)
 					return;
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					forStatement.ForToken,
-					IssueMarker.DottedLine,
 					ctx.TranslateString("'for' loop can be converted to 'foreach'"),
 					ctx.TranslateString("Convert to 'foreach'"),
 					script => {
-					var foreachBody = (BlockStatement)forStatement.EmbeddedStatement.Clone();
-					foreachBody.Statements.First().Remove();
-						
-					var fe = new ForeachStatement {
-						VariableType = new PrimitiveType("var"),
-						VariableName = variableInitializer.Name,
-						InExpression = upperBound.Target.Clone(),
-						EmbeddedStatement = foreachBody
-					};
-					script.Replace(forStatement, fe); 
-				});
+						var foreachBody = (BlockStatement)forStatement.EmbeddedStatement.Clone();
+						foreachBody.Statements.First().Remove();
+
+						var fe = new ForeachStatement {
+							VariableType = new PrimitiveType("var"),
+							VariableName = variableInitializer.Name,
+							InExpression = upperBound.Target.Clone(),
+							EmbeddedStatement = foreachBody
+						};
+						script.Replace(forStatement, fe); 
+					}
+				) { IssueMarker = IssueMarker.DottedLine });
 
 			}
 		}

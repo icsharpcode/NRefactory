@@ -57,13 +57,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var m = pattern.Match(forstatement.Condition);
 				if (m.Success) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						forstatement.Condition, 
-						IssueMarker.GrayOut,
 						ctx.TranslateString("'true' is redundant as for statement condition"), 
 						ctx.TranslateString("Remove 'true'"),
 						script => script.Remove(forstatement.Condition)
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

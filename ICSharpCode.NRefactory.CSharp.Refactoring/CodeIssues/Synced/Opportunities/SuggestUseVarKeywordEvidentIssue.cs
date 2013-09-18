@@ -36,11 +36,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// action.
 	/// </summary>
 	[IssueDescription("Use 'var'",
-	       Description = "Use 'var' keyword when possible",
-	       Category = IssueCategories.Opportunities,
-	       Severity = Severity.Hint,
-	       ActionProvider = typeof(UseVarKeywordAction),
-           AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
+		Description = "Use 'var' keyword when possible",
+		Category = IssueCategories.Opportunities,
+		Severity = Severity.Hint,
+		AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -102,7 +101,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			void AddIssue(VariableDeclarationStatement variableDeclarationStatement)
 			{
-				AddIssue(variableDeclarationStatement.Type, IssueMarker.DottedLine, ctx.TranslateString("Use 'var' keyword"));
+				AddIssue(new CodeIssue(variableDeclarationStatement.Type, ctx.TranslateString("Use 'var' keyword")) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(UseVarKeywordAction) } });
 			}
 		}
 	}

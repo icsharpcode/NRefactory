@@ -66,12 +66,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
 					return;
 				}
-				AddIssue(
+				AddIssue(new CodeIssue(
 					invocationExpression,
 					ctx.TranslateString("'string.CompareTo' is culture-aware"), 
 					new CodeAction(ctx.TranslateString("Use ordinal comparison"), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
 					new CodeAction(ctx.TranslateString("Use culture-aware comparison"), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
-				);
+				));
 
 			}
 

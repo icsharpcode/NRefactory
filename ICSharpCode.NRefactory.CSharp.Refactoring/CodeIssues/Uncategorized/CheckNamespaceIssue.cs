@@ -64,20 +64,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (namespaceDeclaration.Parent is NamespaceDeclaration ||
 				    namespaceDeclaration.FullName == defaultNamespace)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					namespaceDeclaration.NamespaceName,
 					string.Format(ctx.TranslateString("Namespace does not correspond to file location, should be: '{0}'"), ctx.DefaultNamespace)
-				);
+				));
 			}
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
 				var ns = typeDeclaration.Parent as NamespaceDeclaration;
 				if (ns == null) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						typeDeclaration.NameToken,
 						string.Format(ctx.TranslateString("Type should be declared inside the namespace '{0}'"), ctx.DefaultNamespace)
-					);
+					));
 				}
 				// skip children
 			}

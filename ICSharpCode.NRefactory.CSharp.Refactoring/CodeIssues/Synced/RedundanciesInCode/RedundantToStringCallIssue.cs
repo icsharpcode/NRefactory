@@ -95,12 +95,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				// This has been moved out to the callers, to check it earlier for a 30-40% run time reduction
 				processedNodes.Add(invocationExpression);
 				
-				AddIssue(memberExpression.DotToken.StartLocation, invocationExpression.RParToken.EndLocation,
-				         IssueMarker.GrayOut,
+				AddIssue(new CodeIssue(memberExpression.DotToken.StartLocation, invocationExpression.RParToken.EndLocation,
 				         ctx.TranslateString("Redundant ToString() call"), 
 				         ctx.TranslateString("Remove redundant '.ToString()'"), script =>  {
 					script.Replace(invocationExpression, memberExpression.Target.Clone());
-				});
+					}) { IssueMarker = IssueMarker.GrayOut });
 			}
 
 			#region Binary operator

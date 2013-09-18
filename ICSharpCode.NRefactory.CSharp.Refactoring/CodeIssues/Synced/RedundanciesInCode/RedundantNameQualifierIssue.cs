@@ -91,13 +91,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var lookupName = state.LookupSimpleNameOrTypeName(memberName.Name, resolvedTypeArguments, mode);
 				
 				if (lookupName is TypeResolveResult && !lookupName.IsError && wholeResult.Type.Equals(lookupName.Type)) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						wholeNode.StartLocation, 
 						memberName.StartLocation, 
-						IssueMarker.GrayOut,
 						ctx.TranslateString("Qualifier is redundant"), 
 						ctx.TranslateString("Remove redundant qualifier"), 
-						action);
+						action) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

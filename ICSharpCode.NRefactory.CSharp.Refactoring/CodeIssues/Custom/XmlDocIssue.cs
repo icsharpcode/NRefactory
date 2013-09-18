@@ -63,17 +63,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				var from = storedXmlComment.First().StartLocation;
 				var to = storedXmlComment.Last().EndLocation;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					from,
 					to,
 					ctx.TranslateString("Xml comment is not placed before a valid language element"),
 					ctx.TranslateString("Remove comment"),
 					script => {
-					var startOffset = script.GetCurrentOffset(from);
-					var endOffset = script.GetCurrentOffset(to);
-					endOffset += ctx.GetLineByOffset(endOffset).DelimiterLength;
-					script.RemoveText(startOffset, endOffset - startOffset);
-				});
+						var startOffset = script.GetCurrentOffset(from);
+						var endOffset = script.GetCurrentOffset(to);
+						endOffset += ctx.GetLineByOffset(endOffset).DelimiterLength;
+						script.RemoveText(startOffset, endOffset - startOffset);
+					}
+				));
 				storedXmlComment.Clear();
 			}
 
@@ -125,13 +126,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var textLocation = TranslateOffset(offset);
 				var textLocation2 = TranslateOffset(offset + length);
 				if (textLocation.IsEmpty && textLocation2.IsEmpty) {
-					AddIssue(storedXmlComment.Last(), str);
+					AddIssue(new CodeIssue(storedXmlComment.Last(), str));
 				} else if (textLocation.IsEmpty) {
-					AddIssue(storedXmlComment.First().StartLocation, textLocation2, str);
+					AddIssue(new CodeIssue(storedXmlComment.First().StartLocation, textLocation2, str));
 				} else if (textLocation2.IsEmpty) {
-					AddIssue(textLocation, storedXmlComment.Last().EndLocation, str);
+					AddIssue(new CodeIssue(textLocation, storedXmlComment.Last().EndLocation, str));
 				} else {
-					AddIssue(textLocation, textLocation2, str);
+					AddIssue(new CodeIssue(textLocation, textLocation2, str));
 				}
 			}
 			readonly StringTextSource emptySource = new StringTextSource("");

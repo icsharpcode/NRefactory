@@ -64,12 +64,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var right = ctx.Resolve(assignmentExpression.Right);
 				if (right.IsError || !Equals(left.Type, right.Type))
 					return;
-				AddIssue(oce.StartLocation, oce.Type.EndLocation,
-					IssueMarker.GrayOut,
+				AddIssue(new CodeIssue(oce.StartLocation, oce.Type.EndLocation,
 					ctx.TranslateString("Redundant explicit delegate declaration"),
 					ctx.TranslateString("Remove redundant 'new'"),
 					s => s.Replace(assignmentExpression.Right, oce.Arguments.First())
-				);
+				) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

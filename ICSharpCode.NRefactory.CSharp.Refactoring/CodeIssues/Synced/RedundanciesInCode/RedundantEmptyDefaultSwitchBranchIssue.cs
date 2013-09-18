@@ -57,13 +57,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitSwitchSection(switchSection);
 				if (!pattern.IsMatch(switchSection))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					switchSection,
-					IssueMarker.GrayOut,
 					ctx.TranslateString("Redundant empty 'default' switch branch"),
 					ctx.TranslateString("Remove redundant 'default' branch"),
 					script => script.Remove(switchSection)
-				);
+				) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

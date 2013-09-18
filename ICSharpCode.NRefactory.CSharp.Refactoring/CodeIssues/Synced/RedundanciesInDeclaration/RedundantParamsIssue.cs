@@ -64,9 +64,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var baseMember = InheritanceHelper.GetBaseMember(rr.Member) as IMethod;
 				if (baseMember == null || baseMember.Parameters.Count == 0 || baseMember.Parameters.Last().IsParams)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					lastParam.GetChildByRole(ParameterDeclaration.ParamsModifierRole),
-					IssueMarker.GrayOut,
 					ctx.TranslateString("'params' is always ignored in overrides"),
 					ctx.TranslateString("Remove 'params' modifier"),
 					script => {
@@ -74,7 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						p.ParameterModifier = ParameterModifier.None;
 						script.Replace(lastParam, p);
 					}
-				);
+				) { IssueMarker = IssueMarker.GrayOut });
 			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)

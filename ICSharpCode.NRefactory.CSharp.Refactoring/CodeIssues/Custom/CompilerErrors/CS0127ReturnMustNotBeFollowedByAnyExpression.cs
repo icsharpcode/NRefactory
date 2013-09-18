@@ -125,11 +125,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					}
 
-					AddIssue(
+					AddIssue(new CodeIssue(
 						returnStatement, 
 						ctx.TranslateString("Return type is 'void'"),
 						actions
-					);
+					));
 				}
 			}
 		}

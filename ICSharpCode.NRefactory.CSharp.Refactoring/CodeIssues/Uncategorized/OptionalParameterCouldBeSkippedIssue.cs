@@ -121,7 +121,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}, node, null));
 					}
 
-					AddIssue(localArgument, IssueMarker.GrayOut, issueMessage, actions);
+					AddIssue(new CodeIssue(localArgument, issueMessage, actions) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 

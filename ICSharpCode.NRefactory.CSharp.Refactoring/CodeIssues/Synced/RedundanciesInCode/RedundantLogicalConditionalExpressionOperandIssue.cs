@@ -65,13 +65,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				var redundant = match.Get<Expression>("redundant").Single();
 				var expr = match.Get<Expression>("expr").Single();
-				AddIssue(
+				AddIssue(new CodeIssue(
 					redundant,
-					IssueMarker.GrayOut,
 					ctx.TranslateString("Redundant operand in logical conditional expression"),
 					ctx.TranslateString("Remove expression"),
 					script => script.Replace(binaryOperatorExpression, expr.Clone())
-				);
+				) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

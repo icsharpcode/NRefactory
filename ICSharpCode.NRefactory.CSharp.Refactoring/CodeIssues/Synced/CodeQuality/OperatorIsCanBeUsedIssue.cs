@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				}
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					binaryOperatorExpression, 
 					ctx.TranslateString("Operator 'is' can be used"), 
 					ctx.TranslateString("Replace with 'is' operator"), 
@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var isExpr = new IsExpression(identifier.Clone(), type.Clone());
 						script.Replace(binaryOperatorExpression, isExpr);
 					}
-				);
+				));
 			}
 		}
 	}

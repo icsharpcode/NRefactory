@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				if (expr.Identifier != lambda.Parameters.Single().Name)
 					return;
-				AddIssue (
+				AddIssue (new CodeIssue(
 					anyInvoke,
 					ctx.TranslateString("Replace with OfType<T>"),
 					ctx.TranslateString("Replace with call to OfType<T>"),
@@ -96,7 +96,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var type = match.Get<AstType>("type").Single().Clone();
 						script.Replace(anyInvoke, new InvocationExpression(new MemberReferenceExpression(target, "OfType", type)));
 					}
-				);
+				));
 			}
 		}
 	}

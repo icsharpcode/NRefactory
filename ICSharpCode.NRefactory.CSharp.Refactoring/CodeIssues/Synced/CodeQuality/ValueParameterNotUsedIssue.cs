@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if(!referenceFound)
-					AddIssue(accessor.Keyword, accessorName);
+					AddIssue(new CodeIssue(accessor.Keyword, accessorName));
 			}
 
 			static bool IsEligible(BlockStatement body)

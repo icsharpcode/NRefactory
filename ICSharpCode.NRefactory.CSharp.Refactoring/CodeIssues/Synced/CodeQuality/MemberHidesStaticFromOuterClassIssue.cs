@@ -90,9 +90,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							outerMemberType = ctx.TranslateString("member");
 							break;
 					}
-					AddIssue(nodeToMark,
+					AddIssue(new CodeIssue(nodeToMark,
 						string.Format(ctx.TranslateString("{0} '{1}' hides {2} from outer class"),
-							memberType, member.Name, outerMemberType));
+							memberType, member.Name, outerMemberType)));
 					return;
 				}
 			}

@@ -61,10 +61,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (na.Name != ir.Member.Parameters[i].Name)
 							break;
 						var _i = i;
-						AddIssue(
+						AddIssue(new CodeIssue(
 							na.NameToken.StartLocation,
 							na.ColonToken.EndLocation,
-							IssueMarker.GrayOut,
 							ctx.TranslateString("Redundant argument name specification"), 
 							ctx.TranslateString("Remove argument name specification"),
 							script => {
@@ -72,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 									script.Replace(node, node.Expression.Clone());
 								}
 							}
-						);
+						) { IssueMarker = IssueMarker.GrayOut });
 					}
 					i++;
 				}

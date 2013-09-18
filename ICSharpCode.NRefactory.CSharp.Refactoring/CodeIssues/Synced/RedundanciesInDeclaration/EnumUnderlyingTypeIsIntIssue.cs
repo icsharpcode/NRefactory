@@ -68,15 +68,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var startLocation = colonToken.StartLocation;
 					var endLocation = underlyingType.EndLocation;
 
-					AddIssue(startLocation,
+					AddIssue(new CodeIssue(startLocation,
 					         endLocation,
-					         IssueMarker.GrayOut,
 					         ctx.TranslateString("Default underlying type of enums is already int"),
 					         ctx.TranslateString("Remove redundant ': int'"),
 					         script =>
 					{
 						script.ChangeBaseTypes(typeDeclaration, Enumerable.Empty<AstType>());
-					});
+						}) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 

@@ -62,13 +62,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitExpressionStatement(expressionStatement);
 				if (pattern.IsMatch(expressionStatement)) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						expressionStatement,
-						IssueMarker.GrayOut,
 						ctx.TranslateString("Statement is redundant"),
 						ctx.TranslateString("Remove redundant statement"),
 						s => s.Remove(expressionStatement)
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

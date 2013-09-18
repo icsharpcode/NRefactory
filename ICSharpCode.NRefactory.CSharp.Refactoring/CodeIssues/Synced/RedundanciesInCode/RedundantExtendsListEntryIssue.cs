@@ -121,9 +121,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						ctx.TranslateString("Base interface '{0}' is redundant") :
 						ctx.TranslateString("Base type '{0}' is already specified in other parts");
 
-					AddIssue(
+					AddIssue(new CodeIssue(
 						node,
-						IssueMarker.GrayOut,
 						string.Format(issueText, nodeType.Name), 
 						new CodeAction (
 							ctx.TranslateString("Remove redundant base type reference"),
@@ -139,7 +138,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								script.Remove(node);
 							},
 						node)
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 			

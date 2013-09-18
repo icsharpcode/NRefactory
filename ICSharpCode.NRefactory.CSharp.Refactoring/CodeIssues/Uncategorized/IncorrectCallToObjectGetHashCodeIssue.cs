@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				    !resolveResult.Member.DeclaringTypeDefinition.IsKnownType(KnownTypeCode.Object)) {
 					return;
 				}
-				AddIssue(invocationExpression, ctx.TranslateString("Call resolves to Object.GetHashCode, which is reference based"));
+				AddIssue(new CodeIssue(invocationExpression, ctx.TranslateString("Call resolves to Object.GetHashCode, which is reference based")));
 			}
 		}
 	}

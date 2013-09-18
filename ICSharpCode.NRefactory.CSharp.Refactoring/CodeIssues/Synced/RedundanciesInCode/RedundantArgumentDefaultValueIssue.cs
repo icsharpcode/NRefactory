@@ -107,9 +107,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 					for (int j = i; j < arguments.Count && j < rr.Member.Parameters.Count; j++) {
 						var _i = j;
-						AddIssue(
+						AddIssue(new CodeIssue(
 							arguments[j],
-							IssueMarker.GrayOut,
 							i + 1 < arguments.Count ? ctx.TranslateString("Argument values are redundant") : ctx.TranslateString("Argument value is redundant"),
 							i + 1 < arguments.Count ? ctx.TranslateString("Remove redundant arguments") : ctx.TranslateString("Remove redundant argument"),
 							script => {
@@ -121,7 +120,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 									argCollection.Add(arguments[k].Clone());
 								script.Replace(invocationExpression, invoke);
 							}
-						);
+						) { IssueMarker = IssueMarker.GrayOut });
 					}
 					break;
 				}

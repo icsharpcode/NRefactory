@@ -73,9 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
 						return;
 					var title = ctx.TranslateString("Redundant method override");
-					AddIssue(methodDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove redundant method override"), script => {
-						script.Remove(methodDeclaration);
-					});
+					AddIssue(new CodeIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => script.Remove(methodDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 				} else if (expr.FirstChild is CSharpTokenNode && expr.FirstChild.ToString().Equals("return")) {
 					var invocationExpression = expr.FirstChild.NextSibling as InvocationExpression;
 					if (invocationExpression == null)
@@ -86,9 +84,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
 						return;
 					var title = ctx.TranslateString("Redundant method override");
-					AddIssue(methodDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove redundant method override"), script => {
-						script.Remove(methodDeclaration);
-					});
+					AddIssue(new CodeIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => script.Remove(methodDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 				}
 				return;
 			}
@@ -156,9 +152,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				
 				var title = ctx.TranslateString("Redundant property override");
-				AddIssue(propertyDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove redundant property override"), script => {
-					script.Remove(propertyDeclaration);
-				});
+				AddIssue(new CodeIssue(propertyDeclaration, title, ctx.TranslateString("Remove redundant property override"), script => script.Remove(propertyDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 			}
 			
 			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
@@ -224,9 +218,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				
 				var title = ctx.TranslateString("Redundant indexer override");
-				AddIssue(indexerDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove redundant indexer override"), script => {
-					script.Remove(indexerDeclaration);
-				});
+				AddIssue(new CodeIssue(indexerDeclaration, title, ctx.TranslateString("Remove redundant indexer override"), script => script.Remove(indexerDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 			}
 
 			static readonly AstNode customEventPattern =
@@ -264,9 +256,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				var title = ctx.TranslateString("Redundant event override");
-				AddIssue(eventDeclaration, IssueMarker.GrayOut, title, ctx.TranslateString("Remove event override"), script => {
-					script.Remove(eventDeclaration);
-				});
+				AddIssue(new CodeIssue(eventDeclaration, title, ctx.TranslateString("Remove event override"), script => script.Remove(eventDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

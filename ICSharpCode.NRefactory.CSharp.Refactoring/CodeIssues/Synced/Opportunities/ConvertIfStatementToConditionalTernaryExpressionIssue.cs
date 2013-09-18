@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Convert 'if' to '?:'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
-	                  ActionProvider = typeof(ConvertIfStatementToConditionalTernaryExpressionAction),
 	                  AnalysisDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
 	public class ConvertIfStatementToConditionalTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
@@ -97,11 +96,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (IsComplexCondition(condition) || IsComplexExpression(trueExpr) || IsComplexExpression(falseExpr))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					ifElseStatement.IfToken,
-					IssueMarker.DottedLine,
 					ctx.TranslateString("Convert to '?:' expression")
-				);
+				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToConditionalTernaryExpressionAction) } });
 			}
 		}
 	}

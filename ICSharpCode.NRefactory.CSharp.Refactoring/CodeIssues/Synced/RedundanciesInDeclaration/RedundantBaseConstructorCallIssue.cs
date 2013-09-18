@@ -57,15 +57,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				if (constructorDeclaration.Initializer.Arguments.Count != 0)
 					return;
-				AddIssue(constructorDeclaration.Initializer.StartLocation, constructorDeclaration.Initializer.EndLocation,
-				         IssueMarker.GrayOut,
+				AddIssue(new CodeIssue(constructorDeclaration.Initializer.StartLocation, constructorDeclaration.Initializer.EndLocation,
 				         ctx.TranslateString("Redundant base constructor call"),
 				         ctx.TranslateString("Remove redundant 'base()'"),
 				         script => {
 					var clone = (ConstructorDeclaration)constructorDeclaration.Clone();
 					script.Replace(clone.ColonToken, CSharpTokenNode.Null.Clone());
 					script.Replace(constructorDeclaration.Initializer, ConstructorInitializer.Null.Clone());
-				});
+					}) { IssueMarker = IssueMarker.GrayOut });
 			}
 
 			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)

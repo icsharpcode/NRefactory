@@ -124,8 +124,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (!modified)
-					AddIssue (controlVariable.NameToken,
-						ctx.TranslateString ("'for' loop control variable is never modified"));
+					AddIssue (new CodeIssue(controlVariable.NameToken,
+						ctx.TranslateString ("'for' loop control variable is never modified")));
 
 			}
 		}

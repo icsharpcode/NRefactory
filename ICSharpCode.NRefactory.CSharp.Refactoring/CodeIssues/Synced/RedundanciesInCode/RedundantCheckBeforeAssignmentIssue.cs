@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var m = pattern.Match(ifElseStatement);
 				if (!m.Success)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					ifElseStatement.Condition,
 					ctx.TranslateString("Redundant condition check before assignment"),
 					ctx.TranslateString("Remove redundant check"),
@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							stmt = block.Statements.First();
 						script.Replace(ifElseStatement, stmt.Clone());
 					}
-				);
+				));
 			}
 		}
 	}

@@ -64,14 +64,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (!member.Attributes.Any(attr => attr.AttributeType.Name == "TestAttribute" && attr.AttributeType.Namespace == "NUnit.Framework"))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					methodDeclaration.NameToken,
 					ctx.TranslateString("NUnit test methods should be public"),
 					ctx.TranslateString("Make method public"),
 					script => {
 						script.ChangeModifier(methodDeclaration, Modifiers.Public);
 					}
-				);
+				));
 			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)

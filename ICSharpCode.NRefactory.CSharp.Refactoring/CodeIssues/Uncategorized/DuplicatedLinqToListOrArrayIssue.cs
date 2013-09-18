@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (matches >= 2) {
-					AddIssue(currentExpression.EndLocation,
+					AddIssue(new CodeIssue(currentExpression.EndLocation,
 					         invocationExpression.EndLocation,
 					         ctx.TranslateString("Redundant Linq method invocations"),
 					         ctx.TranslateString("Remove redundant method invocations"),
@@ -96,7 +96,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						script.Replace(invocationExpression, newInvocation);
 
-					});
+						}));
 				}
 
 				//Visit the children

@@ -60,14 +60,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddStaticRequiredError (EntityDeclaration entity, AstNode node)
 			{
-				AddIssue(
+				AddIssue(new CodeIssue(
 					node,
 					ctx.TranslateString("'static' modifier is required inside a static class"),
 					ctx.TranslateString("Add 'static' modifier"), 
 					s => {
 						s.ChangeModifier(entity, (entity.Modifiers & ~(Modifiers.Virtual | Modifiers.Override)) | Modifiers.Static);
 					}
-				);
+				));
 			}
 
 			void CheckStaticRequired(EntityDeclaration entity)
@@ -95,35 +95,35 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (!curType.Peek().HasModifier(Modifiers.Static) && !curType.Peek().HasModifier(Modifiers.Sealed) && entity.HasModifier(Modifiers.Virtual)) {
 					if (!entity.HasModifier(Modifiers.Public) && !entity.HasModifier(Modifiers.Protected)  && !entity.HasModifier(Modifiers.Internal)) {
-						AddIssue(
+						AddIssue(new CodeIssue(
 							entity.NameToken,
 							ctx.TranslateString("'virtual' members can't be private")
-						);
+						));
 						return;
 					}
 
 				}
 
 				if (entity.HasModifier(Modifiers.Sealed) && !entity.HasModifier(Modifiers.Override)) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						entity.ModifierTokens.First(t => t.Modifier == Modifiers.Sealed),
 						ctx.TranslateString("'sealed' modifier is not usable without override"),
 						ctx.TranslateString("Remove 'sealed' modifier"), 
 						s => {
 							s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Sealed);
 						}
-					);
+					));
 
 				}
 
 				if (!curType.Peek().HasModifier(Modifiers.Sealed) || !entity.HasModifier(Modifiers.Virtual))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					entity.ModifierTokens.First(t => t.Modifier == Modifiers.Virtual),
 					ctx.TranslateString("'virtual' modifier is not usable in a sealed class"),
 					ctx.TranslateString("Remove 'virtual' modifier"), 
 					s => s.ChangeModifier(entity, entity.Modifiers & ~Modifiers.Virtual)
-				);
+				));
 			}
 
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
@@ -147,11 +147,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							token
 						));
 
-						AddIssue(
+						AddIssue(new CodeIssue(
 							token,
 							ctx.TranslateString("Extension methods are only allowed in static classes"),
 							actions
-						);
+						));
 					}
 				}
 
@@ -192,14 +192,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						foreach (var mod in constructorDeclaration.ModifierTokens) {
 							if (mod.Modifier == Modifiers.Static)
 								continue;
-							AddIssue(
+							AddIssue(new CodeIssue(
 								mod,
 								ctx.TranslateString("Static constructors can't have any other modifier"),
 								ctx.TranslateString("Remove prohibited modifier"), 
 								s => {
 									s.ChangeModifier(constructorDeclaration, Modifiers.Static);
 								}
-							);
+							));
 						}
 					}
 				}

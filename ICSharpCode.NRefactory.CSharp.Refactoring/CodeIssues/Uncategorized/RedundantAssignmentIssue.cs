@@ -284,7 +284,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					}
 
-					AddIssue(grayOutNode, IssueMarker.GrayOut, issueDescription, actionDescription, script => {
+					AddIssue(new CodeIssue(grayOutNode, issueDescription, actionDescription, script => {
 						var variableNode = (VariableInitializer)node;
 						if (containsInvocations && isDeclareStatement) {
 							//add the column ';' that will be removed after the next line replacement
@@ -312,17 +312,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							script.Replace(varDecl.Type, shortExpressionType);
 						}
 						script.Replace(node, replacement);
-					});
+					}) { IssueMarker = IssueMarker.GrayOut });
 				}
 
 				var assignmentExpr = node.Parent as AssignmentExpression;
 				if (assignmentExpr == null)
 					return;
 				if (assignmentExpr.Parent is ExpressionStatement) {
-					AddIssue(assignmentExpr.Parent, IssueMarker.GrayOut, issueDescription, actionDescription, script => script.Remove(assignmentExpr.Parent));
+					AddIssue(new CodeIssue(assignmentExpr.Parent, issueDescription, actionDescription, script => script.Remove(assignmentExpr.Parent)) { IssueMarker = IssueMarker.GrayOut });
 				} else {
-					AddIssue(assignmentExpr.Left.StartLocation, assignmentExpr.OperatorToken.EndLocation, IssueMarker.GrayOut, issueDescription, actionDescription,
-					         script => script.Replace(assignmentExpr, assignmentExpr.Right.Clone()));
+					AddIssue(new CodeIssue(assignmentExpr.Left.StartLocation, assignmentExpr.OperatorToken.EndLocation, issueDescription, actionDescription,
+						script => script.Replace(assignmentExpr, assignmentExpr.Right.Clone())) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 

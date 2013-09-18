@@ -71,9 +71,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				}
 
-				AddIssue(anonymousMethodExpression.LParToken.StartLocation,
+				AddIssue(new CodeIssue(anonymousMethodExpression.LParToken.StartLocation,
 				         anonymousMethodExpression.RParToken.EndLocation,
-				         IssueMarker.GrayOut,
 				         ctx.TranslateString("Redundant parameter list (all parameters are unused)"),
 				         ctx.TranslateString("Remove delegate parameter list"),
 				         script => {
@@ -83,7 +82,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					script.Replace(start, end - start, " ");
 
-				});
+					}) { IssueMarker = IssueMarker.GrayOut });
 
 				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
 			}

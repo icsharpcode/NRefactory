@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var action = new CodeAction(ctx.TranslateString("Change to 'throw;'"), script => {
 						script.Replace(localThrowStatement, new ThrowStatement());
 					}, catchClause);
-					AddIssue(localThrowStatement, title, action);
+					AddIssue(new CodeIssue(localThrowStatement, title, action));
 				}
 			}
 		}

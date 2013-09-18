@@ -69,11 +69,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}
 						}
 						if (equal) {
-							AddIssue(
+							AddIssue(new CodeIssue(
 								parameterDeclarations[i],
 								member.SymbolKind == SymbolKind.Method ?
 								ctx.TranslateString("Method with optional parameter is hidden by overload") :
-								ctx.TranslateString("Indexer with optional parameter is hidden by overload"));
+								ctx.TranslateString("Indexer with optional parameter is hidden by overload")));
 						}
 					}
 				}

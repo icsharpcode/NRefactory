@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						FixLockThisIssue(script, containerEntity, containerType);
 					}, attribute);
 
-					AddIssue(attribute, ctx.TranslateString("Found [MethodImpl(MethodImplOptions.Synchronized)]"), fixAction);
+					AddIssue(new CodeIssue(attribute, ctx.TranslateString("Found [MethodImpl(MethodImplOptions.Synchronized)]"), fixAction));
 				}
 			}
 
@@ -95,8 +95,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					}, lockStatement);
 
-					AddIssue(lockStatement.LockToken.StartLocation,
-					         lockStatement.RParToken.EndLocation, ctx.TranslateString("Found lock (this)"), fixAction);
+					AddIssue(new CodeIssue(lockStatement.LockToken.StartLocation,
+						lockStatement.RParToken.EndLocation, ctx.TranslateString("Found lock (this)"), fixAction));
 				}
 			}
 

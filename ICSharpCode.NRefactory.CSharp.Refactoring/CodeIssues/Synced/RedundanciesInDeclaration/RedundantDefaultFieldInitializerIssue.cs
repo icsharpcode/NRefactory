@@ -64,10 +64,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (!defaultValueExpr.Match(variable.Initializer).Success)
 						continue;
 
-					AddIssue(variable.Initializer, IssueMarker.GrayOut, ctx.TranslateString("Initializing field by default value is redundant"),
+					AddIssue(new CodeIssue(variable.Initializer, ctx.TranslateString("Initializing field by default value is redundant"),
 					         new CodeAction(ctx.TranslateString("Remove field initializer"),
 					                         script => script.Replace(variable, new VariableInitializer(variable.Name)),
-					                         variable.Initializer));
+							variable.Initializer)) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 

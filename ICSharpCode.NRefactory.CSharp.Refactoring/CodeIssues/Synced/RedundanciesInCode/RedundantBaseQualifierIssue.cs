@@ -131,16 +131,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				if (isRedundant) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						baseReferenceExpression.StartLocation, 
 						memberReference.MemberNameToken.StartLocation, 
-						IssueMarker.GrayOut,
 						ctx.TranslateString("'base.' is redundant and can be removed safely."), 
 						ctx.TranslateString("Remove 'base.'"), 
 						script => {
 							script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
 						}
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

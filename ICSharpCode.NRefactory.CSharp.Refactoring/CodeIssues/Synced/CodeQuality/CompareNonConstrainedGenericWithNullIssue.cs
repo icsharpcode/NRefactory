@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (type.Kind != TypeKind.TypeParameter || type.IsReferenceType == true)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					binaryOperatorExpression,
 					ctx.TranslateString("Possible compare of value type with 'null'"),
 					ctx.TranslateString("Replace with 'default'"),
@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							)
 						); 
 					}
-				);
+				));
 			}
 
 			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)

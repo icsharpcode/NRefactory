@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitFieldDeclaration(fieldDeclaration);
 				if (fieldDeclaration.Modifiers.HasFlag(Modifiers.Static) && !UsesAllTypeParameters(fieldDeclaration)) {
-					AddIssue(fieldDeclaration, ctx.TranslateString("Static field in generic type"));
+					AddIssue(new CodeIssue(fieldDeclaration, ctx.TranslateString("Static field in generic type")));
 				}
 			}
 		}

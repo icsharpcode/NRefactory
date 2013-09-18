@@ -58,14 +58,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (rr == null || rr.IsError || rr.Type.Namespace != "System" || rr.Type.Name != "Nullable")
 					return;
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					simpleType,
 					string.Format(ctx.TranslateString("Type can be simplified to '{0}?'"), arg), 
 					string.Format(ctx.TranslateString("Rewrite to '{0}?'"), arg),
 					script =>  {
 						script.Replace(simpleType, arg.Clone().MakeNullableType());
 					}
-				);
+				));
 			}
 
 			public override void VisitSimpleType(SimpleType simpleType)

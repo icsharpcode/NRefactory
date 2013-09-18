@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var expression = match.Get<Expression>("expr").First();
 				var param      = match.Get<Expression>("param").First();
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					conditionalExpression,
 					ctx.TranslateString("Expression can be simlified to 'LastOrDefault<T>()'"),
 					ctx.TranslateString("Replace with 'LastOrDefault<T>()'"),
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							invocation
 							);
 					}
-				);
+				));
 			}
 		}
 	}

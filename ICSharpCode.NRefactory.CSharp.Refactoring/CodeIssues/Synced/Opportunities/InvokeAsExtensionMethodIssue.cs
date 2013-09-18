@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (method == null || !method.IsExtensionMethod || invocationRR.IsExtensionMethodInvocation)
 					return;
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					memberReference.MemberNameToken,
 					ctx.TranslateString("Convert static method call to extension method call"),
 					ctx.TranslateString("Convert to extension method call"),
@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							)
 						);
 					}
-				);
+				));
 			}
 		}
 

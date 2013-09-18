@@ -59,8 +59,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					!TestOnlyAssigned(ctx, parameterDeclaration.Parent, resolveResult.Variable)) {
 					return;
 				}
-				AddIssue(parameterDeclaration.NameToken, 
-					ctx.TranslateString("Parameter is assigned but its value is never used"));
+				AddIssue(new CodeIssue(parameterDeclaration.NameToken, 
+					ctx.TranslateString("Parameter is assigned but its value is never used")));
 			}
 		}
 	}

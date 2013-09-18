@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							msg = ctx.TranslateString("Local variable '{0}' hides member '{1}'");
 							break;
 					}
-					AddIssue(token, string.Format(msg, name, member.FullName));
+					AddIssue(new CodeIssue(token, string.Format(msg, name, member.FullName)));
 				}
 			}
 

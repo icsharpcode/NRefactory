@@ -56,13 +56,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				if (emptyStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) is LabelStatement)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					emptyStatement,
-					IssueMarker.GrayOut,
 					ctx.TranslateString("Empty statement is redundant"),
 					ctx.TranslateString("Remove ';'"),
 					s => s.Remove(emptyStatement)
-				);
+				) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

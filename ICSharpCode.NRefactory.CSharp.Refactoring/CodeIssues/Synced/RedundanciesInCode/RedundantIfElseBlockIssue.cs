@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!ElseIsRedundantControlFlow(ifElseStatement) || HasConflictingNames(ifElseStatement.Parent, ifElseStatement.FalseStatement))
 					return;
 
-				AddIssue(ifElseStatement.ElseToken, IssueMarker.GrayOut, ctx.TranslateString("Redundant 'else' keyword"), ctx.TranslateString("Remove redundant 'else'"), script =>  {
+				AddIssue(new CodeIssue(ifElseStatement.ElseToken, ctx.TranslateString("Redundant 'else' keyword"), ctx.TranslateString("Remove redundant 'else'"), script =>  {
 					int start = script.GetCurrentOffset(ifElseStatement.ElseToken.GetPrevNode(n => !(n is NewLineNode)).EndLocation);
 					int end;
 					var blockStatement = ifElseStatement.FalseStatement as BlockStatement;
@@ -109,7 +109,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (end > start)
 						script.RemoveText(start, end - start);
 					script.FormatText(ifElseStatement.Parent);
-				});
+				}) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

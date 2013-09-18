@@ -59,16 +59,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitConditionalExpression(conditionalExpression);
 				if (pattern.IsMatch(conditionalExpression)) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						conditionalExpression.QuestionMarkToken.StartLocation,
 						conditionalExpression.FalseExpression.EndLocation,
-						IssueMarker.GrayOut,
 						ctx.TranslateString("Redundant conditional expression"),
 						ctx.TranslateString("Replace by condition"),
 						script => {
 							script.Replace(conditionalExpression, conditionalExpression.Condition.Clone());
 						}
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

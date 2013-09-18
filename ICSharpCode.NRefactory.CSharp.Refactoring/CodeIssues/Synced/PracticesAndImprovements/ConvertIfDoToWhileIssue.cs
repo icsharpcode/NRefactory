@@ -66,9 +66,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var cond2 = match.Get<Expression>("condition2").Single();
 					if (!CSharpUtil.AreConditionsEqual(cond1, cond2))
 						return;
-					AddIssue(
+					AddIssue(new CodeIssue(
 						ifElseStatement.IfToken,
-						IssueMarker.DottedLine,
 						ctx.TranslateString("Statement can be simplified to 'while' statement"),
 						ctx.TranslateString("Replace with 'while'"),
 						script => {
@@ -80,7 +79,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								)
 							);
 						}
-					);
+					) { IssueMarker = IssueMarker.DottedLine });
 				}
 			}
 		}

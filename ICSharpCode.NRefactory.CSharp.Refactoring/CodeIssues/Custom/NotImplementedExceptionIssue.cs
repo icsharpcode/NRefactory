@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				var result = ctx.Resolve(throwStatement.Expression);
 				if (result.Type.Equals(ctx.Compilation.FindType(typeof(System.NotImplementedException)))) {
-					AddIssue(throwStatement, IssueMarker.None, ctx.TranslateString("NotImplemented exception thrown"));
+					AddIssue(new CodeIssue(throwStatement, ctx.TranslateString("NotImplemented exception thrown")) { IssueMarker = IssueMarker.None });
 				}
 
 				base.VisitThrowStatement(throwStatement);

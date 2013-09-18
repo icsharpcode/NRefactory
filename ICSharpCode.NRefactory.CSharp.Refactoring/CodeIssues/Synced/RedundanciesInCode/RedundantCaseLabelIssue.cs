@@ -62,15 +62,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var caseLabel in switchSection.CaseLabels) {
 					if (caseLabel.Expression.IsNull)
 						continue;
-					AddIssue(
+					AddIssue(new CodeIssue(
 						caseLabel,
-						IssueMarker.GrayOut,
 						ctx.TranslateString("Redundant case label"),
 						string.Format(ctx.TranslateString("Remove 'case {0}'"), caseLabel.Expression),
 						scipt => {
 							scipt.Remove(caseLabel);
 						}
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

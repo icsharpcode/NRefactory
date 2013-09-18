@@ -83,8 +83,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                             msg = ctx.TranslateString("Parameter '{0}' hides member '{1}'");
                             break;
                     }
-			        AddIssue(parameterDeclaration.NameToken,
-                        string.Format(msg, parameterDeclaration.Name, member.FullName));
+					AddIssue(new CodeIssue(parameterDeclaration.NameToken,
+						string.Format(msg, parameterDeclaration.Name, member.FullName)));
 			    }
 			}
 		}

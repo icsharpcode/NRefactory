@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var resolveResult = ctx.Resolve(varDecl.Item1) as MemberResolveResult;
 					if (resolveResult == null || resolveResult.IsError)
 						continue;
-					AddIssue(
+					AddIssue(new CodeIssue(
 						varDecl.Item1.NameToken,
 						string.Format(ctx.TranslateString("Readonly field '{0}' is never assigned"), varDecl.Item1.Name),
 						ctx.TranslateString("Initialize field from constructor parameter"),
@@ -86,7 +86,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 						);
 					}
-					);
+					));
 				}
 			}
 

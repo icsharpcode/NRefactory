@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddIssue(AstNode invocationExpression, Match match, bool negate = false)
 			{
-				AddIssue(
+				AddIssue(new CodeIssue(
 					invocationExpression,
 					ctx.TranslateString("Use 'is' operator"),
 					ctx.TranslateString("Replace with 'is' operator"), 
@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							expression = new UnaryOperatorExpression (UnaryOperatorType.Not, new ParenthesizedExpression(expression));
 						s.Replace(invocationExpression, expression);
 					}
-				);
+				));
 			}
 
 			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
@@ -109,13 +109,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
 				var match = equalityComparePattern.Match(binaryOperatorExpression);
 				if (match.Success) {
-					AddIssue(binaryOperatorExpression, match);
+					AddIssue(new CodeIssue(binaryOperatorExpression, match);
 					return;
 				}
 
 				match = inEqualityComparePattern.Match(binaryOperatorExpression);
 				if (match.Success) {
-					AddIssue(binaryOperatorExpression, match, true);
+					AddIssue(new CodeIssue(binaryOperatorExpression, match, true);
 					return;
 				}
 			}*/

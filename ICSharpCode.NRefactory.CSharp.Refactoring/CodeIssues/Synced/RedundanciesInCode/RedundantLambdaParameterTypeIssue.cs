@@ -65,9 +65,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				foreach (var argument in arguments) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						argument.Type,
-						IssueMarker.GrayOut,
 						ctx.TranslateString("Redundant lambda explicit type specification"), 
 						ctx.TranslateString("Remove parameter type specification"),
 						script => {
@@ -79,7 +78,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}
 							foreach (var arg in arguments)
 								script.Replace(arg, new ParameterDeclaration(arg.Name));
-						});
+						}) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

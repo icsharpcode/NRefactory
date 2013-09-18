@@ -71,20 +71,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				NullValueStatus leftStatus = analysis.GetExpressionResult(binaryOperatorExpression.Left);
 				if (leftStatus == NullValueStatus.DefinitelyNotNull) {
-					AddIssue(binaryOperatorExpression.OperatorToken.StartLocation,
+					AddIssue(new CodeIssue(binaryOperatorExpression.OperatorToken.StartLocation,
 					         binaryOperatorExpression.Right.EndLocation,
-					         IssueMarker.GrayOut,
 					         ctx.TranslateString("Redundant ??. Left side is never null."),
 					         ctx.TranslateString("Remove redundant right side"),
 					         script => {
 
 						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
 
-					});
+						}) { IssueMarker = IssueMarker.GrayOut });
 					return;
 				}
 				if (leftStatus == NullValueStatus.DefinitelyNull) {
-					AddIssue(binaryOperatorExpression.Left.StartLocation,
+					AddIssue(new CodeIssue(binaryOperatorExpression.Left.StartLocation,
 					         binaryOperatorExpression.OperatorToken.EndLocation,
 					         ctx.TranslateString("Redundant ??. Left side is always null."),
 					         ctx.TranslateString("Remove redundant left side"),
@@ -92,12 +91,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Right.Clone());
 
-					});
+						}));
 					return;
 				}
 				NullValueStatus rightStatus = analysis.GetExpressionResult(binaryOperatorExpression.Right);
 				if (rightStatus == NullValueStatus.DefinitelyNull) {
-					AddIssue(binaryOperatorExpression.OperatorToken.StartLocation,
+					AddIssue(new CodeIssue(binaryOperatorExpression.OperatorToken.StartLocation,
 					         binaryOperatorExpression.Right.EndLocation,
 					         ctx.TranslateString("Redundant ??. Right side is always null."),
 					         ctx.TranslateString("Remove redundant right side"),
@@ -105,7 +104,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
 
-					});
+						}));
 					return;
 				}
 			}

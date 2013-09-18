@@ -51,14 +51,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			private void AddIssue(AstNode node, AstNode initializer)
 			{
-				AddIssue(node.StartLocation, initializer.StartLocation, IssueMarker.GrayOut, ctx.TranslateString("Array creation expression can be replaced with initializer"), ctx.TranslateString("Use Array Initializer"),
+				AddIssue(new CodeIssue(node.StartLocation, initializer.StartLocation, ctx.TranslateString("Array creation expression can be replaced with initializer"), ctx.TranslateString("Use Array Initializer"),
 				script =>
 				{
 					var startOffset = script.GetCurrentOffset(node.StartLocation);
 					var endOffset = script.GetCurrentOffset(initializer.StartLocation);
 					if (startOffset < endOffset)
 						script.RemoveText(startOffset, endOffset - startOffset);
-				});
+					}) { IssueMarker = IssueMarker.GrayOut });
 			}
 
 			public override void VisitArrayCreateExpression(ArrayCreateExpression arrayCreateExpression)

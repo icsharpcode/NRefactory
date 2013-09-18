@@ -130,7 +130,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var def = ctx.Resolve(str).Type.GetDefinition();
 					if (def == null || def.KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.String)
 						return;
-					AddIssue(
+					AddIssue(new CodeIssue(
 						binaryOperatorExpression,
 						isNegated ? ctx.TranslateString("Expression can be replaced with !string.IsNullOrEmpty") : ctx.TranslateString("Expression can be replaced with string.IsNullOrEmpty"),
 						new CodeAction (
@@ -143,7 +143,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							},
 							binaryOperatorExpression
 						)
-					);
+					));
 					return;
 				}
 			}

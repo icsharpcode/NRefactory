@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Convert 'if' to '??'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
-	                  ActionProvider = typeof(ConvertIfStatementToNullCoalescingExpressionAction),
 	                  AnalysisDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
 	public class ConvertIfStatementToNullCoalescingExpressionIssue : GatherVisitorCodeIssueProvider
 	{
@@ -64,10 +63,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (previousNode == null || ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(previousNode))
 					return;
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					ifElseStatement.IfToken,
-					IssueMarker.DottedLine,
-					ctx.TranslateString("Convert to '??' expresssion"));
+					ctx.TranslateString("Convert to '??' expresssion")
+				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToNullCoalescingExpressionAction) } });
 			}
 		}
 	}

@@ -115,7 +115,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				}
 				if (!hasReachableReturn && !reachability.IsEndpointReachable(body)) {
-					AddIssue(node, ctx.TranslateString(string.Format("{0} never reaches its end or a 'return' statement.", entityType)));
+					AddIssue(new CodeIssue(node, ctx.TranslateString(string.Format("{0} never reaches its end or a 'return' statement.", entityType))));
 				}
 			}
 

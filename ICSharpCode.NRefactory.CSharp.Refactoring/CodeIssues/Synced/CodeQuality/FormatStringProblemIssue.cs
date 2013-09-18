@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				for (int i = 0; i < formatArguments.Count; i++) {
 					if (!argUsed.Contains(i)) {
-						AddIssue(formatArguments[i], IssueMarker.GrayOut, ctx.TranslateString("Argument is not used in format string"));
+						AddIssue(new CodeIssue(formatArguments[i], ctx.TranslateString("Argument is not used in format string")) { IssueMarker = IssueMarker.GrayOut });
 					}
 				}
 			}
@@ -107,7 +107,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var segmentStart = new TextLocation(formatStart.Line, formatStart.Column + segment.StartLocation + 1);
 						if (formatItem.Index >= argumentCount) {
 							var outOfBounds = context.TranslateString("The index '{0}' is out of bounds of the passed arguments");
-							AddIssue(segmentStart, segmentEnd, string.Format(outOfBounds, formatItem.Index));
+							AddIssue(new CodeIssue(segmentStart, segmentEnd, string.Format(outOfBounds, formatItem.Index)));
 						}
 						if (formatItem.HasErrors) {
 							var errorMessage = string.Join(Environment.NewLine, errors.Select(error => error.Message).ToArray());
@@ -117,13 +117,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							} else {
 								messageFormat = context.TranslateString("{0}");
 							}
-							AddIssue(segmentStart, segmentEnd, string.Format(messageFormat, errorMessage));
+							AddIssue(new CodeIssue(segmentStart, segmentEnd, string.Format(messageFormat, errorMessage)));
 						}
 					} else if (segment.HasErrors) {
 						foreach (var error in errors) {
 							var errorStart = new TextLocation(formatStart.Line, formatStart.Column + error.StartLocation + 1);
 							var errorEnd = new TextLocation(formatStart.Line, formatStart.Column + error.EndLocation + 1);
-							AddIssue(errorStart, errorEnd, error.Message);
+							AddIssue(new CodeIssue(errorStart, errorEnd, error.Message));
 						}
 					}
 				}

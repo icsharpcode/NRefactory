@@ -68,16 +68,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var tr = ctx.Resolve(mt.Target);
 				if (tr.Type.Equals(rr.Type) || tr.Type.GetAllBaseTypes().Any (bt=> bt.Equals(rr.Type))) {
 					if (isCast) {
-						AddIssue(
+						AddIssue(new CodeIssue(
 							mt.DotToken.StartLocation,
 							mt.EndLocation,
-							IssueMarker.GrayOut,
 							ctx.TranslateString("Redundant 'IEnumerable.Cast<T>' call"),
 							ctx.TranslateString("Remove 'Cast<T>' call"),
 							s => s.Replace(invocationExpression, mt.Target.Clone())
-						);
+						) { IssueMarker = IssueMarker.GrayOut });
 					} else {
-						AddIssue(
+						AddIssue(new CodeIssue(
 							mt.DotToken.StartLocation,
 							mt.EndLocation,
 							ctx.TranslateString("Redundant 'IEnumerable.OfType<T>' call."),
@@ -104,7 +103,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 									mt
 								),
 							}
-						);
+						));
 					}
 				}
 			}

@@ -107,7 +107,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				blockStatement.Add(returnStatement);
 				getHashCode.Body = blockStatement;
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					(node as MethodDeclaration).NameToken, 
 					ctx.TranslateString("If two objects are equal then they must both have the same hash code"),
 					new CodeAction(
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					script.InsertAfter(node, getHashCode); 
 				},
 				node
-				));
+					)));
 			}
 		}
 	}

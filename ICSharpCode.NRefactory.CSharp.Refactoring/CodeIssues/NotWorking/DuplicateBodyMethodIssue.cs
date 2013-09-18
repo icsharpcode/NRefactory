@@ -94,13 +94,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						for (var j = i + 1; j < list.Count; j++) {
 							var secondMethod = list [j];
 							if (firstMethod.Body.IsMatch(secondMethod.Body)) {
-								AddIssue(secondMethod.NameToken,
+								AddIssue(new CodeIssue(secondMethod.NameToken,
 								         string.Format("Method '{0}' has the same with '{1}' ", secondMethod.Name,
 								              firstMethod.Name), string.Format("Method '{0}' has the same with '{1}' ", secondMethod.Name,
 								                                 firstMethod.Name),
 								                                 script => {
 									InvokeMethod(script, firstMethod, secondMethod); }
-								);
+								));
 							}
 						}
 					}

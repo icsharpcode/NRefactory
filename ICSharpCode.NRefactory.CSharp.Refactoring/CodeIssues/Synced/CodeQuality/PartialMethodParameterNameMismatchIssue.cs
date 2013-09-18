@@ -118,11 +118,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							if (fixes.Count > 1) {
 								fixes.Clear();
 							}
-							AddIssue(
+							AddIssue(new CodeIssue(
 								param.NameToken,
 								ctx.TranslateString("Parameter name differs in partial method declaration"),
 								fixes
-							);
+							));
 							break;
 						}
 					}

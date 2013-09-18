@@ -53,14 +53,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddIssue(AstNode nodeToReplace, AstNode highlightNode, bool replaceWithTrue)
 			{
-				AddIssue(
+				AddIssue(new CodeIssue(
 					highlightNode, 
 					ctx.TranslateString("Equal expression comparison"), 
 					replaceWithTrue ? ctx.TranslateString("Replace with 'true'") : ctx.TranslateString("Replace with 'false'"), 
 					script =>  {
 						script.Replace(nodeToReplace, new PrimitiveExpression(replaceWithTrue));
 					}
-				);
+				));
 			}
 
 

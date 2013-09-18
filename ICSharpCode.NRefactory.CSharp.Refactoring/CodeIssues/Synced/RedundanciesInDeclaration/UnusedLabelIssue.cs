@@ -85,14 +85,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (label.IsUsed)
 						continue;
 					foreach (var stmt in label.LabelStatement) {
-						AddIssue(
+						AddIssue(new CodeIssue(
 							stmt.LabelToken.StartLocation,
 							stmt.ColonToken.EndLocation,
-							IssueMarker.GrayOut,
 							ctx.TranslateString("Label is unused"),
 							ctx.TranslateString("Remove unused label"),
 							s => { s.Remove(stmt); s.FormatText(stmt.Parent); }
-						);
+						) { IssueMarker = IssueMarker.GrayOut });
 					}
 				}
 

@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!isValidReturnType)
 					return;
 
-				AddIssue(expression,
+				AddIssue(new CodeIssue(expression,
 				         expression is AnonymousMethodExpression ? ctx.TranslateString("Anonymous method can be simplified to method group") : ctx.TranslateString("Lambda expression can be simplified to method group"), 
 				         ctx.TranslateString("Replace with method group"), script =>  {
 					if (validTypes.Any (t => t.FullName == "System.Func" && t.TypeParameterCount == 1 + parameters.Count) && validTypes.Any (t => t.FullName == "System.Action")) {
@@ -134,7 +134,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						}
 					}
 					script.Replace(expression, invocation.Target.Clone());
-				});
+				}));
 			}
 			
 			static ResolveResult UnpackImplicitIdentityOrReferenceConversion(ResolveResult rr)

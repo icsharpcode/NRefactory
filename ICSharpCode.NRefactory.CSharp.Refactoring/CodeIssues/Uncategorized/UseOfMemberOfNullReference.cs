@@ -69,8 +69,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var nullStatus = analysis.GetExpressionResult(memberReferenceExpression.Target);
 				if (ProblematicNullStates.Contains(nullStatus)) {
-					AddIssue(memberReferenceExpression,
-					         ctx.TranslateString("Using member of null value will cause a NullReferenceException"));
+					AddIssue(new CodeIssue(memberReferenceExpression,
+						ctx.TranslateString("Using member of null value will cause a NullReferenceException")));
 				}
 			}
 

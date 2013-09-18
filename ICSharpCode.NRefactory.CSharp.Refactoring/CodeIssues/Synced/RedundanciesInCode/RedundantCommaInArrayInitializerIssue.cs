@@ -67,11 +67,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				} else {
 					issueDescription = ctx.TranslateString("Redundant comma in array initializer");
 				}
-				AddIssue(commaToken,
-				         IssueMarker.GrayOut,
+				AddIssue(new CodeIssue(commaToken,
 				         issueDescription,
 				         ctx.TranslateString("Remove ','"),
-				         script => script.Remove(commaToken));
+					script => script.Remove(commaToken)) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

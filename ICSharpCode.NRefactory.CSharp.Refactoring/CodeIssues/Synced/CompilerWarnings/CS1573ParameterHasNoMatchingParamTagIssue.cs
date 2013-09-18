@@ -99,9 +99,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				var cmt = storedXmlComment [Math.Max(0, Math.Min(storedXmlComment.Count - 1, line))];
 
-				AddIssue(new TextLocation(cmt.StartLocation.Line, cmt.StartLocation.Column + 3 + col),
+				AddIssue(new CodeIssue(new TextLocation(cmt.StartLocation.Line, cmt.StartLocation.Column + 3 + col),
 				         new TextLocation(cmt.StartLocation.Line, cmt.StartLocation.Column + 3 + col + length),
-				         str);
+					str));
 			}
 
 			int SearchAttributeColumn(int x, int line)
@@ -157,7 +157,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								if (!parameters.Any(tp => tp.Item1 == p.Name)) {
 									AstNode before = i < parameters.Count ? storedXmlComment [parameters [i].Item2 - 2] : null;
 									AstNode afterNode = before == null ? storedXmlComment [storedXmlComment.Count - 1] : null;
-									AddIssue(
+									AddIssue(new CodeIssue(
 										GetParameterHighlightNode(node, i),
 										string.Format(ctx.TranslateString("Missing xml documentation for Parameter '{0}'"), p.Name),
 										string.Format(ctx.TranslateString("Create xml documentation for Parameter '{0}'"), p.Name),
@@ -173,7 +173,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 												new Comment(string.Format(" <param name = \"{0}\"></param>", p.Name), CommentType.Documentation)
 												);
 										}
-									});
+										}));
 								}
 							}
 

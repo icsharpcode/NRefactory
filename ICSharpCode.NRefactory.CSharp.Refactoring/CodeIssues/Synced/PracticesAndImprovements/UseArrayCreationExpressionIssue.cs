@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!argRR.Type.IsKnownType(KnownTypeCode.Int32))
 					return;
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					invocationExpression,
 					ctx.TranslateString("Use array create expression"), 
 					ctx.TranslateString("Replace with 'new'"), 
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							ac.Arguments.Add(arg.Clone()) ;
 						script.Replace(invocationExpression, ac);
 					}
-				);
+				));
 			}
 		}
 	}

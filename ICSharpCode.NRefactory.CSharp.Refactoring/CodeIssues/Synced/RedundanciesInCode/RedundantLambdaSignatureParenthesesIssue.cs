@@ -70,8 +70,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var issueText = ctx.TranslateString("Redundant lambda signature parentheses");
 				var fixText = ctx.TranslateString("Remove signature parentheses");
-				AddIssue(lambdaExpression.LParToken, IssueMarker.GrayOut, issueText, fixText, action);
-				AddIssue(lambdaExpression.RParToken, IssueMarker.GrayOut, issueText, fixText, action);
+				AddIssue(new CodeIssue(lambdaExpression.LParToken, issueText, fixText, action) { IssueMarker = IssueMarker.GrayOut });
+				AddIssue(new CodeIssue(lambdaExpression.RParToken, issueText, fixText, action) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					invocationExpression,
 					ctx.TranslateString("'string.Compare' is culture-aware"), 
 					new CodeAction(
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						script => AddArgument(script, invocationExpression, CreateCompareArgument (invocationExpression, ignoreCase, caseArg, "Ordinal")), 
 						invocationExpression
 					)
-				);
+				));
 			}
 
 			Expression CreateCompareArgument (InvocationExpression invocationExpression, bool? ignoreCase, Expression caseArg, string stringComparison)

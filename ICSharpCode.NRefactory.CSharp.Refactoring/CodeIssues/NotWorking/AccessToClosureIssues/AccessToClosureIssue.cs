@@ -175,7 +175,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						CollectAllIssues ((Environment)child, variableName);
 					} else {
 						if (child.Kind != NodeKind.Modification)
-							AddIssue (child.AstNode, title, fixes);
+							AddIssue (new CodeIssue(child.AstNode, title, fixes));
 						// stop marking references after the variable is modified in current environment
 						if (child.Kind != NodeKind.Reference)
 							break;

@@ -102,10 +102,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					invocationExpression.RParToken,
 					ctx.TranslateString("Call to base member with implicit default parameters")
-				);
+				));
 			}
 		
 			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
@@ -131,10 +131,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					indexerExpression.RBracketToken,
 					ctx.TranslateString("Call to base member with implicit default parameters")
-				);
+				));
 			}
 		}
 	}

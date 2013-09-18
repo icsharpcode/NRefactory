@@ -112,14 +112,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (arg.Name != baseArg.Name) {
 						int _i = i;
 						var parameters = entity.GetChildrenByRole (Roles.Parameter);
-						AddIssue(
+						AddIssue(new CodeIssue(
 							parameters.ElementAt(_i).NameToken,
 							ctx.TranslateString("Parameter name differs in base method declaration"),
 							string.Format(ctx.TranslateString("Rename to '{0}'"), baseArg.Name),
 							s => {
 								s.Rename(arg, baseArg.Name);
 							}
-						);
+						));
 					}
 				}
 			}

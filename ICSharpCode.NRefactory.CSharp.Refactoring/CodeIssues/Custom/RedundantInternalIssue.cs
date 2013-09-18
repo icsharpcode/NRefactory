@@ -57,11 +57,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var token_ in typeDeclaration.ModifierTokens) {
 					var token = token_;
 					if (token.Modifier == Modifiers.Internal) {
-						AddIssue(token, IssueMarker.GrayOut, ctx.TranslateString("Keyword 'internal' is redundant.  This is the default modifier."), ctx.TranslateString("Remove 'internal' modifier"), script => {
+						AddIssue(new CodeIssue(token, ctx.TranslateString("Keyword 'internal' is redundant.  This is the default modifier."), ctx.TranslateString("Remove 'internal' modifier"), script => {
 							int offset = script.GetCurrentOffset(token.StartLocation);
 							int endOffset = script.GetCurrentOffset(token.GetNextNode().StartLocation);
 							script.RemoveText(offset, endOffset - offset);
-						});
+						}) { IssueMarker = IssueMarker.GrayOut });
 					}
 				}
 			}

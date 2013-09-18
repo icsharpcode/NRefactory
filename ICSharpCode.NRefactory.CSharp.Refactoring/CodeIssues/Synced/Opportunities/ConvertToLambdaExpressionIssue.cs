@@ -57,11 +57,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!ConvertLambdaBodyStatementToExpressionAction.TryGetConvertableExpression(lambdaExpression, out block, out expr))
 					return;
 				var node = block.Statements.FirstOrDefault() ?? block;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					node,
 					ctx.TranslateString("Can be converted to expression"),
 					ConvertLambdaBodyStatementToExpressionAction.CreateAction(ctx, node, block, expr)
-				);
+				));
 			}
 		}
 	}

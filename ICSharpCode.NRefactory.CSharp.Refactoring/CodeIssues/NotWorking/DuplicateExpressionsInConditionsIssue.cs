@@ -83,9 +83,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                                                     script => RemoveRedundantExpression(script, expressionRight),
                                                     expressionRight);
                     
-						AddIssue(expressionRight, IssueMarker.GrayOut,
-	                              ctx.TranslateString(string.Format("The expression '{0}' is identical in the left branch",
-	                                expressionRight)), action);
+						AddIssue(
+							new CodeIssue(expressionRight, 
+								ctx.TranslateString(string.Format("The expression '{0}' is identical in the left branch", expressionRight)), 
+								action
+							) { IssueMarker = IssueMarker.GrayOut }
+						);
 
 
                     }

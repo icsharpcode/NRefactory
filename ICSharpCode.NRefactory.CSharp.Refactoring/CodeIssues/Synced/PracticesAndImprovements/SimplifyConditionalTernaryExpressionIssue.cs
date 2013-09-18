@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				    trueBranch == true && falseBranch == false) // Handled by RedundantTernaryExpressionIssue
 					return;
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					conditionalExpression.QuestionMarkToken.StartLocation,
 					conditionalExpression.FalseExpression.EndLocation,
 					ctx.TranslateString("Simplify conditional expression"),
@@ -128,7 +128,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						// Should never happen
 					}
-				);
+				));
 			}
 
 		}

@@ -83,15 +83,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
 				Match m1 = pattern1.Match(binaryOperatorExpression);
 				if (m1.Success) {
-					AddIssue(binaryOperatorExpression,
-					         IssueMarker.GrayOut,
+					AddIssue(new CodeIssue(binaryOperatorExpression,
 					         ctx.TranslateString("Redundant comparison with 'null'"),
 					         ctx.TranslateString("Remove expression"), 
 					         script => {
 					         	var isExpr = m1.Get<AstType>("t").Single().Parent;
 					         	script.Replace(binaryOperatorExpression, isExpr);
 					         }
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 					return;
 				}
 			}

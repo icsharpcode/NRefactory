@@ -83,14 +83,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					simpleAssignment = new AssignmentExpression(expr.Clone(), new PrimitiveExpression(false));
 				}
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					assignmentExpression,
 					ctx.TranslateString("Replace with simple assignment"),
 					string.Format(ctx.TranslateString("Replace with '{0}'"), simpleAssignment),
 					script => {
 						script.Replace(assignmentExpression, simpleAssignment);
 					}
-				);
+				));
 			}
 		}
 	}

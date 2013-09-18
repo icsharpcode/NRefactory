@@ -179,7 +179,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					// Case 1: Parameter name is swapped
 					var altParamName = GetArgumentParameterName(altParamNode);
 					if (altParamName != null && validNames.Contains(altParamName)) {
-						AddIssue(
+						AddIssue(new CodeIssue(
 							paramNode,
 							string.Format(context.TranslateString("The parameter '{0}' can't be resolved"), paramName),
 							context.TranslateString("Swap parameter."),
@@ -188,8 +188,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								script.Replace(paramNode, altParamNode.Clone());
 								script.Replace(altParamNode, newAltNode);
 							}
-						);
-						AddIssue(
+						));
+						AddIssue(new CodeIssue(
 							altParamNode,
 							context.TranslateString("The parameter name is on the wrong argument."),
 							context.TranslateString("Swap parameter."),
@@ -198,7 +198,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								script.Replace(paramNode, altParamNode.Clone());
 								script.Replace(altParamNode, newAltNode);
 							}
-						);
+						));
 						return;
 					}
 					var guessName = GuessParameterName(objectCreateExpression, validNames);
@@ -225,19 +225,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}, paramNode
 						)); 
 
-						AddIssue(
+						AddIssue(new CodeIssue(
 							paramNode,
 							string.Format(context.TranslateString("The parameter '{0}' can't be resolved"), paramName),
 							actions
-						);
+						));
 						return;
 					}
 
 					// General case: mark only
-					AddIssue(
+					AddIssue(new CodeIssue(
 						paramNode,
 						string.Format(context.TranslateString("The parameter '{0}' can't be resolved"), paramName)
-						);
+					));
 				}
 			}
 		}

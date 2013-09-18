@@ -71,16 +71,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (!hasUnemptyConstructor && hasEmptyConstructor) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						emptyContructorNode.NameToken,
-						IssueMarker.GrayOut,
 						ctx.TranslateString("Empty constructor is redundant."), 
 						new CodeAction(
 							ctx.TranslateString("Remove redundant constructor"),
 							script => script.Remove(emptyContructorNode),
 							emptyContructorNode.NameToken
 						)
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

@@ -60,10 +60,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var rr = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
 				if (rr == null || rr.Member.SymbolKind != ICSharpCode.NRefactory.TypeSystem.SymbolKind.Event)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					assignmentExpression.OperatorToken,
 					ctx.TranslateString("Event unsubscription via anonymous delegate is useless")
-				);
+				));
 			}
 		}
 	}
