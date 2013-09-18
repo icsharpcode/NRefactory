@@ -97,6 +97,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Start = start;
 			End = end;
 			Actions = EmptyList<CodeAction>.Instance;
+			IssueMarker = IssueMarker.WavedLine;
 		}
 
 		/// <summary>
@@ -142,6 +143,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Start = node.StartLocation;
 			End = node.EndLocation;
 			Actions = EmptyList<CodeAction>.Instance;
+			IssueMarker = IssueMarker.WavedLine;
 		}
 
 		/// <summary>
