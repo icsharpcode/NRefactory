@@ -107,6 +107,25 @@ class Test : IF
 }
 ");
 		}
+
+
+		[Test]
+		public void TestInterfaceInheritance ()
+		{
+			TestWrongContext<MissingInterfaceMemberImplementationIssue>(@"
+	public interface IService
+	{
+		string ServiceName { get; }
+	}
+
+	public interface IExtensionService : IService
+	{
+		void Initialize ();
+	}
+");
+		}
+
+
 	}
 }
 
