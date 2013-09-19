@@ -350,7 +350,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 		IConstantValue CreateSimpleConstantValue(ITypeReference type, object value)
 		{
-			if (ReferenceEquals (value, Missing.Value))
+			if (ReferenceEquals(value, Missing.Value))
 				return CreateSimpleConstantValue(type, null);
 			return interningProvider.Intern(new SimpleConstantValue(type, interningProvider.InternValue(value)));
 		}
@@ -685,7 +685,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					attr.AddNamedFieldArgument("ArraySubType", CreateSimpleConstantValue(unmanagedTypeTypeRef, (int)marshalInfo.ArraySubType.Value));
 			}
 
-			if (marshalInfo.UnmanagedType ==UnmanagedType.SafeArray) {
+			if (marshalInfo.UnmanagedType == UnmanagedType.SafeArray && marshalInfo.SafeArraySubType.HasValue) {
 				attr.AddNamedFieldArgument("SafeArraySubType", CreateSimpleConstantValue(typeof(VarEnum).ToTypeReference(), (int)marshalInfo.SafeArraySubType));
 			}
 
