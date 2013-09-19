@@ -589,6 +589,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantEnumerableCastCallIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MissingInterfaceMemberImplementationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnmatchedSizeSpeicificationInArrayCreationTests.cs" />
+    <Compile Include="CSharp\CodeIssues\SameGuardConditionExpressionInIfElseBranchesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
