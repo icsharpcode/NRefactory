@@ -74,6 +74,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// </summary>
 		public IkvmLoader()
 		{
+			interningProvider = new FastInterningProvider ();
 		}
 
 		#region Load Assembly From Disk
