@@ -154,7 +154,12 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				hashCode += type.GetHashCode();
 				hashCode *= 31;
 				hashCode += name.GetHashCode();
-				hashCode += attributes != null ? attributes.Count : 0;
+				if (attributes != null) {
+					foreach (var attr in attributes)
+						hashCode ^= attr.GetHashCode ();
+				}
+				if (defaultValue != null)
+					hashCode ^= defaultValue.GetHashCode ();
 				return hashCode;
 			}
 		}
