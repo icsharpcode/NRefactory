@@ -32,6 +32,19 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 	/// </summary>
 	sealed class FastInterningProvider : InterningProvider
 	{
+		sealed class InterningComparer : IEqualityComparer<ISupportsInterning>
+		{
+			public bool Equals(ISupportsInterning x, ISupportsInterning y)
+			{
+				return x.EqualsForInterning(y);
+			}
+
+			public int GetHashCode(ISupportsInterning obj)
+			{
+				return obj.GetHashCodeForInterning();
+			}
+		}
+
 		sealed class ListComparer : IEqualityComparer<IEnumerable>
 		{
 			public bool Equals(IEnumerable a, IEnumerable b)
@@ -66,7 +79,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		}
 
 		Dictionary<object, object> byValueDict = new Dictionary<object, object>();
-		Dictionary<int, ISupportsInterning> supportsInternDict = new Dictionary<int, ISupportsInterning>();
+		Dictionary<ISupportsInterning, ISupportsInterning> supportsInternDict = new Dictionary<ISupportsInterning, ISupportsInterning>(new InterningComparer());
 		Dictionary<IEnumerable, IEnumerable> listDict = new Dictionary<IEnumerable, IEnumerable>(new ListComparer());
 
 		public override ISupportsInterning Intern(ISupportsInterning obj)
@@ -75,14 +88,13 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				return null;
 
 			ISupportsInterning output;
-			var hashCode = obj.GetHashCodeForInterning ();
-			if (supportsInternDict.TryGetValue(hashCode, out output)) {
+			if (supportsInternDict.TryGetValue(obj, out output)) {
 				return output;
 			} else {
 				// ensure objects are frozen when we put them into the dictionary
 				// note that Freeze may change the hash code of the object
 				FreezableHelper.Freeze(obj);
-				supportsInternDict.Add (hashCode, obj);
+				supportsInternDict.Add(obj, obj);
 				return obj;
 			}
 		}
