@@ -245,6 +245,26 @@ class Foo
 			Assert.AreEqual("", indent.ThisLineIndent);
 			Assert.AreEqual("\t", indent.NextLineIndent);
 		}
+
+		[Ignore]
+		[Test]
+		public void TestLongBinaryExpressionAlignmentBug()
+		{
+			var fmt = FormattingOptionsFactory.CreateMono();
+			fmt.KeepCommentsAtFirstColumn = true;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+		bool ISupportsInterning.EqualsForInterning(ISupportsInterning other)
+		{
+			return p != null && type == p.type && name == p.name &&
+				defaultValue == p.defaultValue && region == p.region && (flags & ~1) == (p.flags & ~1) && ListEquals(attributes, p.attributes);$", fmt);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+
+
 	}
 }
 
