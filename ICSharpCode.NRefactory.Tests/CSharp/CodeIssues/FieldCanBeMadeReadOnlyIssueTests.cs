@@ -177,6 +177,22 @@ class Test<T> where T : IDisposable
 		}
 
 
+		[Test]
+		public void TestFieldAssignedInConstructorLambda ()
+		{
+			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"
+using System;
+
+class Test
+{
+	object fooBar;
+	public Action<object> act;
+	public Test ()
+	{
+		act = o => { fooBar = o; };
+	}
+}");
+		}
 
 	}
 }

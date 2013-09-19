@@ -103,7 +103,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
-				// SKIP
+				foreach (var node in constructorDeclaration.Descendants) {
+					if (node is AnonymousMethodExpression || node is LambdaExpression) {
+						node.AcceptVisitor(this);
+					}
+				}
 			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)
