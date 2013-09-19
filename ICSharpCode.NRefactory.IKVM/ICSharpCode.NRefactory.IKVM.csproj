@@ -44,7 +44,6 @@
     <Compile Include="IntConstantValue.cs" />
     <Compile Include="StructConstantValue.cs" />
     <Compile Include="ShortConstantValue.cs" />
-    <Compile Include="FastInterningProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
