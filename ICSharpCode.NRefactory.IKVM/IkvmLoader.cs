@@ -74,6 +74,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// </summary>
 		public IkvmLoader()
 		{
+			interningProvider = new NonFrozenInterningProvider ();
 		}
 
 		#region Load Assembly From Disk
@@ -859,7 +860,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			td.AddDefaultConstructorIfRequired = (td.Kind == TypeKind.Struct || td.Kind == TypeKind.Enum);
 			InitMembers(typeDefinition, td, td.Members);
 			td.ApplyInterningProvider(interningProvider);
-			td.Freeze();
 			RegisterCecilObject(td, typeDefinition);
 		}
 
@@ -1490,7 +1490,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		void FinishReadMember(AbstractUnresolvedMember member, MemberInfo ikvmDefinition)
 		{
 			member.ApplyInterningProvider(interningProvider);
-			member.Freeze();
 			RegisterCecilObject(member, ikvmDefinition);
 		}
 		#endregion
