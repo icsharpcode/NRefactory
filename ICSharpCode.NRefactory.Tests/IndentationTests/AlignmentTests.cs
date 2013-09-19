@@ -246,7 +246,6 @@ class Foo
 			Assert.AreEqual("\t", indent.NextLineIndent);
 		}
 
-		[Ignore]
 		[Test]
 		public void TestLongBinaryExpressionAlignmentBug()
 		{
@@ -255,16 +254,321 @@ class Foo
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
-		bool ISupportsInterning.EqualsForInterning(ISupportsInterning other)
+	bool ISupportsInterning.EqualsForInterning(ISupportsInterning other)
+	{
+		return p != null && type == p.type && name == p.name &&
+			defaultValue == p.defaultValue && region == p.region && (flags & ~1) == (p.flags & ~1) && ListEquals(attributes, p.attributes);$", fmt);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_MethodNamedArgs()
 		{
-			return p != null && type == p.type && name == p.name &&
-				defaultValue == p.defaultValue && region == p.region && (flags & ~1) == (p.flags & ~1) && ListEquals(attributes, p.attributes);$", fmt);
-			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			var fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		Bar (Named = $", fmt);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_MethodNamedArgs2()
+		{
+			var fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = true;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		Bar (Named = $", fmt);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_MethodNamedArgs3()
+		{
+			var fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = true;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		Bar (Named = 1 +
+		     2, $", fmt);
+			Assert.AreEqual("\t\t     ", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_RelationalOperator()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		return x == 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 
+		[Test]
+		public void TestIsRightHandExpression_RelationalOperator2()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		return x >= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
 
+
+		[Test]
+		public void TestIsRightHandExpression_RelationalOperator3()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		return x <= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+
+		[Test]
+		public void TestIsRightHandExpression_RelationalOperator4()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		return x != 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+
+		[Test]
+		public void TestIsRightHandExpression_ShortHandOperator()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x += 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_ShortHandOperator2()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x -= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_ShortHandOperator3()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x *= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_ShortHandOperator4()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x /= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_ShortHandOperator5()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x %= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_ShortHandOperator6()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x &= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_ShortHandOperator7()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x |= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_ShortHandOperator8()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x ^= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		[Ignore("fixme")]
+		public void TestIsRightHandExpression_ShortHandOperator9()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x >>= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+		[Test]
+		[Ignore("fixme")]
+		public void TestIsRightHandExpression_ShortHandOperator10()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x <<= 1 $");
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+		}
+
+
+		[Test]
+		public void TestIsRightHandExpression_Statement()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		if (1 == 1)
+			x = 
+				$");
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_Statement2()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		if (1 == 1)
+			x = 
+				1; $");
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_Statement3()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		if (1 == 1)
+			x = 1 +
+			    2; $");
+			Assert.AreEqual("\t\t\t    ", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_MultipleAssignments()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x = y = z = 
+			$");
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestIsRightHandExpression_MultipleAssignments2()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		x = y = z = 1 +
+		    2; $");
+			Assert.AreEqual("\t\t    ", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
 	}
 }
 

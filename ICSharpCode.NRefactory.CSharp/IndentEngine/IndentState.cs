@@ -491,38 +491,39 @@ namespace ICSharpCode.NRefactory.CSharp
 			// handle IsRightHandExpression property
 			if (IsEqualCharPushed)
 			{
-				// if IsRightHandExpression == true && IsEqualCharPushed == true
 				if (IsRightHandExpression)
 				{
-					// replace continuation with extra-spaces if ch is a significant char
-					if (ch != Engine.newLineChar && ch != ' ' && ch != '\t')
+					if (ch == Engine.newLineChar)
 					{
-						IsEqualCharPushed = false;
-						NextLineIndent.PopIf(IndentType.Continuation);
-						NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+						NextLineIndent.ExtraSpaces = 0;
+						NextLineIndent.Push(IndentType.Continuation);
+					}
+				}
+				// ignore "==" and "=>" operators
+				else if (ch != '=' && ch != '>')
+				{
+					IsRightHandExpression = true;
+
+					if (ch == Engine.newLineChar)
+					{
+						NextLineIndent.Push(IndentType.Continuation);
 					}
 					else
 					{
-						// give NextLineIndent.ExtraSpaces another chance on next push
-						IsEqualCharPushed = ch == ' ' || ch == '\t';
+						NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
 					}
 				}
-				else if (ch != '=' && ch != '>') // ignore "==" and "=>" operators
-				{
-					IsRightHandExpression = true;
-					IsEqualCharPushed = true;
-				}
+
+				IsEqualCharPushed = ch == ' ' || ch == '\t';
 			}
 
 			if (ch == ';' || (ch == ',' && IsRightHandExpression))
 			{
 				OnStatementExit();
 			}
-			else if (ch == '=' && !IsRightHandExpression && 
-			         !new[] { '=', '<', '>', '!' }.Contains(Engine.previousChar))
+			else if (ch == '=' && !new[] { '=', '<', '>', '!' }.Contains(Engine.previousChar))
 			{
 				IsEqualCharPushed = true;
-				NextLineIndent.Push(IndentType.Continuation);
 			}
 			else if (ch == '.' && IsRightHandExpression)
 			{
