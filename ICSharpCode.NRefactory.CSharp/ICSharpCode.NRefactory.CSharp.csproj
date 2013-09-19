@@ -383,6 +383,7 @@
     <Compile Include="IndentEngine\TextPasteIndentEngine.cs" />
     <Compile Include="IndentEngine\NullIStateMachineIndentEngine.cs" />
     <Compile Include="Refactoring\CodeGenerationService.cs" />
+    <Compile Include="Formatter\FormattingVisitor_Query.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
