@@ -225,6 +225,29 @@ class Test
 	}
 }");
 		}
+
+		[Test]
+		public void TestBasicQueryAddLine ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.NewLineBeforeNewQueryClause = NewLinePlacement.NewLine;
+			Test (policy, @"
+class Test
+{
+	public void Foo ()
+	{
+		var x = from y in z select y;
+	}
+}", @"
+class Test
+{
+	public void Foo ()
+	{
+		var x = from y in z
+		        select y;
+	}
+}");
+		}
 	}
 }
 

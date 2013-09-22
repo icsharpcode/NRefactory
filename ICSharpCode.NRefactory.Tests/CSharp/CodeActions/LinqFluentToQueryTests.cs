@@ -76,7 +76,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = (from t in new int[0]
-		         select t) + 1;
+select t) + 1;
 	}
 }");
 		}
@@ -539,7 +539,7 @@ class TestClass
 	{
 		var x = from t in Enumerable.Empty<int[]> ()
 		        select (from g in t
-		                select g);
+		      select g);
 	}
 }");
 		}
@@ -617,7 +617,7 @@ class TestClass
 	{
 		var x = from int _1 in
 		            from float _2 in new int[0]
-		            select _2
+		select _2
 		        select _1;
 	}
 }");

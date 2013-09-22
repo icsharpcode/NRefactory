@@ -42,7 +42,13 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			var column = GetUpdatedStartLocation(queryExpression);
 
-			curIndent.ExtraSpaces = column - 1 - (curIndent.CurIndent / options.TabSize);
+			int extraSpaces = column - 1 - (curIndent.CurIndent / options.TabSize);
+			if (extraSpaces < 0) {
+				//This check should probably be removed in the future, when GetUpdatedStartLocation is implemented
+				extraSpaces = 0;
+			}
+
+			curIndent.ExtraSpaces = extraSpaces;
 			VisitChildren(queryExpression);
 
 			curIndent = oldIndent;
