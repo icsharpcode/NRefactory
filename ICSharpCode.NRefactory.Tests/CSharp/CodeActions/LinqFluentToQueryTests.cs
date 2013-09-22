@@ -50,9 +50,8 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from t in new int[0]
-	select t;
+		var x = from t in new int[0]
+		        select t;
 	}
 }");
 		}
@@ -76,9 +75,8 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = (
-	from t in new int[0]
-	select t) + 1;
+		var x = (from t in new int[0]
+select t) + 1;
 	}
 }");
 		}
@@ -102,9 +100,8 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from int _1 in new int[0]
-	select _1;
+		var x = from int _1 in new int[0]
+		        select _1;
 	}
 }");
 		}
@@ -128,10 +125,9 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from w in new int[0]
-	let two = w * 2
-	select two;
+		var x = from w in new int[0]
+		        let two = w * 2
+		        select two;
 	}
 }");
 		}
@@ -155,10 +151,9 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from w in new int[0]
-	let two = w * 2
-	select two;
+		var x = from w in new int[0]
+		        let two = w * 2
+		        select two;
 	}
 }");
 		}
@@ -186,13 +181,12 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from w in new int[0]
-	let two = w * 2
-	let three = w * 3
-	let four = w * 4
-	select w + two + three + four into sum
-	select sum * 2;
+		var x = from w in new int[0]
+		        let two = w * 2
+		        let three = w * 3
+		        let four = w * 4
+		        select w + two + three + four into sum
+		        select sum * 2;
 	}
 }");
 		}
@@ -220,13 +214,12 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from w in new int[0]
-	let two = w * 2
-	let three = w * 3
-	let four = w * 4
-	select w + two + three + four into sum
-	select sum * 2;
+		var x = from w in new int[0]
+		        let two = w * 2
+		        let three = w * 3
+		        let four = w * 4
+		        select w + two + three + four into sum
+		        select sum * 2;
 	}
 }");
 		}
@@ -250,10 +243,9 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from elem1 in new int[0]
-	from elem2 in new int[0]
-	select elem1 + elem2;
+		var x = from elem1 in new int[0]
+		        from elem2 in new int[0]
+		        select elem1 + elem2;
 	}
 }");
 		}
@@ -278,11 +270,10 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from elem1 in new int[0]
-	from elem2 in new int[0]
-	let sum = elem1 + elem2
-	select elem1 + elem2 + sum;
+		var x = from elem1 in new int[0]
+		        from elem2 in new int[0]
+		        let sum = elem1 + elem2
+		        select elem1 + elem2 + sum;
 	}
 }");
 		}
@@ -307,15 +298,14 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from elem1 in new int[0]
-	from elem2 in new int[0]
-	select new {
-		elem1,
-		elem2 = elem2 + 1
-	} into i
-	let sum = i.elem1 + i.elem2
-	select i.elem1 + i.elem2 + sum;
+		var x = from elem1 in new int[0]
+		        from elem2 in new int[0]
+		        select new {
+	elem1,
+	elem2 = elem2 + 1
+} into i
+		        let sum = i.elem1 + i.elem2
+		        select i.elem1 + i.elem2 + sum;
 	}
 }");
 		}
@@ -339,9 +329,8 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from int t in new int[0]
-	select t * 2;
+		var x = from int t in new int[0]
+		        select t * 2;
 	}
 }");
 		}
@@ -365,10 +354,9 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from t in new int[0]
-	where t > 0
-	select t * 2;
+		var x = from t in new int[0]
+		        where t > 0
+		        select t * 2;
 	}
 }");
 		}
@@ -392,10 +380,9 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from t in new int[0]
-	orderby t, t descending
-	select t;
+		var x = from t in new int[0]
+		        orderby t, t descending
+		        select t;
 	}
 }");
 		}
@@ -419,10 +406,9 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from t in new int[0]
-	where t > 0
-	select t;
+		var x = from t in new int[0]
+		        where t > 0
+		        select t;
 	}
 }");
 		}
@@ -446,12 +432,11 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from t in new int[0]
-	where t > 0
-	select t into u
-	where u > 0
-	select u;
+		var x = from t in new int[0]
+		        where t > 0
+		        select t into u
+		        where u > 0
+		        select u;
 	}
 }");
 		}
@@ -475,10 +460,9 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from char a in new int[0]
-	join float b in new int[0] on a * 2 equals b
-	select a * b;
+		var x = from char a in new int[0]
+		        join float b in new int[0] on a * 2 equals b
+		        select a * b;
 	}
 }");
 		}
@@ -502,10 +486,9 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from char a in new int[0]
-	join float b in new int[0] on a * 2 equals b into r
-	select a * r [0];
+		var x = from char a in new int[0]
+		        join float b in new int[0] on a * 2 equals b into r
+		        select a * r [0];
 	}
 }");
 		}
@@ -529,9 +512,8 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from t in Enumerable.Empty<int[]> ()
-	select t.Select (v => v);
+		var x = from t in Enumerable.Empty<int[]> ()
+		        select t.Select (v => v);
 	}
 }");
 		}
@@ -555,11 +537,9 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from t in Enumerable.Empty<int[]> ()
-	select (
-			    from g in t
-		select g);
+		var x = from t in Enumerable.Empty<int[]> ()
+		        select (from g in t
+		      select g);
 	}
 }");
 		}
@@ -583,9 +563,8 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from t in new int[0]
-	group new int[0] by t;
+		var x = from t in new int[0]
+		        group new int[0] by t;
 	}
 }");
 		}
@@ -611,9 +590,8 @@ class TestClass
 	void TestMethod ()
 	{
 		int _1;
-		var x = 
-			from float _2 in new int[0]
-	select _2;
+		var x = from float _2 in new int[0]
+		        select _2;
 	}
 }");
 		}
@@ -637,11 +615,10 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = 
-			from int _1 in 
-		from float _2 in new int[0]
+		var x = from int _1 in
+		            from float _2 in new int[0]
 		select _2
-	select _1;
+		        select _1;
 	}
 }");
 		}
