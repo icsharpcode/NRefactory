@@ -49,6 +49,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
+				if (typeDeclaration.ClassType == ClassType.Interface || typeDeclaration.ClassType == ClassType.Enum)
+					return;
 				base.VisitTypeDeclaration(typeDeclaration);
 				var rr = ctx.Resolve(typeDeclaration);
 				if (rr.IsError)

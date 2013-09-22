@@ -282,6 +282,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					throw new ArgumentOutOfRangeException();
 			}
 		}
+
+		/// <summary>
+		/// Applies a suffix to a name and tries to reuse the suffix of the suffix.
+		/// MyArgs + EventArgs -> MyEventArgs instead of MyArgsEventArgs
+		/// </summary>
+		static string ApplySuffix(string name, string suffix)
+		{
+			var words = WordParser.BreakWords(suffix);
+
+			bool found = false;
+			for (int j = words.Count - 1; j >= 0; j--) {
+				if (name.EndsWith(words[j], StringComparison.Ordinal)) {
+					name = name.Substring(0, name.Length - words[j].Length);
+					found = true;
+				} else {
+					if (found)
+						return name + string.Join("", words.ToArray(), j, words.Count - j);
+					break;
+				}
+			}
+			return name + suffix;
+		}
 	
 		public string GetErrorMessage(BaseRefactoringContext ctx, string name, out IList<string> suggestedNames)
 		{
@@ -460,7 +482,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			if (suffix != null) {
 				for (int i = 0; i < suggestedNames.Count; i++) {
-					suggestedNames [i] = suggestedNames [i] + suffix;
+					suggestedNames [i] = ApplySuffix (suggestedNames [i], suffix);
 				}
 			} else if (missingRequiredSuffix) {
 				for (int i = 0; i < suggestedNames.Count; i++) {
@@ -469,9 +491,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					foreach (var s in RequiredSuffixes) {
 						if (first) {
 							first = false;
-							suggestedNames [i] = n + s;
+							suggestedNames [i] = ApplySuffix (n, s);
 						} else {
-							suggestedNames.Add(n + s);
+							suggestedNames.Add(ApplySuffix (n, s));
 						}
 					}
 				}

@@ -74,6 +74,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// </summary>
 		public IkvmLoader()
 		{
+			interningProvider = new NonFrozenInterningProvider ();
 		}
 
 		#region Load Assembly From Disk
@@ -343,9 +344,34 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			// AssemblyVersionAttribute
 			if (assembly.GetName ().Version != null) {
 				var assemblyVersion = new DefaultUnresolvedAttribute(assemblyVersionAttributeTypeRef, new[] { KnownTypeReference.String });
-				assemblyVersion.PositionalArguments.Add(CreateSimpleConstantValue(KnownTypeReference.String, assembly.GetName ().Version.ToString()));
+				assemblyVersion.PositionalArguments.Add(CreateSimpleConstantValue(assembly.GetName ().Version.ToString()));
 				outputList.Add(interningProvider.Intern(assemblyVersion));
 			}
+		}
+
+		IConstantValue CreateSimpleConstantValue(string value)
+		{
+			return interningProvider.Intern(new StringConstantValue(value));
+		}
+
+		IConstantValue CreateSimpleConstantValue(int value)
+		{
+			return interningProvider.Intern(new IntConstantValue(value));
+		}
+
+		IConstantValue CreateSimpleConstantValue(short value)
+		{
+			return interningProvider.Intern(new ShortConstantValue(value));
+		}		
+
+		IConstantValue CreateSimpleConstantValue<T>(ITypeReference type, T value) where T : struct
+		{
+			return interningProvider.Intern(new StructConstantValue<T>(type, value));
+		}
+
+		IConstantValue CreateSimpleConstantValue<T>(ITypeReference type, T? value) where T : struct
+		{
+			return interningProvider.Intern(new SimpleConstantValue(type, value));
 		}
 
 		IConstantValue CreateSimpleConstantValue(ITypeReference type, object value)
@@ -353,7 +379,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			if (ReferenceEquals(value, Missing.Value))
 				return CreateSimpleConstantValue(type, null);
 			return interningProvider.Intern(new SimpleConstantValue(type, interningProvider.InternValue(value)));
-		}
+		}		
 		#endregion
 
 		#region Module Attributes
@@ -427,7 +453,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				string importScope;
 				if (methodDefinition.__TryGetImplMap(out flags, out importName, out importScope)) {
 					var dllImport = new DefaultUnresolvedAttribute(dllImportAttributeTypeRef, new[] { KnownTypeReference.String });
-					dllImport.PositionalArguments.Add(CreateSimpleConstantValue(KnownTypeReference.String, importScope));
+					dllImport.PositionalArguments.Add(CreateSimpleConstantValue(importScope));
 
 					
 					if ((flags & ImplMapFlags.BestFitOff) != 0)
@@ -478,7 +504,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 						dllImport.AddNamedFieldArgument("CharSet", CreateSimpleConstantValue(charSetTypeRef, (int)charSet));
 
 					if (!string.IsNullOrEmpty(importName) && importName != methodDefinition.Name)
-						dllImport.AddNamedFieldArgument("EntryPoint", CreateSimpleConstantValue(KnownTypeReference.String, importName));
+						dllImport.AddNamedFieldArgument("EntryPoint", CreateSimpleConstantValue(importName));
 
 					if ((flags & ImplMapFlags.NoMangle) != 0)
 						dllImport.AddNamedFieldArgument("ExactSpelling", trueValue);
@@ -610,10 +636,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 						structLayout.AddNamedFieldArgument("CharSet", CreateSimpleConstantValue(charSetTypeRef, (int)charSet));
 					}
 					if (packingSize > 0) {
-						structLayout.AddNamedFieldArgument("Pack", CreateSimpleConstantValue(KnownTypeReference.Int32, packingSize));
+						structLayout.AddNamedFieldArgument("Pack", CreateSimpleConstantValue(packingSize));
 					}
 					if (typeSize > 0) {
-						structLayout.AddNamedFieldArgument("Size", CreateSimpleConstantValue(KnownTypeReference.Int32, typeSize));
+						structLayout.AddNamedFieldArgument("Size", CreateSimpleConstantValue(typeSize));
 					}
 					targetEntity.Attributes.Add(interningProvider.Intern(structLayout));
 				}
@@ -638,7 +664,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			int fOffset;
 			if (fieldDefinition.__TryGetFieldOffset(out fOffset)) {
 				var fieldOffset = new DefaultUnresolvedAttribute(fieldOffsetAttributeTypeRef, new[] { KnownTypeReference.Int32 });
-				fieldOffset.PositionalArguments.Add(CreateSimpleConstantValue(KnownTypeReference.Int32, fOffset));
+				fieldOffset.PositionalArguments.Add(CreateSimpleConstantValue(fOffset));
 				targetEntity.Attributes.Add(interningProvider.Intern(fieldOffset));
 			}
 
@@ -680,7 +706,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 
 			if (marshalInfo.UnmanagedType ==UnmanagedType.ByValArray) {
-				attr.AddNamedFieldArgument("SizeConst", CreateSimpleConstantValue(KnownTypeReference.Int32, (int)marshalInfo.SizeConst));
+				attr.AddNamedFieldArgument("SizeConst", CreateSimpleConstantValue((int)marshalInfo.SizeConst));
 				if (marshalInfo.ArraySubType.HasValue)
 					attr.AddNamedFieldArgument("ArraySubType", CreateSimpleConstantValue(unmanagedTypeTypeRef, (int)marshalInfo.ArraySubType.Value));
 			}
@@ -693,19 +719,19 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				if (marshalInfo.ArraySubType != null)
 					attr.AddNamedFieldArgument("ArraySubType", CreateSimpleConstantValue(unmanagedTypeTypeRef, (int)marshalInfo.ArraySubType));
 				if (marshalInfo.SizeConst >= 0)
-					attr.AddNamedFieldArgument("SizeConst", CreateSimpleConstantValue(KnownTypeReference.Int32, (int)marshalInfo.SizeConst));
+					attr.AddNamedFieldArgument("SizeConst", CreateSimpleConstantValue((int)marshalInfo.SizeConst));
 				if (marshalInfo.SizeParamIndex >= 0)
-					attr.AddNamedFieldArgument("SizeParamIndex", CreateSimpleConstantValue(KnownTypeReference.Int16, (short)marshalInfo.SizeParamIndex));
+					attr.AddNamedFieldArgument("SizeParamIndex", CreateSimpleConstantValue((short)marshalInfo.SizeParamIndex));
 			}
 
 			if (marshalInfo.UnmanagedType == UnmanagedType.CustomMarshaler) {
-				attr.AddNamedFieldArgument("MarshalType", CreateSimpleConstantValue(KnownTypeReference.String, marshalInfo.MarshalType));
+				attr.AddNamedFieldArgument("MarshalType", CreateSimpleConstantValue(marshalInfo.MarshalType));
 				if (!string.IsNullOrEmpty(marshalInfo.MarshalCookie))
-					attr.AddNamedFieldArgument("MarshalCookie", CreateSimpleConstantValue(KnownTypeReference.String, marshalInfo.MarshalCookie));
+					attr.AddNamedFieldArgument("MarshalCookie", CreateSimpleConstantValue(marshalInfo.MarshalCookie));
 			}
 
 			if (marshalInfo.UnmanagedType == UnmanagedType.ByValTStr) {
-				attr.AddNamedFieldArgument("SizeConst", CreateSimpleConstantValue(KnownTypeReference.Int32, (int)marshalInfo.SizeConst));
+				attr.AddNamedFieldArgument("SizeConst", CreateSimpleConstantValue((int)marshalInfo.SizeConst));
 			}
 
 			return InterningProvider.Intern(attr);
@@ -834,7 +860,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			td.AddDefaultConstructorIfRequired = (td.Kind == TypeKind.Struct || td.Kind == TypeKind.Enum);
 			InitMembers(typeDefinition, td, td.Members);
 			td.ApplyInterningProvider(interningProvider);
-			td.Freeze();
 			RegisterCecilObject(td, typeDefinition);
 		}
 
@@ -1465,7 +1490,6 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		void FinishReadMember(AbstractUnresolvedMember member, MemberInfo ikvmDefinition)
 		{
 			member.ApplyInterningProvider(interningProvider);
-			member.Freeze();
 			RegisterCecilObject(member, ikvmDefinition);
 		}
 		#endregion
