@@ -513,6 +513,7 @@
     <Compile Include="CSharp\CodeActions\ConvertMethodGroupToLambdaActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertMethodGroupToAnonymousMethodActionTests.cs" />
     <Compile Include="CSharp\CodeActions\AddExceptionDescriptionActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\DontUseLinqWhenItsVerboseAndInefficientTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertIfStatementToConditionalTernaryExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertIfStatementToReturnStatementActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertIfStatementToNullCoalescingExpressionActionTests.cs" />
