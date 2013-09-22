@@ -91,6 +91,30 @@ class TestClass
 }");
 		}
 
+
+		/// <summary>
+		/// Bug 14840 - Incorrect "can be converted to expression" suggestion
+		/// </summary>
+		[Test]
+		public void TestBug14840 ()
+		{
+			TestWrongContext<ConvertToLambdaExpressionIssue>(@"using System;
+using System.Collections.Generic;
+
+class C
+{
+	void Foo (Action<int> a) {}
+	void Foo (Func<int,int> a) {}
+
+	void Test ()
+	{
+		int t = 0;
+		Foo (c => { t = c; });
+	}
+}");
+		}
+
+
 	}
 }
 

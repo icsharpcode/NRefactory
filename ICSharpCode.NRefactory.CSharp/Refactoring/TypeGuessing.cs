@@ -259,6 +259,13 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (expr.Parent is ConstructorInitializer)
 				return GuessFromConstructorInitializer(resolver, expr);
 
+			if (expr.Parent is NamedExpression) {
+				var rr = resolver.Resolve(expr.Parent);
+				if (!rr.IsError) {
+					return new [] { rr.Type };
+				}
+			}
+
 			return Enumerable.Empty<IType>();
 		}
 		static readonly IType[] emptyTypes = new IType[0];

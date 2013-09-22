@@ -275,6 +275,32 @@ class Test
 }");
 		}
 
+
+
+		/// <summary>
+		/// Bug 14843 - CS0127ReturnMustNotBeFollowedByAnyExpression Code Issue false positive
+		/// </summary>
+		[Test]
+		public void TestBug14843 ()
+		{
+			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"
+using System;
+
+class Foo {
+	public Func<object, object> Func;
+}
+class Bar
+{
+	void Test ()
+	{
+		new Foo {
+			Func = o => {
+				return o;
+			}
+		};
+	}
+}");
+		}
 	}
 }
 

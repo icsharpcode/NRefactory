@@ -590,6 +590,7 @@
     <Compile Include="CSharp\CodeIssues\MissingInterfaceMemberImplementationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnmatchedSizeSpeicificationInArrayCreationTests.cs" />
     <Compile Include="FormattingTests\TestLinq.cs" />
+    <Compile Include="CSharp\CodeIssues\NonReadonlyReferencedInGetHashCodeTetsts.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -57,6 +58,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!ConvertLambdaBodyStatementToExpressionAction.TryGetConvertableExpression(lambdaExpression, out block, out expr))
 					return;
 				var node = block.Statements.FirstOrDefault() ?? block;
+				var returnTypes = new List<IType>();
+				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, lambdaExpression)) {
+					if (type.Kind != ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate)
+						continue;
+					var invoke = type.GetDelegateInvokeMethod();
+					if (!returnTypes.Contains(invoke.ReturnType))
+						returnTypes.Add(invoke.ReturnType);
+				}
+				if (returnTypes.Count > 1)
+					return;
+
 				AddIssue(new CodeIssue(
 					node,
 					ctx.TranslateString("Can be converted to expression"),
