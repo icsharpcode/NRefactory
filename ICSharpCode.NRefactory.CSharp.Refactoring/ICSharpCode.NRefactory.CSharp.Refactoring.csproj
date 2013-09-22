@@ -410,6 +410,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEnumerableCastCallIssue.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\MissingInterfaceMemberImplementationIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\UnmatchedSizeSpecificationInArrayCreationIssue.cs" />
+    <Compile Include="CodeIssues\Uncategorized\NonReadonlyReferencedInGetHashCodeIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
