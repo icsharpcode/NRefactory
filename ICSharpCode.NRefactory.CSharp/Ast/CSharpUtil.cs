@@ -48,8 +48,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			
 			if (condition is UnaryOperatorExpression) {
 				var uOp = (UnaryOperatorExpression)condition;
-				if (uOp.Operator == UnaryOperatorType.Not)
+				if (uOp.Operator == UnaryOperatorType.Not) {
+					if (!(uOp.Parent is Expression))
+						return GetInnerMostExpression(uOp.Expression).Clone();
 					return uOp.Expression.Clone();
+				}
 				return new UnaryOperatorExpression(UnaryOperatorType.Not, uOp.Clone());
 			}
 			
@@ -83,7 +86,26 @@ namespace ICSharpCode.NRefactory.CSharp
 				}
 			}
 			
-			return new UnaryOperatorExpression(UnaryOperatorType.Not, condition.Clone());
+			return new UnaryOperatorExpression(UnaryOperatorType.Not, AddParensForUnaryExpressionIfRequired(condition.Clone()));
+		}
+
+		/// <summary>
+		/// When negating an expression this is required, otherwise you would end up with
+		/// a or b -> !a or b
+		/// </summary>
+		internal static Expression AddParensForUnaryExpressionIfRequired(Expression expression)
+		{
+			if ((expression is BinaryOperatorExpression) ||
+			    (expression is AssignmentExpression) ||
+			    (expression is CastExpression) ||
+			    (expression is AsExpression) ||
+			    (expression is IsExpression) ||
+			    (expression is LambdaExpression) ||
+			    (expression is ConditionalExpression)) {
+				return new ParenthesizedExpression(expression);
+			}
+
+			return expression;
 		}
 
 		/// <summary>
@@ -113,6 +135,14 @@ namespace ICSharpCode.NRefactory.CSharp
 					return BinaryOperatorType.ConditionalOr;
 			}
 			return BinaryOperatorType.Any;
+		}
+
+		/// <summary>
+		/// Returns true, if the specified operator is a relational operator
+		/// </summary>
+		public static bool IsRelationalOperator(BinaryOperatorType op)
+		{
+			return NegateRelationalOperator(op) != BinaryOperatorType.Any;
 		}
 
 		/// <summary>

@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					   Description = "Comparison of floating point numbers with equality operator.",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.WavedLine,
-	                   ResharperDisableKeyword = "CompareOfFloatsByEqualityOperator")]
+	                   AnalysisDisableKeyword = "CompareOfFloatsByEqualityOperator")]
 	public class CompareOfFloatsByEqualityOperatorIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -137,7 +136,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
 					floatType = "double";
-				AddIssue(
+				AddIssue(new CodeIssue(
 					binaryOperatorExpression, 
 					ctx.TranslateString ("NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead."),
 					binaryOperatorExpression.Operator == BinaryOperatorType.InEquality ? 
@@ -148,14 +147,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality)
 							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
 						script.Replace (binaryOperatorExpression, expr);
-					});
+					}
+				));
 			}
 
 			void AddIsNegativeInfinityIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr, string floatType)
 			{
 				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
 					floatType = "double";
-				AddIssue(
+				AddIssue(new CodeIssue(
 					binaryOperatorExpression, 
 					ctx.TranslateString ("Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method."),
 					binaryOperatorExpression.Operator == BinaryOperatorType.InEquality ? 
@@ -167,14 +167,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
 						script.Replace (binaryOperatorExpression, expr);
 					}
-				);
+				));
 			}
 
 			void AddIsPositiveInfinityIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr, string floatType)
 			{
 				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
 					floatType = "double";
-				AddIssue(
+				AddIssue(new CodeIssue(
 					binaryOperatorExpression, 
 					ctx.TranslateString ("Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method."),
 					binaryOperatorExpression.Operator == BinaryOperatorType.InEquality ? 
@@ -186,12 +186,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
 						script.Replace (binaryOperatorExpression, expr);
 					}
-				);
+				));
 			}
 
 			void AddIsZeroIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr)
 			{
-				AddIssue(
+				AddIssue(new CodeIssue(
 					binaryOperatorExpression, 
 					ctx.TranslateString ("Comparison of floating point numbers can be unequal due to the differing precision of the two values."),
 					ctx.TranslateString ("Fix floating point number comparing. Compare a difference with epsilon."),
@@ -205,7 +205,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						script.Replace (binaryOperatorExpression, compare);
 						script.Select (epsilon);
 					}
-				);
+				));
 			}
 
 			public override void VisitBinaryOperatorExpression (BinaryOperatorExpression binaryOperatorExpression)
@@ -242,7 +242,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						AddIsZeroIssue(binaryOperatorExpression, binaryOperatorExpression.Left);
 						return;
 					}
-					AddIssue(
+					AddIssue(new CodeIssue(
 						binaryOperatorExpression, 
 						ctx.TranslateString("Comparison of floating point numbers can be unequal due to the differing precision of the two values."),
 						ctx.TranslateString("Fix floating point number comparing. Compare a difference with epsilon."),
@@ -259,7 +259,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							script.Replace(binaryOperatorExpression, compare);
 							script.Select(epsilon);
 						}
-					);
+					));
 				}
 			}
 		}

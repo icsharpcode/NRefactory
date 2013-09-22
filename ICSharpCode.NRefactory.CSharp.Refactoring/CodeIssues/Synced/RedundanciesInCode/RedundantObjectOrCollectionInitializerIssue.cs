@@ -29,12 +29,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Redundant empty object or collection initializer",
-					   Description = "Redundant empty object or collection initializer.",
-					   Category = IssueCategories.RedundanciesInCode,
-					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.GrayOut,
-                       ResharperDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
+	[IssueDescription("Redundant empty object or collection initializer",
+		Description = "Redundant empty object or collection initializer.",
+		Category = IssueCategories.RedundanciesInCode,
+		Severity = Severity.Warning,
+		AnalysisDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
 	public class RedundantObjectOrCollectionInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -44,23 +43,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantObjectOrCollectionInitializerIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
-				: base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx)
+				: base(ctx)
 			{
 			}
 
-			public override void VisitObjectCreateExpression (ObjectCreateExpression objectCreateExpression)
+			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
 			{
-				base.VisitObjectCreateExpression (objectCreateExpression);
+				base.VisitObjectCreateExpression(objectCreateExpression);
 				if (objectCreateExpression.Initializer.IsNull || objectCreateExpression.Initializer.Elements.Count > 0)
 					return;
 
-				AddIssue (objectCreateExpression.Initializer, ctx.TranslateString ("Empty object or collection initializer is redundant"),  ctx.TranslateString ("Remove initializer"),
+				AddIssue(new CodeIssue(objectCreateExpression.Initializer, ctx.TranslateString("Empty object or collection initializer is redundant"), ctx.TranslateString("Remove initializer"),
 					script => {
-						var expr = (ObjectCreateExpression)objectCreateExpression.Clone ();
+						var expr = (ObjectCreateExpression)objectCreateExpression.Clone();
 						expr.Initializer = ArrayInitializerExpression.Null;
-						script.Replace (objectCreateExpression, expr);
-					});
+						script.Replace(objectCreateExpression, expr);
+					}) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

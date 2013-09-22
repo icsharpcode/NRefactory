@@ -152,7 +152,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// </summary>
 		public static AstType AnyType (bool doesMatchNullTypes = false)
 		{
-			return new InternalAnyType(doesMatchNullTypes);
+			if (doesMatchNullTypes)
+				return new OptionalNode(new AnyNode());
+			else
+				return new AnyNode();
 		}
 
 		/// <summary>
@@ -160,53 +163,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// </summary>
 		public static AstType AnyType (string groupName, bool doesMatchNullTypes = false)
 		{
-			return new InternalAnyType(doesMatchNullTypes, groupName);
-		}
-
-		/// <summary>
-		/// Matches any other type
-		/// </summary>
-		sealed class InternalAnyType : AstType
-		{
-			readonly string groupName;
-			readonly bool doesMatchNullTypes;
-
-			public string GroupName {
-				get { return groupName; }
-			}
-
-			public InternalAnyType(bool doesMatchNullTypes, string groupName = null)
-			{
-				this.doesMatchNullTypes = doesMatchNullTypes;
-				this.groupName = groupName;
-			}
-
-
-			public override ITypeReference ToTypeReference(NameLookupMode lookupMode, InterningProvider interningProvider)
-			{
-				throw new InvalidOperationException();
-			}
-
-			public override void AcceptVisitor (IAstVisitor visitor)
-			{
-				throw new InvalidOperationException();
-			}
-
-			public override T AcceptVisitor<T> (IAstVisitor<T> visitor)
-			{
-				throw new InvalidOperationException();
-			}
-
-			public override S AcceptVisitor<T, S> (IAstVisitor<T, S> visitor, T data)
-			{
-				throw new InvalidOperationException();
-			}
-
-			protected internal override bool DoMatch(AstNode other, ICSharpCode.NRefactory.PatternMatching.Match match)
-			{
-				match.Add(this.groupName, other);
-				return other is AstType && (doesMatchNullTypes || !other.IsNull);
-			}
+			if (doesMatchNullTypes)
+				return new OptionalNode(new AnyNode(groupName));
+			else
+				return new AnyNode(groupName);
 		}
 	}
 }

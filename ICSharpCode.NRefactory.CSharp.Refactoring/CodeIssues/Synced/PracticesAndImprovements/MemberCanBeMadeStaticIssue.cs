@@ -37,11 +37,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "A member doesn't use 'this' object neither explicit nor implicit. It can be made static.",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine,
-	                  ResharperDisableKeyword = "MemberCanBeMadeStatic.Local"
+	                  AnalysisDisableKeyword = "MemberCanBeMadeStatic.Local"
 	                  )]
 	[SubIssueAttribute(CommonSubIssues.PrivateMember)]
-	[SubIssueAttribute(CommonSubIssues.NonPrivateMember)]
+	[SubIssueAttribute(CommonSubIssues.NonPrivateMember, false)]
 	public class MemberCanBeMadeStaticIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -107,10 +106,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (StaticVisitor.UsesNotStaticMember(context, body))
 					return;
 				
-				AddIssue(methodDeclaration.NameToken.StartLocation, methodDeclaration.NameToken.EndLocation,
-				         string.Format(context.TranslateString("Method '{0}' can be made static."), methodDeclaration.Name),
-				         string.Format(context.TranslateString("Make '{0}' static"), methodDeclaration.Name),
-				         script => script.ChangeModifier(methodDeclaration, methodDeclaration.Modifiers | Modifiers.Static));
+				AddIssue(new CodeIssue(
+					methodDeclaration.NameToken.StartLocation, methodDeclaration.NameToken.EndLocation,
+					string.Format(context.TranslateString("Method '{0}' can be made static."), methodDeclaration.Name),
+					string.Format(context.TranslateString("Make '{0}' static"), methodDeclaration.Name),
+					script => script.ChangeModifier(methodDeclaration, methodDeclaration.Modifiers | Modifiers.Static)) { IssueMarker = IssueMarker.DottedLine });
 			}
 
 			static bool IsEmpty(Accessor setter)
@@ -144,10 +144,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				    !propertyDeclaration.Setter.IsNull && StaticVisitor.UsesNotStaticMember(ctx, propertyDeclaration.Setter.Body))
 					return;
 
-				AddIssue(propertyDeclaration.NameToken.StartLocation, propertyDeclaration.NameToken.EndLocation,
+				AddIssue(new CodeIssue(propertyDeclaration.NameToken.StartLocation, propertyDeclaration.NameToken.EndLocation,
 				         string.Format(ctx.TranslateString("Property '{0}' can be made static."), propertyDeclaration.Name),
 				         string.Format(ctx.TranslateString("Make '{0}' static"), propertyDeclaration.Name),
-				         script => script.ChangeModifier(propertyDeclaration, propertyDeclaration.Modifiers | Modifiers.Static));
+					script => script.ChangeModifier(propertyDeclaration, propertyDeclaration.Modifiers | Modifiers.Static)) { IssueMarker = IssueMarker.DottedLine });
 			}
 
 			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
@@ -174,10 +174,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				    !eventDeclaration.RemoveAccessor.IsNull && StaticVisitor.UsesNotStaticMember(ctx, eventDeclaration.RemoveAccessor.Body))
 					return;
 
-				AddIssue(eventDeclaration.NameToken.StartLocation, eventDeclaration.NameToken.EndLocation,
+				AddIssue(new CodeIssue(eventDeclaration.NameToken.StartLocation, eventDeclaration.NameToken.EndLocation,
 				         string.Format(ctx.TranslateString("Event '{0}' can be made static."), eventDeclaration.Name),
 				         string.Format(ctx.TranslateString("Make '{0}' static"), eventDeclaration.Name),
-				         script => script.ChangeModifier(eventDeclaration, eventDeclaration.Modifiers | Modifiers.Static));
+					script => script.ChangeModifier(eventDeclaration, eventDeclaration.Modifiers | Modifiers.Static)) { IssueMarker = IssueMarker.DottedLine });
 			}
 
 
@@ -186,7 +186,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				if (fnode is MemberReferenceExpression) {
 					var memberReference = new MemberReferenceExpression(
-						new TypeReferenceExpression(fctx.CreateShortType(rr.Member.DeclaringType)),
+						fctx.CreateShortType(rr.Member.DeclaringType),
 						rr.Member.Name
 					);
 					fscript.Replace(fnode, memberReference);
@@ -197,7 +197,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if ((invoke.Target is MemberReferenceExpression))
 						return;
 					var memberReference = new MemberReferenceExpression(
-						new TypeReferenceExpression(fctx.CreateShortType(rr.Member.DeclaringType)),
+						fctx.CreateShortType(rr.Member.DeclaringType),
 						rr.Member.Name
 					);
 					fscript.Replace(invoke.Target, memberReference);

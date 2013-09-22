@@ -26,13 +26,13 @@
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Convert '??' to '?:'",
-	               Description = "Convert '??' to '?:'")]
+	[ContextAction("Convert assignment to 'if'",
+	               Description = "Convert assignment to 'if'")]
 	public class ConvertAssignmentToIfAction : SpecializedCodeAction<AssignmentExpression>
 	{
 		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
 		{
-			if (!node.OperatorToken.Contains(context.Location) && !(node.Parent is ExpressionStatement))
+			if (!node.OperatorToken.Contains(context.Location) || !(node.Parent is ExpressionStatement))
 				return null;
 
 			if (node.Right is ConditionalExpression)
@@ -50,13 +50,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				ctx.TranslateString("Replace with 'if' statement"),
 				script => {
 					var ifStatement = new IfElseStatement(
-						conditionalExpression.Condition.Clone(), 
-						new ExpressionStatement(new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.TrueExpression.Clone())),
-						new ExpressionStatement(new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.FalseExpression.Clone()))
+						conditionalExpression.Condition.Clone(),
+						new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.TrueExpression.Clone()),
+						new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.FalseExpression.Clone())
 					);
 					script.Replace(node.Parent, ifStatement); 
 				},
-				node
+				node.OperatorToken
 			);
 		}
 
@@ -67,12 +67,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				script => {
 					var ifStatement = new IfElseStatement(
 						new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.InEquality, new NullReferenceExpression()), 
-						new ExpressionStatement(new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Left.Clone())),
-						new ExpressionStatement(new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Right.Clone()))
+						new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Left.Clone()),
+						new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Right.Clone())
 					);
 					script.Replace(node.Parent, ifStatement); 
 				},
-				node
+				node.OperatorToken
 			);
 		}
 

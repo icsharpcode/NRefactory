@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       Description = "Replace with single call to Any(...)",
                       Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-                      ResharperDisableKeyword = "ReplaceWithSingleCallToAny")]
+                      AnalysisDisableKeyword = "ReplaceWithSingleCallToAny")]
     public class ReplaceWithSingleCallToAnyIssue : GatherVisitorCodeIssueProvider
 	{
 		static readonly AstNode pattern =
@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (predResolve.Type.TypeParameterCount != 2)
 					return;
 				
-				AddIssue (
+				AddIssue(new CodeIssue(
 					anyInvoke, string.Format(ctx.TranslateString("Redundant Where() call with predicate followed by {0}()"), anyResolve.Member.Name),
 					new CodeAction (
 						string.Format(ctx.TranslateString("Replace with single call to '{0}'"), anyResolve.Member.Name),
@@ -96,7 +96,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						},
 						anyInvoke
 					)
-				);
+				));
 			}
 			
 			bool IsQueryExtensionClass(ITypeDefinition typeDef)

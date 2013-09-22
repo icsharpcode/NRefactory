@@ -29,12 +29,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Parentheses are redundant if attribute has no arguments",
-	                   Description = "Parentheses are redundant if attribute has no arguments.",
-	                   Category = IssueCategories.RedundanciesInCode,
-	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut,
-	                   ResharperDisableKeyword = "RedundantAttributeParentheses")]
+	[IssueDescription("Parentheses are redundant if attribute has no arguments",
+		Description = "Parentheses are redundant if attribute has no arguments.",
+		Category = IssueCategories.RedundanciesInCode,
+		Severity = Severity.Warning,
+		AnalysisDisableKeyword = "RedundantAttributeParentheses")]
 	public class RedundantAttributeParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -44,20 +43,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantAttributeParenthesesIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
-				: base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx)
+				: base(ctx)
 			{
 			}
 
-			public override void VisitAttribute (Attribute attribute)
+			public override void VisitAttribute(Attribute attribute)
 			{
-				base.VisitAttribute (attribute);
+				base.VisitAttribute(attribute);
 
 				if (attribute.Arguments.Count > 0 || !attribute.HasArgumentList)
 					return;
 
-				AddIssue (attribute.LParToken.StartLocation, attribute.RParToken.StartLocation, ctx.TranslateString ("Parentheses are redundant if attribute has no arguments"), ctx.TranslateString ("Remove '()'"), script =>
-					script.Replace (attribute, new Attribute { Type = attribute.Type.Clone () }));
+				AddIssue(new CodeIssue(attribute.LParToken.StartLocation, attribute.RParToken.StartLocation, ctx.TranslateString("Parentheses are redundant if attribute has no arguments"), ctx.TranslateString("Remove '()'"), script =>
+					script.Replace(attribute, new Attribute { Type = attribute.Type.Clone() })) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

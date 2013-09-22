@@ -32,11 +32,10 @@ using ICSharpCode.NRefactory.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("'if' statement can be re-written as '?:' expression",
-	                  Description="Convert 'if' to '?:'",
+	                  Description = "Convert 'if' to '?:'",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine,
-	                  ResharperDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
+	                  AnalysisDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
 	public class ConvertIfStatementToConditionalTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -46,12 +45,41 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		public static bool IsComplexExpression(AstNode expr)
 		{
-			return expr.StartLocation.Line != expr.EndLocation.Line;
+			return expr.StartLocation.Line != expr.EndLocation.Line ||
+			expr is ConditionalExpression ||
+			expr is BinaryOperatorExpression;
+		}
+
+		public static bool IsComplexCondition(Expression expr)
+		{
+			if (expr.StartLocation.Line != expr.EndLocation.Line)
+				return true;
+
+			if (expr is PrimitiveExpression || expr is IdentifierExpression || expr is MemberReferenceExpression || expr is InvocationExpression)
+				return false;
+
+			var pexpr = expr as ParenthesizedExpression;
+			if (pexpr != null)
+				return IsComplexCondition(pexpr.Expression);
+
+			var uOp = expr as UnaryOperatorExpression;
+			if (uOp != null)
+				return IsComplexCondition(uOp.Expression);
+
+			var bop = expr as BinaryOperatorExpression;
+			if (bop == null)
+				return true;
+			return !(bop.Operator == BinaryOperatorType.GreaterThan ||
+			bop.Operator == BinaryOperatorType.GreaterThanOrEqual ||
+			bop.Operator == BinaryOperatorType.Equality ||
+			bop.Operator == BinaryOperatorType.InEquality ||
+			bop.Operator == BinaryOperatorType.LessThan ||
+			bop.Operator == BinaryOperatorType.LessThanOrEqual);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToConditionalTernaryExpressionIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx) : base(ctx)
 			{
 			}
 
@@ -61,17 +89,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				Match match;
 				if (!ConvertIfStatementToConditionalTernaryExpressionAction.GetMatch(ifElseStatement, out match))
 					return;
-				var target = match.Get<Expression>("target").Single();
+//				var target = match.Get<Expression>("target").Single();
 				var condition = match.Get<Expression>("condition").Single();
 				var trueExpr = match.Get<Expression>("expr1").Single();
 				var falseExpr = match.Get<Expression>("expr2").Single();
 
-				if (IsComplexExpression(condition) || IsComplexExpression(trueExpr) || IsComplexExpression(falseExpr))
+				if (IsComplexCondition(condition) || IsComplexExpression(trueExpr) || IsComplexExpression(falseExpr))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					ifElseStatement.IfToken,
 					ctx.TranslateString("Convert to '?:' expression")
-				);
+				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToConditionalTernaryExpressionAction) } });
 			}
 		}
 	}

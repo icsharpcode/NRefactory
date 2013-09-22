@@ -130,7 +130,6 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			}
 			public void method2()
 			{
-				base.method1 ();
 				base.method ();
 			}
 			public new int a;
@@ -140,6 +139,33 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			TestRefactoringContext context;
 			var issues = GetIssues(new RedundantBaseQualifierIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
+		}
+
+		[Test]
+		public void ComplexTests ()
+		{
+			TestWrongContext<RedundantBaseQualifierIssue>(@"
+
+class Base {
+	public int a;
+}
+
+class Foo : Base
+{
+	void Bar ()
+	{
+		{
+			int a = 343;
+		}
+		base.a = 2;
+		
+	}
+
+	void FooBar ()
+	{
+		int a = base.a;
+	}
+}");
 		}
 
 		[Test]

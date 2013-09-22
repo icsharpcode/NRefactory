@@ -47,7 +47,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 			if ((node.Target is IdentifierExpression) && !node.Target.IsInside(context.Location))
 				yield break;
-			if ((node.Target is MemberReferenceExpression) && !((MemberReferenceExpression)node.Target).MemberNameToken.IsInside(context.Location))
+			var memberRefExpr = node.Target as MemberReferenceExpression;
+			if ((memberRefExpr != null) && !memberRefExpr.MemberNameToken.IsInside(context.Location))
 				yield break;
 			var rr = context.Resolve(node) as CSharpInvocationResolveResult;
 			if (rr == null || rr.IsError || rr.Member.Name != "Equals" || !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Object))
@@ -59,14 +60,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				expr = uOp;
 				useEquality = false;
 			}
-
+			if (node.Arguments.Count != 2 && (memberRefExpr == null || node.Arguments.Count != 1))
+				yield break;
 			yield return new CodeAction(
 				useEquality ? context.TranslateString("Use '=='") : context.TranslateString("Use '!='"),
 				script => {
 					script.Replace(
 						expr,
 						new BinaryOperatorExpression(
-							node.Arguments.First().Clone(),
+							node.Arguments.Count == 1 ? memberRefExpr.Target.Clone() : node.Arguments.First().Clone(),
 							useEquality ? BinaryOperatorType.Equality :  BinaryOperatorType.InEquality,
 							node.Arguments.Last().Clone()
 						)

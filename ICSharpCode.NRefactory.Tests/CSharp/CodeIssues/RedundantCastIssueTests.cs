@@ -191,5 +191,72 @@ public class TestClass
 			Test<RedundantCastIssue> (input, 0);
 		}
 
+
+		[Test]
+		public void TestConditionalOperator ()
+		{
+			TestWrongContext<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
+class TestClass
+{
+	void TestMethod (object obj)
+	{	
+		var a = obj != null ? (A)new A () : new B ();
+	}
+}");
+		}
+
+		[Test]
+		public void TestRedundantConditionalOperator ()
+		{
+			Test<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
+class TestClass
+{
+	void TestMethod (object obj)
+	{	
+		var a = obj != null ? (A)new A () : new A ();
+	}
+}", @"class A {} class B : A {} class C : A {}
+class TestClass
+{
+	void TestMethod (object obj)
+	{	
+		var a = obj != null ? new A () : new A ();
+	}
+}");
+		}
+
+		[Test]
+		public void TestNullCoalesingOperatior ()
+		{
+			TestWrongContext<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
+class TestClass
+{
+	void TestMethod (A obj)
+	{	
+		var a = (A)obj ?? new B ();
+	}
+}");
+		}
+
+		[Test]
+		public void TestRedundantNullCoalesingOperatior ()
+		{
+			Test<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
+class TestClass
+{
+	void TestMethod (A obj)
+	{	
+		var a = (A)obj ?? new A ();
+	}
+}", @"class A {} class B : A {} class C : A {}
+class TestClass
+{
+	void TestMethod (A obj)
+	{	
+		var a = obj ?? new A ();
+	}
+}");
+		}
+
 	}
 }

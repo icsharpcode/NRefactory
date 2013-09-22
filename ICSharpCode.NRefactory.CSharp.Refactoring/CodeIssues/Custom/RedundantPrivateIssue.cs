@@ -38,8 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Remove redundant 'private' modifier",
 	       Description = "Removes 'private' modifiers that are not required.",
 	       Category = IssueCategories.RedundanciesInCode,
-	       Severity = Severity.Hint,
-	       IssueMarker = IssueMarker.GrayOut)]
+	       Severity = Severity.Hint)]
 	public class RedundantPrivateIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -58,64 +57,60 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var token_ in node.ModifierTokens) {
 					var token = token_;
 					if (token.Modifier == Modifiers.Private) {
-						AddIssue(token, ctx.TranslateString("Keyword 'private' is redundant. This is the default modifier."), ctx.TranslateString("Remove redundant 'private' modifier"), script => {
+						AddIssue(new CodeIssue(token, ctx.TranslateString("Keyword 'private' is redundant. This is the default modifier."), ctx.TranslateString("Remove redundant 'private' modifier"), script => {
 							script.ChangeModifier (node, node.Modifiers & ~Modifiers.Private);
-						});
+						}) { IssueMarker = IssueMarker.GrayOut });
 					}
 				}
 			}
 
+			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
+			{
+				// SKIP
+			}
+
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
-				base.VisitMethodDeclaration(methodDeclaration);
 				CheckNode(methodDeclaration);
 			}
 			
 			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
 			{
-				base.VisitFieldDeclaration(fieldDeclaration);
 				CheckNode(fieldDeclaration);
 			}
 			
 			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
 			{
-				base.VisitPropertyDeclaration(propertyDeclaration);
 				CheckNode(propertyDeclaration);
 			}
 
 			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
 			{
-				base.VisitIndexerDeclaration(indexerDeclaration);
 				CheckNode(indexerDeclaration);
 			}
 
 			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
 			{
-				base.VisitEventDeclaration(eventDeclaration);
 				CheckNode(eventDeclaration);
 			}
 			
 			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
 			{
-				base.VisitCustomEventDeclaration(eventDeclaration);
 				CheckNode(eventDeclaration);
 			}
 			
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
-				base.VisitConstructorDeclaration(constructorDeclaration);
 				CheckNode(constructorDeclaration);
 			}
 
 			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
 			{
-				base.VisitOperatorDeclaration(operatorDeclaration);
 				CheckNode(operatorDeclaration);
 			}
 
 			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
 			{
-				base.VisitFixedFieldDeclaration(fixedFieldDeclaration);
 				CheckNode(fixedFieldDeclaration);
 			}
 

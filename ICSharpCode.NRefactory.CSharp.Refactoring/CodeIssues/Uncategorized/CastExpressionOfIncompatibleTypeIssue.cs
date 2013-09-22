@@ -32,11 +32,10 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Type cast expression of incompatible type",
-					   Description = "Type cast expression of incompatible type",
-					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.WavedLine)]
+	[IssueDescription("Type cast expression of incompatible type",
+		Description = "Type cast expression of incompatible type",
+		Category = IssueCategories.CodeQualityIssues,
+		Severity = Severity.Warning)]
 	public class CastExpressionOfIncompatibleTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -48,35 +47,35 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			readonly CSharpConversions conversion;
 
-			public GatherVisitor (BaseRefactoringContext ctx)
-				: base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx)
+				: base(ctx)
 			{
 				conversion = new CSharpConversions(ctx.Compilation);
 			}
 
-			public override void VisitCastExpression (CastExpression castExpression)
+			public override void VisitCastExpression(CastExpression castExpression)
 			{
-				base.VisitCastExpression (castExpression);
+				base.VisitCastExpression(castExpression);
 
-				VisitTypeCastExpression (castExpression, ctx.Resolve (castExpression.Expression).Type,
-					ctx.ResolveType (castExpression.Type));
+				VisitTypeCastExpression(castExpression, ctx.Resolve(castExpression.Expression).Type,
+					ctx.ResolveType(castExpression.Type));
 			}
 
-			public override void VisitAsExpression (AsExpression asExpression)
+			public override void VisitAsExpression(AsExpression asExpression)
 			{
-				base.VisitAsExpression (asExpression);
+				base.VisitAsExpression(asExpression);
 
-				VisitTypeCastExpression (asExpression, ctx.Resolve (asExpression.Expression).Type,
-					ctx.ResolveType (asExpression.Type));
+				VisitTypeCastExpression(asExpression, ctx.Resolve(asExpression.Expression).Type,
+					ctx.ResolveType(asExpression.Type));
 			}
 
-			void VisitTypeCastExpression (Expression expression, IType exprType, IType castToType)
+			void VisitTypeCastExpression(Expression expression, IType exprType, IType castToType)
 			{
 				if (exprType.Kind == TypeKind.Unknown || castToType.Kind == TypeKind.Unknown)
 					return;
 				var foundConversion = conversion.ExplicitConversion(exprType, castToType);
 				if (foundConversion == Conversion.None)
-					AddIssue (expression, ctx.TranslateString ("Type cast expression of incompatible type"));
+					AddIssue(new CodeIssue(expression, ctx.TranslateString("Type cast expression of incompatible type")));
 			}
 		}
 	}

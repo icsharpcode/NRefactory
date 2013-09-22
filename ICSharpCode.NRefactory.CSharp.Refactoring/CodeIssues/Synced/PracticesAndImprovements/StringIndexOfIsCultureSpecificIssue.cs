@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Warns when a culture-aware 'IndexOf' call is used by default.",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "StringIndexOfIsCultureSpecific")]
+	                  AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
 	public class StringIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -81,13 +81,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				IParameter lastParameter = rr.Member.Parameters.Last();
 				if (lastParameter.Type.Name == "StringComparison")
 					return; // already specifying a string comparison
-				AddIssue(
+				AddIssue(new CodeIssue(
 					invocationExpression.LParToken.StartLocation, 
 					invocationExpression.RParToken.EndLocation,
 					string.Format(ctx.TranslateString("'{0}' is culture-aware and missing a StringComparison argument"), rr.Member.FullName),
 					new CodeAction(ctx.TranslateString("Add 'StringComparison.Ordinal'"), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
 					new CodeAction(ctx.TranslateString("Add 'StringComparison.CurrentCulture'"), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
-				);
+				));
 			}
 
 			void AddArgument(Script script, InvocationExpression invocationExpression, string stringComparison)

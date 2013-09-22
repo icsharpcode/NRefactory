@@ -38,40 +38,44 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var pexpr = context.GetNode<PrimitiveExpression>();
 			if (pexpr == null)
 				yield break;
-			var statement = context.GetNode<Statement>();
-			if (statement == null)
-				yield break;
-			var varDec = statement as VariableDeclarationStatement;
-			if (varDec != null && (varDec.Modifiers & Modifiers.Const) != 0) {
-				yield break;
-			}
 
 			var visitor = new DeclareLocalVariableAction.SearchNodeVisitior(pexpr);
-			
+
+			if (pexpr.Parent is VariableInitializer) {
+				var varDec = pexpr.Parent.Parent as VariableDeclarationStatement;
+				if (varDec != null && (varDec.Modifiers & Modifiers.Const) != 0)
+					yield break;
+				var fieldDecl = pexpr.Parent.Parent as FieldDeclaration;
+				if (fieldDecl != null && (fieldDecl.Modifiers & Modifiers.Const) != 0)
+					yield break;
+			}
+
 			var node = context.GetNode <BlockStatement>();
 			if (node != null)
 				node.AcceptVisitor(visitor);
 
 			var resolveResult = context.Resolve(pexpr);
-
-			yield return new CodeAction(context.TranslateString("Create local constant"), script => {
-				string name = CreateMethodDeclarationAction.CreateBaseName(pexpr, resolveResult.Type);
-				var service = (NamingConventionService)context.GetService(typeof(NamingConventionService));
-				if (service != null)
-					name = service.CheckName(context, name, AffectedEntity.LocalConstant);
-				
-				var initializer = new VariableInitializer(name, pexpr.Clone());
-				var decl = new VariableDeclarationStatement() {
-					Type = context.CreateShortType(resolveResult.Type),
-					Modifiers = Modifiers.Const,
-					Variables = { initializer }
-				};
-				
-				script.InsertBefore(statement, decl);
-				var variableUsage = new IdentifierExpression(name);
-				script.Replace(pexpr, variableUsage);
-				script.Link(initializer.NameToken, variableUsage);
-			}, pexpr);
+			var statement = context.GetNode<Statement>();
+			if (statement != null) {
+				yield return new CodeAction(context.TranslateString("Create local constant"), script => {
+					string name = CreateMethodDeclarationAction.CreateBaseName(pexpr, resolveResult.Type);
+					var service = (NamingConventionService)context.GetService(typeof(NamingConventionService));
+					if (service != null)
+						name = service.CheckName(context, name, AffectedEntity.LocalConstant);
+					
+					var initializer = new VariableInitializer(name, pexpr.Clone());
+					var decl = new VariableDeclarationStatement() {
+						Type = context.CreateShortType(resolveResult.Type),
+						Modifiers = Modifiers.Const,
+						Variables = { initializer }
+					};
+					
+					script.InsertBefore(statement, decl);
+					var variableUsage = new IdentifierExpression(name);
+					script.Replace(pexpr, variableUsage);
+					script.Link(initializer.NameToken, variableUsage);
+				}, pexpr);
+			}
 			
 			yield return new CodeAction(context.TranslateString("Create constant field"), script => {
 				string name = CreateMethodDeclarationAction.CreateBaseName(pexpr, resolveResult.Type);

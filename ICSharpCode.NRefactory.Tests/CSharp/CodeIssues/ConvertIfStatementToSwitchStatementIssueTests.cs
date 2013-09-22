@@ -68,6 +68,8 @@ class TestClass
 			return b + 1;
 		} else if (a == 2 || a == 3) {
 			return 2;
+		} else if (a == 13) {
+			return 12;
 		} else {
 			return -1;
 		}
@@ -83,7 +85,7 @@ class TestClass
 {
 	int TestMethod (int? a)
 	{
-		$if (a == (1 == 1 ? 11 : 12)) {
+		if (a == (1 == 1 ? 11 : 12)) {
 			return 1;
 		} else if (a == (2 * 3) + 1 || a == 6 / 2) {
 			return 2;
@@ -107,6 +109,8 @@ class TestClass
 			return 1;
 		} else if (a == b + c) {
 			return 0;
+		} else if (a ==  c) {
+			return 2;
 		} else {
 			return -1;
 		}
@@ -126,6 +130,8 @@ class TestClass
 			return 1;
 		} else if ((a == 2 || a == 4) || (a == 3 || a == 5)) {
 			return 2;
+		} else if (a == 12) {
+			return 23;
 		} else {
 			return -1;
 		}
@@ -144,6 +150,8 @@ class TestClass
 		$if (a + b == 0) {
 			return 1;
 		} else if (1 == a + b) {
+			return 0;
+		} else if (2 == a + b) {
 			return 0;
 		} else {
 			return -1;
@@ -239,6 +247,7 @@ enum TestEnum
 {
 	First,
 	Second,
+	Third
 }
 class TestClass
 {
@@ -246,8 +255,12 @@ class TestClass
 	{
 		$if (a == TestEnum.First) {
 			return 1;
-		} else {
+		} else if (a == TestEnum.Second) {
 			return -1;
+		} else if (a == TestEnum.Third) {
+			return 3;
+		} else {
+			return 0;
 		}
 	}
 }");
@@ -275,7 +288,9 @@ class TestClass
 	{
 		$if (a == " + caseValue + @") {
 			return 1;
-		} else {
+		} else if (a == default("  + type +  @")) {
+			return -1;
+		} else if (a == null) {
 			return -1;
 		}
 	}
@@ -313,6 +328,8 @@ class TestClass
 			b = 0;
 		} else if (a == 1) {
 			b = 1;
+		} else if (a == 2) {
+			b = 1;
 		}
 	}
 }");
@@ -332,6 +349,46 @@ class TestClass
 				return;
 		} else if (a == 2 || a == 3) {
 			b = 2;
+		} else if (a == 12) {
+			b = 3;
+		}
+	}
+}");
+		}
+
+		
+		[Test]
+		public void TestτooSimpleCase1()
+		{
+			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+class TestClass
+{
+	void TestMethod (int a)
+	{
+		int b;
+		$if (a == 0) {
+			b = 0;
+		} else if (a == 1) {
+			b = 1;
+		}
+	}
+}");
+		}
+		[Test]
+		public void TestτooSimpleCase2()
+		{
+			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+class TestClass
+{
+	void TestMethod (int a)
+	{
+		int b;
+		$if (a == 0) {
+			b = 0;
+		} else if (a == 1) {
+			b = 1;
+		} else {
+			b = 1;
 		}
 	}
 }");

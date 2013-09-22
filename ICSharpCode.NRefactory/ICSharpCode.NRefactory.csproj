@@ -288,6 +288,7 @@
     <Compile Include="Completion\FrameworkLookup.cs" />
     <Compile Include="Utils\ComparableList.cs" />
     <Compile Include="PatternMatching\AnyNodeOrNull.cs" />
+    <Compile Include="Editor\ITextPasteHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Completion\" />

@@ -33,8 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       Description = "Constructor in abstract class should not be public",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "PublicConstructorInAbstractClass",
-	                  IssueMarker = IssueMarker.WavedLine)]
+	                  AnalysisDisableKeyword = "PublicConstructorInAbstractClass")]
 	public class PublicConstructorInAbstractClassIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -70,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                     var makeProtected = new CodeAction(ctx.TranslateString("Make constructor protected"), script => script.Replace(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public), new CSharpModifierToken(TextLocation.Empty, Modifiers.Protected)), constructorDeclaration.NameToken);
                     var makePrivate = new CodeAction(ctx.TranslateString("Make constructor private"), script => script.Remove(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public)), constructorDeclaration.NameToken);
 
-                    AddIssue(constructorDeclaration.NameToken, ctx.TranslateString("Constructor in Abstract Class should not be public"), new[] { makeProtected, makePrivate });
+					AddIssue(new CodeIssue(constructorDeclaration.NameToken, ctx.TranslateString("Constructor in Abstract Class should not be public"), new[] { makeProtected, makePrivate }));
                 }
 			}
 		}

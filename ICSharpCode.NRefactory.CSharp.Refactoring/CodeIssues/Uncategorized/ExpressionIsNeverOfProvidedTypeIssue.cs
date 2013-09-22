@@ -33,11 +33,10 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("CS0184:Given expression is never of the provided type",
-					   Description = "CS0184:Given expression is never of the provided type.",
-					   Category = IssueCategories.CompilerWarnings,
-					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.WavedLine)]
+	[IssueDescription("CS0184:Given expression is never of the provided type",
+		Description = "CS0184:Given expression is never of the provided type.",
+		Category = IssueCategories.CompilerWarnings,
+		Severity = Severity.Warning)]
 	public class ExpressionIsNeverOfProvidedTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -48,19 +47,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<ExpressionIsNeverOfProvidedTypeIssue>
 		{
 			readonly CSharpConversions conversions;
-			public GatherVisitor (BaseRefactoringContext ctx)
-				: base (ctx)
+
+			public GatherVisitor(BaseRefactoringContext ctx)
+				: base(ctx)
 			{
 				conversions = CSharpConversions.Get(ctx.Compilation);
 			}
 
-			public override void VisitIsExpression (IsExpression isExpression)
+			public override void VisitIsExpression(IsExpression isExpression)
 			{
-				base.VisitIsExpression (isExpression);
+				base.VisitIsExpression(isExpression);
 
 //				var conversions = CSharpConversions.Get(ctx.Compilation);
-				var exprType = ctx.Resolve (isExpression.Expression).Type;
-				var providedType = ctx.ResolveType (isExpression.Type);
+				var exprType = ctx.Resolve(isExpression.Expression).Type;
+				var providedType = ctx.ResolveType(isExpression.Type);
 
 				if (exprType.Kind == TypeKind.Unknown || providedType.Kind == TypeKind.Unknown)
 					return;
@@ -79,9 +79,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 				}
 				
-				AddIssue (isExpression, ctx.TranslateString ("Given expression is never of the provided type"));
+				AddIssue(new CodeIssue(isExpression, ctx.TranslateString("Given expression is never of the provided type")));
 			}
-			
+
 			bool IsValidReferenceOrBoxingConversion(IType fromType, IType toType)
 			{
 				Conversion c = conversions.ExplicitConversion(fromType, toType);

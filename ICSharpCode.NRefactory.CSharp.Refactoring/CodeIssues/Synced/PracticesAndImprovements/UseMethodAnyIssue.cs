@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Replace usages of 'Count()' with call to 'Any()'",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "UseMethodAny")]
+	                  AnalysisDisableKeyword = "UseMethodAny")]
 	public class UseMethodAnyIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddMatch(BinaryOperatorExpression binaryOperatorExpression, Match match, bool negateAny)
 			{
-				AddIssue(
+				AddIssue(new CodeIssue(
 					binaryOperatorExpression,
 					ctx.TranslateString("Use 'Any()' for increased performance."), 
 					negateAny ? ctx.TranslateString("Replace with call to '!Any()'") : ctx.TranslateString("Replace with call to 'Any()'"), 
@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
 						script.Replace(binaryOperatorExpression, expr);
 					}
-				);
+				));
 			}
 
 			bool CheckMethod(Match match)

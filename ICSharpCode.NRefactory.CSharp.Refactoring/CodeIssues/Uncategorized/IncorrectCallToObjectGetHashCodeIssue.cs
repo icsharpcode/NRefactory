@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Finds calls to Object.GetHashCode inside overridden GetHashCode.",
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
-                       ResharperDisableKeyword = "BaseObjectGetHashCodeCallInGetHashCode")]
+                       AnalysisDisableKeyword = "BaseObjectGetHashCodeCallInGetHashCode")]
 	public class IncorrectCallToObjectGetHashCodeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				    !resolveResult.Member.DeclaringTypeDefinition.IsKnownType(KnownTypeCode.Object)) {
 					return;
 				}
-				AddIssue(invocationExpression, ctx.TranslateString("Call resolves to Object.GetHashCode, which is reference based"));
+				AddIssue(new CodeIssue(invocationExpression, ctx.TranslateString("Call resolves to Object.GetHashCode, which is reference based")));
 			}
 		}
 	}

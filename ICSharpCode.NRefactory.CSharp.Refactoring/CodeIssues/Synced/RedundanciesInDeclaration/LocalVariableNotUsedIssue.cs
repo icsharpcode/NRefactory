@@ -31,15 +31,15 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Unused local variable",
-					   Description = "Local variable is never used.",
-	                   Category = IssueCategories.RedundanciesInDeclarations,
-					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.GrayOut,
-                       PragmaWarning = 163,
-                       ResharperDisableKeyword = "UnusedVariable.Compiler")]
+	[IssueDescription("Unused local variable",
+		Description = "Local variable is never used.",
+		Category = IssueCategories.RedundanciesInDeclarations,
+		Severity = Severity.Warning,
+		PragmaWarning = 163,
+		AnalysisDisableKeyword = "UnusedVariable.Compiler")]
 	public class LocalVariableNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
+
 		#region ICodeIssueProvider implementation
 
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -48,17 +48,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		#endregion
-		
+
 		class GatherVisitor : GatherVisitorBase<LocalVariableNotUsedIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
-				: base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx)
+				: base(ctx)
 			{
 			}
 
-			public override void VisitVariableInitializer (VariableInitializer variableInitializer)
+			public override void VisitVariableInitializer(VariableInitializer variableInitializer)
 			{
-				base.VisitVariableInitializer (variableInitializer);
+				base.VisitVariableInitializer(variableInitializer);
 
 				// check if variable is assigned
 				if (!variableInitializer.Initializer.IsNull)
@@ -67,40 +67,39 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (decl == null)
 					return;
 
-				var resolveResult = ctx.Resolve (variableInitializer) as LocalResolveResult;
+				var resolveResult = ctx.Resolve(variableInitializer) as LocalResolveResult;
 				if (resolveResult == null)
 					return;
 
-				if (IsUsed (decl.Parent, resolveResult.Variable, variableInitializer))
+				if (IsUsed(decl.Parent, resolveResult.Variable, variableInitializer))
 					return;
 
-				AddIssue (variableInitializer.NameToken, 
-				          string.Format(ctx.TranslateString ("Local variable '{0}' is never used"), resolveResult.Variable.Name),  ctx.TranslateString ("Remove unused local variable"),
-					script =>
-					{
+				AddIssue(new CodeIssue(variableInitializer.NameToken, 
+					string.Format(ctx.TranslateString("Local variable '{0}' is never used"), resolveResult.Variable.Name), ctx.TranslateString("Remove unused local variable"),
+					script => {
 						if (decl.Variables.Count == 1) {
-							script.Remove (decl);
+							script.Remove(decl);
 						} else {
-							var newDeclaration = (VariableDeclarationStatement)decl.Clone ();
-							newDeclaration.Variables.Remove (
-								newDeclaration.Variables.FirstOrNullObject (v => v.Name == variableInitializer.Name));
-							script.Replace (decl, newDeclaration);
+							var newDeclaration = (VariableDeclarationStatement)decl.Clone();
+							newDeclaration.Variables.Remove(
+								newDeclaration.Variables.FirstOrNullObject(v => v.Name == variableInitializer.Name));
+							script.Replace(decl, newDeclaration);
 						}
-					});
+					}) { IssueMarker = IssueMarker.GrayOut });
 			}
 
-			public override void VisitForeachStatement (ForeachStatement foreachStatement)
+			public override void VisitForeachStatement(ForeachStatement foreachStatement)
 			{
-				base.VisitForeachStatement (foreachStatement);
+				base.VisitForeachStatement(foreachStatement);
 
-				var resolveResult = ctx.Resolve (foreachStatement.VariableNameToken) as LocalResolveResult;
+				var resolveResult = ctx.Resolve(foreachStatement.VariableNameToken) as LocalResolveResult;
 				if (resolveResult == null)
 					return;
 
-				if (IsUsed (foreachStatement, resolveResult.Variable, foreachStatement.VariableNameToken))
+				if (IsUsed(foreachStatement, resolveResult.Variable, foreachStatement.VariableNameToken))
 					return;
 
-				AddIssue (foreachStatement.VariableNameToken, ctx.TranslateString ("Local variable is never used"));
+				AddIssue(new CodeIssue(foreachStatement.VariableNameToken, ctx.TranslateString("Local variable is never used")));
 			}
 
 			bool IsUsed(AstNode rootNode, IVariable variable, AstNode variableNode)
@@ -108,6 +107,5 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return ctx.FindReferences(rootNode, variable).Any(result => result.Node != variableNode);
 			}
 		}
-
 	}
 }

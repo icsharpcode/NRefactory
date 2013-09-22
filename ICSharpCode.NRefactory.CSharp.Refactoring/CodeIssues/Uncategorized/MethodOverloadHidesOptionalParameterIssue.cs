@@ -32,12 +32,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Method with optional parameter is hidden by overload",
-					   Description = "Method with optional parameter is hidden by overload",
-					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.WavedLine,
-                       ResharperDisableKeyword = "MethodOverloadWithOptionalParameter")]
+	[IssueDescription("Method with optional parameter is hidden by overload",
+		Description = "Method with optional parameter is hidden by overload",
+		Category = IssueCategories.CodeQualityIssues,
+		Severity = Severity.Warning,
+		AnalysisDisableKeyword = "MethodOverloadWithOptionalParameter")]
 	public class MethodOverloadHidesOptionalParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -48,37 +47,37 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<MethodOverloadHidesOptionalParameterIssue>
 		{
 			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
+				: base(ctx)
 			{
 			}
 
-			public override void VisitMethodDeclaration (MethodDeclaration methodDeclaration)
+			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
-				base.VisitMethodDeclaration (methodDeclaration);
+				base.VisitMethodDeclaration(methodDeclaration);
 
-				var resolveResult = ctx.Resolve (methodDeclaration) as MemberResolveResult;
+				var resolveResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
 				if (resolveResult == null)
 					return;
 				var method = resolveResult.Member as IMethod;
 				if (method == null)
 					return;
 
-				if (method.Parameters.Count == 0 || !method.Parameters.Last ().IsOptional)
+				if (method.Parameters.Count == 0 || !method.Parameters.Last().IsOptional)
 					return;
 
 				var overloads = method.DeclaringType.GetMethods(m => m.Name == method.Name && m.TypeParameters.Count == method.TypeParameters.Count)
-					.ToArray ();
+					.ToArray();
 
 				var parameterNodes = methodDeclaration.Parameters.ToArray();
-				var parameters = new List<IParameter> ();
+				var parameters = new List<IParameter>();
 				for (int i = 0; i < method.Parameters.Count; i++) {
-					if (method.Parameters [i].IsOptional && 
-						overloads.Any (m => ParameterListComparer.Instance.Equals (parameters, m.Parameters))) {
-						AddIssue (parameterNodes [i].StartLocation, parameterNodes.Last ().EndLocation,
-							ctx.TranslateString ("Method with optional parameter is hidden by overload"));
+					if (method.Parameters[i].IsOptional &&
+					    overloads.Any(m => ParameterListComparer.Instance.Equals(parameters, m.Parameters))) {
+						AddIssue(new CodeIssue(parameterNodes[i].StartLocation, parameterNodes.Last().EndLocation,
+							ctx.TranslateString("Method with optional parameter is hidden by overload")));
 						break;
 					}
-					parameters.Add (method.Parameters [i]);
+					parameters.Add(method.Parameters[i]);
 				}
 			}
 		}

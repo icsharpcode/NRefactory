@@ -33,8 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Lowercase 'l' is often confused with '1'",
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.WavedLine,
-	                   ResharperDisableKeyword = "LongLiteralEndingLowerL")]
+	                   AnalysisDisableKeyword = "LongLiteralEndingLowerL")]
 	public class LongLiteralEndingLowerLIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -72,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (lastChar == 'l' || prevChar == 'l') {
-					AddIssue(primitiveExpression,
+					AddIssue(new CodeIssue(primitiveExpression,
 					         ctx.TranslateString("Long literal ends with 'l' instead of 'L'"),
 					         ctx.TranslateString("Make suffix upper case"),
 					         script => {
@@ -80,7 +79,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								string newLiteralValue = primitiveExpression.LiteralValue.ToUpperInvariant();
 								script.Replace(primitiveExpression, new PrimitiveExpression(newValue, newLiteralValue));
 							}
-					);
+					));
 				}
 			}
 		}

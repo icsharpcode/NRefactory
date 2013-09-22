@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Event unsubscription via anonymous delegate is useless",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
+	                  AnalysisDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
 	public class EventUnsubscriptionViaAnonymousDelegateIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -60,10 +60,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var rr = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
 				if (rr == null || rr.Member.SymbolKind != ICSharpCode.NRefactory.TypeSystem.SymbolKind.Event)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					assignmentExpression.OperatorToken,
 					ctx.TranslateString("Event unsubscription via anonymous delegate is useless")
-				);
+				));
 			}
 		}
 	}

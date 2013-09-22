@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Warns about calls to virtual member functions occuring in the constructor.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-                      ResharperDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
+                      AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
 	public class DoNotCallOverridableMethodsInConstructorIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
@@ -133,11 +133,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (targetMethod == null)
 					return;
 				if (targetMethod.IsVirtualCall) {
-					AddIssue(invocationExpression,
+					if (targetMethod.Member.DeclaringType.Kind == ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate)
+						return;
+					AddIssue(new CodeIssue(invocationExpression,
                              context.TranslateString("Virtual member call in constructor"),
                              new CodeAction(string.Format(context.TranslateString("Make class '{0}' sealed"), CurrentType.Name),
                              script => script.ChangeModifier(CurrentType, CurrentType.Modifiers | Modifiers.Sealed), 
-                             invocationExpression));
+							invocationExpression)));
 				}
 			}
 

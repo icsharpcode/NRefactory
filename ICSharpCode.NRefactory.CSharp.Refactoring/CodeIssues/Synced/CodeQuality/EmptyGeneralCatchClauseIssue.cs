@@ -37,8 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "A catch clause that catches System.Exception and has an empty body",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.WavedLine,
-	                  ResharperDisableKeyword = "EmptyGeneralCatchClause")]
+	                  AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
 	public class EmptyGeneralCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -69,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (body.Statements.Any())
 					return;
 
-				AddIssue(catchClause.CatchToken, ctx.TranslateString("Empty general catch clause suppresses any error"));
+				AddIssue(new CodeIssue(catchClause.CatchToken, ctx.TranslateString("Empty general catch clause suppresses any error")));
 			}
 		}
 	}

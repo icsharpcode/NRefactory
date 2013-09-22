@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Replace with call to OfType<T>().First()",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ReplaceWithOfType.First")]
+	                  AnalysisDisableKeyword = "ReplaceWithOfType.First")]
 	public class ReplaceWithOfTypeFirstIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

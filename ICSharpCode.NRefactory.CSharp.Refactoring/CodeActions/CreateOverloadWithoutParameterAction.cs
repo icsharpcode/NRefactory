@@ -41,6 +41,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 			if (node.ParameterModifier == ParameterModifier.This || node.ParameterModifier == ParameterModifier.Params)
 				return null;
+			if (!node.NameToken.Contains(context.Location))
+				return null;
 
 			var methodDecl = node.Parent as MethodDeclaration;
 			if (methodDecl == null)

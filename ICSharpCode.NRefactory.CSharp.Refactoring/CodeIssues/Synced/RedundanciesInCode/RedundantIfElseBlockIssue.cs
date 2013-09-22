@@ -26,7 +26,6 @@
 
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.CSharp.Analysis;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
@@ -35,8 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Redundant 'else' keyword.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantIfElseBlock")]
+	                  AnalysisDisableKeyword = "RedundantIfElseBlock")]
 	public class RedundantIfElseBlockIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -46,7 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantIfElseBlockIssue>
 		{
-			LocalDeclarationSpaceVisitor declarationSpaceVisitor;
+			readonly LocalDeclarationSpaceVisitor declarationSpaceVisitor;
 
 			public GatherVisitor (BaseRefactoringContext ctx)
 				: base(ctx)
@@ -75,22 +73,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				var targetSpace = declarationSpaceVisitor.GetDeclarationSpace(targetContext);
 				var currentSpace = declarationSpaceVisitor.GetDeclarationSpace(currentContext);
-
 				foreach (var name in currentSpace.DeclaredNames) {
-					var isUsed = targetSpace.GetNameDeclarations(name).Any(node => !HasParent(node, currentContext));
+					var isUsed = targetSpace.GetNameDeclarations(name).Any(node => node.Ancestors.Any(n => n == currentContext));
 					if (isUsed)
 						return true;
 				}
 				return false;
 			}
-
-			static bool HasParent(AstNode node, AstNode currentContext)
-			{
-				while (node != null && node != currentContext)
-					node = node.Parent;
-				return node != null;
-			}
-
 			public override void VisitIfElseStatement (IfElseStatement ifElseStatement)
 			{
 				base.VisitIfElseStatement(ifElseStatement);
@@ -98,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!ElseIsRedundantControlFlow(ifElseStatement) || HasConflictingNames(ifElseStatement.Parent, ifElseStatement.FalseStatement))
 					return;
 
-				AddIssue(ifElseStatement.ElseToken, ctx.TranslateString("Redundant 'else' keyword"), ctx.TranslateString("Remove redundant 'else'"), script =>  {
+				AddIssue(new CodeIssue(ifElseStatement.ElseToken, ctx.TranslateString("Redundant 'else' keyword"), ctx.TranslateString("Remove redundant 'else'"), script =>  {
 					int start = script.GetCurrentOffset(ifElseStatement.ElseToken.GetPrevNode(n => !(n is NewLineNode)).EndLocation);
 					int end;
 					var blockStatement = ifElseStatement.FalseStatement as BlockStatement;
@@ -120,7 +109,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (end > start)
 						script.RemoveText(start, end - start);
 					script.FormatText(ifElseStatement.Parent);
-				});
+				}) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

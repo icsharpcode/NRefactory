@@ -28,14 +28,13 @@ using System.Threading;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
+using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction(
 		"Use 'as' and null check", 
-		Description = "Converts a 'is' into an 'as' and null check",
-		BoundToIssue = typeof (CanBeReplacedWithTryCastAndCheckForNullIssue)
-	)]
+		Description = "Converts a 'is' into an 'as' and null check")]
 	public class UseAsAndNullCheckAction : SpecializedCodeAction<IfElseStatement>
 	{
 		static readonly AstNode pattern = 
@@ -53,7 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 
 
-		static bool IsEmbeddedStatement(AstNode stmt)
+		internal static bool IsEmbeddedStatement(AstNode stmt)
 		{
 			return stmt.Role == Roles.EmbeddedStatement || 
 				stmt.Role == IfElseStatement.TrueRole || 
@@ -74,55 +73,44 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			};
 
 			var rr = ctx.Resolve(castToType);
-			if (rr == null || rr.IsError)
+			if (rr == null || rr.IsError || rr.Type.IsReferenceType == false)
 				return null;
 			var foundCasts = ifElseStatement.GetParent<BlockStatement>().DescendantNodes(n => n.StartLocation >= ifElseStatement.StartLocation && !cast.IsMatch(n)).Where(n => cast.IsMatch(n)).ToList();
 			foundCastCount = foundCasts.Count;
 
-			return new CodeAction(
-				ctx.TranslateString("Use 'as' and check for null"),
-				script => {
-					var varName = ctx.GetNameProposal(CreateMethodDeclarationAction.GuessNameFromType(rr.Type), ifElseStatement.StartLocation);
-					var varDec = new VariableDeclarationStatement(
-						new PrimitiveType("var"),
-						varName,
-						new AsExpression(obj.Clone(), castToType.Clone())
-						);
-					var binaryOperatorIdentifier = new IdentifierExpression(varName);
-					var binaryOperatorExpression = new BinaryOperatorExpression(binaryOperatorIdentifier, BinaryOperatorType.Equality, new NullReferenceExpression());
-
-					var linkedNodes = new List<AstNode>();
-					linkedNodes.Add(varDec.Variables.First().NameToken);
-					linkedNodes.Add(binaryOperatorIdentifier);
-
-					if (IsEmbeddedStatement (ifElseStatement)) {
-						var block = new BlockStatement ();
-						block.Add(varDec); 
-						var newIf = (IfElseStatement)ifElseStatement.Clone();
-						newIf.Condition = binaryOperatorExpression;
-						foreach (var node in newIf.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n))) {
-							var id = new IdentifierExpression(varName);
-							linkedNodes.Add(id);
-							node.ReplaceWith(id);
-						}
-						block.Add(newIf); 
-						script.Replace(ifElseStatement, block);
-					} else {
-						script.InsertBefore(ifElseStatement, varDec);
-						script.Replace(
-							ifElseStatement.Condition,
-							binaryOperatorExpression
-							);
-						foreach (var c in foundCasts) {
-							var id = new IdentifierExpression(varName);
-							linkedNodes.Add(id);
-							script.Replace(c, id);
-						}
+			return new CodeAction(ctx.TranslateString("Use 'as' and check for null"), script =>  {
+				var varName = ctx.GetNameProposal(CreateMethodDeclarationAction.GuessNameFromType(rr.Type), ifElseStatement.StartLocation);
+				var varDec = new VariableDeclarationStatement(new PrimitiveType("var"), varName, new AsExpression(obj.Clone(), castToType.Clone()));
+				var binaryOperatorIdentifier = new IdentifierExpression(varName);
+				var binaryOperatorExpression = new BinaryOperatorExpression(binaryOperatorIdentifier, BinaryOperatorType.Equality, new NullReferenceExpression());
+				var linkedNodes = new List<AstNode>();
+				linkedNodes.Add(varDec.Variables.First().NameToken);
+				linkedNodes.Add(binaryOperatorIdentifier);
+				if (IsEmbeddedStatement(ifElseStatement)) {
+					var block = new BlockStatement();
+					block.Add(varDec);
+					var newIf = (IfElseStatement)ifElseStatement.Clone();
+					newIf.Condition = binaryOperatorExpression;
+					foreach (var node in newIf.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n))) {
+						var id = new IdentifierExpression(varName);
+						linkedNodes.Add(id);
+						node.ReplaceWith(id);
 					}
-					script.Link(linkedNodes);
-				},
-				isExpression.IsToken
-			);
+					block.Add(newIf);
+					script.Replace(ifElseStatement, block);
+				}
+				else {
+					script.InsertBefore(ifElseStatement, varDec);
+					script.Replace(ifElseStatement.Condition, binaryOperatorExpression);
+					foreach (var c in foundCasts) {
+						var id = new IdentifierExpression(varName);
+						linkedNodes.Add(id);
+						script.Replace(c, id);
+					}
+				}
+				script.Link(linkedNodes);
+			}, isExpression.IsToken);
+
 		}
 
 		internal static CodeAction ScanIfElse (BaseRefactoringContext ctx, IfElseStatement ifElseStatement, out IsExpression isExpression, out int foundCastCount)
@@ -149,30 +137,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			};
 
 			var rr = ctx.Resolve(castToType);
-			if (rr == null || rr.IsError)
+			if (rr == null || rr.IsError || rr.Type.IsReferenceType == false)
 				return null;
 			var foundCasts = embeddedStatment.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n)).ToList();
 			foundCastCount = foundCasts.Count;
 
-			return new CodeAction(
-				ctx.TranslateString("Use 'as' and check for null"),
-				script => {
+			return new CodeAction(ctx.TranslateString("Use 'as' and check for null"), script =>  {
 				var varName = ctx.GetNameProposal(CreateMethodDeclarationAction.GuessNameFromType(rr.Type), ifElseStatement.StartLocation);
-				var varDec = new VariableDeclarationStatement(
-					new PrimitiveType("var"),
-					varName,
-					new AsExpression(obj.Clone(), castToType.Clone())
-					);
+				var varDec = new VariableDeclarationStatement(new PrimitiveType("var"), varName, new AsExpression(obj.Clone(), castToType.Clone()));
 				var binaryOperatorIdentifier = new IdentifierExpression(varName);
 				var binaryOperatorExpression = new BinaryOperatorExpression(binaryOperatorIdentifier, BinaryOperatorType.InEquality, new NullReferenceExpression());
-
 				var linkedNodes = new List<AstNode>();
 				linkedNodes.Add(varDec.Variables.First().NameToken);
 				linkedNodes.Add(binaryOperatorIdentifier);
-
 				if (IsEmbeddedStatement(ifElseStatement)) {
 					var block = new BlockStatement();
-					block.Add(varDec); 
+					block.Add(varDec);
 					var newIf = (IfElseStatement)ifElseStatement.Clone();
 					newIf.Condition = binaryOperatorExpression;
 					foreach (var node in newIf.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n))) {
@@ -180,14 +160,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						linkedNodes.Add(id);
 						node.ReplaceWith(id);
 					}
-					block.Add(newIf); 
+					block.Add(newIf);
 					script.Replace(ifElseStatement, block);
-				} else {
+				}
+				else {
 					script.InsertBefore(ifElseStatement, varDec);
-					script.Replace(
-						outerIs,
-						binaryOperatorExpression
-						);
+					script.Replace(outerIs, binaryOperatorExpression);
 					foreach (var c in foundCasts) {
 						var id = new IdentifierExpression(varName);
 						linkedNodes.Add(id);
@@ -195,10 +173,21 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				}
 				script.Link(linkedNodes);
-			},
-			isExpression.IsToken
-			);
+			}, isExpression.IsToken);
 
+		}
+
+		static List<AstNode> SearchCasts(RefactoringContext ctx, Statement embeddedStatement, Expression obj, AstType type, out ResolveResult rr)
+		{
+			var cast = new Choice {
+				PatternHelper.OptionalParentheses(PatternHelper.OptionalParentheses(obj.Clone()).CastTo(type.Clone())),
+				PatternHelper.OptionalParentheses(PatternHelper.OptionalParentheses(obj.Clone()).CastAs(type.Clone()))
+			};
+
+			rr = ctx.Resolve(type);
+			if (rr == null || rr.IsError)
+				return null;
+			return embeddedStatement.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n)).ToList();
 		}
 
 		protected override CodeAction GetAction(RefactoringContext ctx, IfElseStatement ifElseStatement)
@@ -219,42 +208,74 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var uOp = node as UnaryOperatorExpression;
 			if (uOp != null && uOp.Operator == UnaryOperatorType.Not) {
 				var rr = ctx.Resolve(isExpr.Type);
-				if (rr == null)
+				if (rr == null || rr.IsError || rr.Type.IsReferenceType == false)
 					return null;
 
-				return new CodeAction(
-					ctx.TranslateString("Use 'as' and check for null"),
-					script => {
-						var varName = ctx.GetNameProposal(CreateMethodDeclarationAction.GuessNameFromType(rr.Type), ifElseStatement.StartLocation);
-						var varDec = new VariableDeclarationStatement(
-							new PrimitiveType("var"),
-							varName,
-							new AsExpression(isExpr.Expression.Clone(), isExpr.Type.Clone())
-						);
-						var binaryOperatorIdentifier = new IdentifierExpression(varName);
-						var binaryOperatorExpression = new BinaryOperatorExpression(binaryOperatorIdentifier, BinaryOperatorType.Equality, new NullReferenceExpression());
-
-						if (IsEmbeddedStatement(ifElseStatement)) {
-							var block = new BlockStatement();
-							block.Add(varDec); 
-							var newIf = (IfElseStatement)ifElseStatement.Clone();
-							newIf.Condition = binaryOperatorExpression;
-							block.Add(newIf); 
-							script.Replace(ifElseStatement, block);
-						} else {
-							script.InsertBefore(ifElseStatement, varDec);
-							script.Replace(
-								uOp,
-								binaryOperatorExpression
-							);
-						}
-					},
-				isExpr.IsToken
-				);
-
+				return new CodeAction(ctx.TranslateString("Use 'as' and check for null"), script =>  {
+					var varName = ctx.GetNameProposal(CreateMethodDeclarationAction.GuessNameFromType(rr.Type), ifElseStatement.StartLocation);
+					var varDec = new VariableDeclarationStatement(new PrimitiveType("var"), varName, new AsExpression(isExpr.Expression.Clone(), isExpr.Type.Clone()));
+					var binaryOperatorIdentifier = new IdentifierExpression(varName);
+					var binaryOperatorExpression = new BinaryOperatorExpression(binaryOperatorIdentifier, BinaryOperatorType.Equality, new NullReferenceExpression());
+					if (IsEmbeddedStatement(ifElseStatement)) {
+						var block = new BlockStatement();
+						block.Add(varDec);
+						var newIf = (IfElseStatement)ifElseStatement.Clone();
+						newIf.Condition = binaryOperatorExpression;
+						block.Add(newIf);
+						script.Replace(ifElseStatement, block);
+					}
+					else {
+						script.InsertBefore(ifElseStatement, varDec);
+						script.Replace(uOp, binaryOperatorExpression);
+					}
+				}, isExpr.IsToken);
 			}
 
-			return null;
+			var obj = isExpr.Expression;
+			var castToType = isExpr.Type;
+
+			var cast = new Choice {
+				PatternHelper.OptionalParentheses(PatternHelper.OptionalParentheses(obj.Clone()).CastTo(castToType.Clone())),
+				PatternHelper.OptionalParentheses(PatternHelper.OptionalParentheses(obj.Clone()).CastAs(castToType.Clone()))
+			};
+
+			var rr2 = ctx.Resolve(castToType);
+			if (rr2 == null || rr2.IsError || rr2.Type.IsReferenceType == false)
+				return null;
+			var foundCasts2 = isExpr.GetParent<Statement>().DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => isExpr.StartLocation < n.StartLocation && cast.IsMatch(n)).ToList();
+
+			return new CodeAction(ctx.TranslateString("Use 'as' and check for null"), script =>  {
+				var varName = ctx.GetNameProposal(CreateMethodDeclarationAction.GuessNameFromType(rr2.Type), ifElseStatement.StartLocation);
+				var varDec = new VariableDeclarationStatement(new PrimitiveType("var"), varName, new AsExpression(obj.Clone(), castToType.Clone()));
+				var binaryOperatorIdentifier = new IdentifierExpression(varName);
+				var binaryOperatorExpression = new BinaryOperatorExpression(binaryOperatorIdentifier, BinaryOperatorType.InEquality, new NullReferenceExpression());
+				var linkedNodes = new List<AstNode>();
+				linkedNodes.Add(varDec.Variables.First().NameToken);
+				linkedNodes.Add(binaryOperatorIdentifier);
+				if (IsEmbeddedStatement(ifElseStatement)) {
+					var block = new BlockStatement();
+					block.Add(varDec);
+					var newIf = (IfElseStatement)ifElseStatement.Clone();
+					newIf.Condition = binaryOperatorExpression;
+					foreach (var node2 in newIf.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n))) {
+						var id = new IdentifierExpression(varName);
+						linkedNodes.Add(id);
+						node2.ReplaceWith(id);
+					}
+					block.Add(newIf);
+					script.Replace(ifElseStatement, block);
+				}
+				else {
+					script.InsertBefore(ifElseStatement, varDec);
+					script.Replace(isExpr, binaryOperatorExpression);
+					foreach (var c in foundCasts2) {
+						var id = new IdentifierExpression(varName);
+						linkedNodes.Add(id);
+						script.Replace(c, id);
+					}
+				}
+				script.Link(linkedNodes);
+			}, isExpr.IsToken);
 		}
 	}
 }

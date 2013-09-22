@@ -64,8 +64,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		/// <summary>
 		/// The position of this node is unreachable, therefore the value
 		/// of the variable is not meaningful.
+		/// Alternatively, it might mean no local variable exists with the requested name.
 		/// </summary>
-		UnreachablePosition,
+		UnreachableOrInexistent,
 		/// <summary>
 		/// The analyser has encountered an error when attempting to find the value
 		/// of this variable.

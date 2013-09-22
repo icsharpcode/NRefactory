@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Convert 'if-do-while' to 'while' statement",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  IssueMarker = IssueMarker.DottedLine,
-	                  ResharperDisableKeyword = "ConvertIfDoToWhile")]
+	                  AnalysisDisableKeyword = "ConvertIfDoToWhile")]
 	public class ConvertIfDoToWhileIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -67,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var cond2 = match.Get<Expression>("condition2").Single();
 					if (!CSharpUtil.AreConditionsEqual(cond1, cond2))
 						return;
-					AddIssue(
+					AddIssue(new CodeIssue(
 						ifElseStatement.IfToken,
 						ctx.TranslateString("Statement can be simplified to 'while' statement"),
 						ctx.TranslateString("Replace with 'while'"),
@@ -80,7 +79,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								)
 							);
 						}
-					);
+					) { IssueMarker = IssueMarker.DottedLine });
 				}
 			}
 		}

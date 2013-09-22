@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Description = "Name doesn't match the defined style for this entity.",
            Category = IssueCategories.ConstraintViolations,
 	       Severity = Severity.Warning,
-           ResharperDisableKeyword = "InconsistentNaming")]
+           AnalysisDisableKeyword = "InconsistentNaming")]
 	public class InconsistentNamingIssue : CodeIssueProvider
 	{
 		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
@@ -183,7 +183,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}, identifier));
 						}
 
-						AddIssue(identifier, msg, actions);
+						AddIssue(new CodeIssue(identifier, msg, actions));
 					}
 				}
 				return wasHandled;

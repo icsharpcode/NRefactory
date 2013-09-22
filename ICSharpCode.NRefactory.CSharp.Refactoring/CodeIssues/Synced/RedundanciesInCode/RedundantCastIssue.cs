@@ -34,12 +34,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Redundant cast",
-						Description = "Type cast can be safely removed.",
-						Category = IssueCategories.RedundanciesInCode,
-						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.GrayOut,
-                        ResharperDisableKeyword = "RedundantCast")]
+	[IssueDescription("Redundant cast",
+		Description = "Type cast can be safely removed.",
+		Category = IssueCategories.RedundanciesInCode,
+		Severity = Severity.Warning,
+		AnalysisDisableKeyword = "RedundantCast")]
 	public class RedundantCastIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -49,40 +48,40 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantCastIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
-				: base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx)
+				: base(ctx)
 			{
 			}
 
-			public override void VisitCastExpression (CastExpression castExpression)
+			public override void VisitCastExpression(CastExpression castExpression)
 			{
-				base.VisitCastExpression (castExpression);
+				base.VisitCastExpression(castExpression);
 
-				CheckTypeCast (castExpression, castExpression.Expression, castExpression.StartLocation, 
+				CheckTypeCast(castExpression, castExpression.Expression, castExpression.StartLocation, 
 					castExpression.Expression.StartLocation);
 			}
 
-			public override void VisitAsExpression (AsExpression asExpression)
+			public override void VisitAsExpression(AsExpression asExpression)
 			{
-				base.VisitAsExpression (asExpression);
+				base.VisitAsExpression(asExpression);
 
-				CheckTypeCast (asExpression, asExpression.Expression, asExpression.Expression.EndLocation,
+				CheckTypeCast(asExpression, asExpression.Expression, asExpression.Expression.EndLocation,
 					asExpression.EndLocation);
 			}
 
-			IType GetExpectedType (Expression typeCastNode, out IMember accessingMember)
+			IType GetExpectedType(Expression typeCastNode, out IMember accessingMember)
 			{
 				var memberRefExpr = typeCastNode.Parent as MemberReferenceExpression;
 				if (memberRefExpr != null) {
 					var invocationExpr = memberRefExpr.Parent as InvocationExpression;
 					if (invocationExpr != null && invocationExpr.Target == memberRefExpr) {
-						var invocationResolveResult = ctx.Resolve (invocationExpr) as InvocationResolveResult;
+						var invocationResolveResult = ctx.Resolve(invocationExpr) as InvocationResolveResult;
 						if (invocationResolveResult != null) {
 							accessingMember = invocationResolveResult.Member;
 							return invocationResolveResult.Member.DeclaringType;
 						}
 					} else {
-						var memberResolveResult = ctx.Resolve (memberRefExpr) as MemberResolveResult;
+						var memberResolveResult = ctx.Resolve(memberRefExpr) as MemberResolveResult;
 						if (memberResolveResult != null) {
 							accessingMember = memberResolveResult.Member;
 							return memberResolveResult.Member.DeclaringType;
@@ -90,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				}
 				accessingMember = null;
-				return ctx.GetExpectedType (typeCastNode);
+				return ctx.GetExpectedType(typeCastNode);
 			}
 
 			bool IsExplicitImplementation(IType exprType, IType interfaceType, Expression typeCastNode)
@@ -101,7 +100,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var memberResolveResult = rr as MemberResolveResult;
 					if (memberResolveResult != null) {
 						foreach (var member in exprType.GetMembers (m => m.SymbolKind == memberResolveResult.Member.SymbolKind)) {
-							if (member.IsExplicitInterfaceImplementation && member.ImplementedInterfaceMembers.Contains (memberResolveResult.Member)) {
+							if (member.IsExplicitInterfaceImplementation && member.ImplementedInterfaceMembers.Contains(memberResolveResult.Member)) {
 								return true;
 							}
 						}
@@ -110,7 +109,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var methodGroupResolveResult = rr as MethodGroupResolveResult;
 					if (methodGroupResolveResult != null) {
 						foreach (var member in exprType.GetMethods ()) {
-							if (member.IsExplicitInterfaceImplementation && member.ImplementedInterfaceMembers.Any (m => methodGroupResolveResult.Methods.Contains ((IMethod)m))) {
+							if (member.IsExplicitInterfaceImplementation && member.ImplementedInterfaceMembers.Any(m => methodGroupResolveResult.Methods.Contains((IMethod)m))) {
 								return true;
 							}
 						}
@@ -119,30 +118,50 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return false;
 			}
 
-			void AddIssue (Expression outerTypeCastNode, Expression typeCastNode, Expression expr, TextLocation start, TextLocation end)
+			void AddIssue(Expression outerTypeCastNode, Expression typeCastNode, Expression expr, TextLocation start, TextLocation end)
 			{
 				AstNode type;
 				if (typeCastNode is CastExpression)
 					type = ((CastExpression)typeCastNode).Type;
-				else 
+				else
 					type = ((AsExpression)typeCastNode).Type;
-				AddIssue (start, end, ctx.TranslateString ("Type cast is redundant"), string.Format(ctx.TranslateString ("Remove cast to '{0}'"), type),
-				          script => script.Replace (outerTypeCastNode, expr.Clone ()));
+				AddIssue(new CodeIssue(start, end, ctx.TranslateString("Type cast is redundant"), string.Format(ctx.TranslateString("Remove cast to '{0}'"), type),
+					script => script.Replace(outerTypeCastNode, expr.Clone())) { IssueMarker = IssueMarker.GrayOut });
 			}
 
-			void CheckTypeCast (Expression typeCastNode, Expression expr, TextLocation castStart, TextLocation castEnd)
+			void CheckTypeCast(Expression typeCastNode, Expression expr, TextLocation castStart, TextLocation castEnd)
 			{
 				var outerTypeCastNode = typeCastNode;
-				while (outerTypeCastNode.Parent != null && outerTypeCastNode.Parent is ParenthesizedExpression)
+				while (outerTypeCastNode.Parent is ParenthesizedExpression)
 					outerTypeCastNode = (Expression)outerTypeCastNode.Parent;
+
 				IMember accessingMember;
-				var expectedType = GetExpectedType (outerTypeCastNode, out accessingMember);
-				var exprType = ctx.Resolve (expr).Type;
-				if (expectedType.Kind == TypeKind.Interface && IsExplicitImplementation (exprType, expectedType, outerTypeCastNode))
+				var expectedType = GetExpectedType(outerTypeCastNode, out accessingMember);
+				var exprType = ctx.Resolve(expr).Type;
+				if (expectedType.Kind == TypeKind.Interface && IsExplicitImplementation(exprType, expectedType, outerTypeCastNode))
 					return;
 				var baseTypes = exprType.GetAllBaseTypes().ToList();
 				if (!baseTypes.Any(t => t.Equals(expectedType)))
 					return;
+
+				var cond = outerTypeCastNode.Parent as ConditionalExpression;
+				if (cond != null) {
+					if (outerTypeCastNode == cond.TrueExpression) {
+						var rr = ctx.Resolve(cond.FalseExpression).Type;
+						if (rr != exprType)
+							return;
+					}
+				}
+
+				var bop = outerTypeCastNode.Parent as BinaryOperatorExpression;
+				if (bop != null && bop.Operator == BinaryOperatorType.NullCoalescing) {
+					if (outerTypeCastNode == bop.Left) {
+						var rr = ctx.Resolve(bop.Right).Type;
+						if (rr != exprType)
+							return;
+					}
+				}
+
 
 				// check if the called member doesn't change it's virtual slot when changing types
 				if (accessingMember != null) {

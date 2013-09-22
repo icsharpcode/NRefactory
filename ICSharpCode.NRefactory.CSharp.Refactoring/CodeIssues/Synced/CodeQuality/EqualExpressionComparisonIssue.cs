@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Comparing equal expression for equality is usually useless",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "EqualExpressionComparison")]
+	                  AnalysisDisableKeyword = "EqualExpressionComparison")]
 	public class EqualExpressionComparisonIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -53,14 +53,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void AddIssue(AstNode nodeToReplace, AstNode highlightNode, bool replaceWithTrue)
 			{
-				AddIssue(
+				AddIssue(new CodeIssue(
 					highlightNode, 
 					ctx.TranslateString("Equal expression comparison"), 
 					replaceWithTrue ? ctx.TranslateString("Replace with 'true'") : ctx.TranslateString("Replace with 'false'"), 
 					script =>  {
 						script.Replace(nodeToReplace, new PrimitiveExpression(replaceWithTrue));
 					}
-				);
+				));
 			}
 
 

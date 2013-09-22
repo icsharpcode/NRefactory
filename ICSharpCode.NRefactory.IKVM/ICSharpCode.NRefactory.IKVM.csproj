@@ -40,6 +40,11 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IkvmLoader.cs" />
+    <Compile Include="StringConstantValue.cs" />
+    <Compile Include="IntConstantValue.cs" />
+    <Compile Include="StructConstantValue.cs" />
+    <Compile Include="ShortConstantValue.cs" />
+    <Compile Include="NonFrozenInterningProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

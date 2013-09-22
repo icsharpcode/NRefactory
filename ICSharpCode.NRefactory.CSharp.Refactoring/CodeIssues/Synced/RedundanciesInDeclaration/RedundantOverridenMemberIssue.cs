@@ -37,8 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "The override of a virtual member is redundant because it consists of only a call to the base",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut, 
-	                   ResharperDisableKeyword = "RedundantOverridenMember")]
+	                   AnalysisDisableKeyword = "RedundantOverridenMember")]
 	public class RedundantOverridenMemberIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -74,9 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
 						return;
 					var title = ctx.TranslateString("Redundant method override");
-					AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => {
-						script.Remove(methodDeclaration);
-					});
+					AddIssue(new CodeIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => script.Remove(methodDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 				} else if (expr.FirstChild is CSharpTokenNode && expr.FirstChild.ToString().Equals("return")) {
 					var invocationExpression = expr.FirstChild.NextSibling as InvocationExpression;
 					if (invocationExpression == null)
@@ -87,9 +84,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
 						return;
 					var title = ctx.TranslateString("Redundant method override");
-					AddIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => {
-						script.Remove(methodDeclaration);
-					});
+					AddIssue(new CodeIssue(methodDeclaration, title, ctx.TranslateString("Remove redundant method override"), script => script.Remove(methodDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 				}
 				return;
 			}
@@ -113,7 +108,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				
 				var resultProperty = ctx.Resolve(propertyDeclaration) as MemberResolveResult;
-				var basetype = resultProperty.Member.DeclaringTypeDefinition.DirectBaseTypes.First();
+				var basetype = resultProperty.Member.DeclaringTypeDefinition.DirectBaseTypes.FirstOrDefault();
 				if (basetype == null)
 					return;
 				var baseProperty = basetype.GetMembers(f => f.Name.Equals(propertyDeclaration.Name)).FirstOrDefault();
@@ -157,9 +152,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				
 				var title = ctx.TranslateString("Redundant property override");
-				AddIssue(propertyDeclaration, title, ctx.TranslateString("Remove redundant property override"), script => {
-					script.Remove(propertyDeclaration);
-				});
+				AddIssue(new CodeIssue(propertyDeclaration, title, ctx.TranslateString("Remove redundant property override"), script => script.Remove(propertyDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 			}
 			
 			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
@@ -225,9 +218,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				
 				var title = ctx.TranslateString("Redundant indexer override");
-				AddIssue(indexerDeclaration, title, ctx.TranslateString("Remove redundant indexer override"), script => {
-					script.Remove(indexerDeclaration);
-				});
+				AddIssue(new CodeIssue(indexerDeclaration, title, ctx.TranslateString("Remove redundant indexer override"), script => script.Remove(indexerDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 			}
 
 			static readonly AstNode customEventPattern =
@@ -237,20 +228,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					ReturnType = new AnyNode(), 
 					AddAccessor = new Accessor {
 						Body = new BlockStatement {
-							new ExpressionStatement(new AssignmentExpression {
+							new AssignmentExpression {
 								Left = new NamedNode ("baseRef", new MemberReferenceExpression(new BaseReferenceExpression(), Pattern.AnyString)),
 								Operator = AssignmentOperatorType.Add,
 								Right = new IdentifierExpression("value")
-							})
+							}
 						}
 					},
 					RemoveAccessor = new Accessor {
 						Body = new BlockStatement {
-							new ExpressionStatement(new AssignmentExpression {
+							new AssignmentExpression {
 								Left = new Backreference("baseRef"),
 								Operator = AssignmentOperatorType.Subtract,
 								Right = new IdentifierExpression("value")
-							})
+							}
 						}
 					},
 				};
@@ -265,9 +256,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				var title = ctx.TranslateString("Redundant event override");
-				AddIssue(eventDeclaration, title, ctx.TranslateString("Remove event override"), script => {
-					script.Remove(eventDeclaration);
-				});
+				AddIssue(new CodeIssue(eventDeclaration, title, ctx.TranslateString("Remove event override"), script => script.Remove(eventDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

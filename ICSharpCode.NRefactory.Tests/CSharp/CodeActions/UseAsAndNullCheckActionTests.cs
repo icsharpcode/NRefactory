@@ -229,23 +229,6 @@ class Bar
 		}
 
 		[Test]
-		public void InvalidIfNoTypeCast()
-		{
-			TestWrongContext<UseAsAndNullCheckAction>(@"
-class Bar
-{
-	public Bar Baz (object foo)
-	{
-		if (foo $is Bar) {
-			Console.WriteLine (""Hello World "");
-		}
-		return null;
-	}
-}
-");
-		}
-
-		[Test]
 		public void NestedIf()
 		{
 			Test<UseAsAndNullCheckAction>(@"
@@ -376,6 +359,70 @@ class Bar
 			Baz (bar);
 		}
 		return (Bar)foo;
+	}
+}
+");
+		}
+
+
+		[Test]
+		public void ConditionalCase()
+		{
+			Test<UseAsAndNullCheckAction>(@"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		if (((Bar)foo).y && foo $is Bar && ((Bar)foo).x) {
+			Baz ((Bar)foo);
+		}
+		return null;
+	}
+}
+", @"
+class Bar
+{
+	public Bar Baz (object foo)
+	{
+		var bar = foo as Bar;
+		if (((Bar)foo).y && bar != null && bar.x) {
+			Baz (bar);
+		}
+		return null;
+	}
+}
+");
+		}
+
+		[Test]
+		public void InvalidCase()
+		{
+			TestWrongContext<UseAsAndNullCheckAction>(@"
+class Bar
+{
+	public int Baz (object foo)
+	{
+		if (foo $is int) {
+			Baz ((int)foo);
+			return (int)foo;
+		}
+		return 0;
+	}
+}
+");
+		}
+
+		[Test]
+		public void InvalidCase2()
+		{
+			TestWrongContext<UseAsAndNullCheckAction>(@"
+class Bar
+{
+	public int Baz (object foo)
+	{
+		if (!(foo $is int)) {
+		}
+		return 0;
 	}
 }
 ");

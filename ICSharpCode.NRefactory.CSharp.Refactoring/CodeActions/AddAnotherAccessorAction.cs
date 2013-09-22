@@ -36,8 +36,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
-			var pdecl = GetPropertyDeclaration(context);
-			if (pdecl == null || !pdecl.Getter.IsNull && !pdecl.Setter.IsNull) { 
+			var pdecl = context.GetNode<PropertyDeclaration> ();
+			if (pdecl == null || !pdecl.Getter.IsNull && !pdecl.Setter.IsNull || !pdecl.NameToken.Contains(context.Location)) { 
 				yield break;
 			}
 
@@ -63,9 +63,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				} else {
 					script.InsertBefore(pdecl.Getter, accessor);
 				}
+				script.FormatText(pdecl);
 				if (accessorStatement != null)
 					script.Select(accessorStatement);
-				script.FormatText(pdecl);
 			}, pdecl.NameToken);
 		}
 		
@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (pdecl.Setter.IsNull && !pdecl.Getter.IsNull) {
 				var field = RemoveBackingStoreAction.ScanGetter (context, pdecl);
 				if (field != null && !field.IsReadOnly && !field.IsConst) 
-					return new ExpressionStatement (new AssignmentExpression (new IdentifierExpression (field.Name), AssignmentOperatorType.Assign, new IdentifierExpression ("value")));
+					return new AssignmentExpression (new IdentifierExpression (field.Name), AssignmentOperatorType.Assign, new IdentifierExpression ("value"));
 			}
 			
 			if (!pdecl.Setter.IsNull && pdecl.Getter.IsNull) {
@@ -84,14 +84,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			
 			return new ThrowStatement (new ObjectCreateExpression (context.CreateShortType ("System", "NotImplementedException")));
-		}
-		
-		static PropertyDeclaration GetPropertyDeclaration (RefactoringContext context)
-		{
-			var node = context.GetNode ();
-			if (node == null)
-				return null;
-			return node.Parent as PropertyDeclaration;
 		}
 	}
 }

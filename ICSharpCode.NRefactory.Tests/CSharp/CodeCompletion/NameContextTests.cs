@@ -204,7 +204,6 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 		/// <summary>
 		/// Bug 11609 - Completion engine offers namespaces when user types anonymous method parameter name
 		/// </summary>
-		[Ignore]
 		[Test]
 		public void TestBug11609 ()
 		{
@@ -223,9 +222,7 @@ namespace MyApplication
         {}
     }
 }
-", provider => {
-				Assert.AreEqual (0, provider.Count, "provider needs to be empty");
-			});
+", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
 		}
 
 		/// <summary>
@@ -253,7 +250,23 @@ namespace MyApplication
 			});
 		}
 
+		[Test]
+		public void TestLambda ()
+		{
+			CodeCompletionBugTests.CombinedProviderTest (@"using System;
+using System.IO;
 
+class Foo
+{
+	static void Foo (Action<File> act) {}
+
+	public static void Main (string[] args)
+	{
+		$Foo((File f$
+	}
+}
+", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
+		}
 	}
 }
 

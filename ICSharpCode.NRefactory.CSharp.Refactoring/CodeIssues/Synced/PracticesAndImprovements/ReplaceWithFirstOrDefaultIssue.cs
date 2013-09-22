@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Replace with call to FirstOrDefault<T>()",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ReplaceWithFirstOrDefault")]
+	                  AnalysisDisableKeyword = "ReplaceWithFirstOrDefault")]
 	public class ReplaceWithFirstOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var expression = match.Get<Expression>("expr").First();
 				var param      = match.Get<Expression>("param").First();
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					conditionalExpression,
 					ctx.TranslateString("Expression can be simlified to 'FirstOrDefault<T>()'"),
 					ctx.TranslateString("Replace with 'FirstOrDefault<T>()'"),
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							invocation
 						);
 					}
-				);
+				));
 			}
 		}
 	}

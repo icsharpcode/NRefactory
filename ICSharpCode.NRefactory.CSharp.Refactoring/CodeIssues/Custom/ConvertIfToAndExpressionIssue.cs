@@ -34,8 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("'if' statement can be re-written as '&&' expression",
 	                  Description = "Convert 'if' to '&&' expression",
 	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine)]
+	                  Severity = Severity.Hint)]
 	public class ConvertIfToAndExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -53,11 +52,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new IfElseStatement(
 					new AnyNode ("condition"),
 					PatternHelper.EmbeddedStatement (
-						new ExpressionStatement(
-							new AssignmentExpression(
-								new AnyNode("target"),
-								new PrimitiveExpression (false)
-							)
+						new AssignmentExpression(
+							new AnyNode("target"),
+							new PrimitiveExpression (false)
 						)
 					)
 				);
@@ -76,14 +73,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var match = ifPattern.Match(ifElseStatement);
 				if (match.Success) {
 					var varDeclaration = ifElseStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) as VariableDeclarationStatement;
-					var target = match.Get<Expression>("target").Single() as IdentifierExpression;
+					var target = match.Get<Expression>("target").Single();
 					var match2 = varDelarationPattern.Match(varDeclaration);
 					if (match2.Success) {
 						var initializer = varDeclaration.Variables.FirstOrDefault();
-						if (initializer != null && target.Identifier != initializer.Name)
+						if (initializer != null && target is IdentifierExpression && ((IdentifierExpression)target).Identifier != initializer.Name)
 							return;
 						var expr = match.Get<Expression>("condition").Single();
-						AddIssue(
+						AddIssue(new CodeIssue(
 							ifElseStatement.IfToken,
 							ctx.TranslateString("Convert to '&&' expresssion"),
 							ctx.TranslateString("Replace with '&&'"),
@@ -103,26 +100,28 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								);
 							script.Remove(ifElseStatement); 
 						}
-						);
+						) {
+							IssueMarker = IssueMarker.DottedLine
+						});
 						return;
 					} else {
 						var expr = match.Get<Expression>("condition").Single();
-						AddIssue(
+						AddIssue(new CodeIssue(
 							ifElseStatement.IfToken,
 							ctx.TranslateString("Convert to '&=' expresssion"),
 							ctx.TranslateString("Replace with '&='"),
-							script => {
+							script =>
 								script.Replace(
 									ifElseStatement, 
 									new ExpressionStatement(
-									new AssignmentExpression(
-										target.Clone(),
-										AssignmentOperatorType.BitwiseAnd,
-										CSharpUtil.InvertCondition(expr)) 
+										new AssignmentExpression(
+											target.Clone(),
+											AssignmentOperatorType.BitwiseAnd,
+											CSharpUtil.InvertCondition(expr)
+										) 
 									)
-								);
-						}
-						);
+								)
+						) { IssueMarker = IssueMarker.DottedLine });
 					}
 				}
 			}

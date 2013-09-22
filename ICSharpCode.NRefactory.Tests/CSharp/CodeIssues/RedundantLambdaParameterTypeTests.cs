@@ -23,6 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
@@ -35,68 +36,64 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	{
 
 		[Test]
-		public void TestInspectorCase1()
+		public void SimpleCase()
 		{
-			var input = @"using System;
-		using System.Collections.Generic;
-		using System.Linq;
-
-namespace application
+			Test<RedundantLambdaParameterTypeIssue>(@"
+class Program
 {
-	internal class Program
+	public delegate int IncreaseByANumber(int j);
+
+	public static void ExecuteCSharp3_0()
 	{
-		public delegate int IncreaseByANumber(int j);
-
-		public delegate int MultipleIncreaseByANumber(int i, string j, int l);
-
-		public static void ExecuteCSharp3_0()
-		{
-			// declare the lambda expression
-			IncreaseByANumber increase = (int j) => (j * 42);
-			// invoke the method and print 420 to the console
-			Console.WriteLine(increase(10));
-
-			MultipleIncreaseByANumber multiple = (int j, string k, int l) => ((j * 42) / k) % l;
-			Console.WriteLine(multiple(10, 11, 12));
-		}
+		IncreaseByANumber increase = (int j) => (j * 42);
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
-			Assert.AreEqual(4, issues.Count);
-			CheckFix(context, issues, @"using System;
-		using System.Collections.Generic;
-		using System.Linq;
-
-namespace application
+}
+", @"
+class Program
 {
-	internal class Program
+	public delegate int IncreaseByANumber(int j);
+
+	public static void ExecuteCSharp3_0()
 	{
-		public delegate int IncreaseByANumber(int j);
-
-		public delegate int MultipleIncreaseByANumber(int i, string j, int l);
-
-		public static void ExecuteCSharp3_0()
-		{
-			// declare the lambda expression
-			IncreaseByANumber increase =  j => (j * 42);
-			// invoke the method and print 420 to the console
-			Console.WriteLine(increase(10));
-
-			MultipleIncreaseByANumber multiple = ( j,  k,  l) => ((j * 42) / k) % l;
-			Console.WriteLine(multiple(10, 11, 12));
-		}
+		IncreaseByANumber increase = j => (j * 42);
 	}
-}");
+}
+");
+		}
+
+		[Test]
+		public void MultipleCases()
+		{
+			Test<RedundantLambdaParameterTypeIssue>(@"
+class Program
+{
+	public delegate int MultipleIncreaseByANumber(int i, string j, int l);
+
+	public static void ExecuteCSharp3_0()
+	{
+		MultipleIncreaseByANumber multiple = (int j, string k, int l) => ((j * 42) / k) % l;
+	}
+}
+", 3, @"
+class Program
+{
+	public delegate int MultipleIncreaseByANumber(int i, string j, int l);
+
+	public static void ExecuteCSharp3_0()
+	{
+		MultipleIncreaseByANumber multiple = (j, k, l) => ((j * 42) / k) % l;
+	}
+}
+", 0);
 		}
 
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"using System;
-		using System.Collections.Generic;
-		using System.Linq;
+			Test<RedundantLambdaParameterTypeIssue>(@"
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace application
 {
@@ -110,13 +107,10 @@ namespace application
 			Foo((int i) => Console.WriteLine (i));
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @"using System;
-		using System.Collections.Generic;
-		using System.Linq;
+}", @"
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace application
 {
@@ -127,7 +121,7 @@ namespace application
 
 		void Test ()
 		{
-			Foo( i => Console.WriteLine (i));
+			Foo(i => Console.WriteLine (i));
 		}
 	}
 }");
@@ -176,31 +170,6 @@ namespace application
 		void Test ()
 		{
 			Foo((int i) => Console.WriteLine (i));
-		}
-	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
-		}
-
-		[Test]
-		public void TestInvalidContextCase2()
-		{
-			var input = @"using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace application
-{
-	internal class Program
-	{
-		public void Foo(Action<int> act, Action<int> act1) { }
-		public void Foo(Action<float,int> act, Action<string> act1) { }
-
-		void Test()
-		{
-			Foo(((int i) => Console.WriteLine(i)), (j => Console.WriteLine(j)));
 		}
 	}
 }";

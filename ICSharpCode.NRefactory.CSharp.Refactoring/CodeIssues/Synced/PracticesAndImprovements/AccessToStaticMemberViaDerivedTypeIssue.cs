@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Suggests using the class declaring a static function when calling it.",
 	                   Category = IssueCategories.PracticesAndImprovements,
 	                   Severity = Severity.Warning,
-                       ResharperDisableKeyword = "AccessToStaticMemberViaDerivedType")]
+                       AnalysisDisableKeyword = "AccessToStaticMemberViaDerivedType")]
 	public class AccessToStaticMemberViaDerivedTypeIssue : GatherVisitorCodeIssueProvider
 	{
 
@@ -99,8 +99,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				member.DeclaringType.AcceptVisitor(v);
 				if (v.IsContained)
 					return;
-				AddIssue(issueAnchor, context.TranslateString("Static method invoked via derived type"),
-				         GetAction(context, targetExpression, member));
+				AddIssue(new CodeIssue(issueAnchor, context.TranslateString("Static method invoked via derived type"),
+					GetAction(context, targetExpression, member)));
 			}
 
 			CodeAction GetAction(BaseRefactoringContext context, Expression targetExpression,

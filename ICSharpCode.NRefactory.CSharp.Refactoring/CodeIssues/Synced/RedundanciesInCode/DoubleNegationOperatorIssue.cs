@@ -34,8 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "Double negation is meaningless.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.WavedLine,
-                        ResharperDisableKeyword = "DoubleNegationOperator")]
+                        AnalysisDisableKeyword = "DoubleNegationOperator")]
     public class DoubleNegationOperatorIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -72,8 +71,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var expression = RemoveParentheses (innerUnaryOperatorExpr.Expression);
 				if (expression.IsNull)
 					return;
-				AddIssue (unaryOperatorExpression, ctx.TranslateString ("Double negation is redundant"), ctx.TranslateString ("Remove '!!'"),
-					script => script.Replace (unaryOperatorExpression, expression.Clone ()));
+				AddIssue(new CodeIssue(unaryOperatorExpression, ctx.TranslateString ("Double negation is redundant"), ctx.TranslateString ("Remove '!!'"),
+					script => script.Replace (unaryOperatorExpression, expression.Clone ())));
 			}
 		}
 	}

@@ -1358,6 +1358,15 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			Assert.AreEqual(events.SelectMany(e => e.RemoveAccessor.ImplementedInterfaceMembers).Single(), ievent.RemoveAccessor);
 		}
 
+
+		[Test]
+		public void MarshalTests()
+		{
+			ITypeDefinition c = compilation.FindType(typeof(IMarshalAsTests)).GetDefinition();
+			Assert.AreEqual(1, c.GetMethods(m => m.Name == "GetCollectionByQuery2").Count());
+		}
+
+
 		[Test]
 		public void AttributesUsingNestedMembers() {
 			var type = GetTypeDefinition(typeof(ClassWithAttributesUsingNestedMembers));

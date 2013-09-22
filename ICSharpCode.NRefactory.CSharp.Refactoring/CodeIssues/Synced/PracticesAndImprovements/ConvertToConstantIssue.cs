@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Convert local variable or field to constant",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ConvertToConstant.Local")]
+	                  AnalysisDisableKeyword = "ConvertToConstant.Local")]
 	public class ConvertToConstantIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			void Collect()
 			{
 				foreach (var varDecl in fieldStack.Peek()) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						varDecl.Item1.NameToken,
 						ctx.TranslateString("Convert to constant"),
 						ctx.TranslateString("To const"),
@@ -107,7 +107,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var constVarDecl = (FieldDeclaration)varDecl.Item1.Parent;
 							script.ChangeModifier(constVarDecl, (constVarDecl.Modifiers & ~Modifiers.Static) | Modifiers.Const);
 						}
-					);
+					));
 				}
 			}
 
@@ -131,6 +131,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			static bool IsValidConstType(IType type)
 			{
 				var def = type.GetDefinition();
+				if (def == null)
+					return false;
 				return KnownTypeCode.Boolean <= def.KnownTypeCode && def.KnownTypeCode <= KnownTypeCode.Decimal ||
 					def.KnownTypeCode == KnownTypeCode.String;
 			}
@@ -190,7 +192,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (assignmentAnalysis.GetStatus(vr.Variable) == VariableState.Changed)
 					return;
-				AddIssue (
+				AddIssue (new CodeIssue(
 					varDecl.Variables.First().NameToken,
 					ctx.TranslateString ("Convert to constant"),
 					ctx.TranslateString ("To const"),
@@ -199,7 +201,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						constVarDecl.Modifiers |= Modifiers.Const;
 						script.Replace (varDecl, constVarDecl);
 					}
-				);
+				));
 			}
 		}
 	

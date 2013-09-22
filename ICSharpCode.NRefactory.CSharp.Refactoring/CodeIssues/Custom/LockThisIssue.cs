@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						FixLockThisIssue(script, containerEntity, containerType);
 					}, attribute);
 
-					AddIssue(attribute, ctx.TranslateString("Found [MethodImpl(MethodImplOptions.Synchronized)]"), fixAction);
+					AddIssue(new CodeIssue(attribute, ctx.TranslateString("Found [MethodImpl(MethodImplOptions.Synchronized)]"), fixAction));
 				}
 			}
 
@@ -95,8 +95,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					}, lockStatement);
 
-					AddIssue(lockStatement.LockToken.StartLocation,
-					         lockStatement.RParToken.EndLocation, ctx.TranslateString("Found lock (this)"), fixAction);
+					AddIssue(new CodeIssue(lockStatement.LockToken.StartLocation,
+						lockStatement.RParToken.EndLocation, ctx.TranslateString("Found lock (this)"), fixAction));
 				}
 			}
 
@@ -294,7 +294,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			static MemberReferenceExpression CreateMethodImplReferenceNode(MethodImplOptions option, AstType methodImplOptionsType)
 			{
-				return new MemberReferenceExpression(new TypeReferenceExpression(methodImplOptionsType.Clone()), Enum.GetName(typeof(MethodImplOptions), option));
+				return new MemberReferenceExpression(methodImplOptionsType.Clone(), Enum.GetName(typeof(MethodImplOptions), option));
 			}
 
 			bool IsMethodSynchronizedAttribute(Attribute attribute)

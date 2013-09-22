@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Description = "Warns about property or indexer setters and event adders or removers that do not use the value parameter.",
 	       Category = IssueCategories.CodeQualityIssues,
 	       Severity = Severity.Warning,
-           ResharperDisableKeyword = "ValueParameterNotUsed")]
+           AnalysisDisableKeyword = "ValueParameterNotUsed")]
 	public class ValueParameterNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if(!referenceFound)
-					AddIssue(accessor.Keyword, accessorName);
+					AddIssue(new CodeIssue(accessor.Keyword, accessorName));
 			}
 
 			static bool IsEligible(BlockStatement body)

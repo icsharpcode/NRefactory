@@ -34,12 +34,10 @@ using ICSharpCode.NRefactory.CSharp.Analysis;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	/*
 	[IssueDescription("Use of (non-extension method) member of null value will cause a NullReferenceException",
 	                  Description = "Detects when a member of a null value is used",
 	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.WavedLine)]*/
+	                  Severity = Severity.Warning)]
 	public class UseOfMemberOfNullReference : GatherVisitorCodeIssueProvider
 	{
 		static readonly ISet<NullValueStatus> ProblematicNullStates = new HashSet<NullValueStatus> {
@@ -61,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
 			{
 				IMember member = GetMember(memberReferenceExpression);
-				if (member == null || member.IsStatic) {
+				if (member == null || member.IsStatic || member.FullName == "System.Nullable.HasValue") {
 					base.VisitMemberReferenceExpression(memberReferenceExpression);
 					return;
 				}
@@ -71,10 +69,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				var nullStatus = analysis.GetExpressionResult(memberReferenceExpression.Target);
 				if (ProblematicNullStates.Contains(nullStatus)) {
-					//Depending on how reliable the null analysis turns out to be, we may also want to include PotentiallyNull here
-
-					AddIssue(memberReferenceExpression,
-					         ctx.TranslateString("Using member of null value will cause a NullReferenceException"));
+					AddIssue(new CodeIssue(memberReferenceExpression,
+						ctx.TranslateString("Using member of null value will cause a NullReferenceException")));
 				}
 			}
 
@@ -102,6 +98,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				analysis = new NullValueAnalysis(ctx, parentFunction.GetChildByRole(Roles.Body), parentFunction.GetChildrenByRole(Roles.Parameter), ctx.CancellationToken);
+				analysis.Analyze();
 				cachedNullAnalysis [parentFunction] = analysis;
 				return analysis;
 			}

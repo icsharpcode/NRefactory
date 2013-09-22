@@ -47,10 +47,15 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		[TestFixtureSetUp]
 		public void FixtureSetUp()
 		{
-			// use "IncludeInternalMembers" so that Cecil results match C# parser results
-			IkvmLoader loader = new IkvmLoader() { IncludeInternalMembers = true };
-			IUnresolvedAssembly asm = loader.LoadAssemblyFile(typeof(TestCase.SimplePublicClass).Assembly.Location);
-			compilation = new SimpleCompilation(asm, IkvmLoaderTests.Mscorlib);
+			try {
+				// use "IncludeInternalMembers" so that Cecil results match C# parser results
+				IkvmLoader loader = new IkvmLoader() { IncludeInternalMembers = true };
+				IUnresolvedAssembly asm = loader.LoadAssemblyFile(typeof(TestCase.SimplePublicClass).Assembly.Location);
+				compilation = new SimpleCompilation(asm, IkvmLoaderTests.Mscorlib);
+			} catch (Exception e) {
+				Console.WriteLine(e);
+				throw;
+			}
 		}
 	}
 }

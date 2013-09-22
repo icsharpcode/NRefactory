@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Replace with call to OfType<T>().SingleOrDefault()",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ReplaceWithOfType.SingleOrDefault")]
+	                  AnalysisDisableKeyword = "ReplaceWithOfType.SingleOrDefault")]
 	public class ReplaceWithOfTypeSingleOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -26,6 +26,7 @@
 
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -33,8 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "'case' label is redundant.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.GrayOut,
-                        ResharperDisableKeyword = "RedundantCaseLabel")]
+                        AnalysisDisableKeyword = "RedundantCaseLabel")]
 	public class RedundantCaseLabelIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -53,20 +53,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitSwitchSection (switchSection);
 
-				if (switchSection.CaseLabels.Count <2)
+				if (switchSection.CaseLabels.Count < 2)
 					return;
 
-				var lastLabel = switchSection.CaseLabels.LastOrNullObject ();
-				if (!lastLabel.Expression.IsNull)
+				if (!switchSection.CaseLabels.Any(label => label.Expression.IsNull))
 					return;
-				AddIssue (switchSection.FirstChild.StartLocation, lastLabel.StartLocation,
-				          ctx.TranslateString ("Redundant case label"),
-				          ctx.TranslateString ("Remove redundant 'case' label"), scipt => {
-						foreach (var label in switchSection.CaseLabels) {
-							if (label != lastLabel)
-								scipt.Remove (label);
+
+				foreach (var caseLabel in switchSection.CaseLabels) {
+					if (caseLabel.Expression.IsNull)
+						continue;
+					AddIssue(new CodeIssue(
+						caseLabel,
+						ctx.TranslateString("Redundant case label"),
+						string.Format(ctx.TranslateString("Remove 'case {0}'"), caseLabel.Expression),
+						scipt => {
+							scipt.Remove(caseLabel);
 						}
-					});
+					) { IssueMarker = IssueMarker.GrayOut });
+				}
 			}
 		}
 	}

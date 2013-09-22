@@ -89,6 +89,14 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestEventArgsSuffixOptimizationName ()
+		{
+			var input = @"			public class TestArgs : System.EventArgs {}";
+			var output = @"			public class TestEventArgs : System.EventArgs {}";
+			CheckNaming (input, output);
+		}
+
+		[Test]
 		public void TestException ()
 		{
 			var input = @"class test : System.Exception {}";

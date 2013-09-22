@@ -33,23 +33,94 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Remove braces", Description = "Removes redundant braces around a statement.")]
 	public class RemoveBracesAction : CodeActionProvider
 	{
+		internal static bool IsSpecialNode (AstNode node, out string keyword, out Statement embeddedStatement)
+		{
+			if (node != null) {
+				if (node.Role == IfElseStatement.IfKeywordRole) {
+					keyword = "if";
+					embeddedStatement = ((IfElseStatement)node.Parent).TrueStatement;
+					return true;
+				}
+
+				if (node.Role == IfElseStatement.ElseKeywordRole) {
+					keyword = "else";
+					embeddedStatement = ((IfElseStatement)node.Parent).FalseStatement;
+					return true;
+				}
+
+				if (node.Role == DoWhileStatement.DoKeywordRole || node.Role == DoWhileStatement.WhileKeywordRole) {
+					keyword = "do";
+					embeddedStatement = ((DoWhileStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
+
+				if (node.Role == ForeachStatement.ForeachKeywordRole) {
+					keyword = "foreach";
+					embeddedStatement = ((ForeachStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
+
+				if (node.Role == ForStatement.ForKeywordRole) {
+					keyword = "for";
+					embeddedStatement = ((ForStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
+
+				if (node.Role == LockStatement.LockKeywordRole) {
+					keyword = "lock";
+					embeddedStatement = ((LockStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
+
+				if (node.Role == UsingStatement.UsingKeywordRole) {
+					keyword = "using";
+					embeddedStatement = ((UsingStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
+
+				if (node.Role == WhileStatement.WhileKeywordRole) {
+					keyword = "while";
+					embeddedStatement = ((WhileStatement)node.Parent).EmbeddedStatement;
+					return true;
+				}
+			}
+			keyword = null;
+			embeddedStatement = null;
+			return false;
+		}
+
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
-			var block = GetBlockStatement(context);
-			if (block == null) {
-				yield break;
+			string keyword;
+			Statement embeddedStatement;
+			BlockStatement block;
+
+			var currentNode = context.GetNode();
+			if (IsSpecialNode(currentNode, out keyword, out embeddedStatement)) {
+				block = embeddedStatement as BlockStatement;
+				if (block == null || block.Statements.Count != 1 || block.Statements.First() is VariableDeclarationStatement)
+					yield break;
+			} else {
+				block = GetBlockStatement(context);
 			}
 
-			yield return new CodeAction (context.TranslateString("Remove braces"), script => {
-				var start = script.GetCurrentOffset (block.LBraceToken.GetPrevNode ().EndLocation);
-				var end = script.GetCurrentOffset (block.LBraceToken.EndLocation);
-				if (end <= start)
-					return;
-				script.RemoveText (start, end - start);
-				script.Remove(block.LBraceToken);
-				script.Remove(block.RBraceToken);
-				script.FormatText(block.Parent);
-			}, block);
+			if (block == null)
+				yield break;
+
+			yield return new CodeAction (
+				keyword != null ? string.Format(context.TranslateString("Remove braces from '{0}'"), keyword) : context.TranslateString("Remove braces"), 
+				script => {
+					var start = script.GetCurrentOffset (block.LBraceToken.GetPrevNode ().EndLocation);
+					var end = script.GetCurrentOffset (block.LBraceToken.EndLocation);
+					if (end <= start)
+						return;
+					script.RemoveText (start, end - start);
+					script.Remove(block.LBraceToken);
+					script.Remove(block.RBraceToken);
+					script.FormatText(block.Parent);
+				}, 
+				currentNode
+			);
 		}
 		
 		static BlockStatement GetBlockStatement(RefactoringContext context)

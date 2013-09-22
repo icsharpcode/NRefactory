@@ -36,6 +36,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
+			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
+			if (service == null)
+				yield break;
+
 			var type = context.GetNode<AstType>();
 			if (type == null || type.Role != Roles.BaseType)
 				yield break;
@@ -43,118 +47,115 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var state = context.GetResolverStateBefore(type);
 			if (state.CurrentTypeDefinition == null)
 				yield break;
-			
+
 			var resolveResult = context.Resolve(type);
 			if (resolveResult.Type.Kind != TypeKind.Interface)
 				yield break;
 			
-			var toImplement = CollectMembersToImplement(state.CurrentTypeDefinition, resolveResult.Type, false);
+			bool interfaceMissing;
+			var toImplement = CollectMembersToImplement(state.CurrentTypeDefinition, resolveResult.Type, false, out interfaceMissing);
 			if (toImplement.Count == 0)
 				yield break;
 			
-			yield return new CodeAction(context.TranslateString("Implement interface"), script => {
+			yield return new CodeAction(context.TranslateString("Implement interface"), script =>
 				script.InsertWithCursor(
 					context.TranslateString("Implement Interface"),
 					state.CurrentTypeDefinition,
-					(s, c) => GenerateImplementation(c, toImplement)
-				);
-			}, type);
+					(s, c) => GenerateImplementation(c, toImplement, interfaceMissing).ToList()
+				)
+			, type);
 		}
 		
-		public static IEnumerable<AstNode> GenerateImplementation(RefactoringContext context, IEnumerable<Tuple<IMember, bool>> toImplement)
+		public static IEnumerable<AstNode> GenerateImplementation(RefactoringContext context, IEnumerable<Tuple<IMember, bool>> toImplement, bool generateRegion)
 		{
+			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
+			if (service == null)
+				yield break;
 			var nodes = new Dictionary<IType, List<AstNode>>();
 			
 			foreach (var member in toImplement) {
 				if (!nodes.ContainsKey(member.Item1.DeclaringType)) 
 					nodes [member.Item1.DeclaringType] = new List<AstNode>();
-				nodes [member.Item1.DeclaringType].Add(GenerateMemberImplementation(context, member.Item1, member.Item2));
+				nodes [member.Item1.DeclaringType].Add(service.GenerateMemberImplementation(context, member.Item1, member.Item2));
 			}
 			
 			foreach (var kv in nodes) {
-				if (kv.Key.Kind == TypeKind.Interface) {
-					yield return new PreProcessorDirective(
-						PreProcessorDirectiveType.Region,
-						string.Format("{0} implementation", kv.Key.Name));
-				} else {
-					yield return new PreProcessorDirective(
-						PreProcessorDirectiveType.Region,
-						string.Format("implemented abstract members of {0}", kv.Key.Name));
+				if (generateRegion) {
+					if (kv.Key.Kind == TypeKind.Interface) {
+						yield return new PreProcessorDirective(
+							PreProcessorDirectiveType.Region,
+							string.Format("{0} implementation", kv.Key.Name));
+					} else {
+						yield return new PreProcessorDirective(
+							PreProcessorDirectiveType.Region,
+							string.Format("implemented abstract members of {0}", kv.Key.Name));
+					}
 				}
 				foreach (var member in kv.Value)
 					yield return member;
-				yield return new PreProcessorDirective(
-					PreProcessorDirectiveType.Endregion
-				);
-			}
-		}
-		
-		static EntityDeclaration GenerateMemberImplementation(RefactoringContext context, IMember member, bool explicitImplementation)
-		{
-			var builder = context.CreateTypeSystemAstBuilder();
-			builder.GenerateBody = true;
-			builder.ShowModifiers = false;
-			builder.ShowAccessibility = true;
-			builder.ShowConstantValues = !explicitImplementation;
-			builder.ShowTypeParameterConstraints = !explicitImplementation;
-			builder.UseCustomEvents = explicitImplementation;
-			var decl = builder.ConvertEntity(member);
-			if (explicitImplementation) {
-				decl.Modifiers = Modifiers.None;
-				decl.AddChild(builder.ConvertType(member.DeclaringType), EntityDeclaration.PrivateImplementationTypeRole);
-			} else if (member.DeclaringType.Kind == TypeKind.Interface) {
-				decl.Modifiers |= Modifiers.Public;
-			} else {
-				// Remove 'internal' modifier from 'protected internal' members if the override is in a different assembly than the member
-				if (!member.ParentAssembly.InternalsVisibleTo(context.Compilation.MainAssembly)) {
-					decl.Modifiers &= ~Modifiers.Internal;
+				if (generateRegion) {
+					yield return new PreProcessorDirective(
+						PreProcessorDirectiveType.Endregion
+					);
 				}
 			}
-			return decl;
 		}
-		
-		public static List<Tuple<IMember, bool>> CollectMembersToImplement(ITypeDefinition implementingType, IType interfaceType, bool explicitly)
+
+		public static List<Tuple<IMember, bool>> CollectMembersToImplement(ITypeDefinition implementingType, IType interfaceType, bool explicitly, out bool interfaceMissing)
 		{
 			//var def = interfaceType.GetDefinition();
 			List<Tuple<IMember, bool>> toImplement = new List<Tuple<IMember, bool>>();
 			bool alreadyImplemented;
-			
+			interfaceMissing = true;
 			// Stub out non-implemented events defined by @iface
 			foreach (var evGroup in interfaceType.GetEvents (e => !e.IsSynthetic).GroupBy (m => m.DeclaringType).Reverse ())
 				foreach (var ev in evGroup) {
+					if (ev.DeclaringType.Kind != TypeKind.Interface)
+						continue;
+
 					bool needsExplicitly = explicitly;
 					alreadyImplemented = implementingType.GetAllBaseTypeDefinitions().Any(
 					x => x.Kind != TypeKind.Interface && x.Events.Any(y => y.Name == ev.Name)
 					);
 				
-					if (!alreadyImplemented)
+					if (!alreadyImplemented) {
 						toImplement.Add(new Tuple<IMember, bool>(ev, needsExplicitly));
+					} else {
+						interfaceMissing = false;
+					}
 				}
 			
 			// Stub out non-implemented methods defined by @iface
 			foreach (var methodGroup in interfaceType.GetMethods (d => !d.IsSynthetic).GroupBy (m => m.DeclaringType).Reverse ())
 				foreach (var method in methodGroup) {
-				
+					if (method.DeclaringType.Kind != TypeKind.Interface)
+						continue;
 					bool needsExplicitly = explicitly;
 					alreadyImplemented = false;
 				
 					foreach (var cmet in implementingType.GetMethods ()) {
-						if (CompareMethods(method, cmet)) {
+						if (CompareMembers(method, cmet)) {
 							if (!needsExplicitly && !cmet.ReturnType.Equals(method.ReturnType))
 								needsExplicitly = true;
 							else
 								alreadyImplemented |= !needsExplicitly /*|| cmet.InterfaceImplementations.Any (impl => impl.InterfaceType.Equals (interfaceType))*/;
 						}
 					}
-					if (toImplement.Where(t => t.Item1 is IMethod).Any(t => CompareMethods(method, (IMethod)t.Item1)))
+					if (toImplement.Where(t => t.Item1 is IMethod).Any(t => CompareMembers(method, (IMethod)t.Item1)))
 						needsExplicitly = true;
-					if (!alreadyImplemented) 
+					if (!alreadyImplemented) {
 						toImplement.Add(new Tuple<IMember, bool>(method, needsExplicitly));
+					} else {
+						interfaceMissing = false;
+					}
 				}
 			
 			// Stub out non-implemented properties defined by @iface
 			foreach (var propGroup in interfaceType.GetProperties (p => !p.IsSynthetic).GroupBy (m => m.DeclaringType).Reverse ())
 				foreach (var prop in propGroup) {
+					if (prop.DeclaringType.Kind != TypeKind.Interface)
+						continue;
+
 					bool needsExplicitly = explicitly;
 					alreadyImplemented = false;
 					foreach (var t in implementingType.GetAllBaseTypeDefinitions ()) {
@@ -176,13 +177,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}
 						}
 					}
-					if (!alreadyImplemented)
+					if (!alreadyImplemented) {
 						toImplement.Add(new Tuple<IMember, bool>(prop, needsExplicitly));
+					} else {
+						interfaceMissing = false;
+					}
 				}
 			return toImplement;
 		}
 		
-		internal static bool CompareMethods(IMethod interfaceMethod, IMethod typeMethod)
+		internal static bool CompareMembers(IMember interfaceMethod, IMember typeMethod)
 		{
 			if (typeMethod.IsExplicitInterfaceImplementation)
 				return typeMethod.ImplementedInterfaceMembers.Any(m => m.Equals(interfaceMethod));

@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Use method IsInstanceOfType",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "UseMethodIsInstanceOfType")]
+	                  AnalysisDisableKeyword = "UseMethodIsInstanceOfType")]
 	public class UseMethodIsInstanceOfTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitInvocationExpression(invocationExpression);
 				var match = pattern.Match(invocationExpression);
 				if (match.Success) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						invocationExpression,
 						ctx.TranslateString("Use method IsInstanceOfType (...)"),
 						ctx.TranslateString("Replace with call to IsInstanceOfType"),
@@ -79,7 +79,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								match.Get<Expression>("object").Single().Clone()
 							));
 						}
-					);
+					));
 				}
 			}
 		}

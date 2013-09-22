@@ -40,8 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Finds redundant null coalescing expressions such as expr ?? expr",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "ConstantNullCoalescingCondition")]
+	                  AnalysisDisableKeyword = "ConstantNullCoalescingCondition")]
 	public class ConstantNullCoalescingConditionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -72,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				NullValueStatus leftStatus = analysis.GetExpressionResult(binaryOperatorExpression.Left);
 				if (leftStatus == NullValueStatus.DefinitelyNotNull) {
-					AddIssue(binaryOperatorExpression.OperatorToken.StartLocation,
+					AddIssue(new CodeIssue(binaryOperatorExpression.OperatorToken.StartLocation,
 					         binaryOperatorExpression.Right.EndLocation,
 					         ctx.TranslateString("Redundant ??. Left side is never null."),
 					         ctx.TranslateString("Remove redundant right side"),
@@ -80,11 +79,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
 
-					});
+						}) { IssueMarker = IssueMarker.GrayOut });
 					return;
 				}
 				if (leftStatus == NullValueStatus.DefinitelyNull) {
-					AddIssue(binaryOperatorExpression.Left.StartLocation,
+					AddIssue(new CodeIssue(binaryOperatorExpression.Left.StartLocation,
 					         binaryOperatorExpression.OperatorToken.EndLocation,
 					         ctx.TranslateString("Redundant ??. Left side is always null."),
 					         ctx.TranslateString("Remove redundant left side"),
@@ -92,12 +91,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Right.Clone());
 
-					});
+						}));
 					return;
 				}
 				NullValueStatus rightStatus = analysis.GetExpressionResult(binaryOperatorExpression.Right);
 				if (rightStatus == NullValueStatus.DefinitelyNull) {
-					AddIssue(binaryOperatorExpression.OperatorToken.StartLocation,
+					AddIssue(new CodeIssue(binaryOperatorExpression.OperatorToken.StartLocation,
 					         binaryOperatorExpression.Right.EndLocation,
 					         ctx.TranslateString("Redundant ??. Right side is always null."),
 					         ctx.TranslateString("Remove redundant right side"),
@@ -105,7 +104,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
 
-					});
+						}));
 					return;
 				}
 			}
@@ -118,6 +117,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				analysis = new NullValueAnalysis(ctx, parentFunction.GetChildByRole(Roles.Body), parentFunction.GetChildrenByRole(Roles.Parameter), ctx.CancellationToken);
+				analysis.IsParametersAreUninitialized = true;
+				analysis.Analyze();
 				cachedNullAnalysis [parentFunction] = analysis;
 				return analysis;
 			}

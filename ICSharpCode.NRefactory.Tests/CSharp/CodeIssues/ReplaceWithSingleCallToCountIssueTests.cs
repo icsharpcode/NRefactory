@@ -31,13 +31,13 @@ using ICSharpCode.NRefactory.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-    [TestFixture]
-    public class ReplaceWithSingleCallToCountIssueTests : InspectionActionTestBase
-    {
-        [Test]
-        public void TestSimpleCase ()
-        {
-            var input = @"using System.Linq;
+	[TestFixture]
+	public class ReplaceWithSingleCallToCountIssueTests : InspectionActionTestBase
+	{
+		[Test]
+		public void TestSimpleCase()
+		{
+			var input = @"using System.Linq;
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;
@@ -45,22 +45,22 @@ public class CSharpDemo {
 	}
 }";
 
-            TestRefactoringContext context;
-            var issues = GetIssues(new ReplaceWithSingleCallToCountIssue(), input, out context);
-            Assert.AreEqual(1, issues.Count);
-            CheckFix(context, issues, @"using System.Linq;
+			TestRefactoringContext context;
+			var issues = GetIssues(new ReplaceWithSingleCallToCountIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+			CheckFix(context, issues, @"using System.Linq;
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;
 		var bla = arr.Count (x => x < 4);
 	}
 }");
-        }
+		}
 
-        [Test]
-        public void TestDisable()
-        {
-            var input = @"using System.Linq;
+		[Test]
+		public void TestDisable()
+		{
+			var input = @"using System.Linq;
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;
@@ -69,10 +69,9 @@ public class CSharpDemo {
 	}
 }";
 
-            TestRefactoringContext context;
-            var issues = GetIssues(new ReplaceWithSingleCallToCountIssue(), input, out context);
-            Assert.AreEqual(0, issues.Count);
-        }
-
-    }
+			TestRefactoringContext context;
+			var issues = GetIssues(new ReplaceWithSingleCallToCountIssue(), input, out context);
+			Assert.AreEqual(0, issues.Count);
+		}
+	}
 }

@@ -23,13 +23,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using ICSharpCode.NRefactory.PatternMatching;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.Refactoring;
 using System.Linq;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Refactoring;
+using System;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -38,11 +36,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// action.
 	/// </summary>
 	[IssueDescription("Use 'var'",
-	       Description = "Use 'var' keyword when possible",
-	       Category = IssueCategories.Opportunities,
-	       Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.None,
-           ResharperDisableKeyword = "SuggestUseVarKeywordEvident")]
+		Description = "Use 'var' keyword when possible",
+		Category = IssueCategories.Opportunities,
+		Severity = Severity.Hint,
+		AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -55,6 +52,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public GatherVisitor (BaseRefactoringContext ctx, SuggestUseVarKeywordEvidentIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
             }
+
+			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
+			{
+				if (!ctx.Supports(UseVarKeywordAction.minimumVersion))
+					return;
+				base.VisitSyntaxTree(syntaxTree);
+			}
 
 			public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)
 			{
@@ -97,7 +101,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			void AddIssue(VariableDeclarationStatement variableDeclarationStatement)
 			{
-				AddIssue(variableDeclarationStatement.Type, ctx.TranslateString("Use 'var' keyword"));
+				AddIssue(new CodeIssue(variableDeclarationStatement.Type, ctx.TranslateString("Use 'var' keyword")) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(UseVarKeywordAction) } });
 			}
 		}
 	}

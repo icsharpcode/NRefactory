@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Bitwise operation on enum which has no [Flags] attribute",
 					   Category = IssueCategories.CodeQualityIssues,
 					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.WavedLine,
-                       ResharperDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
+                       AnalysisDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
 	public class BitwiseOperatorOnEnumWithoutFlagsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -82,8 +81,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			private void AddIssue (CSharpTokenNode operatorToken)
 			{
-				AddIssue (operatorToken, 
-					ctx.TranslateString ("Bitwise Operations on enum not marked with Flags attribute"));
+				AddIssue (new CodeIssue (operatorToken, ctx.TranslateString ("Bitwise Operations on enum not marked with Flags attribute")));
 			}
 
 			public override void VisitUnaryOperatorExpression (UnaryOperatorExpression unaryOperatorExpression)

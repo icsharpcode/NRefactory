@@ -32,8 +32,7 @@ using ICSharpCode.NRefactory.CSharp;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Convert 'if' to 'return'",
-	               Description = "Convert 'if' to 'return'",
-	               BoundToIssue = typeof (RewriteIfReturnToReturnIssue))]
+	               Description = "Convert 'if' to 'return'")]
 	public class ConvertIfStatementToReturnStatementAction : SpecializedCodeAction <IfElseStatement>
 	{
 		static readonly AstNode ifElsePattern = 

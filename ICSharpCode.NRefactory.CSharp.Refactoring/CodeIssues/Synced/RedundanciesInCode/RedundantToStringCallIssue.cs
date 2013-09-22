@@ -38,8 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Finds calls to ToString() which would be generated automatically by the compiler.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantToStringCall")]
+	                  AnalysisDisableKeyword = "RedundantToStringCall")]
 	public class RedundantToStringCallIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -96,11 +95,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				// This has been moved out to the callers, to check it earlier for a 30-40% run time reduction
 				processedNodes.Add(invocationExpression);
 				
-				AddIssue(memberExpression.DotToken.StartLocation, invocationExpression.RParToken.EndLocation,
+				AddIssue(new CodeIssue(memberExpression.DotToken.StartLocation, invocationExpression.RParToken.EndLocation,
 				         ctx.TranslateString("Redundant ToString() call"), 
 				         ctx.TranslateString("Remove redundant '.ToString()'"), script =>  {
 					script.Replace(invocationExpression, memberExpression.Target.Clone());
-				});
+					}) { IssueMarker = IssueMarker.GrayOut });
 			}
 
 			#region Binary operator

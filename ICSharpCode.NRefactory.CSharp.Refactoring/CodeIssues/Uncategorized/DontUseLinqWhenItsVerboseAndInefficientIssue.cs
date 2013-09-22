@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Use of Linq methods when there's a better alternative",
 	                  Description="Detects usage of Linq when there's a simpler and faster alternative",
 	                  Category=IssueCategories.CodeQualityIssues,
-	                  Severity=Severity.Warning,
-	                  IssueMarker=IssueMarker.WavedLine)]
+	                  Severity=Severity.Warning)]
 	public class DontUseLinqWhenItsVerboseAndInefficientIssue : GatherVisitorCodeIssueProvider
 	{
 		class LinqMethod {
@@ -152,11 +151,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				}
 
-				AddIssue(invocations.Last().LParToken.StartLocation,
-				         invocations.First().RParToken.EndLocation,
-				         ctx.TranslateString("Use of Linq method when there's a better alternative"),
-				         ctx.TranslateString("Replace method by simpler version"),
-				         script => {
+				AddIssue(new CodeIssue(invocations.Last().LParToken.StartLocation,
+				                       invocations.First().RParToken.EndLocation,
+				                       ctx.TranslateString("Use of Linq method when there's a better alternative"),
+				                       ctx.TranslateString("Replace method by simpler version"),
+				                       script => {
 
 					Expression startOffset = null;
 					Expression endOffset = null;
@@ -256,7 +255,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							}
 						}
 					}
-				});
+				}));
 
 				base.VisitInvocationExpression(invocationExpression);
 			}

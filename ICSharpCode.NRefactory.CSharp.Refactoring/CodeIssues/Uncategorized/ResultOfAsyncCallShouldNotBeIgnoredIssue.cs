@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				var rr = ctx.Resolve(invocation) as InvocationResolveResult;
 				if (rr != null && (rr.Type.IsKnownType(KnownTypeCode.Task) || rr.Type.IsKnownType(KnownTypeCode.TaskOfT))) {
-					AddIssue(GetNodeToUnderline (invocation.Target), ctx.TranslateString("Exceptions in async call will be silently ignored because the returned task is unused"));
+					AddIssue(new CodeIssue(GetNodeToUnderline (invocation.Target), ctx.TranslateString("Exceptions in async call will be silently ignored because the returned task is unused")));
 				}
 			}
 		}

@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	                  Description="Call to base member with implicit default parameters",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "BaseMethodCallWithDefaultParameter")]
+	                  AnalysisDisableKeyword = "BaseMethodCallWithDefaultParameter")]
 	public class BaseMethodCallWithDefaultParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -102,10 +102,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					invocationExpression.RParToken,
 					ctx.TranslateString("Call to base member with implicit default parameters")
-				);
+				));
 			}
 		
 			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
@@ -131,10 +131,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					indexerExpression.RBracketToken,
 					ctx.TranslateString("Call to base member with implicit default parameters")
-				);
+				));
 			}
 		}
 	}

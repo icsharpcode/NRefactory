@@ -34,8 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "'params' is ignored on overrides",
 	                  Category = IssueCategories.RedundanciesInDeclarations,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantParams")]
+	                  AnalysisDisableKeyword = "RedundantParams")]
 	public class RedundantParamsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -65,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var baseMember = InheritanceHelper.GetBaseMember(rr.Member) as IMethod;
 				if (baseMember == null || baseMember.Parameters.Count == 0 || baseMember.Parameters.Last().IsParams)
 					return;
-				AddIssue(
+				AddIssue(new CodeIssue(
 					lastParam.GetChildByRole(ParameterDeclaration.ParamsModifierRole),
 					ctx.TranslateString("'params' is always ignored in overrides"),
 					ctx.TranslateString("Remove 'params' modifier"),
@@ -74,7 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						p.ParameterModifier = ParameterModifier.None;
 						script.Replace(lastParam, p);
 					}
-				);
+				) { IssueMarker = IssueMarker.GrayOut });
 			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)

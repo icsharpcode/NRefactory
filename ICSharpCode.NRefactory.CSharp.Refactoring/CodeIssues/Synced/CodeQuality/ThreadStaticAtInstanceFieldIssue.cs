@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       Description = "[ThreadStatic] doesn't work with instance fields",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-                      ResharperDisableKeyword = "ThreadStaticAtInstanceField")]
+                      AnalysisDisableKeyword = "ThreadStaticAtInstanceField")]
 	public class ThreadStaticAtInstanceFieldIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -70,9 +70,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (threadStaticAttribute.Equals(resolvedAttribute.Type)) {
 							string title = ctx.TranslateString("ThreadStatic does nothing on instance fields");
 							if (attributeCount == 1)
-								AddIssue(attributeSection, title, GetActions(attribute, attributeSection, fieldDeclaration));
+								AddIssue(new CodeIssue(attributeSection, title, GetActions(attribute, attributeSection, fieldDeclaration)));
 							else
-								AddIssue(attribute, title, GetActions(attribute, attributeSection, fieldDeclaration));
+								AddIssue(new CodeIssue(attribute, title, GetActions(attribute, attributeSection, fieldDeclaration)));
 						}
 					}
 				}

@@ -38,8 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description= "Type is either mentioned in the base type list of another part or in another base type",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantExtendsListEntry")]
+	                  AnalysisDisableKeyword = "RedundantExtendsListEntry")]
 	public class RedundantExtendsListEntryIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -122,7 +121,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						ctx.TranslateString("Base interface '{0}' is redundant") :
 						ctx.TranslateString("Base type '{0}' is already specified in other parts");
 
-					AddIssue(
+					AddIssue(new CodeIssue(
 						node,
 						string.Format(issueText, nodeType.Name), 
 						new CodeAction (
@@ -139,7 +138,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 								script.Remove(node);
 							},
 						node)
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 			

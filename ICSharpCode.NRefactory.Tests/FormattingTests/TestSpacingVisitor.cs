@@ -392,6 +392,25 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 		}
 
 		[Test]
+		public void TestWithinWhileParenthesesSpaceDoWhile ()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();
+			policy.SpacesWithinWhileParentheses = true;
+
+			var result = GetResult (policy, @"class Test {
+	void TestMe ()
+	{
+		do {} while (true);
+	}
+}");
+
+			int i1 = result.Text.LastIndexOf("(", System.StringComparison.Ordinal);
+			int i2 = result.Text.LastIndexOf(")", System.StringComparison.Ordinal) + ")".Length;
+			Assert.AreEqual (@"( true )", result.GetText (i1, i2 - i1));
+		}
+
+
+		[Test]
 		public void TestBeforeForParenthesesSpace ()
 		{
 			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono ();

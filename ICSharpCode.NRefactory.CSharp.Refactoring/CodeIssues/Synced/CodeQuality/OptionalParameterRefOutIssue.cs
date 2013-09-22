@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="C# doesn't support optional 'ref' or 'out' parameters",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-	                  ResharperDisableKeyword = "OptionalParameterRefOut")]
+	                  AnalysisDisableKeyword = "OptionalParameterRefOut")]
 	public class OptionalParameterRefOutIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					foreach (var attr in sect.Attributes) {
 						var rr = ctx.Resolve(attr);
 						if (rr.Type.Name == "OptionalAttribute" && rr.Type.Namespace == "System.Runtime.InteropServices") {
-							AddIssue(attr, ctx.TranslateString("A 'ref' or 'out' parameter can't be optional"));
+							AddIssue(new CodeIssue(attr, ctx.TranslateString("A 'ref' or 'out' parameter can't be optional")));
 							return;
 						}
 					}

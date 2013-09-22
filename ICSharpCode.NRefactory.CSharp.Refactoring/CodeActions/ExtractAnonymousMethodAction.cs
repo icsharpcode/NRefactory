@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var type = LambdaHelper.GetLambdaReturnType (context, lambda);
 					if (type == null || type.ReflectionName == "System.Void") {
 						noReturn = true;
-						body.Add (new ExpressionStatement ((Expression)lambda.Body.Clone ()));
+						body.Add ((Expression)lambda.Body.Clone ());
 					} else {
 						body.Add (new ReturnStatement ((Expression)lambda.Body.Clone ()));
 					}

@@ -125,6 +125,14 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				return conditionalExpression.FalseExpression.AcceptVisitor(this);
 			}
 
+			public override bool VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+			{
+				if (binaryOperatorExpression.Operator == BinaryOperatorType.NullCoalescing) {
+					return binaryOperatorExpression.Left.AcceptVisitor(this);
+				}
+				return base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+			}
+
 			public override bool VisitIfElseStatement(IfElseStatement ifElseStatement)
 			{
 				if (ifElseStatement.Condition.AcceptVisitor(this))
@@ -136,6 +144,21 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				//No need to worry about null ast nodes, since AcceptVisitor will just
 				//return false in those cases
 				return ifElseStatement.FalseStatement.AcceptVisitor(this);
+			}
+
+			public override bool VisitForeachStatement(ForeachStatement foreachStatement)
+			{
+				//Even if the body is always recursive, the function may stop if the collection
+				// is empty.
+				return foreachStatement.InExpression.AcceptVisitor(this);
+			}
+
+			public override bool VisitForStatement(ForStatement forStatement)
+			{
+				if (forStatement.Initializers.Any(initializer => initializer.AcceptVisitor(this)))
+					return true;
+
+				return forStatement.Condition.AcceptVisitor(this);
 			}
 
 			public override bool VisitSwitchStatement(SwitchStatement switchStatement)
@@ -176,7 +199,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				//in "from x in Method() select x", Method() might be recursive
 				//but in "from x in Bar() from y in Method() select x + y", even if Method() is recursive
 				//Bar might still be empty.
-				return queryExpression.Clauses.OfType<QueryFromClause>().First().AcceptVisitor(this);
+				var queryFromClause = queryExpression.Clauses.OfType<QueryFromClause>().FirstOrDefault();
+				if (queryFromClause == null)
+					return true;
+				return queryFromClause.AcceptVisitor(this);
 			}
 		}
 	}

@@ -34,15 +34,14 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Unused type parameter",
-					   Description = "Type parameter is never used.",
-	                   Category = IssueCategories.RedundanciesInDeclarations,
-					   Severity = Severity.Warning,
-					   IssueMarker = IssueMarker.GrayOut,
-                       ResharperDisableKeyword = "UnusedTypeParameter")]
+	[IssueDescription("Unused type parameter",
+		Description = "Type parameter is never used.",
+		Category = IssueCategories.RedundanciesInDeclarations,
+		Severity = Severity.Warning,
+		AnalysisDisableKeyword = "UnusedTypeParameter")]
 	public class UnusedTypeParameterIssue : GatherVisitorCodeIssueProvider
 	{
-		static FindReferences refFinder = new FindReferences ();
+		static FindReferences refFinder = new FindReferences();
 
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
@@ -52,14 +51,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context, unit);
 		}
 
-		protected static bool FindUsage (BaseRefactoringContext context, SyntaxTree unit,
-										 ITypeParameter typeParameter, AstNode declaration)
+		protected static bool FindUsage(BaseRefactoringContext context, SyntaxTree unit,
+		                                 ITypeParameter typeParameter, AstNode declaration)
 		{
 			var found = false;
 			var searchScopes = refFinder.GetSearchScopes(typeParameter);
 			refFinder.FindReferencesInFile(searchScopes, context.Resolver,
-				(node, resolveResult) =>
-				{
+				(node, resolveResult) => {
 					if (node != declaration)
 						found = true;
 				}, context.CancellationToken);
@@ -70,17 +68,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			SyntaxTree unit;
 
-			public GatherVisitor (BaseRefactoringContext ctx, SyntaxTree unit)
-				: base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx, SyntaxTree unit)
+				: base(ctx)
 			{
 				this.unit = unit;
 			}
 
-			public override void VisitTypeParameterDeclaration (TypeParameterDeclaration decl)
+			public override void VisitTypeParameterDeclaration(TypeParameterDeclaration decl)
 			{
-				base.VisitTypeParameterDeclaration (decl);
+				base.VisitTypeParameterDeclaration(decl);
 
-				var resolveResult = ctx.Resolve (decl) as TypeResolveResult;
+				var resolveResult = ctx.Resolve(decl) as TypeResolveResult;
 				if (resolveResult == null)
 					return;
 				var typeParameter = resolveResult.Type as ITypeParameter;
@@ -90,10 +88,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (methodDecl == null)
 					return;
 
-				if (FindUsage (ctx, unit, typeParameter, decl))
+				if (FindUsage(ctx, unit, typeParameter, decl))
 					return;
 
-				AddIssue (decl.NameToken, ctx.TranslateString ("Type parameter is never used"));
+				AddIssue(new CodeIssue(decl.NameToken, ctx.TranslateString("Type parameter is never used")) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

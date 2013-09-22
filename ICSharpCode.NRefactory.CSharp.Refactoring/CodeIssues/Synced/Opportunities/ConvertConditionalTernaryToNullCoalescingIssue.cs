@@ -39,23 +39,35 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="'?:' expression can be converted to '??' expression.",
 	                  Category = IssueCategories.Opportunities,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
+	                  AnalysisDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
 	public class ConvertConditionalTernaryToNullCoalescingIssue : GatherVisitorCodeIssueProvider
 	{
-		static readonly Pattern pattern = new Choice {
+		static readonly Pattern unequalPattern = new Choice {
 			// a != null ? a : other
 			new ConditionalExpression(
-				PatternHelper.CommutativeOperator(new AnyNode("a"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
+				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
 				new Backreference("a"),
 				new AnyNode("other")
 			),
+
+			// obj != null ? (Type)obj : other
+			new ConditionalExpression(
+				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("obj"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
+				new NamedNode("a", new CastExpression(new AnyNode(), new Backreference("obj"))),
+				new AnyNode("other")
+			)
+
+		};
+
+		static readonly Pattern equalPattern = new Choice {
 			// a == null ? other : a
 			new ConditionalExpression(
-				PatternHelper.CommutativeOperator(new AnyNode("a"), BinaryOperatorType.Equality, new NullReferenceExpression()),
+				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.Equality, new NullReferenceExpression()),
 				new AnyNode("other"),
 				new Backreference("a")
-			),
+			)
 		};
+
 		
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
@@ -71,15 +83,29 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
 			{
-				Match m = pattern.Match(conditionalExpression);
+				Match m = unequalPattern.Match(conditionalExpression);
+				bool isEqual = false;
+				if (!m.Success) {
+					isEqual = true;
+					m = equalPattern.Match(conditionalExpression);
+				}
 				if (m.Success) {
 					var a = m.Get<Expression>("a").Single();
 					var other = m.Get<Expression>("other").Single();
-					AddIssue(conditionalExpression, ctx.TranslateString("'?:' expression can be re-written as '??' expression"), new CodeAction (
+
+					if (isEqual) {
+						var castExpression = other as CastExpression;
+						if (castExpression != null) {
+							a = new CastExpression(castExpression.Type.Clone(), a.Clone());
+							other = castExpression.Expression;
+						}
+					}
+
+					AddIssue(new CodeIssue(conditionalExpression, ctx.TranslateString("'?:' expression can be re-written as '??' expression"), new CodeAction (
 						ctx.TranslateString("Replace '?:'  operator with '??"), script => {
 							var expr = new BinaryOperatorExpression (a.Clone (), BinaryOperatorType.NullCoalescing, other.Clone ());
 							script.Replace (conditionalExpression, expr);
-						}, conditionalExpression));
+						}, conditionalExpression)));
 				}
 				base.VisitConditionalExpression (conditionalExpression);
 			}

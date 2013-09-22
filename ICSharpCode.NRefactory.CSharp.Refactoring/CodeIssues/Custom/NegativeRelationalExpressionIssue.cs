@@ -33,8 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Simplify negative relational expression",
 					   Description = "Simplify negative relational expression",
                        Category = IssueCategories.PracticesAndImprovements,
-					   Severity = Severity.Suggestion,
-					   IssueMarker = IssueMarker.WavedLine)]
+					   Severity = Severity.Suggestion)]
 	public class NegativeRelationalExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -88,10 +87,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						return;
 				}
 
-				AddIssue (unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"), ctx.TranslateString ("Simplify negative relational expression"),
+				AddIssue (new CodeIssue(unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"), ctx.TranslateString ("Simplify negative relational expression"),
 					script => script.Replace (unaryOperatorExpression,
 						new BinaryOperatorExpression (binaryOperatorExpr.Left.Clone (), negatedOp,
-					          	binaryOperatorExpr.Right.Clone ())));
+							binaryOperatorExpr.Right.Clone ()))));
 			}
 			
 			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)

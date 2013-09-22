@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Description = "Uses shorter string.IsNullOrEmpty call instead of a longer condition.",
            Category = IssueCategories.PracticesAndImprovements,
 	       Severity = Severity.Suggestion,
-           ResharperDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
+           AnalysisDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
 	public class ReplaceWithStringIsNullOrEmptyIssue : GatherVisitorCodeIssueProvider
 	{
 		static readonly Pattern pattern = new Choice {
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new Choice {
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.Equality, new PrimitiveExpression ("")),
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.Equality,
-				                                       new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("string")), "Empty")),
+				                                       new MemberReferenceExpression(new PrimitiveType("string"), "Empty")),
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (
 						new MemberReferenceExpression (new Backreference ("str"), "Length"),
 						BinaryOperatorType.Equality,
@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new Choice {
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality, new PrimitiveExpression ("")),
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality,
-				                                       new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("string")), "Empty"))
+				                                       new MemberReferenceExpression(new PrimitiveType("string"), "Empty"))
 				},
 				BinaryOperatorType.ConditionalOr,
 				PatternHelper.CommutativeOperator(new Backreference ("str"), BinaryOperatorType.Equality, new NullReferenceExpression ())
@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new Choice {
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.InEquality, new PrimitiveExpression ("")),
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.InEquality,
-				                                   	   new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("string")), "Empty")),
+				                                   	   new MemberReferenceExpression(new PrimitiveType("string"), "Empty")),
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (
 						new MemberReferenceExpression (new Backreference ("str"), "Length"),
 						BinaryOperatorType.InEquality,
@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				new Choice {
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.InEquality, new PrimitiveExpression ("")),
 					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality,
-				                                   	   new MemberReferenceExpression(new TypeReferenceExpression(new PrimitiveType("string")), "Empty"))
+				                                   	   new MemberReferenceExpression(new PrimitiveType("string"), "Empty"))
 				},
 				BinaryOperatorType.ConditionalAnd,
 				PatternHelper.CommutativeOperatorWithOptionalParentheses(new Backreference ("str"), BinaryOperatorType.InEquality, new NullReferenceExpression ())
@@ -130,7 +130,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var def = ctx.Resolve(str).Type.GetDefinition();
 					if (def == null || def.KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.String)
 						return;
-					AddIssue(
+					AddIssue(new CodeIssue(
 						binaryOperatorExpression,
 						isNegated ? ctx.TranslateString("Expression can be replaced with !string.IsNullOrEmpty") : ctx.TranslateString("Expression can be replaced with string.IsNullOrEmpty"),
 						new CodeAction (
@@ -143,7 +143,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							},
 							binaryOperatorExpression
 						)
-					);
+					));
 					return;
 				}
 			}

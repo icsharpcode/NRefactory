@@ -103,7 +103,6 @@
     <Compile Include="CSharp\CodeActions\AddUsing\AddUsingActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertAsToCastTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertCastToAsTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertConditionalToIfTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertExplicitToImplicitImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertImplicitToExplicittImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertLambdaBodyExpressionToStatementTests.cs" />
@@ -119,7 +118,9 @@
     <Compile Include="CSharp\CodeActions\PutInsideUsingTests.cs" />
     <Compile Include="CSharp\CodeActions\SplitDeclarationListTests.cs" />
     <Compile Include="CSharp\CodeActions\UseStringFormatTests.cs" />
-    <Compile Include="CSharp\CodeIssues\AccessToDisposedClosureTests.cs" />
+    <Compile Include="CSharp\CodeIssues\AccessToDisposedClosureTests.cs">
+      <DependentUpon>AccessToModifiedClosureTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="CSharp\CodeIssues\AccessToModifiedClosureTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS1717AssignmentMadeToSameVariableIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CastExpressionOfIncompatibleTypeIssueTests.cs" />
@@ -132,7 +133,6 @@
     <Compile Include="CSharp\CodeIssues\LocalVariableHidesMemberIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LocalVariableNotUsedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MethodOverloadHidesOptionalParameterIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\MultipleEnumerationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\NegativeRelationalExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterHidesMemberIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterNotUsedIssueTests.cs" />
@@ -146,7 +146,6 @@
     <Compile Include="CSharp\CodeIssues\RedundantObjectCreationArgumentListIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantObjectOrCollectionInitializerIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCastIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\ReferenceEqualsCalledWithValueTypeIssueTest.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithSingleCallToCountIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithSingleCallToFirstIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ReplaceWithSingleCallToFirstOrDefaultIssueTests.cs" />
@@ -296,7 +295,6 @@
     <Compile Include="CSharp\CodeCompletion\CodeCompletionBugTests.cs" />
     <Compile Include="CSharp\CodeCompletion\CodeCompletionCSharp3Tests.cs" />
     <Compile Include="CSharp\CodeCompletion\CodeCompletionCSharpTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\CodeComplteionOperatorTests.cs" />
     <Compile Include="CSharp\CodeCompletion\CompletionDataList.cs" />
     <Compile Include="CSharp\CodeCompletion\EnumContextTests.cs" />
     <Compile Include="CSharp\CodeCompletion\KeywordTests.cs" />
@@ -363,7 +361,6 @@
     <Compile Include="CSharp\CodeActions\ImplementAbstractMembersTest.cs" />
     <Compile Include="CSharp\CodeActions\RemoveRedundantCatchTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\AddCatchTypeTests.cs" />
-    <Compile Include="CSharp\CodeIssues\IncorrectExceptionParameterOrderingTests.cs" />
     <Compile Include="CSharp\CodeIssues\DoNotCallOverridableMethodsInConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationTests.cs" />
     <Compile Include="CSharp\CodeActions\IterateViaForeachTests.cs" />
@@ -380,11 +377,9 @@
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\IsTypeCriterionTests.cs" />
     <Compile Include="Utils\CompositeFormatStringParser\CompositeFormatStringParserTests.cs" />
     <Compile Include="CSharp\CodeIssues\OptionalParameterCouldBeSkippedTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantCatchIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantToStringCallIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CallToObjectEqualsViaBaseTests.cs" />
     <Compile Include="CSharp\CodeIssues\IncorrectCallToGetHashCodeTests.cs" />
-    <Compile Include="CSharp\CodeIssues\FormatStringIssues\FormatStringTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertToInitializer\ConvertInitializerToExplicitIntializationsTests.cs" />
     <Compile Include="CSharp\CodeCompletion\BrowsableAttributeTests.cs" />
     <Compile Include="CSharp\CodeIssues\ExceptionRethrowTests.cs" />
@@ -396,7 +391,6 @@
     <Compile Include="CSharp\CodeIssues\RedundantWhereWithPredicateIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\SortUsingsTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateEventInvocatorTests.cs" />
-    <Compile Include="IndentationTests\IndentationTests.cs" />
     <Compile Include="CSharp\CodeCompletion\ImportCompletionTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateEnumValueTests.cs" />
     <Compile Include="CSharp\CodeCompletion\GetCurrentParameterIndexTests.cs" />
@@ -410,7 +404,6 @@
     <Compile Include="FormattingTests\TestExpressionFormatting.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantComparisonWithNullIssueTests.cs">
     </Compile>
-    <Compile Include="CSharp\CodeIssues\StaticConstructorAccessModifierTest.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PublicConstructorInAbstractClassIssueTest.cs" />
@@ -470,7 +463,6 @@
     <Compile Include="CSharp\CodeIssues\RedundantArrayCreationExpressionTests.cs" />
     <Compile Include="CSharp\Analysis\NullValueAnalysisTests.cs" />
     <Compile Include="CSharp\CodeIssues\DuplicatedLinqToListOrArrayTests.cs" />
-    <Compile Include="CSharp\CodeIssues\DelegateParametersAreUnusedTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\ChangeAccessModifierTests.cs" />
     <Compile Include="CSharp\CodeActions\AbstractAndVirtualConversionActionTests.cs" />
@@ -533,6 +525,72 @@
     <Compile Include="CSharp\CodeActions\ConvertAssignmentToIfActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\ForCanBeConvertedToForeachIssueTests.cs" />
     <Compile Include="CSharp\CodeActions\UseAsAndNullCheckActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertForToWhileActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\AddBracesActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantEmptyDefaultSwitchBranchIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CS0152DuplicateCaseLabelValueIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ExceptionParameterCantBeResolvedIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\SealedMemberInSealedClassIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnusedAnonymousMethodSignatureIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\EmptyStatementIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantArgumentDefaultValueIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantEmptyFinallyBlockIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\PartialMethodParameterNameMismatchIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReplaceWithSimpleAssignmentIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\StringCompareToIsCultureSpecificIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\StringCompareIsCultureSpecificIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UseArrayCreationExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnusedLabelIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\BaseMethodParameterNameMismatchIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantExplicitArraySizeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantUnsafeContextIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ProhibitedModifiersIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RemoveRedundantOrStatementIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\ExtractWhileConditionToInternalIfStatementActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReverseDirectionForForLoopTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantArgumentNameTests.cs" />
+    <Compile Include="CSharp\CodeIssues\AutoAsyncTests.cs" />
+    <Compile Include="CSharp\CodeIssues\AdditionalOfTypeIssuesTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantLambdaSignatureParenthesesIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantCheckBeforeAssignmentTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertToLambdaExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\AddOptionalParameterToInvocationTests.cs" />
+    <Compile Include="CSharp\CodeActions\ComputeConstantValueTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertShiftToMultiplyActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertMultiplyToShiftActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ForStatementConditionIsTrueTests.cs" />
+    <Compile Include="CSharp\CodeActions\SplitIfActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantLogicalConditionalExpressionOperandIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertToStaticTypeTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceAssignmentWithPostfixExpressionActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplacePostfixExpressionWithAssignmentActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceWithOperatorAssignmentActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\OperatorIsCanBeUsedIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\FormatStringProblemIssueTests.cs" />
+    <Compile Include="IndentationTests\AllInOneTests.cs" />
+    <Compile Include="IndentationTests\BlockTest.cs" />
+    <Compile Include="IndentationTests\CommentTests.cs" />
+    <Compile Include="IndentationTests\Helper.cs" />
+    <Compile Include="IndentationTests\PreProcessorTests.cs" />
+    <Compile Include="IndentationTests\StringTests.cs" />
+    <Compile Include="IndentationTests\TextPasteIndentEngineTests.cs" />
+    <Compile Include="IndentationTests\AlignmentTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantCatchClauseIssueTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\CodeCompletionOperatorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CheckNamespaceIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\PossibleMultipleEnumerationIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConditionIsAlwaysTrueOrFalseIssueTests.cs" />
+    <Compile Include="IndentationTests\GeneralTests.cs" />
+    <Compile Include="CSharp\CodeIssues\MemberHidesStaticFromOuterClassIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\MethodOverloadWithOptionalParameterIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ReferenceEqualsWithValueTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CompareNonConstrainedGenericWithNullIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantDelegateCreationIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantEnumerableCastCallIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\MissingInterfaceMemberImplementationIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnmatchedSizeSpeicificationInArrayCreationTests.cs" />
+    <Compile Include="CSharp\CodeIssues\NonReadonlyReferencedInGetHashCodeTetsts.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
@@ -581,4 +639,19 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="IndentationTests\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IndentationTests\TestFiles\Comments.cs" />
+    <None Include="IndentationTests\TestFiles\IndentEngine.cs" />
+    <None Include="IndentationTests\TestFiles\IndentState.cs" />
+    <None Include="IndentationTests\TestFiles\PreProcessorDirectives.cs" />
+    <None Include="IndentationTests\TestFiles\Simple.cs" />
+    <None Include="IndentationTests\TestFiles\Strings.cs" />
+    <None Include="IndentationTests\TestFiles\SwitchCase.cs" />
+    <None Include="IndentationTests\TestFiles\CSharpParser.cs" />
+    <None Include="IndentationTests\TestFiles\TextArea.cs" />
+    <None Include="IndentationTests\TestFiles\InheritStatements.cs" />
+  </ItemGroup>
 </Project>

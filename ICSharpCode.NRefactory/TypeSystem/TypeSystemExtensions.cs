@@ -686,6 +686,26 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			                     	return typeDef != null && typeDef.FullTypeName == attributeType;
 			                     }, inherit);
 		}
+
+		/// <summary>
+		/// Gets the attribute of the specified attribute type (or derived attribute types).
+		/// </summary>
+		/// <param name="entity">The entity on which the attributes are declared.</param>
+		/// <param name="inherit">
+		/// Specifies whether attributes inherited from base classes and base members (if the given <paramref name="entity"/> in an <c>override</c>)
+		/// should be returned. The default is <c>true</c>.
+		/// </param>
+		/// <returns>
+		/// Returns the attribute that was found; or <c>null</c> if none was found.
+		/// If inherit is true, an from the entity itself will be returned if possible;
+		/// and the base entity will only be searched if none exists.
+		/// </returns>
+		public static IEnumerable<IAttribute> GetAttributes(this IEntity entity, bool inherit = true)
+		{
+			if (entity == null)
+				throw new ArgumentNullException ("entity");
+			return GetAttributes(entity, a => true, inherit);
+		}
 		
 		static IEnumerable<IAttribute> GetAttributes(IEntity entity, Predicate<IType> attributeTypePredicate, bool inherit)
 		{

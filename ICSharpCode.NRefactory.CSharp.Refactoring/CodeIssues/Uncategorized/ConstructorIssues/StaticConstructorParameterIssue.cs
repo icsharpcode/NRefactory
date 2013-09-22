@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        Description = "Static constructor should be parameterless",
                        Category = IssueCategories.CompilerErrors,
                        Severity = Severity.Error,
-                       ResharperDisableKeyword = "StaticConstructorParameterless",
-                       IssueMarker = IssueMarker.WavedLine)]
+                       AnalysisDisableKeyword = "StaticConstructorParameterless")]
 	public class StaticConstructorParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -60,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!constructorDeclaration.HasModifier(Modifiers.Static))
 					return;
 				if (constructorDeclaration.Parameters.Count != 0) {
-					AddIssue(constructorDeclaration, ctx.TranslateString("Static constructor cannot take parameters"));
+					AddIssue(new CodeIssue(constructorDeclaration, ctx.TranslateString("Static constructor cannot take parameters")));
 				}
 			}
 		}

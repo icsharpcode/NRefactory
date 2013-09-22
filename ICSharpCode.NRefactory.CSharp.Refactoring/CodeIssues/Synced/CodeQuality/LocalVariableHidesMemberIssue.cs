@@ -37,8 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Local variable has the same name as a member and hides it.",
 	                   Category = IssueCategories.CodeQualityIssues,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.WavedLine,
-	                   ResharperDisableKeyword = "LocalVariableHidesMember")]
+	                   AnalysisDisableKeyword = "LocalVariableHidesMember")]
 	public class LocalVariableHidesMemberIssue : VariableHidesMemberIssue
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -90,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							msg = ctx.TranslateString("Local variable '{0}' hides member '{1}'");
 							break;
 					}
-					AddIssue(token, string.Format(msg, name, member.FullName));
+					AddIssue(new CodeIssue(token, string.Format(msg, name, member.FullName)));
 				}
 			}
 

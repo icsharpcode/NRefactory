@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Function does not reach its end or a 'return' statement by any of possible execution paths.",
 		Category = IssueCategories.CodeQualityIssues,
 		Severity = Severity.Warning,
-		IssueMarker = IssueMarker.WavedLine,
-		ResharperDisableKeyword = "FunctionNeverReturns")]
+		AnalysisDisableKeyword = "FunctionNeverReturns")]
 	public class FunctionNeverReturnsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -116,7 +115,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}
 				}
 				if (!hasReachableReturn && !reachability.IsEndpointReachable(body)) {
-					AddIssue(node, ctx.TranslateString(string.Format("{0} never reaches its end or a 'return' statement.", entityType)));
+					AddIssue(new CodeIssue(node, ctx.TranslateString(string.Format("{0} never reaches its end or a 'return' statement.", entityType))));
 				}
 			}
 

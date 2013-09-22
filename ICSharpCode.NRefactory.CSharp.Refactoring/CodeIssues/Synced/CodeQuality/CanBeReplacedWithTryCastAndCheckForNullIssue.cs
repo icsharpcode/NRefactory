@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description="Type check and casts can be replaced with 'as' and null check",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "CanBeReplacedWithTryCastAndCheckForNull")]
+	                  AnalysisDisableKeyword = "CanBeReplacedWithTryCastAndCheckForNull")]
 	public class CanBeReplacedWithTryCastAndCheckForNullIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -62,10 +62,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (foundCastCount == 0)
 					return;
 
-				AddIssue(
+				AddIssue(new CodeIssue(
 					isExpression.IsToken,
 					ctx.TranslateString("Type check and casts can be replaced with 'as' and null check")
-				);
+				) { ActionProvider = { typeof(UseAsAndNullCheckAction) } } );
 			}
 		}
 	}

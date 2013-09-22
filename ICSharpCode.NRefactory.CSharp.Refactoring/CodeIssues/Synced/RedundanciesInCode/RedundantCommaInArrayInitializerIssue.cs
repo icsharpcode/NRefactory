@@ -32,8 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						Description = "Redundant comma in array initializer.",
 						Category = IssueCategories.RedundanciesInCode,
 						Severity = Severity.Warning,
-						IssueMarker = IssueMarker.GrayOut,
-                        ResharperDisableKeyword = "RedundantCommaInArrayInitializer")]
+                        AnalysisDisableKeyword = "RedundantCommaInArrayInitializer")]
 	public class RedundantCommaInArrayInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -68,10 +67,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				} else {
 					issueDescription = ctx.TranslateString("Redundant comma in array initializer");
 				}
-				AddIssue(commaToken,
+				AddIssue(new CodeIssue(commaToken,
 				         issueDescription,
 				         ctx.TranslateString("Remove ','"),
-				         script => script.Remove(commaToken));
+					script => script.Remove(commaToken)) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}

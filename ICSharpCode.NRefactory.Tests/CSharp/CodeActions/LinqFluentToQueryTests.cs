@@ -28,6 +28,7 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeActions
 {
+	[TestFixture]
 	public class LinqFluentToQueryTests : ContextActionTestBase
 	{
 		[Test]
@@ -50,7 +51,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from t in new int[0]
+			from t in new int[0]
 	select t;
 	}
 }");
@@ -102,7 +103,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from int _1 in new int[0]
+			from int _1 in new int[0]
 	select _1;
 	}
 }");
@@ -128,7 +129,34 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from w in new int[0]
+			from w in new int[0]
+	let two = w * 2
+	select two;
+	}
+}");
+		}
+
+		[Test]
+		public void TestLet2()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = new int[0].Select (w => new { two = w * 2, w }).$Select (_ => _.two);
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = 
+			from w in new int[0]
 	let two = w * 2
 	select two;
 	}
@@ -159,7 +187,41 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from w in new int[0]
+			from w in new int[0]
+	let two = w * 2
+	let three = w * 3
+	let four = w * 4
+	select w + two + three + four into sum
+	select sum * 2;
+	}
+}");
+		}
+
+		[Test]
+		public void TestLongLetChain2()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = new int[0].Select (w => new { two = w * 2, w })
+			.Select (h => new { three = h.w * 3, h })
+			.Select (k => new { four = k.h.w * 4, k })
+			.$Select (_ => _.k.h.w + _.k.h.two + _.k.three + _.four)
+			.Select (sum => sum * 2);
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = 
+			from w in new int[0]
 	let two = w * 2
 	let three = w * 3
 	let four = w * 4
@@ -189,9 +251,71 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from elem1 in new int[0]
+			from elem1 in new int[0]
 	from elem2 in new int[0]
 	select elem1 + elem2;
+	}
+}");
+		}
+
+		[Test]
+		public void TestSelectManyLet()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = new int[0].$SelectMany (elem => new int[0], (elem1, elem2) => new { elem1, elem2 }).Select(i => new { i, sum = i.elem1 + i.elem2 })
+			.Select(j => j.i.elem1 + j.i.elem2 + j.sum);
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = 
+			from elem1 in new int[0]
+	from elem2 in new int[0]
+	let sum = elem1 + elem2
+	select elem1 + elem2 + sum;
+	}
+}");
+		}
+
+		[Test]
+		public void TestSelectManyLet2()
+		{
+			Test<LinqFluentToQueryAction>(@"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = new int[0].$SelectMany (elem => new int[0], (elem1, elem2) => new { elem1, elem2 = elem2 + 1 }).Select(i => new { i, sum = i.elem1 + i.elem2 })
+			.Select(j => j.i.elem1 + j.i.elem2 + j.sum);
+	}
+}", @"
+using System.Linq;
+
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = 
+			from elem1 in new int[0]
+	from elem2 in new int[0]
+	select new {
+		elem1,
+		elem2 = elem2 + 1
+	} into i
+	let sum = i.elem1 + i.elem2
+	select i.elem1 + i.elem2 + sum;
 	}
 }");
 		}
@@ -216,7 +340,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from int t in new int[0]
+			from int t in new int[0]
 	select t * 2;
 	}
 }");
@@ -242,7 +366,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from t in new int[0]
+			from t in new int[0]
 	where t > 0
 	select t * 2;
 	}
@@ -269,7 +393,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from t in new int[0]
+			from t in new int[0]
 	orderby t, t descending
 	select t;
 	}
@@ -296,7 +420,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from t in new int[0]
+			from t in new int[0]
 	where t > 0
 	select t;
 	}
@@ -323,7 +447,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from t in new int[0]
+			from t in new int[0]
 	where t > 0
 	select t into u
 	where u > 0
@@ -352,7 +476,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from char a in new int[0]
+			from char a in new int[0]
 	join float b in new int[0] on a * 2 equals b
 	select a * b;
 	}
@@ -379,7 +503,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from char a in new int[0]
+			from char a in new int[0]
 	join float b in new int[0] on a * 2 equals b into r
 	select a * r [0];
 	}
@@ -406,7 +530,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from t in Enumerable.Empty<int[]> ()
+			from t in Enumerable.Empty<int[]> ()
 	select t.Select (v => v);
 	}
 }");
@@ -432,9 +556,9 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from t in Enumerable.Empty<int[]> ()
+			from t in Enumerable.Empty<int[]> ()
 	select (
-		from g in t
+			    from g in t
 		select g);
 	}
 }");
@@ -460,7 +584,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from t in new int[0]
+			from t in new int[0]
 	group new int[0] by t;
 	}
 }");
@@ -488,7 +612,7 @@ class TestClass
 	{
 		int _1;
 		var x = 
-	from float _2 in new int[0]
+			from float _2 in new int[0]
 	select _2;
 	}
 }");
@@ -514,7 +638,7 @@ class TestClass
 	void TestMethod ()
 	{
 		var x = 
-	from int _1 in 
+			from int _1 in 
 		from float _2 in new int[0]
 		select _2
 	select _1;

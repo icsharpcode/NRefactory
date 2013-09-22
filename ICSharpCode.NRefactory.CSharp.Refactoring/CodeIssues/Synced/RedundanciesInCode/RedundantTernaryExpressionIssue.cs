@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Redundant conditional expression",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
-	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantTernaryExpression")]
+	                  AnalysisDisableKeyword = "RedundantTernaryExpression")]
 	public class RedundantTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -60,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitConditionalExpression(conditionalExpression);
 				if (pattern.IsMatch(conditionalExpression)) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						conditionalExpression.QuestionMarkToken.StartLocation,
 						conditionalExpression.FalseExpression.EndLocation,
 						ctx.TranslateString("Redundant conditional expression"),
@@ -68,7 +67,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						script => {
 							script.Replace(conditionalExpression, conditionalExpression.Condition.Clone());
 						}
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 		}

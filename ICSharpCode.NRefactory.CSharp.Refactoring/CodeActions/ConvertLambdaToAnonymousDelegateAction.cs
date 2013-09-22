@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						statement = new ReturnStatement(expression);
 					}
 					else {
-						statement = new ExpressionStatement(expression);
+						statement = expression;
 					}
 
 					newBody = new BlockStatement {

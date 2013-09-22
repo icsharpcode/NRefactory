@@ -30,13 +30,14 @@ using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 using Mono.CSharp;
+using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
 	class GatherVisitorConstants
 	{
-		public const string DisableAllString = "ReSharper disable All";
-		public const string RestoreAllString = "ReSharper restore All";
+		public const string DisableAllString = "disable All";
+		public const string RestoreAllString = "restore All";
 
 	}
 
@@ -72,7 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <summary>
 		/// The issue provider. May be <c>null</c> if none was specified.
 		/// </summary>
-		protected readonly T QualifierDirectiveEvidentIssueProvider;
+		protected readonly T issueProvider;
 		protected readonly BaseRefactoringContext ctx;
 
 		public BaseRefactoringContext Ctx {
@@ -116,8 +117,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			var attr = (IssueDescriptionAttribute)typeof(T).GetCustomAttributes(false).FirstOrDefault(a => a is IssueDescriptionAttribute);
 			if (attr == null)
 				return;
-			if (attr.ResharperDisableKeyword != null) 
-				SetDisableKeyword(attr.ResharperDisableKeyword);
+			if (attr.AnalysisDisableKeyword != null) 
+				SetDisableKeyword(attr.AnalysisDisableKeyword);
 			suppressMessageCheckId = attr.SuppressMessageCheckId;
 			suppressMessageCategory = attr.SuppressMessageCategory;
 			pragmaWarning = attr.PragmaWarning;
@@ -135,7 +136,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public GatherVisitorBase(BaseRefactoringContext ctx, T qualifierDirectiveEvidentIssueProvider = default(T))
 		{
 			this.ctx = ctx;
-			this.QualifierDirectiveEvidentIssueProvider = qualifierDirectiveEvidentIssueProvider;
+			this.issueProvider = qualifierDirectiveEvidentIssueProvider;
 			if (suppressMessageCheckId != null) {
 				foreach (var attr in this.ctx.Compilation.MainAssembly.AssemblyAttributes) {
 					if (attr.AttributeType.Name == "SuppressMessageAttribute" && attr.AttributeType.Namespace == "System.Diagnostics.CodeAnalysis") {
@@ -165,11 +166,32 @@ namespace ICSharpCode.NRefactory.CSharp
 			return FoundIssues;
 		}
 
-		protected override void VisitChildren(AstNode node)
+		public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 		{
-			if (ctx.CancellationToken.IsCancellationRequested || isGloballySuppressed)
+			if (ctx.CancellationToken.IsCancellationRequested)
 				return;
-			base.VisitChildren(node);
+			base.VisitTypeDeclaration(typeDeclaration);
+		}
+
+		public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+		{
+			if (ctx.CancellationToken.IsCancellationRequested)
+				return;
+			base.VisitMethodDeclaration(methodDeclaration);
+		}
+
+		public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+		{
+			if (ctx.CancellationToken.IsCancellationRequested)
+				return;
+			base.VisitPropertyDeclaration(propertyDeclaration);
+		}
+
+		public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+		{
+			if (ctx.CancellationToken.IsCancellationRequested)
+				return;
+			base.VisitFieldDeclaration(fieldDeclaration);
 		}
 
 		public override void VisitComment(Comment comment)
@@ -236,98 +258,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			return isDisabled || isGloballySuppressed || isPragmaDisabled || suppressedRegions.Any(r => r.IsInside(location));
 		}
-		//		protected void AddIssue(AstNode node, string issueDescription, string actionDescription, object siblingKey, System.Action<Script> fix)
-		//		{
-		//			if (IsSuppressed(node.StartLocation))
-		//				return;
-		//			FoundIssues.Add(new CodeIssue (issueDescription, node.StartLocation, node.EndLocation, fix != null ? new CodeAction (actionDescription, fix, node, siblingKey) : null));
-		//		}
-		//		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription, string actionDescription, object siblingKey, System.Action<Script> fix)
-		//		{
-		//			if (IsSuppressed(start))
-		//				return;
-		//			FoundIssues.Add(new CodeIssue(issueDescription, start, end, fix != null ? new CodeAction(actionDescription, fix, start, end, siblingKey) : null));
-		//		}
-		protected void AddIssue(AstNode node, string issueDescription, string actionDescription, System.Action<Script> fix)
-		{
-			if (IsSuppressed(node.StartLocation))
-				return;
-			FoundIssues.Add(new CodeIssue(issueDescription, node.StartLocation, node.EndLocation, fix != null ? new CodeAction(actionDescription, fix, node) : null));
-		}
 
-		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription, string actionDescription, System.Action<Script> fix)
+		protected void AddIssue(CodeIssue issue)
 		{
-			if (IsSuppressed(start))
+			if (IsSuppressed(issue.Start))
 				return;
-			FoundIssues.Add(new CodeIssue(issueDescription, start, end, fix != null ? new CodeAction(actionDescription, fix, start, end) : null));
-		}
-		//		protected void AddIssue(AstNode node, string issueDescription, object siblingKey)
-		//		{
-		//			if (IsSuppressed(node.StartLocation))
-		//				return;
-		//			FoundIssues.Add(new CodeIssue (issueDescription, node.StartLocation, node.EndLocation));
-		//		}
-		//
-		//		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription, object siblingKey)
-		//		{
-		//			if (IsSuppressed(start))
-		//				return;
-		//			FoundIssues.Add(new CodeIssue(issueDescription, start, end));
-		//		}
-		protected void AddIssue(AstNode node, string issueDescription)
-		{
-			if (IsSuppressed(node.StartLocation))
-				return;
-			FoundIssues.Add(new CodeIssue(issueDescription, node.StartLocation, node.EndLocation));
-		}
-
-		protected void AddIssue(TextLocation start, TextLocation end, string issueDescription)
-		{
-			if (IsSuppressed(start))
-				return;
-			FoundIssues.Add(new CodeIssue(issueDescription, start, end));
-		}
-
-		protected void AddIssue(AstNode node, string title, CodeAction fix)
-		{
-			if (IsSuppressed(node.StartLocation))
-				return;
-			FoundIssues.Add(new CodeIssue(title, node.StartLocation, node.EndLocation, fix));
-		}
-
-		protected void AddIssue(TextLocation start, TextLocation end, string title, CodeAction fix)
-		{
-			if (IsSuppressed(start))
-				return;
-			FoundIssues.Add(new CodeIssue(title, start, end, fix));
-		}
-
-		protected void AddIssue(AstNode node, string title, IEnumerable<CodeAction> fixes)
-		{
-			if (IsSuppressed(node.StartLocation))
-				return;
-			FoundIssues.Add(new CodeIssue(title, node.StartLocation, node.EndLocation, fixes));
-		}
-
-		protected void AddIssue(AstNode node, string title, params CodeAction[] fixes)
-		{
-			if (IsSuppressed(node.StartLocation))
-				return;
-			FoundIssues.Add(new CodeIssue(title, node.StartLocation, node.EndLocation, fixes));
-		}
-
-		protected void AddIssue(TextLocation start, TextLocation end, string title, IEnumerable<CodeAction> fixes)
-		{
-			if (IsSuppressed(start))
-				return;
-			FoundIssues.Add(new CodeIssue(title, start, end, fixes));
-		}
-
-		protected void AddIssue(TextLocation start, TextLocation end, string title, params CodeAction[] fixes)
-		{
-			if (IsSuppressed(start))
-				return;
-			FoundIssues.Add(new CodeIssue(title, start, end, fixes));
+			FoundIssues.Add(issue);
 		}
 	}
 }

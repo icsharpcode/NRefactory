@@ -39,8 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("Duplicated ToList() or ToArray() call",
 	                   Description = "Duplicated call to ToList() or ToArray()",
 	                   Category = IssueCategories.RedundanciesInCode,
-	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.WavedLine)]
+	                   Severity = Severity.Warning)]
 	public class DuplicatedLinqToListOrArrayIssue : GatherVisitorCodeIssueProvider
 	{
 		const string MemberTarget = "target";
@@ -84,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				if (matches >= 2) {
-					AddIssue(currentExpression.EndLocation,
+					AddIssue(new CodeIssue(currentExpression.EndLocation,
 					         invocationExpression.EndLocation,
 					         ctx.TranslateString("Redundant Linq method invocations"),
 					         ctx.TranslateString("Remove redundant method invocations"),
@@ -97,7 +96,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 						script.Replace(invocationExpression, newInvocation);
 
-					});
+						}));
 				}
 
 				//Visit the children

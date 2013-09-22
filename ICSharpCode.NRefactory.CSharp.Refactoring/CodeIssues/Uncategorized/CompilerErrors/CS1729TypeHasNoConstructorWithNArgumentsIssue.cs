@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription ("CS1729: Class does not contain a 0 argument constructor",
 	                   Description = "CS1729: Class does not contain a 0 argument constructor",
 	                   Category = IssueCategories.CompilerErrors,
-	                   Severity = Severity.Error,
-	                   IssueMarker = IssueMarker.WavedLine)]
+	                   Severity = Severity.Error)]
 	public class CS1729TypeHasNoConstructorWithNArgumentsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -69,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (currentType.Kind == TypeKind.Class && currentType.GetConstructors().All(ctor => ctor.IsSynthetic)) {
 					// current type only has the compiler-provided default ctor
 					if (!BaseTypeHasUsableParameterlessConstructor()) {
-						AddIssue(declaration.NameToken, GetIssueText(baseType));
+						AddIssue(new CodeIssue(declaration.NameToken, GetIssueText(baseType)));
 					}
 				}
 				
@@ -84,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (declaration.Initializer.IsNull && !declaration.HasModifier(Modifiers.Static)) {
 					// Check if parameterless ctor is available:
 					if (!BaseTypeHasUsableParameterlessConstructor()) {
-						AddIssue(declaration.NameToken, GetIssueText(baseType));
+						AddIssue(new CodeIssue(declaration.NameToken, GetIssueText(baseType)));
 					}
 				}
 			}
@@ -102,7 +101,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var rr = ctx.Resolve(constructorInitializer) as CSharpInvocationResolveResult;
 				if (rr != null && (rr.OverloadResolutionErrors & errorsIndicatingWrongNumberOfArguments) != 0) {
 					IType targetType = constructorInitializer.ConstructorInitializerType == ConstructorInitializerType.Base ? baseType : currentType;
-					AddIssue(constructorInitializer.Keyword, GetIssueText(targetType, constructorInitializer.Arguments.Count));
+					AddIssue(new CodeIssue(constructorInitializer.Keyword, GetIssueText(targetType, constructorInitializer.Arguments.Count)));
 				}
 			}
 			
@@ -112,7 +111,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				
 				var rr = ctx.Resolve(objectCreateExpression) as CSharpInvocationResolveResult;
 				if (rr != null && (rr.OverloadResolutionErrors & errorsIndicatingWrongNumberOfArguments) != 0) {
-					AddIssue(objectCreateExpression.Type, GetIssueText(rr.Type, objectCreateExpression.Arguments.Count));
+					AddIssue(new CodeIssue(objectCreateExpression.Type, GetIssueText(rr.Type, objectCreateExpression.Arguments.Count)));
 				}
 			}
 			

@@ -175,6 +175,15 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
+		public bool IndentPreprocessorDirectives { // tested
+			get;
+			set;
+		}
+
+		public bool AlignToMemberReferenceDot { // TODO!
+			get;
+			set;
+		}
 		#endregion
 		
 		#region Braces

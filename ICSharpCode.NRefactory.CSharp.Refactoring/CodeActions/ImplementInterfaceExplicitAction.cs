@@ -37,6 +37,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
 		{
+			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
+			if (service == null)
+				yield break;
+
 			var type = context.GetNode<AstType>();
 			if (type == null || type.Role != Roles.BaseType)
 				yield break;
@@ -48,21 +52,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (resolveResult.Type.Kind != TypeKind.Interface)
 				yield break;
 
+			bool interfaceMissing;
 			var toImplement = ImplementInterfaceAction.CollectMembersToImplement(
 				state.CurrentTypeDefinition,
 				resolveResult.Type,
-				false
+				false,
+				out interfaceMissing
 			);
 			if (toImplement.Count == 0)
 				yield break;
 
-			yield return new CodeAction(context.TranslateString("Implement interface explicit"), script => {
+			yield return new CodeAction(context.TranslateString("Implement interface explicit"), script =>
 				script.InsertWithCursor(
 					context.TranslateString("Implement Interface"),
 					state.CurrentTypeDefinition,
-					(s, c) => ImplementInterfaceAction.GenerateImplementation (c, toImplement.Select (t => Tuple.Create (t.Item1, true)))
-				);
-			}, type);
+					(s, c) => ImplementInterfaceAction.GenerateImplementation (c, toImplement.Select (t => Tuple.Create (t.Item1, true)), interfaceMissing).ToList()
+				)
+			, type);
 		}
 	}
 }

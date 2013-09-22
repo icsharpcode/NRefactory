@@ -25,14 +25,14 @@
 // THE SOFTWARE.
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("'if' statement can be re-written as 'switch' statement",
 	                  Description="Convert 'if' to 'switch'",
 	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.DottedLine)]
+	                  Severity = Severity.Hint)]
 	public class ConvertIfStatementToSwitchStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToNullCoalescingExpressionIssue>
+		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToSwitchStatementIssue>
 		{
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
@@ -54,20 +54,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression (ctx, ifElseStatement.Condition);
-				if (switchExpr == null) {
+				if (switchExpr == null)
 					return;
-				}
-
 				var switchSections = new List<SwitchSection> ();
-				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr)) {
+				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr))
 					return;
-				}
-				if (switchSections.Count <= 1)
+				if (switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)) <= 2)
 					return;
-
-				AddIssue(
+				AddIssue(new CodeIssue(
 					ifElseStatement.IfToken,
-					ctx.TranslateString("Convert to 'switch' statement"));
+					ctx.TranslateString("Convert to 'switch' statement")) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToSwitchStatementAction) } });
 
 			}
 		}

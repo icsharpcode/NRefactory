@@ -154,7 +154,12 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				hashCode += type.GetHashCode();
 				hashCode *= 31;
 				hashCode += name.GetHashCode();
-				hashCode += attributes != null ? attributes.Count : 0;
+				if (attributes != null) {
+					foreach (var attr in attributes)
+						hashCode ^= attr.GetHashCode ();
+				}
+				if (defaultValue != null)
+					hashCode ^= defaultValue.GetHashCode ();
 				return hashCode;
 			}
 		}
@@ -163,8 +168,8 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		{
 			// compare everything except for the IsFrozen flag
 			DefaultUnresolvedParameter p = other as DefaultUnresolvedParameter;
-			return p != null && type == p.type && name == p.name && ListEquals(attributes, p.attributes)
-				&& defaultValue == p.defaultValue && region == p.region && (flags & ~1) == (p.flags & ~1);
+			return p != null && type == p.type && name == p.name &&
+				defaultValue == p.defaultValue && region == p.region && (flags & ~1) == (p.flags & ~1) && ListEquals(attributes, p.attributes);
 		}
 		
 		static bool ListEquals(IList<IUnresolvedAttribute> list1, IList<IUnresolvedAttribute> list2)
@@ -252,8 +257,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					}
 					if (rr is ConversionResolveResult) {
 						var crr = (ConversionResolveResult)rr;
-						if (crr.Conversion.IsNullableConversion)
-							return crr.Input.ConstantValue;
+						return crr.Input.ConstantValue;
 					}
 					return rr.ConstantValue;
 

@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Convert field to readonly",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Suggestion,
-	                  ResharperDisableKeyword = "FieldCanBeMadeReadOnly.Local")]
+	                  AnalysisDisableKeyword = "FieldCanBeMadeReadOnly.Local")]
 	public class FieldCanBeMadeReadOnlyIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			void Collect()
 			{
 				foreach (var varDecl in fieldStack.Peek()) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						varDecl.Item1.NameToken,
 						ctx.TranslateString("Convert to readonly"),
 						ctx.TranslateString("To readonly"),
@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var field = (FieldDeclaration)varDecl.Item1.Parent;
 						script.ChangeModifier(field, field.Modifiers | Modifiers.Readonly);
 					}
-					);
+					));
 				}
 			}
 
@@ -103,7 +103,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
-				// SKIP
+				foreach (var node in constructorDeclaration.Descendants) {
+					if (node is AnonymousMethodExpression || node is LambdaExpression) {
+						node.AcceptVisitor(this);
+					}
+				}
 			}
 
 			public override void VisitBlockStatement(BlockStatement blockStatement)

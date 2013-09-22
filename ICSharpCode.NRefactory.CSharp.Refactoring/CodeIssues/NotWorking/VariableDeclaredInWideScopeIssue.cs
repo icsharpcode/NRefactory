@@ -143,8 +143,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				anchorNode = GetInsertionPoint(anchorNode);
 
 				if (anchorNode != null && anchorNode != rootNode && anchorNode.Parent != rootNode) {
-					AddIssue(variableDeclarationStatement, context.TranslateString("Variable could be moved to a nested scope"),
-					         GetActions(variableDeclarationStatement, (Statement)anchorNode));
+					AddIssue(new CodeIssue(variableDeclarationStatement, context.TranslateString("Variable could be moved to a nested scope"),
+						GetActions(variableDeclarationStatement, (Statement)anchorNode)));
 				}
 			}
 

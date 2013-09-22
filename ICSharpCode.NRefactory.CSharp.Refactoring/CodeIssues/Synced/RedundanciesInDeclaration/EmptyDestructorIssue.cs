@@ -35,8 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   Description = "Empty destructor is redundant",
 	                   Category = IssueCategories.RedundanciesInDeclarations,
 	                   Severity = Severity.Warning,
-	                   IssueMarker = IssueMarker.GrayOut,
-	                   ResharperDisableKeyword = "EmptyDestructor"
+	                   AnalysisDisableKeyword = "EmptyDestructor"
 	                   )]
 	public class EmptyDestructorIssue : GatherVisitorCodeIssueProvider
 	{
@@ -55,9 +54,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
 			{
 				if (IsEmpty (destructorDeclaration.Body)) {
-					AddIssue(destructorDeclaration.NameToken,
+					AddIssue(new CodeIssue(destructorDeclaration.NameToken,
 					         ctx.TranslateString("Empty destructor is redundant"),
-					         GetFixAction(destructorDeclaration));
+						GetFixAction(destructorDeclaration)) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 

@@ -42,8 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Using directive is not required and can safely be removed.",
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Hint,
-	                  IssueMarker = IssueMarker.GrayOut,
-	                  ResharperDisableKeyword = "RedundantUsingDirective"
+	                  AnalysisDisableKeyword = "RedundantUsingDirective"
 	                  )]
 	public class RedundantUsingDirectiveIssue : CodeIssueProvider
 	{
@@ -90,13 +89,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var unused = new List<UsingDeclaration>();
 				foreach (var u in declarations.Skip (startIndex)) {
 					if (u.IsUsed || 
-					    QualifierDirectiveEvidentIssueProvider.namespacesToKeep.Contains(u.UsingDeclaration.Namespace))
+					    issueProvider.namespacesToKeep.Contains(u.UsingDeclaration.Namespace))
 						continue;
 					unused.Add(u.UsingDeclaration);
 				}
 
 				foreach (var decl in unused) {
-					AddIssue(
+					AddIssue(new CodeIssue(
 						decl,
 						ctx.TranslateString("Using directive is not used by code and can be removed safely."), ctx.TranslateString("Remove redundant using directives"),
 						script => {
@@ -104,7 +103,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							script.Remove (u2);
 						}
 					}
-					);
+					) { IssueMarker = IssueMarker.GrayOut });
 				}
 			}
 

@@ -37,12 +37,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			    context.Location != conditionalExpr.FalseExpression.StartLocation && conditionalExpr.FalseExpression.Contains(context.Location))
 				return null;
 
+			var node = conditionalExpr.GetNodeAt(context.Location);
+			if (node == null)
+				return null;
+
 			return new CodeAction (context.TranslateString("Invert '?:'"), script => {
 				script.Replace(conditionalExpr.Condition, CSharpUtil.InvertCondition(conditionalExpr.Condition.Clone()));
 				script.Replace(conditionalExpr.TrueExpression, conditionalExpr.FalseExpression.Clone());
 				script.Replace(conditionalExpr.FalseExpression, conditionalExpr.TrueExpression.Clone());
 				script.FormatText(conditionalExpr);
-			}, conditionalExpr);
+			}, node);
 		}
 	}
 }

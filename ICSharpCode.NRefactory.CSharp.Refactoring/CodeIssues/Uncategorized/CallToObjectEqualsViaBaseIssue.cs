@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Finds potentially erroneous calls to Object.Equals.",
 	                  Category = IssueCategories.CodeQualityIssues,
 	                  Severity = Severity.Warning,
-                      ResharperDisableKeyword = "BaseObjectEqualsIsObjectEquals")]
+                      AnalysisDisableKeyword = "BaseObjectEqualsIsObjectEquals")]
 	public class CallToObjectEqualsViaBaseIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				}
 				var title = ctx.TranslateString("Call to base.Equals resolves to Object.Equals, which is reference equality");
-				AddIssue(invocationExpression, title, GetActions(invocationExpression));
+				AddIssue(new CodeIssue(invocationExpression, title, GetActions(invocationExpression)));
 			}
 
 			IEnumerable<CodeAction> GetActions(InvocationExpression invocationExpression)
