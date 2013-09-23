@@ -350,12 +350,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return false;
 			}
 
-			static bool IsInsideTryBlock(AstNode node)
+			static bool IsInsideTryOrCatchBlock(AstNode node)
 			{
 				var tryCatchStatement = node.GetParent<TryCatchStatement>();
-				if (tryCatchStatement == null)
-					return false;
-				return tryCatchStatement.TryBlock.Contains(node.StartLocation.Line, node.StartLocation.Column);
+				if (tryCatchStatement != null) {
+					if (tryCatchStatement.TryBlock.Contains(node.StartLocation))
+						return true;
+					foreach (var catchBlock in tryCatchStatement.CatchClauses)
+						if (catchBlock.Body.Contains(node.StartLocation))
+							return true;
+				}
+				return false;
 			}
 
 			enum NodeState
@@ -414,7 +419,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				foreach (var node in assignments) {
 					// we do not analyze an assignment inside a try block as it can jump to any catch block or finally block
-					if (IsInsideTryBlock(node.References [0]))
+					if (IsInsideTryOrCatchBlock(node.References [0]))
 						continue;
 					ProcessNode(node, true, nodeStates);
 				}
