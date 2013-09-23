@@ -592,6 +592,7 @@
     <Compile Include="CSharp\CodeIssues\UnmatchedSizeSpeicificationInArrayCreationTests.cs" />
     <Compile Include="FormattingTests\TestLinq.cs" />
     <Compile Include="CSharp\CodeIssues\NonReadonlyReferencedInGetHashCodeTetsts.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantBlockInDifferentBranchesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
