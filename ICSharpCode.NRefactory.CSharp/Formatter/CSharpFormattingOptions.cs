@@ -917,6 +917,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
+		public NewLinePlacement NewLineBeforeNewQueryClause {
+			get;
+			set;
+		}
+
 		#endregion
 
 		#region Using Declarations

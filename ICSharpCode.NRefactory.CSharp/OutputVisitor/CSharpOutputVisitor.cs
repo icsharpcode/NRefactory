@@ -1259,7 +1259,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public void VisitQueryExpression(QueryExpression queryExpression)
 		{
 			StartNode(queryExpression);
-			bool indent = !(queryExpression.Parent is QueryContinuationClause);
+			bool indent = queryExpression.Parent is QueryClause && !(queryExpression.Parent is QueryContinuationClause);
 			if (indent) {
 				formatter.Indent();
 				NewLine();

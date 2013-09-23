@@ -194,7 +194,9 @@ namespace ICSharpCode.NRefactory.CSharp
 
 				IndexerArgumentWrapping = Wrapping.DoNotChange,
 				NewLineAferIndexerOpenBracket = NewLinePlacement.DoNotCare,
-				IndexerClosingBracketOnNewLine = NewLinePlacement.DoNotCare
+				IndexerClosingBracketOnNewLine = NewLinePlacement.DoNotCare,
+
+				NewLineBeforeNewQueryClause = NewLinePlacement.NewLine
 			};
 		}
 
@@ -360,6 +362,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				NewLineAferIndexerOpenBracket = NewLinePlacement.DoNotCare,
 				IndexerClosingBracketOnNewLine = NewLinePlacement.DoNotCare,
 
+				NewLineBeforeNewQueryClause = NewLinePlacement.NewLine
 			};
 		}
 
