@@ -405,14 +405,8 @@
     <Compile Include="CodeIssues\Custom\CompilerErrors\MissingInterfaceMemberImplementationIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\UnmatchedSizeSpecificationInArrayCreationIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantBlockInDifferentBranchesIssue.cs" />
-    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\HasMemberCriterion.cs" />
-    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\IsArrayTypeCriterion.cs" />
-    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\IsTypeCriterion.cs" />
-    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\ITypeCriterion.cs" />
-    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\ParameterCanBeDeclaredWithBaseTypeIssue.cs" />
-    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\SupportsIndexingCriterion.cs" />
-    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\TypeCriteriaCollector.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\NonReadonlyReferencedInGetHashCodeIssue.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
