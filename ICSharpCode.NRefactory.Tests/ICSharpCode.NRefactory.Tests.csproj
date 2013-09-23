@@ -590,9 +590,9 @@
     <Compile Include="CSharp\CodeIssues\MissingInterfaceMemberImplementationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnmatchedSizeSpeicificationInArrayCreationTests.cs" />
     <Compile Include="FormattingTests\TestLinq.cs" />
-    <Compile Include="CSharp\CodeIssues\NonReadonlyReferencedInGetHashCodeTetsts.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBlockInDifferentBranchesTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\ParameterCanBeDeclaredWithBaseTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\NonReadonlyReferencedInGetHashCodeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

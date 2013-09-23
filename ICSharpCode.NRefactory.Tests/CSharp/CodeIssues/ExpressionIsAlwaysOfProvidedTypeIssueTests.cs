@@ -26,7 +26,7 @@
 
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using NUnit.Framework;
-
+ 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
