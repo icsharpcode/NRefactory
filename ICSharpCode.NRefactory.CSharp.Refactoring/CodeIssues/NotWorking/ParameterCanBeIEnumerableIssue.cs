@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
                 var validTypes =
                     (from type in candidateTypes
-                     where !tryResolve || ParameterCanBeDemotedIssue.TypeChangeResolvesCorrectly(ctx, parameter, rootResolutionNode, type)
+                     where !tryResolve || ParameterCanBeDeclaredWithBaseTypeIssue.TypeChangeResolvesCorrectly(ctx, parameter, rootResolutionNode, type)
                      select type).ToList();
                 if (!validTypes.Any()) return;
 

@@ -35,22 +35,22 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("A parameter can be demoted to base class",
-	                   Description = "Finds parameters that can be demoted to a base class.",
-	                   Category = IssueCategories.Opportunities,
-	                   Severity = Severity.Suggestion,
-	                   SuppressMessageCategory="Microsoft.Design",
-	                   SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters"
-	                  )]
-	public class ParameterCanBeDemotedIssue : GatherVisitorCodeIssueProvider
+	[IssueDescription("Parameter can be declared with base type",
+		Description = "Finds parameters that can be demoted to a base class.",
+		Category = IssueCategories.PracticesAndImprovements,
+		Severity = Severity.Hint,
+		SuppressMessageCategory="Microsoft.Design",
+		SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters"
+	)]
+	public class ParameterCanBeDeclaredWithBaseTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		bool tryResolve;
 
-		public ParameterCanBeDemotedIssue() : this (true)
+		public ParameterCanBeDeclaredWithBaseTypeIssue() : this (true)
 		{
 		}
 
-		public ParameterCanBeDemotedIssue(bool tryResolve)
+		public ParameterCanBeDeclaredWithBaseTypeIssue(bool tryResolve)
 		{
 			this.tryResolve = tryResolve;
 		}
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 		#endregion
 
-		class GatherVisitor : GatherVisitorBase<ParameterCanBeDemotedIssue>
+		class GatherVisitor : GatherVisitorBase<ParameterCanBeDeclaredWithBaseTypeIssue>
 		{
 			bool tryResolve;
 			
@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
 			{
 				methodDeclaration.Attributes.AcceptVisitor(this);
-				if (HasEntryPointSignature(methodDeclaration) || !methodDeclaration.HasModifier(Modifiers.Public) && !methodDeclaration.HasModifier(Modifiers.Protected))
+				if (HasEntryPointSignature(methodDeclaration) || methodDeclaration.HasModifier(Modifiers.Public) || methodDeclaration.HasModifier(Modifiers.Protected))
 					return;
 				var eligibleParameters = methodDeclaration.Parameters
 					.Where(p => p.ParameterModifier != ParameterModifier.Out && p.ParameterModifier != ParameterModifier.Ref)
@@ -152,7 +152,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					 where (!tryResolve || TypeChangeResolvesCorrectly(ctx, parameter, rootResolutionNode, type)) && !FilterOut (variable.Type, type)
 					 select type).ToList();
 				if (validTypes.Any()) {
-					AddIssue(new CodeIssue(parameter, ctx.TranslateString("Parameter can be demoted to base class"), GetActions(parameter, validTypes)));
+					AddIssue(new CodeIssue(parameter, ctx.TranslateString("Parameter can be declared with base type"), GetActions(parameter, validTypes)) {
+						IssueMarker = IssueMarker.DottedLine
+					});
 					MembersWithIssues++;
 				}
 			}

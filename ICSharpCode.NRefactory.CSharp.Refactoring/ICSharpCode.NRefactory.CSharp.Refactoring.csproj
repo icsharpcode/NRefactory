@@ -318,13 +318,6 @@
     <Compile Include="CodeIssues\Uncategorized\IncorrectCallToObjectGetHashCodeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\MethodOverloadHidesOptionalParameterIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\OptionalParameterCouldBeSkippedIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\HasMemberCriterion.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\IsArrayTypeCriterion.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\IsTypeCriterion.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\ITypeCriterion.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\ParameterCanBeDemotedIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\SupportsIndexingCriterion.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ParameterCanBeDemotedIssue\TypeCriteriaCollector.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantArrayCreationExpressionIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantAssignmentIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ResultOfAsyncCallShouldNotBeIgnoredIssue.cs" />
@@ -413,6 +406,13 @@
     <Compile Include="CodeIssues\Uncategorized\UnmatchedSizeSpecificationInArrayCreationIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\NonReadonlyReferencedInGetHashCodeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantBlockInDifferentBranchesIssue.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\HasMemberCriterion.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\IsArrayTypeCriterion.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\IsTypeCriterion.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\ITypeCriterion.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\ParameterCanBeDeclaredWithBaseTypeIssue.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\SupportsIndexingCriterion.cs" />
+    <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue\TypeCriteriaCollector.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

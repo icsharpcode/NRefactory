@@ -371,7 +371,6 @@
     <Compile Include="CSharp\CodeActions\ConvertToInitializer\ConvertToInitializerTests.cs" />
     <Compile Include="CSharp\CodeActions\MoveToOuterScopeTests.cs" />
     <Compile Include="CSharp\CodeIssues\VariableDeclaredInWideScopeTests.cs" />
-    <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\ParameterCanBeDemotedTests.cs" />
     <Compile Include="CSharp\CodeCompletion\DocumentationContextTests.cs" />
     <Compile Include="CSharp\CodeIssues\AccessToStaticMemberViaDerivedTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\IsTypeCriterionTests.cs" />
@@ -593,6 +592,7 @@
     <Compile Include="FormattingTests\TestLinq.cs" />
     <Compile Include="CSharp\CodeIssues\NonReadonlyReferencedInGetHashCodeTetsts.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBlockInDifferentBranchesTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\ParameterCanBeDeclaredWithBaseTypeIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ParameterCanBeDemotedTests : InspectionActionTestBase
+	public class ParameterCanBeDeclaredWithBaseTypeIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void BasicTest()
@@ -47,13 +47,13 @@ class B : A
 }
 class C
 {
-	public void F(B b)
+	void F(B b)
 	{
 		b.Foo();
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			var issue = issues [0];
 			Assert.AreEqual(1, issue.Actions.Count);
@@ -69,7 +69,7 @@ class B : A
 }
 class C
 {
-	public void F(A b)
+	void F(A b)
 	{
 		b.Foo();
 	}
@@ -87,7 +87,7 @@ class A
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -106,7 +106,7 @@ class A : IA
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 
@@ -138,7 +138,7 @@ class TestClass : TestBase
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -163,7 +163,7 @@ class TestClass
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -188,7 +188,7 @@ class TestClass
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -207,13 +207,13 @@ class B : IA
 }
 class C
 {
-	public void F(B b)
+	void F(B b)
 	{
 		b.Foo();
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			var issue = issues [0];
 			Assert.AreEqual(1, issue.Actions.Count);
@@ -230,7 +230,7 @@ class B : IA
 }
 class C
 {
-	public void F(IA b)
+	void F(IA b)
 	{
 		b.Foo();
 	}
@@ -250,7 +250,7 @@ class C
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -274,14 +274,14 @@ class B : IA1, IA2
 class C : B {}
 class Test
 {
-	public void F(C c)
+	void F(C c)
 	{
 		c.Foo();
 		c.Bar();
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			var issue = issues [0];
 			Assert.AreEqual(1, issue.Actions.Count);
@@ -303,7 +303,7 @@ class B : IA1, IA2
 class C : B {}
 class Test
 {
-	public void F(B c)
+	void F(B c)
 	{
 		c.Foo();
 		c.Bar();
@@ -349,7 +349,7 @@ class Test
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			var issue = issues [0];
 			Assert.AreEqual(4, issue.Actions.Count);
@@ -384,7 +384,7 @@ class Test
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -402,7 +402,7 @@ class Test
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -422,7 +422,7 @@ class Test
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 
@@ -443,7 +443,7 @@ class Test
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 
@@ -453,18 +453,18 @@ class Test
 			var input = baseInput + @"
 class Test
 {
-	public void F(E e)
+	void F(E e)
 	{
 		e.Foo();
 		DemandType(e);
 	}
 
-	public void DemandType(D d)
+	void DemandType(D d)
 	{
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			var issue = issues [0];
 			Assert.AreEqual(1, issue.Actions.Count);
@@ -472,13 +472,13 @@ class Test
 			CheckFix(context, issues [0], baseInput + @"
 class Test
 {
-	public void F(D e)
+	void F(D e)
 	{
 		e.Foo();
 		DemandType(e);
 	}
 
-	public void DemandType(D d)
+	void DemandType(D d)
 	{
 	}
 }");
@@ -510,7 +510,7 @@ class TestClass
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -536,7 +536,7 @@ class TestClass
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -563,7 +563,7 @@ class TestClass
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -581,7 +581,7 @@ class TestClass
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			var issue = issues[0];
 			// Suggested types: IList<T> and IReadOnlyList<T>
@@ -615,7 +615,7 @@ class TestClass
 	} 
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -631,7 +631,7 @@ class TestClass
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -648,7 +648,7 @@ class TestClass
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -668,7 +668,7 @@ class TestClass : IHasFoo
 	} 
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 
@@ -689,7 +689,7 @@ class TestClass
 	} 
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -705,7 +705,7 @@ class TestBase
 }
 class Test : TestBase
 {
-	public void F (Test t)
+	void F (Test t)
 	{
 		t.Foo();
 	}
@@ -715,7 +715,7 @@ class Test : TestBase
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			var issue = issues[0];
 			Assert.AreEqual(1, issue.Actions.Count);
@@ -729,7 +729,7 @@ class TestBase
 }
 class Test : TestBase
 {
-	public void F (TestBase t)
+	void F (TestBase t)
 	{
 		t.Foo();
 	}
@@ -762,7 +762,7 @@ class Test : TestBase
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 		
@@ -784,7 +784,7 @@ class TestBase : TestBaseBase
 }
 class Test : TestBase
 {
-	public void F (Test t)
+	void F (Test t)
 	{
 		t.Foo();
 	}
@@ -794,7 +794,7 @@ class Test : TestBase
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			var issue = issues[0];
 			Assert.AreEqual(1, issue.Actions.Count);
@@ -814,7 +814,7 @@ class TestBase : TestBaseBase
 }
 class Test : TestBase
 {
-	public void F (TestBase t)
+	void F (TestBase t)
 	{
 		t.Foo();
 	}
@@ -847,7 +847,7 @@ class TestBase : TestBaseBase
 }
 class Test : TestBase
 {
-	public void F (Test t)
+	void F (Test t)
 	{
 		t.Foo();
 	}
@@ -857,7 +857,7 @@ class Test : TestBase
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(false), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
 			Assert.AreEqual(1, issues.Count);
 			var issue = issues[0];
 			Assert.AreEqual(1, issue.Actions.Count);
@@ -881,7 +881,7 @@ class TestBase : TestBaseBase
 }
 class Test : TestBase
 {
-	public void F (TestBase t)
+	void F (TestBase t)
 	{
 		t.Foo();
 	}
@@ -898,15 +898,15 @@ class Test : TestBase
 		[Test]
 		public void TestBug9617()
 		{
-			Test<ParameterCanBeDemotedIssue>(@"class Test
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"class Test
 {
-	public object Foo (object[] arr)
+	object Foo (object[] arr)
 	{
 	    return arr [0];
 	}
 }", 1, @"class Test
 {
-	public object Foo (System.Collections.IList arr)
+	object Foo (System.Collections.IList arr)
 	{
 	    return arr [0];
 	}
@@ -916,15 +916,15 @@ class Test : TestBase
 		[Test]
 		public void TestBug9617Case2()
 		{
-			Test<ParameterCanBeDemotedIssue>(@"class Test
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"class Test
 {
-	public int Foo (int[] arr)
+	int Foo (int[] arr)
 	{
 	    return arr [0];
 	}
 }", 1, @"class Test
 {
-	public int Foo (System.Collections.Generic.IList<int> arr)
+	int Foo (System.Collections.Generic.IList<int> arr)
 	{
 	    return arr [0];
 	}
@@ -934,7 +934,7 @@ class Test : TestBase
 		[Test]
 		public void DoNotDemoteStringComparisonToReferenceComparison_WithinLambda()
 		{
-			Test<ParameterCanBeDemotedIssue>(@"using System; using System.Linq; using System.Collections.Generic;
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"using System; using System.Linq; using System.Collections.Generic;
 class Test
 {
 	IEnumerable<User> users;
@@ -970,7 +970,7 @@ class C
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 
@@ -995,7 +995,7 @@ class C
 	}
 }";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 
@@ -1018,7 +1018,7 @@ public class Test
 }
 ";
 			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDemotedIssue(), input, out context);
+			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
 			Assert.AreEqual(0, issues.Count);
 		}
 
@@ -1026,7 +1026,7 @@ public class Test
 		[Test]
 		public void TestPreferGenerics()
 		{
-			TestWrongContext<ParameterCanBeDemotedIssue>(@"using System.Collections.Generic;
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"using System.Collections.Generic;
 
 class Test
 {
