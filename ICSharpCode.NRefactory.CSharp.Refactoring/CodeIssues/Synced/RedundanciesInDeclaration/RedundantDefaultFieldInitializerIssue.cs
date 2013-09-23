@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
 			{
 				base.VisitFieldDeclaration(fieldDeclaration);
-				if (fieldDeclaration.HasModifier(Modifiers.Const))
+				if (fieldDeclaration.HasModifier(Modifiers.Const) || fieldDeclaration.HasModifier(Modifiers.Readonly))
 					return;
 				var defaultValueExpr = GetDefaultValueExpression(fieldDeclaration.ReturnType);
 				if (defaultValueExpr == null)

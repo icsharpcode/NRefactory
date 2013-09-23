@@ -179,7 +179,13 @@ class TestClass
 			Test<RedundantDefaultFieldInitializerIssue> (@"class Test { const int foo = 0;  }", 0);
 		}
 
-        [Test]
+		[Test]
+		public void TestRedundantReadOnlyBug ()
+		{
+			Test<RedundantDefaultFieldInitializerIssue> (@"struct Test { static readonly Test foo = new Test ();  }", 0);
+		}
+
+		[Test]
         public void TestDisable()
         {
             var input = @"
