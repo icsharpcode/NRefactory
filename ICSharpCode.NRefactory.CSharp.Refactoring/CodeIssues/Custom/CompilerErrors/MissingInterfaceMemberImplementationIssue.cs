@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription ("Missing interface members",
-		Description = "",
+		Description = "Searches for missing interface implementations",
 		Category = IssueCategories.CompilerErrors,
 		Severity = Severity.Error)]
 	public class MissingInterfaceMemberImplementationIssue : GatherVisitorCodeIssueProvider

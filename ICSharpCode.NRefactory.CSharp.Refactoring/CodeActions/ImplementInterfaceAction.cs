@@ -114,9 +114,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 
 					bool needsExplicitly = explicitly;
-					alreadyImplemented = implementingType.GetAllBaseTypeDefinitions().Any(
-					x => x.Kind != TypeKind.Interface && x.Events.Any(y => y.Name == ev.Name)
-					);
+					alreadyImplemented = implementingType.GetMembers().Any(m => m.ImplementedInterfaceMembers.Contains(ev));
 				
 					if (!alreadyImplemented) {
 						toImplement.Add(new Tuple<IMember, bool>(ev, needsExplicitly));
@@ -132,8 +130,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 					bool needsExplicitly = explicitly;
 					alreadyImplemented = false;
-				
+
 					foreach (var cmet in implementingType.GetMethods ()) {
+						alreadyImplemented |= cmet.ImplementedInterfaceMembers.Contains(method);
+
 						if (CompareMembers(method, cmet)) {
 							if (!needsExplicitly && !cmet.ReturnType.Equals(method.ReturnType))
 								needsExplicitly = true;
@@ -157,7 +157,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 
 					bool needsExplicitly = explicitly;
-					alreadyImplemented = false;
+					alreadyImplemented = implementingType.GetMembers().Any(m => m.ImplementedInterfaceMembers.Contains(prop));
+
 					foreach (var t in implementingType.GetAllBaseTypeDefinitions ()) {
 						if (t.Kind == TypeKind.Interface) {
 							foreach (var cprop in t.Properties) {

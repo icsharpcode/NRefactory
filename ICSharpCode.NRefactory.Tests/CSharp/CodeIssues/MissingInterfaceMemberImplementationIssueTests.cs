@@ -126,6 +126,40 @@ class Test : IF
 		}
 
 
+		/// <summary>
+		/// Bug 14944 - Incorrect issue context for Interface not implemented 
+		/// </summary>
+		[Test]
+		public void TestBug14944 ()
+		{
+			TestWrongContext<MissingInterfaceMemberImplementationIssue>(@"
+using System.Collections;
+using System.Collections.Generic;
+using System;
+
+abstract class Test<T> : IEnumerable, IEnumerable<T>
+{
+	#region IEnumerable implementation
+
+	public IEnumerator<T> GetEnumerator ()
+	{
+		throw new NotImplementedException ();
+	}
+
+	#endregion
+
+	#region IEnumerable implementation
+
+	IEnumerator IEnumerable.GetEnumerator ()
+	{
+		throw new NotImplementedException ();
+	}
+	#endregion
+}
+");
+		}
+
+
 	}
 }
 
