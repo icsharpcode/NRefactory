@@ -408,6 +408,8 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\NonReadonlyReferencedInGetHashCodeIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\SameGuardConditionExpressionInIfelseBranchesIssue.cs" />
+    <Compile Include="CodeActions\ConvertHasFlagsToBitwiseFlagComparisonAction.cs" />
+    <Compile Include="CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
