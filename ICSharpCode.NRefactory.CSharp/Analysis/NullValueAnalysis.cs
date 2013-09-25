@@ -1119,7 +1119,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				Debug.Assert(resolveResult.IsCompileTimeConstant);
 
-				return HandleExpressionResult(defaultValueExpression, data, resolveResult.ConstantValue == null ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull);
+				var status = resolveResult.ConstantValue == null  && resolveResult.Type.IsReferenceType != false ? NullValueStatus.DefinitelyNull : NullValueStatus.DefinitelyNotNull;
+				return HandleExpressionResult(defaultValueExpression, data, status);
 			}
 
 			public override VisitorResult VisitNullReferenceExpression(NullReferenceExpression nullReferenceExpression, VariableStatusInfo data)

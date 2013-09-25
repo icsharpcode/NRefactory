@@ -264,5 +264,20 @@ public class TestClass {
 }");
 		}
 
+		[Test]
+		public void TestDefaultStruct ()
+		{
+			TestWrongContext<UseOfMemberOfNullReference> (@"
+struct Foo { public int Length { get { return 0; } } } 
+class TestClass
+{
+	int TestMethod() 
+	{
+		var foo = default(Foo);
+		return foo.Length;
+	}
+}");
+		}
+
 	}
 }
