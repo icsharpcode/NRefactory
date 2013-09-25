@@ -30,11 +30,10 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("SameGuardConditionExpressionInIfelseBranchesIssue",
+	[IssueDescription("Same guard condition expression in different if else branch",
 	                  Description = "A warning should be given for the case: if (condition) {…} else if (condition) {…}.",
 	                  Category = IssueCategories.Notifications,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "SameGuardConditionExpressionInIfelseBranches")]
+	                  Severity = Severity.Warning)]
 	public class SameGuardConditionExpressionInIfelseBranchesIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -95,7 +94,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (redundantCondition == null)
 					return;
 				
-				AddIssue(new CodeIssue(redundantCondition, ctx.TranslateString("A same condition with the previous one.")));
+				AddIssue(new CodeIssue(redundantCondition, ctx.TranslateString("Found duplicate condition")));
 			}
 		}
 	}
