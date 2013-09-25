@@ -229,6 +229,17 @@ void Bar ()
 		}
 
 		[Test]
+		public void PasteVerbatimStringBug3()
+		{
+			var indent = CreateEngine("\nclass Foo\n{\n\tvoid Bar ()\n\t{\n$\n\t}\n}");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions(), FormattingOptionsFactory.CreateMono());
+
+			var text = handler.FormatPlainText(indent.Offset, "\t\tSystem.Console.WriteLine(@\"<evlevlle>\");\n", null);
+			Assert.AreEqual("\t\tSystem.Console.WriteLine(@\"<evlevlle>\");\n\t\t", text);
+		}
+
+
+		[Test]
 		public void TestPasteComments()
 		{
 			var indent = CreateEngine(@"

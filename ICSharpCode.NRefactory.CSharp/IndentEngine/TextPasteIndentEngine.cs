@@ -139,6 +139,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
 							indentedText.Append(clonedEngine.ThisLineIndent);
 					}
+					pasteAtLineStart = false;
 					indentedText.Append(curLine);
 					curLine.Length = 0;
 					continue;
