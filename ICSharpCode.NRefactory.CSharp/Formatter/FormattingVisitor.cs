@@ -500,10 +500,13 @@ namespace ICSharpCode.NRefactory.CSharp
 				var startNode = node.GetPrevSibling(n => !(n is WhitespaceNode)) ?? node;
 				var startOffset = document.GetOffset(startNode.EndLocation);
 				int endOffset = document.GetOffset(node.StartLocation);
+				if (startOffset >= endOffset)
+					return;
 				if (directive != null && !policy.IndentPreprocessorDirectives) {
 					AddChange(startOffset, endOffset - startOffset, "");
 					return;
 				}
+
 				AddChange(startOffset, endOffset - startOffset, curIndent.IndentString);
 			}
 		}

@@ -146,9 +146,11 @@ namespace ICSharpCode.NRefactory.CSharp
 								FixOpenBrace(BraceStyle.EndOfLine, accessor.Body.LBraceToken);
 
 
-								var statement = accessor.Body.Statements.First();
-								ForceSpacesBeforeRemoveNewLines(statement, true);
-								statement.AcceptVisitor(this);
+								var statement = accessor.Body.Statements.FirstOrDefault();
+								if (statement != null) {
+									ForceSpacesBeforeRemoveNewLines(statement, true);
+									statement.AcceptVisitor(this);
+								}
 								if (!oneLine)
 									ForceSpacesBeforeRemoveNewLines(accessor.Body.RBraceToken, true);
 								break;

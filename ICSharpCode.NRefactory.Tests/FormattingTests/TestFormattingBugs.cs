@@ -405,6 +405,28 @@ false) {
 }");
 		}
 
+
+
+		/// <summary>
+		/// Bug 14957 - System.InvalidOperationException: Sequence contains no elements
+		/// </summary>
+		[Test]
+		public void TestBug14957()
+		{
+			CSharpFormattingOptions policy = FormattingOptionsFactory.CreateMono();
+			policy.SimplePropertyFormatting = PropertyFormatting.ForceOneLine;
+			Test(policy,
+				@"class X
+{
+	public int Foo { get {
+	} }
+}", @"class X
+{
+	public int Foo { get { } }
+}");
+		}
+
+
 	}
 }
 
