@@ -593,6 +593,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantBlockInDifferentBranchesTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterCanBeDemotedIssue\ParameterCanBeDeclaredWithBaseTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\NonReadonlyReferencedInGetHashCodeTests.cs" />
+    <Compile Include="CSharp\CodeIssues\SameGuardConditionExpressionInIfElseBranchesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
