@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						ctx.TranslateString("Redundant explicit array type specification"),
 						ctx.TranslateString("Remove redundant type specification"),
 						s => s.Remove(arrayType) 
-					)
+					) { IssueMarker = IssueMarker.GrayOut }
 				);
 			}
 		}
