@@ -29,12 +29,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("RedundantArrayCreationExpression",
-						Description = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.",
-						Category = IssueCategories.RedundanciesInCode,
-						Severity = Severity.Warning,
-						AnalysisDisableKeyword = "RedundantArrayCreationExpression")]
-	public class RedundantArrayCreationExpressionIssue : GatherVisitorCodeIssueProvider
+	[IssueDescription("Array creation can be replaced with array initializer",
+		Description = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.",
+		Category = IssueCategories.RedundanciesInCode,
+		Severity = Severity.Warning)]
+	public class ArrayCreationCanBeReplacedWithArrayInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -43,22 +42,26 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 
-		class GatherVisitor : GatherVisitorBase<RedundantArrayCreationExpressionIssue>
+		class GatherVisitor : GatherVisitorBase<ArrayCreationCanBeReplacedWithArrayInitializerIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx, RedundantArrayCreationExpressionIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseRefactoringContext ctx, ArrayCreationCanBeReplacedWithArrayInitializerIssue issueProvider) : base (ctx, issueProvider)
 			{
 			}
 
 			private void AddIssue(AstNode node, AstNode initializer)
 			{
-				AddIssue(new CodeIssue(node.StartLocation, initializer.StartLocation, ctx.TranslateString("Array creation expression can be replaced with initializer"), ctx.TranslateString("Use Array Initializer"),
-				script =>
-				{
-					var startOffset = script.GetCurrentOffset(node.StartLocation);
-					var endOffset = script.GetCurrentOffset(initializer.StartLocation);
-					if (startOffset < endOffset)
-						script.RemoveText(startOffset, endOffset - startOffset);
-					}) { IssueMarker = IssueMarker.GrayOut });
+				AddIssue(new CodeIssue(
+					node.StartLocation, 
+					initializer.StartLocation, 
+					ctx.TranslateString("Redundant array creation expression"), 
+					ctx.TranslateString("Use array initializer"),
+					script => {
+						var startOffset = script.GetCurrentOffset(node.StartLocation);
+						var endOffset = script.GetCurrentOffset(initializer.StartLocation);
+						if (startOffset < endOffset)
+							script.RemoveText(startOffset, endOffset - startOffset);
+					}) { IssueMarker = IssueMarker.GrayOut }
+				);
 			}
 
 			public override void VisitArrayCreateExpression(ArrayCreateExpression arrayCreateExpression)

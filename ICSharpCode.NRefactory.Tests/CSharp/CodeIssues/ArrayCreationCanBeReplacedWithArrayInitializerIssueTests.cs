@@ -1,4 +1,4 @@
-﻿// RedundantArrayCreationExpressionTests.cs
+﻿// ArrayCreationCanBeReplacedWithArrayInitializerIssueTests.cs
 //
 // Author:
 //      Ji Kun <jikun.nus@gmail.com>
@@ -29,7 +29,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RedundantArrayCreationExpressionTests : InspectionActionTestBase
+	public class ArrayCreationCanBeReplacedWithArrayInitializerIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestVariableDeclaration()
@@ -50,7 +50,7 @@ class TestClass
 		int[] foo = {1, 2, 3};
 	}
 }";
-			Test<RedundantArrayCreationExpressionIssue>(input, 1, output);
+			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 1, output);
 		}
 
 		[Test]
@@ -66,7 +66,7 @@ class TestClass
 {
 	public int[] filed = {1,2,3};
 }";
-			Test<RedundantArrayCreationExpressionIssue>(input, 1, output);
+			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 1, output);
 		}
 
 		[Test]
@@ -80,7 +80,7 @@ class TestClass
 		var foo = new[] {1, 2, 3};
 	}
 }";
-			Test<RedundantArrayCreationExpressionIssue>(input, 0);
+			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 0);
 		}
 
 		[Test]
@@ -94,7 +94,7 @@ class TestClass
 		var foo = new int[] {1, 2, 3};
 	}
 }";
-			Test<RedundantArrayCreationExpressionIssue>(input, 0);
+			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 0);
 		}
 
 		[Test]
@@ -110,7 +110,7 @@ class TestClass
 		Foo(new int[]{1,2,3});
 	}
 }";
-			Test<RedundantArrayCreationExpressionIssue>(input, 0);
+			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 0);
 		}
 
 		[Test]
@@ -128,7 +128,7 @@ class TestClass
 //Resharper restore RedundantArrayCreationExpression
 	}
 }";
-			Test<RedundantArrayCreationExpressionIssue>(input, 0);
+			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 0);
 		}
 	}
 }

@@ -318,7 +318,6 @@
     <Compile Include="CodeIssues\Uncategorized\IncorrectCallToObjectGetHashCodeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\MethodOverloadHidesOptionalParameterIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\OptionalParameterCouldBeSkippedIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\RedundantArrayCreationExpressionIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\RedundantAssignmentIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ResultOfAsyncCallShouldNotBeIgnoredIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\UnreachableCodeIssue.cs" />
@@ -411,6 +410,7 @@
     <Compile Include="CodeActions\ConvertHasFlagsToBitwiseFlagComparisonAction.cs" />
     <Compile Include="CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArrayCreationIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

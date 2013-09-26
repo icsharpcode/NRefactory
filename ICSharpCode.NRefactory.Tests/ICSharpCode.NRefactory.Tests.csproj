@@ -459,7 +459,6 @@
     <Compile Include="CSharp\CodeIssues\LongLiteralEndingLowerLIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0659OverrideEqualsWithoutGetHashCodeTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConstantNullCoalescingConditionIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantArrayCreationExpressionTests.cs" />
     <Compile Include="CSharp\Analysis\NullValueAnalysisTests.cs" />
     <Compile Include="CSharp\CodeIssues\DuplicatedLinqToListOrArrayTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
@@ -597,6 +596,7 @@
     <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantExplicitArrayCreationIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ArrayCreationCanBeReplacedWithArrayInitializerIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
