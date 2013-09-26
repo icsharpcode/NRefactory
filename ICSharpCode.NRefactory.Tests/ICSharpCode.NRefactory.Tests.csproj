@@ -596,6 +596,7 @@
     <Compile Include="CSharp\CodeIssues\SameGuardConditionExpressionInIfElseBranchesTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantExplicitArrayCreationIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

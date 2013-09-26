@@ -410,6 +410,7 @@
     <Compile Include="CodeIssues\Uncategorized\SameGuardConditionExpressionInIfelseBranchesIssue.cs" />
     <Compile Include="CodeActions\ConvertHasFlagsToBitwiseFlagComparisonAction.cs" />
     <Compile Include="CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArrayCreationIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
