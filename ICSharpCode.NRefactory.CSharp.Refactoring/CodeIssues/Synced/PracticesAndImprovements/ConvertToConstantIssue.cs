@@ -104,7 +104,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						ctx.TranslateString("Convert to constant"),
 						ctx.TranslateString("To const"),
 						script => {
-						var constVarDecl = (FieldDeclaration)varDecl.Item1.Parent;
+							var constVarDecl = (FieldDeclaration)varDecl.Item1.Parent;
 							script.ChangeModifier(constVarDecl, (constVarDecl.Modifiers & ~Modifiers.Static) | Modifiers.Const);
 						}
 					));
@@ -183,9 +183,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (returnTypeRR.Type.IsReferenceType.HasValue && returnTypeRR.Type.IsReferenceType.Value)
 					return;
 
-				var vr = ctx.Resolve(varDecl.Variables.First()) as LocalResolveResult;
+				var variable = varDecl.Variables.First();
+				var vr = ctx.Resolve(variable) as LocalResolveResult;
 				if (vr == null)
 					return;
+
+				if (ctx.Resolve(variable.Initializer).ConstantValue == null)
+					return;
+
 				var assignmentAnalysis = new VariableUsageAnalyzation (ctx);
 
 				containingBlock.AcceptVisitor(assignmentAnalysis);
@@ -193,12 +198,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (assignmentAnalysis.GetStatus(vr.Variable) == VariableState.Changed)
 					return;
 				AddIssue (new CodeIssue(
-					varDecl.Variables.First().NameToken,
+					variable.NameToken,
 					ctx.TranslateString ("Convert to constant"),
 					ctx.TranslateString ("To const"),
 					script => {
 						var constVarDecl = (VariableDeclarationStatement)varDecl.Clone ();
 						constVarDecl.Modifiers |= Modifiers.Const;
+						if (varDecl.Type.IsVar()) {
+							var builder = ctx.CreateTypeSystemAstBuilder(varDecl);
+							constVarDecl.Type = builder.ConvertType (ctx.Resolve(varDecl.Type).Type);
+						}
 						script.Replace (varDecl, constVarDecl);
 					}
 				));

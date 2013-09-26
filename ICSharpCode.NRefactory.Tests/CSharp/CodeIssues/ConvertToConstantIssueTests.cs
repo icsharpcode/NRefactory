@@ -358,6 +358,88 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	}
 }");
 		}
+
+
+		[Test]
+		public void TestVarCase ()
+		{
+			Test<ConvertToConstantIssue>(@"class Test
+{
+	public static void Main (string[] args)
+	{
+		var fooBar = 12;
+		Console.WriteLine (fooBar);
+	}
+}", @"class Test
+{
+	public static void Main (string[] args)
+	{
+		const int fooBar = 12;
+		Console.WriteLine (fooBar);
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestArbitraryStructCase ()
+		{
+			TestWrongContext<ConvertToConstantIssue>(@"
+struct Bar {
+	public int A;
+}
+
+class Test
+{
+	public static void Main (string[] args)
+	{
+		var fooBar = default(Bar);
+		Console.WriteLine (fooBar);
+	}
+}");
+		}
+
+		[Test]
+		public void TestArbitraryStructCase2 ()
+		{
+			TestWrongContext<ConvertToConstantIssue>(@"
+struct Bar {
+	public int A;
+}
+
+class Test
+{
+	const Bar foo = new Bar();
+	public static void Main (string[] args)
+	{
+		var fooBar = foo;
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestComplexCase ()
+		{
+			Test<ConvertToConstantIssue>(@"
+class Test
+{
+	public static void Main (string[] args)
+	{
+		var pi2 = System.Math.PI * 2;
+		Console.WriteLine (pi2);
+	}
+}", @"
+class Test
+{
+	public static void Main (string[] args)
+	{
+		const double pi2 = System.Math.PI * 2;
+		Console.WriteLine (pi2);
+	}
+}");
+		}
+
 	}
 }
 
