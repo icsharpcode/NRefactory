@@ -597,6 +597,7 @@
     <Compile Include="CSharp\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantExplicitArrayCreationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ArrayCreationCanBeReplacedWithArrayInitializerIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantAnonymousTypePropertyNameIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

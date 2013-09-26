@@ -411,6 +411,7 @@
     <Compile Include="CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArrayCreationIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
