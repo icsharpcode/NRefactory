@@ -34,11 +34,11 @@ using ICSharpCode.NRefactory.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("CS0659: Class overrides Object.Equals but not Object.GetHashCode.",
-					Description = "If two objects are equal then they must both have the same hash code",
-					Category = IssueCategories.CompilerErrors,
-					Severity = Severity.Warning,
-					PragmaWarning = 1717,
-					AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
+		Description = "If two objects are equal then they must both have the same hash code",
+		Category = IssueCategories.CompilerWarnings,
+		Severity = Severity.Warning,
+		PragmaWarning = 1717,
+		AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
