@@ -122,6 +122,32 @@ class FooBar<T> where T : IFoo
 ");
 		}
 
+		/// <summary>
+		/// Bug 15038 - readonly member property is incorrectly underlined in the .ctor when initialized 
+		/// </summary>
+		[Test]
+		public void TestBug15038 ()
+		{
+			TestWrongContext<PossibleAssignmentToReadonlyFieldIssue>(@"
+using System;
+using System.Collections.Generic;
+
+public class Multipart
+{
+	readonly List<MimeEntity> children;
+	
+	internal Multipart ()
+	{
+		children = new List<MimeEntity> ();
+	}
+}
+");
+		}
+
+
+
+
+
 		[Test]
 		public void TestDisable()
 		{

@@ -63,12 +63,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				var mr = expr as MemberReferenceExpression;
 				if (mr != null) {
-					if (inConstructor && mr.Descendants.Any(d => 
-						d.Parent is MemberReferenceExpression && 
-						d is ThisReferenceExpression))
+					if (inConstructor && mr.Descendants.Any(d => d.Parent is MemberReferenceExpression && d is ThisReferenceExpression))
 						return;
 					Check(mr.Target);
 				}
+				if (inConstructor && expr is IdentifierExpression)
+					return;
+
 				var rr = ctx.Resolve(expr) as MemberResolveResult;
 				if (rr == null || rr.IsError)
 					return;
