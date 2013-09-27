@@ -393,7 +393,6 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\PossibleMultipleEnumerationIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedLabelIssue.cs" />
-    <Compile Include="CodeIssues\TODO\PossibleAssignmentToReadonlyFieldIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\MemberHidesStaticFromOuterClassIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\MethodOverloadWithOptionalParameterIssue.cs" />
     <Compile Include="CodeIssues\NotWorking\DuplicateIfInIfChainIssue.cs" />
@@ -412,6 +411,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArrayCreationIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\PossibleAssignmentToReadonlyFieldIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -598,6 +598,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantExplicitArrayCreationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ArrayCreationCanBeReplacedWithArrayInitializerIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantAnonymousTypePropertyNameIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\PossibleAssignmentToReadonlyFieldIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
