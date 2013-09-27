@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Category = IssueCategories.RedundanciesInCode,
 	                  Severity = Severity.Warning,
 	                  AnalysisDisableKeyword = "RedundantThisQualifier")]
-	[SubIssueAttribute(RedundantThisQualifierIssue.InsideConstructors, false)]
+	[SubIssueAttribute(RedundantThisQualifierIssue.InsideConstructors)]
 	[SubIssueAttribute(RedundantThisQualifierIssue.EverywhereElse)]
 	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider
 	{
