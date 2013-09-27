@@ -360,5 +360,53 @@ class A
 	}
 }");
 		}
+
+		/// <summary>
+		/// Bug 15039 - source analysis can't resolve 'value' in property setter 
+		/// </summary>
+		[Test]
+		public void TestBug15039()
+		{
+			TestWrongContext<ExceptionParameterCantBeResolvedIssue>(@"
+using System;
+class A
+{
+	public string Foo {
+		get {}
+		set {
+			if (value == null)
+				throw new ArgumentNullException(""value"");
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestValue()
+		{
+			Test<ExceptionParameterCantBeResolvedIssue>(@"
+using System;
+class A
+{
+	public string Foo {
+		get {}
+		set {
+			if (value == null)
+				throw new ArgumentNullException (""val"");
+		}
+	}
+}", @"
+using System;
+class A
+{
+	public string Foo {
+		get {}
+		set {
+			if (value == null)
+				throw new ArgumentNullException (""value"");
+		}
+	}
+}", 1);
+		}
 	}
 }

@@ -133,6 +133,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						names.AddRange(constructorDeclaration.Parameters.Select(p => p.Name));
 						break;
 					}
+					var accessor = node as Accessor;
+					if (accessor != null) {
+						if (accessor.Role == PropertyDeclaration.SetterRole ||
+						    accessor.Role == CustomEventDeclaration.AddAccessorRole ||
+						    accessor.Role == CustomEventDeclaration.RemoveAccessorRole) {
+							names.Add("value");
+						}
+						break;
+					}
+
 					node = node.Parent;
 				}
 				return names;
