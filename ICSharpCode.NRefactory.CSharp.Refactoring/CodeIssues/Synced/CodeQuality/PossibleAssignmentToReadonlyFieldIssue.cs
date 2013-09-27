@@ -27,6 +27,7 @@ using System;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -45,15 +46,29 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<PossibleAssignmentToReadonlyFieldIssue>
 		{
+			bool inConstructor;
+
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
+			}
+
+			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+			{
+				inConstructor = true;
+				base.VisitConstructorDeclaration(constructorDeclaration);
+				inConstructor = false;
 			}
 
 			void Check(Expression expr)
 			{
 				var mr = expr as MemberReferenceExpression;
-				if (mr != null)
+				if (mr != null) {
+					if (inConstructor && mr.Descendants.Any(d => 
+						d.Parent is MemberReferenceExpression && 
+						d is ThisReferenceExpression))
+						return;
 					Check(mr.Target);
+				}
 				var rr = ctx.Resolve(expr) as MemberResolveResult;
 				if (rr == null || rr.IsError)
 					return;

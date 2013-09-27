@@ -101,6 +101,28 @@ class FooBar<T> where T : IFoo
 		}
 
 		[Test]
+		public void TestConstructor ()
+		{
+			TestWrongContext<PossibleAssignmentToReadonlyFieldIssue>(@"
+interface IFoo
+{
+	int Property { get; set; }
+}
+
+class FooBar<T> where T : IFoo
+{
+	readonly T field;
+
+	public FooBar (T t)
+	{
+		this.field = t;
+		this.field.Property = 5;
+	}
+}
+");
+		}
+
+		[Test]
 		public void TestDisable()
 		{
 			TestWrongContext<PossibleAssignmentToReadonlyFieldIssue>(@"
