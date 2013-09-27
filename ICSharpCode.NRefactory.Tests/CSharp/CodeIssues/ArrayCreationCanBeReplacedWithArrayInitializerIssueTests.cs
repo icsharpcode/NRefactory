@@ -112,23 +112,5 @@ class TestClass
 }";
 			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 0);
 		}
-
-		[Test]
-		public void TestResharperDisableRestore()
-		{
-			var input = @"
-class TestClass
-{
-	void TestMethod ()
-	{
-//Resharper disable RedundantArrayCreationExpression
-
-		int[] foo = new int[] {1, 2, 3};
-
-//Resharper restore RedundantArrayCreationExpression
-	}
-}";
-			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 0);
-		}
 	}
 }
