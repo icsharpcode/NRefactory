@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (resolveResult == null || !resolveResult.IsError || resolveResult.Member.DeclaringTypeDefinition == null || resolveResult.Member.DeclaringTypeDefinition.IsSealed || resolveResult.Member.DeclaringTypeDefinition.Region.IsEmpty)
 				yield break;
 
-			yield return new CodeAction(context.TranslateString("Create constructor"), script => {
+			yield return new CodeAction(context.TranslateString("Create constructor"), script =>
 				script.InsertWithCursor(
 					context.TranslateString("Create constructor"),
 					resolveResult.Member.DeclaringTypeDefinition,
@@ -57,8 +57,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						decl.Parameters.AddRange(CreateMethodDeclarationAction.GenerateParameters(context, createExpression.Arguments));
 						return decl;
 					}
-				);
-			}, createExpression);
+				)
+			, createExpression) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 	}
 }

@@ -228,7 +228,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				script
 					.InsertWithCursor(context.TranslateString("Create method"), Script.InsertPosition.Before, decl)
 					.ContinueScript(() => script.Select(throwStatement));
-			}, createFromNode.GetNodeAt(context.Location) ?? createFromNode);
+			}, createFromNode.GetNodeAt(context.Location) ?? createFromNode)  { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 
 		public static IEnumerable<ParameterDeclaration> GenerateParameters(RefactoringContext context, IEnumerable<Expression> arguments)

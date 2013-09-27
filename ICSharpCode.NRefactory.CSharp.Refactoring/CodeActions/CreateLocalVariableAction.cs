@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				} else {
 					script.InsertBefore(statement, decl);
 				}
-			}, identifier);
+			}, identifier) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 	}
 }

@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (isStatic)
 					decl.Modifiers |= Modifiers.Static;
 				script.InsertWithCursor(context.TranslateString("Create field"), Script.InsertPosition.Before, decl);
-			}, expr.GetNodeAt(context.Location) ?? expr);
+			}, expr.GetNodeAt(context.Location) ?? expr) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 
 	}
