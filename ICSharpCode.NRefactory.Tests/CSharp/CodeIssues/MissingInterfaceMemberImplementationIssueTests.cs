@@ -160,6 +160,34 @@ abstract class Test<T> : IEnumerable, IEnumerable<T>
 		}
 
 
+		[Test]
+		public void TestAlreadyImplementedByInheritance ()
+		{
+			TestWrongContext<MissingInterfaceMemberImplementationIssue>(@"
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+public abstract class FooBase<T> : IEnumerable, IEnumerable<T>
+{
+	public IEnumerator<T> GetEnumerator ()
+	{
+		return null;
+	}
+
+	IEnumerator IEnumerable.GetEnumerator ()
+	{
+		return null;
+	}
+}
+
+public class Foo<T> : FooBase<T>, IEnumerable, IEnumerable<T>
+{
+}
+");
+		}
+
+
 	}
 }
 

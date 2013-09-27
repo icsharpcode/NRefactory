@@ -327,7 +327,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 						Console.WriteLine(content);
 						Console.WriteLine("----");
 					}
-					foreach (var error in parser.Errors) {
+					foreach (var error in parser.ErrorsAndWarnings) {
 						Console.WriteLine(error.Message);
 					}
 					Assert.IsFalse(parser.HasErrors, "The file " + i + " contains unexpected parsing errors.");

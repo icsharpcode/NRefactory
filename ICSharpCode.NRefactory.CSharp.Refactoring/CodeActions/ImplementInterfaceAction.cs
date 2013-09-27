@@ -28,6 +28,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -101,6 +102,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
+		static bool IsImplementation(IMember m, IMember method)
+		{
+			return m.UnresolvedMember == method.UnresolvedMember;
+		}
+
 		public static List<Tuple<IMember, bool>> CollectMembersToImplement(ITypeDefinition implementingType, IType interfaceType, bool explicitly, out bool interfaceMissing)
 		{
 			//var def = interfaceType.GetDefinition();
@@ -114,7 +120,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 
 					bool needsExplicitly = explicitly;
-					alreadyImplemented = implementingType.GetMembers().Any(m => m.ImplementedInterfaceMembers.Contains(ev));
+					alreadyImplemented = implementingType.GetMembers().Any(m => m.ImplementedInterfaceMembers.Any(im => IsImplementation (im, ev)));
 				
 					if (!alreadyImplemented) {
 						toImplement.Add(new Tuple<IMember, bool>(ev, needsExplicitly));
@@ -132,7 +138,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					alreadyImplemented = false;
 
 					foreach (var cmet in implementingType.GetMethods ()) {
-						alreadyImplemented |= cmet.ImplementedInterfaceMembers.Contains(method);
+						alreadyImplemented |= cmet.ImplementedInterfaceMembers.Any(m => IsImplementation (m, method));
 
 						if (CompareMembers(method, cmet)) {
 							if (!needsExplicitly && !cmet.ReturnType.Equals(method.ReturnType))
@@ -157,7 +163,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						continue;
 
 					bool needsExplicitly = explicitly;
-					alreadyImplemented = implementingType.GetMembers().Any(m => m.ImplementedInterfaceMembers.Contains(prop));
+					alreadyImplemented = implementingType.GetMembers().Any(m => m.ImplementedInterfaceMembers.Any(im => IsImplementation (im, prop)));
 
 					foreach (var t in implementingType.GetAllBaseTypeDefinitions ()) {
 						if (t.Kind == TypeKind.Interface) {
