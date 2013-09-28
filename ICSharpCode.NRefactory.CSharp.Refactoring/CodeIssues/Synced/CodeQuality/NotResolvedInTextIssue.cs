@@ -34,18 +34,19 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Exception constructor parameter can't be resolved.",
-	                  Description = "Warns about when a constructor parameter can't be resolved.",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning)]
-	public class ExceptionParameterCantBeResolvedIssue : GatherVisitorCodeIssueProvider
+	[IssueDescription("Cannot resolve symbol in text argument",
+		Description = "Cannot resolve symbol in text argument",
+		Category = IssueCategories.CodeQualityIssues,
+		Severity = Severity.Warning,
+		AnalysisDisableKeyword = "NotResolvedInText")]
+	public class NotResolvedInTextIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ExceptionParameterCantBeResolvedIssue>
+		class GatherVisitor : GatherVisitorBase<NotResolvedInTextIssue>
 		{
 			readonly BaseRefactoringContext context;
 

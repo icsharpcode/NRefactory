@@ -527,7 +527,6 @@
     <Compile Include="CSharp\CodeActions\AddBracesActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantEmptyDefaultSwitchBranchIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0152DuplicateCaseLabelValueIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\ExceptionParameterCantBeResolvedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\SealedMemberInSealedClassIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnusedAnonymousMethodSignatureIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyStatementIssueTests.cs" />
@@ -600,6 +599,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantAnonymousTypePropertyNameIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PossibleAssignmentToReadonlyFieldIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ObjectCreationAsStatementIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\NotResolvedInTextIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

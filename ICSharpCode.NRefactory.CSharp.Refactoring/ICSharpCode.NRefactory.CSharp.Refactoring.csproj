@@ -342,7 +342,6 @@
     <Compile Include="CodeActions\ConvertForToWhileAction.cs" />
     <Compile Include="CodeActions\AddBracesAction.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchIssue.cs" />
-    <Compile Include="CodeIssues\Custom\ExceptionParameterCantBeResolvedIssue.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\CS0126ReturnMustBeFollowedByAnyExpression.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\CS0127ReturnMustNotBeFollowedByAnyExpression.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\CS0152DuplicateCaseLabelValueIssue.cs" />
@@ -413,6 +412,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\PossibleAssignmentToReadonlyFieldIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\ObjectCreationAsStatementIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\NotResolvedInTextIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
