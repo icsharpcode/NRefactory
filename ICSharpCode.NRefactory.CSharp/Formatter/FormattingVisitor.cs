@@ -612,6 +612,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		void CorrectClosingBrace (AstNode rbrace)
 		{
+			if (rbrace.IsNull)
+				return;
 			int braceOffset = document.GetOffset(rbrace.StartLocation);
 			var prevNode = rbrace.GetPrevNode();
 			int prevNodeOffset = prevNode != null ? document.GetOffset(prevNode.EndLocation) : 0;

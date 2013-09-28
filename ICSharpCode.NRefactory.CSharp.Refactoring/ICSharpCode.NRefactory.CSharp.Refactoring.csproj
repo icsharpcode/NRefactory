@@ -412,6 +412,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\PossibleAssignmentToReadonlyFieldIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\ObjectCreationAsStatementIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

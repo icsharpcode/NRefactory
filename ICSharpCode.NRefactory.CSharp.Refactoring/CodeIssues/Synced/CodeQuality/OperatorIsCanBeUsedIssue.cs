@@ -32,10 +32,10 @@ using ICSharpCode.NRefactory.Refactoring;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Operator 'is' can be used",
-	                  Description = "Operator Is can be used instead of comparing object GetType() and instances of System.Type object.",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "OperatorIsCanBeUsed")]
+		Description = "Operator Is can be used instead of comparing object GetType() and instances of System.Type object.",
+		Category = IssueCategories.CodeQualityIssues,
+		Severity = Severity.Warning,
+		AnalysisDisableKeyword = "OperatorIsCanBeUsed")]
 	public class OperatorIsCanBeUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
