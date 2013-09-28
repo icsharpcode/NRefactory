@@ -27,16 +27,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-    //[IssueDescription("Access to modified closure variable",
-    //                   Description = "Access to closure variable from anonymous method when the variable is modified " +
-    //                                 "externally",
-    //                   Category = IssueCategories.CodeQualityIssues,
-    //                   Severity = Severity.Warning,
-    //                   IssueMarker = IssueMarker.Underline,
-	//                   AnalysisDisableKeyword = "AccessToModifiedClosure")]	
+    [IssueDescription("Access to modified closure variable",
+                       Description = "Access to closure variable from anonymous method when the variable is modified " +
+                                     "externally",
+                       Category = IssueCategories.CodeQualityIssues,
+                       Severity = Severity.Warning,
+	                   AnalysisDisableKeyword = "AccessToModifiedClosure")]	
 	public class AccessToModifiedClosureIssue : AccessToClosureIssue
 	{
 		public AccessToModifiedClosureIssue ()

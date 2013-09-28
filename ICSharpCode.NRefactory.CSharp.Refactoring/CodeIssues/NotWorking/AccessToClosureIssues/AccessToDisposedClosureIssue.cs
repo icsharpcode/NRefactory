@@ -28,17 +28,16 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-
-    //[IssueDescription ("Access to disposed closure variable",
-    //                   Description = "Access to closure variable from anonymous method when the variable is" + 
-    //                                 " disposed externally",
-    //                   Category = IssueCategories.CodeQualityIssues,
-    //                   Severity = Severity.Warning,
-    //                   IssueMarker = IssueMarker.Underline,
-	//                   AnalysisDisableKeyword = "AccessToDisposedClosure")]
+    [IssueDescription ("Access to disposed closure variable",
+                       Description = "Access to closure variable from anonymous method when the variable is" + 
+                                     " disposed externally",
+                       Category = IssueCategories.CodeQualityIssues,
+                       Severity = Severity.Warning,
+	                   AnalysisDisableKeyword = "AccessToDisposedClosure")]
 	public class AccessToDisposedClosureIssue : AccessToClosureIssue
 	{
 		public AccessToDisposedClosureIssue ()

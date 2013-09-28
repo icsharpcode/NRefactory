@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	public abstract class AccessToClosureIssue : GatherVisitorCodeIssueProvider
 	{
-		ControlFlowGraphBuilder cfgBuilder = new ControlFlowGraphBuilder ();
+		readonly ControlFlowGraphBuilder cfgBuilder = new ControlFlowGraphBuilder ();
 
 		public string Title
 		{ get; private set; }
