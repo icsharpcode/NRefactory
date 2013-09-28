@@ -601,6 +601,7 @@
     <Compile Include="CSharp\CodeIssues\NotResolvedInTextIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\DelegateSubtractionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnusedParameterIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\SimplifyLinqExpressionIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
