@@ -135,7 +135,6 @@
     <Compile Include="CSharp\CodeIssues\MethodOverloadHidesOptionalParameterIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\NegativeRelationalExpressionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterHidesMemberIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\ParameterNotUsedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ParameterOnlyAssignedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCommaInArrayInitializerIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantAssignmentIssueTests.cs" />
@@ -601,6 +600,7 @@
     <Compile Include="CSharp\CodeIssues\ObjectCreationAsStatementIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\NotResolvedInTextIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\DelegateSubtractionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnusedParameterIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

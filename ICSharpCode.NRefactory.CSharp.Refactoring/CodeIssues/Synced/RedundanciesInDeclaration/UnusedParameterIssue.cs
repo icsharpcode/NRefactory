@@ -1,5 +1,5 @@
 ﻿// 
-// ParameterNotUsedIssue.cs
+// UnusedParameterIssue.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -36,9 +36,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Unused parameter",
 		Description = "Parameter is never used.",
-		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning)]
-	public class ParameterNotUsedIssue : GatherVisitorCodeIssueProvider
+		Category = IssueCategories.RedundanciesInDeclarations,
+		Severity = Severity.Warning, 
+		AnalysisDisableKeyword = "UnusedParameter"
+	)]
+	public class UnusedParameterIssue : GatherVisitorCodeIssueProvider
 	{
 
 		#region ICodeIssueProvider implementation
@@ -90,7 +92,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		class GatherVisitor : GatherVisitorBase<ParameterNotUsedIssue>
+		class GatherVisitor : GatherVisitorBase<UnusedParameterIssue>
 		{
 			GetDelgateUsagesVisitor usedDelegates;
 			bool currentTypeIsPartial;
@@ -157,7 +159,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (ctx.FindReferences(parameterDeclaration.Parent, resolveResult.Variable).Any(r => r.Node != parameterDeclaration))
 					return;
 
-				AddIssue(new CodeIssue (parameterDeclaration.NameToken, ctx.TranslateString("Parameter is never used")) { IssueMarker = IssueMarker.GrayOut });
+				AddIssue(new CodeIssue (
+					parameterDeclaration.NameToken, 
+					string.Format(ctx.TranslateString("Parameter '{0}' is never used"), parameterDeclaration.Name)) { IssueMarker = IssueMarker.GrayOut });
 			}
 		}
 	}
