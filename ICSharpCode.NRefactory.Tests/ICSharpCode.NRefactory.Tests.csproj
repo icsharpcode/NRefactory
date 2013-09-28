@@ -600,6 +600,7 @@
     <Compile Include="CSharp\CodeIssues\PossibleAssignmentToReadonlyFieldIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ObjectCreationAsStatementIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\NotResolvedInTextIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\DelegateSubtractionIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

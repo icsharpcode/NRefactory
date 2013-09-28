@@ -413,6 +413,7 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\PossibleAssignmentToReadonlyFieldIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\ObjectCreationAsStatementIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\NotResolvedInTextIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\DelegateSubtractionIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
