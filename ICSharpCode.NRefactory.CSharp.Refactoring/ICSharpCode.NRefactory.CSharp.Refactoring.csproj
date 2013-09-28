@@ -415,6 +415,7 @@
     <Compile Include="CodeIssues\Synced\CodeQuality\DelegateSubtractionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedParameterIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\SimplifyLinqExpressionIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitNullableCreationIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
