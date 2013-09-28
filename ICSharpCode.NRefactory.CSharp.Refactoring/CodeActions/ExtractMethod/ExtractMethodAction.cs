@@ -168,6 +168,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 					break;
 				}
 
+				int parameterOutCount = 0;
 				foreach (var variable in usedVariables) {
 					if (!(variable is IParameter) && !beforeExtractedRegion.Has (variable) && !afterExtractedRegion.Has (variable))
 						continue;
@@ -180,6 +181,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 						if (beforeExtractedRegion.GetStatus (variable) == VariableState.None) {
 							mod = ParameterModifier.Out;
 							argumentExpression = new DirectionExpression(FieldDirection.Out, argumentExpression);
+							parameterOutCount++;
 						} else {
 							mod = ParameterModifier.Ref;
 							argumentExpression = new DirectionExpression(FieldDirection.Ref, argumentExpression);
@@ -189,6 +191,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 					method.Parameters.Add(new ParameterDeclaration(context.CreateShortType(variable.Type), variable.Name, mod));
 					invocation.Arguments.Add(argumentExpression);
 				}
+
+				ParameterDeclaration parameterToTransform = null;
+				bool transformParameterToReturn = method.ReturnType is PrimitiveType && 
+				                                  ((PrimitiveType)method.ReturnType).Keyword == "void" &&
+				                                  parameterOutCount == 1;
+				if(transformParameterToReturn) {
+					parameterToTransform = method.Parameters.First(p => p.ParameterModifier == ParameterModifier.Out);
+					parameterToTransform.Remove();
+					var argumentExpression = invocation.Arguments.OfType<DirectionExpression>().First(a => a.FieldDirection == FieldDirection.Out);
+					argumentExpression.Remove();
+					method.ReturnType = parameterToTransform.Type.Clone();
+					var argumentDecl = new VariableDeclarationStatement(parameterToTransform.Type.Clone(),parameterToTransform.Name);
+					method.Body.InsertChildBefore(method.Body.First(),argumentDecl,BlockStatement.StatementRole);
+					method.Body.Add(new ReturnStatement (new IdentifierExpression (parameterToTransform.Name)));
+				}
+
 				script
 					.InsertWithCursor(context.TranslateString("Extract method"), Script.InsertPosition.Before, method)
 					.ContinueScript(delegate {
@@ -208,9 +226,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 
 						if (generatedReturnVariable != null) {
 							invocationStatement = new VariableDeclarationStatement (new SimpleType ("var"), generatedReturnVariable.Name, invocation);
+						} else if(transformParameterToReturn) {
+							invocationStatement = new AssignmentExpression(new IdentifierExpression(parameterToTransform.Name), invocation);
 						} else {
 							invocationStatement = invocation;
 						}
+
 						script.Replace(statements [0], invocationStatement);
 
 
