@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (typeDeclaration == null || typeDeclaration.ClassType != ClassType.Class || typeDeclaration.HasModifier(Modifiers.Static))
 					return;
-				if (!typeDeclaration.Members.Any())
+				if (!typeDeclaration.Members.Any() || typeDeclaration.HasModifier(Modifiers.Abstract) || typeDeclaration.HasModifier(Modifiers.Partial))
 					return;
 				if (typeDeclaration.Members.Any(f => !f.HasModifier(Modifiers.Static) && !f.HasModifier(Modifiers.Const)))
 					return;

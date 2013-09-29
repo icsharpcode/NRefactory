@@ -148,6 +148,25 @@ namespace Demo
 ");
 		}
 
+		[Test]
+		public void TestAbstract()
+		{
+			TestWrongContext<ConvertToStaticTypeIssue>(@"
+using System;
+
+namespace Demo
+{
+	public abstract class TestClass
+	{
+		public static int Main()
+		{
+			return 1;
+		}
+	}
+}
+");
+		}
+
 
 		[Test]
 		public void TestResharperDisable()

@@ -308,7 +308,6 @@
     <Compile Include="CodeIssues\Uncategorized\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
     <Compile Include="CodeIssues\Uncategorized\CompilerErrors\CS1729TypeHasNoConstructorWithNArgumentsIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ConstantConditionIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ConstructorIssues\StaticConstructorParameterIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\DisposeMethodInNonIDisposableTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\DuplicatedLinqToListOrArrayIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExceptionRethrowIssue.cs" />
@@ -418,6 +417,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitNullableCreationIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantStringToCharArrayCallIssue.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertToAutoPropertyIssue.cs" />
+    <Compile Include="CodeIssues\Custom\CompilerErrors\StaticConstructorParameterIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

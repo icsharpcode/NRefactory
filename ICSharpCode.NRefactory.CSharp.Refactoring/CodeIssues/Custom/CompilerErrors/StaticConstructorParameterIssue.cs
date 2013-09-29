@@ -1,11 +1,14 @@
-﻿// 
+﻿//
+// 
 // StaticConstructorParameterIssue.cs
 // 
 // Author:
 //      Ji Kun <jikun.nus@gmail.com>
-// 
+//      Mike Krüger <mkrueger@xamarin.com>
+//
 // Copyright (c) 2013 Ji Kun
-// 
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
@@ -23,44 +26,44 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
+
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Static constructor should be parameterless",
-                       Description = "Static constructor should be parameterless",
-                       Category = IssueCategories.CompilerErrors,
-                       Severity = Severity.Error,
-                       AnalysisDisableKeyword = "StaticConstructorParameterless")]
+		Description = "Static constructor should be parameterless",
+		Category = IssueCategories.CompilerErrors,
+		Severity = Severity.Error)]
 	public class StaticConstructorParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
-			var unit = context.RootNode as SyntaxTree;
-			if (unit == null)
-				return null;
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<StaticConstructorParameterIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-                : base(ctx)
+			public GatherVisitor(BaseRefactoringContext ctx) : base(ctx)
 			{
 			}
 
 			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
 			{
-				if (!constructorDeclaration.HasModifier(Modifiers.Static))
+				if (!constructorDeclaration.HasModifier(Modifiers.Static) || !constructorDeclaration.Parameters.Any())
 					return;
-				if (constructorDeclaration.Parameters.Count != 0) {
-					AddIssue(new CodeIssue(constructorDeclaration, ctx.TranslateString("Static constructor cannot take parameters")));
-				}
+				AddIssue(new CodeIssue(
+					constructorDeclaration.Parameters.First().StartLocation,
+					constructorDeclaration.Parameters.Last().EndLocation,
+					ctx.TranslateString("Static constructor cannot take parameters"),
+					ctx.TranslateString("Remove parameters"),
+					s => {
+						int o1 = ctx.GetOffset(constructorDeclaration.LParToken.EndLocation);
+						int o2 = ctx.GetOffset(constructorDeclaration.RParToken.StartLocation);
+						s.RemoveText(o1, o2 - o1);
+					}
+				));
 			}
 		}
 	}
