@@ -312,7 +312,6 @@
     <Compile Include="CodeIssues\Uncategorized\DuplicatedLinqToListOrArrayIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExceptionRethrowIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExplicitConversionInForEachIssue.cs" />
-    <Compile Include="CodeIssues\Uncategorized\ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\ExpressionIsNeverOfProvidedTypeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\IncorrectCallToObjectGetHashCodeIssue.cs" />
     <Compile Include="CodeIssues\Uncategorized\MethodOverloadHidesOptionalParameterIssue.cs" />
@@ -418,6 +417,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantStringToCharArrayCallIssue.cs" />
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertToAutoPropertyIssue.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\StaticConstructorParameterIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CompilerWarnings\CS0183ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

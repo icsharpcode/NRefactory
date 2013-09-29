@@ -127,7 +127,6 @@
     <Compile Include="CSharp\CodeIssues\ConstantConditionIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\DoubleNegationOperatorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ExplicitConversionInForEachIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\ExpressionIsAlwaysOfProvidedTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ExpressionIsNeverOfProvidedTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ForControlVariableIsNeverModifiedIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LocalVariableHidesMemberIssueTests.cs" />
@@ -606,6 +605,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantStringToCharArrayCallIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConvertToAutoPropertyIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\StaticConstructorParameterIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\CS0183ExpressionIsAlwaysOfProvidedTypeIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

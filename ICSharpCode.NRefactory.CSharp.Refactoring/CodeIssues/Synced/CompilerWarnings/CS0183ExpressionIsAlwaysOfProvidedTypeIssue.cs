@@ -35,15 +35,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("CS0183:Given expression is always of the provided type",
 		Description = "CS0183:Given expression is always of the provided type.",
 		Category = IssueCategories.CompilerWarnings,
-		Severity = Severity.Warning)]
-	public class ExpressionIsAlwaysOfProvidedTypeIssue : GatherVisitorCodeIssueProvider
+		Severity = Severity.Warning,
+		PragmaWarning = 183,
+		AnalysisDisableKeyword = "CSharpWarnings::CS0183"
+	)]
+	public class CS0183ExpressionIsAlwaysOfProvidedTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ExpressionIsAlwaysOfProvidedTypeIssue>
+		class GatherVisitor : GatherVisitorBase<CS0183ExpressionIsAlwaysOfProvidedTypeIssue>
 		{
 			readonly CSharpConversions conversions;
 

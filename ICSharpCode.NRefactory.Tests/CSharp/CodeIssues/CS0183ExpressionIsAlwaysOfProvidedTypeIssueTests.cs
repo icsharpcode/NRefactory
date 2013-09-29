@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ExpressionIsAlwaysOfProvidedTypeIssueTests : InspectionActionTestBase
+	public class CS0183ExpressionIsAlwaysOfProvidedTypeIssueTests : InspectionActionTestBase
 	{
 		public void Test (string variableType, string providedType)
 		{
@@ -52,7 +52,7 @@ class TestClass
 			;
 	}
 }";
-			Test<ExpressionIsAlwaysOfProvidedTypeIssue> (input, 1, output);
+			Test<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (input, 1, output);
 		}
 
 		[Test]
@@ -88,7 +88,7 @@ class TestClass
 			;
 	}
 }";
-			Test<ExpressionIsAlwaysOfProvidedTypeIssue> (input, 1, output);
+			Test<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (input, 1, output);
 		}
 		
 		[Test]
@@ -102,7 +102,7 @@ sealed class TestClass
 		if (x is double) ;
 	}
 }";
-			Test<ExpressionIsAlwaysOfProvidedTypeIssue> (input, 0);
+			Test<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (input, 0);
 		}
 		
 		[Test]
@@ -116,7 +116,39 @@ sealed class TestClass
 		if (x.MissingMethod() is MissingClass) ;
 	}
 }";
-			Test<ExpressionIsAlwaysOfProvidedTypeIssue> (input, 0);
+			Test<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (input, 0);
+		}
+
+
+		[Test]
+		public void TestDisable ()
+		{
+			TestWrongContext<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (@"
+class TestClass
+{
+	void TestMethod (TestClass x)
+	{
+		// ReSharper disable once CSharpWarnings::CS0183
+		if (x is TestClass)
+			;
+	}
+}");
+		}
+
+		[Test]
+		public void TestPragmaDisable()
+		{
+			TestWrongContext<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (@"
+class TestClass
+{
+	void TestMethod (TestClass x)
+	{
+#pragma warning disable 183
+		if (x is TestClass)
+#pragma warning restore 183
+			;
+	}
+}");
 		}
 	}
 }
