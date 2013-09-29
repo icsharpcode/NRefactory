@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (property == null || !property.NameToken.Contains(context.Location))
 				yield break;
 
-			var field = GetBackingField(context);
+			var field = GetBackingField(context, property);
 			if (field == null) {
 				yield break;
 			}
@@ -78,9 +78,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 //
 		static readonly Version csharp3 = new Version(3, 0);
 		
-		internal static IField GetBackingField (RefactoringContext context)
+		internal static IField GetBackingField (BaseRefactoringContext context, PropertyDeclaration propertyDeclaration)
 		{
-			var propertyDeclaration = context.GetNode<PropertyDeclaration> ();
 			// automatic properties always need getter & setter
 			if (propertyDeclaration == null || propertyDeclaration.Getter.IsNull || propertyDeclaration.Setter.IsNull || propertyDeclaration.Getter.Body.IsNull || propertyDeclaration.Setter.Body.IsNull)
 				return null;
@@ -97,7 +96,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return getterField;
 		}
 		
-		internal static IField ScanGetter (RefactoringContext context, PropertyDeclaration propertyDeclaration)
+		internal static IField ScanGetter (BaseRefactoringContext context, PropertyDeclaration propertyDeclaration)
 		{
 			if (propertyDeclaration.Getter.Body.Statements.Count != 1)
 				return null;
@@ -110,7 +109,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return ((MemberResolveResult)result).Member as IField;
 		}
 		
-		internal static IField ScanSetter (RefactoringContext context, PropertyDeclaration propertyDeclaration)
+		internal static IField ScanSetter (BaseRefactoringContext context, PropertyDeclaration propertyDeclaration)
 		{
 			if (propertyDeclaration.Setter.Body.Statements.Count != 1)
 				return null;

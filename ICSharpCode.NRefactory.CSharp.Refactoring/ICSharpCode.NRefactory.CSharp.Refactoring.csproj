@@ -417,6 +417,7 @@
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\SimplifyLinqExpressionIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitNullableCreationIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantStringToCharArrayCallIssue.cs" />
+    <Compile Include="CodeIssues\Synced\Opportunities\ConvertToAutoPropertyIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

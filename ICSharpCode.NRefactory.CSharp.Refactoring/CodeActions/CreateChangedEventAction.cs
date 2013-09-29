@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (property == null || !property.NameToken.Contains(context.Location))
 				yield break;
 
-			var field = RemoveBackingStoreAction.GetBackingField(context);
+			var field = RemoveBackingStoreAction.GetBackingField(context, property);
 			if (field == null)
 				yield break;
 			var resolvedType = ReflectionHelper.ParseReflectionName ("System.EventHandler").Resolve (context.Compilation);
