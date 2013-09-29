@@ -606,6 +606,7 @@
     <Compile Include="CSharp\CodeIssues\ConvertToAutoPropertyIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\StaticConstructorParameterIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0183ExpressionIsAlwaysOfProvidedTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\PolymorphicFieldLikeEventInvocationIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">

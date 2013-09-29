@@ -779,7 +779,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			a.SymbolKind = SymbolKind.Accessor;
 			a.AccessorOwner = ev;
 			a.Region = ev.BodyRegion;
-			a.BodyRegion = ev.BodyRegion;
+			a.BodyRegion = DomRegion.Empty;
 			a.Accessibility = ev.Accessibility;
 			a.IsAbstract = ev.IsAbstract;
 			a.IsOverride = ev.IsOverride;
@@ -787,7 +787,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			a.IsStatic = ev.IsStatic;
 			a.IsSynthetic = ev.IsSynthetic;
 			a.IsVirtual = ev.IsVirtual;
-			a.HasBody = true;
+			a.HasBody = false;
 			a.ReturnType = KnownTypeReference.Void;
 			a.Parameters.Add(valueParameter);
 			return a;

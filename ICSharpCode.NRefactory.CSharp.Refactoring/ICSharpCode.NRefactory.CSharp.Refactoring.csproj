@@ -418,6 +418,7 @@
     <Compile Include="CodeIssues\Synced\Opportunities\ConvertToAutoPropertyIssue.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\StaticConstructorParameterIssue.cs" />
     <Compile Include="CodeIssues\Synced\CompilerWarnings\CS0183ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
+    <Compile Include="CodeIssues\Synced\CodeQuality\PolymorphicFieldLikeEventInvocationIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
