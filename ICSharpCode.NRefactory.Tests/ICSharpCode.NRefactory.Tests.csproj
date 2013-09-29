@@ -610,6 +610,8 @@
     <Compile Include="CSharp\CodeIssues\ConvertTailRecursiveCallToLoopIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\LoopCanBeConvertedToQueryIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PartOfBodyCanBeConvertedToQueryIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantTypeArgumentsOfMethodIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\PossibleMistakenCallToGetTypeIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
