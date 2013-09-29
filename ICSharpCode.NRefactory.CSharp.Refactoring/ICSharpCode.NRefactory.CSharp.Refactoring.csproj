@@ -419,6 +419,9 @@
     <Compile Include="CodeIssues\Custom\CompilerErrors\StaticConstructorParameterIssue.cs" />
     <Compile Include="CodeIssues\Synced\CompilerWarnings\CS0183ExpressionIsAlwaysOfProvidedTypeIssue.cs" />
     <Compile Include="CodeIssues\Synced\CodeQuality\PolymorphicFieldLikeEventInvocationIssue.cs" />
+    <Compile Include="CodeIssues\TODO\ConvertTailRecursiveCallToLoopIssue.cs" />
+    <Compile Include="CodeIssues\TODO\LoopCanBeConvertedToQueryIssue.cs" />
+    <Compile Include="CodeIssues\TODO\PartOfBodyCanBeConvertedToQueryIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -448,4 +451,7 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="CodeIssues\TODO\" />
+  </ItemGroup>
 </Project>

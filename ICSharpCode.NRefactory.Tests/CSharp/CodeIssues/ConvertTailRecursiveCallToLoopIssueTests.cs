@@ -1,21 +1,21 @@
-// 
-// LowercaseLongLiteralSuffixTests.cs
-// 
+//
+// ConvertTailRecursiveCallToLoopIssueTests.cs
+//
 // Author:
-//      Luís Reis <luiscubal@gmail.com>
-// 
-// Copyright (c) 2013 Luís Reis
-// 
+//       Mike Krüger <mkrueger@xamarin.com>
+//
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,84 +23,73 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-using ICSharpCode.NRefactory.CSharp.CodeActions;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
+	[Ignore]
 	[TestFixture]
-	public class LongLiteralEndingLowerLIssueTests : InspectionActionTestBase
+	public class ConvertTailRecursiveCallToLoopIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestNormal()
+		public void TestBasicCase ()
 		{
-			Test<LongLiteralEndingLowerLIssue>(@"
-class Test
+			Test<ConvertTailRecursiveCallToLoopIssue>(@"
+public class FooBar
 {
-	public long x = 3l;
-}", @"
-class Test
+	public static void Foo(int i)
+	{
+		if (i == 0)
+			return;
+		Foo(i - 1);
+	}
+}
+", @"
+public class FooBar
 {
-	public long x = 3L;
+	public static void Foo(int i)
+	{
+		while (true) {
+			if (i == 0)
+				return;
+			i = i - 1;
+		}
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestConditionCase ()
+		{
+			Test<ConvertTailRecursiveCallToLoopIssue>(@"
+public class FooBar
+{
+	public static void Foo(int i)
+	{
+		Console.WriteLine(i);
+		if (i > 0)
+			Foo(i - 1);
+	}
+}
+", @"
+public class FooBar
+{
+	public static void Foo(int i)
+	{
+		while (true) {
+			Console.WriteLine(i);
+			if (i > 0) {
+				i = i - 1;
+				continue;
+			}
+			break;
+		}
+	}
 }");
 		}
 
-		[Test]
-		public void TestDisabledForUnsignedFirst()
-		{
-			Test<LongLiteralEndingLowerLIssue>(@"
-class Test
-{
-	public ulong x = 3ul;
-}", 0);
-		}
-
-		[Test]
-		public void TestUnsigned()
-		{
-			Test<LongLiteralEndingLowerLIssue>(@"
-class Test
-{
-	public ulong x = 3lu;
-}", @"
-class Test
-{
-	public ulong x = 3LU;
-}");
-		}
-
-		[Test]
-		public void TestDisabledForUppercase()
-		{
-			Test<LongLiteralEndingLowerLIssue>(@"
-class Test
-{
-	public long x = 3L;
-}", 0);
-		}
-
-		[Test]
-		public void TestDisabledForString()
-		{
-			Test<LongLiteralEndingLowerLIssue>(@"
-class Test
-{
-	public string x = ""l"";
-}", 0);
-		}
-
-		[Test]
-		public void TestDisable()
-		{
-			TestWrongContext<LongLiteralEndingLowerLIssue>(@"
-class Test
-{
-	// ReSharper disable once LongLiteralEndingLowerL
-	public long x = 3l;
-}");
-		}
 	}
 }
 

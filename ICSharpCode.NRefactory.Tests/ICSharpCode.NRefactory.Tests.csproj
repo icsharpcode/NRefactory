@@ -607,6 +607,9 @@
     <Compile Include="CSharp\CodeIssues\StaticConstructorParameterIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\CS0183ExpressionIsAlwaysOfProvidedTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PolymorphicFieldLikeEventInvocationIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConvertTailRecursiveCallToLoopIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\LoopCanBeConvertedToQueryIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\PartOfBodyCanBeConvertedToQueryIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
