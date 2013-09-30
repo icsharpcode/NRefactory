@@ -23,39 +23,73 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System.Linq;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Convert anonymous delegate to lambda block",
-	               Description = "Converts an anonymous delegate into a lambda in block form.")]
+	[ContextAction("Convert anonymous delegate to lambda",
+		Description = "Converts an anonymous delegate into a lambda")]
 	public class ConvertAnonymousDelegateToLambdaAction : SpecializedCodeAction<AnonymousMethodExpression>
 	{
 		#region implemented abstract members of SpecializedCodeAction
+
 		protected override CodeAction GetAction(RefactoringContext context, AnonymousMethodExpression node)
 		{
 			if (context.Location < node.DelegateToken.StartLocation || context.Location >= node.Body.StartLocation)
 				return null;
 
-			if (!node.HasParameterList)
-				return null;
+			Expression convertExpression = null;
 
-			return new CodeAction(context.TranslateString("Convert to lambda block"), script => {
-				var parent = node.Parent;
-				while (!(parent is Statement))
-					parent = parent.Parent;
-				bool explicitLambda = parent is VariableDeclarationStatement && ((VariableDeclarationStatement)parent).Type.IsVar();
-				var lambda = new LambdaExpression {	Body = node.Body.Clone() };
-				foreach (var parameter in node.Parameters) {
-					if (explicitLambda) {
-						lambda.Parameters.Add(new ParameterDeclaration { Type = parameter.Type.Clone(), Name = parameter.Name });
-					} else {
-						lambda.Parameters.Add(new ParameterDeclaration { Name = parameter.Name });
-					}
+			var stmt = node.Body.Statements.FirstOrDefault();
+			if (stmt.GetNextSibling(s => s.Role == BlockStatement.StatementRole) == null) {
+				var exprStmt = stmt as ExpressionStatement;
+				if (exprStmt != null) {
+					convertExpression = exprStmt.Expression;
 				}
-				script.Replace(node, lambda);
-			}, node);
+			}
+
+			IType guessedType = null;
+			if (!node.HasParameterList) {
+				guessedType = TypeGuessing.GuessType(context, node);
+				if (guessedType.Kind != TypeKind.Delegate)
+					return null;
+			}
+
+			return new CodeAction(context.TranslateString("Convert to lambda"), 
+				script => {
+					var parent = node.Parent;
+					while (!(parent is Statement))
+						parent = parent.Parent;
+					bool explicitLambda = parent is VariableDeclarationStatement && ((VariableDeclarationStatement)parent).Type.IsVar();
+					var lambda = new LambdaExpression ();
+
+					if (convertExpression != null) {
+						lambda.Body = convertExpression.Clone();
+					} else {
+						lambda.Body = node.Body.Clone();
+					}
+					if (node.HasParameterList) {
+						foreach (var parameter in node.Parameters) {
+							if (explicitLambda) {
+								lambda.Parameters.Add(new ParameterDeclaration { Type = parameter.Type.Clone(), Name = parameter.Name });
+							} else {
+								lambda.Parameters.Add(new ParameterDeclaration { Name = parameter.Name });
+							}
+						}
+					} else {
+						var method = guessedType.GetDelegateInvokeMethod ();
+						foreach (var parameter in method.Parameters) {
+							lambda.Parameters.Add(new ParameterDeclaration { Name = parameter.Name });
+						}
+					}
+					script.Replace(node, lambda);
+				}, 
+				node);
 		}
+
 		#endregion
+
 	}
 }
 

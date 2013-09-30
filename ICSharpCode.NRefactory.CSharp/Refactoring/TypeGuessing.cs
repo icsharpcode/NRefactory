@@ -280,7 +280,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			return context.CreateShortType(inferedType);
 		}
 
-		public static IType GuessType(RefactoringContext context, AstNode expr)
+		public static IType GuessType(BaseRefactoringContext context, AstNode expr)
 		{
 			if (expr is SimpleType && expr.Role == Roles.TypeArgument) {
 				if (expr.Parent is MemberReferenceExpression || expr.Parent is IdentifierExpression) {
