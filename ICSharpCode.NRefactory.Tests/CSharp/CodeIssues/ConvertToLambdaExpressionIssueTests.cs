@@ -114,6 +114,66 @@ class C
 }");
 		}
 
+		[Test]
+		public void TestAnonymousMethod ()
+		{
+			Test<ConvertToLambdaExpressionIssue> (@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		System.Action a = delegate () {
+			System.Console.WriteLine ();
+		};
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		System.Action a = () => System.Console.WriteLine ();
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestAnonymousFunction ()
+		{
+			Test<ConvertToLambdaExpressionIssue> (@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		System.Func<int, int> f = delegate (int i) {
+			return i + 1;
+		};
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		System.Func<int, int> f = (int i) => i + 1;
+	}
+}");
+		}
+
+		[Test]
+		public void TestAnonymousMethodWithoutParameterList ()
+		{
+			TestWrongContext<ConvertToLambdaExpressionIssue> (@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		System.Func<int, int> f = delegate {
+			return 123;
+		};
+	}
+}");
+		}
+
 
 	}
 }

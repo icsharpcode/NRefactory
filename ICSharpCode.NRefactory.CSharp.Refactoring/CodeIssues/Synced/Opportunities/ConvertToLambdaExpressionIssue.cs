@@ -23,20 +23,19 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[IssueDescription("Convert to lambda expression",
-	                  Description = "Convert to lambda with expression",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ConvertToLambdaExpression")]
+		Description = "Convert to lambda with expression",
+		Category = IssueCategories.Opportunities,
+		Severity = Severity.Suggestion,
+		AnalysisDisableKeyword = "ConvertToLambdaExpression")]
 	public class ConvertToLambdaExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
@@ -46,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<ConvertToLambdaExpressionIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseRefactoringContext ctx) : base(ctx)
 			{
 			}
 
@@ -55,12 +54,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				base.VisitLambdaExpression(lambdaExpression);
 				BlockStatement block;
 				Expression expr;
-				if (!ConvertLambdaBodyStatementToExpressionAction.TryGetConvertableExpression(lambdaExpression, out block, out expr))
+				if (!ConvertLambdaBodyStatementToExpressionAction.TryGetConvertableExpression(lambdaExpression.Body, out block, out expr))
 					return;
 				var node = block.Statements.FirstOrDefault() ?? block;
 				var returnTypes = new List<IType>();
 				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, lambdaExpression)) {
-					if (type.Kind != ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate)
+					if (type.Kind != TypeKind.Delegate)
 						continue;
 					var invoke = type.GetDelegateInvokeMethod();
 					if (!returnTypes.Contains(invoke.ReturnType))
@@ -75,7 +74,41 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					ConvertLambdaBodyStatementToExpressionAction.CreateAction(ctx, node, block, expr)
 				));
 			}
+
+			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+			{
+				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+				if (!anonymousMethodExpression.HasParameterList)
+					return;
+				BlockStatement block;
+				Expression expr;
+				if (!ConvertLambdaBodyStatementToExpressionAction.TryGetConvertableExpression(anonymousMethodExpression.Body, out block, out expr))
+					return;
+				var node = block.Statements.FirstOrDefault() ?? block;
+				var returnTypes = new List<IType>();
+				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
+					if (type.Kind != TypeKind.Delegate)
+						continue;
+					var invoke = type.GetDelegateInvokeMethod();
+					if (!returnTypes.Contains(invoke.ReturnType))
+						returnTypes.Add(invoke.ReturnType);
+				}
+				if (returnTypes.Count > 1)
+					return;
+
+				AddIssue(new CodeIssue(
+					node,
+					ctx.TranslateString("Can be converted to expression"),
+					ctx.TranslateString("Convert to lambda expression"),
+					script => {
+						var lambdaExpression = new LambdaExpression();
+						foreach (var parameter in anonymousMethodExpression.Parameters)
+							lambdaExpression.Parameters.Add(parameter.Clone());
+						lambdaExpression.Body = expr.Clone();
+						script.Replace(anonymousMethodExpression, lambdaExpression);
+					}
+				));
+			}
 		}
 	}
 }
-

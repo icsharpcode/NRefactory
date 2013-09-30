@@ -30,10 +30,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Description = "Converts statement of lambda body to expression")]
 	public class ConvertLambdaBodyStatementToExpressionAction : SpecializedCodeAction<LambdaExpression>
 	{
-		internal static bool TryGetConvertableExpression(LambdaExpression node, out BlockStatement blockStatement, out Expression expr)
+		internal static bool TryGetConvertableExpression(AstNode body, out BlockStatement blockStatement, out Expression expr)
 		{
 			expr = null;
-			blockStatement = node.Body as BlockStatement;
+			blockStatement = body as BlockStatement;
 			if (blockStatement == null || blockStatement.Statements.Count > 1)
 				return false;
 			var returnStatement = blockStatement.Statements.FirstOrNullObject() as ReturnStatement;
@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			BlockStatement blockStatement;
 			Expression expr;
-			if (!TryGetConvertableExpression(node, out blockStatement, out expr))
+			if (!TryGetConvertableExpression(node.Body, out blockStatement, out expr))
 				return null;
 
 			

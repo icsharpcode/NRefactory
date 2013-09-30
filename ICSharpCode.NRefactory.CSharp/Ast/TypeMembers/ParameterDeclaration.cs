@@ -137,6 +137,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			Name = name;
 			ParameterModifier = modifier;
 		}
+
+		public new ParameterDeclaration Clone()
+		{
+			return (ParameterDeclaration)base.Clone();
+		}
 	}
 }
 
