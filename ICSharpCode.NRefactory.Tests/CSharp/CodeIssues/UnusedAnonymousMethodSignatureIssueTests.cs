@@ -108,6 +108,25 @@ class TestClass
 }
 ");
 		}
+
+		/// <summary>
+		/// Bug 15058 - Wrong context for unused parameter list 
+		/// </summary>
+		[Test]
+		public void TestBug15058 ()
+		{
+			TestWrongContext<UnusedAnonymousMethodSignatureIssue>(@"
+using System;
+using System.Threading;
+
+class TestClass
+{
+	void TestMethod()
+	{
+		var myThing = new Thread (delegate () { doStuff (); });
 	}
 }
-
+");
+		}
+	}
+}
