@@ -354,6 +354,25 @@ class C
 	}
 }");
 		}
+
+		[Test]
+		public void TestTargetCollision ()
+		{
+			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"
+using System;
+
+class Program
+{
+	public void Foo(Action act) {}
+	public void Foo(Action<int> act) {}
+
+	void Test ()
+	{
+		Foo (i => Console.WriteLine (i));
+	}
+}");
+		}
+
 	}
 }
 

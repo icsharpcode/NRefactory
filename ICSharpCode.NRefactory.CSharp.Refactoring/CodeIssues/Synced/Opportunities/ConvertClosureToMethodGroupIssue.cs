@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 			}
 			
-			static Pattern pattern = new Choice {
+			static readonly Pattern pattern = new Choice {
 				new BlockStatement {
 					new ReturnStatement (new AnyNode ("invoke")) 
 				},
@@ -103,6 +103,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (returnConv.IsExplicit || !(returnConv.IsIdentityConversion || returnConv.IsReferenceConversion))
 					return;
 				var validTypes = TypeGuessing.GetValidTypes (ctx.Resolver, expression).ToList ();
+
+				// search for method group collisions
+				var targetResult = ctx.Resolve(invocation.Target) as MethodGroupResolveResult;
+				if (targetResult != null) {
+					foreach (var t in validTypes) {
+						if (t.Kind != TypeKind.Delegate)
+							continue;
+						var invokeMethod = t.GetDelegateInvokeMethod();
+
+						foreach (var otherMethod in targetResult.Methods) {
+							if (otherMethod == rr.Member)
+								continue;
+							if (ParameterListComparer.Instance.Equals(otherMethod.Parameters, invokeMethod.Parameters))
+								return;
+						}
+					}
+				}
 
 				bool isValidReturnType = false;
 				foreach (var t in validTypes) {
