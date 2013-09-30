@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			bool IsParameterListRedundant(Expression expression)
 			{
 				var validTypes = TypeGuessing.GetValidTypes(ctx.Resolver, expression);
-				return validTypes.Count(t => t.Kind != TypeKind.Delegate) == 1;
+				return validTypes.Count(t => t.Kind == TypeKind.Delegate) == 1;
 			}
 
 			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)

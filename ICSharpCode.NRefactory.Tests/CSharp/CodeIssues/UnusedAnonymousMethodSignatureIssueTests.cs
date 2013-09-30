@@ -36,6 +36,8 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		public void TestSimpleUsage ()
 		{
 			Test<UnusedAnonymousMethodSignatureIssue>(@"
+using System;
+
 class TestClass
 {
 	void TestMethod()
@@ -43,6 +45,8 @@ class TestClass
 		Action<int> x = delegate (int p) {};
 	}
 }", @"
+using System;
+
 class TestClass
 {
 	void TestMethod()
@@ -70,6 +74,8 @@ class TestClass
 		public void TestVisitChild ()
 		{
 			Test<UnusedAnonymousMethodSignatureIssue>(@"
+using System;
+
 class TestClass
 {
 	void TestMethod()
@@ -80,6 +86,8 @@ class TestClass
 		};
 	}
 }", @"
+using System;
+
 class TestClass
 {
 	void TestMethod()
