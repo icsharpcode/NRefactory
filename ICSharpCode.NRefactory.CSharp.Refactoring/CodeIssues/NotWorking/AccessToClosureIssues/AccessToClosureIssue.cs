@@ -29,12 +29,12 @@ using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
+using System;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	public abstract class AccessToClosureIssue : GatherVisitorCodeIssueProvider
 	{
-		readonly ControlFlowGraphBuilder cfgBuilder = new ControlFlowGraphBuilder ();
 
 		public string Title
 		{ get; private set; }
@@ -73,6 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<AccessToClosureIssue>
 		{
+			readonly ControlFlowGraphBuilder cfgBuilder = new ControlFlowGraphBuilder ();
 			string title;
 
 			public GatherVisitor (BaseRefactoringContext context, SyntaxTree unit,
@@ -144,7 +145,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				IDictionary<Statement, IList<Node>> modifications = null;
 
 				if (env.Body != null) {
-					cfg = issueProvider.cfgBuilder.BuildControlFlowGraph (env.Body);
+					try { 
+						cfg = cfgBuilder.BuildControlFlowGraph (env.Body);
+					} catch (Exception) {
+						return;
+					}
 					modifications = new Dictionary<Statement, IList<Node>> ();
 					foreach (var node in env.Children) {
 						if (node.Kind == NodeKind.Modification || node.Kind == NodeKind.ReferenceAndModification) {
