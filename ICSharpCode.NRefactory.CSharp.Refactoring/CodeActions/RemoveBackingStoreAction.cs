@@ -103,6 +103,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var returnStatement = propertyDeclaration.Getter.Body.Statements.First () as ReturnStatement;
 			if (returnStatement == null)
 				return null;
+			if (!IsPossibleExpression(returnStatement.Expression))
+				return null;
 			var result = context.Resolve (returnStatement.Expression);
 			if (result == null || !(result is MemberResolveResult))
 				return null;
@@ -117,10 +119,22 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var assignment = setAssignment != null ? setAssignment.Expression as AssignmentExpression : null;
 			if (assignment == null || assignment.Operator != AssignmentOperatorType.Assign)
 				return null;
+			if (!IsPossibleExpression(assignment.Left))
+				return null;
 			var result = context.Resolve (assignment.Left);
 			if (result == null || !(result is MemberResolveResult))
 				return null;
 			return ((MemberResolveResult)result).Member as IField;
+		}
+
+		static bool IsPossibleExpression(Expression left)
+		{
+			if (left is IdentifierExpression)
+				return true;
+			var mr = left as MemberReferenceExpression;
+			if (mr == null)
+				return false;
+			return mr.Target is ThisReferenceExpression;
 		}
 	}
 }

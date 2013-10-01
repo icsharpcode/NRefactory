@@ -77,6 +77,26 @@ class FooBar
 }
 ");
 		}
+
+
+		[Test]
+		public void TestArrayBug ()
+		{
+			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+class Bar {
+	public int foo;
+}
+class FooBar
+{
+	Bar bar;
+
+	public int Foo {
+		get { return bar.foo; }
+		set { bar.foo = value; }
+	}
+}
+");
+		}
 	}
 }
 
