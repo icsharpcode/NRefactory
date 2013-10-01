@@ -569,6 +569,22 @@ class Foo
 			Assert.AreEqual("\t\t    ", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
+
+		[Ignore("FixMe!")]
+		[Test]
+		public void BasicMethodContinuation()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		Call(A)
+			.Foo ()$", fmt);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+		}
 	}
 }
 
