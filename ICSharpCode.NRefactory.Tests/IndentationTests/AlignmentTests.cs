@@ -176,7 +176,7 @@ class Foo
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
-	
+
 		[Test]
 		public void UnalignEmbeddedUsingStatements()
 		{
@@ -570,7 +570,6 @@ class Foo
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("FixMe!")]
 		[Test]
 		public void BasicMethodContinuation()
 		{
@@ -582,6 +581,23 @@ class Foo
 	void Test ()
 	{
 		Call(A)
+			.Foo ()$", fmt);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+		}
+
+		[Test]
+		public void DeepMethodContinuation()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		Call(A)
+			.Foo ()
+			.Foo ()
 			.Foo ()$", fmt);
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 		}
