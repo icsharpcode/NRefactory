@@ -77,24 +77,19 @@ class FooBar<T> where T : class, IFoo
 		public void TestValueType()
 		{
 			TestIssue<PossibleAssignmentToReadonlyFieldIssue>(@"
-interface IFoo
+struct Bar
 {
-	int Property { get; set; }
+	public int P;
 }
 
-struct Bar : IFoo
-{
-	public int Property { get; set; }
-}
-
-class FooBar<T> where T : IFoo
+class FooBar
 {
 	readonly Bar field;
 
 	public static void Foo()
 	{
-		var a = new FooBar<Bar>();
-		a.field.Property = 7;
+		var a = new FooBar();
+		a.field.P = 7;
 	}
 }
 ");
@@ -144,10 +139,6 @@ public class Multipart
 ");
 		}
 
-
-
-
-
 		[Test]
 		public void TestDisable()
 		{
@@ -171,6 +162,31 @@ class FooBar<T> where T : IFoo
 		var a = new FooBar<Bar>();
 		// ReSharper disable once PossibleAssignmentToReadonlyField
 		a.field.Property = 7;
+	}
+}
+");
+		}
+
+		/// <summary>
+		/// Bug 15109 - Incorrect "Readonly field cannot be used as assignment target" error
+		/// </summary>
+		[Test]
+		public void TestBug15109()
+		{
+			TestWrongContext<PossibleAssignmentToReadonlyFieldIssue>(@"
+namespace TestProject 
+{
+	class FileInfo {
+		public int Foo { get; set; } 
+	}
+	class Program
+	{
+		readonly FileInfo f = new FileInfo ();
+
+		void Test ()
+		{
+			f.Foo = 12;
+		}
 	}
 }
 ");

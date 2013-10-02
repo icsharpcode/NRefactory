@@ -71,9 +71,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 
 				var rr = ctx.Resolve(expr) as MemberResolveResult;
+
 				if (rr == null || rr.IsError)
 					return;
 				var field = rr.Member as IField;
+
 				if (field == null || !field.IsReadOnly)
 					return;
 
@@ -86,9 +88,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						ctx.TranslateString("Assignment to a property of a readonly field can be useless. Type parameter is not known to be a reference type.")));
 					return;
 				}
-
-				// TODO: Add resolve actions: Remove readonly modifier
-				AddIssue(new CodeIssue(expr, ctx.TranslateString("Readonly field can not be used as assignment target.")));
+				if (field.Type.Kind == TypeKind.Struct) {
+					// TODO: Add resolve actions: Remove readonly modifier
+					AddIssue(new CodeIssue(expr, ctx.TranslateString("Readonly field can not be used as assignment target.")));
+				}
 			}
 
 			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
