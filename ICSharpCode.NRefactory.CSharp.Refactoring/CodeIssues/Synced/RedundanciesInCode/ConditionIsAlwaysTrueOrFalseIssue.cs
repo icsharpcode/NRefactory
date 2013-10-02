@@ -79,10 +79,15 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return false;
 				// note null == null is checked by similiar expression comparison.
 				var expr = CSharpUtil.GetInnerMostExpression(right);
+
 				var rr = ctx.Resolve(expr);
 				if (rr.Type.IsReferenceType == false) {
 					// nullable check
 					if (NullableType.IsNullable(rr.Type))
+						return false;
+
+					var conversion = ctx.GetConversion(nullNode);
+					if (conversion.ConversionAfterUserDefinedOperator == Conversion.IdentityConversion)
 						return false;
 
 					// check for user operators
@@ -94,6 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality && op.Name == "op_Inequality")
 							return false;
 					}
+
 					AddIssue(binaryOperatorExpression, binaryOperatorExpression.Operator != BinaryOperatorType.Equality);
 					return true;
 				}

@@ -196,6 +196,7 @@ class Bar
 }
 ");
 		}
+
 		[Test]
 		public void UserDefinedOperators()
 		{
@@ -225,6 +226,48 @@ class Bar
 ");
 		}
 
+
+		/// <summary>
+		/// Bug 15099 - Wrong always true context
+		/// </summary>
+		[Test]
+		public void TestBug15099()
+		{
+			TestWrongContext<ConditionIsAlwaysTrueOrFalseIssue>(@"
+struct Foo 
+{
+	string name;
+
+	public Foo (string name)
+	{
+		this.name = name;
+	}
+
+	public static bool operator ==(Foo value, Foo o)
+	{
+		return value.name == o.name;
+	}
+
+	public static bool operator !=(Foo value, Foo o)
+	{
+		return !(value == o);
+	}
+
+	public static implicit operator Foo (string name)
+	{
+		return new Foo (name);
+	}
+}
+
+class Bar
+{
+	public static void Main (string[] args)
+	{
+		var foo = new Foo (null);
+		System.Console.WriteLine (foo == null);
+	}
+}");
+		}
 
 
 
