@@ -469,7 +469,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		///     True if the dot member (e.g. method invocation) indentation has
 		///     been handled in the current statement.
 		/// </summary>
-		public bool IsDotMemberContinuationPushed;
+		public bool IsMemberReferenceDotHandled;
 
 		public override char ClosedBracket
 		{
@@ -489,7 +489,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			NestedIfStatementLevels = new Stack<Indent>(prototype.NestedIfStatementLevels);
 			IsRightHandExpression = prototype.IsRightHandExpression;
 			IsEqualCharPushed = prototype.IsEqualCharPushed;
-			IsDotMemberContinuationPushed = prototype.IsDotMemberContinuationPushed;
+			IsMemberReferenceDotHandled = prototype.IsMemberReferenceDotHandled;
 			LastBlockIndent = prototype.LastBlockIndent;
 		}
 
@@ -532,16 +532,17 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				IsEqualCharPushed = true;
 			}
-			else if (ch == '.')
+			else if (ch == '.' && !IsMemberReferenceDotHandled)
 			{
 				// OPTION: CSharpFormattingOptions.AlignToMemberReferenceDot
-				if (Engine.formattingOptions.AlignToMemberReferenceDot)
+				if (Engine.formattingOptions.AlignToMemberReferenceDot && !Engine.isLineStart)
 				{
+					IsMemberReferenceDotHandled = true;
 					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 				}
-				else if (Engine.previousChar == ')' && Engine.isLineStart && !IsDotMemberContinuationPushed)
+				else if (Engine.previousChar == ')' && Engine.isLineStart)
 				{
-					IsDotMemberContinuationPushed = true;
+					IsMemberReferenceDotHandled = true;
 
 					ThisLineIndent.ExtraSpaces = 0;
 					ThisLineIndent.Push(IndentType.Continuation);
@@ -613,7 +614,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public virtual void OnStatementExit()
 		{
 			IsRightHandExpression = false;
-			IsDotMemberContinuationPushed = false;
+			IsMemberReferenceDotHandled = false;
 
 			NextLineIndent.ExtraSpaces = 0;
 			NextLineIndent.PopWhile(IndentType.Continuation);

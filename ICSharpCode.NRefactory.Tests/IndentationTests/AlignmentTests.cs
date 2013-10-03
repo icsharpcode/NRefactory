@@ -601,6 +601,43 @@ class Foo
 			.Foo ()$", fmt);
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 		}
+
+		[Test]
+		public void DeepMethodContinuationStatement()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToFirstMethodCallArgument = false;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		if (true)
+			Call(A)
+				.Foo ()
+				.Foo ()
+				.Foo (); $", fmt);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void DeepMethodContinuationStatement_AlignToMemberReferenceDot()
+		{
+			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			fmt.AlignToMemberReferenceDot = true;
+			var indent = Helper.CreateEngine(@"
+class Foo
+{
+	void Test ()
+	{
+		if (true)
+			Call(A).Foo ()
+			       .Foo ()
+			       .Foo (); $", fmt);
+			Assert.AreEqual("\t\t\t       ", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
 	}
 }
 
