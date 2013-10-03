@@ -532,14 +532,15 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				IsEqualCharPushed = true;
 			}
-			else if (ch == '.')
+			else if (ch == '.' && !IsDotMemberContinuationPushed)
 			{
 				// OPTION: CSharpFormattingOptions.AlignToMemberReferenceDot
-				if (Engine.formattingOptions.AlignToMemberReferenceDot)
+				if (Engine.formattingOptions.AlignToMemberReferenceDot && !Engine.isLineStart)
 				{
+					IsDotMemberContinuationPushed = true;
 					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 				}
-				else if (Engine.previousChar == ')' && Engine.isLineStart && !IsDotMemberContinuationPushed)
+				else if (Engine.previousChar == ')' && Engine.isLineStart)
 				{
 					IsDotMemberContinuationPushed = true;
 
