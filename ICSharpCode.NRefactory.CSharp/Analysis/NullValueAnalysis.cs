@@ -1427,13 +1427,14 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					var namedArgument = argument as NamedArgumentExpression;
 					
 					var directionExpression = (namedArgument == null ? argument : namedArgument.Expression) as DirectionExpression;
-					if (directionExpression != null) {
+					if (directionExpression != null && methodResolveResult != null) {
 						var identifier = directionExpression.Expression as IdentifierExpression;
 						if (identifier != null) {
 							//out and ref parameters do *NOT* capture the variable (since they must stop changing it by the time they return)
 							var identifierResolveResult = analysis.context.Resolve(identifier) as LocalResolveResult;
 							if (identifierResolveResult != null && IsTypeNullable(identifierResolveResult.Type)) {
 								data = data.Clone();
+
 								FixParameter(argument, methodResolveResult.Member.Parameters, parameterIndex, identifier, data);
 							}
 						}
