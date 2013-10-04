@@ -57,12 +57,24 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (targetResult != null) {
 				foreach (var method in targetResult.Methods) {
 					if (index < method.Parameters.Count) {
+						if (method.Parameters [index].IsParams) {
+							var arrayType = method.Parameters [index].Type as ArrayType;
+							if (arrayType != null)
+								yield return arrayType.ElementType;
+						}
+
 						yield return method.Parameters [index].Type;
 					}
 				}
 				foreach (var extMethods in targetResult.GetExtensionMethods ()) {
 					foreach (var extMethod in extMethods) {
 						if (index + 1 < extMethod.Parameters.Count) {
+							if (extMethod.Parameters [index + 1].IsParams) {
+								var arrayType = extMethod.Parameters [index + 1].Type as ArrayType;
+								if (arrayType != null)
+									yield return arrayType.ElementType;
+							}
+
 							yield return extMethod.Parameters [index + 1].Type;
 						}
 					}

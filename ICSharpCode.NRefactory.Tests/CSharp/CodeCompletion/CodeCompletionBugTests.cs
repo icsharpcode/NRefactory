@@ -6248,5 +6248,27 @@ class Program
 
 ", provider => Assert.IsNotNull(provider.Find("item"), "'item' not found."));
 		}
+
+
+		/// <summary>
+		/// Bug 15183 - New completion in params suggests array type 
+		/// </summary>
+		[Test]
+		public void TestBug15183 ()
+		{
+			CombinedProviderTest(@"class Foo
+{
+	static void Bar (params Foo[] args)
+	{
+		$Bar (new $
+	}
+}
+", provider => Assert.IsNotNull(provider.Find("Foo"), "'Foo' not found."));
+		}
+
+
+
+
+
 	}
 }
