@@ -388,5 +388,39 @@ class C : A
 }";
 			TestWrongContext<RedundantOverridenMemberIssue>(input);
 		}
+
+
+		[Test]
+		public void TestGetHashCode()
+		{
+			TestWrongContext<RedundantOverridenMemberIssue>(@"
+class Bar
+{
+	public override bool Equals (object obj)
+	{
+		return false;
+	}
+
+	public override int GetHashCode ()
+	{
+		return base.GetHashCode ();
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestRedundantGetHashCode()
+		{
+			TestIssue<RedundantOverridenMemberIssue>(@"
+class Bar
+{
+	public override int GetHashCode ()
+	{
+		return base.GetHashCode ();
+	}
+}");
+		}
+
 	}
 }
