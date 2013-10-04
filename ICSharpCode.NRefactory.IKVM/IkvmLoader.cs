@@ -772,6 +772,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			byte[] blob;
 			try {
 				blob = attribute.__GetBlob ();
+			} catch (IKVM.Reflection.MissingMemberException) {
+				blob = new byte[0];
 			} catch (Exception e) {
 				blob = new byte[0];
 				Console.Error.WriteLine ("IKVM error while getting blob:" + e);
