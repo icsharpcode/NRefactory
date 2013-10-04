@@ -1957,6 +1957,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				} else {
 					// flatten usings
 					var importList = new List<ICompletionData>();
+					var dict = new Dictionary<string, Dictionary<string, ICompletionData>>();
 					foreach (var type in Compilation.GetAllTypeDefinitions ()) {
 						if (!lookup.IsAccessible(type, false))
 							continue;
@@ -1974,7 +1975,19 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							if (!type.GetConstructors().Any(c => lookup.IsAccessible(c, true)))
 								continue;
 						}
-						importList.Add(factory.CreateImportCompletionData(type, useFullName, onlyAddConstructors));
+						var data = factory.CreateImportCompletionData(type, useFullName, onlyAddConstructors);
+						Dictionary<string, ICompletionData> createdDict;
+						if (!dict.TryGetValue(type.Name, out createdDict)) {
+							createdDict = new Dictionary<string, ICompletionData>();
+							dict.Add(type.Name, createdDict);
+						}
+						ICompletionData oldData;
+						if (!createdDict.TryGetValue(type.Namespace, out oldData)) {
+							importList.Add(data);
+							createdDict.Add(type.Namespace, data);
+						} else {
+							oldData.AddOverload(data); 
+						}
 					}
 
 					importData = importList.ToArray();
