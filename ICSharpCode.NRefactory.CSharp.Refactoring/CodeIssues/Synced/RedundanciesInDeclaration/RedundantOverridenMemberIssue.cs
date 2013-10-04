@@ -109,6 +109,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					AddIssue(methodDeclaration);
 				}
 			}
+
+			static readonly AstNode setterPattern = new ExpressionStatement(
+				new AssignmentExpression (new AnyNode ("left"), new IdentifierExpression("value"))
+			);
 			
 			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
 			{
@@ -129,10 +133,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				
 				var resultProperty = ctx.Resolve(propertyDeclaration) as MemberResolveResult;
-				var basetype = resultProperty.Member.DeclaringTypeDefinition.DirectBaseTypes.FirstOrDefault();
-				if (basetype == null)
+				if (resultProperty == null)
 					return;
-				var baseProperty = basetype.GetMembers(f => f.Name.Equals(propertyDeclaration.Name)).FirstOrDefault() as IProperty;
+				var baseProperty = InheritanceHelper.GetBaseMember(resultProperty.Member) as IProperty;
 				if (baseProperty == null)
 					return;
 				
@@ -157,14 +160,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				
 				if (hasBaseSetter) {
 					if (hasSetter) {
-					
-						var expr = propertyDeclaration.Setter.Body.Statements.FirstOrNullObject();
-					
-						if (expr == null || !(expr.FirstChild is AssignmentExpression))
+						var match = setterPattern.Match(propertyDeclaration.Setter.Body.Statements.FirstOrNullObject());
+						if (!match.Success)
 							return;
-					
-						var memberReferenceExpression = (expr.FirstChild as AssignmentExpression).Left as MemberReferenceExpression;
-					
+						var memberReferenceExpression = match.Get("left").Single() as MemberReferenceExpression;
 						if (memberReferenceExpression == null || 
 							memberReferenceExpression.MemberName != propertyDeclaration.Name ||
 							!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
@@ -195,14 +194,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return;
 				
 				var resultIndexer = ctx.Resolve(indexerDeclaration) as MemberResolveResult;
-				var basetype = resultIndexer.Member.DeclaringType.DirectBaseTypes.First();
-				if (basetype == null)
+				if (resultIndexer == null)
 					return;
-
-				var baseIndexer = basetype.GetMembers(f => f.Name == "Item").FirstOrDefault() as IProperty;
+				var baseIndexer = InheritanceHelper.GetBaseMember(resultIndexer.Member) as IProperty;
 				if (baseIndexer == null)
 					return;
-				
+
 				bool hasBaseGetter = (baseIndexer.Getter != null);
 				bool hasBaseSetter = (baseIndexer.Setter != null);
 				
@@ -224,14 +221,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				
 				if (hasBaseSetter) {
 					if (hasSetter) {
-					
-						var expr = indexerDeclaration.Setter.Body.Statements.FirstOrNullObject();
-					
-						if (expr == null || !(expr.FirstChild is AssignmentExpression))
+						var match = setterPattern.Match(indexerDeclaration.Setter.Body.Statements.FirstOrNullObject());
+						if (!match.Success)
 							return;
-					
-						Expression memberReferenceExpression = (expr.FirstChild as AssignmentExpression).Left;
-					
+						var memberReferenceExpression = match.Get("left").Single() as IndexerExpression;
 						if (memberReferenceExpression == null || 
 							!(memberReferenceExpression.FirstChild is BaseReferenceExpression))
 							return;

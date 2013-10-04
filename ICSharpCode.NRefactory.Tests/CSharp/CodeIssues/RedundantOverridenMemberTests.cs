@@ -422,5 +422,29 @@ class Bar
 }");
 		}
 
+
+		[Test]
+		public void TestPropertyBug()
+		{
+			TestWrongContext<RedundantOverridenMemberIssue>(@"
+class BaseFoo
+{
+	public virtual int Foo { get; set; }
+}
+
+class Bar : BaseFoo
+{
+	int bar;
+	public override int Foo {
+		get {
+			return base.Foo;
+		}
+		set {
+			base.Foo = bar = value;
+		}
+	}
+}");
+		}
+
 	}
 }
