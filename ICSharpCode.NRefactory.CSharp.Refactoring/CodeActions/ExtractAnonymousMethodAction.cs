@@ -48,6 +48,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (lambda.Body is BlockStatement) {
 					body = (BlockStatement)lambda.Body.Clone ();
 				} else {
+					if (!(lambda.Body is Expression))
+						yield break;
 					body = new BlockStatement ();
 
 					var type = LambdaHelper.GetLambdaReturnType (context, lambda);
