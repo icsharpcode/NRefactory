@@ -286,18 +286,18 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						throw new ArgumentException("Unknown entity type " + entity.SymbolKind);
 				}
 			}
-			var effectiveAccessibility = GetEffectiveAccessibility(entity);
+			var effectiveAccessibility = entity != null ? GetEffectiveAccessibility(entity) : Accessibility.Private;
 			var topLevelTypeDefinition = GetTopLevelTypeDefinition(entity);
 
 			if (scope.accessibility == Accessibility.None)
 				scope.accessibility = effectiveAccessibility;
-			scope.declarationCompilation = entity.Compilation;
+			scope.declarationCompilation = entity != null ? entity.Compilation : null;
 			scope.topLevelTypeDefinition = topLevelTypeDefinition;
 			scope.findReferences = this;
 			if (additionalScope != null) {
 				if (additionalScope.accessibility == Accessibility.None)
 					additionalScope.accessibility = effectiveAccessibility;
-				additionalScope.declarationCompilation = entity.Compilation;
+				additionalScope.declarationCompilation = scope.declarationCompilation;
 				additionalScope.topLevelTypeDefinition = topLevelTypeDefinition;
 				additionalScope.findReferences = this;
 				return new[] { scope, additionalScope };
