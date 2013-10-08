@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.CSharp.Resolver;
 
 namespace ICSharpCode.NRefactory.CSharp.Completion
 {
-	class CompletionDataWrapper
+	public class CompletionDataWrapper
 	{
 		CSharpCompletionEngine completion;
 		List<ICompletionData> result = new List<ICompletionData> ();

@@ -2495,7 +2495,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			return null;
 		}
 
-		void AddVirtuals(List<IMember> alreadyInserted, CompletionDataWrapper col, string modifiers, IType curType, int declarationBegin)
+		protected virtual void AddVirtuals(List<IMember> alreadyInserted, CompletionDataWrapper col, string modifiers, IType curType, int declarationBegin)
 		{
 			if (curType == null) {
 				return;
