@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.Completion
 	/// </summary>
 	public sealed class FrameworkLookup 
 	{
-		/* Binary format:
+		/*		 Binary format:
 		 * [Header]
 		 *    [Version] : [Major (byte)] [Minor (byte)] [Build  (byte)]
 		 * 	  [#Types (int)]
@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.Completion
 			4 + // #Types
 			4 + // #Methods
 			4   // #Assembly
-			/*+ 4*/;
+			/*			+ 4*/;
 
 		public static readonly Version CurrentVersion = new Version (2, 0, 1);
 		public static readonly FrameworkLookup Empty = new FrameworkLookup ();
@@ -186,7 +186,7 @@ namespace ICSharpCode.NRefactory.Completion
 				unchecked {
 					return (Namespace != null ? Namespace.GetHashCode () : 0) ^
 						(FullName != null ? FullName.GetHashCode () : 0) ^ 
-							(Package != null ? Package.GetHashCode () : 0);
+						(Package != null ? Package.GetHashCode () : 0);
 				}
 			}
 		}
@@ -267,10 +267,14 @@ namespace ICSharpCode.NRefactory.Completion
 
 				reader.BaseStream.Seek (listPtr, SeekOrigin.Begin);
 				var b = reader.ReadInt32 ();
-				while (b --> 0) {
+				var assemblies = new List<ushort> ();
+				while (b-- > 0) {
 					var assembly = reader.ReadUInt16 ();
 					if (assembly < 0 || assembly >= assemblyListTable.Length)
 						throw new InvalidDataException ("Assembly lookup was " + assembly + " but only " + assemblyListTable.Length + " are known.");
+					assemblies.Add (assembly);
+				}
+				foreach (var assembly in assemblies) {
 					reader.BaseStream.Seek (assemblyListTable [assembly], SeekOrigin.Begin);
 
 					var package = reader.ReadString ();
@@ -377,9 +381,9 @@ namespace ICSharpCode.NRefactory.Completion
 
 					int dataOffset = 
 						headerSize + 
-							assemblyLookups.Count * 4 + 
-							typeLookupList.Count * (4 + 4) + 
-							extMethodLookuplist.Count * (4 + 4);
+						assemblyLookups.Count * 4 + 
+						typeLookupList.Count * (4 + 4) + 
+						extMethodLookuplist.Count * (4 + 4);
 
 					for (int i = 0; i < assemblyLookups.Count; i++) {
 						stream.Write ((int)(dataOffset + typeBuffer.Length + extMethodBuffer.Length + assemblyPositionTable[i]));
