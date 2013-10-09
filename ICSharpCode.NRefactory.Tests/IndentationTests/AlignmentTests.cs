@@ -639,7 +639,6 @@ class Foo
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestMethodContinuation()
 		{
@@ -655,7 +654,6 @@ class Foo
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestMethodContinuationCase2()
 		{

@@ -540,7 +540,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					IsMemberReferenceDotHandled = true;
 					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
 				}
-				else if (Engine.previousChar == ')' && Engine.isLineStart)
+				else if (Engine.isLineStart)
 				{
 					IsMemberReferenceDotHandled = true;
 
