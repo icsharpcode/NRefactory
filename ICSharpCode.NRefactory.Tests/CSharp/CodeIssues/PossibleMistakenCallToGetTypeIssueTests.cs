@@ -31,7 +31,6 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 {
-	[Ignore]
 	[TestFixture]
 	public class PossibleMistakenCallToGetTypeIssueTests : InspectionActionTestBase
 	{
@@ -39,19 +38,23 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		public void TestGetTypeCase ()
 		{
 			Test<PossibleMistakenCallToGetTypeIssue>(@"
+using System;
+
 public class Bar
 {
-	public void FooBar(Type a)
+	public void FooBar (Type a)
 	{
-		Console.WriteLine(a.GetType());
+		Console.WriteLine (a.GetType ());
 	}
 }
 ", @"
+using System;
+
 public class Bar
 {
-	public void FooBar(Type a)
+	public void FooBar (Type a)
 	{
-		Console.WriteLine(a;
+		Console.WriteLine (a);
 	}
 }
 ");

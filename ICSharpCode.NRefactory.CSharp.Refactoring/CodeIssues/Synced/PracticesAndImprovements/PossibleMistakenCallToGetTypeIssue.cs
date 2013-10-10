@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -44,6 +46,24 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
 			{
+			}
+
+			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+			{
+				base.VisitInvocationExpression(invocationExpression);
+
+				var mref = invocationExpression.Target as MemberReferenceExpression;
+				if (mref == null || mref.MemberName != "GetType")
+					return;
+				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+				if (rr == null || !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Type))
+					return;
+				AddIssue(new CodeIssue (
+					invocationExpression,
+					ctx.TranslateString("Possible mistaken call to 'object.GetType()'"),
+					ctx.TranslateString("Remove call to 'object.GetType()'"),
+					s => s.Replace(invocationExpression, mref.Target.Clone())
+				));
 			}
 		}
 	}
