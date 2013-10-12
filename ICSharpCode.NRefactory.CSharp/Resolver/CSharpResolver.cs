@@ -1833,11 +1833,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// </remarks>
 		public List<List<IMethod>> GetExtensionMethods(IType targetType, string name = null, IList<IType> typeArguments = null, bool substituteInferredTypes = false)
 		{
+			var lookup = CreateMemberLookup();
 			List<List<IMethod>> extensionMethodGroups = new List<List<IMethod>>();
 			foreach (var inputGroup in GetAllExtensionMethods()) {
 				List<IMethod> outputGroup = new List<IMethod>();
 				foreach (var method in inputGroup) {
-					if (name != null && method.Name != name)
+					if ((name != null && method.Name != name) || !lookup.IsAccessible(method, false))
 						continue;
 					
 					IType[] inferredTypes;
