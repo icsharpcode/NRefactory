@@ -34,7 +34,8 @@ namespace ICSharpCode.NRefactory.Completion
 		Hidden = 1,
 		Obsolete = 2,
 		DescriptionHasMarkup = 4,
-		NamedArgument = 8
+		NamedArgument = 8,
+		IsImportCompletion = 16
 	}
 }
 
