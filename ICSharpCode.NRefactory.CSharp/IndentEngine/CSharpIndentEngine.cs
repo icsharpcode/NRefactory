@@ -374,11 +374,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (!isNewLine) {
 				currentState.Push(currentChar = ch);
 			} else {
-				if (ch != NewLine.LF || previousChar != NewLine.CR) {
-					currentState.Push(currentChar = ch = newLineChar);
-				} else {
-					currentChar = ch;
+				if (ch == NewLine.LF && previousNewline == NewLine.CR) {
+					offset++;
+					return;
 				}
+				currentState.Push(currentChar = newLineChar);
 			}
 
 			offset++;
@@ -414,7 +414,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				previousNewline = ch;
 				// there can be more than one chars that determine the EOL,
 				// the engine uses only one of them defined with newLineChar
-				if (ch != newLineChar)
+				if (currentChar != newLineChar)
 				{
 					return;
 				}

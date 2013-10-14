@@ -48,6 +48,13 @@ namespace Foo {
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestMixedLineEndingPosition()
+		{
+			var indent = Helper.CreateEngine("\n\r\n$");
+			Assert.AreEqual(new TextLocation(3, 1), indent.Location);
+		}
 	}
 }
 
