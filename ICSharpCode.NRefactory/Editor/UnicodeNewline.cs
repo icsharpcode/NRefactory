@@ -149,6 +149,113 @@ namespace ICSharpCode.NRefactory
 			return 0;
 		}
 
+
+		/// <summary>
+		/// Determines if a char is a new line delimiter.
+		/// </summary>
+		/// <returns>0 == no new line, otherwise it returns either 1 or 2 depending of the length of the delimiter.</returns>
+		/// <param name="curChar">The current character.</param>
+		/// <param name = "length">The length of the delimiter</param>
+		/// <param name = "type">The type of the delimiter</param>
+		/// <param name="nextChar">A callback getting the next character (may be null).</param>
+		public static bool TryGetDelimiterLengthAndType (char curChar, out int length, out UnicodeNewline type, Func<char> nextChar = null)
+		{
+			if (curChar == CR) {
+				if (nextChar != null && nextChar () == LF) {
+					length = 2;
+					type = UnicodeNewline.CRLF;
+				} else {
+					length = 1;
+					type = UnicodeNewline.CR;
+
+				}
+				return true;
+			}
+
+			switch (curChar) {
+			case LF:
+				type = UnicodeNewline.LF;
+				length = 1;
+				return true;
+			case NEL:
+				type = UnicodeNewline.NEL;
+				length = 1;
+				return true;
+			case VT:
+				type = UnicodeNewline.VT;
+				length = 1;
+				return true;
+			case FF:
+				type = UnicodeNewline.FF;
+				length = 1;
+				return true;
+			case LS:
+				type = UnicodeNewline.LS;
+				length = 1;
+				return true;
+			case PS:
+				type = UnicodeNewline.PS;
+				length = 1;
+				return true;
+			}
+			length = -1;
+			type = UnicodeNewline.Unknown;
+			return false;
+		}
+
+		/// <summary>
+		/// Determines if a char is a new line delimiter.
+		/// </summary>
+		/// <returns>0 == no new line, otherwise it returns either 1 or 2 depending of the length of the delimiter.</returns>
+		/// <param name="curChar">The current character.</param>
+		/// <param name = "length">The length of the delimiter</param>
+		/// <param name = "type">The type of the delimiter</param>
+		/// <param name="nextChar">The next character (if != LF then length will always be 0 or 1).</param>
+		public static bool TryGetDelimiterLengthAndType (char curChar, out int length, out UnicodeNewline type, char nextChar)
+		{
+			if (curChar == CR) {
+				if (nextChar == LF) {
+					length = 2;
+					type = UnicodeNewline.CRLF;
+				} else {
+					length = 1;
+					type = UnicodeNewline.CR;
+
+				}
+				return true;
+			}
+
+			switch (curChar) {
+			case LF:
+				type = UnicodeNewline.LF;
+				length = 1;
+				return true;
+			case NEL:
+				type = UnicodeNewline.NEL;
+				length = 1;
+				return true;
+			case VT:
+				type = UnicodeNewline.VT;
+				length = 1;
+				return true;
+			case FF:
+				type = UnicodeNewline.FF;
+				length = 1;
+				return true;
+			case LS:
+				type = UnicodeNewline.LS;
+				length = 1;
+				return true;
+			case PS:
+				type = UnicodeNewline.PS;
+				length = 1;
+				return true;
+			}
+			length = -1;
+			type = UnicodeNewline.Unknown;
+			return false;
+		}
+
 		/// <summary>
 		/// Gets the new line type of a given char/next char.
 		/// </summary>
