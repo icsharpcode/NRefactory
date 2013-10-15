@@ -159,7 +159,7 @@ class TestClass
 {
 	public void F()
 	{
-		var items$ = new List<TestClass> ();
+		var $items = new List<TestClass> ();
 	}
 }", @"
 using System.Collections.Generic;
@@ -281,7 +281,7 @@ class TestClass
 {
 	public void F()
 	{
-		using (int[] i = new $int[] {}) {
+		using (int[] $i = new int[] {}) {
 		}
 	}
 }",@"
@@ -305,7 +305,7 @@ class TestClass
 {
 	public void F()
 	{
-		using (int[] i = new $int[] {});
+		using (int[] $i = new int[] {});
 	}
 }",@"
 class TestClass

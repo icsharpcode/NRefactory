@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		CodeAction ActionFromUsingStatement(RefactoringContext context)
 		{
 			var initializer = context.GetNode<VariableInitializer>();
-			if (initializer == null)
+			if (initializer == null || !initializer.NameToken.Contains(context.Location))
 				return null;
 			var initializerRR = context.Resolve(initializer) as LocalResolveResult;
 			if (initializerRR == null)
@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		CodeAction ActionFromVariableInitializer(RefactoringContext context)
 		{
 			var initializer = context.GetNode<VariableInitializer>();
-			if (initializer == null || initializer.Parent.Parent is ForStatement)
+			if (initializer == null || initializer.Parent.Parent is ForStatement || !initializer.NameToken.Contains(context.Location))
 				return null;
 			var initializerRR = context.Resolve(initializer) as LocalResolveResult;
 			if (initializerRR == null)
