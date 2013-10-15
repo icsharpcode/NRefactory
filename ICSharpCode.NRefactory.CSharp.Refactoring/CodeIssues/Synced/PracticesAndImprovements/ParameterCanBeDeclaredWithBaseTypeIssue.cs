@@ -152,7 +152,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					 where (!tryResolve || TypeChangeResolvesCorrectly(ctx, parameter, rootResolutionNode, type)) && !FilterOut (variable.Type, type)
 					 select type).ToList();
 				if (validTypes.Any()) {
-					AddIssue(new CodeIssue(parameter, ctx.TranslateString("Parameter can be declared with base type"), GetActions(parameter, validTypes)) {
+					AddIssue(new CodeIssue(parameter.Type, ctx.TranslateString("Parameter can be declared with base type"), GetActions(parameter, validTypes)) {
 						IssueMarker = IssueMarker.DottedLine
 					});
 					MembersWithIssues++;
@@ -173,7 +173,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					var message = String.Format(ctx.TranslateString("Demote parameter to '{0}'"), type.FullName);
 					yield return new CodeAction(message, script => {
 						script.Replace(parameter.Type, astBuilder.ConvertType(localType));
-					}, parameter.NameToken);
+					}, parameter.Type);
 				}
 			}
 		}
