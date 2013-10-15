@@ -612,6 +612,8 @@
     <Compile Include="CSharp\CodeIssues\PartOfBodyCanBeConvertedToQueryIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantTypeArgumentsOfMethodIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PossibleMistakenCallToGetTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\EnableExhaustivenessCheckActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\SomeOfEnumValuesWasNotHandledInSwitchStatementIssueTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
