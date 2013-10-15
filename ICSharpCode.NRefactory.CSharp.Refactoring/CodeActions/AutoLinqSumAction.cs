@@ -422,14 +422,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return m.Success;
 		}
 
-		ForeachStatement GetForeachStatement (RefactoringContext context)
+		static ForeachStatement GetForeachStatement (RefactoringContext context)
 		{
-			var foreachStatement = context.GetNode();
-			if (foreachStatement == null) {
+			var foreachStatement = context.GetNode<ForeachStatement>();
+			if (foreachStatement == null || !foreachStatement.ForeachToken.Contains(context.Location))
 				return null;
-			}
 
-			return foreachStatement.GetParent<ForeachStatement> ();
+			return foreachStatement;
 		}
 	}
 }
