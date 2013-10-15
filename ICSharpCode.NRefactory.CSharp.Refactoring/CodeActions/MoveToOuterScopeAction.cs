@@ -46,7 +46,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (entryNode == null)
 				yield break;
 			var selectedInitializer = context.GetNode<VariableInitializer>();
-			if (selectedInitializer != null && selectedInitializer.Contains(context.Location)) {
+			if (selectedInitializer != null) {
+				if (!selectedInitializer.NameToken.Contains(context.Location))
+					yield break;
 				if (HasDependency(context, entryNode, selectedInitializer)) {
 					yield return MoveDeclarationAction(context, entryNode, variableDeclaration, selectedInitializer);
 				} else {
