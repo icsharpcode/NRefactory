@@ -612,6 +612,7 @@
     <Compile Include="CSharp\CodeIssues\PartOfBodyCanBeConvertedToQueryIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantTypeArgumentsOfMethodIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\PossibleMistakenCallToGetTypeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantNotNullAttributeInNonNullableTypeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
