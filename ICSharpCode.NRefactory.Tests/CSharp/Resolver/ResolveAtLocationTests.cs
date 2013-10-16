@@ -263,6 +263,28 @@ class Test {
 			Assert.AreEqual("Test.Item", rr.Member.FullName);
 		}
 
+		[Test]
+		public void TestUserDefinedOperator()
+		{
+			var rr = ResolveAtLocation<OperatorResolveResult>(
+				@"class Foo 
+{
+	public static Foo operator+(Foo a, Foo b)
+	{
+		return a;
+	}
+}
+
+class MainClass
+{
+	public static void Main (string[] args)
+	{
+		Foo f = new Foo () $+ new Foo ();
+	}
+}
+");
+			Assert.AreEqual("Foo.op_Addition", rr.UserDefinedOperatorMethod.FullName);
+		}
 
 		
 		[Test]

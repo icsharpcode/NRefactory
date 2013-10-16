@@ -88,8 +88,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 
 			if (node == null)
 				return null;
-			
-			if (node.Parent is ObjectCreateExpression && node.Role == Roles.Type) {
+			if (node.Parent is ObjectCreateExpression && node.Role == Roles.Type || 
+				node is CSharpTokenNode && (node.Parent is BinaryOperatorExpression || node.Parent is UnaryOperatorExpression)) {
 				node = node.Parent;
 			}
 			
