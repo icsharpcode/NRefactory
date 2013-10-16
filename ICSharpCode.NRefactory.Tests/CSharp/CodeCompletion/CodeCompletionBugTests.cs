@@ -6266,9 +6266,16 @@ class Program
 ", provider => Assert.IsNotNull(provider.Find("Foo"), "'Foo' not found."));
 		}
 
-
-
-
+		/// <summary>
+		/// Bug 15387 - Broken completion for class inheritance at namespace level 
+		/// </summary>
+		[Test]
+		public void TestBug15387 ()
+		{
+			CombinedProviderTest(@"using System;
+$class Foo : $
+", provider => Assert.IsNotNull(provider.Find("IDisposable"), "'IDisposable' not found."));
+		}
 
 	}
 }

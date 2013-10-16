@@ -1,4 +1,4 @@
-﻿// 
+// 
 // CSharpCompletionEngine.cs
 //  
 // Author:
@@ -904,12 +904,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 								if (token == "enum")
 									return HandleEnumContext();
 								var wrapper = new CompletionDataWrapper(this);
-
 								AddTypesAndNamespaces(
 									wrapper,
 									GetState(),
 									null,
-									t => currentType != null && !currentType.ReflectionName.Equals(t.ReflectionName) ? t : null
+									t => currentType == null || !currentType.ReflectionName.Equals(t.ReflectionName) ? t : null
 								);
 								return wrapper.Result;
 							}
