@@ -1470,9 +1470,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 				var method = methodResolveResult.Member as IMethod;
 				if (method != null) {
-					if (method.GetAttribute(new FullTypeName("JetBrains.Annotations.AssertionMethodAttribute")) != null) {
+					if (method.GetAttribute(new FullTypeName(AnnotationNames.AssertionMethodAttribute)) != null) {
 						var assertionParameters = method.Parameters.Select((parameter, index) => new { index, parameter })
-							.Select(parameter => new { parameter.index, parameter.parameter, attributes = parameter.parameter.Attributes.Where(attribute => attribute.AttributeType.FullName == "JetBrains.Annotations.AssertionConditionAttribute").ToList() })
+							.Select(parameter => new { parameter.index, parameter.parameter, attributes = parameter.parameter.Attributes.Where(attribute => attribute.AttributeType.FullName == AnnotationNames.AssertionConditionAttribute).ToList() })
 							.Where(parameter => parameter.attributes.Count() == 1)
 							.Select(parameter => new { parameter.index, parameter.parameter, attribute = parameter.attributes[0] })
 							.ToList();
@@ -1486,18 +1486,18 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 							object intendedResult = true;
 							var positionalArgument = assertionParameter.attribute.PositionalArguments.FirstOrDefault() as MemberResolveResult;
-							if (positionalArgument != null && positionalArgument.Type.FullName == "JetBrains.Annotations.AssertionConditionType") {
+							if (positionalArgument != null && positionalArgument.Type.FullName == AnnotationNames.AssertionConditionTypeAttribute) {
 								switch (positionalArgument.Member.FullName) {
-									case "JetBrains.Annotations.AssertionConditionType.IS_TRUE":
+									case AnnotationNames.AssertionConditionTypeIsTrue:
 										intendedResult = true;
 										break;
-									case "JetBrains.Annotations.AssertionConditionType.IS_FALSE":
+									case AnnotationNames.AssertionConditionTypeIsFalse:
 										intendedResult = false;
 										break;
-									case "JetBrains.Annotations.AssertionConditionType.IS_NULL":
+									case AnnotationNames.AssertionConditionTypeIsNull:
 										intendedResult = null;
 										break;
-									case "JetBrains.Annotations.AssertionConditionType.IS_NOT_NULL":
+									case AnnotationNames.AssertionConditionTypeIsNotNull:
 										intendedResult = "<not-null>";
 										break;
 								}
@@ -1606,10 +1606,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			static NullValueStatus GetNullableStatus(Func<string, IAttribute> attributeGetter)
 			{
-				if (attributeGetter("JetBrains.Annotations.NotNullAttribute") != null) {
+				if (attributeGetter(AnnotationNames.NotNullAttribute) != null) {
 					return NullValueStatus.DefinitelyNotNull;
 				}
-				if (attributeGetter("JetBrains.Annotations.CanBeNullAttribute") != null) {
+				if (attributeGetter(AnnotationNames.CanBeNullAttribute) != null) {
 					return NullValueStatus.PotentiallyNull;
 				}
 				return NullValueStatus.Unknown;

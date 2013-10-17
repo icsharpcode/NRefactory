@@ -78,11 +78,11 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -384,6 +384,7 @@
     <Compile Include="IndentEngine\NullIStateMachineIndentEngine.cs" />
     <Compile Include="Refactoring\CodeGenerationService.cs" />
     <Compile Include="Formatter\FormattingVisitor_Query.cs" />
+    <Compile Include="Analysis\AnnotationNames.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">

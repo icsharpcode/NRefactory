@@ -424,6 +424,7 @@
     <Compile Include="CodeIssues\TODO\PartOfBodyCanBeConvertedToQueryIssue.cs" />
     <Compile Include="CodeIssues\TODO\RedundantTypeArgumentsOfMethodIssue.cs" />
     <Compile Include="CodeIssues\Synced\PracticesAndImprovements\PossibleMistakenCallToGetTypeIssue.cs" />
+    <Compile Include="CodeIssues\Uncategorized\RedundantNotNullAttributeInNonNullableTypeIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
