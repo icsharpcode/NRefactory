@@ -391,7 +391,7 @@ class Foo {
 		var v = from i in I
 				where i == ';'
 				select i; $");
-			Assert.AreEqual("\t\t        ", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
@@ -456,7 +456,7 @@ class Foo {
 	{
 		var v = 1 + $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t        ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]

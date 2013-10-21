@@ -374,7 +374,7 @@ class Foo
 	{ 
 		x += 1 $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -387,7 +387,7 @@ class Foo
 	{ 
 		x -= 1 $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -400,7 +400,7 @@ class Foo
 	{ 
 		x *= 1 $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -413,7 +413,7 @@ class Foo
 	{ 
 		x /= 1 $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -426,7 +426,7 @@ class Foo
 	{ 
 		x %= 1 $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -439,7 +439,7 @@ class Foo
 	{ 
 		x &= 1 $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -452,7 +452,7 @@ class Foo
 	{ 
 		x |= 1 $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -465,7 +465,7 @@ class Foo
 	{ 
 		x ^= 1 $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -537,8 +537,8 @@ class Foo
 	{ 
 		if (1 == 1)
 			x = 1 +
-			    2; $");
-			Assert.AreEqual("\t\t\t    ", indent.ThisLineIndent);
+				2; $");
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
@@ -565,8 +565,8 @@ class Foo
 	void Test()
 	{ 
 		x = y = z = 1 +
-		    2; $");
-			Assert.AreEqual("\t\t    ", indent.ThisLineIndent);
+			2; $");
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 

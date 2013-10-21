@@ -1613,9 +1613,9 @@ namespace Mono.TextEditor
 		protected override bool OnScrollEvent (EventScroll evnt)
 		{
 			var modifier = !Platform.IsMac ? Gdk.ModifierType.ControlMask
-			               //Mac window manager already uses control-scroll, so use command
-			               //Command might be either meta or mod1, depending on GTK version
-			               : (Gdk.ModifierType.MetaMask | Gdk.ModifierType.Mod1Mask);
+				//Mac window manager already uses control-scroll, so use command
+				//Command might be either meta or mod1, depending on GTK version
+				: (Gdk.ModifierType.MetaMask | Gdk.ModifierType.Mod1Mask);
 
 			var hasZoomModifier = (evnt.State & modifier) != 0;
 			if (hasZoomModifier && lastScrollTime != 0 && (evnt.Time - lastScrollTime) < 100)

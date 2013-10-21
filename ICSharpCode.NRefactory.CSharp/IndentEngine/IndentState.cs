@@ -502,7 +502,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				{
 					if (ch == Engine.newLineChar)
 					{
-						NextLineIndent.ExtraSpaces = 0;
+						NextLineIndent.RemoveAlignment();
 						NextLineIndent.Push(IndentType.Continuation);
 					}
 				}
@@ -517,7 +517,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 					else
 					{
-						NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent);
+						NextLineIndent.SetAlignment(Engine.column - NextLineIndent.CurIndent);
 					}
 				}
 
@@ -538,13 +538,14 @@ namespace ICSharpCode.NRefactory.CSharp
 				if (Engine.formattingOptions.AlignToMemberReferenceDot && !Engine.isLineStart)
 				{
 					IsMemberReferenceDotHandled = true;
-					NextLineIndent.ExtraSpaces = Math.Max(0, Engine.column - NextLineIndent.CurIndent - 1);
+					NextLineIndent.RemoveAlignment();
+					NextLineIndent.SetAlignment(Engine.column - NextLineIndent.CurIndent - 1, true);
 				}
 				else if (Engine.isLineStart)
 				{
 					IsMemberReferenceDotHandled = true;
 
-					ThisLineIndent.ExtraSpaces = 0;
+					ThisLineIndent.RemoveAlignment();
 					ThisLineIndent.Push(IndentType.Continuation);
 					NextLineIndent = ThisLineIndent.Clone();
 				}
@@ -567,7 +568,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			var parent = Parent as BracesBodyState;
 			if (parent == null || parent.LastBlockIndent == null || !Engine.EnableCustomIndentLevels)
 			{
-				NextLineIndent.ExtraSpaces = 0;
+				NextLineIndent.RemoveAlignment();
 				NextLineIndent.PopIf(IndentType.Continuation);
 			}
 			else
@@ -601,7 +602,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			if (Engine.isLineStart)
 			{
-				ThisLineIndent.ExtraSpaces = 0;
+				ThisLineIndent.RemoveAlignment();
 				ThisLineIndent.PopTry();
 			}
 
@@ -616,7 +617,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			IsRightHandExpression = false;
 			IsMemberReferenceDotHandled = false;
 
-			NextLineIndent.ExtraSpaces = 0;
+			NextLineIndent.RemoveAlignment();
 			NextLineIndent.PopWhile(IndentType.Continuation);
 
 			CurrentStatement = Statement.None;
@@ -985,9 +986,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			NextLineIndent = ThisLineIndent.Clone();
 
 			// remove all continuations and extra spaces
-			ThisLineIndent.ExtraSpaces = 0;
+			ThisLineIndent.RemoveAlignment(); 
 			ThisLineIndent.PopWhile(IndentType.Continuation);
-			NextLineIndent.ExtraSpaces = 0;
+
+			NextLineIndent.RemoveAlignment();
 			NextLineIndent.PopWhile(IndentType.Continuation);
 
 			if (Engine.formattingOptions.IndentCaseBody)

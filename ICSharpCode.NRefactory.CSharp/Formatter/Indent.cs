@@ -34,6 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		Block,
 		DoubleBlock,
 		Continuation,
+		Alignment,
 		Label,
 		Empty
 	}
@@ -146,6 +147,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					return options.IndentSize;
 				case IndentType.DoubleBlock:
 					return options.IndentSize * 2;
+				case IndentType.Alignment:
 				case IndentType.Continuation:
 					return options.ContinuationIndent;
 				case IndentType.Label:
@@ -221,5 +223,24 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			return result;
 		}
+
+		public void RemoveAlignment()
+		{
+			ExtraSpaces = 0;
+			if (Count > 0 && Peek() == IndentType.Alignment)
+				Pop();
+		}
+
+		public void SetAlignment(int i, bool forceSpaces = false)
+		{
+			var alignChars = Math.Max(0, i);
+			if (forceSpaces) {
+				ExtraSpaces = alignChars;
+				return;
+			}
+			RemoveAlignment();
+			Push(IndentType.Alignment);
+		}
+
 	}
 }
