@@ -129,6 +129,20 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					script => script.Replace(outerTypeCastNode, expr.Clone())) { IssueMarker = IssueMarker.GrayOut });
 			}
 
+			bool IsRedundantInBinaryExpression(BinaryOperatorExpression bop, Expression outerTypeCastNode, IType exprType)
+			{
+				if (bop.Operator == BinaryOperatorType.NullCoalescing) {
+					if (outerTypeCastNode == bop.Left) {
+						var rr = ctx.Resolve(bop.Right).Type;
+						if (rr != exprType)
+							return true;
+					}
+					return false;
+				}
+
+				return ctx.Resolve(bop.Left).Type != ctx.Resolve(bop.Right).Type;
+			}
+
 			void CheckTypeCast(Expression typeCastNode, Expression expr, TextLocation castStart, TextLocation castEnd)
 			{
 				var outerTypeCastNode = typeCastNode;
@@ -154,13 +168,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 
 				var bop = outerTypeCastNode.Parent as BinaryOperatorExpression;
-				if (bop != null && bop.Operator == BinaryOperatorType.NullCoalescing) {
-					if (outerTypeCastNode == bop.Left) {
-						var rr = ctx.Resolve(bop.Right).Type;
-						if (rr != exprType)
-							return;
-					}
-				}
+				if (bop != null && IsRedundantInBinaryExpression(bop, outerTypeCastNode, exprType))
+					return;
+				
 
 
 				// check if the called member doesn't change it's virtual slot when changing types

@@ -226,7 +226,7 @@ class TestClass
 		}
 
 		[Test]
-		public void TestNullCoalesingOperatior ()
+		public void TestNullCoalesingOperator ()
 		{
 			TestWrongContext<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
 class TestClass
@@ -258,5 +258,48 @@ class TestClass
 }");
 		}
 
+
+		[Test]
+		public void TestNonRedundantDoubleCast ()
+		{
+			TestWrongContext<RedundantCastIssue> (@"
+class Foo
+{
+	void Bar ()
+	{	
+		float f = 5.6f;
+		double d = 5.6f;
+		int i = d + (int)f;
+	}
+}");
+		}
+
+		[Test]
+		public void TestNonRedundantFloatCast ()
+		{
+			TestWrongContext<RedundantCastIssue> (@"
+class Foo
+{
+	void Bar ()
+	{	
+		float f = 5.6f;
+		Console.WriteLine (""foo "" + (int)f);
+	}
+}");
+		}
+
+		[Test]
+		public void TestNonRedundantFloatCastCase2 ()
+		{
+			TestWrongContext<RedundantCastIssue> (@"
+class Foo
+{
+	void Bar ()
+	{	
+		float f = 5.6f;
+		Console.WriteLine (""foo {0}"", (int)f);
+	}
+}");
+		}
 	}
 }
