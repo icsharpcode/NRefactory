@@ -292,6 +292,8 @@ class Foo
 		public void TestNonRedundantFloatCastCase2 ()
 		{
 			TestWrongContext<RedundantCastIssue> (@"
+using System;
+
 class Foo
 {
 	void Bar ()

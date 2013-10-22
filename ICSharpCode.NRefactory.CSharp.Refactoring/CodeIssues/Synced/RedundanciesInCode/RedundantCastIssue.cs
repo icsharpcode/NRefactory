@@ -143,6 +143,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return ctx.Resolve(bop.Left).Type != ctx.Resolve(bop.Right).Type;
 			}
 
+			bool IsBreaking(IType exprType, IType expectedType)
+			{
+				if (exprType.IsReferenceType == true &&
+					expectedType.IsReferenceType == false &&
+					exprType != expectedType)
+					return true;
+				if (exprType.IsReferenceType == false &&
+					expectedType.IsReferenceType == true &&
+					exprType != expectedType)
+					return true;
+				return false;
+			}
+
 			void CheckTypeCast(Expression typeCastNode, Expression expr, TextLocation castStart, TextLocation castEnd)
 			{
 				var outerTypeCastNode = typeCastNode;
@@ -158,6 +171,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!baseTypes.Any(t => t.Equals(expectedType)))
 					return;
 
+				if (IsBreaking(exprType, expectedType))
+					return;
+
 				var cond = outerTypeCastNode.Parent as ConditionalExpression;
 				if (cond != null) {
 					if (outerTypeCastNode == cond.TrueExpression) {
@@ -170,8 +186,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				var bop = outerTypeCastNode.Parent as BinaryOperatorExpression;
 				if (bop != null && IsRedundantInBinaryExpression(bop, outerTypeCastNode, exprType))
 					return;
-				
-
 
 				// check if the called member doesn't change it's virtual slot when changing types
 				if (accessingMember != null) {
