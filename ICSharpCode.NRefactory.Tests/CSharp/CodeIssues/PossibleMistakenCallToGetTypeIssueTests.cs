@@ -61,6 +61,23 @@ public class Bar
 		}
 
 		[Test]
+		public void TestStaticCall ()
+		{
+			TestWrongContext<PossibleMistakenCallToGetTypeIssue>(@"
+using System;
+
+public class Bar
+{
+	public void FooBar(Type a)
+	{
+		string abc = ""def"";
+		Type.GetType (abc, true);
+	}
+}
+");
+		}
+
+		[Test]
 		public void TestDisable ()
 		{
 			TestWrongContext<PossibleMistakenCallToGetTypeIssue>(@"
@@ -74,6 +91,8 @@ public class Bar
 }
 ");
 		}
+
+
 	}
 }
 

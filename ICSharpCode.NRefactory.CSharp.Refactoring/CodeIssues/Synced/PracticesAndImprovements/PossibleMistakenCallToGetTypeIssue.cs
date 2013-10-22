@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (mref == null || mref.MemberName != "GetType")
 					return;
 				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-				if (rr == null || !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Type))
+				if (rr == null || !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Type) || rr.Member.IsStatic)
 					return;
 				AddIssue(new CodeIssue (
 					invocationExpression,
