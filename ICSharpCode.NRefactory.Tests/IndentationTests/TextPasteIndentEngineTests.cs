@@ -1,4 +1,4 @@
-//
+﻿//
 // TextPasteIndentEngineTests.cs
 //
 // Author:
@@ -262,16 +262,9 @@ class Foo
 		[Test]
 		public void PastemultilineAtFirstColumnCorrection()
 		{
-			var indent = CreateEngine(@"
-class Foo
-{
-$
-}");
+			var indent = CreateEngine(@"class Foo\n{\n$\n}");
 			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
-			var text = handler.FormatPlainText(indent.Offset, @"void Bar ()
-{
-	System.Console.WriteLine ();
-}", null);
+			var text = handler.FormatPlainText(indent.Offset, "void Bar ()\n{\n\tSystem.Console.WriteLine ();\n}", null);
 			Assert.AreEqual(@"	void Bar ()
 	{
 		System.Console.WriteLine ();
