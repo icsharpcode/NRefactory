@@ -114,7 +114,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 					policy = FormattingOptionsFactory.CreateMono();
 					policy.AlignToFirstIndexerArgument = policy.AlignToFirstMethodCallArgument = true;
 				}
-				options = options ?? new TextEditorOptions { IndentBlankLines = false };
+				options = options ?? new TextEditorOptions { IndentBlankLines = false, EolMarker = "\n" };
 
 				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options, policy) { EnableCustomIndentLevels = true });
 				int errors = 0;
