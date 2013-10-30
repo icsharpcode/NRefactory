@@ -6296,5 +6296,23 @@ $class Foo : $
 $class Foo : IDisposable, F$
 ", provider => Assert.IsNull(provider.Find("Activator"), "'Activator' found (sealed class)."));
 		}
+
+
+		[Test]
+		public void TestGotoCompletion ()
+		{
+			var provider = CreateCtrlSpaceProvider(@"using System;
+
+class Program
+{
+	public void Hello()
+	{
+		$goto i$
+	}
+}
+
+");
+			Assert.IsTrue(provider == null || provider.Count == 0); 
+		}
 	}
 }

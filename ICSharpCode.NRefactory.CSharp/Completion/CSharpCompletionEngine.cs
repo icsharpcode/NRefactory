@@ -998,6 +998,9 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						}
 
 						if (identifierStart.Node is Identifier) {
+							if (identifierStart.Node.Parent is GotoStatement)
+								return null;
+
 							// May happen in variable names
 							return controlSpace ? DefaultControlSpaceItems(identifierStart) : null;
 						}
