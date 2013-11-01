@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			void VisitTypeCastExpression(Expression expression, IType exprType, IType castToType)
 			{
-				if (exprType.Kind == TypeKind.Unknown || castToType.Kind == TypeKind.Unknown)
+				if (exprType.Kind == TypeKind.Unknown || castToType.Kind == TypeKind.Unknown || castToType.Kind == TypeKind.TypeParameter)
 					return;
 				var foundConversion = conversion.ExplicitConversion(exprType, castToType);
 				if (foundConversion == Conversion.None)
