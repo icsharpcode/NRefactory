@@ -569,10 +569,23 @@ public class G<U, V> : IA<$G<V, string>$>
 		{
 			string program = @"unsafe struct Test {
 	fixed int Field[8];
-	int M() { return $Field$; }
+	int* M() { return $Field$; }
 }";
 			var rr = Resolve<MemberResolveResult>(program);
 			Assert.AreEqual("Test.Field", rr.Member.FullName);
+			Assert.AreEqual("System.Int32*", rr.Type.ToString());
+		}
+
+		[Test]
+		public void FixedFieldTest2()
+		{
+			string program = @"unsafe struct Test {
+	fixed int Field[8];
+	int* M() { return $this.Field$; }
+}";
+			var rr = Resolve<MemberResolveResult>(program);
+			Assert.AreEqual("Test.Field", rr.Member.FullName);
+			Assert.AreEqual("System.Int32*", rr.Type.ToString());
 		}
 
 		[Test]
@@ -594,6 +607,24 @@ public class G<U, V> : IA<$G<V, string>$>
 }";
 			var rr = Resolve<MemberResolveResult>(program);
 			Assert.AreEqual("Test.Field", rr.Member.FullName);
+		}
+		
+		[Test]
+		public void CrossTypeParametersInheritance()
+		{
+			string program = @"using System;
+class BaseClass<A,B> {
+	public A a;
+	public B b;
+}
+class DerivedClass<A,B> : BaseClass<B,A> {
+	object Test() { return $; }
+}";
+			var mrr = Resolve<MemberResolveResult>(program.Replace("$", "$a$"));
+			Assert.AreEqual("B", mrr.Type.Name);
+			
+			mrr = Resolve<MemberResolveResult>(program.Replace("$", "$b$"));
+			Assert.AreEqual("A", mrr.Type.Name);
 		}
 	}
 }

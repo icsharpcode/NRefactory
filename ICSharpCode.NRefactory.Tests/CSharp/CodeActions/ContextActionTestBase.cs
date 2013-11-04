@@ -108,8 +108,8 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			var context = TestRefactoringContext.Create (input);
 			context.FormattingOptions = formattingOptions;
 			bool isValid = action.GetActions (context).Any ();
-			if (!isValid)
-				Console.WriteLine ("invalid node is:" + context.GetNode ());
+			if (isValid)
+				Console.WriteLine ("valid node is:" + context.GetNode ());
 			Assert.IsTrue (!isValid, action.GetType () + " shouldn't be valid there.");
 		}
 
