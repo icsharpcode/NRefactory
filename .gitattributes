@@ -1,2 +1,3 @@
+*.cs text
 *.sln -crlf
 *.csproj -crlf
