@@ -303,5 +303,21 @@ class Foo
 	}
 }");
 		}
+		
+		[Test, Ignore("https://github.com/icsharpcode/NRefactory/issues/118")]
+		public void TestNonRedundantCastDueToOverloading ()
+		{
+			TestWrongContext<RedundantCastIssue> (@"
+class Foo
+{
+	void F(string a) {}
+	void F(object a) {}
+
+	void Bar ()
+	{	
+		F((object)string.Empty);
+	}
+}");
+		}
 	}
 }

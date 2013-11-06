@@ -182,5 +182,14 @@ namespace NS
 			options.BlankLinesAfterUsings = 2;
 			AssertOutput("using System;\nusing System.Collections;\nusing List = System.Collections.List;\n\n\nnamespace NS\n{\n$using System.Collections.Generic;\n$using Collection = System.Collections.Collection;\n$using System.Xml;\n\n\n$class C\n${\n$}\n}\n", unit, options);
 		}
+		
+		[Test, Ignore("#pragma warning not implemented in output visitor - issue #188")]
+		public void PragmaWarning()
+		{
+			var code = @"#pragma warning disable 414";
+			var unit = SyntaxTree.Parse(code);
+			var options = FormattingOptionsFactory.CreateMono();
+			AssertOutput("#pragma warning disable 414\n", unit, options);
+		}
 	}
 }
