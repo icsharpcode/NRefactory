@@ -157,6 +157,9 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 		public void MethodWithOptionalParameter(int x = 4) {}
 		public void MethodWithExplicitOptionalParameter([Optional] int x) {}
 		public void MethodWithEnumOptionalParameter(StringComparison x = StringComparison.OrdinalIgnoreCase) {}
+		public void MethodWithOptionalNullableParameter(int? x = null) {}
+		public void MethodWithOptionalLongParameter(long x = 1) {}
+		public void MethodWithOptionalNullableLongParameter(long? x = 1) {}
 	}
 	
 	[ComImport(), Guid("21B8916C-F28E-11D2-A473-00C04F8EF448"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

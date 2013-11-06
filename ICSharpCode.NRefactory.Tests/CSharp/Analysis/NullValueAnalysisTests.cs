@@ -2121,7 +2121,7 @@ namespace JetBrains.Annotations
 class TestClass
 {
 	[JetBrains.Annotations.AssertionMethod]
-	void AssertNotNull([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_NOT_NULL)] object condition = 1) {
+	void AssertNotNull([JetBrains.Annotations.AssertionCondition(JetBrains.Annotations.AssertionConditionType.IS_NOT_NULL)] string condition = ""x"") {
 	}
 	
 	void TestMethod(string x)

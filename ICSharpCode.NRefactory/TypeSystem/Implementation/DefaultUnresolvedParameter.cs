@@ -255,12 +255,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 						rr = defaultValue.Resolve(context);
 						LazyInit.GetOrSet(ref this.resolvedDefaultValue, rr);
 					}
-					if (rr is ConversionResolveResult) {
-						var crr = (ConversionResolveResult)rr;
-						return crr.Input.ConstantValue;
-					}
 					return rr.ConstantValue;
-
 				}
 			}
 			

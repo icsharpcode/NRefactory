@@ -106,14 +106,6 @@ namespace ICSharpCode.NRefactory
 				annotations = cloneable.Clone();
 		}
 
-		/// <summary>
-		/// Removes all annotations.
-		/// </summary>
-		protected void ClearAnnotations ()
-		{
-			annotations = null;
-		}
-
 		sealed class AnnotationList : List<object>, ICloneable
 		{
 			// There are two uses for this custom list type:
