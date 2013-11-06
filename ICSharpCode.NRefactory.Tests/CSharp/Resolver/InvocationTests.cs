@@ -903,5 +903,54 @@ public class C {
 			Assert.That(rr.Member, Is.InstanceOf<SpecializedMember>());
 			Assert.That(rr.Member.Parameters[0].Type.Kind == TypeKind.Array);
 		}
+		
+		[Test]
+		public void PrivateExtensionMethodIsNotUsableFromOtherClass()
+		{
+			string program = @"
+using System.Collections.Generic;
+namespace Foo {
+	public static class FooExtensions {
+		static T Extension<T>(this object value) { return default(T); }
+	}
+}
+namespace Bar {
+	public static class BarExtensions {
+		public static IEnumerable<T> Extension<T>(this object value) { return new T[0]; }
+	}
+}
+
+namespace Bazz {
+	using Foo;
+	using Bar;
+	public class Client {
+		public void Method() {
+			var x = $new object().Extension<int>()$;
+		}
+	}
+}";
+			var rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.IsFalse(rr.IsError);
+			Assert.AreEqual(rr.Type.FullName, "System.Collections.Generic.IEnumerable");
+		}
+
+		[Test]
+		public void PrivateExtensionMethodIsUsableFromSameClass()
+		{
+			string program = @"
+using System.Collections.Generic;
+namespace Foo {
+	public static class FooExtensions {
+		static T Extension<T>(this object value) { return default(T); }
+		
+		static void Method() {
+			var x = $new object().Extension<int>()$;
+		}
+	}
+}";
+			var rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.IsFalse(rr.IsError);
+			Assert.AreEqual(rr.Type.FullName, "System.Int32");
+		}
 	}
 }

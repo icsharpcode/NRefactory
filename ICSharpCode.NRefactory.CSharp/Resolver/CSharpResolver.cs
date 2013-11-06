@@ -1833,13 +1833,15 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// </remarks>
 		public List<List<IMethod>> GetExtensionMethods(IType targetType, string name = null, IList<IType> typeArguments = null, bool substituteInferredTypes = false)
 		{
+			var lookup = CreateMemberLookup();
 			List<List<IMethod>> extensionMethodGroups = new List<List<IMethod>>();
 			foreach (var inputGroup in GetAllExtensionMethods()) {
 				List<IMethod> outputGroup = new List<IMethod>();
 				foreach (var method in inputGroup) {
 					if (name != null && method.Name != name)
 						continue;
-					
+					if (!lookup.IsAccessible(method, false))
+						continue;
 					IType[] inferredTypes;
 					if (typeArguments != null && typeArguments.Count > 0) {
 						if (method.TypeParameters.Count != typeArguments.Count)
@@ -1925,7 +1927,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		
 		/// <summary>
 		/// Gets all extension methods available in the current using scope.
-		/// This list includes unaccessible
+		/// This list includes inaccessible methods.
 		/// </summary>
 		IList<List<IMethod>> GetAllExtensionMethods()
 		{
