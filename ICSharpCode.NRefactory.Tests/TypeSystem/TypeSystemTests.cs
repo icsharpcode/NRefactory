@@ -995,6 +995,16 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		}
 		
 		[Test]
+		public void PropertyAccessorsHaveBody()
+		{
+			ITypeDefinition type = GetTypeDefinition(typeof(ClassWithStaticAndNonStaticMembers));
+			foreach (var prop in type.Properties) {
+				Assert.IsTrue(prop.Getter.HasBody, prop.Getter.Name);
+				Assert.IsTrue(prop.Setter.HasBody, prop.Setter.Name);
+			}
+		}
+		
+		[Test]
 		public void EventAccessorNames()
 		{
 			ITypeDefinition type = GetTypeDefinition(typeof(ClassWithStaticAndNonStaticMembers));
@@ -1005,6 +1015,16 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var normalEvent = type.Events.Single(e => e.Name == "Event3");
 			Assert.AreEqual("add_Event3", normalEvent.AddAccessor.Name);
 			Assert.AreEqual("remove_Event3", normalEvent.RemoveAccessor.Name);
+		}
+		
+		[Test]
+		public void EventAccessorHaveBody()
+		{
+			ITypeDefinition type = GetTypeDefinition(typeof(ClassWithStaticAndNonStaticMembers));
+			foreach (var ev in type.Events) {
+				Assert.IsTrue(ev.AddAccessor.HasBody, ev.AddAccessor.Name);
+				Assert.IsTrue(ev.RemoveAccessor.HasBody, ev.RemoveAccessor.Name);
+			}
 		}
 
 		[Test]

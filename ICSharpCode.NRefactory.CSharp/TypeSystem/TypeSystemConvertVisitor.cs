@@ -787,7 +787,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			a.IsStatic = ev.IsStatic;
 			a.IsSynthetic = ev.IsSynthetic;
 			a.IsVirtual = ev.IsVirtual;
-			a.HasBody = false;
+			a.HasBody = true; // even if it's compiler-generated; the body still exists
 			a.ReturnType = KnownTypeReference.Void;
 			a.Parameters.Add(valueParameter);
 			return a;
