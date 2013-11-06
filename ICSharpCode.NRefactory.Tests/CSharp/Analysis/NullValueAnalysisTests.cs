@@ -42,10 +42,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		{
 			bool supportsVersion5;
 
-			internal string defaultNamespace;
 			public override string DefaultNamespace {
 				get {
-					return defaultNamespace;
+					return string.Empty;
 				}
 			}
 

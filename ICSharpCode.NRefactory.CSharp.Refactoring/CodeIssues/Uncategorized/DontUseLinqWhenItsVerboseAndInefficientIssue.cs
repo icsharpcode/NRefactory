@@ -159,7 +159,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 					Expression startOffset = null;
 					Expression endOffset = null;
-					Expression expression = null;
 
 					bool reversed = false;
 					foreach (var invocation in invocations.AsEnumerable().Reverse()) {

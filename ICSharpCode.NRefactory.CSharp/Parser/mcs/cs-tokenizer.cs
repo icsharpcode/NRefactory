@@ -3064,7 +3064,6 @@ namespace Mono.CSharp
 
 				value_builder[pos++] = (char) c;
 			}
-			recordNewLine = true;
 		}
 
 		private int consume_identifier (int s)

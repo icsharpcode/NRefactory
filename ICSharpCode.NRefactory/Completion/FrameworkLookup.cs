@@ -97,6 +97,7 @@ namespace ICSharpCode.NRefactory.Completion
 		/// </summary>
 		/// <returns>The assemblies the type may be defined (if any).</returns>
 		/// <param name="resolveResult">The resolve result.</param>
+		/// <param name="fullMemberName"></param>
 		/// <param name="typeParameterCount">Type parameter count.</param>
 		/// <param name="isInsideAttributeType">If set to <c>true</c> this resolve result may be inside an attribute.</param>
 		public IEnumerable<AssemblyLookup> GetLookups (UnknownMemberResolveResult resolveResult, string fullMemberName, int typeParameterCount, bool isInsideAttributeType)
