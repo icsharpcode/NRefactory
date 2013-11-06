@@ -832,5 +832,76 @@ class Program
 			var rr = Resolve<CSharpInvocationResolveResult>(program);
 			Assert.IsFalse(rr.IsError);
 		}
+
+		[Test]
+		public void OverloadResolutionWithDerivedTypesAndLambdas() {
+			string program = @"using System;
+public class C {
+	class B {}
+	class D : B {}
+
+	static void F(B a, Func<B, object> f) {}
+	static void F(D a, Func<D, object> f) {}
+
+	public static void M(object obj) {
+		$F(new D(), n => 0)$;
+	}
+}";
+			var rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.That(rr.IsError, Is.False);
+			Assert.That(rr.Member.Parameters[0].Type.Name == "D");
+		}
+
+		[Test]
+		public void OverloadResolutionBetweenArrayTypes() {
+			string program = @"using System;
+public class C {
+	static void F(object[] a, Func<object, object> f) {}
+	static void F(string[] a, Func<string, object> f) {}
+
+	public static void M() {
+		$F(new string[0], n => 0)$;
+	}
+}";
+
+			var rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.That(rr.IsError, Is.False);
+			Assert.That(rr.Member.Parameters[0].Type.Kind == TypeKind.Array && ((ArrayType)rr.Member.Parameters[0].Type).ElementType.Name == "String");
+		}
+
+		[Test]
+		public void OverloadResolutionBetweenArrayAndArrayType() {
+			string program = @"using System;
+public class C {
+	static void F(Array a, Func<object, object> f) {}
+	static void F(string[] a, Func<string, object> f) {}
+
+	public static void M() {
+		$F(new string[0], n => 0)$;
+	}
+}";
+
+			var rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.That(rr.IsError, Is.False);
+			Assert.That(rr.Member.Parameters[0].Type.Kind == TypeKind.Array);
+		}
+
+		[Test]
+		public void OverloadResolutionBetweenArrayAndArrayTypeGeneric() {
+			string program = @"using System;
+public class C {
+	static void F(Array a, Func<object, object> f) {}
+	static void F<T>(T[] a, Func<T, object> f) {}
+
+	public static void M() {
+		$F(new string[0], n => 0)$;
+	}
+}";
+
+			var rr = Resolve<CSharpInvocationResolveResult>(program);
+			Assert.That(rr.IsError, Is.False);
+			Assert.That(rr.Member, Is.InstanceOf<SpecializedMember>());
+			Assert.That(rr.Member.Parameters[0].Type.Kind == TypeKind.Array);
+		}
 	}
 }

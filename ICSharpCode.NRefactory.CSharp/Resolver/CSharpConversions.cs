@@ -1146,9 +1146,6 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				IMethod m2 = t2.GetDelegateInvokeMethod();
 				if (m1 == null || m2 == null)
 					return 0;
-				int r = BetterConversionTarget(t1, t2);
-				if (r != 0)
-					return r;
 				if (m1.Parameters.Count != m2.Parameters.Count)
 					return 0;
 				IType[] parameterTypes = new IType[m1.Parameters.Count];
@@ -1168,7 +1165,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					return 1;
 				
 				IType inferredRet = lambda.GetInferredReturnType(parameterTypes);
-				r = BetterConversion(inferredRet, ret1, ret2);
+				int r = BetterConversion(inferredRet, ret1, ret2);
 				if (r == 0 && lambda.IsAsync) {
 					ret1 = UnpackTask(ret1);
 					ret2 = UnpackTask(ret2);
