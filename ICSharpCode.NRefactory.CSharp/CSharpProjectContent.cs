@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using ICSharpCode.NRefactory.CSharp.TypeSystem;
@@ -36,6 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		string location;
 		Dictionary<string, IUnresolvedFile> unresolvedFiles;
 		List<IAssemblyReference> assemblyReferences;
+		List<IAssemblyResource> resources;
 		CompilerSettings compilerSettings;
 		
 		public CSharpProjectContent()
@@ -43,6 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.unresolvedFiles = new Dictionary<string, IUnresolvedFile>(Platform.FileNameComparer);
 			this.assemblyReferences = new List<IAssemblyReference>();
 			this.compilerSettings = new CompilerSettings();
+			this.resources = new List<IAssemblyResource>();
 			compilerSettings.Freeze();
 		}
 		
@@ -54,6 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.location = pc.location;
 			this.unresolvedFiles = new Dictionary<string, IUnresolvedFile>(pc.unresolvedFiles, Platform.FileNameComparer);
 			this.assemblyReferences = new List<IAssemblyReference>(pc.assemblyReferences);
+			this.resources = new List<IAssemblyResource>(pc.resources);
 			this.compilerSettings = pc.compilerSettings;
 		}
 		
@@ -104,6 +108,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		public IEnumerable<IUnresolvedTypeDefinition> TopLevelTypeDefinitions {
 			get {
 				return this.Files.SelectMany(f => f.TopLevelTypeDefinitions);
+			}
+		}
+
+		public IEnumerable<IAssemblyResource> Resources {
+			get {
+				return resources.Select(x => x);
 			}
 		}
 		
@@ -237,7 +247,28 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return RemoveFiles((IEnumerable<string>)fileNames);
 		}
-		
+
+		public IProjectContent AddResources(IEnumerable<IAssemblyResource> resources) {
+			var pc = Clone();
+			pc.resources.AddRange(resources);
+			return pc;
+		}
+
+		public IProjectContent AddResources(params IAssemblyResource[] resources) {
+			return AddResources((IEnumerable<IAssemblyResource>)resources);
+		}
+
+		public IProjectContent RemoveResources(IEnumerable<IAssemblyResource> resources) {
+			CSharpProjectContent pc = Clone();
+			foreach (var r in resources)
+				pc.resources.Remove(r);
+			return pc;
+		}
+
+		public IProjectContent RemoveResources(params IAssemblyResource[] resources) {
+			return RemoveResources((IEnumerable<IAssemblyResource>)resources);
+		}
+
 		[Obsolete("Use RemoveFiles/AddOrUpdateFiles instead")]
 		public IProjectContent UpdateProjectContent(IUnresolvedFile oldFile, IUnresolvedFile newFile)
 		{

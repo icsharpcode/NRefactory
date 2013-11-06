@@ -155,5 +155,25 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// Using the incorrect type of settings object results in an <see cref="ArgumentException"/>.
 		/// </summary>
 		IProjectContent SetCompilerSettings(object compilerSettings);
+
+		/// <summary>
+		/// Add resources to this project content.
+		/// </summary>
+		IProjectContent AddResources(IEnumerable<IAssemblyResource> resources);
+
+		/// <summary>
+		/// Add resources to this project content.
+		/// </summary>
+		IProjectContent AddResources(params IAssemblyResource[] resources);
+
+		/// <summary>
+		/// Remove resources from this project content.
+		/// </summary>
+		IProjectContent RemoveResources(IEnumerable<IAssemblyResource> resources);
+
+		/// <summary>
+		/// Add resources to this project.
+		/// </summary>
+		IProjectContent RemoveResources(params IAssemblyResource[] resources);
 	}
 }

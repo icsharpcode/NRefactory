@@ -17,9 +17,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory.Semantics;
@@ -1460,6 +1462,43 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			Assert.AreEqual(inner2, ((TypeOfResolveResult)inner2TypeTestAttr.PositionalArguments[1]).ReferencedType);
 			var inner2MyAttr = attributedInner2.Attributes.Single(a => a.AttributeType.Name == "MyAttribute");
 			Assert.AreEqual(myAttribute2, inner2MyAttr.AttributeType);
+		}
+
+		[Test]
+		public void ResourcesCanBeLoaded()
+		{
+			var res = compilation.MainAssembly.Resources.SingleOrDefault(r => r.Name == "ICSharpCode.NRefactory.TypeSystem.EmbeddedResource.txt");
+			Assert.That(res, Is.Not.Null);
+			Assert.That(res.Type, Is.EqualTo(AssemblyResourceType.Embedded));
+			Assert.That(res.IsPublic, Is.True);
+			Assert.That(res.LinkedFileName, Is.Null);
+			using (var rdr = new StreamReader(res.GetResourceStream(), Encoding.UTF8)) {
+				Assert.That(rdr.ReadToEnd(), Is.EqualTo("Hello world from embedded resource"));
+			}
+
+			res = compilation.MainAssembly.Resources.SingleOrDefault(r => r.Name == "ICSharpCode.NRefactory.TypeSystem.PrivateEmbeddedResource.txt");
+			Assert.That(res, Is.Not.Null);
+			Assert.That(res.Type, Is.EqualTo(AssemblyResourceType.Embedded));
+			Assert.That(res.IsPublic, Is.False);
+			Assert.That(res.LinkedFileName, Is.Null);
+			using (var rdr = new StreamReader(res.GetResourceStream(), Encoding.UTF8)) {
+				Assert.That(rdr.ReadToEnd(), Is.EqualTo("Hello world from private resource"));
+			}
+
+			res = compilation.MainAssembly.Resources.SingleOrDefault(r => r.Name == "ICSharpCode.NRefactory.TypeSystem.LinkedResource.txt");
+			Assert.That(res, Is.Not.Null);
+			Assert.That(res.Type, Is.EqualTo(AssemblyResourceType.Linked));
+			Assert.That(res.IsPublic, Is.True);
+			Assert.That(res.LinkedFileName, Is.EqualTo("LinkedResource.txt"));
+			try {
+				using (var rdr = new StreamReader(res.GetResourceStream(), Encoding.UTF8)) {
+					Assert.That(rdr.ReadToEnd(), Is.EqualTo("Hello world from linked resource"));
+				}
+			}
+			catch (FileNotFoundException ex) {
+				// In case our test runner does not copy the linked resource file, assume that it can be read if it were in the correct place.
+				Assert.That(ex.FileName, Is.EqualTo(Path.Combine(Path.GetDirectoryName(typeof(BinaryLoaderTests).Assembly.Location), "LinkedResource.txt")));
+			}
 		}
 	}
 }

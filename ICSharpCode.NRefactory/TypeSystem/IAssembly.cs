@@ -56,6 +56,11 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// Gets all non-nested types in the assembly.
 		/// </summary>
 		IEnumerable<IUnresolvedTypeDefinition> TopLevelTypeDefinitions { get; }
+
+		/// <summary>
+		/// Returns a list of all resources in the assembly.
+		/// </summary>
+		IEnumerable<IAssemblyResource> Resources { get; }
 	}
 	
 	public interface IAssemblyReference
@@ -124,5 +129,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// Gets all non-nested types in the assembly.
 		/// </summary>
 		IEnumerable<ITypeDefinition> TopLevelTypeDefinitions { get; }
+
+		/// <summary>
+		/// Returns a list of all resources in the assembly.
+		/// </summary>
+		IEnumerable<IAssemblyResource> Resources { get; }
 	}
 }

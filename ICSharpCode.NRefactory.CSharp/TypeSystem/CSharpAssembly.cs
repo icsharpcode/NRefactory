@@ -69,6 +69,12 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 				return GetAttributes(ref moduleAttributes, false);
 			}
 		}
+
+		public IEnumerable<IAssemblyResource> Resources {
+			get {
+				return projectContent.Resources;
+			}
+		}
 		
 		IList<IAttribute> GetAttributes(ref IList<IAttribute> field, bool assemblyAttributes)
 		{

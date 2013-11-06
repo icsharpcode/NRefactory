@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -163,6 +164,19 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			moduleAttributes = interningProvider.InternList(moduleAttributes);
 			
 			this.currentAssembly = new CecilUnresolvedAssembly(assemblyDefinition != null ? assemblyDefinition.Name.FullName : moduleDefinition.Name, this.DocumentationProvider);
+
+			foreach (var res in moduleDefinition.Resources) {
+				switch (res.ResourceType) {
+					case ResourceType.Embedded:
+						currentAssembly.Resources.Add(new CecilEmbeddedResource(res.Name, moduleDefinition.FullyQualifiedName, res.IsPublic));
+						break;
+					case ResourceType.Linked:
+						currentAssembly.Resources.Add(new LinkedResource(res.Name, ((Mono.Cecil.LinkedResource)res).File, Path.GetDirectoryName(moduleDefinition.FullyQualifiedName), res.IsPublic));
+						break;
+					// There is also ResourceType.AssemblyLinked, but we don't support that (at least for now)
+				}
+			}
+
 			currentAssembly.Location = moduleDefinition.FullyQualifiedName;
 			currentAssembly.AssemblyAttributes.AddRange(assemblyAttributes);
 			currentAssembly.ModuleAttributes.AddRange(assemblyAttributes);
@@ -273,6 +287,32 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					return documentationProvider.GetDocumentation(entity);
 				else
 					return null;
+			}
+		}
+
+		[Serializable, FastSerializerVersion(cecilLoaderVersion)]
+		sealed class CecilEmbeddedResource : IAssemblyResource {
+			private string name;
+			private string assemblyFile;
+			private bool isPublic;
+
+			public CecilEmbeddedResource(string name, string assemblyFile, bool isPublic) {
+				this.name = name;
+				this.assemblyFile = assemblyFile;
+				this.isPublic = isPublic;
+			}
+
+			public string Name { get { return name; } }
+
+			public AssemblyResourceType Type { get { return AssemblyResourceType.Embedded; } }
+
+			public string LinkedFileName { get { return null; } }
+
+			public bool IsPublic { get { return isPublic; } }
+
+			public Stream GetResourceStream() {
+				var module = ModuleDefinition.ReadModule(assemblyFile);
+				return ((EmbeddedResource)module.Resources.Single(r => r.Name == name)).GetResourceStream();
 			}
 		}
 		#endregion
