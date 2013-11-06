@@ -66,6 +66,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						// so we need to resolve it when hovering over the '[' or ']'.
 						// For constructor initializer, the same applies to the 'base'/'this' token.
 						node = node.Parent;
+					} else if (node.Parent is BinaryOperatorExpression || node.Parent is UnaryOperatorExpression) {
+						// Resolve user-defined operator
+						node = node.Parent;
 					} else {
 						return null;
 					}
@@ -88,8 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 
 			if (node == null)
 				return null;
-			if (node.Parent is ObjectCreateExpression && node.Role == Roles.Type || 
-				node is CSharpTokenNode && (node.Parent is BinaryOperatorExpression || node.Parent is UnaryOperatorExpression)) {
+			if (node.Parent is ObjectCreateExpression && node.Role == Roles.Type) {
 				node = node.Parent;
 			}
 			
