@@ -97,6 +97,43 @@ class FooBar
 }
 ");
 		}
+
+		/// <summary>
+		/// Bug 16108 - Convert to autoproperty issues
+		/// </summary>
+		[Test]
+		public void TestBug16108Case1 ()
+		{
+			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+class MyClass
+{
+    [DebuggerHiddenAttribute]
+    int a;
+    int A {
+        get { return a; }
+        set { a = value; }
+    }
+}
+");
+		}
+
+		/// <summary>
+		/// Bug 16108 - Convert to autoproperty issues
+		/// </summary>
+		[Test]
+		public void TestBug16108Case2 ()
+		{
+			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+class MyClass
+{
+    int a = 4;
+    int A {
+        get { return a; }
+        set { a = value; }
+    }
+}
+");
+		}
 	}
 }
 
