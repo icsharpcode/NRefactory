@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield break;
 
 			var field = GetBackingField(context, property);
-			if (field == null) {
+			if (!IsValidField(field, property.GetParent<TypeDeclaration>())) {
 				yield break;
 			}
 			// create new auto property
@@ -57,7 +57,23 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				script.Replace (property, newProperty);
 			}, property.NameToken);
 		}
-		
+
+		static bool IsValidField(IField field, TypeDeclaration declaringType)
+		{
+			if (field == null || field.Attributes.Count > 0)
+				return false;
+			foreach (var m in declaringType.Members.OfType<FieldDeclaration>()) {
+				foreach (var i in m.Variables) {
+					if (i.StartLocation == field.BodyRegion.Begin) {
+						if (!i.Initializer.IsNull)
+							return false;
+						break;
+					}
+				}
+			}
+			return true;
+		}
+
 //		void ReplaceBackingFieldReferences (MDRefactoringContext context, IField backingStore, PropertyDeclaration property)
 //		{
 //			using (var monitor = IdeApp.Workbench.ProgressMonitors.GetSearchProgressMonitor (true, true)) {
