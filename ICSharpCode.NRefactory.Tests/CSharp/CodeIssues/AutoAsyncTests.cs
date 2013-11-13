@@ -224,6 +224,7 @@ class TestClass
 		[Test]
 		public void TestContinueWithUsingPrecedent() {
 			Test<AutoAsyncIssue>(@"
+using System;
 using System.Threading.Tasks;
 class TestClass
 {
@@ -241,6 +242,7 @@ class TestClass
 		return tcs.Task;
 	}
 }", @"
+using System;
 using System.Threading.Tasks;
 class TestClass
 {
@@ -612,6 +614,7 @@ class TestClass
 		[Test]
 		public void TestInvalidInLambda() {
 			TestWrongContext<AutoAsyncIssue>(@"
+using System;
 using System.Threading.Tasks;
 class TestClass
 {
@@ -627,6 +630,7 @@ class TestClass
 		[Test]
 		public void TestInvalidContinue() {
 			Test<AutoAsyncIssue>(@"
+using System;
 using System.Threading.Tasks;
 class TestClass
 {
@@ -641,6 +645,7 @@ class TestClass
 		return tcs.Task;
 	}
 }", @"
+using System;
 using System.Threading.Tasks;
 class TestClass
 {
@@ -658,6 +663,7 @@ class TestClass
 		[Test]
 		public void TestLongInvalidContinue() {
 			Test<AutoAsyncIssue>(@"
+using System;
 using System.Threading.Tasks;
 class TestClass
 {
@@ -674,6 +680,7 @@ class TestClass
 		return tcs.Task;
 	}
 }", @"
+using System;
 using System.Threading.Tasks;
 class TestClass
 {
