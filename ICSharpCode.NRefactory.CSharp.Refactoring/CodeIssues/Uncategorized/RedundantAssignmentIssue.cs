@@ -300,7 +300,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						if (containsInvocations && isDeclareStatement) {
 							//add the column ';' that will be removed after the next line replacement
 							var expression = (Statement)variableNode.Initializer.Clone();
-							if (ContainsOtherAssignments(variableInitializer.Parent) && varDecl != null ) {
+							if (containsLaterAssignments && varDecl != null) {
 								var clonedDefinition = (VariableDeclarationStatement)varDecl.Clone();
 
 								var shortExpressionType = CreateShortType(ctx, expressionType, node);
@@ -312,7 +312,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 							script.Replace(node.Parent, expression);
 							return;
 						}
-						if (isDeclareStatement && !containsRefOrOut && !ContainsOtherAssignments(variableInitializer.Parent)) {
+						if (isDeclareStatement && !containsRefOrOut && !containsLaterAssignments&& !ContainsOtherAssignments(variableInitializer.Parent)) {
 							script.Remove(node.Parent);
 							return;
 						}
