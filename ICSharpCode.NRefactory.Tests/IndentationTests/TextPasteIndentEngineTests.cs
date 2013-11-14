@@ -1,4 +1,4 @@
-﻿﻿//
+﻿//
 // TextPasteIndentEngineTests.cs
 //
 // Author:
@@ -291,6 +291,62 @@ $
 			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
 			var text = handler.FormatPlainText(indent.Offset, "#if DEBUG\n\tvoid Foo()\n\t{\n\t}\n#endif", null);
 			Assert.AreEqual("#if DEBUG\n\tvoid Foo()\n\t{\n\t}\n#endif", text);
+		}
+
+		[Test]
+		public void PasteInUnterminatedString ()
+		{
+			var opt = FormattingOptionsFactory.CreateMono();
+			opt.IndentPreprocessorDirectives = false;
+
+			var indent = CreateEngine(@"
+var foo = ""hello$
+", opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			var text = handler.FormatPlainText(indent.Offset, "Hi \" + username;", null);
+			Assert.AreEqual("Hi \" + username;", text);
+		}
+
+		[Test]
+		public void PasteInTerminatedString ()
+		{
+			var opt = FormattingOptionsFactory.CreateMono();
+			opt.IndentPreprocessorDirectives = false;
+
+			var indent = CreateEngine(@"
+var foo = ""hello$"";
+", opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			var text = handler.FormatPlainText(indent.Offset, "Hi \" + username;", null);
+			Assert.AreEqual("Hi \\\" + username;", text);
+		}
+
+		[Test]
+		public void PasteInUnterminatedVerbatimString ()
+		{
+			var opt = FormattingOptionsFactory.CreateMono();
+			opt.IndentPreprocessorDirectives = false;
+
+			var indent = CreateEngine(@"
+var foo = @""hello$
+", opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			var text = handler.FormatPlainText(indent.Offset, "Hi \" + username;", null);
+			Assert.AreEqual("Hi \" + username;", text);
+		}
+
+		[Test]
+		public void PasteInTerminatedVerbatimString ()
+		{
+			var opt = FormattingOptionsFactory.CreateMono();
+			opt.IndentPreprocessorDirectives = false;
+
+			var indent = CreateEngine(@"
+var foo = @""hello$"";
+", opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			var text = handler.FormatPlainText(indent.Offset, "Hi \" + username;", null);
+			Assert.AreEqual("Hi \"\" + username;", text);
 		}
 	}
 }

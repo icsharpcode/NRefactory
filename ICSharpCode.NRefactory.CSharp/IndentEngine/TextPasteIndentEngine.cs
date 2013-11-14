@@ -90,8 +90,37 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			engine.Update(offset);
 			if (engine.IsInsideStringLiteral) {
+				int idx = text.IndexOf('"');
+				if (idx > 0) {
+					var o = offset;
+					while (o < engine.Document.TextLength) {
+						char ch = engine.Document.GetCharAt(o);
+						engine.Push(ch); 
+						if (NewLine.IsNewLine(ch))
+							break;
+						o++;
+						if (!engine.IsInsideStringLiteral)
+							return TextPasteUtils.StringLiteralStrategy.Encode(text);
+					}
+					return TextPasteUtils.StringLiteralStrategy.Encode(text.Substring(0, idx)) + text.Substring(idx);
+				}
 				return TextPasteUtils.StringLiteralStrategy.Encode(text);
+
 			} else if (engine.IsInsideVerbatimString) {
+
+				int idx = text.IndexOf('"');
+				if (idx > 0) {
+					var o = offset;
+					while (o < engine.Document.TextLength) {
+						char ch = engine.Document.GetCharAt(o);
+						engine.Push(ch); 
+						o++;
+						if (!engine.IsInsideVerbatimString)
+							return TextPasteUtils.VerbatimStringStrategy.Encode(text);
+					}
+					return TextPasteUtils.VerbatimStringStrategy.Encode(text.Substring(0, idx)) + text.Substring(idx);
+				}
+
 				return TextPasteUtils.VerbatimStringStrategy.Encode(text);
 			}
 			var line = engine.Document.GetLineByOffset(offset);
