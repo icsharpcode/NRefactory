@@ -895,5 +895,28 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
+
+
+		/// <summary>
+		/// Bug 16231 - smart indent broken in 4.2.0
+		/// </summary>
+		[Test]
+		public void TestBug16231()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		switch (foo) {
+		}
+		if (true) {
+			$
+", policy);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
 	}
 }

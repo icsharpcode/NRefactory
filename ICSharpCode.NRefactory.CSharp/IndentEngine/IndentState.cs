@@ -621,6 +621,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			NextLineIndent.PopWhile(IndentType.Continuation);
 
 			CurrentStatement = Statement.None;
+			NextBody = Body.None;
 			LastBlockIndent = null;
 		}
 
