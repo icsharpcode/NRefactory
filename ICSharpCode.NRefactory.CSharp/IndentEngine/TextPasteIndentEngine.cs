@@ -440,19 +440,32 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			#endregion
 
-			Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>> {
+			static readonly Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>> {
 				{ '\"', "\\\"" },
 				{ '\\', "\\\\" },
 				{ '\n', "\\n" },
 				{ '\r', "\\r" },
 				{ '\t', "\\t" },
+				{ '\a', "\\a" },
+				{ '\b', "\\b" },
+				{ '\v', "\\v" },
+				{ '\f', "\\f" },
+				{ '\0', "\\0" },
+				{ '\'', "\\'" }
 			};
-			Dictionary<char, char> decodeReplace = new Dictionary<char, char> {
+
+			static readonly Dictionary<char, char> decodeReplace = new Dictionary<char, char> {
 				{ '"', '"' },
 				{ '\\', '\\' },
 				{ 'n', '\n' },
 				{ 'r', '\r' },
 				{ 't', '\t' },
+				{ 'a', '\a' },
+				{ 'b', '\b' },
+				{ 'v', '\v' },
+				{ 'f', '\f' },
+				{ '0', '\0' },
+				{ '\'', '\'' }
 			};
 
 			/// <inheritdoc />
@@ -466,21 +479,26 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				var result = new StringBuilder();
 				bool isEscaped = false;
-				
+
 				foreach (var ch in text) {
 					if (isEscaped) {
 						if (decodeReplace.ContainsKey(ch)) {
 							result.Append(decodeReplace [ch]);
 						} else {
-							result.Append('\\', ch);
+							result.Append('\\');
+							result.Append(ch);
 						}
-					} else if (ch != '\\') {
+						isEscaped = false;
+						continue;
+					} 
+
+					if (ch != '\\') {
 						result.Append(ch);
+					} else {
+						isEscaped = true;
 					}
-					
-					isEscaped = !isEscaped && ch == '\\';
 				}
-				
+
 				return result.ToString();
 			}
 
@@ -513,7 +531,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			#endregion
 
-			Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>> {
+			static readonly Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>> {
 				{ '\"', "\"\"" },
 			};
 
