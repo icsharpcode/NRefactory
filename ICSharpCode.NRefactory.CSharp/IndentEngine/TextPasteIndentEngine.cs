@@ -440,38 +440,10 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			#endregion
 
-			static readonly Dictionary<char, IEnumerable<char>> encodeReplace = new Dictionary<char, IEnumerable<char>> {
-				{ '\"', "\\\"" },
-				{ '\\', "\\\\" },
-				{ '\n', "\\n" },
-				{ '\r', "\\r" },
-				{ '\t', "\\t" },
-				{ '\a', "\\a" },
-				{ '\b', "\\b" },
-				{ '\v', "\\v" },
-				{ '\f', "\\f" },
-				{ '\0', "\\0" },
-				{ '\'', "\\'" }
-			};
-
-			static readonly Dictionary<char, char> decodeReplace = new Dictionary<char, char> {
-				{ '"', '"' },
-				{ '\\', '\\' },
-				{ 'n', '\n' },
-				{ 'r', '\r' },
-				{ 't', '\t' },
-				{ 'a', '\a' },
-				{ 'b', '\b' },
-				{ 'v', '\v' },
-				{ 'f', '\f' },
-				{ '0', '\0' },
-				{ '\'', '\'' }
-			};
-
 			/// <inheritdoc />
 			public string Encode(string text)
 			{
-				return string.Concat(text.SelectMany(c => encodeReplace.ContainsKey(c) ? encodeReplace [c] : new[] { c }));
+				return CSharpOutputVisitor.ConvertString(text);
 			}
 
 			/// <inheritdoc />
@@ -480,26 +452,115 @@ namespace ICSharpCode.NRefactory.CSharp
 				var result = new StringBuilder();
 				bool isEscaped = false;
 
-				foreach (var ch in text) {
+				for (int i = 0; i < text.Length; i++) {
+					var ch = text[i];
 					if (isEscaped) {
-						if (decodeReplace.ContainsKey(ch)) {
-							result.Append(decodeReplace [ch]);
-						} else {
-							result.Append('\\');
-							result.Append(ch);
+						switch (ch) {
+							case 'a':
+								result.Append('\a');
+								break;
+							case 'b':
+								result.Append('\b');
+								break;
+							case 'n':
+								result.Append('\n');
+								break;
+							case 't':
+								result.Append('\t');
+								break;
+							case 'v':
+								result.Append('\v');
+								break;
+							case 'r':
+								result.Append('\r');
+								break;
+							case '\\':
+								result.Append('\\');
+								break;
+							case 'f':
+								result.Append('\f');
+								break;
+							case '0':
+								result.Append(0);
+								break;
+							case '"':
+								result.Append('"');
+								break;
+							case '\'':
+								result.Append('\'');
+								break;
+							case 'x':
+								char r;
+								if (TryGetHex(text, -1, ref i, out r)) {
+									result.Append(r);
+									break;
+								}
+								goto default;
+							case 'u':
+								if (TryGetHex(text, 4, ref i, out r)) {
+									result.Append(r);
+									break;
+								}
+								goto default;
+							case 'U':
+								if (TryGetHex(text, 8, ref i, out r)) {
+									result.Append(r);
+									break;
+								}
+								goto default;
+							default:
+								result.Append('\\');
+								result.Append(ch);
+								break;
 						}
 						isEscaped = false;
 						continue;
-					} 
-
+					}
 					if (ch != '\\') {
 						result.Append(ch);
-					} else {
+					}
+					else {
 						isEscaped = true;
 					}
 				}
 
 				return result.ToString();
+			}
+
+			static bool TryGetHex(string text, int count, ref int idx, out char r)
+			{
+				int i;
+				int total = 0;
+				int top = count != -1 ? count : 4;
+
+				for (i = 0; i < top; i++) {
+					int c = text[idx + 1 + i];
+
+					if (c >= '0' && c <= '9')
+						c = (int) c - (int) '0';
+					else if (c >= 'A' && c <= 'F')
+						c = (int) c - (int) 'A' + 10;
+					else if (c >= 'a' && c <= 'f')
+						c = (int) c - (int) 'a' + 10;
+					else {
+						r = '\0';
+						return false;
+					}
+					total = (total * 16) + c;
+				}
+
+				if (top == 8) {
+					if (total > 0x0010FFFF) {
+						r = '\0';
+						return false;
+					}
+
+					if (total >= 0x00010000)
+						total = ((total - 0x00010000) / 0x0400 + 0xD800);
+				}
+				r = (char)total;
+				idx += top;
+				return true;
 			}
 
 			/// <inheritdoc />
