@@ -843,6 +843,38 @@ class Foo
 		}
 
 		[Test]
+		public void TestBrackets_AnonymousMethodOpenBracketAlignment()
+		{
+			var policy = FormattingOptionsFactory.CreateAllman();
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		Foo (delegate
+		{$
+", policy);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_AnonymousMethodCloseingBracketAlignment()
+		{
+			var policy = FormattingOptionsFactory.CreateAllman();
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		Foo (delegate
+		{
+		}$
+", policy);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+		}
+
+		[Test]
 		public void TestBrackets_ArrayCreationAsFirstParameterWithoutAlignment()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();

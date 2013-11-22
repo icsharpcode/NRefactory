@@ -478,7 +478,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public BracesBodyState(CSharpIndentEngine engine, IndentState parent = null)
 			: base(engine, parent)
-		{ }
+		{
+		}
 
 		public BracesBodyState(BracesBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
@@ -1081,9 +1082,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			if (ch == Engine.newLineChar)
 			{
-				if (NextLineIndent.PopIf(IndentType.Continuation))
-				{
-					NextLineIndent.Push(IndentType.Block);
+				if (Engine.formattingOptions.AnonymousMethodBraceStyle == BraceStyle.EndOfLine || 
+					Engine.formattingOptions.AnonymousMethodBraceStyle == BraceStyle.EndOfLineWithoutSpace) {
+					if (NextLineIndent.PopIf(IndentType.Continuation)) {
+						NextLineIndent.Push(IndentType.Block);
+					}
 				}
 			}
 			else if (!IsSomethingPushed)
