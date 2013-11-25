@@ -196,6 +196,14 @@ namespace ICSharpCode.NRefactory.CSharp
 			set;
 		}
 
+		/// <summary>
+		///     If this is true, the engine tries to better readjust clipboard contents.
+		/// </summary>
+		public bool InClipboardFormatMode {
+			get;
+			set;
+		}
+
 		#endregion
 
 		#region Fields
@@ -327,6 +335,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.ifDirectiveEvalResult = new Stack<bool>(prototype.ifDirectiveEvalResult.Reverse());
 
 			this.EnableCustomIndentLevels = prototype.EnableCustomIndentLevels;
+			this.InClipboardFormatMode = prototype.InClipboardFormatMode;
 		}
 
 		#endregion

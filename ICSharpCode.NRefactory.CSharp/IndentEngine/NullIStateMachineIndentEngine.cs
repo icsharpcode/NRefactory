@@ -202,6 +202,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			set { }
 		}
 
+		/// <inheritdoc />
+		public bool InClipboardFormatMode
+		{
+			get { return false; }
+			set { }
+		}
 		#endregion
 
 		#region ICloneable implementation

@@ -75,6 +75,12 @@ namespace ICSharpCode.NRefactory.CSharp
 		bool EnableCustomIndentLevels { get; set; }
 
 		/// <summary>
+		///     If this is true, the engine tries to better readjust clipboard contents.
+		/// </summary>
+		bool InClipboardFormatMode { get; set; }
+
+
+		/// <summary>
 		///     Pushes a new char into the engine which calculates the new
 		///     indentation levels.
 		/// </summary>
