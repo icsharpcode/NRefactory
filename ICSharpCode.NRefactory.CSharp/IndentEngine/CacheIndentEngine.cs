@@ -123,13 +123,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		/// <inheritdoc />
-		public bool InClipboardFormatMode
-		{
-			get { return currentEngine.InClipboardFormatMode; }
-			set { currentEngine.InClipboardFormatMode = value; }
-		}
-
-		/// <inheritdoc />
 		public void Push(char ch)
 		{
 			currentEngine.Push(ch);

@@ -128,7 +128,6 @@ namespace ICSharpCode.NRefactory.CSharp
 			var indentedText = new StringBuilder();
 			var curLine = new StringBuilder();
 			var clonedEngine = engine.Clone();
-			clonedEngine.InClipboardFormatMode = true;
 			bool isNewLine = false, gotNewLine = false;
 			for (int i = 0; i < text.Length; i++) {
 				var ch = text [i];
@@ -242,13 +241,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			get { return engine.EnableCustomIndentLevels; }
 			set { engine.EnableCustomIndentLevels = value; }
 		}
-
-		/// <inheritdoc />
-		public bool InClipboardFormatMode {
-			get { return engine.InClipboardFormatMode; }
-			set { engine.InClipboardFormatMode = value; }
-		}
-
+		
 		/// <inheritdoc />
 		public void Push(char ch)
 		{
