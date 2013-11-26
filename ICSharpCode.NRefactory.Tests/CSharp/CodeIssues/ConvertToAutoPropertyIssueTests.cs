@@ -134,6 +134,34 @@ class MyClass
 }
 ");
 		}
+
+
+		/// <summary>
+		/// Bug 16448 - Refactor incorrectly suggesting "Convert to Auto Property" on property containing custom logic
+		/// </summary>
+		[Test]
+		public void TestBug16448()
+		{
+			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+using System;
+
+public class Foo
+{
+	int _bpm;
+
+	public int BPM
+	{
+		get { return _bpm; }
+		set
+		{
+			_bpm = Math.Min(Math.Max(60, value), 180);
+		}
+	}
+}
+");
+		}
+
+
 	}
 }
 

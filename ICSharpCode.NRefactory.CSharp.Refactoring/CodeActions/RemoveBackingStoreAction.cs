@@ -147,6 +147,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var assignment = setAssignment != null ? setAssignment.Expression as AssignmentExpression : null;
 			if (assignment == null || assignment.Operator != AssignmentOperatorType.Assign)
 				return null;
+			var idExpr = assignment.Right as IdentifierExpression;
+			if (idExpr == null || idExpr.Identifier != "value")
+				return null;
 			if (!IsPossibleExpression(assignment.Left))
 				return null;
 			var result = context.Resolve (assignment.Left);
