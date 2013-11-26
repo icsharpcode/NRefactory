@@ -53,7 +53,19 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			yield return new CodeAction(context.TranslateString("Convert to auto property"), script => {
 				script.Rename((IEntity)field, newProperty.Name);
-				script.Remove (context.RootNode.GetNodeAt<FieldDeclaration> (field.Region.Begin));
+				var oldField = context.RootNode.GetNodeAt<FieldDeclaration>(field.Region.Begin);
+				if (oldField.Variables.Count == 1) {
+					script.Remove(oldField);
+				} else {
+					var newField = (FieldDeclaration)oldField.Clone();
+					foreach (var init in newField.Variables) {
+						if (init.Name == field.Name) {
+							init.Remove();
+							break;
+						}
+					}
+					script.Replace(oldField, newField);
+				}
 				script.Replace (property, newProperty);
 			}, property.NameToken);
 		}

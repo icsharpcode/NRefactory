@@ -174,7 +174,34 @@ class MyClass
 }
 ");
 		}
-		
+
+
+		/// <summary>
+		/// Bug 16447 - Convert to Auto Property removes multiple variable if declared inline
+		/// </summary>
+		[Test]
+		public void TestBug16447 ()
+		{
+			Test<RemoveBackingStoreAction>(@"
+public class Foo
+{
+	int _bpm = 120, _index = 1, _count;
+	int $Count {
+		get { return _count; }
+		set { _count = value; }
+	}
+}
+", @"
+public class Foo
+{
+	int _bpm = 120, _index = 1;
+	int Count {
+		get;
+		set;
+	}
+}
+");
+		}
 	}
 }
 
