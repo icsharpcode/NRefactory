@@ -171,6 +171,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					pasteAtLineStart = false;
 					indentedText.Append(curLine);
 					curLine.Length = 0;
+					gotNewLine = false;
 					continue;
 				}
 			}

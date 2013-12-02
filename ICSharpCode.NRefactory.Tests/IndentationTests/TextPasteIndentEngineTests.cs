@@ -245,6 +245,15 @@ void Bar ()
 			Assert.AreEqual("\t\tSystem.Console.WriteLine(@\"<evlevlle>\");\n\t\t", text);
 		}
 
+		[Test]
+		public void PasteVerbatimStringBug4()
+		{
+			var indent = CreateEngine("\nclass Foo\n{\n\tvoid Bar ()\n\t{\n$\n\t}\n}");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
+
+			var text = handler.FormatPlainText(indent.Offset, "var str1 = \n@\"hello\";", null);
+			Assert.AreEqual("\t\tvar str1 = \n\t\t\t@\"hello\";", text);
+		}
 
 		[Test]
 		public void TestPasteComments()
