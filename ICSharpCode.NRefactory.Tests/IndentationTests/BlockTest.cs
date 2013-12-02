@@ -532,6 +532,7 @@ class Foo {
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
+			fmt.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -549,6 +550,7 @@ class Foo {
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
+			fmt.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -590,6 +592,7 @@ class Foo {
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
+			fmt.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -966,7 +969,7 @@ class Foo
 		else
 			if (2 < 10)
 				a = 2;
-			else $
+			else$
 ", policy);
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
@@ -987,7 +990,7 @@ class Foo
 		else
 			if (2 < 10)
 				a = 2;
-		else $
+		else$
 ", policy);
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
