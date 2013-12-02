@@ -950,5 +950,49 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestComplexIfElseElsePlacement_AlignmentOff()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.AlignElseInIfStatements = false;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		if (1 > 0)
+			a = 1;
+		else
+			if (2 < 10)
+				a = 2;
+			else$
+", policy);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+		[Ignore("Fixme")]
+		[Test]
+		public void TestComplexIfElseElsePlacement_AlignmentOn()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.AlignElseInIfStatements = true;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test ()
+	{ 
+		if (1 > 0)
+			a = 1;
+		else
+			if (2 < 10)
+				a = 2;
+		else$
+", policy);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
 	}
 }
