@@ -951,7 +951,6 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestComplexIfElseElsePlacement_AlignmentOff()
 		{
@@ -967,13 +966,12 @@ class Foo
 		else
 			if (2 < 10)
 				a = 2;
-			else$
+			else $
 ", policy);
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestComplexIfElseElsePlacement_AlignmentOn()
 		{
@@ -989,7 +987,7 @@ class Foo
 		else
 			if (2 < 10)
 				a = 2;
-		else$
+		else $
 ", policy);
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);

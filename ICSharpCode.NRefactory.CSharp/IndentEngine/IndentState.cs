@@ -783,7 +783,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				// else statement is handled differently
 				if (CurrentStatement == Statement.Else)
 				{
-					if (NestedIfStatementLevels.Count > 0)
+					// OPTION: CSharpFormattingOptions.AlignElseInIfStatements
+					if (!Engine.formattingOptions.AlignElseInIfStatements && NestedIfStatementLevels.Count > 0)
 					{
 						ThisLineIndent = NestedIfStatementLevels.Pop().Clone();
 						NextLineIndent = ThisLineIndent.Clone();
