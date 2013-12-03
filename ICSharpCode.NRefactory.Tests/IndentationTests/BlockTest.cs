@@ -532,6 +532,7 @@ class Foo {
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
+			fmt.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -549,6 +550,7 @@ class Foo {
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
+			fmt.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -590,6 +592,7 @@ class Foo {
 		{
 			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignEmbeddedIfStatements = false;
+			fmt.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -951,7 +954,6 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestComplexIfElseElsePlacement_AlignmentOff()
 		{
@@ -970,10 +972,9 @@ class Foo
 			else$
 ", policy);
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestComplexIfElseElsePlacement_AlignmentOn()
 		{
