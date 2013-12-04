@@ -195,6 +195,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	        if (node is ParameterDeclaration)
 	            return false;
 
+	        var token = node as CSharpTokenNode;
+	        if (token != null && token.Role == Roles.LPar)
+	            return false;
+	        
 	        return true;
 	    }
 

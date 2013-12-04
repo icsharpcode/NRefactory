@@ -64,6 +64,31 @@ public class Test
             });
         }
 
+        [Test]
+        public void InsertFirstParameterDeclarationIntoMethod()
+        {
+            var input =@"
+public class Test
+{
+	void Test()
+	{
+	}
+}";
+            var expected = @"
+public class Test
+{
+	void Test(int a)
+	{
+	}
+}";
+            DoInsertAfterTest(input, expected, (syntaxTree, script) =>
+            {
+                var nodeToInsert = new ParameterDeclaration(new PrimitiveType("int"),"a");
+                var nodeToInsertAfter = syntaxTree.DescendantsAndSelf.OfType<MethodDeclaration>().Single().LParToken;
+                script.InsertAfter(nodeToInsertAfter,nodeToInsert);
+            });
+        }
+
         private static void DoInsertAfterTest(string s, string expected, Action<SyntaxTree, DocumentScript> doInsertion)
         {
             var script = new DocumentScript(new StringBuilderDocument(s), FormattingOptionsFactory.CreateEmpty(), new TextEditorOptions());
