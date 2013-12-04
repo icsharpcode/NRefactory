@@ -166,14 +166,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		public void InsertAfter(AstNode node, AstNode newNode)
 		{
-		    var indentLevel = IndentLevelFor(node);
+            var indentLevel = IndentLevelFor(node);
             var output = OutputNode(indentLevel, newNode);
-			string text =  PrefixFor(node, newNode) + output.Text;
+            string text =  PrefixFor(node, newNode) + output.Text;
 
-			var insertOffset = GetCurrentOffset(node.EndLocation);
-			InsertText(insertOffset, text);
-			output.RegisterTrackedSegments(this, insertOffset);
-			CorrectFormatting (node, newNode);
+            var insertOffset = GetCurrentOffset(node.EndLocation);
+            InsertText(insertOffset, text);
+            output.RegisterTrackedSegments(this, insertOffset);
+            CorrectFormatting (node, newNode);
 		}
 
 	    private int IndentLevelFor(AstNode node)
