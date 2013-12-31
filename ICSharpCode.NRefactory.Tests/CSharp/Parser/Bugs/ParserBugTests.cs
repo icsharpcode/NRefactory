@@ -654,6 +654,23 @@ namespace Xamarin.Installer.Core.Components.Android
 
 		}
 
+		[Test]
+		public void AsyncAfterEnum() {
+			string code = @"
+using System.Threading.Tasks;
+class C
+{
+	enum E {}
+	async Task M() {
+	}
+}";
+
+			var unit = SyntaxTree.Parse(code);
+			var type = unit.Members.OfType<TypeDeclaration>().Single();
+			var member = type.Members.OfType<MethodDeclaration>().SingleOrDefault(m => m.Name == "M");
+			Assert.IsNotNull(member, "M() not found."); 
+			Assert.That(member.Modifiers, Is.EqualTo(Modifiers.Async));
+		}
 	}
 }
 
