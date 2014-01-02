@@ -389,13 +389,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			return null;
 		}
 
-		internal static readonly string[] FormatItemMethods = {
-			"System.String.Format",
-			"System.Console.Write",
-			"System.Console.WriteLine",
-			"System.IO.StringWriter.Write",
-			"System.IO.StringWriter.WriteLine"
-		};
 		static readonly DateTime curDate = DateTime.Now;
 
 		IEnumerable<ICompletionData> GenerateNumberFormatitems(bool isFloatingPoint)
@@ -553,11 +546,13 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				return Enumerable.Empty<ICompletionData>();
 
 			var resolveResult = ResolveExpression(new ExpressionResult(invoke, unit));
-			var invokeResult = resolveResult.Result as InvocationResolveResult;
+			var invokeResult = resolveResult.Result as CSharpInvocationResolveResult;
 			if (invokeResult == null)
 				return Enumerable.Empty<ICompletionData>();
 
-			if (FormatItemMethods.Contains(invokeResult.Member.FullName)) {
+			Expression fmtArgumets;
+			IList<Expression> args;
+			if (FormatStringHelper.TryGetFormattingParameters(invokeResult, invoke, out fmtArgumets, out args, null)) {
 				return GenerateNumberFormatitems(false)
 					.Concat(GenerateDateTimeFormatitems())
 					.Concat(GenerateTimeSpanFormatitems())
