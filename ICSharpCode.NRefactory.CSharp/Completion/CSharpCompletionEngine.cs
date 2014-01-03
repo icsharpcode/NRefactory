@@ -1011,6 +1011,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						if (identifierStart.Node is AstType && identifierStart.Node.Parent is CatchClause) {
 							return HandleCatchClauseType(identifierStart);
 						}
+
+						var pDecl = identifierStart.Node as ParameterDeclaration;
+						if (pDecl != null && pDecl.Parent is LambdaExpression) {
+							return null;
+						}
 					}
 
 
@@ -1535,7 +1540,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			ifvisitor.End();
 			if (!ifvisitor.IsValid)
 				return null;
-
 			// namespace name case
 			var ns = node as NamespaceDeclaration;
 			if (ns != null) {
@@ -3380,7 +3384,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 
 			// try lambda 
 			if (expr == null) {
-				baseUnit = ParseStub(") => {}", false);
+				baseUnit = ParseStub("foo) => {}", false);
 				expr = baseUnit.GetNodeAt<ParameterDeclaration>(
 					location.Line,
 					location.Column
