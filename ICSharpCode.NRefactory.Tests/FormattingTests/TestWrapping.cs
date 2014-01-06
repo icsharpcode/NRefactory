@@ -912,7 +912,8 @@ int foo)
 	public int this [
 int test,
 string foo,
-double bar] {
+double bar]
+	{
 		get {}
 	}
 }",
@@ -926,7 +927,7 @@ double bar] {
 	}
 }");
 		}
-
+			
 		[Test]
 		public void TestIndexerCase2()
 		{
@@ -944,6 +945,50 @@ double bar]
 }",
 				@"class ClassDeclaration
 {
+	public int this [int test,
+	                 string foo,
+	                 double bar] {
+		get { }
+	}
+}");
+		}
+
+		[Test]
+		public void TestIndexerCase3()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			Test(policy, @"class ClassDeclaration { 
+	public int this [int test, string foo, double bar]
+	{
+		get {}
+	}
+	public int this [
+int test,
+string foo,
+double bar]
+	{
+		get {}
+	}
+	public int this [int test,
+string foo,
+double bar]
+	{
+		get {}
+	}
+}",
+				@"class ClassDeclaration
+{
+	public int this [int test, string foo, double bar] {
+		get { }
+	}
+
+	public int this [
+		int test,
+		string foo,
+		double bar] {
+		get { }
+	}
+
 	public int this [int test,
 	                 string foo,
 	                 double bar] {
