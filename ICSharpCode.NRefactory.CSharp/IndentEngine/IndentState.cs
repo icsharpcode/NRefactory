@@ -196,6 +196,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			// replace ThisLineIndent with NextLineIndent if the newLineChar is pushed
 			if (ch == Engine.newLineChar)
 			{
+				var delta = ThisLineIndent.GetIndent(IndentType.Continuation);
+				while (NextLineIndent.CurIndent - ThisLineIndent.CurIndent > delta &&
+					   NextLineIndent.PopIf(IndentType.Continuation)) ;
 				ThisLineIndent = NextLineIndent.Clone();
 			}
 		}
@@ -481,7 +484,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public bool IsEqualCharPushed;
 
 		/// <summary>
-		///     Stores the indent level of the previous line.
+		///     The indentation of the previous line.
 		/// </summary>
 		public int PreviousLineIndent;
 

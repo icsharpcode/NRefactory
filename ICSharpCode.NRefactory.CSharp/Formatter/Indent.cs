@@ -140,7 +140,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			return indentStack.Peek();
 		}
 
-		int GetIndent(IndentType indentType)
+		public int GetIndent(IndentType indentType)
 		{
 			switch (indentType) {
 				case IndentType.Block:

@@ -154,9 +154,9 @@ class Foo {
 	void Test ()
 	{
 		do do
-				$");
-			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+			$");
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
@@ -181,7 +181,7 @@ class Foo {
 	void Test ()
 	{
 		do do do
-					foo();
+			foo();
 $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
@@ -225,6 +225,19 @@ class Foo {
 		do do do foo() $");
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_NestedDoContinuation_ExpressionNotEnded2()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{
+		do do do 
+			foo() $");
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
 		[Test]
