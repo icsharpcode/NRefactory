@@ -354,10 +354,10 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 					curIndent.Pop();
 				} else {
-
 					if (!doAlignToFirstArgument) {
 						curIndent.Push(IndentType.Continuation);
 						foreach (var arg in arguments.Take (argumentStart)) {
+							FixStatementIndentation(arg.StartLocation);
 							arg.AcceptVisitor(this);
 						}
 						foreach (var arg in arguments.Skip (argumentStart)) {
