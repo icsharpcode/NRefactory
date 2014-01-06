@@ -196,7 +196,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			// replace ThisLineIndent with NextLineIndent if the newLineChar is pushed
 			if (ch == Engine.newLineChar)
 			{
-				var delta = ThisLineIndent.GetIndent(IndentType.Continuation);
+				var delta = Engine.textEditorOptions.ContinuationIndent;
 				while (NextLineIndent.CurIndent - ThisLineIndent.CurIndent > delta &&
 					   NextLineIndent.PopIf(IndentType.Continuation)) ;
 				ThisLineIndent = NextLineIndent.Clone();
