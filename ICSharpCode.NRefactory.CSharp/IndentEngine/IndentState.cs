@@ -481,6 +481,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		public bool IsEqualCharPushed;
 
 		/// <summary>
+		///     Stores the indent level of the previous line.
+		/// </summary>
+		public int PreviousLineIndent;
+
+		/// <summary>
 		///     True if the dot member (e.g. method invocation) indentation has
 		///     been handled in the current statement.
 		/// </summary>
@@ -507,6 +512,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			IsEqualCharPushed = prototype.IsEqualCharPushed;
 			IsMemberReferenceDotHandled = prototype.IsMemberReferenceDotHandled;
 			LastBlockIndent = prototype.LastBlockIndent;
+			PreviousLineIndent = prototype.PreviousLineIndent;
 		}
 
 		public override void Push(char ch)
@@ -562,6 +568,9 @@ namespace ICSharpCode.NRefactory.CSharp
 					IsMemberReferenceDotHandled = true;
 
 					ThisLineIndent.RemoveAlignment();
+					while (ThisLineIndent.CurIndent > PreviousLineIndent && 
+					       ThisLineIndent.PopIf(IndentType.Continuation)) ;
+
 					ThisLineIndent.Push(IndentType.Continuation);
 					NextLineIndent = ThisLineIndent.Clone();
 				}
@@ -570,6 +579,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				// try to capture ': base(...)', ': this(...)' and inherit statements when they are on a new line
 				ThisLineIndent.Push(IndentType.Continuation);
+			}
+			else if (ch == Engine.newLineChar)
+			{
+				PreviousLineIndent = ThisLineIndent.CurIndent;
 			}
 
 			if (Engine.wordToken.ToString() == "else")
