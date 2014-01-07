@@ -881,7 +881,6 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		void AddIndentation(BraceStyle braceStyle)
 		{
-			Console.WriteLine(braceStyle);
 			switch (braceStyle)
 			{
 				case BraceStyle.NextLineShifted:
