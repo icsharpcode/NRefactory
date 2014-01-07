@@ -1049,5 +1049,18 @@ class Foo
 			Assert.AreEqual("\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestBanner_ClosingBrace()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.ClassBraceStyle = BraceStyle.BannerStyle;
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	}$
+", policy);
+			Assert.AreEqual("\t", indent.ThisLineIndent);
+			Assert.AreEqual("", indent.NextLineIndent);
+		}
 	}
 }

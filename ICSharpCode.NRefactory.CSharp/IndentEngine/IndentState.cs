@@ -644,7 +644,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				BraceStyle style;
 				if (TryGetBraceStyle(this.CurrentBody, out style)) {
 					if (style == BraceStyle.NextLineShifted ||
-						style == BraceStyle.NextLineShifted2) {
+						style == BraceStyle.NextLineShifted2||
+						style == BraceStyle.BannerStyle) {
 						ThisLineIndent.Push(IndentType.Block);
 					}
 				}
