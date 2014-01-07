@@ -1008,5 +1008,46 @@ class Foo
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
+
+
+		[Test]
+		public void TestNextLineShifted_OpeningBrace()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.ClassBraceStyle = BraceStyle.NextLineShifted;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{$
+", policy);
+			Assert.AreEqual("\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestNextLineShifted_ClosingBrace()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.ClassBraceStyle = BraceStyle.NextLineShifted;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+	{
+	}$
+", policy);
+			Assert.AreEqual("\t", indent.ThisLineIndent);
+			Assert.AreEqual("", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestNextLineShifted2()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.ClassBraceStyle = BraceStyle.NextLineShifted2;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{$
+", policy);
+			Assert.AreEqual("\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.NextLineIndent);
+		}
 	}
 }
