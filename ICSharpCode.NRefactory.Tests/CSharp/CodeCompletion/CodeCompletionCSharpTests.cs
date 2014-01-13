@@ -28,6 +28,7 @@
 
 using System;
 using NUnit.Framework;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 {
@@ -355,7 +356,7 @@ class Test
 {
 	public void TestMethod (string[] args)
 	{
-		$args.FirstOrDefault($
+		$args.FirstOrDefault(d$
 	}
 }
 ");
@@ -363,7 +364,7 @@ class Test
 			Assert.IsNotNull (provider.Find ("delegate"), "completion item 'delegate' not found!");
 			Assert.IsNotNull (provider.Find ("async delegate"), "completion item 'async delegate' not found!");
 			Assert.IsNotNull (provider.Find ("(string arg)"), "completion item '(string arg)' not found!");
-			Assert.IsNotNull (provider.Find ("HandleFuncpredicate"), "completion item 'HandleFuncpredicate' not found!");
+			Assert.IsNotNull (provider.Find ("HandleFunc"), "completion item 'HandleFuncpredicate' not found!");
 		}
 	}
 }

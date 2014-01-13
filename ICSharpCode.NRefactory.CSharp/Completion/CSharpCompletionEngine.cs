@@ -2610,7 +2610,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			return true;
 		}
 
-		string AddDelegateHandlers(CompletionDataWrapper completionList, IType delegateType, bool addSemicolon = true, bool addDefault = true)
+		string AddDelegateHandlers(CompletionDataWrapper completionList, IType delegateType, bool addSemicolon = true, bool addDefault = true, string optDelegateName = null)
 		{
 			IMethod delegateMethod = delegateType.GetDelegateInvokeMethod();
 			PossibleDelegates.Add(delegateMethod);
@@ -2641,6 +2641,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			var builder = new TypeSystemAstBuilder(state);
 
 			for (int k = 0; k < delegateMethod.Parameters.Count; k++) {
+
 				if (k > 0) {
 					sb.Append(", ");
 					sbWithoutTypes.Append(", ");
@@ -2701,6 +2702,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				}
 
 			}
+
+			string varName = "Handle" + delegateType.Name + optDelegateName;
+			completionList.Add(factory.CreateEventCreationCompletionData(varName, delegateType, null, signature, currentMember, currentType));
+
+
 			/*			 TODO:Make factory method out of it.
 			// It's  needed to temporarly disable inserting auto matching bracket because the anonymous delegates are selectable with '('
 			// otherwise we would end up with () => )
@@ -2866,9 +2872,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			if (resolvedType.Kind == TypeKind.Delegate) {
 				if (addedDelegates.Contains(resolvedType.ReflectionName))
 					return;
-				string parameterDefinition = AddDelegateHandlers(result, resolvedType, false);
-				string varName = "Handle" + method.Parameters [parameter].Type.Name + method.Parameters [parameter].Name;
-				result.Result.Add(factory.CreateEventCreationCompletionData(varName, resolvedType, null, parameterDefinition, currentMember, currentType));
+				AddDelegateHandlers(result, resolvedType, false, true, method.Parameters [parameter].Name);
 			}
 		}
 
