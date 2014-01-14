@@ -1072,7 +1072,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					// Handle foreach (type name _
 					if (n is IdentifierExpression) {
 						var prev = n.GetPrevNode() as ForeachStatement;
-						while (prev.EmbeddedStatement is ForeachStatement)
+						while (prev != null && prev.EmbeddedStatement is ForeachStatement)
 							prev = (ForeachStatement)prev.EmbeddedStatement;
 						if (prev != null && prev.InExpression.IsNull) {
 							if (IncludeKeywordsInCompletionList)
