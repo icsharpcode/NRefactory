@@ -595,6 +595,25 @@ class Test
 					Assert.IsNotNull (provider.Find ("in"), "keyword 'in' not found.");
 				});
 		}
+
+		[Test]
+		public void ForeachInKeyword_NestedCase ()
+		{
+			CodeCompletionBugTests.CombinedProviderTest (
+				@"using System;
+class Test
+{
+	public static void Main (string[] args)
+	{
+		$foreach (var foo in args)
+			foreach (var c i$
+	}
+}
+", (provider) => {
+					Assert.IsNotNull (provider, "provider == null");
+					Assert.IsNotNull (provider.Find ("in"), "keyword 'in' not found.");
+				});
+		}
 	}
 }
 
