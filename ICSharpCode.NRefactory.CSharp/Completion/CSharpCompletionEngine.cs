@@ -1073,12 +1073,9 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					if (n is IdentifierExpression) {
 						var prev = n.GetPrevNode() as ForeachStatement;
 						if (prev != null && prev.InExpression.IsNull) {
-							if (controlSpace) {
-								if (IncludeKeywordsInCompletionList)
-									contextList.AddCustom("in");
-								return contextList.Result;
-							}
-							return null;
+							if (IncludeKeywordsInCompletionList)
+								contextList.AddCustom("in");
+							return contextList.Result;
 						}
 					}
 					// Handle object/enumerable initialzer expressions: "new O () { P$"
