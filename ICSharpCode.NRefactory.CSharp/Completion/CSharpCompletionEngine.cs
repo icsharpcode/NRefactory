@@ -3237,7 +3237,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						} else {
 							tref = baseUnit.GetNodeAt<Expression>(location); 
 							if (tref == null) {
-								tref = memberType.Clone();
+								tref = new TypeReferenceExpression(memberType.Clone());
 								memberType.Parent.AddChild(tref, Roles.Expression);
 							}
 							if (tref is ObjectCreateExpression) {
