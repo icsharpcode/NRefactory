@@ -151,6 +151,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			internal ICompilation declarationCompilation;
 			internal Accessibility accessibility;
 			internal ITypeDefinition topLevelTypeDefinition;
+			internal string fileName;
 			
 			IResolveVisitorNavigator IFindReferenceSearchScope.GetNavigator(ICompilation compilation, FoundReferenceCallback callback)
 			{
@@ -178,6 +179,10 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			
 			ITypeDefinition IFindReferenceSearchScope.TopLevelTypeDefinition {
 				get { return topLevelTypeDefinition; }
+			}
+			
+			string IFindReferenceSearchScope.FileName {
+				get { return fileName; }
 			}
 		}
 		
@@ -233,9 +238,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			}
 			SearchScope scope;
 			SearchScope additionalScope = null;
-			IEntity entity;
+			IEntity entity = null;
 
-			if (symbol.SymbolKind == SymbolKind.Parameter) {
+			if (symbol.SymbolKind == SymbolKind.Variable) {
+				var variable = (IVariable) symbol;
+				scope = GetSearchScopeForLocalVariable(variable);
+			} else if (symbol.SymbolKind == SymbolKind.Parameter) {
 				var par = (IParameter)symbol;
 				scope = GetSearchScopeForParameter(par);
 				entity = par.Owner;
@@ -371,7 +379,10 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						return pc.Files.OfType<CSharpUnresolvedFile>();
 				}
 			} else {
-				return pc.Files.OfType<CSharpUnresolvedFile>();
+				if (searchScope.FileName == null)
+					return pc.Files.OfType<CSharpUnresolvedFile>();
+				else
+					return pc.Files.OfType<CSharpUnresolvedFile>().Where(f => f.FileName == searchScope.FileName);
 			}
 		}
 		
@@ -1374,6 +1385,17 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			FindReferencesInFile(searchScope, unresolvedFile, syntaxTree, compilation, callback, cancellationToken);
 		}
 		
+		SearchScope GetSearchScopeForLocalVariable(IVariable variable)
+		{
+			var scope = new SearchScope (
+				delegate {
+					return new FindLocalReferencesNavigator(variable);
+				}
+			);
+			scope.fileName = variable.Region.FileName;
+			return scope;
+		}
+		
 		class FindLocalReferencesNavigator : FindReferenceNavigator
 		{
 			readonly IVariable variable;
@@ -1502,7 +1524,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					return true;
 
 				var st = node as SimpleType;
-				if (st != null && st.Identifier == ns.Name) 
+				if (st != null && st.Identifier == ns.Name)
 					return !st.AncestorsAndSelf.TakeWhile (n => n is AstType).Any (m => m.Role == NamespaceDeclaration.NamespaceNameRole);
 
 				var mt = node as MemberType;
@@ -1528,7 +1550,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			}
 		}
 		#endregion
-	
+		
 		#region Find Parameter References
 
 		SearchScope GetSearchScopeForParameter(IParameter parameter)
@@ -1538,6 +1560,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					return new FindParameterReferencesNavigator (parameter);
 				}
 			);
+			if (parameter.Owner == null) {
+				scope.fileName = parameter.Region.FileName;
+			}
 			return scope;
 		}
 
