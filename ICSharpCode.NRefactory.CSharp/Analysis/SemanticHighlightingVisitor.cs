@@ -409,6 +409,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		bool CheckInterfaceImplementation (EntityDeclaration entityDeclaration)
 		{
 			var result = resolver.Resolve (entityDeclaration, cancellationToken) as MemberResolveResult;
+			if (result == null)
+				return false;
 			if (result.Member.ImplementedInterfaceMembers.Count == 0) {
 				Colorize (entityDeclaration.NameToken, syntaxErrorColor);
 				return false;
