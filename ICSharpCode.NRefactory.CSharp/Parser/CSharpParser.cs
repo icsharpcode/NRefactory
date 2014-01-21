@@ -1494,8 +1494,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				var result = new DoWhileStatement();
 				var location = LocationsBag.GetLocations(doStatement);
 				result.AddChild(new CSharpTokenNode(Convert(doStatement.loc), DoWhileStatement.DoKeywordRole), DoWhileStatement.DoKeywordRole);
-				if (doStatement.EmbeddedStatement != null)
-					result.AddChild((Statement)doStatement.EmbeddedStatement.Accept(this), Roles.EmbeddedStatement);
+				if (doStatement.Statement != null)
+					result.AddChild((Statement)doStatement.Statement.Accept(this), Roles.EmbeddedStatement);
 				if (location != null)
 					result.AddChild(new CSharpTokenNode(Convert(location [0]), DoWhileStatement.WhileKeywordRole), DoWhileStatement.WhileKeywordRole);
 				if (location != null && location.Count > 1)
