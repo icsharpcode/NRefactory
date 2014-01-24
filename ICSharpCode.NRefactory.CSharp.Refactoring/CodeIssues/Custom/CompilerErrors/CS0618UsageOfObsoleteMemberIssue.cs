@@ -62,6 +62,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (memberRR != null)
 					member = memberRR.Member;
 
+				var operatorRR = rr as OperatorResolveResult;
+				if (operatorRR != null)
+					member = operatorRR.UserDefinedOperatorMethod;
+
 				if (member == null)
 					return;
 
@@ -87,6 +91,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{
 				base.VisitIdentifierExpression(identifierExpression);
 				Check(ctx.Resolve(identifierExpression), identifierExpression);
+			}
+
+			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
+			{
+				base.VisitIndexerExpression(indexerExpression);
+				Check(ctx.Resolve(indexerExpression), indexerExpression);
+			}
+
+			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+			{
+				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+				Check(ctx.Resolve(binaryOperatorExpression), binaryOperatorExpression.OperatorToken);
 			}
 		}
 	}

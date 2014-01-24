@@ -82,6 +82,116 @@ class MyClass
 ";
 			TestIssue<CS0618UsageOfObsoleteMemberIssue>(input);
 		}
+
+		[Test]
+		public void TestObsoleteIndexer()
+		{
+			var input = @"
+using System;
+
+public class Foo
+{
+	[Obsolete ()]
+	public int this[int i] {
+		get {
+			return 0;
+		}
+	}
+}
+
+class MyClass
+{
+
+	public static void Main ()
+	{
+		var f = new Foo ();
+		Console.WriteLine (f[0]);
+	}
+}
+";
+			TestIssue<CS0618UsageOfObsoleteMemberIssue>(input);
+		}
+
+		[Test]
+		public void TestObsoleteEvent()
+		{
+			var input = @"
+using System;
+
+public class Foo
+{
+	[Obsolete ()]
+	public event EventHandler A;
+}
+
+class MyClass
+{
+
+	public static void Main ()
+	{
+		var f = new Foo ();
+		f.A += delegate {
+
+		};
+	}
+}
+";
+			TestIssue<CS0618UsageOfObsoleteMemberIssue>(input);
+		}
+
+		[Test]
+		public void TestObsoleteField()
+		{
+			var input = @"
+using System;
+
+public class Foo
+{
+	[Obsolete]
+	public int A;
+}
+
+class MyClass
+{
+
+	public static void Main ()
+	{
+		var f = new Foo ();
+		Console.WriteLine (f.A);
+	}
+}
+";
+			TestIssue<CS0618UsageOfObsoleteMemberIssue>(input);
+		}
+
+		[Test]
+		public void TestObsoleteBinaryOperator()
+		{
+			var input = @"
+using System;
+
+public class Foo
+{
+	[Obsolete]
+	public static Foo operator+(Foo l, Foo r)
+	{
+		return l;
+	}
+}
+
+class MyClass
+{
+	public static void Main ()
+	{
+		var f = new Foo ();
+		Console.WriteLine (f + f);
+	}
+}
+";
+			TestIssue<CS0618UsageOfObsoleteMemberIssue>(input);
+		}
+
+
 		[Test]
 		public void TestPragmaDisable()
 		{
