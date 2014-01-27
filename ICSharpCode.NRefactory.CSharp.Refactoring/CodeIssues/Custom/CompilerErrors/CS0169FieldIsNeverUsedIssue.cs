@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				fieldStack.Push(list);
 
 				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields (this, typeDeclaration)) {
-					if (fieldDeclaration.HasModifier(Modifiers.Const) || fieldDeclaration.HasModifier(Modifiers.Readonly))
+					if (fieldDeclaration.HasModifier(Modifiers.Const))
 						continue;
 					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
 						continue;

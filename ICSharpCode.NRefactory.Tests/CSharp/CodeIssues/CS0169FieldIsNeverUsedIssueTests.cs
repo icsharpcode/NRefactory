@@ -85,6 +85,17 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 }");
 		}
 
+
+		[Test]
+		public void TestReadonlyField ()
+		{
+			TestIssue<CS0169FieldIsNeverUsedIssue>(@"class Test
+{
+	readonly object fooBar;
+}");
+		}
+
+
 		[Test]
 		public void TestPragmaDisable ()
 		{
