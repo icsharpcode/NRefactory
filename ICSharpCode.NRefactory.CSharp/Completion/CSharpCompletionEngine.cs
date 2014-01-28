@@ -2382,8 +2382,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					};
 					if (!(hintType.Kind == TypeKind.Interface && hintType.Kind != TypeKind.Array)) {
 						var hint = wrapper.AddType(hintType, true);
-						DefaultCompletionString = hint.DisplayText;
 						if (hint != null) {
+							DefaultCompletionString = hint.DisplayText;
 							hint.CompletionCategory = derivedTypesCategory;
 						}
 					}
