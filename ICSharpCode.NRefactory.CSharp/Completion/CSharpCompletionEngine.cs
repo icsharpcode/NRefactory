@@ -358,14 +358,16 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							continue;
 						if (lookup.IsAccessible(m, isProtectedAllowed)) {
 							var data = contextList.AddMember(m);
-							data.DisplayFlags |= DisplayFlags.NamedArgument;
+							if (data != null)
+								data.DisplayFlags |= DisplayFlags.NamedArgument;
 						}
 					}
 
 					foreach (IProperty m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Property)) {
 						if (m.CanSet && lookup.IsAccessible(m.Setter, isProtectedAllowed)) {
 							var data = contextList.AddMember(m);
-							data.DisplayFlags |= DisplayFlags.NamedArgument;
+							if (data != null)
+								data.DisplayFlags |= DisplayFlags.NamedArgument;
 						}
 					}
 
@@ -1194,14 +1196,16 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 									continue;
 								}
 								var data = contextList.AddMember(property);
-								data.DisplayFlags |= DisplayFlags.NamedArgument;
+								if (data != null)
+									data.DisplayFlags |= DisplayFlags.NamedArgument;
 							}
 							foreach (var field in initalizerResult.Result.Type.GetFields ()) {       
 								if (!field.IsPublic) {
 									continue;
 								}
 								var data = contextList.AddMember(field);
-								data.DisplayFlags |= DisplayFlags.NamedArgument;
+								if (data != null)
+									data.DisplayFlags |= DisplayFlags.NamedArgument;
 							}
 							return contextList.Result;
 						}
@@ -1663,11 +1667,13 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 
 			foreach (var property in resolved.Type.GetProperties (p => p.Accessibility == Accessibility.Public)) {
 				var data = wrapper.AddMember(property);
-				data.DisplayFlags |= DisplayFlags.NamedArgument;
+				if (data != null)
+					data.DisplayFlags |= DisplayFlags.NamedArgument;
 			}
 			foreach (var field in resolved.Type.GetFields (p => p.Accessibility == Accessibility.Public)) {
 				var data = wrapper.AddMember(field);
-				data.DisplayFlags |= DisplayFlags.NamedArgument;
+				if (data != null)
+					data.DisplayFlags |= DisplayFlags.NamedArgument;
 			}
 			foreach (var constructor in resolved.Type.GetConstructors (p => p.Accessibility == Accessibility.Public)) {
 				foreach (var p in constructor.Parameters) {
