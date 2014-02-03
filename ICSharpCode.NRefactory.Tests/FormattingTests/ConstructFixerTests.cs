@@ -65,14 +65,14 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 				@"
 class Foo
 {
-	void Bar(int i)
+	void Bar (int i)
 	{
 		Bar (42$
 	}
 }", @"
 class Foo
 {
-	void Bar(int i)
+	void Bar (int i)
 	{
 		Bar (42);$
 	}
@@ -86,14 +86,14 @@ class Foo
 				@"
 class Foo
 {
-	void Bar()
+	void Bar ()
 	{
 		Bar$ (;
 	}
 }", @"
 class Foo
 {
-	void Bar()
+	void Bar ()
 	{
 		Bar ();$
 	}
@@ -107,14 +107,14 @@ class Foo
 				@"
 class Foo
 {
-	void Bar()
+	void Bar ()
 	{
 		Bar ($)
 	}
 }", @"
 class Foo
 {
-	void Bar()
+	void Bar ()
 	{
 		Bar ();$
 	}
@@ -162,17 +162,34 @@ $");
 				@"
 class Foo
 {
-	void Bar(int i$
+	void Bar (int i$
 }
 ", @"
 class Foo
 {
-	void Bar(int i)
+	void Bar (int i)
 	{
 		$
 	}
 }");
 		}
+
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestFieldDeclaration()
+		{
+			Test(
+				@"
+class Foo
+{
+	int f$
+}", @"
+class Foo
+{
+	inf f;
+}");
+		}
+
 
 		[Test]
 		public void TestIfStatement()
@@ -181,14 +198,14 @@ class Foo
 				@"
 class Foo
 {
-	void Bar(int i)
+	void Bar (int i)
 	{
 		if (true$
 	}
 }", @"
 class Foo
 {
-	void Bar(int i)
+	void Bar (int i)
 	{
 		if (true) {
 			$
@@ -197,6 +214,125 @@ class Foo
 }");
 		}
 
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestFixedStatement()
+		{
+			Test(
+				@"
+unsafe class Foo
+{
+	void Bar (int i)
+	{
+		fixed (int* ptr = &i$
+	}
+}", @"
+unsafe class Foo
+{
+	void Bar (int i)
+	{
+		fixed (int* ptr = &i) {
+			$
+		}
+	}
+}");
+		}
+
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestUsingStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		using (var foo = new Foo()$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		using (var foo = new Foo()) {
+			$
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestLockStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		lock (foo$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		lock (foo) {
+			$
+		}
+	}
+}");
+		}
+
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestForeachStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar (string s)
+	{
+		foreach (var c in s$
+	}
+}", @"
+class Foo
+{
+	void Bar (string s)
+	{
+		foreach (var c in s) {
+			$
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestWhileStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		while (true$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		while (true) {
+			$
+		}
+	}
+}");
+		}
+
+
 		[Test]
 		public void TestSwitch()
 		{
@@ -204,7 +340,7 @@ class Foo
 				@"
 class Foo
 {
-	void Bar(int i)
+	void Bar (int i)
 	{
 		switch (i$
 	}
@@ -212,7 +348,7 @@ class Foo
 ", @"
 class Foo
 {
-	void Bar(int i)
+	void Bar (int i)
 	{
 		switch (i) {
 			$
@@ -230,7 +366,7 @@ class Foo
 				@"
 class Foo
 {
-	void Bar(int i)
+	void Bar (int i)
 	{
 		switch (i) {
 			case 1$
@@ -240,7 +376,7 @@ class Foo
 ", @"
 class Foo
 {
-	void Bar(int i)
+	void Bar (int i)
 	{
 		switch (i) {
 			case 1:
@@ -250,6 +386,277 @@ class Foo
 }");
 		}
 
+
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestBreakStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		break$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		break;
+	}
+}");
+		}
+
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestGotoStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		goto foo$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		goto foo;
+	}
+}");
+		}
+
+		[Test]
+		public void TestReturnStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	int Bar ()
+	{
+		return 5$
+	}
+}", @"
+class Foo
+{
+	int Bar ()
+	{
+		return 5;$
+	}
+}");
+		}
+
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestYieldBreakStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	int Bar ()
+	{
+		yield break$
+	}
+}", @"
+class Foo
+{
+	int Bar ()
+	{
+		yield break;$
+	}
+}");
+		}
+
+		[Test]
+		public void TestYieldReturnStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	int Bar ()
+	{
+		yield return 5$
+	}
+}", @"
+class Foo
+{
+	int Bar ()
+	{
+		yield return 5;$
+	}
+}");
+		}
+
+		[Test]
+		public void TestThrowStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	int Bar ()
+	{
+		throw new Exception()$
+	}
+}", @"
+class Foo
+{
+	int Bar ()
+	{
+		throw new Exception();$
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestCheckedStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		checked$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		checked {
+			$
+		}
+	}
+}");
+		}
+
+		[Test]
+		public void TestUncheckedStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		unchecked$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		unchecked {
+			$
+		}
+	}
+}");
+		}
+
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestUnsafeStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		unsafe$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		unsafe {
+			$
+		}
+	}
+}");
+		}
+
+
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestContinueStatement()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		continue$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		continue;
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestDoWhile()
+		{
+			Test(
+				@"
+class Foo
+{
+	void Bar ()
+	{
+		do {
+		} while (true$
+	}
+}", @"
+class Foo
+{
+	void Bar ()
+	{
+		do {
+		} while (true);$
+	}
+}");
+		}
+
+		[Ignore("Fixme - parser error")]
+		[Test]
+		public void TestComplexCase()
+		{
+			Test(
+				@"
+class Foo
+{
+	bool Bar (int i)
+	{
+		if$ (Bar (1
+	}
+}", @"
+class Foo
+{
+	bool Bar (int i)
+	{
+		if (Bar ((((Bar((1))))))) {
+			$
+		}
+	}
+}");
+		}
 	}
 }
 
