@@ -371,7 +371,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			return i;
 		}
 
-		static bool NoWhitespacePredicate(AstNode arg)
+		internal static bool NoWhitespacePredicate(AstNode arg)
 		{
 			return !(arg is NewLineNode || arg is WhitespaceNode);
 		}
