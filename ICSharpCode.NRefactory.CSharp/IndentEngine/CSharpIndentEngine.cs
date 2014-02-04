@@ -372,26 +372,15 @@ namespace ICSharpCode.NRefactory.CSharp
 			var isNewLine = NewLine.IsNewLine(ch);
 			if (!isNewLine) {
 				currentState.Push(currentChar = ch);
-			} else {
-				if (ch == NewLine.LF && previousNewline == NewLine.CR) {
-					offset++;
-					return;
-				}
-				currentState.Push(currentChar = newLineChar);
-			}
-
-			offset++;
-
-			if (!isNewLine)
-			{
+				offset++;
 				previousNewline = '\0';
 				// ignore whitespace and newline chars
-				if (!char.IsWhiteSpace(currentChar))
+				var isWhitespace = currentChar == ' ' || currentChar == '\t';
+				if (!isWhitespace)
 				{
 					previousChar = currentChar;
+					isLineStart = false;
 				}
-
-				isLineStart &= char.IsWhiteSpace(ch);
 
 				if (isLineStart)
 				{
@@ -407,9 +396,14 @@ namespace ICSharpCode.NRefactory.CSharp
 				{
 					column++;
 				}
-			}
-			else
-			{
+			} else {
+				if (ch == NewLine.LF && previousNewline == NewLine.CR) {
+					offset++;
+					return;
+				}
+				currentState.Push(currentChar = newLineChar);
+				offset++;
+
 				previousNewline = ch;
 				// there can be more than one chars that determine the EOL,
 				// the engine uses only one of them defined with newLineChar

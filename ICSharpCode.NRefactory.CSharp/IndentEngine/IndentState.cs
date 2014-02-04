@@ -349,17 +349,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public abstract class BracketsBodyBaseState : IndentState
 	{
-		/// <summary>
-		///     Defines transitions for all types of open brackets.
-		/// </summary>
-		public static Dictionary<char, Action<IndentState>> OpenBrackets =
-			new Dictionary<char, Action<IndentState>>
-		{ 
-			{ '{', state => state.ChangeState<BracesBodyState>() }, 
-			{ '(', state => state.ChangeState<ParenthesesBodyState>() }, 
-			{ '[', state => state.ChangeState<SquareBracketsBodyState>() },
-		};
-
+	
 		/// <summary>
 		///     When derived in a concrete bracket body state, represents
 		///     the closed bracket character pair.
@@ -377,41 +367,45 @@ namespace ICSharpCode.NRefactory.CSharp
 		public override void Push(char ch)
 		{
 			base.Push(ch);
-
-			if (ch == '#' && Engine.isLineStart)
-			{
-				ChangeState<PreProcessorState>();
-			}
-			else if (ch == '/' && Engine.previousChar == '/')
-			{
-				ChangeState<LineCommentState>();
-			}
-			else if (ch == '*' && Engine.previousChar == '/')
-			{
-				ChangeState<MultiLineCommentState>();
-			}
-			else if (ch == '"')
-			{
-				if (Engine.previousChar == '@')
-				{
-					ChangeState<VerbatimStringState>();
-				}
-				else
-				{
-					ChangeState<StringLiteralState>();
-				}
-			}
-			else if (ch == '\'')
-			{
-				ChangeState<CharacterState>();
-			}
-			else if (OpenBrackets.ContainsKey(ch))
-			{
-				OpenBrackets[ch](this);
-			}
-			else if (ch == ClosedBracket)
-			{
-				ExitState();
+			switch (ch) {
+				case '#':
+					if (Engine.isLineStart)
+						ChangeState<PreProcessorState>();
+					break;
+				case '/':
+					if (Engine.previousChar == '/')
+						ChangeState<LineCommentState>();
+					break;
+				case '*':
+					if (Engine.previousChar == '/')
+						ChangeState<MultiLineCommentState>();
+					break;
+				case '"':
+					if (Engine.previousChar == '@')
+					{
+						ChangeState<VerbatimStringState>();
+					}
+					else
+					{
+						ChangeState<StringLiteralState>();
+					}
+					break;
+				case '\'':
+					ChangeState<CharacterState>();
+					break;
+				case '{':
+					ChangeState<BracesBodyState>();
+					break;
+				case '(':
+					ChangeState<ParenthesesBodyState>();
+					break;
+				case '[':
+					ChangeState<SquareBracketsBodyState>();
+					break;
+				default:
+					if (ch == ClosedBracket)
+						ExitState();
+					break;
 			}
 		}
 	}
@@ -553,7 +547,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			{
 				OnStatementExit();
 			}
-			else if (ch == '=' && !new[] { '=', '<', '>', '!' }.Contains(Engine.previousChar))
+			else if (ch == '=' && !(Engine.previousChar == '=' || Engine.previousChar == '<' || Engine.previousChar == '>' || Engine.previousChar == '!'))
 			{
 				IsEqualCharPushed = true;
 			}
