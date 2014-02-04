@@ -465,7 +465,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <summary>
 		///    Contains indent levels of nested if statements.
 		/// </summary>
-		public Stack<Indent> NestedIfStatementLevels = new Stack<Indent>();
+		internal CloneableStack<Indent> NestedIfStatementLevels = new CloneableStack<Indent>();
 
 		/// <summary>
 		///    Contains the indent level of the last statement or body keyword.
@@ -510,7 +510,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			CurrentBody = prototype.CurrentBody;
 			NextBody = prototype.NextBody;
 			CurrentStatement = prototype.CurrentStatement;
-			NestedIfStatementLevels = new Stack<Indent>(prototype.NestedIfStatementLevels);
+			NestedIfStatementLevels = prototype.NestedIfStatementLevels.Clone();
 			IsRightHandExpression = prototype.IsRightHandExpression;
 			IsEqualCharPushed = prototype.IsEqualCharPushed;
 			IsMemberReferenceDotHandled = prototype.IsMemberReferenceDotHandled;
@@ -1943,16 +1943,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			base.Push(ch);
 
-			if (ch == Engine.newLineChar)
-			{
+			if (ch == Engine.newLineChar || (!IsEscaped && ch == '"')) {
 				ExitState();
+			} else {
+				IsEscaped = ch == '\\' && !IsEscaped;
 			}
-			else if (!IsEscaped && ch == '"')
-			{
-				ExitState();
-			}
-
-			IsEscaped = ch == '\\' && !IsEscaped;
 		}
 
 		public override void InitializeState()

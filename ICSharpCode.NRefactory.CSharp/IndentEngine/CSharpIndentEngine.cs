@@ -80,12 +80,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		internal HashSet<string> customConditionalSymbols;
 
-
 		/// <summary>
 		///     True if any of the preprocessor if/elif directives in the current
 		///     block (between #if and #endif) were evaluated to true.
 		/// </summary>
-		internal Stack<bool> ifDirectiveEvalResult = new Stack<bool> ();
+		internal CloneableStack<bool> ifDirectiveEvalResult = new CloneableStack<bool> ();
 
 		/// <summary>
 		///     Stores the last sequence of characters that can form a
@@ -324,7 +323,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.currentIndent = new StringBuilder(prototype.CurrentIndent.ToString());
 			this.lineBeganInsideMultiLineComment = prototype.lineBeganInsideMultiLineComment;
 			this.lineBeganInsideVerbatimString = prototype.lineBeganInsideVerbatimString;
-			this.ifDirectiveEvalResult = new Stack<bool>(prototype.ifDirectiveEvalResult.Reverse());
+			this.ifDirectiveEvalResult = prototype.ifDirectiveEvalResult.Clone();
 
 			this.EnableCustomIndentLevels = prototype.EnableCustomIndentLevels;
 		}

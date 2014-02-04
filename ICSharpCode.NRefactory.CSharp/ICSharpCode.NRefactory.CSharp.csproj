@@ -385,6 +385,7 @@
     <Compile Include="Formatter\FormattingVisitor_Query.cs" />
     <Compile Include="Analysis\AnnotationNames.cs" />
     <Compile Include="Formatter\ConstructFixer.cs" />
+    <Compile Include="Util\CloneableStack.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
