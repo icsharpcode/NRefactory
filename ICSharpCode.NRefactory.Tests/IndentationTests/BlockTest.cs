@@ -1062,5 +1062,24 @@ class Foo {
 			Assert.AreEqual("\t", indent.ThisLineIndent);
 			Assert.AreEqual("", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestNextLineShifted_IfStatement()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+			policy.StatementBraceStyle = BraceStyle.NextLineShifted;
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	public static void Main (string[] args)
+	{
+		if (true)
+		{$
+	}
+", policy);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
 	}
 }

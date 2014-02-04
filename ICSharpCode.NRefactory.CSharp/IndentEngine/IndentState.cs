@@ -909,7 +909,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				case Body.None:
 					if (!Engine.formattingOptions.IndentBlocks)
 						return false;
-					style = BraceStyle.NextLine;
+					style = Engine.formattingOptions.StatementBraceStyle;
 					return true;
 				case Body.Namespace:
 					if (!Engine.formattingOptions.IndentNamespaceBody)
