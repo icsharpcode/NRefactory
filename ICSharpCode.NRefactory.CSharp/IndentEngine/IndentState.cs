@@ -73,22 +73,8 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		#region Constructors
 
-		/// <summary>
-		///     Creates a new indentation state.
-		/// </summary>
-		/// <param name="engine">
-		///     The indentation engine that uses this state.
-		/// </param>
-		/// <param name="parent">
-		///     The parent state, or null if this state doesn't have one ->
-		///         e.g. the state represents the global space.
-		/// </param>
-		protected IndentState(CSharpIndentEngine engine, IndentState parent = null)
+		protected IndentState()
 		{
-			Parent = parent;
-			Engine = engine;
-
-			InitializeState();
 		}
 
 		/// <summary>
@@ -124,6 +110,14 @@ namespace ICSharpCode.NRefactory.CSharp
 		#endregion
 
 		#region Methods
+
+		internal void Initialize (CSharpIndentEngine engine, IndentState parent = null)
+		{
+			Parent = parent;
+			Engine = engine;
+
+			InitializeState();
+		}
 
 		/// <summary>
 		///     Initializes the state:
@@ -169,9 +163,11 @@ namespace ICSharpCode.NRefactory.CSharp
 		///     The type of the new state. Must be assignable from <see cref="IndentState"/>.
 		/// </typeparam>
 		public void ChangeState<T>()
-			where T : IndentState
+			where T : IndentState, new ()
 		{
-			Engine.currentState = IndentStateFactory.Create<T>(Engine.currentState);
+			var t = new T();
+			t.Initialize(Engine, Engine.currentState);
+			Engine.currentState = t;
 		}
 
 		/// <summary>
@@ -181,7 +177,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		public void ExitState()
 		{
 			OnExit();
-			Engine.currentState = Engine.currentState.Parent ?? IndentStateFactory.Default(Engine);
+			Engine.currentState = Engine.currentState.Parent ?? new GlobalBodyState(Engine);
 		}
 
 		/// <summary>
@@ -233,81 +229,6 @@ namespace ICSharpCode.NRefactory.CSharp
 
 	#endregion
 
-	#region IndentStateFactory
-
-	/// <summary>
-	///     Indentation state factory.
-	/// </summary>
-	public static class IndentStateFactory
-	{
-		/// <summary>
-		///     Creates a new state.
-		/// </summary>
-		/// <param name="stateType">
-		///     Type of the state. Must be assignable from <see cref="IndentState"/>.
-		/// </param>
-		/// <param name="engine">
-		///     Indentation engine for the state.
-		/// </param>
-		/// <param name="parent">
-		///     Parent state.
-		/// </param>
-		/// <returns>
-		///     A new state of type <paramref name="stateType"/>.
-		/// </returns>
-		static IndentState Create(Type stateType, CSharpIndentEngine engine, IndentState parent = null)
-		{
-			return (IndentState)Activator.CreateInstance(stateType, engine, parent);
-		}
-
-		/// <summary>
-		///     Creates a new state.
-		/// </summary>
-		/// <typeparam name="T">
-		///     Type of the state. Must be assignable from <see cref="IndentState"/>.
-		/// </typeparam>
-		/// <param name="engine">
-		///     Indentation engine for the state.
-		/// </param>
-		/// <param name="parent">
-		///     Parent state.
-		/// </param>
-		/// <returns>
-		///     A new state of type <typeparamref name="T"/>.
-		/// </returns>
-		public static IndentState Create<T>(CSharpIndentEngine engine, IndentState parent = null)
-			where T : IndentState
-		{
-			return Create(typeof(T), engine, parent);
-		}
-
-		/// <summary>
-		///     Creates a new state.
-		/// </summary>
-		/// <typeparam name="T">
-		///     Type of the state. Must be assignable from <see cref="IndentState"/>.
-		/// </typeparam>
-		/// <param name="prototype">
-		///     Parent state. Also, the indentation engine of the prototype is
-		///     used as the engine for the new state.
-		/// </param>
-		/// <returns>
-		///     A new state of type <typeparamref name="T"/>.
-		/// </returns>
-		public static IndentState Create<T>(IndentState prototype)
-			where T : IndentState
-		{
-			return Create(typeof(T), prototype.Engine, prototype);
-		}
-
-		/// <summary>
-		///     The default state, used for the global space.
-		/// </summary>
-		public static Func<CSharpIndentEngine, IndentState> Default = engine => Create<GlobalBodyState>(engine);
-	}
-
-	#endregion
-
 	#region Null state
 
 	/// <summary>
@@ -318,8 +239,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class NullState : IndentState
 	{
-		public NullState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public NullState()
 		{ }
 
 		public NullState(NullState prototype, CSharpIndentEngine engine)
@@ -356,8 +276,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public abstract char ClosedBracket { get; }
 
-		protected BracketsBodyBaseState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		protected BracketsBodyBaseState()
 		{ }
 
 		protected BracketsBodyBaseState(BracketsBodyBaseState prototype, CSharpIndentEngine engine)
@@ -493,8 +412,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			get { return '}'; }
 		}
 
-		public BracesBodyState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public BracesBodyState()
 		{
 		}
 
@@ -994,9 +912,14 @@ namespace ICSharpCode.NRefactory.CSharp
 			get { return '\0'; }
 		}
 
-		public GlobalBodyState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public GlobalBodyState()
 		{ }
+
+
+		public GlobalBodyState(CSharpIndentEngine engine)
+		{
+			Initialize (engine, null);
+		}
 
 		public GlobalBodyState(GlobalBodyState prototype, CSharpIndentEngine engine)
 			: base(prototype, engine)
@@ -1026,8 +949,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class SwitchCaseState : BracesBodyState
 	{
-		public SwitchCaseState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public SwitchCaseState()
 		{ }
 
 		public SwitchCaseState(SwitchCaseState prototype, CSharpIndentEngine engine)
@@ -1132,8 +1054,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			get { return ')'; }
 		}
 
-		public ParenthesesBodyState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public ParenthesesBodyState()
 		{ }
 
 		public ParenthesesBodyState(ParenthesesBodyState prototype, CSharpIndentEngine engine)
@@ -1220,8 +1141,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			get { return ']'; }
 		}
 
-		public SquareBracketsBodyState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public SquareBracketsBodyState()
 		{ }
 
 		public SquareBracketsBodyState(SquareBracketsBodyState prototype, CSharpIndentEngine engine)
@@ -1310,8 +1230,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public StringBuilder DirectiveStatement;
 
-		public PreProcessorState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public PreProcessorState()
 		{
 			DirectiveType = PreProcessorDirective.None;
 			DirectiveStatement = new StringBuilder();
@@ -1723,8 +1642,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </remarks>
 	public class PreProcessorCommentState : IndentState
 	{
-		public PreProcessorCommentState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public PreProcessorCommentState()
 		{ }
 
 		public PreProcessorCommentState(PreProcessorCommentState prototype, CSharpIndentEngine engine)
@@ -1771,8 +1689,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public bool CheckForDocComment = true;
 
-		public LineCommentState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public LineCommentState()
 		{
 			/*			if (engine.formattingOptions.KeepCommentsAtFirstColumn && engine.column == 2)
 				ThisLineIndent.Reset();*/
@@ -1826,8 +1743,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </summary>
 	public class DocCommentState : IndentState
 	{
-		public DocCommentState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public DocCommentState()
 		{ }
 
 		public DocCommentState(DocCommentState prototype, CSharpIndentEngine engine)
@@ -1875,8 +1791,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </remarks>
 		public bool IsAnyCharPushed;
 
-		public MultiLineCommentState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public MultiLineCommentState()
 		{ }
 
 		public MultiLineCommentState(MultiLineCommentState prototype, CSharpIndentEngine engine)
@@ -1923,8 +1838,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public bool IsEscaped;
 
-		public StringLiteralState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public StringLiteralState()
 		{ }
 
 		public StringLiteralState(StringLiteralState prototype, CSharpIndentEngine engine)
@@ -1970,8 +1884,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public bool IsEscaped;
 
-		public VerbatimStringState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public VerbatimStringState()
 		{ }
 
 		public VerbatimStringState(VerbatimStringState prototype, CSharpIndentEngine engine)
@@ -2020,8 +1933,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// </summary>
 		public bool IsEscaped;
 
-		public CharacterState(CSharpIndentEngine engine, IndentState parent = null)
-			: base(engine, parent)
+		public CharacterState()
 		{ }
 
 		public CharacterState(CharacterState prototype, CSharpIndentEngine engine)

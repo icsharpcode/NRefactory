@@ -282,7 +282,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			this.textEditorOptions = textEditorOptions;
 			this.document = document;
 
-			this.currentState = IndentStateFactory.Default(this);
+			this.currentState = new GlobalBodyState(this);
 
 			this.conditionalSymbols = new HashSet<string>();
 			this.customConditionalSymbols = new HashSet<string>();
@@ -425,7 +425,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <inheritdoc />
 		public void Reset()
 		{
-			currentState = IndentStateFactory.Default(this);
+			currentState = new GlobalBodyState(this);
 			conditionalSymbols.Clear();
 			ifDirectiveEvalResult.Clear();
 
