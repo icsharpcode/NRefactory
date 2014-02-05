@@ -36,6 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 		static void Test (string input, string expectedOutput)
 		{
 			input = input.Replace("\r\n", "\n");
+			expectedOutput = expectedOutput.Replace("\r\n", "\n");
 			int caretPositon = input.IndexOf('$');
 			if (caretPositon > 0)
 				input = input.Substring(0, caretPositon) + input.Substring(caretPositon + 1);
@@ -49,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 			var fixer = new ConstructFixer(FormattingOptionsFactory.CreateMono (), new TextEditorOptions { EolMarker = "\n" });
 			int newCaretPosition;
 			Assert.IsTrue(fixer.TryFix(document1, caretPositon, out newCaretPosition));   
-			var isEqual = expectedOutput.Replace("\r\n", "\n") == document1.Text.Replace("\r\n", "\n");
+			var isEqual = expectedOutput == document1.Text.Replace("\r\n", "\n");
 			if (!isEqual) {
 				System.Console.WriteLine("expected:");
 				System.Console.WriteLine(expectedOutput);
