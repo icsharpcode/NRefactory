@@ -893,5 +893,19 @@ class C
 			Assert.IsTrue(c.IsUserDefined);
 			Assert.AreEqual("E", c.Method.ReturnType.ReflectionName);
 		}
+
+		[Test]
+		public void EqualsForNullableTypeParameter() {
+			string program = @"using System;
+class C {
+	public void Test<T>(T? t) where T : struct {
+		bool b = $t == null$;
+	}
+}";
+			var rr = Resolve<OperatorResolveResult>(program);
+			Assert.AreEqual("System.Boolean", rr.Type.ReflectionName);
+			Assert.IsFalse(rr.IsError);
+			Assert.IsTrue(rr.IsLiftedOperator);
+		}
 	}
 }
