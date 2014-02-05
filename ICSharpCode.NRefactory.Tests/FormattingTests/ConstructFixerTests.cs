@@ -45,16 +45,17 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 			if (expectedCaretPosition > 0)
 				expectedOutput = expectedOutput.Substring(0, expectedCaretPosition) + expectedOutput.Substring(expectedCaretPosition + 1);
 
-			var fixer = new ConstructFixer(FormattingOptionsFactory.CreateMono ());
+			var fixer = new ConstructFixer(FormattingOptionsFactory.CreateMono (), new TextEditorOptions { EolMarker = "\n" });
 			int newCaretPosition;
 			Assert.IsTrue(fixer.TryFix(document1, caretPositon, out newCaretPosition));   
-			if (expectedOutput != document1.Text) {
+			var isEqual = expectedOutput.Replace("\r\n", "\n") == document1.Text.Replace("\r\n", "\n");
+			if (!isEqual) {
 				System.Console.WriteLine("expected:");
 				System.Console.WriteLine(expectedOutput);
 				System.Console.WriteLine("was:");
 				System.Console.WriteLine(document1.Text);
 			}
-			Assert.AreEqual(expectedOutput, document1.Text); 
+			Assert.IsTrue(isEqual); 
 			Assert.AreEqual(expectedCaretPosition, newCaretPosition); 
 		}
 

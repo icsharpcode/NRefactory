@@ -421,6 +421,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		};
 
 		readonly CSharpFormattingOptions options;
+		readonly TextEditorOptions textEditorOptions;
 
 		public CSharpFormattingOptions Options {
 			get {
@@ -428,9 +429,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
-		public ConstructFixer(CSharpFormattingOptions options)
+		public ConstructFixer(CSharpFormattingOptions options, TextEditorOptions textEditorOptions)
 		{
 			this.options = options;
+			this.textEditorOptions = textEditorOptions;
 		}
 		
 
@@ -455,39 +457,39 @@ namespace ICSharpCode.NRefactory.CSharp
 				case BraceStyle.EndOfLine:
 					result.Append(" ");
 					result.Append("{");
-					result.Append("\n");
+					result.Append(textEditorOptions.EolMarker);
 					result.Append(nodeIndent + "\t");
 					break;
 				case BraceStyle.EndOfLineWithoutSpace:
 					result.Append("{");
-					result.Append("\n");
+					result.Append(textEditorOptions.EolMarker);
 					result.Append(nodeIndent + "\t");
 					break;
 				case BraceStyle.NextLine:
-					result.Append("\n");
+					result.Append(textEditorOptions.EolMarker);
 					result.Append(nodeIndent);
 					result.Append("{");
-					result.Append("\n");
+					result.Append(textEditorOptions.EolMarker);
 					result.Append(nodeIndent + "\t");
 					break;
 				case BraceStyle.NextLineShifted:
-					result.Append("\n");
+					result.Append(textEditorOptions.EolMarker);
 					result.Append(nodeIndent + "\t");
 					result.Append("{");
-					result.Append("\n");
+					result.Append(textEditorOptions.EolMarker);
 					result.Append(nodeIndent + "\t");
 					break;
 				case BraceStyle.NextLineShifted2:
-					result.Append("\n");
+					result.Append(textEditorOptions.EolMarker);
 					result.Append(nodeIndent + "\t");
 					result.Append("{");
-					result.Append("\n");
+					result.Append(textEditorOptions.EolMarker);
 					result.Append(nodeIndent + "\t" + "\t");
 					break;
 			}
 
 			newOffset += result.Length;
-			result.Append("\n");
+			result.Append(textEditorOptions.EolMarker);
 			result.Append(nodeIndent);
 			result.Append("}");
 
