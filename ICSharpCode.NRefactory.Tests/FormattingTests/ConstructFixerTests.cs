@@ -35,6 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.FormattingTests
 	{
 		static void Test (string input, string expectedOutput)
 		{
+			input = input.Replace("\r\n", "\n");
 			int caretPositon = input.IndexOf('$');
 			if (caretPositon > 0)
 				input = input.Substring(0, caretPositon) + input.Substring(caretPositon + 1);
