@@ -120,6 +120,28 @@ class Foo
 }
 ");
 		}
+
+		[Test]
+		public void TestNonStatic()
+		{
+			TestWrongContext<StaticEventSubscriptionIssue>(@"
+using System;
+
+class Foo
+{
+	public event EventHandler FooBar;
+
+	public void Test ()
+	{
+		FooBar += MyMethod;
+	}
+
+	void MyMethod (object sender, EventArgs args)
+	{
+	}
+}
+");
+		}
 	}
 }
 
