@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				if (assignmentExpression.Operator == AssignmentOperatorType.Add) {
 					var left = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
-					if (left == null || left.Member.SymbolKind != SymbolKind.Event)
+					if (left == null || left.Member.SymbolKind != SymbolKind.Event || !left.Member.IsStatic)
 						return;
 
 					if (assignmentExpression.Right is AnonymousMethodExpression || assignmentExpression.Right is LambdaExpression) {
@@ -119,7 +119,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					hs.Add(Tuple.Create((IMember)right.Methods.First(), assignmentExpression));
 				} else if (assignmentExpression.Operator == AssignmentOperatorType.Subtract) {
 					var left = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
-					if (left == null || left.Member.SymbolKind != SymbolKind.Event)
+					if (left == null || left.Member.SymbolKind != SymbolKind.Event || !left.Member.IsStatic)
 						return;
 					var right = ctx.Resolve(assignmentExpression.Right) as MethodGroupResolveResult;
 					if (right == null || right.Methods.Count() != 1)
