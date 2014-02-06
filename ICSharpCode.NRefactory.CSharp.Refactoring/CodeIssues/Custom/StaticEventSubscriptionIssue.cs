@@ -55,6 +55,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
 			{
 				base.VisitSyntaxTree(syntaxTree);
+
+				foreach (var assignedEvent in assignedEvents) {
+					addedEvents.Remove(assignedEvent); 
+				}
+
 				foreach (var hs in removedEvents) {
 					HashSet<Tuple<IMember, AssignmentExpression>> h;
 					if (!addedEvents.TryGetValue(hs.Key, out h))
@@ -94,6 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			readonly Dictionary<IMember, HashSet<Tuple<IMember, AssignmentExpression>>> addedEvents = new Dictionary<IMember, HashSet<Tuple<IMember, AssignmentExpression>>>();
 			readonly Dictionary<IMember, HashSet<IMember>> removedEvents = new Dictionary<IMember, HashSet<IMember>>();
+			readonly HashSet<IMember> assignedEvents = new HashSet<IMember> ();
 
 			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
 			{
@@ -128,6 +134,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (!removedEvents.TryGetValue(left.Member, out hs))
 						removedEvents[left.Member] = hs = new HashSet<IMember>();
 					hs.Add(right.Methods.First());
+				} else if (assignmentExpression.Operator == AssignmentOperatorType.Assign) {
+					var left = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
+					if (left == null || left.Member.SymbolKind != SymbolKind.Event || !left.Member.IsStatic)
+						return;
+					assignedEvents.Add(left.Member); 
 				}
 			}
 		}

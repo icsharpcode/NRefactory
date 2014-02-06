@@ -142,6 +142,32 @@ class Foo
 }
 ");
 		}
+
+		[Test]
+		public void TestNullAssignment()
+		{
+			TestWrongContext<StaticEventSubscriptionIssue>(@"
+using System;
+
+class Foo
+{
+	public static event EventHandler FooBar;
+	
+	public void Test ()
+	{
+		FooBar += MyMethod;
+	}
+	
+	public void Unsubscribe ()
+	{
+		FooBar = null;
+	}
+	void MyMethod (object sender, EventArgs args)
+	{
+	}
+}
+");
+		}
 	}
 }
 
