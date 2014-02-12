@@ -618,6 +618,7 @@
     <Compile Include="CSharp\CodeIssues\CS0169FieldIsNeverUsedIssueTests.cs" />
     <Compile Include="FormattingTests\ConstructFixerTests.cs" />
     <Compile Include="CSharp\CodeIssues\StaticEventSubscriptionIssueTests.cs" />
+    <Compile Include="CSharp\CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticActionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cecil\Mono.Cecil.csproj">
