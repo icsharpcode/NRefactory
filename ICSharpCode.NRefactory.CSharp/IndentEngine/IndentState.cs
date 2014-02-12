@@ -1267,8 +1267,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				switch (DirectiveType)
 				{
 					case PreProcessorDirective.If:
-						Engine.ifDirectiveEvalResult.Push(eval(DirectiveStatement.ToString()));
-						if (Engine.ifDirectiveEvalResult.Peek())
+						Engine.ifDirectiveEvalResults.Push(eval(DirectiveStatement.ToString()));
+						if (Engine.ifDirectiveEvalResults.Peek())
 						{
 							// the if/elif directive is true -> continue with the previous state
 						}
@@ -1280,11 +1280,11 @@ namespace ICSharpCode.NRefactory.CSharp
 						}
 						break;
 					case PreProcessorDirective.Elif:
-						if (Engine.ifDirectiveEvalResult.Count > 0)
+						if (Engine.ifDirectiveEvalResults.Count > 0)
 						{
-							if (!Engine.ifDirectiveEvalResult.Peek())
+							if (!Engine.ifDirectiveEvalResults.Peek())
 							{
-								Engine.ifDirectiveEvalResult.Pop();
+								Engine.ifDirectiveEvalResults.Pop();
 								goto case PreProcessorDirective.If;
 							}
 						}
@@ -1292,7 +1292,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						ChangeState<PreProcessorCommentState>();
 						break;
 					case PreProcessorDirective.Else:
-						if (Engine.ifDirectiveEvalResult.Count > 0 && Engine.ifDirectiveEvalResult.Peek())
+						if (Engine.ifDirectiveEvalResults.Count > 0 && Engine.ifDirectiveEvalResults.Peek())
 						{
 							// some if/elif directive was true -> change to a state that will 
 							// ignore any chars until #endif
@@ -1319,7 +1319,8 @@ namespace ICSharpCode.NRefactory.CSharp
 						break;
 					case PreProcessorDirective.Endif:
 						// marks the end of this block
-						Engine.ifDirectiveEvalResult.Pop();
+						Engine.ifDirectiveEvalResults.Pop();
+						Engine.ifDirectiveIndents.Pop();
 						break;
 					case PreProcessorDirective.Region:
 					case PreProcessorDirective.Pragma:
@@ -1337,7 +1338,14 @@ namespace ICSharpCode.NRefactory.CSharp
 			// OPTION: IndentPreprocessorStatements
 			if (Engine.formattingOptions.IndentPreprocessorDirectives)
 			{
-				ThisLineIndent = Parent.ThisLineIndent.Clone();
+				if (Engine.ifDirectiveIndents.Count > 0)
+				{
+					ThisLineIndent = Engine.ifDirectiveIndents.Peek().Clone();
+				}
+				else
+				{
+					ThisLineIndent = Parent.ThisLineIndent.Clone();
+				}
 			}
 			else
 			{
@@ -1388,6 +1396,10 @@ namespace ICSharpCode.NRefactory.CSharp
 				if (DirectiveType == PreProcessorDirective.Region)
 				{
 					ThisLineIndent = Parent.NextLineIndent.Clone();
+				}
+				else if (DirectiveType == PreProcessorDirective.If)
+				{
+					Engine.ifDirectiveIndents.Push(ThisLineIndent.Clone());
 				}
 			}
 		}
@@ -1664,8 +1676,17 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void InitializeState()
 		{
-			ThisLineIndent = Parent.NextLineIndent.Clone();
-			NextLineIndent = ThisLineIndent.Clone();
+			if (Engine.formattingOptions.IndentPreprocessorDirectives &&
+			    Engine.ifDirectiveIndents.Count > 0)
+			{
+				ThisLineIndent = Engine.ifDirectiveIndents.Peek().Clone();
+				NextLineIndent = ThisLineIndent.Clone();
+			}
+			else
+			{
+				ThisLineIndent = Parent.NextLineIndent.Clone();
+				NextLineIndent = ThisLineIndent.Clone();
+			}
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)

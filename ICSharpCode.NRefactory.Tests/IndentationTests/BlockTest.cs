@@ -1081,7 +1081,6 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestPreprocessorIndenting_Case1()
 		{
@@ -1096,7 +1095,7 @@ class X
 	{
 		#if !DEBUG
 		if (arg > 0) {
-		$#else
+		#else$
 		if (arg < 0) {
 		#endif
 			
@@ -1108,10 +1107,8 @@ class X
 	}
 }", policy);
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestPreprocessorIndenting_Case2()
 		{
@@ -1127,7 +1124,7 @@ class X
 		#if !DEBUG
 		if (arg > 0) {
 		#else
-		$if (arg < 0) {
+		if (arg < 0) {$
 		#endif
 			
 		}
@@ -1169,9 +1166,5 @@ class X
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
-
-
-
-
 	}
 }
