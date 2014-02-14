@@ -2220,6 +2220,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			WriteIdentifier(identifier);
 		}
 
+		void IAstVisitor.VisitNullNode(AstNode nullNode)
+		{
+		}
 		#endregion
 		
 		#region Pattern Nodes

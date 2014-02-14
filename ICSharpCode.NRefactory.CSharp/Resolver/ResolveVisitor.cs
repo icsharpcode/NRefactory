@@ -568,7 +568,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			usingScope.Freeze();
 			resolver = resolver.WithCurrentUsingScope(new ResolvedUsingScope(resolver.CurrentTypeResolveContext, usingScope));
 		}
-		
+
 		ResolveResult IAstVisitor<ResolveResult>.VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
 		{
 			CSharpResolver previousResolver = resolver;
@@ -3920,6 +3920,11 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		}
 		
 		ResolveResult IAstVisitor<ResolveResult>.VisitArraySpecifier(ArraySpecifier arraySpecifier)
+		{
+			return null;
+		}
+		
+		ResolveResult IAstVisitor<ResolveResult>.VisitNullNode(AstNode nullNode)
 		{
 			return null;
 		}
