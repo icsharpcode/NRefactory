@@ -3393,10 +3393,30 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		
 		IType GetTypeForQueryVariable(IType type)
 		{
-			// This assumes queries are only used on IEnumerable.
-			// We might want to look at the signature of a LINQ method (e.g. Select) instead.
 			bool? isGeneric;
-			return GetElementTypeFromIEnumerable(type, resolver.Compilation, false, out isGeneric);
+			// This assumes queries are only used on IEnumerable.
+			var result = GetElementTypeFromIEnumerable(type, resolver.Compilation, false, out isGeneric);
+
+			// If that fails try to resolve the Select method and resolve the projection.
+			if (result.Kind == TypeKind.Unknown) {
+				var methodGroup = resolver.ResolveMemberAccess(new ResolveResult (type), "Select", EmptyList<IType>.Instance) as MethodGroupResolveResult;
+
+				var rr = ResolveInvocationOnGivenTarget(
+					methodGroup, 
+					new InvocationExpression (
+						Expression.Null, 
+						new LambdaExpression { 
+							Parameters = { new ParameterDeclaration("$i") }, 
+							Body = new IdentifierExpression ("$i") 
+						} 
+					)
+				) as CSharpInvocationResolveResult; 
+
+				if (rr != null || rr.Member.Parameters.Count != 2)
+					if (rr.Member.Parameters[1].Type.TypeParameterCount == 2)
+						return rr.Member.Parameters [1].Type.TypeArguments [1];
+			}
+			return result;
 		}
 		
 		ResolveResult MakeTransparentIdentifierResolveResult()
