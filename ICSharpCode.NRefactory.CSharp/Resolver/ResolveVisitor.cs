@@ -3399,12 +3399,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 
 			// If that fails try to resolve the Select method and resolve the projection.
 			if (result.Kind == TypeKind.Unknown) {
-				var methodGroup = resolver.ResolveMemberAccess(new ResolveResult (type), "Select", EmptyList<IType>.Instance) as MethodGroupResolveResult;
+				var selectAccess = resolver.ResolveMemberAccess(new ResolveResult (type), "Select", EmptyList<IType>.Instance);
 				ResolveResult[] arguments = {
 					new QueryExpressionLambda(1, voidResult) 
 				};
 				 
-				var rr = resolver.ResolveInvocation(methodGroup, arguments) as CSharpInvocationResolveResult; 
+				var rr = resolver.ResolveInvocation(selectAccess, arguments) as CSharpInvocationResolveResult; 
 				if (rr != null && rr.Arguments.Count == 2) {
 					var invokeMethod = rr.Arguments[1].Type.GetDelegateInvokeMethod();
 					if (invokeMethod != null && invokeMethod.Parameters.Count > 0)
