@@ -3793,27 +3793,8 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			
 			ResolveResult expr = Resolve(querySelectClause.Expression);
 			var methodGroup = resolver.ResolveMemberAccess(currentQueryResult, "Select", EmptyList<IType>.Instance);
-			//ResolveResult[] arguments = { new QueryExpressionLambda(1, expr) };
-			//var result2 = resolver.ResolveInvocation(methodGroup, arguments);
-
-			var clonedExpr = querySelectClause.Expression.Clone();
-			var result = ResolveInvocationOnGivenTarget(
-				methodGroup, 
-				new InvocationExpression (
-					Expression.Null, 
-					new [] { 
-						new LambdaExpression { 
-							Parameters = { new ParameterDeclaration(clonedExpr.ToString()) },
-							Body = clonedExpr 
-						} 
-					}
-				)
-			);
-			if (resolveResultCache.ContainsKey(clonedExpr))
-				resolveResultCache[querySelectClause.Expression] = resolveResultCache[clonedExpr];
-			if (resolverBeforeDict.ContainsKey(clonedExpr))
-				resolverBeforeDict[querySelectClause.Expression] = resolverBeforeDict[clonedExpr];
-			return result;
+			ResolveResult[] arguments = { new QueryExpressionLambda(1, expr) };
+			return resolver.ResolveInvocation(methodGroup, arguments);
 		}
 		
 		/// <summary>
