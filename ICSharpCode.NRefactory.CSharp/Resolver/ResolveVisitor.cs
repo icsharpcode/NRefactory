@@ -3400,21 +3400,14 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			// If that fails try to resolve the Select method and resolve the projection.
 			if (result.Kind == TypeKind.Unknown) {
 				var methodGroup = resolver.ResolveMemberAccess(new ResolveResult (type), "Select", EmptyList<IType>.Instance) as MethodGroupResolveResult;
-
-				var rr = ResolveInvocationOnGivenTarget(
-					methodGroup, 
-					new InvocationExpression (
-						Expression.Null, 
-						new LambdaExpression { 
-							Parameters = { new ParameterDeclaration("$i") }, 
-							Body = new IdentifierExpression ("$i") 
-						} 
-					)
-				) as CSharpInvocationResolveResult; 
-
+				ResolveResult[] arguments = {
+					new QueryExpressionLambda(1, voidResult) 
+				};
+				 
+				var rr = resolver.ResolveInvocation(methodGroup, arguments) as CSharpInvocationResolveResult; 
 				if (rr != null || rr.Member.Parameters.Count != 2)
 					if (rr.Member.Parameters[1].Type.TypeParameterCount == 2)
-						return rr.Member.Parameters [1].Type.TypeArguments [1];
+						return rr.Member.Parameters [1].Type.TypeArguments [0];
 			}
 			return result;
 		}
