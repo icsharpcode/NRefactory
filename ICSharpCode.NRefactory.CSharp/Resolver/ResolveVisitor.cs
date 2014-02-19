@@ -3405,9 +3405,11 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				};
 				 
 				var rr = resolver.ResolveInvocation(methodGroup, arguments) as CSharpInvocationResolveResult; 
-				if (rr != null || rr.Member.Parameters.Count != 2)
-					if (rr.Member.Parameters[1].Type.TypeParameterCount == 2)
-						return rr.Member.Parameters [1].Type.TypeArguments [0];
+				if (rr != null && rr.Arguments.Count == 2) {
+					var invokeMethod = rr.Arguments[1].Type.GetDelegateInvokeMethod();
+					if (invokeMethod != null && invokeMethod.Parameters.Count > 0)
+						return invokeMethod.Parameters[0].Type;
+				}
 			}
 			return result;
 		}
