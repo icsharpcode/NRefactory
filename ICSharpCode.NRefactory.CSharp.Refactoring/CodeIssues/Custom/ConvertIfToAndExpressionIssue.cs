@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("'if' statement can be re-written as '&&' expression",
 	                  Description = "Convert 'if' to '&&' expression",
 	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint)]
+	                  Severity = Severity.Suggestion)]
 	public class ConvertIfToAndExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

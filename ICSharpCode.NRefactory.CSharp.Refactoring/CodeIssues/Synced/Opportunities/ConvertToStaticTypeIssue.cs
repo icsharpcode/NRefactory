@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Class can be converted to static",
 	                  Description = "If all fields, properties and methods members are static, the class can be made static.",
 	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint,
+	                  Severity = Severity.Suggestion,
 	                  AnalysisDisableKeyword = "ConvertToStaticType")]
 	public class ConvertToStaticTypeIssue : GatherVisitorCodeIssueProvider
 	{

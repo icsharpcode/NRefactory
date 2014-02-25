@@ -50,12 +50,7 @@ namespace ICSharpCode.NRefactory.Refactoring
 		/// <summary>
 		/// Suggestions are shown in green and doesn't influence the task bar state
 		/// </summary>
-		Suggestion,
-
-		/// <summary>
-		/// Hints are shown in blue and doesn't influence the task bar state
-		/// </summary>
-		Hint
+		Suggestion
 	}
 }
 

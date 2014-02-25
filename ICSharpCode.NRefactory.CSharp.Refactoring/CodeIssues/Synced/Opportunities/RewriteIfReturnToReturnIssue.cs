@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("'if...return' statement can be re-written as 'return' statement",
 	                  Description="Convert 'if...return' to 'return'",
 	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint)]
+	                  Severity = Severity.Suggestion)]
 	public class RewriteIfReturnToReturnIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

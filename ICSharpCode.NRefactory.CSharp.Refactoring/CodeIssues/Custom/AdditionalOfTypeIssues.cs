@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Replace with OfType<T> (extended)",
 	                  Description = "Replace with call to OfType<T> (extended cases)",
 	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Hint)]
+	                  Severity = Severity.Suggestion)]
 	public class AdditionalOfTypeIssues : GatherVisitorCodeIssueProvider
 	{
 		static readonly AstNode whereSimpleCase =

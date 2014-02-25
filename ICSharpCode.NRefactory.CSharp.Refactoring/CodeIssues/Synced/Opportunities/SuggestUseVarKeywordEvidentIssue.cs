@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Use 'var'",
 		Description = "Use 'var' keyword when possible",
 		Category = IssueCategories.Opportunities,
-		Severity = Severity.Hint,
+		Severity = Severity.Suggestion,
 		AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentIssue : GatherVisitorCodeIssueProvider
 	{
