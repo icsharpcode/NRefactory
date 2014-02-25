@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Parameter can be declared with base type",
 		Description = "Finds parameters that can be demoted to a base class.",
 		Category = IssueCategories.PracticesAndImprovements,
-		Severity = Severity.Suggestion,
+		Severity = Severity.Hint,
 		SuppressMessageCategory="Microsoft.Design",
 		SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters"
 	)]

@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("'if' statement can be re-written as '??' expression",
 	                  Description="Convert 'if' to '??'",
 	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Suggestion,
+	                  Severity = Severity.Hint,
 	                  AnalysisDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
 	public class ConvertIfStatementToNullCoalescingExpressionIssue : GatherVisitorCodeIssueProvider
 	{

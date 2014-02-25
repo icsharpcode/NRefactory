@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Redundant 'object.ToString()' call for value types",
 		Description = "Finds value type calls to ToString() which would be generated automatically by the compiler.",
 	                  Category = IssueCategories.RedundanciesInCode,
-	                  Severity = Severity.Suggestion)]
+	                  Severity = Severity.Hint)]
 	public class RedundantToStringCallForValueTypesIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

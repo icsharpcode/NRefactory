@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("'if' statement can be re-written as 'switch' statement",
 	                  Description="Convert 'if' to 'switch'",
 	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Suggestion)]
+	                  Severity = Severity.Hint)]
 	public class ConvertIfStatementToSwitchStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

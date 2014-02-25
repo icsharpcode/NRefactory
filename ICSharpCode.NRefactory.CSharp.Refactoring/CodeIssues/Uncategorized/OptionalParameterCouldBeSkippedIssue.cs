@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Optional argument has default value and can be skipped",
 	                  Description = "Finds calls to functions where optional parameters are used and the passed argument is the same as the default.",
 	                  Category = IssueCategories.RedundanciesInCode,
-	                  Severity = Severity.Suggestion)]
+	                  Severity = Severity.Hint)]
 	public class OptionalParameterCouldBeSkippedIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
