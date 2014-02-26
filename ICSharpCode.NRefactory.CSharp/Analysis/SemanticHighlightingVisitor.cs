@@ -351,10 +351,12 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		{
 			if (member.SymbolKind != SymbolKind.Method || member.ReturnType.Kind != TypeKind.Void)
 				return false;
+			var visitedMembers = new HashSet<IParameterizedMember>();
 			while (member.IsOverride) {
 				member = (IParameterizedMember)InheritanceHelper.GetBaseMember(member);
-				if (member == null)
+				if (member == null || visitedMembers.Contains(member))
 					return false;
+				visitedMembers.Add(member); 
 			}
 			return IsInactiveConditional(member.Attributes);
 		}
