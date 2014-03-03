@@ -573,8 +573,16 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		{
 			CSharpResolver previousResolver = resolver;
 			try {
+				var nsName = namespaceDeclaration.NamespaceName;
+				AstNode child = namespaceDeclaration.FirstChild;
+
+				for (; child != null && child.Role != Roles.LBrace; child = child.NextSibling) {
+					Scan(child);
+				}
+
 				if (unresolvedFile != null) {
 					resolver = resolver.WithCurrentUsingScope(unresolvedFile.GetUsingScope(namespaceDeclaration.StartLocation).Resolve(resolver.Compilation));
+
 				} else {
 //					string fileName = namespaceDeclaration.GetRegion().FileName ?? string.Empty;
 					// Fetch parent using scope
@@ -599,7 +607,10 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					ApplyVisitorToUsings(cv, namespaceDeclaration.Children);
 					PushUsingScope(usingScope);
 				}
-				ScanChildren(namespaceDeclaration);
+				for (; child != null; child = child.NextSibling) {
+					Scan(child);
+				}
+
 				// merge undecided lambdas before leaving the using scope so that
 				// the resolver can make better use of its cache
 				MergeUndecidedLambdas();
@@ -1790,7 +1801,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			}
 			return false;
 		}
-		
+
 		static NameLookupMode GetNameLookupMode(Expression expr)
 		{
 			InvocationExpression ie = expr.Parent as InvocationExpression;
@@ -3323,6 +3334,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		ResolveResult IAstVisitor<ResolveResult>.VisitMemberType(MemberType memberType)
 		{
 			ResolveResult target;
+			NameLookupMode lookupMode = memberType.GetNameLookupMode();
 			if (memberType.IsDoubleColon && memberType.Target is SimpleType) {
 				SimpleType t = (SimpleType)memberType.Target;
 				StoreCurrentState(t);
@@ -3335,8 +3347,6 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				}
 				target = Resolve(memberType.Target);
 			}
-			
-			NameLookupMode lookupMode = memberType.GetNameLookupMode();
 			var typeArguments = ResolveTypeArguments(memberType.TypeArguments);
 			Identifier identifier = memberType.MemberNameToken;
 			ResolveResult rr = resolver.ResolveMemberAccess(target, identifier.Name, typeArguments, lookupMode);
