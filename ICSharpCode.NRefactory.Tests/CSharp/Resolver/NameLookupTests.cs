@@ -413,7 +413,7 @@ namespace $Auto.Test$ {
 }
 ";
 			var result = Resolve<NamespaceResolveResult>(program);
-			Assert.AreEqual("Auto.Test", result.Type.FullName);
+			Assert.AreEqual("Auto.Test", result.NamespaceName);
 		}
 
 		[Test]
