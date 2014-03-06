@@ -1990,7 +1990,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					var importList = new List<ICompletionData>();
 					var dict = new Dictionary<string, Dictionary<string, ICompletionData>>();
 					foreach (var type in Compilation.GetAllTypeDefinitions ()) {
-						if (!lookup.IsAccessible(type, false))
+						if (!lookup.IsAccessible(type, false) || type.IsSynthetic)
 							continue;
 						if (namespaces.Any(n => n.FullName == type.Namespace))
 							continue;
