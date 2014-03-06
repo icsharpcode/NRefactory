@@ -1989,8 +1989,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					// flatten usings
 					var importList = new List<ICompletionData>();
 					var dict = new Dictionary<string, Dictionary<string, ICompletionData>>();
-					foreach (var type in Compilation.GetAllTypeDefinitions ()) {
-						if (!lookup.IsAccessible(type, false) || type.IsSynthetic)
+					foreach (var type in Compilation.GetTopLevelTypeDefinitons ()) {
+						if (!lookup.IsAccessible(type, false))
 							continue;
 						if (namespaces.Any(n => n.FullName == type.Namespace))
 							continue;
