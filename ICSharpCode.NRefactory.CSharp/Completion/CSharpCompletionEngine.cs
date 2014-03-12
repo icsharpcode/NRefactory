@@ -2654,13 +2654,13 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					"delegate",
 					"Creates anonymous delegate.",
 					"delegate {" + EolMarker + thisLineIndent + IndentString + "|" + delegateEndString
-				);
+				).DisplayFlags |= DisplayFlags.MarkedBold;
 				if (LanguageVersion.Major >= 5) {
 					completionList.AddCustom(
 						"async delegate",
 						"Creates anonymous async delegate.",
 						"async delegate {" + EolMarker + thisLineIndent + IndentString + "|" + delegateEndString
-					);
+					).DisplayFlags |= DisplayFlags.MarkedBold;
 				}
 			}
 			var sb = new StringBuilder("(");
@@ -2691,26 +2691,26 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					"delegate" + signature,
 					"Creates anonymous delegate.",
 					"delegate" + signature + " {" + EolMarker + thisLineIndent + IndentString + "|" + delegateEndString
-				);
+				).DisplayFlags |= DisplayFlags.MarkedBold;
 				if (LanguageVersion.Major >= 5) {
 					completionList.AddCustom(
 						"async delegate" + signature,
 						"Creates anonymous async delegate.",
 						"async delegate" + signature + " {" + EolMarker + thisLineIndent + IndentString + "|" + delegateEndString
-					);
+					).DisplayFlags |= DisplayFlags.MarkedBold;
 				}
 				if (!completionList.Result.Any(data => data.DisplayText == sb.ToString())) {
 					completionList.AddCustom(
 						signature,
 						"Creates typed lambda expression.",
 						signature + " => |" + (addSemicolon ? ";" : "")
-					);
+					).DisplayFlags |= DisplayFlags.MarkedBold;
 					if (LanguageVersion.Major >= 5) {
 						completionList.AddCustom(
 							"async " + signature,
 							"Creates typed async lambda expression.",
 							"async " + signature + " => |" + (addSemicolon ? ";" : "")
-						);
+						).DisplayFlags |= DisplayFlags.MarkedBold;
 					}
 
 					if (!delegateMethod.Parameters.Any(p => p.IsOut || p.IsRef) && !completionList.Result.Any(data => data.DisplayText == sbWithoutTypes.ToString())) {
@@ -2718,13 +2718,13 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							sbWithoutTypes.ToString(),
 							"Creates lambda expression.",
 							sbWithoutTypes + " => |" + (addSemicolon ? ";" : "")
-						);
+						).DisplayFlags |= DisplayFlags.MarkedBold;
 						if (LanguageVersion.Major >= 5) {
 							completionList.AddCustom(
 								"async " + sbWithoutTypes,
 								"Creates async lambda expression.",
 								"async " + sbWithoutTypes + " => |" + (addSemicolon ? ";" : "")
-							);
+							).DisplayFlags |= DisplayFlags.MarkedBold;
 						}
 					}
 				}
@@ -2732,7 +2732,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			}
 
 			string varName = "Handle" + delegateType.Name + optDelegateName;
-			completionList.Add(factory.CreateEventCreationCompletionData(varName, delegateType, null, signature, currentMember, currentType));
+
+			var ecd = factory.CreateEventCreationCompletionData(varName, delegateType, null, signature, currentMember, currentType);
+			ecd.DisplayFlags |= DisplayFlags.MarkedBold;
+			completionList.Add(ecd);
 
 
 			/*			 TODO:Make factory method out of it.
