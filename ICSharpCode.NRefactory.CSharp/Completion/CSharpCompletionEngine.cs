@@ -879,19 +879,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 									}
 								}
 								if (token == "+=") {
+									string varName = GetPreviousMemberReferenceExpression(tokenIndex);
 									string parameterDefinition = AddDelegateHandlers(
 										wrapper,
-										delegateType
-									);
-									string varName = GetPreviousMemberReferenceExpression(tokenIndex);
-									wrapper.Result.Add(
-										factory.CreateEventCreationCompletionData(
-											varName,
-											delegateType,
-											evt,
-											parameterDefinition,
-											currentMember,
-											currentType)
+										delegateType,
+										optDelegateName: varName
 									);
 								}
 
@@ -2731,23 +2723,12 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 
 			}
 
-			string varName = "Handle" + delegateType.Name + optDelegateName;
+			string varName = optDelegateName ?? "Handle" + delegateType.Name;
 
 			var ecd = factory.CreateEventCreationCompletionData(varName, delegateType, null, signature, currentMember, currentType);
 			ecd.DisplayFlags |= DisplayFlags.MarkedBold;
 			completionList.Add(ecd);
 
-
-			/*			 TODO:Make factory method out of it.
-			// It's  needed to temporarly disable inserting auto matching bracket because the anonymous delegates are selectable with '('
-			// otherwise we would end up with () => )
-			if (!containsDelegateData) {
-				var savedValue = MonoDevelop.SourceEditor.DefaultSourceEditorOptions.Instance.AutoInsertMatchingBracket;
-				MonoDevelop.SourceEditor.DefaultSourceEditorOptions.Instance.AutoInsertMatchingBracket = false;
-				completionList.Result.CompletionListClosed += delegate {
-					MonoDevelop.SourceEditor.DefaultSourceEditorOptions.Instance.AutoInsertMatchingBracket = savedValue;
-				};
-			}*/
 			return sb.ToString();
 		}
 
@@ -2903,7 +2884,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			if (resolvedType.Kind == TypeKind.Delegate) {
 				if (addedDelegates.Contains(resolvedType.ReflectionName))
 					return;
-				AddDelegateHandlers(result, resolvedType, false, true, method.Parameters [parameter].Name);
+				AddDelegateHandlers(result, resolvedType, false, true, "Handle" + method.Parameters [parameter].Type.Name + method.Parameters [parameter].Name);
 			}
 		}
 
