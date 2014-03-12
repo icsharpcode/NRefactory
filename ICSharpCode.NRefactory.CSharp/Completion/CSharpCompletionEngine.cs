@@ -350,8 +350,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					}
 					var lookup = new MemberLookup(ctx.CurrentTypeDefinition, Compilation.MainAssembly);
 					bool isProtectedAllowed = ctx.CurrentTypeDefinition != null && initializerType.GetDefinition() != null ? 
-					                          ctx.CurrentTypeDefinition.IsDerivedFrom(initializerType.GetDefinition()) : 
-					                          false;
+						ctx.CurrentTypeDefinition.IsDerivedFrom(initializerType.GetDefinition()) : 
+						false;
 					foreach (var m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Field)) {
 						var f = m as IField;
 						if (f != null && (f.IsReadOnly || f.IsConst))
@@ -844,6 +844,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							return null;
 						case "+=":
 						case "-=":
+							var curTokenIndex = tokenIndex;
 							GetPreviousToken(ref tokenIndex, false);
 
 							expressionOrVariableDeclaration = GetExpressionAt(tokenIndex);
@@ -879,11 +880,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 									}
 								}
 								if (token == "+=") {
-									string varName = GetPreviousMemberReferenceExpression(tokenIndex);
 									string parameterDefinition = AddDelegateHandlers(
 										wrapper,
 										delegateType,
-										optDelegateName: varName
+										optDelegateName: GuessEventHandlerMethodName(curTokenIndex)
 									);
 								}
 
@@ -2356,7 +2356,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						// check for valid constructors
 						if (t.GetConstructors().Count() > 0) {
 							bool isProtectedAllowed = currentType != null ? 
-							                          currentType.Resolve(ctx).GetDefinition().IsDerivedFrom(t.GetDefinition()) : false;
+								currentType.Resolve(ctx).GetDefinition().IsDerivedFrom(t.GetDefinition()) : false;
 							if (!t.GetConstructors().Any(m => lookup.IsAccessible(m, isProtectedAllowed))) {
 								return null;
 							}
@@ -2581,36 +2581,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			}
 		}
 
-		public string GetPreviousMemberReferenceExpression(int tokenIndex)
+		public string GuessEventHandlerMethodName(int tokenIndex)
 		{
 			string result = GetPreviousToken(ref tokenIndex, false);
-			result = GetPreviousToken(ref tokenIndex, false);
-			if (result != ".") {
-				result = null;
-			} else {
-				var names = new List<string>();
-				while (result == ".") {
-					result = GetPreviousToken(ref tokenIndex, false);
-					if (result == "this") {
-						names.Add("handle");
-					} else if (result != null) {
-						string trimmedName = result.Trim();
-						if (trimmedName.Length == 0) {
-							break;
-						}
-						names.Insert(0, trimmedName);
-					}
-					result = GetPreviousToken(ref tokenIndex, false);
-				}
-				result = String.Join("", names.ToArray());
-				foreach (char ch in result) {
-					if (!char.IsLetterOrDigit(ch) && ch != '_') {
-						result = "";
-						break;
-					}
-				}
-			}
-			return result;
+			return "Handle" + result;
 		}
 
 		bool MatchDelegate(IType delegateType, IMethod method)
@@ -2819,7 +2793,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			var astResolver = unit != null ? CompletionContextProvider.GetResolver(state, unit) : null;
 			IType hintType = exprParent != null && astResolver != null ? 
 				TypeGuessing.GetValidTypes(astResolver, exprParent).FirstOrDefault() :
-			                 null;
+				null;
 			var result = new CompletionDataWrapper(this);
 			var lookup = new MemberLookup(
 				ctx.CurrentTypeDefinition,
