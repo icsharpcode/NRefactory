@@ -862,6 +862,7 @@ class Foo
 		public void TestBrackets_AnonymousMethodOpenBracketAlignment()
 		{
 			var policy = FormattingOptionsFactory.CreateAllman();
+			policy.IndentBlocksInsideExpressions = false;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -878,6 +879,7 @@ class Foo
 		public void TestBrackets_AnonymousMethodCloseingBracketAlignment()
 		{
 			var policy = FormattingOptionsFactory.CreateAllman();
+			policy.IndentBlocksInsideExpressions = false;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -1166,5 +1168,41 @@ class X
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestBrackets_IndentBlocksInsideExpressionsOpenBrace()
+		{
+			var policy = FormattingOptionsFactory.CreateAllman();
+
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		Foo (new MyOBject
+			{$
+", policy);
+			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
+
+		[Test]
+		public void TestBrackets_IndentBlocksInsideExpressions()
+		{
+			var policy = FormattingOptionsFactory.CreateAllman();
+
+			var indent = Helper.CreateEngine(@"
+class Foo 
+{
+	void Test()
+	{ 
+		Foo (new MyOBject
+			{
+				$
+", policy);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
+
 	}
 }

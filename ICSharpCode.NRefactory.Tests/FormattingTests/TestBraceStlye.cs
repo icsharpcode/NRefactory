@@ -482,5 +482,29 @@ namespace B {
 }");
 		}
 
+
+		[Test]
+		public void TestIndentBlocksInsideExpressions ()
+		{
+			var policy = FormattingOptionsFactory.CreateAllman ();
+			Test (policy,
+				@"class Test
+{
+	void Foo()
+	{
+		FooBar(delegate{Foo();});
+	}
+}",
+				@"class Test
+{
+	void Foo()
+	{
+		FooBar(delegate
+			{
+				Foo();
+			});
+	}
+}");
+		}
 	}
 }
