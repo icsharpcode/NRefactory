@@ -1134,5 +1134,16 @@ namespace Test
 			Assert.IsFalse(rr.IsError);
 			Assert.AreEqual("ConcreteTable+Record.Value", rr.Member.ReflectionName);
 		}
+		
+		[Test]
+		public void UsingStatementReferringToMissingNestedType()
+		{
+			string program = @"using System;
+using $A.B$;
+
+class A { }";
+			var rr = Resolve<UnknownMemberResolveResult>(program);
+			
+		}
 	}
 }
