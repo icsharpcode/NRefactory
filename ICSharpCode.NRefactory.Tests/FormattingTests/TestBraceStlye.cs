@@ -506,5 +506,37 @@ namespace B {
 	}
 }");
 		}
+	
+		/// <summary>
+		/// Bug 18254 - Allow customization of indentation for anonymous methods
+		/// </summary>
+		[Test]
+		public void TestBug18254 ()
+		{
+			var policy = FormattingOptionsFactory.CreateAllman ();
+			Test (policy,
+				@"class Test
+{
+	void Foo()
+	{
+		UIView.Animate(duration, () =>
+{
+    view.Alpha = 0;
+}, null);
+
+	}
+}",
+				@"class Test
+{
+	void Foo()
+	{
+		UIView.Animate(duration, () =>
+			{
+				view.Alpha = 0;
+			}, null);
+
+	}
+}");
+		}
 	}
 }
