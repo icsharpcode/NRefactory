@@ -2308,7 +2308,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			for (int j = line.Offset; j < line.EndOffset; j++) {
 				char ch = document.GetCharAt(j);
 				if (!char.IsWhiteSpace(ch)) {
-					return document.GetText(line.Offset, j - line.Offset - 1);
+					return document.GetText(line.Offset, j - line.Offset);
 				}
 			}
 			return "";
