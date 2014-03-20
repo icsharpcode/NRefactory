@@ -1033,7 +1033,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public override void OnExit()
 		{
-			// override the base.OnExit() logic
+			Parent.OnExit();
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
