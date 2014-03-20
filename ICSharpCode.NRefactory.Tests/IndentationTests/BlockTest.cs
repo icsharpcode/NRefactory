@@ -1204,5 +1204,36 @@ class Foo
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		/// <summary>
+		/// Bug 18463 - Indentation does not work when typed statement does not require semicolon
+		/// </summary>
+		[Ignore("Fixme")]
+		[Test]
+		public void TestBug18463()
+		{
+			var policy = FormattingOptionsFactory.CreateMono();
+
+			var indent = Helper.CreateEngine(@"
+namespace FooBar
+{
+	public class TestProject
+	{
+		public static int Main ()
+		{
+			switch (current_token) {
+				case Token.CLOSE_PARENS:
+				case Token.TRUE:
+				case Token.FALSE:
+				case Token.NULL:
+				case Token.LITERAL:
+					return Token.INTERR;
+			}
+			if (true) {
+				$
+", policy);
+			Assert.AreEqual("\t\t\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
+		}
+
 	}
 }
