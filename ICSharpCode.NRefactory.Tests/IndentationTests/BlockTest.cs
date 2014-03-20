@@ -1207,7 +1207,6 @@ class Foo
 		/// <summary>
 		/// Bug 18463 - Indentation does not work when typed statement does not require semicolon
 		/// </summary>
-		[Ignore("Fixme")]
 		[Test]
 		public void TestBug18463()
 		{
