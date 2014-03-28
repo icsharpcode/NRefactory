@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 		public void TestFirstParameterStart ()
 		{
 			var index = GetIndex("@Test($");
-			Assert.AreEqual(1, index);
+			Assert.AreEqual(0, index);
 		}
 
 		[Test]
