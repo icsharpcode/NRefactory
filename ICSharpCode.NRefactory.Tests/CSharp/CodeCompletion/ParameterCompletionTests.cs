@@ -632,6 +632,41 @@ class TestClass
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.AreEqual (1, provider.Count);
 		}
+
+		[Test]
+		public void TestMethodParameterWithSpacesTabsNewLines ()
+		{
+			var provider = CreateProvider (@"class TestClass
+{
+	public int TestMe (int x) { return 0; } 
+	public void Test ()
+	{
+		$TestMe ( 		  	  
+ 	
+ $
+	}
+}");
+			Assert.IsNotNull (provider, "provider was not created.");
+			Assert.AreEqual (1, provider.Count);
+		}
+        
+		[Test]
+		public void TestMethodParameterNestedArray ()
+		{
+		    var provider = CreateProvider (@"using System;
+
+class TestClass
+{
+	TestClass ()
+	{
+		var str = new string[2,2];
+		$Console.WriteLine ( str [1,$
+	}
+}
+");
+			Assert.IsNotNull (provider, "provider was not created.");
+			Assert.AreEqual (1, provider.Count);
+		}
 		
 		
 		/// Bug 599 - Regression: No intellisense over Func delegate
