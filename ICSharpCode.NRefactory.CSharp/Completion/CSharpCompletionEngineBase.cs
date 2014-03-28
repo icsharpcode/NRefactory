@@ -168,8 +168,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			var parameter = new Stack<int> ();
 			var bracketStack = new Stack<Stack<int>> ();
 			bool inSingleComment = false, inString = false, inVerbatimString = false, inChar = false, inMultiLineComment = false;
-			bool foundCharAfterOpenBracket = false;
 			var word = new StringBuilder ();
+			bool foundCharAfterOpenBracket = false;
 			for (int i = triggerOffset; i < endOffset; i++) {
 				char ch = document.GetCharAt (i);
 				char nextCh = i + 1 < document.TextLength ? document.GetCharAt (i + 1) : '\0';
@@ -183,8 +183,9 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				} else {
 					word.Length = 0;
 				}
-				if (!char.IsWhiteSpace (ch) && parameter.Count > 0)
+				if (!char.IsWhiteSpace(ch) && parameter.Count > 0)
 					foundCharAfterOpenBracket = true;
+
 				switch (ch) {
 					case '{':
 						if (inString || inChar || inVerbatimString || inSingleComment || inMultiLineComment) {
@@ -313,11 +314,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						break;
 				}
 			}
-			if (!foundCharAfterOpenBracket)
-				return 0;
 			if (parameter.Count != 1 || bracketStack.Count > 0) {
 				return -1;
 			}
+			if (!foundCharAfterOpenBracket)
+				return 0;
 			return parameter.Pop() + 1;
 		}
 
