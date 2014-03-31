@@ -432,7 +432,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					}
 
 					default:
-						throw new ArgumentException("Invalid value for UnaryOperatorType", "op");
+						return ErrorResolveResult.UnknownError;
 				}
 			}
 			// If the type is nullable, get the underlying type:
@@ -611,7 +611,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 					// null coalescing operator is not overloadable and needs to be handled separately
 					return ResolveNullCoalescingOperator(lhs, rhs);
 				} else {
-					throw new ArgumentException("Invalid value for BinaryOperatorType", "op");
+					return ErrorResolveResult.UnknownError;
 				}
 			}
 			
