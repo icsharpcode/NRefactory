@@ -208,7 +208,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			var bracketStack = new Stack<int> ();
 
 			var lex = new MiniLexer (text);
-
+			char lastChar = '0';
 			bool failed = lex.Parse ((ch, off) => {
 				if (lex.IsInString || lex.IsInChar || lex.IsInVerbatimString || lex.IsInSingleComment || lex.IsInMultiLineComment || lex.IsInPreprocessorDirective)
 					return false;
@@ -226,6 +226,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					chevronStack.Push (startOffset + off);
 					break;
 				case '>':
+					if (lastChar == '=')
+						break;
 					if (chevronStack.Count == 0) {
 						return true;
 					}
@@ -250,6 +252,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					bracketStack.Pop ();
 					break;
 				}
+				lastChar = ch;
 				return false;
 			});
 			if (failed)
@@ -265,7 +268,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			//If we are inside { bracket we don't want to display anything
 			if (bracketStack.Count > 0 && bracketStack.Pop () > result)
 				return null;
-
 			if (result == -1)
 				return null;
 			SetOffset (result + 1);

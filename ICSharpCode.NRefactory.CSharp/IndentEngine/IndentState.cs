@@ -973,6 +973,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (ch == ClosedBracket)
 			{
 				ExitState();
+				if (Parent is BracesBodyState)
+					Parent.OnExit();
 			}
 
 			base.Push(ch);
@@ -1031,9 +1033,10 @@ namespace ICSharpCode.NRefactory.CSharp
 			base.CheckKeyword(keyword);
 		}
 
+
 		public override void OnExit()
 		{
-			Parent.OnExit();
+			//Parent.OnExit();
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)
