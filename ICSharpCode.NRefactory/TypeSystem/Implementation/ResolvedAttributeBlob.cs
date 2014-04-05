@@ -142,9 +142,16 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				return;
 			}
 			foreach (var ctorParameter in ctorParameterTypes.Resolve(context)) {
-				ResolveResult arg = reader.ReadFixedArg(ctorParameter);
-				positionalArguments.Add(arg);
-				if (arg.IsError) {
+				ResolveResult arg;
+				bool isError;
+				try {
+					arg = reader.ReadFixedArg (ctorParameter);
+					positionalArguments.Add(arg);
+					isError = arg.IsError;
+				} catch (Exception) {
+					isError = true;
+				}
+				if (isError) {
 					// After a decoding error, we must stop decoding the blob because
 					// we might have read too few bytes due to the error.
 					// Just fill up the remaining arguments with ErrorResolveResult:
