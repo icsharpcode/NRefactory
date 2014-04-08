@@ -2354,7 +2354,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							return null;
 						}
 						// check for valid constructors
-						if (t.GetConstructors().Count() > 0) {
+						if (t.GetConstructors().Any()) {
 							bool isProtectedAllowed = currentType != null ? 
 								currentType.Resolve(ctx).GetDefinition().IsDerivedFrom(t.GetDefinition()) : false;
 							if (!t.GetConstructors().Any(m => lookup.IsAccessible(m, isProtectedAllowed))) {
