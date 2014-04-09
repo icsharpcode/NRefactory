@@ -26,43 +26,53 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
-
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+ 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription(
-		"Empty statement is redundant",
-		Description = "Empty statement is redundant",
-		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "EmptyStatement")]
-	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
+//	[IssueDescription(
+//		AnalysisDisableKeyword = "EmptyStatement")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer(DiagnosticId, LanguageNames.CSharp)]
+	public class EmptyStatementIssue : ISyntaxNodeAnalyzer<SyntaxKind>
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		internal const string DiagnosticId  = "EmptyStatementIssue";
+		const string Description   = "Empty statement is redundant";
+		const string MessageFormat = "Remove ';'";
+		const string Category      = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public IEnumerable<DiagnosticDescriptor> GetSupportedDiagnostics()
 		{
-			return new GatherVisitor(context);
+			return ImmutableArray.Create(Rule);
 		}
 
-		class GatherVisitor : GatherVisitorBase<EmptyStatementIssue>
-		{
-			public GatherVisitor(BaseRefactoringContext ctx)
-				: base (ctx)
-			{
+		public IEnumerable<SyntaxKind> SyntaxKindsOfInterest {
+			get {
+				return ImmutableArray.Create(SyntaxKind.EmptyStatement);
 			}
+		}
 
-			public override void VisitEmptyStatement(EmptyStatement emptyStatement)
-			{
-				if (UseAsAndNullCheckAction.IsEmbeddedStatement(emptyStatement))
-					return;
-				if (emptyStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) is LabelStatement)
-					return;
-				AddIssue(new CodeIssue(
-					emptyStatement,
-					ctx.TranslateString("Empty statement is redundant"),
-					ctx.TranslateString("Remove ';'"),
-					s => s.Remove(emptyStatement)
-				) { IssueMarker = IssueMarker.GrayOut });
-			}
+		public void AnalyzeNode(SyntaxNode node, SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, System.Threading.CancellationToken cancellationToken)
+		{
+			if (IsEmbeddedStatement(node))
+				return;
+			addDiagnostic (Diagnostic.Create(Rule, node.GetLocation())); 
+		}
+
+		internal static bool IsEmbeddedStatement(SyntaxNode stmt)
+		{
+			return !stmt.Parent.IsKind(SyntaxKind.Block);
 		}
 	}
+
+//	[ExportCodeFixProvider(EmptyStatementIssue.DiagnosticId, LanguageNames.CSharp)]
+//	public class EmptyStatementCodeFixProvider : ICodeFixProvider
+//	{
+//
+//	}
 }

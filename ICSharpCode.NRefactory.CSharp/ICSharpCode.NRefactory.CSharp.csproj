@@ -387,12 +387,6 @@
     <Compile Include="Formatter\ConstructFixer.cs" />
     <Compile Include="Util\CloneableStack.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
-      <Project>{3B2A5653-EC97-4001-BB9B-D90F1AF2C371}</Project>
-      <Name>ICSharpCode.NRefactory</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />
   <ProjectExtensions>
