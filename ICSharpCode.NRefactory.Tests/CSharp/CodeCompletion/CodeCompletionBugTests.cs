@@ -31,14 +31,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using ICSharpCode.NRefactory.CSharp.Completion;
+using ICSharpCode.NRefactory6.CSharp.Completion;
 using NUnit.Framework;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using ICSharpCode.NRefactory.CSharp.CodeIssues;
+using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
 	[TestFixture]
 	public class CodeCompletionBugTests : TestBase
@@ -151,6 +151,16 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 			ICompletionData ICompletionDataFactory.CreateXmlDocCompletionData(string tag, string description, string tagInsertionText)
 			{
 				throw new NotImplementedException();
+			}
+
+			ICompletionData ICompletionDataFactory.CreateKeyword(string keyword)
+			{
+				return new CompletionData(keyword);
+			}
+
+			ICompletionData ICompletionDataFactory.CreatePreprocessorKeyword(string preProcessorKeyword)
+			{
+				return new CompletionData(preProcessorKeyword);
 			}
 
 			class SymbolCompletionData : CompletionData, ISymbolCompletionData
@@ -269,7 +279,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 								"a.cs",
 								null,
 								SourceCodeKind.Regular,
-								TextLoader.From(TextAndVersion.Create(SourceText.From(parsedText), VersionStamp.Create())) 
+								TextLoader.From(TextAndVersion.Create(SourceText.From(editorText), VersionStamp.Create())) 
 							)
 						},
 						null,

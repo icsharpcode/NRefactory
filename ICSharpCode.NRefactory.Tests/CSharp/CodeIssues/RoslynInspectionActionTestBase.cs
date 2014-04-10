@@ -32,7 +32,7 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using System.Threading;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	public class RoslynInspectionActionTestBase 
 	{

@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	/// <summary>
 	/// Provides intellisense information for a collection of parametrized members.

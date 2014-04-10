@@ -29,7 +29,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory
+namespace ICSharpCode.NRefactory6
 {
 	static class TestWorkspaceFeatures
 	{

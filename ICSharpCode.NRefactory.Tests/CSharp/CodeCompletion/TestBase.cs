@@ -28,7 +28,7 @@ using System;
 using NUnit.Framework;
 using System.Diagnostics;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
 	[TestFixture]
 	public abstract class TestBase 

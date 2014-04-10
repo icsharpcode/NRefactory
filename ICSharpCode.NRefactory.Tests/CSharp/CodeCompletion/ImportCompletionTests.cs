@@ -30,16 +30,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using ICSharpCode.NRefactory.Completion;
-using ICSharpCode.NRefactory.CSharp.Completion;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory6.Completion;
+using ICSharpCode.NRefactory6.CSharp.Completion;
+using ICSharpCode.NRefactory6.CSharp.TypeSystem;
+using ICSharpCode.NRefactory6.Editor;
+using ICSharpCode.NRefactory6.TypeSystem;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
 	[TestFixture]
 	public class ImportCompletionTests

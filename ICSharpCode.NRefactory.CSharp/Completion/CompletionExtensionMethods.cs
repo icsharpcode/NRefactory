@@ -27,7 +27,7 @@ using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public static class CompletionExtensionMethods
 	{

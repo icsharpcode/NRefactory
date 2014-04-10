@@ -26,7 +26,7 @@
 using System;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
 	[TestFixture()]
 	public class EnumContextTests : TestBase

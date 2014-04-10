@@ -28,11 +28,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory6.Semantics;
+using ICSharpCode.NRefactory6.TypeSystem;
+using ICSharpCode.NRefactory6.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	/// <summary>
 	/// The framework lookup provides a fast lookup where an unknow type or extension method may be defined in.

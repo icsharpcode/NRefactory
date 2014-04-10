@@ -28,14 +28,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
+using ICSharpCode.NRefactory6.Editor;
+using ICSharpCode.NRefactory6.TypeSystem;
+using ICSharpCode.NRefactory6.Semantics;
+using ICSharpCode.NRefactory6.TypeSystem.Implementation;
+using ICSharpCode.NRefactory6.CSharp.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	/// <summary>
 	/// Acts as a common base between code completion and parameter completion.

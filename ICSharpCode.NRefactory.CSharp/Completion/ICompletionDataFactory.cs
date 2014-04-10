@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public interface ICompletionDataFactory
 	{
@@ -70,6 +70,10 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 		IEnumerable<ICompletionData> CreateCodeTemplateCompletionData ();
 		
 		IEnumerable<ICompletionData> CreatePreProcessorDefinesCompletionData ();
+
+		ICompletionData CreateKeyword(string keyword);
+		ICompletionData CreatePreprocessorKeyword(string preProcessorKeyword);
+
 
 		/// <summary>
 		/// Creates a completion data that adds the required using for the created type.

@@ -30,8 +30,9 @@ using System.Text;
 using Microsoft.CodeAnalysis.Recommendations;
 using Microsoft.CodeAnalysis;
 using System.Threading;
+using Microsoft.CodeAnalysis.CSharp;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public enum EditorBrowsableBehavior
 	{
@@ -46,10 +47,187 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 //		public ICompletionData[] importCompletion;
 //	}
 
+
+	abstract class CompletionContextHandler
+	{
+		public abstract IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken));
+
+	}
+
+	class RoslynRecommendationsCompletionContextHandler : CompletionContextHandler
+	{
+		public override IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			foreach (var symbol in Recommender.GetRecommendedSymbolsAtPosition(semanticModel, offset, engine.Workspace, null, cancellationToken)) {
+				yield return engine.Factory.CreateSymbolCompletionData(symbol);
+			}
+		}
+	}
+
+	class KeywordContextHandler : CompletionContextHandler
+	{
+		public override IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken)
+		{
+			var factory = engine.Factory;
+
+			//	if (ctx.IsGlobalStatementContext) {
+				foreach (var kw in globalLevelKeywords)
+					yield return factory.CreateKeyword(kw);
+			//	yield break;
+			//}
+
+			//if (ctx.IsInstanceContext) {
+				foreach (var kw in primitiveTypesKeywords)
+				yield return factory.CreateKeyword(kw);
+			yield return factory.CreateKeyword("var");
+
+			//}
+
+			//if (ctx.IsStatementContext) {
+				foreach (var kw in statementStartKeywords)
+					yield return factory.CreateKeyword(kw);
+			//}
+
+			//	if (ctx.IsAnyExpressionContext) {
+				foreach (var kw in expressionLevelKeywords)
+					yield return factory.CreateKeyword(kw);
+			//}
+
+			if (ctx.IsPreProcessorKeywordContext) {
+				yield return factory.CreatePreprocessorKeyword("else");
+				yield return factory.CreatePreprocessorKeyword("elif");
+				yield return factory.CreatePreprocessorKeyword("endif");
+				yield return factory.CreatePreprocessorKeyword("define");
+				yield return factory.CreatePreprocessorKeyword("undef");
+				yield return factory.CreatePreprocessorKeyword("warning");
+				yield return factory.CreatePreprocessorKeyword("error");
+				yield return factory.CreatePreprocessorKeyword("pragma");
+				yield return factory.CreatePreprocessorKeyword("line");
+				yield return factory.CreatePreprocessorKeyword("line hidden");
+				yield return factory.CreatePreprocessorKeyword("line default");
+				yield return factory.CreatePreprocessorKeyword("region");
+				yield return factory.CreatePreprocessorKeyword("endregion");
+			}
+			
+		}
+
+		string[] validEnumBaseTypes = {
+			"byte",
+			"sbyte",
+			"short",
+			"int",
+			"long",
+			"ushort",
+			"uint",
+			"ulong"
+		};
+
+		static string[] expressionLevelKeywords = new string [] {
+			"as",
+			"is",
+			"else",
+			"out",
+			"ref",
+			"null",
+			"delegate",
+			"default",
+			"true",
+			"false"
+		};
+
+		static string[] primitiveTypesKeywords = new string [] {
+			"void",
+			"object",
+			"bool",
+			"byte",
+			"sbyte",
+			"char",
+			"short",
+			"int",
+			"long",
+			"ushort",
+			"uint",
+			"ulong",
+			"float",
+			"double",
+			"decimal",
+			"string"
+		};
+
+		static string[] statementStartKeywords = new string [] { "base", "new", "sizeof", "this", 
+			"true", "false", "typeof", "checked", "unchecked", "from", "break", "checked",
+			"unchecked", "const", "continue", "do", "finally", "fixed", "for", "foreach",
+			"goto", "if", "lock", "return", "stackalloc", "switch", "throw", "try", "unsafe", 
+			"using", "while", "yield",
+			"catch"
+		};
+
+		static string[] globalLevelKeywords = new string [] {
+			"namespace", "using", "extern", "public", "internal", 
+			"class", "interface", "struct", "enum", "delegate",
+			"abstract", "sealed", "static", "unsafe", "partial"
+		};
+
+		static string[] accessorModifierKeywords = new string [] {
+			"public", "internal", "protected", "private", "async"
+		};
+
+		static string[] typeLevelKeywords = new string [] {
+			"public", "internal", "protected", "private", "async",
+			"class", "interface", "struct", "enum", "delegate",
+			"abstract", "sealed", "static", "unsafe", "partial",
+			"const", "event", "extern", "fixed", "new", 
+			"operator", "explicit", "implicit", 
+			"override", "readonly", "virtual", "volatile"
+		};
+
+		static string[] linqKeywords = new string[] {
+			"from",
+			"where",
+			"select",
+			"group",
+			"into",
+			"orderby",
+			"join",
+			"let",
+			"in",
+			"on",
+			"equals",
+			"by",
+			"ascending",
+			"descending"
+		};
+
+		static string[] parameterTypePredecessorKeywords = new string[] {
+			"out",
+			"ref",
+			"params"
+		};
+	}
+
+
+
 	public class CSharpCompletionEngine 
 	{
-		internal readonly ICompletionDataFactory factory;
+		static readonly CompletionContextHandler[] handlers = new CompletionContextHandler[] {
+			new RoslynRecommendationsCompletionContextHandler (),
+			new KeywordContextHandler()
+		};
+
+		readonly ICompletionDataFactory factory;
 		readonly Workspace workspace;
+
+		public ICompletionDataFactory Factory {
+			get {
+				return factory;
+			}
+		}
+
+		public Workspace Workspace {
+			get {
+				return workspace;
+			}
+		}
 
 		public CSharpCompletionEngine(Workspace workspace, ICompletionDataFactory factory)
 		{
@@ -62,11 +240,11 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			this.factory = factory;
 		}
 
-		public IEnumerable<ICompletionData> GetCompletionData(SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken))
+		public IEnumerable<ICompletionData> GetCompletionData(SemanticModel semanticModel, int position, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			foreach (var symbol in Recommender.GetRecommendedSymbolsAtPosition(semanticModel, offset, workspace, null, cancellationToken)) {
-				yield return factory.CreateSymbolCompletionData(symbol);
-			}
+			var ctx = Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext.CreateContext(workspace, semanticModel, position, cancellationToken); 
+
+			return handlers.SelectMany(handler => handler.GetCompletionData(this, ctx, semanticModel, position, cancellationToken)); 
 		}
 
 		/*
@@ -838,8 +1016,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							//						CompletionDataList completionList = new ProjectDomCompletionDataList ();
 							//						CompletionDataCollector cdc = new CompletionDataCollector (this, dom, completionList, Document.CompilationUnit, resolver.CallingType, location);
 							//						completionList.AutoCompleteEmptyMatch = false;
-							//						cdc.Add ("true", "md-keyword");
-							//						cdc.Add ("false", "md-keyword");
 							//						resolver.AddAccessibleCodeCompletionData (result.ExpressionContext, cdc);
 							//						return completionList;
 							//					}
@@ -1040,7 +1216,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						// after these always follows a name
 						return null;
 					}
-					var keywordresult = HandleKeywordCompletion(tokenIndex, token);
+					var keywordresult = HandleCompletion(tokenIndex, token);
 					if (keywordresult != null) {
 						return keywordresult;
 					}
@@ -1250,7 +1426,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						csResolver = new CSharpResolver(ctx);
 						var nodes = new List<AstNode>();
 						nodes.Add(n);
-						if (n.Parent is ICSharpCode.NRefactory.CSharp.Attribute) {
+						if (n.Parent is IICSharpCode.NRefactory6.CSharp.Attribute) {
 							nodes.Add(n.Parent);
 						}
 						var astResolver = CompletionContextProvider.GetResolver(csResolver, identifierStart.Unit);
@@ -1261,7 +1437,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							csResolver = GetState();
 						}
 						// add attribute properties.
-						if (n.Parent is ICSharpCode.NRefactory.CSharp.Attribute) {
+						if (n.Parent is IICSharpCode.NRefactory6.CSharp.Attribute) {
 							var rr = ResolveExpression(n.Parent);
 							if (rr != null)
 								AddAttributeProperties(contextList, rr.Result);
@@ -1375,17 +1551,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 				typePred
 			);
 		}
-
-		string[] validEnumBaseTypes = {
-			"byte",
-			"sbyte",
-			"short",
-			"int",
-			"long",
-			"ushort",
-			"uint",
-			"ulong"
-		};
 
 		IEnumerable<ICompletionData> HandleEnumContext()
 		{
@@ -3448,28 +3613,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 
 		#endregion
 
-		#region Preprocessor
-
-		IEnumerable<ICompletionData> GetDirectiveCompletionData()
-		{
-			yield return factory.CreateLiteralCompletionData("if");
-			yield return factory.CreateLiteralCompletionData("else");
-			yield return factory.CreateLiteralCompletionData("elif");
-			yield return factory.CreateLiteralCompletionData("endif");
-			yield return factory.CreateLiteralCompletionData("define");
-			yield return factory.CreateLiteralCompletionData("undef");
-			yield return factory.CreateLiteralCompletionData("warning");
-			yield return factory.CreateLiteralCompletionData("error");
-			yield return factory.CreateLiteralCompletionData("pragma");
-			yield return factory.CreateLiteralCompletionData("line");
-			yield return factory.CreateLiteralCompletionData("line hidden");
-			yield return factory.CreateLiteralCompletionData("line default");
-			yield return factory.CreateLiteralCompletionData("region");
-			yield return factory.CreateLiteralCompletionData("endregion");
-		}
-
-		#endregion
-
 		#region Xml Comments
 
 		static readonly List<string> commentTags = new List<string>(new string[] {
@@ -3655,82 +3798,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 
 		#endregion
 
-		#region Keywords
 
-		static string[] expressionLevelKeywords = new string [] {
-			"as",
-			"is",
-			"else",
-			"out",
-			"ref",
-			"null",
-			"delegate",
-			"default"
-		};
-		static string[] primitiveTypesKeywords = new string [] {
-			"void",
-			"object",
-			"bool",
-			"byte",
-			"sbyte",
-			"char",
-			"short",
-			"int",
-			"long",
-			"ushort",
-			"uint",
-			"ulong",
-			"float",
-			"double",
-			"decimal",
-			"string"
-		};
-		static string[] statementStartKeywords = new string [] { "base", "new", "sizeof", "this", 
-			"true", "false", "typeof", "checked", "unchecked", "from", "break", "checked",
-			"unchecked", "const", "continue", "do", "finally", "fixed", "for", "foreach",
-			"goto", "if", "lock", "return", "stackalloc", "switch", "throw", "try", "unsafe", 
-			"using", "while", "yield",
-			"catch"
-		};
-		static string[] globalLevelKeywords = new string [] {
-			"namespace", "using", "extern", "public", "internal", 
-			"class", "interface", "struct", "enum", "delegate",
-			"abstract", "sealed", "static", "unsafe", "partial"
-		};
-		static string[] accessorModifierKeywords = new string [] {
-			"public", "internal", "protected", "private", "async"
-		};
-		static string[] typeLevelKeywords = new string [] {
-			"public", "internal", "protected", "private", "async",
-			"class", "interface", "struct", "enum", "delegate",
-			"abstract", "sealed", "static", "unsafe", "partial",
-			"const", "event", "extern", "fixed", "new", 
-			"operator", "explicit", "implicit", 
-			"override", "readonly", "virtual", "volatile"
-		};
-		static string[] linqKeywords = new string[] {
-			"from",
-			"where",
-			"select",
-			"group",
-			"into",
-			"orderby",
-			"join",
-			"let",
-			"in",
-			"on",
-			"equals",
-			"by",
-			"ascending",
-			"descending"
-		};
-		static string[] parameterTypePredecessorKeywords = new string[] {
-			"out",
-			"ref",
-			"params"
-		};
-
-		#endregion
 */
 	}
 

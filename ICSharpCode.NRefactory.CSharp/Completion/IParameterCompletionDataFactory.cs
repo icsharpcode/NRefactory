@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public interface IParameterCompletionDataFactory
 	{
