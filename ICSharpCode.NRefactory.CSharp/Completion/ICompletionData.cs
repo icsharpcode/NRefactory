@@ -1,5 +1,5 @@
 // 
-// IVariableCompletionData.cs
+// ICompletionData.cs
 //  
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,15 +24,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
+using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.Completion
+namespace ICSharpCode.NRefactory.CSharp.Completion
 {
-	public interface IVariableCompletionData : ICompletionData
+	public interface ICompletionData
 	{
-		IVariable Variable {
+		CompletionCategory CompletionCategory { get; set; }
+		
+		string DisplayText { get; set; }
+
+		string Description { get; set; }
+		
+		string CompletionText { get; set; }
+		
+		DisplayFlags DisplayFlags { get; set; }
+		
+		bool HasOverloads { 
 			get;
 		}
+		
+		IEnumerable<ICompletionData> OverloadedData {
+			get;
+		}
+		
+		void AddOverload (ICompletionData data);
 	}
 }
-

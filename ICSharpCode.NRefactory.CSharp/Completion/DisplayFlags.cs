@@ -1,5 +1,5 @@
 // 
-// IEntityCompletionData.cs
+// DisplayFlags.cs
 //  
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,14 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.Completion
+namespace ICSharpCode.NRefactory.CSharp.Completion
 {
-	public interface IEntityCompletionData : ICompletionData
+	[Flags]
+	public enum DisplayFlags
 	{
-		IEntity Entity {
-			get;
-		}
+		None = 0,
+		Hidden = 1,
+		Obsolete = 2,
+		DescriptionHasMarkup = 4,
+		NamedArgument = 8,
+		IsImportCompletion = 16,
+		MarkedBold = 32
 	}
 }
+

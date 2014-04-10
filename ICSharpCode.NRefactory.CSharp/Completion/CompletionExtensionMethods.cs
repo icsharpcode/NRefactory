@@ -24,10 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 
-namespace ICSharpCode.NRefactory.Completion
+namespace ICSharpCode.NRefactory.CSharp.Completion
 {
 	public static class CompletionExtensionMethods
 	{
@@ -40,15 +40,15 @@ namespace ICSharpCode.NRefactory.Completion
 		/// <param name='entity'>
 		/// Entity.
 		/// </param>
-		public static System.ComponentModel.EditorBrowsableState GetEditorBrowsableState(this IEntity entity)
+		public static System.ComponentModel.EditorBrowsableState GetEditorBrowsableState(this ISymbol symbol)
 		{
-			if (entity == null)
-				throw new ArgumentNullException ("entity");
-
-			var browsableState = entity.Attributes.FirstOrDefault(attr => attr.AttributeType.Name == "EditorBrowsableAttribute" && attr.AttributeType.Namespace == "System.ComponentModel");
-			if (browsableState != null && browsableState.PositionalArguments.Count == 1) {
+			if (symbol == null)
+				throw new ArgumentNullException ("symbol");
+			AttributeData d;
+			var browsableState = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "EditorBrowsableAttribute" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.ComponentModel");
+			if (browsableState != null && browsableState.ConstructorArguments.Length == 1) {
 				try {
-					return (System.ComponentModel.EditorBrowsableState)browsableState.PositionalArguments [0].ConstantValue;
+					return (System.ComponentModel.EditorBrowsableState)browsableState.ConstructorArguments [0].Value;
 				} catch (Exception) {}
 			}
 			return System.ComponentModel.EditorBrowsableState.Always;
@@ -64,9 +64,9 @@ namespace ICSharpCode.NRefactory.Completion
 		/// <param name='entity'>
 		/// The entity.
 		/// </param>
-		public static bool IsBrowsable(this IEntity entity)
+		public static bool IsBrowsable(this ISymbol symbol)
 		{
-			return GetEditorBrowsableState (entity) != System.ComponentModel.EditorBrowsableState.Never;
+			return GetEditorBrowsableState (symbol) != System.ComponentModel.EditorBrowsableState.Never;
 		}
 	}
 }

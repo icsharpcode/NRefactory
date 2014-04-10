@@ -37,6 +37,15 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 	public class RoslynInspectionActionTestBase 
 	{
 		static MetadataReference mscorlib = new MetadataFileReference (typeof(Console).Assembly.Location);
+		static MetadataReference systemAssembly = new MetadataFileReference (typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
+		static MetadataReference systemXmlLinq = new MetadataFileReference (typeof(System.Xml.Linq.XElement).Assembly.Location);
+		static MetadataReference systemCore = new MetadataFileReference (typeof(Enumerable).Assembly.Location);
+		internal static MetadataReference[] DefaultMetadataReferences = new MetadataReference[] {
+			mscorlib,
+			systemAssembly,
+			systemCore,
+			systemXmlLinq
+		};
 
 		public static string GetUniqueName()
 		{
@@ -73,7 +82,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			{
 				refs.AddRange(references);
 			}
-			refs.Add(mscorlib);
+
+			refs.AddRange(DefaultMetadataReferences);
+
 			return CreateCompilation(source, refs, compOptions, assemblyName);
 		}
 

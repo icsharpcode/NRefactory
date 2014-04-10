@@ -25,14 +25,7 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.CSharp.Completion;
-using ICSharpCode.NRefactory.Completion;
-using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Editor;
 using System.Diagnostics;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
@@ -55,6 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 				Console.WriteLine (o);
 			}
 		}
+
 		TestListener listener = new TestListener ();
 		
 		[TestFixtureSetUp]

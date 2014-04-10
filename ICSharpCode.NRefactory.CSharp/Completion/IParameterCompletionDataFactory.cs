@@ -23,32 +23,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Completion;
-using ICSharpCode.NRefactory.CSharp.Resolver;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory.CSharp.Completion
 {
 	public interface IParameterCompletionDataFactory
 	{
-		IParameterDataProvider CreateConstructorProvider (int startOffset, IType type);
+		IParameterDataProvider CreateConstructorProvider (int startOffset, ITypeSymbol type);
 
 		/// <summary>
 		/// Creates a constructor provider skipping the parent of thisInitializer.
 		/// </summary>
-		IParameterDataProvider CreateConstructorProvider (int startOffset, IType type, AstNode thisInitializer);
+		IParameterDataProvider CreateConstructorProvider (int startOffset, ITypeSymbol type, SyntaxNode thisInitializer);
 
-		IParameterDataProvider CreateMethodDataProvider (int startOffset, IEnumerable<IMethod> methods);
+		IParameterDataProvider CreateMethodDataProvider (int startOffset, IEnumerable<IMethodSymbol> methods);
 
-		IParameterDataProvider CreateDelegateDataProvider (int startOffset, IType type);
+		IParameterDataProvider CreateDelegateDataProvider (int startOffset, ITypeSymbol type);
 		
-		IParameterDataProvider CreateIndexerParameterDataProvider (int startOffset, IType type, IEnumerable<IProperty> accessibleIndexers, AstNode resolvedNode);
+		IParameterDataProvider CreateIndexerParameterDataProvider (int startOffset, ITypeSymbol type, IEnumerable<IPropertySymbol> accessibleIndexers, SyntaxNode resolvedNode);
 		
-		IParameterDataProvider CreateTypeParameterDataProvider (int startOffset, IEnumerable<IType> types);
+		IParameterDataProvider CreateTypeParameterDataProvider (int startOffset, IEnumerable<ITypeSymbol> types);
 
-		IParameterDataProvider CreateTypeParameterDataProvider (int startOffset, IEnumerable<IMethod> methods);
+		IParameterDataProvider CreateTypeParameterDataProvider (int startOffset, IEnumerable<IMethodSymbol> methods);
 	}
 	
 }

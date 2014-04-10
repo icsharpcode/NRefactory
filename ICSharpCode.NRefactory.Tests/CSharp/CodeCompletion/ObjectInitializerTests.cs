@@ -66,26 +66,7 @@ class MyTest
 				Assert.IsNotNull (provider.Find ("Create"), "method 'Create' not found.");
 			});
 		}
-		
-		/// <summary>
-		/// Bug 432727 - No completion if no constructor
-		/// </summary>
-		[Test()]
-		public void TestArrayInitializerParameterContext ()
-		{
-			var provider = ParameterCompletionTests.CreateProvider (
-@"using System;
 
-class MyTest
-{
-	public void Test ()
-	{
-		$new [] { Tuple.Create($
-	}
-}");
-			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.Greater (provider.Count, 1);
-		}
 		
 		/// <summary>
 		/// Bug 487236 - Object initializer completion uses wrong type

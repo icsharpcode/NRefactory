@@ -25,9 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Completion;
 using System.Linq;
-
+using ICSharpCode.NRefactory.CSharp.Completion;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 {
@@ -58,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 		
 		public ICompletionData Find (string name, bool includeImportData = false)
 		{
-			return Data.FirstOrDefault (d => (!(d is CodeCompletionBugTests.TestFactory.ImportCompletionData) || includeImportData) && d.DisplayText == name);
+			return Data.FirstOrDefault (d => /*(!(d is CodeCompletionBugTests.TestFactory.ImportCompletionData) || includeImportData) &&*/ d.DisplayText == name);
 		}
 	}
 }

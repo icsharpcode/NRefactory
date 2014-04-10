@@ -26,8 +26,6 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Completion;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
 using System.Text;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeCompletion

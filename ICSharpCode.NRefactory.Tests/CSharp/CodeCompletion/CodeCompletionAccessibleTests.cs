@@ -78,7 +78,7 @@ public class TestClass
 	private static int PrivStaticProperty { get; set; }
 	private static void PrivStaticMethod () { }
 ";
-		[Test()]
+		[Test]
 		public void TestDerivedClassGeneralAccess ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest(testClass + @"}
@@ -127,7 +127,7 @@ class Test : TestClass {
 			});
 		}
 	
-		[Test()]
+		[Test]
 		public void TestDerivedClassMemberReferenceAccess ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest(testClass + @"}
@@ -178,7 +178,7 @@ class Test : TestClass {
 	
 
 
-		[Test()]
+		[Test]
 		public void TestNonStaticClassAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
@@ -204,7 +204,7 @@ class Test : TestClass {
 			Assert.IsNotNull (provider.Find ("PrivMethod"));
 		}
 		
-		[Test()]
+		[Test]
 		public void TestInternalAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
@@ -229,7 +229,7 @@ class Test : TestClass {
 			Assert.IsNotNull (provider.Find ("ProtOrInternalMethod"));
 		}
 		
-		[Test()]
+		[Test]
 		public void TestInternalAccessOutside ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
@@ -253,7 +253,7 @@ class Test2 {
 			Assert.IsNotNull (provider.Find ("ProtOrInternalMethod"), "ProtOrInternalMethod == null");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestStaticClassAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
@@ -279,7 +279,7 @@ class Test2 {
 			Assert.IsNotNull (provider.Find ("PrivStaticMethod"));
 		}
 		
-		[Test()]
+		[Test]
 		public void TestExternalNonStaticClassAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
@@ -299,7 +299,7 @@ class AClass {
 			Assert.IsNotNull (provider.Find ("PubMethod"));
 		}
 		
-		[Test()]
+		[Test]
 		public void TestExternalStaticClassAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
@@ -318,7 +318,7 @@ class AClass {
 			Assert.IsNotNull (provider.Find ("PubStaticMethod"));
 		}
 		
-		[Test()]
+		[Test]
 		public void TestExternalNonStaticSubclassAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
@@ -340,7 +340,7 @@ class AClass : TestClass {
 			Assert.IsNotNull (provider.Find ("ProtMethod"));
 		}
 
-		[Test()]
+		[Test]
 		public void TestThisProtectedMemberAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -363,7 +363,7 @@ class Test2 : Test
 			Assert.IsNotNull (provider.Find ("Test"), "method 'Test' not found.");
 		}
 
-		[Test()]
+		[Test]
 		public void TestBasePrivateMemberAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -383,7 +383,7 @@ class Test : TestClass
 			Assert.IsNull (provider.Find ("PrivMethod"), "method 'PrivMethod' found, but shouldn't.");
 			
 		}
-		[Test()]
+		[Test]
 		public void TestBaseProtectedMemberAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -405,7 +405,7 @@ class Test2 : Test
 			Assert.IsNotNull (provider, "provider == null");
 			Assert.IsNotNull (provider.Find ("Test"), "method 'Test' not found.");
 		}
-		[Test()]
+		[Test]
 		public void TestBasePublicMemberAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -424,7 +424,7 @@ class Test : TestClass
 			Assert.IsNotNull (provider.Find ("PubMethod"), "method 'PubMethod' not found.");
 			
 		}
-		[Test()]
+		[Test]
 		public void TestProtectedMemberAccess2 ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -447,7 +447,7 @@ class Test2
 			Assert.IsNull (provider.Find ("Test"), "method 'Test' found, but shouldn't.");
 		}
 
-		[Test()]
+		[Test]
 		public void TestGenericParameter ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -461,7 +461,7 @@ class Foo<T>
 			Assert.IsNotNull (provider.Find ("T"), "generic parameter 'T' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestUnclosedMember ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -481,7 +481,7 @@ class C
 		}
 		
 		
-		[Test()]
+		[Test]
 		public void TestUnclosedMember2 ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -511,7 +511,7 @@ namespace ConsoleTest
 			Assert.IsNotNull (provider.Find ("MainClass"), "class 'MainClass' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestGenericParameterB ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -529,7 +529,7 @@ class Foo<T>
 			Assert.IsNotNull (provider.Find ("TValue"), "generic parameter 'TValue' found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestGenericParameterC ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -547,7 +547,7 @@ class Foo<T>
 			Assert.IsNotNull (provider.Find ("TValue"), "generic parameter 'TValue' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestInheritedInnerClasses ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -570,7 +570,7 @@ public class C : A
 			Assert.IsNotNull (provider.Find ("MethodB"), "method 'MethodB' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestNamespaceAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -594,7 +594,7 @@ namespace Foo {
 			Assert.IsNotNull (provider.Find ("B"), "class 'B' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestNamespaceAccess2 ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -621,7 +621,7 @@ namespace FooBar {
 		}
 		
 		
-		[Test()]
+		[Test]
 		public void TestNamespaceAccess3 ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -649,7 +649,7 @@ namespace A {
 			Assert.IsNull (provider.Find ("TestNS"), "namespace 'TestNS' found, but shouldn't");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestNamespaceAccess4 ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -676,7 +676,7 @@ namespace SomeTest {
 			Assert.IsNotNull (provider.Find ("TestNS"), "namespace 'TestNS' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestHideClassesWithPrivateConstructor ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -706,7 +706,7 @@ class Example
 			Assert.IsNull (provider.Find ("TestClass"), "class 'TestClass' found, but shouldn't.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestAttributePropertyAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -735,7 +735,7 @@ public class Program
 			Assert.IsNotNull (provider.Find ("MyStringProperty"), "property 'MyStringProperty' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestInnerClassEnumAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -758,7 +758,7 @@ public class TestInnerEnum
 			Assert.IsNotNull (provider.Find ("C"), "field 'C' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestInnerClassPrivateOuterMembersAccess ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -782,7 +782,7 @@ public class TestClass
 			Assert.IsNotNull (provider.Find ("TestMethod"), "method 'TestMethod' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestExplicitGenericMethodParameter ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -807,7 +807,7 @@ public class Test
 			Assert.IsNotNull (provider.Find ("TestMethod"), "method 'TestMethod' not found");
 		}
 
-		[Test()]
+		[Test]
 		public void TestImplicitGenericMethodParameter ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -832,7 +832,7 @@ public class Test
 			Assert.IsNotNull (provider.Find ("TestMethod"), "method 'TestMethod' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestImplicitGenericMethodParameterComplex ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -867,7 +867,7 @@ class Test
 			Assert.IsNotNull (provider.Find ("TestMethod"), "method 'TestMethod' not found");
 		}
 
-		[Test()]
+		[Test]
 		public void TestImplicitGenericArrayMethodParameter ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -893,7 +893,7 @@ public class Test
 			Assert.IsNotNull (provider.Find ("TestMethod"), "method 'TestMethod' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestExplicitResolving ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -930,7 +930,7 @@ class TestClass
 			Assert.IsNotNull (provider.Find ("TestMethod"), "method 'TestMethod' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestAlias ()
 			
 		{
@@ -973,7 +973,7 @@ namespace X
 			Assert.IsNotNull (provider.Find ("MyMethod"), "method 'MyMethod' not found");			
 		}
 
-		[Test()]
+		[Test]
 		public void TestEnumInnerClass ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -1007,7 +1007,7 @@ namespace CaptainHook.Mail
 			Assert.IsNotNull (provider.Find ("ParsingState"), "class 'ParsingState' not found");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestInheritableTypeContext ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -1025,7 +1025,7 @@ $class Test2 : Test.$
 			Assert.IsNull (provider.Find ("Foo"), "method 'Foo' found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestInheritableTypeContextCase2 ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -1048,7 +1048,7 @@ namespace A {
 		}
 		
 		
-		[Test()]
+		[Test]
 		public void TestInheritableTypeWhereContext ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -1066,7 +1066,7 @@ $class Test2<T> where T : Test.$
 			Assert.IsNull (provider.Find ("Foo"), "method 'Foo' found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestEnumAssignment ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -1087,7 +1087,7 @@ class TestClass
 			Assert.IsNotNull (provider.Find ("TestEnum.C"), "enum 'TestEnum.C' not found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestEnumAssignmentCase2 ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -1109,7 +1109,7 @@ class TestClass
 			Assert.IsNotNull (provider.Find ("TestEnum.C"), "enum 'TestEnum.C' not found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestEnumAsParameter ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -1171,7 +1171,7 @@ class Test
 		}
 
 
-		[Test()]
+		[Test]
 		public void TestEnumAsParameterCase2 ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -1193,7 +1193,7 @@ class TestClass
 			Assert.IsNotNull (provider.Find ("TestEnum.C"), "enum 'TestEnum.C' not found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestInnerEnums ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
@@ -1219,7 +1219,7 @@ class TestClass
 			Assert.IsNotNull (provider.Find ("InnerEnumTest.TestEnum.C"), "enum 'InnerEnumTest.TestEnum.C' not found.");
 		}
 
-		[Test()]
+		[Test]
 		public void TestEnumInBinaryOperatorExpression ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest (
@@ -1241,7 +1241,7 @@ $TestEnum test = TestEnum.A | T$
 			});
 		}
 		
-		[Test()]
+		[Test]
 		public void TestEnumComparison ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider(
@@ -1265,7 +1265,7 @@ class TestClass
 		}
 
 		
-		[Test()]
+		[Test]
 		public void TestEnumComparisonCase2 ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider(
@@ -1288,7 +1288,7 @@ class TestClass
 			Assert.IsNotNull (provider.Find ("TestEnum.C"), "enum 'TestEnum.C' not found.");
 		}
 
-		[Test()]
+		[Test]
 		public void TestPrimimitiveTypeCompletionString ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
@@ -1307,7 +1307,7 @@ class Test
 		}
 		
 		
-		[Test()]
+		[Test]
 		public void TestUsingContext ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (@"$using System.$");
@@ -1315,7 +1315,7 @@ class Test
 			Assert.IsNotNull (provider.Find ("IO"), "namespace 'IO' not found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestNamedArgumentContext1 ()
 		{
 			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (@"
@@ -1333,7 +1333,7 @@ public static void Query(MySqlConnection conn, string database, string table)
 			Assert.IsNotNull (provider, "provider == null");
 			Assert.IsNotNull (provider.Find ("WriteLine"), "method 'WriteLine' not found.");
 		}
-		[Test()]
+		[Test]
 		public void TestAttributeContextClass ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"
@@ -1347,7 +1347,7 @@ class Test {
 			Assert.IsNotNull (provider.Find ("Serializable"), "attribute 'Serializable' not found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestAttributeContextInNamespace ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"
@@ -1364,7 +1364,7 @@ namespace Test {
 			Assert.IsNotNull (provider.Find ("Serializable"), "attribute 'Serializable' not found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestAttributeContextMember ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"
@@ -1378,7 +1378,7 @@ class Test {
 			Assert.IsNotNull (provider.Find ("Serializable"), "attribute 'Serializable' not found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestAttributeInNonAttributeContext ()
 		{
 			var provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (@"
@@ -1392,7 +1392,7 @@ $$
 		}
 		
 		// 'from' in comment activates linq context
-		[Test()]
+		[Test]
 		public void TestBreakingComment ()
 		{
 			var provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (@"
@@ -1405,7 +1405,7 @@ $$
 			Assert.IsNotNull (provider.Find ("Test"), "class 'Test' not found.");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestAttributeContextParameterCompletion ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$[Obsolete(System.$");
@@ -1417,7 +1417,7 @@ $$
 		/// <summary>
 		/// Bug 3320 - Constants accessed by class name do not show in completion list
 		/// </summary>
-		[Test()]
+		[Test]
 		public void TestBug3320 ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest (@"
@@ -1434,7 +1434,7 @@ public class Foo
 			});
 		}
 
-		[Test()]
+		[Test]
 		public void TestImplicitShadowing ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest (@"
@@ -1469,7 +1469,7 @@ using System;
 			});
 		}
 
-		[Test()]
+		[Test]
 		public void TestOverrideFiltering ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest (@"
@@ -1513,7 +1513,7 @@ namespace ConsoleApplication2
 		/// <summary>
 		/// Bug 5648 - Types are displayed even when cannot be used 
 		/// </summary>
-		[Test()]
+		[Test]
 		public void TestBug5648 ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest (@"
@@ -1532,7 +1532,7 @@ namespace N
 			});
 		}
 
-		[Test()]
+		[Test]
 		public void CheckInstanceMembersAreHiddenInStaticMethod ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest (@"

@@ -104,6 +104,7 @@
     <Reference Include="Microsoft.CodeAnalysis.CSharp">
       <HintPath>..\..\roslyn\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory\Properties\GlobalAssemblyInfo.cs">
@@ -112,6 +113,23 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyStatementIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RoslynInspectionActionTestBase.cs" />
+    <Compile Include="CSharp\CodeCompletion\CodeCompletionAccessibleTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\CodeCompletionBugTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\CodeCompletionCSharp3Tests.cs" />
+    <Compile Include="CSharp\CodeCompletion\CodeCompletionCSharpTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\CodeCompletionOperatorTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\CompletionDataList.cs" />
+    <Compile Include="CSharp\CodeCompletion\DelegateContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\DocumentationContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\EnumContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\FormatItemTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\KeywordTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NameContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\ObjectInitializerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PreProcessorTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\TestBase.cs" />
+    <Compile Include="CSharp\CodeCompletion\VariableDeclarationStatementTests.cs" />
+    <Compile Include="CSharp\TestWorkspaceFeatures.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -130,5 +148,15 @@
       <Project>{2A705FC6-1A9E-4941-9E47-254D79F2D9D5}</Project>
       <Name>ICSharpCode.NRefactory.CSharp.Refactoring</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ICSharpCode.NRefactory.CSharp\ICSharpCode.NRefactory.CSharp.csproj">
+      <Project>{53DCA265-3C3C-42F9-B647-F72BA678122B}</Project>
+      <Name>ICSharpCode.NRefactory.CSharp</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CSharp\CodeCompletion\GetCurrentParameterIndexTests.cs" />
+    <None Include="CSharp\CodeCompletion\ImportCompletionTests.cs" />
+    <None Include="CSharp\CodeCompletion\ParameterCompletionTests.cs" />
+    <None Include="CSharp\CodeCompletion\BrowsableAttributeTests.cs" />
   </ItemGroup>
 </Project>

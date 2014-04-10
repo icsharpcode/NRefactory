@@ -31,21 +31,18 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using ICSharpCode.NRefactory.Completion;
 using ICSharpCode.NRefactory.CSharp.Completion;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
+using ICSharpCode.NRefactory.CSharp.CodeIssues;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 {
 	[TestFixture]
 	public class CodeCompletionBugTests : TestBase
 	{
-
 		public static CompletionDataList CreateProvider (string text)
 		{
 			return CreateProvider (text, false);
@@ -67,21 +64,9 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 			act (provider);
 		}
 		
-		public class TestFactory
-		: ICompletionDataFactory
+		public class TestFactory : ICompletionDataFactory
 		{
-//			readonly CSharpResolver state;
-			readonly TypeSystemAstBuilder builder;
-
-			public TestFactory(CSharpResolver state)
-			{
-//				this.state = state;
-				builder = new TypeSystemAstBuilder(state);
-				builder.ConvertUnboundTypeArguments = true;
-			}
-
-			public class CompletionData
-			: ICompletionData
+			public class CompletionData : ICompletionData
 			{
 				#region ICompletionData implementation
 				public void AddOverload (ICompletionData data)
@@ -131,7 +116,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 					}
 				}
 				#endregion
-				
+
 				public CompletionData (string text)
 				{
 					DisplayText = CompletionText = Description = text;
@@ -150,190 +135,72 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 					this.DeclarationBegin = declarationBegin;
 				}
 			}
-
-			public class EntityCompletionData : CompletionData, IEntityCompletionData
-			{
-				#region IEntityCompletionData implementation
-
-				public IEntity Entity {
-					get;
-					private set;
-				}
-
-				#endregion
-
-				public EntityCompletionData(IEntity entity) : this(entity, entity.Name)
-				{
-				}
-
-				public EntityCompletionData(IEntity entity, string txt) : base(txt)
-				{
-					this.Entity = entity;
-				}
-			}
-
-			public class ImportCompletionData : CompletionData
-			{
-				public IType Type {
-					get;
-					private set;
-				}
-
-				public bool UseFullName {
-					get;
-					private set;
-				}
-
-				public ImportCompletionData(IType type, bool useFullName) : base (type.Name)
-				{
-					this.Type = type;
-					this.UseFullName = useFullName;
-				}
-			}
-
 			#region ICompletionDataFactory implementation
-			public ICompletionData CreateEntityCompletionData (IEntity entity)
+			IEnumerable<ICompletionData> ICompletionDataFactory.CreateCodeTemplateCompletionData()
 			{
-				return new EntityCompletionData (entity);
+				throw new NotImplementedException();
+			}
+			IEnumerable<ICompletionData> ICompletionDataFactory.CreatePreProcessorDefinesCompletionData()
+			{
+				throw new NotImplementedException();
+			}
+			ICompletionData ICompletionDataFactory.CreateFormatItemCompletionData(string format, string description, object example)
+			{
+				throw new NotImplementedException();
+			}
+			ICompletionData ICompletionDataFactory.CreateXmlDocCompletionData(string tag, string description, string tagInsertionText)
+			{
+				throw new NotImplementedException();
 			}
 
-			public ICompletionData CreateEntityCompletionData (IEntity entity, string text)
+			class SymbolCompletionData : CompletionData, ISymbolCompletionData
 			{
-				return new CompletionData (text);
-			}
+				readonly ISymbol symbol;
 
-			public ICompletionData CreateTypeCompletionData (IType type, bool fullName, bool isInAttributeContext, bool addForTypeCreation)
-			{
-				string name = fullName ? builder.ConvertType(type).ToString() : type.Name; 
-				if (isInAttributeContext && name.EndsWith("Attribute", StringComparison.Ordinal) && name.Length > "Attribute".Length) {
-					name = name.Substring(0, name.Length - "Attribute".Length);
+				ISymbol ISymbolCompletionData.Symbol {
+					get {
+						return symbol;
+					}
 				}
-				return new CompletionData (name);
+
+				public SymbolCompletionData(ISymbol symbol) : base (symbol.Name)
+				{
+					this.symbol = symbol;
+				}
 			}
 
-			public ICompletionData CreateMemberCompletionData(IType type, IEntity member)
+			ISymbolCompletionData ICompletionDataFactory.CreateSymbolCompletionData(ISymbol symbol)
 			{
-				string name = builder.ConvertType(type).ToString(); 
-				return new EntityCompletionData (member, name + "."+ member.Name);
-			}
-
-
-			public ICompletionData CreateLiteralCompletionData (string title, string description = null, string insertText = null)
-			{
-				return new CompletionData (title);
-			}
-
-			public ICompletionData CreateXmlDocCompletionData (string title, string description = null, string insertText = null)
-			{
-				return new CompletionData (title);
-			}
-
-			public ICompletionData CreateNamespaceCompletionData (INamespace ns)
-			{
-				return new CompletionData (ns.Name);
-			}
-
-			public ICompletionData CreateVariableCompletionData (IVariable variable)
-			{
-				return new CompletionData (variable.Name);
-			}
-
-			public ICompletionData CreateVariableCompletionData (ITypeParameter parameter)
-			{
-				return new CompletionData (parameter.Name);
-			}
-
-			public ICompletionData CreateEventCreationCompletionData (string varName, IType delegateType, IEvent evt, string parameterDefinition, IUnresolvedMember currentMember, IUnresolvedTypeDefinition currentType)
-			{
-				return new CompletionData (varName);
-			}
-
-			public ICompletionData CreateNewOverrideCompletionData (int declarationBegin, IUnresolvedTypeDefinition type, IMember m)
-			{
-				return new OverrideCompletionData (m.Name, declarationBegin);
-			}
-			
-			public ICompletionData CreateNewPartialCompletionData (int declarationBegin, IUnresolvedTypeDefinition type, IUnresolvedMember m)
-			{
-				return new OverrideCompletionData (m.Name, declarationBegin);
-			}
-
-			public ICompletionData CreateImportCompletionData(IType type, bool useFullName, bool addForTypeCreation)
-			{
-				return new ImportCompletionData (type, useFullName);
-			}
-
-			public IEnumerable<ICompletionData> CreateCodeTemplateCompletionData ()
-			{
-				return Enumerable.Empty<ICompletionData> ();
-			}
-
-			public ICompletionData CreateFormatItemCompletionData(string format, string description, object example)
-			{
-				return new CompletionData (format + " - " + description +":" + example);
-			}
-
-			public IEnumerable<ICompletionData> CreatePreProcessorDefinesCompletionData ()
-			{
-				yield return new CompletionData ("DEBUG");
-				yield return new CompletionData ("TEST");
+				return new SymbolCompletionData(symbol);
 			}
 			#endregion
 		}
-		
-		static readonly Lazy<IUnresolvedAssembly> systemAssembly = new Lazy<IUnresolvedAssembly>(
-			delegate {
-			var loader = new CecilLoader();
-			loader.IncludeInternalMembers = true;
-			return loader.LoadAssemblyFile(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
-		});
-		static readonly Lazy<IUnresolvedAssembly> systemXmlLinq = new Lazy<IUnresolvedAssembly>(
-			delegate {
-			var loader = new CecilLoader();
-			loader.IncludeInternalMembers = true;
-			return loader.LoadAssemblyFile(typeof(System.Xml.Linq.XElement).Assembly.Location);
-		});
-
-
-		static readonly Lazy<IUnresolvedAssembly> mscorlib = new Lazy<IUnresolvedAssembly>(
-			delegate {
-			var loader = new CecilLoader();
-			loader.IncludeInternalMembers = true;
-			return loader.LoadAssemblyFile(typeof(object).Assembly.Location);
-		});
-
-		static readonly Lazy<IUnresolvedAssembly> systemCore = new Lazy<IUnresolvedAssembly>(
-			delegate {
-			var loader = new CecilLoader();
-			loader.IncludeInternalMembers = true;
-			return loader.LoadAssemblyFile(typeof(Enumerable).Assembly.Location);
-		});
-
-		public static void CreateCompilation (string parsedText, out IProjectContent pctx, out SyntaxTree syntaxTree, out CSharpUnresolvedFile unresolvedFile, bool expectErrors, params IUnresolvedAssembly[] references)
-		{
-			pctx = new CSharpProjectContent();
-			var refs = new List<IUnresolvedAssembly> { mscorlib.Value, systemCore.Value, systemAssembly.Value, systemXmlLinq.Value };
-			if (references != null)
-				refs.AddRange (references);
-			
-			pctx = pctx.AddAssemblyReferences(refs);
-			
-			syntaxTree = new CSharpParser().Parse(parsedText, "program.cs");
-			syntaxTree.Freeze();
-			if (!expectErrors && syntaxTree.Errors.Count > 0) {
-				Console.WriteLine ("----");
-				Console.WriteLine (parsedText);
-				Console.WriteLine ("----");
-				foreach (var error in syntaxTree.Errors)
-					Console.WriteLine (error.Message);
-				Assert.Fail ("Parse error.");
-			}
-
-			unresolvedFile = syntaxTree.ToTypeSystem();
-			pctx = pctx.AddOrUpdateFiles(unresolvedFile);
-		}
-
-		public static CSharpCompletionEngine CreateEngine(string text, out int cursorPosition, params IUnresolvedAssembly[] references)
+//
+//		public static void CreateCompilation (string parsedText, out IProjectContent pctx, out SyntaxTree syntaxTree, out CSharpUnresolvedFile unresolvedFile, bool expectErrors, params IUnresolvedAssembly[] references)
+//		{
+//			pctx = new CSharpProjectContent();
+//			var refs = new List<IUnresolvedAssembly> { mscorlib.Value, systemCore.Value, systemAssembly.Value, systemXmlLinq.Value };
+//			if (references != null)
+//				refs.AddRange (references);
+//			
+//			pctx = pctx.AddAssemblyReferences(refs);
+//			
+//			syntaxTree = new CSharpParser().Parse(parsedText, "program.cs");
+//			syntaxTree.Freeze();
+//			if (!expectErrors && syntaxTree.Errors.Count > 0) {
+//				Console.WriteLine ("----");
+//				Console.WriteLine (parsedText);
+//				Console.WriteLine ("----");
+//				foreach (var error in syntaxTree.Errors)
+//					Console.WriteLine (error.Message);
+//				Assert.Fail ("Parse error.");
+//			}
+//
+//			unresolvedFile = syntaxTree.ToTypeSystem();
+//			pctx = pctx.AddOrUpdateFiles(unresolvedFile);
+//		}
+//
+		public static CSharpCompletionEngine CreateEngine(string text, out int cursorPosition, out SemanticModel semanticModel, params MetadataReference[] references)
 		{
 			string parsedText;
 			string editorText;
@@ -347,92 +214,138 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 				editorText = text.Substring(0, cursorPosition) + text.Substring(cursorPosition + 1, endPos - cursorPosition - 1) + text.Substring(endPos + 1);
 				cursorPosition = endPos - 1; 
 			}
-			var doc = new ReadOnlyDocument(editorText);
+//			var doc = new ReadOnlyDocument(editorText);
+//
+//			IProjectContent pctx;
+//			SyntaxTree syntaxTree;
+//			CSharpUnresolvedFile unresolvedFile;
+//			CreateCompilation (parsedText, out pctx, out syntaxTree, out unresolvedFile, true, references);
+//			var cmp = pctx.CreateCompilation();
+//
+//			var loc = cursorPosition > 0 ? doc.GetLocation(selectionStart) : new TextLocation (1, 1);
+//
+//			var rctx = new CSharpTypeResolveContext(cmp.MainAssembly);
+//			rctx = rctx.WithUsingScope(unresolvedFile.GetUsingScope(loc).Resolve(cmp));
+//
+//			var curDef = unresolvedFile.GetInnermostTypeDefinition(loc);
+//			if (curDef != null) {
+//				var resolvedDef = curDef.Resolve(rctx).GetDefinition();
+//				rctx = rctx.WithCurrentTypeDefinition(resolvedDef);
+//				var curMember = resolvedDef.Members.FirstOrDefault(m => m.Region.Begin <= loc && loc < m.BodyRegion.End);
+//				if (curMember != null) {
+//					rctx = rctx.WithCurrentMember(curMember);
+//				}
+//			}
+//			var mb = new DefaultCompletionContextProvider(doc, unresolvedFile);
+//			mb.AddSymbol ("TEST");
+//			foreach (var sym in syntaxTree.ConditionalSymbols) {
+//				mb.AddSymbol(sym);
+//			}
 
-			IProjectContent pctx;
-			SyntaxTree syntaxTree;
-			CSharpUnresolvedFile unresolvedFile;
-			CreateCompilation (parsedText, out pctx, out syntaxTree, out unresolvedFile, true, references);
-			var cmp = pctx.CreateCompilation();
+			var workspace = new CustomWorkspace(TestWorkspaceFeatures.Features);
 
-			var loc = cursorPosition > 0 ? doc.GetLocation(selectionStart) : new TextLocation (1, 1);
+			var projectId  = ProjectId.CreateNewId();
+			var solutionId = SolutionId.CreateNewId();
+			var documentId = DocumentId.CreateNewId(projectId);
 
-			var rctx = new CSharpTypeResolveContext(cmp.MainAssembly);
-			rctx = rctx.WithUsingScope(unresolvedFile.GetUsingScope(loc).Resolve(cmp));
-
-			var curDef = unresolvedFile.GetInnermostTypeDefinition(loc);
-			if (curDef != null) {
-				var resolvedDef = curDef.Resolve(rctx).GetDefinition();
-				rctx = rctx.WithCurrentTypeDefinition(resolvedDef);
-				var curMember = resolvedDef.Members.FirstOrDefault(m => m.Region.Begin <= loc && loc < m.BodyRegion.End);
-				if (curMember != null) {
-					rctx = rctx.WithCurrentMember(curMember);
+			workspace.AddSolution(SolutionInfo.Create(
+				solutionId,
+				VersionStamp.Create(),
+				null,
+				new [] {
+					ProjectInfo.Create(
+						projectId,
+						VersionStamp.Create(),
+						"TestProject",
+						"TestProject",
+						LanguageNames.CSharp,
+						null,
+						null,
+						null,
+						null,
+						new [] {
+							DocumentInfo.Create(
+								documentId,
+								"a.cs",
+								null,
+								SourceCodeKind.Regular,
+								TextLoader.From(TextAndVersion.Create(SourceText.From(parsedText), VersionStamp.Create())) 
+							)
+						},
+						null,
+						RoslynInspectionActionTestBase.DefaultMetadataReferences
+					)
 				}
-			}
-			var mb = new DefaultCompletionContextProvider(doc, unresolvedFile);
-			mb.AddSymbol ("TEST");
-			foreach (var sym in syntaxTree.ConditionalSymbols) {
-				mb.AddSymbol(sym);
-			}
-			var engine = new CSharpCompletionEngine(doc, mb, new TestFactory(new CSharpResolver (rctx)), pctx, rctx);
-			engine.AutomaticallyAddImports = true;
-			engine.EolMarker = Environment.NewLine;
-			engine.FormattingPolicy = FormattingOptionsFactory.CreateMono();
+			));
+
+			var engine = new CSharpCompletionEngine(workspace, new TestFactory ());
+
+			var compilation = workspace.CurrentSolution.GetProject(projectId).GetCompilationAsync().Result;
+
+			//			workspace.OpenDocument(documentId); 
+			var tree = workspace.CurrentSolution.GetDocument(documentId).GetSyntaxTreeAsync().Result; 
+			semanticModel = compilation.GetSemanticModel(tree);
+
+
+//			engine.AutomaticallyAddImports = true;
+//			engine.EolMarker = Environment.NewLine;
+//			engine.FormattingPolicy = FormattingOptionsFactory.CreateMono();
 			return engine;
 		}
 		
-		public static CompletionDataList CreateProvider(string text, bool isCtrlSpace, Action<CSharpCompletionEngine> engineCallback, params IUnresolvedAssembly[] references)
+		public static CompletionDataList CreateProvider(string text, bool isCtrlSpace, Action<CSharpCompletionEngine> engineCallback, params MetadataReference[] references)
 		{
 			int cursorPosition;
-			var engine = CreateEngine(text, out cursorPosition, references);
+			SemanticModel semanticModel;
+			var engine = CreateEngine(text, out cursorPosition, out semanticModel, references);
 			if (engineCallback != null)
 				engineCallback(engine);
-			var data = engine.GetCompletionData (cursorPosition, isCtrlSpace);
+			var data = engine.GetCompletionData (semanticModel, cursorPosition);
 
 			return new CompletionDataList {
 				Data = data,
-				AutoCompleteEmptyMatch = engine.AutoCompleteEmptyMatch,
-				AutoSelect = engine.AutoSelect,
-				DefaultCompletionString = engine.DefaultCompletionString
+//				AutoCompleteEmptyMatch = engine.AutoCompleteEmptyMatch,
+//				AutoSelect = engine.AutoSelect,
+//				DefaultCompletionString = engine.DefaultCompletionString
 			};
 		}
-		
-		public static CompletionDataList CreateProvider(string text, bool isCtrlSpace, params IUnresolvedAssembly[] references)
+
+		public static CompletionDataList CreateProvider(string text, bool isCtrlSpace, params MetadataReference[] references)
 		{
 			return CreateProvider(text, isCtrlSpace, null, references);
 		}
 
-		static Tuple<ReadOnlyDocument, CSharpCompletionEngine> GetContent(string text, SyntaxTree syntaxTree)
-		{
-			var doc = new ReadOnlyDocument(text);
-			IProjectContent pctx = new CSharpProjectContent();
-			pctx = pctx.AddAssemblyReferences(new [] { mscorlib.Value, systemAssembly.Value, systemCore.Value, systemXmlLinq.Value });
-			var unresolvedFile = syntaxTree.ToTypeSystem();
-			
-			pctx = pctx.AddOrUpdateFiles(unresolvedFile);
-			var cmp = pctx.CreateCompilation();
-			
-			var mb = new DefaultCompletionContextProvider(doc, unresolvedFile);
-			var engine = new CSharpCompletionEngine (doc, mb, new TestFactory (new CSharpResolver (new CSharpTypeResolveContext (cmp.MainAssembly))), pctx, new CSharpTypeResolveContext (cmp.MainAssembly));
-			engine.EolMarker = Environment.NewLine;
-			engine.FormattingPolicy = FormattingOptionsFactory.CreateMono ();
-			return Tuple.Create (doc, engine);
-		}
-		
-		static CompletionDataList CreateProvider (CSharpCompletionEngine engine, IDocument doc, TextLocation loc)
-		{
-			var cursorPosition = doc.GetOffset (loc);
-			
-			var data = engine.GetCompletionData (cursorPosition, true);
-			
-			return new CompletionDataList {
-				Data = data,
-				AutoCompleteEmptyMatch = engine.AutoCompleteEmptyMatch,
-				AutoSelect = engine.AutoSelect,
-				DefaultCompletionString = engine.DefaultCompletionString
-			};
-		}
-		
+//		static Tuple<ReadOnlyDocument, CSharpCompletionEngine> GetContent(string text, SyntaxTree syntaxTree)
+//		{
+//			var doc = new ReadOnlyDocument(text);
+//			IProjectContent pctx = new CSharpProjectContent();
+//			pctx = pctx.AddAssemblyReferences(new [] { mscorlib.Value, systemAssembly.Value, systemCore.Value, systemXmlLinq.Value });
+//			var unresolvedFile = syntaxTree.ToTypeSystem();
+//			
+//			pctx = pctx.AddOrUpdateFiles(unresolvedFile);
+//			var cmp = pctx.CreateCompilation();
+//			
+//			var mb = new DefaultCompletionContextProvider(doc, unresolvedFile);
+//			var engine = new CSharpCompletionEngine (doc, mb, new TestFactory (new CSharpResolver (new CSharpTypeResolveContext (cmp.MainAssembly))), pctx, new CSharpTypeResolveContext (cmp.MainAssembly));
+//			engine.EolMarker = Environment.NewLine;
+//			engine.FormattingPolicy = FormattingOptionsFactory.CreateMono ();
+//			return Tuple.Create (doc, engine);
+//		}
+//		
+//		static CompletionDataList CreateProvider (CSharpCompletionEngine engine, IDocument doc, TextLocation loc)
+//		{
+//			var cursorPosition = doc.GetOffset (loc);
+//			
+//			var data = engine.GetCompletionData (cursorPosition, true);
+//			
+//			return new CompletionDataList {
+//				Data = data,
+//				AutoCompleteEmptyMatch = engine.AutoCompleteEmptyMatch,
+//				AutoSelect = engine.AutoSelect,
+//				DefaultCompletionString = engine.DefaultCompletionString
+//			};
+//		}
+//		
 		public static void CheckObjectMembers (CompletionDataList provider)
 		{
 			Assert.IsNotNull (provider.Find ("Equals"), "Method 'System.Object.Equals' not found.");
@@ -453,62 +366,62 @@ namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
 			Assert.IsNotNull (provider.Find ("ReferenceEquals"), "Method 'System.Object.ReferenceEquals' not found.");
 		}
 		
-		class TestLocVisitor : DepthFirstAstVisitor
-		{
-			public List<Tuple<TextLocation, string>> Output = new List<Tuple<TextLocation, string>> ();
-			
-			public override void VisitMemberReferenceExpression (MemberReferenceExpression memberReferenceExpression)
-			{
-				Output.Add (Tuple.Create (memberReferenceExpression.MemberNameToken.StartLocation, memberReferenceExpression.MemberName));
-			}
-			
-			public override void VisitIdentifierExpression (IdentifierExpression identifierExpression)
-			{
-				Output.Add (Tuple.Create (identifierExpression.StartLocation, identifierExpression.Identifier));
-			}
-		}
+//		class TestLocVisitor : DepthFirstAstVisitor
+//		{
+//			public List<Tuple<TextLocation, string>> Output = new List<Tuple<TextLocation, string>> ();
+//			
+//			public override void VisitMemberReferenceExpression (MemberReferenceExpression memberReferenceExpression)
+//			{
+//				Output.Add (Tuple.Create (memberReferenceExpression.MemberNameToken.StartLocation, memberReferenceExpression.MemberName));
+//			}
+//			
+//			public override void VisitIdentifierExpression (IdentifierExpression identifierExpression)
+//			{
+//				Output.Add (Tuple.Create (identifierExpression.StartLocation, identifierExpression.Identifier));
+//			}
+//		}
 		
-		[Ignore("TODO")]
-		[Test]
-		public void TestLoadAllTests ()
-		{
-			int found = 0;
-			int missing = 0;
-			int exceptions = 0;
-			int i = 0;
-			foreach (var file in Directory.EnumerateFiles ("/Users/mike/work/mono/mcs/tests", "*.cs")) {
-				if (i++ > 2)
-					break;
-				if (i <= 2)
-					continue;
-				var text = File.ReadAllText (file, Encoding.Default);
-				try {
-					var unit = new CSharpParser ().Parse (text, file);
-					
-					var cnt = GetContent (text, unit);
-					
-					var visitor = new TestLocVisitor ();
-					unit.AcceptVisitor (visitor);
-					foreach (var loc in visitor.Output) {
-						var provider = CreateProvider (cnt.Item2, cnt.Item1, loc.Item1);
-						if (provider.Find (loc.Item2) != null) {
-							found++;
-						} else {
-							missing++;
-						}
-					}
-				} catch (Exception e) {
-					Console.WriteLine ("Exception in:" + file  + "/" + e);
-					exceptions++;
-				}
-			}
-			Console.WriteLine ("Found:" + found);
-			Console.WriteLine ("Missing:" + missing);
-			Console.WriteLine ("Exceptions:" + exceptions);
-			if (missing > 0)
-				Assert.Fail ();
-		}
-			
+//		[Ignore("TODO")]
+//		[Test]
+//		public void TestLoadAllTests ()
+//		{
+//			int found = 0;
+//			int missing = 0;
+//			int exceptions = 0;
+//			int i = 0;
+//			foreach (var file in Directory.EnumerateFiles ("/Users/mike/work/mono/mcs/tests", "*.cs")) {
+//				if (i++ > 2)
+//					break;
+//				if (i <= 2)
+//					continue;
+//				var text = File.ReadAllText (file, Encoding.Default);
+//				try {
+//					var unit = new CSharpParser ().Parse (text, file);
+//					
+//					var cnt = GetContent (text, unit);
+//					
+//					var visitor = new TestLocVisitor ();
+//					unit.AcceptVisitor (visitor);
+//					foreach (var loc in visitor.Output) {
+//						var provider = CreateProvider (cnt.Item2, cnt.Item1, loc.Item1);
+//						if (provider.Find (loc.Item2) != null) {
+//							found++;
+//						} else {
+//							missing++;
+//						}
+//					}
+//				} catch (Exception e) {
+//					Console.WriteLine ("Exception in:" + file  + "/" + e);
+//					exceptions++;
+//				}
+//			}
+//			Console.WriteLine ("Found:" + found);
+//			Console.WriteLine ("Missing:" + missing);
+//			Console.WriteLine ("Exceptions:" + exceptions);
+//			if (missing > 0)
+//				Assert.Fail ();
+//		}
+
 		[Test]
 		public void TestSimpleCodeCompletion ()
 		{
@@ -2218,40 +2131,7 @@ namespace Foo
 		}
 		
 		
-		/// <summary>
-		/// Bug 474199 - Code completion not working for a nested class
-		/// </summary>
-		[Test]
-		public void TestBug474199B ()
-		{
-			var provider = ParameterCompletionTests.CreateProvider (
-@"
-public class InnerTest
-{
-	public class Inner
-	{
-		public Inner(string test)
-		{
-		}
-	}
-}
 
-public class ExtInner : InnerTest
-{
-}
-
-class Test
-{
-	public void TestMethod ()
-	{
-		$new ExtInner.Inner ($
-	}
-}
-");
-			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (1, provider.Count, "There should be one overload");
-			Assert.AreEqual (1, provider.GetParameterCount (0), "Parameter 'test' should exist");
-		}
 		
 		/// <summary>
 		/// Bug 350862 - Autocomplete bug with enums
@@ -5087,26 +4967,7 @@ namespace Test
 			Assert.IsNotNull(provider.Find("test"), "'test' not found.");
 		}
 
-		/// <summary>
-		/// Bug 4290 - Parameter completion exception inserting method with arguments before other methods
-		/// </summary>
-		[Test]
-		public void TestBug4290()
-		{
-			// just test for exception
-			ParameterCompletionTests.CreateProvider (
-@"using System;
-namespace Test
-{
-    class TestClass  
-    {
-        $public static void Foo(string bar,$
-        public static void Main(string[] args)
-        {
-        }
-    }
-}");
-		}
+
 
 		/// <summary>
 		/// Bug 4174 - Intellisense popup after #region (same line) 
@@ -5126,25 +4987,6 @@ $#region S$
 			Assert.IsTrue(provider == null || provider.Count == 0);
 		}
 
-		/// <summary>
-		/// Bug 4323 - Parameter completion exception while attempting to instantiate unknown class
-		/// </summary>
-		[Test]
-		public void TestBug4323()
-		{
-			// just test for exception
-			ParameterCompletionTests.CreateProvider(
-@"namespace Test
-{
-    class TestClass
-    {
-        public static void Main(string[] args)
-        {
-            $object foo = new Foo($
-        }
-    }
-}");
-		}
 
 		[Test]
 		public void TestParameterAttributeContext()

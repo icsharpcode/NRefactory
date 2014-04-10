@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory.Completion
+namespace ICSharpCode.NRefactory.CSharp.Completion
 {
 	/// <summary>
 	/// The framework lookup provides a fast lookup where an unknow type or extension method may be defined in.

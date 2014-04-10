@@ -1285,5 +1285,101 @@ public class MyEventArgs
 			string name = provider.Data.First().FullName;
 			Assert.AreEqual ("System.Exception..ctor", name);
 		}
+
+		/// <summary>
+		/// Bug 474199 - Code completion not working for a nested class
+		/// </summary>
+		[Test]
+		public void TestBug474199B ()
+		{
+			var provider = ParameterCompletionTests.CreateProvider (
+				@"
+public class InnerTest
+{
+	public class Inner
+	{
+		public Inner(string test)
+		{
+		}
+	}
+}
+
+public class ExtInner : InnerTest
+{
+}
+
+class Test
+{
+	public void TestMethod ()
+	{
+		$new ExtInner.Inner ($
+	}
+}
+");
+			Assert.IsNotNull (provider, "provider not found.");
+			Assert.AreEqual (1, provider.Count, "There should be one overload");
+			Assert.AreEqual (1, provider.GetParameterCount (0), "Parameter 'test' should exist");
+		}
+
+		/// <summary>
+		/// Bug 4290 - Parameter completion exception inserting method with arguments before other methods
+		/// </summary>
+		[Test]
+		public void TestBug4290()
+		{
+			// just test for exception
+			ParameterCompletionTests.CreateProvider (
+				@"using System;
+namespace Test
+{
+    class TestClass  
+    {
+        $public static void Foo(string bar,$
+        public static void Main(string[] args)
+        {
+        }
+    }
+}");
+		}
+
+		/// <summary>
+		/// Bug 4323 - Parameter completion exception while attempting to instantiate unknown class
+		/// </summary>
+		[Test]
+		public void TestBug4323()
+		{
+			// just test for exception
+			ParameterCompletionTests.CreateProvider(
+				@"namespace Test
+{
+    class TestClass
+    {
+        public static void Main(string[] args)
+        {
+            $object foo = new Foo($
+        }
+    }
+}");
+		}
+
+		/// <summary>
+		/// Bug 432727 - No completion if no constructor
+		/// </summary>
+		[Test()]
+		public void TestArrayInitializerParameterContext ()
+		{
+			var provider = ParameterCompletionTests.CreateProvider (
+				@"using System;
+
+class MyTest
+{
+	public void Test ()
+	{
+		$new [] { Tuple.Create($
+	}
+}");
+			Assert.IsNotNull (provider, "provider was not created.");
+			Assert.Greater (provider.Count, 1);
+		}
 	}
 }
