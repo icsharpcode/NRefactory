@@ -27,11 +27,13 @@ using System;
 using NUnit.Framework;
 using System.Reflection;
 using System.Text;
+using System.Linq;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using ICSharpCode.NRefactory6.CSharp.CodeIssues;
+using System.Diagnostics;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -74,8 +76,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			protected override void Colorize(TextSpan span, FieldInfo color)
 			{
-				Console.WriteLine ("---------" + color.Name);
-				Console.WriteLine (Environment.StackTrace);
+				if (this.colors.Any (t => t.Item1 == span)) {
+					Assert.Fail("Added 2 identical spans."); 
+				}
 				colors.Add (Tuple.Create (span, color != null ? color.Name : null));
 			}
 
@@ -118,7 +121,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				sb.Append (ch);
 			}
 			var visitor = CreateHighighting (sb.ToString ());
-
 			foreach (var offset in offsets) {
 				var color = visitor.GetColor (offset) ?? "defaultTextColor";
 				Assert.AreEqual (keywordColor.Name, color, "Color at " + offset + " is wrong:" + color);

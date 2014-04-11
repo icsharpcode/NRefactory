@@ -24,6 +24,7 @@ using System.Threading;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
@@ -101,7 +102,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 //			if (identifier.IsNull)
 //				return;
 //			if (rr.IsError) {
-//				Colorize(identifier, syntaxErrorColor);
+//		=		Colorize(identifier, syntaxErrorColor);
 //				return;
 //			}
 //			if (rr is TypeResolveResult) {
@@ -156,7 +157,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		}
 		#endregion
 		
-//		/// <summary>
+//		/// <summary>"var"
 //		/// Visit all children of <c>node</c> until (but excluding) <c>end</c>.
 //		/// If <c>end</c> is a null node, nothing will be visited.
 //		/// </summary>
@@ -186,48 +187,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 //			}
 //		}
 		
-//		public override void VisitIdentifier(Identifier identifier)
-//		{
-//			switch (identifier.Name) {
-//				case "add":
-//				case "async":
-//				case "await":
-//				case "get":
-//				case "partial":
-//				case "remove":
-//				case "set":
-//				case "where":
-//				case "yield":
-//				case "from":
-//				case "select":
-//				case "group":
-//				case "into":
-//				case "orderby":
-//				case "join":
-//				case "let":
-//				case "on":
-//				case "equals":
-//				case "by":
-//				case "ascending":
-//				case "descending":
-//				case "dynamic":
-//				case "var":
-//					// Reset color of contextual keyword to default if it's used as an identifier.
-//					// Note that this method does not get called when 'var' or 'dynamic' is used as a type,
-//					// because types get highlighted with valueTypeColor/referenceTypeColor instead.
-//					Colorize(identifier, defaultTextColor);
-//					break;
-//				case "global":
-//					// Reset color of 'global' keyword to default unless its used as part of 'global::'.
-//					MemberType parentMemberType = identifier.Parent as MemberType;
-//					if (parentMemberType == null || !parentMemberType.IsDoubleColon)
-//						Colorize(identifier, defaultTextColor);
-//					break;
-//			}
-//			// "value" is handled in VisitIdentifierExpression()
-//			// "alias" is handled in VisitExternAliasDeclaration()
-//		}
-		
 		public override void VisitRefTypeExpression(Microsoft.CodeAnalysis.CSharp.Syntax.RefTypeExpressionSyntax node)
 		{
 			base.VisitRefTypeExpression(node);
@@ -236,7 +195,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 //		
 //		public override void VisitMemberType(MemberType memberType)
 //		{
-//			var memberNameToken = memberType.MemberNameToken;
+//			var memberNameToken = mem
+
 //			VisitChildrenUntil(memberType, memberNameToken);
 //			Colorize(memberNameToken, resolver.Resolve(memberType, cancellationToken));
 //			VisitChildrenAfter(memberType, memberNameToken);
@@ -303,26 +263,35 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 //			}
 //
 //		}
-//
+
+		
+		public override void VisitInvocationExpression(InvocationExpressionSyntax node)
+		{
+			var symbolInfo = semanticModel.GetSymbolInfo(node);
+			if (IsInactiveConditional (symbolInfo.Symbol) || IsEmptyPartialMethod(symbolInfo.Symbol)) {
+				// mark the whole invocation statement as inactive code
+				Colorize(node.Span, inactiveCodeColor);
+				return;
+			}
+			
+			ExpressionSyntax fmtArgumets;
+			IList<ExpressionSyntax> args;
+			if (node.ArgumentList.Arguments.Count > 1 && FormatStringHelper.TryGetFormattingParameters(semanticModel, node, out fmtArgumets, out args, null)) {
+				var expr = node.ArgumentList.Arguments.First(); 
+//				if (expr != null)
+//					HighlightStringFormatItems(expr);
+			}
+
+			base.VisitInvocationExpression(node);
+		}
+		
 //		public override void VisitInvocationExpression(InvocationExpression invocationExpression)
 //		{
 //			Expression target = invocationExpression.Target;
 //			if (target is IdentifierExpression || target is MemberReferenceExpression || target is PointerReferenceExpression) {
 //				var invocationRR = resolver.Resolve(invocationExpression, cancellationToken) as CSharpInvocationResolveResult;
 //				if (invocationRR != null) {
-//					if (invocationExpression.Parent is ExpressionStatement && (IsInactiveConditionalMethod(invocationRR.Member) || IsEmptyPartialMethod(invocationRR.Member))) {
-//						// mark the whole invocation statement as inactive code
-//						Colorize(invocationExpression.Parent, inactiveCodeColor);
-//						return;
-//					}
 //
-//					Expression fmtArgumets;
-//					IList<Expression> args;
-//					if (invocationRR.Arguments.Count > 1 && FormatStringHelper.TryGetFormattingParameters(invocationRR, invocationExpression, out fmtArgumets, out args, null)) {
-//						var expr = invocationExpression.Arguments.First() as PrimitiveExpression; 
-//						if (expr != null)
-//							HighlightStringFormatItems(expr);
-//					}
 //				}
 //
 //				VisitChildrenUntil(invocationExpression, target);
@@ -342,237 +311,74 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 //				VisitChildren(invocationExpression);
 //			}
 //		}
+
 //		
 //		#region IsInactiveConditional helper methods
-//		bool IsInactiveConditionalMethod(IParameterizedMember member)
-//		{
-//			if (member.SymbolKind != SymbolKind.Method || member.ReturnType.Kind != TypeKind.Void)
-//				return false;
+		bool IsInactiveConditional(ISymbol member)
+		{
+			if (member == null || member.Kind != SymbolKind.Method)
+				return false;
+			var method = member as IMethodSymbol;
+			if (method.ReturnType.SpecialType != SpecialType.System_Void)
+				return false;
+			
 //			foreach (var baseMember in InheritanceHelper.GetBaseMembers(member, false)) {
 //				if (IsInactiveConditional (baseMember.Attributes))
 //					return true;
 //			}
-//			return IsInactiveConditional(member.Attributes);
-//		}
-//
-//		static bool IsEmptyPartialMethod(IParameterizedMember member)
-//		{
+			return IsInactiveConditional(member.GetAttributes());
+		}
+
+		bool IsInactiveConditional(System.Collections.Immutable.ImmutableArray<AttributeData> attributes)
+		{
+			foreach (var attr in attributes) {
+				Console.WriteLine(attr.AttributeClass.Name);
+				Console.WriteLine(attr.AttributeClass.ContainingNamespace.MetadataName);
+				if (attr.AttributeClass.Name == "Conditional" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.Diagnostics" && attr.ConstructorArguments.Length == 1) {
+					string symbol = attr.ConstructorArguments[0].Value as string;
+					if (symbol != null) {
+						var options = (CSharpParseOptions)semanticModel.SyntaxTree.Options;
+						if (!options.PreprocessorSymbolNames.Contains(symbol))
+							return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		static bool IsEmptyPartialMethod(ISymbol member)
+		{
+			return false;
 //			if (member.SymbolKind != SymbolKind.Method || member.ReturnType.Kind != TypeKind.Void)
 //				return false;
 //			var method = (IMethod)member;
 //			return method.IsPartial && !method.HasBody;
-//		}
-//
+		}
+
 //		bool IsInactiveConditional(INamedTypeSymbol attr)
 //		{
 //			bool hasConditionalAttribute = false;
-//			if (attr.Name == "ConditionalAttribute" && attr.ContainingNamespace.MetadataName == "System.Diagnostics" && attr. == 1) {
-//					string symbol = attr.PositionalArguments[0].ConstantValue as string;
-//					if (symbol != null) {
-//						hasConditionalAttribute = true;
-//						var cu = this.resolver.RootNode as SyntaxTree;
-//						if (cu != null) {
-//							if (cu.ConditionalSymbols.Contains(symbol))
-//								return false; // conditional is active
-//						}
-//					}
-//				}
 //
 //			return hasConditionalAttribute;
 //		}
 //		#endregion
 //		
-//		public override void VisitExternAliasDeclaration (ExternAliasDeclaration externAliasDeclaration)
-//		{
-//			var aliasToken = externAliasDeclaration.AliasToken;
-//			VisitChildrenUntil(externAliasDeclaration, aliasToken);
-//			Colorize (aliasToken, externAliasKeywordColor);
-//			VisitChildrenAfter(externAliasDeclaration, aliasToken);
-//		}
-//		
-//		public override void VisitAccessor(Accessor accessor)
-//		{
-//			isInAccessorContainingValueParameter = accessor.Role != PropertyDeclaration.GetterRole;
-//			try {
-//				VisitChildren(accessor);
-//			} finally {
-//				isInAccessorContainingValueParameter = false;
-//			}
-//		}
-//		
-//		bool CheckInterfaceImplementation (EntityDeclaration entityDeclaration)
-//		{
-//			var result = resolver.Resolve (entityDeclaration, cancellationToken) as MemberResolveResult;
-//			if (result == null)
-//				return false;
-//			if (result.Member.ImplementedInterfaceMembers.Count == 0) {
-//				Colorize (entityDeclaration.NameToken, syntaxErrorColor);
-//				return false;
-//			}
-//			return true;
-//		}
-//		
-//		public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//		{
-//			var nameToken = methodDeclaration.NameToken;
-//			VisitChildrenUntil(methodDeclaration, nameToken);
-//			if (!methodDeclaration.PrivateImplementationType.IsNull) {
-//				if (!CheckInterfaceImplementation (methodDeclaration)) {
-//					VisitChildrenAfter(methodDeclaration, nameToken);
-//					return;
-//				}
-//			}
-//			Colorize(nameToken, methodDeclarationColor);
-//			VisitChildrenAfter(methodDeclaration, nameToken);
-//		}
-//		
-//		public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
-//		{
-//			var nameToken = parameterDeclaration.NameToken;
-//			VisitChildrenUntil(parameterDeclaration, nameToken);
-//			Colorize(nameToken, parameterDeclarationColor);
-//			VisitChildrenAfter(parameterDeclaration, nameToken);
-//		}
-//		
-//		public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
-//		{
-//			var nameToken = eventDeclaration.NameToken;
-//			VisitChildrenUntil(eventDeclaration, nameToken);
-//			Colorize(nameToken, eventDeclarationColor);
-//			VisitChildrenAfter(eventDeclaration, nameToken);
-//		}
-//		
-//		public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-//		{
-//			var nameToken = eventDeclaration.NameToken;
-//			VisitChildrenUntil(eventDeclaration, nameToken);
-//			if (!eventDeclaration.PrivateImplementationType.IsNull) {
-//				if (!CheckInterfaceImplementation (eventDeclaration)) {
-//					VisitChildrenAfter(eventDeclaration, nameToken);
-//					return;
-//				}
-//			}
-//			Colorize(nameToken, eventDeclarationColor);
-//			VisitChildrenAfter(eventDeclaration, nameToken);
-//		}
-//		
-//		public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-//		{
-//			var nameToken = propertyDeclaration.NameToken;
-//			VisitChildrenUntil(propertyDeclaration, nameToken);
-//			if (!propertyDeclaration.PrivateImplementationType.IsNull) {
-//				if (!CheckInterfaceImplementation (propertyDeclaration)) {
-//					VisitChildrenAfter(propertyDeclaration, nameToken);
-//					return;
-//				}
-//			}
-//			Colorize(nameToken, propertyDeclarationColor);
-//			VisitChildrenAfter(propertyDeclaration, nameToken);
-//		}
-//		
-//		public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-//		{
-//			base.VisitIndexerDeclaration(indexerDeclaration);
-//			if (!indexerDeclaration.PrivateImplementationType.IsNull) {
-//				CheckInterfaceImplementation (indexerDeclaration);
-//			}
-//		}
-//		
-//		public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-//		{
-//			fieldDeclaration.ReturnType.AcceptVisitor (this);
-//			foreach (var init in fieldDeclaration.Variables) {
-//				Colorize (init.NameToken, fieldDeclarationColor);
-//				init.Initializer.AcceptVisitor (this);
-//			}
-//		}
-//		
-//		public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
-//		{
-//			fixedFieldDeclaration.ReturnType.AcceptVisitor (this);
-//			foreach (var init in fixedFieldDeclaration.Variables) {
-//				Colorize (init.NameToken, fieldDeclarationColor);
-//				init.CountExpression.AcceptVisitor (this);
-//			}
-//		}
-//		
-//		public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//		{
-//			HandleConstructorOrDestructor(constructorDeclaration);
-//		}
-//		
-//		public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-//		{
-//			HandleConstructorOrDestructor(destructorDeclaration);
-//		}
-//		
-//		void HandleConstructorOrDestructor(AstNode constructorDeclaration)
-//		{
-//			Identifier nameToken = constructorDeclaration.GetChildByRole(Roles.Identifier);
-//			VisitChildrenUntil(constructorDeclaration, nameToken);
-//			var currentTypeDef = resolver.GetResolverStateBefore(constructorDeclaration).CurrentTypeDefinition;
-//			if (currentTypeDef != null && nameToken.Name == currentTypeDef.Name) {
-//				TColor color;
-//				if (TryGetTypeHighlighting (currentTypeDef.Kind, out color))
-//					Colorize(nameToken, color);
-//			}
-//			VisitChildrenAfter(constructorDeclaration, nameToken);
-//		}
-//		
-//		bool TryGetMemberColor(IMember member, out TColor color)
-//		{
-//			switch (member.SymbolKind) {
-//				case SymbolKind.Field:
-//					color = fieldAccessColor;
-//					return true;
-//				case SymbolKind.Property:
-//					color = propertyAccessColor;
-//					return true;
-//				case SymbolKind.Event:
-//					color = eventAccessColor;
-//					return true;
-//				case SymbolKind.Method:
-//					color = methodCallColor;
-//					return true;
-//				case SymbolKind.Constructor:
-//				case SymbolKind.Destructor:
-//					return TryGetTypeHighlighting (member.DeclaringType.Kind, out color);
-//				default:
-//					color = default (TColor);
-//					return false;
-//			}
-//		}
-//		
-//		bool TryGetTypeHighlighting (TypeKind kind, out TColor color)
-//		{
-//			switch (kind) {
-//				case TypeKind.Class:
-//					color = referenceTypeColor;
-//					return true;
-//				case TypeKind.Struct:
-//					color = valueTypeColor;
-//					return true;
-//				case TypeKind.Interface:
-//					color = interfaceTypeColor;
-//					return true;
-//				case TypeKind.Enum:
-//					color = enumerationTypeColor;
-//					return true;
-//				case TypeKind.TypeParameter:
-//					color = typeParameterTypeColor;
-//					return true;
-//				case TypeKind.Delegate:
-//					color = delegateTypeColor;
-//					return true;
-//				case TypeKind.Unknown:
-//				case TypeKind.Null:
-//					color = syntaxErrorColor;
-//					return true;
-//				default:
-//					color = default (TColor);
-//					return false;
-//			}
-//		}
+		
+		public override void VisitExternAliasDirective(ExternAliasDirectiveSyntax node)
+		{
+			base.VisitExternAliasDirective(node);
+			Colorize (node.AliasKeyword.Span, externAliasKeywordColor);
+		}
+		
+		public override void VisitGenericName(GenericNameSyntax node)
+		{
+			base.VisitGenericName(node);
+			var info = semanticModel.GetSymbolInfo(node);
+			TColor color;
+			if (TryGetSymbolColor(info, out color)) {
+				Colorize(node.Identifier.Span, color);
+			}
+		}
 		
 		public override void VisitStructDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.StructDeclarationSyntax node)
 		{
@@ -616,20 +422,6 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			Colorize(node.Identifier, eventDeclarationColor);
 		}
 		
-		public override void VisitEventFieldDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.EventFieldDeclarationSyntax node)
-		{
-			base.VisitEventFieldDeclaration(node);
-			foreach (var declarations in node.Declaration.Variables)
-				Colorize(declarations.Identifier, eventDeclarationColor);
-		}
-		
-		public override void VisitFieldDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.FieldDeclarationSyntax node)
-		{
-			base.VisitFieldDeclaration(node);
-			foreach (var declarations in node.Declaration.Variables)
-				Colorize(declarations.Identifier, fieldDeclarationColor);
-		}
-		
 		public override void VisitMethodDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax node)
 		{
 			base.VisitMethodDeclaration(node);
@@ -651,13 +443,83 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		public override void VisitIdentifierName(Microsoft.CodeAnalysis.CSharp.Syntax.IdentifierNameSyntax node)
 		{
 			base.VisitIdentifierName(node);
+			if (node.IsVar) {
+				var symbolInfo = semanticModel.GetSymbolInfo(node);
+				if (node.Parent is ForEachStatementSyntax) {
+					var sym = semanticModel.GetDeclaredSymbol(node.Parent);
+					if (sym != null) {
+						Colorize(node.Span, varKeywordTypeColor);
+						return;
+					}
+				}
+				var vds = node.Parent as VariableDeclarationSyntax;
+				if (vds != null && vds.Variables.Count == 1) {
+					var sym = vds.Variables[0].Initializer != null ? vds.Variables[0].Initializer.Value as LiteralExpressionSyntax : null;
+					
+					if (sym != null && sym.Token.IsKind(SyntaxKind.NullKeyword)) {
+						Colorize(node.Span, syntaxErrorColor);
+						return;
+					}
+					if (symbolInfo.Symbol == null) {
+						Colorize(node.Span, varKeywordTypeColor);
+						return;
+					}
+				}
+			}
+			
+			switch (node.Identifier.Text) {
+				case "add":
+				case "async":
+				case "await":
+				case "get":
+				case "partial":
+				case "remove":
+				case "set":
+				case "where":
+				case "yield":
+				case "from":
+				case "select":
+				case "group":
+				case "into":
+				case "orderby":
+				case "join":
+				case "let":
+				case "on":
+				case "equals":
+				case "by":
+				case "ascending":
+				case "descending":
+				case "dynamic":
+					// Reset color of contextual keyword to default if it's used as an identifier.
+					// Note that this method does not get called when 'var' or 'dynamic' is used as a type,
+					// because types get highlighted with valueTypeColor/referenceTypeColor instead.
+					Colorize(node.Span, defaultTextColor);
+					break;
+				case "global":
+//					// Reset color of 'global' keyword to default unless its used as part of 'global::'.
+//					MemberType parentMemberType = identifier.Parent as MemberType;
+//					if (parentMemberType == null || !parentMemberType.IsDoubleColon)
+						Colorize(node.Span, defaultTextColor);
+					break;
+			}
+			// "value" is handled in VisitIdentifierExpression()
+			// "alias" is handled in VisitExternAliasDeclaration()
+
+			
 			TColor color;
-			if (TryGetSymbolColor (semanticModel.GetSymbolInfo(node).Symbol, out color))
+			if (TryGetSymbolColor (semanticModel.GetSymbolInfo(node), out color))
 				Colorize(node.Span, color);
 		}
 		
-		bool TryGetSymbolColor(ISymbol symbol, out TColor color)
+		bool TryGetSymbolColor(SymbolInfo info, out TColor color)
 		{
+			if (info.CandidateReason != CandidateReason.None) {
+				color = syntaxErrorColor;
+				return true;
+			}
+
+			var symbol = info.Symbol;
+			
 			if (symbol != null) {
 				switch (symbol.Kind) {
 					case SymbolKind.Field:
@@ -667,7 +529,17 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						color = eventAccessColor;
 						return true;
 					case SymbolKind.Parameter:
-						color = parameterAccessColor;
+						var param = (IParameterSymbol)symbol;
+						var method = param.ContainingSymbol as IMethodSymbol;
+						if (param.Name == "value" && method != null && (
+							method.MethodKind == MethodKind.EventAdd || 
+							method.MethodKind == MethodKind.EventRaise ||
+							method.MethodKind == MethodKind.EventRemove ||
+							method.MethodKind == MethodKind.PropertySet)) {
+							color = valueKeywordColor;
+						} else {
+							color = parameterAccessColor;
+						}
 						return true;
 					case SymbolKind.RangeVariable:
 						color = variableAccessColor;
@@ -684,6 +556,35 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					case SymbolKind.Local:
 						color = variableAccessColor;
 						return true;
+					case SymbolKind.NamedType:
+						var type = (INamedTypeSymbol)symbol;
+						switch (type.TypeKind) {
+							case TypeKind.Class:
+								color = referenceTypeColor;
+								break;
+							case TypeKind.Delegate:
+								color = delegateTypeColor;
+								break;
+							case TypeKind.Enum:
+								color = enumerationTypeColor;
+								break;
+							case TypeKind.Error:
+								color = syntaxErrorColor;
+								break;
+							case TypeKind.Interface:
+								color = interfaceTypeColor;
+								break;
+							case TypeKind.Struct:
+								color = valueTypeColor;
+								break;
+							case TypeKind.TypeParameter:
+								color = typeParameterTypeColor;
+								break;
+							default:
+								color = referenceTypeColor;
+								break;
+						}
+						return true;
 				}
 			}
 			color = default(TColor);
@@ -693,24 +594,20 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		public override void VisitVariableDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.VariableDeclarationSyntax node)
 		{
 			base.VisitVariableDeclaration(node);
-			foreach (var declarations in node.Variables)
-				Colorize(declarations.Identifier, variableDeclarationColor);
+			TColor color;
+			if (node.Parent.IsKind(SyntaxKind.EventFieldDeclaration))
+				color = eventDeclarationColor;
+			else if (node.Parent.IsKind(SyntaxKind.FieldDeclaration))
+				color = fieldDeclarationColor;
+			else
+				color = variableDeclarationColor;
+
+			foreach (var declarations in node.Variables) {
+				var info = semanticModel.GetTypeInfo(declarations); 
+				Colorize(declarations.Identifier, color);
+			}
 		}
 		
-//		public override void VisitVariableInitializer(VariableInitializer variableInitializer)
-//		{
-//			var nameToken = variableInitializer.NameToken;
-//			VisitChildrenUntil(variableInitializer, nameToken);
-//			if (variableInitializer.Parent is FieldDeclaration) {
-//				Colorize(nameToken, fieldDeclarationColor);
-//			} else if (variableInitializer.Parent is EventDeclaration) {
-//				Colorize(nameToken, eventDeclarationColor);
-//			} else {
-//				Colorize(nameToken, variableDeclarationColor);
-//			}
-//			VisitChildrenAfter(variableInitializer, nameToken);
-//		}
-//		
 //		public override void VisitComment(Comment comment)
 //		{
 //			if (comment.CommentType == CommentType.InactiveCode) {

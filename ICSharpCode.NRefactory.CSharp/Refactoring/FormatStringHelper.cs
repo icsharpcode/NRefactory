@@ -25,9 +25,9 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp.Resolver;
 using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
@@ -35,39 +35,44 @@ namespace ICSharpCode.NRefactory.CSharp
 	{
 		static readonly string[] parameterNames = { "format", "frmt", "fmt" };
 		
-		public static bool TryGetFormattingParameters(CSharpInvocationResolveResult invocationResolveResult, InvocationExpression invocationExpression,
-		                                     		  out Expression formatArgument, out IList<Expression> arguments,
-		                                              Func<IParameter, Expression, bool> argumentFilter)
+		public static bool TryGetFormattingParameters(
+			SemanticModel semanticModel,
+			InvocationExpressionSyntax invocationExpression,
+		    out ExpressionSyntax formatArgument, out IList<ExpressionSyntax> arguments,
+			Func<IParameterSymbol, ExpressionSyntax, bool> argumentFilter)
 		{
+			var invocationResolveResult = semanticModel.GetSymbolInfo(invocationExpression).Symbol;
 			if (argumentFilter == null)
 				argumentFilter = (p, e) => true;
 
 			formatArgument = null;
-			arguments = new List<Expression>();
+			arguments = new List<ExpressionSyntax>();
+			var method = invocationResolveResult as IMethodSymbol;
+
+						if (invocationResolveResult == null || invocationResolveResult.Kind != SymbolKind.Method)
+				return false;
 
 			// Serach for method of type: void Name(string format, params object[] args);
-			if (invocationResolveResult.Member.SymbolKind == SymbolKind.Method) {
-				var methods = invocationResolveResult.Member.DeclaringType.GetMethods(m => m.Name == invocationResolveResult.Member.Name).ToList();
-				if (!methods.Any(m => m.Parameters.Count == 2 && 
-					m.Parameters[0].Type.IsKnownType(KnownTypeCode.String) && parameterNames.Contains(m.Parameters[0].Name) && 
-					m.Parameters[1].IsParams))
-					return false;
-			}
+			IList<IMethodSymbol> methods = method.ContainingType.GetMembers (method.Name).OfType<IMethodSymbol>().ToList();
+			if (!methods.Any(m => m.Parameters.Length == 2 && 
+				m.Parameters[0].Type.SpecialType == SpecialType.System_String && parameterNames.Contains(m.Parameters[0].Name) && 
+				m.Parameters[1].IsParams))
+				return false;
 
-			var argumentToParameterMap = invocationResolveResult.GetArgumentToParameterMap();
-			var resolvedParameters = invocationResolveResult.Member.Parameters;
-			var allArguments = invocationExpression.Arguments.ToArray();
+			//var argumentToParameterMap = invocationResolveResult.GetArgumentToParameterMap();
+			//var resolvedParameters = invocationResolveResult.Member.Parameters;
+			var allArguments = invocationExpression.ArgumentList.Arguments.ToArray();
 			for (int i = 0; i < allArguments.Length; i++) {
-				var parameterIndex = argumentToParameterMap[i];
-				if (parameterIndex < 0 || parameterIndex >= resolvedParameters.Count) {
+				var parameterIndex = i; //argumentToParameterMap[i];
+				if (parameterIndex < 0 || parameterIndex >= method.Parameters.Length) {
 					// No valid mapping for this argument, skip it
 					continue;
 				}
-				var parameter = resolvedParameters[parameterIndex];
+				var parameter = method.Parameters[parameterIndex];
 				var argument = allArguments[i];
-				if (i == 0 && parameter.Type.IsKnownType(KnownTypeCode.String) && parameterNames.Contains(parameter.Name)) {
-					formatArgument = argument;
-				} else if (formatArgument != null && parameter.IsParams && !invocationResolveResult.IsExpandedForm) {
+				if (i == 0 && parameter.Type.SpecialType == SpecialType.System_String && parameterNames.Contains(parameter.Name)) {
+					formatArgument = argument.Expression;
+				} /*else if (formatArgument != null && parameter.IsParams && !invocationResolveResult.IsExpandedForm) {
 					var ace = argument as ArrayCreateExpression;
 					if (ace == null || ace.Initializer.IsNull)
 						return false;
@@ -75,8 +80,8 @@ namespace ICSharpCode.NRefactory.CSharp
 						if (argumentFilter(parameter, element))
 							arguments.Add(argument);
 					}
-				} else if (formatArgument != null && argumentFilter(parameter, argument)) {
-					arguments.Add(argument);
+				} else*/ if (formatArgument != null && argumentFilter(parameter, argument.Expression)) {
+					arguments.Add(argument.Expression);
 				}
 			}
 			return formatArgument != null;

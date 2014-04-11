@@ -110,6 +110,7 @@
     <Compile Include="Completion\ISymbolCompletionData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Analysis\SemanticHighlightingVisitor.cs" />
+    <Compile Include="Refactoring\FormatStringHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />
