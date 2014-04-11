@@ -24,19 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
 using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Editor;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 
 namespace ICSharpCode.NRefactory.CSharp.Analysis
 {
 	[TestFixture]
 	public class SemanticHighlightingTests : SemanticHighlightingVisitor<FieldInfo>
 	{
+		public SemanticHighlightingTests() : base (null)
+		{
+		}
+		
 		static void SetupColors(object o)
 		{
 			var fields = typeof(SemanticHighlightingVisitor<FieldInfo>).GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
@@ -45,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					field.SetValue(o, field);
 			}
 		}
-		protected override void Colorize(TextLocation start, TextLocation end, FieldInfo color)
+		protected override void Colorize(TextSpan span, FieldInfo color)
 		{
 			throw new NotImplementedException ();
 		}
@@ -59,47 +64,45 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		class TestSemanticHighlightingVisitor : SemanticHighlightingVisitor<FieldInfo>
 		{
 
-			public TestSemanticHighlightingVisitor(CSharpAstResolver resolver)
+			public TestSemanticHighlightingVisitor(SemanticModel resolver) : base (resolver)
 			{
-				base.resolver = resolver;
-				this.regionStart = new TextLocation (1, 1);
-				this.regionEnd = new TextLocation (int.MaxValue, int.MaxValue);
+				this.region = TextSpan.FromBounds(0, int.MaxValue);
 				SetupColors(this);
 			}
 
-			List<Tuple<DomRegion, string>> colors = new List<Tuple<DomRegion, string>> ();
+			List<Tuple<TextSpan, string>> colors = new List<Tuple<TextSpan, string>> ();
 
-			protected override void Colorize(TextLocation start, TextLocation end, FieldInfo color)
+			protected override void Colorize(TextSpan span, FieldInfo color)
 			{
-				colors.Add (Tuple.Create (new DomRegion (start, end), color != null ? color.Name : null));
+				Console.WriteLine ("---------" + color.Name);
+				Console.WriteLine (Environment.StackTrace);
+				colors.Add (Tuple.Create (span, color != null ? color.Name : null));
 			}
 
-			public string GetColor(TextLocation loc)
+			public string GetColor(int loc)
 			{
 				foreach (var color in colors) {
-					if (color.Item1.IsInside (loc))
+					if (color.Item1.IntersectsWith (loc))
 						return color.Item2;
 				}
 				return null;
 			}
 		}
 
-		static TestSemanticHighlightingVisitor CreateHighighting (string text)
+		static TestSemanticHighlightingVisitor CreateHighighting(string text)
 		{
-			var syntaxTree = SyntaxTree.Parse (text, "a.cs");
-			if (syntaxTree.Errors.Count > 0) {
-				Console.WriteLine (text);
+			var syntaxTree = CSharpSyntaxTree.ParseText(text, "a.cs");
+			/*if (syntaxTree.Errors.Count > 0) {
+				Console.WriteLine(text);
 				Console.WriteLine("---");
-				syntaxTree.Errors.ForEach (err => Console.WriteLine (err.Message));
-				Assert.Fail ("parse error.");
-			}
-			var project = new CSharpProjectContent().AddAssemblyReferences(new [] { CecilLoaderTests.Mscorlib, CecilLoaderTests.SystemCore });
-			var file = syntaxTree.ToTypeSystem();
-			project = project.AddOrUpdateFiles(file);
-
-			var resolver = new CSharpAstResolver(project.CreateCompilation(), syntaxTree, file);
-			var result = new TestSemanticHighlightingVisitor (resolver);
-			syntaxTree.AcceptVisitor (result);
+				syntaxTree.Errors.ForEach(err => Console.WriteLine(err.Message));
+				Assert.Fail("parse error.");
+			}*/
+			var compilation = RoslynInspectionActionTestBase.CreateCompilation(
+				new []  { syntaxTree }
+			);
+			var result = new TestSemanticHighlightingVisitor (compilation.GetSemanticModel(syntaxTree));
+			result.Visit(syntaxTree.GetRoot()); 
 			return result;
 		}
 
@@ -115,12 +118,10 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				sb.Append (ch);
 			}
 			var visitor = CreateHighighting (sb.ToString ());
-			var doc = new ReadOnlyDocument (sb.ToString ());
 
 			foreach (var offset in offsets) {
-				var loc = doc.GetLocation (offset);
-				var color = visitor.GetColor (loc) ?? "defaultTextColor";
-				Assert.AreEqual (keywordColor.Name, color, "Color at " + loc + " is wrong:" + color);
+				var color = visitor.GetColor (offset) ?? "defaultTextColor";
+				Assert.AreEqual (keywordColor.Name, color, "Color at " + offset + " is wrong:" + color);
 			}
 		}
 
