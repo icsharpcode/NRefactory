@@ -37,6 +37,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
@@ -135,15 +136,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 					this.DeclarationBegin = declarationBegin;
 				}
 			}
-			#region ICompletionDataFactory implementation
-			IEnumerable<ICompletionData> ICompletionDataFactory.CreateCodeTemplateCompletionData()
-			{
-				throw new NotImplementedException();
-			}
-			IEnumerable<ICompletionData> ICompletionDataFactory.CreatePreProcessorDefinesCompletionData()
-			{
-				throw new NotImplementedException();
-			}
 			ICompletionData ICompletionDataFactory.CreateFormatItemCompletionData(string format, string description, object example)
 			{
 				throw new NotImplementedException();
@@ -153,14 +145,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				throw new NotImplementedException();
 			}
 
-			ICompletionData ICompletionDataFactory.CreateKeyword(string keyword)
+			ICompletionData ICompletionDataFactory.CreateGenericData(string keyword, GenericDataType genericDataType)
 			{
 				return new CompletionData(keyword);
-			}
-
-			ICompletionData ICompletionDataFactory.CreatePreprocessorKeyword(string preProcessorKeyword)
-			{
-				return new CompletionData(preProcessorKeyword);
 			}
 
 			class SymbolCompletionData : CompletionData, ISymbolCompletionData
@@ -183,7 +170,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			{
 				return new SymbolCompletionData(symbol);
 			}
-			#endregion
 		}
 //
 //		public static void CreateCompilation (string parsedText, out IProjectContent pctx, out SyntaxTree syntaxTree, out CSharpUnresolvedFile unresolvedFile, bool expectErrors, params IUnresolvedAssembly[] references)
@@ -210,7 +196,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //			pctx = pctx.AddOrUpdateFiles(unresolvedFile);
 //		}
 //
-		public static CSharpCompletionEngine CreateEngine(string text, out int cursorPosition, out SemanticModel semanticModel, params MetadataReference[] references)
+		public static CSharpCompletionEngine CreateEngine(string text, out int cursorPosition, out SemanticModel semanticModel, out Document document, params MetadataReference[] references)
 		{
 			string parsedText;
 			string editorText;
@@ -271,8 +257,40 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 						LanguageNames.CSharp,
 						null,
 						null,
-						null,
-						null,
+						new CSharpCompilationOptions (
+							OutputKind.DynamicallyLinkedLibrary,
+							"",
+							"",
+							"Script",
+							null,
+							false,
+							false,
+							true,
+							null,
+							null,
+							null,
+							0,
+							0,
+							Platform.AnyCpu,
+							ReportDiagnostic.Default,
+							4,
+							null,
+							false,
+							DebugInformationKind.None,
+							SubsystemVersion.None,
+							null,
+							true,
+							null,
+							null,
+							null,
+							null
+						),
+						new CSharpParseOptions (
+							LanguageVersion.CSharp6,
+							DocumentationMode.None,
+							SourceCodeKind.Regular,
+							ImmutableArray.Create("DEBUG", "TEST")
+						),
 						new [] {
 							DocumentInfo.Create(
 								documentId,
@@ -293,7 +311,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			var compilation = workspace.CurrentSolution.GetProject(projectId).GetCompilationAsync().Result;
 
 			//			workspace.OpenDocument(documentId); 
-			var tree = workspace.CurrentSolution.GetDocument(documentId).GetSyntaxTreeAsync().Result; 
+			document = workspace.CurrentSolution.GetDocument(documentId);
+			var tree = document.GetSyntaxTreeAsync().Result; 
 			semanticModel = compilation.GetSemanticModel(tree);
 
 
@@ -307,10 +326,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		{
 			int cursorPosition;
 			SemanticModel semanticModel;
-			var engine = CreateEngine(text, out cursorPosition, out semanticModel, references);
+			Document document;
+			var engine = CreateEngine(text, out cursorPosition, out semanticModel, out document, references);
 			if (engineCallback != null)
 				engineCallback(engine);
-			var data = engine.GetCompletionData (semanticModel, cursorPosition);
+			var data = engine.GetCompletionData (document, semanticModel, cursorPosition, isCtrlSpace);
 
 			return new CompletionDataList {
 				Data = data,

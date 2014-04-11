@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis.Recommendations;
 using Microsoft.CodeAnalysis;
 using System.Threading;
@@ -69,49 +68,61 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		public override IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken)
 		{
 			var factory = engine.Factory;
-
+			if (ctx.IsNonAttributeExpressionContext)
+				yield break;
 			//	if (ctx.IsGlobalStatementContext) {
 				foreach (var kw in globalLevelKeywords)
-					yield return factory.CreateKeyword(kw);
+					yield return factory.CreateGenericData(kw, GenericDataType.Keyword);
 			//	yield break;
 			//}
 
 			//if (ctx.IsInstanceContext) {
 				foreach (var kw in primitiveTypesKeywords)
-				yield return factory.CreateKeyword(kw);
-			yield return factory.CreateKeyword("var");
+				yield return factory.CreateGenericData(kw, GenericDataType.Keyword);
+			yield return factory.CreateGenericData("var", GenericDataType.Keyword);
 
 			//}
 
 			//if (ctx.IsStatementContext) {
 				foreach (var kw in statementStartKeywords)
-					yield return factory.CreateKeyword(kw);
+					yield return factory.CreateGenericData(kw, GenericDataType.Keyword);
 			//}
 
 			//	if (ctx.IsAnyExpressionContext) {
 				foreach (var kw in expressionLevelKeywords)
-					yield return factory.CreateKeyword(kw);
+					yield return factory.CreateGenericData(kw, GenericDataType.Keyword);
 			//}
 
 			if (ctx.IsPreProcessorKeywordContext) {
-				yield return factory.CreatePreprocessorKeyword("else");
-				yield return factory.CreatePreprocessorKeyword("elif");
-				yield return factory.CreatePreprocessorKeyword("endif");
-				yield return factory.CreatePreprocessorKeyword("define");
-				yield return factory.CreatePreprocessorKeyword("undef");
-				yield return factory.CreatePreprocessorKeyword("warning");
-				yield return factory.CreatePreprocessorKeyword("error");
-				yield return factory.CreatePreprocessorKeyword("pragma");
-				yield return factory.CreatePreprocessorKeyword("line");
-				yield return factory.CreatePreprocessorKeyword("line hidden");
-				yield return factory.CreatePreprocessorKeyword("line default");
-				yield return factory.CreatePreprocessorKeyword("region");
-				yield return factory.CreatePreprocessorKeyword("endregion");
+				foreach (var kw in preprocessorKeywords)
+					yield return factory.CreateGenericData (kw, GenericDataType.PreprocessorKeyword);
 			}
 			
-		}
+			if (ctx.IsPreProcessorExpressionContext) {
+				var parseOptions = semanticModel.SyntaxTree.Options as CSharpParseOptions;
+				foreach (var define in parseOptions.PreprocessorSymbolNames) {
+					yield return factory.CreateGenericData (define, GenericDataType.PreprocessorSymbol);
+				}
+			}
+		} 
+		
+		static readonly string[] preprocessorKeywords = {
+			"else",
+			"elif",
+			"endif",
+			"define",
+			"undef",
+			"warning",
+			"error",
+			"pragma",
+			"line",
+			"line hidden",
+			"line default",
+			"region",
+			"endregion"
+		};
 
-		string[] validEnumBaseTypes = {
+		static readonly string[] validEnumBaseTypes = {
 			"byte",
 			"sbyte",
 			"short",
@@ -122,7 +133,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			"ulong"
 		};
 
-		static string[] expressionLevelKeywords = new string [] {
+		static readonly string[] expressionLevelKeywords = {
 			"as",
 			"is",
 			"else",
@@ -135,7 +146,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			"false"
 		};
 
-		static string[] primitiveTypesKeywords = new string [] {
+		static readonly string[] primitiveTypesKeywords = {
 			"void",
 			"object",
 			"bool",
@@ -154,7 +165,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			"string"
 		};
 
-		static string[] statementStartKeywords = new string [] { "base", "new", "sizeof", "this", 
+		static readonly string[] statementStartKeywords = { 
+			"base", "new", "sizeof", "this", 
 			"true", "false", "typeof", "checked", "unchecked", "from", "break", "checked",
 			"unchecked", "const", "continue", "do", "finally", "fixed", "for", "foreach",
 			"goto", "if", "lock", "return", "stackalloc", "switch", "throw", "try", "unsafe", 
@@ -162,17 +174,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			"catch"
 		};
 
-		static string[] globalLevelKeywords = new string [] {
+		static readonly string[] globalLevelKeywords = {
 			"namespace", "using", "extern", "public", "internal", 
 			"class", "interface", "struct", "enum", "delegate",
 			"abstract", "sealed", "static", "unsafe", "partial"
 		};
 
-		static string[] accessorModifierKeywords = new string [] {
+		static readonly string[] accessorModifierKeywords = {
 			"public", "internal", "protected", "private", "async"
 		};
 
-		static string[] typeLevelKeywords = new string [] {
+		static readonly string[] typeLevelKeywords = {
 			"public", "internal", "protected", "private", "async",
 			"class", "interface", "struct", "enum", "delegate",
 			"abstract", "sealed", "static", "unsafe", "partial",
@@ -181,7 +193,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			"override", "readonly", "virtual", "volatile"
 		};
 
-		static string[] linqKeywords = new string[] {
+		static readonly string[] linqKeywords = {
 			"from",
 			"where",
 			"select",
@@ -198,14 +210,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			"descending"
 		};
 
-		static string[] parameterTypePredecessorKeywords = new string[] {
+		static readonly string[] parameterTypePredecessorKeywords = {
 			"out",
 			"ref",
 			"params"
 		};
 	}
-
-
 
 	public class CSharpCompletionEngine 
 	{
@@ -240,10 +250,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			this.factory = factory;
 		}
 
-		public IEnumerable<ICompletionData> GetCompletionData(SemanticModel semanticModel, int position, CancellationToken cancellationToken = default(CancellationToken))
+		public IEnumerable<ICompletionData> GetCompletionData(Document document, SemanticModel semanticModel, int position, bool isCtrlSpace, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			if (!isCtrlSpace) {
+				var text = document.GetTextAsync(cancellationToken).Result; 
+				char lastChar = text [position - 1];
+				if (lastChar != '#' && lastChar != '.' && !char.IsLetter(lastChar) && lastChar != '_') {
+					return Enumerable.Empty<ICompletionData>();
+				}
+			}
+			
 			var ctx = Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext.CreateContext(workspace, semanticModel, position, cancellationToken); 
+			var trivia = semanticModel.SyntaxTree.GetRoot(cancellationToken).FindTrivia(position - 1);
+			if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) ||
+				trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)) {
+				return Enumerable.Empty<ICompletionData>();
 
+			}
+			
 			return handlers.SelectMany(handler => handler.GetCompletionData(this, ctx, semanticModel, position, cancellationToken)); 
 		}
 

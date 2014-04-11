@@ -28,6 +28,12 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
+	public enum GenericDataType {
+		Undefined,
+		Keyword,
+		PreprocessorKeyword,
+		PreprocessorSymbol
+	}
 	public interface ICompletionDataFactory
 	{
 //		ICompletionData CreateEntityCompletionData (IEntity entity);
@@ -67,13 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //		ICompletionData CreateNewOverrideCompletionData (int declarationBegin, IUnresolvedTypeDefinition type, IMember m);
 //		ICompletionData CreateNewPartialCompletionData (int declarationBegin, IUnresolvedTypeDefinition type, IUnresolvedMember m);
 		
-		IEnumerable<ICompletionData> CreateCodeTemplateCompletionData ();
-		
-		IEnumerable<ICompletionData> CreatePreProcessorDefinesCompletionData ();
-
-		ICompletionData CreateKeyword(string keyword);
-		ICompletionData CreatePreprocessorKeyword(string preProcessorKeyword);
-
+		ICompletionData CreateGenericData(string data, GenericDataType genericDataType = GenericDataType.Undefined);
 
 		/// <summary>
 		/// Creates a completion data that adds the required using for the created type.
@@ -82,7 +82,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		/// <param name="useFullName">If set to true the full name of the type needs to be used.</param>
 		/// <param name="addForTypeCreation">If true the completion data is used in 'new' context.</param>
 		//		ICompletionData CreateImportCompletionData(IType type, bool useFullName, bool addForTypeCreation);
-
 		ICompletionData CreateFormatItemCompletionData(string format, string description, object example);
 
 		ICompletionData CreateXmlDocCompletionData (string tag, string description = null, string tagInsertionText = null);
