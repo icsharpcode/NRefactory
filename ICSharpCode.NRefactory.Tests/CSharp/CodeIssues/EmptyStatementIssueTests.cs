@@ -67,37 +67,37 @@ class Test
 //}
 //");
 //		}
-//		[Test]
-//		public void TestEmbeddedStatements()
-//		{
-//			TestWrongContext<EmptyStatementIssue>(@"
-//class Test
-//{
-//	public void Foo ()
-//	{
-//		for (;;) ;
-//		if (true) ; else ;
-//		while (true) ;
-//		do ; while (true);
-//	}
-//}
-//");
-//		}
-//
-//		[Test]
-//		public void TestInvalidCase()
-//		{
-//			TestWrongContext<EmptyStatementIssue>(@"
-//class Test
-//{
-//	public void Foo ()
-//	{
-//		label:
-//			;
-//	}
-//}
-//");
-//		}
+		[Test]
+		public void TestEmbeddedStatements()
+		{
+			TestWrongContext(new EmptyStatementIssue (), @"
+class Test
+{
+	public void Foo ()
+	{
+		for (;;) ;
+		if (true) ; else ;
+		while (true) ;
+		do ; while (true);
+	}
+}
+");
+		}
+
+		[Test]
+		public void TestInvalidCase()
+		{
+			TestWrongContext(new EmptyStatementIssue(), @"
+class Test
+{
+	public void Foo ()
+	{
+		label:
+			;
+	}
+}
+");
+		}
 
 	}
 }

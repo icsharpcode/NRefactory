@@ -31,21 +31,34 @@ using Microsoft.CodeAnalysis.CSharp;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using System.Threading;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
-	public class RoslynInspectionActionTestBase 
+	public class RoslynInspectionActionTestBase
 	{
-		static MetadataReference mscorlib = new MetadataFileReference (typeof(Console).Assembly.Location);
-		static MetadataReference systemAssembly = new MetadataFileReference (typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
-		static MetadataReference systemXmlLinq = new MetadataFileReference (typeof(System.Xml.Linq.XElement).Assembly.Location);
-		static MetadataReference systemCore = new MetadataFileReference (typeof(Enumerable).Assembly.Location);
+		static MetadataReference mscorlib = new MetadataFileReference(typeof(Console).Assembly.Location);
+		static MetadataReference systemAssembly = new MetadataFileReference(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
+		static MetadataReference systemXmlLinq = new MetadataFileReference(typeof(System.Xml.Linq.XElement).Assembly.Location);
+		static MetadataReference systemCore = new MetadataFileReference(typeof(Enumerable).Assembly.Location);
 		internal static MetadataReference[] DefaultMetadataReferences = new MetadataReference[] {
 			mscorlib,
 			systemAssembly,
 			systemCore,
 			systemXmlLinq
 		};
+		
+		static Dictionary<string, ICodeFixProvider> providers = new Dictionary<string, ICodeFixProvider>();
+
+		static RoslynInspectionActionTestBase()
+		{
+			foreach (var provider in typeof(IssueCategories).Assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false).Length > 0)) {
+				var attr = (ExportCodeFixProviderAttribute)provider.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false) [0];
+				providers.Add(attr.Name, (ICodeFixProvider)Activator.CreateInstance(provider)); 
+			}
+
+		}
 
 		public static string GetUniqueName()
 		{
@@ -58,8 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			CSharpCompilationOptions compOptions = null,
 			string assemblyName = "")
 		{
-			if (compOptions == null)
-			{
+			if (compOptions == null) {
 				compOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
 			}
 
@@ -78,8 +90,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			string assemblyName = "")
 		{
 			var refs = new List<MetadataReference>();
-			if (references != null)
-			{
+			if (references != null) {
 				refs.AddRange(references);
 			}
 
@@ -88,7 +99,51 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			return CreateCompilation(source, refs, compOptions, assemblyName);
 		}
 
-		protected static void Test<T> (ISyntaxNodeAnalyzer<T> analyzer, string input, int expectedDiagnostics = 1, string output = null)
+		class TestWorkspace : Workspace
+		{
+			public TestWorkspace(Microsoft.CodeAnalysis.Composition.FeaturePack features, string workspaceKind = "Test") : base(features, workspaceKind)
+			{
+			}
+
+			protected override void ChangedDocumentText(DocumentId id, SourceText text)
+			{
+				var document = CurrentSolution.GetDocument(id);
+				if (document != null)
+					OnDocumentTextChanged(id, text, PreservationMode.PreserveValue);
+			}
+
+			public void Open(ProjectInfo projectInfo)
+			{
+				var sInfo = SolutionInfo.Create(
+					            SolutionId.CreateNewId(),
+					            VersionStamp.Create(),
+					            null,
+					            new [] { projectInfo }
+				            );
+				OnSolutionAdded(sInfo);
+			}
+		}
+
+		static void RunFix(Workspace workspace, ProjectId projectId, DocumentId documentId, Diagnostic diagnostic, int index = 0)
+		{
+			ICodeFixProvider provider;
+			if (providers.TryGetValue(diagnostic.Id, out provider)) {
+				var document = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
+				var action = provider.GetFixesAsync(document, TextSpan.FromBounds(0, 0), new[] { diagnostic }, default(CancellationToken)).Result.ElementAtOrDefault(index);
+				if (action == null)
+					return;
+				foreach (var op in action.GetOperationsAsync(default(CancellationToken)).Result) {
+					op.Apply(workspace, default(CancellationToken));
+				}
+			}
+		}
+
+		protected static void TestWrongContext<T>(ISyntaxNodeAnalyzer<T> analyzer, string input)
+		{
+			Test(analyzer, input, 0);
+		}
+		
+		protected static void Test<T>(ISyntaxNodeAnalyzer<T> analyzer, string input, int expectedDiagnostics = 1, string output = null, int issueToFix = -1, int actionToRun = 0)
 		{
 			var syntaxTree = CSharpSyntaxTree.ParseText(input);
 			 
@@ -97,23 +152,51 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			var diagnostics = new List<Diagnostic>();
 
 			AnalyzerDriver.RunAnalyzers(compilation.GetSemanticModel(syntaxTree),
-				new Microsoft.CodeAnalysis.Text.TextSpan (0, syntaxTree.Length),
+				new Microsoft.CodeAnalysis.Text.TextSpan(0, syntaxTree.Length),
 				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(analyzer),
 				diagnostics.Add
 			); 
-
-			Assert.AreEqual(expectedDiagnostics, diagnostics.Count);
-			foreach (var v in diagnostics) {
-				Console.WriteLine (v);
 			
+			Assert.AreEqual(expectedDiagnostics, diagnostics.Count);
+			
+			if (output == null)
+				return;
+
+			var workspace = new TestWorkspace(TestWorkspaceFeatures.Features);
+			var projectId = ProjectId.CreateNewId();
+			var documentId = DocumentId.CreateNewId(projectId);
+			workspace.Open(ProjectInfo.Create(
+				projectId,
+				VersionStamp.Create(),
+				"", "", LanguageNames.CSharp, null, null, null, null,
+				new [] {
+					DocumentInfo.Create(
+						documentId, 
+						"a.cs",
+						null,
+						SourceCodeKind.Regular,
+						TextLoader.From(TextAndVersion.Create(SourceText.From(input), VersionStamp.Create())))
+				}
+			)); 
+			if (issueToFix < 0) {
+				foreach (var v in diagnostics) {
+					RunFix(workspace, projectId, documentId, v);
+				}
+			} else {
+				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
 			}
-
-
-
+			
+			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
+			if (output != txt) {
+				Console.WriteLine("expected:");
+				Console.WriteLine(output);
+				Console.WriteLine("got:");
+				Console.WriteLine(txt);
+				Assert.Fail();
+			}
 		}
 
-		class TestDiagnosticAnalyzer<T> : IDiagnosticAnalyzer 
-
+		class TestDiagnosticAnalyzer<T> : IDiagnosticAnalyzer
 		{
 			readonly ISyntaxNodeAnalyzer<T> t;
 
@@ -123,10 +206,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 
 			#region IDiagnosticAnalyzer implementation
+
 			IEnumerable<DiagnosticDescriptor> IDiagnosticAnalyzer.GetSupportedDiagnostics()
 			{
 				return t.GetSupportedDiagnostics();
 			}
+
 			#endregion
 		}
 	}

@@ -30,6 +30,12 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using System.Linq;
  
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -41,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "EmptyStatementIssue";
 		const string Description   = "Empty statement is redundant";
-		const string MessageFormat = "Remove ';'";
+		internal const string MessageFormat = "Remove ';'";
 		const string Category      = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -70,9 +76,29 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		}
 	}
 
-//	[ExportCodeFixProvider(EmptyStatementIssue.DiagnosticId, LanguageNames.CSharp)]
-//	public class EmptyStatementCodeFixProvider : ICodeFixProvider
-//	{
-//
-//	}
+	[ExportCodeFixProvider(EmptyStatementIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class EmptyStatementCodeFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return EmptyStatementIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var token = root.FindNode(diagonstic.Location.SourceSpan);
+				if (token.IsKind(SyntaxKind.EmptyStatement)) {
+					var newRoot = root.RemoveNode(token, SyntaxRemoveOptions.KeepDirectives);
+					result.Add(CodeAction.Create(EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+				}
+			}
+			return result;
+		}
+		#endregion
+	}
 }
