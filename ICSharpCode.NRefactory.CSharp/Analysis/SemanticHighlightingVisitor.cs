@@ -26,7 +26,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace ICSharpCode.NRefactory.CSharp.Analysis
+namespace ICSharpCode.NRefactory6.CSharp.Analysis
 {
 	/// <summary>
 	/// C# Semantic highlighter.
@@ -470,79 +470,77 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		
 		bool TryGetSymbolColor(SymbolInfo info, out TColor color)
 		{
-			if (info.CandidateReason != CandidateReason.None) {
+			var symbol = info.Symbol;
+
+			if (info.CandidateReason != CandidateReason.None || symbol == null) {
 				color = syntaxErrorColor;
 				return true;
 			}
-
-			var symbol = info.Symbol;
 			
-			if (symbol != null) {
-				switch (symbol.Kind) {
-					case SymbolKind.Field:
-						color = fieldAccessColor;
-						return true;
-					case SymbolKind.Event:
-						color = eventAccessColor;
-						return true;
-					case SymbolKind.Parameter:
-						var param = (IParameterSymbol)symbol;
-						var method = param.ContainingSymbol as IMethodSymbol;
-						if (param.Name == "value" && method != null && (
-							method.MethodKind == MethodKind.EventAdd || 
-							method.MethodKind == MethodKind.EventRaise ||
-							method.MethodKind == MethodKind.EventRemove ||
-							method.MethodKind == MethodKind.PropertySet)) {
-							color = valueKeywordColor;
-						} else {
-							color = parameterAccessColor;
-						}
-						return true;
-					case SymbolKind.RangeVariable:
-						color = variableAccessColor;
-						return true;
-					case SymbolKind.Method:
-						color = methodCallColor;
-						return true;
-					case SymbolKind.Property:
-						color = propertyAccessColor;
-						return true;
-					case SymbolKind.TypeParameter:
-						color = typeParameterTypeColor;
-						return true;
-					case SymbolKind.Local:
-						color = variableAccessColor;
-						return true;
-					case SymbolKind.NamedType:
-						var type = (INamedTypeSymbol)symbol;
-						switch (type.TypeKind) {
-							case TypeKind.Class:
-								color = referenceTypeColor;
-								break;
-							case TypeKind.Delegate:
-								color = delegateTypeColor;
-								break;
-							case TypeKind.Enum:
-								color = enumerationTypeColor;
-								break;
-							case TypeKind.Error:
-								color = syntaxErrorColor;
-								break;
-							case TypeKind.Interface:
-								color = interfaceTypeColor;
-								break;
-							case TypeKind.Struct:
-								color = valueTypeColor;
-								break;
-							case TypeKind.TypeParameter:
-								color = typeParameterTypeColor;
-								break;
-							default:
-								color = referenceTypeColor;
-								break;
-						}
-						return true;
-				}
+			switch (symbol.Kind) {
+				case SymbolKind.Field:
+					color = fieldAccessColor;
+					return true;
+				case SymbolKind.Event:
+					color = eventAccessColor;
+					return true;
+				case SymbolKind.Parameter:
+					var param = (IParameterSymbol)symbol;
+					var method = param.ContainingSymbol as IMethodSymbol;
+					if (param.Name == "value" && method != null && (
+						method.MethodKind == MethodKind.EventAdd || 
+						method.MethodKind == MethodKind.EventRaise ||
+						method.MethodKind == MethodKind.EventRemove ||
+						method.MethodKind == MethodKind.PropertySet)) {
+						color = valueKeywordColor;
+					} else {
+						color = parameterAccessColor;
+					}
+					return true;
+				case SymbolKind.RangeVariable:
+					color = variableAccessColor;
+					return true;
+				case SymbolKind.Method:
+					color = methodCallColor;
+					return true;
+				case SymbolKind.Property:
+					color = propertyAccessColor;
+					return true;
+				case SymbolKind.TypeParameter:
+					color = typeParameterTypeColor;
+					return true;
+				case SymbolKind.Local:
+					color = variableAccessColor;
+					return true;
+				case SymbolKind.NamedType:
+					var type = (INamedTypeSymbol)symbol;
+					switch (type.TypeKind) {
+						case TypeKind.Class:
+							color = referenceTypeColor;
+							break;
+						case TypeKind.Delegate:
+							color = delegateTypeColor;
+							break;
+						case TypeKind.Enum:
+							color = enumerationTypeColor;
+							break;
+						case TypeKind.Error:
+							color = syntaxErrorColor;
+							break;
+						case TypeKind.Interface:
+							color = interfaceTypeColor;
+							break;
+						case TypeKind.Struct:
+							color = valueTypeColor;
+							break;
+						case TypeKind.TypeParameter:
+							color = typeParameterTypeColor;
+							break;
+						default:
+							color = referenceTypeColor;
+							break;
+					}
+					return true;
 			}
 			color = default(TColor);
 			return false;

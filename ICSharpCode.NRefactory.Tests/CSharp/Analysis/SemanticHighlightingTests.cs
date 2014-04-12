@@ -35,7 +35,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 using System.Diagnostics;
 
-namespace ICSharpCode.NRefactory.CSharp.Analysis
+namespace ICSharpCode.NRefactory6.CSharp.Analysis
 {
 	[TestFixture]
 	public class SemanticHighlightingTests : SemanticHighlightingVisitor<FieldInfo>
@@ -304,6 +304,18 @@ class Class {
 				var a = typeof (C<>.$N<,>); // The type is not red even if this linedoes not compile
 				return 0;
 			}
+		}
+";
+			TestColor (code, syntaxErrorColor);
+		}
+		
+		
+		[Test]
+		public void TestTypeLookupError()
+		{
+			string code =@"
+		class A : $FooBar
+		{
 		}
 ";
 			TestColor (code, syntaxErrorColor);
