@@ -223,51 +223,44 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 //			VisitChildrenAfter(memberReferenceExpression, memberNameToken);
 //		}
 
-//		void HighlightStringFormatItems(PrimitiveExpression expr)
-//		{
-//			if (!(expr.Value is string))
-//				return;
-//			int line = expr.StartLocation.Line;
-//			int col = expr.StartLocation.Column;
-//			TextLocation start = TextLocation.Empty;
-//			for (int i = 0; i < expr.LiteralValue.Length; i++) {
-//				char ch = expr.LiteralValue [i];
-//
-//				if (NewLine.GetDelimiterType(ch, i + 1 < expr.LiteralValue.Length ? expr.LiteralValue [i + 1] : '\0') != UnicodeNewline.Unknown) {
-//					line++;
-//					col = 1;
-//					continue;
-//				}
-//
-//
-//				if (ch == '{' && start.IsEmpty) {
-//					char next = i + 1 < expr.LiteralValue.Length ? expr.LiteralValue [i + 1] : '\0';
-//					if (next == '{') {
-//						i++;
-//						col += 2;
-//						continue;
-//					}
-//					start = new TextLocation(line, col);
-//				}
-//				col++;
-//				if (ch == '}' &&!start.IsEmpty) {
-//					char next = i + 1 < expr.LiteralValue.Length ? expr.LiteralValue [i + 1] : '\0';
-//					if (next == '}') {
-//						i++;
-//						col += 2;
-//						continue;
-//					}
-//					Colorize(start, new TextLocation(line, col), stringFormatItemColor);
-//					start = TextLocation.Empty;
-//				}
-//			}
-//
-//		}
+		void HighlightStringFormatItems(LiteralExpressionSyntax expr)
+		{
+			if (!expr.Token.IsKind(SyntaxKind.StringLiteralToken))
+				return;
+			var text = expr.Token.Text;
+			int start = -1;
+			for (int i = 0; i < text.Length; i++) {
+				char ch = text [i];
 
-		
+				if (NewLine.GetDelimiterType(ch, i + 1 < text.Length ? text [i + 1] : '\0') != UnicodeNewline.Unknown) {
+					continue;
+				}
+
+				if (ch == '{' && start < 0) {
+					char next = i + 1 < text.Length ? text [i + 1] : '\0';
+					if (next == '{') {
+						i++;
+						continue;
+					}
+					start = i;
+				}
+				
+				if (ch == '}' && start >= 0) {
+					char next = i + 1 < text.Length ? text [i + 1] : '\0';
+					if (next == '}') {
+						i++;
+						continue;
+					}
+					Colorize(new TextSpan (expr.SpanStart + start, i - start), stringFormatItemColor);
+					start = -1;
+				}
+			}
+		}
+
 		public override void VisitInvocationExpression(InvocationExpressionSyntax node)
 		{
-			var symbolInfo = semanticModel.GetSymbolInfo(node);
+			var symbolInfo = semanticModel.GetSymbolInfo(node.Expression, cancellationToken);
+			
 			if (IsInactiveConditional (symbolInfo.Symbol) || IsEmptyPartialMethod(symbolInfo.Symbol)) {
 				// mark the whole invocation statement as inactive code
 				Colorize(node.Span, inactiveCodeColor);
@@ -276,44 +269,15 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			
 			ExpressionSyntax fmtArgumets;
 			IList<ExpressionSyntax> args;
-			if (node.ArgumentList.Arguments.Count > 1 && FormatStringHelper.TryGetFormattingParameters(semanticModel, node, out fmtArgumets, out args, null)) {
+			if (node.ArgumentList.Arguments.Count > 1 && FormatStringHelper.TryGetFormattingParameters(semanticModel, node, out fmtArgumets, out args, null, cancellationToken)) {
 				var expr = node.ArgumentList.Arguments.First(); 
-//				if (expr != null)
-//					HighlightStringFormatItems(expr);
+				if (expr != null)
+					HighlightStringFormatItems(expr.Expression as LiteralExpressionSyntax);
 			}
 
 			base.VisitInvocationExpression(node);
 		}
 		
-//		public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//		{
-//			Expression target = invocationExpression.Target;
-//			if (target is IdentifierExpression || target is MemberReferenceExpression || target is PointerReferenceExpression) {
-//				var invocationRR = resolver.Resolve(invocationExpression, cancellationToken) as CSharpInvocationResolveResult;
-//				if (invocationRR != null) {
-//
-//				}
-//
-//				VisitChildrenUntil(invocationExpression, target);
-//				
-//				// highlight the method call
-//				var identifier = target.GetChildByRole(Roles.Identifier);
-//				VisitChildrenUntil(target, identifier);
-//				if (invocationRR != null && !invocationRR.IsDelegateInvocation) {
-//					Colorize(identifier, methodCallColor);
-//				} else {
-//					ResolveResult targetRR = resolver.Resolve(target, cancellationToken);
-//					Colorize(identifier, targetRR);
-//				}
-//				VisitChildrenAfter(target, identifier);
-//				VisitChildrenAfter(invocationExpression, target);
-//			} else {
-//				VisitChildren(invocationExpression);
-//			}
-//		}
-
-//		
-//		#region IsInactiveConditional helper methods
 		bool IsInactiveConditional(ISymbol member)
 		{
 			if (member == null || member.Kind != SymbolKind.Method)
@@ -322,19 +286,20 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			if (method.ReturnType.SpecialType != SpecialType.System_Void)
 				return false;
 			
-//			foreach (var baseMember in InheritanceHelper.GetBaseMembers(member, false)) {
-//				if (IsInactiveConditional (baseMember.Attributes))
-//					return true;
-//			}
+			var om = method.OverriddenMethod;
+			while (om != null) {
+				if (IsInactiveConditional (om.GetAttributes()))
+					return true;
+				om = om.OverriddenMethod;
+			}
+			
 			return IsInactiveConditional(member.GetAttributes());
 		}
 
 		bool IsInactiveConditional(System.Collections.Immutable.ImmutableArray<AttributeData> attributes)
 		{
 			foreach (var attr in attributes) {
-				Console.WriteLine(attr.AttributeClass.Name);
-				Console.WriteLine(attr.AttributeClass.ContainingNamespace.MetadataName);
-				if (attr.AttributeClass.Name == "Conditional" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.Diagnostics" && attr.ConstructorArguments.Length == 1) {
+				if (attr.AttributeClass.Name == "ConditionalAttribute" && attr.AttributeClass.ContainingNamespace.ToString() == "System.Diagnostics" && attr.ConstructorArguments.Length == 1) {
 					string symbol = attr.ConstructorArguments[0].Value as string;
 					if (symbol != null) {
 						var options = (CSharpParseOptions)semanticModel.SyntaxTree.Options;
@@ -348,22 +313,14 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 		static bool IsEmptyPartialMethod(ISymbol member)
 		{
-			return false;
-//			if (member.SymbolKind != SymbolKind.Method || member.ReturnType.Kind != TypeKind.Void)
-//				return false;
-//			var method = (IMethod)member;
-//			return method.IsPartial && !method.HasBody;
+			var method = member as IMethodSymbol;
+			if (method == null)
+				return false;
+			return method != null && 
+				method.PartialDefinitionPart != null &&
+				method.PartialImplementationPart == null;
 		}
 
-//		bool IsInactiveConditional(INamedTypeSymbol attr)
-//		{
-//			bool hasConditionalAttribute = false;
-//
-//			return hasConditionalAttribute;
-//		}
-//		#endregion
-//		
-		
 		public override void VisitExternAliasDirective(ExternAliasDirectiveSyntax node)
 		{
 			base.VisitExternAliasDirective(node);
@@ -373,7 +330,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		public override void VisitGenericName(GenericNameSyntax node)
 		{
 			base.VisitGenericName(node);
-			var info = semanticModel.GetSymbolInfo(node);
+			var info = semanticModel.GetSymbolInfo(node, cancellationToken);
 			TColor color;
 			if (TryGetSymbolColor(info, out color)) {
 				Colorize(node.Identifier.Span, color);
@@ -444,9 +401,9 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		{
 			base.VisitIdentifierName(node);
 			if (node.IsVar) {
-				var symbolInfo = semanticModel.GetSymbolInfo(node);
+				var symbolInfo = semanticModel.GetSymbolInfo(node, cancellationToken);
 				if (node.Parent is ForEachStatementSyntax) {
-					var sym = semanticModel.GetDeclaredSymbol(node.Parent);
+					var sym = semanticModel.GetDeclaredSymbol(node.Parent, cancellationToken);
 					if (sym != null) {
 						Colorize(node.Span, varKeywordTypeColor);
 						return;
@@ -460,7 +417,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 						Colorize(node.Span, syntaxErrorColor);
 						return;
 					}
-					if (symbolInfo.Symbol == null) {
+					if (symbolInfo.Symbol == null || symbolInfo.Symbol.Name != "var") {
 						Colorize(node.Span, varKeywordTypeColor);
 						return;
 					}
@@ -507,7 +464,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 
 			
 			TColor color;
-			if (TryGetSymbolColor (semanticModel.GetSymbolInfo(node), out color))
+			if (TryGetSymbolColor (semanticModel.GetSymbolInfo(node, cancellationToken), out color))
 				Colorize(node.Span, color);
 		}
 		
@@ -603,7 +560,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 				color = variableDeclarationColor;
 
 			foreach (var declarations in node.Variables) {
-				var info = semanticModel.GetTypeInfo(declarations); 
+				var info = semanticModel.GetTypeInfo(declarations, cancellationToken); 
 				Colorize(declarations.Identifier, color);
 			}
 		}

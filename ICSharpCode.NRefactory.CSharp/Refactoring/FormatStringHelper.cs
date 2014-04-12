@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Threading;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
@@ -39,17 +40,23 @@ namespace ICSharpCode.NRefactory.CSharp
 			SemanticModel semanticModel,
 			InvocationExpressionSyntax invocationExpression,
 		    out ExpressionSyntax formatArgument, out IList<ExpressionSyntax> arguments,
-			Func<IParameterSymbol, ExpressionSyntax, bool> argumentFilter)
+			Func<IParameterSymbol, ExpressionSyntax, bool> argumentFilter,
+			CancellationToken cancellationToken = default (CancellationToken))
 		{
-			var invocationResolveResult = semanticModel.GetSymbolInfo(invocationExpression).Symbol;
+			if (semanticModel == null)
+				throw new ArgumentNullException("semanticModel");
+			if (invocationExpression == null)
+				throw new ArgumentNullException("invocationExpression");
+			var symbolInfo = semanticModel.GetSymbolInfo(invocationExpression.Expression, cancellationToken);
 			if (argumentFilter == null)
 				argumentFilter = (p, e) => true;
-
+			
+			var symbol = symbolInfo.Symbol;
 			formatArgument = null;
 			arguments = new List<ExpressionSyntax>();
-			var method = invocationResolveResult as IMethodSymbol;
+			var method = symbol as IMethodSymbol;
 
-						if (invocationResolveResult == null || invocationResolveResult.Kind != SymbolKind.Method)
+			if (symbol == null || symbol.Kind != SymbolKind.Method)
 				return false;
 
 			// Serach for method of type: void Name(string format, params object[] args);
