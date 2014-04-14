@@ -29,7 +29,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	#region IndentState
 
@@ -1169,7 +1169,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				{
 					s = s.Substring(1);
 					bool val = pp_expr(ref s, false);
-					f (s.Length > 0 && s[0] == ')')
+					if (s.Length > 0 && s[0] == ')')
 					{
 						s = s.Substring(1);
 						return val;

@@ -79,9 +79,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Reflection.Metadata">
-      <HintPath>..\..\roslyn\System.Reflection.Metadata.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp">
       <HintPath>..\..\monodevelop\main\external\roslyn\bootstrap\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
     </Reference>
@@ -112,6 +109,17 @@
     <Compile Include="Analysis\SemanticHighlightingVisitor.cs" />
     <Compile Include="Refactoring\FormatStringHelper.cs" />
     <Compile Include="Refactoring\UnicodeNewline.cs" />
+    <Compile Include="IndentEngine\CSharpIndentEngine.cs" />
+    <Compile Include="IndentEngine\CacheIndentEngine.cs" />
+    <Compile Include="IndentEngine\IDocumentIndentEngine.cs" />
+    <Compile Include="IndentEngine\IStateMachineIndentEngine.cs" />
+    <Compile Include="IndentEngine\IndentState.cs" />
+    <Compile Include="IndentEngine\TextPasteIndentEngine.cs" />
+    <Compile Include="IndentEngine\NullIStateMachineIndentEngine.cs" />
+    <Compile Include="Util\CloneableStack.cs" />
+    <Compile Include="Formatter\Indent.cs" />
+    <Compile Include="IndentEngine\ITextPasteHandler.cs" />
+    <Compile Include="Formatter\FormattingOptionsFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />
@@ -136,12 +144,5 @@
     <None Include="Completion\CSharpCompletionEngineBase.cs" />
     <None Include="Completion\CompletionDataWrapper.cs" />
     <None Include="Completion\ICompletionContextProvider.cs" />
-    <None Include="IndentEngine\CSharpIndentEngine.cs" />
-    <None Include="IndentEngine\CacheIndentEngine.cs" />
-    <None Include="IndentEngine\IDocumentIndentEngine.cs" />
-    <None Include="IndentEngine\IStateMachineIndentEngine.cs" />
-    <None Include="IndentEngine\IndentState.cs" />
-    <None Include="IndentEngine\TextPasteIndentEngine.cs" />
-    <None Include="IndentEngine\NullIStateMachineIndentEngine.cs" />
   </ItemGroup>
 </Project>

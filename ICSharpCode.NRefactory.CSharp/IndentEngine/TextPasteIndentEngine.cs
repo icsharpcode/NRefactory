@@ -28,6 +28,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -48,8 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <summary>
 		///     Text editor options.
 		/// </summary>
-		internal readonly TextEditorOptions textEditorOptions;
-		internal readonly CSharpFormattingOptions formattingOptions;
+		internal readonly OptionSet options;
 		#endregion
 
 		#region Constructors
@@ -67,12 +71,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <param name="formattingOptions">
 		///     C# formatting options.
 		/// </param>
-		public TextPasteIndentEngine(IStateMachineIndentEngine decoratedEngine, TextEditorOptions textEditorOptions, CSharpFormattingOptions formattingOptions)
+		public TextPasteIndentEngine(IStateMachineIndentEngine decoratedEngine, OptionSet options)
 		{
 			this.engine = decoratedEngine;
-			this.textEditorOptions = textEditorOptions;
-			this.formattingOptions = formattingOptions;
-
+			this.options = options;
 			this.engine.EnableCustomIndentLevels = false;
 		}
 
@@ -88,12 +90,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 				text = strategy.Decode(text);
 			}
 			engine.Update(offset);
+			var sourceText = engine.Document.GetTextAsync().Result;
+
 			if (engine.IsInsideStringLiteral) {
 				int idx = text.IndexOf('"');
 				if (idx > 0) {
 					var o = offset;
-					while (o < engine.Document.TextLength) {
-						char ch = engine.Document.GetCharAt(o);
+					while (o < sourceText.Length) {
+						char ch = sourceText[o];
 						engine.Push(ch); 
 						if (NewLine.IsNewLine(ch))
 							break;
@@ -110,8 +114,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 				int idx = text.IndexOf('"');
 				if (idx > 0) {
 					var o = offset;
-					while (o < engine.Document.TextLength) {
-						char ch = engine.Document.GetCharAt(o);
+					while (o < sourceText.Length) {
+						char ch = sourceText[o];
 						engine.Push(ch); 
 						o++;
 						if (!engine.IsInsideVerbatimString)
@@ -122,8 +126,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 				return TextPasteUtils.VerbatimStringStrategy.Encode(text);
 			}
-			var line = engine.Document.GetLineByOffset(offset);
-			var pasteAtLineStart = line.Offset == offset;
+			var line = sourceText.Lines.GetLineFromPosition(offset);
+			var pasteAtLineStart = line.Start == offset;
 			var indentedText = new StringBuilder();
 			var curLine = new StringBuilder();
 			var clonedEngine = engine.Clone();
@@ -140,16 +144,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 				if (delimiterLength > 0) {
 					isNewLine = true;
 					if (gotNewLine || pasteAtLineStart) {
-						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
-							indentedText.Append(clonedEngine.ThisLineIndent);
+//						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
+//							indentedText.Append(clonedEngine.ThisLineIndent);
 					}
 					indentedText.Append(curLine);
-					indentedText.Append(textEditorOptions.EolMarker);
+					var newLine = options.GetOption(FormattingOptions.NewLine, LanguageNames.CSharp);
+					indentedText.Append(newLine);
 					curLine.Length = 0;
 					gotNewLine = true;
 					i += delimiterLength - 1;
 					// textEditorOptions.EolMarker[0] is the newLineChar used by the indentation engine.
-					clonedEngine.Push(textEditorOptions.EolMarker[0]);
+					clonedEngine.Push(newLine [0]);
 				} else {
 					if (isNewLine) {
 						if (ch == '\t' || ch == ' ') {
@@ -164,8 +169,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment && 
 				    !(clonedEngine.LineBeganInsideVerbatimString || clonedEngine.LineBeganInsideMultiLineComment)) {
 					if (gotNewLine) {
-						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
-							indentedText.Append(clonedEngine.ThisLineIndent);
+//						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
+//							indentedText.Append(clonedEngine.ThisLineIndent);
 					}
 					pasteAtLineStart = false;
 					indentedText.Append(curLine);
@@ -184,9 +189,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 		/// <inheritdoc />
-		byte[] ITextPasteHandler.GetCopyData(ISegment segment)
+		byte[] ITextPasteHandler.GetCopyData(TextSpan segment)
 		{
-			engine.Update(segment.Offset);
+			engine.Update(segment.Start);
 			
 			if (engine.IsInsideStringLiteral) {
 				return new[] { (byte)PasteStrategy.StringLiteral };
@@ -202,7 +207,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#region IDocumentIndentEngine
 
 		/// <inheritdoc />
-		public IDocument Document {
+		public Document Document {
 			get { return engine.Document; }
 		}
 
@@ -231,10 +236,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 			get { return engine.Offset; }
 		}
 
-		/// <inheritdoc />
-		public TextLocation Location {
-			get { return engine.Location; }
-		}
+//		/// <inheritdoc />
+//		public TextLocation Location {
+//			get { return engine.Location; }
+//		}
 
 		/// <inheritdoc />
 		public bool EnableCustomIndentLevels {
@@ -266,7 +271,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public IDocumentIndentEngine Clone()
 		{
-			return new TextPasteIndentEngine(engine, textEditorOptions, formattingOptions);
+			return new TextPasteIndentEngine(engine, options);
 		}
 
 		object ICloneable.Clone()
@@ -443,7 +448,59 @@ namespace ICSharpCode.NRefactory6.CSharp
 			/// <inheritdoc />
 			public string Encode(string text)
 			{
-				return CSharpOutputVisitor.ConvertString(text);
+				return ConvertString(text);
+			}
+			
+			/// <summary>
+			/// Gets the escape sequence for the specified character.
+			/// </summary>
+			/// <remarks>This method does not convert ' or ".</remarks>
+			public static string ConvertChar(char ch)
+			{
+				switch (ch) {
+					case '\\':
+						return "\\\\";
+					case '\0':
+						return "\\0";
+					case '\a':
+						return "\\a";
+					case '\b':
+						return "\\b";
+					case '\f':
+						return "\\f";
+					case '\n':
+						return "\\n";
+					case '\r':
+						return "\\r";
+					case '\t':
+						return "\\t";
+					case '\v':
+						return "\\v";
+					default:
+						if (char.IsControl(ch) || char.IsSurrogate(ch) ||
+						    // print all uncommon white spaces as numbers
+						    (char.IsWhiteSpace(ch) && ch != ' ')) {
+							return "\\u" + ((int)ch).ToString("x4");
+						} else {
+							return ch.ToString();
+						}
+				}
+			}
+			
+			/// <summary>
+			/// Converts special characters to escape sequences within the given string.
+			/// </summary>
+			public static string ConvertString(string str)
+			{
+				StringBuilder sb = new StringBuilder ();
+				foreach (char ch in str) {
+					if (ch == '"') {
+						sb.Append("\\\"");
+					} else {
+						sb.Append(ConvertChar(ch));
+					}
+				}
+				return sb.ToString();
 			}
 
 			/// <inheritdoc />

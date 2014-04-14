@@ -24,22 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory6.CSharp;
 using NUnit.Framework;
 using System.IO;
 using System.Text;
 using System;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.Options;
 
-namespace ICSharpCode.NRefactory.IndentationTests
+namespace ICSharpCode.NRefactory6.IndentationTests
 {
 	internal static class Helper
 	{
-		public static IDocumentIndentEngine CreateEngine(string text, CSharpFormattingOptions formatOptions = null, IEnumerable<string> symbols = null)
+		public static IDocumentIndentEngine CreateEngine(string text, OptionSet formatOptions = null, IEnumerable<string> symbols = null)
 		{
 			var policy = formatOptions;
-			if ( policy == null) {
+			if (policy == null) {
 				policy = FormattingOptionsFactory.CreateMono();
 				policy.IndentPreprocessorDirectives = false;
 				policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = true;
@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 		}
 
 
-		public static void RandomTests(string filePath, int count, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
+		public static void RandomTests(string filePath, int count, OptionSet options = null)
 		{
 			if (File.Exists(filePath))
 			{
@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 		}
 
 
-		public static void ReadAndTest(string filePath, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
+		public static void ReadAndTest(string filePath, OptionSet options = null)
 		{
 			if (File.Exists(filePath))
 			{

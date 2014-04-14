@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -32,10 +33,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 	/// </summary>
 	public sealed class NullIStateMachineIndentEngine : IStateMachineIndentEngine
 	{
-		readonly ICSharpCode.NRefactory6.Editor.IDocument document;
+		readonly Document document;
 		int offset;
 
-		public NullIStateMachineIndentEngine(ICSharpCode.NRefactory6.Editor.IDocument document)
+		public NullIStateMachineIndentEngine(Document document)
 		{
 			if (document == null)
 				throw new ArgumentNullException("document");
@@ -154,7 +155,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return Clone();
 		}
 
-		ICSharpCode.NRefactory6.Editor.IDocument IDocumentIndentEngine.Document {
+		Document IDocumentIndentEngine.Document {
 			get {
 				return document;
 			}
@@ -189,11 +190,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return offset;
 			}
 		}
-		TextLocation IDocumentIndentEngine.Location {
-			get {
-				return TextLocation.Empty;
-			}
-		}
+//		TextLocation IDocumentIndentEngine.Location {
+//			get {
+//				return TextLocation.Empty;
+//			}
+//		}
 
 		/// <inheritdoc />
 		public bool EnableCustomIndentLevels

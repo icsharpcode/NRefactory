@@ -22,8 +22,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using Microsoft.CodeAnalysis.Text;
 
-namespace ICSharpCode.NRefactory.Editor
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	/// <summary>
 	/// The text paste handler can do formattings to a text that is about to be pasted
@@ -46,6 +47,6 @@ namespace ICSharpCode.NRefactory.Editor
 		/// Gets the copy data for a specific segment inside the document. This can contain additional information.
 		/// </summary>
 		/// <param name="segment">The text segment that is about to be copied.</param>
-		byte[] GetCopyData(ISegment segment);
+		byte[] GetCopyData(TextSpan segment);
 	}
 }

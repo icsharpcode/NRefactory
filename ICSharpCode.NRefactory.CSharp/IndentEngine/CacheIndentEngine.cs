@@ -26,6 +26,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -80,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#region IDocumentIndentEngine
 
 		/// <inheritdoc />
-		public IDocument Document {
+		public Document Document {
 			get { return currentEngine.Document; }
 		}
 
@@ -109,10 +111,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 			get { return currentEngine.Offset; }
 		}
 
-		/// <inheritdoc />
-		public TextLocation Location {
-			get { return currentEngine.Location; }
-		}
+//		/// <inheritdoc />
+//		public TextLocation Location {
+//			get { return currentEngine.Location; }
+//		}
 
 		/// <inheritdoc />
 		public bool EnableCustomIndentLevels
@@ -179,7 +181,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			// get the engine caught up
 			int nextSave = (cachedEngines.Count == 0) ? BUFFER_SIZE : cachedEngines.Peek().Offset + BUFFER_SIZE;
 			if (currentEngine.Offset + 1 == position) {
-				char ch = currentEngine.Document.GetCharAt(currentEngine.Offset);
+				char ch = currentEngine.Document.GetTextAsync().Result[currentEngine.Offset];
 				currentEngine.Push(ch);
 				if (currentEngine.Offset == nextSave)
 					cachedEngines.Push(currentEngine.Clone());
@@ -190,7 +192,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 					int endCut = currentEngine.Offset + BUFFER_SIZE;
 					if (endCut > position)
 						endCut = position;
-					string buffer = currentEngine.Document.GetText(currentEngine.Offset, endCut - currentEngine.Offset);
+					var sourceText = currentEngine.Document.GetTextAsync().Result;
+					string buffer = sourceText.GetSubText(TextSpan.FromBounds(currentEngine.Offset, endCut)).ToString();
 					foreach (char ch in buffer) {
 						currentEngine.Push(ch);
 						//ConsoleWrite ("pushing character '{0}'", ch);

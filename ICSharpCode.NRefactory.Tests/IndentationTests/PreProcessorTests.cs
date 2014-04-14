@@ -24,10 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory6.CSharp;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.IndentationTests
+namespace ICSharpCode.NRefactory6.IndentationTests
 {
 	[TestFixture]
 	public class PreProcessorTests

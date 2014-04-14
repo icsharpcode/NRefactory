@@ -26,8 +26,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	public enum IndentType
 	{
@@ -42,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	public class Indent
 	{
 		readonly CloneableStack<IndentType> indentStack = new CloneableStack<IndentType>();
-		readonly TextEditorOptions options;
+		readonly OptionSet options;
 		int curIndent;
 		int extraSpaces;
 		string indentString;
@@ -53,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
-		public Indent(TextEditorOptions options)
+		public Indent(OptionSet options)
 		{
 			this.options = options;
 			Reset();
@@ -144,14 +147,14 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			switch (indentType) {
 				case IndentType.Block:
-					return options.IndentSize;
+					return options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp);
 				case IndentType.DoubleBlock:
-					return options.IndentSize * 2;
+					return options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp) * 2;
 				case IndentType.Alignment:
 				case IndentType.Continuation:
-					return options.ContinuationIndent;
+					return options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp);
 				case IndentType.Label:
-					return options.LabelIndent;
+					return options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp);
 				case IndentType.Empty:
 					return 0;
 				default:
@@ -161,11 +164,12 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		void Update()
 		{
-			if (options.TabsToSpaces) {
+			if (!options.GetOption(FormattingOptions.UseTabs, LanguageNames.CSharp)) {
 				indentString = new string(' ', curIndent + ExtraSpaces);
 				return;
 			}
-			indentString = new string('\t', curIndent / options.TabSize) + new string(' ', curIndent % options.TabSize) + new string(' ', ExtraSpaces);
+			var tabSize = options.GetOption(FormattingOptions.TabSize, LanguageNames.CSharp);
+			indentString = new string('\t', curIndent / tabSize) + new string(' ', curIndent % tabSize) + new string(' ', ExtraSpaces);
 		}
 
 		public int ExtraSpaces {
@@ -200,9 +204,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			return result;
 		}
 
-		public static Indent ConvertFrom(string indentString, Indent correctIndent, TextEditorOptions options = null)
+		public static Indent ConvertFrom(string indentString, Indent correctIndent, OptionSet options = null)
 		{
-			options = options ?? TextEditorOptions.Default;
+			options = options ?? correctIndent.options;
 			var result = new Indent(options);
 
 			var indent = string.Concat(indentString.Where(c => c == ' ' || c == '\t'));
@@ -241,6 +245,5 @@ namespace ICSharpCode.NRefactory.CSharp
 			RemoveAlignment();
 			Push(IndentType.Alignment);
 		}
-
 	}
 }

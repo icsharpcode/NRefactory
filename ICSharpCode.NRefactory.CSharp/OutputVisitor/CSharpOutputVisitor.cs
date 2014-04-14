@@ -2386,5 +2386,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return TextWriterTokenWriter.ConvertString(text);
 		}
+		
+		
 	}
 }

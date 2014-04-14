@@ -25,9 +25,9 @@
 // THE SOFTWARE.
 
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory6.CSharp;
 
-namespace ICSharpCode.NRefactory.IndentationTests
+namespace ICSharpCode.NRefactory6.IndentationTests
 {
 	[TestFixture]
 	public class BracketsTest

@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -35,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <summary>
 		///     A reference to the document that's parsed by the engine.
 		/// </summary>
-		IDocument Document { get; }
+		Document Document { get; }
 
 		/// <summary>
 		///     The indentation string of the current line.
@@ -61,11 +62,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 		///     The current offset of the engine.
 		/// </summary>
 		int Offset { get; }
-
-		/// <summary>
-		///     The current location of the engine.
-		/// </summary>
-		TextLocation Location { get; }
 
 		/// <summary>
 		///     If this is true, the engine should try to adjust its indent 

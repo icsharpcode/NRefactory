@@ -26,7 +26,7 @@
 
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.IndentationTests
+namespace ICSharpCode.NRefactory6.IndentationTests
 {
 	[TestFixture]
 	public class StringTests
@@ -173,13 +173,13 @@ namespace Foo {
 		[Test]
 		public void TestStringLiteralPasteStrategyUnicodeDecode()
 		{
-			var s = ICSharpCode.NRefactory.CSharp.TextPasteUtils.StringLiteralPasteStrategy.Instance.Decode(@"\u0066");
+			var s = ICSharpCode.NRefactory6.CSharp.TextPasteUtils.StringLiteralPasteStrategy.Instance.Decode(@"\u0066");
 			Assert.AreEqual("\u0066", s);
 
-			s = ICSharpCode.NRefactory.CSharp.TextPasteUtils.StringLiteralPasteStrategy.Instance.Decode(@"\U00000066");
+			s = ICSharpCode.NRefactory6.CSharp.TextPasteUtils.StringLiteralPasteStrategy.Instance.Decode(@"\U00000066");
 			Assert.AreEqual("\U00000066", s);
 
-			s = ICSharpCode.NRefactory.CSharp.TextPasteUtils.StringLiteralPasteStrategy.Instance.Decode(@"\xAFFE");
+			s = ICSharpCode.NRefactory6.CSharp.TextPasteUtils.StringLiteralPasteStrategy.Instance.Decode(@"\xAFFE");
 			Assert.AreEqual("\xAFFE", s);
 
 		}

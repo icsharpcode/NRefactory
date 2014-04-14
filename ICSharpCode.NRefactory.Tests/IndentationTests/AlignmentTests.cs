@@ -24,9 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory6.CSharp;
 
-namespace ICSharpCode.NRefactory.IndentationTests
+namespace ICSharpCode.NRefactory6.IndentationTests
 {
 	[TestFixture]
 	public class AlignmentTests
@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.IndentationTests
 		[Test]
 		public void MethodCallAlignment()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			var fmt = FormattingOptionsFactory.CreateMono();
 			fmt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo

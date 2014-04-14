@@ -160,5 +160,24 @@
     <None Include="CSharp\CodeCompletion\ImportCompletionTests.cs" />
     <None Include="CSharp\CodeCompletion\ParameterCompletionTests.cs" />
     <None Include="CSharp\CodeCompletion\BrowsableAttributeTests.cs" />
+    <None Include="IndentationTests\TestFiles\Comments.cs" />
+    <None Include="IndentationTests\TestFiles\CSharpParser.cs" />
+    <None Include="IndentationTests\TestFiles\IndentEngine.cs" />
+    <None Include="IndentationTests\TestFiles\IndentState.cs" />
+    <None Include="IndentationTests\TestFiles\InheritStatements.cs" />
+    <None Include="IndentationTests\TestFiles\PreProcessorDirectives.cs" />
+    <None Include="IndentationTests\TestFiles\Simple.cs" />
+    <None Include="IndentationTests\TestFiles\Strings.cs" />
+    <None Include="IndentationTests\TestFiles\SwitchCase.cs" />
+    <None Include="IndentationTests\TestFiles\TextArea.cs" />
+    <None Include="IndentationTests\TextPasteIndentEngineTests.cs" />
+    <None Include="IndentationTests\AlignmentTests.cs" />
+    <None Include="IndentationTests\AllInOneTests.cs" />
+    <None Include="IndentationTests\BlockTest.cs" />
+    <None Include="IndentationTests\CommentTests.cs" />
+    <None Include="IndentationTests\GeneralTests.cs" />
+    <None Include="IndentationTests\Helper.cs" />
+    <None Include="IndentationTests\PreProcessorTests.cs" />
+    <None Include="IndentationTests\StringTests.cs" />
   </ItemGroup>
 </Project>
