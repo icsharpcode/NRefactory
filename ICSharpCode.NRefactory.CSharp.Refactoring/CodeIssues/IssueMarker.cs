@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace ICSharpCode.NRefactory.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	/// <summary>
 	/// The issue marker is used to set how an issue should be marked inside the text editor.

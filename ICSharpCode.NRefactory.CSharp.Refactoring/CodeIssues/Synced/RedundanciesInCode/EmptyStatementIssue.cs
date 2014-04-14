@@ -35,12 +35,9 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading;
-using System.Linq;
  
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-//	[IssueDescription(
-//		AnalysisDisableKeyword = "EmptyStatement")]
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer(DiagnosticId, LanguageNames.CSharp)]
 	public class EmptyStatementIssue : ISyntaxNodeAnalyzer<SyntaxKind>
@@ -50,7 +47,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string MessageFormat = "Remove ';'";
 		const string Category      = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new NRefactoryDiagnosticDescriptor (DiagnosticId, "?", Description, MessageFormat, Category, DiagnosticSeverity.Warning) {
+			AnalysisDisableKeyword = "EmptyStatement"
+		};
 
 		public IEnumerable<DiagnosticDescriptor> GetSupportedDiagnostics()
 		{
@@ -94,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var token = root.FindNode(diagonstic.Location.SourceSpan);
 				if (token.IsKind(SyntaxKind.EmptyStatement)) {
 					var newRoot = root.RemoveNode(token, SyntaxRemoveOptions.KeepDirectives);
-					result.Add(CodeAction.Create(EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

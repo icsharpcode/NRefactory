@@ -101,6 +101,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\EmptyStatementIssue.cs" />
     <Compile Include="CodeIssues\IssueCategories.cs" />
+    <Compile Include="CodeIssues\CodeActionFactory.cs" />
+    <Compile Include="CodeIssues\NRefactoryCodeAction.cs" />
+    <Compile Include="CodeIssues\NRefactoryDiagnosticDescriptor.cs" />
+    <Compile Include="CodeIssues\IssueMarker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
