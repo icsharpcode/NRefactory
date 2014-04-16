@@ -99,12 +99,16 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			return CreateCompilation(source, refs, compOptions, assemblyName);
 		}
 
-		class TestWorkspace : Workspace
+		internal class TestWorkspace : Workspace
 		{
 			public TestWorkspace(Microsoft.CodeAnalysis.Composition.FeaturePack features, string workspaceKind = "Test") : base(features, workspaceKind)
 			{
 			}
-
+			
+			public void ChangeDocument (DocumentId id, SourceText text)
+			{
+				ChangedDocumentText(id, text);
+			}
 			protected override void ChangedDocumentText(DocumentId id, SourceText text)
 			{
 				var document = CurrentSolution.GetDocument(id);

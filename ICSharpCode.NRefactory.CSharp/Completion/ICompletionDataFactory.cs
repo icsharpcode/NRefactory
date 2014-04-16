@@ -42,13 +42,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //		ICompletionData CreateTypeCompletionData (IType type, bool showFullName, bool isInAttributeContext, bool addForTypeCreation);
 //
 //		/// <summary>
-//		/// Creates the member completion data. 
-//		/// Form: Type.Member
-//		/// Used for generating enum members Foo.A, Foo.B where the enum 'Foo' is valid.
-//		/// </summary>
-//		ICompletionData CreateMemberCompletionData(IType type, IEntity member);
-//
-//		/// <summary>
 //		/// Creates a generic completion data.
 //		/// </summary>
 //		/// <param name='title'>
@@ -87,5 +80,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		ICompletionData CreateXmlDocCompletionData (string tag, string description = null, string tagInsertionText = null);
 
 		ISymbolCompletionData CreateSymbolCompletionData(ISymbol symbol);
+
+		/// <summary>
+		/// Creates enum member completion data. 
+		/// Form: Type.Member
+		/// Used for generating enum members Foo.A, Foo.B where the enum 'Foo' is valid.
+		/// </summary>
+		ICompletionData CreateEnumMemberCompletionData(IFieldSymbol field);
 	}
 }

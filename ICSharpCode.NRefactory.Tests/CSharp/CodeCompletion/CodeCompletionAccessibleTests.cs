@@ -1244,7 +1244,7 @@ $TestEnum test = TestEnum.A | T$
 		[Test]
 		public void TestEnumComparison ()
 		{
-			var provider = CodeCompletionBugTests.CreateProvider(
+			var provider = CodeCompletionBugTests.CreateCtrlSpaceProvider(
 				@"
 public enum TestEnum { A, B, C}
 
@@ -1268,7 +1268,7 @@ class TestClass
 		[Test]
 		public void TestEnumComparisonCase2 ()
 		{
-			var provider = CodeCompletionBugTests.CreateProvider(
+			var provider = CodeCompletionBugTests.CreateCtrlSpaceProvider(
 				@"
 public enum TestEnum { A, B, C}
 

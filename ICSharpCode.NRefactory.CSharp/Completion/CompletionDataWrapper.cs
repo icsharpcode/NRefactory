@@ -298,19 +298,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 		}
 		HashSet<IType> addedEnums = new HashSet<IType> ();
-		public ICompletionData AddEnumMembers (IType resolvedType, CSharpResolver state)
-		{
-			if (addedEnums.Contains (resolvedType))
-				return null;
-			addedEnums.Add (resolvedType);
-			var result = AddType(resolvedType, true);
-			foreach (var field in resolvedType.GetFields ()) {
-				if (field.IsPublic && (field.IsConst || field.IsStatic)) {
-					Result.Add(Factory.CreateMemberCompletionData(resolvedType, field));
-				}
-			}
-			return result;
-		}
 		HashSet<string> anonymousSignatures = new HashSet<string> ();
 
 		public bool HasAnonymousDelegateAdded(string signature)

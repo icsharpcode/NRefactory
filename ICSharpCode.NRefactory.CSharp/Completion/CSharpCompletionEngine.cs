@@ -31,6 +31,8 @@ using Microsoft.CodeAnalysis;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp;
 
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public enum EditorBrowsableBehavior
@@ -46,16 +48,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //		public ICompletionData[] importCompletion;
 //	}
 
-
 	abstract class CompletionContextHandler
 	{
-		public abstract IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken));
-
+		public abstract IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, SyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken));
 	}
 
 	class RoslynRecommendationsCompletionContextHandler : CompletionContextHandler
 	{
-		public override IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken))
+		public override IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, SyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			foreach (var symbol in Recommender.GetRecommendedSymbolsAtPosition(semanticModel, offset, engine.Workspace, null, cancellationToken)) {
 				yield return engine.Factory.CreateSymbolCompletionData(symbol);
@@ -63,11 +63,45 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		}
 	}
 
+	
+	class EnumMemberContextHandler : CompletionContextHandler
+	{
+		public override IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, SyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			foreach (var type in ctx.InferredTypes) {
+				if (type.TypeKind != TypeKind.Enum)
+					continue;
+				if (string.IsNullOrEmpty(engine.DefaultCompletionString))
+					engine.DefaultCompletionString = type.Name;
+				
+				foreach (IFieldSymbol field in type.GetMembers().OfType<IFieldSymbol>()) {
+					if (field.DeclaredAccessibility == Accessibility.Public && (field.IsConst || field.IsStatic)) {
+						yield return engine.Factory.CreateEnumMemberCompletionData(field);
+					}
+				}
+			}
+		}
+	}
+
 	class KeywordContextHandler : CompletionContextHandler
 	{
-		public override IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken)
+		public override IEnumerable<ICompletionData> GetCompletionData(CSharpCompletionEngine engine, SyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken)
 		{
 			var factory = engine.Factory;
+			if (ctx.IsIsOrAsTypeContext) {
+				foreach (var kw in primitiveTypesKeywords)
+					yield return factory.CreateGenericData(kw, GenericDataType.Keyword);
+				yield break;
+			}
+			if (ctx.IsInstanceContext) {
+				if (ctx.LeftToken.Parent.Ancestors().Any(a => a is SwitchStatementSyntax || a is BlockSyntax && a.ToFullString().IndexOf("switch", StringComparison.Ordinal) > 0  )) {
+					yield return factory.CreateGenericData("case", GenericDataType.Keyword);
+				}
+			}
+			if (ctx.TargetToken.Parent is ForEachStatementSyntax) {
+				yield return factory.CreateGenericData("in", GenericDataType.Keyword);
+				yield break;
+			}
 			if (ctx.IsNonAttributeExpressionContext)
 				yield break;
 			//	if (ctx.IsGlobalStatementContext) {
@@ -180,10 +214,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			"abstract", "sealed", "static", "unsafe", "partial"
 		};
 
-		static readonly string[] accessorModifierKeywords = {
-			"public", "internal", "protected", "private", "async"
-		};
-
 		static readonly string[] typeLevelKeywords = {
 			"public", "internal", "protected", "private", "async",
 			"class", "interface", "struct", "enum", "delegate",
@@ -216,12 +246,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			"params"
 		};
 	}
-
+	
 	public class CSharpCompletionEngine 
 	{
 		static readonly CompletionContextHandler[] handlers = new CompletionContextHandler[] {
 			new RoslynRecommendationsCompletionContextHandler (),
-			new KeywordContextHandler()
+			new KeywordContextHandler(),
+			new EnumMemberContextHandler()
 		};
 
 		readonly ICompletionDataFactory factory;
@@ -239,6 +270,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 		}
 
+		public string DefaultCompletionString {
+			get;
+			internal set;
+		}
+
 		public CSharpCompletionEngine(Workspace workspace, ICompletionDataFactory factory)
 		{
 			if (workspace == null)
@@ -249,9 +285,51 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			this.workspace = workspace;
 			this.factory = factory;
 		}
-
+		
 		public IEnumerable<ICompletionData> GetCompletionData(Document document, SemanticModel semanticModel, int position, bool isCtrlSpace, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			var ctx = SyntaxContext.Create (workspace, document, semanticModel, position, cancellationToken);
+			
+			if (ctx.ContainingTypeDeclaration != null &&
+				ctx.ContainingTypeDeclaration.IsKind(SyntaxKind.EnumDeclaration)) {
+				return Enumerable.Empty<ICompletionData>();
+			}
+			
+			var trivia = semanticModel.SyntaxTree.GetRoot(cancellationToken).FindTrivia(position - 1);
+			if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)) {
+				return Enumerable.Empty<ICompletionData>();
+			}
+			
+			if (trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)) {
+				return Enumerable.Empty<ICompletionData>();
+			}
+
+			if (ctx.LeftToken.CSharpContextualKind() == SyntaxKind.IdentifierToken &&
+				(ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.Argument || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.TypeParameterList || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.CatchClause || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.VariableDeclaration || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.NamespaceDeclaration || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.CompilationUnit || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.Block || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.BracketedParameterList || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.QualifiedName || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.AnonymousObjectMemberDeclarator && ctx.TargetToken.CSharpKind() != SyntaxKind.EqualsToken || 
+					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.ParameterList
+				) ||
+				ctx.LeftToken.Parent is QualifiedNameSyntax &&
+				ctx.LeftToken.Parent.Parent != null &&
+				ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.NamespaceDeclaration) {
+				return Enumerable.Empty<ICompletionData>();
+			}
+
+			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
+			if (incompleteMemberSyntax != null) {
+				var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
+				if (mod.IsKind(SyntaxKind.OverrideKeyword))
+					return HandleOverrideContext(ctx, semanticModel);
+			}
+
 			if (!isCtrlSpace) {
 				var text = document.GetTextAsync(cancellationToken).Result; 
 				char lastChar = text [position - 1];
@@ -260,15 +338,89 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 			}
 			
-			var ctx = Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext.CreateContext(workspace, semanticModel, position, cancellationToken); 
-			var trivia = semanticModel.SyntaxTree.GetRoot(cancellationToken).FindTrivia(position - 1);
-			if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) ||
-				trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)) {
-				return Enumerable.Empty<ICompletionData>();
-
+			if (ctx.TargetToken.Parent is AccessorListSyntax) {
+				if (ctx.TargetToken.Parent.Parent is EventDeclarationSyntax) {
+					return HandleEventAccessorContext();
+				}
+				if (ctx.TargetToken.Parent.Parent is PropertyDeclarationSyntax ||
+					ctx.TargetToken.Parent.Parent is IndexerDeclarationSyntax) {
+					return HandlePropertyAccessorContext(false);
+				}
+			}
+			if (ctx.TargetToken.Parent is AccessorDeclarationSyntax) {
+				if (ctx.TargetToken.Parent.Parent.Parent is PropertyDeclarationSyntax ||
+					ctx.TargetToken.Parent.Parent.Parent is IndexerDeclarationSyntax) {
+					return HandlePropertyAccessorContext(true);
+				}
 			}
 			
 			return handlers.SelectMany(handler => handler.GetCompletionData(this, ctx, semanticModel, position, cancellationToken)); 
+		}
+
+		IEnumerable<ICompletionData> HandleEventAccessorContext()
+		{
+			yield return factory.CreateGenericData("add", GenericDataType.Keyword);
+			yield return factory.CreateGenericData("remove", GenericDataType.Keyword);
+		}
+
+		static ITypeSymbol GetCurrentType(SyntaxContext ctx, SemanticModel semanticModel)
+		{
+			foreach (var f in semanticModel.Compilation.GlobalNamespace.GetMembers()) {
+				foreach (var loc in f.Locations) {
+					if (loc.SourceTree.FilePath == ctx.SyntaxTree.FilePath) {
+						if (loc.SourceSpan == ctx.ContainingTypeDeclaration.Identifier.Span) {
+							return f as ITypeSymbol;
+						}
+					}
+				}
+			}
+			return null;
+		}
+
+		IEnumerable<ICompletionData> HandleOverrideContext(SyntaxContext ctx, SemanticModel semanticModel)
+		{
+			if (ctx.ContainingTypeDeclaration == null)
+				yield break;
+			var curType = GetCurrentType(ctx, semanticModel);
+			if (curType == null)
+				yield break;
+			foreach (var m in curType.BaseType.GetMembers ()) {
+				if (!m.IsOverride && !m.IsVirtual || m.ContainingType == curType)
+					continue;
+//				// filter out the "Finalize" methods, because finalizers should be done with destructors.
+//				if (m is IMethod && m.Name == "Finalize") {
+//					continue;
+//				}
+//
+//				var data = factory.CreateNewOverrideCompletionData(
+//					declarationBegin,
+//					currentType,
+//					m
+//				);
+//				// check if the member is already implemented
+//				bool foundMember = curType.GetMembers().Any(cm => SignatureComparer.Ordinal.Equals(
+//					cm,
+//					m
+//				) && cm.DeclaringTypeDefinition == curType.GetDefinition()
+//				);
+//				if (foundMember) {
+//					continue;
+//				}
+//				if (alreadyInserted.Any(cm => SignatureComparer.Ordinal.Equals(cm, m)))
+//					continue;
+//				alreadyInserted.Add(m);
+//				data.CompletionCategory = col.GetCompletionCategory(m.DeclaringTypeDefinition);
+//				col.Add(data);
+			}
+		}
+		
+		IEnumerable<ICompletionData> HandlePropertyAccessorContext(bool isInsideAccessorDeclaration)
+		{
+			yield return factory.CreateGenericData("get", GenericDataType.Keyword);
+			yield return factory.CreateGenericData("set", GenericDataType.Keyword);
+			foreach (var accessorModifier in new [] { "public", "internal", "protected", "private", "async" }) {
+				yield return factory.CreateGenericData(accessorModifier, GenericDataType.Keyword);
+			}
 		}
 
 		/*
@@ -1635,32 +1787,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return false;
 		}
 
-		IEnumerable<ICompletionData> HandleAccessorContext()
-		{
-			var unit = ParseStub("get; }", false);
-			var node = unit.GetNodeAt(location, cn => !(cn is CSharpTokenNode));
-			if (node is Accessor) {
-				node = node.Parent;
-			}
-			var contextList = new CompletionDataWrapper(this);
-			if (node is PropertyDeclaration || node is IndexerDeclaration) {
-				if (IncludeKeywordsInCompletionList) {
-					contextList.AddCustom("get");
-					contextList.AddCustom("set");
-					AddKeywords(contextList, accessorModifierKeywords);
-				}
-			} else if (node is CustomEventDeclaration) {
-				if (IncludeKeywordsInCompletionList) {
-					contextList.AddCustom("add");
-					contextList.AddCustom("remove");
-				}
-			} else {
-				return null;
-			}
-
-			return contextList.Result;
-		}
-
 		class IfVisitor :DepthFirstAstVisitor
 		{
 			TextLocation loc;
@@ -2384,29 +2510,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					//						result.ExpressionContext = ExpressionContext.TypeName;
 					//						return CreateCtrlSpaceCompletionData (completionContext, result);
 					//					}
-				case "override":
-					// Look for modifiers, in order to find the beginning of the declaration
-					int firstMod = wordStart;
-					int i = wordStart;
-					for (int n = 0; n < 3; n++) {
-						string mod = GetPreviousToken(ref i, true);
-						if (mod == "public" || mod == "protected" || mod == "private" || mod == "internal" || mod == "sealed") {
-							firstMod = i;
-						} else if (mod == "static") {
-							// static methods are not overridable
-							return null;
-						} else {
-							break;
-						}
-					}
-					if (!IsLineEmptyUpToEol()) {
-						return null;
-					}
-					if (currentType != null && (currentType.Kind == TypeKind.Class || currentType.Kind == TypeKind.Struct)) {
-						string modifiers = document.GetText(firstMod, wordStart - firstMod);
-						return GetOverrideCompletionData(currentType, modifiers);
-					}
-					return null;
 				case "partial":
 					// Look for modifiers, in order to find the beginning of the declaration
 					firstMod = wordStart;
@@ -2629,40 +2732,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return false;
 		}
 
-		IEnumerable<ICompletionData> GetOverrideCompletionData(IUnresolvedTypeDefinition type, string modifiers)
-		{
-			var wrapper = new CompletionDataWrapper(this);
-			var alreadyInserted = new List<IMember>();
-			//bool addedVirtuals = false;
-
-			int declarationBegin = offset;
-			int j = declarationBegin;
-			for (int i = 0; i < 3; i++) {
-				switch (GetPreviousToken(ref j, true)) {
-					case "public":
-					case "protected":
-					case "private":
-					case "internal":
-					case "sealed":
-					case "override":
-					case "partial":
-					case "async":
-						declarationBegin = j;
-						break;
-					case "static":
-						return null; // don't add override completion for static members
-				}
-			}
-			AddVirtuals(
-				alreadyInserted,
-				wrapper,
-				modifiers,
-				type.Resolve(ctx),
-				declarationBegin
-			);
-			return wrapper.Result;
-		}
-
 		IEnumerable<ICompletionData> GetPartialCompletionData(ITypeDefinition type, string modifiers)
 		{
 			var wrapper = new CompletionDataWrapper(this);
@@ -2722,42 +2791,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 			}
 			return null;
-		}
-
-		protected virtual void AddVirtuals(List<IMember> alreadyInserted, CompletionDataWrapper col, string modifiers, IType curType, int declarationBegin)
-		{
-			if (curType == null) {
-				return;
-			}
-			foreach (var m in curType.GetMembers ().Reverse ()) {
-				if (curType.Kind != TypeKind.Interface && !m.IsOverridable) {
-					continue;
-				}
-				// filter out the "Finalize" methods, because finalizers should be done with destructors.
-				if (m is IMethod && m.Name == "Finalize") {
-					continue;
-				}
-
-				var data = factory.CreateNewOverrideCompletionData(
-					declarationBegin,
-					currentType,
-					m
-				);
-				// check if the member is already implemented
-				bool foundMember = curType.GetMembers().Any(cm => SignatureComparer.Ordinal.Equals(
-					cm,
-					m
-				) && cm.DeclaringTypeDefinition == curType.GetDefinition()
-				);
-				if (foundMember) {
-					continue;
-				}
-				if (alreadyInserted.Any(cm => SignatureComparer.Ordinal.Equals(cm, m)))
-					continue;
-				alreadyInserted.Add(m);
-				data.CompletionCategory = col.GetCompletionCategory(m.DeclaringTypeDefinition);
-				col.Add(data);
-			}
 		}
 
 		void AddKeywords(CompletionDataWrapper wrapper, IEnumerable<string> keywords)
@@ -3081,16 +3114,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			//				}
 			//			}
 			return result.Result;
-		}
-
-		void AddEnumMembers(CompletionDataWrapper completionList, IType resolvedType, CSharpResolver state)
-		{
-			if (resolvedType.Kind != TypeKind.Enum) {
-				return;
-			}
-			var type = completionList.AddEnumMembers(resolvedType, state);
-			if (type != null)
-				DefaultCompletionString = type.DisplayText;
 		}
 
 		IEnumerable<ICompletionData> CreateCompletionData(TextLocation location, ResolveResult resolveResult, AstNode resolvedNode, CSharpResolver state, Func<IType, IType> typePred = null)

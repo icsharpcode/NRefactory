@@ -120,6 +120,7 @@
     <Compile Include="Formatter\Indent.cs" />
     <Compile Include="IndentEngine\ITextPasteHandler.cs" />
     <Compile Include="Formatter\FormattingOptionsFactory.cs" />
+    <Compile Include="Completion\SyntaxContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />

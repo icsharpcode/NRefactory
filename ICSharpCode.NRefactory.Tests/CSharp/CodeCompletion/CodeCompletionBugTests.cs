@@ -149,6 +149,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			{
 				return new CompletionData(keyword);
 			}
+			
+			ICompletionData ICompletionDataFactory.CreateEnumMemberCompletionData(IFieldSymbol field)
+			{
+				return new CompletionData(field.ContainingType.Name + "." + field.Name);
+			}
+
 
 			class SymbolCompletionData : CompletionData, ISymbolCompletionData
 			{
@@ -238,18 +244,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //				mb.AddSymbol(sym);
 //			}
 
-			var workspace = new CustomWorkspace(TestWorkspaceFeatures.Features);
+			var workspace = new RoslynInspectionActionTestBase.TestWorkspace (TestWorkspaceFeatures.Features);
 
 			var projectId  = ProjectId.CreateNewId();
 			var solutionId = SolutionId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
 
-			workspace.AddSolution(SolutionInfo.Create(
-				solutionId,
-				VersionStamp.Create(),
-				null,
-				new [] {
-					ProjectInfo.Create(
+			workspace.Open(ProjectInfo.Create(
 						projectId,
 						VersionStamp.Create(),
 						"TestProject",
@@ -297,24 +298,23 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 								"a.cs",
 								null,
 								SourceCodeKind.Regular,
-								TextLoader.From(TextAndVersion.Create(SourceText.From(editorText), VersionStamp.Create())) 
+								TextLoader.From(TextAndVersion.Create(SourceText.From(parsedText), VersionStamp.Create())) 
 							)
 						},
 						null,
 						RoslynInspectionActionTestBase.DefaultMetadataReferences
 					)
-				}
-			));
+			);
 
 			var engine = new CSharpCompletionEngine(workspace, new TestFactory ());
 
 			var compilation = workspace.CurrentSolution.GetProject(projectId).GetCompilationAsync().Result;
-
-			//			workspace.OpenDocument(documentId); 
+			
+			if (!workspace.TryApplyChanges(workspace.CurrentSolution.WithDocumentText(documentId, SourceText.From(editorText)))) {
+				Assert.Fail();
+			}
 			document = workspace.CurrentSolution.GetDocument(documentId);
-			var tree = document.GetSyntaxTreeAsync().Result; 
-			semanticModel = compilation.GetSemanticModel(tree);
-
+			semanticModel = document.GetSemanticModelAsync().Result;
 
 //			engine.AutomaticallyAddImports = true;
 //			engine.EolMarker = Environment.NewLine;
