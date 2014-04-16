@@ -55,6 +55,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 		}
 		
+		public CompletionResult()
+		{
+			AutoSelect = true;
+		}
+		
 		internal void AddData (ICompletionData data)
 		{
 			completionData.Add(data); 

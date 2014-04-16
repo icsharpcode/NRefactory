@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 		public override void GetCompletionData(CompletionResult result, CSharpCompletionEngine engine, SyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			bool isInAttribute = ctx.TargetToken.Parent.CSharpKind() == SyntaxKind.AttributeList;
+			bool isInAttribute = ctx.TargetToken != null && ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.CSharpKind() == SyntaxKind.AttributeList;
 			foreach (var symbol in Recommender.GetRecommendedSymbolsAtPosition(semanticModel, offset, engine.Workspace, null, cancellationToken)) {
 				if (isInAttribute && symbol.Kind == SymbolKind.NamedType) {
 					ITypeSymbol type = (ITypeSymbol)symbol;
@@ -106,28 +106,65 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
 				return;
 			}
+			var parent = ctx.TargetToken.Parent;
+			if (parent != null) {
+				if (parent.CSharpKind() == SyntaxKind.IdentifierName) {
+					if (ctx.LeftToken.Parent.CSharpKind() == SyntaxKind.IdentifierName &&
+						parent.Parent != null && parent.Parent.CSharpKind() == SyntaxKind.ParenthesizedExpression ||
+					   	ctx.LeftToken.Parent.CSharpKind() == SyntaxKind.CatchDeclaration)
+						return;
+				}
+				if (parent.CSharpKind() == SyntaxKind.ClassDeclaration ||
+				   parent.CSharpKind() == SyntaxKind.StructDeclaration ||
+				   parent.CSharpKind() == SyntaxKind.InterfaceDeclaration ||
+				   parent.CSharpKind() == SyntaxKind.EnumDeclaration ||
+				   parent.CSharpKind() == SyntaxKind.DelegateDeclaration ||
+				   parent.CSharpKind() == SyntaxKind.PredefinedType ||
+				   parent.CSharpKind() == SyntaxKind.TypeParameterList ||
+				   parent.CSharpKind() == SyntaxKind.NamespaceDeclaration ||
+				   parent.CSharpKind() == SyntaxKind.QualifiedName) {
+					return;
+				}
+			}
 			if (ctx.IsInstanceContext) {
-				if (ctx.LeftToken.Parent.Ancestors().Any(a => a is SwitchStatementSyntax || a is BlockSyntax && a.ToFullString().IndexOf("switch", StringComparison.Ordinal) > 0  )) {
+				if (ctx.LeftToken.Parent.Ancestors().Any(a => a is SwitchStatementSyntax || a is BlockSyntax && a.ToFullString().IndexOf("switch", StringComparison.Ordinal) > 0)) {
 					result.AddData(factory.CreateGenericData("case", GenericDataType.Keyword));
 				}
 			}
-			if (ctx.TargetToken.Parent is ForEachStatementSyntax) {
-				result.AddData(factory.CreateGenericData("in", GenericDataType.Keyword));
-				return;
+			var forEachStatementSyntax = ctx.TargetToken.Parent as ForEachStatementSyntax;
+			if (forEachStatementSyntax != null) {
+				if (forEachStatementSyntax.Type.Span.Length > 0 &&
+					forEachStatementSyntax.Identifier.Span.Length > 0 &&
+					forEachStatementSyntax.InKeyword.Span.Length == 0) {
+					result.AddData(factory.CreateGenericData("in", GenericDataType.Keyword));
+					return;
+				}
 			}
-			if (ctx.IsNonAttributeExpressionContext)
-				return;
-			//	if (ctx.IsGlobalStatementContext) {
+			if (parent != null && parent.CSharpKind() == SyntaxKind.ArgumentList) {
+				result.AddData(factory.CreateGenericData("out", GenericDataType.Keyword));
+				result.AddData(factory.CreateGenericData("ref", GenericDataType.Keyword));
+			} else if (parent != null && parent.CSharpKind() == SyntaxKind.ParameterList) {
+				result.AddData(factory.CreateGenericData("out", GenericDataType.Keyword));
+				result.AddData(factory.CreateGenericData("ref", GenericDataType.Keyword));
+				result.AddData(factory.CreateGenericData("params", GenericDataType.Keyword));
+			} else {
+				result.AddData(factory.CreateGenericData("var", GenericDataType.Keyword));
+				result.AddData(factory.CreateGenericData("dynamic", GenericDataType.Keyword));
+			}
+				
+			if (ctx.IsGlobalStatementContext || parent == null) {
 				foreach (var kw in globalLevelKeywords)
 					result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
-			//	yield break;
-			//}
+			} else {
+				foreach (var kw in typeLevelKeywords)
+					result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
+			}
 
 			//if (ctx.IsInstanceContext) {
-				foreach (var kw in primitiveTypesKeywords)
+			foreach (var kw in primitiveTypesKeywords)
 				result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
-			result.AddData(factory.CreateGenericData("var", GenericDataType.Keyword));
-
+			
+		
 			//}
 
 			//if (ctx.IsStatementContext) {
@@ -311,25 +348,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)) {
 				return CompletionResult.Empty;
 			}
-			
-			if (ctx.LeftToken.CSharpContextualKind() == SyntaxKind.IdentifierToken &&
-				(ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.Argument || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.TypeParameterList || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.CatchClause || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.VariableDeclaration || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.NamespaceDeclaration || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.CompilationUnit || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.Block || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.BracketedParameterList || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.QualifiedName || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.AnonymousObjectMemberDeclarator && ctx.TargetToken.CSharpKind() != SyntaxKind.EqualsToken || 
-					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.ParameterList
-				) ||
-				ctx.LeftToken.Parent is QualifiedNameSyntax &&
-				ctx.LeftToken.Parent.Parent != null &&
-				ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.NamespaceDeclaration) {
-				return CompletionResult.Empty;
-			}
+//			if (ctx.LeftToken.CSharpContextualKind() == SyntaxKind.IdentifierToken &&
+//				(ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.Argument || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.TypeParameterList || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.CatchClause || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.VariableDeclaration || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.NamespaceDeclaration || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.CompilationUnit || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.Block || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.BracketedParameterList || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.QualifiedName || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.AnonymousObjectMemberDeclarator && ctx.TargetToken.CSharpKind() != SyntaxKind.EqualsToken || 
+//					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.ParameterList
+//				) ||
+//				ctx.LeftToken.Parent is QualifiedNameSyntax &&
+//				ctx.LeftToken.Parent.Parent != null &&
+//				ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.NamespaceDeclaration) {
+//				return CompletionResult.Empty;
+//			}
 
 			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
 			if (incompleteMemberSyntax != null) {
@@ -2114,11 +2150,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (node != null || state.CurrentTypeDefinition != null || isInGlobalDelegate)
 				AddKeywords(wrapper, primitiveTypesKeywords);
 			if (currentMember != null && (node is IdentifierExpression || node is SimpleType) && (node.Parent is ExpressionStatement || node.Parent is ForeachStatement || node.Parent is UsingStatement)) {
-				if (IncludeKeywordsInCompletionList) {
-					wrapper.AddCustom("var");
-					wrapper.AddCustom("dynamic");
-				}
-			} 
+=			} 
 			wrapper.Result.AddRange(factory.CreateCodeTemplateCompletionData());
 			if (node != null && node.Role == Roles.Argument) {
 				var resolved = ResolveExpression(node.Parent);

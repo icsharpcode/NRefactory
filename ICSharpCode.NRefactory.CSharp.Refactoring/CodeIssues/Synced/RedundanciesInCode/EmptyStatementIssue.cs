@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string MessageFormat = "Remove ';'";
 		const string Category      = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new NRefactoryDiagnosticDescriptor (DiagnosticId, "?", Description, MessageFormat, Category, DiagnosticSeverity.Warning) {
+		static readonly NRefactoryDiagnosticDescriptor Rule = new NRefactoryDiagnosticDescriptor (DiagnosticId, "?", Description, MessageFormat, Category, DiagnosticSeverity.Warning) {
 			AnalysisDisableKeyword = "EmptyStatement"
 		};
 

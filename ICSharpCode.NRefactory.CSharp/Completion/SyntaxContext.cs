@@ -92,6 +92,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return ctx.ContainingTypeDeclaration;
 			}
 		}
+
+		public bool IsGlobalStatementContext {
+			get {
+				return ctx.IsGlobalStatementContext;
+			}
+		}
 		
 		public SyntaxTree SyntaxTree {
 			get {
