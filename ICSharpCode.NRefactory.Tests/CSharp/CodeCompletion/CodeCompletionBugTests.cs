@@ -44,17 +44,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 	[TestFixture]
 	public class CodeCompletionBugTests : TestBase
 	{
-		public static CompletionDataList CreateProvider (string text)
+		public static CompletionResult CreateProvider (string text)
 		{
 			return CreateProvider (text, false);
 		}
 		
-		public static CompletionDataList CreateCtrlSpaceProvider (string text)
+		public static CompletionResult CreateCtrlSpaceProvider (string text)
 		{
 			return CreateProvider (text, true);
 		}
 		
-		public static void CombinedProviderTest (string text, Action<CompletionDataList> act)
+		public static void CombinedProviderTest (string text, Action<CompletionResult> act)
 		{
 			var provider = CreateProvider (text);
 			Assert.IsNotNull (provider, "provider == null");
@@ -170,11 +170,20 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				{
 					this.symbol = symbol;
 				}
+
+				public SymbolCompletionData(ISymbol symbol, string text) : base (text)
+				{
+					this.symbol = symbol;
+				}
 			}
 
 			ISymbolCompletionData ICompletionDataFactory.CreateSymbolCompletionData(ISymbol symbol)
 			{
 				return new SymbolCompletionData(symbol);
+			}
+			ISymbolCompletionData ICompletionDataFactory.CreateSymbolCompletionData(ISymbol symbol, string text)
+			{
+				return new SymbolCompletionData(symbol, text);
 			}
 		}
 //
@@ -322,7 +331,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			return engine;
 		}
 		
-		public static CompletionDataList CreateProvider(string text, bool isCtrlSpace, Action<CSharpCompletionEngine> engineCallback, params MetadataReference[] references)
+		public static CompletionResult CreateProvider(string text, bool isCtrlSpace, Action<CSharpCompletionEngine> engineCallback, params MetadataReference[] references)
 		{
 			int cursorPosition;
 			SemanticModel semanticModel;
@@ -330,17 +339,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			var engine = CreateEngine(text, out cursorPosition, out semanticModel, out document, references);
 			if (engineCallback != null)
 				engineCallback(engine);
-			var data = engine.GetCompletionData (document, semanticModel, cursorPosition, isCtrlSpace);
+			return engine.GetCompletionData (document, semanticModel, cursorPosition, isCtrlSpace);
 
-			return new CompletionDataList {
-				Data = data,
-//				AutoCompleteEmptyMatch = engine.AutoCompleteEmptyMatch,
-//				AutoSelect = engine.AutoSelect,
-//				DefaultCompletionString = engine.DefaultCompletionString
-			};
 		}
 
-		public static CompletionDataList CreateProvider(string text, bool isCtrlSpace, params MetadataReference[] references)
+		public static CompletionResult CreateProvider(string text, bool isCtrlSpace, params MetadataReference[] references)
 		{
 			return CreateProvider(text, isCtrlSpace, null, references);
 		}
@@ -362,13 +365,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //			return Tuple.Create (doc, engine);
 //		}
 //		
-//		static CompletionDataList CreateProvider (CSharpCompletionEngine engine, IDocument doc, TextLocation loc)
+//		static CompletionResult CreateProvider (CSharpCompletionEngine engine, IDocument doc, TextLocation loc)
 //		{
 //			var cursorPosition = doc.GetOffset (loc);
 //			
 //			var data = engine.GetCompletionData (cursorPosition, true);
 //			
-//			return new CompletionDataList {
+//			return new CompletionResult {
 //				Data = data,
 //				AutoCompleteEmptyMatch = engine.AutoCompleteEmptyMatch,
 //				AutoSelect = engine.AutoSelect,
@@ -376,7 +379,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //			};
 //		}
 //		
-		public static void CheckObjectMembers (CompletionDataList provider)
+		public static void CheckObjectMembers (CompletionResult provider)
 		{
 			Assert.IsNotNull (provider.Find ("Equals"), "Method 'System.Object.Equals' not found.");
 			Assert.IsNotNull (provider.Find ("GetHashCode"), "Method 'System.Object.GetHashCode' not found.");
@@ -384,13 +387,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			Assert.IsNotNull (provider.Find ("ToString"), "Method 'System.Object.ToString' not found.");
 		}
 		
-		public static void CheckProtectedObjectMembers (CompletionDataList provider)
+		public static void CheckProtectedObjectMembers (CompletionResult provider)
 		{
 			CheckObjectMembers (provider);
 			Assert.IsNotNull (provider.Find ("MemberwiseClone"), "Method 'System.Object.MemberwiseClone' not found.");
 		}
 		
-		public static void CheckStaticObjectMembers (CompletionDataList provider)
+		public static void CheckStaticObjectMembers (CompletionResult provider)
 		{
 			Assert.IsNotNull (provider.Find ("Equals"), "Method 'System.Object.Equals' not found.");
 			Assert.IsNotNull (provider.Find ("ReferenceEquals"), "Method 'System.Object.ReferenceEquals' not found.");
@@ -455,7 +458,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		[Test]
 		public void TestSimpleCodeCompletion ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class Test { public void TM1 () {} public void TM2 () {} public int TF1; }
 class CCTest {
 void TestMethod ()
@@ -466,7 +469,7 @@ void TestMethod ()
 }
 ");
 			Assert.IsNotNull (provider);
-			Assert.AreEqual (7, provider.Count);
+			Assert.AreEqual (7, provider.Data.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("TM1"));
 			Assert.IsNotNull (provider.Find ("TM2"));
@@ -476,7 +479,7 @@ void TestMethod ()
 		[Test]
 		public void TestSimpleInterfaceCodeCompletion ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"interface ITest { void TM1 (); void TM2 (); int TF1 { get; } }
 class CCTest {
 void TestMethod ()
@@ -487,7 +490,7 @@ void TestMethod ()
 }
 ");
 			Assert.IsNotNull (provider);
-			Assert.AreEqual (7, provider.Count);
+			Assert.AreEqual (7, provider.Data.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("TM1"));
 			Assert.IsNotNull (provider.Find ("TM2"));
@@ -500,7 +503,7 @@ void TestMethod ()
 		[Test]
 		public void TestBug399695 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"namespace Other { enum TheEnum { One, Two } }
 namespace ThisOne { 
         public class Test {
@@ -543,7 +546,7 @@ public class Test {
 		[Test]
 		public void TestBug318834 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class T
 {
         static void Main ()
@@ -559,7 +562,7 @@ public class Test {
 		[Test]
 		public void TestBug318834CaseB ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class T
 {
         static void Main ()
@@ -579,7 +582,7 @@ public class Test {
 		[Test]
 		public void TestBug321306 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"namespace a
 {
 	namespace b
@@ -599,7 +602,7 @@ public class Test {
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 			Assert.IsNotNull (provider.Find ("c"), "class 'c' not found.");
 		}
 
@@ -609,7 +612,7 @@ public class Test {
 		[Test]
 		public void TestBug322089 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class AClass
 {
 	public int AField;
@@ -625,11 +628,11 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			for (int i = 0; i < provider.Count; i++) {
-				var varname = provider [i];
+			for (int i = 0; i < provider.Data.Count; i++) {
+				var varname = provider.Data [i];
 				Console.WriteLine (varname.CompletionText);
 			}
-			Assert.AreEqual (6, provider.Count);
+			Assert.AreEqual (6, provider.Data.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("AField"), "field 'AField' not found.");
 			Assert.IsNotNull (provider.Find ("BField"), "field 'BField' not found.");
@@ -641,7 +644,7 @@ class Test
 		[Test]
 		public void TestBug323283 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class AClass
 {
 	public int AField;
@@ -666,7 +669,7 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (6, provider.Count);
+			Assert.AreEqual (6, provider.Data.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("AField"), "field 'AField' not found.");
 			Assert.IsNotNull (provider.Find ("BField"), "field 'BField' not found.");
@@ -678,7 +681,7 @@ class Test
 		[Test]
 		public void TestBug323317 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class AClass
 {
 	public int AField;
@@ -693,7 +696,7 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (6, provider.Count);
+			Assert.AreEqual (6, provider.Data.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("AField"), "field 'AField' not found.");
 			Assert.IsNotNull (provider.Find ("BField"), "field 'BField' not found.");
@@ -705,7 +708,7 @@ class Test
 		[Test]
 		public void TestBug325509 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class AClass
 {
 	public int A;
@@ -737,7 +740,7 @@ class Test
 		[Test]
 		public void TestBug338392 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"namespace A
 {
         class C
@@ -748,7 +751,7 @@ class Test
 $namespace A.$
 ");
 			if (provider != null)
-				Assert.AreEqual (0, provider.Count);
+				Assert.AreEqual (0, provider.Data.Count);
 		}
 
 		/// <summary>
@@ -757,7 +760,7 @@ $namespace A.$
 		[Test]
 		public void TestBug427284 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"namespace TestNamespace
 {
         class Test
@@ -773,7 +776,7 @@ class TestClass
 }
 ");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 			Assert.IsNotNull (provider.Find ("Test"), "class 'Test' not found.");
 		}
 
@@ -783,7 +786,7 @@ class TestClass
 		[Test]
 		public void TestBug427294 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class TestClass
 {
 	public TestClass GetTestClass ()
@@ -800,7 +803,7 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (5, provider.Count);
+			Assert.AreEqual (5, provider.Data.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("GetTestClass"), "method 'GetTestClass' not found.");
 		}
@@ -811,7 +814,7 @@ class Test
 		[Test]
 		public void TestBug405000 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"namespace A {
 	class Test
 	{
@@ -829,7 +832,7 @@ namespace B {
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 			Assert.IsNotNull (provider.Find ("Test"), "class 'Test' not found.");
 		}
 		
@@ -839,7 +842,7 @@ namespace B {
 		[Test]
 		public void TestBug427649 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class BaseClass
 {
 	protected void ProtecedMember ()
@@ -858,7 +861,7 @@ class C : BaseClass
 ");
 			// protected members should not be displayed in this case.
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (4, provider.Count);
+			Assert.AreEqual (4, provider.Data.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 		}
 		
@@ -868,7 +871,7 @@ class C : BaseClass
 		[Test]
 		public void TestBug427734A ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"public class Test
 {
 	public enum SomeEnum { a,b }
@@ -879,7 +882,7 @@ class C : BaseClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (3, provider.Count);
+			Assert.AreEqual (3, provider.Data.Count);
 			CodeCompletionBugTests.CheckStaticObjectMembers (provider); // 2 from System.Object
 			Assert.IsNotNull (provider.Find ("SomeEnum"), "enum 'SomeEnum' not found.");
 		}
@@ -890,7 +893,7 @@ class C : BaseClass
 		[Test]
 		public void TestBug427734B ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"public class Test
 {
 	public enum SomeEnum { a,b }
@@ -911,7 +914,7 @@ class C : BaseClass
 		[Test]
 		public void TestBug431764 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"public class Test
 {
 	int number;
@@ -920,7 +923,7 @@ class C : BaseClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.IsTrue (provider.Count > 0, "provider should not be empty.");
+			Assert.IsTrue (provider.Data.Count > 0, "provider should not be empty.");
 			Assert.IsNotNull (provider.Find ("value"), "Should contain 'value'");
 		}
 		
@@ -930,7 +933,7 @@ class C : BaseClass
 		[Test]
 		public void TestBug431797A ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"public class Test
 {
 	private List<string> strings;
@@ -947,7 +950,7 @@ class C : BaseClass
 		[Test]
 		public void TestBug431797B ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"public class Test
 {
 	public delegate string [] AutoCompleteHandler (string text, int pos);
@@ -967,7 +970,7 @@ class C : BaseClass
 		[Test]
 		public void TestBug432681 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 
 class C {
@@ -987,7 +990,7 @@ class C {
 		[Test]
 		public void TestGenericObjectCreation ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class List<T>
 {
@@ -1008,7 +1011,7 @@ class Test{
 		[Test]
 		public void TestBug431803 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"public class Test
 {
 	public string[] GetStrings ()
@@ -1026,7 +1029,7 @@ class Test{
 		[Test]
 		public void TestBug434770 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class Test
 {
@@ -1046,7 +1049,7 @@ public class Test
 		[Test]
 		public void TestBug439601 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 namespace MyNamespace
 {
@@ -1158,7 +1161,7 @@ namespace MyNamespace
 		[Test]
 		public void TestBug432434 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 
 @"public class Test
 {
@@ -1191,7 +1194,7 @@ namespace MyNamespace
 		[Test]
 		public void TestBug432434A ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 
 @"    public class E
         {
@@ -1215,7 +1218,7 @@ namespace MyNamespace
 		[Test]
 		public void TestBug432434B ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 
 @"  public class E
         {
@@ -1241,7 +1244,7 @@ namespace MyNamespace
 		[Test]
 		public void TestBug436705 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"namespace System.Drawing {
 	public class Point
 	{
@@ -1269,7 +1272,7 @@ class C {
 		[Test]
 		public void TestBug439963 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"public class StaticTest
 {
 	public void Test1()
@@ -1302,7 +1305,7 @@ public class Test
 		[Test]
 		public void TestBug441671 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class TestClass
 {
 	public TestClass (int i)
@@ -1326,7 +1329,7 @@ class AClass
 }
 ");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (5, provider.Count);
+			Assert.AreEqual (5, provider.Data.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNull (provider.Find (".dtor"), "destructor found - but shouldn't.");
 			Assert.IsNotNull (provider.Find ("TestMethod"), "method 'TestMethod' not found.");
@@ -1338,7 +1341,7 @@ class AClass
 		[Test]
 		public void TestBug444110 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"using System;
 using System.Collections.Generic;
 
@@ -1368,7 +1371,7 @@ namespace CCTests
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (5, provider.Count);
+			Assert.AreEqual (5, provider.Data.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("TestField"), "field 'TestField' not found.");
 		}
@@ -1379,7 +1382,7 @@ namespace CCTests
 		[Test]
 		public void TestBug460234 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class TestMe : System.Object
 {
@@ -1391,7 +1394,7 @@ public class TestMe : System.Object
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (2, provider.Count);
+			Assert.AreEqual (2, provider.Data.Count);
 			Assert.IsNull (provider.Find ("Finalize"), "method 'Finalize' found, but shouldn't.");
 			Assert.IsNotNull (provider.Find ("GetHashCode"), "method 'GetHashCode' not found.");
 			Assert.IsNotNull (provider.Find ("Equals"), "method 'Equals' not found.");
@@ -1403,7 +1406,7 @@ public class TestMe : System.Object
 		[Test]
 		public void TestBug457003 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class A
 {
@@ -1421,7 +1424,7 @@ class A
 }
 ");
 			if (provider != null)
-				Assert.IsTrue (provider.Count == 0, "variable 'st' found, but shouldn't.");
+				Assert.IsTrue (provider.Data.Count == 0, "variable 'st' found, but shouldn't.");
 		}
 		
 		/// <summary>
@@ -1430,7 +1433,7 @@ class A
 		[Test]
 		public void TestBug457237 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class Test
 {
@@ -1452,7 +1455,7 @@ class Test2
 		[Test]
 		public void TestBug459682 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"public class BaseC
 {
 	public static int TESTER;
@@ -1475,7 +1478,7 @@ public class Child : BaseC
 		[Test]
 		public void TestBug466692 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class TestMe 
 {
@@ -1485,7 +1488,7 @@ public class TestMe
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (2, provider.Count);
+			Assert.AreEqual (2, provider.Data.Count);
 			Assert.IsNotNull (provider.Find ("break"), "keyword 'break' not found");
 			Assert.IsNotNull (provider.Find ("return"), "keyword 'return' not found");
 		}
@@ -1496,7 +1499,7 @@ public class TestMe
 		[Test]
 		public void TestBug467507 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 using System;
 
@@ -1528,7 +1531,7 @@ class Test
 		[Test]
 		public void TestBug444643 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 using System;
 using System.Collections.Generic;
@@ -1559,7 +1562,7 @@ using System.Collections.Generic;
 		[Test]
 		public void TestBug471935 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 public class AClass
 {
@@ -1588,7 +1591,7 @@ public class AClass
 		[Test]
 		public void TestBug471937()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider(
+			CompletionResult provider = CreateCtrlSpaceProvider(
 @"
 class B
 {
@@ -1788,7 +1791,7 @@ class A : Base
 				Assert.IsNotNull (provider.Find ("ToString"), "'Event' not found.");
 				Assert.IsNotNull (provider.Find ("GetHashCode"), "'GetHashCode' not found.");
 				Assert.IsNotNull (provider.Find ("Equals"), "'Equals' not found.");
-				Assert.AreEqual (7, provider.Count);
+				Assert.AreEqual (7, provider.Data.Count);
 			});
 		}
 		
@@ -2000,7 +2003,7 @@ class A
 		[Test]
 		public void TestBug473686 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 class ATest
 {
@@ -2023,7 +2026,7 @@ class ATest
 		[Test]
 		public void TestBug473849 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class TestB
 {
@@ -2076,7 +2079,7 @@ class Test : TestB
 		[Test]
 		public void TestBug474199A ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class InnerTest
 {
@@ -2169,7 +2172,7 @@ namespace Foo
 		[Test]
 		public void TestBug350862 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public enum MyEnum {
 	A,
@@ -2198,7 +2201,7 @@ public class Test
 		[Test]
 		public void TestBug470954 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class Control
 {
@@ -2229,7 +2232,7 @@ public class SomeControl : Control
 		[Test]
 		public void TestBug470954_Bis ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class Control
 {
@@ -2262,7 +2265,7 @@ public class SomeControl : Control
 		[Test]
 		public void TestBug487228 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class Test
 {
@@ -2284,7 +2287,7 @@ public class Test
 		[Test]
 		public void TestBug487218 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class Test
 {
@@ -2306,7 +2309,7 @@ public class Test
 		[Test]
 		public void TestBug487206 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class CastByExample
 {
@@ -2332,7 +2335,7 @@ class CastByExample
 		[Test]
 		public void TestBug487203 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 using System;
 using System.Linq;
@@ -2360,7 +2363,7 @@ class Program
 		[Test]
 		public void TestBug491020 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class EventClass<T>
 {
@@ -2391,7 +2394,7 @@ public class Test
 		[Test]
 		public void TestBug491020B ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 
 namespace A {
@@ -2424,7 +2427,7 @@ public class Test
 		[Test]
 		public void TestBug491019 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public abstract class NonGenericBase
 {
@@ -2454,7 +2457,7 @@ public abstract class GenericBase<T> : NonGenericBase where T : GenericBase<T>
 		[Test]
 		public void TestBug429034 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 using Path = System.IO.Path;
 
@@ -2476,7 +2479,7 @@ class Test
 		[Test]
 		public void TestBug429034B ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 using Path = System.IO.Path;
 
@@ -2495,7 +2498,7 @@ class Test
 		[Test]
 		public void TestInvalidCompletion ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class TestClass
 {
@@ -2523,7 +2526,7 @@ class Test
 		[Test]
 		public void TestBug510919 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class Foo : IFoo 
 {
@@ -2564,7 +2567,7 @@ public class Program
 			// We've to test 2 expressions for this bug. Since there are 2 ways of accessing
 			// members.
 			// First: the identifier expression
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 class MyClass
 {
@@ -2614,7 +2617,7 @@ class MyClass2
 		[Test]
 		public void TestBug542976 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class KeyValuePair<S, T>
 {
@@ -2664,7 +2667,7 @@ namespace TestMe
 		[Test]
 		public void TestBug545189A ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class A<T>
 {
@@ -2693,7 +2696,7 @@ public class Foo
 		[Test]
 		public void TestBug549864 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 delegate T MyFunc<S, T> (S t);
 
@@ -2722,7 +2725,7 @@ class TestClass
 		[Test]
 		public void TestBug550185 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public interface IMyinterface<T> {
 	T Foo ();
@@ -2756,7 +2759,7 @@ class TestClass
 		[Test]
 		public void TestBug553101 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 namespace Some.Type 
 {
@@ -2785,7 +2788,7 @@ namespace Test
 		[Test]
 		public void TestBug555523A ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class A
 {
@@ -2832,7 +2835,7 @@ class MainClass
 		[Test]
 		public void TestBug555523B ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class A
 {
@@ -2880,7 +2883,7 @@ class MainClass
 		[Test]
 		public void TestBug561964 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 interface A1 {
 	int A { get; }
@@ -2915,7 +2918,7 @@ class Foo : IFoo
 		[Test]
 		public void TestBug568204 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public class Style 
 {
@@ -2950,7 +2953,7 @@ public class Foo
 		[Test]
 		public void TestBug577225 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 using Foo;
 	
@@ -2992,7 +2995,7 @@ namespace Other
 		[Test]
 		public void TestBug582017 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class Bar
 {
@@ -3019,7 +3022,7 @@ class Foo
 		[Test]
 		public void TestBug586304 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 using System;
 using System.Collections.Generic;
@@ -3061,7 +3064,7 @@ public class Test
 		[Test]
 		public void TestBug586304B ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public delegate S Func<T, S> (T t);
 
@@ -3101,7 +3104,7 @@ class MyClass
 		[Test]
 		public void TestBug587543 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 interface ITest
 {
@@ -3127,7 +3130,7 @@ class C
 		[Test]
 		public void TestBug587549 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 public interface ITest
 {
@@ -3165,7 +3168,7 @@ public class PrinterImpl : Printer
 		[Test]
 		public void TestBug588223 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class Lazy<T> { public void Foo () {} }
 class Lazy<T, S> { public void Bar () {} }
@@ -3205,7 +3208,7 @@ class Test
 		[Test]
 		public void TestBug592120 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 
 interface IBar
@@ -3235,7 +3238,7 @@ class Foo
 		[Test]
 		public void TestBug576354 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 delegate T Func<S, T> (S s);
 
@@ -3278,7 +3281,7 @@ class MyTest
 		[Test]
 		public void TestBug534680 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 class Foo
 {
@@ -3298,7 +3301,7 @@ class Foo
 		[Test]
 		public void TestBug610006 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 class MainClass
 {
@@ -3323,7 +3326,7 @@ class MainClass
 		[Test]
 		public void TestBug614045 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"
 namespace A
 {
@@ -3359,7 +3362,7 @@ namespace B
 		[Test]
 		public void TestBug614045_IndexerCase ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 				@"
 namespace A
 {
@@ -3399,7 +3402,7 @@ namespace B
 		[Test]
 		public void TestBug615992 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"public delegate void Act<T> (T t);
 
 public class Foo
@@ -3433,7 +3436,7 @@ class Test : TestBase
 		[Test]
 		public void TestBug625064 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"class Foo 
 {
 	class Bar { }
@@ -3450,7 +3453,7 @@ class Test : TestBase
 		[Test]
 		public void TestBug631875 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"class C
 {
 	static void Main ()
@@ -3470,7 +3473,7 @@ class Test : TestBase
 		[Test]
 		public void TestBug632228 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 class C {
 	public void FooBar () {}
@@ -3491,7 +3494,7 @@ class C {
 		[Test]
 		public void TestBug632696 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 class Program
 {
@@ -3512,7 +3515,7 @@ class Program
 		[Test]
 		public void TestCommentsWithWindowsEol ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider ("class TestClass\r\n{\r\npublic static void Main (string[] args) {\r\n// TestComment\r\n$args.$\r\n}\r\n}");
+			CompletionResult provider = CreateCtrlSpaceProvider ("class TestClass\r\n{\r\npublic static void Main (string[] args) {\r\n// TestComment\r\n$args.$\r\n}\r\n}");
 			Assert.IsNotNull (provider, "provider not found.");
 			Assert.IsNotNull (provider.Find ("ToString"), "method 'ToString' not found.");
 		}
@@ -3520,7 +3523,7 @@ class Program
 		[Test]
 		public void TestGhostEntryBug ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 using System.IO;
 
@@ -3548,7 +3551,7 @@ class TestClass
 		[Test]
 		public void TestBug648562 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System;
 
 abstract class A
@@ -3574,7 +3577,7 @@ class B : A
 		[Test]
 		public void TestBug633767 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System;
 
 public class E
@@ -3612,7 +3615,7 @@ public class C
 		[Test]
 		public void TestBug616208 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System;
 
 namespace System 
@@ -3649,7 +3652,7 @@ namespace Test
 		[Test]
 		public void TestBug668135a ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"public class A
 {
 	public A ()
@@ -3669,7 +3672,7 @@ namespace Test
 		[Test]
 		public void TestBug668453 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"public class Test
 {
 	private void FooBar ()
@@ -3690,7 +3693,7 @@ namespace Test
 		[Test]
 		public void TestBug669285 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"static class Ext
 {
 	public static void Foo<T> (this T[] t)
@@ -3742,7 +3745,7 @@ public class Test<T>
 		[Test]
 		public void TestBug669818 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System;
 public class Foo
 {
@@ -3771,7 +3774,7 @@ class TestNested
 		[Test]
 		public void TestBug674514 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -3817,7 +3820,7 @@ class Foo
 		[Test]
 		public void TestBug675436_LocalVar ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"class Test
 {
     public static void Main (string[] args)
@@ -3835,7 +3838,7 @@ class Foo
 		[Test]
 		public void TestBug675956 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"class Test
 {
     public static void Main (string[] args)
@@ -3853,7 +3856,7 @@ class Foo
 		[Test]
 		public void TestBug675956Case2 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class Test
 {
     public static void Main (string[] args)
@@ -3871,7 +3874,7 @@ class Foo
 		[Test]
 		public void TestBug676311 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -3924,7 +3927,7 @@ namespace Test
 		[Test]
 		public void TestBug676311B ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -3978,7 +3981,7 @@ namespace Test
 		[Test]
 		public void TestBug676311_Case2 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System;
 using System.Linq.Expressions;
 
@@ -4030,7 +4033,7 @@ namespace Test
 		[Test]
 		public void TestBug678340 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System;
 using System.Collections.Generic;
 
@@ -4054,7 +4057,7 @@ public class Test
 		[Test]
 		public void TestBug678340_Case2 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"public class Foo<T>
 {
 	public class TestFoo
@@ -4088,7 +4091,7 @@ public class Test
 		[Test]
 		public void TestBug679792 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"using System.Collections.Generic;
 
 class TestClass
@@ -4110,7 +4113,7 @@ class TestClass
 		[Test]
 		public void TestBug679995 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"class TestClass
 {
 	public void Foo ()
@@ -4131,7 +4134,7 @@ class TestClass
 		[Test]
 		public void TestBug680264 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 public delegate S Func<T, S> (T t);
 
@@ -4162,7 +4165,7 @@ class TestClass
 		[Test]
 		public void TestBug683037 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"namespace N1.N2
 {
 	public class C1
@@ -4199,7 +4202,7 @@ namespace N1
 		[Test]
 		public void TestBug690606 ()
 		{
-			CompletionDataList provider = CreateCtrlSpaceProvider (
+			CompletionResult provider = CreateCtrlSpaceProvider (
 @"
 public abstract class Base {}
 public abstract class MyBase<T> : Base {}
@@ -4270,7 +4273,7 @@ public class Test
 	$Dictionary<int, string> d$
 }
 ");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider not empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider not empty.");
 			
 			provider = CreateCtrlSpaceProvider (
 @"public class Test
@@ -4278,14 +4281,14 @@ public class Test
 	$Dictionary<int, string> $
 }
 ");
-			Assert.IsFalse (provider == null || provider.Count == 0, "provider not found.");
+			Assert.IsFalse (provider == null || provider.Data.Count == 0, "provider not found.");
 			
 		}
 		
 		[Test]
 		public void TestCompletionInTryCatch ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class Test { public void TM1 () {} public void TM2 () {} public int TF1; }
 class CCTest {
 void TestMethod ()
@@ -4376,7 +4379,7 @@ public class TestMe
 {
 	$void TestMe (TestClassParameter t$
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider was not empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider was not empty.");
 		}
 		
 		/// <summary>
@@ -4385,14 +4388,14 @@ public class TestMe
 		[Test]
 		public void TestParameterContextCase2FromBug2123 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class Program
 {
 	public Program ($string[] a$)
 	{
 	}
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
@@ -4425,7 +4428,7 @@ public class TestMe
 		[Test]
 		public void TestMethodNameContext ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"using System;
 namespace Test 
 {
@@ -4439,7 +4442,7 @@ namespace Test
 		$public void T$
 	}
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
@@ -4537,7 +4540,7 @@ class Program
 		[Test]
 		public void TestCodeCompletionCategorySorting ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"class CClass : BClass
 {
 	public int C;
@@ -4565,10 +4568,10 @@ class Test
 			
 			var list = new List<CompletionCategory> ();
 			
-			for (int i = 0; i < provider.Count; i++) {
-				if (list.Contains (provider [i].CompletionCategory))
+			for (int i = 0; i < provider.Data.Count; i++) {
+				if (list.Contains (provider.Data [i].CompletionCategory))
 					continue;
-				list.Add (provider [i].CompletionCategory);
+				list.Add (provider.Data [i].CompletionCategory);
 			}	
 			Assert.AreEqual (4, list.Count);
 			
@@ -4622,7 +4625,7 @@ class Test
 		[Test]
 		public void TestBug2109B ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"namespace Foobar
 {
     class MainClass
@@ -4647,7 +4650,7 @@ class Test
     }
 }
 ");
-			Assert.AreEqual (2, provider.Count); // 2 fields
+			Assert.AreEqual (2, provider.Data.Count); // 2 fields
 			Assert.IsNotNull (provider.Find ("Value1"), "field 'Value1' not found.");
 			Assert.IsNotNull (provider.Find ("Value2"), "field 'Value2' not found.");
 		}
@@ -4658,7 +4661,7 @@ class Test
 		[Test]
 		public void TestBug3581 ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"using System;
 
 namespace Foobar
@@ -4691,7 +4694,7 @@ namespace Foobar
 		[Test]
 		public void TestForConditionContext ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 @"using System;
 
 class MainClass
@@ -4708,7 +4711,7 @@ class MainClass
 		[Test]
 		public void TestConditionalExpression ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 				@"using System;
 
 class MainClass
@@ -5014,7 +5017,7 @@ namespace Test
 $#region S$
     }
 }");
-			Assert.IsTrue(provider == null || provider.Count == 0);
+			Assert.IsTrue(provider == null || provider.Data.Count == 0);
 		}
 
 
@@ -5597,7 +5600,7 @@ namespace bug
 }
 
 ", provider => {
-				Assert.IsTrue (provider.Count > 0);
+				Assert.IsTrue (provider.Data.Count > 0);
 				// it's likely to be mono specific.
 				foreach (var data in provider.Data) {
 					Assert.IsFalse(data.DisplayText.StartsWith("<", StringComparison.Ordinal), "Data was:" + data.DisplayText);
@@ -5801,7 +5804,7 @@ public class Testing
     } 
 }
 
-", provider => Assert.IsTrue(provider == null || provider.Count == 0));
+", provider => Assert.IsTrue(provider == null || provider.Data.Count == 0));
 		}
 
 		/// <summary>
@@ -5860,10 +5863,10 @@ public class Testing
 		[Test]
 		public void TestCrashContravariantTypeParameter ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 				@"public delegate void ModelCollectionChangedEventHandler<in$ $T>();
 ");
-			Assert.AreEqual(0, provider.Count);
+			Assert.AreEqual(0, provider.Data.Count);
 		}
 
 		[Test]
@@ -5923,7 +5926,7 @@ public class Test
 		Test_Struct v1 = Test_Struct.Some_$V$Value2;
 	}
 }");
-			Assert.IsTrue(provider == null || provider.Count == 0);
+			Assert.IsTrue(provider == null || provider.Data.Count == 0);
 		}
 
 		[Ignore("Parser bug")]
@@ -5945,7 +5948,7 @@ public class Test
 		[Test]
 		public void TestLexerBug ()
 		{
-			CompletionDataList provider = CreateProvider (
+			CompletionResult provider = CreateProvider (
 				@"
 public class TestMe : System.Object
 {
@@ -6184,7 +6187,7 @@ class Program
 }
 
 ");
-			Assert.IsTrue(provider == null || provider.Count == 0); 
+			Assert.IsTrue(provider == null || provider.Data.Count == 0); 
 		}
 
 		/// <summary>

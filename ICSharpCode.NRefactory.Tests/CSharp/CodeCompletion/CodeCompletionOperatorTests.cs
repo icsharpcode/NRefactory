@@ -28,6 +28,7 @@
 
 using System;
 using NUnit.Framework;
+using ICSharpCode.NRefactory6.CSharp.Completion;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
@@ -38,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		[Test()]
 		public void TestAddOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator+(A left, A right)
@@ -70,7 +71,7 @@ class TestClass
 		[Test()]
 		public void TestSubtractOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator-(A left, A right)
@@ -102,7 +103,7 @@ class TestClass
 		[Test()]
 		public void TestMultiplyOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator*(A left, A right)
@@ -134,7 +135,7 @@ class TestClass
 		[Test()]
 		public void TestDivideOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator/(A left, A right)
@@ -166,7 +167,7 @@ class TestClass
 		[Test()]
 		public void TestModulusOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator%(A left, A right)
@@ -198,7 +199,7 @@ class TestClass
 		[Test()]
 		public void TestBitwiseAndOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator&(A left, A right)
@@ -230,7 +231,7 @@ class TestClass
 		[Test()]
 		public void TestBitwiseOrOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator|(A left, A right)
@@ -262,7 +263,7 @@ class TestClass
 		[Test()]
 		public void TestExclusiveOrOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator^(A left, A right)
@@ -294,7 +295,7 @@ class TestClass
 		[Test()]
 		public void TestShiftLeftOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator<<(A left, A right)
@@ -326,7 +327,7 @@ class TestClass
 		[Test()]
 		public void TestShiftRightOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator>>(A left, A right)
@@ -358,7 +359,7 @@ class TestClass
 		[Test()]
 		public void TestGreaterThanOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator>(A left, A right)
@@ -390,7 +391,7 @@ class TestClass
 		[Test()]
 		public void TestGreaterThanOrEqualOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator>=(A left, A right)
@@ -422,7 +423,7 @@ class TestClass
 		[Test()]
 		public void TestEqualityOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator==(A left, A right)
@@ -454,7 +455,7 @@ class TestClass
 		[Test()]
 		public void TestInEqualityOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator!=(A left, A right)
@@ -486,7 +487,7 @@ class TestClass
 		[Test()]
 		public void TestLessThanOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator<(A left, A right)
@@ -518,7 +519,7 @@ class TestClass
 		[Test()]
 		public void TestLessThanOrEqualOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator<=(A left, A right)
@@ -550,7 +551,7 @@ class TestClass
 		[Test()]
 		public void TestUnaryPlusOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator+(A left)
@@ -581,7 +582,7 @@ class TestClass
 		[Test()]
 		public void TestUnaryMinusOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator-(A left)
@@ -612,7 +613,7 @@ class TestClass
 		[Test()]
 		public void TestUnaryNotOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator!(A left)
@@ -643,7 +644,7 @@ class TestClass
 		[Test()]
 		public void TestUnaryBitwiseNotOperator ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class A
 {
 	public static B operator~(A left)

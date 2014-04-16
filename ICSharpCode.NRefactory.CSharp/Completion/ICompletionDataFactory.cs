@@ -80,6 +80,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		ICompletionData CreateXmlDocCompletionData (string tag, string description = null, string tagInsertionText = null);
 
 		ISymbolCompletionData CreateSymbolCompletionData(ISymbol symbol);
+		ISymbolCompletionData CreateSymbolCompletionData(ISymbol symbol, string text);
 
 		/// <summary>
 		/// Creates enum member completion data. 

@@ -36,69 +36,69 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		public void TestNamespaceName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$namespace n$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		[Test]
 		public void TestNamespaceNameCase2 ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$namespace $");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 
 		[Test]
 		public void TestNamespaceNameCase3 ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$namespace Foo.b$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 
 		[Test]
 		public void TestNamespaceNameCase4 ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$namespace Foo.$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 
 		[Test]
 		public void TestClassName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$class n$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
 		public void TestStructName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$struct n$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
 		public void TestInterfaceName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$interface n$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
 		public void TestEnumName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$enum n$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
 		public void TestDelegateName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$delegate void n$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
 		public void TestClassTypeParameter ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$class MyClass<T$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
@@ -107,7 +107,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			var provider = CodeCompletionBugTests.CreateProvider (@"class MyClass {
 	$int f$
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			var provider = CodeCompletionBugTests.CreateProvider (@"class MyClass {
 	$void SomeMethod(int f$
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
@@ -128,7 +128,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		$int f$
 	}
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
@@ -140,7 +140,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		$foreach (int f$
 	}
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 
 		[Test]
@@ -153,7 +153,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		$for (int f$
 	}
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 
 		[Test]
@@ -166,7 +166,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		} catch (Exception e$
 	}
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 			/// <summary>
@@ -176,7 +176,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		public void TestBug2198 ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest (@"$class Klass <T$", provider => {
-				Assert.AreEqual (0, provider.Count, "provider needs to be empty");
+				Assert.AreEqual (0, provider.Data.Count, "provider needs to be empty");
 			});
 		}
 		
@@ -184,7 +184,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		public void TestBug2198Case2 ()
 		{
 			CodeCompletionBugTests.CombinedProviderTest (@"$class Klass { void Test<T$", provider => {
-				Assert.AreEqual (0, provider.Count, "provider needs to be empty");
+				Assert.AreEqual (0, provider.Data.Count, "provider needs to be empty");
 			});
 		}
 
@@ -194,11 +194,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			var provider = CodeCompletionBugTests.CreateProvider (@"class MyClass {
 	$public int this [int f$
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 			provider = CodeCompletionBugTests.CreateProvider (@"class MyClass {
 	$public int this [int f, string x$
 }");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 
 		/// <summary>
@@ -222,7 +222,7 @@ namespace MyApplication
         {}
     }
 }
-", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
+", provider => Assert.AreEqual(0, provider.Data.Count, "provider needs to be empty"));
 		}
 
 		/// <summary>
@@ -265,7 +265,7 @@ class Foo
 		$Foo((File f$
 	}
 }
-", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
+", provider => Assert.AreEqual(0, provider.Data.Count, "provider needs to be empty"));
 		}
 
 		/// <summary>
@@ -285,7 +285,7 @@ class Foo
 		$new Action<int, int> ((x, y$
 	}
 }
-", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
+", provider => Assert.AreEqual(0, provider.Data.Count, "provider needs to be empty"));
 
 		}
 
@@ -303,7 +303,7 @@ class Foo
 		new Action<int, int> ((x$, y$)
 	}
 }
-", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
+", provider => Assert.AreEqual(0, provider.Data.Count, "provider needs to be empty"));
 
 		}
 

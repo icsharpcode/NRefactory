@@ -29,6 +29,7 @@
 using System;
 using NUnit.Framework;
 using System.Linq;
+using ICSharpCode.NRefactory6.CSharp.Completion;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
@@ -38,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		[Test()]
 		public void TestUsingDeclaration ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"namespace Test {
 	class Class
 	{
@@ -54,7 +55,7 @@ $using $
 		[Test()]
 		public void TestLocalVariableDeclaration ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class Test
 {
 	void Test ()
@@ -70,7 +71,7 @@ $using $
 		[Test()]
 		public void TestObjectCreationExpression ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class Test
 {
 	void Test ()
@@ -85,7 +86,7 @@ $using $
 		[Test()]
 		public void TestCastExpression ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class Test
 {
 	void Test ()
@@ -101,7 +102,7 @@ $using $
 		[Test()]
 		public void TestThisReferenceExpression ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"class Test
 {
 	void Test ()
@@ -116,7 +117,7 @@ $using $
 		[Test()]
 		public void TestBaseReferenceExpression ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -140,7 +141,7 @@ class Test2 : Test
 		[Test()]
 		public void TestConditionalExpression ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -157,7 +158,7 @@ class Test
 		[Test()]
 		public void TestIndexerExpression ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -174,7 +175,7 @@ class Test
 		[Test()]
 		public void TestInvocationExpression ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -192,7 +193,7 @@ class Test
 		[Test()]
 		public void TestParenthesizedExpression ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -208,7 +209,7 @@ class Test
 		[Test()]
 		public void TestForeachLoopVariable ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -225,7 +226,7 @@ class Test
 		[Test()]
 		public void TestMethodAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class AClass
 {
@@ -249,7 +250,7 @@ class Test
 		[Test()]
 		public void TestFieldAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class AClass
 {
@@ -271,7 +272,7 @@ class Test
 		[Test()]
 		public void TestPropertyAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class AClass
 {
@@ -293,7 +294,7 @@ class Test
 		[Test()]
 		public void TestAsCompletionContext ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class A
 {
@@ -327,7 +328,7 @@ class Test
 		[Test()]
 		public void TestLocalVariableNameContext ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 public class TestMyLongName
 {
@@ -346,7 +347,7 @@ public class TestMyLongName
 		[Test()]
 		public void TestMethodCreationCompletionWithLambda ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 using System;
 using System.Collections.Generic;

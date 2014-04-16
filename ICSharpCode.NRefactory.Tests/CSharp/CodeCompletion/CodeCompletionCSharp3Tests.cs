@@ -28,6 +28,7 @@
 
 using System;
 using NUnit.Framework;
+using ICSharpCode.NRefactory6.CSharp.Completion;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
@@ -38,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		[Test()]
 		public void TestExtensionMethods ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"using System;
 
 public static class EMClass
@@ -65,7 +66,7 @@ class Program
 		[Test()]
 		public void TestVarLocalVariables ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"using System;
 
 class Test
@@ -91,7 +92,7 @@ class Program
 		[Test()]
 		public void TestVarLoopVariable ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"using System;
 
 class Test
@@ -119,7 +120,7 @@ class Program
 		[Test()]
 		public void TestAnonymousType ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Program
 {
@@ -139,7 +140,7 @@ class Program
 		[Test()]
 		public void TestQueryExpression ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 using System;
 using System.Collections.Generic;
@@ -173,7 +174,7 @@ class Program
 		[Test()]
 		public void TestLambdaExpressionCase1 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 using System;
 class Test
@@ -191,7 +192,7 @@ class Test
 		[Test()]
 		public void TestLambdaExpressionCase2 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 
 namespace System {
@@ -233,7 +234,7 @@ class Test
 		[Test()]
 		public void TestBug487237 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 public interface IHelper
 {
@@ -261,7 +262,7 @@ public class Program
 		[Test()]
 		public void TestBug491016 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 using System;
 using System.Collections.Generic;
@@ -307,7 +308,7 @@ namespace Foo
 		[Test()]
 		public void TestBug491017 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 using System.Linq;
 using System.Linq.Expressions;
@@ -325,7 +326,7 @@ class Test
 		[Test()]
 		public void TestDefaultParameterBug ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 namespace Foo
 {
@@ -350,7 +351,7 @@ namespace Foo
 		
 		[Test()]
 		public void TestLinqWhere() {
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider(
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider(
 @"
 using System.Collections.Generic;
 using System.Linq;
@@ -449,7 +450,7 @@ class A
 }
 
 ");
-			Assert.IsTrue(provider == null || provider.Count == 0); // <--- here 0 item in the completion list
+			Assert.IsTrue(provider == null || provider.Data.Count == 0); // <--- here 0 item in the completion list
 		}
 		
 		[Test()]
@@ -468,7 +469,7 @@ class A
 }
 
 ");
-			Assert.IsTrue(provider == null || provider.Count == 0); // <--- here 0 item in the completion list
+			Assert.IsTrue(provider == null || provider.Data.Count == 0); // <--- here 0 item in the completion list
 		}
 	}
 }

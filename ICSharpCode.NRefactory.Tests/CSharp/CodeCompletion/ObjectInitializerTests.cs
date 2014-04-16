@@ -26,6 +26,7 @@
 
 using System;
 using NUnit.Framework;
+using ICSharpCode.NRefactory6.CSharp.Completion;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
@@ -74,7 +75,7 @@ class MyTest
 		[Test()]
 		public void TestBug487236 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 public class A
 {
@@ -272,7 +273,7 @@ class CCTest {
 	}
 }
 ");
-			Assert.IsTrue (provider == null || provider.Count == 0);
+			Assert.IsTrue (provider == null || provider.Data.Count == 0);
 		}
 		
 		/// <summary>
@@ -701,7 +702,7 @@ class C : S
 }
 
 ", provider => {
-				Assert.IsTrue(provider == null || provider.Count == 0);
+				Assert.IsTrue(provider == null || provider.Data.Count == 0);
 			});
 			
 		}

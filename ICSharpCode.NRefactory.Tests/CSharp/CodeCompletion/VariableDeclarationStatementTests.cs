@@ -43,7 +43,7 @@ class MyTest
 	}
 }
 ");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test()]
@@ -59,7 +59,7 @@ class MyTest
 	}
 }
 ");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 		
 		[Test()]
@@ -134,7 +134,7 @@ class MyTest
 	}
 }
 ");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
 		}
 	}
 }

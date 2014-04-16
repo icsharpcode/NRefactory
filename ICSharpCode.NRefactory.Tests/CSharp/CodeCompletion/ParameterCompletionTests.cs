@@ -405,7 +405,7 @@ class AClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (2, provider.Count);
+			Assert.AreEqual (2, provider.Data.Count);
 		}
 
 		/// <summary>
@@ -427,7 +427,7 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 
 		/// <summary>
@@ -448,7 +448,7 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count, "There should be one overload");
+			Assert.AreEqual (1, provider.Data.Count, "There should be one overload");
 			Assert.AreEqual (1, provider.GetParameterCount(0), "Parameter 'start' should exist");
 		}
 
@@ -467,7 +467,7 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 
 		/// <summary>
@@ -492,7 +492,7 @@ class AClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		/// <summary>
@@ -517,7 +517,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 	
 		
@@ -542,7 +542,7 @@ class AClass
 }
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		/// <summary>
@@ -575,7 +575,7 @@ class AClass
 
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 			Assert.AreEqual (1, provider.GetParameterCount(0), "Parameter 'test' should exist");
 		}
 		
@@ -596,7 +596,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		[Test]
@@ -613,7 +613,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		[Test]
@@ -630,7 +630,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 
 		[Test]
@@ -647,7 +647,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
         
 		[Test]
@@ -665,7 +665,7 @@ class TestClass
 }
 ");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		
@@ -685,7 +685,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		/// Bug 3307 - Chained linq methods do not work correctly
@@ -704,7 +704,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.IsTrue (provider.Count > 0);
+			Assert.IsTrue (provider.Data.Count > 0);
 		}
 		
 		[Test]
@@ -761,7 +761,7 @@ class A
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		
@@ -788,7 +788,7 @@ namespace Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (2, provider.Count);
+			Assert.AreEqual (2, provider.Data.Count);
 		}
 		
 		[Test]
@@ -808,7 +808,7 @@ namespace Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (16, provider.Count);
+			Assert.AreEqual (16, provider.Data.Count);
 		}
 		
 		[Test]
@@ -828,7 +828,7 @@ namespace Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (16, provider.Count);
+			Assert.AreEqual (16, provider.Data.Count);
 		}
 		
 		[Ignore("TODO")]
@@ -853,7 +853,7 @@ namespace Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		[Ignore("TODO")]
@@ -878,7 +878,7 @@ namespace Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}		
 	
 		[Test]
@@ -895,7 +895,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		[Test]
@@ -912,7 +912,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		[Ignore("TODO!")]
@@ -927,7 +927,7 @@ namespace Test
 	$class A : Tuple<$
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (16, provider.Count);
+			Assert.AreEqual (16, provider.Data.Count);
 		}
 		
 		
@@ -955,7 +955,7 @@ namespace Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (2, provider.Count);
+			Assert.AreEqual (2, provider.Data.Count);
 		}
 		
 		[Test]
@@ -984,7 +984,7 @@ namespace Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 		
 		/// <summary>
@@ -1011,7 +1011,7 @@ namespace Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 
 		/// <summary>
@@ -1034,7 +1034,7 @@ namespace Test
 }
 ");
 			Assert.IsNotNull(provider, "provider was not created.");
-			Assert.Greater(provider.Count, 0);
+			Assert.Greater(provider.Data.Count, 0);
 		}
 
 		/// <summary>
@@ -1053,7 +1053,7 @@ class TestClass
 	}
 }
 ");
-			Assert.IsTrue (provider == null || provider.Count == 0);
+			Assert.IsTrue (provider == null || provider.Data.Count == 0);
 		}
 
 		/// <summary>
@@ -1087,7 +1087,7 @@ public class B
 }
 ");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 
 
@@ -1105,7 +1105,7 @@ class TestClass
 	}
 }
 ");
-			Assert.IsTrue (provider != null && provider.Count == 1);
+			Assert.IsTrue (provider != null && provider.Data.Count == 1);
 		}
 
 		[Test]
@@ -1122,7 +1122,7 @@ class TestClass
 	}
 }
 ");
-			Assert.IsTrue (provider == null || provider.Count == 0);
+			Assert.IsTrue (provider == null || provider.Data.Count == 0);
 		}
 
 		[Test]
@@ -1139,7 +1139,7 @@ class TestClass
 	}
 }
 ");
-			Assert.IsTrue (provider == null || provider.Count == 0);
+			Assert.IsTrue (provider == null || provider.Data.Count == 0);
 		}
 
 		/// <summary>
@@ -1179,7 +1179,7 @@ public class Test
 	}
 }
 ");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 
 		[Test]
@@ -1212,7 +1212,7 @@ public class Test
 	}
 }
 ");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 
 		[Test]
@@ -1226,7 +1226,7 @@ class Test
 		$args.Foo($
 	}
 }");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 			Assert.AreEqual (1, provider.GetParameterCount (0));
 		}
 		
@@ -1242,7 +1242,7 @@ class Test
 		$Ext.Foo($
 	}
 }");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 			Assert.AreEqual (2, provider.GetParameterCount (0));
 		}
 
@@ -1259,7 +1259,7 @@ class NUnitTestClass {
         this.NestedTestCollection$.OfType<$.LastOrDefault(
     }
 }");
-			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.Data.Count);
 		}
 
 		/// <summary>
@@ -1317,7 +1317,7 @@ class Test
 }
 ");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (1, provider.Count, "There should be one overload");
+			Assert.AreEqual (1, provider.Data.Count, "There should be one overload");
 			Assert.AreEqual (1, provider.GetParameterCount (0), "Parameter 'test' should exist");
 		}
 
@@ -1379,7 +1379,7 @@ class MyTest
 	}
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.Greater (provider.Count, 1);
+			Assert.Greater (provider.Data.Count, 1);
 		}
 	}
 }

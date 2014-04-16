@@ -30,6 +30,7 @@ using System;
 using NUnit.Framework;
 using System.Diagnostics;
 using System.Linq;
+using ICSharpCode.NRefactory6.CSharp.Completion;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
@@ -181,7 +182,7 @@ class Test : TestClass {
 		[Test]
 		public void TestNonStaticClassAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (testClass +
 @"
 	void TestMethod () 
 	{
@@ -207,7 +208,7 @@ class Test : TestClass {
 		[Test]
 		public void TestInternalAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (testClass +
 @"
 	void TestMethod () 
 	{
@@ -232,7 +233,7 @@ class Test : TestClass {
 		[Test]
 		public void TestInternalAccessOutside ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (testClass +
 @"
 } 
 class Test2 {
@@ -256,7 +257,7 @@ class Test2 {
 		[Test]
 		public void TestStaticClassAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (testClass +
 @"
 	void TestMethod () 
 	{
@@ -282,7 +283,7 @@ class Test2 {
 		[Test]
 		public void TestExternalNonStaticClassAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (testClass +
 @"}
 class AClass {
 	void TestMethod () 
@@ -302,7 +303,7 @@ class AClass {
 		[Test]
 		public void TestExternalStaticClassAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (testClass +
 @"}
 class AClass {
 	void TestMethod () 
@@ -321,7 +322,7 @@ class AClass {
 		[Test]
 		public void TestExternalNonStaticSubclassAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (testClass +
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (testClass +
 @"}
 class AClass : TestClass {
 	void TestMethod () 
@@ -343,7 +344,7 @@ class AClass : TestClass {
 		[Test]
 		public void TestThisProtectedMemberAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -366,7 +367,7 @@ class Test2 : Test
 		[Test]
 		public void TestBasePrivateMemberAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 testClass + @"
 }
 
@@ -386,7 +387,7 @@ class Test : TestClass
 		[Test]
 		public void TestBaseProtectedMemberAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -408,7 +409,7 @@ class Test2 : Test
 		[Test]
 		public void TestBasePublicMemberAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 testClass + @"
 class Test : TestClass
 {
@@ -427,7 +428,7 @@ class Test : TestClass
 		[Test]
 		public void TestProtectedMemberAccess2 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -450,7 +451,7 @@ class Test2
 		[Test]
 		public void TestGenericParameter ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 class Foo<T>
 {
@@ -464,7 +465,7 @@ class Foo<T>
 		[Test]
 		public void TestUnclosedMember ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 
 class C
@@ -484,7 +485,7 @@ class C
 		[Test]
 		public void TestUnclosedMember2 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"using System;
 
 namespace ConsoleTest
@@ -514,7 +515,7 @@ namespace ConsoleTest
 		[Test]
 		public void TestGenericParameterB ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 class Foo<T>
 {
@@ -532,7 +533,7 @@ class Foo<T>
 		[Test]
 		public void TestGenericParameterC ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 class Foo<T>
 {
@@ -550,7 +551,7 @@ class Foo<T>
 		[Test]
 		public void TestInheritedInnerClasses ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 public class A {
 	public class B {
@@ -573,7 +574,7 @@ public class C : A
 		[Test]
 		public void TestNamespaceAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 namespace Foo.Bar {
 	class B
@@ -597,7 +598,7 @@ namespace Foo {
 		[Test]
 		public void TestNamespaceAccess2 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 namespace Foo.Bar {
 	class B
@@ -624,7 +625,7 @@ namespace FooBar {
 		[Test]
 		public void TestNamespaceAccess3 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 namespace SomeTest.TestNS {
 	class TestClass 
@@ -652,7 +653,7 @@ namespace A {
 		[Test]
 		public void TestNamespaceAccess4 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 namespace SomeTest.TestNS {
 	class TestClass 
@@ -679,7 +680,7 @@ namespace SomeTest {
 		[Test]
 		public void TestHideClassesWithPrivateConstructor ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class A
 {
@@ -709,7 +710,7 @@ class Example
 		[Test]
 		public void TestAttributePropertyAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 public class TestAttribute : System.Attribute
 {
@@ -738,7 +739,7 @@ public class Program
 		[Test]
 		public void TestInnerClassEnumAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 public class TestInnerEnum
 {
@@ -761,7 +762,7 @@ public class TestInnerEnum
 		[Test]
 		public void TestInnerClassPrivateOuterMembersAccess ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 public class TestClass
 {
@@ -785,7 +786,7 @@ public class TestClass
 		[Test]
 		public void TestExplicitGenericMethodParameter ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 public class TestClass
 {
@@ -810,7 +811,7 @@ public class Test
 		[Test]
 		public void TestImplicitGenericMethodParameter ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 public class TestClass
 {
@@ -835,7 +836,7 @@ public class Test
 		[Test]
 		public void TestImplicitGenericMethodParameterComplex ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 using System;
 
@@ -870,7 +871,7 @@ class Test
 		[Test]
 		public void TestImplicitGenericArrayMethodParameter ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 public class TestClass
 {
@@ -896,7 +897,7 @@ public class Test
 		[Test]
 		public void TestExplicitResolving ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 interface IMyInterface {
 	object this [object i] { get; }
@@ -934,7 +935,7 @@ class TestClass
 		public void TestAlias ()
 			
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 namespace A
 {
@@ -976,7 +977,7 @@ namespace X
 		[Test]
 		public void TestEnumInnerClass ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 using System;
 namespace CaptainHook.Mail
@@ -1010,7 +1011,7 @@ namespace CaptainHook.Mail
 		[Test]
 		public void TestInheritableTypeContext ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -1028,7 +1029,7 @@ $class Test2 : Test.$
 		[Test]
 		public void TestInheritableTypeContextCase2 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 namespace A {
 	class Test
@@ -1051,7 +1052,7 @@ namespace A {
 		[Test]
 		public void TestInheritableTypeWhereContext ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"
 class Test
 {
@@ -1069,7 +1070,7 @@ $class Test2<T> where T : Test.$
 		[Test]
 		public void TestEnumAssignment ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 public enum TestEnum { A, B, C}
 
@@ -1090,7 +1091,7 @@ class TestClass
 		[Test]
 		public void TestEnumAssignmentCase2 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 public enum TestEnum { A, B, C}
 
@@ -1112,7 +1113,7 @@ class TestClass
 		[Test]
 		public void TestEnumAsParameter ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 public enum TestEnum { A, B, C}
 
@@ -1174,7 +1175,7 @@ class Test
 		[Test]
 		public void TestEnumAsParameterCase2 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 public enum TestEnum { A, B, C}
 
@@ -1196,7 +1197,7 @@ class TestClass
 		[Test]
 		public void TestInnerEnums ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
 @"
 public class InnerEnumTest
 {
@@ -1291,7 +1292,7 @@ class TestClass
 		[Test]
 		public void TestPrimimitiveTypeCompletionString ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
 @"using System;
 
 class Test
@@ -1310,7 +1311,7 @@ class Test
 		[Test]
 		public void TestUsingContext ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (@"$using System.$");
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (@"$using System.$");
 			Assert.IsNotNull (provider, "provider == null");
 			Assert.IsNotNull (provider.Find ("IO"), "namespace 'IO' not found.");
 		}
@@ -1318,7 +1319,7 @@ class Test
 		[Test]
 		public void TestNamedArgumentContext1 ()
 		{
-			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (@"
+			CompletionResult provider = CodeCompletionBugTests.CreateProvider (@"
 using System;
 
 class Test {
