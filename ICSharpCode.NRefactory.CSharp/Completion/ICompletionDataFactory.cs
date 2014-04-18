@@ -29,11 +29,16 @@ using Microsoft.CodeAnalysis;
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public enum GenericDataType {
+		AttributeTarget,
+
 		Undefined,
 		Keyword,
 		PreprocessorKeyword,
-		PreprocessorSymbol
+		PreprocessorSymbol,
+		NameProposal,
+		NamedParameter
 	}
+	
 	public interface ICompletionDataFactory
 	{
 //		ICompletionData CreateEntityCompletionData (IEntity entity);

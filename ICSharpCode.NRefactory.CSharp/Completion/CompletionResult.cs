@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -42,10 +43,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			set;
 		}
 
+		public bool AutoCompleteEmptyMatchOnCurlyBracket {
+			get;
+			set;
+		}
+
 		public bool AutoSelect {
 			get;
 			set;
 		}
+
+		public bool CloseOnSquareBrackets {
+			get;
+			set;
+		}
+
+		public readonly List<IMethodSymbol> PossibleDelegates = new List<IMethodSymbol>();
+
 
 		readonly List<ICompletionData> completionData = new List<ICompletionData> ();
 
@@ -58,6 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		public CompletionResult()
 		{
 			AutoSelect = true;
+			AutoCompleteEmptyMatchOnCurlyBracket = true;
 		}
 		
 		internal void AddData (ICompletionData data)

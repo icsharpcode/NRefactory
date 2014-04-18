@@ -122,6 +122,7 @@
     <Compile Include="Formatter\FormattingOptionsFactory.cs" />
     <Compile Include="Completion\SyntaxContext.cs" />
     <Compile Include="Completion\CompletionResult.cs" />
+    <Compile Include="Refactoring\WordParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />

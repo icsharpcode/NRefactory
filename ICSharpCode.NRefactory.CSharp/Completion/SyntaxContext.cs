@@ -98,11 +98,35 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return ctx.IsGlobalStatementContext;
 			}
 		}
+
+		public bool IsParameterTypeContext {
+			get {
+				return ctx.IsParameterTypeContext;
+			}
+		}
 		
 		public SyntaxTree SyntaxTree {
 			get {
 				return ctx.SyntaxTree;
 			}
+		}
+
+		public bool IsInsideNamingContext (bool isRightAfterIdentifier)
+		{
+			var parent = ctx.TargetToken.Parent;
+			if (isRightAfterIdentifier) {
+				return parent.IsKind(SyntaxKind.IdentifierName) ||
+					parent.IsKind(SyntaxKind.PredefinedType);
+			}
+			if (parent.IsKind(SyntaxKind.NamespaceDeclaration)) {
+				return true;
+			}
+			return parent.IsKind(SyntaxKind.IdentifierName) && (
+			    parent.Parent.IsKind(SyntaxKind.Parameter) ||
+			    parent.Parent.IsKind(SyntaxKind.ArrayType) ||
+				parent.Parent.IsKind(SyntaxKind.VariableDeclaration) ||
+				parent.Parent.IsKind(SyntaxKind.ForEachStatement)
+			);
 		}
 		
 		SyntaxContext(Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx, List<ITypeSymbol> inferredTypes)
