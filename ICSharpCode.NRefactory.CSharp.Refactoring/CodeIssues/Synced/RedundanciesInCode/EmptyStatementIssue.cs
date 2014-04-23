@@ -40,6 +40,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer(DiagnosticId, LanguageNames.CSharp)]
+	// 			AnalysisDisableKeyword = "EmptyStatement"
+
 	public class EmptyStatementIssue : ISyntaxNodeAnalyzer<SyntaxKind>
 	{
 		internal const string DiagnosticId  = "EmptyStatementIssue";
@@ -47,16 +49,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string MessageFormat = "Remove ';'";
 		const string Category      = IssueCategories.RedundanciesInCode;
 
-		static readonly NRefactoryDiagnosticDescriptor Rule = new NRefactoryDiagnosticDescriptor (DiagnosticId, "?", Description, MessageFormat, Category, DiagnosticSeverity.Warning) {
-			AnalysisDisableKeyword = "EmptyStatement"
-		};
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 
-		public IEnumerable<DiagnosticDescriptor> GetSupportedDiagnostics()
-		{
-			return ImmutableArray.Create(Rule);
+		ImmutableArray<DiagnosticDescriptor> IDiagnosticAnalyzer.SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
 		}
-
-		public IEnumerable<SyntaxKind> SyntaxKindsOfInterest {
+		
+		ImmutableArray<SyntaxKind> ISyntaxNodeAnalyzer<SyntaxKind>.SyntaxKindsOfInterest {
 			get {
 				return ImmutableArray.Create(SyntaxKind.EmptyStatement);
 			}
@@ -73,6 +74,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			return !stmt.Parent.IsKind(SyntaxKind.Block);
 		}
+
+		
 	}
 
 	[ExportCodeFixProvider(EmptyStatementIssue.DiagnosticId, LanguageNames.CSharp)]

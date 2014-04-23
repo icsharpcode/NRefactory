@@ -33,6 +33,8 @@ using Microsoft.CodeAnalysis;
 using System.Threading;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Host.Mef;
+using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
@@ -101,8 +103,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 		internal class TestWorkspace : Workspace
 		{
-			public TestWorkspace(Microsoft.CodeAnalysis.Composition.FeaturePack features, string workspaceKind = "Test") : base(features, workspaceKind)
+			readonly static MefHostServices services = MefHostServices.Create(new [] { 
+				typeof(MefHostServices).Assembly,
+				typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions).Assembly
+			});
+			
+			
+			public TestWorkspace(string workspaceKind = "Test") : base(services , workspaceKind)
 			{
+				foreach (var a in MefHostServices.DefaultAssemblies) {
+					Console.WriteLine (a.FullName);
+				}
 			}
 			
 			public void ChangeDocument (DocumentId id, SourceText text)
@@ -155,10 +166,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 			var diagnostics = new List<Diagnostic>();
 
-			AnalyzerDriver.RunAnalyzers(compilation.GetSemanticModel(syntaxTree),
-				new Microsoft.CodeAnalysis.Text.TextSpan(0, syntaxTree.Length),
+			AnalyzerDriver.GetDiagnostics(compilation,
 				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(analyzer),
-				diagnostics.Add
+				CancellationToken.None
 			); 
 			
 			Assert.AreEqual(expectedDiagnostics, diagnostics.Count);
@@ -166,7 +176,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			if (output == null)
 				return;
 
-			var workspace = new TestWorkspace(TestWorkspaceFeatures.Features);
+			var workspace = new TestWorkspace();
 			var projectId = ProjectId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
 			workspace.Open(ProjectInfo.Create(
@@ -211,9 +221,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 			#region IDiagnosticAnalyzer implementation
 
-			IEnumerable<DiagnosticDescriptor> IDiagnosticAnalyzer.GetSupportedDiagnostics()
-			{
-				return t.GetSupportedDiagnostics();
+			System.Collections.Immutable.ImmutableArray<DiagnosticDescriptor> IDiagnosticAnalyzer.SupportedDiagnostics {
+				get {
+					return t.SupportedDiagnostics;
+				}
 			}
 
 			#endregion

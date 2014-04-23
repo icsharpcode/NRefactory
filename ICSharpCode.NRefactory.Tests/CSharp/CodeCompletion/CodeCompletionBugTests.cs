@@ -253,7 +253,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //				mb.AddSymbol(sym);
 //			}
 
-			var workspace = new RoslynInspectionActionTestBase.TestWorkspace (TestWorkspaceFeatures.Features);
+			var workspace = new RoslynInspectionActionTestBase.TestWorkspace ();
 
 			var projectId  = ProjectId.CreateNewId();
 			var solutionId = SolutionId.CreateNewId();
