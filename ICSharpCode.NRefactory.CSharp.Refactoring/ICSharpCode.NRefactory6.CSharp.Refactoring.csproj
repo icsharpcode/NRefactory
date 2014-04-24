@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{2A705FC6-1A9E-4941-9E47-254D79F2D9D5}</ProjectGuid>
+    <ProjectGuid>{c465a5dc-ad28-49a2-89c0-f81838814a7e}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>ICSharpCode.NRefactory.CSharp.Refactoring</RootNamespace>
     <AssemblyName>ICSharpCode.NRefactory6.CSharp.Refactoring</AssemblyName>
