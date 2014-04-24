@@ -123,6 +123,7 @@
     <Compile Include="Completion\SyntaxContext.cs" />
     <Compile Include="Completion\CompletionResult.cs" />
     <Compile Include="Refactoring\WordParser.cs" />
+    <Compile Include="Util\TypeExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />
