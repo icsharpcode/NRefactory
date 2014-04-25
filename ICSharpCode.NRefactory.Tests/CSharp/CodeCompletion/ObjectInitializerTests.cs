@@ -273,7 +273,7 @@ class CCTest {
 	}
 }
 ");
-			Assert.IsTrue (provider == null || provider.Data.Count == 0);
+			Assert.IsTrue (provider == null || provider.Count == 0);
 		}
 		
 		/// <summary>
@@ -702,7 +702,7 @@ class C : S
 }
 
 ", provider => {
-				Assert.IsTrue(provider == null || provider.Data.Count == 0);
+				Assert.IsTrue(provider == null || provider.Count == 0);
 			});
 			
 		}

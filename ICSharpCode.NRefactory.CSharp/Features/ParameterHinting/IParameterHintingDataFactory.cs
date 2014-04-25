@@ -28,24 +28,23 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	public interface IParameterCompletionDataFactory
+	public interface IParameterHintingDataFactory
 	{
-		IParameterDataProvider CreateConstructorProvider (int startOffset, ITypeSymbol type);
+		IParameterHintingData CreateConstructorProvider (IMethodSymbol constructor);
 
-		/// <summary>
-		/// Creates a constructor provider skipping the parent of thisInitializer.
-		/// </summary>
-		IParameterDataProvider CreateConstructorProvider (int startOffset, ITypeSymbol type, SyntaxNode thisInitializer);
+//		/// <summary>
+//		/// Creates a constructor provider skipping the parent of thisInitializer.
+//		/// </summary>
+//		IParameterHintingData CreateConstructorProvider (ITypeSymbol type, SyntaxNode thisInitializer);
 
-		IParameterDataProvider CreateMethodDataProvider (int startOffset, IEnumerable<IMethodSymbol> methods);
+		IParameterHintingData CreateMethodDataProvider (IMethodSymbol method);
 
-		IParameterDataProvider CreateDelegateDataProvider (int startOffset, ITypeSymbol type);
+		IParameterHintingData CreateDelegateDataProvider (ITypeSymbol delegateType);
 		
-		IParameterDataProvider CreateIndexerParameterDataProvider (int startOffset, ITypeSymbol type, IEnumerable<IPropertySymbol> accessibleIndexers, SyntaxNode resolvedNode);
+		IParameterHintingData CreateIndexerParameterDataProvider (IPropertySymbol indexer, SyntaxNode resolvedNode);
 		
-		IParameterDataProvider CreateTypeParameterDataProvider (int startOffset, IEnumerable<ITypeSymbol> types);
+		IParameterHintingData CreateTypeParameterDataProvider (INamedTypeSymbol type);
 
-		IParameterDataProvider CreateTypeParameterDataProvider (int startOffset, IEnumerable<IMethodSymbol> methods);
+		IParameterHintingData CreateTypeParameterDataProvider (IMethodSymbol method);
 	}
-	
 }

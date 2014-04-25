@@ -131,6 +131,7 @@
     <Compile Include="CSharp\CodeCompletion\TestBase.cs" />
     <Compile Include="CSharp\CodeCompletion\VariableDeclarationStatementTests.cs" />
     <Compile Include="CSharp\Analysis\SemanticHighlightingTests.cs" />
+    <Compile Include="CSharp\ParameterHinting\ParameterHintingTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -157,7 +158,6 @@
   <ItemGroup>
     <None Include="CSharp\CodeCompletion\GetCurrentParameterIndexTests.cs" />
     <None Include="CSharp\CodeCompletion\ImportCompletionTests.cs" />
-    <None Include="CSharp\CodeCompletion\ParameterCompletionTests.cs" />
     <None Include="CSharp\CodeCompletion\BrowsableAttributeTests.cs" />
     <None Include="IndentationTests\TestFiles\Comments.cs" />
     <None Include="IndentationTests\TestFiles\CSharpParser.cs" />
@@ -178,5 +178,8 @@
     <None Include="IndentationTests\Helper.cs" />
     <None Include="IndentationTests\PreProcessorTests.cs" />
     <None Include="IndentationTests\StringTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CSharp\ParameterHinting\" />
   </ItemGroup>
 </Project>

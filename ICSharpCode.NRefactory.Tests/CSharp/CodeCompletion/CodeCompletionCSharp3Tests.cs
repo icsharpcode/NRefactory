@@ -450,7 +450,7 @@ class A
 }
 
 ");
-			Assert.IsTrue(provider == null || provider.Data.Count == 0); // <--- here 0 item in the completion list
+			Assert.IsTrue(provider == null || provider.Count == 0); // <--- here 0 item in the completion list
 		}
 		
 		[Test()]
@@ -469,7 +469,7 @@ class A
 }
 
 ");
-			Assert.IsTrue(provider == null || provider.Data.Count == 0); // <--- here 0 item in the completion list
+			Assert.IsTrue(provider == null || provider.Count == 0); // <--- here 0 item in the completion list
 		}
 	}
 }

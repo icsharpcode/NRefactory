@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{7e891659-45f3-42b5-b940-a728780ccae9}</ProjectGuid>
+    <ProjectGuid>{7E891659-45F3-42B5-B940-A728780CCAE9}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
@@ -96,34 +96,41 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Completion\ICompletionDataFactory.cs" />
-    <Compile Include="Completion\IParameterCompletionDataFactory.cs" />
-    <Compile Include="Completion\CSharpCompletionEngine.cs" />
-    <Compile Include="Completion\CompletionCategory.cs" />
-    <Compile Include="Completion\CompletionExtensionMethods.cs" />
-    <Compile Include="Completion\DisplayFlags.cs" />
-    <Compile Include="Completion\ICompletionData.cs" />
-    <Compile Include="Completion\IParameterDataProvider.cs" />
-    <Compile Include="Completion\ISymbolCompletionData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Analysis\SemanticHighlightingVisitor.cs" />
-    <Compile Include="Refactoring\FormatStringHelper.cs" />
-    <Compile Include="Refactoring\UnicodeNewline.cs" />
-    <Compile Include="IndentEngine\CSharpIndentEngine.cs" />
-    <Compile Include="IndentEngine\CacheIndentEngine.cs" />
-    <Compile Include="IndentEngine\IDocumentIndentEngine.cs" />
-    <Compile Include="IndentEngine\IStateMachineIndentEngine.cs" />
-    <Compile Include="IndentEngine\IndentState.cs" />
-    <Compile Include="IndentEngine\TextPasteIndentEngine.cs" />
-    <Compile Include="IndentEngine\NullIStateMachineIndentEngine.cs" />
     <Compile Include="Util\CloneableStack.cs" />
-    <Compile Include="Formatter\Indent.cs" />
-    <Compile Include="IndentEngine\ITextPasteHandler.cs" />
-    <Compile Include="Formatter\FormattingOptionsFactory.cs" />
-    <Compile Include="Completion\SyntaxContext.cs" />
-    <Compile Include="Completion\CompletionResult.cs" />
-    <Compile Include="Refactoring\WordParser.cs" />
     <Compile Include="Util\TypeExtensions.cs" />
+    <Compile Include="Features\Completion\CompletionCategory.cs" />
+    <Compile Include="Features\Completion\CompletionResult.cs" />
+    <Compile Include="Features\Completion\DisplayFlags.cs" />
+    <Compile Include="Features\Completion\ICompletionData.cs" />
+    <Compile Include="Features\Completion\ICompletionDataFactory.cs" />
+    <Compile Include="Features\Completion\ISymbolCompletionData.cs" />
+    <Compile Include="Features\IndentEngine\CacheIndentEngine.cs" />
+    <Compile Include="Features\IndentEngine\CSharpIndentEngine.cs" />
+    <Compile Include="Features\IndentEngine\IDocumentIndentEngine.cs" />
+    <Compile Include="Features\IndentEngine\IndentState.cs" />
+    <Compile Include="Features\IndentEngine\IStateMachineIndentEngine.cs" />
+    <Compile Include="Features\IndentEngine\ITextPasteHandler.cs" />
+    <Compile Include="Features\IndentEngine\NullIStateMachineIndentEngine.cs" />
+    <Compile Include="Features\IndentEngine\TextPasteIndentEngine.cs" />
+    <Compile Include="Features\Formatter\FormattingOptionsFactory.cs" />
+    <Compile Include="Features\Formatter\Indent.cs" />
+    <Compile Include="Features\SemanticHighlighting\SemanticHighlightingVisitor.cs" />
+    <Compile Include="Util\FormatStringHelper.cs" />
+    <Compile Include="Util\UnicodeNewline.cs" />
+    <Compile Include="Util\WordParser.cs" />
+    <Compile Include="Features\Completion\EditorBrowsableBehavior.cs" />
+    <Compile Include="Features\Completion\ContextHandler\CompletionContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\EnumMemberContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\KeywordContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\RoslynRecommendationsCompletionContextHandler.cs" />
+    <Compile Include="Features\Completion\CompletionEngine.cs" />
+    <Compile Include="Features\Completion\ExtensionMethods.cs" />
+    <Compile Include="Util\SyntaxContext.cs" />
+    <Compile Include="Features\ParameterHinting\ParameterHintingEngine.cs" />
+    <Compile Include="Features\ParameterHinting\ParameterHintingResult.cs" />
+    <Compile Include="Features\ParameterHinting\IParameterHintingData.cs" />
+    <Compile Include="Features\ParameterHinting\IParameterHintingDataFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />
@@ -140,13 +147,14 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
-    <Folder Include="IndentEngine\" />
+    <Folder Include="Features\" />
+    <Folder Include="Features\SemanticHighlighting\" />
+    <Folder Include="Refactoring\" />
+    <Folder Include="Features\FrameworkLookup\" />
+    <Folder Include="Features\ParameterHinting\" />
+    <Folder Include="Features\Completion\ContextHandler\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Completion\FrameworkLookup.cs" />
-    <None Include="Completion\CSharpParameterCompletionEngine.cs" />
-    <None Include="Completion\CSharpCompletionEngineBase.cs" />
-    <None Include="Completion\CompletionDataWrapper.cs" />
-    <None Include="Completion\ICompletionContextProvider.cs" />
+    <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />
   </ItemGroup>
 </Project>

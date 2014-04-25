@@ -211,7 +211,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //			pctx = pctx.AddOrUpdateFiles(unresolvedFile);
 //		}
 //
-		public static CSharpCompletionEngine CreateEngine(string text, out int cursorPosition, out SemanticModel semanticModel, out Document document, params MetadataReference[] references)
+		public static CompletionEngine CreateEngine(string text, out int cursorPosition, out SemanticModel semanticModel, out Document document, params MetadataReference[] references)
 		{
 			string parsedText;
 			string editorText;
@@ -315,7 +315,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 					)
 			);
 
-			var engine = new CSharpCompletionEngine(workspace, new TestFactory ());
+			var engine = new CompletionEngine(workspace, new TestFactory ());
 
 			var compilation = workspace.CurrentSolution.GetProject(projectId).GetCompilationAsync().Result;
 			
@@ -331,7 +331,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			return engine;
 		}
 		
-		public static CompletionResult CreateProvider(string text, bool isCtrlSpace, Action<CSharpCompletionEngine> engineCallback, params MetadataReference[] references)
+		public static CompletionResult CreateProvider(string text, bool isCtrlSpace, Action<CompletionEngine> engineCallback, params MetadataReference[] references)
 		{
 			int cursorPosition;
 			SemanticModel semanticModel;
@@ -469,7 +469,7 @@ void TestMethod ()
 }
 ");
 			Assert.IsNotNull (provider);
-			Assert.AreEqual (7, provider.Data.Count);
+			Assert.AreEqual (7, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("TM1"));
 			Assert.IsNotNull (provider.Find ("TM2"));
@@ -490,7 +490,7 @@ void TestMethod ()
 }
 ");
 			Assert.IsNotNull (provider);
-			Assert.AreEqual (7, provider.Data.Count);
+			Assert.AreEqual (7, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("TM1"));
 			Assert.IsNotNull (provider.Find ("TM2"));
@@ -602,7 +602,7 @@ public class Test {
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (1, provider.Data.Count);
+			Assert.AreEqual (1, provider.Count);
 			Assert.IsNotNull (provider.Find ("c"), "class 'c' not found.");
 		}
 
@@ -628,11 +628,11 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			for (int i = 0; i < provider.Data.Count; i++) {
-				var varname = provider.Data [i];
+			for (int i = 0; i < provider.Count; i++) {
+				var varname = provider [i];
 				Console.WriteLine (varname.CompletionText);
 			}
-			Assert.AreEqual (6, provider.Data.Count);
+			Assert.AreEqual (6, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("AField"), "field 'AField' not found.");
 			Assert.IsNotNull (provider.Find ("BField"), "field 'BField' not found.");
@@ -669,7 +669,7 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (6, provider.Data.Count);
+			Assert.AreEqual (6, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("AField"), "field 'AField' not found.");
 			Assert.IsNotNull (provider.Find ("BField"), "field 'BField' not found.");
@@ -696,7 +696,7 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (6, provider.Data.Count);
+			Assert.AreEqual (6, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("AField"), "field 'AField' not found.");
 			Assert.IsNotNull (provider.Find ("BField"), "field 'BField' not found.");
@@ -751,7 +751,7 @@ class Test
 $namespace A.$
 ");
 			if (provider != null)
-				Assert.AreEqual (0, provider.Data.Count);
+				Assert.AreEqual (0, provider.Count);
 		}
 
 		/// <summary>
@@ -776,7 +776,7 @@ class TestClass
 }
 ");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (1, provider.Data.Count);
+			Assert.AreEqual (1, provider.Count);
 			Assert.IsNotNull (provider.Find ("Test"), "class 'Test' not found.");
 		}
 
@@ -803,7 +803,7 @@ class Test
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (5, provider.Data.Count);
+			Assert.AreEqual (5, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("GetTestClass"), "method 'GetTestClass' not found.");
 		}
@@ -832,7 +832,7 @@ namespace B {
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (1, provider.Data.Count);
+			Assert.AreEqual (1, provider.Count);
 			Assert.IsNotNull (provider.Find ("Test"), "class 'Test' not found.");
 		}
 		
@@ -861,7 +861,7 @@ class C : BaseClass
 ");
 			// protected members should not be displayed in this case.
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (4, provider.Data.Count);
+			Assert.AreEqual (4, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 		}
 		
@@ -882,7 +882,7 @@ class C : BaseClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (3, provider.Data.Count);
+			Assert.AreEqual (3, provider.Count);
 			CodeCompletionBugTests.CheckStaticObjectMembers (provider); // 2 from System.Object
 			Assert.IsNotNull (provider.Find ("SomeEnum"), "enum 'SomeEnum' not found.");
 		}
@@ -923,7 +923,7 @@ class C : BaseClass
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.IsTrue (provider.Data.Count > 0, "provider should not be empty.");
+			Assert.IsTrue (provider.Count > 0, "provider should not be empty.");
 			Assert.IsNotNull (provider.Find ("value"), "Should contain 'value'");
 		}
 		
@@ -1329,7 +1329,7 @@ class AClass
 }
 ");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (5, provider.Data.Count);
+			Assert.AreEqual (5, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNull (provider.Find (".dtor"), "destructor found - but shouldn't.");
 			Assert.IsNotNull (provider.Find ("TestMethod"), "method 'TestMethod' not found.");
@@ -1371,7 +1371,7 @@ namespace CCTests
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (5, provider.Data.Count);
+			Assert.AreEqual (5, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
 			Assert.IsNotNull (provider.Find ("TestField"), "field 'TestField' not found.");
 		}
@@ -1394,7 +1394,7 @@ public class TestMe : System.Object
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (2, provider.Data.Count);
+			Assert.AreEqual (2, provider.Count);
 			Assert.IsNull (provider.Find ("Finalize"), "method 'Finalize' found, but shouldn't.");
 			Assert.IsNotNull (provider.Find ("GetHashCode"), "method 'GetHashCode' not found.");
 			Assert.IsNotNull (provider.Find ("Equals"), "method 'Equals' not found.");
@@ -1424,7 +1424,7 @@ class A
 }
 ");
 			if (provider != null)
-				Assert.IsTrue (provider.Data.Count == 0, "variable 'st' found, but shouldn't.");
+				Assert.IsTrue (provider.Count == 0, "variable 'st' found, but shouldn't.");
 		}
 		
 		/// <summary>
@@ -1488,7 +1488,7 @@ public class TestMe
 	}
 }");
 			Assert.IsNotNull (provider, "provider not found.");
-			Assert.AreEqual (2, provider.Data.Count);
+			Assert.AreEqual (2, provider.Count);
 			Assert.IsNotNull (provider.Find ("break"), "keyword 'break' not found");
 			Assert.IsNotNull (provider.Find ("return"), "keyword 'return' not found");
 		}
@@ -1794,7 +1794,7 @@ class A : Base
 				Assert.IsNotNull (provider.Find ("ToString"), "'Event' not found.");
 				Assert.IsNotNull (provider.Find ("GetHashCode"), "'GetHashCode' not found.");
 				Assert.IsNotNull (provider.Find ("Equals"), "'Equals' not found.");
-				Assert.AreEqual (7, provider.Data.Count);
+				Assert.AreEqual (7, provider.Count);
 			});
 		}
 		
@@ -1851,7 +1851,7 @@ public class MyClass
         C myclass = new C ();
         $myclass.$
     }
-}", provider => Assert.AreEqual(1, provider.Data.Count(c => c.DisplayText == "MouseClick")));
+}", provider => Assert.AreEqual(1, provider.Count(c => c.DisplayText == "MouseClick")));
 		}
 		
 		/// <summary>
@@ -4281,7 +4281,7 @@ public class Test
 	$Dictionary<int, string> d$
 }
 ");
-			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider not empty.");
+			Assert.IsTrue (provider == null || provider.Count == 0, "provider not empty.");
 			
 			provider = CreateCtrlSpaceProvider (
 @"public class Test
@@ -4289,7 +4289,7 @@ public class Test
 	$Dictionary<int, string> $
 }
 ");
-			Assert.IsFalse (provider == null || provider.Data.Count == 0, "provider not found.");
+			Assert.IsFalse (provider == null || provider.Count == 0, "provider not found.");
 			
 		}
 		
@@ -4387,7 +4387,7 @@ public class TestMe
 {
 	$void TestMe (TestClassParameter t$
 }");
-			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider was not empty.");
+			Assert.IsTrue (provider == null || provider.Count == 0, "provider was not empty.");
 		}
 		
 		/// <summary>
@@ -4403,7 +4403,7 @@ public class TestMe
 	{
 	}
 }");
-			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
@@ -4450,7 +4450,7 @@ namespace Test
 		$public void T$
 	}
 }");
-			Assert.IsTrue (provider == null || provider.Data.Count == 0, "provider should be empty.");
+			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
 		}
 		
 		[Test]
@@ -4576,10 +4576,10 @@ class Test
 			
 			var list = new List<CompletionCategory> ();
 			
-			for (int i = 0; i < provider.Data.Count; i++) {
-				if (list.Contains (provider.Data [i].CompletionCategory))
+			for (int i = 0; i < provider.Count; i++) {
+				if (list.Contains (provider [i].CompletionCategory))
 					continue;
-				list.Add (provider.Data [i].CompletionCategory);
+				list.Add (provider [i].CompletionCategory);
 			}	
 			Assert.AreEqual (4, list.Count);
 			
@@ -4881,7 +4881,7 @@ class B : A
 }
 
 ");
-			Assert.AreEqual(2, provider.Data.Count(d => d.DisplayText == "Method"));
+			Assert.AreEqual(2, provider.Count(d => d.DisplayText == "Method"));
 		}
 
 		/// <summary>
@@ -5025,7 +5025,7 @@ namespace Test
 $#region S$
     }
 }");
-			Assert.IsTrue(provider == null || provider.Data.Count == 0);
+			Assert.IsTrue(provider == null || provider.Count == 0);
 		}
 
 
@@ -5608,9 +5608,9 @@ namespace bug
 }
 
 ", provider => {
-				Assert.IsTrue (provider.Data.Count > 0);
+				Assert.IsTrue (provider.Count > 0);
 				// it's likely to be mono specific.
-				foreach (var data in provider.Data) {
+				foreach (var data in provider) {
 					Assert.IsFalse(data.DisplayText.StartsWith("<", StringComparison.Ordinal), "Data was:" + data.DisplayText);
 				}
 			});
@@ -5812,7 +5812,7 @@ public class Testing
     } 
 }
 
-", provider => Assert.IsTrue(provider == null || provider.Data.Count == 0));
+", provider => Assert.IsTrue(provider == null || provider.Count == 0));
 		}
 
 		/// <summary>
@@ -5874,7 +5874,7 @@ public class Testing
 			CompletionResult provider = CreateProvider (
 				@"public delegate void ModelCollectionChangedEventHandler<in$ $T>();
 ");
-			Assert.AreEqual(0, provider.Data.Count);
+			Assert.AreEqual(0, provider.Count);
 		}
 
 		[Test]
@@ -5934,7 +5934,7 @@ public class Test
 		Test_Struct v1 = Test_Struct.Some_$V$Value2;
 	}
 }");
-			Assert.IsTrue(provider == null || provider.Data.Count == 0);
+			Assert.IsTrue(provider == null || provider.Count == 0);
 		}
 
 		[Ignore("Parser bug")]
@@ -6037,11 +6037,11 @@ class Test
 }
 ");
 			Assert.IsNotNull (provider, "provider not found.");
-			foreach (var p in provider.Data)
+			foreach (var p in provider)
 				Console.WriteLine(p.DisplayText);
-			Assert.AreEqual(1, provider.Data.Count(cd => cd.DisplayText == "async delegate"));
-			Assert.AreEqual(1, provider.Data.Count(cd => cd.DisplayText == "delegate()"));
-			Assert.AreEqual(1, provider.Data.Count(cd => cd.DisplayText == "async delegate()"));
+			Assert.AreEqual(1, provider.Count(cd => cd.DisplayText == "async delegate"));
+			Assert.AreEqual(1, provider.Count(cd => cd.DisplayText == "delegate()"));
+			Assert.AreEqual(1, provider.Count(cd => cd.DisplayText == "async delegate()"));
 		}
 		[Ignore]
 		[Test]
@@ -6107,7 +6107,7 @@ namespace Foo
         }
     }
 }
-", provider => provider.Data.Single(d => d.DisplayText == "Foo"));
+", provider => provider.Single(d => d.DisplayText == "Foo"));
 		}
 	
 		/// <summary>
@@ -6194,7 +6194,7 @@ class Program
 }
 
 ");
-			Assert.IsTrue(provider == null || provider.Data.Count == 0); 
+			Assert.IsTrue(provider == null || provider.Count == 0); 
 		}
 
 		/// <summary>

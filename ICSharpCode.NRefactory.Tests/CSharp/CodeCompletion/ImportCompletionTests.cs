@@ -157,7 +157,7 @@ class Test
 		$c$
 	}
 }");
-			var data = provider.Data.OfType<CodeCompletionBugTests.TestFactory.ImportCompletionData>().Single(d => d.DisplayText == "Console");
+			var data = provider.OfType<CodeCompletionBugTests.TestFactory.ImportCompletionData>().Single(d => d.DisplayText == "Console");
 			Assert.NotNull(data);
 			Assert.True(data.UseFullName);
 
@@ -176,7 +176,7 @@ class Test
 		$c$
 	}
 }");
-			var data = provider.Data.OfType<CodeCompletionBugTests.TestFactory.ImportCompletionData>().Single(d => d.DisplayText == "Console");
+			var data = provider.OfType<CodeCompletionBugTests.TestFactory.ImportCompletionData>().Single(d => d.DisplayText == "Console");
 			Assert.NotNull(data);
 			Assert.True(data.UseFullName);
 
@@ -194,7 +194,7 @@ class Test
 		$D$
 	}
 }");
-			var data = provider.Data.OfType<CodeCompletionBugTests.TestFactory.ImportCompletionData>().FirstOrDefault(d => d.DisplayText == "Dictionary");
+			var data = provider.OfType<CodeCompletionBugTests.TestFactory.ImportCompletionData>().FirstOrDefault(d => d.DisplayText == "Dictionary");
 			Assert.IsNull(data);
 
 		}

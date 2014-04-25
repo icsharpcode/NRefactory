@@ -199,7 +199,7 @@ class Test
 		$g$
 }
 ", (provider) => {
-				Assert.AreEqual (2, provider.Data.Count);
+				Assert.AreEqual (2, provider.Count);
 				Assert.IsNotNull (provider.Find ("add"), "keyword 'add' not found.");
 				Assert.IsNotNull (provider.Find ("remove"), "keyword 'remove' not found.");
 			});
@@ -431,7 +431,7 @@ class Test
 	$public void MyMethod (o$
 }
 ", (provider) => {
-				Console.WriteLine (provider.Data.Count);
+				Console.WriteLine (provider.Count);
 				
 				Assert.IsNotNull (provider.Find ("ref"), "keyword 'ref' not found.");
 				Assert.IsNotNull (provider.Find ("out"), "keyword 'out' not found.");
@@ -452,7 +452,7 @@ class Test
 	}
 }
 ", (provider) => {
-				Console.WriteLine (provider.Data.Count);
+				Console.WriteLine (provider.Count);
 				
 				Assert.IsNotNull (provider.Find ("ref"), "keyword 'ref' not found.");
 				Assert.IsNotNull (provider.Find ("out"), "keyword 'out' not found.");
@@ -503,7 +503,7 @@ class Test
 }
 ", (provider) => {
 				// Either empty list or in - both behaviours are ok.
-				if (provider.Data.Count > 0)
+				if (provider.Count > 0)
 					Assert.IsNotNull (provider.Find ("in"), "keyword 'in' not found.");
 			});
 		}

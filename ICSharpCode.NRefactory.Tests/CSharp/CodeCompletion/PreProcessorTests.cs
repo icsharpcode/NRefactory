@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		public void TestBug10051 ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$#if $");
-			Assert.IsTrue (provider == null || provider.Data.Count == 0);
+			Assert.IsTrue (provider == null || provider.Count == 0);
 			
 			provider = CodeCompletionBugTests.CreateProvider (@"$#if $", true);
 			Assert.IsNotNull (provider.Find ("DEBUG"), "define 'DEBUG' not found.");
@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		public void TestBug10079 ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$#if TRUE &$");
-			Assert.IsTrue (provider == null || provider.Data.Count == 0);
+			Assert.IsTrue (provider == null || provider.Count == 0);
 			
 			provider = CodeCompletionBugTests.CreateProvider (@"$#if TRUE && $", true);
 			Assert.IsNotNull (provider.Find ("DEBUG"), "define 'DEBUG' not found.");
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		public void TestBug10294 ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$#if TRUE // D$",true);
-			Assert.IsTrue (provider == null || provider.Data.Count == 0);
+			Assert.IsTrue (provider == null || provider.Count == 0);
 		}
 	}
 }

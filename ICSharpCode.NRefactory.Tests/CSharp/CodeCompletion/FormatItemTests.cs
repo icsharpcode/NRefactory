@@ -44,7 +44,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider);
-			Assert.Greater(provider.Data.Count, 0); 
+			Assert.Greater(provider.Count, 0); 
 		}
 
 
@@ -60,7 +60,7 @@ class TestClass
 		$Console.WriteLine (""Hello :$
 	}
 }");
-			Assert.IsTrue(provider == null || provider.Data.Count == 0); 
+			Assert.IsTrue(provider == null || provider.Count == 0); 
 		}
 
 		[Test]
@@ -76,7 +76,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider);
-			Assert.AreEqual(4, provider.Data.Count); 
+			Assert.AreEqual(4, provider.Count); 
 		}
 
 
@@ -92,7 +92,7 @@ class TestClass
 		string.Format("" ${1:$"", 12, i);
 	}
 }");
-			Assert.IsTrue(provider == null || provider.Data.Count == 0); 
+			Assert.IsTrue(provider == null || provider.Count == 0); 
 		}
 
 		[Test]
@@ -108,7 +108,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider);
-			Assert.Greater(provider.Data.Count, 0); 
+			Assert.Greater(provider.Count, 0); 
 		}
 		
 		[Test]
@@ -124,7 +124,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider);
-			Assert.Greater(provider.Data.Count, 0); 
+			Assert.Greater(provider.Count, 0); 
 		}
 
 		
@@ -141,7 +141,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider);
-			Assert.Greater(provider.Data.Count, 0); 
+			Assert.Greater(provider.Count, 0); 
 		}
 		
 		[Test]
@@ -157,7 +157,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider);
-			Assert.Greater(provider.Data.Count, 0); 
+			Assert.Greater(provider.Count, 0); 
 		}
 
 		
@@ -174,7 +174,7 @@ class TestClass
 	}
 }");
 			Assert.IsNotNull (provider);
-			Assert.Greater(provider.Data.Count, 0); 
+			Assert.Greater(provider.Count, 0); 
 		}
 	}
 }

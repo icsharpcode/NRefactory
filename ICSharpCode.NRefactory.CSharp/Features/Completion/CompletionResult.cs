@@ -29,9 +29,11 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	public class CompletionResult
+	public class CompletionResult : IReadOnlyList<ICompletionData>
 	{
 		public static readonly CompletionResult Empty = new CompletionResult ();
+
+		readonly List<ICompletionData> data = new List<ICompletionData> ();
 
 		public string DefaultCompletionString {
 			get;
@@ -60,24 +62,39 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 		public readonly List<IMethodSymbol> PossibleDelegates = new List<IMethodSymbol>();
 
+		#region IReadOnlyList<ICompletionData> implemenation
+		public IEnumerator<ICompletionData> GetEnumerator()
+		{
+			return data.GetEnumerator();
+		}
 
-		readonly List<ICompletionData> completionData = new List<ICompletionData> ();
-
-		public IReadOnlyList<ICompletionData> Data {
-			get {
-				return completionData;
-			}
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return ((System.Collections.IEnumerable)data).GetEnumerator();
 		}
 		
-		public CompletionResult()
+		public ICompletionData this[int index] {
+			get {
+				return data [index];
+			}
+		}
+
+		public int Count {
+			get {
+				return data.Count;
+			}
+		}
+		#endregion
+		
+		internal CompletionResult()
 		{
 			AutoSelect = true;
 			AutoCompleteEmptyMatchOnCurlyBracket = true;
 		}
 		
-		internal void AddData (ICompletionData data)
+		internal void AddData (ICompletionData completionData)
 		{
-			completionData.Add(data); 
+			data.Add(completionData); 
 		}
 	}
 }

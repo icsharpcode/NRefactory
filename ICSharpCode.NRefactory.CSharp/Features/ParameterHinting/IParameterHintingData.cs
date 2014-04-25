@@ -24,60 +24,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	/// <summary>
 	/// Provides intellisense information for a collection of parametrized members.
 	/// </summary>
-	public interface IParameterDataProvider
+	public interface IParameterHintingData
 	{
 		/// <summary>
-		/// Gets the overload count.
+		/// Gets the symbol for which the parameter should be created.
 		/// </summary>
-		int Count { 
-			get; 
+		ISymbol Symbol {
+			get;
 		}
 		
-		/// <summary>
-		/// Gets the start offset of the parameter expression node.
-		/// </summary>
-		int StartOffset { 
-			get; 
+		int ParameterCount {
+			get;
 		}
 		
 		/// <summary>
 		/// Returns the markup to use to represent the specified method overload
 		/// in the parameter information window.
 		/// </summary>
-		string GetHeading (int overload, string[] parameterDescription, int currentParameter);
+		string GetHeading (string[] parameterDescription, int currentParameter);
 		
 		/// <summary>
 		/// Returns the markup for the description to use to represent the specified method overload
 		/// in the parameter information window.
 		/// </summary>
-		string GetDescription (int overload, int currentParameter);
+		string GetDescription (int currentParameter);
 		
 		/// <summary>
 		/// Returns the text to use to represent the specified parameter
 		/// </summary>
-		string GetParameterDescription (int overload, int paramIndex);
+		string GetParameterDescription (int paramIndex);
 		
 		/// <summary>
 		/// Gets the name of the parameter.
 		/// </summary>
-		string GetParameterName (int overload, int currentParameter);
+		string GetParameterName (int currentParameter);
 
-		/// <summary>
-		/// Returns the number of parameters of the specified method
-		/// </summary>
-		int GetParameterCount (int overload);
-		
 		/// <summary>
 		/// Used for the params lists. (for example "params" in c#).
 		/// </summary>
-		bool AllowParameterList (int overload);
+		bool AllowParameterList { get; }
 	}
 }
-
-

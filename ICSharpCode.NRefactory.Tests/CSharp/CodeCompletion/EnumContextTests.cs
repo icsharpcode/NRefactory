@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 	$p$
 }
 ", provider => {
-				Assert.AreEqual (0, provider.Data.Count);
+				Assert.AreEqual (0, provider.Count);
 			});
 		}
 		
@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 	$p$
 }
 ", provider => {
-				Assert.AreEqual (0, provider.Data.Count);
+				Assert.AreEqual (0, provider.Count);
 			});
 		}
 

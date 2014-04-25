@@ -29,7 +29,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	public static class CompletionExtensionMethods
+	public static class ExtensionMethods
 	{
 		/// <summary>
 		/// Gets the EditorBrowsableState of an entity.

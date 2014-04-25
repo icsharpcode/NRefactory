@@ -1,21 +1,21 @@
-// 
-// CompletionDataList.cs
-//  
+//
+// CompletionContextHandler.cs
+//
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
-// 
-// Copyright (c) 2011 Xamarin Inc. (http://xamarin.com)
-// 
+//
+// Copyright (c) 2014 Xamarin Inc. (http://xamarin.com)
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,19 +23,30 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory6.CSharp.Completion;
+using Microsoft.CodeAnalysis.Recommendations;
+using Microsoft.CodeAnalysis;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Text;
+
+namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	static class CompletionDataList
-	{
-		public static ICompletionData Find (this CompletionResult result, string name, bool includeImportData = false)
-		{
-			return result.FirstOrDefault (d => /*(!(d is CodeCompletionBugTests.TestFactory.ImportCompletionData) || includeImportData) &&*/ d.DisplayText == name);
-		}
-	}
-}
 
+//	public class CompletionEngineCache
+//	{
+//		public List<INamespace>  namespaces;
+//		public ICompletionData[] importCompletion;
+//	}
+
+	abstract class CompletionContextHandler
+	{
+		public abstract void GetCompletionData(CompletionResult result, CompletionEngine engine, SyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken));
+	}
+
+}
