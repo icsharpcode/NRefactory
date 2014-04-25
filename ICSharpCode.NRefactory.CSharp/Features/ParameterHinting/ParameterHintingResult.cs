@@ -77,6 +77,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		{
 			data.Add(parameterHintingData); 
 		}
+		
+		internal void AddRange (IEnumerable<IParameterHintingData> parameterHintingDataCollection)
+		{
+			data.AddRange(parameterHintingDataCollection); 
+		}
 	}
 }
 

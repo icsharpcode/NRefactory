@@ -32,16 +32,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 	{
 		IParameterHintingData CreateConstructorProvider (IMethodSymbol constructor);
 
-//		/// <summary>
-//		/// Creates a constructor provider skipping the parent of thisInitializer.
-//		/// </summary>
-//		IParameterHintingData CreateConstructorProvider (ITypeSymbol type, SyntaxNode thisInitializer);
-
 		IParameterHintingData CreateMethodDataProvider (IMethodSymbol method);
 
 		IParameterHintingData CreateDelegateDataProvider (ITypeSymbol delegateType);
 		
 		IParameterHintingData CreateIndexerParameterDataProvider (IPropertySymbol indexer, SyntaxNode resolvedNode);
+		
+		IParameterHintingData CreateArrayDataProvider (IArrayTypeSymbol arrayType);
 		
 		IParameterHintingData CreateTypeParameterDataProvider (INamedTypeSymbol type);
 
