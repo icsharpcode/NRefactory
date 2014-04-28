@@ -41,10 +41,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		ISymbol Symbol {
 			get;
 		}
+		
+		int ParameterCount {
+			get;
+		}
+		
+		bool IsParameterListAllowed {
+			get;
+		}
+
+		string GetParameterName (int currentParameter);
 	}
 	
-	public static class IParameterHintingDataExtensions
+	public class ParameterHintingData : IParameterHintingData
 	{
+		public ISymbol Symbol {
+			get;
+			private set;
+		}
+		
+		public ParameterHintingData(IMethodSymbol symbol)
+		{
+			this.Symbol = symbol;
+		}
+		
+		public ParameterHintingData(IPropertySymbol symbol)
+		{
+			this.Symbol = symbol;
+		}
+		
 		static ImmutableArray<IParameterSymbol> GetParameterList (IParameterHintingData data)
 		{
 			var ms = data.Symbol as IMethodSymbol;
@@ -56,6 +81,115 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return ps.Parameters;
 
 			return ImmutableArray<IParameterSymbol>.Empty;
+		}
+		
+		public string GetParameterName (int currentParameter)
+		{
+			var list = GetParameterList (this);
+			if (currentParameter < 0 || currentParameter >= list.Length)
+				throw new ArgumentOutOfRangeException ("currentParameter");
+			return list [currentParameter].Name;
+		}
+
+		public int ParameterCount {
+			get {
+				return GetParameterList(this).Length;
+			}
+		}
+
+		public bool IsParameterListAllowed {
+			get {
+				var param = GetParameterList(this).LastOrDefault();
+				return param != null && param.IsParams;
+			}
+		}
+	}
+	
+	public class DelegateParameterHintingData : IParameterHintingData
+	{
+		readonly IMethodSymbol invocationMethod;
+
+		public ISymbol Symbol {
+			get;
+			private set;
+		}
+		
+		public DelegateParameterHintingData(ITypeSymbol symbol)
+		{
+			this.Symbol = symbol;
+			this.invocationMethod = symbol.GetDelegateInvokeMethod();
+		}
+		
+		public string GetParameterName (int currentParameter)
+		{
+			var list = invocationMethod.Parameters;
+			if (currentParameter < 0 || currentParameter >= list.Length)
+				throw new ArgumentOutOfRangeException ("currentParameter");
+			return list [currentParameter].Name;
+		}
+
+		public int ParameterCount {
+			get {
+				return invocationMethod.Parameters.Length;
+			}
+		}
+
+		public bool IsParameterListAllowed {
+			get {
+				var param = invocationMethod.Parameters.LastOrDefault();
+				return param != null && param.IsParams;
+			}
+		}
+	}
+
+	public class ArrayParameterHintingData : IParameterHintingData
+	{
+		readonly IArrayTypeSymbol arrayType;
+
+		public ISymbol Symbol {
+			get {
+				return arrayType;
+			}
+		}
+		
+		public ArrayParameterHintingData(IArrayTypeSymbol arrayType)
+		{
+			this.arrayType = arrayType;
+		}
+		
+		public string GetParameterName (int currentParameter)
+		{
+			return null;
+		}
+
+		public int ParameterCount {
+			get {
+				return arrayType.Rank;
+			}
+		}
+
+		public bool IsParameterListAllowed {
+			get {
+				return false;
+			}
+		}
+	}
+
+	public class TypeParameterHintingData : IParameterHintingData
+	{
+		public ISymbol Symbol {
+			get;
+			private set;
+		}
+		
+		public TypeParameterHintingData(IMethodSymbol symbol)
+		{
+			this.Symbol = symbol;
+		}
+		
+		public TypeParameterHintingData(INamedTypeSymbol symbol)
+		{
+			this.Symbol = symbol;
 		}
 		
 		static ImmutableArray<ITypeParameterSymbol> GetTypeParameterList (IParameterHintingData data)
@@ -70,47 +204,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			return ImmutableArray<ITypeParameterSymbol>.Empty;
 		}
+
 		
-		public static string GetTypeParameterName (this IParameterHintingData data, int currentParameter)
+		public string GetParameterName (int currentParameter)
 		{
-			if (data == null)
-				throw new ArgumentNullException("data");
-			var list = GetTypeParameterList (data);
+			var list = GetTypeParameterList (this);
 			if (currentParameter < 0 || currentParameter >= list.Length)
 				throw new ArgumentOutOfRangeException ("currentParameter");
 			return list [currentParameter].Name;
 		}
 
-		public static int GetTypeParameterCount (this IParameterHintingData data)
-		{
-			if (data == null)
-				throw new ArgumentNullException("data");
-			return GetTypeParameterList (data).Length;
+		public int ParameterCount {
+			get {
+				return GetTypeParameterList(this).Length;
+			}
 		}
 
-		public static string GetParameterName (this IParameterHintingData data, int currentParameter)
-		{
-			if (data == null)
-				throw new ArgumentNullException("data");
-			var list = GetParameterList (data);
-			if (currentParameter < 0 || currentParameter >= list.Length)
-				throw new ArgumentOutOfRangeException ("currentParameter");
-			return list [currentParameter].Name;
-		}
-
-		public static int GetParameterCount (this IParameterHintingData data)
-		{
-			if (data == null)
-				throw new ArgumentNullException("data");
-			return GetParameterList (data).Length;
-		}
-
-		public static bool GetIsParameterListAllowed(this IParameterHintingData data)
-		{
-			if (data == null)
-				throw new ArgumentNullException("data");
-			var param = GetParameterList (data).LastOrDefault ();
-			return param != null && param.IsParams;
+		public bool IsParameterListAllowed {
+			get {
+				return false;
+			}
 		}
 	}
 }

@@ -48,55 +48,40 @@ namespace ICSharpCode.NRefactory6.CSharp.ParameterHinting
 
 			IParameterHintingData IParameterHintingDataFactory.CreateConstructorProvider(Microsoft.CodeAnalysis.IMethodSymbol constructor)
 			{
-				return new Provider(constructor, constructor.Parameters.Length);
+				return new ParameterHintingData(constructor);
 			}
 
 			IParameterHintingData IParameterHintingDataFactory.CreateMethodDataProvider(Microsoft.CodeAnalysis.IMethodSymbol method)
 			{
-				return new Provider(method, method.Parameters.Length);
+				return new ParameterHintingData(method);
 			}
 
 			IParameterHintingData IParameterHintingDataFactory.CreateDelegateDataProvider(Microsoft.CodeAnalysis.ITypeSymbol delegateType)
 			{
-				return new Provider(delegateType, delegateType.GetDelegateInvokeMethod().Parameters.Length);
+				return new DelegateParameterHintingData (delegateType);
 			}
 
 			IParameterHintingData IParameterHintingDataFactory.CreateIndexerParameterDataProvider(Microsoft.CodeAnalysis.IPropertySymbol indexer, Microsoft.CodeAnalysis.SyntaxNode resolvedNode)
 			{
-				return new Provider(indexer, indexer.Parameters.Length);
+				return new ParameterHintingData(indexer);
 			}
 
 			IParameterHintingData IParameterHintingDataFactory.CreateTypeParameterDataProvider(Microsoft.CodeAnalysis.INamedTypeSymbol type)
 			{
-				return new Provider(type, type.TypeParameters.Length);
+				return new TypeParameterHintingData(type);
 			}
 
 			IParameterHintingData IParameterHintingDataFactory.CreateTypeParameterDataProvider(Microsoft.CodeAnalysis.IMethodSymbol method)
 			{
-				return new Provider(method, method.TypeParameters.Length);
+				return new TypeParameterHintingData(method);
 			}
 			
 			IParameterHintingData IParameterHintingDataFactory.CreateArrayDataProvider(Microsoft.CodeAnalysis.IArrayTypeSymbol arrayType)
 			{
-				return new Provider(arrayType, arrayType.Rank);
+				return new ArrayParameterHintingData(arrayType);
 			}
 			#endregion
 
-			
-			internal class Provider : IParameterHintingData
-			{
-				public Provider(Microsoft.CodeAnalysis.ISymbol symbol, int parameterCount)
-				{
-					this.Symbol = symbol;
-				}
-				
-				#region IParameterHintingData implementation
-				public Microsoft.CodeAnalysis.ISymbol Symbol {
-					get;
-					private set;
-				}
-				#endregion
-			}
 			
 		}
 		
@@ -266,7 +251,7 @@ class Test
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.AreEqual (1, provider.Count, "There should be one overload");
-			Assert.AreEqual (1, provider[0].GetParameterCount (), "Parameter 'start' should exist");
+			Assert.AreEqual (1, provider[0].ParameterCount, "Parameter 'start' should exist");
 		}
 
 		/// <summary>
@@ -393,7 +378,7 @@ class AClass
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.AreEqual (1, provider.Count);
-			Assert.AreEqual (1, provider[0].GetParameterCount (), "Parameter 'test' should exist");
+			Assert.AreEqual (1, provider[0].ParameterCount, "Parameter 'test' should exist");
 		}
 		
 		
@@ -1046,7 +1031,7 @@ class Test
 	}
 }");
 			Assert.AreEqual (1, provider.Count);
-			Assert.AreEqual (1, provider[0].GetParameterCount ());
+			Assert.AreEqual (1, provider[0].ParameterCount);
 		}
 		
 		
@@ -1062,7 +1047,7 @@ class Test
 	}
 }");
 			Assert.AreEqual (1, provider.Count);
-			Assert.AreEqual (2, provider[0].GetParameterCount ());
+			Assert.AreEqual (2, provider[0].ParameterCount);
 		}
 
 		[Test]
@@ -1137,7 +1122,7 @@ class Test
 ");
 			Assert.IsNotNull (provider, "provider not found.");
 			Assert.AreEqual (1, provider.Count, "There should be one overload");
-			Assert.AreEqual (1, provider[0].GetParameterCount (), "Parameter 'test' should exist");
+			Assert.AreEqual (1, provider[0].ParameterCount, "Parameter 'test' should exist");
 		}
 
 		/// <summary>
