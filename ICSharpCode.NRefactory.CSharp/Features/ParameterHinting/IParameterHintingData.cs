@@ -58,6 +58,36 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return ImmutableArray<IParameterSymbol>.Empty;
 		}
 		
+		static ImmutableArray<ITypeParameterSymbol> GetTypeParameterList (IParameterHintingData data)
+		{
+			var ms = data.Symbol as IMethodSymbol;
+			if (ms != null)
+				return ms.TypeParameters;
+				
+			var ps = data.Symbol as INamedTypeSymbol;
+			if (ps != null)
+				return ps.TypeParameters;
+
+			return ImmutableArray<ITypeParameterSymbol>.Empty;
+		}
+		
+		public static string GetTypeParameterName (this IParameterHintingData data, int currentParameter)
+		{
+			if (data == null)
+				throw new ArgumentNullException("data");
+			var list = GetTypeParameterList (data);
+			if (currentParameter < 0 || currentParameter >= list.Length)
+				throw new ArgumentOutOfRangeException ("currentParameter");
+			return list [currentParameter].Name;
+		}
+
+		public static int GetTypeParameterCount (this IParameterHintingData data)
+		{
+			if (data == null)
+				throw new ArgumentNullException("data");
+			return GetTypeParameterList (data).Length;
+		}
+
 		public static string GetParameterName (this IParameterHintingData data, int currentParameter)
 		{
 			if (data == null)
