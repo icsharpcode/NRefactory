@@ -88,41 +88,12 @@ namespace ICSharpCode.NRefactory6.CSharp.ParameterHinting
 				public Provider(Microsoft.CodeAnalysis.ISymbol symbol, int parameterCount)
 				{
 					this.Symbol = symbol;
-					this.ParameterCount = parameterCount;
 				}
 				
 				#region IParameterHintingData implementation
-				public string GetHeading(string[] parameterDescription, int currentParameter)
-				{
-					return "";
-				}
-				public string GetDescription(int currentParameter)
-				{
-					return "";
-				}
-				public string GetParameterDescription(int paramIndex)
-				{
-					return "";
-				}
-				public string GetParameterName(int currentParameter)
-				{
-					return "";
-				}
-				
 				public Microsoft.CodeAnalysis.ISymbol Symbol {
 					get;
 					private set;
-				}
-				
-				public int ParameterCount {
-					get;
-					private set;
-				}
-				
-				public bool AllowParameterList {
-					get {
-						return false;
-					}
 				}
 				#endregion
 			}
@@ -295,7 +266,7 @@ class Test
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.AreEqual (1, provider.Count, "There should be one overload");
-			Assert.AreEqual (1, provider[0].ParameterCount, "Parameter 'start' should exist");
+			Assert.AreEqual (1, provider[0].GetParameterCount (), "Parameter 'start' should exist");
 		}
 
 		/// <summary>
@@ -422,7 +393,7 @@ class AClass
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.AreEqual (1, provider.Count);
-			Assert.AreEqual (1, provider[0].ParameterCount, "Parameter 'test' should exist");
+			Assert.AreEqual (1, provider[0].GetParameterCount (), "Parameter 'test' should exist");
 		}
 		
 		
@@ -1075,7 +1046,7 @@ class Test
 	}
 }");
 			Assert.AreEqual (1, provider.Count);
-			Assert.AreEqual (1, provider[0].ParameterCount);
+			Assert.AreEqual (1, provider[0].GetParameterCount ());
 		}
 		
 		
@@ -1091,7 +1062,7 @@ class Test
 	}
 }");
 			Assert.AreEqual (1, provider.Count);
-			Assert.AreEqual (2, provider[0].ParameterCount);
+			Assert.AreEqual (2, provider[0].GetParameterCount ());
 		}
 
 		[Test]
@@ -1166,7 +1137,7 @@ class Test
 ");
 			Assert.IsNotNull (provider, "provider not found.");
 			Assert.AreEqual (1, provider.Count, "There should be one overload");
-			Assert.AreEqual (1, provider[0].ParameterCount, "Parameter 'test' should exist");
+			Assert.AreEqual (1, provider[0].GetParameterCount (), "Parameter 'test' should exist");
 		}
 
 		/// <summary>

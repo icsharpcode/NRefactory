@@ -25,6 +25,8 @@
 // THE SOFTWARE.
 using System;
 using Microsoft.CodeAnalysis;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -39,36 +41,46 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		ISymbol Symbol {
 			get;
 		}
-		
-		int ParameterCount {
-			get;
+	}
+	
+	public static class IParameterHintingDataExtensions
+	{
+		static ImmutableArray<IParameterSymbol> GetParameterList (IParameterHintingData data)
+		{
+			var ms = data.Symbol as IMethodSymbol;
+			if (ms != null)
+				return ms.Parameters;
+				
+			var ps = data.Symbol as IPropertySymbol;
+			if (ps != null)
+				return ps.Parameters;
+
+			return ImmutableArray<IParameterSymbol>.Empty;
 		}
 		
-		/// <summary>
-		/// Returns the markup to use to represent the specified method overload
-		/// in the parameter information window.
-		/// </summary>
-		string GetHeading (string[] parameterDescription, int currentParameter);
-		
-		/// <summary>
-		/// Returns the markup for the description to use to represent the specified method overload
-		/// in the parameter information window.
-		/// </summary>
-		string GetDescription (int currentParameter);
-		
-		/// <summary>
-		/// Returns the text to use to represent the specified parameter
-		/// </summary>
-		string GetParameterDescription (int paramIndex);
-		
-		/// <summary>
-		/// Gets the name of the parameter.
-		/// </summary>
-		string GetParameterName (int currentParameter);
+		public static string GetParameterName (this IParameterHintingData data, int currentParameter)
+		{
+			if (data == null)
+				throw new ArgumentNullException("data");
+			var list = GetParameterList (data);
+			if (currentParameter < 0 || currentParameter >= list.Length)
+				throw new ArgumentOutOfRangeException ("currentParameter");
+			return list [currentParameter].Name;
+		}
 
-		/// <summary>
-		/// Used for the params lists. (for example "params" in c#).
-		/// </summary>
-		bool AllowParameterList { get; }
+		public static int GetParameterCount (this IParameterHintingData data)
+		{
+			if (data == null)
+				throw new ArgumentNullException("data");
+			return GetParameterList (data).Length;
+		}
+
+		public static bool GetIsParameterListAllowed(this IParameterHintingData data)
+		{
+			if (data == null)
+				throw new ArgumentNullException("data");
+			var param = GetParameterList (data).LastOrDefault ();
+			return param != null && param.IsParams;
+		}
 	}
 }
