@@ -131,6 +131,7 @@
     <Compile Include="Features\ParameterHinting\ParameterHintingResult.cs" />
     <Compile Include="Features\ParameterHinting\IParameterHintingData.cs" />
     <Compile Include="Features\ParameterHinting\IParameterHintingDataFactory.cs" />
+    <Compile Include="Features\ParameterHinting\ParameterUtil.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />
