@@ -2168,6 +2168,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				if (location != null && location.Count > 0)
 					result.AddChild(new CSharpTokenNode(Convert(location [0]), Roles.DoubleColon), Roles.DoubleColon);
 
+				AddTypeArguments(result, qualifiedAliasMember);
 				result.AddChild(Identifier.Create(qualifiedAliasMember.Name, location != null && location.Count > 1 ? Convert(location [1]) : TextLocation.Empty), Roles.Identifier);
 				return  new TypeReferenceExpression { Type = result };
 			}
