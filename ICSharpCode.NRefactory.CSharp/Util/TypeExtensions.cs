@@ -30,6 +30,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Simplification;
+using System.Threading.Tasks;
+using System.Collections.Immutable;
+using System.Threading;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -59,6 +62,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return null;
 		}
 		#endregion
-	}
+		
+		public static Task<IEnumerable<INamedTypeSymbol>> FindImplementingTypesAsync(this INamedTypeSymbol type, Solution solution, IImmutableSet<Project> projects = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Microsoft.CodeAnalysis.FindSymbols.DependentTypeFinder.FindImplementingTypesAsync(type, solution, projects, cancellationToken);
+        }
+ 	}
 }
 
