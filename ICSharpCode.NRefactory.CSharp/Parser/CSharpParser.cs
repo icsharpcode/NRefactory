@@ -207,6 +207,7 @@ namespace ICSharpCode.NRefactory.CSharp
 						memberType.AddChild(new CSharpTokenNode(Convert(loc [0]), Roles.DoubleColon), Roles.DoubleColon);
 
 					memberType.MemberNameToken = Identifier.Create(qam.Name, loc != null ? Convert(loc [1]) : TextLocation.Empty);
+					AddTypeArguments(qam, memberType);
 					return memberType;
 				}
 				
