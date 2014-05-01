@@ -63,9 +63,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 		#endregion
 		
-		public static Task<IEnumerable<INamedTypeSymbol>> FindImplementingTypesAsync(this INamedTypeSymbol type, Solution solution, IImmutableSet<Project> projects = null, CancellationToken cancellationToken = default(CancellationToken))
+		public static Task<IEnumerable<INamedTypeSymbol>> FindDerivedClassesAsync(this INamedTypeSymbol type, Solution solution, IImmutableSet<Project> projects = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return Microsoft.CodeAnalysis.FindSymbols.DependentTypeFinder.FindImplementingTypesAsync(type, solution, projects, cancellationToken);
+            return Microsoft.CodeAnalysis.FindSymbols.DependentTypeFinder.FindDerivedClassesAsync(type, solution, projects, cancellationToken);
         }
  	}
 }
