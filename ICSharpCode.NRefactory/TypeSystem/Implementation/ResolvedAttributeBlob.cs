@@ -148,7 +148,8 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					arg = reader.ReadFixedArg (ctorParameter);
 					positionalArguments.Add(arg);
 					isError = arg.IsError;
-				} catch (Exception) {
+				} catch (Exception ex) {
+					Debug.WriteLine("Crash during blob decoding: " + ex);
 					isError = true;
 				}
 				if (isError) {
@@ -160,11 +161,15 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					return;
 				}
 			}
-			ushort numNamed = reader.ReadUInt16();
-			for (int i = 0; i < numNamed; i++) {
-				var namedArg = reader.ReadNamedArg(attributeType);
-				if (namedArg.Key != null)
-					namedArguments.Add(namedArg);
+			try {
+				ushort numNamed = reader.ReadUInt16();
+				for (int i = 0; i < numNamed; i++) {
+					var namedArg = reader.ReadNamedArg(attributeType);
+					if (namedArg.Key != null)
+						namedArguments.Add(namedArg);
+				}
+			} catch (Exception ex) {
+				Debug.WriteLine("Crash during blob decoding: " + ex);
 			}
 		}
 	}
