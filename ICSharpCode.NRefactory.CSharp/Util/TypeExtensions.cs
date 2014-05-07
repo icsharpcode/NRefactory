@@ -33,6 +33,7 @@ using Microsoft.CodeAnalysis.Simplification;
 using System.Threading.Tasks;
 using System.Collections.Immutable;
 using System.Threading;
+using System.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -67,6 +68,49 @@ namespace ICSharpCode.NRefactory6.CSharp
         {
             return Microsoft.CodeAnalysis.FindSymbols.DependentTypeFinder.FindDerivedClassesAsync(type, solution, projects, cancellationToken);
         }
+		
+		/// <summary>
+		/// Gets the full name of the namespace.
+		/// </summary>
+		public static string GetFullName (this INamespaceSymbol ns)
+		{
+			if (ns == null || ns.IsGlobalNamespace)
+				return "";
+			var c = GetFullName (ns.ContainingNamespace);
+			if (string.IsNullOrEmpty (c))
+				return ns.Name;
+			return c + "." + ns.Name;
+		}
+		
+		static string GetNestedTypeString (INamedTypeSymbol type)
+		{
+			if (type == null)
+				return null;
+			var sb = new StringBuilder ();
+			while (type != null) {
+				if (sb.Length > 0) {
+					sb.Insert (0, type.Name + ".");
+				} else {
+					sb.Append (type.Name);
+				}
+				type = type.ContainingType;
+			}
+			return sb.ToString ();
+		}
+
+		/// <summary>
+		/// Gets the full name. The full name is no 1:1 representation of a type it's missing generics and it has a poor
+		/// representation for inner types (just dot separated).
+		/// DO NOT use this method unless you're know what you do. It's only implemented for legacy code.
+		/// </summary>
+		public static string GetFullName (this INamedTypeSymbol type)
+		{
+			var ns = GetFullName(type.ContainingNamespace);
+			var parentType = GetNestedTypeString(type.ContainingType);
+			if (string.IsNullOrEmpty(ns))
+				return string.IsNullOrEmpty(parentType) ? type.Name : parentType + "." + type.Name;
+			return string.IsNullOrEmpty(parentType) ?  ns + "." + type.Name : ns + "." + parentType + "." + type.Name;
+		}
  	}
 }
 
