@@ -26,6 +26,7 @@
 using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -87,6 +88,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 			}
 			return true;
+		}
+		
+		/// <summary>
+		/// Returns the component category.
+		/// [System.ComponentModel.CategoryAttribute (CATEGORY)]
+		/// </summary>
+		/// <param name="symbol">Symbol.</param>
+		public static string GetComponentCategory(this ISymbol symbol)
+		{
+			if (symbol == null)
+				throw new ArgumentNullException ("symbol");
+			var browsableState = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "CategoryAttribute" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.ComponentModel");
+			if (browsableState != null && browsableState.ConstructorArguments.Length == 1) {
+				try {
+					return (string)browsableState.ConstructorArguments [0].Value;
+				} catch {
+				}
+			}
+			return null;
 		}
 		
 		/// <summary>
