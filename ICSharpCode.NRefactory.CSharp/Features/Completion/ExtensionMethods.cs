@@ -88,6 +88,28 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 			return true;
 		}
+		
+		/// <summary>
+		/// Returns true if the type is public and was tagged with
+		/// [System.ComponentModel.ToolboxItem (true)]
+		/// </summary>
+		/// <returns><c>true</c> if is designer browsable the specified symbol; otherwise, <c>false</c>.</returns>
+		/// <param name="symbol">Symbol.</param>
+		public static bool IsToolboxItem(this ITypeSymbol symbol)
+		{
+			if (symbol == null)
+				throw new ArgumentNullException ("symbol");
+			if (symbol.DeclaredAccessibility != Accessibility.Public)
+				return false;
+			var toolboxItemAttr = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "ToolboxItemAttribute" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.ComponentModel");
+			if (toolboxItemAttr != null && toolboxItemAttr.ConstructorArguments.Length == 1) {
+				try {
+					return (bool)toolboxItemAttr.ConstructorArguments [0].Value;
+				} catch {
+				}
+			}
+			return false;
+		}
 	}
 }
 
