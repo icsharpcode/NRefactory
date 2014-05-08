@@ -132,6 +132,9 @@
     <Compile Include="Features\ParameterHinting\IParameterHintingData.cs" />
     <Compile Include="Features\ParameterHinting\IParameterHintingDataFactory.cs" />
     <Compile Include="Features\ParameterHinting\ParameterUtil.cs" />
+    <Compile Include="Util\SymbolExtensions.cs" />
+    <Compile Include="Util\NamespaceExtensions.cs" />
+    <Compile Include="Util\CompilationExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />

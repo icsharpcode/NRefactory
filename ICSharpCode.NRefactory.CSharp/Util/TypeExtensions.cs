@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// representation for inner types (just dot separated).
 		/// DO NOT use this method unless you're know what you do. It's only implemented for legacy code.
 		/// </summary>
-		public static string GetFullName (this INamedTypeSymbol type)
+		public static string GetFullName (this ITypeSymbol type)
 		{
 			var ns = GetFullName(type.ContainingNamespace);
 			var parentType = GetNestedTypeString(type.ContainingType);
@@ -111,6 +111,29 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return string.IsNullOrEmpty(parentType) ? type.Name : parentType + "." + type.Name;
 			return string.IsNullOrEmpty(parentType) ?  ns + "." + type.Name : ns + "." + parentType + "." + type.Name;
 		}
- 	}
+ 	
+	
+		/// <summary>
+		/// Returns true if the type is public and was tagged with
+		/// [System.ComponentModel.ToolboxItem (true)]
+		/// </summary>
+		/// <returns><c>true</c> if is designer browsable the specified symbol; otherwise, <c>false</c>.</returns>
+		/// <param name="symbol">Symbol.</param>
+		public static bool IsToolboxItem(this ITypeSymbol symbol)
+		{
+			if (symbol == null)
+				throw new ArgumentNullException ("symbol");
+			if (symbol.DeclaredAccessibility != Accessibility.Public)
+				return false;
+			var toolboxItemAttr = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "ToolboxItemAttribute" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.ComponentModel");
+			if (toolboxItemAttr != null && toolboxItemAttr.ConstructorArguments.Length == 1) {
+				try {
+					return (bool)toolboxItemAttr.ConstructorArguments [0].Value;
+				} catch {
+				}
+			}
+			return false;
+		}
+	}
 }
 

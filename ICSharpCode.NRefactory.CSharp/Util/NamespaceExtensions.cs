@@ -1,10 +1,10 @@
-//
-// CompletionExtensionMethods.cs
+﻿//
+// NamespaceExtensions.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2012 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2014 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using System.ComponentModel;
-using System.Collections;
-using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using System.Threading;
 
-namespace ICSharpCode.NRefactory6.CSharp.Completion
+namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class ExtensionMethods
+	public static class NamespaceExtensions
 	{
-	
+		public static IEnumerable<INamedTypeSymbol> GetAllTypes(this INamespaceSymbol namespaceSymbol, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			if (namespaceSymbol == null)
+				throw new ArgumentNullException("namespaceSymbol");
+			var stack = new Stack<INamespaceOrTypeSymbol>();
+			stack.Push(namespaceSymbol);
+
+			while (stack.Count > 0) {
+				if (cancellationToken.IsCancellationRequested)
+					yield break;
+				var current = stack.Pop();
+				var currentNs = current as INamespaceSymbol;
+				if (currentNs != null) {
+					foreach (var member in currentNs.GetMembers())
+						stack.Push(member);
+				} else {
+					var namedType = (INamedTypeSymbol)current;
+					foreach (var nestedType in namedType.GetTypeMembers())
+						stack.Push(nestedType);
+					yield return namedType;
+				}
+			}
+		}
 		
+	
 	}
 }
 
