@@ -27,6 +27,9 @@ using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using System.ComponentModel;
+using System.Collections;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -130,6 +133,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 			return false;
 		}
+		
+
+		public static IEnumerable<INamedTypeSymbol> GetAllTypes(this INamespaceSymbol namespaceSymbol, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var stack = new Stack<INamespaceOrTypeSymbol>();
+			stack.Push(namespaceSymbol);
+
+			while (stack.Count > 0) {
+				if (cancellationToken.IsCancellationRequested)
+					yield break;
+				var current = stack.Pop();
+				var currentNs = current as INamespaceSymbol;
+				if (currentNs != null) {
+					foreach (var member in currentNs.GetMembers())
+						stack.Push(member);
+				} else {
+					var namedType = (INamedTypeSymbol)current;
+					foreach (var nestedType in namedType.GetTypeMembers())
+						stack.Push(nestedType);
+					yield return namedType;
+				}
+			}
+		}
+		
+		public static IEnumerable<INamedTypeSymbol> GetAllTypes(this Compilation compilation, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return GetAllTypes(compilation.GlobalNamespace, cancellationToken);
+		}
+		
 	}
 }
 
