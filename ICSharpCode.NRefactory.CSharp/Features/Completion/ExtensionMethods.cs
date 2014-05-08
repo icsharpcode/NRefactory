@@ -37,19 +37,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		/// <returns>
 		/// The editor browsable state.
 		/// </returns>
-		/// <param name='entity'>
+		/// <param name='symbol'>
 		/// Entity.
 		/// </param>
 		public static System.ComponentModel.EditorBrowsableState GetEditorBrowsableState(this ISymbol symbol)
 		{
 			if (symbol == null)
 				throw new ArgumentNullException ("symbol");
-			AttributeData d;
 			var browsableState = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "EditorBrowsableAttribute" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.ComponentModel");
 			if (browsableState != null && browsableState.ConstructorArguments.Length == 1) {
 				try {
 					return (System.ComponentModel.EditorBrowsableState)browsableState.ConstructorArguments [0].Value;
-				} catch (Exception) {}
+				} catch {
+				}
 			}
 			return System.ComponentModel.EditorBrowsableState.Always;
 		}
@@ -61,12 +61,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		/// <returns>
 		/// <c>true</c> if the entity should be shown; otherwise, <c>false</c>.
 		/// </returns>
-		/// <param name='entity'>
+		/// <param name='symbol'>
 		/// The entity.
 		/// </param>
-		public static bool IsBrowsable(this ISymbol symbol)
+		public static bool IsEditorBrowsable(this ISymbol symbol)
 		{
 			return GetEditorBrowsableState (symbol) != System.ComponentModel.EditorBrowsableState.Never;
+		}
+		
+		/// <summary>
+		/// Returns true if the symbol wasn't tagged with
+		/// [System.ComponentModel.BrowsableAttribute (false)]
+		/// </summary>
+		/// <returns><c>true</c> if is designer browsable the specified symbol; otherwise, <c>false</c>.</returns>
+		/// <param name="symbol">Symbol.</param>
+		public static bool IsDesignerBrowsable(this ISymbol symbol)
+		{
+			if (symbol == null)
+				throw new ArgumentNullException ("symbol");
+			var browsableState = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "BrowsableAttribute" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.ComponentModel");
+			if (browsableState != null && browsableState.ConstructorArguments.Length == 1) {
+				try {
+					return (bool)browsableState.ConstructorArguments [0].Value;
+				} catch {
+				}
+			}
+			return true;
 		}
 	}
 }
