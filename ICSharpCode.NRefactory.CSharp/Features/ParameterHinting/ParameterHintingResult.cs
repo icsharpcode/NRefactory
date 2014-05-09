@@ -68,17 +68,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		
 		#endregion
 		
-		internal ParameterHintingResult(int startOffset)
+		internal protected ParameterHintingResult(int startOffset)
 		{
 			this.StartOffset = startOffset;
 		}
 		
-		internal void AddData (IParameterHintingData parameterHintingData)
+		internal protected void AddData (IParameterHintingData parameterHintingData)
 		{
 			data.Add(parameterHintingData); 
 		}
 		
-		internal void AddRange (IEnumerable<IParameterHintingData> parameterHintingDataCollection)
+		internal protected void AddRange (IEnumerable<IParameterHintingData> parameterHintingDataCollection)
 		{
 			data.AddRange(parameterHintingDataCollection); 
 		}
