@@ -25,51 +25,72 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.PatternMatching;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Use 'var' keyword",
-	               Description = "Converts local variable declaration to be implicit typed.")]
-	public class UseVarKeywordAction : CodeActionProvider
+//	[ContextAction("Use 'var' keyword",
+//	               Description = "Converts local variable declaration to be implicit typed.")]
+	[ExportCodeRefactoringProvider("Use 'var' keyword", LanguageNames.CSharp)]
+	public class UseVarKeywordAction : ICodeRefactoringProvider
 	{
 		internal static readonly Version minimumVersion = new Version (3, 0, 0);
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		static VariableDeclarationSyntax GetVariableDeclarationStatement (SyntaxNode token)
 		{
-			if (!context.Supports(minimumVersion))
-				yield break;
-			var varDecl = GetVariableDeclarationStatement(context);
-			var foreachStmt = GetForeachStatement(context);
-			if (varDecl == null && foreachStmt == null) {
-				yield break;
+			return token.Parent as VariableDeclarationSyntax;
+		}
+		
+		static ForEachStatementSyntax GetForeachStatement (SyntaxNode token)
+		{
+			return token.Parent as ForEachStatementSyntax;
+		}
+
+		#region ICodeRefactoringProvider implementation
+
+		Document PerformAction(Document document, SyntaxNode root, TypeSyntax type)
+		{
+			var newRoot = root.ReplaceNode(
+				type,
+				SyntaxFactory.IdentifierName("var")
+					.WithLeadingTrivia(type.GetLeadingTrivia())
+					.WithTrailingTrivia(type.GetTrailingTrivia())
+			);
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+//			if (!context.Supports(minimumVersion))
+//				yield break;
+
+			var token = root.FindToken(span.Start);
+			
+			TypeSyntax type = null;
+			var varDecl = GetVariableDeclarationStatement(token.Parent);
+			if (varDecl != null)
+				type = varDecl.Type;
+			var foreachStmt = GetForeachStatement (token.Parent);
+			if (foreachStmt != null)
+				type = foreachStmt.Type;
+			
+			if (type != null) {
+				return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Use 'var' keyword", PerformAction (document, root, type)) };
 			}
-			yield return new CodeAction(context.TranslateString("Use 'var' keyword"), script => {
-				if (varDecl != null) {
-					script.Replace(varDecl.Type, new SimpleType ("var"));
-				} else {
-					script.Replace(foreachStmt.VariableType, new SimpleType ("var"));
-				}
-			}, (AstNode)varDecl ?? foreachStmt);
-		}
-		
-		static VariableDeclarationStatement GetVariableDeclarationStatement (RefactoringContext context)
-		{
-			var result = context.GetNode<VariableDeclarationStatement> ();
-			if (result != null && result.Variables.Count == 1 && !result.Variables.First ().Initializer.IsNull && result.Type.Contains (context.Location) && !result.Type.IsVar ())
-				return result;
 			return null;
 		}
-		
-		static ForeachStatement GetForeachStatement (RefactoringContext context)
-		{
-			var result = context.GetNode<ForeachStatement> ();
-			if (result != null && result.VariableType.Contains (context.Location) && !result.VariableType.IsVar ())
-				return result;
-			return null;
-		}
+
+		#endregion
 	}
 }
 

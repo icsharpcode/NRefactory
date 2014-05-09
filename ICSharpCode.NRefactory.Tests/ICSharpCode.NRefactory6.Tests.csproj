@@ -132,6 +132,8 @@
     <Compile Include="CSharp\CodeCompletion\VariableDeclarationStatementTests.cs" />
     <Compile Include="CSharp\Analysis\SemanticHighlightingTests.cs" />
     <Compile Include="CSharp\ParameterHinting\ParameterHintingTests.cs" />
+    <Compile Include="CSharp\CodeActions\UseVarKeywordTests.cs" />
+    <Compile Include="CSharp\CodeActions\ContextActionTestBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

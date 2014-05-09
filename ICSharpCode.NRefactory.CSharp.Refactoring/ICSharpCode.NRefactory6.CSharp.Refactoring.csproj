@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{c465a5dc-ad28-49a2-89c0-f81838814a7e}</ProjectGuid>
+    <ProjectGuid>{C465A5DC-AD28-49A2-89C0-F81838814A7E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>ICSharpCode.NRefactory.CSharp.Refactoring</RootNamespace>
     <AssemblyName>ICSharpCode.NRefactory6.CSharp.Refactoring</AssemblyName>
@@ -106,6 +106,7 @@
     <Compile Include="CodeIssues\IssueMarker.cs" />
     <Compile Include="CodeIssues\NRefactoryDiagnosticDescriptor.cs" />
     <Compile Include="CodeIssues\DiagnosticFactory.cs" />
+    <Compile Include="CodeActions\UseVarKeywordAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

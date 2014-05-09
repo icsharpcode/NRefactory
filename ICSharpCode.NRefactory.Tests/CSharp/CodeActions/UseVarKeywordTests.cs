@@ -28,12 +28,12 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
 	public class UseVarKeywordTests : ContextActionTestBase
 	{
-		[Test()]
+		[Test]
 		public void SimpleVarDeclaration ()
 		{
 			string result = RunContextAction (new UseVarKeywordAction (),
@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 }", result);
 		}
 		
-		[Test()]
+		[Test]
 		public void ForeachDeclaration ()
 		{
 			string result = RunContextAction (new UseVarKeywordAction (),

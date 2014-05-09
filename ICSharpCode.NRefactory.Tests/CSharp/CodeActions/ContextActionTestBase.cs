@@ -32,17 +32,19 @@ using System.Linq;
 using System.Text;
 using ICSharpCode.NRefactory;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis.CSharp;
+using ICSharpCode.NRefactory6.CSharp.CodeIssues;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	public abstract class ContextActionTestBase
 	{
-		protected CSharpFormattingOptions formattingOptions;
-		
 		[SetUp]
 		public virtual void SetUp()
 		{
-			formattingOptions = FormattingOptionsFactory.CreateMono();
 		}
 		
 		internal static string HomogenizeEol (string str)
@@ -63,12 +65,12 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		}
 
 		public void Test<T> (string input, string output, int action = 0, bool expectErrors = false)
-			where T : CodeActionProvider, new ()
+			where T : ICodeRefactoringProvider, new ()
 		{
 			Test(new T(), input, output, action, expectErrors);
 		}
 		
-		public void Test (CodeActionProvider provider, string input, string output, int action = 0, bool expectErrors = false)
+		public void Test (ICodeRefactoringProvider provider, string input, string output, int action = 0, bool expectErrors = false)
 		{
 			string result = RunContextAction (provider, HomogenizeEol (input), action, expectErrors);
 			bool passed = result == output;
@@ -81,53 +83,61 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 			Assert.AreEqual (HomogenizeEol (output), result);
 		}
 
-		protected string RunContextAction (CodeActionProvider action, string input,
+		static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions(ICodeRefactoringProvider action, string input, out ICSharpCode.NRefactory6.CSharp.CodeIssues.RoslynInspectionActionTestBase.TestWorkspace workspace, out Document doc)
+		{
+			var idx = input.IndexOf("$", StringComparison.Ordinal);
+			if (idx > 0)
+				input = input.Substring(0, idx) + input.Substring(idx + 1);
+			var syntaxTree = CSharpSyntaxTree.ParseText(input);
+			 workspace = new ICSharpCode.NRefactory6.CSharp.CodeIssues.RoslynInspectionActionTestBase.TestWorkspace();
+			var projectId = ProjectId.CreateNewId();
+			var documentId = DocumentId.CreateNewId(projectId);
+			workspace.Open(ProjectInfo.Create(projectId, VersionStamp.Create(), "", "", LanguageNames.CSharp, null, null, null, null, new[] {
+				DocumentInfo.Create(documentId, "a.cs", null, SourceCodeKind.Regular, TextLoader.From(TextAndVersion.Create(SourceText.From(input), VersionStamp.Create())))
+			}));
+			doc = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
+			return action.GetRefactoringsAsync(doc, TextSpan.FromBounds(idx, idx), default(CancellationToken)).Result.ToList();
+		}
+
+		protected string RunContextAction (ICodeRefactoringProvider action, string input,
 		                                          int actionIndex = 0, bool expectErrors = false)
 		{
-			var context = TestRefactoringContext.Create (input, expectErrors);
-			context.FormattingOptions = formattingOptions;
-			bool isValid = action.GetActions (context).Any ();
-
-			if (!isValid)
-				Console.WriteLine ("invalid node is:" + context.GetNode ());
-			Assert.IsTrue (isValid, action.GetType () + " is invalid.");
-			using (var script = context.StartScript ()) {
-				action.GetActions (context).Skip (actionIndex).First ().Run (script);
+			Document doc;
+			ICSharpCode.NRefactory6.CSharp.CodeIssues.RoslynInspectionActionTestBase.TestWorkspace workspace;
+			var actions = GetActions(action, input, out workspace, out doc);
+			if (actions.Count < actionIndex)
+				Console.WriteLine ("invalid input is:" + input);
+			var a = actions[actionIndex];
+			foreach (var op in a.GetOperationsAsync(default(CancellationToken)).Result) {
+				op.Apply(workspace, default(CancellationToken));
 			}
-
-			return context.doc.Text;
+			return workspace.CurrentSolution.GetDocument(doc.Id).GetTextAsync().Result.ToString();
 		}
 		
-		protected void TestWrongContext<T> (string input) where T : CodeActionProvider, new ()
-		{
-			TestWrongContext (new T(), input);
-		}
 		
-		protected void TestWrongContext (CodeActionProvider action, string input)
+		protected void TestWrongContext (ICodeRefactoringProvider action, string input)
 		{
-			var context = TestRefactoringContext.Create (input);
-			context.FormattingOptions = formattingOptions;
-			bool isValid = action.GetActions (context).Any ();
-			if (isValid)
-				Console.WriteLine ("valid node is:" + context.GetNode ());
-			Assert.IsTrue (!isValid, action.GetType () + " shouldn't be valid there.");
+			Document doc;
+			ICSharpCode.NRefactory6.CSharp.CodeIssues.RoslynInspectionActionTestBase.TestWorkspace workspace;
+			var actions = GetActions(action, input, out workspace, out doc);
+			Assert.IsTrue (actions == null || actions.Count == 0, action.GetType () + " shouldn't be valid there.");
 		}
 
-		protected List<CodeAction> GetActions<T> (string input) where T : CodeActionProvider, new ()
-		{
-			var ctx = TestRefactoringContext.Create(input);
-			ctx.FormattingOptions = formattingOptions;
-			return new T().GetActions(ctx).ToList();
-		}
-
-		protected void TestActionDescriptions (CodeActionProvider provider, string input, params string[] expected)
-		{
-			var ctx = TestRefactoringContext.Create(input);
-			ctx.FormattingOptions = formattingOptions;
-			var actions = provider.GetActions(ctx).ToList();
-			Assert.AreEqual(
-				expected,
-				actions.Select(a => a.Description).ToArray());
-		}
+//		protected List<CodeAction> GetActions<T> (string input) where T : CodeActionProvider, new ()
+//		{
+//			var ctx = TestRefactoringContext.Create(input);
+//			ctx.FormattingOptions = formattingOptions;
+//			return new T().GetActions(ctx).ToList();
+//		}
+//
+//		protected void TestActionDescriptions (CodeActionProvider provider, string input, params string[] expected)
+//		{
+//			var ctx = TestRefactoringContext.Create(input);
+//			ctx.FormattingOptions = formattingOptions;
+//			var actions = provider.GetActions(ctx).ToList();
+//			Assert.AreEqual(
+//				expected,
+//				actions.Select(a => a.Description).ToArray());
+//		}
 	}
 }
