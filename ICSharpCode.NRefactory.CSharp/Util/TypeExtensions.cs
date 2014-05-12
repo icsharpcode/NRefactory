@@ -74,28 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		public static string GetFullName (this INamespaceSymbol ns)
 		{
-			if (ns == null || ns.IsGlobalNamespace)
-				return "";
-			var c = GetFullName (ns.ContainingNamespace);
-			if (string.IsNullOrEmpty (c))
-				return ns.Name;
-			return c + "." + ns.Name;
-		}
-		
-		static string GetNestedTypeString (INamedTypeSymbol type)
-		{
-			if (type == null)
-				return null;
-			var sb = new StringBuilder ();
-			while (type != null) {
-				if (sb.Length > 0) {
-					sb.Insert (0, type.Name + ".");
-				} else {
-					sb.Append (type.Name);
-				}
-				type = type.ContainingType;
-			}
-			return sb.ToString ();
+			return ns.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 		}
 
 		/// <summary>
@@ -105,11 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		public static string GetFullName (this ITypeSymbol type)
 		{
-			var ns = GetFullName(type.ContainingNamespace);
-			var parentType = GetNestedTypeString(type.ContainingType);
-			if (string.IsNullOrEmpty(ns))
-				return string.IsNullOrEmpty(parentType) ? type.Name : parentType + "." + type.Name;
-			return string.IsNullOrEmpty(parentType) ?  ns + "." + type.Name : ns + "." + parentType + "." + type.Name;
+			return type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 		}
  	
 	

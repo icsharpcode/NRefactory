@@ -26,6 +26,7 @@
 using System;
 using Microsoft.CodeAnalysis;
 using System.Linq;
+using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -118,6 +119,50 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return null;
 		}
 	
+		public static ImmutableArray<IParameterSymbol> GetParameters(this ISymbol symbol)
+		{
+			var method = symbol as IMethodSymbol;
+			if (method != null)
+				return method.Parameters;
+			var property = symbol as IPropertySymbol;
+			if (property != null)
+				return property.Parameters;
+		}
 
+		public static ImmutableArray<ITypeParameterSymbol> GetTypeParameters(this ISymbol symbol)
+		{
+			var type = symbol as INamedTypeSymbol;
+			if (type != null)
+				return type.TypeParameters;
+			var method = symbol as IMethodSymbol;
+			if (method != null)
+				return method.TypeParameters;
+		}
+
+		public static bool IsAnyConstructor(this ISymbol symbol)
+		{
+			var method = symbol as IMethodSymbol;
+			return method != null && (method.MethodKind == MethodKind.Constructor || method.MethodKind == MethodKind.StaticConstructor);
+		}
+
+		public static bool IsConstructor(this ISymbol symbol)
+		{
+			return symbol is IMethodSymbol && ((IMethodSymbol)symbol).MethodKind == MethodKind.Constructor;
+		}
+
+		public static bool IsStaticConstructor(this ISymbol symbol)
+		{
+			return symbol is IMethodSymbol && ((IMethodSymbol)symbol).MethodKind == MethodKind.StaticConstructor;
+		}
+
+		public static bool IsDestructor(this ISymbol symbol)
+		{
+			return symbol is IMethodSymbol && ((IMethodSymbol)symbol).MethodKind == MethodKind.Destructor;
+		}
+
+		public static bool IsDelegateType(this ISymbol symbol)
+		{
+			return symbol is ITypeSymbol && ((ITypeSymbol)symbol).TypeKind == TypeKind.Delegate;
+		}
 	}
 }
