@@ -127,6 +127,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			var property = symbol as IPropertySymbol;
 			if (property != null)
 				return property.Parameters;
+			return ImmutableArray<IParameterSymbol>.Empty;
 		}
 
 		public static ImmutableArray<ITypeParameterSymbol> GetTypeParameters(this ISymbol symbol)
@@ -137,6 +138,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			var method = symbol as IMethodSymbol;
 			if (method != null)
 				return method.TypeParameters;
+			return ImmutableArray<ITypeParameterSymbol>.Empty;
 		}
 
 		public static bool IsAnyConstructor(this ISymbol symbol)

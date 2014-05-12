@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		public static string GetFullName (this INamespaceSymbol ns)
 		{
-			return ns.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+			return ns.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
 		}
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		public static string GetFullName (this ITypeSymbol type)
 		{
-			return type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+			return type.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
 		}
  	
 	
