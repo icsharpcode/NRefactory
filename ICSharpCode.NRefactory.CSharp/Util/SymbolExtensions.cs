@@ -32,17 +32,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class SymbolExtensions
 	{
-//		public static string GetDocumentationId (this ISymbol symbol)
-//		{
-//			if (symbol.GetType().FullName != "Microsoft.CodeAnalysis.CSharp.Symbol")
-//				return null;
-//			var mi = symbol.GetType().GetMethod("GetDocumentationCommentId", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-//			if (mi == null)
-//				return null;
-//			return (string)mi.Invoke(symbol, null);
-//		}
+		//		public static string GetDocumentationId (this ISymbol symbol)
+		//		{
+		//			if (symbol.GetType().FullName != "Microsoft.CodeAnalysis.CSharp.Symbol")
+		//				return null;
+		//			var mi = symbol.GetType().GetMethod("GetDocumentationCommentId", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+		//			if (mi == null)
+		//				return null;
+		//			return (string)mi.Invoke(symbol, null);
+		//		}
 		
-			/// <summary>
+		/// <summary>
 		/// Gets the EditorBrowsableState of an entity.
 		/// </summary>
 		/// <returns>
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static System.ComponentModel.EditorBrowsableState GetEditorBrowsableState(this ISymbol symbol)
 		{
 			if (symbol == null)
-				throw new ArgumentNullException ("symbol");
+				throw new ArgumentNullException("symbol");
 			var browsableState = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "EditorBrowsableAttribute" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.ComponentModel");
 			if (browsableState != null && browsableState.ConstructorArguments.Length == 1) {
 				try {
@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 			return System.ComponentModel.EditorBrowsableState.Always;
 		}
-		
+
 		/// <summary>
 		/// Determines if an entity should be shown in the code completion window. This is the same as:
 		/// <c>GetEditorBrowsableState (entity) != System.ComponentModel.EditorBrowsableState.Never</c>
@@ -77,9 +77,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </param>
 		public static bool IsEditorBrowsable(this ISymbol symbol)
 		{
-			return GetEditorBrowsableState (symbol) != System.ComponentModel.EditorBrowsableState.Never;
+			if (symbol == null)
+				throw new ArgumentNullException("symbol");
+			return GetEditorBrowsableState(symbol) != System.ComponentModel.EditorBrowsableState.Never;
 		}
-		
+
 		/// <summary>
 		/// Returns true if the symbol wasn't tagged with
 		/// [System.ComponentModel.BrowsableAttribute (false)]
@@ -89,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static bool IsDesignerBrowsable(this ISymbol symbol)
 		{
 			if (symbol == null)
-				throw new ArgumentNullException ("symbol");
+				throw new ArgumentNullException("symbol");
 			var browsableState = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "BrowsableAttribute" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.ComponentModel");
 			if (browsableState != null && browsableState.ConstructorArguments.Length == 1) {
 				try {
@@ -99,7 +101,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 			return true;
 		}
-		
+
 		/// <summary>
 		/// Returns the component category.
 		/// [System.ComponentModel.CategoryAttribute (CATEGORY)]
@@ -108,7 +110,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static string GetComponentCategory(this ISymbol symbol)
 		{
 			if (symbol == null)
-				throw new ArgumentNullException ("symbol");
+				throw new ArgumentNullException("symbol");
 			var browsableState = symbol.GetAttributes().FirstOrDefault(attr => attr.AttributeClass.Name == "CategoryAttribute" && attr.AttributeClass.ContainingNamespace.MetadataName == "System.ComponentModel");
 			if (browsableState != null && browsableState.ConstructorArguments.Length == 1) {
 				try {
@@ -118,9 +120,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 			return null;
 		}
-	
+
 		public static ImmutableArray<IParameterSymbol> GetParameters(this ISymbol symbol)
 		{
+			if (symbol == null)
+				throw new ArgumentNullException("symbol");
 			var method = symbol as IMethodSymbol;
 			if (method != null)
 				return method.Parameters;
@@ -132,6 +136,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static ImmutableArray<ITypeParameterSymbol> GetTypeParameters(this ISymbol symbol)
 		{
+			if (symbol == null)
+				throw new ArgumentNullException("symbol");
 			var type = symbol as INamedTypeSymbol;
 			if (type != null)
 				return type.TypeParameters;
@@ -143,28 +149,59 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static bool IsAnyConstructor(this ISymbol symbol)
 		{
+			if (symbol == null)
+				throw new ArgumentNullException("symbol");
 			var method = symbol as IMethodSymbol;
 			return method != null && (method.MethodKind == MethodKind.Constructor || method.MethodKind == MethodKind.StaticConstructor);
 		}
 
 		public static bool IsConstructor(this ISymbol symbol)
 		{
+			if (symbol == null)
+				throw new ArgumentNullException("symbol");
 			return symbol is IMethodSymbol && ((IMethodSymbol)symbol).MethodKind == MethodKind.Constructor;
 		}
 
 		public static bool IsStaticConstructor(this ISymbol symbol)
 		{
+			if (symbol == null)
+				throw new ArgumentNullException("symbol");
 			return symbol is IMethodSymbol && ((IMethodSymbol)symbol).MethodKind == MethodKind.StaticConstructor;
 		}
 
 		public static bool IsDestructor(this ISymbol symbol)
 		{
+			if (symbol == null)
+				throw new ArgumentNullException("symbol");
 			return symbol is IMethodSymbol && ((IMethodSymbol)symbol).MethodKind == MethodKind.Destructor;
 		}
 
 		public static bool IsDelegateType(this ISymbol symbol)
 		{
+			if (symbol == null)
+				throw new ArgumentNullException("symbol");
 			return symbol is ITypeSymbol && ((ITypeSymbol)symbol).TypeKind == TypeKind.Delegate;
+		}
+
+		public static ITypeSymbol GetReturnType(this ISymbol symbol)
+		{
+			if (symbol == null)
+				throw new ArgumentNullException("symbol");
+			switch (symbol.Kind) {
+				case SymbolKind.Field:
+					var field = (IFieldSymbol)symbol;
+					return field.Type;
+				case SymbolKind.Method:
+					var method = (IMethodSymbol)symbol;
+					return method.ReturnType;
+				case SymbolKind.Property:
+					var property = (IPropertySymbol)symbol;
+					return property.Type;
+				case SymbolKind.Event:
+					var evt = (IEventSymbol)symbol;
+					return evt.Type;
+			}
+			return null;
 		}
 	}
 }
