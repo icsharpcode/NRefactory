@@ -24,7 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -36,7 +35,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -62,13 +60,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		static Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax bop)
 		{
-			ExpressionSyntax nodeToReplace = bop;
-			while (nodeToReplace.Parent is ParenthesizedExpressionSyntax) {
-				nodeToReplace = (ExpressionSyntax)nodeToReplace.Parent;
-			}
+			var nodeToReplace = ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(bop);
 			var castExpr = (ExpressionSyntax)SyntaxFactory.CastExpression(bop.Right as TypeSyntax, bop.Left).WithLeadingTrivia(bop.GetLeadingTrivia()).WithTrailingTrivia(bop.GetTrailingTrivia());
-			//			if (nodeToReplace.Parent is ExpressionSyntax)
-			//				castExpr = SyntaxFactory.ParenthesizedExpression(castExpr);
 
 			var newRoot = root.ReplaceNode(nodeToReplace, castExpr);
 			return document.WithSyntaxRoot(newRoot);

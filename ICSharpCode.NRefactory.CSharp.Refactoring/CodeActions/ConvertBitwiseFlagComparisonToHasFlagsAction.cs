@@ -23,87 +23,165 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction ("Replace bitwise flag comparison with call to 'Enum.HasFlag'", Description = "Replace bitwise flag comparison with call to 'Enum.HasFlag'")]
-	public class ConvertBitwiseFlagComparisonToHasFlagsAction : SpecializedCodeAction<BinaryOperatorExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Replace bitwise flag comparison with call to 'Enum.HasFlag'")]
+	[ExportCodeRefactoringProvider("Replace bitwise flag comparison with call to 'Enum.HasFlag'", LanguageNames.CSharp)]
+	public class ConvertBitwiseFlagComparisonToHasFlagsAction : ICodeRefactoringProvider
 	{
-		static readonly AstNode truePattern = new Choice {
-			new BinaryOperatorExpression (new ParenthesizedExpression(new BinaryOperatorExpression (PatternHelper.OptionalParentheses(new AnyNode("target")), BinaryOperatorType.BitwiseAnd, PatternHelper.OptionalParentheses(new AnyNode("expr")))), BinaryOperatorType.InEquality, PatternHelper.OptionalParentheses(new PrimitiveExpression(0))),
-			new BinaryOperatorExpression (new ParenthesizedExpression(new BinaryOperatorExpression (PatternHelper.OptionalParentheses(new AnyNode("target")), BinaryOperatorType.BitwiseAnd, PatternHelper.OptionalParentheses(new AnyNode("expr")))), BinaryOperatorType.Equality, PatternHelper.OptionalParentheses(new Backreference("expr")))
-		};
-
-		static readonly AstNode falsePattern = new Choice {
-			new BinaryOperatorExpression (new ParenthesizedExpression(new BinaryOperatorExpression (PatternHelper.OptionalParentheses(new AnyNode("target")), BinaryOperatorType.BitwiseAnd, PatternHelper.OptionalParentheses(new AnyNode("expr")))), BinaryOperatorType.Equality, PatternHelper.OptionalParentheses(new PrimitiveExpression(0))),
-			new BinaryOperatorExpression (new ParenthesizedExpression(new BinaryOperatorExpression (PatternHelper.OptionalParentheses(new AnyNode("target")), BinaryOperatorType.BitwiseAnd, PatternHelper.OptionalParentheses(new AnyNode("expr")))), BinaryOperatorType.InEquality, PatternHelper.OptionalParentheses(new Backreference("expr")))
-		};
-
-		internal static Expression MakeFlatExpression (Expression expr, BinaryOperatorType opType)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var bOp = expr as BinaryOperatorExpression;
-			if (bOp == null)
-				return expr.Clone();
-			return new BinaryOperatorExpression(
-				MakeFlatExpression(bOp.Left, opType),
-				opType,
-				MakeFlatExpression(bOp.Right, opType)
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
+			var boP = token.Parent as BinaryExpressionSyntax;
+			if (boP == null || !boP.OperatorToken.Span.Contains(span))
+				return Enumerable.Empty<CodeAction> ();
+
+			ExpressionSyntax flagsExpression, targetExpression;
+			bool testFlagset;
+			if (!AnalyzeComparisonWithNull (boP, out flagsExpression, out targetExpression, out testFlagset) && !AnalyzeComparisonWithFlags (boP, out flagsExpression, out targetExpression, out testFlagset))
+				return Enumerable.Empty<CodeAction> ();
+
+			if (!testFlagset && !flagsExpression.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseOrExpression)))
+				return Enumerable.Empty<CodeAction>();
+			if (testFlagset && !flagsExpression.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseAndExpression)))
+				return Enumerable.Empty<CodeAction>();
+
+			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Replace with 'Enum.HasFlag'", PerformAction (document, root, boP, flagsExpression, targetExpression, testFlagset)) };
+		}
+
+		Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax boP, ExpressionSyntax flagsExpression, ExpressionSyntax targetExpression, bool testFlagset)
+		{
+			var nodeToReplace = StripParenthesizedExpression(boP);
+
+			var castExpr = BuildHasFlagExpression (targetExpression, flagsExpression);
+
+			if (testFlagset) {
+				castExpr = SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, castExpr);
+			}
+
+			var newRoot = root.ReplaceNode((SyntaxNode)nodeToReplace, castExpr.WithAdditionalAnnotations(Formatter.Annotation));
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		static ExpressionSyntax BuildHasFlagExpression (ExpressionSyntax target, ExpressionSyntax expr)
+		{
+			var bOp = expr as BinaryExpressionSyntax;
+			if (bOp != null){
+				if (bOp.IsKind(SyntaxKind.BitwiseOrExpression)) {
+					return SyntaxFactory.BinaryExpression(
+						SyntaxKind.BitwiseOrExpression,
+						BuildHasFlagExpression(target, bOp.Left),
+						BuildHasFlagExpression(target, bOp.Right)
+					);
+				}
+			}
+
+			var arguments = new SeparatedSyntaxList<ArgumentSyntax>();
+			arguments = arguments.Add(SyntaxFactory.Argument(MakeFlatExpression (expr, SyntaxKind.BitwiseOrExpression))); 
+
+			return SyntaxFactory.InvocationExpression(
+				SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, target, SyntaxFactory.IdentifierName("HasFlag")),
+				SyntaxFactory.ArgumentList(arguments)
 			);
 		}
 
-		static Expression BuildHasFlagExpression (Expression target, Expression expr)
+		static void DecomposeBinaryOperator(BinaryExpressionSyntax binOp, out ExpressionSyntax flagsExpression, out ExpressionSyntax targetExpression)
 		{
-			var bOp = expr as BinaryOperatorExpression;
-			if (bOp == null)
-				return new InvocationExpression(new MemberReferenceExpression(target.Clone(), "HasFlag"), expr.Clone());
+			targetExpression = StripParenthesizedExpression(binOp.Left);
+			flagsExpression = StripParenthesizedExpression(binOp.Right);
+		}
 
-			if (bOp.Operator == BinaryOperatorType.BitwiseOr) {
-				return new BinaryOperatorExpression(
-					BuildHasFlagExpression(target, bOp.Left),
-					BinaryOperatorType.BitwiseOr,
-					BuildHasFlagExpression(target, bOp.Right)
-				);
+		static bool AnalyzeComparisonWithFlags (BinaryExpressionSyntax boP, out ExpressionSyntax flagsExpression, out ExpressionSyntax targetExpression, out bool testFlagset)
+		{
+			var left = StripParenthesizedExpression(boP.Left);
+			var right = StripParenthesizedExpression(boP.Right);
+
+			testFlagset = boP.CSharpKind() != SyntaxKind.EqualsExpression;
+			flagsExpression = targetExpression = null;
+
+			BinaryExpressionSyntax primExp;
+
+			if (left.IsKind(SyntaxKind.BitwiseAndExpression)) {
+				primExp = left as BinaryExpressionSyntax;
+				flagsExpression = right;
+			} else {
+				primExp = right as BinaryExpressionSyntax;
+				flagsExpression = left;
 			}
 
-			return new InvocationExpression(new MemberReferenceExpression(target.Clone(), "HasFlag"), MakeFlatExpression (bOp, BinaryOperatorType.BitwiseOr));
+			if (primExp == null)
+				return false;
+
+			if (primExp.Left.IsEquivalentTo(flagsExpression)) {
+				DecomposeBinaryOperator(primExp, out flagsExpression, out targetExpression);
+				return true;
+			}
+
+			if (primExp.Right.IsEquivalentTo(flagsExpression)) {
+				DecomposeBinaryOperator(primExp, out flagsExpression, out targetExpression);
+				return true;
+			}
+
+			return false;
 		}
 
-		static CodeAction CreateAction(BaseSemanticModel context, Match match, bool negateMatch, BinaryOperatorExpression node)
+		static bool AnalyzeComparisonWithNull (BinaryExpressionSyntax boP, out ExpressionSyntax flagsExpression, out ExpressionSyntax targetExpression, out bool testFlagset)
 		{
-			var target = match.Get<Expression>("target").Single();
-			var expr = match.Get<Expression>("expr").Single();
+			var left = StripParenthesizedExpression(boP.Left);
+			var right = StripParenthesizedExpression(boP.Right);
+			testFlagset = boP.CSharpKind() == SyntaxKind.EqualsExpression;
+			flagsExpression = targetExpression = null;
 
-			if (!expr.DescendantsAndSelf.All(x => !(x is BinaryOperatorExpression) || ((BinaryOperatorExpression)x).Operator == BinaryOperatorType.BitwiseOr) &&
-				!expr.DescendantsAndSelf.All(x => !(x is BinaryOperatorExpression) || ((BinaryOperatorExpression)x).Operator == BinaryOperatorType.BitwiseAnd))
-				return null;
-			var rr = context.Resolve(target);
-			if (rr.Type.Kind != ICSharpCode.NRefactory.TypeSystem.TypeKind.Enum)
-				return null;
+			ExpressionSyntax primExp;
+			BinaryExpressionSyntax binOp;
+			if (left.IsKind(SyntaxKind.NumericLiteralExpression)) {
+				primExp = left;
+				binOp = right as BinaryExpressionSyntax;
+			} else {
+				primExp = right;
+				binOp = left as BinaryExpressionSyntax;
+			}
 
-			return new CodeAction(
-				context.TranslateString("Replace with 'Enum.HasFlag'"), 
-				script => {
-					Expression newExpr = BuildHasFlagExpression (target, expr);
-					if (negateMatch)
-						newExpr = new UnaryOperatorExpression(UnaryOperatorType.Not, newExpr);
-					script.Replace(node, newExpr);
-				}, 
-				node.OperatorToken);
+			if (binOp == null) {
+				return false;
+			}
+
+			DecomposeBinaryOperator(binOp, out flagsExpression, out targetExpression);
+			return primExp != null && primExp.ToString() == "0";
 		}
 
-		protected override CodeAction GetAction(SemanticModel context, BinaryOperatorExpression node)
+		internal static ExpressionSyntax StripParenthesizedExpression(ExpressionSyntax expr)
 		{
-			if (!node.OperatorToken.Contains(context.Location))
-				return null;
-			var match = truePattern.Match(node);
-			if (match.Success)
-				return CreateAction(context, match, false, node);
-			match = falsePattern.Match(node);
-			if (match.Success)
-				return CreateAction(context, match, true, node);
-			return null;
+			var parens = expr as ParenthesizedExpressionSyntax;
+			if (parens != null)
+				return StripParenthesizedExpression(parens.Expression);
+			return expr;
+		}
+
+		internal static ExpressionSyntax MakeFlatExpression (ExpressionSyntax expr, SyntaxKind opType)
+		{
+			var bOp = expr as BinaryExpressionSyntax;
+			if (bOp == null)
+				return expr;
+			return SyntaxFactory.BinaryExpression(opType,
+				MakeFlatExpression(bOp.Left, opType),
+				MakeFlatExpression(bOp.Right, opType)
+			);
 		}
 	}
 }

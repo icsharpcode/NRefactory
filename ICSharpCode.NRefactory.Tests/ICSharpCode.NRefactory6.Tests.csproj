@@ -143,6 +143,8 @@
     <Compile Include="CSharp\CodeActions\RemoveBracesTests.cs" />
     <Compile Include="CSharp\CodeActions\FlipOperatorArgumentsTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceEmptyStringTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsActionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonActionTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

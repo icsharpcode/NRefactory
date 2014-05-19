@@ -26,7 +26,7 @@
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
 	public class ConvertBitwiseFlagComparisonToHasFlagsActionTests : ContextActionTestBase
@@ -45,7 +45,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine ((f & Foo.A) $!= 0);
+		Console.WriteLine((f & Foo.A) $!= 0);
 	}
 }
 ", @"
@@ -59,7 +59,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine (f.HasFlag (Foo.A));
+		Console.WriteLine(f.HasFlag(Foo.A));
 	}
 }
 ");
@@ -79,7 +79,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine ((f & Foo.A) $== 0);
+		Console.WriteLine((f & Foo.A) $== 0);
 	}
 }
 ", @"
@@ -93,7 +93,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine (!f.HasFlag (Foo.A));
+		Console.WriteLine(!f.HasFlag(Foo.A));
 	}
 }
 ");
@@ -113,7 +113,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine ((f & Foo.A) $!= Foo.A);
+		Console.WriteLine((f & Foo.A) $!= Foo.A);
 	}
 }
 ", @"
@@ -127,7 +127,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine (!f.HasFlag (Foo.A));
+		Console.WriteLine(!f.HasFlag(Foo.A));
 	}
 }
 ");
@@ -147,7 +147,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine ((f & Foo.A) $== Foo.A);
+		Console.WriteLine((f & Foo.A) $== Foo.A);
 	}
 }
 ", @"
@@ -161,7 +161,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine (f.HasFlag (Foo.A));
+		Console.WriteLine(f.HasFlag(Foo.A));
 	}
 }
 ");
@@ -181,7 +181,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine ((f & (Foo.A | Foo.B)) $!= 0);
+		Console.WriteLine((f & (Foo.A | Foo.B)) $!= 0);
 	}
 }
 ", @"
@@ -195,7 +195,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine (f.HasFlag (Foo.A) | f.HasFlag (Foo.B));
+		Console.WriteLine(f.HasFlag(Foo.A) | f.HasFlag(Foo.B));
 	}
 }
 ");
@@ -204,7 +204,7 @@ class FooBar
 		[Test]
 		public void TestMultipleFlagsCase2 ()
 		{
-			Test<ConvertBitwiseFlagComparisonToHasFlagsAction>(@"
+			TestWrongContext<ConvertBitwiseFlagComparisonToHasFlagsAction>(@"
 [Flags]
 enum Foo
 {
@@ -215,21 +215,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine ((f & (Foo.A & Foo.B)) $!= 0);
-	}
-}
-", @"
-[Flags]
-enum Foo
-{
-	A, B
-}
-
-class FooBar
-{
-	public void Bar (Foo f)
-	{
-		Console.WriteLine (f.HasFlag (Foo.A | Foo.B));
+		Console.WriteLine((f & (Foo.A & Foo.B)) $!= 0);
 	}
 }
 ");
@@ -249,7 +235,7 @@ class FooBar
 {
 	public void Bar (Foo f)
 	{
-		Console.WriteLine ((f & (Foo.A | Foo.B & 1)) $!= 0);
+		Console.WriteLine((f & (Foo.A | Foo.B & 1)) $!= 0);
 	}
 }
 ");

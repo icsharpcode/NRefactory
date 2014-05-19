@@ -23,56 +23,74 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using ICSharpCode.NRefactory.CSharp.Resolver;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction ("Replace 'Enum.HasFlag' call with bitwise flag comparison", Description = "Replace 'Enum.HasFlag' call with bitwise flag comparison")]
-	public class ConvertHasFlagsToBitwiseFlagComparisonAction : SpecializedCodeAction<InvocationExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Replace 'Enum.HasFlag' call with bitwise flag comparison")]
+	[ExportCodeRefactoringProvider("Replace 'Enum.HasFlag' call with bitwise flag comparison", LanguageNames.CSharp)]
+	public class ConvertHasFlagsToBitwiseFlagComparisonAction : ICodeRefactoringProvider
 	{
-		protected override CodeAction GetAction(SemanticModel context, InvocationExpression node)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var mRef = node.Target as MemberReferenceExpression;
-			if (mRef == null)
-				return null;
-			var rr = context.Resolve(node) as CSharpInvocationResolveResult;
-			if (rr == null || rr.IsError)
-				return null;
-			if (rr.Member.Name != "HasFlag" || rr.Member.DeclaringType.GetDefinition().KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.Enum)
-				return null;
-			var arg = node.Arguments.First ().Clone ();
-			if (!arg.DescendantsAndSelf.All(x => !(x is BinaryOperatorExpression) || ((BinaryOperatorExpression)x).Operator == BinaryOperatorType.BitwiseOr))
-				return null;
-			arg = ConvertBitwiseFlagComparisonToHasFlagsAction.MakeFlatExpression(arg, BinaryOperatorType.BitwiseAnd);
-			if (arg is BinaryOperatorExpression)
-				arg = new ParenthesizedExpression(arg);
-			return new CodeAction(
-				context.TranslateString("Replace with bitwise flag comparison"), 
-				script => {
-					var uOp = node.Parent as UnaryOperatorExpression;
-					if (uOp != null && uOp.Operator == UnaryOperatorType.Not) {
-						script.Replace(uOp, 
-							new BinaryOperatorExpression(
-								new ParenthesizedExpression(new BinaryOperatorExpression(mRef.Target.Clone(), BinaryOperatorType.BitwiseAnd, arg)), 
-								BinaryOperatorType.Equality, 
-								new PrimitiveExpression(0)
-							)
-						);
-					} else {
-						script.Replace(node, 
-							new BinaryOperatorExpression(
-								new ParenthesizedExpression(new BinaryOperatorExpression(mRef.Target.Clone(), BinaryOperatorType.BitwiseAnd, arg)), 
-								BinaryOperatorType.InEquality, 
-								new PrimitiveExpression(0)
-							)
-						);
-					}
-				}, 
-				node
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var node = root.FindToken(span.Start).Parent;
+			if (node.Parent == null || node.Parent.Parent == null || !node.Parent.Parent.IsKind(SyntaxKind.InvocationExpression)) 
+				return Enumerable.Empty<CodeAction>();
+			var symbol = model.GetSymbolInfo(node.Parent).Symbol;
+
+			if (symbol == null || symbol.Kind != SymbolKind.Method || symbol.ContainingType.SpecialType != SpecialType.System_Enum || symbol.Name != "HasFlag")
+				return Enumerable.Empty<CodeAction>();
+			var invocationNode = (InvocationExpressionSyntax)node.Parent.Parent;
+			var arg = invocationNode.ArgumentList.Arguments.Select(a => a.Expression).First();
+			if (!arg.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseOrExpression)))
+				return Enumerable.Empty<CodeAction>();
+
+			return new[] {  CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, "Replace with bitwise flag comparison", PerformAction(document, root, invocationNode)) };
+		}
+
+		static Document PerformAction(Document document, SyntaxNode root, InvocationExpressionSyntax invocationNode)
+		{
+			var arg = invocationNode.ArgumentList.Arguments.Select(a => a.Expression).First();
+			if (!arg.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseOrExpression)))
+				return document;
+
+			arg = ConvertBitwiseFlagComparisonToHasFlagsAction.MakeFlatExpression(arg, SyntaxKind.BitwiseAndExpression);
+			if (arg is BinaryExpressionSyntax)
+				arg = SyntaxFactory.ParenthesizedExpression (arg);
+
+			SyntaxNode nodeToReplace = invocationNode;
+			while (nodeToReplace.Parent is ParenthesizedExpressionSyntax)
+				nodeToReplace = nodeToReplace.Parent;
+
+			bool negateHasFlags = nodeToReplace.Parent != null && nodeToReplace.Parent.IsKind(SyntaxKind.LogicalNotExpression);
+			if (negateHasFlags)
+				nodeToReplace = nodeToReplace.Parent;
+
+			var expr = SyntaxFactory.BinaryExpression(
+				negateHasFlags ? SyntaxKind.EqualsExpression : SyntaxKind.NotEqualsExpression,
+				SyntaxFactory.ParenthesizedExpression(SyntaxFactory.BinaryExpression (SyntaxKind.BitwiseAndExpression, ((MemberAccessExpressionSyntax)invocationNode.Expression).Expression, arg))
+				.WithAdditionalAnnotations(Formatter.Annotation),
+				SyntaxFactory.ParseExpression("0")
 			);
+
+			var newRoot = root.ReplaceNode(
+				nodeToReplace,
+				expr.WithAdditionalAnnotations(Formatter.Annotation)
+			);
+			return document.WithSyntaxRoot(newRoot);
 		}
 	}
 }
-
