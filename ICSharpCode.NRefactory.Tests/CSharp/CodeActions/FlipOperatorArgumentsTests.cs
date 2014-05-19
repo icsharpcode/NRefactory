@@ -28,7 +28,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
 	public class FlipOperatorArgumentsTests : ContextActionTestBase

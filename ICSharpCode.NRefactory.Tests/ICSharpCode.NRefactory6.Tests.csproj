@@ -141,6 +141,7 @@
     <Compile Include="CSharp\CodeActions\ConvertCastToAsTests.cs" />
     <Compile Include="CSharp\CodeActions\AddBracesActionTests.cs" />
     <Compile Include="CSharp\CodeActions\RemoveBracesTests.cs" />
+    <Compile Include="CSharp\CodeActions\FlipOperatorArgumentsTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
