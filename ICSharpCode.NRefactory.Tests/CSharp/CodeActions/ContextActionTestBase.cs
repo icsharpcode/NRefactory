@@ -177,6 +177,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Assert.IsTrue (actions == null || actions.Count == 0, action.GetType () + " shouldn't be valid there.");
 		}
 
+
+		protected void TestWrongContext<T> (string input) where T : ICodeRefactoringProvider, new ()
+		{
+			TestWrongContext(new T(), input);
+		}
+
 //		protected List<CodeAction> GetActions<T> (string input) where T : CodeActionProvider, new ()
 //		{
 //			var ctx = TestRefactoringContext.Create(input);

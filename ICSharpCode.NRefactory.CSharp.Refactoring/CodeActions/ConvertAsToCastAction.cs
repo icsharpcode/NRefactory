@@ -24,35 +24,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	/// <summary>
 	/// Converts an 'as' expression to a cast expression
 	/// </summary>
-	[ContextAction("Convert 'as' to cast.", Description = "Convert 'as' to cast.")]
-	public class ConvertAsToCastAction : SpecializedCodeAction <AsExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Convert 'as' to cast.")]
+	[ExportCodeRefactoringProvider("Convert 'as' to cast.", LanguageNames.CSharp)]
+	public class ConvertAsToCastAction : ICodeRefactoringProvider
 	{
-		static InsertParenthesesVisitor insertParentheses = new InsertParenthesesVisitor ();
-		protected override CodeAction GetAction (SemanticModel context, AsExpression node)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			if (!node.AsToken.Contains (context.Location))
-				return null;
-			return new CodeAction (context.TranslateString ("Convert 'as' to cast"),  script => {
-				var castExpr = new CastExpression (node.Type.Clone (), node.Expression.Clone ());
-				var parenthesizedExpr = node.Parent as ParenthesizedExpression;
-				if (parenthesizedExpr != null && parenthesizedExpr.Parent is Expression) {
-					// clone parent expression and replace the ParenthesizedExpression with castExpr to remove
-					// parentheses, then insert parentheses if necessary
-					var parentExpr = (Expression)parenthesizedExpr.Parent.Clone ();
-					parentExpr.GetNodeContaining (parenthesizedExpr.StartLocation, parenthesizedExpr.EndLocation)
-						.ReplaceWith (castExpr);
-					parentExpr.AcceptVisitor (insertParentheses);
-					script.Replace (parenthesizedExpr.Parent, parentExpr);
-				} else {
-					castExpr.AcceptVisitor (insertParentheses);
-					script.Replace (node, castExpr);
-				}
-			}, node.AsToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
+
+			if (!token.IsKind(SyntaxKind.AsKeyword))
+				return Enumerable.Empty<CodeAction> ();
+			var node = token.Parent as BinaryExpressionSyntax;
+
+			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert 'as' to cast", PerformAction (document, root, node)) };
+		}
+
+		static Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax bop)
+		{
+			ExpressionSyntax nodeToReplace = bop;
+			while (nodeToReplace.Parent is ParenthesizedExpressionSyntax) {
+				nodeToReplace = (ExpressionSyntax)nodeToReplace.Parent;
+			}
+			var castExpr = (ExpressionSyntax)SyntaxFactory.CastExpression(bop.Right as TypeSyntax, bop.Left).WithLeadingTrivia(bop.GetLeadingTrivia()).WithTrailingTrivia(bop.GetTrailingTrivia());
+//			if (nodeToReplace.Parent is ExpressionSyntax)
+//				castExpr = SyntaxFactory.ParenthesizedExpression(castExpr);
+
+			var newRoot = root.ReplaceNode(nodeToReplace, castExpr);
+			return document.WithSyntaxRoot(newRoot);
 		}
 	}
 }

@@ -137,6 +137,8 @@
     <Compile Include="CSharp\CodeActions\UseExplicitTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertHexToDecTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertDecToHexTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertAsToCastTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertCastToAsTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

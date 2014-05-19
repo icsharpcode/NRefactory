@@ -111,6 +111,8 @@
     <Compile Include="CodeActions\UseExplicitTypeAction.cs" />
     <Compile Include="CodeActions\ConvertDecToHexAction.cs" />
     <Compile Include="CodeActions\ConvertHexToDecAction.cs" />
+    <Compile Include="CodeActions\ConvertAsToCastAction.cs" />
+    <Compile Include="CodeActions\ConvertCastToAsAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

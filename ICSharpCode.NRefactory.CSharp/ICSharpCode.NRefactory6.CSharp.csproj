@@ -135,6 +135,7 @@
     <Compile Include="Util\SymbolExtensions.cs" />
     <Compile Include="Util\NamespaceExtensions.cs" />
     <Compile Include="Util\CompilationExtensions.cs" />
+    <Compile Include="Util\SyntaxExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />
@@ -157,6 +158,7 @@
     <Folder Include="Features\FrameworkLookup\" />
     <Folder Include="Features\ParameterHinting\" />
     <Folder Include="Features\Completion\ContextHandler\" />
+    <Folder Include="OutputVisitor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />

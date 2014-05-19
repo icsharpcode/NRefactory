@@ -109,6 +109,19 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 			return false;
 		}
+
+		public static bool IsNullableType(this ITypeSymbol type)
+		{
+			var original = type.OriginalDefinition;
+			return original.SpecialType == SpecialType.System_Nullable_T;
+		}
+
+		public static ITypeSymbol GetNullableUnderlyingType(this ITypeSymbol type)
+		{
+			if (!IsNullableType(type))
+				return null;
+			return ((INamedTypeSymbol)type).TypeArguments[0];
+		}
 	}
 }
 

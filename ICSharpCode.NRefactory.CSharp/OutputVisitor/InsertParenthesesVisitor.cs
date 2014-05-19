@@ -17,8 +17,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	/// <summary>
 	/// Inserts the parentheses into the AST that are needed to ensure the AST can be printed correctly.
@@ -27,7 +30,7 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// would incorrectly result in "2 * 1 + 1". By running InsertParenthesesVisitor, the necessary
 	/// parentheses are inserted: "2 * (1 + 1)".
 	/// </summary>
-	public class InsertParenthesesVisitor : DepthFirstAstVisitor
+	public class InsertParenthesesVisitor : CSharpSyntaxWalker
 	{
 		/// <summary>
 		/// Gets/Sets whether the visitor should insert parentheses to make the code better looking.
@@ -46,65 +49,65 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <summary>
 		/// Gets the row number in the C# 4.0 spec operator precedence table.
 		/// </summary>
-		static int GetPrecedence(Expression expr)
+		static int GetPrecedence(ExpressionSyntax expr)
 		{
 			// Note: the operator precedence table on MSDN is incorrect
-			if (expr is QueryExpression) {
+			if (expr is QueryExpressionSyntax) {
 				// Not part of the table in the C# spec, but we need to ensure that queries within
 				// primary expressions get parenthesized.
 				return QueryOrLambda;
 			}
-			UnaryOperatorExpression uoe = expr as UnaryOperatorExpression;
-			if (uoe != null) {
-				if (uoe.Operator == UnaryOperatorType.PostDecrement || uoe.Operator == UnaryOperatorType.PostIncrement)
-					return Primary;
-				else
-					return Unary;
+			if (expr is PostfixUnaryExpressionSyntax) {
+				return Primary;
 			}
-			if (expr is CastExpression)
+			if (expr is PrefixUnaryExpressionSyntax) {
 				return Unary;
-			BinaryOperatorExpression boe = expr as BinaryOperatorExpression;
-			if (boe != null) {
-				switch (boe.Operator) {
-					case BinaryOperatorType.Multiply:
-					case BinaryOperatorType.Divide:
-					case BinaryOperatorType.Modulus:
-						return 13; // multiplicative
-					case BinaryOperatorType.Add:
-					case BinaryOperatorType.Subtract:
-						return 12; // additive
-					case BinaryOperatorType.ShiftLeft:
-					case BinaryOperatorType.ShiftRight:
-						return 11;
-					case BinaryOperatorType.GreaterThan:
-					case BinaryOperatorType.GreaterThanOrEqual:
-					case BinaryOperatorType.LessThan:
-					case BinaryOperatorType.LessThanOrEqual:
-						return RelationalAndTypeTesting;
-					case BinaryOperatorType.Equality:
-					case BinaryOperatorType.InEquality:
-						return Equality;
-					case BinaryOperatorType.BitwiseAnd:
-						return 8;
-					case BinaryOperatorType.ExclusiveOr:
-						return 7;
-					case BinaryOperatorType.BitwiseOr:
-						return 6;
-					case BinaryOperatorType.ConditionalAnd:
-						return 5;
-					case BinaryOperatorType.ConditionalOr:
-						return 4;
-					case BinaryOperatorType.NullCoalescing:
-						return 3;
-					default:
-						throw new NotSupportedException("Invalid value for BinaryOperatorType");
-				}
 			}
-			if (expr is IsExpression || expr is AsExpression)
-				return RelationalAndTypeTesting;
-			if (expr is ConditionalExpression)
+			if (expr is CastExpressionSyntax)
+				return Unary;
+			var boe = expr as BinaryExpressionSyntax;
+			if (boe != null) {
+//				switch (boe.OperatorToken.CSharpKind ()) {
+//					case SyntaxKind.AsteriskToken:
+//					case SyntaxKind.SlashToken:
+//					case BinaryOperatorType.Modulus:
+//						return 13; // multiplicative
+//					case BinaryOperatorType.Add:
+//					case BinaryOperatorType.Subtract:
+//						return 12; // additive
+//					case BinaryOperatorType.ShiftLeft:
+//					case BinaryOperatorType.ShiftRight:
+//						return 11;
+//					case BinaryOperatorType.GreaterThan:
+//					case BinaryOperatorType.GreaterThanOrEqual:
+//					case BinaryOperatorType.LessThan:
+//					case BinaryOperatorType.LessThanOrEqual:
+//						return RelationalAndTypeTesting;
+//					case BinaryOperatorType.Equality:
+//					case BinaryOperatorType.InEquality:
+//						return Equality;
+//					case BinaryOperatorType.BitwiseAnd:
+//						return 8;
+//					case BinaryOperatorType.ExclusiveOr:
+//						return 7;
+//					case BinaryOperatorType.BitwiseOr:
+//						return 6;
+//					case BinaryOperatorType.ConditionalAnd:
+//						return 5;
+//					case BinaryOperatorType.ConditionalOr:
+//						return 4;
+//					case BinaryOperatorType.NullCoalescing:
+//						return 3;
+//					default:
+//						throw new NotSupportedException("Invalid value for BinaryOperatorType");
+//				}
+				return 3;
+			}
+//			if (expr is IsExp || expr is AsExpression)
+//				return RelationalAndTypeTesting;
+			if (expr is ConditionalExpressionSyntax)
 				return Conditional;
-			if (expr is AssignmentExpression || expr is LambdaExpression)
+			if (/*expr is AssignmentExpression ||*/ expr is SimpleLambdaExpressionSyntax || expr is ParenthesizedLambdaExpressionSyntax)
 				return Assignment;
 			// anything else: primary expression
 			return Primary;
@@ -113,14 +116,14 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <summary>
 		/// Parenthesizes the expression if it does not have the minimum required precedence.
 		/// </summary>
-		static void ParenthesizeIfRequired(Expression expr, int minimumPrecedence)
+		static void ParenthesizeIfRequired(ExpressionSyntax expr, int minimumPrecedence)
 		{
 			if (GetPrecedence(expr) < minimumPrecedence) {
 				Parenthesize(expr);
 			}
 		}
 
-		static void Parenthesize(Expression expr)
+		static void Parenthesize(ExpressionSyntax expr)
 		{
 			expr.ReplaceWith(e => new ParenthesizedExpression { Expression = e });
 		}
