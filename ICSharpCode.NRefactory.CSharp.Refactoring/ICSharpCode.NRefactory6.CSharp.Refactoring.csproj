@@ -116,6 +116,7 @@
     <Compile Include="CodeActions\AddBracesAction.cs" />
     <Compile Include="CodeActions\RemoveBracesAction.cs" />
     <Compile Include="CodeActions\FlipOperatorArgumentsAction.cs" />
+    <Compile Include="CodeActions\ReplaceEmptyStringAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -23,32 +23,42 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Use string.Empty", Description = "Replaces \"\" with string.Empty")]
+	[NRefactoryCodeRefactoringProvider(Description = "Replaces \"\" with 'string.Empty'.")]
+	[ExportCodeRefactoringProvider("Use string.Empty", LanguageNames.CSharp)]
 	public class ReplaceEmptyStringAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var expr = GetEmptyString(context);
-			if (expr == null) {
-				yield break;
-			}
-			yield return new CodeAction(context.TranslateString("Use string.Empty"), script => {
-				script.Replace(expr, new PrimitiveType ("string").Member("Empty"));
-			}, expr);
-		}
-		
-		static PrimitiveExpression GetEmptyString (SemanticModel context)
-		{
-			var node = context.GetNode<PrimitiveExpression> ();
-			if (node == null || !(node.Value is string) || node.Value.ToString () != "")
-				return null;
-			return  node;
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
+			if (!token.IsKind(SyntaxKind.StringLiteralToken) || token.Value.ToString() != "")
+				return Enumerable.Empty<CodeAction>();
+
+			return new[] {
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					"Use 'string.Empty'",
+					t2 => {
+						var newRoot = root.ReplaceNode(token.Parent, SyntaxFactory.ParseExpression("string.Empty"));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
 	}
 }
