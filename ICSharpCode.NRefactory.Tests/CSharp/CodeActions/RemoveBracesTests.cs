@@ -27,7 +27,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
 	public class RemoveBracesTests : ContextActionTestBase
@@ -36,26 +36,25 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		public void TestSimpleBraces()
 		{
 			string result = RunContextAction(
-				new RemoveBracesAction(),
-				"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		if (true) ${" + Environment.NewLine +
-					"			;" + Environment.NewLine +
-					"		}" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
-			
+				                         new RemoveBracesAction(),
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        if (true) ${" + Environment.NewLine +
+				                         "            ;" + Environment.NewLine +
+				                         "        }" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+            
 			Assert.AreEqual(
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		if (true)" + Environment.NewLine +
-				"			;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        if (true) ;" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
@@ -64,34 +63,34 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			TestWrongContext<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		try ${ ; } catch (Exception) { ; }
-	}
+    void Test()
+    {
+        try ${ ; } catch (Exception) { ; }
+    }
 }");
 		}
-		
+
 		[Test]
 		public void TestTryCatchCatch()
 		{
 			TestWrongContext<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		try { ; } catch (Exception) ${ ; }
-	}
+    void Test()
+    {
+        try { ; } catch (Exception) ${ ; }
+    }
 }");
 		}
-		
+
 		[Test]
 		public void TestTryCatchFinally()
 		{
 			TestWrongContext<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		try { ; } catch (Exception) { ; } finally ${ ; }
-	}
+    void Test()
+    {
+        try { ; } catch (Exception) { ; } finally ${ ; }
+    }
 }");
 		}
 
@@ -101,10 +100,10 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			TestWrongContext<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		switch (foo	) ${ default: break;}
-	}
+    void Test()
+    {
+        switch (foo    ) ${ default: break;}
+    }
 }");
 		}
 
@@ -113,10 +112,10 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			TestWrongContext<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	${
-		;
-	}
+    void Test()
+    ${
+        ;
+    }
 }");
 		}
 
@@ -125,19 +124,18 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			Test<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		$if (true) {
-			Console.WriteLine (""Hello"");
-		}
-	}
+    void Test()
+    {
+        $if (true) {
+            Console.WriteLine(""Hello"");
+        }
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		if (true)
-			Console.WriteLine (""Hello"");
-	}
+    void Test()
+    {
+        if (true) Console.WriteLine(""Hello"");
+    }
 }");
 		}
 
@@ -146,23 +144,23 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			Test<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		if (true) {
-			Console.WriteLine (""Hello"");
-		} $else {
-			Console.WriteLine (""World"");
-		}
-	}
+    void Test()
+    {
+        if (true) {
+            Console.WriteLine(""Hello"");
+        } $else {
+            Console.WriteLine(""World"");
+        }
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		if (true) {
-			Console.WriteLine (""Hello"");
-		} else
-			Console.WriteLine (""World"");
-	}
+    void Test()
+    {
+        if (true) {
+            Console.WriteLine(""Hello"");
+        }
+        else Console.WriteLine(""World"");
+    }
 }");
 		}
 
@@ -171,20 +169,19 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			Test<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		$do {
-			Console.WriteLine (""Hello"");
-		} while (true);
-	}
+    void Test()
+    {
+        $do {
+            Console.WriteLine(""Hello"");
+        } while (true);
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		do
-			Console.WriteLine (""Hello"");
-		while (true);
-	}
+    void Test()
+    {
+        do Console.WriteLine(""Hello"");
+        while (true);
+    }
 }");
 		}
 
@@ -193,40 +190,38 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			Test<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		$foreach (var a in b) {
-			Console.WriteLine (""Hello"");
-		}
-	}
+    void Test()
+    {
+        $foreach (var a in b) {
+            Console.WriteLine(""Hello"");
+        }
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		foreach (var a in b)
-			Console.WriteLine (""Hello"");
-	}
+    void Test()
+    {
+        foreach (var a in b) Console.WriteLine(""Hello"");
+    }
 }");
 		}
-	
+
 		[Test]
 		public void TestRemoveBracesFromFor()
 		{
 			Test<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		$for (;;) {
-			Console.WriteLine (""Hello"");
-		}
-	}
+    void Test()
+    {
+        $for (; ;) {
+            Console.WriteLine(""Hello"");
+        }
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		for (;;)
-			Console.WriteLine (""Hello"");
-	}
+    void Test()
+    {
+        for (; ;) Console.WriteLine(""Hello"");
+    }
 }");
 		}
 
@@ -235,19 +230,18 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			Test<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		$lock (this) {
-			Console.WriteLine (""Hello"");
-		}
-	}
+    void Test()
+    {
+        $lock (this) {
+            Console.WriteLine(""Hello"");
+        }
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		lock (this)
-			Console.WriteLine (""Hello"");
-	}
+    void Test()
+    {
+        lock (this) Console.WriteLine(""Hello"");
+    }
 }");
 		}
 
@@ -256,19 +250,18 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			Test<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		$using (var a = new A ()) {
-			Console.WriteLine (""Hello"");
-		}
-	}
+    void Test()
+    {
+        $using (var a = new A()) {
+            Console.WriteLine(""Hello"");
+        }
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		using (var a = new A ())
-			Console.WriteLine (""Hello"");
-	}
+    void Test()
+    {
+        using (var a = new A()) Console.WriteLine(""Hello"");
+    }
 }");
 		}
 
@@ -277,19 +270,18 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			Test<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		$while (true) {
-			Console.WriteLine (""Hello"");
-		}
-	}
+    void Test()
+    {
+        $while (true) {
+            Console.WriteLine(""Hello"");
+        }
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		while (true)
-			Console.WriteLine (""Hello"");
-	}
+    void Test()
+    {
+        while (true) Console.WriteLine(""Hello"");
+    }
 }");
 		}
 
@@ -298,12 +290,12 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		{
 			TestWrongContext<RemoveBracesAction>(@"class TestClass
 {
-	void Test ()
-	{
-		if (true) {
-			Console.WriteLine (""Hello"");
-		}
-	}
+    void Test()
+    {
+        if (true) {
+            Console.WriteLine(""Hello"");
+        }
+    }
 }
 
         $          

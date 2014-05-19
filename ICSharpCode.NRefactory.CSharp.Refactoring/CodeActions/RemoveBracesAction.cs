@@ -27,102 +27,104 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Remove braces", Description = "Removes redundant braces around a statement.")]
+
+	[NRefactoryCodeRefactoringProvider(Description = "Removes redundant braces around a statement.")]
+	[ExportCodeRefactoringProvider("Remove braces", LanguageNames.CSharp)]
 	public class RemoveBracesAction : ICodeRefactoringProvider
 	{
-		internal static bool IsSpecialNode (AstNode node, out string keyword, out Statement embeddedStatement)
+
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			if (node != null) {
-				if (node.Role == IfElseStatement.IfKeywordRole) {
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
+
+			string keyword;
+			StatementSyntax embeddedStatement;
+			BlockSyntax block = null;
+			if (IsSpecialNode(token, out keyword, out embeddedStatement)) {
+				block = embeddedStatement as BlockSyntax;
+				if (block == null || block.Statements.Count != 1 || block.Statements.First() is VariableDeclarationSyntax)
+					return Enumerable.Empty<CodeAction> ();
+			} 
+
+			if (block == null)
+				return Enumerable.Empty<CodeAction> ();
+
+			return new[] {
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					string.Format("Remove braces from '{0}'", keyword),
+					t2 => {
+						var parent = block.Parent.ReplaceNode(block, block.Statements.First())
+							.WithAdditionalAnnotations(Formatter.Annotation);
+
+						var newRoot = root.ReplaceNode(block.Parent, parent);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
+		}
+
+		internal static bool IsSpecialNode (SyntaxToken token, out string keyword, out StatementSyntax embeddedStatement)
+		{
+			var node = token.Parent;
+			if (node is BlockSyntax) {
+				node = node.Parent;
+			}
+			switch (node.CSharpKind())  {
+				case SyntaxKind.IfStatement:
 					keyword = "if";
-					embeddedStatement = ((IfElseStatement)node.Parent).TrueStatement;
+					embeddedStatement = ((IfStatementSyntax)node).Statement;
 					return true;
-				}
-
-				if (node.Role == IfElseStatement.ElseKeywordRole) {
+				case SyntaxKind.ElseClause:
 					keyword = "else";
-					embeddedStatement = ((IfElseStatement)node.Parent).FalseStatement;
+					embeddedStatement = ((ElseClauseSyntax)node).Statement;
 					return true;
-				}
-
-				if (node.Role == DoWhileStatement.DoKeywordRole || node.Role == DoWhileStatement.WhileKeywordRole) {
+				case SyntaxKind.DoStatement:
 					keyword = "do";
-					embeddedStatement = ((DoWhileStatement)node.Parent).EmbeddedStatement;
+					embeddedStatement = ((DoStatementSyntax)node).Statement;
 					return true;
-				}
-
-				if (node.Role == ForeachStatement.ForeachKeywordRole) {
+				case SyntaxKind.ForEachStatement:
 					keyword = "foreach";
-					embeddedStatement = ((ForeachStatement)node.Parent).EmbeddedStatement;
+					embeddedStatement = ((ForEachStatementSyntax)node).Statement;
 					return true;
-				}
-
-				if (node.Role == ForStatement.ForKeywordRole) {
+				case SyntaxKind.ForStatement:
 					keyword = "for";
-					embeddedStatement = ((ForStatement)node.Parent).EmbeddedStatement;
+					embeddedStatement = ((ForStatementSyntax)node).Statement;
 					return true;
-				}
-
-				if (node.Role == LockStatement.LockKeywordRole) {
+				case SyntaxKind.LockStatement:
 					keyword = "lock";
-					embeddedStatement = ((LockStatement)node.Parent).EmbeddedStatement;
+					embeddedStatement = ((LockStatementSyntax)node).Statement;
 					return true;
-				}
-
-				if (node.Role == UsingStatement.UsingKeywordRole) {
+				case SyntaxKind.UsingStatement:
 					keyword = "using";
-					embeddedStatement = ((UsingStatement)node.Parent).EmbeddedStatement;
+					embeddedStatement = ((UsingStatementSyntax)node).Statement;
 					return true;
-				}
-
-				if (node.Role == WhileStatement.WhileKeywordRole) {
+				case SyntaxKind.WhileStatement:
 					keyword = "while";
-					embeddedStatement = ((WhileStatement)node.Parent).EmbeddedStatement;
+					embeddedStatement = ((WhileStatementSyntax)node).Statement;
 					return true;
-				}
 			}
 			keyword = null;
 			embeddedStatement = null;
 			return false;
 		}
-
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-		{
-			string keyword;
-			Statement embeddedStatement;
-			BlockStatement block;
-
-			var currentNode = context.GetNode();
-			if (IsSpecialNode(currentNode, out keyword, out embeddedStatement)) {
-				block = embeddedStatement as BlockStatement;
-				if (block == null || block.Statements.Count != 1 || block.Statements.First() is VariableDeclarationStatement)
-					yield break;
-			} else {
-				block = GetBlockStatement(context);
-			}
-
-			if (block == null)
-				yield break;
-
-			yield return new CodeAction (
-				keyword != null ? string.Format(context.TranslateString("Remove braces from '{0}'"), keyword) : context.TranslateString("Remove braces"), 
-				script => {
-					var start = script.GetCurrentOffset (block.LBraceToken.GetPrevNode ().EndLocation);
-					var end = script.GetCurrentOffset (block.LBraceToken.EndLocation);
-					if (end <= start)
-						return;
-					script.RemoveText (start, end - start);
-					script.Remove(block.LBraceToken);
-					script.Remove(block.RBraceToken);
-					script.FormatText(block.Parent);
-				}, 
-				currentNode
-			);
-		}
-		
+		/*
 		static BlockStatement GetBlockStatement(SemanticModel context)
 		{
 			var block = context.GetNode<BlockStatement>();
@@ -135,6 +137,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (block.Statements.Count != 1 || block.Statements.First () is VariableDeclarationStatement) 
 				return null;
 			return block;
-		}
+		}*/
 	}
 }

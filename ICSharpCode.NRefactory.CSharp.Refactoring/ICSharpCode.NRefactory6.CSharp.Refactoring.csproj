@@ -113,6 +113,8 @@
     <Compile Include="CodeActions\ConvertHexToDecAction.cs" />
     <Compile Include="CodeActions\ConvertAsToCastAction.cs" />
     <Compile Include="CodeActions\ConvertCastToAsAction.cs" />
+    <Compile Include="CodeActions\AddBracesAction.cs" />
+    <Compile Include="CodeActions\RemoveBracesAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

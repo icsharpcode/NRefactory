@@ -67,8 +67,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				nodeToReplace = (ExpressionSyntax)nodeToReplace.Parent;
 			}
 			var castExpr = (ExpressionSyntax)SyntaxFactory.CastExpression(bop.Right as TypeSyntax, bop.Left).WithLeadingTrivia(bop.GetLeadingTrivia()).WithTrailingTrivia(bop.GetTrailingTrivia());
-//			if (nodeToReplace.Parent is ExpressionSyntax)
-//				castExpr = SyntaxFactory.ParenthesizedExpression(castExpr);
+			//			if (nodeToReplace.Parent is ExpressionSyntax)
+			//				castExpr = SyntaxFactory.ParenthesizedExpression(castExpr);
 
 			var newRoot = root.ReplaceNode(nodeToReplace, castExpr);
 			return document.WithSyntaxRoot(newRoot);

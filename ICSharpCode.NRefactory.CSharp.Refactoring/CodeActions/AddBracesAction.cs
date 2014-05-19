@@ -27,31 +27,49 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Add braces", Description = "Removes redundant braces around a statement.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Removes redundant braces around a statement.")]
+	[ExportCodeRefactoringProvider("Add braces", LanguageNames.CSharp)]
 	public class AddBracesAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
 			string keyword;
-			Statement embeddedStatement;
-//			BlockStatement block;
-
-			var curNode = context.GetNode();
-			if (!RemoveBracesAction.IsSpecialNode(curNode, out keyword, out embeddedStatement))
-				yield break;
-			if (embeddedStatement is BlockStatement)
-				yield break;
-			yield return new CodeAction (
-				string.Format(context.TranslateString("Add braces to '{0}'"), keyword),
-				script => {
-					script.Replace(embeddedStatement, new BlockStatement { embeddedStatement.Clone() });
-				}, 
-				curNode
-			);
+			StatementSyntax embeddedStatement;
+			if (!RemoveBracesAction.IsSpecialNode(token, out keyword, out embeddedStatement))
+				return Enumerable.Empty<CodeAction> ();
+			if (embeddedStatement is BlockSyntax)
+				return Enumerable.Empty<CodeAction> ();
+			return new[] {
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					string.Format("Add braces to '{0}'", keyword),
+					t2 => {
+						var blockSyntax = SyntaxFactory.Block(embeddedStatement).WithAdditionalAnnotations(Formatter.Annotation);
+						var newRoot = root.ReplaceNode(embeddedStatement, blockSyntax);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
+
+
 	}
 }
 
