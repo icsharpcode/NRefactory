@@ -30,9 +30,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Use string.Format()",
 	                Description = "Convert concatenation of strings and objects to string.Format()")]
-	public class UseStringFormatAction : CodeActionProvider
+	public class UseStringFormatAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			// NOTE: @, multiple occurance
 			var node = context.GetNode();

@@ -30,9 +30,9 @@ using ICSharpCode.NRefactory.CSharp.Resolver;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create constructor", Description = "Creates a constructor declaration out of an object creation.")]
-	public class CreateConstructorDeclarationAction : CodeActionProvider
+	public class CreateConstructorDeclarationAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var createExpression = context.GetNode<Expression>() as ObjectCreateExpression;
 			if (createExpression == null) 

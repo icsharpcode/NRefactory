@@ -23,31 +23,57 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	/// <summary>
 	/// Convert a hex numer to dec. For example: 0x10 -> 16
 	/// </summary>
-	[ContextAction("Convert hex to dec.", Description = "Convert hex to dec.")]
-	public class ConvertHexToDecAction : CodeActionProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Convert hex to dec.")]
+	[ExportCodeRefactoringProvider("Convert hex to dec.", LanguageNames.CSharp)]
+	public class ConvertHexToDecAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var pexpr = context.GetNode<PrimitiveExpression>();
-			if (pexpr == null || !pexpr.LiteralValue.StartsWith("0X", System.StringComparison.OrdinalIgnoreCase)) {
-				yield break;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
+			if (!token.IsKind(SyntaxKind.NumericLiteralToken))
+				return Enumerable.Empty<CodeAction> ();
+			var value = token.Value;
+			if (!((value is int) || (value is long) || (value is short) || (value is sbyte) ||
+				(value is uint) || (value is ulong) || (value is ushort) || (value is byte))) {
+				return Enumerable.Empty<CodeAction> ();
 			}
-			if (!((pexpr.Value is int) || (pexpr.Value is long) || (pexpr.Value is short) || (pexpr.Value is sbyte) ||
-				(pexpr.Value is uint) || (pexpr.Value is ulong) || (pexpr.Value is ushort) || (pexpr.Value is byte))) {
-				yield break;
-			}
-			
-			yield return new CodeAction(context.TranslateString("Convert to dec"), script => {
-				script.Replace(pexpr, new PrimitiveExpression (pexpr.Value));
-			}, pexpr);
+			var literalValue = token.ToString();
+			if (!literalValue.StartsWith("0X", StringComparison.OrdinalIgnoreCase))
+				return Enumerable.Empty<CodeAction> ();
+			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to dec", PerformAction (document, root, token)) };
+		}
+
+		static Document PerformAction(Document document, SyntaxNode root, SyntaxToken token)
+		{
+			var node = token.Parent as LiteralExpressionSyntax;
+
+			var newRoot = root.ReplaceToken(
+				token,
+				SyntaxFactory.ParseToken(token.Value.ToString())
+				.WithLeadingTrivia(node.GetLeadingTrivia())
+				.WithTrailingTrivia(node.GetTrailingTrivia())
+			);
+			return document.WithSyntaxRoot(newRoot);
 		}
 	}
 }

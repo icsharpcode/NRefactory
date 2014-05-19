@@ -31,7 +31,7 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Remove braces", Description = "Removes redundant braces around a statement.")]
-	public class RemoveBracesAction : CodeActionProvider
+	public class RemoveBracesAction : ICodeRefactoringProvider
 	{
 		internal static bool IsSpecialNode (AstNode node, out string keyword, out Statement embeddedStatement)
 		{
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return false;
 		}
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			string keyword;
 			Statement embeddedStatement;

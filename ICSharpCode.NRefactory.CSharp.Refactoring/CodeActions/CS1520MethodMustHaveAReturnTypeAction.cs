@@ -34,9 +34,9 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Class, struct or interface method must have a return type", Description = "Found method without return type.")]
-	public class CS1520MethodMustHaveAReturnTypeAction : CodeActionProvider
+	public class CS1520MethodMustHaveAReturnTypeAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var entity = context.GetNode<ConstructorDeclaration>();
 			if (entity == null)

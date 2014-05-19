@@ -31,9 +31,9 @@ using ICSharpCode.NRefactory.TypeSystem;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create property", Description = "Creates a property for a undefined variable.")]
-	public class CreatePropertyAction : CodeActionProvider
+	public class CreatePropertyAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var identifier = CreateFieldAction.GetCreatePropertyOrFieldNode (context);
 			if (identifier == null)

@@ -32,9 +32,9 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Extension methods must be declared static")]
-	public class CS1105ExtensionMethodMustBeDeclaredStaticAction : CodeActionProvider
+	public class CS1105ExtensionMethodMustBeDeclaredStaticAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var method = context.GetNode<MethodDeclaration>();
 			if (method == null || !method.NameToken.Contains(context.Location))

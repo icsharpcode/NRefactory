@@ -33,9 +33,9 @@ using ICSharpCode.NRefactory.Semantics;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Generate property", Description = "Generates a getter and setter for a field.")]
-	public class GeneratePropertyAction : CodeActionProvider
+	public class GeneratePropertyAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var initializer = context.GetNode<VariableInitializer>();
 			if (initializer == null || !initializer.NameToken.Contains(context.Location.Line, context.Location.Column)) {

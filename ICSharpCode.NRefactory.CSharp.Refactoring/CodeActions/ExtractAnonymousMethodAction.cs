@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Extract anonymous method",
 					Description = "Extract anonymous method to method of the containing type")]
-	public class ExtractAnonymousMethodAction : CodeActionProvider
+	public class ExtractAnonymousMethodAction : ICodeRefactoringProvider
 	{
 		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
 		{

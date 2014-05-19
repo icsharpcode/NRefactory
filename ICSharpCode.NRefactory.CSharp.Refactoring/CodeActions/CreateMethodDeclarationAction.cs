@@ -33,9 +33,9 @@ using System.Text;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create method", Description = "Creates a method declaration out of an invocation.")]
-	public class CreateMethodDeclarationAction : CodeActionProvider
+	public class CreateMethodDeclarationAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var identifier = context.GetNode<IdentifierExpression>();
 			if (identifier != null && !(identifier.Parent is InvocationExpression && ((InvocationExpression)identifier.Parent).Target == identifier))

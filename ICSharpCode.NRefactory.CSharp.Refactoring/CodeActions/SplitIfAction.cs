@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Split 'if' statement", 
 	                Description = "Splits an if statement into two nested if statements")] 
-	public class SplitIfAction : CodeActionProvider
+	public class SplitIfAction : ICodeRefactoringProvider
 	{
 		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
 		{

@@ -35,9 +35,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Add one or more optional parameters to an invocation, using their default values",
 	               Description = "Add one or more optional parameters to an invocation.")]
-	public class AddOptionalParameterToInvocationAction : CodeActionProvider
+	public class AddOptionalParameterToInvocationAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var invocationExpression = context.GetNode<InvocationExpression>();
 			if (invocationExpression == null)

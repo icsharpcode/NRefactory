@@ -31,11 +31,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Convert to explicit initializers",
 	               Description = "Converts an object or collection initializer to explicit initializations.")]
-	public class ConvertInitializerToExplicitInitializationsAction : CodeActionProvider
+	public class ConvertInitializerToExplicitInitializationsAction : ICodeRefactoringProvider
 	{
 		#region ICodeActionProvider implementation
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var codeAction = GetActionForVariableInitializer(context);
 			if (codeAction != null) {

@@ -109,6 +109,8 @@
     <Compile Include="CodeActions\UseVarKeywordAction.cs" />
     <Compile Include="NRefactoryCodeRefactoringProviderAttribute.cs" />
     <Compile Include="CodeActions\UseExplicitTypeAction.cs" />
+    <Compile Include="CodeActions\ConvertDecToHexAction.cs" />
+    <Compile Include="CodeActions\ConvertHexToDecAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

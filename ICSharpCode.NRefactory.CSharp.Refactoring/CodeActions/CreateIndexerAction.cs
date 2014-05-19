@@ -32,9 +32,9 @@ using System.Text;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create indexer", Description = "Creates an indexer declaration out of an indexer expression.")]
-	public class CreateIndexerAction : CodeActionProvider
+	public class CreateIndexerAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var indexer = context.GetNode<IndexerExpression>();
 			if (indexer == null)

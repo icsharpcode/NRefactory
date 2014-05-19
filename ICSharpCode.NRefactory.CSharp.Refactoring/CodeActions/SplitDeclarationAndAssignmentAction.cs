@@ -36,9 +36,9 @@ using ICSharpCode.NRefactory.TypeSystem;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Split local variable declaration and assignment", Description = "Splits local variable declaration and assignment.")]
-	public class SplitDeclarationAndAssignmentAction : CodeActionProvider
+	public class SplitDeclarationAndAssignmentAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			if (context.IsSomethingSelected) {
 				yield break;

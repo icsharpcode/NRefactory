@@ -30,9 +30,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Split string literal", Description = "Splits string literal into two.")]
-	public class SplitStringAction : CodeActionProvider
+	public class SplitStringAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			if (context.IsSomethingSelected) {
 				yield break;

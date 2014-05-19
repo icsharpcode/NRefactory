@@ -35,9 +35,9 @@ using ICSharpCode.NRefactory.PatternMatching;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Declare local variable", Description = "Declare a local variable out of a selected expression.")]
-	public class DeclareLocalVariableAction : CodeActionProvider
+	public class DeclareLocalVariableAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			if (!context.IsSomethingSelected) {
 				yield break;

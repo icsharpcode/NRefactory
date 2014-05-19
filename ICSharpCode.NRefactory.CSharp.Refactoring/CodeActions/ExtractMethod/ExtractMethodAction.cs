@@ -37,9 +37,9 @@ using Mono.CSharp;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 {
 	[ContextAction("Extract method", Description = "Creates a new method out of selected text.")]
-	public class ExtractMethodAction : CodeActionProvider
+	public class ExtractMethodAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			if (!context.IsSomethingSelected)
 				yield break;

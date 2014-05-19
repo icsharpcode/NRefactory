@@ -30,11 +30,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Add type to general catch clause",
 	               Description = "Adds an exception type specifier to general catch clauses.")]
-	public class AddCatchTypeAction : CodeActionProvider
+	public class AddCatchTypeAction : ICodeRefactoringProvider
 	{
 		#region ICodeActionProvider implementation
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var catchClause = context.GetNode<CatchClause>();
 			if (catchClause == null)

@@ -33,9 +33,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Convert method group to lambda expression",
 	               Description = "Convert method group to lambda expression")]
-	public class ConvertMethodGroupToLambdaAction : CodeActionProvider
+	public class ConvertMethodGroupToLambdaAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			Expression node = context.GetNode<IdentifierExpression>();
 			if (node == null) {

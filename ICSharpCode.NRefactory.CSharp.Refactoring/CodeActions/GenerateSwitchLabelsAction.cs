@@ -33,9 +33,9 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Generate switch labels", Description = "Creates switch lables for enumerations.")]
-	public class GenerateSwitchLabelsAction : CodeActionProvider
+	public class GenerateSwitchLabelsAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var switchStatement = context.GetNode<SwitchStatement> ();
 

@@ -36,7 +36,7 @@ using ICSharpCode.NRefactory.Semantics;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create field", Description = "Creates a field for a undefined variable.")]
-	public class CreateFieldAction : CodeActionProvider
+	public class CreateFieldAction : ICodeRefactoringProvider
 	{
 		internal static bool IsInvocationTarget(AstNode node)
 		{
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return context.GetNode(n => n is IdentifierExpression || n is MemberReferenceExpression || n is NamedExpression) as Expression;
 		}
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var expr = GetCreatePropertyOrFieldNode(context);
 			if (expr == null)

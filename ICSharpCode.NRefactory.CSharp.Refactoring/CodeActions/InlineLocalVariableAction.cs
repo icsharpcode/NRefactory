@@ -33,10 +33,10 @@ using ICSharpCode.NRefactory.CSharp.Resolver;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Inline local variable", Description = "Inlines a local variable.")]
-	public class InlineLocalVariableAction : CodeActionProvider
+	public class InlineLocalVariableAction : ICodeRefactoringProvider
 	{
 		static FindReferences refFinder = new FindReferences();
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			if (context.IsSomethingSelected) {
 				yield break;

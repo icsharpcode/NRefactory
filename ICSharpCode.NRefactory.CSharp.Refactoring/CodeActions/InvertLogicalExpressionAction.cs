@@ -28,7 +28,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Invert logical expression", Description = "Inverts a logical expression")]
-	public class InvertLogicalExpressionAction : CodeActionProvider
+	public class InvertLogicalExpressionAction : ICodeRefactoringProvider
 	{
 		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{

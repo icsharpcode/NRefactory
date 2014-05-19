@@ -31,9 +31,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Add braces", Description = "Removes redundant braces around a statement.")]
-	public class AddBracesAction : CodeActionProvider
+	public class AddBracesAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			string keyword;
 			Statement embeddedStatement;

@@ -31,7 +31,7 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Make abstract member virtual", Description = "Implements an abstract member as a virtual one")]
-	public class AbstractAndVirtualConversionAction : CodeActionProvider
+	public class AbstractAndVirtualConversionAction : ICodeRefactoringProvider
 	{
 		static BlockStatement CreateNotImplementedBody(SemanticModel context, out ThrowStatement throwStatement)
 		{
@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return IsValidBody(node.GetChildByRole(Roles.Body));
 		}
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var node = context.GetNode<EntityDeclaration>();
 			if (node == null || node.HasModifier(Modifiers.Override))

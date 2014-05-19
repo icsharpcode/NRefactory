@@ -33,9 +33,9 @@ using ICSharpCode.NRefactory.TypeSystem.Implementation;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Implement interface", Description = "Creates an interface implementation.")]
-	public class ImplementInterfaceAction : CodeActionProvider
+	public class ImplementInterfaceAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
 			if (service == null)

@@ -32,11 +32,11 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Iterate via foreach", Description = "Iterates an IEnumerable with a foreach loop.")]
-	public class IterateViaForeachAction : CodeActionProvider
+	public class IterateViaForeachAction : ICodeRefactoringProvider
 	{
 		#region ICodeActionProvider implementation
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			CodeAction action;
 			action = ActionFromUsingStatement(context);

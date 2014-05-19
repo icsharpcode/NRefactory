@@ -32,9 +32,9 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Implement abstract members", Description = "Implements abstract members from an abstract class.")]
-	public class ImplementAbstractMembersAction : CodeActionProvider
+	public class ImplementAbstractMembersAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
 			if (service == null)

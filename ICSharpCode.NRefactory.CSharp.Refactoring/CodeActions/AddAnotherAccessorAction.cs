@@ -32,9 +32,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Add another accessor to a property declaration that has only one.
 	/// </summary>
 	[ContextAction("Add another accessor", Description = "Adds second accessor to a property.")]
-	public class AddAnotherAccessorAction : CodeActionProvider
+	public class AddAnotherAccessorAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var pdecl = context.GetNode<PropertyDeclaration> ();
 			if (pdecl == null || !pdecl.Getter.IsNull && !pdecl.Setter.IsNull || !pdecl.NameToken.Contains(context.Location)) { 

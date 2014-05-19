@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create event invocator", Description = "Creates a standard OnXXX event method.")]
-	public class CreateEventInvocatorAction : CodeActionProvider
+	public class CreateEventInvocatorAction : ICodeRefactoringProvider
 	{
 		/// <summary>
 		/// If <c>true</c> an explicit type will be used for the handler variable; otherwise, 'var' will be used as type.
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return "On" + char.ToUpper(initializer.Name[0]) + initializer.Name.Substring(1);
 		}
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			VariableInitializer initializer;
 			var eventDeclaration = GetEventDeclaration(context, out initializer);

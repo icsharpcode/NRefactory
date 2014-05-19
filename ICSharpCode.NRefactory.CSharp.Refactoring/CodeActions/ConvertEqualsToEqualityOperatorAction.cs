@@ -38,9 +38,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Note that this action will often change the semantics of the code.
 	/// </summary>
 	[ContextAction("Convert 'Equals' to '=='", Description = "Converts 'Equals' call to '=='")]
-	public class ConvertEqualsToEqualityOperatorAction : CodeActionProvider
+	public class ConvertEqualsToEqualityOperatorAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var node = context.GetNode<InvocationExpression>();
 			if (node == null)

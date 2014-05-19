@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Changes the access level of an entity declaration
 	/// </summary>
 	[ContextAction("Change the access level of an entity declaration", Description = "Changes the access level of an entity declaration")]
-	public class ChangeAccessModifierAction : CodeActionProvider
+	public class ChangeAccessModifierAction : ICodeRefactoringProvider
 	{
 		Dictionary<string, Modifiers> accessibilityLevels = new Dictionary<string, Modifiers> {
 			{ "private", Modifiers.Private },
@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{ "public", Modifiers.Public }
 		};
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var node = context.GetNode<EntityDeclaration>();
 			if (node == null)

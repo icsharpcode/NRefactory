@@ -33,9 +33,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Generate getter", Description = "Generates a getter for a field.")]
-	public class GenerateGetterAction : CodeActionProvider
+	public class GenerateGetterAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var initializer = GetVariableInitializer(context);
 			if (initializer == null || !initializer.NameToken.Contains(context.Location)) {

@@ -35,9 +35,9 @@ using System.Threading.Tasks;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Create changed event for property", Description = "Creates a changed event for an property.")]
-	public class CreateChangedEventAction : CodeActionProvider
+	public class CreateChangedEventAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var property = context.GetNode<PropertyDeclaration>();
 			if (property == null || !property.NameToken.Contains(context.Location))

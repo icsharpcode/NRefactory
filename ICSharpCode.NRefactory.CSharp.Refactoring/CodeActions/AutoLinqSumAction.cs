@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Convers a loop to a Linq expression.
 	/// </summary>
 	[ContextAction("Convert loop to Linq expression", Description = "Converts a loop to a Linq expression")]
-	public class AutoLinqSumAction : CodeActionProvider
+	public class AutoLinqSumAction : ICodeRefactoringProvider
 	{
 		// Disabled for nullables, since int? x = 3; x += null; has result x = null,
 		// but LINQ Sum behaves differently : nulls are treated as zero
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			"System.Decimal"
 		};
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var loop = GetForeachStatement (context);
 			if (loop == null) {

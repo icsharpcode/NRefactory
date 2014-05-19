@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Converts a foreach loop to for.
 	/// </summary>
 	[ContextAction("Convert 'foreach' loop to 'for'", Description = "Works on 'foreach' loops that allow direct access to its elements.")]
-	public class ConvertForeachToForAction : CodeActionProvider
+	public class ConvertForeachToForAction : ICodeRefactoringProvider
 	{
 		static readonly string[] VariableNames = { "i", "j", "k", "l", "n", "m", "x", "y", "z"};
 		static readonly string[] CollectionNames = { "list" };
@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return "max";
 		}
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			bool hasIndexAccess;
 			var foreachStatement = GetForeachStatement(context, out hasIndexAccess);

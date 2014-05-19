@@ -34,9 +34,9 @@ using ICSharpCode.NRefactory.TypeSystem.Implementation;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Sort usings", Description = "Sorts usings by their origin and then alphabetically.")]
-	public class SortUsingsAction: CodeActionProvider
+	public class SortUsingsAction: ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var usingNode = FindUsingNodeAtCursor(context);
 			if (usingNode == null)

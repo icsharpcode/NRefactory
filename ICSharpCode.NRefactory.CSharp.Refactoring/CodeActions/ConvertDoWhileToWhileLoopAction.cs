@@ -36,9 +36,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// Note that this action will often change the semantics of the code.
 	/// </summary>
 	[ContextAction("Convert do...while to while.", Description = "Converts a do...while to a while loop (changing semantics).")]
-	public class ConvertDoWhileToWhileLoopAction : CodeActionProvider
+	public class ConvertDoWhileToWhileLoopAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var node = context.GetNode<DoWhileStatement>();
 			if (node == null)

@@ -31,7 +31,7 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Remove region", Description = "Removes a pre processor #region/#endregion directive.")]
-	public class RemoveRegionAction : CodeActionProvider
+	public class RemoveRegionAction : ICodeRefactoringProvider
 	{
 		static PreProcessorDirective GetEndDirective(PreProcessorDirective directive)
 		{
@@ -75,7 +75,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var directive = GetDirective(context);
 			if (directive == null)

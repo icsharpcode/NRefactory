@@ -30,11 +30,11 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Invert If and Simplify", Description = "Inverts if and simplify branching")]
-	public class InvertIfAndSimplify : CodeActionProvider
+	public class InvertIfAndSimplify : ICodeRefactoringProvider
 	{
 		readonly InsertParenthesesVisitor _insertParenthesesVisitor = new InsertParenthesesVisitor();
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			// if (condition) {CodeBlock();}else { return|break|continue;} 
 			// will be reduced to:

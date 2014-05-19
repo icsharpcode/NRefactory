@@ -33,9 +33,9 @@ using ICSharpCode.NRefactory.TypeSystem;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Extract field", Description = "Extracts a field from a local variable declaration.")]
-	public class ExtractFieldAction : CodeActionProvider
+	public class ExtractFieldAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			//TODO: implement variable assignment & ctor param
 			var varInit = context.GetNode<VariableInitializer>();

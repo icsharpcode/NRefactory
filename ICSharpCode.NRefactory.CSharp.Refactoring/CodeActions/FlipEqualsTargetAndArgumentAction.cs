@@ -33,7 +33,7 @@ using System.Linq;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Swap 'Equals' target and argument", Description = "Swap 'Equals' target and argument")]
-	public class FlipEqualsTargetAndArgumentAction : CodeActionProvider
+	public class FlipEqualsTargetAndArgumentAction : ICodeRefactoringProvider
 	{
 		Expression GetInnerMostExpression(Expression target)
 		{
@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return target;
 		}
 
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var invocation = context.GetNode<InvocationExpression>();
 			if (invocation == null)

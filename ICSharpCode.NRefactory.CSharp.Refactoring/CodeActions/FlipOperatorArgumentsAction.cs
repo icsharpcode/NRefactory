@@ -30,9 +30,9 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction("Swaps left and right arguments.", Description = "Swaps left and right arguments.")]
-	public class FlipOperatorArgumentsAction : CodeActionProvider
+	public class FlipOperatorArgumentsAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var binop = GetBinaryOperatorExpression(context);
 			if (binop == null) {

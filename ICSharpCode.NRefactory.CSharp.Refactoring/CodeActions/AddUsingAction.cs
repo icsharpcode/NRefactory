@@ -36,9 +36,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	/// and simplify the type references to use the new shorter option.
 	/// </summary>
 	[ContextAction ("Add using", Description = "Add missing using declaration.")]
-	public class AddUsingAction : CodeActionProvider
+	public class AddUsingAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			AstNode node = context.GetNode();
 			if (node is Identifier)

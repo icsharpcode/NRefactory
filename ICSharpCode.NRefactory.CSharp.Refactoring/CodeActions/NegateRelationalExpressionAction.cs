@@ -30,7 +30,7 @@
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Negate a relational expression", Description = "Negate a relational expression.")]
-	public class NegateRelationalExpressionAction : CodeActionProvider
+	public class NegateRelationalExpressionAction : ICodeRefactoringProvider
 	{
 		public static bool GetLogicalExpression (SemanticModel context, out Expression expr, out AstNode token)
 		{

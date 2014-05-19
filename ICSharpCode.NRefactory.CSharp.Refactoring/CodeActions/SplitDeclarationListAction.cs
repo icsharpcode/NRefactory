@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
 	[ContextAction ("Split declaration list", 
 		Description = "Split variable declaration with multiple variables into declarations with a single variable")] 
-	public class SplitDeclarationListAction : CodeActionProvider
+	public class SplitDeclarationListAction : ICodeRefactoringProvider
 	{
 		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
 		{
