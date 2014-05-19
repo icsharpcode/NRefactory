@@ -42,14 +42,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
            AnalysisDisableKeyword = "ValueParameterNotUsed")]
 	public class ValueParameterNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<ValueParameterNotUsedIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext context, ValueParameterNotUsedIssue inspector) : base (context)
+			public GatherVisitor(BaseSemanticModel context, ValueParameterNotUsedIssue inspector) : base (context)
 			{
 			}
 

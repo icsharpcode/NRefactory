@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		};
 
 		
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<ConvertConditionalTernaryToNullCoalescingIssue>
 		{
 
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor (BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 

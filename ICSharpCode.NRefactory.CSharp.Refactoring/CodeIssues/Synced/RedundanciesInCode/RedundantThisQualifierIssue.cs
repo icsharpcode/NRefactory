@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public const string InsideConstructors = "Inside constructors";
 		public const string EverywhereElse = "Everywhere else";
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			var declarationSpaceVisitor = new LocalDeclarationSpaceVisitor();
 			context.RootNode.AcceptVisitor(declarationSpaceVisitor);
@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			LocalDeclarationSpaceVisitor declarationsSpaceVisitor;
 
-			public GatherVisitor (LocalDeclarationSpaceVisitor visitor, BaseRefactoringContext ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor (LocalDeclarationSpaceVisitor visitor, BaseSemanticModel ctx, RedundantThisQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 				declarationsSpaceVisitor = visitor;
 			}

@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Copy comments from base", Description = "Copies documented comments from base to overriding methods.")]
 	public class CopyCommentsFromBase: SpecializedCodeAction <MethodDeclaration>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, MethodDeclaration node)
+		protected override CodeAction GetAction(SemanticModel context, MethodDeclaration node)
 		{
 			if (node == null || !node.HasModifier(Modifiers.Override))
 				return null;

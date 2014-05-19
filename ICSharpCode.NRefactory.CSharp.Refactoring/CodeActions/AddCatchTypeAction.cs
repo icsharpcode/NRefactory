@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		#region ICodeActionProvider implementation
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var catchClause = context.GetNode<CatchClause>();
 			if (catchClause == null)

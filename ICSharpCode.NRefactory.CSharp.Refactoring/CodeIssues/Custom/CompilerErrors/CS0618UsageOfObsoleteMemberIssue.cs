@@ -42,14 +42,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		PragmaWarning = 618)]
 	public class CS0618UsageOfObsoleteMemberIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<CS0618UsageOfObsoleteMemberIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx) : base(ctx)
+			public GatherVisitor(BaseSemanticModel ctx) : base(ctx)
 			{
 			}
 

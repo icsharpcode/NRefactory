@@ -75,7 +75,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var directive = GetDirective(context);
 			if (directive == null)
@@ -92,7 +92,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, directive);
 		}
 		
-		static PreProcessorDirective GetDirective (RefactoringContext context)
+		static PreProcessorDirective GetDirective (SemanticModel context)
 		{
 			var directive = context.GetNode<PreProcessorDirective> ();
 			if (directive == null || directive.Type != PreProcessorDirectiveType.Region && directive.Type != PreProcessorDirectiveType.Endregion)

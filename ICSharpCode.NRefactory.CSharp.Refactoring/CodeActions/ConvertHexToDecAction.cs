@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Convert hex to dec.", Description = "Convert hex to dec.")]
 	public class ConvertHexToDecAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var pexpr = context.GetNode<PrimitiveExpression>();
 			if (pexpr == null || !pexpr.LiteralValue.StartsWith("0X", System.StringComparison.OrdinalIgnoreCase)) {

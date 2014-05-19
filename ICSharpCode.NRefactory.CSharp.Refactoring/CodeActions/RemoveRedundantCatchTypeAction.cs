@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class RemoveRedundantCatchTypeAction : CodeActionProvider
 	{
 		#region ICodeActionProvider implementation
-		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var catchClause = context.GetNode<CatchClause>();
 			if (catchClause == null)
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, catchClause.Type);
 		}
 
-		bool IsReferenced(IVariable variable, AstNode node, SyntaxTree syntaxTree, RefactoringContext context)
+		bool IsReferenced(IVariable variable, AstNode node, SyntaxTree syntaxTree, SemanticModel context)
 		{
 			int referencesFound = 0;
 			var findRef = new FindReferences();

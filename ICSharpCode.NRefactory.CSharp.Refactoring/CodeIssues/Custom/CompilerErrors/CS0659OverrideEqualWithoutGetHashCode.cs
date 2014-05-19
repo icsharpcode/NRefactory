@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<CS0659ClassOverrideEqualsWithoutGetHashCode>
 		{
 
-			public GatherVisitor(BaseRefactoringContext ctx, CS0659ClassOverrideEqualsWithoutGetHashCode issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseSemanticModel ctx, CS0659ClassOverrideEqualsWithoutGetHashCode issueProvider) : base (ctx, issueProvider)
 			{
 			}
 			
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				AddIssue(ctx, methodDeclaration);
 			}
 
-			private void AddIssue(BaseRefactoringContext ctx, AstNode node)
+			private void AddIssue(BaseSemanticModel ctx, AstNode node)
 			{
 				var getHashCode = new MethodDeclaration();
 				getHashCode.Name = "GetHashCode";

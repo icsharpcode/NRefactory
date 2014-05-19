@@ -35,14 +35,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 //		AnalysisDisableKeyword = "LoopCanBeConvertedToQuery")]
 	public class LoopCanBeConvertedToQueryIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<LoopCanBeConvertedToQueryIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor (BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 		}

@@ -35,14 +35,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   AnalysisDisableKeyword = "EmptyEmbeddedStatement")]
 	public class EmptyEmbeddedStatementIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<EmptyEmbeddedStatementIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base (ctx)
 			{
 			}

@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Split variable declaration with multiple variables into declarations with a single variable")] 
 	public class SplitDeclarationListAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
 		{
 			// field, local var, event, fixed var, fixed field
 
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return Enumerable.Empty<CodeAction> ();
 		}
 
-		IEnumerable<CodeAction> GetAction<T, S> (RefactoringContext context, T decl, 
+		IEnumerable<CodeAction> GetAction<T, S> (SemanticModel context, T decl, 
 												 Func<T, AstNodeCollection<S>> getInitializers)
 			where T : AstNode
 			where S : AstNode

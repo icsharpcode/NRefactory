@@ -40,14 +40,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   AnalysisDisableKeyword = "LocalVariableHidesMember")]
 	public class LocalVariableHidesMemberIssue : VariableHidesMemberIssue
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<LocalVariableHidesMemberIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
+			public GatherVisitor (BaseSemanticModel ctx)
 				: base (ctx)
 			{
 			}
@@ -134,13 +134,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 	public abstract class VariableHidesMemberIssue : GatherVisitorCodeIssueProvider
 	{
-		protected static bool HidesMember(BaseRefactoringContext ctx, AstNode node, string variableName)
+		protected static bool HidesMember(BaseSemanticModel ctx, AstNode node, string variableName)
 		{
 			IMember member;
 			return HidesMember(ctx, node, variableName, out member);
 		}
 
-		protected static bool HidesMember(BaseRefactoringContext ctx, AstNode node, string variableName, out IMember member)
+		protected static bool HidesMember(BaseSemanticModel ctx, AstNode node, string variableName, out IMember member)
 		{
 			MemberCollectionService mcs = (MemberCollectionService)ctx.GetService(typeof(MemberCollectionService));
 			if (mcs == null) {

@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Implement interface explicit", Description = "Creates an interface implementation.")]
 	public class ImplementInterfaceExplicitAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
 			if (service == null)

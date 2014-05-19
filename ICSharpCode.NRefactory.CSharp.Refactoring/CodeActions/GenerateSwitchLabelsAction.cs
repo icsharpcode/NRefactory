@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Generate switch labels", Description = "Creates switch lables for enumerations.")]
 	public class GenerateSwitchLabelsAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var switchStatement = context.GetNode<SwitchStatement> ();
 
@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		static bool IsHandled(RefactoringContext context, SwitchStatement switchStatement, IField field)
+		static bool IsHandled(SemanticModel context, SwitchStatement switchStatement, IField field)
 		{
 			foreach (var sect in switchStatement.SwitchSections) {
 				foreach (var caseLabel in sect.CaseLabels) {

@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return true;
 		}
 
-		internal static CodeAction CreateAction (BaseRefactoringContext context, AstNode node, BlockStatement blockStatement, Expression expr)
+		internal static CodeAction CreateAction (BaseSemanticModel context, AstNode node, BlockStatement blockStatement, Expression expr)
 		{
 			return new CodeAction (
 				context.TranslateString ("Convert to lambda expression"),
@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 
-		protected override CodeAction GetAction (RefactoringContext context, LambdaExpression node)
+		protected override CodeAction GetAction (SemanticModel context, LambdaExpression node)
 		{
 			if (!node.ArrowToken.Contains (context.Location))
 				return null;

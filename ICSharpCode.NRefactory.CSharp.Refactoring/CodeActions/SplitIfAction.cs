@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                Description = "Splits an if statement into two nested if statements")] 
 	public class SplitIfAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
 		{
 			var ifStatement = context.GetNode<IfElseStatement>();
 			if (ifStatement == null)
@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		static CodeAction CreateAndSplit(RefactoringContext context, IfElseStatement ifStatement, BinaryOperatorExpression bOp)
+		static CodeAction CreateAndSplit(SemanticModel context, IfElseStatement ifStatement, BinaryOperatorExpression bOp)
 		{
 			return new CodeAction(
 				context.TranslateString("Split if"),
@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 
-		static CodeAction CreateOrSplit(RefactoringContext context, IfElseStatement ifStatement, BinaryOperatorExpression bOp)
+		static CodeAction CreateOrSplit(SemanticModel context, IfElseStatement ifStatement, BinaryOperatorExpression bOp)
 		{
 			return new CodeAction(
 				context.TranslateString("Split if"),

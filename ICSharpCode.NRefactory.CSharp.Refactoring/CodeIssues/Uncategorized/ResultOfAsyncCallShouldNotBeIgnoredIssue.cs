@@ -31,14 +31,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning)]
 	public class ResultOfAsyncCallShouldNotBeIgnoredIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 		
 		sealed class GatherVisitor : GatherVisitorBase<ResultOfAsyncCallShouldNotBeIgnoredIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base(ctx)
 			{
 			}

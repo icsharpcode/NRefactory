@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new InvocationExpression(new MemberReferenceExpression(target.Clone(), "HasFlag"), MakeFlatExpression (bOp, BinaryOperatorType.BitwiseOr));
 		}
 
-		static CodeAction CreateAction(BaseRefactoringContext context, Match match, bool negateMatch, BinaryOperatorExpression node)
+		static CodeAction CreateAction(BaseSemanticModel context, Match match, bool negateMatch, BinaryOperatorExpression node)
 		{
 			var target = match.Get<Expression>("target").Single();
 			var expr = match.Get<Expression>("expr").Single();
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				node.OperatorToken);
 		}
 
-		protected override CodeAction GetAction(RefactoringContext context, BinaryOperatorExpression node)
+		protected override CodeAction GetAction(SemanticModel context, BinaryOperatorExpression node)
 		{
 			if (!node.OperatorToken.Contains(context.Location))
 				return null;

@@ -37,14 +37,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		AnalysisDisableKeyword = "DelegateSubtraction")]
 	public class DelegateSubtractionIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<DelegateSubtractionIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 

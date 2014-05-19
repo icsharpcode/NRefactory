@@ -38,14 +38,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Severity = Severity.Error)]
 	public class ProhibitedModifiersIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ProhibitedModifiersIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base (ctx)
 			{
 			}

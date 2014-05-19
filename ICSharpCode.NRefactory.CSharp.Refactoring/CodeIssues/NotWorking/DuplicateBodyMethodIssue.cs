@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class DuplicateBodyMethodIssue : CodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
+		public override IEnumerable<CodeIssue> GetIssues(BaseSemanticModel context, string subIssue)
 		{
 			var visitor = new GatherVisitor(context);
 			visitor.GetMethods();
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			public List<MethodDeclaration> DeclaredMethods;
 
-			public GatherVisitor(BaseRefactoringContext context)
+			public GatherVisitor(BaseSemanticModel context)
 				: base(context)
 			{
 				DeclaredMethods = new List<MethodDeclaration>();

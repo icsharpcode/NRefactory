@@ -28,7 +28,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction ("Negate 'is' expression", Description = "Negate an is expression.")]
 	public class NegateIsExpressionAction : SpecializedCodeAction<IsExpression>
 	{
-		protected override CodeAction GetAction (RefactoringContext context, IsExpression node)
+		protected override CodeAction GetAction (SemanticModel context, IsExpression node)
 		{
 			if (!node.IsToken.Contains(context.Location))
 				return null;

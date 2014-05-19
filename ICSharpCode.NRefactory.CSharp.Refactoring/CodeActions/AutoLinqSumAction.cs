@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			"System.Decimal"
 		};
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var loop = GetForeachStatement (context);
 			if (loop == null) {
@@ -171,7 +171,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return expr.Operator == UnaryOperatorType.Increment || expr.Operator == UnaryOperatorType.PostIncrement || expr.Operator == UnaryOperatorType.Decrement || expr.Operator == UnaryOperatorType.PostDecrement;
 		}
 
-		AssignmentExpression GetTransformedAssignmentExpression (RefactoringContext context, ForeachStatement foreachStatement)
+		AssignmentExpression GetTransformedAssignmentExpression (SemanticModel context, ForeachStatement foreachStatement)
 		{
 			var enumerableToIterate = foreachStatement.InExpression.Clone();
 
@@ -422,7 +422,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return m.Success;
 		}
 
-		static ForeachStatement GetForeachStatement (RefactoringContext context)
+		static ForeachStatement GetForeachStatement (SemanticModel context)
 		{
 			var foreachStatement = context.GetNode<ForeachStatement>();
 			if (foreachStatement == null || !foreachStatement.ForeachToken.Contains(context.Location))

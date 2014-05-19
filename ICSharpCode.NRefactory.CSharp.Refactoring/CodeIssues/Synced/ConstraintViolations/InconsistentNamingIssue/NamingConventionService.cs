@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			get;
 		}
 
-		public string CheckName(RefactoringContext ctx, string name, AffectedEntity entity, Modifiers accessibilty = Modifiers.Private, bool isStatic = false)
+		public string CheckName(SemanticModel ctx, string name, AffectedEntity entity, Modifiers accessibilty = Modifiers.Private, bool isStatic = false)
 		{
 			foreach (var rule in Rules) {
 				if (!rule.AffectedEntity.HasFlag(entity)) {

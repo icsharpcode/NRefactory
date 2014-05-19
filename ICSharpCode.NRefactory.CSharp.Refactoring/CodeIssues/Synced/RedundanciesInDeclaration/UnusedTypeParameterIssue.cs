@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		static FindReferences refFinder = new FindReferences();
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new GatherVisitor(context, unit);
 		}
 
-		protected static bool FindUsage(BaseRefactoringContext context, SyntaxTree unit,
+		protected static bool FindUsage(BaseSemanticModel context, SyntaxTree unit,
 		                                 ITypeParameter typeParameter, AstNode declaration)
 		{
 			var found = false;
@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			SyntaxTree unit;
 
-			public GatherVisitor(BaseRefactoringContext ctx, SyntaxTree unit)
+			public GatherVisitor(BaseSemanticModel ctx, SyntaxTree unit)
 				: base(ctx)
 			{
 				this.unit = unit;

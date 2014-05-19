@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Replace postfix expression with assignment", Description = "Replace postfix expression with assignment")]
 	public class ReplacePostfixExpressionWithAssignmentAction : SpecializedCodeAction<UnaryOperatorExpression>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, UnaryOperatorExpression node)
+		protected override CodeAction GetAction(SemanticModel context, UnaryOperatorExpression node)
 		{
 			if (node.Operator != UnaryOperatorType.PostIncrement && node.Operator != UnaryOperatorType.PostDecrement)
 				return null;

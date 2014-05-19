@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Replace operator assignment with assignment", Description = "Replace operator assignment with assignment")]
 	public class ReplaceOperatorAssignmentWithAssignmentAction : SpecializedCodeAction<AssignmentExpression>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
+		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
 		{
 			if (!node.OperatorToken.Contains(context.Location))
 				return null;

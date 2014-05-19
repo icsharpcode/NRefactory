@@ -41,14 +41,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
 	public class NonPublicMethodWithTestAttributeIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<NonPublicMethodWithTestAttributeIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 

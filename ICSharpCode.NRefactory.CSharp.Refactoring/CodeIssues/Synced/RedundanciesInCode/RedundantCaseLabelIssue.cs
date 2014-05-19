@@ -37,14 +37,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                         AnalysisDisableKeyword = "RedundantCaseLabel")]
 	public class RedundantCaseLabelIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantCaseLabelIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base (ctx)
 			{
 			}

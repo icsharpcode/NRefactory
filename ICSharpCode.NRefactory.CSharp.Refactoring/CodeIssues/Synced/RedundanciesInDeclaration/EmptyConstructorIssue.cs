@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   AnalysisDisableKeyword = "EmptyConstructor")]
 	public class EmptyConstructorIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)
@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<EmptyConstructorIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
                 : base(ctx)
 			{
 			}

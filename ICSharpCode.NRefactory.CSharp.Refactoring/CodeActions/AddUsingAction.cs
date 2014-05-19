@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction ("Add using", Description = "Add missing using declaration.")]
 	public class AddUsingAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			AstNode node = context.GetNode();
 			if (node is Identifier)
@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 		
-		IEnumerable<CodeAction> GetActionsForType(RefactoringContext context, AstNode node)
+		IEnumerable<CodeAction> GetActionsForType(SemanticModel context, AstNode node)
 		{
 			var rr = context.Resolve(node) as UnknownIdentifierResolveResult;
 			if (rr == null)
@@ -83,12 +83,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return actions;
 		}
 		
-		CodeAction NewUsingAction(RefactoringContext context, AstNode node, string ns)
+		CodeAction NewUsingAction(SemanticModel context, AstNode node, string ns)
 		{
 			return new CodeAction("using " + ns + ";", s => UsingHelper.InsertUsingAndRemoveRedundantNamespaceUsage(context, s, ns), node);
 		}
 		
-		CodeAction ReplaceWithFullTypeNameAction(RefactoringContext context, AstNode node, ITypeDefinition typeDefinition)
+		CodeAction ReplaceWithFullTypeNameAction(SemanticModel context, AstNode node, ITypeDefinition typeDefinition)
 		{
 			AstType astType = context.CreateShortType(typeDefinition);
 			string textWithoutGenerics = astType.ToString();
@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new CodeAction(textWithoutGenerics, s => s.Replace(node, astType), node);
 		}
 		
-		IEnumerable<CodeAction> GetActionsForExtensionMethodInvocation(RefactoringContext context, InvocationExpression invocation)
+		IEnumerable<CodeAction> GetActionsForExtensionMethodInvocation(SemanticModel context, InvocationExpression invocation)
 		{
 			var rr = context.Resolve(invocation) as UnknownMethodResolveResult;
 			if (rr == null)
@@ -125,7 +125,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return result;
 		}
 		
-		IEnumerable<CodeAction> GetActionsForAddNamespaceUsing(RefactoringContext context, AstNode node)
+		IEnumerable<CodeAction> GetActionsForAddNamespaceUsing(SemanticModel context, AstNode node)
 		{
 			var nrr = context.Resolve(node) as NamespaceResolveResult;
 			if (nrr == null)

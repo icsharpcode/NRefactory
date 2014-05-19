@@ -305,7 +305,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return name + suffix;
 		}
 	
-		public string GetErrorMessage(BaseRefactoringContext ctx, string name, out IList<string> suggestedNames)
+		public string GetErrorMessage(BaseSemanticModel ctx, string name, out IList<string> suggestedNames)
 		{
 			suggestedNames = new List<string>();
 			string id = name;

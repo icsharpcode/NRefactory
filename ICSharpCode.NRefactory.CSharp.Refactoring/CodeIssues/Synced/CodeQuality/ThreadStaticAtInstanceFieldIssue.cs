@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       AnalysisDisableKeyword = "ThreadStaticAtInstanceField")]
 	public class ThreadStaticAtInstanceFieldIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			IType threadStaticAttribute;
 
-			public GatherVisitor(BaseRefactoringContext context) : base (context)
+			public GatherVisitor(BaseSemanticModel context) : base (context)
 			{
 				threadStaticAttribute = ctx.Compilation.FindType(typeof(ThreadStaticAttribute));
 			}

@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Convert '==' to 'Equals'", Description = "Converts '==' to call to 'object.Equals'")]
 	public class ConvertEqualityOperatorToEqualsAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var node = context.GetNode<BinaryOperatorExpression>();
 			if (node == null || 
@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return false;
 		}
 
-		Expression GenerateTarget(RefactoringContext context, BinaryOperatorExpression bOp)
+		Expression GenerateTarget(SemanticModel context, BinaryOperatorExpression bOp)
 		{
 			var rr = context.Resolver.GetResolverStateBefore(bOp).LookupSimpleNameOrTypeName("Equals", emptyTypes, NameLookupMode.Expression) as MethodGroupResolveResult;
 			if (rr == null || rr.IsError || HasDifferentEqualsMethod (rr.Methods)) {

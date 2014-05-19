@@ -44,14 +44,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
 	public class ConditionIsAlwaysTrueOrFalseIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ConditionIsAlwaysTrueOrFalseIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base(ctx)
 			{
 			}

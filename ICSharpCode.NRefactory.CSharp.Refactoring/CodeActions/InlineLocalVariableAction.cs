@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class InlineLocalVariableAction : CodeActionProvider
 	{
 		static FindReferences refFinder = new FindReferences();
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			if (context.IsSomethingSelected) {
 				yield break;

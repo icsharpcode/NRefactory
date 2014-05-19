@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Add braces", Description = "Removes redundant braces around a statement.")]
 	public class AddBracesAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			string keyword;
 			Statement embeddedStatement;

@@ -38,14 +38,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       AnalysisDisableKeyword = "PossibleIntendedRethrow")]
 	public class ExceptionRethrowIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<ExceptionRethrowIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext context) : base (context)
+			public GatherVisitor(BaseSemanticModel context) : base (context)
 			{
 			}
 			
@@ -72,13 +72,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		class CatchClauseVisitor : DepthFirstAstVisitor
 		{
-			BaseRefactoringContext ctx;
+			BaseSemanticModel ctx;
 
 			IVariable parameter;
 
 			bool variableWritten = false;
 
-			public CatchClauseVisitor(BaseRefactoringContext context, IVariable parameter)
+			public CatchClauseVisitor(BaseSemanticModel context, IVariable parameter)
 			{
 				ctx = context;
 				this.parameter = parameter;

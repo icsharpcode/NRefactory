@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		static readonly AstNode onePattern = PatternHelper.OptionalParentheses(new PrimitiveExpression (1));
 
-		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
+		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
 		{
 			if (!node.OperatorToken.Contains(context.Location))
 				return null;

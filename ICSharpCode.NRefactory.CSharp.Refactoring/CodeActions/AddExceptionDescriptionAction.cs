@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return result;
 		}
 
-		protected override CodeAction GetAction (RefactoringContext context, ThrowStatement node)
+		protected override CodeAction GetAction (SemanticModel context, ThrowStatement node)
 		{
 			var entity = node.GetParent<EntityDeclaration> ();
 			if (entity == null)

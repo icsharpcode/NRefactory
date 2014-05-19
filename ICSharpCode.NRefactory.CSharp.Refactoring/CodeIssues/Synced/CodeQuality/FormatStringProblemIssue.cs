@@ -39,16 +39,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "FormatStringProblem")]
 	public class FormatStringProblemIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<FormatStringProblemIssue>
 		{
-			readonly BaseRefactoringContext context;
+			readonly BaseSemanticModel context;
 
-			public GatherVisitor(BaseRefactoringContext context) : base (context)
+			public GatherVisitor(BaseSemanticModel context) : base (context)
 			{
 				this.context = context;
 			}

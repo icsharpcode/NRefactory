@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	               Description = "Convert method group to anoymous method")]
 	public class ConvertMethodGroupToAnonymousMethodAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			Expression node = context.GetNode<IdentifierExpression>();
 			if (node == null) {

@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return false;
 		}
 
-		protected override IEnumerable<CodeAction> GetFixes (BaseRefactoringContext context, Node env,
+		protected override IEnumerable<CodeAction> GetFixes (BaseSemanticModel context, Node env,
 															 string variableName)
 		{
 			yield break;

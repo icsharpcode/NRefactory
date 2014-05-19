@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Create class", Description = "Creates a class declaration out of an object creation.")]
 	public class CreateClassDeclarationAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var simpleType = context.GetNode<SimpleType>();
 			if (simpleType != null && !(simpleType.Parent is EventDeclaration || simpleType.Parent is CustomEventDeclaration)) 
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return Enumerable.Empty<CodeAction>();
 		}
 
-		static IEnumerable<CodeAction> GetActions(RefactoringContext context, AstNode node)
+		static IEnumerable<CodeAction> GetActions(SemanticModel context, AstNode node)
 		{
 			var resolveResult = context.Resolve(node) as UnknownIdentifierResolveResult;
 			if (resolveResult == null)
@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, node);
 		}
 
-		static void ModifyClassTypeBasedOnTypeGuessing(RefactoringContext context, AstNode node, ref ClassType classType)
+		static void ModifyClassTypeBasedOnTypeGuessing(SemanticModel context, AstNode node, ref ClassType classType)
 		{
 			var guessedType = TypeGuessing.GuessType(context, node);
 			if (guessedType.Kind == TypeKind.TypeParameter) {
@@ -124,7 +124,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return ClassType.Class;
 		}
 
-		static TypeDeclaration CreateType(RefactoringContext context, NamingConventionService service, AstNode node, ClassType classType)
+		static TypeDeclaration CreateType(SemanticModel context, NamingConventionService service, AstNode node, ClassType classType)
 		{
 			TypeDeclaration result;
 			if (node is SimpleType) {
@@ -138,7 +138,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return AddBaseTypesAccordingToNamingRules(context, service, result);
 		}
 
-		static TypeDeclaration CreateClassFromIdentifier(RefactoringContext context, ClassType classType, IdentifierExpression identifierExpression)
+		static TypeDeclaration CreateClassFromIdentifier(SemanticModel context, ClassType classType, IdentifierExpression identifierExpression)
 		{
 			var result = new TypeDeclaration { Name = identifierExpression.Identifier, ClassType = classType };
 			var entity = identifierExpression.GetParent<EntityDeclaration>();
@@ -147,7 +147,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return result;
 		}
 
-		static TypeDeclaration CreateClassFromType(RefactoringContext context, ClassType classType, SimpleType simpleType)
+		static TypeDeclaration CreateClassFromType(SemanticModel context, ClassType classType, SimpleType simpleType)
 		{
 			TypeDeclaration result;
 			string className = simpleType.Identifier;
@@ -168,7 +168,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return result;
 		}
 
-		static void ImplementConstraints(RefactoringContext context, TypeDeclaration result, ITypeParameter tp)
+		static void ImplementConstraints(SemanticModel context, TypeDeclaration result, ITypeParameter tp)
 		{
 			if (tp.HasValueTypeConstraint)
 				result.ClassType = ClassType.Struct;
@@ -185,7 +185,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		static TypeDeclaration CreateClassFromObjectCreation(RefactoringContext context, ObjectCreateExpression createExpression)
+		static TypeDeclaration CreateClassFromObjectCreation(SemanticModel context, ObjectCreateExpression createExpression)
 		{
 			TypeDeclaration result;
 			string className = createExpression.Type.ToString();
@@ -237,7 +237,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return Modifiers.Override;
 		}
 
-		static void AddImplementation(RefactoringContext context, TypeDeclaration result, IType guessedType)
+		static void AddImplementation(SemanticModel context, TypeDeclaration result, IType guessedType)
 		{
 			foreach (var property in guessedType.GetProperties ()) {
 				if (!property.IsAbstract)
@@ -300,7 +300,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		static IEnumerable<ParameterDeclaration> ConvertParameters(RefactoringContext context, IList<IParameter> parameters)
+		static IEnumerable<ParameterDeclaration> ConvertParameters(SemanticModel context, IList<IParameter> parameters)
 		{
 			foreach (var param in parameters) {
 				ParameterModifier mod = ParameterModifier.None;
@@ -315,7 +315,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		static TypeDeclaration AddBaseTypesAccordingToNamingRules(RefactoringContext context, NamingConventionService service, TypeDeclaration result)
+		static TypeDeclaration AddBaseTypesAccordingToNamingRules(SemanticModel context, NamingConventionService service, TypeDeclaration result)
 		{
 			if (service.HasValidRule(result.Name, AffectedEntity.CustomAttributes, Modifiers.Public)) {
 				result.BaseTypes.Add(context.CreateShortType("System", "Attribute"));

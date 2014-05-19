@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Description = "Join local variable declaration and assignment.")]
 	public class JoinDeclarationAndAssignmentAction : SpecializedCodeAction<VariableInitializer>
 	{
-		protected override CodeAction GetAction (RefactoringContext context, VariableInitializer node)
+		protected override CodeAction GetAction (SemanticModel context, VariableInitializer node)
 		{
 			var variableDecl = node.Parent as VariableDeclarationStatement;
 			if (variableDecl == null || !node.Initializer.IsNull)

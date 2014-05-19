@@ -44,14 +44,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                       AnalysisDisableKeyword = "RedundantNameQualifier")]
 	public class RedundantNameQualifierIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantNameQualifierIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantNameQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor (BaseSemanticModel ctx, RedundantNameQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 			}
 

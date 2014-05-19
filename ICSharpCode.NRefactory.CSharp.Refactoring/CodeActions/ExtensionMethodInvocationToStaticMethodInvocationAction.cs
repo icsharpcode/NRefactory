@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		#region ICodeActionProvider implementation
 
-		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
 		{
 			var invocation = context.GetNode<InvocationExpression>();
 			if (invocation == null)

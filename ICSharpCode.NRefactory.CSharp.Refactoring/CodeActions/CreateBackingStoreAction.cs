@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Create backing store for auto property", Description = "Creates a backing field for an auto property.")]
 	public class CreateBackingStoreAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var property = context.GetNode<PropertyDeclaration>();
 			if (property == null || !property.NameToken.Contains(context.Location))

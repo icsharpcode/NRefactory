@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Compute constant value", Description = "Computes the value of the current expression and replaces it.")]
 	public class ComputeConstantValueAction : CodeActionProvider
 	{
-		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var expression = context.GetNode(i => i is BinaryOperatorExpression || i is UnaryOperatorExpression);
 			if (expression == null)

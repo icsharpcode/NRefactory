@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		AnalysisDisableKeyword = "MemberHidesStaticFromOuterClass")]
 	public class MemberHidesStaticFromOuterClassIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			readonly List<List<IMember>> staticMembers = new List<List<IMember>>();
 
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor (BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 

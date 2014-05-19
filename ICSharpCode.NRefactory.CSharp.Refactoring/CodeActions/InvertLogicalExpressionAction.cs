@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Invert logical expression", Description = "Inverts a logical expression")]
 	public class InvertLogicalExpressionAction : CodeActionProvider
 	{
-		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			Expression expr = null;
 			AstNode token;

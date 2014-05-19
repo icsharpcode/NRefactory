@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Copy comments from interface", Description = "Copies documented comments from interface to implementing methods.")]
 	public class CopyCommentsFromInterface: SpecializedCodeAction <MethodDeclaration>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, MethodDeclaration node)
+		protected override CodeAction GetAction(SemanticModel context, MethodDeclaration node)
 		{
 			if (!(node.PrivateImplementationType.IsNull))
 				return null;

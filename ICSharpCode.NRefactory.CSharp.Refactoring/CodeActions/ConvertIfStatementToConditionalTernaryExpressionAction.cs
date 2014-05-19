@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return firstAssign.Operator == secondAssign.Operator;
 		}
 
-		static CodeAction CreateAction (BaseRefactoringContext ctx, IfElseStatement ifElseStatement, Match match)
+		static CodeAction CreateAction (BaseSemanticModel ctx, IfElseStatement ifElseStatement, Match match)
 		{
 			var target = match.Get<Expression>("target").Single();
 			var condition = match.Get<Expression>("condition").Single();
@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 
-		protected override CodeAction GetAction(RefactoringContext context, IfElseStatement node)
+		protected override CodeAction GetAction(SemanticModel context, IfElseStatement node)
 		{
 			if (!node.IfToken.Contains(context.Location))
 				return null;

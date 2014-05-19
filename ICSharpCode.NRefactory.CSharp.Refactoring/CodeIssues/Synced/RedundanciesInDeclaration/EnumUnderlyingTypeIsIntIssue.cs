@@ -37,14 +37,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
 	public class EnumUnderlyingTypeIsIntIssue : CodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
+		public override IEnumerable<CodeIssue> GetIssues(BaseSemanticModel context, string subIssue)
 		{
 			return new GatherVisitor(context).GetIssues();
 		}
 
 		class GatherVisitor : GatherVisitorBase<EnumUnderlyingTypeIsIntIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext context)
+			public GatherVisitor(BaseSemanticModel context)
 				: base(context)
 			{
 			}

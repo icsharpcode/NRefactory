@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Description = "Extract anonymous method to method of the containing type")]
 	public class ExtractAnonymousMethodAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions (RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
 		{
 			// lambda
 			var lambda = context.GetNode<LambdaExpression> ();
@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		CodeAction GetAction (RefactoringContext context, AstNode node, MethodDeclaration method)
+		CodeAction GetAction (SemanticModel context, AstNode node, MethodDeclaration method)
 		{
 			return new CodeAction (context.TranslateString ("Extract anonymous method"),
 				script =>
@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}, method.NameToken);
 		}
 
-		static MethodDeclaration GetMethod (RefactoringContext context, LambdaResolveResult lambda, BlockStatement body,
+		static MethodDeclaration GetMethod (SemanticModel context, LambdaResolveResult lambda, BlockStatement body,
 			bool noReturnValue = false)
 		{
 			var method = new MethodDeclaration { Name = "Method" };
@@ -110,7 +110,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return method;
 		}
 
-		static bool ContainsLocalReferences (RefactoringContext context, AstNode expr, AstNode body)
+		static bool ContainsLocalReferences (SemanticModel context, AstNode expr, AstNode body)
 		{
 			var visitor = new ExtractMethod.VariableLookupVisitor (context);
 			body.AcceptVisitor (visitor);

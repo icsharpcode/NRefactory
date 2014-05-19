@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Use string.Empty", Description = "Replaces \"\" with string.Empty")]
 	public class ReplaceEmptyStringAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var expr = GetEmptyString(context);
 			if (expr == null) {
@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, expr);
 		}
 		
-		static PrimitiveExpression GetEmptyString (RefactoringContext context)
+		static PrimitiveExpression GetEmptyString (SemanticModel context)
 		{
 			var node = context.GetNode<PrimitiveExpression> ();
 			if (node == null || !(node.Value is string) || node.Value.ToString () != "")

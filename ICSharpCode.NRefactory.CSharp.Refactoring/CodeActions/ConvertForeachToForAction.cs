@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return "max";
 		}
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			bool hasIndexAccess;
 			var foreachStatement = GetForeachStatement(context, out hasIndexAccess);
@@ -198,7 +198,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return type.Kind == TypeKind.Array ? "Length" : "Count";
 		}
 
-		static ForeachStatement GetForeachStatement (RefactoringContext context, out bool hasIndexAccess)
+		static ForeachStatement GetForeachStatement (SemanticModel context, out bool hasIndexAccess)
 		{
 			var astNode = context.GetNode ();
 			if (astNode == null) {

@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Sort usings", Description = "Sorts usings by their origin and then alphabetically.")]
 	public class SortUsingsAction: CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var usingNode = FindUsingNodeAtCursor(context);
 			if (usingNode == null)
@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, usingNode);
 		}
 
-		private static AstNode FindUsingNodeAtCursor(RefactoringContext context)
+		private static AstNode FindUsingNodeAtCursor(SemanticModel context)
 		{
 			// If cursor is inside using declaration
 			var locationAsIs = context.Location;

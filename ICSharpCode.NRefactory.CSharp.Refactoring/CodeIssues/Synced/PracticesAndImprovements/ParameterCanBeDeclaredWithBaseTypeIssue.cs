@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		#region ICodeIssueProvider implementation
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, tryResolve);
 		}
@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			bool tryResolve;
 			
-			public GatherVisitor(BaseRefactoringContext context, bool tryResolve) : base (context)
+			public GatherVisitor(BaseSemanticModel context, bool tryResolve) : base (context)
 			{
 				this.tryResolve = tryResolve;
 			}
@@ -178,7 +178,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-	    public static bool TypeChangeResolvesCorrectly(BaseRefactoringContext ctx, ParameterDeclaration parameter, AstNode rootNode, IType type)
+	    public static bool TypeChangeResolvesCorrectly(BaseSemanticModel ctx, ParameterDeclaration parameter, AstNode rootNode, IType type)
 	    {
 	        var resolver = ctx.GetResolverStateBefore(rootNode);
 	        resolver = resolver.AddVariable(new DefaultParameter(type, parameter.Name));
@@ -302,9 +302,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 	public class TypeCriteriaCollector : DepthFirstAstVisitor
 	{
-		BaseRefactoringContext context;
+		BaseSemanticModel context;
 
-		public TypeCriteriaCollector(BaseRefactoringContext context)
+		public TypeCriteriaCollector(BaseSemanticModel context)
 		{
 			this.context = context;
 			TypeCriteria = new Dictionary<IVariable, IList<ITypeCriterion>>();

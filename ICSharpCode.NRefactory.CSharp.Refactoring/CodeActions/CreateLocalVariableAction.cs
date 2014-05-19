@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Create local variable", Description = "Creates a local variable for a undefined variable.")]
 	public class CreateLocalVariableAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var identifier = context.GetNode<IdentifierExpression>();
 			if (identifier == null) {

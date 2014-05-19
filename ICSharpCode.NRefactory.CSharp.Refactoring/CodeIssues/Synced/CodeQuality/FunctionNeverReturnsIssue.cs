@@ -39,14 +39,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		AnalysisDisableKeyword = "FunctionNeverReturns")]
 	public class FunctionNeverReturnsIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<FunctionNeverReturnsIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base (ctx)
 			{
 			}
@@ -121,11 +121,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			class RecursiveDetector : ReachabilityAnalysis.RecursiveDetectorVisitor
 			{
-				BaseRefactoringContext ctx;
+				BaseSemanticModel ctx;
 				IMember member;
 				Role accessorRole;
 
-				internal RecursiveDetector(BaseRefactoringContext ctx, IMember member, Role accessorRole) {
+				internal RecursiveDetector(BaseSemanticModel ctx, IMember member, Role accessorRole) {
 					this.ctx = ctx;
 					this.member = member;
 					this.accessorRole = accessorRole;

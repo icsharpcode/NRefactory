@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class ArrayCreationCanBeReplacedWithArrayInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<ArrayCreationCanBeReplacedWithArrayInitializerIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx, ArrayCreationCanBeReplacedWithArrayInitializerIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseSemanticModel ctx, ArrayCreationCanBeReplacedWithArrayInitializerIssue issueProvider) : base (ctx, issueProvider)
 			{
 			}
 

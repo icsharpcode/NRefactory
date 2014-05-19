@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 	
 	public class VariableUsageAnalyzation : DepthFirstAstVisitor
 	{
-		readonly RefactoringContext context;
+		readonly SemanticModel context;
 		readonly List<IVariable> usedVariables;
 		
 		Dictionary<IVariable, VariableState> states = new Dictionary<IVariable, VariableState> ();
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 		TextLocation startLocation = TextLocation.Empty;
 		TextLocation endLocation = TextLocation.Empty;
 		
-		public VariableUsageAnalyzation (RefactoringContext context, List<IVariable> usedVariables)
+		public VariableUsageAnalyzation (SemanticModel context, List<IVariable> usedVariables)
 		{
 			this.context = context;
 			this.usedVariables = usedVariables;

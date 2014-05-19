@@ -41,14 +41,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "CanBeReplacedWithTryCastAndCheckForNull")]
 	public class CanBeReplacedWithTryCastAndCheckForNullIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<CanBeReplacedWithTryCastAndCheckForNullIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor (BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)

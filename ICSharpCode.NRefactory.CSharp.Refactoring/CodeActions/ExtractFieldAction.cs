@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Extract field", Description = "Extracts a field from a local variable declaration.")]
 	public class ExtractFieldAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			//TODO: implement variable assignment & ctor param
 			var varInit = context.GetNode<VariableInitializer>();
@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return result.Variables.First ().Initializer.IsNull;
 		}
 		
-		static bool CannotExtractField (RefactoringContext context, VariableInitializer varInit)
+		static bool CannotExtractField (SemanticModel context, VariableInitializer varInit)
 		{
 			var result = varInit.Parent as VariableDeclarationStatement;
 			return result == null || result.Variables.Count != 1 || ContainsAnonymousType(context.Resolve(varInit.Initializer).Type);

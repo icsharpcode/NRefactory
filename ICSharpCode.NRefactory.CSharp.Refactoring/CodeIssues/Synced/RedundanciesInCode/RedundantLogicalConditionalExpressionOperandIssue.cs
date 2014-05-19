@@ -41,14 +41,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "RedundantLogicalConditionalExpressionOperand")]
 	public class RedundantLogicalConditionalExpressionOperandIssue: GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantLogicalConditionalExpressionOperandIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 

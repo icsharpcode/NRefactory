@@ -36,14 +36,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   AnalysisDisableKeyword = "LongLiteralEndingLowerL")]
 	public class LongLiteralEndingLowerLIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<LongLiteralEndingLowerLIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base(ctx)
 			{
 			}

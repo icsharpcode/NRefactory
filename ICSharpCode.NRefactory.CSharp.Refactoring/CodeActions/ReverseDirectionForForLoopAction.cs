@@ -205,7 +205,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new AssignmentExpression(new IdentifierExpression(name), AssignmentOperatorType.Subtract, step.Clone());
 		}
 
-		protected override CodeAction GetAction(RefactoringContext context, ForStatement node)
+		protected override CodeAction GetAction(SemanticModel context, ForStatement node)
 		{
 			if (!node.ForToken.Contains(context.Location))
 				return null;

@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		readonly static MemberReferenceExpression PrototypeFormatReference = new PrimitiveType ("string").Member("Format");
 		
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			if (!context.IsSomethingSelected) {
 				yield break;
@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		}
 		
-		void AddFormatCallToInvocation (RefactoringContext context, Script script, PrimitiveExpression pExpr, InvocationExpression invocation)
+		void AddFormatCallToInvocation (SemanticModel context, Script script, PrimitiveExpression pExpr, InvocationExpression invocation)
 		{
 			var newInvocation = (InvocationExpression)invocation.Clone ();
 			
@@ -88,12 +88,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			script.Replace (invocation, newInvocation);
 		}
 		
-		static PrimitiveExpression CreateFormatArgument (RefactoringContext context)
+		static PrimitiveExpression CreateFormatArgument (SemanticModel context)
 		{
 			return new PrimitiveExpression (context.SelectedText);
 		}
 		
-		static PrimitiveExpression CreateFormatString(RefactoringContext context, PrimitiveExpression pExpr, int argumentNumber)
+		static PrimitiveExpression CreateFormatString(SemanticModel context, PrimitiveExpression pExpr, int argumentNumber)
 		{
 			var start = context.GetOffset(pExpr.StartLocation);
 			var end = context.GetOffset(pExpr.EndLocation);

@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	               Description = "Convert 'return' to 'if'")]
 	public class ConvertReturnStatementToIfAction : SpecializedCodeAction <ReturnStatement>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, ReturnStatement node)
+		protected override CodeAction GetAction(SemanticModel context, ReturnStatement node)
 		{
 			if (!node.ReturnToken.Contains(context.Location))
 				return null;
@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 
-		CodeAction CreateForConditionalExpression(RefactoringContext ctx, ReturnStatement node, ConditionalExpression conditionalExpression)
+		CodeAction CreateForConditionalExpression(SemanticModel ctx, ReturnStatement node, ConditionalExpression conditionalExpression)
 		{
 			return new CodeAction (
 				ctx.TranslateString("Replace with 'if' statement"),
@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 
-		CodeAction CreateForNullCoalesingExpression(RefactoringContext ctx, ReturnStatement node, BinaryOperatorExpression bOp)
+		CodeAction CreateForNullCoalesingExpression(SemanticModel ctx, ReturnStatement node, BinaryOperatorExpression bOp)
 		{
 			return new CodeAction (
 				ctx.TranslateString("Replace with 'if' statement"),

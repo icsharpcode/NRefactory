@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Generate property", Description = "Generates a getter and setter for a field.")]
 	public class GeneratePropertyAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var initializer = context.GetNode<VariableInitializer>();
 			if (initializer == null || !initializer.NameToken.Contains(context.Location.Line, context.Location.Column)) {
@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, initializer);
 		}
 		
-		static PropertyDeclaration GeneratePropertyDeclaration (RefactoringContext context, FieldDeclaration field, string fieldName)
+		static PropertyDeclaration GeneratePropertyDeclaration (SemanticModel context, FieldDeclaration field, string fieldName)
 		{
 			var mod = ICSharpCode.NRefactory.CSharp.Modifiers.Public;
 			if (field.HasModifier (ICSharpCode.NRefactory.CSharp.Modifiers.Static))

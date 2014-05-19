@@ -23,74 +23,68 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
-using ICSharpCode.NRefactory.PatternMatching;
-using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Use explicit type", Description = "Converts local variable declaration to be explicit typed.")]
-	public class UseExplicitTypeAction: CodeActionProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Converts local variable declaration to be explicit typed.")]
+	[ExportCodeRefactoringProvider("Use explicit type", LanguageNames.CSharp)]
+	public class UseExplicitTypeAction : ICodeRefactoringProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var varDecl = GetVariableDeclarationStatement(context);
-			AstNode node;
-			IType type;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
+			var varDecl = UseVarKeywordAction.GetVariableDeclarationStatement(token.Parent);
+			ITypeSymbol type;
+			TypeSyntax typeSyntax;
 			if (varDecl != null) {
-				type = context.Resolve(varDecl.Variables.First().Initializer).Type;
-				node = varDecl;
+				type = model.GetTypeInfo(varDecl.Variables.First().Initializer.Value).Type;
+				typeSyntax = varDecl.Type;
 			} else {
-				var foreachStatement = GetForeachStatement(context);
+				var foreachStatement = UseVarKeywordAction.GetForeachStatement(token.Parent);
 				if (foreachStatement == null) {
-					yield break;
+					return Enumerable.Empty<CodeAction> ();
 				}
-				type = context.Resolve(foreachStatement.VariableType).Type;
-				node = foreachStatement;
+				type = model.GetTypeInfo(foreachStatement.Type).Type;
+				typeSyntax = foreachStatement.Type;
 			}
 
-			if (!(!type.Equals(SpecialType.NullType) && !type.Equals(SpecialType.UnknownType) && !ContainsAnonymousType(type))) {
-				yield break;
+			if (type == null || !typeSyntax.IsVar || type.TypeKind == TypeKind.Error || type.TypeKind == TypeKind.Unknown)
+				return Enumerable.Empty<CodeAction> ();
+			if (!(type.SpecialType != SpecialType.System_Nullable_T && type.TypeKind != TypeKind.Unknown && !ContainsAnonymousType(type))) {
+				return Enumerable.Empty<CodeAction> ();
 			}
-			yield return new CodeAction (context.TranslateString("Use explicit type"), script => {
-				if (varDecl != null) {
-					script.Replace (varDecl.Type, context.CreateShortType (type));
-				} else {
-					var foreachStatement = GetForeachStatement (context);
-					script.Replace (foreachStatement.VariableType, context.CreateShortType (type));
-				}
-			}, node);
+			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Use explicit type", PerformAction (document, model, root, type, typeSyntax)) };
 		}
 
-		static bool ContainsAnonymousType (IType type)
+		static Document PerformAction(Document document, SemanticModel model, SyntaxNode root, ITypeSymbol type, TypeSyntax typeSyntax)
 		{
-			if (type.Kind == TypeKind.Anonymous)
+			var newRoot = root.ReplaceNode(
+				typeSyntax,
+				SyntaxFactory.ParseTypeName(type.ToMinimalDisplayString(model, typeSyntax.SpanStart))
+				.WithLeadingTrivia(typeSyntax.GetLeadingTrivia())
+				.WithTrailingTrivia(typeSyntax.GetTrailingTrivia())
+			);
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		static bool ContainsAnonymousType (ITypeSymbol type)
+		{
+			if (type.TypeKind == TypeKind.ArrayType && ContainsAnonymousType(((IArrayTypeSymbol)type).ElementType))
 				return true;
-
-			var arrayType = type as ArrayType;
-			return arrayType != null && ContainsAnonymousType (arrayType.ElementType);
-		}
-
-		static VariableDeclarationStatement GetVariableDeclarationStatement (RefactoringContext context)
-		{
-			var result = context.GetNode<VariableDeclarationStatement> ();
-			if (result != null && result.Variables.Count == 1 && !result.Variables.First ().Initializer.IsNull && result.Type.Contains (context.Location.Line, context.Location.Column) && result.Type.IsVar ()) {
-				if (context.Resolve (result.Variables.First ().Initializer) == null)
-					return null;
-				return result;
-			}
-			return null;
-		}
-		
-		static ForeachStatement GetForeachStatement (RefactoringContext context)
-		{
-			var result = context.GetNode<ForeachStatement> ();
-			if (result != null && result.VariableType.Contains (context.Location) && result.VariableType.IsVar ())
-				return result;
-			return null;
+			return type.TypeKind == TypeKind.DynamicType || type.IsAnonymousType;
 		}
 	}
 }

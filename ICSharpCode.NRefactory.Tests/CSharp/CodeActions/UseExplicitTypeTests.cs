@@ -27,7 +27,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
 	public class UseExplicitTypeTests : ContextActionTestBase
@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		[Test()]
 		public void SimpleAnonymousTypeDeclaration ()
 		{
-			TestWrongContext<UseExplicitTypeAction>(@"class TestClass
+			TestWrongContext(new UseExplicitTypeAction(), @"class TestClass
 {
 	void Test()
 	{
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		[Test()]
 		public void ForeachAnonymousTypeDeclaration ()
 		{
-			TestWrongContext<UseExplicitTypeAction>(@"class TestClass
+			TestWrongContext(new UseExplicitTypeAction(), @"class TestClass
 {
 	void Test()
 	{
@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		[Test()]
 		public void TestAnonymousArrayType ()
 		{
-			TestWrongContext<UseExplicitTypeAction>(@"class TestClass
+			TestWrongContext(new UseExplicitTypeAction(), @"class TestClass
 {
 	void Test()
 	{
@@ -117,7 +117,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeActions
 		[Test()]
 		public void TestAnonymousGenericType ()
 		{
-			TestWrongContext<UseExplicitTypeAction>(@"class TestClass
+			TestWrongContext(new UseExplicitTypeAction(), @"class TestClass
 {
 	T MakeList<T> (T value) { return new List<T> () { value }; }
 

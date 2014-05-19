@@ -63,14 +63,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			new LinqMethod { FullName = "System.Linq.Enumerable.Reverse", ParameterCount = 1 }
 		};
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<DontUseLinqWhenItsVerboseAndInefficientIssue>
 		{
-			internal GatherVisitor(BaseRefactoringContext ctx) : base(ctx)
+			internal GatherVisitor(BaseSemanticModel ctx) : base(ctx)
 			{
 			}
 

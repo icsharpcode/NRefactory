@@ -42,14 +42,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
 
         class GatherVisitor : GatherVisitorBase<SuggestUseVarKeywordEvidentIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, SuggestUseVarKeywordEvidentIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor (BaseSemanticModel ctx, SuggestUseVarKeywordEvidentIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
             }
 

@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Extension methods must be declared static")]
 	public class CS1105ExtensionMethodMustBeDeclaredStaticAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var method = context.GetNode<MethodDeclaration>();
 			if (method == null || !method.NameToken.Contains(context.Location))

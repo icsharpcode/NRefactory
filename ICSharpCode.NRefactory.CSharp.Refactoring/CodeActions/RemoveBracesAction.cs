@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return false;
 		}
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			string keyword;
 			Statement embeddedStatement;
@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 		
-		static BlockStatement GetBlockStatement(RefactoringContext context)
+		static BlockStatement GetBlockStatement(SemanticModel context)
 		{
 			var block = context.GetNode<BlockStatement>();
 			if (block == null || block.LBraceToken.IsNull || block.RBraceToken.IsNull)

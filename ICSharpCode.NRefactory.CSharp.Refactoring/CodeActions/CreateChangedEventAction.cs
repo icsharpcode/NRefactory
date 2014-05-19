@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Create changed event for property", Description = "Creates a changed event for an property.")]
 	public class CreateChangedEventAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var property = context.GetNode<PropertyDeclaration>();
 			if (property == null || !property.NameToken.Contains(context.Location))
@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, property.NameToken);
 		}
 
-		EventDeclaration CreateChangedEventDeclaration (RefactoringContext context, PropertyDeclaration propertyDeclaration)
+		EventDeclaration CreateChangedEventDeclaration (SemanticModel context, PropertyDeclaration propertyDeclaration)
 		{
 			return new EventDeclaration {
 				Modifiers = propertyDeclaration.HasModifier (Modifiers.Static) ? Modifiers.Public | Modifiers.Static : Modifiers.Public,

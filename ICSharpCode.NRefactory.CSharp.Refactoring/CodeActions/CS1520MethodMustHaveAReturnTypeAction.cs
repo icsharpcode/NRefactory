@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Class, struct or interface method must have a return type", Description = "Found method without return type.")]
 	public class CS1520MethodMustHaveAReturnTypeAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var entity = context.GetNode<ConstructorDeclaration>();
 			if (entity == null)

@@ -41,14 +41,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	       Severity = Severity.Hint)]
 	public class RedundantInternalIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantInternalIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantInternalIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor (BaseSemanticModel ctx, RedundantInternalIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 			}
 

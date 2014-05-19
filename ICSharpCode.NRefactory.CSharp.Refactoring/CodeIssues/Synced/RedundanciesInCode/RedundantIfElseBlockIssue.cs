@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "RedundantIfElseBlock")]
 	public class RedundantIfElseBlockIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			readonly LocalDeclarationSpaceVisitor declarationSpaceVisitor;
 
-			public GatherVisitor (BaseRefactoringContext ctx)
+			public GatherVisitor (BaseSemanticModel ctx)
 				: base(ctx)
 			{
 				this.declarationSpaceVisitor = new LocalDeclarationSpaceVisitor();

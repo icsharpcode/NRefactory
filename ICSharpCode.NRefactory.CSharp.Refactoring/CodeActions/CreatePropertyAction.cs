@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Create property", Description = "Creates a property for a undefined variable.")]
 	public class CreatePropertyAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var identifier = CreateFieldAction.GetCreatePropertyOrFieldNode (context);
 			if (identifier == null)

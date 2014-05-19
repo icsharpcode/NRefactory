@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	               Description = "Convert '??' to '?:'")]
 	public class ConvertNullCoalescingToConditionalExpressionAction : SpecializedCodeAction<BinaryOperatorExpression>
 	{
-		protected override CodeAction GetAction(RefactoringContext ctx, BinaryOperatorExpression node)
+		protected override CodeAction GetAction(SemanticModel ctx, BinaryOperatorExpression node)
 		{
 			if (node.Operator != BinaryOperatorType.NullCoalescing || !node.OperatorToken.Contains(ctx.Location))
 				return null;

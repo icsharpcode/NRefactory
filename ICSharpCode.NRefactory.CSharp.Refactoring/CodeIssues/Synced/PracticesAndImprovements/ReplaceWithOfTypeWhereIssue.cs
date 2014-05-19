@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "ReplaceWithOfType.Where")]
 	public class ReplaceWithOfTypeWhereIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new ReplaceWithOfTypeAnyIssue.GatherVisitor<ReplaceWithOfTypeWhereIssue>(context, "Where");
 		}

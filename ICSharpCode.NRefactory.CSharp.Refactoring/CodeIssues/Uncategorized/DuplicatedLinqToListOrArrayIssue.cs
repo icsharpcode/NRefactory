@@ -54,14 +54,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		static readonly string[] RelevantMethods = { "ToArray", "ToList" };
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<DuplicatedLinqToListOrArrayIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base(ctx)
 			{
 			}

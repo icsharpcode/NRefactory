@@ -43,12 +43,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return invoke != null && invoke.Target == node;
 		}
 		
-		internal static Expression GetCreatePropertyOrFieldNode(RefactoringContext context)
+		internal static Expression GetCreatePropertyOrFieldNode(SemanticModel context)
 		{
 			return context.GetNode(n => n is IdentifierExpression || n is MemberReferenceExpression || n is NamedExpression) as Expression;
 		}
 		
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var expr = GetCreatePropertyOrFieldNode(context);
 			if (expr == null)

@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Invert if", Description = "Inverts an 'if ... else' expression.")]
 	public class InvertIfAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			// TODO: Invert if without else
 			// ex. if (cond) DoSomething () == if (!cond) return; DoSomething ()
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, ifStatement);
 		}
 		
-		static IfElseStatement GetIfElseStatement (RefactoringContext context)
+		static IfElseStatement GetIfElseStatement (SemanticModel context)
 		{
 			var result = context.GetNode<IfElseStatement> ();
 			if (result != null && result.IfToken.Contains (context.Location))

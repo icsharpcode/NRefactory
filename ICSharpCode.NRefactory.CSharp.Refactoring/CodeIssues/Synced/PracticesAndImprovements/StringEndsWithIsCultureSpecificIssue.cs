@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "StringEndsWithIsCultureSpecific")]
 	public class StringEndsWithIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new StringIndexOfIsCultureSpecificIssue.GatherVisitor<StringEndsWithIsCultureSpecificIssue>(context, "EndsWith");
 		}

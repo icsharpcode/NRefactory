@@ -41,14 +41,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "RedundantExtendsListEntry")]
 	public class RedundantExtendsListEntryIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<RedundantExtendsListEntryIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx, RedundantExtendsListEntryIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseSemanticModel ctx, RedundantExtendsListEntryIssue issueProvider) : base (ctx, issueProvider)
 			{
 			}
 			

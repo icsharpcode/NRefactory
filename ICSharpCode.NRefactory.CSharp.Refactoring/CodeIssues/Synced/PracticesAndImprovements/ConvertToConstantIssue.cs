@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "ConvertToConstant.Local")]
 	public class ConvertToConstantIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			readonly TypeDeclaration typeDeclaration;
 			public readonly List<FieldDeclaration> CollectedFields = new List<FieldDeclaration>();
 
-			public FieldCollectVisitor(BaseRefactoringContext context, TypeDeclaration typeDeclaration) : base (context)
+			public FieldCollectVisitor(BaseSemanticModel context, TypeDeclaration typeDeclaration) : base (context)
 			{
 				this.typeDeclaration = typeDeclaration;
 			}
@@ -92,7 +92,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			readonly Stack<List<Tuple<VariableInitializer, IVariable>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable>>>();
 
-			public GatherVisitor(BaseRefactoringContext context) : base (context)
+			public GatherVisitor(BaseSemanticModel context) : base (context)
 			{
 			}
 
@@ -217,14 +217,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		public class VariableUsageAnalyzation : DepthFirstAstVisitor
 		{
-			readonly BaseRefactoringContext context;
+			readonly BaseSemanticModel context;
 
 			readonly Dictionary<IVariable, VariableState> states = new Dictionary<IVariable, VariableState> ();
 
 			TextLocation startLocation = TextLocation.Empty;
 			TextLocation endLocation = TextLocation.Empty;
 
-			public VariableUsageAnalyzation (BaseRefactoringContext context)
+			public VariableUsageAnalyzation (BaseSemanticModel context)
 			{
 				this.context = context;
 			}

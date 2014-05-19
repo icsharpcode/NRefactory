@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		#region ICodeActionProvider implementation
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			CodeAction action;
 			action = ActionFromUsingStatement(context);
@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				yield return action;
 		}
 
-		CodeAction ActionFromUsingStatement(RefactoringContext context)
+		CodeAction ActionFromUsingStatement(SemanticModel context)
 		{
 			var initializer = context.GetNode<VariableInitializer>();
 			if (initializer == null || !initializer.NameToken.Contains(context.Location))
@@ -79,7 +79,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, initializer);
 		}
 
-		CodeAction ActionFromVariableInitializer(RefactoringContext context)
+		CodeAction ActionFromVariableInitializer(SemanticModel context)
 		{
 			var initializer = context.GetNode<VariableInitializer>();
 			if (initializer == null || initializer.Parent.Parent is ForStatement || !initializer.NameToken.Contains(context.Location))
@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, initializer);
 		}
 
-		CodeAction ActionFromExpressionStatement(RefactoringContext context)
+		CodeAction ActionFromExpressionStatement(SemanticModel context)
 		{
 			var expressionStatement = context.GetNode<ExpressionStatement>();
 			if (expressionStatement == null)
@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, expression);
 		}
 
-		static ForeachStatement MakeForeach(Expression node, IType type, RefactoringContext context)
+		static ForeachStatement MakeForeach(Expression node, IType type, SemanticModel context)
 		{
 			var namingHelper = new NamingHelper(context);
 			return new ForeachStatement {
@@ -134,7 +134,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			};
 		}
 
-		static IType GetElementType(ResolveResult rr, BaseRefactoringContext context)
+		static IType GetElementType(ResolveResult rr, BaseSemanticModel context)
 		{
 			if (rr.IsError || rr.Type.Kind == TypeKind.Unknown)
 				return null;

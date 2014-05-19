@@ -25,8 +25,6 @@
 // THE SOFTWARE.
 using System.Collections.Generic;
 using System.Text;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
@@ -34,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                Description = "Convert concatenation of strings and objects to string.Format()")]
 	public class UseStringFormatAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			// NOTE: @, multiple occurance
 			var node = context.GetNode();
@@ -183,7 +181,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return -1;
 		}
 
-		static IEnumerable<Expression> GetConcatItems(RefactoringContext context, BinaryOperatorExpression expr)
+		static IEnumerable<Expression> GetConcatItems(SemanticModel context, BinaryOperatorExpression expr)
 		{
 			var leftExpr = expr.Left as BinaryOperatorExpression;
 			if (IsStringConcatenation(context, leftExpr)) {
@@ -202,7 +200,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		static bool IsStringConcatenation(RefactoringContext context, BinaryOperatorExpression expr)
+		static bool IsStringConcatenation(SemanticModel context, BinaryOperatorExpression expr)
 		{
 			if (expr == null || expr.Operator != BinaryOperatorType.Add)
 				return false;

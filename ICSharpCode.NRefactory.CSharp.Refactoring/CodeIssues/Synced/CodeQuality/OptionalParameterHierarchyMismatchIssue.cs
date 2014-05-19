@@ -40,14 +40,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                   AnalysisDisableKeyword = "OptionalParameterHierarchyMismatch")]
 	public class OptionalParameterHierarchyMismatchIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<OptionalParameterHierarchyMismatchIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base(ctx)
 			{
 			}
@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			static Expression CreateDefaultValueExpression(BaseRefactoringContext ctx, AstNode node, IType type, object constantValue)
+			static Expression CreateDefaultValueExpression(BaseSemanticModel ctx, AstNode node, IType type, object constantValue)
 			{
 				var astBuilder = ctx.CreateTypeSystemAstBuilder(node);
 				return astBuilder.ConvertConstantValue(type, constantValue); 

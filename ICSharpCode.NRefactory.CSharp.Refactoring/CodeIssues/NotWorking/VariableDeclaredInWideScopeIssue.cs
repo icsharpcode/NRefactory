@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class VariableDeclaredInWideScopeIssue : GatherVisitorCodeIssueProvider
 	{
 		#region ICodeIssueProvider implementation
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
@@ -47,9 +47,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<VariableDeclaredInWideScopeIssue>
 		{
-			readonly BaseRefactoringContext context;
+			readonly BaseSemanticModel context;
 			
-			public GatherVisitor(BaseRefactoringContext context, VariableDeclaredInWideScopeIssue qualifierDirectiveEvidentIssueProvider) : base (context, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor(BaseSemanticModel context, VariableDeclaredInWideScopeIssue qualifierDirectiveEvidentIssueProvider) : base (context, qualifierDirectiveEvidentIssueProvider)
 			{
 				this.context = context;
 			}

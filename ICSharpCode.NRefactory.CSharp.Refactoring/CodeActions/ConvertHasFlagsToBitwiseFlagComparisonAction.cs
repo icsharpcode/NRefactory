@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction ("Replace 'Enum.HasFlag' call with bitwise flag comparison", Description = "Replace 'Enum.HasFlag' call with bitwise flag comparison")]
 	public class ConvertHasFlagsToBitwiseFlagComparisonAction : SpecializedCodeAction<InvocationExpression>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, InvocationExpression node)
+		protected override CodeAction GetAction(SemanticModel context, InvocationExpression node)
 		{
 			var mRef = node.Target as MemberReferenceExpression;
 			if (mRef == null)

@@ -38,35 +38,23 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-//	[ContextAction("Use 'var' keyword",
-//	               Description = "Converts local variable declaration to be implicit typed.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Converts local variable declaration to be implicit typed.")]
 	[ExportCodeRefactoringProvider("Use 'var' keyword", LanguageNames.CSharp)]
 	public class UseVarKeywordAction : ICodeRefactoringProvider
 	{
 		internal static readonly Version minimumVersion = new Version (3, 0, 0);
 
-		static VariableDeclarationSyntax GetVariableDeclarationStatement (SyntaxNode token)
+		internal static VariableDeclarationSyntax GetVariableDeclarationStatement (SyntaxNode token)
 		{
 			return token.Parent as VariableDeclarationSyntax;
 		}
-		
-		static ForEachStatementSyntax GetForeachStatement (SyntaxNode token)
+
+		internal static ForEachStatementSyntax GetForeachStatement (SyntaxNode token)
 		{
 			return token.Parent as ForEachStatementSyntax;
 		}
 
 		#region ICodeRefactoringProvider implementation
-
-		Document PerformAction(Document document, SyntaxNode root, TypeSyntax type)
-		{
-			var newRoot = root.ReplaceNode(
-				type,
-				SyntaxFactory.IdentifierName("var")
-					.WithLeadingTrivia(type.GetLeadingTrivia())
-					.WithTrailingTrivia(type.GetTrailingTrivia())
-			);
-			return document.WithSyntaxRoot(newRoot);
-		}
 
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
@@ -75,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 //				yield break;
 
 			var token = root.FindToken(span.Start);
-			
+
 			TypeSyntax type = null;
 			var varDecl = GetVariableDeclarationStatement(token.Parent);
 			if (varDecl != null)
@@ -83,14 +71,27 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var foreachStmt = GetForeachStatement (token.Parent);
 			if (foreachStmt != null)
 				type = foreachStmt.Type;
-			
+			if (type.IsVar)
+				return Enumerable.Empty<CodeAction> ();
 			if (type != null) {
 				return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Use 'var' keyword", PerformAction (document, root, type)) };
 			}
-			return null;
+			return Enumerable.Empty<CodeAction> ();
 		}
 
 		#endregion
+
+		static Document PerformAction(Document document, SyntaxNode root, TypeSyntax type)
+		{
+			var newRoot = root.ReplaceNode(
+				type,
+				SyntaxFactory.IdentifierName("var")
+				.WithLeadingTrivia(type.GetLeadingTrivia())
+				.WithTrailingTrivia(type.GetTrailingTrivia())
+			);
+			return document.WithSyntaxRoot(newRoot);
+		}
+			
 	}
 }
 

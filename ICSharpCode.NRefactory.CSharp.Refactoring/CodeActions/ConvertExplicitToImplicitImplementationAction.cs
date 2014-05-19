@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					Description = " Convert explicit implementation of an interface method to implicit implementation")]
 	public class ConvertExplicitToImplicitImplementationAction : SpecializedCodeAction<MethodDeclaration>
 	{
-		protected override CodeAction GetAction (RefactoringContext context, MethodDeclaration node)
+		protected override CodeAction GetAction (SemanticModel context, MethodDeclaration node)
 		{
 			if (node.PrivateImplementationType.IsNull)
 				return null;

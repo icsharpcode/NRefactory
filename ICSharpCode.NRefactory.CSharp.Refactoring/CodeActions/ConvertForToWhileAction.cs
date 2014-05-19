@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Convert 'for' loop to 'while'", Description = "Works on 'for' loops.")]
 	public class ConvertForToWhileAction : SpecializedCodeAction<ForStatement>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, ForStatement node)
+		protected override CodeAction GetAction(SemanticModel context, ForStatement node)
 		{
 			if (!node.ForToken.Contains(context.Location))
 				return null;

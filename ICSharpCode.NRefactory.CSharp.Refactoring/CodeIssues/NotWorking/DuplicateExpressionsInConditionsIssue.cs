@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 //		                   AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class DuplicateExpressionsInConditionsIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		class GatherVisitor : GatherVisitorBase<DuplicateExpressionsInConditionsIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
+			public GatherVisitor (BaseSemanticModel ctx)
 				: base (ctx)
 			{
 			}

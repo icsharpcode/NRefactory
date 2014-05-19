@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		#region ICodeActionProvider implementation
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var codeAction = GetActionForVariableInitializer(context);
 			if (codeAction != null) {
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 		
-		public CodeAction GetActionForVariableInitializer(RefactoringContext context)
+		public CodeAction GetActionForVariableInitializer(SemanticModel context)
 		{
 			var variableInitializer = context.GetNode<VariableInitializer>();
 			if (variableInitializer == null)
@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 		
-		public CodeAction GetActionForAssignmentExpression(RefactoringContext context)
+		public CodeAction GetActionForAssignmentExpression(SemanticModel context)
 		{
 			var assignmentExpression = context.GetNode<AssignmentExpression>();
 			if (assignmentExpression == null)
@@ -104,11 +104,11 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class InitializerConversionVisitor : DepthFirstAstVisitor<Expression, Expression>
 		{
-			RefactoringContext context;
+			SemanticModel context;
 			IList<Statement> statements;
 			NamingHelper namingHelper;
 
-			public InitializerConversionVisitor(RefactoringContext context)
+			public InitializerConversionVisitor(SemanticModel context)
 			{
 				this.context = context;
 				namingHelper = new NamingHelper(context);

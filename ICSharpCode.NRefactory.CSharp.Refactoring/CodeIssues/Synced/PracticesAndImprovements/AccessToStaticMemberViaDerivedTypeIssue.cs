@@ -40,16 +40,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		#region ICodeIssueProvider implementation
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<AccessToStaticMemberViaDerivedTypeIssue>
 		{
-			readonly BaseRefactoringContext context;
+			readonly BaseSemanticModel context;
 
-			public GatherVisitor(BaseRefactoringContext context) : base (context)
+			public GatherVisitor(BaseSemanticModel context) : base (context)
 			{
 				this.context = context;
 			}
@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					GetAction(context, targetExpression, member)));
 			}
 
-			CodeAction GetAction(BaseRefactoringContext context, Expression targetExpression,
+			CodeAction GetAction(BaseSemanticModel context, Expression targetExpression,
 			                     IMember member)
 			{
 				var builder = context.CreateTypeSystemAstBuilder(targetExpression);

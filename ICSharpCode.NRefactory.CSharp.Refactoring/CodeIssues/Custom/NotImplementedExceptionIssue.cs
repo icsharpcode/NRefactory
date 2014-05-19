@@ -38,14 +38,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[IssueDescription("Show NotImplementedExceptions", Description="Shows NotImplementedException throws in the quick task bar.", Category = IssueCategories.Notifications, Severity = Severity.Suggestion)]
 	public class NotImplementedExceptionIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
 
 		class GatherVisitor : GatherVisitorBase<NotImplementedExceptionIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx, NotImplementedExceptionIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor (BaseSemanticModel ctx, NotImplementedExceptionIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 			}
 

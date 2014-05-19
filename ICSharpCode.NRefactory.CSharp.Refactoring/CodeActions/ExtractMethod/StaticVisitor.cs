@@ -33,16 +33,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 {
 	class StaticVisitor : DepthFirstAstVisitor
 	{
-		readonly BaseRefactoringContext context;
+		readonly BaseSemanticModel context;
 		public bool UsesNonStaticMember = false;
 
-		StaticVisitor(BaseRefactoringContext context)
+		StaticVisitor(BaseSemanticModel context)
 		{
 			this.context = context;
 		}
 		
 		
-		public static bool UsesNotStaticMember(BaseRefactoringContext context, AstNode node)
+		public static bool UsesNotStaticMember(BaseSemanticModel context, AstNode node)
 		{
 			var visitor = new StaticVisitor(context);
 			node.AcceptVisitor(visitor);

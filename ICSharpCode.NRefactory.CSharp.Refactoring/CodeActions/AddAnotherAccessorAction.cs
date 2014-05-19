@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Add another accessor", Description = "Adds second accessor to a property.")]
 	public class AddAnotherAccessorAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var pdecl = context.GetNode<PropertyDeclaration> ();
 			if (pdecl == null || !pdecl.Getter.IsNull && !pdecl.Setter.IsNull || !pdecl.NameToken.Contains(context.Location)) { 
@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, pdecl.NameToken);
 		}
 		
-		static Statement BuildAccessorStatement (RefactoringContext context, PropertyDeclaration pdecl)
+		static Statement BuildAccessorStatement (SemanticModel context, PropertyDeclaration pdecl)
 		{
 			if (pdecl.Setter.IsNull && !pdecl.Getter.IsNull) {
 				var field = RemoveBackingStoreAction.ScanGetter (context, pdecl);

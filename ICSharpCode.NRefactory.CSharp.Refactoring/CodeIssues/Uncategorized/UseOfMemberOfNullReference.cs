@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			NullValueStatus.PotentiallyNull
 		};
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			Dictionary<AstNode, NullValueAnalysis> cachedNullAnalysis = new Dictionary<AstNode, NullValueAnalysis>();
 
-			internal GatherVisitor(BaseRefactoringContext ctx): base(ctx) {}
+			internal GatherVisitor(BaseSemanticModel ctx): base(ctx) {}
 
 			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
 			{

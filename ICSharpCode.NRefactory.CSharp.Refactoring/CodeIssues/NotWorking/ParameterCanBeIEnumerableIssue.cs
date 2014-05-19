@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 		
 		#region ICodeIssueProvider implementation
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, tryResolve);
 		}
@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			bool tryResolve;
 			
-			public GatherVisitor(BaseRefactoringContext context, bool tryResolve) : base (context)
+			public GatherVisitor(BaseSemanticModel context, bool tryResolve) : base (context)
 			{
 				this.tryResolve = tryResolve;
 			}
@@ -143,10 +143,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					script => script.Replace(parameter.Type, CreateShortType(ctx, foundType, parameter))));
             }
 
-		    public static AstType CreateShortType(BaseRefactoringContext refactoringContext, IType expressionType, AstNode node)
+		    public static AstType CreateShortType(BaseSemanticModel SemanticModel, IType expressionType, AstNode node)
             {
 
-                var csResolver = refactoringContext.Resolver.GetResolverStateBefore(node);
+                var csResolver = SemanticModel.Resolver.GetResolverStateBefore(node);
                 var builder = new TypeSystemAstBuilder(csResolver);
                 return builder.ConvertType(expressionType);
             }

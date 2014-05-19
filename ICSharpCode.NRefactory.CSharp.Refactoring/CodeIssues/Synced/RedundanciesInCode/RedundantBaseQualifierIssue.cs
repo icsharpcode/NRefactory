@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "RedundantBaseQualifier")]
 	public class RedundantBaseQualifierIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			var declarationSpaceVisitor = new LocalDeclarationSpaceVisitor();
 			context.RootNode.AcceptVisitor(declarationSpaceVisitor);
@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			LocalDeclarationSpaceVisitor declarationsSpaceVisitor;
 
-			public GatherVisitor(BaseRefactoringContext ctx, LocalDeclarationSpaceVisitor visitor) : base (ctx)
+			public GatherVisitor(BaseSemanticModel ctx, LocalDeclarationSpaceVisitor visitor) : base (ctx)
 			{
 				declarationsSpaceVisitor = visitor;
 			}

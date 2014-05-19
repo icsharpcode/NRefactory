@@ -29,7 +29,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction ("Create custom event implementation", Description = "Create custom event implementation.")]
 	public class CreateCustomEventImplementationAction : SpecializedCodeAction<VariableInitializer>
 	{
-		protected override CodeAction GetAction (RefactoringContext context, VariableInitializer node)
+		protected override CodeAction GetAction (SemanticModel context, VariableInitializer node)
 		{
 			var eventDecl = node.Parent as EventDeclaration;
 			if (eventDecl == null)

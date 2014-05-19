@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "StringLastIndexOfIsCultureSpecific")]
 	public class StringLastIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new StringIndexOfIsCultureSpecificIssue.GatherVisitor<StringLastIndexOfIsCultureSpecificIssue>(context, "LastIndexOf");
 		}

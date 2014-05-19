@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
 	public class DoNotCallOverridableMethodsInConstructorIssue : CodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
+		public override IEnumerable<CodeIssue> GetIssues(BaseSemanticModel context, string subIssue)
 		{
 			var gv = new GatherVisitor(context);
 			context.RootNode.AcceptVisitor(gv);
@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			internal readonly VirtualCallFinderVisitor CallFinder;
 
-			public GatherVisitor(BaseRefactoringContext context) : base (context)
+			public GatherVisitor(BaseSemanticModel context) : base (context)
 			{
 				CallFinder = new VirtualCallFinderVisitor(context);
 			}
@@ -114,9 +114,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class VirtualCallFinderVisitor: GatherVisitorBase<DoNotCallOverridableMethodsInConstructorIssue>
 		{
-			readonly BaseRefactoringContext context;
+			readonly BaseSemanticModel context;
 			public TypeDeclaration CurrentType;
-			public VirtualCallFinderVisitor(BaseRefactoringContext context) : base(context)
+			public VirtualCallFinderVisitor(BaseSemanticModel context) : base(context)
 			{
 				this.context = context;
 			}

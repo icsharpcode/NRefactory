@@ -32,14 +32,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 {
 	class VariableLookupVisitor : DepthFirstAstVisitor
 	{
-		readonly RefactoringContext context;
+		readonly SemanticModel context;
 		
 		public List<IVariable> UsedVariables = new List<IVariable> ();
 		
 		TextLocation startLocation = TextLocation.Empty;
 		TextLocation endLocation = TextLocation.Empty;
 		
-		public VariableLookupVisitor (RefactoringContext context)
+		public VariableLookupVisitor (SemanticModel context)
 		{
 			this.context = context;
 		}
@@ -117,14 +117,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 		}
 		
 		
-		public static List<IVariable> Analyze(RefactoringContext context, Expression expression)
+		public static List<IVariable> Analyze(SemanticModel context, Expression expression)
 		{
 			var visitor = new VariableLookupVisitor(context);
 			expression.AcceptVisitor(visitor);
 			return visitor.UsedVariables;
 		}
 		
-		public static List<IVariable> Analyze(RefactoringContext context, List<AstNode> statements)
+		public static List<IVariable> Analyze(SemanticModel context, List<AstNode> statements)
 		{
 			var visitor = new VariableLookupVisitor(context);
 			statements.ForEach(stmt => stmt.AcceptVisitor(visitor));

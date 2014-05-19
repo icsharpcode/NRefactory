@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return NodeKind.Reference;
 		}
 
-		protected override IEnumerable<CodeAction> GetFixes (BaseRefactoringContext context, Node env,
+		protected override IEnumerable<CodeAction> GetFixes (BaseSemanticModel context, Node env,
 															 string variableName)
 		{
 			var containingStatement = env.ContainingStatement;

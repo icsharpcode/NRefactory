@@ -38,14 +38,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "RedundantArgumentName")]
 	public class RedundantArgumentNameIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<RedundantArgumentNameIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 

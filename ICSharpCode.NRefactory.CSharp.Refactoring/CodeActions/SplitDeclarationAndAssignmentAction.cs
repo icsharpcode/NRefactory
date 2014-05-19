@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Split local variable declaration and assignment", Description = "Splits local variable declaration and assignment.")]
 	public class SplitDeclarationAndAssignmentAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			if (context.IsSomethingSelected) {
 				yield break;
@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, selectedNode);
 		}
 		
-		static VariableInitializer GetVariableDeclarationStatement (RefactoringContext context, out AstType resolvedType, CancellationToken cancellationToken = default(CancellationToken))
+		static VariableInitializer GetVariableDeclarationStatement (SemanticModel context, out AstType resolvedType, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var result = context.GetNode<VariableInitializer> ();
 			if (result != null && !result.Initializer.IsNull && context.Location <= result.Initializer.StartLocation) {

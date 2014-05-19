@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		Description = "Convert 'if' statement to 'switch' statement")]
 	public class ConvertIfStatementToSwitchStatementAction : SpecializedCodeAction<IfElseStatement>
 	{
-		protected override CodeAction GetAction (RefactoringContext context, IfElseStatement node)
+		protected override CodeAction GetAction (SemanticModel context, IfElseStatement node)
 		{
 			if (!node.IfToken.Contains (context.Location))
 				return null;
@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 
-		internal static Expression GetSwitchExpression (BaseRefactoringContext context, Expression expr)
+		internal static Expression GetSwitchExpression (BaseSemanticModel context, Expression expr)
 		{
 			var binaryOp = expr as BinaryOperatorExpression;
 			if (binaryOp == null)
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 
-		static bool IsConstantExpression (BaseRefactoringContext context, Expression expr)
+		static bool IsConstantExpression (BaseSemanticModel context, Expression expr)
 		{
 			if (expr is PrimitiveExpression || expr is NullReferenceExpression)
 				return true;
@@ -115,7 +115,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return Array.IndexOf (validTypes, typeDefinition.KnownTypeCode) != -1;
 		}
 
-		internal static bool CollectSwitchSections (ICollection<SwitchSection> result, BaseRefactoringContext context, 
+		internal static bool CollectSwitchSections (ICollection<SwitchSection> result, BaseSemanticModel context, 
 										   IfElseStatement ifStatement, Expression switchExpr)
 		{
 			// if
@@ -147,7 +147,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return true;
 		}
 
-		static bool CollectCaseLabels (AstNodeCollection<CaseLabel> result, BaseRefactoringContext context, 
+		static bool CollectCaseLabels (AstNodeCollection<CaseLabel> result, BaseSemanticModel context, 
 									   Expression condition, Expression switchExpr)
 		{
 			if (condition is ParenthesizedExpression)
@@ -178,7 +178,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return false;
 		}
 		
-		static void CollectSwitchSectionStatements (AstNodeCollection<Statement> result, BaseRefactoringContext context, 
+		static void CollectSwitchSectionStatements (AstNodeCollection<Statement> result, BaseSemanticModel context, 
 												    Statement statement)
 		{
 			BlockStatement blockStatement = statement as BlockStatement;

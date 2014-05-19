@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Check if parameter is null", Description = "Checks function parameter is not null.")]
 	public class CheckIfParameterIsNullAction : SpecializedCodeAction<ParameterDeclaration>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, ParameterDeclaration parameter)
+		protected override CodeAction GetAction(SemanticModel context, ParameterDeclaration parameter)
 		{
 			if (!parameter.NameToken.Contains(context.Location))
 				return null;

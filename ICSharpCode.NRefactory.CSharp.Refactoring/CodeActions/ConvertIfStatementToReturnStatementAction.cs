@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new ConditionalExpression(c.Clone(), e1.Clone(), e2.Clone());
 		}
 
-		protected override CodeAction GetAction(RefactoringContext context, IfElseStatement ifElseStatement)
+		protected override CodeAction GetAction(SemanticModel context, IfElseStatement ifElseStatement)
 		{
 			if (!ifElseStatement.IfToken.Contains(context.Location))
 				return null;

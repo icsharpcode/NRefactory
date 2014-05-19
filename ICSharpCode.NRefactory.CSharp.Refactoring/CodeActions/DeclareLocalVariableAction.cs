@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Declare local variable", Description = "Declare a local variable out of a selected expression.")]
 	public class DeclareLocalVariableAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			if (!context.IsSomethingSelected) {
 				yield break;
@@ -130,7 +130,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		// Gets Action/Func delegate types for a given method.
-		IType GetDelegateType(RefactoringContext context, IMethod method, Expression expr)
+		IType GetDelegateType(SemanticModel context, IMethod method, Expression expr)
 		{
 			var parameters = new List<IType>();
 			var invoke = expr.Parent as InvocationExpression;

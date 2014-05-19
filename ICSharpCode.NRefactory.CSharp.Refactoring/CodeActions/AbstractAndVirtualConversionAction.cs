@@ -33,13 +33,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Make abstract member virtual", Description = "Implements an abstract member as a virtual one")]
 	public class AbstractAndVirtualConversionAction : CodeActionProvider
 	{
-		static BlockStatement CreateNotImplementedBody(RefactoringContext context, out ThrowStatement throwStatement)
+		static BlockStatement CreateNotImplementedBody(SemanticModel context, out ThrowStatement throwStatement)
 		{
 			throwStatement = new ThrowStatement(new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException")));
 			return new BlockStatement { throwStatement };
 		}
 
-		static ThrowStatement ImplementStub (RefactoringContext context, EntityDeclaration newNode)
+		static ThrowStatement ImplementStub (SemanticModel context, EntityDeclaration newNode)
 		{
 			ThrowStatement throwStatement = null;
 			if (newNode is PropertyDeclaration || newNode is IndexerDeclaration) {
@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return IsValidBody(node.GetChildByRole(Roles.Body));
 		}
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var node = context.GetNode<EntityDeclaration>();
 			if (node == null || node.HasModifier(Modifiers.Override))

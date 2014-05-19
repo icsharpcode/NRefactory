@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
         AnalysisDisableKeyword = "ReplaceWithSingleCallToLastOrDefault")]
 	public class ReplaceWithSingleCallToLastOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new ReplaceWithSingleCallToAnyIssue.GatherVisitor<ReplaceWithSingleCallToLastOrDefaultIssue>(context, "LastOrDefault");
 		}

@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			{ "public", Modifiers.Public }
 		};
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var node = context.GetNode<EntityDeclaration>();
 			if (node == null)
@@ -153,7 +153,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return nodeAccess & Modifiers.VisibilityMask;
 		}
 
-		CodeAction GetActionForLevel(RefactoringContext context, string accessName, Modifiers access, EntityDeclaration node, AstNode selectedNode)
+		CodeAction GetActionForLevel(SemanticModel context, string accessName, Modifiers access, EntityDeclaration node, AstNode selectedNode)
 		{
 			return new CodeAction(context.TranslateString("To " + accessName), script => {
 

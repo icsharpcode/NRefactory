@@ -37,14 +37,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class RedundantBlockInDifferentBranchesIssue : GatherVisitorCodeIssueProvider
 	{
 		
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<RedundantBlockInDifferentBranchesIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx, RedundantBlockInDifferentBranchesIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseSemanticModel ctx, RedundantBlockInDifferentBranchesIssue issueProvider) : base (ctx, issueProvider)
 			{
 			}
 			
@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					new Backreference("s"))
 			};
 
-			bool IsSafeExpression(Expression expression, BaseRefactoringContext context)
+			bool IsSafeExpression(Expression expression, BaseSemanticModel context)
 			{
 				var components = expression.DescendantsAndSelf;
 				foreach (var c in components) {

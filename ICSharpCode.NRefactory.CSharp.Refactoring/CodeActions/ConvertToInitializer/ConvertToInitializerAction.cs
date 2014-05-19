@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class ConvertToInitializerAction : CodeActionProvider
 	{
 		#region ICodeActionProvider implementation
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var initializer = context.GetNode<VariableInitializer>();
 			if (initializer != null) {
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		CodeAction HandleInitializer(RefactoringContext context, VariableInitializer initializer)
+		CodeAction HandleInitializer(SemanticModel context, VariableInitializer initializer)
 		{
 			var objectCreateExpression = initializer.Initializer as ObjectCreateExpression;
 			if (objectCreateExpression == null)
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return MakeAction(context, initializer, newInitializer, statements);
 		}
 
-		CodeAction HandleExpressionStatement(RefactoringContext context, ExpressionStatement expressionStatement)
+		CodeAction HandleExpressionStatement(SemanticModel context, ExpressionStatement expressionStatement)
 		{
 			var expression = expressionStatement.Expression as AssignmentExpression;
 			if (expression == null || expression.Operator != AssignmentOperatorType.Assign)
@@ -95,7 +95,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return statements;
 		}
 		
-		CodeAction MakeAction(RefactoringContext context, AstNode oldNode, AstNode replacementNode, IEnumerable<AstNode> toRemove)
+		CodeAction MakeAction(SemanticModel context, AstNode oldNode, AstNode replacementNode, IEnumerable<AstNode> toRemove)
 		{
 			return new CodeAction(context.TranslateString("Convert to initializer"), script => {
 				foreach (var statement in toRemove)

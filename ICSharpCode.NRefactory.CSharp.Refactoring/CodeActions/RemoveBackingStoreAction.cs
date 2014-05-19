@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Remove backing store for property", Description = "Removes the backing store of a property and creates an auto property.")]
 	public class RemoveBackingStoreAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var property = context.GetNode<PropertyDeclaration>();
 			if (property == null || !property.NameToken.Contains(context.Location))
@@ -86,7 +86,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return true;
 		}
 
-//		void ReplaceBackingFieldReferences (MDRefactoringContext context, IField backingStore, PropertyDeclaration property)
+//		void ReplaceBackingFieldReferences (MDSemanticModel context, IField backingStore, PropertyDeclaration property)
 //		{
 //			using (var monitor = IdeApp.Workbench.ProgressMonitors.GetSearchProgressMonitor (true, true)) {
 //				foreach (var memberRef in MonoDevelop.Ide.FindInFiles.ReferenceFinder.FindReferences (backingStore, monitor)) {
@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 //
 		static readonly Version csharp3 = new Version(3, 0);
 		
-		internal static IField GetBackingField (BaseRefactoringContext context, PropertyDeclaration propertyDeclaration)
+		internal static IField GetBackingField (BaseSemanticModel context, PropertyDeclaration propertyDeclaration)
 		{
 			// automatic properties always need getter & setter
 			if (propertyDeclaration == null || propertyDeclaration.Getter.IsNull || propertyDeclaration.Setter.IsNull || propertyDeclaration.Getter.Body.IsNull || propertyDeclaration.Setter.Body.IsNull)
@@ -124,7 +124,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return getterField;
 		}
 		
-		internal static IField ScanGetter (BaseRefactoringContext context, PropertyDeclaration propertyDeclaration)
+		internal static IField ScanGetter (BaseSemanticModel context, PropertyDeclaration propertyDeclaration)
 		{
 			if (propertyDeclaration.Getter.Body.Statements.Count != 1)
 				return null;
@@ -139,7 +139,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return ((MemberResolveResult)result).Member as IField;
 		}
 		
-		internal static IField ScanSetter (BaseRefactoringContext context, PropertyDeclaration propertyDeclaration)
+		internal static IField ScanSetter (BaseSemanticModel context, PropertyDeclaration propertyDeclaration)
 		{
 			if (propertyDeclaration.Setter.Body.Statements.Count != 1)
 				return null;

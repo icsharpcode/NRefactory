@@ -38,14 +38,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
     public class ConditionalTernaryEqualBranchIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
         class GatherVisitor : GatherVisitorBase<ConditionalTernaryEqualBranchIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
+			public GatherVisitor (BaseSemanticModel ctx)
 				: base (ctx)
 			{
 			}

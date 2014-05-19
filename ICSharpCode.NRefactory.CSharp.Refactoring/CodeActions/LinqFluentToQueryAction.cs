@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			"Join", "GroupJoin"
 		};
 
-		protected override CodeAction GetAction(RefactoringContext context, InvocationExpression node)
+		protected override CodeAction GetAction(SemanticModel context, InvocationExpression node)
 		{
 			if (!IsLinqMethodInvocation(node)) {
 				return null;

@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Extract field", Description = "Extracts a field from a local variable declaration.")]
 	public class ExtractWhileConditionToInternalIfStatementAction : SpecializedCodeAction<WhileStatement>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, WhileStatement node)
+		protected override CodeAction GetAction(SemanticModel context, WhileStatement node)
 		{
 			if (!node.WhileToken.Contains(context.Location))
 				return null;

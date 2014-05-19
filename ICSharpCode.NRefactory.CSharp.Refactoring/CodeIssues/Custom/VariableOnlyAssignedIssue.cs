@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public abstract class VariableOnlyAssignedIssue : GatherVisitorCodeIssueProvider
 	{
 
-		protected static bool TestOnlyAssigned(BaseRefactoringContext ctx, AstNode rootNode, IVariable variable)
+		protected static bool TestOnlyAssigned(BaseSemanticModel ctx, AstNode rootNode, IVariable variable)
 		{
 			var assignment = false;
 			var nonAssignment = false;

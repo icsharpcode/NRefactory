@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Swaps left and right arguments.", Description = "Swaps left and right arguments.")]
 	public class FlipOperatorArgumentsAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var binop = GetBinaryOperatorExpression(context);
 			if (binop == null) {
@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, binop.OperatorToken);
 		}
 		
-		public static BinaryOperatorExpression GetBinaryOperatorExpression (RefactoringContext context)
+		public static BinaryOperatorExpression GetBinaryOperatorExpression (SemanticModel context)
 		{
 			var node = context.GetNode<BinaryOperatorExpression> ();
 			

@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning)]
 	public class RedundantAssignmentIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)
@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<RedundantAssignmentIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx)
+			public GatherVisitor(BaseSemanticModel ctx)
 				: base(ctx)
 			{
 			}
@@ -337,10 +337,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			private static AstType CreateShortType(BaseRefactoringContext refactoringContext, IType expressionType, AstNode node)
+			private static AstType CreateShortType(BaseSemanticModel SemanticModel, IType expressionType, AstNode node)
 			{
 
-				var csResolver = refactoringContext.Resolver.GetResolverStateBefore(node);
+				var csResolver = SemanticModel.Resolver.GetResolverStateBefore(node);
 				var builder = new TypeSystemAstBuilder(csResolver);
 				return builder.ConvertType(expressionType);
 			}

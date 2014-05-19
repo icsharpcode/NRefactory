@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "RedundantToStringCall")]
 	public class RedundantToStringCallIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				{ Tuple.Create("System.Console.WriteLine", 1), onlyFirst }
 			};
 						
-			public GatherVisitor (BaseRefactoringContext context) : base (context)
+			public GatherVisitor (BaseSemanticModel context) : base (context)
 			{
 				binOpVisitor = new BinaryExpressionVisitor (this);
 			}

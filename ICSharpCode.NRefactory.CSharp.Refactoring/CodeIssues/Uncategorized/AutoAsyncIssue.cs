@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return node is InvocationExpression;
 		}
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			if (!context.Supports(new Version(5, 0))) {
 				//Old C# version -- async/await are not available
@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<AutoAsyncIssue>
 		{
-			internal GatherVisitor(BaseRefactoringContext ctx)
+			internal GatherVisitor(BaseSemanticModel ctx)
 			: base(ctx) {}
 
 			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
@@ -613,7 +613,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return false;
 		}
 
-		static IType GetReturnType(BaseRefactoringContext context, AstNode currentFunction)
+		static IType GetReturnType(BaseSemanticModel context, AstNode currentFunction)
 		{
 			var resolveResult = context.Resolve(currentFunction);
 			return resolveResult.IsError ? null : resolveResult.Type;

@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Create indexer", Description = "Creates an indexer declaration out of an indexer expression.")]
 	public class CreateIndexerAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var indexer = context.GetNode<IndexerExpression>();
 			if (indexer == null)

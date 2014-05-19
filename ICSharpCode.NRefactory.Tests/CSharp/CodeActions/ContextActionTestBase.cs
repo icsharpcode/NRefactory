@@ -37,6 +37,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
@@ -89,12 +90,65 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			if (idx > 0)
 				input = input.Substring(0, idx) + input.Substring(idx + 1);
 			var syntaxTree = CSharpSyntaxTree.ParseText(input);
-			 workspace = new ICSharpCode.NRefactory6.CSharp.CodeIssues.RoslynInspectionActionTestBase.TestWorkspace();
+			 workspace = new RoslynInspectionActionTestBase.TestWorkspace();
 			var projectId = ProjectId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
-			workspace.Open(ProjectInfo.Create(projectId, VersionStamp.Create(), "", "", LanguageNames.CSharp, null, null, null, null, new[] {
-				DocumentInfo.Create(documentId, "a.cs", null, SourceCodeKind.Regular, TextLoader.From(TextAndVersion.Create(SourceText.From(input), VersionStamp.Create())))
-			}));
+
+			workspace.Open(ProjectInfo.Create(
+				projectId,
+				VersionStamp.Create(),
+				"TestProject",
+				"TestProject",
+				LanguageNames.CSharp,
+				null,
+				null,
+				new CSharpCompilationOptions (
+					OutputKind.DynamicallyLinkedLibrary,
+					"",
+					"",
+					"Script",
+					null,
+					false,
+					false,
+					true,
+					null,
+					null,
+					null,
+					0,
+					0,
+					Platform.AnyCpu,
+					ReportDiagnostic.Default,
+					4,
+					null,
+					false,
+					DebugInformationKind.None,
+					SubsystemVersion.None,
+					null,
+					true,
+					null,
+					null,
+					null,
+					null
+				),
+				new CSharpParseOptions (
+					LanguageVersion.CSharp6,
+					DocumentationMode.None,
+					SourceCodeKind.Regular,
+					ImmutableArray.Create("DEBUG", "TEST")
+				),
+				new [] {
+					DocumentInfo.Create(
+						documentId,
+						"a.cs",
+						null,
+						SourceCodeKind.Regular,
+						TextLoader.From(TextAndVersion.Create(SourceText.From(input), VersionStamp.Create())) 
+					)
+				},
+				null,
+				RoslynInspectionActionTestBase.DefaultMetadataReferences
+			)
+			);
 			doc = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
 			return action.GetRefactoringsAsync(doc, TextSpan.FromBounds(idx, idx), default(CancellationToken)).Result.ToList();
 		}

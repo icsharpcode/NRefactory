@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Generate getter", Description = "Generates a getter for a field.")]
 	public class GenerateGetterAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var initializer = GetVariableInitializer(context);
 			if (initializer == null || !initializer.NameToken.Contains(context.Location)) {
@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, initializer);
 		}
 		
-		static PropertyDeclaration GeneratePropertyDeclaration (RefactoringContext context, FieldDeclaration field, VariableInitializer initializer)
+		static PropertyDeclaration GeneratePropertyDeclaration (SemanticModel context, FieldDeclaration field, VariableInitializer initializer)
 		{
 			var mod = ICSharpCode.NRefactory.CSharp.Modifiers.Public;
 			if (field.HasModifier (ICSharpCode.NRefactory.CSharp.Modifiers.Static))
@@ -92,7 +92,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				ret.Expression.IsMatch (new MemberReferenceExpression (new ThisReferenceExpression (), initializer.Name));
 		}
 		
-		VariableInitializer GetVariableInitializer (RefactoringContext context)
+		VariableInitializer GetVariableInitializer (SemanticModel context)
 		{
 			return context.GetNode<VariableInitializer> ();
 		}

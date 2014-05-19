@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Convert 'Equals' to '=='", Description = "Converts 'Equals' call to '=='")]
 	public class ConvertEqualsToEqualityOperatorAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var node = context.GetNode<InvocationExpression>();
 			if (node == null)

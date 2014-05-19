@@ -39,14 +39,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        AnalysisDisableKeyword = "ParameterHidesMember")]
     public class ParameterHidesMemberIssue : VariableHidesMemberIssue
 	{
-	    protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+	    protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ParameterHidesMemberIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor (BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 

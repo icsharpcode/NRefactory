@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor<ReplaceWithOfTypeIssue>(context, "Any");
 		}
@@ -92,7 +92,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			readonly string member;
 
-			public GatherVisitor (BaseRefactoringContext ctx, string member) : base (ctx)
+			public GatherVisitor (BaseSemanticModel ctx, string member) : base (ctx)
 			{
 				this.member = member;
 			}

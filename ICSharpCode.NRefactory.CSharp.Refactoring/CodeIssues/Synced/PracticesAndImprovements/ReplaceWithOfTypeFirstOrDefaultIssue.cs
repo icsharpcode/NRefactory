@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "ReplaceWithOfType.FirstOrDefault")]
 	public class ReplaceWithOfTypeFirstOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new ReplaceWithOfTypeAnyIssue.GatherVisitor<ReplaceWithOfTypeFirstOrDefaultIssue>(context, "FirstOrDefault");
 		}

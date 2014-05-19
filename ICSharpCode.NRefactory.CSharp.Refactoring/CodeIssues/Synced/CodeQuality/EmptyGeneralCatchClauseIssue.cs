@@ -40,14 +40,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
 	public class EmptyGeneralCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context, this);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<EmptyGeneralCatchClauseIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx, EmptyGeneralCatchClauseIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(BaseSemanticModel ctx, EmptyGeneralCatchClauseIssue issueProvider) : base (ctx, issueProvider)
 			{
 			}
 			

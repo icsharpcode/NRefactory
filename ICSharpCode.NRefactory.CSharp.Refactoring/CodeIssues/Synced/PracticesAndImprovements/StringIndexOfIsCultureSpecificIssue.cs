@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
 	public class StringIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor<StringIndexOfIsCultureSpecificIssue>(context, "IndexOf");
 		}
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			readonly string memberName;
 
-			public GatherVisitor(BaseRefactoringContext ctx, string memberName) : base(ctx)
+			public GatherVisitor(BaseSemanticModel ctx, string memberName) : base(ctx)
 			{
 				this.memberName = memberName;
 			}

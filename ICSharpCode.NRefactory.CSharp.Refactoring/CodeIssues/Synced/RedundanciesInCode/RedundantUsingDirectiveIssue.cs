@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
+		public override IEnumerable<CodeIssue> GetIssues(BaseSemanticModel context, string subIssue)
 		{
 			var visitor = new GatherVisitor(context, this);
 			context.RootNode.AcceptVisitor (visitor);
@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			List<UsingDeclarationSpecifier> declarations = new List<UsingDeclarationSpecifier>();
 			HashSet<string> usedNamespaces = new HashSet<string>();
 
-			public GatherVisitor (BaseRefactoringContext ctx, RedundantUsingDirectiveIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor (BaseSemanticModel ctx, RedundantUsingDirectiveIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
 			{
 			}
 

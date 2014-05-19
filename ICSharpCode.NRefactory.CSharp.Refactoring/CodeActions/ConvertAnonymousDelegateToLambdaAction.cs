@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		#region implemented abstract members of SpecializedCodeAction
 
-		protected override CodeAction GetAction(RefactoringContext context, AnonymousMethodExpression node)
+		protected override CodeAction GetAction(SemanticModel context, AnonymousMethodExpression node)
 		{
 			if (context.Location < node.DelegateToken.StartLocation || context.Location >= node.Body.StartLocation)
 				return null;

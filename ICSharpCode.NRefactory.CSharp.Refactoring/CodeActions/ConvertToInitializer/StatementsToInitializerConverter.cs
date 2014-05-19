@@ -40,9 +40,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		IDictionary<AccessPath, Expression> accessPaths = new Dictionary<AccessPath, Expression>();
 		IList<Comment> comments = new List<Comment>();
 		AccessPath mainAccessPath;
-		RefactoringContext context;
+		SemanticModel context;
 
-		public StatementsToInitializerConverter(RefactoringContext context)
+		public StatementsToInitializerConverter(SemanticModel context)
 		{
 			this.context = context;
 		}

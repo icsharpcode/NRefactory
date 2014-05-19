@@ -52,12 +52,39 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	}
 }", result);
 		}
-		
+
+		[Test]
+		public void AlreadyAVar ()
+		{
+			TestWrongContext(new UseVarKeywordAction (),
+				@"class TestClass
+{
+	void Test ()
+	{
+		$var aVar = this;
+	}
+}");
+		}
+
+		[Test]
+		public void AlreadyAVarInForeach ()
+		{
+			TestWrongContext(new UseVarKeywordAction (),
+				@"class TestClass
+{
+	void Test ()
+	{
+		foreach ($var aVar in this) {
+		}
+	}
+}");
+		}
+
 		[Test]
 		public void ForeachDeclaration ()
 		{
 			string result = RunContextAction (new UseVarKeywordAction (),
-@"class TestClass
+				@"class TestClass
 {
 	void Test ()
 	{

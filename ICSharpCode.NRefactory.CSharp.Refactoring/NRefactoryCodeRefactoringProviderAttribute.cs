@@ -1,10 +1,10 @@
-﻿// 
-// ReplaceWithSingleCallToFirst.cs
-//
-// Author:
-//       Mike Krüger <mkrueger@xamarin.com>
 // 
-// Copyright (c) 2013 Xamarin <http://xamarin.com>
+// UseVarKeyword.cs
+//  
+// Author:
+//       Mike Krüger <mkrueger@novell.com>
+// 
+// Copyright (c) 2011 Mike Krüger <mkrueger@novell.com>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,21 +23,30 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.Refactoring;
+using System;
+using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription("Replace with single call to First(...)",
-        Description = "Replace with single call to First(...)",
-        Category = IssueCategories.PracticesAndImprovements,
-        Severity = Severity.Suggestion,
-        AnalysisDisableKeyword = "ReplaceWithSingleCallToFirst")]
-	public class ReplaceWithSingleCallToFirstIssue : GatherVisitorCodeIssueProvider
+	//	[ContextAction("Use 'var' keyword",
+	//	               Description = "Converts local variable declaration to be implicit typed.")]
+	public class NRefactoryCodeRefactoringProviderAttribute : Attribute
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			return new ReplaceWithSingleCallToAnyIssue.GatherVisitor<ReplaceWithSingleCallToFirstIssue>(context, "First");
+		public string Description {
+			get;
+			set;
 		}
 	}
+
 }
+

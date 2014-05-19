@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		readonly InsertParenthesesVisitor _insertParenthesesVisitor = new InsertParenthesesVisitor();
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			// if (condition) {CodeBlock();}else { return|break|continue;} 
 			// will be reduced to:
@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			SimplifyIfFlowAction.InsertBody(script, ifStatement);
 		}
 
-		static IfElseStatement GetIfElseStatement(RefactoringContext context)
+		static IfElseStatement GetIfElseStatement(SemanticModel context)
 		{
 			var result = context.GetNode<IfElseStatement>();
 			if (result == null || !result.IfToken.Contains(context.Location))

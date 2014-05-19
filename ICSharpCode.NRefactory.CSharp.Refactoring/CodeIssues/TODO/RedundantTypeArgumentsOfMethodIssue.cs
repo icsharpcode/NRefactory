@@ -35,14 +35,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 //		AnalysisDisableKeyword = "RedundantTypeArgumentsOfMethod" )]
 	public class RedundantTypeArgumentsOfMethodIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantTypeArgumentsOfMethodIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor (BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 		}

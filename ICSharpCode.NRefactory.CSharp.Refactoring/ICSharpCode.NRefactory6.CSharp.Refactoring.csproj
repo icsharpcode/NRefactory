@@ -107,6 +107,8 @@
     <Compile Include="CodeIssues\NRefactoryDiagnosticDescriptor.cs" />
     <Compile Include="CodeIssues\DiagnosticFactory.cs" />
     <Compile Include="CodeActions\UseVarKeywordAction.cs" />
+    <Compile Include="NRefactoryCodeRefactoringProviderAttribute.cs" />
+    <Compile Include="CodeActions\UseExplicitTypeAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -119,4 +121,10 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <ProjectReference Include="..\ICSharpCode.NRefactory.CSharp\ICSharpCode.NRefactory6.CSharp.csproj">
+      <Project>{7E891659-45F3-42B5-B940-A728780CCAE9}</Project>
+      <Name>ICSharpCode.NRefactory6.CSharp</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

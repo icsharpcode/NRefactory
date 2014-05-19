@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Title = title;
 		}
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			var unit = context.RootNode as SyntaxTree;
 			if (unit == null)
@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				   modifications.ContainsKey (node.NextStatement);
 		}
 
-		protected abstract IEnumerable<CodeAction> GetFixes (BaseRefactoringContext context, Node env, 
+		protected abstract IEnumerable<CodeAction> GetFixes (BaseSemanticModel context, Node env, 
 															 string variableName);
 
 		#region GatherVisitor
@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			readonly ControlFlowGraphBuilder cfgBuilder = new ControlFlowGraphBuilder ();
 			string title;
 
-			public GatherVisitor (BaseRefactoringContext context, SyntaxTree unit,
+			public GatherVisitor (BaseSemanticModel context, SyntaxTree unit,
 								  AccessToClosureIssue qualifierDirectiveEvidentIssueProvider)
 				: base (context, qualifierDirectiveEvidentIssueProvider)
 			{

@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 	public interface IGatherVisitor
 	{
-		BaseRefactoringContext Ctx { get; }
+		BaseSemanticModel Ctx { get; }
 		string SubIssue { get; set; }
 		IEnumerable<CodeIssue> GetIssues();
 	}
@@ -53,9 +53,9 @@ namespace ICSharpCode.NRefactory.CSharp
 	/// </summary>
 	public abstract class GatherVisitorCodeIssueProvider : CodeIssueProvider
 	{
-		protected abstract IGatherVisitor CreateVisitor (BaseRefactoringContext context);
+		protected abstract IGatherVisitor CreateVisitor (BaseSemanticModel context);
 
-		public sealed override IEnumerable<CodeIssue> GetIssues (BaseRefactoringContext context, string subIssue = null)
+		public sealed override IEnumerable<CodeIssue> GetIssues (BaseSemanticModel context, string subIssue = null)
 		{
 			var visitor = CreateVisitor(context);
 			if (visitor == null)
@@ -74,9 +74,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// The issue provider. May be <c>null</c> if none was specified.
 		/// </summary>
 		protected readonly T issueProvider;
-		protected readonly BaseRefactoringContext ctx;
+		protected readonly BaseSemanticModel ctx;
 
-		public BaseRefactoringContext Ctx {
+		public BaseSemanticModel Ctx {
 			get {
 				return ctx;
 			}
@@ -133,7 +133,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		/// <param name='qualifierDirectiveEvidentIssueProvider'>
 		/// The issue provider.
 		/// </param>
-		public GatherVisitorBase(BaseRefactoringContext ctx, T qualifierDirectiveEvidentIssueProvider = default(T))
+		public GatherVisitorBase(BaseSemanticModel ctx, T qualifierDirectiveEvidentIssueProvider = default(T))
 		{
 			this.ctx = ctx;
 			this.issueProvider = qualifierDirectiveEvidentIssueProvider;

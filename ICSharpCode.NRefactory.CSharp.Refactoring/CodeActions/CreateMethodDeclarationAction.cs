@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Create method", Description = "Creates a method declaration out of an invocation.")]
 	public class CreateMethodDeclarationAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var identifier = context.GetNode<IdentifierExpression>();
 			if (identifier != null && !(identifier.Parent is InvocationExpression && ((InvocationExpression)identifier.Parent).Target == identifier))
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return Enumerable.Empty<CodeAction>();
 		}
 
-		IEnumerable<CodeAction> GetActionsFromMemberReferenceExpression(RefactoringContext context, MemberReferenceExpression invocation)
+		IEnumerable<CodeAction> GetActionsFromMemberReferenceExpression(SemanticModel context, MemberReferenceExpression invocation)
 		{
 			if (!(context.Resolve(invocation).IsError)) 
 					yield break;
@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				targetResolveResult);
 		}
 		
-		IEnumerable<CodeAction> GetActionsFromIdentifier(RefactoringContext context, IdentifierExpression identifier)
+		IEnumerable<CodeAction> GetActionsFromIdentifier(SemanticModel context, IdentifierExpression identifier)
 		{
 			if (!(context.Resolve(identifier).IsError))
 				yield break;
@@ -131,7 +131,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				null);
 		}
 
-		IEnumerable<CodeAction> GetActionsFromInvocation(RefactoringContext context, InvocationExpression invocation)
+		IEnumerable<CodeAction> GetActionsFromInvocation(SemanticModel context, InvocationExpression invocation)
 		{
 			if (!(context.Resolve(invocation.Target).IsError)) 
 				yield break;
@@ -190,7 +190,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return ParameterModifier.None;
 		}
 
-		static CodeAction CreateAction(RefactoringContext context, AstNode createFromNode, string methodName, AstType returnType, IEnumerable<ParameterDeclaration> parameters, bool createInOtherType, bool isStatic, ResolveResult targetResolveResult)
+		static CodeAction CreateAction(SemanticModel context, AstNode createFromNode, string methodName, AstType returnType, IEnumerable<ParameterDeclaration> parameters, bool createInOtherType, bool isStatic, ResolveResult targetResolveResult)
 		{
 			return new CodeAction(context.TranslateString("Create method"), script => {
 				var throwStatement = new ThrowStatement();
@@ -231,7 +231,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, createFromNode.GetNodeAt(context.Location) ?? createFromNode)  { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 
-		public static IEnumerable<ParameterDeclaration> GenerateParameters(RefactoringContext context, IEnumerable<Expression> arguments)
+		public static IEnumerable<ParameterDeclaration> GenerateParameters(SemanticModel context, IEnumerable<Expression> arguments)
 		{
 			var nameCounter = new Dictionary<string, int>();
 			foreach (var argument in arguments) {

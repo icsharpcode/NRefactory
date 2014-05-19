@@ -29,7 +29,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction ("Join string literal", Description = "Join string literals.")]
 	public class JoinStringAction : SpecializedCodeAction<BinaryOperatorExpression>
 	{
-		protected override CodeAction GetAction (RefactoringContext context, BinaryOperatorExpression node)
+		protected override CodeAction GetAction (SemanticModel context, BinaryOperatorExpression node)
 		{
 			if (node.Operator != BinaryOperatorType.Add)
 				return null;

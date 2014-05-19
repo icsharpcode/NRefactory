@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new AssignmentExpression(node.Left.Clone(), op, SplitIfAction.GetRightSide((BinaryOperatorExpression)outerLeft.Parent));
 		}
 
-		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
+		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
 		{
 			if (!node.OperatorToken.Contains(context.Location))
 				return null;

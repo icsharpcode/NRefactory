@@ -38,14 +38,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		AnalysisDisableKeyword = "NonReadonlyReferencedInGetHashCode")]
 	public class NonReadonlyReferencedInGetHashCodeIssue : GatherVisitorCodeIssueProvider
 	{	
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<NonReadonlyReferencedInGetHashCodeIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx) : base(ctx)
+			public GatherVisitor(BaseSemanticModel ctx) : base(ctx)
 			{
 			}
 

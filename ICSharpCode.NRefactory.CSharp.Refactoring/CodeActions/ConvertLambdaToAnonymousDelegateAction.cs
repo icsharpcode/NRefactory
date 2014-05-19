@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class ConvertLambdaToAnonymousDelegateAction : SpecializedCodeAction<LambdaExpression>
 	{
 		#region implemented abstract members of SpecializedCodeAction
-		protected override CodeAction GetAction(RefactoringContext context, LambdaExpression node)
+		protected override CodeAction GetAction(SemanticModel context, LambdaExpression node)
 		{
 			if (context.Location < node.StartLocation || context.Location >= node.Body.StartLocation)
 				return null;
@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 		#endregion
 
-		IEnumerable<ParameterDeclaration> GetParameters(IList<IParameter> parameters, RefactoringContext context)
+		IEnumerable<ParameterDeclaration> GetParameters(IList<IParameter> parameters, SemanticModel context)
 		{
 			if (parameters == null || parameters.Count == 0)
 				return null;
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return result;
 		}
 
-		static bool RequireReturnStatement (RefactoringContext context, LambdaExpression lambda)
+		static bool RequireReturnStatement (SemanticModel context, LambdaExpression lambda)
 		{
 			var type = LambdaHelper.GetLambdaReturnType (context, lambda);
 			return type != null && type.ReflectionName != "System.Void";

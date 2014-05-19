@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		readonly InsertParenthesesVisitor _insertParenthesesVisitor = new InsertParenthesesVisitor();
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var ifStatement = GetIfElseStatement(context);
 			if (ifStatement == null)
@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			InsertBody(script, ifStatement);
 		}
 		
-		static IfElseStatement GetIfElseStatement(RefactoringContext context)
+		static IfElseStatement GetIfElseStatement(SemanticModel context)
 		{
 			var result = context.GetNode<IfElseStatement>();
 			if (result == null)

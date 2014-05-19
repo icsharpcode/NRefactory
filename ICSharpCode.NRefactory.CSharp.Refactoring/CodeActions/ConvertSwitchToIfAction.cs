@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	{
 		static readonly InsertParenthesesVisitor insertParenthesesVisitor = new InsertParenthesesVisitor ();
 
-		protected override CodeAction GetAction (RefactoringContext context, SwitchStatement node)
+		protected override CodeAction GetAction (SemanticModel context, SwitchStatement node)
 		{
 			if (!node.SwitchToken.Contains (context.Location))
 				return null;

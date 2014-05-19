@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	               Description = "Convert '<<'/'>>' to '*'/'/'")]
 	public class ConvertShiftToMultiplyAction : SpecializedCodeAction <BinaryOperatorExpression>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, BinaryOperatorExpression node)
+		protected override CodeAction GetAction(SemanticModel context, BinaryOperatorExpression node)
 		{
 			if (!node.OperatorToken.Contains(context.Location))
 				return null;

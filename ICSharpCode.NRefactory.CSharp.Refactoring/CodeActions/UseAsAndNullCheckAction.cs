@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				stmt.Role == IfElseStatement.FalseRole;
 		}
 
-		static CodeAction HandleNegatedCase(BaseRefactoringContext ctx, IfElseStatement ifElseStatement, Match match, out IsExpression isExpression, out int foundCastCount)
+		static CodeAction HandleNegatedCase(BaseSemanticModel ctx, IfElseStatement ifElseStatement, Match match, out IsExpression isExpression, out int foundCastCount)
 		{
 			foundCastCount = 0;
 			var outerIs          = match.Get<Expression>("isExpression").Single();
@@ -113,7 +113,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		}
 
-		internal static CodeAction ScanIfElse (BaseRefactoringContext ctx, IfElseStatement ifElseStatement, out IsExpression isExpression, out int foundCastCount)
+		internal static CodeAction ScanIfElse (BaseSemanticModel ctx, IfElseStatement ifElseStatement, out IsExpression isExpression, out int foundCastCount)
 		{
 			foundCastCount = 0;
 			var match = pattern.Match(ifElseStatement);
@@ -177,7 +177,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		}
 
-		static List<AstNode> SearchCasts(RefactoringContext ctx, Statement embeddedStatement, Expression obj, AstType type, out ResolveResult rr)
+		static List<AstNode> SearchCasts(SemanticModel ctx, Statement embeddedStatement, Expression obj, AstType type, out ResolveResult rr)
 		{
 			var cast = new Choice {
 				PatternHelper.OptionalParentheses(PatternHelper.OptionalParentheses(obj.Clone()).CastTo(type.Clone())),
@@ -190,7 +190,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return embeddedStatement.DescendantNodesAndSelf(n => !cast.IsMatch(n)).Where(n => cast.IsMatch(n)).ToList();
 		}
 
-		protected override CodeAction GetAction(RefactoringContext ctx, IfElseStatement ifElseStatement)
+		protected override CodeAction GetAction(SemanticModel ctx, IfElseStatement ifElseStatement)
 		{
 			var isExpr = ctx.GetNode<IsExpression>();
 			if (isExpr == null || !isExpr.IsToken.Contains(ctx.Location))

@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Insert anonymous method signature", Description = "Inserts a signature to parameterless anonymous methods.")]
 	public class InsertAnonymousMethodSignatureAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			IType type;
 			var anonymousMethodExpression = GetAnonymousMethodExpression(context, out type);
@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, anonymousMethodExpression);
 		}
 		
-		static AnonymousMethodExpression GetAnonymousMethodExpression (RefactoringContext context, out IType delegateType)
+		static AnonymousMethodExpression GetAnonymousMethodExpression (SemanticModel context, out IType delegateType)
 		{
 			delegateType = null;
 			

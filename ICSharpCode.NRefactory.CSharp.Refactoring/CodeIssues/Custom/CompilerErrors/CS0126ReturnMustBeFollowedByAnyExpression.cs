@@ -39,12 +39,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Error)]
 	public class CS0126ReturnMustBeFollowedByAnyExpression : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
-		internal static IType GetRequestedReturnType (BaseRefactoringContext ctx, AstNode returnStatement, out AstNode entityNode)
+		internal static IType GetRequestedReturnType (BaseSemanticModel ctx, AstNode returnStatement, out AstNode entityNode)
 		{
 			entityNode = returnStatement.GetParent(p => p is LambdaExpression || p is AnonymousMethodExpression || !(p is Accessor) && p is EntityDeclaration);
 			if (entityNode == null)
@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			string currentMethodName;
 
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor (BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 
@@ -114,7 +114,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				skip = old;
 			}
 
-			static bool AnonymousMethodMayReturnVoid(BaseRefactoringContext ctx, Expression anonymousMethodExpression)
+			static bool AnonymousMethodMayReturnVoid(BaseSemanticModel ctx, Expression anonymousMethodExpression)
 			{
 				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
 					if (type.Kind != TypeKind.Delegate)

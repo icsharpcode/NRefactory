@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[SubIssueAttribute(CommonSubIssues.NonPrivateMember, false)]
 	public class MemberCanBeMadeStaticIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 
-			public GatherVisitor(BaseRefactoringContext context)
+			public GatherVisitor(BaseSemanticModel context)
 				: base(context)
 			{
 			}
@@ -181,7 +181,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 
 
-			static void DoStaticMethodGlobalOperation(AstNode fnode, RefactoringContext fctx, MemberResolveResult rr,
+			static void DoStaticMethodGlobalOperation(AstNode fnode, SemanticModel fctx, MemberResolveResult rr,
 			                                                           Script fscript)
 			{
 				if (fnode is MemberReferenceExpression) {

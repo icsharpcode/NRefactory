@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	               Description = "Convert assignment to 'if'")]
 	public class ConvertAssignmentToIfAction : SpecializedCodeAction<AssignmentExpression>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, AssignmentExpression node)
+		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
 		{
 			if (!node.OperatorToken.Contains(context.Location) || !(node.Parent is ExpressionStatement))
 				return null;
@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return null;
 		}
 
-		static CodeAction CreateForConditionalExpression(RefactoringContext ctx, AssignmentExpression node, ConditionalExpression conditionalExpression)
+		static CodeAction CreateForConditionalExpression(SemanticModel ctx, AssignmentExpression node, ConditionalExpression conditionalExpression)
 		{
 			return new CodeAction (
 				ctx.TranslateString("Replace with 'if' statement"),
@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 
-		static CodeAction CreateForNullCoalesingExpression(RefactoringContext ctx, AssignmentExpression node, BinaryOperatorExpression bOp)
+		static CodeAction CreateForNullCoalesingExpression(SemanticModel ctx, AssignmentExpression node, BinaryOperatorExpression bOp)
 		{
 			return new CodeAction (
 				ctx.TranslateString("Replace with 'if' statement"),

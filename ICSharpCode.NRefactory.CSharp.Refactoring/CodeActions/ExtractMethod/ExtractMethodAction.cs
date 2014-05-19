@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 	[ContextAction("Extract method", Description = "Creates a new method out of selected text.")]
 	public class ExtractMethodAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			if (!context.IsSomethingSelected)
 				yield break;
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 				yield return action;
 		}
 		
-		CodeAction CreateFromExpression(RefactoringContext context, Expression expression)
+		CodeAction CreateFromExpression(SemanticModel context, Expression expression)
 		{
 			var resolveResult = context.Resolve(expression);
 			if (resolveResult.IsError)
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 			}, expression);
 		}
 		
-		CodeAction CreateFromStatements(RefactoringContext context, List<AstNode> statements)
+		CodeAction CreateFromStatements(SemanticModel context, List<AstNode> statements)
 		{
 			if (!(statements [0].Parent is Statement))
 				return null;

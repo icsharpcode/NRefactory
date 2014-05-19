@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		#region ICodeIssueProvider implementation
 
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			var delegateVisitor = new GetDelgateUsagesVisitor(context);
 			context.RootNode.AcceptVisitor(delegateVisitor);
@@ -58,10 +58,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		// Collect all methods that are used as delegate
 		class GetDelgateUsagesVisitor : DepthFirstAstVisitor
 		{
-			BaseRefactoringContext ctx;
+			BaseSemanticModel ctx;
 			public readonly List<IMethod> UsedMethods = new List<IMethod>();
 
-			public GetDelgateUsagesVisitor(BaseRefactoringContext ctx)
+			public GetDelgateUsagesVisitor(BaseSemanticModel ctx)
 			{
 				this.ctx = ctx;
 			}
@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			GetDelgateUsagesVisitor usedDelegates;
 			bool currentTypeIsPartial;
 
-			public GatherVisitor(BaseRefactoringContext ctx, GetDelgateUsagesVisitor usedDelegates)
+			public GatherVisitor(BaseSemanticModel ctx, GetDelgateUsagesVisitor usedDelegates)
 				: base(ctx)
 			{
 				this.usedDelegates = usedDelegates;

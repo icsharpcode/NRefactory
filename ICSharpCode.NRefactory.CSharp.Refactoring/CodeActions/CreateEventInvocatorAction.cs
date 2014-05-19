@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			set;
 		}
 
-		public static MethodDeclaration CreateEventInvocator (RefactoringContext context, TypeDeclaration declaringType, EventDeclaration eventDeclaration, VariableInitializer initializer, IMethod invokeMethod, bool useExplictType)
+		public static MethodDeclaration CreateEventInvocator (SemanticModel context, TypeDeclaration declaringType, EventDeclaration eventDeclaration, VariableInitializer initializer, IMethod invokeMethod, bool useExplictType)
 		{
 			bool hasSenderParam = false;
 			IEnumerable<IParameter> pars = invokeMethod.Parameters;
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return "On" + char.ToUpper(initializer.Name[0]) + initializer.Name.Substring(1);
 		}
 
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			VariableInitializer initializer;
 			var eventDeclaration = GetEventDeclaration(context, out initializer);
@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, initializer);
 		}
 
-		static EventDeclaration GetEventDeclaration (RefactoringContext context, out VariableInitializer initializer)
+		static EventDeclaration GetEventDeclaration (SemanticModel context, out VariableInitializer initializer)
 		{
 			var result = context.GetNode<EventDeclaration> ();
 			if (result == null) {

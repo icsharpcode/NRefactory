@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	               Description = "Converts a LINQ query to the equivalent fluent syntax.")]
 	public class LinqQueryToFluentAction : SpecializedCodeAction<QueryExpression>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, QueryExpression node)
+		protected override CodeAction GetAction(SemanticModel context, QueryExpression node)
 		{
 			AstNode currentNode = node;
 			for (;;) {
@@ -61,13 +61,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			                      node);
 		}
 
-		static void ConvertQueryToFluent(RefactoringContext context, Script script, QueryExpression query) {
+		static void ConvertQueryToFluent(SemanticModel context, Script script, QueryExpression query) {
 			IEnumerable<string> underscoreIdentifiers = GetNameProposals (context, query, "_");
 			Expression newExpression = GetFluentFromQuery(query, underscoreIdentifiers);
 			script.Replace (query, newExpression);
 		}
 
-		static IEnumerable<string> GetNameProposals(RefactoringContext context, QueryExpression query, string baseName)
+		static IEnumerable<string> GetNameProposals(SemanticModel context, QueryExpression query, string baseName)
 		{
 			var resolver = context.GetResolverStateBefore(query);
 			int current = -1;

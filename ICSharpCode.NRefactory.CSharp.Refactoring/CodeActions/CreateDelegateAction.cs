@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Create delegate", Description = "Creates a delegate declaration out of an event declaration.")]
 	public class CreateDelegateAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var simpleType = context.GetNode<SimpleType>();
 			if (simpleType != null && (simpleType.Parent is EventDeclaration || simpleType.Parent is CustomEventDeclaration)) 
@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return Enumerable.Empty<CodeAction>();
 		}
 
-		static IEnumerable<CodeAction> GetActions(RefactoringContext context, SimpleType node)
+		static IEnumerable<CodeAction> GetActions(SemanticModel context, SimpleType node)
 		{
 			var resolveResult = context.Resolve(node) as UnknownIdentifierResolveResult;
 			if (resolveResult == null)
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		}
 
-		static DelegateDeclaration CreateType(RefactoringContext context, SimpleType simpleType)
+		static DelegateDeclaration CreateType(SemanticModel context, SimpleType simpleType)
 		{
 			var result = new DelegateDeclaration() {
 				Name = simpleType.Identifier,

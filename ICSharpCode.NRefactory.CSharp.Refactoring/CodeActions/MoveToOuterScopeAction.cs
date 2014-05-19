@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class MoveToOuterScopeAction : CodeActionProvider
 	{
 		#region ICodeActionProvider implementation
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var variableDeclaration = context.GetNode<VariableDeclarationStatement>();
 			if (variableDeclaration == null)
@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		static CodeAction MoveInitializerAction(RefactoringContext context, AstNode insertAnchor,
+		static CodeAction MoveInitializerAction(SemanticModel context, AstNode insertAnchor,
 		                                        VariableDeclarationStatement declaration, VariableInitializer initializer)
 		{
 			var type = declaration.Type.Clone();
@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, initializer.NameToken);
 		}
 
-		static CodeAction MoveDeclarationAction(RefactoringContext context, AstNode insertAnchor,
+		static CodeAction MoveDeclarationAction(SemanticModel context, AstNode insertAnchor,
 		                                        VariableDeclarationStatement declarationStatement, VariableInitializer initializer)
 		{
 			var type = declarationStatement.Type.Clone();
@@ -95,7 +95,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, initializer.NameToken);
 		}
 
-		bool HasDependency(RefactoringContext context, AstNode firstSearchNode, AstNode targetNode)
+		bool HasDependency(SemanticModel context, AstNode firstSearchNode, AstNode targetNode)
 		{
 			var referenceFinder = new FindReferences();
 			var identifiers = targetNode.Descendants

@@ -19,10 +19,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <param name='node'>
 		/// The AstNode it's ensured that the node is always != null, if called.
 		/// </param>
-		protected abstract CodeAction GetAction(RefactoringContext context, T node);
+		protected abstract CodeAction GetAction(SemanticModel context, T node);
 
 		#region ICodeActionProvider implementation
-		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var node = context.GetNode<T>();
 			if (node == null)

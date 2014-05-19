@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class ConvertCastToAsAction : SpecializedCodeAction<CastExpression>
 	{
 		static InsertParenthesesVisitor insertParentheses = new InsertParenthesesVisitor ();
-		protected override CodeAction GetAction (RefactoringContext context, CastExpression node)
+		protected override CodeAction GetAction (SemanticModel context, CastExpression node)
 		{
 			if (node.Expression.Contains (context.Location))
 				return null;

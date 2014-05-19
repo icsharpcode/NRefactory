@@ -42,14 +42,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                        AnalysisDisableKeyword = "CSharpWarnings::CS1717")]
     public class CS1717AssignmentMadeToSameVariableIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<CS1717AssignmentMadeToSameVariableIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext ctx)
+			public GatherVisitor (BaseSemanticModel ctx)
 				: base (ctx)
 			{
 			}

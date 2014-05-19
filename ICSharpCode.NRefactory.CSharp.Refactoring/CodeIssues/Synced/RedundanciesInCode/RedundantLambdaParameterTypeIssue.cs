@@ -43,14 +43,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "RedundantLambdaParameterType")]
 	public class RedundantLambdaParameterTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<RedundantLambdaParameterTypeIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor(BaseSemanticModel ctx) : base (ctx)
 			{
 			}
 			
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		public static bool LambdaTypeCanBeInferred(BaseRefactoringContext ctx, Expression expression, List<ParameterDeclaration> parameters)
+		public static bool LambdaTypeCanBeInferred(BaseSemanticModel ctx, Expression expression, List<ParameterDeclaration> parameters)
 		{
 			var validTypes = TypeGuessing.GetValidTypes(ctx.Resolver, expression).ToList();
 			foreach (var type in validTypes) {

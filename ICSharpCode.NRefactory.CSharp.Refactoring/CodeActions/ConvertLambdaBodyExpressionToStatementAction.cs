@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class ConvertLambdaBodyExpressionToStatementAction : SpecializedCodeAction<LambdaExpression>
 	{
 
-		protected override CodeAction GetAction (RefactoringContext context, LambdaExpression node)
+		protected override CodeAction GetAction (SemanticModel context, LambdaExpression node)
 		{
 			if (!node.ArrowToken.Contains (context.Location))
 				return null;
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 		}
 
-		static bool RequireReturnStatement (RefactoringContext context, LambdaExpression lambda)
+		static bool RequireReturnStatement (SemanticModel context, LambdaExpression lambda)
 		{
 			var type = LambdaHelper.GetLambdaReturnType (context, lambda);
 			return type != null && type.ReflectionName != "System.Void";

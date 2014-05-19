@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Introduce constant", Description = "Creates a constant for a non constant primitive expression.")]
 	public class IntroduceConstantAction : CodeActionProvider
 	{
-		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
+		public override IEnumerable<CodeAction> GetActions(SemanticModel context)
 		{
 			var pexpr = context.GetNode<PrimitiveExpression>();
 			if (pexpr == null)

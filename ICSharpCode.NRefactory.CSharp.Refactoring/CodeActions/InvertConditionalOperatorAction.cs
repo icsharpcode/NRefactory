@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction("Invert conditional operator", Description = "Inverts an '?:' expression.")]
 	public class InvertConditionalOperatorAction : SpecializedCodeAction<ConditionalExpression>
 	{
-		protected override CodeAction GetAction(RefactoringContext context, ConditionalExpression conditionalExpr)
+		protected override CodeAction GetAction(SemanticModel context, ConditionalExpression conditionalExpr)
 		{
 			if (context.Location != conditionalExpr.Condition.StartLocation && context.Location < conditionalExpr.Condition.EndLocation ||
 			    context.Location != conditionalExpr.TrueExpression.StartLocation && conditionalExpr.TrueExpression.Contains(context.Location) ||

@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	public class PutInsideUsingAction : SpecializedCodeAction <VariableInitializer>
 	{
 		static readonly FindReferences refFinder = new FindReferences ();
-		protected override CodeAction GetAction (RefactoringContext context, VariableInitializer node)
+		protected override CodeAction GetAction (SemanticModel context, VariableInitializer node)
 		{
 			if (node.Initializer.IsNull)
 				return null;
@@ -138,7 +138,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 
-		static AstNode GetLastReference (IVariable variable, RefactoringContext context, SyntaxTree unit)
+		static AstNode GetLastReference (IVariable variable, SemanticModel context, SyntaxTree unit)
 		{
 			AstNode lastReference = null;
 			refFinder.FindLocalReferences (variable, context.UnresolvedFile, unit, context.Compilation,

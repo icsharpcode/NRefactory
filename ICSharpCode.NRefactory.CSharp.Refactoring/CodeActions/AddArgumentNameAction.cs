@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return returned;
 		}
 
-		protected override CodeAction GetAction(RefactoringContext context, Expression expression)
+		protected override CodeAction GetAction(SemanticModel context, Expression expression)
 		{	
 			if (expression == null)
 				return null;

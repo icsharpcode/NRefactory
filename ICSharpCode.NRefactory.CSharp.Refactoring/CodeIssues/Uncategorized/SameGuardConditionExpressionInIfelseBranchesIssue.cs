@@ -36,18 +36,18 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning)]
 	public class SameGuardConditionExpressionInIfelseBranchesIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 		
 		class GatherVisitor : GatherVisitorBase<SameGuardConditionExpressionInIfelseBranchesIssue>
 		{
-			public GatherVisitor(BaseRefactoringContext context) : base (context)
+			public GatherVisitor(BaseSemanticModel context) : base (context)
 			{
 			}
 
-			bool IsSafeExpression(Expression expression, BaseRefactoringContext context)
+			bool IsSafeExpression(Expression expression, BaseSemanticModel context)
 			{
 				var components = expression.DescendantsAndSelf;
 				foreach (var c in components) {

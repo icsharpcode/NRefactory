@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return comparedNode;
 		}
 
-		protected override CodeAction GetAction (RefactoringContext context, IfElseStatement node)
+		protected override CodeAction GetAction (SemanticModel context, IfElseStatement node)
 		{
 			if (!node.IfToken.Contains(context.Location))
 				return null;

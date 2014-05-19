@@ -42,14 +42,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Severity = Severity.Warning)]
 	public class LockThisIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
+		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
 		{
 			return new GatherVisitor(context);
 		}
 
 		class GatherVisitor : GatherVisitorBase<LockThisIssue>
 		{
-			public GatherVisitor (BaseRefactoringContext context) : base (context)
+			public GatherVisitor (BaseSemanticModel context) : base (context)
 			{
 			}
 

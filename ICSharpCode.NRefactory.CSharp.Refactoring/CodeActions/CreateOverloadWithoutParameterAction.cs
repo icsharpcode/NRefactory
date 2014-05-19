@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ContextAction ("Create overload without parameter", Description = "Create overload without the selected parameter.")]
 	public class CreateOverloadWithoutParameterAction : SpecializedCodeAction<ParameterDeclaration>
 	{
-		protected override CodeAction GetAction (RefactoringContext context, ParameterDeclaration node)
+		protected override CodeAction GetAction (SemanticModel context, ParameterDeclaration node)
 		{
 			if (!node.DefaultExpression.IsNull)
 				return null;
@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return identifierExpr;
 		}
 
-		static Expression GetDefaultValueExpression (RefactoringContext context, AstType astType)
+		static Expression GetDefaultValueExpression (SemanticModel context, AstType astType)
 		{
 			var type = context.ResolveType (astType);
 

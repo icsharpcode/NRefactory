@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
            AnalysisDisableKeyword = "InconsistentNaming")]
 	public class InconsistentNamingIssue : CodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseRefactoringContext context, string subIssue)
+		public override IEnumerable<CodeIssue> GetIssues(BaseSemanticModel context, string subIssue)
 		{
 			var visitor = new GatherVisitor(context);
 			context.RootNode.AcceptVisitor(visitor);
@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			readonly NamingConventionService service;
 
-			public GatherVisitor (BaseRefactoringContext ctx) : base (ctx)
+			public GatherVisitor (BaseSemanticModel ctx) : base (ctx)
 			{
 				service = (NamingConventionService)ctx.GetService (typeof (NamingConventionService));
 			}
