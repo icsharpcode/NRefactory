@@ -25,124 +25,93 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using System.Linq;
-using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Analysis;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory.CSharp;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	/// <summary>
 	/// Finds redundant base qualifier 
 	/// </summary>
-	[IssueDescription("Redundant 'base.' qualifier",
-	                  Description = "'base.' is redundant and can safely be removed.",
-	                  Category = IssueCategories.RedundanciesInCode,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "RedundantBaseQualifier")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Redundant 'base.' qualifier", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBaseQualifier")]
 	public class RedundantBaseQualifierIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			var declarationSpaceVisitor = new LocalDeclarationSpaceVisitor();
-			context.RootNode.AcceptVisitor(declarationSpaceVisitor);
+		internal const string DiagnosticId  = "RedundantBaseQualifierIssue";
+		const string Description            = "'base.' is redundant and can be removed safely.";
+		internal const string MessageFormat = "Remove 'base.'";
+		const string Category               = IssueCategories.RedundanciesInCode;
 
-			return new GatherVisitor(context, declarationSpaceVisitor);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		{
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantBaseQualifierIssue>
 		{
-			LocalDeclarationSpaceVisitor declarationsSpaceVisitor;
-
-			public GatherVisitor(BaseSemanticModel ctx, LocalDeclarationSpaceVisitor visitor) : base (ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
-				declarationsSpaceVisitor = visitor;
 			}
 
-			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
+			public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
 			{
-				base.VisitSyntaxTree(syntaxTree);
-				AnalyzeAllThisReferences();
-			}
-
-			static IMember GetMember(ResolveResult result)
-			{
-				if (result is MemberResolveResult)
-					return ((MemberResolveResult)result).Member;
-				if (result is MethodGroupResolveResult)
-					return ((MethodGroupResolveResult)result).Methods.FirstOrDefault();
-				return null;
-			}
-
-			readonly IList<BaseReferenceExpression> thisReferences = new List<BaseReferenceExpression>();
-
-			public override void VisitBaseReferenceExpression(BaseReferenceExpression baseReferenceExpression)
-			{
-				base.VisitBaseReferenceExpression(baseReferenceExpression);
-				if (!IsSuppressed(baseReferenceExpression.Location))
-					thisReferences.Add(baseReferenceExpression);
-			}
-
-			void AnalyzeAllThisReferences()
-			{
-				foreach (var thisReference in thisReferences) {
-					AnalyzeThisReferenceExpression(thisReference);
-				}
-			}
-
-			void AnalyzeThisReferenceExpression(BaseReferenceExpression baseReferenceExpression)
-			{
-				var memberReference = baseReferenceExpression.Parent as MemberReferenceExpression;
-				if (memberReference == null) {
-					return;
-				}
-
-				var state = ctx.GetResolverStateAfter(baseReferenceExpression);
-				var wholeResult = ctx.Resolve(memberReference);
-
-				IMember member = GetMember(wholeResult);
-				if (member == null)
-					return;
-
-				var localDeclarationSpace = declarationsSpaceVisitor.GetDeclarationSpace(baseReferenceExpression);
-				if (localDeclarationSpace == null || localDeclarationSpace.IsNameUsed(member.Name))
-					return;
-
-				var result = state.LookupSimpleNameOrTypeName(memberReference.MemberName, EmptyList<IType>.Instance, NameLookupMode.Expression);
-				var parentResult = ctx.Resolve(memberReference.Parent) as CSharpInvocationResolveResult;
-
-				bool isRedundant;
-				if (result is MemberResolveResult) {
-					isRedundant = ((MemberResolveResult)result).Member.Region.Equals(member.Region);
-				} else if (parentResult != null && parentResult.IsExtensionMethodInvocation) {
-					// 'this.' is required for extension method invocation
-					isRedundant = false;
-				} else if (result is MethodGroupResolveResult) {
-					isRedundant = ((MethodGroupResolveResult)result).Methods.Any(m => m.Region.Equals(member.Region));
-				} else {
-					return;
-				}
-
-				var basicMembers = state.CurrentTypeDefinition.DirectBaseTypes.First().GetMembers();
-				var extendedMembers = state.CurrentTypeDefinition.GetMembers().Except(basicMembers);
-				if (extendedMembers.Any(f => f.Name.Equals(member.Name)))
-					return;
-
-				if (isRedundant) {
-					AddIssue(new CodeIssue(
-						baseReferenceExpression.StartLocation, 
-						memberReference.MemberNameToken.StartLocation, 
-						ctx.TranslateString("'base.' is redundant and can be removed safely."), 
-						ctx.TranslateString("Remove 'base.'"), 
-						script => {
-							script.Replace(memberReference, RefactoringAstHelper.RemoveTarget(memberReference));
-						}
-					) { IssueMarker = IssueMarker.GrayOut });
+				base.VisitMemberAccessExpression(node);
+				if (node.Expression.IsKind(SyntaxKind.BaseExpression)) {
+					var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
+					if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
+						AddIssue (Diagnostic.Create(Rule , node.Expression.GetLocation()));
+					}
 				}
 			}
 		}
+	}
+
+	[ExportCodeFixProvider(RedundantBaseQualifierIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RedundantBaseQualifierIssueCodeFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return RedundantBaseQualifierIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				var token = node.Parent as MemberAccessExpressionSyntax;
+				if (token != null) {
+					var newRoot = root.ReplaceNode((SyntaxNode)token,
+						token.Name
+						.WithLeadingTrivia(token.GetLeadingTrivia())
+						.WithTrailingTrivia(token.GetTrailingTrivia()));
+					result.Add(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+				}
+			}
+			return result;
+		}
+		#endregion
 	}
 }

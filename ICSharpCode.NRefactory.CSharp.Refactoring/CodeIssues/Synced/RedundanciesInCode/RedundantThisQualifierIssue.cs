@@ -37,7 +37,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory.CSharp;
 
@@ -47,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Finds redundant this usages.
 	/// </summary>
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer(DiagnosticId, LanguageNames.CSharp)]
+	[ExportDiagnosticAnalyzer("Redundant 'this.' qualifier", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantThisQualifier")]
 	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider
 	{
@@ -90,18 +89,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				isInsideConstructor = false;
 			}
 
-			public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax memberAccess)
+			public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
 			{
-				base.VisitMemberAccessExpression(memberAccess);
-				if (memberAccess.Expression.IsKind(SyntaxKind.ThisExpression)) {
-//					var localDeclarationSpace = declarationsSpaceVisitor.GetDeclarationSpace(thisReferenceExpression);
-//					if (localDeclarationSpace == null || localDeclarationSpace.IsNameUsed(member.Name))
-//						return;
-
-				
-					var replacementNode = memberAccess.Name.WithLeadingTrivia(memberAccess.GetLeadingTrivia()).WithTrailingTrivia(memberAccess.GetTrailingTrivia());
-					if (memberAccess.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
-						AddIssue (Diagnostic.Create(isInsideConstructor ? Rule1 : Rule2 , memberAccess.Expression.GetLocation()));
+				base.VisitMemberAccessExpression(node);
+				if (node.Expression.IsKind(SyntaxKind.ThisExpression)) {
+					var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
+					if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
+						AddIssue (Diagnostic.Create(isInsideConstructor ? Rule1 : Rule2 , node.Expression.GetLocation()));
 					}
 				}
 			}
@@ -138,5 +132,4 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		}
 		#endregion
 	}
-
 }

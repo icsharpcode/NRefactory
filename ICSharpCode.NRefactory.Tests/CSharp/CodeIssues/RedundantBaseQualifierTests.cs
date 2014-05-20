@@ -25,19 +25,17 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
 	public class RedundantBaseQualifierTests : InspectionActionTestBase
 	{
-
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"using System;
+			Test<RedundantBaseQualifierIssue>(@"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -65,12 +63,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			}
 		}
 	}
-";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantBaseQualifierIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @"using System;
+", 1, @"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -94,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			}
 			public override void method()
 			{
-				method1 ();
+				method1();
 			}
 		}
 	}
@@ -104,7 +97,38 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantBaseQualifierIssue>(@"using System;am : BaseClass
+		{
+			public void method2(int a)
+			{
+				base.a = 1;
+			}
+			public override void method()
+			{
+				base.method1();
+			}
+		}
+	}
+"";
+
+			TestRefactoringContext context;
+			var issues = GetIssues(new RedundantBaseQualifierIssue(), input, out context);
+			Assert.AreEqual(1, issues.Count);
+			CheckFix(context, issues, @""using System;
+	namespace Application
+	{
+		public class BaseClass
+		{
+			public int a;
+			public virtual void method()
+			{
+				Console.Write(Environment.NewLine);
+			}
+			public void method1()
+			{
+				Console.Write(Environment.NewLine);
+			}
+		}
 	namespace Application
 	{
 		public class BaseClass
@@ -135,10 +159,7 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 			public new int a;
 		}
 	}
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantBaseQualifierIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 
 		[Test]
@@ -171,7 +192,7 @@ class Foo : Base
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			var input = @"using System;
+			Test<RedundantBaseQualifierIssue>(@"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -201,11 +222,7 @@ class Foo : Base
 				base.print1();
 			}
 		}
-	}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantBaseQualifierIssue(), input, out context);
-			Assert.AreEqual(2, issues.Count);
+	}", 2);
 		}
 		
 		[Test]

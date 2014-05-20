@@ -147,6 +147,7 @@
     <Compile Include="CSharp\CodeIssues\ForStatementConditionIsTrueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantThisQualifierIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\InspectionActionTestBase.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantBaseQualifierTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

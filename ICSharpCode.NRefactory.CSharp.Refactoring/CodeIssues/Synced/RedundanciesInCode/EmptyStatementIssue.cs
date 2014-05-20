@@ -40,7 +40,7 @@ using ICSharpCode.NRefactory.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer(DiagnosticId, LanguageNames.CSharp)]
+	[ExportDiagnosticAnalyzer("Empty statement is redundant", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyStatement")]
 	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
 	{
