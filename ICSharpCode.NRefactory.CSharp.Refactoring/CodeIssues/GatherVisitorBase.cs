@@ -72,9 +72,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// The issue provider. May be <c>null</c> if none was specified.
 		/// </summary>
 		protected readonly T issueProvider;
-		readonly SemanticModel semanticModel;
+		protected readonly SemanticModel semanticModel;
 		readonly Action<Diagnostic> addDiagnostic;
-		readonly CancellationToken cancellationToken;
+		protected readonly CancellationToken cancellationToken;
 
 		public SemanticModel Ctx {
 			get {

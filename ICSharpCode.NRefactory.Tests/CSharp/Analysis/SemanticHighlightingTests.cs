@@ -101,9 +101,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				syntaxTree.Errors.ForEach(err => Console.WriteLine(err.Message));
 				Assert.Fail("parse error.");
 			}*/
-			var compilation = RoslynInspectionActionTestBase.CreateCompilation(
+			var compilation = InspectionActionTestBase.CreateCompilation(
 				new []  { syntaxTree },
-				RoslynInspectionActionTestBase.DefaultMetadataReferences
+				InspectionActionTestBase.DefaultMetadataReferences
 			);
 			var result = new TestSemanticHighlightingVisitor (compilation.GetSemanticModel(syntaxTree));
 			result.Visit(syntaxTree.GetRoot()); 

@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class EmptyStatementIssueTests : RoslynInspectionActionTestBase
+	public class EmptyStatementIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestBasicCase()

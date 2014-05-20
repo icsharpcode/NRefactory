@@ -121,6 +121,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ForStatementConditionIsTrueIssue.cs" />
     <Compile Include="NRefactoryCodeDiagnosticAnalyzerAttribute.cs" />
     <Compile Include="CodeIssues\GatherVisitorBase.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantThisQualifierIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

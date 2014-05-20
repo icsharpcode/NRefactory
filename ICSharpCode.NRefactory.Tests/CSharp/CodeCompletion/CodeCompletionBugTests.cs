@@ -253,7 +253,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //				mb.AddSymbol(sym);
 //			}
 
-			var workspace = new RoslynInspectionActionTestBase.TestWorkspace ();
+			var workspace = new InspectionActionTestBase.TestWorkspace ();
 
 			var projectId  = ProjectId.CreateNewId();
 			var solutionId = SolutionId.CreateNewId();
@@ -311,7 +311,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 							)
 						},
 						null,
-						RoslynInspectionActionTestBase.DefaultMetadataReferences
+						InspectionActionTestBase.DefaultMetadataReferences
 					)
 			);
 

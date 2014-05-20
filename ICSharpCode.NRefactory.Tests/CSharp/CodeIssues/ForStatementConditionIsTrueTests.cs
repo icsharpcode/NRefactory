@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ForStatementConditionIsTrueTests : RoslynInspectionActionTestBase
+	public class ForStatementConditionIsTrueTests : InspectionActionTestBase
 	{
 		
 		[Test]

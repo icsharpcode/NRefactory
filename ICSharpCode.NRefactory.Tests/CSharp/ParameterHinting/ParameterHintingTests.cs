@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ParameterHinting
 				cursorPosition = endPos - 1; 
 			}
 			
-			var workspace = new RoslynInspectionActionTestBase.TestWorkspace ();
+			var workspace = new InspectionActionTestBase.TestWorkspace ();
 
 			var projectId  = ProjectId.CreateNewId();
 			var solutionId = SolutionId.CreateNewId();
@@ -157,7 +157,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ParameterHinting
 							)
 						},
 						null,
-						RoslynInspectionActionTestBase.DefaultMetadataReferences
+						InspectionActionTestBase.DefaultMetadataReferences
 					)
 			);
 			

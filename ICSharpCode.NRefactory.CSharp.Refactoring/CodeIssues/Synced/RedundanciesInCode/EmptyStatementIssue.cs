@@ -36,7 +36,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
- 
+
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]

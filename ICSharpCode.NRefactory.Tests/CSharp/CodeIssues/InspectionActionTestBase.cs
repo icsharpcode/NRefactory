@@ -1,21 +1,21 @@
-﻿// 
-// InspectionActionTestBase.cs
-//  
+//
+// EmptyStatementIssueTests.cs
+//
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
-// 
-// Copyright (c) 2012 Xamarin Inc. (http://xamarin.com)
-// 
+//
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,150 +23,279 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-
 using System;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using System.Collections.Generic;
-using NUnit.Framework;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using NUnit.Framework;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.CSharp;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using System.Threading;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Host.Mef;
+using System.Reflection;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
-	public abstract class InspectionActionTestBase
+	public class InspectionActionTestBase
 	{
-		protected static List<CodeIssue> GetIssues (CodeIssueProvider action, string input, out TestRefactoringContext context, bool expectErrors = false, CSharpParser parser = null)
+		static MetadataReference mscorlib = new MetadataFileReference(typeof(Console).Assembly.Location);
+		static MetadataReference systemAssembly = new MetadataFileReference(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
+		static MetadataReference systemXmlLinq = new MetadataFileReference(typeof(System.Xml.Linq.XElement).Assembly.Location);
+		static MetadataReference systemCore = new MetadataFileReference(typeof(Enumerable).Assembly.Location);
+		internal static MetadataReference[] DefaultMetadataReferences = new MetadataReference[] {
+			mscorlib,
+			systemAssembly,
+			systemCore,
+			systemXmlLinq
+		};
+		
+		static Dictionary<string, ICodeFixProvider> providers = new Dictionary<string, ICodeFixProvider>();
+
+		static InspectionActionTestBase()
 		{
-			context = TestRefactoringContext.Create (input, expectErrors, parser);
+			foreach (var provider in typeof(IssueCategories).Assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false).Length > 0)) {
+				var attr = (ExportCodeFixProviderAttribute)provider.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false) [0];
+				var codeFixProvider = (ICodeFixProvider)Activator.CreateInstance(provider);
+				foreach (var id in codeFixProvider.GetFixableDiagnosticIds()) {
+					providers.Add(id, codeFixProvider);
+				}
+			}
+
+		}
+
+		public static string GetUniqueName()
+		{
+			return Guid.NewGuid().ToString("D");
+		}
+
+		public static CSharpCompilation CreateCompilation(
+			IEnumerable<SyntaxTree> trees,
+			IEnumerable<MetadataReference> references = null,
+			CSharpCompilationOptions compOptions = null,
+			string assemblyName = "")
+		{
+			if (compOptions == null) {
+				compOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+			}
+
+			return CSharpCompilation.Create(
+				assemblyName == "" ? GetUniqueName() : assemblyName,
+				trees,
+				references,
+				compOptions);
+		}
+
+
+		public static CSharpCompilation CreateCompilationWithMscorlib(
+			IEnumerable<SyntaxTree> source,
+			IEnumerable<MetadataReference> references = null,
+			CSharpCompilationOptions compOptions = null,
+			string assemblyName = "")
+		{
+			var refs = new List<MetadataReference>();
+			if (references != null) {
+				refs.AddRange(references);
+			}
+
+			refs.AddRange(DefaultMetadataReferences);
+
+			return CreateCompilation(source, refs, compOptions, assemblyName);
+		}
+
+		internal class TestWorkspace : Workspace
+		{
+			readonly static MefHostServices services = MefHostServices.Create(new [] { 
+				typeof(MefHostServices).Assembly,
+				typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions).Assembly
+			});
 			
-			return new List<CodeIssue> (action.GetIssues (context));
-		}
-
-		protected static List<CodeIssue> GetIssuesWithSubIssue (CodeIssueProvider action, string input, string subIssue, out TestRefactoringContext context, bool expectErrors = false)
-		{
-			context = TestRefactoringContext.Create (input, expectErrors);
-
-			return new List<CodeIssue> (action.GetIssues (context, subIssue));
-		}
-
-		protected static void CheckFix (TestRefactoringContext ctx, CodeIssue issue, string expectedOutput, int fixIndex = 0)
-		{
-			using (var script = ctx.StartScript ())
-				issue.Actions[fixIndex].Run (script);
-			if (expectedOutput != ctx.Text) {
-				Console.WriteLine("expected:");
-				Console.WriteLine(expectedOutput);
-				Console.WriteLine("got:");
-				Console.WriteLine(ctx.Text);
-			}
-			Assert.AreEqual (expectedOutput, ctx.Text);
-		}
-
-		protected static void CheckFix (TestRefactoringContext ctx, IEnumerable<CodeIssue> issues, string expectedOutput, int fixINdex = 0)
-		{
-			using (var script = ctx.StartScript ()) {
-				foreach (var issue in issues) {
-					issue.Actions[fixINdex].Run (script);
+			
+			public TestWorkspace(string workspaceKind = "Test") : base(services , workspaceKind)
+			{
+				foreach (var a in MefHostServices.DefaultAssemblies) {
+					Console.WriteLine (a.FullName);
 				}
 			}
-			bool pass = expectedOutput == ctx.Text;
-			if (!pass) {
-				Console.WriteLine ("expected:");
-				Console.WriteLine (expectedOutput);
-				Console.WriteLine ("got:");
-				Console.WriteLine (ctx.Text);
+			
+			public void ChangeDocument (DocumentId id, SourceText text)
+			{
+				ChangedDocumentText(id, text);
 			}
-			Assert.AreEqual (expectedOutput, ctx.Text);
+			protected override void ChangedDocumentText(DocumentId id, SourceText text)
+			{
+				var document = CurrentSolution.GetDocument(id);
+				if (document != null)
+					OnDocumentTextChanged(id, text, PreservationMode.PreserveValue);
+			}
+
+			public void Open(ProjectInfo projectInfo)
+			{
+				var sInfo = SolutionInfo.Create(
+					            SolutionId.CreateNewId(),
+					            VersionStamp.Create(),
+					            null,
+					            new [] { projectInfo }
+				            );
+				OnSolutionAdded(sInfo);
+			}
 		}
 
-		protected static void CheckBatchFix (TestRefactoringContext ctx, IEnumerable<CodeIssue> issues, object siblingKey, string expectedOutput)
+		static void RunFix(Workspace workspace, ProjectId projectId, DocumentId documentId, Diagnostic diagnostic, int index = 0)
 		{
-			using (var script = ctx.StartScript ()) {
-				foreach (var issue in issues) {
-					var actions = issue.Actions.Where (a => a.SiblingKey == siblingKey).ToList ();
-					Assert.IsTrue(actions.Count <= 1, "At most a single action expected per sibling key and issue.");
-					actions.First (a => a.SiblingKey == siblingKey).Run (script);
+			ICodeFixProvider provider;
+			if (providers.TryGetValue(diagnostic.Id, out provider)) {
+				var document = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
+				var action = provider.GetFixesAsync(document, diagnostic.Location.SourceSpan, new[] { diagnostic }, default(CancellationToken)).Result.ElementAtOrDefault(index);
+				if (action == null) {
+					Assert.Fail("Provider has no fix for " + diagnostic.Id + " at " + diagnostic.Location.SourceSpan);
+					return;
 				}
+				foreach (var op in action.GetOperationsAsync(default(CancellationToken)).Result) {
+					op.Apply(workspace, default(CancellationToken));
+				}
+			} else {
+				Assert.Fail("No code fix provider found for :" + diagnostic.Id);
 			}
-			bool pass = expectedOutput == ctx.Text;
-			if (!pass) {
-				Console.WriteLine ("expected:");
-				Console.WriteLine (expectedOutput);
-				Console.WriteLine ("got:");
-				Console.WriteLine (ctx.Text);
-			}
-			Assert.AreEqual (expectedOutput, ctx.Text);
 		}
 
-		protected static void Test<T> (string input, int issueCount, string output = null, int issueToFix = -1, int actionToRun = 0)
-			where T : CodeIssueProvider, new ()
-		{
-			TestRefactoringContext context;
-			var issues = GetIssues (new T (), input, out context);
-			Assert.AreEqual (issueCount, issues.Count);
-			if (issueCount == 0 || output == null) 
-				return;
-			if (issueToFix == -1)
-				CheckFix (context, issues, output, actionToRun);
-			else
-				CheckFix (context, issues [issueToFix], output, actionToRun);
-		}
-
-		protected static void TestIssue<T> (string input, int issueCount = 1)
-			where T : CodeIssueProvider, new ()
-		{
-			TestRefactoringContext context;
-			var issues = GetIssues (new T (), input, out context);
-			Assert.AreEqual (issueCount, issues.Count);
-		}
-
-		protected static void Test<T> (string input, string output, int fixIndex = 0)
-			where T : CodeIssueProvider, new ()
-		{
-			TestRefactoringContext context;
-			var issues = GetIssues (new T (), input, out context);
-			if (issues.Count == 0)
-				Console.WriteLine("No issues in:\n" + input);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues[0], output, fixIndex);
-		}
-
-
-		protected static void TestWithSubIssue<T> (string input,  string subIssue, int issueCount, string output = null, int issueToFix = -1)
-			where T : CodeIssueProvider, new ()
-		{
-			TestRefactoringContext context;
-			var issues = GetIssuesWithSubIssue (new T (), input, subIssue, out context);
-			Assert.AreEqual (issueCount, issues.Count);
-			if (issueCount == 0 || output == null) 
-				return;
-			if (issueToFix == -1)
-				CheckFix (context, issues, output);
-			else
-				CheckFix (context, issues [issueToFix], output);
-		}
-
-		protected static void TestWithSubIssue<T> (string input, string output, string subIssue, int fixIndex = 0)
-			where T : CodeIssueProvider, new ()
-		{
-			TestRefactoringContext context;
-			var issues = GetIssuesWithSubIssue (new T (), input, subIssue, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues[0], output, fixIndex);
-		}
-
-		protected static void TestWrongContext<T> (string input)
-			where T : CodeIssueProvider, new ()
+		protected static void TestWrongContext<T>(string input) where T : ISemanticModelAnalyzer, new()
 		{
 			Test<T>(input, 0);
 		}
 
-		protected static void TestWrongContextWithSubIssue<T> (string input, string subIssue)
-			where T : CodeIssueProvider, new ()
+		protected static void Test<T>(string input, int expectedDiagnostics = 1, string output = null, int issueToFix = -1, int actionToRun = 0) where T : ISemanticModelAnalyzer, new()
 		{
-			TestWithSubIssue<T>(input, subIssue, 0);
+			var syntaxTree = CSharpSyntaxTree.ParseText(input);
+
+			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
+
+			var diagnostics = new List<Diagnostic>();
+			diagnostics.AddRange(AnalyzerDriver.GetDiagnostics(compilation,
+				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
+				CancellationToken.None
+			)); 
+
+			if (expectedDiagnostics >= 0)
+				Assert.AreEqual(expectedDiagnostics, diagnostics.Count);
+
+			if (output == null)
+				return;
+
+			var workspace = new TestWorkspace();
+			var projectId = ProjectId.CreateNewId();
+			var documentId = DocumentId.CreateNewId(projectId);
+			workspace.Open(ProjectInfo.Create(
+				projectId,
+				VersionStamp.Create(),
+				"", "", LanguageNames.CSharp, null, null, null, null,
+				new [] {
+					DocumentInfo.Create(
+						documentId, 
+						"a.cs",
+						null,
+						SourceCodeKind.Regular,
+						TextLoader.From(TextAndVersion.Create(SourceText.From(input), VersionStamp.Create())))
+				}
+			)); 
+			if (issueToFix < 0) {
+				foreach (var v in diagnostics) {
+					RunFix(workspace, projectId, documentId, v);
+				}
+			} else {
+				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
+			}
+
+			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
+			if (output != txt) {
+				Console.WriteLine("expected:");
+				Console.WriteLine(output);
+				Console.WriteLine("got:");
+				Console.WriteLine(txt);
+				Assert.Fail();
+			}
+		}
+
+		protected static void TestWrongContextWithSubIssue<T>(string input, string id) where T : ISemanticModelAnalyzer, new()
+		{
+			TestWithSubIssue<T>(input, id, 0);
+		}
+
+		protected static void TestWithSubIssue<T>(string input, string subIssueId, int expectedDiagnostics = 1, string output = null, int issueToFix = -1, int actionToRun = 0) where T : ISemanticModelAnalyzer, new()
+		{
+			var syntaxTree = CSharpSyntaxTree.ParseText(input);
+
+			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
+
+			var diagnostics = new List<Diagnostic>();
+			var allDiagnostics = AnalyzerDriver.GetDiagnostics(compilation, System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()), CancellationToken.None);
+			diagnostics.AddRange(allDiagnostics.Where(d => d.Id == subIssueId)); 
+
+			if (expectedDiagnostics >= 0)
+				Assert.AreEqual(expectedDiagnostics, diagnostics.Count);
+			if (output == null)
+				return;
+
+			var workspace = new TestWorkspace();
+			var projectId = ProjectId.CreateNewId();
+			var documentId = DocumentId.CreateNewId(projectId);
+			workspace.Open(ProjectInfo.Create(
+				projectId,
+				VersionStamp.Create(),
+				"", "", LanguageNames.CSharp, null, null, null, null,
+				new [] {
+					DocumentInfo.Create(
+						documentId, 
+						"a.cs",
+						null,
+						SourceCodeKind.Regular,
+						TextLoader.From(TextAndVersion.Create(SourceText.From(input), VersionStamp.Create())))
+				}
+			)); 
+			if (issueToFix < 0) {
+				foreach (var v in diagnostics) {
+					RunFix(workspace, projectId, documentId, v);
+				}
+			} else {
+				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
+			}
+
+			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
+			if (output != txt) {
+				Console.WriteLine("expected:");
+				Console.WriteLine(output);
+				Console.WriteLine("got:");
+				Console.WriteLine(txt);
+				Assert.Fail();
+			}
+		}
+
+		protected static void TestWithSubIssue<T>(string input, string output, string subIssue, int fixIndex = 0) where T : ISemanticModelAnalyzer, new()
+		{
+			TestWithSubIssue<T>(input, subIssue, -1, output, fixIndex, 0);
+		}
+
+		class TestDiagnosticAnalyzer<T> : IDiagnosticAnalyzer
+		{
+			readonly ISyntaxNodeAnalyzer<T> t;
+
+			public TestDiagnosticAnalyzer(ISyntaxNodeAnalyzer<T> t)
+			{
+				this.t = t;
+			}
+
+			#region IDiagnosticAnalyzer implementation
+
+			System.Collections.Immutable.ImmutableArray<DiagnosticDescriptor> IDiagnosticAnalyzer.SupportedDiagnostics {
+				get {
+					return t.SupportedDiagnostics;
+				}
+			}
+
+			#endregion
 		}
 	}
-	
+
 }
+

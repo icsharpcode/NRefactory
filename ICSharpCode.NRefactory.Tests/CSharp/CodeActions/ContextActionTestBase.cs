@@ -85,13 +85,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Assert.AreEqual (HomogenizeEol (output), result);
 		}
 
-		static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions(ICodeRefactoringProvider action, string input, out ICSharpCode.NRefactory6.CSharp.CodeIssues.RoslynInspectionActionTestBase.TestWorkspace workspace, out Document doc)
+		static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions(ICodeRefactoringProvider action, string input, out ICSharpCode.NRefactory6.CSharp.CodeIssues.InspectionActionTestBase.TestWorkspace workspace, out Document doc)
 		{
 			var idx = input.IndexOf("$", StringComparison.Ordinal);
 			if (idx > 0)
 				input = input.Substring(0, idx) + input.Substring(idx + 1);
 			var syntaxTree = CSharpSyntaxTree.ParseText(input);
-			 workspace = new RoslynInspectionActionTestBase.TestWorkspace();
+			 workspace = new InspectionActionTestBase.TestWorkspace();
 			var projectId = ProjectId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
 			workspace.GetOptions().WithChangedOption(CSharpFormattingOptions.OpenBracesInNewLineForControl, false);
@@ -149,7 +149,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 					)
 				},
 				null,
-				RoslynInspectionActionTestBase.DefaultMetadataReferences
+				InspectionActionTestBase.DefaultMetadataReferences
 			)
 			);
 			doc = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
@@ -160,7 +160,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		                                          int actionIndex = 0, bool expectErrors = false)
 		{
 			Document doc;
-			ICSharpCode.NRefactory6.CSharp.CodeIssues.RoslynInspectionActionTestBase.TestWorkspace workspace;
+			ICSharpCode.NRefactory6.CSharp.CodeIssues.InspectionActionTestBase.TestWorkspace workspace;
 			var actions = GetActions(action, input, out workspace, out doc);
 			if (actions.Count < actionIndex)
 				Console.WriteLine ("invalid input is:" + input);
@@ -175,7 +175,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		protected void TestWrongContext (ICodeRefactoringProvider action, string input)
 		{
 			Document doc;
-			ICSharpCode.NRefactory6.CSharp.CodeIssues.RoslynInspectionActionTestBase.TestWorkspace workspace;
+			ICSharpCode.NRefactory6.CSharp.CodeIssues.InspectionActionTestBase.TestWorkspace workspace;
 			var actions = GetActions(action, input, out workspace, out doc);
 			Assert.IsTrue (actions == null || actions.Count == 0, action.GetType () + " shouldn't be valid there.");
 		}

@@ -113,7 +113,6 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyStatementIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RoslynInspectionActionTestBase.cs" />
     <Compile Include="CSharp\CodeCompletion\CodeCompletionAccessibleTests.cs" />
     <Compile Include="CSharp\CodeCompletion\CodeCompletionBugTests.cs" />
     <Compile Include="CSharp\CodeCompletion\CodeCompletionCSharp3Tests.cs" />
@@ -146,6 +145,8 @@
     <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\ForStatementConditionIsTrueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantThisQualifierIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\InspectionActionTestBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
