@@ -23,48 +23,82 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.PatternMatching;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription ("'true' is redundant as for statement condition",
-	                   Description = "true is redundant as for statement condition, thus can be safely ommited",
-	                   Category = IssueCategories.RedundanciesInCode,
-	                   Severity = Severity.Warning,
-	                   AnalysisDisableKeyword = "ForStatementConditionIsTrue")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer(DiagnosticId, LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "ForStatementConditionIsTrue")]
 	public class ForStatementConditionIsTrueIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			return new GatherVisitor(context);
+		internal const string DiagnosticId  = "ForStatementConditionIsTrueIssue";
+		const string Description            = "true is redundant as for statement condition, thus can be safely ommited";
+		internal const string MessageFormat = "'true' is redundant as for statement condition";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
 		}
-		
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		{
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+		}
+
 		class GatherVisitor : GatherVisitorBase<ForStatementConditionIsTrueIssue>
 		{
-			public GatherVisitor(BaseSemanticModel context) : base (context)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			static readonly AstNode pattern =  new PrimitiveExpression(true);
-		
-			public override void VisitForStatement (ForStatement forstatement)
+			public override void VisitForStatement(ForStatementSyntax node)
 			{
-				base.VisitForStatement(forstatement);
+				VisitLeadingTrivia(node);
+				if (node.Condition.IsKind(SyntaxKind.TrueLiteralExpression)) {
+					AddIssue(Diagnostic.Create(Rule, node.Condition.GetLocation()));
+				}
+				base.VisitForStatement(node);
+			}
+		}
+	}
 
-				var m = pattern.Match(forstatement.Condition);
-				if (m.Success) {
-					AddIssue(new CodeIssue(
-						forstatement.Condition, 
-						ctx.TranslateString("'true' is redundant as for statement condition"), 
-						ctx.TranslateString("Remove 'true'"),
-						script => script.Remove(forstatement.Condition)
-					) { IssueMarker = IssueMarker.GrayOut });
+	[ExportCodeFixProvider(ForStatementConditionIsTrueIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ForStatementConditionIsTrueCodeFixProvider : ICodeFixProvider
+	{
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return ForStatementConditionIsTrueIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var token = root.FindNode(diagonstic.Location.SourceSpan);
+				if (token.IsKind(SyntaxKind.TrueLiteralExpression)) {
+					var newRoot = root.RemoveNode(token, SyntaxRemoveOptions.KeepDirectives);
+					result.Add(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
 				}
 			}
+			return result;
 		}
 	}
 }

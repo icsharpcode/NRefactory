@@ -27,58 +27,58 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.TypeSystem;
-using Mono.CSharp;
-using ICSharpCode.NRefactory.Refactoring;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Text;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	class GatherVisitorConstants
 	{
 		public const string DisableAllString = "disable All";
 		public const string RestoreAllString = "restore All";
-
-	}
-
-	public interface IGatherVisitor
-	{
-		BaseSemanticModel Ctx { get; }
-		string SubIssue { get; set; }
-		IEnumerable<CodeIssue> GetIssues();
 	}
 
 	/// <summary>
 	/// The code issue provider gets a list of all code issues in a syntax tree.
 	/// </summary>
-	public abstract class GatherVisitorCodeIssueProvider : CodeIssueProvider
+	public abstract class GatherVisitorCodeIssueProvider : ISemanticModelAnalyzer
 	{
-		protected abstract IGatherVisitor CreateVisitor (BaseSemanticModel context);
+		protected abstract CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken);
 
-		public sealed override IEnumerable<CodeIssue> GetIssues (BaseSemanticModel context, string subIssue = null)
+		void ISemanticModelAnalyzer.AnalyzeSemanticModel(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			var visitor = CreateVisitor(context);
+			var visitor = CreateVisitor(semanticModel, addDiagnostic, cancellationToken);
 			if (visitor == null)
-				return Enumerable.Empty<CodeIssue> ();
-			visitor.SubIssue = subIssue;
-			return visitor.GetIssues();
+				return;
+			visitor.Visit(semanticModel.SyntaxTree.GetRoot(cancellationToken)); 
+		}
+
+		public abstract ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get;
 		}
 	}
 
 	/// <summary>
 	/// A base class for writing issue provider visitor implementations.
 	/// </summary>
-	class GatherVisitorBase<T> : DepthFirstAstVisitor, IGatherVisitor where T : CodeIssueProvider
+	class GatherVisitorBase<T> : CSharpSyntaxWalker where T : GatherVisitorCodeIssueProvider
 	{
 		/// <summary>
 		/// The issue provider. May be <c>null</c> if none was specified.
 		/// </summary>
 		protected readonly T issueProvider;
-		protected readonly BaseSemanticModel ctx;
+		readonly SemanticModel semanticModel;
+		readonly Action<Diagnostic> addDiagnostic;
+		readonly CancellationToken cancellationToken;
 
-		public BaseSemanticModel Ctx {
+		public SemanticModel Ctx {
 			get {
-				return ctx;
+				return semanticModel;
 			}
 		}
 
@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		bool isDisabledOnce;
 		bool isGloballySuppressed;
 		bool isPragmaDisabled;
-		List<DomRegion> suppressedRegions = new List<DomRegion>();
+		bool isAttributeSuppressed;
 		[SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
 		static string disableString;
 		[SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
@@ -108,13 +108,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			restoreString = "restore " + disableKeyword;
 		}
 
-		public readonly List<CodeIssue> FoundIssues = new List<CodeIssue>();
-
-		public string SubIssue { get; set; }
-
 		static GatherVisitorBase()
 		{
-			var attr = (IssueDescriptionAttribute)typeof(T).GetCustomAttributes(false).FirstOrDefault(a => a is IssueDescriptionAttribute);
+			var attr = (NRefactoryCodeDiagnosticAnalyzerAttribute)typeof(T).GetCustomAttributes(false).FirstOrDefault(a => a is NRefactoryCodeDiagnosticAnalyzerAttribute);
 			if (attr == null)
 				return;
 			if (attr.AnalysisDisableKeyword != null) 
@@ -124,28 +120,30 @@ namespace ICSharpCode.NRefactory.CSharp
 			pragmaWarning = attr.PragmaWarning;
 		}
 
+		protected void VisitLeadingTrivia (SyntaxNode node)
+		{
+			var token = node.ChildTokens().First();
+			VisitLeadingTrivia(token); 
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="GatherVisitorBase{T}"/> class.
 		/// </summary>
-		/// <param name='ctx'>
-		/// The refactoring context.
-		/// </param>
-		/// <param name='qualifierDirectiveEvidentIssueProvider'>
-		/// The issue provider.
-		/// </param>
-		public GatherVisitorBase(BaseSemanticModel ctx, T qualifierDirectiveEvidentIssueProvider = default(T))
+		public GatherVisitorBase(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken, T qualifierDirectiveEvidentIssueProvider = default(T)) : base (SyntaxWalkerDepth.StructuredTrivia)
 		{
-			this.ctx = ctx;
+			this.semanticModel = semanticModel;
+			this.addDiagnostic = addDiagnostic;
+			this.cancellationToken = cancellationToken;
 			this.issueProvider = qualifierDirectiveEvidentIssueProvider;
 			if (suppressMessageCheckId != null) {
-				foreach (var attr in this.ctx.Compilation.MainAssembly.AssemblyAttributes) {
-					if (attr.AttributeType.Name == "SuppressMessageAttribute" && attr.AttributeType.Namespace == "System.Diagnostics.CodeAnalysis") {
-						if (attr.PositionalArguments.Count < 2)
+				foreach (var attr in this.semanticModel.Compilation.Assembly.GetAttributes()) {
+					if (attr.AttributeClass.Name == "SuppressMessageAttribute" && attr.AttributeClass.ContainingNamespace.GetFullName() == "System.Diagnostics.CodeAnalysis") {
+						if (attr.ConstructorArguments.Length < 2)
 							return;
-						var category = attr.PositionalArguments [0].ConstantValue;
+						var category = attr.ConstructorArguments [0].Value;
 						if (category == null || category.ToString() != suppressMessageCategory)
 							continue;
-						var checkId = attr.PositionalArguments [1].ConstantValue;
+						var checkId = attr.ConstructorArguments [1].Value;
 						if (checkId == null || checkId.ToString() != suppressMessageCheckId) 
 							continue;
 						isGloballySuppressed = true;
@@ -154,101 +152,173 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 
-		/// <summary>
-		/// Gets all the issues using the context root node as base.
-		/// </summary>
-		/// <returns>
-		/// The issues.
-		/// </returns>
-		public IEnumerable<CodeIssue> GetIssues()
+		public override void VisitClassDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax node)
 		{
-			ctx.RootNode.AcceptVisitor(this);
-			return FoundIssues;
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitClassDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
 		}
 
-		public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+		public override void VisitStructDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.StructDeclarationSyntax node)
 		{
-			if (ctx.CancellationToken.IsCancellationRequested)
-				return;
-			base.VisitTypeDeclaration(typeDeclaration);
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitStructDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
 		}
 
-		public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+		public override void VisitInterfaceDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.InterfaceDeclarationSyntax node)
 		{
-			if (ctx.CancellationToken.IsCancellationRequested)
-				return;
-			base.VisitMethodDeclaration(methodDeclaration);
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitInterfaceDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
 		}
 
-		public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+		public override void VisitEnumDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.EnumDeclarationSyntax node)
 		{
-			if (ctx.CancellationToken.IsCancellationRequested)
-				return;
-			base.VisitPropertyDeclaration(propertyDeclaration);
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitEnumDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
 		}
 
-		public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+		public override void VisitDelegateDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.DelegateDeclarationSyntax node)
 		{
-			if (ctx.CancellationToken.IsCancellationRequested)
-				return;
-			base.VisitFieldDeclaration(fieldDeclaration);
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitDelegateDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
 		}
 
-		public override void VisitComment(Comment comment)
+		public override void VisitConstructorDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.ConstructorDeclarationSyntax node)
 		{
-			if (comment.CommentType == CommentType.SingleLine) {
-				var txt = comment.Content;
-				if (string.IsNullOrEmpty(txt))
-					return;
-				if (isAllDisabled) {
-					isAllDisabled &= txt.IndexOf(GatherVisitorConstants.RestoreAllString, StringComparison.InvariantCultureIgnoreCase) < 0;
-				} else {
-					isAllDisabled |= txt.IndexOf(GatherVisitorConstants.DisableAllString, StringComparison.InvariantCultureIgnoreCase) > 0;
-				}
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitConstructorDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
 
-				if (restoreString != null) {
-					if (isDisabled) {
-						isDisabled &= txt.IndexOf(restoreString, StringComparison.InvariantCulture) < 0;
+		public override void VisitDestructorDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.DestructorDeclarationSyntax node)
+		{
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitDestructorDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
+
+		public override void VisitFieldDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.FieldDeclarationSyntax node)
+		{
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitFieldDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
+
+		public override void VisitIndexerDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.IndexerDeclarationSyntax node)
+		{
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitIndexerDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
+
+		public override void VisitMethodDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax node)
+		{
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitMethodDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
+
+		public override void VisitOperatorDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.OperatorDeclarationSyntax node)
+		{
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitOperatorDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
+
+		public override void VisitPropertyDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.PropertyDeclarationSyntax node)
+		{
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitPropertyDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
+
+		public override void VisitEnumMemberDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.EnumMemberDeclarationSyntax node)
+		{
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitEnumMemberDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
+
+		public override void VisitEventDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.EventDeclarationSyntax node)
+		{
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitEventDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
+
+		public override void VisitEventFieldDeclaration(Microsoft.CodeAnalysis.CSharp.Syntax.EventFieldDeclarationSyntax node)
+		{
+			var oldAttrSuppressed = isAttributeSuppressed;
+			base.VisitEventFieldDeclaration(node);
+			isAttributeSuppressed = oldAttrSuppressed;
+		}
+
+		public override void VisitBlock(Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax node)
+		{
+			cancellationToken.ThrowIfCancellationRequested();
+			base.VisitBlock(node);
+		}
+
+		public override void VisitTrivia(SyntaxTrivia trivia)
+		{
+			switch (trivia.CSharpKind()) {
+				case SyntaxKind.SingleLineCommentTrivia:
+					var txt = trivia.ToString();
+					if (string.IsNullOrEmpty(txt))
+						return;
+					if (isAllDisabled) {
+						isAllDisabled &= txt.IndexOf(GatherVisitorConstants.RestoreAllString, StringComparison.InvariantCultureIgnoreCase) < 0;
 					} else {
-						isDisabled |= txt.IndexOf(disableString, StringComparison.InvariantCulture) > 0;
-						isDisabledOnce |= txt.IndexOf(disableOnceString, StringComparison.InvariantCulture) > 0;
+						isAllDisabled |= txt.IndexOf(GatherVisitorConstants.DisableAllString, StringComparison.InvariantCultureIgnoreCase) > 0;
 					}
-				}
+	
+					if (restoreString != null) {
+						if (isDisabled) {
+							isDisabled &= txt.IndexOf(restoreString, StringComparison.InvariantCulture) < 0;
+						} else {
+							isDisabled |= txt.IndexOf(disableString, StringComparison.InvariantCulture) > 0;
+							isDisabledOnce |= txt.IndexOf(disableOnceString, StringComparison.InvariantCulture) > 0;
+						}
+					}
+					break;
+				case SyntaxKind.PragmaWarningDirectiveTrivia:
+					//			if (pragmaWarning == 0)
+					//				return;
+					//
+					//			var warning = preProcessorDirective as PragmaWarningPreprocessorDirective;
+					//			if (warning == null)
+					//				return;
+					//			if (warning.IsDefined(pragmaWarning))
+					//				isPragmaDisabled = warning.Disable;
+					break;
 			}
 		}
 
-		public override void VisitPreProcessorDirective(PreProcessorDirective preProcessorDirective)
+		public override void VisitAttribute(Microsoft.CodeAnalysis.CSharp.Syntax.AttributeSyntax node)
 		{
-			if (pragmaWarning == 0)
-				return;
+			base.VisitAttribute(node);
 
-			var warning = preProcessorDirective as PragmaWarningPreprocessorDirective;
-			if (warning == null)
-				return;
-			if (warning.IsDefined(pragmaWarning))
-				isPragmaDisabled = warning.Disable;
-		}
-
-		public override void VisitAttribute(Attribute attribute)
-		{
-			base.VisitAttribute(attribute);
 			if (suppressMessageCheckId == null)
 				return;
-			var resolveResult = ctx.Resolve(attribute);
-			if (resolveResult.Type.Name == "SuppressMessageAttribute" && resolveResult.Type.Namespace == "System.Diagnostics.CodeAnalysis") {
-				if (attribute.Arguments.Count < 2)
+			var resolveResult = semanticModel.GetSymbolInfo(node);
+			if (resolveResult.Symbol.Name == "SuppressMessageAttribute" && resolveResult.Symbol.ContainingNamespace.GetFullName() == "System.Diagnostics.CodeAnalysis") {
+				if (node.ArgumentList.Arguments.Count < 2)
 					return;
-				var category = attribute.Arguments.First() as PrimitiveExpression;
-				if (category == null || category.Value.ToString() != suppressMessageCategory)
+				var category = node.ArgumentList.Arguments.First();
+				if (category == null || category.ToString() != suppressMessageCategory)
 					return;
-				var checkId = attribute.Arguments.Skip(1).First() as PrimitiveExpression;
-				if (checkId == null || checkId.Value.ToString() != suppressMessageCheckId) 
+				var checkId = node.ArgumentList.Arguments.Skip(1);
+				if (checkId == null || checkId.ToString() != suppressMessageCheckId) 
 					return;
-				suppressedRegions.Add(attribute.Parent.Parent.Region);
+				isAttributeSuppressed = true;
 			}
 		}
 
-		protected bool IsSuppressed(TextLocation location)
+		protected bool IsSuppressed()
 		{
 			if (isAllDisabled)
 				return true;
@@ -256,14 +326,14 @@ namespace ICSharpCode.NRefactory.CSharp
 				isDisabledOnce = false;
 				return true;
 			}
-			return isDisabled || isGloballySuppressed || isPragmaDisabled || suppressedRegions.Any(r => r.IsInside(location));
+			return isDisabled || isGloballySuppressed || isPragmaDisabled || isAttributeSuppressed;
 		}
 
-		protected void AddIssue(CodeIssue issue)
+		protected void AddIssue(Diagnostic issue)
 		{
-			if (IsSuppressed(issue.Start))
+			if (IsSuppressed())
 				return;
-			FoundIssues.Add(issue);
+			addDiagnostic(issue);
 		}
 	}
 }

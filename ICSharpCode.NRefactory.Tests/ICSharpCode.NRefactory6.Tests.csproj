@@ -145,6 +145,7 @@
     <Compile Include="CSharp\CodeActions\ReplaceEmptyStringTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonActionTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ForStatementConditionIsTrueTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

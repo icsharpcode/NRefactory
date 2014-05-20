@@ -1,10 +1,10 @@
-//
-// EmptyStatementIssueTests.cs
+﻿//
+// NRefactoryCodeDiagnosticAnalyzerAttribute.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2014 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,82 +24,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[TestFixture]
-	public class EmptyStatementIssueTests : RoslynInspectionActionTestBase
+	public class NRefactoryCodeDiagnosticAnalyzerAttribute : Attribute
 	{
-		[Test]
-		public void TestBasicCase()
-		{
-			Test<EmptyStatementIssue>(@"
-class Test
-{
-	public void Foo ()
-	{
-		;
-	}
-}
-", 1, @"
-class Test
-{
-	public void Foo ()
-	{
-	}
-}
-");
+		/// <summary>
+		/// Gets or sets the Issue marker which should be used to mark this issue in the editor.
+		/// It's up to the editor implementation if and how this info is used.
+		/// </summary>
+		public IssueMarker IssueMarker {
+			get;
+			internal set;
 		}
 
-		[Test]
-		public void TestDisable()
-		{
-			TestWrongContext<EmptyStatementIssue>(@"
-class Test
-{
-	public void Foo ()
-	{
-		// ReSharper disable once EmptyStatement
-		;
-	}
-}
-");
-		}
+		public string AnalysisDisableKeyword { get; set; }
+		public string SuppressMessageCategory { get; set; }
+		public string SuppressMessageCheckId { get; set; }
+		public int PragmaWarning { get; set; }
+		public bool IsEnabledByDefault { get; set; }
 
-		[Test]
-		public void TestEmbeddedStatements()
+		public NRefactoryCodeDiagnosticAnalyzerAttribute()
 		{
-			TestWrongContext<EmptyStatementIssue>(@"
-class Test
-{
-	public void Foo ()
-	{
-		for (;;) ;
-		if (true) ; else ;
-		while (true) ;
-		do ; while (true);
-	}
-}
-");
+			IssueMarker = IssueMarker.WavedLine;
 		}
-
-		[Test]
-		public void TestInvalidCase()
-		{
-			TestWrongContext<EmptyStatementIssue>(@"
-class Test
-{
-	public void Foo ()
-	{
-		label:
-			;
-	}
-}
-");
-		}
-
 	}
 }
 

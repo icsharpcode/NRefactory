@@ -104,7 +104,6 @@
     <Compile Include="CodeIssues\CodeActionFactory.cs" />
     <Compile Include="CodeIssues\NRefactoryCodeAction.cs" />
     <Compile Include="CodeIssues\IssueMarker.cs" />
-    <Compile Include="CodeIssues\NRefactoryDiagnosticDescriptor.cs" />
     <Compile Include="CodeIssues\DiagnosticFactory.cs" />
     <Compile Include="CodeActions\UseVarKeywordAction.cs" />
     <Compile Include="NRefactoryCodeRefactoringProviderAttribute.cs" />
@@ -119,6 +118,9 @@
     <Compile Include="CodeActions\ReplaceEmptyStringAction.cs" />
     <Compile Include="CodeActions\ConvertHasFlagsToBitwiseFlagComparisonAction.cs" />
     <Compile Include="CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\ForStatementConditionIsTrueIssue.cs" />
+    <Compile Include="NRefactoryCodeDiagnosticAnalyzerAttribute.cs" />
+    <Compile Include="CodeIssues\GatherVisitorBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

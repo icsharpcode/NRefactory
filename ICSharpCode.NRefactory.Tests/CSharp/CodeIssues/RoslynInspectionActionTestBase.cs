@@ -153,23 +153,22 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 		}
 
-		protected static void TestWrongContext<T>(ISyntaxNodeAnalyzer<T> analyzer, string input)
+		protected static void TestWrongContext<T>(string input) where T : ISemanticModelAnalyzer, new()
 		{
-			Test(analyzer, input, 0);
+			Test<T>(input, 0);
 		}
-		
-		protected static void Test<T>(ISyntaxNodeAnalyzer<T> analyzer, string input, int expectedDiagnostics = 1, string output = null, int issueToFix = -1, int actionToRun = 0)
+
+		protected static void Test<T>(string input, int expectedDiagnostics = 1, string output = null, int issueToFix = -1, int actionToRun = 0) where T : ISemanticModelAnalyzer, new()
 		{
 			var syntaxTree = CSharpSyntaxTree.ParseText(input);
 			 
 			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
 
 			var diagnostics = new List<Diagnostic>();
-
-			AnalyzerDriver.GetDiagnostics(compilation,
-				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(analyzer),
+			diagnostics.AddRange(AnalyzerDriver.GetDiagnostics(compilation,
+				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
 				CancellationToken.None
-			); 
+			)); 
 			
 			Assert.AreEqual(expectedDiagnostics, diagnostics.Count);
 			

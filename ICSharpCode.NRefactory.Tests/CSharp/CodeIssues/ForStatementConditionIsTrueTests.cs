@@ -25,19 +25,19 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ForStatementConditionIsTrueTests : InspectionActionTestBase
+	public class ForStatementConditionIsTrueTests : RoslynInspectionActionTestBase
 	{
 		
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"using System;
+			Test<ForStatementConditionIsTrueIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -49,19 +49,14 @@ namespace resharper_test
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new ForStatementConditionIsTrueIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @"using System;
+", 1, @"using System;
 namespace resharper_test
 {
 	public class baseClass
 	{
 		public void method()
 		{
-			for (;  ;)
+			for (; ;)
 			{}
 		}
 	}
@@ -72,7 +67,7 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"using System;
+			Test<ForStatementConditionIsTrueIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -84,19 +79,14 @@ namespace resharper_test
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new ForStatementConditionIsTrueIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @"using System;
+", 1, @"using System;
 namespace resharper_test
 {
 	public class baseClass
 	{
 		public void method()
 		{
-			for (int a;  ; )
+			for (int a; ; )
 			{}
 		}
 	}
@@ -107,7 +97,7 @@ namespace resharper_test
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			var input = @"using System;
+			TestWrongContext<ForStatementConditionIsTrueIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -121,11 +111,7 @@ namespace resharper_test
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new ForStatementConditionIsTrueIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 	}
 }

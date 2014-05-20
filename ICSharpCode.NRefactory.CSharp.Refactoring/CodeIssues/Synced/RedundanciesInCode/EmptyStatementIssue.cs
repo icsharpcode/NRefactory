@@ -35,47 +35,53 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading;
+using ICSharpCode.NRefactory.CSharp.Refactoring;
  
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer(DiagnosticId, LanguageNames.CSharp)]
-	// 			AnalysisDisableKeyword = "EmptyStatement"
-
-	public class EmptyStatementIssue : ISyntaxNodeAnalyzer<SyntaxKind>
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyStatement")]
+	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EmptyStatementIssue";
-		const string Description   = "Empty statement is redundant";
+		const string Description            = "Empty statement is redundant";
 		internal const string MessageFormat = "Remove ';'";
-		const string Category      = IssueCategories.RedundanciesInCode;
+		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 
-		ImmutableArray<DiagnosticDescriptor> IDiagnosticAnalyzer.SupportedDiagnostics {
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
 				return ImmutableArray.Create(Rule);
 			}
 		}
-		
-		ImmutableArray<SyntaxKind> ISyntaxNodeAnalyzer<SyntaxKind>.SyntaxKindsOfInterest {
-			get {
-				return ImmutableArray.Create(SyntaxKind.EmptyStatement);
-			}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		{
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
-		public void AnalyzeNode(SyntaxNode node, SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, System.Threading.CancellationToken cancellationToken)
+		class GatherVisitor : GatherVisitorBase<EmptyStatementIssue>
 		{
-			if (IsEmbeddedStatement(node))
-				return;
-			addDiagnostic (Diagnostic.Create(Rule, node.GetLocation())); 
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
+			{
+			}
+
+			public override void VisitEmptyStatement(Microsoft.CodeAnalysis.CSharp.Syntax.EmptyStatementSyntax node)
+			{
+				if (IsEmbeddedStatement(node))
+					return;
+				VisitLeadingTrivia(node); 
+				AddIssue (Diagnostic.Create(Rule, node.GetLocation()));
+			}
 		}
 
 		internal static bool IsEmbeddedStatement(SyntaxNode stmt)
 		{
 			return !stmt.Parent.IsKind(SyntaxKind.Block);
 		}
-
-		
 	}
 
 	[ExportCodeFixProvider(EmptyStatementIssue.DiagnosticId, LanguageNames.CSharp)]
