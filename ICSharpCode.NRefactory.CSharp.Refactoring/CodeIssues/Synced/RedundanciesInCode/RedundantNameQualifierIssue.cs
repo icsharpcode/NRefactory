@@ -26,79 +26,117 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory.CSharp;
 
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Refactoring;
-
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	/// <summary>
 	/// Finds redundant namespace usages.
 	/// </summary>
-	[IssueDescription("Redundant name qualifier",
-	                  Description = "Removes namespace usages that are obsolete.",
-	                  Category = IssueCategories.RedundanciesInCode,
-	                  Severity = Severity.Warning,
-                      AnalysisDisableKeyword = "RedundantNameQualifier")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Redundant name qualifier", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Removes namespace usages that are obsolete.", AnalysisDisableKeyword = "RedundantNameQualifier")]
 	public class RedundantNameQualifierIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
+		internal const string DiagnosticId  = "RedundantNameQualifierIssue";
+		const string Description            = "Qualifier is redundant";
+		internal const string MessageFormat = "Remove redundant qualifier";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context, this);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantNameQualifierIssue>
 		{
-			public GatherVisitor (BaseSemanticModel ctx, RedundantNameQualifierIssue qualifierDirectiveEvidentIssueProvider) : base (ctx, qualifierDirectiveEvidentIssueProvider)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
+			public override void VisitQualifiedName(QualifiedNameSyntax node)
 			{
-				base.VisitMemberReferenceExpression(memberReferenceExpression);
-				HandleMemberReference(
-					memberReferenceExpression, memberReferenceExpression.Target, memberReferenceExpression.MemberNameToken, memberReferenceExpression.TypeArguments, NameLookupMode.Expression,
-					script => {
-						script.Replace(memberReferenceExpression, RefactoringAstHelper.RemoveTarget(memberReferenceExpression));
-					});
-			}
-			
-			public override void VisitMemberType(MemberType memberType)
-			{
-				base.VisitMemberType(memberType);
-				HandleMemberReference(
-					memberType, memberType.Target, memberType.MemberNameToken, memberType.TypeArguments, memberType.GetNameLookupMode(),
-					script => {
-						script.Replace(memberType, RefactoringAstHelper.RemoveTarget(memberType));
-					});
-			}
-			
-			void HandleMemberReference(AstNode wholeNode, AstNode targetNode, Identifier memberName, IEnumerable<AstType> typeArguments, NameLookupMode mode, Action<Script> action)
-			{
-				var result = ctx.Resolve(targetNode);
-				if (!(result is NamespaceResolveResult)) {
-					return;
-				}
-				var wholeResult = ctx.Resolve(wholeNode);
-				if (!(wholeResult is TypeResolveResult)) {
-					return;
+				var replacementNode = node.Right.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
+				if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
+					base.VisitQualifiedName(node);
+					AddIssue (Diagnostic.Create(Rule , node.Right.GetLocation()));
+				} else {
+					base.VisitQualifiedName(node);
 				}
 
-				var state = ctx.GetResolverStateBefore(wholeNode);
-				var resolvedTypeArguments = typeArguments.Select(ctx.ResolveType).ToList();
-				var lookupName = state.LookupSimpleNameOrTypeName(memberName.Name, resolvedTypeArguments, mode);
-				
-				if (lookupName is TypeResolveResult && !lookupName.IsError && wholeResult.Type.Equals(lookupName.Type)) {
-					AddIssue(new CodeIssue(
-						wholeNode.StartLocation, 
-						memberName.StartLocation, 
-						ctx.TranslateString("Qualifier is redundant"), 
-						ctx.TranslateString("Remove redundant qualifier"), 
-						action) { IssueMarker = IssueMarker.GrayOut });
+			}
+
+			public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
+			{
+				if (node.Expression.IsKind(SyntaxKind.BaseExpression) || node.Expression.IsKind(SyntaxKind.ThisExpression))
+					return;
+ 				
+				var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
+				if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
+					base.VisitMemberAccessExpression(node);
+					AddIssue (Diagnostic.Create(Rule , node.Expression.GetLocation()));
+				} else {
+					base.VisitMemberAccessExpression(node);
 				}
 			}
 		}
+	}
+
+	[ExportCodeFixProvider(RedundantNameQualifierIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RedundantNameQualifierCodeFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return RedundantNameQualifierIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				var memberAccess = node.Parent as MemberAccessExpressionSyntax;
+				if (memberAccess != null) {
+					var newRoot = root.ReplaceNode((SyntaxNode)memberAccess,
+						memberAccess.Name
+						.WithLeadingTrivia(memberAccess.GetLeadingTrivia())
+						.WithTrailingTrivia(memberAccess.GetTrailingTrivia()));
+					result.Add(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+					continue;
+				}
+				var qualifiedName = node.Parent as QualifiedNameSyntax;
+				if (qualifiedName != null) {
+					var newRoot = root.ReplaceNode((SyntaxNode)qualifiedName,
+						qualifiedName.Right
+						.WithLeadingTrivia(qualifiedName.GetLeadingTrivia())
+						.WithTrailingTrivia(qualifiedName.GetTrailingTrivia()));
+					result.Add(CodeActionFactory.Create(qualifiedName.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+				}
+			}
+			return result;
+		}
+		#endregion
 	}
 }

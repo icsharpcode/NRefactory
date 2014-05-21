@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'true' is redundant as for statement condition", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "ForStatementConditionIsTrue")]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "true is redundant as for statement condition, thus can be safely ommited", AnalysisDisableKeyword = "ForStatementConditionIsTrue")]
 	public class ForStatementConditionIsTrueIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ForStatementConditionIsTrueIssue";
@@ -70,8 +70,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			public override void VisitForStatement(ForStatementSyntax node)
 			{
-				VisitLeadingTrivia(node);
 				if (node.Condition.IsKind(SyntaxKind.TrueLiteralExpression)) {
+					VisitLeadingTrivia(node);
 					AddIssue(Diagnostic.Create(Rule, node.Condition.GetLocation()));
 				}
 				base.VisitForStatement(node);

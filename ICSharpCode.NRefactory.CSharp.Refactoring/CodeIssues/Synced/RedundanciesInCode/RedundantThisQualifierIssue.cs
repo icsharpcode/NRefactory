@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant 'this.' qualifier", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantThisQualifier")]
+	[NRefactoryCodeDiagnosticAnalyzer(Description= "'this.' is redundant and can be removed safely.", AnalysisDisableKeyword = "RedundantThisQualifier")]
 	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantThisQualifierIssue";

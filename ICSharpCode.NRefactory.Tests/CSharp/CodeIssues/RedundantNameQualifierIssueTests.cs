@@ -26,10 +26,10 @@
 
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
 	public class RedundantNameQualifierIssueTests : InspectionActionTestBase
@@ -37,19 +37,14 @@ namespace ICSharpCode.NRefactory.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			var input = @"using System;
+			Test<RedundantNameQualifierIssue>(@"using System;
 class Foo
 {
 	void Bar (string str)
 	{
 		System.Console.WriteLine ();
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantNameQualifierIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"using System;
+}", 1, @"using System;
 class Foo
 {
 	void Bar (string str)
@@ -62,18 +57,13 @@ class Foo
 		[Test]
 		public void TestInspectorCase2 ()
 		{
-			var input = @"using System.Text;
+			Test<RedundantNameQualifierIssue>(@"using System.Text;
 class Foo
 {
 	void Bar (System.Text.StringBuilder b)
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantNameQualifierIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"using System.Text;
+}", 1, @"using System.Text;
 class Foo
 {
 	void Bar (StringBuilder b)
@@ -85,17 +75,13 @@ class Foo
 		[Test]
 		public void UsingAlias()
 		{
-			var input = @"using IEnumerable = System.Collections.IEnumerable;";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantNameQualifierIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+			TestWrongContext<RedundantNameQualifierIssue>(@"using IEnumerable = System.Collections.IEnumerable;");
 		}
 
         [Test]
         public void TestDisable()
         {
-            var input = @"using System;
+			TestWrongContext<RedundantNameQualifierIssue>(@"using System;
 class Foo
 {
 	void Bar (string str)
@@ -104,11 +90,7 @@ class Foo
             System.Console.WriteLine();
 // ReSharper restore RedundantNameQualifier
 	}
-}";
-
-            TestRefactoringContext context;
-            var issues = GetIssues(new RedundantNameQualifierIssue(), input, out context);
-            Assert.AreEqual(0, issues.Count);
+}");
         }
 	}
 }

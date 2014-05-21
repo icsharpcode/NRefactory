@@ -262,6 +262,101 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			return semanticModel.GetSymbolInfo(memberAccess.Name).CandidateReason == CandidateReason.LateBound;
 		}
+
+
+		public static bool CanReplaceWithReducedName(this NameSyntax name, TypeSyntax reducedName, SemanticModel semanticModel, CancellationToken cancellationToken)
+		{
+			var speculationAnalyzer = new SpeculationAnalyzer(name, reducedName, semanticModel, cancellationToken);
+			if (speculationAnalyzer.ReplacementChangesSemantics())
+			{
+				return false;
+			}
+
+			return CanReplaceWithReducedNameInContext(name, reducedName, semanticModel, cancellationToken);
+		}
+
+		private static bool CanReplaceWithReducedNameInContext(this NameSyntax name, TypeSyntax reducedName, SemanticModel semanticModel, CancellationToken cancellationToken)
+		{
+			// Special case.  if this new minimal name parses out to a predefined type, then we
+			// have to make sure that we're not in a using alias. That's the one place where the
+			// language doesn't allow predefined types. You have to use the fully qualified name
+			// instead.
+			var invalidTransformation1 = IsNonNameSyntaxInUsingDirective(name, reducedName);
+			var invalidTransformation2 = WillConflictWithExistingLocal(name, reducedName);
+			var invalidTransformation3 = IsAmbiguousCast(name, reducedName);
+			var invalidTransformation4 = IsNullableTypeInPointerExpression(name, reducedName);
+			var isNotNullableReplacable = name.IsNotNullableReplacable(reducedName);
+
+			if (invalidTransformation1 || invalidTransformation2 || invalidTransformation3 || invalidTransformation4
+				|| isNotNullableReplacable)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		private static bool IsNullableTypeInPointerExpression(ExpressionSyntax expression, ExpressionSyntax simplifiedNode)
+		{
+			// Note: nullable type syntax is not allowed in pointer type syntax
+			if (simplifiedNode.CSharpKind() == SyntaxKind.NullableType &&
+				simplifiedNode.DescendantNodes().Any(n => n is PointerTypeSyntax))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private static bool IsAmbiguousCast(ExpressionSyntax expression, ExpressionSyntax simplifiedNode)
+		{
+			// Can't simplify a type name in a cast expression if it would then cause the cast to be
+			// parsed differently.  For example:  (Foo::Bar)+1  is a cast.  But if that simplifies to
+			// (Bar)+1  then that's an arithmetic expression.
+			if (expression.IsParentKind(SyntaxKind.CastExpression))
+			{
+				var castExpression = (CastExpressionSyntax)expression.Parent;
+				if (castExpression.Type == expression)
+				{
+					var newCastExpression = castExpression.ReplaceNode(castExpression.Type, simplifiedNode);
+					var reparsedCastExpression = SyntaxFactory.ParseExpression(newCastExpression.ToString());
+
+					if (!reparsedCastExpression.IsKind(SyntaxKind.CastExpression))
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+		private static bool IsNonNameSyntaxInUsingDirective(ExpressionSyntax expression, ExpressionSyntax simplifiedNode)
+		{
+			return
+				expression.IsParentKind(SyntaxKind.UsingDirective) &&
+				!(simplifiedNode is NameSyntax);
+		}
+
+		private static bool IsNotNullableReplacable(this NameSyntax name, TypeSyntax reducedName)
+		{
+			var isNotNullableReplacable = false;
+			var isLeftSideOfDot = name.IsLeftSideOfDot();
+			var isRightSideOfDot = name.IsRightSideOfDot();
+
+			if (reducedName.CSharpKind() == SyntaxKind.NullableType)
+			{
+				if (((NullableTypeSyntax)reducedName).ElementType.CSharpKind() == SyntaxKind.OmittedTypeArgument)
+				{
+					isNotNullableReplacable = true;
+				}
+				else
+				{
+					isNotNullableReplacable = name.IsLeftSideOfDot() || name.IsRightSideOfDot();
+				}
+			}
+
+			return isNotNullableReplacable;
+		}
 	}
 }
 

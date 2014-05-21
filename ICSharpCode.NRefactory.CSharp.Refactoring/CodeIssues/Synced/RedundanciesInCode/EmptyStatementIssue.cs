@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Empty statement is redundant", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyStatement")]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Empty statement is redundant", AnalysisDisableKeyword = "EmptyStatement")]
 	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EmptyStatementIssue";

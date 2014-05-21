@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant 'base.' qualifier", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBaseQualifier")]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "'base.' is redundant and can safely be removed.", AnalysisDisableKeyword = "RedundantBaseQualifier")]
 	public class RedundantBaseQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantBaseQualifierIssue";
@@ -74,12 +74,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
 			{
-				base.VisitMemberAccessExpression(node);
 				if (node.Expression.IsKind(SyntaxKind.BaseExpression)) {
 					var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 					if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
+						base.VisitMemberAccessExpression(node);
 						AddIssue (Diagnostic.Create(Rule , node.Expression.GetLocation()));
 					}
+				} else {
+					base.VisitMemberAccessExpression(node);
 				}
 			}
 		}
