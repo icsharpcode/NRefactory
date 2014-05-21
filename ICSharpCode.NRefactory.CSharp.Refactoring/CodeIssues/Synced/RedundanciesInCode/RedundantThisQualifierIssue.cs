@@ -58,8 +58,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		public const string InsideConstructors = DiagnosticId +".InsideConstructors";
 		public const string EverywhereElse     = DiagnosticId + ".EverywhereElse";
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (InsideConstructors, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (EverywhereElse, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (InsideConstructors, "Inside constructors", MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (EverywhereElse, "Everywhere else", MessageFormat, Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
