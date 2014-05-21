@@ -78,7 +78,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 					if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
 						base.VisitMemberAccessExpression(node);
-						AddIssue (Diagnostic.Create(Rule , Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.Expression.SpanStart, node.Name.SpanStart))));
+
+						AddIssue (Diagnostic.Create(Rule, node.Expression.GetLocation(), additionalLocations: new [] { node.OperatorToken.GetLocation() }));
 					}
 				} else {
 					base.VisitMemberAccessExpression(node);

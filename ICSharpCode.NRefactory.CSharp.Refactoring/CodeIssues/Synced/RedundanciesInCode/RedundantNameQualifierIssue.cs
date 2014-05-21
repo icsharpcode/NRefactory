@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var replacementNode = node.Right.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 				if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
 					base.VisitQualifiedName(node);
-					AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.Left.SpanStart, node.Right.SpanStart))));
+					AddIssue (Diagnostic.Create(Rule, node.Left.GetLocation(), additionalLocations: new [] { node.DotToken.GetLocation() }));
 				} else {
 					base.VisitQualifiedName(node);
 				}
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 				if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
 					base.VisitMemberAccessExpression(node);
-					AddIssue (Diagnostic.Create(Rule , Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.Expression.SpanStart, node.Name.SpanStart))));
+					AddIssue (Diagnostic.Create(Rule, node.Expression.GetLocation(), additionalLocations: new [] { node.OperatorToken.GetLocation() }));
 				} else {
 					base.VisitMemberAccessExpression(node);
 				}

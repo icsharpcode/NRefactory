@@ -95,7 +95,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node.Expression.IsKind(SyntaxKind.ThisExpression)) {
 					var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 					if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
-						AddIssue (Diagnostic.Create(isInsideConstructor ? Rule1 : Rule2, Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.Expression.SpanStart, node.Name.SpanStart))));
+						AddIssue (Diagnostic.Create(isInsideConstructor ? Rule1 : Rule2, node.Expression.GetLocation(), additionalLocations: new [] { node.OperatorToken.GetLocation() }));
 					}
 				}
 			}
