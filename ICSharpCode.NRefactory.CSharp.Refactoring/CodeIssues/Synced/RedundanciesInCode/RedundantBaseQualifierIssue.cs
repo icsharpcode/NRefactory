@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 					if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
 						base.VisitMemberAccessExpression(node);
-						AddIssue (Diagnostic.Create(Rule , node.Expression.GetLocation()));
+						AddIssue (Diagnostic.Create(Rule , Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.Expression.SpanStart, node.Name.SpanStart))));
 					}
 				} else {
 					base.VisitMemberAccessExpression(node);
@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(RedundantBaseQualifierIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class RedundantBaseQualifierIssueCodeFixProvider : ICodeFixProvider
+	public class RedundantBaseQualifierCodeFixProvider : ICodeFixProvider
 	{
 		#region ICodeFixProvider implementation
 
@@ -109,7 +109,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						token.Name
 						.WithLeadingTrivia(token.GetLeadingTrivia())
 						.WithTrailingTrivia(token.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

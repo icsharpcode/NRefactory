@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var token = root.FindNode(diagonstic.Location.SourceSpan);
 				if (token.IsKind(SyntaxKind.EmptyStatement)) {
 					var newRoot = root.RemoveNode(token, SyntaxRemoveOptions.KeepDirectives);
-					result.Add(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

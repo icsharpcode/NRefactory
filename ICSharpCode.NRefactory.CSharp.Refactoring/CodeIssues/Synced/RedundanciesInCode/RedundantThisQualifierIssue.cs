@@ -95,7 +95,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node.Expression.IsKind(SyntaxKind.ThisExpression)) {
 					var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 					if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
-						AddIssue (Diagnostic.Create(isInsideConstructor ? Rule1 : Rule2 , node.Expression.GetLocation()));
+						AddIssue (Diagnostic.Create(isInsideConstructor ? Rule1 : Rule2, Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.Expression.SpanStart, node.Name.SpanStart))));
 					}
 				}
 			}
@@ -125,7 +125,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						token.Name
 						.WithLeadingTrivia(token.GetLeadingTrivia())
 						.WithTrailingTrivia(token.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

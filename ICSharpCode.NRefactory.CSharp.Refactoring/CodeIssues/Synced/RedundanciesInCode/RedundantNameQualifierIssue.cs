@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var replacementNode = node.Right.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 				if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
 					base.VisitQualifiedName(node);
-					AddIssue (Diagnostic.Create(Rule , node.Right.GetLocation()));
+					AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.Left.SpanStart, node.Right.SpanStart))));
 				} else {
 					base.VisitQualifiedName(node);
 				}
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 				if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
 					base.VisitMemberAccessExpression(node);
-					AddIssue (Diagnostic.Create(Rule , node.Expression.GetLocation()));
+					AddIssue (Diagnostic.Create(Rule , Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.Expression.SpanStart, node.Name.SpanStart))));
 				} else {
 					base.VisitMemberAccessExpression(node);
 				}
@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						memberAccess.Name
 						.WithLeadingTrivia(memberAccess.GetLeadingTrivia())
 						.WithTrailingTrivia(memberAccess.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, RedundantNameQualifierIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
 					continue;
 				}
 				var qualifiedName = node.Parent as QualifiedNameSyntax;
@@ -132,7 +132,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						qualifiedName.Right
 						.WithLeadingTrivia(qualifiedName.GetLeadingTrivia())
 						.WithTrailingTrivia(qualifiedName.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(qualifiedName.Span, DiagnosticSeverity.Info, EmptyStatementIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(qualifiedName.Span, diagonstic.Severity, RedundantNameQualifierIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;
