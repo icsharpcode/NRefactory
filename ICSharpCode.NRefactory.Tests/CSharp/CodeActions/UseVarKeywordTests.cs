@@ -101,6 +101,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	}
 }", result);
 		}
+
+		[Test]
+		public void TestInvalidLocationBug ()
+		{
+			TestWrongContext(new UseVarKeywordAction (),
+				@"class TestClass
+{
+	$void Test ()
+	{
+		var aVar = this;
+	}
+}");
+		}
 	}
 }
 

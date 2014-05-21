@@ -42,8 +42,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Use 'var' keyword", LanguageNames.CSharp)]
 	public class UseVarKeywordAction : ICodeRefactoringProvider
 	{
-		internal static readonly Version minimumVersion = new Version (3, 0, 0);
-
 		internal static VariableDeclarationSyntax GetVariableDeclarationStatement (SyntaxNode token)
 		{
 			return token.Parent as VariableDeclarationSyntax;
@@ -59,8 +57,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-//			if (!context.Supports(minimumVersion))
-//				yield break;
+			var parseOptions = root.SyntaxTree.Options as CSharpParseOptions;
+			if (parseOptions != null && parseOptions.LanguageVersion < LanguageVersion.CSharp3)
+				return Enumerable.Empty<CodeAction> ();
 
 			var token = root.FindToken(span.Start);
 
@@ -71,7 +70,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var foreachStmt = GetForeachStatement (token.Parent);
 			if (foreachStmt != null)
 				type = foreachStmt.Type;
-			if (type.IsVar)
+			if (type == null || type.IsVar)
 				return Enumerable.Empty<CodeAction> ();
 			if (type != null) {
 				return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Use 'var' keyword", PerformAction (document, root, type)) };
@@ -91,7 +90,5 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			);
 			return document.WithSyntaxRoot(newRoot);
 		}
-			
 	}
 }
-
