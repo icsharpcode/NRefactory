@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Convert to explicit initializers",
 	               Description = "Converts an object or collection initializer to explicit initializations.")]

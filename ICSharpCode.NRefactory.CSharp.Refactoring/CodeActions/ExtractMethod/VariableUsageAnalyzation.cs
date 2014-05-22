@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod
 {
 	
 	public enum VariableState {

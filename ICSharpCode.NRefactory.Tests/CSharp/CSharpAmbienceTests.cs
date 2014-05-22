@@ -23,7 +23,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	[TestFixture]
 	public class CSharpAmbienceTests
@@ -172,7 +172,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			ambience.ConversionFlags = ConversionFlags.All;
 			string result = ambience.ConvertSymbol(field);
 			
-			Assert.AreEqual("private int ICSharpCode.NRefactory.CSharp.CSharpAmbienceTests.Program.test;", result);
+			Assert.AreEqual("private int ICSharpCode.NRefactory6.CSharp.CSharpAmbienceTests.Program.test;", result);
 		}
 		
 		[Test]
@@ -182,7 +182,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			ambience.ConversionFlags = ConversionFlags.All;
 			string result = ambience.ConvertSymbol(field);
 			
-			Assert.AreEqual("private const int ICSharpCode.NRefactory.CSharp.CSharpAmbienceTests.Program.TEST2;", result);
+			Assert.AreEqual("private const int ICSharpCode.NRefactory6.CSharp.CSharpAmbienceTests.Program.TEST2;", result);
 		}
 		
 		[Test]

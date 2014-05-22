@@ -23,7 +23,7 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory6.CSharp.Resolver
 {
 	using dynamic = ICSharpCode.NRefactory.TypeSystem.ReflectionHelper.Dynamic;
 	using C = Conversion;

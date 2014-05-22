@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription ("Empty control statement body",
 	                   Description = "';' should be avoided. Use '{}' instead",

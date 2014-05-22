@@ -149,6 +149,7 @@
     <Compile Include="CSharp\CodeIssues\InspectionActionTestBase.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseQualifierTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantNameQualifierIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\DoubleNegationOperatorIssueTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

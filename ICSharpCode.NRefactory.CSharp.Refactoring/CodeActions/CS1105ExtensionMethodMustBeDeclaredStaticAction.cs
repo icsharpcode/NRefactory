@@ -29,7 +29,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Extension methods must be declared static")]
 	public class CS1105ExtensionMethodMustBeDeclaredStaticAction : ICodeRefactoringProvider

@@ -27,11 +27,11 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription("'string.CompareTo' is culture-aware",
 	                  Description = "Warns when a culture-aware 'string.CompareTo' call is used by default.",

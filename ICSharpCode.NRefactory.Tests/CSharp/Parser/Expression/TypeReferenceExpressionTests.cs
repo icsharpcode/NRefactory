@@ -20,7 +20,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.Expression
+namespace ICSharpCode.NRefactory6.CSharp.Parser.Expression
 {
 	[TestFixture]
 	public class TypeReferenceExpressionTests

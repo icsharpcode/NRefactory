@@ -25,12 +25,12 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp.Analysis;
+using ICSharpCode.NRefactory6.CSharp.Analysis;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription ("Function never returns",
 		Description = "Function does not reach its end or a 'return' statement by any of possible execution paths.",

@@ -29,7 +29,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Implement abstract members", Description = "Implements abstract members from an abstract class.")]
 	public class ImplementAbstractMembersAction : ICodeRefactoringProvider

@@ -27,7 +27,7 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	public abstract class VariableOnlyAssignedIssue : GatherVisitorCodeIssueProvider
 	{

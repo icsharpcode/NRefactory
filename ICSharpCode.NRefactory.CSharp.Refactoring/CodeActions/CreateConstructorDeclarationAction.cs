@@ -25,9 +25,9 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Create constructor", Description = "Creates a constructor declaration out of an object creation.")]
 	public class CreateConstructorDeclarationAction : ICodeRefactoringProvider

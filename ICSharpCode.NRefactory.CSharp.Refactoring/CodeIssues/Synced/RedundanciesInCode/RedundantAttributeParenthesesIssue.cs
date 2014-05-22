@@ -27,7 +27,7 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription("Parentheses are redundant if attribute has no arguments",
 		Description = "Parentheses are redundant if attribute has no arguments.",

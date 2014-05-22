@@ -27,7 +27,7 @@
 // THE SOFTWARE.
 
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction ("Negate a relational expression", Description = "Negate a relational expression.")]
 	public class NegateRelationalExpressionAction : ICodeRefactoringProvider

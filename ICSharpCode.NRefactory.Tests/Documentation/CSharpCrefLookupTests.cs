@@ -19,7 +19,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory6.CSharp;
 using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
 

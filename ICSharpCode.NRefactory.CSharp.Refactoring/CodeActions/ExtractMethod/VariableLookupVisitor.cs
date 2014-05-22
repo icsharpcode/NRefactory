@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod
 {
 	class VariableLookupVisitor : DepthFirstAstVisitor
 	{

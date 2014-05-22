@@ -29,12 +29,12 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using System.Runtime.InteropServices.ComTypes;
-using ICSharpCode.NRefactory.CSharp.Analysis;
+using ICSharpCode.NRefactory6.CSharp.Analysis;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription("'??' condition is known to be null or not null",
 	                  Description = "Finds redundant null coalescing expressions such as expr ?? expr",

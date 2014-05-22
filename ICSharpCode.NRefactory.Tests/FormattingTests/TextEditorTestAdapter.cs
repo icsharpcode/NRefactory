@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory6.CSharp;
 using System.IO;
 using ICSharpCode.NRefactory.Editor;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.FormattingTests
+namespace ICSharpCode.NRefactory6.CSharp.FormattingTests
 {
 	public abstract class TestBase
 	{

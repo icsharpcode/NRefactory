@@ -1,10 +1,10 @@
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeActions;
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
 	public class CS0029InvalidConversionIssueTests : InspectionActionTestBase

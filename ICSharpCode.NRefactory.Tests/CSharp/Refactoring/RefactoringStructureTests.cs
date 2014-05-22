@@ -20,7 +20,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[TestFixture]
 	public class RefactoringStructureTests

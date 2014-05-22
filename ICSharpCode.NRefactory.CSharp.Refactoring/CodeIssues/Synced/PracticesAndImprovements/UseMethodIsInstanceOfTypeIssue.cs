@@ -27,9 +27,9 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Analysis;
+using ICSharpCode.NRefactory6.CSharp.Analysis;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
 using System.Threading;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using System;
@@ -37,7 +37,7 @@ using System.Diagnostics;
 using ICSharpCode.NRefactory.Utils;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription("Use method IsInstanceOfType",
 	                  Description = "Use method IsInstanceOfType",

@@ -26,7 +26,7 @@
 
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
 	public class RemoveFieldRefactoryActionTests : ContextActionTestBase

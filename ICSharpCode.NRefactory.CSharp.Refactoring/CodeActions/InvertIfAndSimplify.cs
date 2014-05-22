@@ -27,7 +27,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Invert If and Simplify", Description = "Inverts if and simplify branching")]
 	public class InvertIfAndSimplify : ICodeRefactoringProvider

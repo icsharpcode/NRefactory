@@ -27,7 +27,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	static class RefactoringExtensions
 	{

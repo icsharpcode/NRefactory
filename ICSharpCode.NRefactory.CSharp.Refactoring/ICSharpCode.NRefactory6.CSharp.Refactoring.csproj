@@ -124,6 +124,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantThisQualifierIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantBaseQualifierIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantNameQualifierIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\DoubleNegationOperatorIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

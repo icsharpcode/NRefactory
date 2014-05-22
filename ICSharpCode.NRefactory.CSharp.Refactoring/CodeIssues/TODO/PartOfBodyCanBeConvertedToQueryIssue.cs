@@ -26,7 +26,7 @@
 using System;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 //	[IssueDescription ("Part of the loop body can be converted into LINQ expression",
 //		Description = "Part of the loop body can be converted into LINQ expression",

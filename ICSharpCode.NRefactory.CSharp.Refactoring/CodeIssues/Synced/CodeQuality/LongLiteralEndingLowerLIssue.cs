@@ -25,9 +25,9 @@
 // THE SOFTWARE.
 using System;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription ("Long literal ends with 'l' instead of 'L'",
 	                   Description = "Lowercase 'l' is often confused with '1'",

@@ -27,7 +27,7 @@
 using ICSharpCode.NRefactory.PatternMatching;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	/// <summary>
 	/// Creates a 'if (param == null) throw new System.ArgumentNullException ();' contruct for a parameter.

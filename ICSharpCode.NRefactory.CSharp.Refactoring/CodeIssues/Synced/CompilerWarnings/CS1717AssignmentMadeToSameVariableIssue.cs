@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
     [IssueDescription("CS1717:Assignment made to same variable",
 					   Description = "CS1717:Assignment made to same variable.",

@@ -25,10 +25,10 @@
 // THE SOFTWARE.
 
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Analysis;
+using ICSharpCode.NRefactory6.CSharp.Analysis;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription("Redundant 'else' keyword",
 	                  Description = "Redundant 'else' keyword.",

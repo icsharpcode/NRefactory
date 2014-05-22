@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Create backing store for auto property", Description = "Creates a backing field for an auto property.")]
 	public class CreateBackingStoreAction : ICodeRefactoringProvider

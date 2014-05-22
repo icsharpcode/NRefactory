@@ -21,7 +21,7 @@ using System.IO;
 using System.Linq;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
+namespace ICSharpCode.NRefactory6.CSharp.Parser.GeneralScope
 {
 	[TestFixture]
 	public class NamespaceDeclarationTests

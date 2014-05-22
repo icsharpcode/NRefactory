@@ -27,14 +27,14 @@ using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.Analysis;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
+using ICSharpCode.NRefactory6.CSharp.Analysis;
 using System.Threading;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading.Tasks;
 using Mono.CSharp;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod
 {
 	[ContextAction("Extract method", Description = "Creates a new method out of selected text.")]
 	public class ExtractMethodAction : ICodeRefactoringProvider

@@ -26,7 +26,7 @@
 using System;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 //	[IssueDescription ("Redundant type arguments in method call",
 //		Description = "Explicit specifiction is redundant because they are inferred from arguments",

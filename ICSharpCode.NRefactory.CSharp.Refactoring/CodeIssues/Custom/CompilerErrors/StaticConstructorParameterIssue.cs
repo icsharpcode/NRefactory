@@ -30,7 +30,7 @@
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription("Static constructor should be parameterless",
 		Description = "Static constructor should be parameterless",

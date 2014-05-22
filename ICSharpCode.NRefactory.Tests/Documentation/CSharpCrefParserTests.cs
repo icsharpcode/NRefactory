@@ -17,8 +17,8 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.CSharp.Parser;
+using ICSharpCode.NRefactory6.CSharp;
+using ICSharpCode.NRefactory6.CSharp.Parser;
 using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
 

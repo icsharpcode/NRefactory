@@ -20,7 +20,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.TypeMembers
+namespace ICSharpCode.NRefactory6.CSharp.Parser.TypeMembers
 {
 	[TestFixture]
 	public class OperatorDeclarationTests

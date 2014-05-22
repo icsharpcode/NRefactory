@@ -26,9 +26,9 @@
 using System;
 using System.IO;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory6.CSharp;
 
-namespace ICSharpCode.NRefactory.CSharp.FormattingTests
+namespace ICSharpCode.NRefactory6.CSharp.FormattingTests
 {
 	[TestFixture()]
 	public class TestStatements : TestBase

@@ -29,7 +29,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	public class NamingRule : IEquatable<NamingRule>
 	{

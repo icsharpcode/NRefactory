@@ -26,7 +26,7 @@
 using ICSharpCode.NRefactory.Refactoring;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription("Replace with single call to First(...)",
         Description = "Replace with single call to First(...)",

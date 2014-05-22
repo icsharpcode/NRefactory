@@ -20,7 +20,7 @@ using System;
 using ICSharpCode.NRefactory.Semantics;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory6.CSharp.Resolver
 {
 	[TestFixture]
 	public class UnsafeCodeTests : ResolverTestBase

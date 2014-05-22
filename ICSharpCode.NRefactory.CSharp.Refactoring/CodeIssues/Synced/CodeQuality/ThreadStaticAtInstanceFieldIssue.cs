@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
     [IssueDescription("[ThreadStatic] doesn't work with instance fields",
                       Description = "[ThreadStatic] doesn't work with instance fields",

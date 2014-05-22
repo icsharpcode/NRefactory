@@ -30,7 +30,7 @@ using System.Threading;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Generate property", Description = "Generates a getter and setter for a field.")]
 	public class GeneratePropertyAction : ICodeRefactoringProvider
@@ -70,9 +70,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		static PropertyDeclaration GeneratePropertyDeclaration (SemanticModel context, FieldDeclaration field, string fieldName)
 		{
-			var mod = ICSharpCode.NRefactory.CSharp.Modifiers.Public;
-			if (field.HasModifier (ICSharpCode.NRefactory.CSharp.Modifiers.Static))
-				mod |= ICSharpCode.NRefactory.CSharp.Modifiers.Static;
+			var mod = ICSharpCode.NRefactory6.CSharp.Modifiers.Public;
+			if (field.HasModifier (ICSharpCode.NRefactory6.CSharp.Modifiers.Static))
+				mod |= ICSharpCode.NRefactory6.CSharp.Modifiers.Static;
 			
 			return new PropertyDeclaration () {
 				Modifiers = mod,

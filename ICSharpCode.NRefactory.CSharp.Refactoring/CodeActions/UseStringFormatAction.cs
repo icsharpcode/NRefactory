@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Use string.Format()",
 	                Description = "Convert concatenation of strings and objects to string.Format()")]

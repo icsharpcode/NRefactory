@@ -20,7 +20,7 @@ using System;
 using System.IO;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	[TestFixture]
 	public class InsertParenthesesVisitorTests

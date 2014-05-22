@@ -26,7 +26,7 @@ using ICSharpCode.NRefactory.TypeSystem.TestCase;
 using ICSharpCode.NRefactory.Utils;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser
+namespace ICSharpCode.NRefactory6.CSharp.Parser
 {
 	[TestFixture]
 	public class TypeSystemConvertVisitorTests : TypeSystemTests

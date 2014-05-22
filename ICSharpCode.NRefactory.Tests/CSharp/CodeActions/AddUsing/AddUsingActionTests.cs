@@ -1,10 +1,10 @@
-using ICSharpCode.NRefactory.CSharp.CodeIssues;
+using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions.AddUsing
+namespace ICSharpCode.NRefactory6.CSharp.CodeActions.AddUsing
 {
 	[TestFixture]
 	public class AddUsingActionTests : ContextActionTestBase

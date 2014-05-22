@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription ("Redundant empty argument list on object creation expression",
 	                   Description = "When object creation uses object or collection initializer, empty argument list is redundant.",

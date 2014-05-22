@@ -21,7 +21,7 @@ using ICSharpCode.NRefactory.Semantics;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory6.CSharp.Resolver
 {
 	[TestFixture]
 	public class SizeOfTests : ResolverTestBase

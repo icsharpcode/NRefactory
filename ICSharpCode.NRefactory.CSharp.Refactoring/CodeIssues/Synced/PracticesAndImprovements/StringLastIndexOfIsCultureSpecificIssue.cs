@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription("'string.LastIndexOf' is culture-aware",
 	                  Description = "Warns when a culture-aware 'LastIndexOf' call is used by default.",

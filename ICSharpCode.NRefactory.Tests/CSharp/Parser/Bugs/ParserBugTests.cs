@@ -25,10 +25,10 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory6.CSharp;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.Bugs
+namespace ICSharpCode.NRefactory6.CSharp.Parser.Bugs
 {
 	[TestFixture]
 	public class ParserBugTests

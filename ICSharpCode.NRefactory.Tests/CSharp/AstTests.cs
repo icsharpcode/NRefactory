@@ -27,7 +27,7 @@ using System;
 using NUnit.Framework;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	[TestFixture]
 

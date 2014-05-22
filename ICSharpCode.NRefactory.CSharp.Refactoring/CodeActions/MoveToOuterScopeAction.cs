@@ -25,12 +25,12 @@
 // THE SOFTWARE.
 using System.Collections.Generic;
 using System;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
 using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
 using System.Threading;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	
 	[ContextAction("Move to outer scope", Description = "Moves a declaration to the parent scope.")]

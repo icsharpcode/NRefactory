@@ -21,7 +21,7 @@ using System.Linq;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.Statements
+namespace ICSharpCode.NRefactory6.CSharp.Parser.Statements
 {
 	[TestFixture]
 	public class TryCatchStatementTests

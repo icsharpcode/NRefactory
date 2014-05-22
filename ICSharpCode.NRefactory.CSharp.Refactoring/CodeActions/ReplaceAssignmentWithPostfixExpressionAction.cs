@@ -29,7 +29,7 @@ using System.Threading;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Replace assignment with postfix expression", Description = "Replace assignment with postfix expression")]
 	public class ReplaceAssignmentWithPostfixExpressionAction : SpecializedCodeAction<AssignmentExpression>

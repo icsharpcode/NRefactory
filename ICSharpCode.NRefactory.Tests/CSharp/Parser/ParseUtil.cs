@@ -24,7 +24,7 @@ using System.Text;
 using ICSharpCode.NRefactory.PatternMatching;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser
+namespace ICSharpCode.NRefactory6.CSharp.Parser
 {
 	/// <summary>
 	/// Helper methods for parser unit tests.

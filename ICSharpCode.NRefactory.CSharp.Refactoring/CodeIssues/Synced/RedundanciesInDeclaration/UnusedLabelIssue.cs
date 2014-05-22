@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[IssueDescription(
 		"Unused label",
@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 			class LabelDescriptor 
 			{
-				public List<LabelStatement> LabelStatement = new List<ICSharpCode.NRefactory.CSharp.LabelStatement>();
+				public List<LabelStatement> LabelStatement = new List<ICSharpCode.NRefactory6.CSharp.LabelStatement>();
 				public bool IsUsed;
 
 				public LabelDescriptor(LabelStatement labelStatement)

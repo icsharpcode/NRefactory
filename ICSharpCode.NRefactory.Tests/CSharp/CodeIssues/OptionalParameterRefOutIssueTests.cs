@@ -24,10 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
 	public class OptionalParameterRefOutIssueTests : InspectionActionTestBase
@@ -44,7 +44,7 @@ class Bar
 	}
 }
 ";
-			ICSharpCode.NRefactory.CSharp.CodeActions.TestRefactoringContext context;
+			ICSharpCode.NRefactory6.CSharp.CodeActions.TestRefactoringContext context;
 			var issues = GetIssues (new OptionalParameterRefOutIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}
@@ -61,7 +61,7 @@ class Bar
 	}
 }
 ";
-			ICSharpCode.NRefactory.CSharp.CodeActions.TestRefactoringContext context;
+			ICSharpCode.NRefactory6.CSharp.CodeActions.TestRefactoringContext context;
 			var issues = GetIssues (new OptionalParameterRefOutIssue (), input, out context);
 			Assert.AreEqual (1, issues.Count);
 		}

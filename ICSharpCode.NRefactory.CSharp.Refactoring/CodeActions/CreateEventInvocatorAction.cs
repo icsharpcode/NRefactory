@@ -28,7 +28,7 @@ using System.Linq;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[ContextAction("Create event invocator", Description = "Creates a standard OnXXX event method.")]
 	public class CreateEventInvocatorAction : ICodeRefactoringProvider

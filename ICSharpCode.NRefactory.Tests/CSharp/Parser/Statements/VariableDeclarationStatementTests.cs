@@ -21,7 +21,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.Statements
+namespace ICSharpCode.NRefactory6.CSharp.Parser.Statements
 {
 	[TestFixture]
 	public class VariableDeclarationStatementTests
