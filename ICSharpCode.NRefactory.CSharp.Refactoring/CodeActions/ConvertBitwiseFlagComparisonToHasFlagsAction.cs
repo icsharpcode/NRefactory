@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax boP, ExpressionSyntax flagsExpression, ExpressionSyntax targetExpression, bool testFlagset)
 		{
-			var nodeToReplace = StripParenthesizedExpression(boP);
+			var nodeToReplace = boP.SkipParens();
 
 			var castExpr = BuildHasFlagExpression (targetExpression, flagsExpression);
 
@@ -102,14 +102,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		static void DecomposeBinaryOperator(BinaryExpressionSyntax binOp, out ExpressionSyntax flagsExpression, out ExpressionSyntax targetExpression)
 		{
-			targetExpression = StripParenthesizedExpression(binOp.Left);
-			flagsExpression = StripParenthesizedExpression(binOp.Right);
+			targetExpression = binOp.Left.SkipParens();
+			flagsExpression = binOp.Right.SkipParens();
 		}
 
 		static bool AnalyzeComparisonWithFlags (BinaryExpressionSyntax boP, out ExpressionSyntax flagsExpression, out ExpressionSyntax targetExpression, out bool testFlagset)
 		{
-			var left = StripParenthesizedExpression(boP.Left);
-			var right = StripParenthesizedExpression(boP.Right);
+			var left = boP.Left.SkipParens();
+			var right = boP.Right.SkipParens();
 
 			testFlagset = boP.CSharpKind() != SyntaxKind.EqualsExpression;
 			flagsExpression = targetExpression = null;
@@ -142,8 +142,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		static bool AnalyzeComparisonWithNull (BinaryExpressionSyntax boP, out ExpressionSyntax flagsExpression, out ExpressionSyntax targetExpression, out bool testFlagset)
 		{
-			var left = StripParenthesizedExpression(boP.Left);
-			var right = StripParenthesizedExpression(boP.Right);
+			var left = boP.Left.SkipParens();
+			var right = boP.Right.SkipParens();
 			testFlagset = boP.CSharpKind() == SyntaxKind.EqualsExpression;
 			flagsExpression = targetExpression = null;
 
@@ -163,14 +163,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			DecomposeBinaryOperator(binOp, out flagsExpression, out targetExpression);
 			return primExp != null && primExp.ToString() == "0";
-		}
-
-		internal static ExpressionSyntax StripParenthesizedExpression(ExpressionSyntax expr)
-		{
-			var parens = expr as ParenthesizedExpressionSyntax;
-			if (parens != null)
-				return StripParenthesizedExpression(parens.Expression);
-			return expr;
 		}
 
 		internal static ExpressionSyntax MakeFlatExpression (ExpressionSyntax expr, SyntaxKind opType)

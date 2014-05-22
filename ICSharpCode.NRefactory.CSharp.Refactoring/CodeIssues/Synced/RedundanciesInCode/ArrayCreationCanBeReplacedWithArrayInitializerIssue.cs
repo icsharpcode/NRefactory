@@ -23,78 +23,106 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Refactoring;
+using System;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription("Array creation can be replaced with array initializer",
-		Description = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.",
-		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning)]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Empty statement is redundant", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.", AnalysisDisableKeyword = "ArrayCreationCanBeReplacedWithArrayInitializer")]
 	public class ArrayCreationCanBeReplacedWithArrayInitializerIssue : GatherVisitorCodeIssueProvider
 	{
+		internal const string DiagnosticId  = "ArrayCreationCanBeReplacedWithArrayInitializerIssue";
+		const string Description            = "Array creation can be replaced with array initializer";
+		internal const string MessageFormat = "Use array initializer";
+		const string Category               = IssueCategories.RedundanciesInCode;
 
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			return new GatherVisitor(context, this);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
 		}
 
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		{
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+		}
 
 		class GatherVisitor : GatherVisitorBase<ArrayCreationCanBeReplacedWithArrayInitializerIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx, ArrayCreationCanBeReplacedWithArrayInitializerIssue issueProvider) : base (ctx, issueProvider)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			private void AddIssue(AstNode node, AstNode initializer)
+			public override void VisitImplicitArrayCreationExpression(ImplicitArrayCreationExpressionSyntax node)
 			{
-				AddIssue(new CodeIssue(
-					node.StartLocation, 
-					initializer.StartLocation, 
-					ctx.TranslateString("Redundant array creation expression"), 
-					ctx.TranslateString("Use array initializer"),
-					script => {
-						var startOffset = script.GetCurrentOffset(node.StartLocation);
-						var endOffset = script.GetCurrentOffset(initializer.StartLocation);
-						if (startOffset < endOffset)
-							script.RemoveText(startOffset, endOffset - startOffset);
-					}) { IssueMarker = IssueMarker.GrayOut }
-				);
+				base.VisitImplicitArrayCreationExpression(node);
+				if (node.Initializer == null)
+					return;
+				var varInitializer = node.Parent.Parent;
+				if (varInitializer == null)
+					return;
+				var variableDeclaration = varInitializer.Parent as VariableDeclarationSyntax;
+				if (variableDeclaration != null) {
+					if (!variableDeclaration.Type.IsKind(SyntaxKind.ArrayType))
+						return;
+					AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.NewKeyword.Span.Start, node.Initializer.Span.Start))));
+				}
 			}
 
-			public override void VisitArrayCreateExpression(ArrayCreateExpression arrayCreateExpression)
+			public override void VisitArrayCreationExpression(ArrayCreationExpressionSyntax node)
 			{
-				base.VisitArrayCreateExpression(arrayCreateExpression);
-
-				if (arrayCreateExpression.Initializer.IsNull)
+				base.VisitArrayCreationExpression(node);
+				if (node.Initializer == null)
 					return;
-			
-				var variableInilizer = arrayCreateExpression.GetParent<VariableInitializer>();
-				if (variableInilizer == null)
+				var varInitializer = node.Parent.Parent;
+				if (varInitializer == null)
 					return;
-
-				if (variableInilizer.Parent is VariableDeclarationStatement) {
-					var variableDeclaration = variableInilizer.Parent;
-
-					if (variableDeclaration.GetChildByRole(Roles.Type) is ComposedType) {
-						var composedType = variableDeclaration.GetChildByRole(Roles.Type) as ComposedType;
-						if (composedType.ArraySpecifiers == null)
-							return;
-						AddIssue(arrayCreateExpression, arrayCreateExpression.Initializer);
-					}
-				} else if (variableInilizer.Parent is FieldDeclaration) {
-					var filedDeclaration = variableInilizer.Parent;
-
-					if (filedDeclaration.GetChildByRole(Roles.Type) is ComposedType) {
-						var composedType = filedDeclaration.GetChildByRole(Roles.Type) as ComposedType;
-						if (composedType.ArraySpecifiers == null)
-							return;
-						AddIssue(arrayCreateExpression, arrayCreateExpression.Initializer);
-					}
+				var variableDeclaration = varInitializer.Parent as VariableDeclarationSyntax;
+				if (variableDeclaration != null) {
+					if (!variableDeclaration.Type.IsKind(SyntaxKind.ArrayType))
+						return;
+					AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, TextSpan.FromBounds(node.NewKeyword.Span.Start, node.Initializer.Span.Start))));
 				}
 			}
 		}
+	}
+
+	[ExportCodeFixProvider(ArrayCreationCanBeReplacedWithArrayInitializerIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ArrayCreationCanBeReplacedWithArrayInitializerFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return ArrayCreationCanBeReplacedWithArrayInitializerIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var text = await document.GetTextAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var sourceSpan = diagonstic.Location.SourceSpan;
+				result.Add(CodeActionFactory.Create(sourceSpan, diagonstic.Severity, diagonstic.GetMessage(), document.WithText(text.Replace(sourceSpan, ""))));
+			}
+			return result;
+		}
+		#endregion
 	}
 }

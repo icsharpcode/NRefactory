@@ -46,6 +46,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class SyntaxExtensions
 	{
+		public static ExpressionSyntax SkipParens(this ExpressionSyntax expression)
+		{
+			while (expression != null && expression.IsKind(SyntaxKind.ParenthesizedExpression)) {
+				expression = ((ParenthesizedExpressionSyntax)expression).Expression;
+			}
+			return expression;
+		}
+
 		public static bool CanRemoveParentheses(this ParenthesizedExpressionSyntax node)
 		{
 			return Microsoft.CodeAnalysis.CSharp.Extensions.ParenthesizedExpressionSyntaxExtensions.CanRemoveParentheses(node); 

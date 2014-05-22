@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class ArrayCreationCanBeReplacedWithArrayInitializerIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestVariableDeclaration()
+		public void TestVariableDeclarationCase1()
 		{
 			var input = @"
 class TestClass
@@ -54,7 +54,42 @@ class TestClass
 		}
 
 		[Test]
-		public void TestFieldDeclaration()
+		public void TestFieldCase1()
+		{
+			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
+class TestClass
+{
+	int[] foo = new int[] {1, 2, 3};
+}", 1, @"
+class TestClass
+{
+	int[] foo = {1, 2, 3};
+}");
+		}
+
+
+		[Test]
+		public void TestVariableDeclarationCase2()
+		{
+			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int[] foo = new [] {1, 2, 3};
+	}
+}", 1, @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int[] foo = {1, 2, 3};
+	}
+}");
+		}
+
+		[Test]
+		public void TestFieldCase2()
 		{
 			var input = @"
 class TestClass

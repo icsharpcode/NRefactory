@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		static Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax bop)
 		{
-			var nodeToReplace = ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(bop);
+			var nodeToReplace = bop.SkipParens();
 			var castExpr = (ExpressionSyntax)SyntaxFactory.CastExpression(bop.Right as TypeSyntax, bop.Left).WithLeadingTrivia(bop.GetLeadingTrivia()).WithTrailingTrivia(bop.GetTrailingTrivia());
 
 			var newRoot = root.ReplaceNode(nodeToReplace, castExpr);

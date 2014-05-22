@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				base.VisitPrefixUnaryExpression(node);
 
 				if (node.IsKind(SyntaxKind.LogicalNotExpression)) {
-					var innerUnaryOperatorExpr = ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(node.Operand) as PrefixUnaryExpressionSyntax;
+					var innerUnaryOperatorExpr = node.Operand.SkipParens() as PrefixUnaryExpressionSyntax;
 
 					if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.LogicalNotExpression))
 						return;
@@ -86,7 +86,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				}
 
 				if (node.IsKind(SyntaxKind.BitwiseNotExpression)) {
-					var innerUnaryOperatorExpr = ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(node.Operand) as PrefixUnaryExpressionSyntax;
+					var innerUnaryOperatorExpr = node.Operand.SkipParens() as PrefixUnaryExpressionSyntax;
 
 					if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.BitwiseNotExpression))
 						return;
@@ -115,10 +115,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = n as PrefixUnaryExpressionSyntax;
 				if (node == null)
 					continue;
-				var innerUnaryOperatorExpr = ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(node.Operand) as PrefixUnaryExpressionSyntax;
+				var innerUnaryOperatorExpr = node.Operand.SkipParens() as PrefixUnaryExpressionSyntax;
 				if (innerUnaryOperatorExpr == null)
 					continue;
-				var newRoot = root.ReplaceNode(node, ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(innerUnaryOperatorExpr.Operand));
+				var newRoot = root.ReplaceNode(node, innerUnaryOperatorExpr.Operand.SkipParens());
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;

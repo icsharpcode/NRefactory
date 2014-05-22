@@ -217,6 +217,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 		}
 
+		protected static void Test<T> (string input, string output, int fixIndex = 0)
+			where T : ISemanticModelAnalyzer, new ()
+		{
+			Test<T>(input, 1, output, fixIndex);
+		}
+
+		protected static void TestIssue<T> (string input, int issueCount = 1)
+			where T : ISemanticModelAnalyzer, new ()
+		{
+			Test<T>(input, issueCount);
+		}
+
 		protected static void TestWrongContextWithSubIssue<T>(string input, string id) where T : ISemanticModelAnalyzer, new()
 		{
 			TestWithSubIssue<T>(input, id, 0);

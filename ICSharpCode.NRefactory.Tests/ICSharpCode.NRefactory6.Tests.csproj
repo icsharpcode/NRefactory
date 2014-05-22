@@ -150,6 +150,8 @@
     <Compile Include="CSharp\CodeIssues\RedundantBaseQualifierTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantNameQualifierIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\DoubleNegationOperatorIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ArrayCreationCanBeReplacedWithArrayInitializerIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConditionIsAlwaysTrueOrFalseIssueTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
