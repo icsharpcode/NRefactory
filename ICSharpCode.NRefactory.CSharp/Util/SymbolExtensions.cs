@@ -200,6 +200,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 				case SymbolKind.Event:
 					var evt = (IEventSymbol)symbol;
 					return evt.Type;
+				case SymbolKind.Parameter:
+					var param = (IParameterSymbol)symbol;
+					return param.Type;
+				case SymbolKind.Local:
+					var local = (ILocalSymbol)symbol;
+					return local.Type;
 			}
 			return null;
 		}

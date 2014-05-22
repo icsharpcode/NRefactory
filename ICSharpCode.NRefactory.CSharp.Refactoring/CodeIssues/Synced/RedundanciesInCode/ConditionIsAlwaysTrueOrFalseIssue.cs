@@ -24,116 +24,148 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
-using ICSharpCode.NRefactory.Refactoring;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory.PatternMatching;
-using System.Runtime.InteropServices.ComTypes;
-using ICSharpCode.NRefactory6.CSharp.Analysis;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription("Expression is always 'true' or always 'false'",
-		Description = "Value of the expression can be determined at compile time",
-		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Expression is always 'true' or always 'false'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Value of the expression can be determined at compile time", AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
 	public class ConditionIsAlwaysTrueOrFalseIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
+		internal const string DiagnosticIdTrue  = "ConditionIsAlwaysTrueOrFalseIssue.True";
+		internal const string DiagnosticIdFalse = "ConditionIsAlwaysTrueOrFalseIssue.False";
+		const string Description            = "Expression is always 'true' or always 'false'";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, Description, "Replace with 'true'", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, Description, "Replace with 'false'", Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule1, Rule2);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ConditionIsAlwaysTrueOrFalseIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx)
-				: base(ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
 			{
-				if (CheckConstant(binaryOperatorExpression))
+				base.VisitBinaryExpression(node);
+
+				if (CheckConstant(node))
 					return;
-				if (CSharpUtil.GetInnerMostExpression(binaryOperatorExpression.Left) is NullReferenceExpression) {
-					if (CheckNullComparison(binaryOperatorExpression, binaryOperatorExpression.Right, binaryOperatorExpression.Left))
+
+				if (node.Left.SkipParens().IsKind(SyntaxKind.NullLiteralExpression)) {
+					if (CheckNullComparison(node, node.Right, node.Left))
+						return;
+				} else if (node.Right.SkipParens().IsKind(SyntaxKind.NullLiteralExpression)) {
+					if (CheckNullComparison(node, node.Left, node.Right))
 						return;
 				}
-
-				if (CSharpUtil.GetInnerMostExpression(binaryOperatorExpression.Right) is NullReferenceExpression) {
-					if (CheckNullComparison(binaryOperatorExpression, binaryOperatorExpression.Left, binaryOperatorExpression.Right))
-						return;
-				}
-
-				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
 			}
 
-			bool CheckNullComparison(BinaryOperatorExpression binaryOperatorExpression, Expression right, Expression nullNode)
+			bool CheckNullComparison(BinaryExpressionSyntax binaryOperatorExpression, ExpressionSyntax right, ExpressionSyntax nullNode)
 			{
-				if (binaryOperatorExpression.Operator != BinaryOperatorType.Equality && binaryOperatorExpression.Operator != BinaryOperatorType.InEquality)
+				if (!binaryOperatorExpression.IsKind(SyntaxKind.EqualsExpression) && !binaryOperatorExpression.IsKind(SyntaxKind.NotEqualsExpression))
 					return false;
 				// note null == null is checked by similiar expression comparison.
-				var expr = CSharpUtil.GetInnerMostExpression(right);
+				var expr = right.SkipParens();
 
-				var rr = ctx.Resolve(expr);
-				if (rr.Type.IsReferenceType == false) {
+				var rr = semanticModel.GetSymbolInfo(expr);
+				if (rr.Symbol == null)
+					return false;
+				var returnType = rr.Symbol.GetReturnType();
+				if (returnType != null && returnType.IsValueType) {
 					// nullable check
-					if (NullableType.IsNullable(rr.Type))
+					if (returnType.IsNullableType())
 						return false;
 
-					var conversion = ctx.GetConversion(nullNode);
-					if (conversion.ConversionAfterUserDefinedOperator == Conversion.IdentityConversion)
+					var conversion = semanticModel.GetConversion(nullNode);
+					if (conversion.IsUserDefined)
 						return false;
-
 					// check for user operators
-					foreach (var op in rr.Type.GetMethods(m => m.SymbolKind == SymbolKind.Operator && m.Parameters.Count == 2)) {
+					foreach (IMethodSymbol op in returnType.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.UserDefinedOperator && m.Parameters.Length == 2)) {
 						if (op.Parameters[0].Type.IsReferenceType == false && op.Parameters[1].Type.IsReferenceType == false)
 							continue;
-						if (binaryOperatorExpression.Operator == BinaryOperatorType.Equality && op.Name == "op_Equality")
+						if (binaryOperatorExpression.IsKind(SyntaxKind.EqualsExpression) && op.Name == "op_Equality")
 							return false;
-						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality && op.Name == "op_Inequality")
+						if (binaryOperatorExpression.IsKind(SyntaxKind.NotEqualsExpression) && op.Name == "op_Inequality")
 							return false;
 					}
-
-					AddIssue(binaryOperatorExpression, binaryOperatorExpression.Operator != BinaryOperatorType.Equality);
+					AddIssue(Diagnostic.Create(!binaryOperatorExpression.IsKind(SyntaxKind.EqualsExpression) ? Rule1 : Rule2, binaryOperatorExpression.GetLocation()));
 					return true;
 				}
 				return false;
 			}
 
-			void AddIssue(Expression expr, bool result)
+			bool CheckConstant(SyntaxNode expr)
 			{
-				AddIssue(new CodeIssue(
-					expr, 
-					string.Format(ctx.TranslateString("Expression is always '{0}'"), result ? "true" : "false"), 
-					string.Format(ctx.TranslateString("Replace with '{0}'"), result ? "true" : "false"), 
-					s => s.Replace(expr, new PrimitiveExpression(result))
-				));
-			}
-
-			bool CheckConstant(Expression expr)
-			{
-				var rr = ctx.Resolve(expr);
-				if (rr.ConstantValue is bool) {
-					var result = (bool)rr.ConstantValue;
-					AddIssue(expr, result);
+				var rr = semanticModel.GetConstantValue(expr);
+				if (rr.HasValue && rr.Value is bool) {
+					var result = (bool)rr.Value;
+					Console.WriteLine("add 2 "+ expr);
+					AddIssue(Diagnostic.Create(result ? Rule1 : Rule2, expr.GetLocation()));
 					return true;
 				}
 				return false;
 			}
 
-			public override void VisitUnaryOperatorExpression(UnaryOperatorExpression unaryOperatorExpression)
+			public override void VisitPrefixUnaryExpression(PrefixUnaryExpressionSyntax node)
 			{
-				if (CheckConstant(unaryOperatorExpression))
-					return;
-				base.VisitUnaryOperatorExpression(unaryOperatorExpression);
+				base.VisitPrefixUnaryExpression(node);
+				CheckConstant(node);
 			}
 		}
 	}
-}
 
+	[ExportCodeFixProvider("Value of the expression can be determined at compile time", LanguageNames.CSharp)]
+	public class ConditionIsAlwaysTrueOrFalseFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue;
+			yield return ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdFalse;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				var newRoot = root.ReplaceNode(node,
+					SyntaxFactory.LiteralExpression(diagonstic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression) 
+					.WithLeadingTrivia(node.GetLeadingTrivia())
+					.WithTrailingTrivia(node.GetTrailingTrivia()));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			}
+			return result;
+		}
+		#endregion
+	}
+}
