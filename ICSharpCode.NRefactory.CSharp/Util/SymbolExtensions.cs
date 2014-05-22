@@ -193,6 +193,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 					return field.Type;
 				case SymbolKind.Method:
 					var method = (IMethodSymbol)symbol;
+					if (method.MethodKind == MethodKind.Constructor)
+						return method.ContainingType;
 					return method.ReturnType;
 				case SymbolKind.Property:
 					var property = (IPropertySymbol)symbol;

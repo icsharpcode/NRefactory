@@ -129,6 +129,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCaseLabelIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCastIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

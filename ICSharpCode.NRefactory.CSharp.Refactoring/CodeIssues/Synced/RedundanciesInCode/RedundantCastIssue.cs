@@ -25,66 +25,101 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
-using ICSharpCode.NRefactory.Refactoring;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription("Redundant cast",
-		Description = "Type cast can be safely removed.",
-		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "RedundantCast")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Redundant cast", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "Type cast can be safely removed.", AnalysisDisableKeyword = "RedundantCast")]
 	public class RedundantCastIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
+		internal const string DiagnosticId  = "RedundantCastIssue";
+		const string Description            = "Type cast is redundant";
+		const string MessageFormat          = "Remove cast to '{0}'";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantCastIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx)
-				: base(ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitCastExpression(CastExpression castExpression)
+			void CheckTypeCast(SyntaxNode node, ExpressionSyntax expressionSyntax, ExpressionSyntax typeSyntax)
 			{
-				base.VisitCastExpression(castExpression);
-
-				CheckTypeCast(castExpression, castExpression.Expression, castExpression.StartLocation, 
-					castExpression.Expression.StartLocation);
+				var expressionSymbol = semanticModel.GetSymbolInfo(expressionSyntax);
+				var fullSymbol = semanticModel.GetSymbolInfo(typeSyntax).Symbol as ITypeSymbol;
+				if (expressionSymbol.Symbol == null || fullSymbol == null)
+					return;
+				var rt = expressionSymbol.Symbol.GetReturnType();
+				Console.WriteLine(rt +"/" + fullSymbol);
+				if (rt == null)
+					return;
+				var conversion = semanticModel.Compilation.ClassifyConversion(rt, fullSymbol);
+				if (conversion.IsIdentity) {
+					AddIssue(Diagnostic.Create(Rule, node.GetLocation(), typeSyntax));
+					return;
+				}
+				if (!conversion.Exists)
+					return;
 			}
 
-			public override void VisitAsExpression(AsExpression asExpression)
+			public override void VisitCastExpression(CastExpressionSyntax node)
 			{
-				base.VisitAsExpression(asExpression);
-
-				CheckTypeCast(asExpression, asExpression.Expression, asExpression.Expression.EndLocation,
-					asExpression.EndLocation);
+				base.VisitCastExpression(node);
+				CheckTypeCast(node, node.Expression, node.Type);
 			}
 
-			IType GetExpectedType(Expression typeCastNode, out IMember accessingMember)
+			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
 			{
-				var memberRefExpr = typeCastNode.Parent as MemberReferenceExpression;
+				base.VisitBinaryExpression(node);
+				if (node.IsKind(SyntaxKind.AsExpression)) {
+					CheckTypeCast(node, node.Left, node.Right);
+				}
+			}
+
+			/*
+			ITypeSymbol GetExpectedType(ExpressionSyntax typeCastNode, out ISymbol accessingMember)
+			{
+				var memberRefExpr = typeCastNode.Parent as MemberAccessExpressionSyntax;
 				if (memberRefExpr != null) {
-					var invocationExpr = memberRefExpr.Parent as InvocationExpression;
-					if (invocationExpr != null && invocationExpr.Target == memberRefExpr) {
-						var invocationResolveResult = ctx.Resolve(invocationExpr) as InvocationResolveResult;
-						if (invocationResolveResult != null) {
-							accessingMember = invocationResolveResult.Member;
-							return invocationResolveResult.Member.DeclaringType;
+					var invocationExpr = memberRefExpr.Parent as InvocationExpressionSyntax;
+					if (invocationExpr != null && invocationExpr.Expression == memberRefExpr) {
+						var invocationResolveResult = semanticModel.GetSymbolInfo(invocationExpr);
+						if (invocationResolveResult.Symbol != null) {
+							accessingMember = invocationResolveResult.Symbol;
+							return invocationResolveResult.Symbol.ContainingType;
 						}
 					} else {
-						var memberResolveResult = ctx.Resolve(memberRefExpr) as MemberResolveResult;
-						if (memberResolveResult != null) {
-							accessingMember = memberResolveResult.Member;
-							return memberResolveResult.Member.DeclaringType;
+						var memberResolveResult = semanticModel.GetSymbolInfo(memberRefExpr);
+						if (memberResolveResult.Symbol != null) {
+							accessingMember = memberResolveResult.Symbol;
+							return memberResolveResult.Symbol.ContainingType;
 						}
 					}
 				}
@@ -234,6 +269,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 				AddIssue(outerTypeCastNode, typeCastNode, expr, castStart, castEnd);
 			}
+			*/
+		}
+	}
+
+	[ExportCodeFixProvider(RedundantCastIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RedundantCastFixProvider : ICodeFixProvider
+	{
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return RedundantCastIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				var ca = node as CastExpressionSyntax;
+				if (ca != null) {
+					SyntaxNode outerTypeCastNode = ca;
+					while (outerTypeCastNode.Parent is ParenthesizedExpressionSyntax)
+						outerTypeCastNode = outerTypeCastNode.Parent;
+
+					var newRoot = root.ReplaceNode(outerTypeCastNode, ca.Expression.SkipParens());
+					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				}
+			}
+			return result;
 		}
 	}
 }
