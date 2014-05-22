@@ -155,6 +155,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantAnonymousTypePropertyNameIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCaseLabelIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantCastIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantArgumentNameTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

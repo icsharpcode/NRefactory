@@ -130,6 +130,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCaseLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCastIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentNameIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

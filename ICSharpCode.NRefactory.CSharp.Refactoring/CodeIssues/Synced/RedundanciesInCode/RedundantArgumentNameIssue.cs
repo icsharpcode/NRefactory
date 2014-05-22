@@ -25,81 +25,167 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Semantics;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
-using ICSharpCode.NRefactory.Refactoring;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
-{ 
-	[IssueDescription("Redundant explicit argument name specification",
-	                  Description= "Redundant explicit argument name specification",
-	                  Category = IssueCategories.RedundanciesInCode,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "RedundantArgumentName")]
+{
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Redundant explicit argument name specification", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "Redundant explicit argument name specification", AnalysisDisableKeyword = "RedundantArgumentName")]
 	public class RedundantArgumentNameIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			return new GatherVisitor(context);
+		internal const string DiagnosticId  = "RedundantArgumentNameIssue";
+		const string Description            = "Redundant argument name specification";
+		const string MessageFormat          = "Remove argument name specification";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
 		}
-		
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		{
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+		}
+
 		class GatherVisitor : GatherVisitorBase<RedundantArgumentNameIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx) : base (ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			void CheckParameters(ResolveResult resolveResult, AstNodeCollection<Expression> arguments)
+			void CheckParameters(ISymbol ir, IEnumerable<ArgumentSyntax> arguments)
 			{
-				var ir = resolveResult as InvocationResolveResult;
-				if (ir == null || ir.IsError)
+				if (ir == null)
 					return;
+				var parameters = ir.GetParameters();
 				int i = 0;
+
 				foreach (var arg in arguments) {
-					var na = arg as NamedArgumentExpression;
+					var na = arg.NameColon;
 					if (na != null) {
-						if (na.Name != ir.Member.Parameters[i].Name)
+						if (i >= parameters.Length || na.Name.ToString() != parameters[i].Name)
 							break;
-						var _i = i;
-						AddIssue(new CodeIssue(
-							na.NameToken.StartLocation,
-							na.ColonToken.EndLocation,
-							ctx.TranslateString("Redundant argument name specification"), 
-							ctx.TranslateString("Remove argument name specification"),
-							script => {
-								foreach (var node in arguments.Take(_i + 1).OfType<NamedArgumentExpression>()) {
-									script.Replace(node, node.Expression.Clone());
-								}
-							}
-						) { IssueMarker = IssueMarker.GrayOut });
+						AddIssue (Diagnostic.Create(Rule, na.GetLocation()));
 					}
 					i++;
 				}
 			}
 
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+			void CheckParameters(ISymbol ir, IEnumerable<AttributeArgumentSyntax> arguments)
 			{
-				base.VisitInvocationExpression(invocationExpression);
-				CheckParameters(ctx.Resolve(invocationExpression), invocationExpression.Arguments);
+				if (ir == null)
+					return;
+				var parameters = ir.GetParameters();
+				int i = 0;
+
+				foreach (var arg in arguments) {
+					var na = arg.NameColon;
+					if (na != null) {
+						if (i >= parameters.Length || na.Name.ToString() != parameters[i].Name)
+							break;
+						AddIssue (Diagnostic.Create(Rule, na.GetLocation()));
+					}
+					i++;
+				}
 			}
 
-			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
+			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
 			{
-				base.VisitIndexerExpression(indexerExpression);
-				CheckParameters(ctx.Resolve(indexerExpression), indexerExpression.Arguments);
+				base.VisitInvocationExpression(node);
+				CheckParameters(semanticModel.GetSymbolInfo(node).Symbol, node.ArgumentList.Arguments);
 			}
 
-			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
+			public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
 			{
-				base.VisitObjectCreateExpression(objectCreateExpression);
-				CheckParameters(ctx.Resolve(objectCreateExpression), objectCreateExpression.Arguments);
+				base.VisitElementAccessExpression(node);
+				CheckParameters(semanticModel.GetSymbolInfo(node).Symbol, node.ArgumentList.Arguments);
 			}
 
-			public override void VisitAttribute(Attribute attribute)
+			public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
 			{
-				base.VisitAttribute(attribute);
-				CheckParameters(ctx.Resolve(attribute), attribute.Arguments);
+				base.VisitObjectCreationExpression(node);
+				CheckParameters(semanticModel.GetSymbolInfo(node).Symbol, node.ArgumentList.Arguments);
+			}
+
+			public override void VisitAttribute(AttributeSyntax node)
+			{
+				base.VisitAttribute(node);
+				CheckParameters(semanticModel.GetSymbolInfo(node).Symbol, node.ArgumentList.Arguments);
 			}
 		}
 	}
+
+	[ExportCodeFixProvider(RedundantArgumentNameIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RedundantArgumentNameFixProvider : ICodeFixProvider
+	{
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return RedundantArgumentNameIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var token = root.FindNode(diagonstic.Location.SourceSpan);
+				var argListSyntax = token.Parent.Parent as BaseArgumentListSyntax;
+				if (token.IsKind(SyntaxKind.NameColon) && argListSyntax != null) {
+					bool replace = true;
+					var newRoot = root;
+					var args = new List<ArgumentSyntax> ();
+
+					foreach (var arg in argListSyntax.Arguments) {
+						if (replace) {
+							args.Add(arg);
+						}
+						replace &= arg != token.Parent;
+
+					}
+					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.Argument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
+
+					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					continue;
+				}
+				var attrListSyntax = token.Parent.Parent as AttributeArgumentListSyntax;
+				if (token.IsKind(SyntaxKind.NameColon) && attrListSyntax != null) {
+					bool replace = true;
+					var newRoot = root;
+					var args = new List<AttributeArgumentSyntax> ();
+
+					foreach (var arg in attrListSyntax.Arguments) {
+						if (replace) {
+							args.Add(arg);
+						}
+						replace &= arg != token.Parent;
+
+					}
+					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.AttributeArgument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
+
+					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					continue;
+				}
+			}
+			return result;
+		}
+	}
+
 }

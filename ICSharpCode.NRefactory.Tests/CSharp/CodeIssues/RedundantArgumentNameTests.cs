@@ -49,7 +49,7 @@ class TestClass
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo (1, 2);
+		Foo(1, 2);
 	}
 }
 ";
@@ -75,7 +75,7 @@ class TestClass
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo (1, b: 2, c: 0.2);
+		Foo(1, b: 2, c: 0.2);
 	}
 }
 ";
@@ -91,7 +91,7 @@ class TestClass
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo (a: 1, b: 2, c: 0.2);
+		Foo(a: 1, b: 2, c: 0.2);
 	}
 }
 ";
@@ -101,7 +101,7 @@ class TestClass
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo (1, 2, c: 0.2);
+		Foo(1, 2, c: 0.2);
 	}
 }
 ";
@@ -121,7 +121,7 @@ class TestClass
 
 	public void F ()
 	{
-		Foo (1, b: 2, d: 2, c: 3, e:19);
+		Foo(1, b: 2, d: 2, c: 3, e:19);
 	}
 }
 ", 1, @"
@@ -133,7 +133,7 @@ class TestClass
 
 	public void F ()
 	{
-		Foo (1, 2, d: 2, c: 3, e: 19);
+		Foo(1, 2, d: 2, c: 3, e:19);
 	}
 }
 ");
@@ -175,7 +175,7 @@ internal class Test
 	private void Foo()
 	{
 		var TestBases = new TestClass();
-		int a = TestBases [1, j: 2];
+		int a = TestBases[1, j: 2];
 	}
 }
 ";
