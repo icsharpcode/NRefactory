@@ -24,54 +24,86 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
+using System;
 using System.Linq;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription ("Redundant 'case' label",
-						Description = "'case' label is redundant.",
-						Category = IssueCategories.RedundanciesInCode,
-						Severity = Severity.Warning,
-                        AnalysisDisableKeyword = "RedundantCaseLabel")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Redundant 'case' label", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "'case' label is redundant.", AnalysisDisableKeyword = "RedundantCaseLabel")]
 	public class RedundantCaseLabelIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
+		internal const string DiagnosticId  = "RedundantCaseLabelIssue";
+		const string Description            = "Redundant case label";
+		const string MessageFormat          = "Remove 'case {0}'";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantCaseLabelIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx)
-				: base (ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitSwitchSection (SwitchSection switchSection)
+			public override void VisitSwitchSection(SwitchSectionSyntax node)
 			{
-				base.VisitSwitchSection (switchSection);
-
-				if (switchSection.CaseLabels.Count < 2)
+				base.VisitSwitchSection(node);
+				if (node.Labels.Count < 2)
 					return;
-
-				if (!switchSection.CaseLabels.Any(label => label.Expression.IsNull))
+				if (!node.Labels.Any(l => l.IsKind (SyntaxKind.DefaultSwitchLabel)))
 					return;
-
-				foreach (var caseLabel in switchSection.CaseLabels) {
-					if (caseLabel.Expression.IsNull)
+				foreach (var caseLabel in node.Labels) {
+					if (caseLabel.IsKind(SyntaxKind.DefaultSwitchLabel))
 						continue;
-					AddIssue(new CodeIssue(
-						caseLabel,
-						ctx.TranslateString("Redundant case label"),
-						string.Format(ctx.TranslateString("Remove 'case {0}'"), caseLabel.Expression),
-						scipt => {
-							scipt.Remove(caseLabel);
-						}
-					) { IssueMarker = IssueMarker.GrayOut });
+					AddIssue (Diagnostic.Create(Rule, caseLabel.GetLocation(), caseLabel.Value));
 				}
 			}
+		}
+	}
+
+	[ExportCodeFixProvider(RedundantCaseLabelIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RedundantCaseLabelFixProvider : ICodeFixProvider
+	{
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return RedundantCaseLabelIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var token = root.FindNode(diagonstic.Location.SourceSpan);
+				var newRoot = root.RemoveNode(token, SyntaxRemoveOptions.KeepDirectives);
+				result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			}
+			return result;
 		}
 	}
 }

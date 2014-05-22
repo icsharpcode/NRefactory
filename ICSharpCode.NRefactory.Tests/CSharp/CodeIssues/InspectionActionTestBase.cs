@@ -199,6 +199,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 				}
 			)); 
 			if (issueToFix < 0) {
+				diagnostics.Reverse();
 				foreach (var v in diagnostics) {
 					RunFix(workspace, projectId, documentId, v);
 				}

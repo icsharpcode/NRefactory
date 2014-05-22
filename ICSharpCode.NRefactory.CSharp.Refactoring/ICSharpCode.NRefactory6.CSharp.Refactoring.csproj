@@ -128,6 +128,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCaseLabelIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
