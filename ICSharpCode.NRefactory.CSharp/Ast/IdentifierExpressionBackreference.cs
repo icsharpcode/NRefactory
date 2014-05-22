@@ -20,7 +20,7 @@ using System;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	/// <summary>
 	/// Matches identifier expressions that have the same identifier as the referenced variable/type definition/method definition.

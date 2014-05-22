@@ -26,7 +26,7 @@
 
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	/// <summary>
 	/// for (Initializers; Condition; Iterators) EmbeddedStatement

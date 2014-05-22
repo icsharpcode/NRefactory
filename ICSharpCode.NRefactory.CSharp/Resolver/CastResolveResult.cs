@@ -20,7 +20,7 @@ using System;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory6.CSharp.Resolver
 {
 	/// <summary>
 	/// Represents an explicitly applied conversion (CastExpression or AsExpression)

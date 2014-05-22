@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	/// <summary>
 	/// new { [ExpressionList] }

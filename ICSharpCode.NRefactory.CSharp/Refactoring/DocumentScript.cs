@@ -22,7 +22,7 @@ using System.Diagnostics;
 using ICSharpCode.NRefactory.Editor;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	/// <summary>
 	/// Script implementation based on IDocument.

@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	/// <summary>
 	/// A code issue marks a region of text with an issue and can provide solution actions for this issue.
@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
 		public CodeIssue(TextLocation start, TextLocation end, string issueDescription)
 		{
@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
 		public CodeIssue(TextLocation start, TextLocation end, string issueDescription, IEnumerable<CodeAction> actions) : this(start, end, issueDescription)
 		{
@@ -110,7 +110,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
 		public CodeIssue(TextLocation start, TextLocation end, string issueDescription, params CodeAction[] actions) : this(start, end, issueDescription)
 		{
@@ -119,7 +119,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
 		public CodeIssue(TextLocation start, TextLocation end, string issueDescription, string actionDescription, Action<Script> fix) : this(start, end, issueDescription)
 		{
@@ -131,7 +131,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
 		public CodeIssue(AstNode node, string issueDescription)
 		{
@@ -147,7 +147,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
 		public CodeIssue(AstNode node, string issueDescription, IEnumerable<CodeAction> actions) : this(node, issueDescription)
 		{
@@ -156,7 +156,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
 		public CodeIssue(AstNode node, string issueDescription, params CodeAction[] actions) : this(node, issueDescription)
 		{
@@ -165,7 +165,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeIssue"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeIssue"/> class.
 		/// </summary>
 		public CodeIssue(AstNode node, string issueDescription, string actionDescription, Action<Script> fix) : this(node, issueDescription)
 		{

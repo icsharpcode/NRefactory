@@ -20,10 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
 using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	/// <summary>
 	/// Helper methods for managing using declarations.

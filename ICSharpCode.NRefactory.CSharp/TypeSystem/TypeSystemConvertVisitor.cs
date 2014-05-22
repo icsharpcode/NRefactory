@@ -22,12 +22,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.TypeSystem.ConstantValues;
+using ICSharpCode.NRefactory6.CSharp.TypeSystem;
+using ICSharpCode.NRefactory6.CSharp.TypeSystem.ConstantValues;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory.CSharp.TypeSystem
+namespace ICSharpCode.NRefactory6.CSharp.TypeSystem
 {
 	/// <summary>
 	/// Produces type and member definitions from the DOM.

@@ -26,7 +26,7 @@
 
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	public class MethodDeclaration : EntityDeclaration
 	{

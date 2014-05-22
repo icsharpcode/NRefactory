@@ -26,12 +26,12 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class TypeGuessing
 	{

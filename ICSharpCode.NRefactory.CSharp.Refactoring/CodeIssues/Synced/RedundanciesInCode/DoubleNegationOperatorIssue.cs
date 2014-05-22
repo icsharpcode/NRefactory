@@ -26,54 +26,104 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription ("Double negation operator",
-						Description = "Double negation is meaningless.",
-						Category = IssueCategories.RedundanciesInCode,
-						Severity = Severity.Warning,
-                        AnalysisDisableKeyword = "DoubleNegationOperator")]
-    public class DoubleNegationOperatorIssue : GatherVisitorCodeIssueProvider
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Double negation operator", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Double negation is meaningless", AnalysisDisableKeyword = "DoubleNegationOperator")]
+	public class DoubleNegationOperatorIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
+		internal const string DiagnosticId  = "DoubleNegationOperatorIssue";
+		const string Description            = "Double negation operator";
+		internal const string MessageFormat1 = "Remove '!!'";
+		internal const string MessageFormat2 = "Remove '~~'";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat1, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat2, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule1);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<DoubleNegationOperatorIssue>
 		{
-			public GatherVisitor (BaseSemanticModel ctx)
-				: base (ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			static Expression RemoveParentheses (Expression expr)
+			public override void VisitPrefixUnaryExpression(PrefixUnaryExpressionSyntax node)
 			{
-				while (expr is ParenthesizedExpression)
-					expr = ((ParenthesizedExpression) expr).Expression;
-				return expr;
-			}
+				base.VisitPrefixUnaryExpression(node);
 
-			public override void VisitUnaryOperatorExpression (UnaryOperatorExpression unaryOperatorExpression)
-			{
-				base.VisitUnaryOperatorExpression (unaryOperatorExpression);
+				if (node.IsKind(SyntaxKind.LogicalNotExpression)) {
+					var innerUnaryOperatorExpr = ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(node.Operand) as PrefixUnaryExpressionSyntax;
 
-				if (unaryOperatorExpression.Operator != UnaryOperatorType.Not)
-					return;
+					if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.LogicalNotExpression))
+						return;
+					AddIssue(Diagnostic.Create(Rule1, node.GetLocation()));
 
-				var innerUnaryOperatorExpr = 
-					RemoveParentheses (unaryOperatorExpression.Expression) as UnaryOperatorExpression;
-				if (innerUnaryOperatorExpr == null || innerUnaryOperatorExpr.Operator != UnaryOperatorType.Not)
-					return;
+				}
 
-				var expression = RemoveParentheses (innerUnaryOperatorExpr.Expression);
-				if (expression.IsNull)
-					return;
-				AddIssue(new CodeIssue(unaryOperatorExpression, ctx.TranslateString ("Double negation is redundant"), ctx.TranslateString ("Remove '!!'"),
-					script => script.Replace (unaryOperatorExpression, expression.Clone ())));
+				if (node.IsKind(SyntaxKind.BitwiseNotExpression)) {
+					var innerUnaryOperatorExpr = ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(node.Operand) as PrefixUnaryExpressionSyntax;
+
+					if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.BitwiseNotExpression))
+						return;
+					AddIssue(Diagnostic.Create(Rule2, node.GetLocation()));
+				}
 			}
 		}
 	}
+
+	[ExportCodeFixProvider(DoubleNegationOperatorIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class DoubleNegationOperatorFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return DoubleNegationOperatorIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var n = root.FindNode(diagonstic.Location.SourceSpan, true, true);
+				var node = n as PrefixUnaryExpressionSyntax;
+				if (node == null)
+					continue;
+				var innerUnaryOperatorExpr = ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(node.Operand) as PrefixUnaryExpressionSyntax;
+				if (innerUnaryOperatorExpr == null)
+					continue;
+				var newRoot = root.ReplaceNode(node, ConvertBitwiseFlagComparisonToHasFlagsAction.StripParenthesizedExpression(innerUnaryOperatorExpr.Operand));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			}
+			return result;
+		}
+		#endregion
+	}
+
 }

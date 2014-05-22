@@ -23,7 +23,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory6.CSharp.Resolver
 {
 	public enum DynamicInvocationType {
 		/// <summary>

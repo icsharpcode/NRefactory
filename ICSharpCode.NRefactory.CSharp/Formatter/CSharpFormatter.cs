@@ -27,11 +27,11 @@ using System;
 using ICSharpCode.NRefactory.Editor;
 using System.Threading;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	public enum FormattingMode {
 		OnTheFly,
@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.CSharpFormatter"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.CSharpFormatter"/> class.
 		/// </summary>
 		/// <param name="policy">The formatting policy to use.</param>
 		/// <param name="options">The text editor options (optional). Default is: TextEditorOptions.Default</param>

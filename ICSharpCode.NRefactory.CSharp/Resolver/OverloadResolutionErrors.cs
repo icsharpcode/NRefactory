@@ -18,7 +18,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory6.CSharp.Resolver
 {
 	[Flags]
 	public enum OverloadResolutionErrors

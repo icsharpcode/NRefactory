@@ -22,13 +22,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using ICSharpCode.NRefactory.CSharp.Analysis;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+using ICSharpCode.NRefactory6.CSharp.Analysis;
+using ICSharpCode.NRefactory6.CSharp.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory6.CSharp.Resolver
 {
 	/// <summary>
 	/// Traverses the DOM and resolves expressions.

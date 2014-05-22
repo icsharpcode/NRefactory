@@ -35,7 +35,7 @@ using System.Text;
 using Mono.CSharp;
 using ITypeDefinition = ICSharpCode.NRefactory.TypeSystem.ITypeDefinition;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	/// <summary>
 	/// Class for creating change scripts.

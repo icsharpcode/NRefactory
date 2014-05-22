@@ -26,7 +26,7 @@
 using System;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	/// <summary>
 	/// A code action provides a code transformation with a description.
@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		const string defaultSiblingKey = "default";
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeAction"/> class,
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeAction"/> class,
 		/// using a non-null default value for <see cref="SiblingKey"/>.
 		/// </summary>
 		/// <param name='description'>
@@ -119,7 +119,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeAction"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeAction"/> class.
 		/// </summary>
 		/// <param name='description'>
 		/// The description.
@@ -149,7 +149,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeAction"/> class,
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeAction"/> class,
 		/// using a non-null default value for <see cref="SiblingKey"/>.
 		/// </summary>
 		/// <param name='description'>
@@ -167,7 +167,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory.CSharp.Refactoring.CodeAction"/> class.
+		/// Initializes a new instance of the <see cref="ICSharpCode.NRefactory6.CSharp.Refactoring.CodeAction"/> class.
 		/// </summary>
 		/// <param name='description'>
 		/// The description.

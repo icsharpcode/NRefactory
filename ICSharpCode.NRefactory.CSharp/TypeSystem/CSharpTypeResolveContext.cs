@@ -19,7 +19,7 @@
 using System;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.TypeSystem
+namespace ICSharpCode.NRefactory6.CSharp.TypeSystem
 {
 	public sealed class CSharpTypeResolveContext : ITypeResolveContext
 	{

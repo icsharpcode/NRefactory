@@ -25,9 +25,9 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory6.CSharp.Resolver;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory6.CSharp;
 
 namespace ICSharpCode.NRefactory.PatternMatching
 {
