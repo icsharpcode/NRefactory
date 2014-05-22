@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "EmptyStatementIssue";
 		const string Description            = "Empty statement is redundant";
-		internal const string MessageFormat = "Remove ';'";
+		const string MessageFormat          = "Remove ';'";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);

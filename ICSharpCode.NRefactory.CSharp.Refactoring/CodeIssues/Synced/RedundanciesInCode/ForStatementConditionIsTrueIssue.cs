@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "ForStatementConditionIsTrueIssue";
 		const string Description            = "true is redundant as for statement condition, thus can be safely ommited";
-		internal const string MessageFormat = "'true' is redundant as for statement condition";
+		const string MessageFormat          = "'true' is redundant as for statement condition";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);

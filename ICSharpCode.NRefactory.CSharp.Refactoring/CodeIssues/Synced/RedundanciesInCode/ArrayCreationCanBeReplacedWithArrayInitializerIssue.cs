@@ -40,13 +40,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Empty statement is redundant", LanguageNames.CSharp)]
+	[ExportDiagnosticAnalyzer("Array creation can be replaced with array initializer", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(Description = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.", AnalysisDisableKeyword = "ArrayCreationCanBeReplacedWithArrayInitializer")]
 	public class ArrayCreationCanBeReplacedWithArrayInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ArrayCreationCanBeReplacedWithArrayInitializerIssue";
-		const string Description            = "Array creation can be replaced with array initializer";
-		internal const string MessageFormat = "Use array initializer";
+		const string Description            = "Redundant array creation expression";
+		const string MessageFormat          = "Use array initializer";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);

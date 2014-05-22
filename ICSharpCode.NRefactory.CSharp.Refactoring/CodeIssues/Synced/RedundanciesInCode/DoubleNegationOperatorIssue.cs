@@ -46,13 +46,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	public class DoubleNegationOperatorIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "DoubleNegationOperatorIssue";
-		const string Description            = "Double negation operator";
-		internal const string MessageFormat1 = "Remove '!!'";
-		internal const string MessageFormat2 = "Remove '~~'";
+		const string Description            = "Double negation is redundant";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat1, Category, DiagnosticSeverity.Warning);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat2, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Remove '!!'", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Remove '~~'", Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -152,6 +152,7 @@
     <Compile Include="CSharp\CodeIssues\DoubleNegationOperatorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ArrayCreationCanBeReplacedWithArrayInitializerIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\ConditionIsAlwaysTrueOrFalseIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantAnonymousTypePropertyNameIssueTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "RedundantBaseQualifierIssue";
 		const string Description            = "'base.' is redundant and can be removed safely.";
-		internal const string MessageFormat = "Remove 'base.'";
+		const string MessageFormat          = "Remove 'base.'";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);

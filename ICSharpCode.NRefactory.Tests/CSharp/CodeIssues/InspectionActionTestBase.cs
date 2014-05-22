@@ -62,7 +62,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 					providers.Add(id, codeFixProvider);
 				}
 			}
-
 		}
 
 		public static string GetUniqueName()

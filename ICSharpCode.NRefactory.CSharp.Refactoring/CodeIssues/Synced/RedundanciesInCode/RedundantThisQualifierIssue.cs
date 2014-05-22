@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "RedundantThisQualifierIssue";
 		const string Description            = "'this.' is redundant and can be removed safely.";
-		internal const string MessageFormat = "Remove 'this.'";
+		const string MessageFormat          = "Remove 'this.'";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		public const string InsideConstructors = DiagnosticId +".InsideConstructors";

@@ -25,60 +25,91 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
-using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription(
-		"Redundant anonymous type property name",
-		Description = "The name can be inferred from the initializer expression",
-		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "RedundantAnonymousTypePropertyName")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Redundant anonymous type property namen", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "The name can be inferred from the initializer expression", AnalysisDisableKeyword = "RedundantAnonymousTypePropertyName")]
 	public class RedundantAnonymousTypePropertyNameIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
+		internal const string DiagnosticId  = "RedundantAnonymousTypePropertyNameIssue";
+		const string Description            = "Redundant explicit property name";
+		const string MessageFormat          = "Remove redundant name";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<RedundantAnonymousTypePropertyNameIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx)
-				: base (ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			static string GetAnonymousTypePropertyName(Expression expr)
+			static string GetAnonymousTypePropertyName(SyntaxNode expr)
 			{
-				if (expr is MemberReferenceExpression) {
-					return ((MemberReferenceExpression)expr).MemberName;
-				}
-				if (expr is IdentifierExpression) {
-					return ((IdentifierExpression)expr).Identifier;
-				}
-				return null;
+				var mAccess = expr as MemberAccessExpressionSyntax;
+				return mAccess != null ? mAccess.Name.ToString() : expr.ToString();
 			}
 
-			public override void VisitAnonymousTypeCreateExpression(AnonymousTypeCreateExpression anonymousTypeCreateExpression)
+			public override void VisitAnonymousObjectCreationExpression(AnonymousObjectCreationExpressionSyntax node)
 			{
-				base.VisitAnonymousTypeCreateExpression(anonymousTypeCreateExpression);
-				foreach (var expr in anonymousTypeCreateExpression.Initializers) {
-					var na = expr as NamedExpression;
-					if (na == null)
+				base.VisitAnonymousObjectCreationExpression(node);
+
+				foreach (var expr in node.Initializers) {
+					if (expr.NameEquals == null || expr.NameEquals.Name == null)
 						continue;
-					if (na.Name == GetAnonymousTypePropertyName(na.Expression)) {
-						AddIssue(new CodeIssue(na.StartLocation, na.AssignToken.EndLocation,
-							ctx.TranslateString("Redundant explicit property name"),
-							ctx.TranslateString("Remove redundant name"),
-							s => s.Replace(na, na.Expression.Clone())
-						) { IssueMarker = IssueMarker.GrayOut });
+
+					if (expr.NameEquals.Name.ToString() == GetAnonymousTypePropertyName(expr.Expression)) {
+						AddIssue (Diagnostic.Create(Rule, expr.NameEquals.GetLocation()));
 					}
 				}
 			}
 		}
 	}
-}
 
+	[ExportCodeFixProvider(RedundantAnonymousTypePropertyNameIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RedundantAnonymousTypePropertyNameFixProvider : ICodeFixProvider
+	{
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return RedundantAnonymousTypePropertyNameIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var token = root.FindNode(diagonstic.Location.SourceSpan);
+				if (token.IsKind(SyntaxKind.NameEquals)) {
+					var newRoot = root.RemoveNode(token, SyntaxRemoveOptions.KeepDirectives);
+					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				}
+			}
+			return result;
+		}
+	}
+}

@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "RedundantNameQualifierIssue";
 		const string Description            = "Qualifier is redundant";
-		internal const string MessageFormat = "Remove redundant qualifier";
+		const string MessageFormat          = "Remove redundant qualifier";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						memberAccess.Name
 						.WithLeadingTrivia(memberAccess.GetLeadingTrivia())
 						.WithTrailingTrivia(memberAccess.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, RedundantNameQualifierIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 					continue;
 				}
 				var qualifiedName = node.Parent as QualifiedNameSyntax;
@@ -132,7 +132,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						qualifiedName.Right
 						.WithLeadingTrivia(qualifiedName.GetLeadingTrivia())
 						.WithTrailingTrivia(qualifiedName.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(qualifiedName.Span, diagonstic.Severity, RedundantNameQualifierIssue.MessageFormat, document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(qualifiedName.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;
