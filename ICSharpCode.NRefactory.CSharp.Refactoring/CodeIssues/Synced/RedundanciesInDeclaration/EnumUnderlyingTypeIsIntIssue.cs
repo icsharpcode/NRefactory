@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string DiagnosticId  = "EnumUnderlyingTypeIsIntIssue";
 		const string Description            = "Default underlying type of enums is already int";
 		const string MessageFormat          = "Remove redundant ': int'";
-		const string Category               = IssueCategories.RedundanciesInCode;
+		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 

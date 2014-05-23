@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string DiagnosticId  = "PartialTypeWithSinglePartIssue";
 		const string Description            = "Partial class with single part";
 		const string MessageFormat          = "Remove 'partial'";
-		const string Category               = IssueCategories.RedundanciesInCode;
+		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 

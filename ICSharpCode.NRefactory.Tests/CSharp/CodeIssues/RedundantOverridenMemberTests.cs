@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"namespace Demo
+			Test<RedundantOverridenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -52,14 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			base.run();
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-			
-			CheckFix(context, issues, @"namespace Demo
+}", @"namespace Demo
 {
 	public class BaseClass
 	{
@@ -77,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperDisable()
 		{
-			var input = @"namespace Demo
+			TestWrongContext<RedundantOverridenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -95,17 +88,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		}
 	}
 	//Resharper restore RedundantOverridenMember
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"namespace Demo
+			TestWrongContext<RedundantOverridenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -122,17 +111,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			base.run();
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestTestInspectorCase3()
 		{
-			var input = 
-				@"namespace Demo
+			TestWrongContext<RedundantOverridenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -148,17 +133,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			base.run();
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestTestInspectorCase4()
 		{
-			var input = 
+			Test<RedundantOverridenMemberIssue>(
 				@"namespace Demo
 {
 	public class BaseClass
@@ -178,14 +159,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			set{ base.A = value; }
 		}
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-			CheckFix(context, issues,
-@"namespace Demo
+}", @"namespace Demo
 {
 	public class BaseClass
 	{
@@ -205,7 +179,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase5()
 		{
-			var input = 
+			Test<RedundantOverridenMemberIssue>(
 				@"namespace Application
 {
 	public class SampleCollection<T>
@@ -226,14 +200,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			set { base[i] = value; }
 		}
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			CheckFix(context, issues,
-			@"namespace Application
+}", @"namespace Application
 {
 	public class SampleCollection<T>
 	{ 
@@ -254,7 +221,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase6()
 		{
-			var input = 
+			Test<RedundantOverridenMemberIssue>(
 				@"using System;
 using System.IO;
 
@@ -304,13 +271,7 @@ class C : A
 			return base.AProperty;
 		}
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
-			Assert.AreEqual(4, issues.Count);
-			
-			CheckFix(context, issues,
+}", 4,
 			@"using System;
 using System.IO;
 
@@ -341,7 +302,7 @@ class C : A
 		[Test]
 		public void TestRedundantEvent()
 		{
-			var input = @"namespace Demo
+			Test<RedundantOverridenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -351,14 +312,7 @@ class C : A
 	{
 		public override event EventHandler FooBar { add { base.FooBar += value; } remove { base.FooBar -= value; } }
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantOverridenMemberIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-
-			CheckFix(context, issues, @"namespace Demo
+}", @"namespace Demo
 {
 	public class BaseClass
 	{

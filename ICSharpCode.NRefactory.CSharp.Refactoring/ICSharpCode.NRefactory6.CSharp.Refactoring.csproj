@@ -138,6 +138,13 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\LocalVariableNotUsedIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantBaseConstructorCallIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantDefaultFieldInitializerIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantParamsIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedLabelIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedParameterIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedTypeParameterIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

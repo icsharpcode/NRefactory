@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string DiagnosticId  = "EmptyConstructorIssue";
 		const string Description            = "Empty constructor is redundant.";
 		const string MessageFormat          = "Remove redundant constructor";
-		const string Category               = IssueCategories.RedundanciesInCode;
+		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 
