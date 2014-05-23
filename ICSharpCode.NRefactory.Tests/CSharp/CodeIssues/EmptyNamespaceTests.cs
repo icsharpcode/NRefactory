@@ -35,66 +35,43 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase()
 		{
-			var input = @"
+			Test<EmptyNamespaceIssue>(@"
 namespace Foo
 {
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new EmptyNamespaceIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
-");
+}", @"");
 		}
 
 		[Test]
 		public void TestCaseWithRegions()
 		{
-			var input = @"
+			Test<EmptyNamespaceIssue>(@"
 namespace Foo
 {
 	#region Bar
 	#endregion
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new EmptyNamespaceIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
-");
+}", @"");
 		}
 
 		[Test]
 		public void TestCaseWithUsing()
 		{
-			var input = @"
+			Test<EmptyNamespaceIssue>(@"
 namespace Foo
 {
 	using System;
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new EmptyNamespaceIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
-");
+}", @"");
 		}
 
 		[Test]
 		public void TestCaseWithNesting()
 		{
-			var input = @"
+			Test<EmptyNamespaceIssue>(@"
 namespace Foo
 {
 	namespace Bar
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new EmptyNamespaceIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
+}", @"
 namespace Foo
 {
 }");
@@ -103,23 +80,19 @@ namespace Foo
 		[Test]
 		public void TestDisabledForNonEmpty()
 		{
-			var input = @"
+			TestWrongContext<EmptyNamespaceIssue>(@"
 namespace Foo
 {
 	class Bar
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new EmptyNamespaceIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestDisabledForRegionsWithClasses()
 		{
-			var input = @"
+			TestWrongContext<EmptyNamespaceIssue>(@"
 namespace Foo
 {
 	#region Baz
@@ -127,11 +100,7 @@ namespace Foo
 		{
 		}
 	#endregion
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new EmptyNamespaceIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]

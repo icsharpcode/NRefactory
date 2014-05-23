@@ -133,6 +133,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentNameIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EmptyConstructorIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EmptyDestructorIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EmptyNamespaceIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

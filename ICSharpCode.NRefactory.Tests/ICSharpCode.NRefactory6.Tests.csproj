@@ -158,6 +158,7 @@
     <Compile Include="CSharp\CodeIssues\RedundantArgumentNameTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyDestructorTests.cs" />
+    <Compile Include="CSharp\CodeIssues\EmptyNamespaceTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

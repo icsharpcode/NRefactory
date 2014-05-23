@@ -22,59 +22,106 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Refactoring;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription ("Empty namespace declaration",
-	                   Description = "Empty namespace declaration is redundant",
-	                   Category = IssueCategories.RedundanciesInDeclarations,
-	                   Severity = Severity.Warning,
-	                   AnalysisDisableKeyword = "EmptyNamespace")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Empty namespace declaration", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Empty namespace declaration is redundant", AnalysisDisableKeyword = "EmptyNamespace")]
 	public class EmptyNamespaceIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
+		internal const string DiagnosticId  = "EmptyNamespaceIssue";
+		const string Description            = "Empty namespace declaration is redundant";
+		const string MessageFormat          = "Remove redundant namespace";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<EmptyNamespaceIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx)
-				: base(ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
+			public override void VisitNamespaceDeclaration(NamespaceDeclarationSyntax node)
 			{
 				bool hasContents = false;
-				foreach (var member in namespaceDeclaration.Members) {
-					if (member is TypeDeclaration || member is DelegateDeclaration) {
+				foreach (var member in node.Members) {
+					if (!member.IsKind(SyntaxKind.NamespaceDeclaration)) {
 						hasContents = true;
-					}
-					else if (member is NamespaceDeclaration) {
+					} else {
 						hasContents = true;
-						member.AcceptVisitor(this);
+						base.VisitNamespaceDeclaration(node);
 					}
 				}
 
 				if (!hasContents) {
-					AddIssue(new CodeIssue(namespaceDeclaration.NamespaceToken, ctx.TranslateString("Empty namespace declaration is redundant"),
-						GetFixAction(namespaceDeclaration)) { IssueMarker = IssueMarker.GrayOut });
+					base.VisitLeadingTrivia(node);
+					AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 				}
 			}
 
-			CodeAction GetFixAction(NamespaceDeclaration namespaceDeclaration)
+			public override void VisitBlock(BlockSyntax node)
 			{
-				return new CodeAction(ctx.TranslateString("Remove empty namespace"),
-				                      script => script.Remove(namespaceDeclaration),
-				                      namespaceDeclaration);
+				// skip
 			}
 		}
 	}
-}
 
+	[ExportCodeFixProvider(EmptyNamespaceIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class EmptyNamespaceFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return EmptyNamespaceIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				if (node.IsKind(SyntaxKind.CompilationUnit)) {
+					var cu = (CompilationUnitSyntax)node;
+					node = cu.Members.FirstOrDefault();
+				}
+
+				if (!node.IsKind(SyntaxKind.NamespaceDeclaration))
+					continue;
+				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			}
+			return result;
+		}
+		#endregion
+	}
+}

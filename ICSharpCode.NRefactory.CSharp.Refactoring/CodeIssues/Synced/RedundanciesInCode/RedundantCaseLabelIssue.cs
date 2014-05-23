@@ -99,9 +99,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var token = root.FindNode(diagonstic.Location.SourceSpan);
-				var newRoot = root.RemoveNode(token, SyntaxRemoveOptions.KeepDirectives);
-				result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

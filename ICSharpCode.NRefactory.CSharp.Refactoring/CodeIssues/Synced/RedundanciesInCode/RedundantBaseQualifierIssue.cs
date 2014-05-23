@@ -104,13 +104,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				var token = node.Parent as MemberAccessExpressionSyntax;
-				if (token != null) {
-					var newRoot = root.ReplaceNode((SyntaxNode)token,
-						token.Name
-						.WithLeadingTrivia(token.GetLeadingTrivia())
-						.WithTrailingTrivia(token.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				var parentMa = node.Parent as MemberAccessExpressionSyntax;
+				if (parentMa != null) {
+					var newRoot = root.ReplaceNode((SyntaxNode)parentMa,
+						parentMa.Name
+						.WithLeadingTrivia(parentMa.GetLeadingTrivia())
+						.WithTrailingTrivia(parentMa.GetTrailingTrivia()));
+					result.Add(CodeActionFactory.Create(parentMa.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

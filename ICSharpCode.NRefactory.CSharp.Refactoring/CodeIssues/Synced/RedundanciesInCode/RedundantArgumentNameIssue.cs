@@ -146,9 +146,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var token = root.FindNode(diagonstic.Location.SourceSpan);
-				var argListSyntax = token.Parent.Parent as BaseArgumentListSyntax;
-				if (token.IsKind(SyntaxKind.NameColon) && argListSyntax != null) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				var argListSyntax = node.Parent.Parent as BaseArgumentListSyntax;
+				if (node.IsKind(SyntaxKind.NameColon) && argListSyntax != null) {
 					bool replace = true;
 					var newRoot = root;
 					var args = new List<ArgumentSyntax> ();
@@ -157,16 +157,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						if (replace) {
 							args.Add(arg);
 						}
-						replace &= arg != token.Parent;
+						replace &= arg != node.Parent;
 
 					}
 					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.Argument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
 
-					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 					continue;
 				}
-				var attrListSyntax = token.Parent.Parent as AttributeArgumentListSyntax;
-				if (token.IsKind(SyntaxKind.NameColon) && attrListSyntax != null) {
+				var attrListSyntax = node.Parent.Parent as AttributeArgumentListSyntax;
+				if (node.IsKind(SyntaxKind.NameColon) && attrListSyntax != null) {
 					bool replace = true;
 					var newRoot = root;
 					var args = new List<AttributeArgumentSyntax> ();
@@ -175,12 +175,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						if (replace) {
 							args.Add(arg);
 						}
-						replace &= arg != token.Parent;
+						replace &= arg != node.Parent;
 
 					}
 					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.AttributeArgument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
 
-					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 					continue;
 				}
 			}
