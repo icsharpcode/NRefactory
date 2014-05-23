@@ -131,6 +131,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCaseLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCastIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentNameIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EmptyConstructorIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

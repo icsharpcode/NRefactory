@@ -23,10 +23,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
@@ -36,71 +34,43 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"using System;class Test {private int member; public Test(){}}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new EmptyConstructorIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-			CheckFix(context, issues, @"using System;class Test {private int member; }");
+			Test<EmptyConstructorIssue>(@"using System;class Test {private int member; public Test(){}}", @"using System;class Test {private int member; }");
 		}
 
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"using System;class Test {private int member;public Test(){} static Test(){}}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new EmptyConstructorIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			CheckFix(context, issues, @"using System;class Test {private int member; static Test(){}}");
+			Test<EmptyConstructorIssue>(@"using System;class Test {private int member;public Test(){} static Test(){}}", @"using System;class Test {private int member;static Test(){}}");
 		}
 
 		[Test]
 		public void TestResharperDisable()
 		{
-			var input = @"using System;
+			TestWrongContext<EmptyConstructorIssue>(@"using System;
 	//Resharper disable EmptyConstructor
 class Test {
 	public Test(){
 	}
 	//Resharper restore EmptyConstructor	
-	}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new EmptyConstructorIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+	}");
 		}
 
 		[Test]
 		public void TestNegateCase1()
 		{
-			var input = @"using System;class Test {public Test(){;}}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new EmptyConstructorIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test(){;}}");
 		}
 
-        [Test]
-        public void TestNegateCase2()
-        {
-            var input = @"using System;class Test {public Test(){;} private Test(){}}";
+		[Test]
+		public void TestNegateCase2()
+		{
+			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test(){;} private Test(){}}");
+		}
 
-            TestRefactoringContext context;
-            var issues = GetIssues(new EmptyConstructorIssue(), input, out context);
-            Assert.AreEqual(0, issues.Count);
-        }
-
-        [Test]
+		[Test]
 		public void TestNegateCase3()
 		{
-			var input = @"using System;class Test {public Test() : base(4) {}}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new EmptyConstructorIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test() : base(4) {}}");
 		}
 	}
 }
