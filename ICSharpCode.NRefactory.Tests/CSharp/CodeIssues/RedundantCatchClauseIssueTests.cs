@@ -61,7 +61,7 @@ class A
 		[Test]
 		public void TestEmptyCatch()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		try {
 			F ();
 		} catch (ArgumentOutOfRangeException aoore) {
@@ -72,12 +72,7 @@ class A
 			throw;
 		}
 	}
-}";
-			TestRefactoringContext context;
-            var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(2, issues.Count);
-			
-			CheckFix(context, issues, BaseInput + @"
+}", 2, BaseInput + @"
 		try {
 			F ();
 		} catch (ArgumentOutOfRangeException aoore) {
@@ -90,7 +85,7 @@ class A
 		[Test]
 		public void TestOnlyRedundantCatches()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		try {
 			F ();
 			Console.WriteLine (""Inside try"");
@@ -98,12 +93,7 @@ class A
 			throw;
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			CheckFix(context, issues, BaseInput + @"
+}", BaseInput + @"
 		F ();
 		Console.WriteLine (""Inside try"");
 	}
@@ -113,7 +103,7 @@ class A
 		[Test]
 		public void AddsBlockIfNeccessary()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		if (true)
 			try {
 				F ();
@@ -122,12 +112,7 @@ class A
 				throw;
 			}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			CheckFix(context, issues, BaseInput + @"
+}", BaseInput + @"
 		if (true) {
 			F ();
 			Console.WriteLine (""Inside try"");
@@ -140,19 +125,14 @@ class A
 		[Test]
 		public void AddsBlockIfNeccessaryOnEmptyTryBlock()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		if (true)
 			try {
 			} catch {
 				throw;
 			}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			CheckFix(context, issues, BaseInput + @"
+}", BaseInput + @"
 		if (true) {
 		}
 	}
@@ -162,21 +142,18 @@ class A
 		[Test]
 		public void EmptyTryCatchSkeleton()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		try {
 		} catch {
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}", 0);
 		}
 		
 		[Test]
 		public void DoesNotAddBlockIfUnneccessary()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(@"
 		if (true)
 			try {
 				F ();
@@ -184,12 +161,7 @@ class A
 				throw;
 			}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			CheckFix(context, issues, BaseInput + @"
+}", BaseInput + @"
 		if (true)
 			F ();
 	}
@@ -199,21 +171,18 @@ class A
 		[Test]
 		public void NoIssuesWhenMissingCatch()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		try {
 			F ();
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context, true);
-			Assert.AreEqual(0, issues.Count);
+}", 0);
 		}
 
 		[Test]
 		public void TestEmptyCatchWithFinally()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		try {
 			F ();
 		} catch {
@@ -222,12 +191,7 @@ class A
 			Console.WriteLine (""Inside finally"");
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			CheckFix(context, issues, BaseInput + @"
+}", BaseInput + @"
 		try {
 			F ();
 		}  finally {
@@ -243,7 +207,7 @@ class A
 		[Test]
 		public void TestBug12273()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		try {
 			F ();
 		} catch (ArgumentOutOfRangeException) {
@@ -252,12 +216,9 @@ class A
 			Console.WriteLine (e);
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}", 0);
 
-			input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		try {
 			F ();
 		} catch (ArgumentOutOfRangeException) {
@@ -266,10 +227,7 @@ class A
 			throw;
 		}
 	}
-}";
-			issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, BaseInput + @"
+}", BaseInput + @"
 		F ();
 	}
 }");
@@ -282,7 +240,7 @@ class A
 		[Test]
 		public void TestBug12273Case2()
 		{
-			var input = BaseInput + @"
+			Test<RedundantCatchClauseIssue>(BaseInput + @"
 		try {
 			F ();
 		} catch (ArgumentOutOfRangeException) {
@@ -291,12 +249,9 @@ class A
 			Console.WriteLine (""hello world"");
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}", 0);
 
-			input = BaseInput + @"
+			TestIssue<RedundantCatchClauseIssue>(BaseInput + @"
 		try {
 			F ();
 		} catch (ArgumentOutOfRangeException) {
@@ -305,9 +260,7 @@ class A
 			throw;
 		}
 	}
-}";
-			issues = GetIssues(new RedundantCatchClauseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 	
 		/// <summary>

@@ -37,19 +37,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			var input = @"using System;
+			Test<RedundantUsingDirectiveIssue>(@"using System;
 
 class Foo
 {
 	void Bar (string str)
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantUsingDirectiveIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
+}", @"
 class Foo
 {
 	void Bar (string str)
@@ -61,26 +56,20 @@ class Foo
 		[Test]
 		public void TestInspectorCase2 ()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantUsingDirectiveIssue>(@"using System;
 
 class Foo
 {
 	void Bar (string str)
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issueProvider = new RedundantUsingDirectiveIssue ();
-			issueProvider.NamespacesToKeep.Add("System");
-			var issues = GetIssues (issueProvider, input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void TestInspectorCase3 ()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantUsingDirectiveIssue>(@"using System;
 using System.Collections.Generic;
 
 namespace Foo
@@ -89,17 +78,13 @@ namespace Foo
 	{
 		List<String> list;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantUsingDirectiveIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void Linq1 ()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantUsingDirectiveIssue>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -109,17 +94,13 @@ class Bar
 	{
 		return list.Where(t => !String.IsNullOrEmpty(t));
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantUsingDirectiveIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void Linq2 ()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantUsingDirectiveIssue>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -129,44 +110,33 @@ class Bar
 	{
 		return from t in list where !String.IsNullOrEmpty(t) select t;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantUsingDirectiveIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
+
 		[Test]
 		public void TestResharperDisableRestore ()
 		{
-			var input = @"// ReSharper disable RedundantUsingDirective
+			TestIssue<RedundantUsingDirectiveIssue>(@"// ReSharper disable RedundantUsingDirective
 using System;
 // ReSharper restore RedundantUsingDirective
 using System.IO;
 
 class Foo
 {
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantUsingDirectiveIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestResharperDisableOnce ()
 		{
-			var input = @"using System;
+			TestIssue<RedundantUsingDirectiveIssue>(@"using System;
 // ReSharper disable once RedundantUsingDirective
 using System.IO;
 using System.Text;
 
 class Foo
 {
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantUsingDirectiveIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
+}", 2);
 		}
 
 		[Test]

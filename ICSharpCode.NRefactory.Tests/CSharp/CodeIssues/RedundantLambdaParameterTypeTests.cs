@@ -130,7 +130,7 @@ namespace application
 		[Test]
 		public void TestInspectorCase3()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantLambdaParameterTypeIssue>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -146,17 +146,14 @@ namespace application
 			Foo(((int i) => Console.WriteLine(i)), (i => Console.WriteLine(i)));
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 
 		[Test]
 		public void TestInvalidContext()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantLambdaParameterTypeIssue>(@"using System;
 		using System.Collections.Generic;
 		using System.Linq;
 
@@ -172,16 +169,13 @@ namespace application
 			Foo((int i) => Console.WriteLine (i));
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantLambdaParameterTypeIssue>(@"using System;
 		using System.Collections.Generic;
 		using System.Linq;
 
@@ -206,11 +200,7 @@ namespace application
 			Console.WriteLine(multiple(10, 11, 12));
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantLambdaParameterTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 	}
 }

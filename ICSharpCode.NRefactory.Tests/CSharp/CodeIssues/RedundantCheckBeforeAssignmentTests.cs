@@ -63,7 +63,7 @@ class baseClass
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"using System;
+			TestIssue<RedundantCheckBeforeAssignmentIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -76,17 +76,13 @@ namespace resharper_test
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCheckBeforeAssignmentIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+");
 		}
 		
 		[Test]
 		public void TestInspectorCase3()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantCheckBeforeAssignmentIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -103,17 +99,13 @@ namespace resharper_test
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCheckBeforeAssignmentIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 		
 		[Test]
 		public void TestInspectorCase4()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantCheckBeforeAssignmentIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -130,17 +122,13 @@ namespace resharper_test
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCheckBeforeAssignmentIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 		
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantCheckBeforeAssignmentIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -157,11 +145,7 @@ namespace resharper_test
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantCheckBeforeAssignmentIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 	}
 }

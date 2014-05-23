@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class RedundantCommaInArrayInitializerIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void Test ()
+		public void Test()
 		{
 			var input = @"
 class TestClass
@@ -52,29 +52,26 @@ class TestClass
 		var a = new int[] { 1, 2 };
 	}
 }";
-			Test<RedundantCommaInArrayInitializerIssue> (input, 1, output);
+			Test<RedundantCommaInArrayInitializerIssue>(input, 1, output);
 		}
 
 		[Test]
-		public void TestArrayInitializerDescription ()
+		public void TestArrayInitializerDescription()
 		{
-			var input = @"
+			TestIssue<RedundantCommaInArrayInitializerIssue>(@"
 class TestClass
 {
 	void TestMethod ()
 	{
 		var a = new int[] { 1, 2, };
 	}
-}";
-			TestRefactoringContext ctx;
-			var issues = GetIssues (new RedundantCommaInArrayInitializerIssue (), input, out ctx);
-			Assert.AreEqual (issues.Count, 1);
+}");
 		}
 
 		[Test]
-		public void TestObjectInitializerDescription ()
+		public void TestObjectInitializerDescription()
 		{
-			var input = @"
+			TestIssue<RedundantCommaInArrayInitializerIssue>(@"
 class TestClass
 {
 	int Prop { get; set; }
@@ -82,32 +79,26 @@ class TestClass
 	{
 		var a = new TestClass { Prop = 1, };
 	}
-}";
-			TestRefactoringContext ctx;
-			var issues = GetIssues (new RedundantCommaInArrayInitializerIssue (), input, out ctx);
-			Assert.AreEqual (issues.Count, 1);
+}");
 		}
 
-        [Test]
-        public void TestCollectionInitializerDescrition()
-        {
-            var input = @"
+		[Test]
+		public void TestCollectionInitializerDescrition()
+		{
+			TestIssue<RedundantCommaInArrayInitializerIssue>(@"
 class TestClass
 {
 	void TestMethod ()
 	{
 		var a = new TestClass { 1, };
 	}
-}";
-            TestRefactoringContext ctx;
-            var issues = GetIssues(new RedundantCommaInArrayInitializerIssue(), input, out ctx);
-            Assert.AreEqual(issues.Count, 1);
-        }
+}");
+		}
 
-        [Test]
-        public void TestDisable()
-        {
-            var input = @"
+		[Test]
+		public void TestDisable()
+		{
+			var input = @"
 class TestClass
 {
 	void TestMethod ()
@@ -116,7 +107,7 @@ class TestClass
 		var a = new TestClass { 1, };
 	}
 }";
-            TestWrongContext<RedundantCommaInArrayInitializerIssue>(input);
-        }
+			TestWrongContext<RedundantCommaInArrayInitializerIssue>(input);
+		}
 	}
 }

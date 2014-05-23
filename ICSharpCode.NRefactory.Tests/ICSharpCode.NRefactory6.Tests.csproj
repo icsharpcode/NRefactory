@@ -170,6 +170,36 @@
     <Compile Include="CSharp\CodeIssues\UnusedLabelIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnusedParameterIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnusedTypeParameterIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\ConstantNullCoalescingConditionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantArgumentDefaultValueIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantAttributeParenthesesIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantBoolCompareIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantCatchClauseIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantCheckBeforeAssignmentTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantCommaInArrayInitializerIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantComparisonWithNullIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantDelegateCreationIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantEmptyDefaultSwitchBranchIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantEmptyFinallyBlockIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantObjectCreationArgumentListIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantEnumerableCastCallIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantExplicitArrayCreationIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantExplicitArraySizeIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantExplicitNullableCreationIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantExtendsListEntryIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantIfElseBlockIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantLambdaParameterTypeTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantLambdaSignatureParenthesesIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantLogicalConditionalExpressionOperandIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantObjectOrCollectionInitializerIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantStringToCharArrayCallIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantTernaryExpressionIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantToStringCallForValueTypesIssue.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantToStringCallIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantUnsafeContextIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantUsingDirectiveIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RemoveRedundantOrStatementIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\UnusedAnonymousMethodSignatureIssueTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

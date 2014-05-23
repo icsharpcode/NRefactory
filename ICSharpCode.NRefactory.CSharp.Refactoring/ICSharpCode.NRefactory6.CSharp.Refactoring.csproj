@@ -145,6 +145,36 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedLabelIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedParameterIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedTypeParameterIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\ConstantNullCoalescingConditionIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantArgumentDefaultValueIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantAttributeParenthesesIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantBoolCompareIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCatchClauseIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCheckBeforeAssignmentIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantCommaInArrayInitializerIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantComparisonWithNullIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantDelegateCreationIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEmptyFinallyBlockIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantEnumerableCastCallIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantObjectCreationArgumentListIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArrayCreationIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArraySizeIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExplicitNullableCreationIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantExtendsListEntryIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantIfElseBlockIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaParameterTypeIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLambdaSignatureParenthesesIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantObjectOrCollectionInitializerIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantStringToCharArrayCallIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantTernaryExpressionIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantToStringCallIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantUnsafeContextIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RedundantUsingDirectiveIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\RemoveRedundantOrStatementIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -37,19 +37,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void ConcatenationOperator ()
 		{
-			var input = @"
+			Test<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (object i)
 	{
 		string s = """" + i.ToString() + """" + i.ToString();
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantToStringCallIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
-			CheckFix (context, issues, @"
+}", 2, @"
 class Foo
 {
 	void Bar (object i)
@@ -76,41 +71,33 @@ class Foo
 		[Test]
 		public void ConcatenationOperatorWithToStringAsOnlyString ()
 		{
-			var input = @"
+			TestWrongContext<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (int i)
 	{
 		string s = i.ToString() + i + i + i + 1.3;
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantToStringCallIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void IgnoresCallsToIFormattableToString ()
 		{
-			var input = @"
+			TestWrongContext<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (System.DateTime dt)
 	{
 		string s = dt.ToString("""", CultureInfo.InvariantCulture) + string.Empty;
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantToStringCallIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void StringTarget ()
 		{
-			var input = @"
+			Test<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (string str)
@@ -118,12 +105,7 @@ class Foo
 		string s = str.ToString();
 		string inOperator = """" + str.ToString();
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantToStringCallIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
-			CheckFix (context, issues, @"
+}", 2, @"
 class Foo
 {
 	void Bar (string str)
@@ -137,19 +119,14 @@ class Foo
 		[Test]
 		public void FormatStringTests ()
 		{
-			var input = @"
+			Test<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (object i)
 	{
 		string s = string.Format(""{0}"", i.ToString());
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantToStringCallIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
+}", @"
 class Foo
 {
 	void Bar (object i)
@@ -162,7 +139,7 @@ class Foo
 		[Test]
 		public void HandlesNonLiteralFormatParameter ()
 		{
-			var input = @"
+			Test<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (object i)
@@ -170,12 +147,7 @@ class Foo
 		string format = ""{0}"";
 		string s = string.Format(format, i.ToString());
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantToStringCallIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
+}", @"
 class Foo
 {
 	void Bar (object i)
@@ -189,7 +161,7 @@ class Foo
 		[Test]
 		public void FormatStringWithNonObjectParameterTests ()
 		{
-			var input = @"
+			Test<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (object i)
@@ -203,12 +175,7 @@ class Foo
 	void FakeFormat(string format, params object[] arg1)
 	{
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantToStringCallIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
+}", @"
 class Foo
 {
 	void Bar (object i)
@@ -228,7 +195,7 @@ class Foo
 		[Test]
 		public void FormatMethodWithObjectParamsArray ()
 		{
-			var input = @"
+			Test<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (object i)
@@ -239,12 +206,7 @@ class Foo
 	void FakeFormat(string format, params object[] args)
 	{
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantToStringCallIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
-			CheckFix (context, issues, @"
+}", 2, @"
 class Foo
 {
 	void Bar (object i)
@@ -261,7 +223,7 @@ class Foo
 		[Test, Ignore("broken")]
 		public void DetectsBlacklistedCalls ()
 		{
-			var input = @"
+			Test<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (object i)
@@ -270,12 +232,7 @@ class Foo
 		w.Write (i.ToString());
 		w.WriteLine (i.ToString());
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantToStringCallIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
-			CheckFix (context, issues, @"
+}", 2, @"
 class Foo
 {
 	void Bar (object i)

@@ -108,7 +108,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(RedundantParamsIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	public class RedundantParamsFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{

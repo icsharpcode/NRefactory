@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"using System;
+			Test<RedundantExtendsListEntryIssue>(@"using System;
 
 namespace resharper_test
 {
@@ -61,12 +61,7 @@ namespace resharper_test
 	{
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantExtendsListEntryIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @"using System;
+", @"using System;
 
 namespace resharper_test
 {
@@ -96,7 +91,7 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"using System;
+			Test<RedundantExtendsListEntryIssue>(@"using System;
 
 namespace resharper_test
 {
@@ -120,12 +115,7 @@ namespace resharper_test
 	{
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantExtendsListEntryIssue(), input, out context);
-			Assert.AreEqual(2, issues.Count);
-			CheckFix(context, issues, @"using System;
+", 2, @"using System;
 
 namespace resharper_test
 {
@@ -155,7 +145,7 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase3()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantExtendsListEntryIssue>(@"using System;
 
 namespace resharper_test
 {
@@ -180,17 +170,13 @@ namespace resharper_test
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantExtendsListEntryIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 		
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantExtendsListEntryIssue>(@"using System;
 
 namespace resharper_test
 {
@@ -212,11 +198,7 @@ namespace resharper_test
 	}
 //Resharer restore RedundantExtendsListEntry
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantExtendsListEntryIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 	}
 }

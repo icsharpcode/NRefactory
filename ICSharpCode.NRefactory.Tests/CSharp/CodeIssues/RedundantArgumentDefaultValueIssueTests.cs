@@ -330,7 +330,7 @@ class TestClass
 		[Test]
 		public void IgnoresIfParamsAreUsed()
 		{
-			var input = @"
+			TestWrongContext<RedundantArgumentDefaultValueIssue>(@"
 class TestClass
 {
 	void Foo(string a1 = ""a1"", string a2 = ""a2"", string a3 = ""a3"", params string[] extraStrings)
@@ -341,10 +341,7 @@ class TestClass
 	{
 		Foo (""a1"", ""a2"", ""a3"", ""extraString"");
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantArgumentDefaultValueIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Ignore("Fixme")]

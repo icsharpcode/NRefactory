@@ -36,14 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"using System;class Test {public void test(){int a = 0;if(a is int && a != null){a = 1;}}}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantComparisonWithNullIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-			
-			CheckFix(context, issues, @"using System;class Test {public void test(){int a = 0;
+			Test<RedundantComparisonWithNullIssue> (@"using System;class Test {public void test(){int a = 0;if(a is int && a != null){a = 1;}}}", @"using System;class Test {public void test(){int a = 0;
 		if (a is int) {
 			a = 1;
 		}}}");
@@ -52,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperDisable()
 		{
-			var input = @"using System;
+			TestWrongContext<RedundantComparisonWithNullIssue> (@"using System;
 class Test {
 	public void test(){
 	int a = 0;
@@ -61,22 +54,13 @@ class Test {
 	{a = 1;}
 	//Resharper restore RedundantComparisonWithNull
 	}	
-	}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantComparisonWithNullIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+	}");
 		}
 
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"using System;class Test {public void test(){int a = 0;while(a != null && a is int){a = 1;}}}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantComparisonWithNullIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @"using System;class Test {public void test(){int a = 0;
+			Test<RedundantComparisonWithNullIssue> (@"using System;class Test {public void test(){int a = 0;while(a != null && a is int){a = 1;}}}", @"using System;class Test {public void test(){int a = 0;
 		while (a is int) {
 			a = 1;
 		}}}");
@@ -85,8 +69,7 @@ class Test {
 		[Test]
 		public void TestCaseWithFullParens()
 		{
-			var input = 
-				@"using System;
+			Test<RedundantComparisonWithNullIssue> (@"using System;
 class TestClass
 {
 	public void Test(object o)
@@ -94,12 +77,7 @@ class TestClass
 		if (!((o is int) && (o != null))) {
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantComparisonWithNullIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @"using System;
+}", @"using System;
 class TestClass
 {
 	public void Test(object o)
@@ -113,7 +91,7 @@ class TestClass
         [Test]
         public void TestDisable()
         {
-            var input =
+			TestWrongContext<RedundantComparisonWithNullIssue> (
                 @"using System;
 class TestClass
 {
@@ -123,11 +101,7 @@ class TestClass
 		if (!((o is int) && (o != null))) {
 		}
 	}
-}";
-
-            TestRefactoringContext context;
-            var issues = GetIssues(new RedundantComparisonWithNullIssue(), input, out context);
-            Assert.AreEqual(0, issues.Count);
+}");
         }
 
 
@@ -135,8 +109,7 @@ class TestClass
 		[Test]
 		public void TestNegatedCase()
 		{
-			var input = 
-				@"using System;
+			Test<RedundantComparisonWithNullIssue> (@"using System;
 class TestClass
 {
 	public void Test(object o)
@@ -144,12 +117,7 @@ class TestClass
 		if (null == o || !(o is int)) {
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantComparisonWithNullIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @"using System;
+}", @"using System;
 class TestClass
 {
 	public void Test(object o)
