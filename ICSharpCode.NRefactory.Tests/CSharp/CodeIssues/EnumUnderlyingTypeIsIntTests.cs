@@ -39,11 +39,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Test<EnumUnderlyingTypeIsIntIssue>(@"
 public enum Foo : int
 {
-	Bar
+    Bar
 }", @"
 public enum Foo
 {
-	Bar
+    Bar
 }");
 		}
 
@@ -65,28 +65,28 @@ public enum Foo : int
 			Test<EnumUnderlyingTypeIsIntIssue>(@"
 class Outer
 {
-	public enum Foo : int
-	{
-		Bar
-	}
+    public enum Foo : int
+    {
+        Bar
+    }
 }", @"
 class Outer
 {
-	public enum Foo
-	{
-		Bar
-	}
+    public enum Foo
+    {
+        Bar
+    }
 }");
 		}
 
 		[Test]
 		public void TestDisabledForNoUnderlyingType()
 		{
-			Test<EnumUnderlyingTypeIsIntIssue>(@"
+			TestWrongContext<EnumUnderlyingTypeIsIntIssue>(@"
 public enum Foo
 {
-	Bar
-}", 0);
+    Bar
+}");
 		}
 
 		[Test]
@@ -95,7 +95,7 @@ public enum Foo
 			Test<EnumUnderlyingTypeIsIntIssue>(@"
 public enum Foo : byte
 {
-	Bar
+    Bar
 }", 0);
 		}
 	}

@@ -23,77 +23,103 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using ICSharpCode.NRefactory.Refactoring;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription("Underlying type of enum is int",
-	                  Description = "The default underlying type of enums is int, so defining it explicitly is redundant.",
-	                  Category = IssueCategories.RedundanciesInDeclarations,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
-	public class EnumUnderlyingTypeIsIntIssue : CodeIssueProvider
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Underlying type of enum is int", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "The default underlying type of enums is int, so defining it explicitly is redundant.", AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
+	public class EnumUnderlyingTypeIsIntIssue : GatherVisitorCodeIssueProvider
 	{
-		public override IEnumerable<CodeIssue> GetIssues(BaseSemanticModel context, string subIssue)
+		internal const string DiagnosticId  = "EnumUnderlyingTypeIsIntIssue";
+		const string Description            = "Default underlying type of enums is already int";
+		const string MessageFormat          = "Remove redundant ': int'";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context).GetIssues();
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<EnumUnderlyingTypeIsIntIssue>
 		{
-			public GatherVisitor(BaseSemanticModel context)
-				: base(context)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+			public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
 			{
-				switch (typeDeclaration.ClassType) {
-					case ClassType.Class:
-					case ClassType.Struct:
-						//Visit nested types
-						base.VisitTypeDeclaration(typeDeclaration);
-						return;
-					case ClassType.Interface:
-						return;
-				}
-
-				var underlyingType = typeDeclaration.BaseTypes.FirstOrDefault();
-
-				if (underlyingType != null && ctx.ResolveType(underlyingType).FullName == "System.Int32") {
-					var colonToken = typeDeclaration.ColonToken;
-					var startLocation = colonToken.StartLocation;
-					var endLocation = underlyingType.EndLocation;
-
-					AddIssue(new CodeIssue(startLocation,
-					         endLocation,
-					         ctx.TranslateString("Default underlying type of enums is already int"),
-					         ctx.TranslateString("Remove redundant ': int'"),
-					         script =>
-					{
-						script.ChangeBaseTypes(typeDeclaration, Enumerable.Empty<AstType>());
-						}) { IssueMarker = IssueMarker.GrayOut });
+				if (node.BaseList == null)
+					return;
+				var underlyingType = node.BaseList.Types.FirstOrDefault();
+				if (underlyingType == null)
+					return;
+				var info = semanticModel.GetSymbolInfo(underlyingType);
+				var type = info.Symbol as ITypeSymbol;
+				if (type != null && type.SpecialType == SpecialType.System_Int32) {
+					VisitLeadingTrivia(node);
+					AddIssue(Diagnostic.Create(Rule, node.BaseList.GetLocation()));
 				}
 			}
 
-			CodeAction GetFixAction(TypeDeclaration typeDeclaration, TextLocation start, TextLocation end)
-			{
-				return new CodeAction(ctx.TranslateString("Remove redundant underlying type"),
-				                      script => {
-
-					script.ChangeBaseTypes(typeDeclaration, Enumerable.Empty<AstType>());
-
-				}, start, end);
-			}
-
-			public override void VisitBlockStatement(BlockStatement blockStatement)
+			public override void VisitBlock(BlockSyntax node)
 			{
 				//No need to visit statements
 			}
 		}
 	}
-}
 
+	[ExportCodeFixProvider(EnumUnderlyingTypeIsIntIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class EnumUnderlyingTypeIsIntFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return EnumUnderlyingTypeIsIntIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				if (!node.IsKind(SyntaxKind.BaseList))
+					continue;
+				var newRoot = root.ReplaceNode(
+					node.Parent,
+					node.Parent.RemoveNode(node, SyntaxRemoveOptions.KeepExteriorTrivia)
+					.WithAdditionalAnnotations(Formatter.Annotation)
+				);
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			}
+			return result;
+		}
+		#endregion
+	}
+}

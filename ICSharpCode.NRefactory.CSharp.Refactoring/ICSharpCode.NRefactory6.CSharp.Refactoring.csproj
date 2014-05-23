@@ -134,6 +134,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EmptyConstructorIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EmptyDestructorIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EmptyNamespaceIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

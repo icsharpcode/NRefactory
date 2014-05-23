@@ -176,8 +176,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 				CancellationToken.None
 			)); 
 
-			if (expectedDiagnostics >= 0)
+			if (expectedDiagnostics >= 0) {
+				Console.WriteLine("Diagnostics: " + diagnostics.Count);
+				foreach (var diag in diagnostics) {
+					Console.WriteLine(diag.Id +"/"+ diag.GetMessage());
+				}
 				Assert.AreEqual(expectedDiagnostics, diagnostics.Count);
+			}
 
 			if (output == null)
 				return;
