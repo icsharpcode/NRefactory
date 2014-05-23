@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				foreach (var child in node.Members.OfType<ConstructorDeclarationSyntax>()) {
 					if (child.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))) 
 						continue;
-					if (child.Body != null && child.Body.Statements.Count > 0 || child.ParameterList.Parameters.Count > 0) {
+					if (child.ParameterList.Parameters.Count > 0 || !EmptyDestructorIssue.IsEmpty(child.Body)) {
 						hasUnemptyConstructor = true;
 					} else if (child.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword))) {
 						if (child.Initializer != null && child.Initializer.ArgumentList.Arguments.Count > 0)

@@ -22,102 +22,100 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Refactoring;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory.PatternMatching;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription ("Empty destructor",
-	                   Description = "Empty destructor is redundant",
-	                   Category = IssueCategories.RedundanciesInDeclarations,
-	                   Severity = Severity.Warning,
-	                   AnalysisDisableKeyword = "EmptyDestructor"
-	                   )]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Empty destructor", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Empty destructor is redundant", AnalysisDisableKeyword = "EmptyDestructor")]
 	public class EmptyDestructorIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
+		internal const string DiagnosticId  = "EmptyDestructorIssue";
+		const string Description            = "Empty destructor is redundant";
+		const string MessageFormat          = "Remove redundant destructor";
+		const string Category               = IssueCategories.RedundanciesInCode;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+		}
+
+		internal static bool IsEmpty(SyntaxNode node)
+		{
+			if (node == null || node.IsKind(SyntaxKind.EmptyStatement))
+				return true;
+
+			var block = node as BlockSyntax;
+			return block != null && block.Statements.All(IsEmpty);
 		}
 
 		class GatherVisitor : GatherVisitorBase<EmptyDestructorIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx)
-				: base(ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
+			public override void VisitDestructorDeclaration(DestructorDeclarationSyntax node)
 			{
-				if (IsEmpty (destructorDeclaration.Body)) {
-					AddIssue(new CodeIssue(destructorDeclaration.NameToken,
-					         ctx.TranslateString("Empty destructor is redundant"),
-						GetFixAction(destructorDeclaration)) { IssueMarker = IssueMarker.GrayOut });
+				base.VisitDestructorDeclaration(node);
+				if (IsEmpty (node.Body)) {
+					AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 				}
 			}
 
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+			public override void VisitBlock(BlockSyntax node)
 			{
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-			{
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-			{
-			}
-
-			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
-			{
-			}
-
-			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-			{
-			}
-
-			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
-			{
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-			{
-			}
-
-			public override void VisitUsingDeclaration(UsingDeclaration usingDeclaration)
-			{
-			}
-
-			public override void VisitUsingAliasDeclaration(UsingAliasDeclaration usingDeclaration)
-			{
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-			{
-			}
-
-			bool IsEmpty(AstNode node)
-			{
-				if (node is EmptyStatement) {
-					return true;
-				}
-
-				BlockStatement block = node as BlockStatement;
-				return block != null && block.Statements.All(IsEmpty);
-			}
-
-			CodeAction GetFixAction(DestructorDeclaration destructorDeclaration)
-			{
-				return new CodeAction(ctx.TranslateString("Remove redundant destructor"), script =>
-				{
-					script.Remove(destructorDeclaration);
-				}, destructorDeclaration.NameToken);
+				// skip
 			}
 		}
 	}
-}
 
+	[ExportCodeFixProvider(EmptyDestructorIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class EmptyDestructorFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return EmptyDestructorIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var token = root.FindNode(diagonstic.Location.SourceSpan);
+				if (!token.IsKind(SyntaxKind.DestructorDeclaration))
+					continue;
+				var newRoot = root.RemoveNode(token, SyntaxRemoveOptions.KeepDirectives);
+				result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			}
+			return result;
+		}
+		#endregion
+	}
+}

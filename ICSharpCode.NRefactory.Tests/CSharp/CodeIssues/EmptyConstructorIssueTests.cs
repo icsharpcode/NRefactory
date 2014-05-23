@@ -58,13 +58,13 @@ class Test {
 		[Test]
 		public void TestNegateCase1()
 		{
-			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test(){;}}");
+			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test(){Foo();}}");
 		}
 
 		[Test]
 		public void TestNegateCase2()
 		{
-			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test(){;} private Test(){}}");
+			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test(){Bar();} private Test(){}}");
 		}
 
 		[Test]

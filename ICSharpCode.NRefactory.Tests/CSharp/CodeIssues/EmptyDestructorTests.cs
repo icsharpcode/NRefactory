@@ -23,9 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
@@ -35,18 +33,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase()
 		{
-			var input = @"
+			Test<EmptyDestructorIssue>(@"
 class Foo
 {
 	~Foo()
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new EmptyDestructorIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
+}", @"
 class Foo
 {
 }");
@@ -55,7 +48,7 @@ class Foo
 		[Test]
 		public void TestCaseWithNesting()
 		{
-			var input = @"
+			Test<EmptyDestructorIssue>(@"
 class Foo
 {
 	~Foo()
@@ -64,12 +57,7 @@ class Foo
 		;
 		{;}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new EmptyDestructorIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"
+}", @"
 class Foo
 {
 }");
@@ -78,34 +66,27 @@ class Foo
 		[Test]
 		public void TestDisabledForNonEmpty()
 		{
-			var input = @"
+			TestWrongContext<EmptyDestructorIssue>(@"
 class Foo
 {
 	~Foo()
 	{
 		System.Console.WriteLine();
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new EmptyDestructorIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestDisable()
 		{
-			var input = @"
+			TestWrongContext<EmptyDestructorIssue>(@"
 class Foo
 {
 	// ReSharper disable once EmptyDestructor
 	~Foo()
 	{
 	}
-}";
-			TestWrongContext<EmptyDestructorIssue>(input);
+}");
 		}
-
 	}
 }
-
