@@ -160,6 +160,9 @@
     <Compile Include="CSharp\CodeIssues\EmptyDestructorTests.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyNamespaceTests.cs" />
     <Compile Include="CSharp\CodeIssues\EnumUnderlyingTypeIsIntTests.cs" />
+    <Compile Include="CSharp\CodeIssues\LocalVariableNotUsedIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\PartialTypeWithSinglePartIssueTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantBaseConstructorIssueTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

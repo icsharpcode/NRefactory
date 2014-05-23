@@ -24,88 +24,132 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.Semantics;
+using System;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Refactoring;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[IssueDescription("Unused local variable",
-		Description = "Local variable is never used.",
-		Category = IssueCategories.RedundanciesInDeclarations,
-		Severity = Severity.Warning,
-		PragmaWarning = 163,
-		AnalysisDisableKeyword = "UnusedVariable.Compiler")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Unused local variable", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Local variable is never used.", AnalysisDisableKeyword = "UnusedVariable.Compiler", PragmaWarning = 163)]
 	public class LocalVariableNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
+		internal const string DiagnosticId  = "LocalVariableNotUsedIssue";
+		const string Description            = "Local variable is never used";
+		const string MessageFormat          = "Remove unused local variable '{0}'";
+		const string Category               = IssueCategories.RedundanciesInCode;
 
-		#region ICodeIssueProvider implementation
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			return new GatherVisitor(context);
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
 		}
 
-		#endregion
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		{
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+		}
 
 		class GatherVisitor : GatherVisitorBase<LocalVariableNotUsedIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx)
-				: base(ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitVariableInitializer(VariableInitializer variableInitializer)
+			public override void VisitVariableDeclarator(VariableDeclaratorSyntax node)
 			{
-				base.VisitVariableInitializer(variableInitializer);
-
-				// check if variable is assigned
-				if (!variableInitializer.Initializer.IsNull)
-					return;
-				var decl = variableInitializer.Parent as VariableDeclarationStatement;
-				if (decl == null)
-					return;
-
-				var resolveResult = ctx.Resolve(variableInitializer) as LocalResolveResult;
-				if (resolveResult == null)
-					return;
-
-				if (IsUsed(decl.Parent, resolveResult.Variable, variableInitializer))
-					return;
-
-				AddIssue(new CodeIssue(variableInitializer.NameToken, 
-					string.Format(ctx.TranslateString("Local variable '{0}' is never used"), resolveResult.Variable.Name), ctx.TranslateString("Remove unused local variable"),
-					script => {
-						if (decl.Variables.Count == 1) {
-							script.Remove(decl);
-						} else {
-							var newDeclaration = (VariableDeclarationStatement)decl.Clone();
-							newDeclaration.Variables.Remove(
-								newDeclaration.Variables.FirstOrNullObject(v => v.Name == variableInitializer.Name));
-							script.Replace(decl, newDeclaration);
-						}
-					}) { IssueMarker = IssueMarker.GrayOut });
+				base.VisitVariableDeclarator(node);
+	
+//				// check if variable is assigned
+//				if (!variableInitializer.Initializer.IsNull)
+//					return;
+//				var decl = variableInitializer.Parent as VariableDeclarationStatement;
+//				if (decl == null)
+//					return;
+//
+//				var resolveResult = ctx.Resolve(variableInitializer) as LocalResolveResult;
+//				if (resolveResult == null)
+//					return;
+//
+//				if (IsUsed(decl.Parent, resolveResult.Variable, variableInitializer))
+//					return;
+//
+//				AddIssue(new CodeIssue(variableInitializer.NameToken, 
+//					string.Format(ctx.TranslateString(""), resolveResult.Variable.Name), ctx.TranslateString(""),
+//					script => {
+//						if (decl.Variables.Count == 1) {
+//							script.Remove(decl);
+//						} else {
+//							var newDeclaration = (VariableDeclarationStatement)decl.Clone();
+//							newDeclaration.Variables.Remove(
+//								newDeclaration.Variables.FirstOrNullObject(v => v.Name == variableInitializer.Name));
+//							script.Replace(decl, newDeclaration);
+//						}
+//					}) { IssueMarker = IssueMarker.GrayOut });
 			}
 
-			public override void VisitForeachStatement(ForeachStatement foreachStatement)
+
+			public override void VisitForEachStatement(ForEachStatementSyntax node)
 			{
-				base.VisitForeachStatement(foreachStatement);
+				base.VisitForEachStatement(node);
 
-				var resolveResult = ctx.Resolve(foreachStatement.VariableNameToken) as LocalResolveResult;
-				if (resolveResult == null)
-					return;
-
-				if (IsUsed(foreachStatement, resolveResult.Variable, foreachStatement.VariableNameToken))
-					return;
-
-				AddIssue(new CodeIssue(foreachStatement.VariableNameToken, ctx.TranslateString("Local variable is never used")));
+//				var resolveResult = ctx.Resolve(foreachStatement.VariableNameToken) as LocalResolveResult;
+//				if (resolveResult == null)
+//					return;
+//
+//				if (IsUsed(foreachStatement, resolveResult.Variable, foreachStatement.VariableNameToken))
+//					return;
+//
+//				AddIssue(new CodeIssue(foreachStatement.VariableNameToken, ctx.TranslateString("Local variable is never used")));
 			}
 
-			bool IsUsed(AstNode rootNode, IVariable variable, AstNode variableNode)
-			{
-				return ctx.FindReferences(rootNode, variable).Any(result => result.Node != variableNode);
-			}
+//			bool IsUsed(SyntaxNode rootNode, ILocalSymbol variable, SyntaxNode variableNode)
+//			{
+//				return ctx.FindReferences(rootNode, variable).Any(result => result.Node != variableNode);
+//			}
 		}
+	}
+
+	[ExportCodeFixProvider(LocalVariableNotUsedIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class LocalVariableNotUsedFixProvider : ICodeFixProvider
+	{
+		#region ICodeFixProvider implementation
+
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return LocalVariableNotUsedIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				//if (!node.IsKind(SyntaxKind.BaseList))
+				//	continue;
+				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			}
+			return result;
+		}
+		#endregion
 	}
 }

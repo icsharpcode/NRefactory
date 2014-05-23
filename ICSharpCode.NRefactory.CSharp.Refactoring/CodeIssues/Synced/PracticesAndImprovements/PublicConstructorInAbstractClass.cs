@@ -23,12 +23,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
-using ICSharpCode.NRefactory.Refactoring;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
 	[IssueDescription("Make constructor in abstract class protected",
                       Description = "Constructor in abstract class should not be public",
 	                  Category = IssueCategories.PracticesAndImprovements,
@@ -36,22 +52,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "PublicConstructorInAbstractClass")]
 	public class PublicConstructorInAbstractClassIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			var unit = context.RootNode as SyntaxTree;
-			if (unit == null)
-				return null;
-			return new GatherVisitor(context);
+		internal const string DiagnosticId  = "";
+		const string Description            = "";
+		const string MessageFormat          = "";
+		const string Category               = IssueCategories.PracticesAndImprovements;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
 		}
-		
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		{
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+		}
+
 		class GatherVisitor : GatherVisitorBase<PublicConstructorInAbstractClassIssue>
 		{
-
-			public GatherVisitor(BaseSemanticModel ctx)
-				: base(ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-			
+
 			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
 			{
 				if (!typeDeclaration.HasModifier(Modifiers.Abstract)) {
@@ -74,6 +99,27 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			}
 		}
 	}
+
+	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
+	public class FixProvider : ICodeFixProvider
+	{
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return .DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				//if (!node.IsKind(SyntaxKind.BaseList))
+				//	continue;
+				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			}
+			return result;
+		}
+	}
 }
-
-

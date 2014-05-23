@@ -135,6 +135,9 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EmptyDestructorIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EmptyNamespaceIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\LocalVariableNotUsedIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantBaseConstructorCallIssue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -25,14 +25,26 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
-using ICSharpCode.NRefactory.PatternMatching;
-using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
 	[IssueDescription("'for' can be converted into 'foreach'",
 	                  Description = "Foreach loops are more efficient",
 	                  Category = IssueCategories.Opportunities,
@@ -40,14 +52,28 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	                  AnalysisDisableKeyword = "ForCanBeConvertedToForeach")]
 	public class ForCanBeConvertedToForeachIssue : GatherVisitorCodeIssueProvider
 	{
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
+		internal const string DiagnosticId  = "";
+		const string Description            = "";
+		const string MessageFormat          = "";
+		const string Category               = IssueCategories.Opportunities;
+
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
+			get {
+				return ImmutableArray.Create(Rule);
+			}
+		}
+
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(context);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
 		class GatherVisitor : GatherVisitorBase<ForCanBeConvertedToForeachIssue>
 		{
-			public GatherVisitor(BaseSemanticModel ctx) : base (ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
