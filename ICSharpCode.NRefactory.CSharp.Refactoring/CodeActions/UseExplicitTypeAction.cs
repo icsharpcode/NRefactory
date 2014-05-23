@@ -50,7 +50,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			ITypeSymbol type;
 			TypeSyntax typeSyntax;
 			if (varDecl != null) {
-				type = model.GetTypeInfo(varDecl.Variables.First().Initializer.Value).Type;
+				var v = varDecl.Variables.FirstOrDefault();
+				if (v == null || v.Initializer == null) 
+					return Enumerable.Empty<CodeAction> ();
+				type = model.GetTypeInfo(v.Initializer.Value).Type;
 				typeSyntax = varDecl.Type;
 			} else {
 				var foreachStatement = UseVarKeywordAction.GetForeachStatement(token.Parent);
