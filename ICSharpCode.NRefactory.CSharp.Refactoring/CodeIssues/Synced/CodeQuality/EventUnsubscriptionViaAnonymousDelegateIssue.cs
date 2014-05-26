@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Event unsubscription via anonymous delegate",
-	                  Description="Event unsubscription via anonymous delegate is useless",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
+	[ExportDiagnosticAnalyzer("Event unsubscription via anonymous delegate", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Event unsubscription via anonymous delegate is useless", AnalysisDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
 	public class EventUnsubscriptionViaAnonymousDelegateIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "EventUnsubscriptionViaAnonymousDelegateIssue";
+		const string Description            = "Event unsubscription via anonymous delegate is useless";
+		const string MessageFormat          = "Event unsubscription via anonymous delegate is useless";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -77,30 +72,30 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
-			{
-				base.VisitAssignmentExpression(assignmentExpression);
-				if (assignmentExpression.Operator != AssignmentOperatorType.Subtract)
-					return;
-				if (!(assignmentExpression.Right is AnonymousMethodExpression || assignmentExpression.Right is LambdaExpression))
-					return;
-				var rr = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
-				if (rr == null || rr.Member.SymbolKind != ICSharpCode.NRefactory.TypeSystem.SymbolKind.Event)
-					return;
-				AddIssue(new CodeIssue(
-					assignmentExpression.OperatorToken,
-					ctx.TranslateString("Event unsubscription via anonymous delegate is useless")
-				));
-			}
+//			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
+//			{
+//				base.VisitAssignmentExpression(assignmentExpression);
+//				if (assignmentExpression.Operator != AssignmentOperatorType.Subtract)
+//					return;
+//				if (!(assignmentExpression.Right is AnonymousMethodExpression || assignmentExpression.Right is LambdaExpression))
+//					return;
+//				var rr = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
+//				if (rr == null || rr.Member.SymbolKind != ICSharpCode.NRefactory.TypeSystem.SymbolKind.Event)
+//					return;
+//				AddIssue(new CodeIssue(
+//					assignmentExpression.OperatorToken,
+//					ctx.TranslateString("Event unsubscription via anonymous delegate is useless")
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(EventUnsubscriptionViaAnonymousDelegateIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class EventUnsubscriptionViaAnonymousDelegateFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return EventUnsubscriptionViaAnonymousDelegateIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

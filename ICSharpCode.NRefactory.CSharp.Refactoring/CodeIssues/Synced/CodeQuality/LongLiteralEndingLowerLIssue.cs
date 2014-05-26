@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Long literal ends with 'l' instead of 'L'",
-	                   Description = "Lowercase 'l' is often confused with '1'",
-	                   Category = IssueCategories.CodeQualityIssues,
-	                   Severity = Severity.Warning,
-	                   AnalysisDisableKeyword = "LongLiteralEndingLowerL")]
+	[ExportDiagnosticAnalyzer("Long literal ends with 'l' instead of 'L'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Lowercase 'l' is often confused with '1'", AnalysisDisableKeyword = "LongLiteralEndingLowerL")]
 	public class LongLiteralEndingLowerLIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "LongLiteralEndingLowerLIssue";
+		const string Description            = "Long literal ends with 'l' instead of 'L'";
+		const string MessageFormat          = "Make suffix upper case";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -76,50 +71,50 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitPrimitiveExpression(PrimitiveExpression primitiveExpression)
-			{
-				if (!(primitiveExpression.Value is long || primitiveExpression.Value is ulong))
-				{
-					//Literals such as "l" or 'l' are perfectly acceptable.
-					//Also, no point in visiting integer or boolean literals
-					return;
-				}
-
-				string literalValue = primitiveExpression.LiteralValue;
-				if (literalValue.Length < 2) {
-					return;
-				}
-
-				char prevChar = literalValue [literalValue.Length - 2];
-				char lastChar = literalValue [literalValue.Length - 1];
-
-				if (prevChar == 'u' || prevChar == 'U') {
-					//No problem, '3ul' is not confusing
-					return;
-				}
-
-				if (lastChar == 'l' || prevChar == 'l') {
-					AddIssue(new CodeIssue(primitiveExpression,
-					         ctx.TranslateString("Long literal ends with 'l' instead of 'L'"),
-					         ctx.TranslateString("Make suffix upper case"),
-					         script => {
-								object newValue = primitiveExpression.Value;
-								string newLiteralValue = primitiveExpression.LiteralValue.ToUpperInvariant();
-								script.Replace(primitiveExpression, new PrimitiveExpression(newValue, newLiteralValue));
-							}
-					));
-				}
-			}
+//
+//			public override void VisitPrimitiveExpression(PrimitiveExpression primitiveExpression)
+//			{
+//				if (!(primitiveExpression.Value is long || primitiveExpression.Value is ulong))
+//				{
+//					//Literals such as "l" or 'l' are perfectly acceptable.
+//					//Also, no point in visiting integer or boolean literals
+//					return;
+//				}
+//
+//				string literalValue = primitiveExpression.LiteralValue;
+//				if (literalValue.Length < 2) {
+//					return;
+//				}
+//
+//				char prevChar = literalValue [literalValue.Length - 2];
+//				char lastChar = literalValue [literalValue.Length - 1];
+//
+//				if (prevChar == 'u' || prevChar == 'U') {
+//					//No problem, '3ul' is not confusing
+//					return;
+//				}
+//
+//				if (lastChar == 'l' || prevChar == 'l') {
+//					AddIssue(new CodeIssue(primitiveExpression,
+//					         ctx.TranslateString(""),
+//					         ctx.TranslateString(""),
+//					         script => {
+//								object newValue = primitiveExpression.Value;
+//								string newLiteralValue = primitiveExpression.LiteralValue.ToUpperInvariant();
+//								script.Replace(primitiveExpression, new PrimitiveExpression(newValue, newLiteralValue));
+//							}
+//					));
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(LongLiteralEndingLowerLIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class LongLiteralEndingLowerLFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return LongLiteralEndingLowerLIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

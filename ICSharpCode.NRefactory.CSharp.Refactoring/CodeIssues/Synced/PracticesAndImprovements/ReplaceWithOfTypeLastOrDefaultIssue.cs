@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Replace with OfType<T>().LastOrDefault()",
-	                  Description = "Replace with call to OfType<T>().LastOrDefault()",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ReplaceWithOfType.LastOrDefault")]
+	[ExportDiagnosticAnalyzer("Replace with OfType<T>().LastOrDefault()", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with call to OfType<T>().LastOrDefault()", AnalysisDisableKeyword = "ReplaceWithOfType.LastOrDefault")]
 	public class ReplaceWithOfTypeLastOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		const string Description            = "Replace with OfType<T>().LastOrDefault()";
+		const string MessageFormat          = "Replace with call to OfType<T>().LastOrDefault()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -67,20 +62,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			return new ReplaceWithOfTypeAnyIssue.GatherVisitor<ReplaceWithOfTypeLastOrDefaultIssue>(context, "LastOrDefault");
+			return new ReplaceWithOfTypeAnyIssue.GatherVisitor<ReplaceWithOfTypeLastOrDefaultIssue>(semanticModel, addDiagnostic, cancellationToken, "LastOrDefault");
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ReplaceWithOfTypeLastOrDefaultIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ReplaceWithOfTypeLastOrDefaultFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ReplaceWithOfTypeLastOrDefaultIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

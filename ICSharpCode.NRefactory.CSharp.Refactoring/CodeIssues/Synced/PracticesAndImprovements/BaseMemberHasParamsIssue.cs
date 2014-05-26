@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Base parameter has 'params' modifier, but missing in overrider",
-	                  Description = "Base parameter has 'params' modifier, but missing in overrider",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "BaseMemberHasParams")]
+	[ExportDiagnosticAnalyzer("Base parameter has 'params' modifier, but missing in overrider", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Base parameter has 'params' modifier, but missing in overrider", AnalysisDisableKeyword = "BaseMemberHasParams")]
 	public class BaseMemberHasParamsIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		const string Description            = "Base method has a 'params' modifier";
+		const string MessageFormat          = "Add 'params' modifier";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -77,45 +72,45 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				if (!methodDeclaration.HasModifier(Modifiers.Override))
-					return;
-				var lastParam = methodDeclaration.Parameters.LastOrDefault();
-				if (lastParam == null || lastParam.ParameterModifier == ParameterModifier.Params)
-					return;
-				var type = lastParam.Type as ComposedType;
-				if (type == null || !type.ArraySpecifiers.Any())
-					return;
-				var rr = ctx.Resolve(methodDeclaration) as MemberResolveResult;
-				if (rr == null)
-					return;
-				var baseMember = InheritanceHelper.GetBaseMember(rr.Member) as IMethod;
-				if (baseMember == null || baseMember.Parameters.Count == 0 || !baseMember.Parameters.Last().IsParams)
-					return;
-				AddIssue(new CodeIssue(
-					lastParam.NameToken,
-					string.Format(ctx.TranslateString("Base method '{0}' has a 'params' modifier"), baseMember.FullName),
-					ctx.TranslateString("Add 'params' modifier"),
-					script => {
-						script.ChangeModifier(lastParam, ParameterModifier.Params);
-					}
-				));
-			}
+//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+//			{
+//				if (!methodDeclaration.HasModifier(Modifiers.Override))
+//					return;
+//				var lastParam = methodDeclaration.Parameters.LastOrDefault();
+//				if (lastParam == null || lastParam.ParameterModifier == ParameterModifier.Params)
+//					return;
+//				var type = lastParam.Type as ComposedType;
+//				if (type == null || !type.ArraySpecifiers.Any())
+//					return;
+//				var rr = ctx.Resolve(methodDeclaration) as MemberResolveResult;
+//				if (rr == null)
+//					return;
+//				var baseMember = InheritanceHelper.GetBaseMember(rr.Member) as IMethod;
+//				if (baseMember == null || baseMember.Parameters.Count == 0 || !baseMember.Parameters.Last().IsParams)
+//					return;
+//				AddIssue(new CodeIssue(
+//					lastParam.NameToken,
+//					string.Format(ctx.TranslateString("Base method '{0}' has a 'params' modifier"), baseMember.FullName),
+//					ctx.TranslateString("Add 'params' modifier"),
+//					script => {
+//						script.ChangeModifier(lastParam, ParameterModifier.Params);
+//					}
+//				));
+//			}
 
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-				// SKIP
-			}
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//				// SKIP
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(BaseMemberHasParamsIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class BaseMemberHasParamsFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return BaseMemberHasParamsIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

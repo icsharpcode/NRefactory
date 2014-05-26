@@ -43,29 +43,24 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Make constructor in abstract class protected",
-                      Description = "Constructor in abstract class should not be public",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "PublicConstructorInAbstractClass")]
+	[ExportDiagnosticAnalyzer("Make constructor in abstract class protected", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Constructor in abstract class should not be public", AnalysisDisableKeyword = "PublicConstructorInAbstractClass")]
 	public class PublicConstructorInAbstractClassIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
-		const string Category               = IssueCategories.PracticesAndImprovements;
+		internal const string DiagnosticId = "PublicConstructorInAbstractClassIssue";
+		const string Description = "Constructor in Abstract Class should not be public";
+		const string Category = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor(DiagnosticId, Description, "Make constructor protected", Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor(DiagnosticId, Description, "Make constructor private", Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -73,39 +68,42 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<PublicConstructorInAbstractClassIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
+				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				if (!typeDeclaration.HasModifier(Modifiers.Abstract)) {
-					return;
-				}
-				foreach (var constructor in typeDeclaration.Children.OfType<ConstructorDeclaration>()){
-					VisitConstructorDeclaration(constructor);
-				}
-			}
-
-            public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-				if (constructorDeclaration.HasModifier (Modifiers.Public)) {
-
-                    var makeProtected = new CodeAction(ctx.TranslateString("Make constructor protected"), script => script.Replace(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public), new CSharpModifierToken(TextLocation.Empty, Modifiers.Protected)), constructorDeclaration.NameToken);
-                    var makePrivate = new CodeAction(ctx.TranslateString("Make constructor private"), script => script.Remove(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public)), constructorDeclaration.NameToken);
-
-					AddIssue(new CodeIssue(constructorDeclaration.NameToken, ctx.TranslateString("Constructor in Abstract Class should not be public"), new[] { makeProtected, makePrivate }));
-                }
-			}
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				if (!typeDeclaration.HasModifier(Modifiers.Abstract)) {
+//					return;
+//				}
+//				foreach (var constructor in typeDeclaration.Children.OfType<ConstructorDeclaration>()) {
+//					VisitConstructorDeclaration(constructor);
+//				}
+//			}
+//
+//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+//			{
+//				if (constructorDeclaration.HasModifier(Modifiers.Public)) {
+//
+//					var makeProtected = new CodeAction(ctx.TranslateString("Make constructor protected"), script => script.Replace(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public), new CSharpModifierToken(TextLocation.Empty, Modifiers.Protected)), constructorDeclaration.NameToken);
+//					var makePrivate = new CodeAction(ctx.TranslateString("Make constructor private"), script => script.Remove(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public)), constructorDeclaration.NameToken);
+//
+//					AddIssue(new CodeIssue(constructorDeclaration.NameToken, ctx.TranslateString("Constructor in Abstract Class should not be public"), new[] {
+//						makeProtected,
+//						makePrivate
+//					}));
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(PublicConstructorInAbstractClassIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class PublicConstructorInAbstractClassFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return PublicConstructorInAbstractClassIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

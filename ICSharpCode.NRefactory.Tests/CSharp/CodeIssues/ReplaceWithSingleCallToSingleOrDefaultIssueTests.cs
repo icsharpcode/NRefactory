@@ -37,18 +37,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSimpleCase()
 		{
-			var input = @"using System.Linq;
+			Test<ReplaceWithSingleCallToSingleOrDefaultIssue>(@"using System.Linq;
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;
 		var bla = arr.Where (x => x < 4).SingleOrDefault ();
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new ReplaceWithSingleCallToSingleOrDefaultIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @"using System.Linq;
+}", @"using System.Linq;
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;
@@ -60,18 +55,14 @@ public class CSharpDemo {
 		[Test]
 		public void TestDisable()
 		{
-			var input = @"using System.Linq;
+			TestWrongContext<ReplaceWithSingleCallToSingleOrDefaultIssue>(@"using System.Linq;
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;
 // ReSharper disable ReplaceWithSingleCallToSingleOrDefault
 		var bla = arr.Where (x => x < 4).SingleOrDefault ();
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new ReplaceWithSingleCallToSingleOrDefaultIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 	}
 }

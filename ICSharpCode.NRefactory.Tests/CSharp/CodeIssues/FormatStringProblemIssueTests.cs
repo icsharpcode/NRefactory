@@ -35,25 +35,21 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TooFewArguments()
 		{
-			var input = @"
+			TestIssue<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		string.Format(""{0}"");
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 
 
 		[Test]
 		public void SupportsFixedArguments()
 		{
-			var input = @"
+			TestWrongContext<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -64,164 +60,124 @@ class TestClass
 	void Bar(string format, string arg0)
 	{
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void IgnoresCallWithUnknownNumberOfArguments()
 		{
-			var input = @"
+			TestWrongContext<FormatStringProblemIssue>(@"
 class TestClass
 {
 	string Bar(params object[] args)
 	{
 		return string.Format(""{1}"", args);
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void FormatItemIndexOutOfRangeOfArguments()
 		{
-			var input = @"
+			TestIssue<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		string.Format(""{1}"", 1);
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
+}", 2);
 		}
 		
 		[Test]
 		public void FormatItemIndexOutOfRangeOfArguments_ExplicitArrayCreation()
 		{
-			var input = @"
+			TestIssue<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		string.Format(""{1}"", new object[] { 1 });
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
+}", 2);
 		}
 		
 		[Test]
 		public void FormatItemMissingEndBrace()
 		{
-			var input = @"
+			TestIssue<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		string.Format(""Text text text {0 text text text"", 1);
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new FormatStringProblemIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 			
 		[Test]
 		public void UnescapedLeftBrace()
 		{
-				var input = @"
+			TestIssue<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		string.Format(""a { a"", 1);
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
+}", 2);
 		}
 
 		[Test]
 		public void IgnoresStringWithGoodArguments()
 		{
-			var input = @"
+			TestWrongContext<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		string.Format(""{0}"", ""arg0"");
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void IgnoresStringWithGoodArguments_ExplicitArrayCreation()
 		{
-			var input = @"
+			TestWrongContext<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		string.Format(""{0} {1}"", new object[] { ""arg0"", ""arg1"" });
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void IgnoresNonFormattingCall()
 		{
-			var input = @"
+			TestWrongContext<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		string lower = string.ToLower(""{0}"");
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void HandlesCallsWithExtraArguments()
 		{
-			var input = @"
+			TestWrongContext<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
 	{
 		Foo(1);
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new FormatStringProblemIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 

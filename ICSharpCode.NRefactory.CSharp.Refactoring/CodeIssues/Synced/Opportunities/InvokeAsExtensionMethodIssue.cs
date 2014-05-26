@@ -45,21 +45,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Convert static method call to extension method call",
-	                  Description = "If an extension method is called as static method convert it to method syntax",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "InvokeAsExtensionMethod")]
+	[ExportDiagnosticAnalyzer("Convert static method call to extension method call", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "If an extension method is called as static method convert it to method syntax", AnalysisDisableKeyword = "InvokeAsExtensionMethod")]
 	public class InvokeAsExtensionMethodIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "InvokeAsExtensionMethodIssue";
+		const string Description            = "Convert static method call to extension method call";
+		const string MessageFormat          = "Convert to extension method call";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -78,47 +73,47 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitInvocationExpression(InvocationExpression invocation)
-			{
-				base.VisitInvocationExpression(invocation);
-				var memberReference = invocation.Target as MemberReferenceExpression;
-				if (memberReference == null)
-					return;
-				var firstArgument = invocation.Arguments.FirstOrDefault();
-				if (firstArgument is NullReferenceExpression)
-					return;
-				var invocationRR = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
-				if (invocationRR == null)
-					return;
-				var method = invocationRR.Member as IMethod;
-				if (method == null || !method.IsExtensionMethod || invocationRR.IsExtensionMethodInvocation)
-					return;
-
-				AddIssue(new CodeIssue(
-					memberReference.MemberNameToken,
-					ctx.TranslateString("Convert static method call to extension method call"),
-					ctx.TranslateString("Convert to extension method call"),
-					script => {
-						script.Replace (
-							invocation, 
-							new InvocationExpression(
-								new MemberReferenceExpression(firstArgument.Clone(), memberReference.MemberName),
-								invocation.Arguments.Skip(1).Select(arg => arg.Clone())
-							)
-						);
-					}
-				));
-			}
+//
+//			public override void VisitInvocationExpression(InvocationExpression invocation)
+//			{
+//				base.VisitInvocationExpression(invocation);
+//				var memberReference = invocation.Target as MemberReferenceExpression;
+//				if (memberReference == null)
+//					return;
+//				var firstArgument = invocation.Arguments.FirstOrDefault();
+//				if (firstArgument is NullReferenceExpression)
+//					return;
+//				var invocationRR = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
+//				if (invocationRR == null)
+//					return;
+//				var method = invocationRR.Member as IMethod;
+//				if (method == null || !method.IsExtensionMethod || invocationRR.IsExtensionMethodInvocation)
+//					return;
+//
+//				AddIssue(new CodeIssue(
+//					memberReference.MemberNameToken,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString(""),
+//					script => {
+//						script.Replace (
+//							invocation, 
+//							new InvocationExpression(
+//								new MemberReferenceExpression(firstArgument.Clone(), memberReference.MemberName),
+//								invocation.Arguments.Skip(1).Select(arg => arg.Clone())
+//							)
+//						);
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(InvokeAsExtensionMethodIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class InvokeAsExtensionMethodFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return InvokeAsExtensionMethodIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

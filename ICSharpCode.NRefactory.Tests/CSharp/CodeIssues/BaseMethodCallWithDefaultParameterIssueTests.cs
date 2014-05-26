@@ -36,8 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase ()
 		{
-			TestRefactoringContext ctx;
-			var issues = GetIssues(new BaseMethodCallWithDefaultParameterIssue(), @"
+			TestIssue<BaseMethodCallWithDefaultParameterIssue>(@"
 public class MyBase
 {
 	public virtual void FooBar(int x = 12)
@@ -53,15 +52,13 @@ public class MyClass : MyBase
 		base.FooBar();
 	}
 }
-", out ctx);
-			Assert.AreEqual(1, issues.Count);
+");
 		}
 
 		[Test]
 		public void TestInterfaceCase ()
 		{
-			TestRefactoringContext ctx;
-			var issues = GetIssues(new BaseMethodCallWithDefaultParameterIssue(), @"
+			TestIssue<BaseMethodCallWithDefaultParameterIssue>(@"
 public class MyBase
 {
 	public virtual int this[int x, int y = 12] {
@@ -79,8 +76,7 @@ public class MyClass : MyBase
 		}
 	}
 }
-", out ctx);
-			Assert.AreEqual(1, issues.Count);
+");
 
 		}
 

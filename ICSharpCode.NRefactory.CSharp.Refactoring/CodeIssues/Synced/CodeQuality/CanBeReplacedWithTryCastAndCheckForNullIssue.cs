@@ -44,21 +44,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Type check and casts can be replaced with 'as' and null check",
-	                  Description="Type check and casts can be replaced with 'as' and null check",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "CanBeReplacedWithTryCastAndCheckForNull")]
+	[ExportDiagnosticAnalyzer("Type check and casts can be replaced with 'as' and null check", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Type check and casts can be replaced with 'as' and null check", AnalysisDisableKeyword = "CanBeReplacedWithTryCastAndCheckForNull")]
 	public class CanBeReplacedWithTryCastAndCheckForNullIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "CanBeReplacedWithTryCastAndCheckForNullIssue";
+		const string Description            = "Type check and casts can be replaced with 'as' and null check";
+		const string MessageFormat          = "Type check and casts can be replaced with 'as' and null check";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,31 +72,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
 
-				IsExpression isExpression;
-				int foundCastCount;
-				if (UseAsAndNullCheckAction.ScanIfElse(ctx, ifElseStatement, out isExpression, out foundCastCount) == null)
-					return;
-				if (foundCastCount == 0)
-					return;
-
-				AddIssue(new CodeIssue(
-					isExpression.IsToken,
-					ctx.TranslateString("Type check and casts can be replaced with 'as' and null check")
-				) { ActionProvider = { typeof(UseAsAndNullCheckAction) } } );
-			}
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//
+//				IsExpression isExpression;
+//				int foundCastCount;
+//				if (UseAsAndNullCheckAction.ScanIfElse(ctx, ifElseStatement, out isExpression, out foundCastCount) == null)
+//					return;
+//				if (foundCastCount == 0)
+//					return;
+//
+//				AddIssue(new CodeIssue(
+//					isExpression.IsToken,
+//					ctx.TranslateString("Type check and casts can be replaced with 'as' and null check")
+//				) { ActionProvider = { typeof(UseAsAndNullCheckAction) } } );
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CanBeReplacedWithTryCastAndCheckForNullIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class CanBeReplacedWithTryCastAndCheckForNullFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CanBeReplacedWithTryCastAndCheckForNullIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

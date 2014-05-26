@@ -34,19 +34,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class ThreadStaticAtInstanceFieldTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestInspectorCase1 ()
+		public void TestInspectorCase1()
 		{
-			var input = @"using System;
+			Test<ThreadStaticAtInstanceFieldIssue>(@"using System;
 class Foo
 {
 	[ThreadStatic]
 	int bar;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ThreadStaticAtInstanceFieldIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-
-			CheckFix (context, issues [0], @"using System;
+}", @"using System;
 class Foo
 {
 	int bar;
@@ -54,19 +49,14 @@ class Foo
 		}
 
 		[Test]
-		public void TestInspectorCase2 ()
+		public void TestInspectorCase2()
 		{
-			var input = @"using System;
+			Test<ThreadStaticAtInstanceFieldIssue>(@"using System;
 class Foo
 {
 	[Serializable, ThreadStatic]
 	int bar;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ThreadStaticAtInstanceFieldIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-
-			CheckFix (context, issues [0], @"using System;
+}", @"using System;
 class Foo
 {
 	[Serializable]
@@ -75,18 +65,13 @@ class Foo
 		}
 
 		[Test]
-		public void TestInspectorCase3 ()
+		public void TestInspectorCase3()
 		{
-			var input = @"class Foo
+			Test<ThreadStaticAtInstanceFieldIssue>(@"class Foo
 {
 	[System.ThreadStatic, System.Serializable]
 	int bar;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ThreadStaticAtInstanceFieldIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-
-			CheckFix (context, issues [0], @"class Foo
+}", @"class Foo
 {
 	[System.Serializable]
 	int bar;
@@ -96,85 +81,65 @@ class Foo
 
 
 		[Test]
-		public void TestResharperSuppression ()
+		public void TestResharperSuppression()
 		{
-			var input = @"using System;
+			TestWrongContext<ThreadStaticAtInstanceFieldIssue>(@"using System;
 class Foo
 {
 // ReSharper disable once ThreadStaticAtInstanceField
 	[ThreadStatic]
 	int bar;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ThreadStaticAtInstanceFieldIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 
 		}
 
 
-        [Test]
-        public void InstanceField()
-        {
-            var input = @"
+		[Test]
+		public void InstanceField()
+		{
+			Test<ThreadStaticAtInstanceFieldIssue>(@"
 using System;
 class TestClass
 {
 	[ThreadStatic]
 	string field;
-}";
-            TestRefactoringContext context;
-            var issues = GetIssues(new ThreadStaticAtInstanceFieldIssue(), input, out context);
-            Assert.AreEqual(1, issues.Count);
-            var issue = issues[0];
-            Assert.AreEqual(2, issue.Actions.Count);
-
-            CheckFix(context, issues[0], @"
+}", @"
 using System;
 class TestClass
 {
 	string field;
 }");
-        }
+		}
 
-        [Test]
-        public void InstanceFieldWithMultiAttributeSection()
-        {
-            var input = @"
+		[Test]
+		public void InstanceFieldWithMultiAttributeSection()
+		{
+			Test<ThreadStaticAtInstanceFieldIssue>(@"
 using System;
 class TestClass
 {
 	[field: ThreadStatic, ContextStatic]
 	string field;
-}";
-            TestRefactoringContext context;
-            var issues = GetIssues(new ThreadStaticAtInstanceFieldIssue(), input, out context);
-            Assert.AreEqual(1, issues.Count);
-            var issue = issues[0];
-            Assert.AreEqual(2, issue.Actions.Count);
-
-            CheckFix(context, issues[0], @"
+}", @"
 using System;
 class TestClass
 {
 	[field: ContextStatic]
 	string field;
 }");
-        }
+		}
 
-        [Test]
-        public void StaticField()
-        {
-            var input = @"
+		[Test]
+		public void StaticField()
+		{
+			TestWrongContext<ThreadStaticAtInstanceFieldIssue>(@"
 using System;
 class TestClass
 {
 	[ThreadStatic]
 	static string field;
-}";
-            TestRefactoringContext context;
-            var issues = GetIssues(new ThreadStaticAtInstanceFieldIssue(), input, out context);
-            Assert.AreEqual(0, issues.Count);
-        }
+}");
+		}
 	}
 }
 

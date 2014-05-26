@@ -44,18 +44,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("'?:' expression has identical true and false branches",
-					   Description = "'?:' expression has identical true and false branches.",
-					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning,
-                       AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
-    public class ConditionalTernaryEqualBranchIssue : GatherVisitorCodeIssueProvider
+	[ExportDiagnosticAnalyzer("'?:' expression has identical true and false branches", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "'?:' expression has identical true and false branches", AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
+	public class ConditionalTernaryEqualBranchIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConditionalTernaryEqualBranchIssue";
+		const string Description            = "'?:' expression has identical true and false branches";
+		const string MessageFormat          = "Replace '?:' with branch";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -77,27 +72,27 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitConditionalExpression (ConditionalExpression conditionalExpression)
-			{
-				base.VisitConditionalExpression (conditionalExpression);
-
-				if (!conditionalExpression.TrueExpression.Match (conditionalExpression.FalseExpression).Success)
-					return;
-				var action = new CodeAction (ctx.TranslateString ("Replace '?:' with branch"),
-					script => script.Replace (conditionalExpression, conditionalExpression.TrueExpression.Clone ()), conditionalExpression.QuestionMarkToken);
-				AddIssue (new CodeIssue(conditionalExpression, 
-					ctx.TranslateString ("'?:' expression has identical true and false branches"), new [] { action }));
-			}
+//
+//			public override void VisitConditionalExpression (ConditionalExpression conditionalExpression)
+//			{
+//				base.VisitConditionalExpression (conditionalExpression);
+//
+//				if (!conditionalExpression.TrueExpression.Match (conditionalExpression.FalseExpression).Success)
+//					return;
+//				var action = new CodeAction (ctx.TranslateString (""),
+//					script => script.Replace (conditionalExpression, conditionalExpression.TrueExpression.Clone ()), conditionalExpression.QuestionMarkToken);
+//				AddIssue (new CodeIssue(conditionalExpression, 
+//					ctx.TranslateString (""), new [] { action }));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConditionalTernaryEqualBranchIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConditionalTernaryEqualBranchFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConditionalTernaryEqualBranchIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

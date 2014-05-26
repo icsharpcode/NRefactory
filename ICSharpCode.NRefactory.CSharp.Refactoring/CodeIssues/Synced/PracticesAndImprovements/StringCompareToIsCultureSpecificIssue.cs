@@ -44,25 +44,20 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'string.CompareTo' is culture-aware",
-	                  Description = "Warns when a culture-aware 'string.CompareTo' call is used by default.",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "StringCompareToIsCultureSpecific")]
+	[ExportDiagnosticAnalyzer("'string.CompareTo' is culture-aware", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns when a culture-aware 'string.CompareTo' call is used by default.", AnalysisDisableKeyword = "StringCompareToIsCultureSpecific")]
 	public class StringCompareToIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "StringCompareToIsCultureSpecificIssue";
+		const string Description            = "'string.CompareTo' is culture-aware";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Use ordinal comparison", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Use culture-aware comparison", Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
@@ -78,55 +73,55 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-
-				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-
-				if (rr.Member.Name != "CompareTo" || 
-				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
-				    rr.Member.Parameters.Count != 1 ||
-				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
-					return;
-				}
-				AddIssue(new CodeIssue(
-					invocationExpression,
-					ctx.TranslateString("'string.CompareTo' is culture-aware"), 
-					new CodeAction(ctx.TranslateString("Use ordinal comparison"), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
-					new CodeAction(ctx.TranslateString("Use culture-aware comparison"), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
-				));
-
-			}
-
-			void AddArgument(Script script, InvocationExpression invocationExpression, string ordinal)
-			{
-				var mr = invocationExpression.Target as MemberReferenceExpression;
-				if (mr == null)
-					return;
-
-				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
-				var newArgument = astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ordinal);
-
-				var newInvocation = new PrimitiveType("string").Invoke(
-					"Compare",
-					mr.Target.Clone(),
-					invocationExpression.Arguments.First().Clone(),
-					newArgument
-				);
-				script.Replace(invocationExpression, newInvocation);
-			}
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//
+//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//
+//				if (rr.Member.Name != "CompareTo" || 
+//				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
+//				    rr.Member.Parameters.Count != 1 ||
+//				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
+//					return;
+//				}
+//				AddIssue(new CodeIssue(
+//					invocationExpression,
+//					ctx.TranslateString(""), 
+//					new CodeAction(ctx.TranslateString(), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
+//					new CodeAction(ctx.TranslateString(), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
+//				));
+//
+//			}
+//
+//			void AddArgument(Script script, InvocationExpression invocationExpression, string ordinal)
+//			{
+//				var mr = invocationExpression.Target as MemberReferenceExpression;
+//				if (mr == null)
+//					return;
+//
+//				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
+//				var newArgument = astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ordinal);
+//
+//				var newInvocation = new PrimitiveType("string").Invoke(
+//					"Compare",
+//					mr.Target.Clone(),
+//					invocationExpression.Arguments.First().Clone(),
+//					newArgument
+//				);
+//				script.Replace(invocationExpression, newInvocation);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(StringCompareToIsCultureSpecificIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class StringCompareToIsCultureSpecificFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return StringCompareToIsCultureSpecificIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

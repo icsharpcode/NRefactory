@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Replace with OfType<T>().Count()",
-	                  Description = "Replace with call to OfType<T>().Count()",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ReplaceWithOfType.Count")]
+	[ExportDiagnosticAnalyzer("Replace with OfType<T>().Count()", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with call to OfType<T>().Count()", AnalysisDisableKeyword = "ReplaceWithOfType.Count")]
 	public class ReplaceWithOfTypeCountIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ReplaceWithOfTypeCountIssue";
+		const string Description            = "Replace with OfType<T>().Count()";
+		const string MessageFormat          = "Replace with call to OfType<T>().Count()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -67,20 +62,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			return new ReplaceWithOfTypeAnyIssue.GatherVisitor<ReplaceWithOfTypeCountIssue>(context, "Count");
+			return new ReplaceWithOfTypeAnyIssue.GatherVisitor<ReplaceWithOfTypeCountIssue>(semanticModel, addDiagnostic, cancellationToken, "Count");
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ReplaceWithOfTypeCountIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ReplaceWithOfTypeCountFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ReplaceWithOfTypeCountIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

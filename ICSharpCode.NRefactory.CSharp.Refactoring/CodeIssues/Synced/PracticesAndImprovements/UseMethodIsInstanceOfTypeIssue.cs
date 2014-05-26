@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Use method IsInstanceOfType",
-	                  Description = "Use method IsInstanceOfType",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "UseMethodIsInstanceOfType")]
+	[ExportDiagnosticAnalyzer("Use method IsInstanceOfType", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Use method IsInstanceOfType", AnalysisDisableKeyword = "UseMethodIsInstanceOfType")]
 	public class UseMethodIsInstanceOfTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "UseMethodIsInstanceOfTypeIssue";
+		const string Description            = "Use method IsInstanceOfType (...)";
+		const string MessageFormat          = "Replace with call to IsInstanceOfType";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,40 +72,40 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static readonly Expression pattern = new InvocationExpression(
-				new MemberReferenceExpression(new AnyNode("target"), "IsAssignableFrom"),
-				new InvocationExpression(
-					new MemberReferenceExpression(new AnyNode("object"), "GetType")
-				)
-			);
-
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-				var match = pattern.Match(invocationExpression);
-				if (match.Success) {
-					AddIssue(new CodeIssue(
-						invocationExpression,
-						ctx.TranslateString("Use method IsInstanceOfType (...)"),
-						ctx.TranslateString("Replace with call to IsInstanceOfType"),
-						s => {
-							s.Replace(invocationExpression, new InvocationExpression(
-								new MemberReferenceExpression(match.Get<Expression>("target").Single().Clone(), "IsInstanceOfType"),
-								match.Get<Expression>("object").Single().Clone()
-							));
-						}
-					));
-				}
-			}
+//			static readonly Expression pattern = new InvocationExpression(
+//				new MemberReferenceExpression(new AnyNode("target"), "IsAssignableFrom"),
+//				new InvocationExpression(
+//					new MemberReferenceExpression(new AnyNode("object"), "GetType")
+//				)
+//			);
+//
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//				var match = pattern.Match(invocationExpression);
+//				if (match.Success) {
+//					AddIssue(new CodeIssue(
+//						invocationExpression,
+//						ctx.TranslateString(""),
+//						ctx.TranslateString(""),
+//						s => {
+//							s.Replace(invocationExpression, new InvocationExpression(
+//								new MemberReferenceExpression(match.Get<Expression>("target").Single().Clone(), "IsInstanceOfType"),
+//								match.Get<Expression>("object").Single().Clone()
+//							));
+//						}
+//					));
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(UseMethodIsInstanceOfTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class UseMethodIsInstanceOfTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return UseMethodIsInstanceOfTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

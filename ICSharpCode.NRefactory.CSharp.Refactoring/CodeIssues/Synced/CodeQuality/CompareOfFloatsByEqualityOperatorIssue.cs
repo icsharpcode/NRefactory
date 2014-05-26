@@ -44,25 +44,23 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Compare floating point numbers with equality operator",
-					   Description = "Comparison of floating point numbers with equality operator.",
-					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning,
-	                   AnalysisDisableKeyword = "CompareOfFloatsByEqualityOperator")]
+	[ExportDiagnosticAnalyzer("Compare floating point numbers with equality operator", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Comparison of floating point numbers with equality operator.", AnalysisDisableKeyword = "CompareOfFloatsByEqualityOperator")]
 	public class CompareOfFloatsByEqualityOperatorIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead.", "Replace with '{0}.IsNaN(...)' call", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead.", "Replace with '!{0}.IsNaN(...)' call", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method.", "Replace with '{0}.IsNegativeInfinity(...)' call", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule4 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method.", "Replace with '!{0}.IsNegativeInfinity(...)' call", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule5 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method.", "Replace with '{0}.IsPositiveInfinity(...)' call", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule6 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method.", "Replace with '!{0}.IsPositiveInfinity(...)' call", Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2, Rule3, Rule4, Rule5, Rule6);
 			}
 		}
 
@@ -78,226 +76,226 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static bool IsFloatingPointType (IType type)
-			{
-				var typeDef = type.GetDefinition ();
-				return typeDef != null &&
-					(typeDef.KnownTypeCode == KnownTypeCode.Single || typeDef.KnownTypeCode == KnownTypeCode.Double);
-			}
-
-			bool IsFloatingPoint(AstNode node)
-			{
-				return IsFloatingPointType (ctx.Resolve (node).Type);
-			}
-
-			bool IsConstantInfinity(AstNode node)
-			{
-				ResolveResult rr = ctx.Resolve(node);
-				if (!rr.IsCompileTimeConstant)
-					return false;
-				if (rr.ConstantValue is float)
-					return float.IsInfinity((float)rr.ConstantValue);
-				if (rr.ConstantValue is double)
-					return double.IsInfinity((double)rr.ConstantValue);
-				return false;
-			}
-
-			string GetFloatType(Expression left, Expression right)
-			{
-				var rr = ctx.Resolve (left);
-				if (rr.IsCompileTimeConstant)
-					return rr.ConstantValue is float ? "float" : "double";
-				
-				rr = ctx.Resolve (right);
-				if (rr.IsCompileTimeConstant)
-					return rr.ConstantValue is float ? "float" : "double";
-				return "double";
-			}
-
-			bool IsNaN (AstNode node)
-			{
-				var rr = ctx.Resolve (node);
-				if (!rr.IsCompileTimeConstant)
-					return false;
-
-				return rr.ConstantValue is double && double.IsNaN((double)rr.ConstantValue) || 
-					   rr.ConstantValue is float && float.IsNaN((float)rr.ConstantValue);
-			}
-
-			static bool IsZero (AstNode node)
-			{
-				var pe = node as PrimitiveExpression;
-				if (pe == null)
-					return false;
-				if (pe.Value is char || pe.Value is string || pe.Value is bool)
-					return false;
-
-				if (pe.Value is double && (double)pe.Value == 0d || 
-					pe.Value is float && (float)pe.Value == 0f || 
-					pe.Value is decimal && (decimal)pe.Value == 0m)
-					return true;
-
-				return !pe.LiteralValue.Any(c => char.IsDigit(c) && c != '0');
-			}
-
-			bool IsNegativeInfinity (AstNode node)
-			{
-				var rr = ctx.Resolve (node);
-				if (!rr.IsCompileTimeConstant)
-					return false;
-				return rr.ConstantValue is double && double.IsNegativeInfinity((double)rr.ConstantValue) ||
-					   rr.ConstantValue is float && float.IsNegativeInfinity((float)rr.ConstantValue);
-			}
-
-			bool IsPositiveInfinity (AstNode node)
-			{
-				var rr = ctx.Resolve (node);
-				if (!rr.IsCompileTimeConstant)
-					return false;
-
-				return rr.ConstantValue is double && double.IsPositiveInfinity ((double)rr.ConstantValue) ||
-					rr.ConstantValue is float && float.IsPositiveInfinity((float)rr.ConstantValue);
-			}
-
-			void AddIsNaNIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr, string floatType)
-			{
-				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
-					floatType = "double";
-				AddIssue(new CodeIssue(
-					binaryOperatorExpression, 
-					ctx.TranslateString ("NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead."),
-					binaryOperatorExpression.Operator == BinaryOperatorType.InEquality ? 
-						string.Format(ctx.TranslateString ("Replace with '!{0}.IsNaN(...)' call"), floatType) :
-						string.Format(ctx.TranslateString ("Replace with '{0}.IsNaN(...)' call"), floatType),
-					script => {
-						Expression expr = new PrimitiveType(floatType).Invoke("IsNaN", argExpr.Clone());
-						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality)
-							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
-						script.Replace (binaryOperatorExpression, expr);
-					}
-				));
-			}
-
-			void AddIsNegativeInfinityIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr, string floatType)
-			{
-				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
-					floatType = "double";
-				AddIssue(new CodeIssue(
-					binaryOperatorExpression, 
-					ctx.TranslateString ("Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method."),
-					binaryOperatorExpression.Operator == BinaryOperatorType.InEquality ? 
-					string.Format(ctx.TranslateString ("Replace with '!{0}.IsNegativeInfinity(...)' call"), floatType) :
-					string.Format(ctx.TranslateString ("Replace with '{0}.IsNegativeInfinity(...)' call"), floatType),
-					script => {
-						Expression expr = new PrimitiveType(floatType).Invoke("IsNegativeInfinity", argExpr.Clone());
-						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality)
-							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
-						script.Replace (binaryOperatorExpression, expr);
-					}
-				));
-			}
-
-			void AddIsPositiveInfinityIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr, string floatType)
-			{
-				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
-					floatType = "double";
-				AddIssue(new CodeIssue(
-					binaryOperatorExpression, 
-					ctx.TranslateString ("Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method."),
-					binaryOperatorExpression.Operator == BinaryOperatorType.InEquality ? 
-					string.Format(ctx.TranslateString ("Replace with '!{0}.IsPositiveInfinity(...)' call"), floatType) :
-					string.Format(ctx.TranslateString ("Replace with '{0}.IsPositiveInfinity(...)' call"), floatType),
-					script => {
-						Expression expr = new PrimitiveType(floatType).Invoke("IsPositiveInfinity", argExpr.Clone());
-						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality)
-							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
-						script.Replace (binaryOperatorExpression, expr);
-					}
-				));
-			}
-
-			void AddIsZeroIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr)
-			{
-				AddIssue(new CodeIssue(
-					binaryOperatorExpression, 
-					ctx.TranslateString ("Comparison of floating point numbers can be unequal due to the differing precision of the two values."),
-					ctx.TranslateString ("Fix floating point number comparing. Compare a difference with epsilon."),
-					script => {
-						var builder = ctx.CreateTypeSystemAstBuilder(binaryOperatorExpression);
-					var diff = argExpr.Clone();
-						var abs = builder.ConvertType(new TopLevelTypeName("System", "Math")).Invoke("Abs", diff);
-						var op = binaryOperatorExpression.Operator == BinaryOperatorType.Equality ? BinaryOperatorType.LessThan : BinaryOperatorType.GreaterThan;
-						var epsilon = new IdentifierExpression ("EPSILON");
-						var compare = new BinaryOperatorExpression (abs, op, epsilon);
-						script.Replace (binaryOperatorExpression, compare);
-						script.Select (epsilon);
-					}
-				));
-			}
-
-			public override void VisitBinaryOperatorExpression (BinaryOperatorExpression binaryOperatorExpression)
-			{
-				base.VisitBinaryOperatorExpression (binaryOperatorExpression);
-
-				if (binaryOperatorExpression.Operator != BinaryOperatorType.Equality &&
-					binaryOperatorExpression.Operator != BinaryOperatorType.InEquality)
-					return;
-
-				string floatType = GetFloatType (binaryOperatorExpression.Left, binaryOperatorExpression.Right);
-
-
-				if (IsNaN(binaryOperatorExpression.Left)) {
-					AddIsNaNIssue (binaryOperatorExpression, binaryOperatorExpression.Right, floatType);
-				} else if (IsNaN (binaryOperatorExpression.Right)) {
-					AddIsNaNIssue (binaryOperatorExpression, binaryOperatorExpression.Left, floatType);
-				} else if (IsPositiveInfinity(binaryOperatorExpression.Left)) {
-					AddIsPositiveInfinityIssue (binaryOperatorExpression, binaryOperatorExpression.Right, floatType);
-				} else if (IsPositiveInfinity (binaryOperatorExpression.Right)) {
-					AddIsPositiveInfinityIssue (binaryOperatorExpression, binaryOperatorExpression.Left, floatType);
-				} else if (IsNegativeInfinity (binaryOperatorExpression.Left)) {
-					AddIsNegativeInfinityIssue (binaryOperatorExpression, binaryOperatorExpression.Right, floatType);
-				} else if (IsNegativeInfinity (binaryOperatorExpression.Right)) {
-					AddIsNegativeInfinityIssue (binaryOperatorExpression, binaryOperatorExpression.Left, floatType);
-				} else if (IsFloatingPoint(binaryOperatorExpression.Left) || IsFloatingPoint(binaryOperatorExpression.Right)) {
-					if (IsConstantInfinity(binaryOperatorExpression.Left) || IsConstantInfinity(binaryOperatorExpression.Right))
-						return;
-					if (IsZero(binaryOperatorExpression.Left)) {
-						AddIsZeroIssue(binaryOperatorExpression, binaryOperatorExpression.Right);
-						return;
-					}
-					if (IsZero(binaryOperatorExpression.Right)) {
-						AddIsZeroIssue(binaryOperatorExpression, binaryOperatorExpression.Left);
-						return;
-					}
-					AddIssue(new CodeIssue(
-						binaryOperatorExpression, 
-						ctx.TranslateString("Comparison of floating point numbers can be unequal due to the differing precision of the two values."),
-						ctx.TranslateString("Fix floating point number comparing. Compare a difference with epsilon."),
-						script => {
-							// Math.Abs(diff) op EPSILON
-							var builder = ctx.CreateTypeSystemAstBuilder(binaryOperatorExpression);
-							var diff = new BinaryOperatorExpression(binaryOperatorExpression.Left.Clone(),
-							                                         BinaryOperatorType.Subtract, binaryOperatorExpression.Right.Clone());
-							var abs = builder.ConvertType(new TopLevelTypeName("System", "Math")).Invoke("Abs", diff);
-							var op = binaryOperatorExpression.Operator == BinaryOperatorType.Equality ?
-								BinaryOperatorType.LessThan : BinaryOperatorType.GreaterThan;
-							var epsilon = new IdentifierExpression("EPSILON");
-							var compare = new BinaryOperatorExpression(abs, op, epsilon);
-							script.Replace(binaryOperatorExpression, compare);
-							script.Select(epsilon);
-						}
-					));
-				}
-			}
+//			static bool IsFloatingPointType (IType type)
+//			{
+//				var typeDef = type.GetDefinition ();
+//				return typeDef != null &&
+//					(typeDef.KnownTypeCode == KnownTypeCode.Single || typeDef.KnownTypeCode == KnownTypeCode.Double);
+//			}
+//
+//			bool IsFloatingPoint(AstNode node)
+//			{
+//				return IsFloatingPointType (ctx.Resolve (node).Type);
+//			}
+//
+//			bool IsConstantInfinity(AstNode node)
+//			{
+//				ResolveResult rr = ctx.Resolve(node);
+//				if (!rr.IsCompileTimeConstant)
+//					return false;
+//				if (rr.ConstantValue is float)
+//					return float.IsInfinity((float)rr.ConstantValue);
+//				if (rr.ConstantValue is double)
+//					return double.IsInfinity((double)rr.ConstantValue);
+//				return false;
+//			}
+//
+//			string GetFloatType(Expression left, Expression right)
+//			{
+//				var rr = ctx.Resolve (left);
+//				if (rr.IsCompileTimeConstant)
+//					return rr.ConstantValue is float ? "float" : "double";
+//				
+//				rr = ctx.Resolve (right);
+//				if (rr.IsCompileTimeConstant)
+//					return rr.ConstantValue is float ? "float" : "double";
+//				return "double";
+//			}
+//
+//			bool IsNaN (AstNode node)
+//			{
+//				var rr = ctx.Resolve (node);
+//				if (!rr.IsCompileTimeConstant)
+//					return false;
+//
+//				return rr.ConstantValue is double && double.IsNaN((double)rr.ConstantValue) || 
+//					   rr.ConstantValue is float && float.IsNaN((float)rr.ConstantValue);
+//			}
+//
+//			static bool IsZero (AstNode node)
+//			{
+//				var pe = node as PrimitiveExpression;
+//				if (pe == null)
+//					return false;
+//				if (pe.Value is char || pe.Value is string || pe.Value is bool)
+//					return false;
+//
+//				if (pe.Value is double && (double)pe.Value == 0d || 
+//					pe.Value is float && (float)pe.Value == 0f || 
+//					pe.Value is decimal && (decimal)pe.Value == 0m)
+//					return true;
+//
+//				return !pe.LiteralValue.Any(c => char.IsDigit(c) && c != '0');
+//			}
+//
+//			bool IsNegativeInfinity (AstNode node)
+//			{
+//				var rr = ctx.Resolve (node);
+//				if (!rr.IsCompileTimeConstant)
+//					return false;
+//				return rr.ConstantValue is double && double.IsNegativeInfinity((double)rr.ConstantValue) ||
+//					   rr.ConstantValue is float && float.IsNegativeInfinity((float)rr.ConstantValue);
+//			}
+//
+//			bool IsPositiveInfinity (AstNode node)
+//			{
+//				var rr = ctx.Resolve (node);
+//				if (!rr.IsCompileTimeConstant)
+//					return false;
+//
+//				return rr.ConstantValue is double && double.IsPositiveInfinity ((double)rr.ConstantValue) ||
+//					rr.ConstantValue is float && float.IsPositiveInfinity((float)rr.ConstantValue);
+//			}
+//
+//			void AddIsNaNIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr, string floatType)
+//			{
+//				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
+//					floatType = "double";
+//				AddIssue(new CodeIssue(
+//					binaryOperatorExpression, 
+//					ctx.TranslateString ("),
+//					binaryOperatorExpression.Operator == BinaryOperatorType.InEquality ? 
+//						string.Format(ctx.TranslateString (""), floatType) :
+//						string.Format(ctx.TranslateString (""), floatType),
+//					script => {
+//						Expression expr = new PrimitiveType(floatType).Invoke("IsNaN", argExpr.Clone());
+//						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality)
+//							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
+//						script.Replace (binaryOperatorExpression, expr);
+//					}
+//				));
+//			}
+//
+//			void AddIsNegativeInfinityIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr, string floatType)
+//			{
+//				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
+//					floatType = "double";
+//				AddIssue(new CodeIssue(
+//					binaryOperatorExpression, 
+//					ctx.TranslateString (""),
+//					binaryOperatorExpression.Operator == BinaryOperatorType.InEquality ? 
+//					string.Format(ctx.TranslateString (""), floatType) :
+//					string.Format(ctx.TranslateString ("Replace with '{0}.IsNegativeInfinity(...)' call"), floatType),
+//					script => {
+//						Expression expr = new PrimitiveType(floatType).Invoke("IsNegativeInfinity", argExpr.Clone());
+//						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality)
+//							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
+//						script.Replace (binaryOperatorExpression, expr);
+//					}
+//				));
+//			}
+//
+//			void AddIsPositiveInfinityIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr, string floatType)
+//			{
+//				if (!ctx.Resolve(argExpr).Type.IsKnownType(KnownTypeCode.Single))
+//					floatType = "double";
+//				AddIssue(new CodeIssue(
+//					binaryOperatorExpression, 
+//					ctx.TranslateString (""),
+//					binaryOperatorExpression.Operator == BinaryOperatorType.InEquality ? 
+//					string.Format(ctx.TranslateString ("Replace with '!{0}.IsPositiveInfinity(...)' call"), floatType) :
+			//					string.Format(ctx.TranslateString ("Replace with '{0}.IsPositiveInfinity(...)' call"), floatType),
+//					script => {
+//						Expression expr = new PrimitiveType(floatType).Invoke("IsPositiveInfinity", argExpr.Clone());
+//						if (binaryOperatorExpression.Operator == BinaryOperatorType.InEquality)
+//							expr = new UnaryOperatorExpression (UnaryOperatorType.Not, expr);
+//						script.Replace (binaryOperatorExpression, expr);
+//					}
+//				));
+//			}
+//
+//			void AddIsZeroIssue(BinaryOperatorExpression binaryOperatorExpression, Expression argExpr)
+//			{
+//				AddIssue(new CodeIssue(
+//					binaryOperatorExpression, 
+//					ctx.TranslateString ("Comparison of floating point numbers can be unequal due to the differing precision of the two values."),
+//					ctx.TranslateString ("Fix floating point number comparing. Compare a difference with epsilon."),
+//					script => {
+//						var builder = ctx.CreateTypeSystemAstBuilder(binaryOperatorExpression);
+//					var diff = argExpr.Clone();
+//						var abs = builder.ConvertType(new TopLevelTypeName("System", "Math")).Invoke("Abs", diff);
+//						var op = binaryOperatorExpression.Operator == BinaryOperatorType.Equality ? BinaryOperatorType.LessThan : BinaryOperatorType.GreaterThan;
+//						var epsilon = new IdentifierExpression ("EPSILON");
+//						var compare = new BinaryOperatorExpression (abs, op, epsilon);
+//						script.Replace (binaryOperatorExpression, compare);
+//						script.Select (epsilon);
+//					}
+//				));
+//			}
+//
+//			public override void VisitBinaryOperatorExpression (BinaryOperatorExpression binaryOperatorExpression)
+//			{
+//				base.VisitBinaryOperatorExpression (binaryOperatorExpression);
+//
+//				if (binaryOperatorExpression.Operator != BinaryOperatorType.Equality &&
+//					binaryOperatorExpression.Operator != BinaryOperatorType.InEquality)
+//					return;
+//
+//				string floatType = GetFloatType (binaryOperatorExpression.Left, binaryOperatorExpression.Right);
+//
+//
+//				if (IsNaN(binaryOperatorExpression.Left)) {
+//					AddIsNaNIssue (binaryOperatorExpression, binaryOperatorExpression.Right, floatType);
+//				} else if (IsNaN (binaryOperatorExpression.Right)) {
+//					AddIsNaNIssue (binaryOperatorExpression, binaryOperatorExpression.Left, floatType);
+//				} else if (IsPositiveInfinity(binaryOperatorExpression.Left)) {
+//					AddIsPositiveInfinityIssue (binaryOperatorExpression, binaryOperatorExpression.Right, floatType);
+//				} else if (IsPositiveInfinity (binaryOperatorExpression.Right)) {
+//					AddIsPositiveInfinityIssue (binaryOperatorExpression, binaryOperatorExpression.Left, floatType);
+//				} else if (IsNegativeInfinity (binaryOperatorExpression.Left)) {
+//					AddIsNegativeInfinityIssue (binaryOperatorExpression, binaryOperatorExpression.Right, floatType);
+//				} else if (IsNegativeInfinity (binaryOperatorExpression.Right)) {
+//					AddIsNegativeInfinityIssue (binaryOperatorExpression, binaryOperatorExpression.Left, floatType);
+//				} else if (IsFloatingPoint(binaryOperatorExpression.Left) || IsFloatingPoint(binaryOperatorExpression.Right)) {
+//					if (IsConstantInfinity(binaryOperatorExpression.Left) || IsConstantInfinity(binaryOperatorExpression.Right))
+//						return;
+//					if (IsZero(binaryOperatorExpression.Left)) {
+//						AddIsZeroIssue(binaryOperatorExpression, binaryOperatorExpression.Right);
+//						return;
+//					}
+//					if (IsZero(binaryOperatorExpression.Right)) {
+//						AddIsZeroIssue(binaryOperatorExpression, binaryOperatorExpression.Left);
+//						return;
+//					}
+//					AddIssue(new CodeIssue(
+//						binaryOperatorExpression, 
+//						ctx.TranslateString("Comparison of floating point numbers can be unequal due to the differing precision of the two values."),
+//						ctx.TranslateString("Fix floating point number comparing. Compare a difference with epsilon."),
+//						script => {
+//							// Math.Abs(diff) op EPSILON
+//							var builder = ctx.CreateTypeSystemAstBuilder(binaryOperatorExpression);
+//							var diff = new BinaryOperatorExpression(binaryOperatorExpression.Left.Clone(),
+//							                                         BinaryOperatorType.Subtract, binaryOperatorExpression.Right.Clone());
+//							var abs = builder.ConvertType(new TopLevelTypeName("System", "Math")).Invoke("Abs", diff);
+//							var op = binaryOperatorExpression.Operator == BinaryOperatorType.Equality ?
+//								BinaryOperatorType.LessThan : BinaryOperatorType.GreaterThan;
+//							var epsilon = new IdentifierExpression("EPSILON");
+//							var compare = new BinaryOperatorExpression(abs, op, epsilon);
+//							script.Replace(binaryOperatorExpression, compare);
+//							script.Select(epsilon);
+//						}
+//					));
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CompareOfFloatsByEqualityOperatorIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class CompareOfFloatsByEqualityOperatorFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CompareOfFloatsByEqualityOperatorIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

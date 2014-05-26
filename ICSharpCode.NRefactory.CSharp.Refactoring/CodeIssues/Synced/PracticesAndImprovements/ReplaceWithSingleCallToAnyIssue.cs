@@ -44,30 +44,25 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-    [IssueDescription("Replace with single call to Any(...)",
-                      Description = "Replace with single call to Any(...)",
-                      Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-                      AnalysisDisableKeyword = "ReplaceWithSingleCallToAny")]
-    public class ReplaceWithSingleCallToAnyIssue : GatherVisitorCodeIssueProvider
+	[ExportDiagnosticAnalyzer("Replace with single call to Any(...)", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with single call to Any(...)", AnalysisDisableKeyword = "ReplaceWithSingleCallToAny")]
+	public class ReplaceWithSingleCallToAnyIssue : GatherVisitorCodeIssueProvider
 	{
-		static readonly AstNode pattern =
-			new InvocationExpression (
-				new MemberReferenceExpression (
-					new NamedNode ("whereInvoke",
-					               new InvocationExpression (
-					               	new MemberReferenceExpression (new AnyNode ("target"), "Where"),
-					               	new AnyNode ())),
-					Pattern.AnyString));
+//		static readonly AstNode pattern =
+//			new InvocationExpression (
+//				new MemberReferenceExpression (
+//					new NamedNode ("whereInvoke",
+//					               new InvocationExpression (
+//					               	new MemberReferenceExpression (new AnyNode ("target"), "Where"),
+//					               	new AnyNode ())),
+//					Pattern.AnyString));
 		
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ReplaceWithSingleCallToAnyIssue";
+		const string Description            = "Redundant Where() call with predicate followed by Any()";
+		const string MessageFormat          = "Replace with single call to 'Any'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,82 +72,83 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			return new GatherVisitor<ReplaceWithSingleCallToAnyIssue>(semanticModel, addDiagnostic, cancellationToken, "Any");
 		}
 
 		internal class GatherVisitor<T> : GatherVisitorBase<T> where T : GatherVisitorCodeIssueProvider
 		{
 			readonly string member;
 
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken, string member)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
+				this.member = member;
 			}
 
-			public override void VisitInvocationExpression (InvocationExpression anyInvoke)
-			{
-				base.VisitInvocationExpression (anyInvoke);
-				
-				var match = pattern.Match (anyInvoke);
-				if (!match.Success)
-					return;
-				
-				var anyResolve = ctx.Resolve (anyInvoke) as InvocationResolveResult;
-				if (anyResolve == null || !HasPredicateVersion(anyResolve.Member))
-					return;
-				var whereInvoke = match.Get<InvocationExpression> ("whereInvoke").Single ();
-				var whereResolve = ctx.Resolve (whereInvoke) as InvocationResolveResult;
-				if (whereResolve == null || whereResolve.Member.Name != "Where" || !IsQueryExtensionClass(whereResolve.Member.DeclaringTypeDefinition))
-					return;
-				if (whereResolve.Member.Parameters.Count != 2)
-					return;
-				var predResolve = whereResolve.Member.Parameters [1];
-				if (predResolve.Type.TypeParameterCount != 2)
-					return;
-				
-				AddIssue(new CodeIssue(
-					anyInvoke, string.Format(ctx.TranslateString("Redundant Where() call with predicate followed by {0}()"), anyResolve.Member.Name),
-					new CodeAction (
-						string.Format(ctx.TranslateString("Replace with single call to '{0}'"), anyResolve.Member.Name),
-						script => {
-							var arg = whereInvoke.Arguments.Single ().Clone ();
-							var target = match.Get<Expression> ("target").Single ().Clone ();
-							script.Replace (anyInvoke, new InvocationExpression (new MemberReferenceExpression (target, anyResolve.Member.Name), arg));
-						},
-						anyInvoke
-					)
-				));
-			}
-			
-			bool IsQueryExtensionClass(ITypeDefinition typeDef)
-			{
-				if (typeDef == null || typeDef.Namespace != "System.Linq")
-					return false;
-				switch (typeDef.Name) {
-					case "Enumerable":
-					case "ParallelEnumerable":
-					case "Queryable":
-						return true;
-					default:
-						return false;
-				}
-			}
-			
-			bool HasPredicateVersion(IParameterizedMember member)
-			{
-				if (!IsQueryExtensionClass(member.DeclaringTypeDefinition))
-					return false;
-			    return member.Name == this.member;
-			}
+//			public override void VisitInvocationExpression (InvocationExpression anyInvoke)
+//			{
+//				base.VisitInvocationExpression (anyInvoke);
+//				
+//				var match = pattern.Match (anyInvoke);
+//				if (!match.Success)
+//					return;
+//				
+//				var anyResolve = ctx.Resolve (anyInvoke) as InvocationResolveResult;
+//				if (anyResolve == null || !HasPredicateVersion(anyResolve.Member))
+//					return;
+//				var whereInvoke = match.Get<InvocationExpression> ("whereInvoke").Single ();
+//				var whereResolve = ctx.Resolve (whereInvoke) as InvocationResolveResult;
+//				if (whereResolve == null || whereResolve.Member.Name != "Where" || !IsQueryExtensionClass(whereResolve.Member.DeclaringTypeDefinition))
+//					return;
+//				if (whereResolve.Member.Parameters.Count != 2)
+//					return;
+//				var predResolve = whereResolve.Member.Parameters [1];
+//				if (predResolve.Type.TypeParameterCount != 2)
+//					return;
+//				
+//				AddIssue(new CodeIssue(
+			//					anyInvoke, string.Format(ctx.TranslateString("Redundant Where() call with predicate followed by {0}()"), anyResolve.Member.Name),
+//					new CodeAction (
+			//						string.Format(ctx.TranslateString("Replace with single call to '{0}'"), anyResolve.Member.Name),
+//						script => {
+//							var arg = whereInvoke.Arguments.Single ().Clone ();
+//							var target = match.Get<Expression> ("target").Single ().Clone ();
+//							script.Replace (anyInvoke, new InvocationExpression (new MemberReferenceExpression (target, anyResolve.Member.Name), arg));
+//						},
+//						anyInvoke
+//					)
+//				));
+//			}
+//			
+//			bool IsQueryExtensionClass(ITypeDefinition typeDef)
+//			{
+//				if (typeDef == null || typeDef.Namespace != "System.Linq")
+//					return false;
+//				switch (typeDef.Name) {
+//					case "Enumerable":
+//					case "ParallelEnumerable":
+//					case "Queryable":
+//						return true;
+//					default:
+//						return false;
+//				}
+//			}
+//			
+//			bool HasPredicateVersion(IParameterizedMember member)
+//			{
+//				if (!IsQueryExtensionClass(member.DeclaringTypeDefinition))
+//					return false;
+//			    return member.Name == this.member;
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ReplaceWithSingleCallToAnyIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ReplaceWithSingleCallToAnyFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ReplaceWithSingleCallToAnyIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

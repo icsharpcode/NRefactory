@@ -44,20 +44,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("CS0183:Given expression is always of the provided type",
-		Description = "CS0183:Given expression is always of the provided type.",
-		Category = IssueCategories.CompilerWarnings,
-		Severity = Severity.Warning,
-		PragmaWarning = 183,
-		AnalysisDisableKeyword = "CSharpWarnings::CS0183"
-	)]
+	[ExportDiagnosticAnalyzer("CS0183:Given expression is always of the provided type", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "CS0183:Given expression is always of the provided type", AnalysisDisableKeyword = "CSharpWarnings::CS0183", PragmaWarning = 183)]
 	public class CS0183ExpressionIsAlwaysOfProvidedTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "CS0183ExpressionIsAlwaysOfProvidedTypeIssue";
+		const string Description            = "Given expression is always of the provided type. Consider comparing with 'null' instead";
+		const string MessageFormat          = "Compare with 'null'";
 		const string Category               = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -75,50 +68,50 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<CS0183ExpressionIsAlwaysOfProvidedTypeIssue>
 		{
-			readonly CSharpConversions conversions;
+			//			readonly CSharpConversions conversions;
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
-				conversions = CSharpConversions.Get(ctx.Compilation);
+				// conversions = CSharpConversions.Get(ctx.Compilation);
 			}
-
-			public override void VisitIsExpression(IsExpression isExpression)
-			{
-				base.VisitIsExpression(isExpression);
-
-				var type = ctx.Resolve(isExpression.Expression).Type;
-				var providedType = ctx.ResolveType(isExpression.Type);
-
-				if (type.Kind == TypeKind.Unknown || providedType.Kind == TypeKind.Unknown)
-					return;
-//				var foundConversion = conversions.ImplicitConversion(type, providedType);
-				if (!IsValidReferenceOrBoxingConversion(type, providedType))
-					return;
-
-				var action = new CodeAction(
-					             ctx.TranslateString("Compare with 'null'"), 
-					             script => script.Replace(isExpression, new BinaryOperatorExpression(
-						             isExpression.Expression.Clone(), BinaryOperatorType.InEquality, new PrimitiveExpression(null))),
-					             isExpression
-				             );
-				AddIssue(new CodeIssue(isExpression, ctx.TranslateString("Given expression is always of the provided type. Consider comparing with 'null' instead"), new [] { action }));
-			}
-
-			bool IsValidReferenceOrBoxingConversion(IType fromType, IType toType)
-			{
-				Conversion c = conversions.ImplicitConversion(fromType, toType);
-				return c.IsValid && (c.IsIdentityConversion || c.IsReferenceConversion || c.IsBoxingConversion);
-			}
+//
+//			public override void VisitIsExpression(IsExpression isExpression)
+//			{
+//				base.VisitIsExpression(isExpression);
+//
+//				var type = ctx.Resolve(isExpression.Expression).Type;
+//				var providedType = ctx.ResolveType(isExpression.Type);
+//
+//				if (type.Kind == TypeKind.Unknown || providedType.Kind == TypeKind.Unknown)
+//					return;
+////				var foundConversion = conversions.ImplicitConversion(type, providedType);
+//				if (!IsValidReferenceOrBoxingConversion(type, providedType))
+//					return;
+//
+//				var action = new CodeAction(
+//					             ctx.TranslateString(""), 
+//					             script => script.Replace(isExpression, new BinaryOperatorExpression(
+//						             isExpression.Expression.Clone(), BinaryOperatorType.InEquality, new PrimitiveExpression(null))),
+//					             isExpression
+//				             );
+//				AddIssue(new CodeIssue(isExpression, ctx.TranslateString(""), new [] { action }));
+//			}
+//
+//			bool IsValidReferenceOrBoxingConversion(IType fromType, IType toType)
+//			{
+//				Conversion c = conversions.ImplicitConversion(fromType, toType);
+//				return c.IsValid && (c.IsIdentityConversion || c.IsReferenceConversion || c.IsBoxingConversion);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CS0183ExpressionIsAlwaysOfProvidedTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class CS0183ExpressionIsAlwaysOfProvidedTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CS0183ExpressionIsAlwaysOfProvidedTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

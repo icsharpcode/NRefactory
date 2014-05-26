@@ -44,18 +44,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Operator 'is' can be used",
-		Description = "Operator Is can be used instead of comparing object GetType() and instances of System.Type object.",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "OperatorIsCanBeUsed")]
+	[ExportDiagnosticAnalyzer("Operator 'is' can be used", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Operator Is can be used instead of comparing object GetType() and instances of System.Type object.", AnalysisDisableKeyword = "OperatorIsCanBeUsed")]
 	public class OperatorIsCanBeUsedIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "OperatorIsCanBeUsedIssue";
+		const string Description            = "Operator 'is' can be used";
+		const string MessageFormat          = "Replace with 'is' operator";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -77,54 +72,54 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			static readonly AstNode pattern = 
-				PatternHelper.CommutativeOperatorWithOptionalParentheses(
-					new InvocationExpression(new MemberReferenceExpression(new AnyNode("a"), "GetType"), null),
-					BinaryOperatorType.Equality,
-					new TypeOfExpression(new AnyNode("b"))
-				);
-
-			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-			{
-				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-
-				var m = pattern.Match(binaryOperatorExpression);
-				if (!m.Success)
-					return;
-
-				Expression identifier = m.Get<Expression>("a").Single();
-				AstType type = m.Get<AstType>("b").Single();
-				
-				var typeResolved = ctx.Resolve(type) as TypeResolveResult;
-				if (typeResolved == null)
-					return;
-
-				if (typeResolved.Type.Kind == TypeKind.Class) {
-					if (!typeResolved.Type.GetDefinition().IsSealed) {
-						return;
-					}
-				}
-
-				AddIssue(new CodeIssue(
-					binaryOperatorExpression, 
-					ctx.TranslateString("Operator 'is' can be used"), 
-					ctx.TranslateString("Replace with 'is' operator"), 
-					script => {
-						var isExpr = new IsExpression(identifier.Clone(), type.Clone());
-						script.Replace(binaryOperatorExpression, isExpr);
-					}
-				));
-			}
+//
+//			static readonly AstNode pattern = 
+//				PatternHelper.CommutativeOperatorWithOptionalParentheses(
+//					new InvocationExpression(new MemberReferenceExpression(new AnyNode("a"), "GetType"), null),
+//					BinaryOperatorType.Equality,
+//					new TypeOfExpression(new AnyNode("b"))
+//				);
+//
+//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+//			{
+//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+//
+//				var m = pattern.Match(binaryOperatorExpression);
+//				if (!m.Success)
+//					return;
+//
+//				Expression identifier = m.Get<Expression>("a").Single();
+//				AstType type = m.Get<AstType>("b").Single();
+//				
+//				var typeResolved = ctx.Resolve(type) as TypeResolveResult;
+//				if (typeResolved == null)
+//					return;
+//
+//				if (typeResolved.Type.Kind == TypeKind.Class) {
+//					if (!typeResolved.Type.GetDefinition().IsSealed) {
+//						return;
+//					}
+//				}
+//
+//				AddIssue(new CodeIssue(
+//					binaryOperatorExpression, 
+//					ctx.TranslateString(""), 
+//					ctx.TranslateString(""), 
+//					script => {
+//						var isExpr = new IsExpression(identifier.Clone(), type.Clone());
+//						script.Replace(binaryOperatorExpression, isExpr);
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(OperatorIsCanBeUsedIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class OperatorIsCanBeUsedIssueFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return OperatorIsCanBeUsedIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -44,15 +44,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Condition is always 'true' or always 'false'",
-		Description = "Condition is always 'true' or always 'false'.",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning)]
+	[ExportDiagnosticAnalyzer("Condition is always 'true' or always 'false'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Condition is always 'true' or always 'false'")]
 	public class ConstantConditionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "ConstantConditionIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -76,113 +72,202 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
-			{
-				base.VisitConditionalExpression(conditionalExpression);
-
-				CheckCondition(conditionalExpression.Condition);
-			}
-
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
-
-				CheckCondition(ifElseStatement.Condition);
-			}
-
-			public override void VisitWhileStatement(WhileStatement whileStatement)
-			{
-				base.VisitWhileStatement(whileStatement);
-
-				CheckCondition(whileStatement.Condition);
-			}
-
-			public override void VisitDoWhileStatement(DoWhileStatement doWhileStatement)
-			{
-				base.VisitDoWhileStatement(doWhileStatement);
-
-				CheckCondition(doWhileStatement.Condition);
-			}
-
-			public override void VisitForStatement(ForStatement forStatement)
-			{
-				base.VisitForStatement(forStatement);
-
-				CheckCondition(forStatement.Condition);
-			}
-
-			void CheckCondition(Expression condition)
-			{
-				if (condition is PrimitiveExpression)
-					return;
-
-				var resolveResult = ctx.Resolve(condition);
-				if (!(resolveResult.IsCompileTimeConstant && resolveResult.ConstantValue is bool))
-					return;
-
-				var value = (bool)resolveResult.ConstantValue;
-				var conditionalExpr = condition.Parent as ConditionalExpression;
-				var ifElseStatement = condition.Parent as IfElseStatement;
-				var valueStr = value.ToString().ToLowerInvariant();
-
-				CodeAction action;
-				if (conditionalExpr != null) {
-					var replaceExpr = value ? conditionalExpr.TrueExpression : conditionalExpr.FalseExpression;
-					action = new CodeAction(
-						string.Format(ctx.TranslateString("Replace '?:' with '{0}' branch"), valueStr),
-						script => script.Replace(conditionalExpr, replaceExpr.Clone()),
-						condition);
-				} else if (ifElseStatement != null) {
-					action = new CodeAction(
-						string.Format(ctx.TranslateString("Replace 'if' with '{0}' branch"), valueStr),
-						script => {
-							var statement = value ? ifElseStatement.TrueStatement : ifElseStatement.FalseStatement;
-							var blockStatement = statement as BlockStatement;
-							if (statement.IsNull || (blockStatement != null && blockStatement.Statements.Count == 0)) {
-								script.Remove(ifElseStatement);
-								return;
-							}
-
-							TextLocation start, end;
-							if (blockStatement != null) {
-								start = blockStatement.Statements.FirstOrNullObject().StartLocation;
-								end = blockStatement.Statements.LastOrNullObject().EndLocation;
-							} else {
-								start = statement.StartLocation;
-								end = statement.EndLocation;
-							}
-							RemoveText(script, ifElseStatement.StartLocation, start);
-							RemoveText(script, end, ifElseStatement.EndLocation);
-							script.FormatText(ifElseStatement.Parent);
-						}, condition);
-				} else {
-					action = new CodeAction(
-						string.Format(ctx.TranslateString("Replace expression with '{0}'"), valueStr),
-						script => script.Replace(condition, new PrimitiveExpression(value)), 
-						condition
-					);
-				}
-				AddIssue(new CodeIssue(condition, string.Format(ctx.TranslateString("Condition is always '{0}'"), valueStr), 
-					new [] { action }));
-			}
-
-			void RemoveText(Script script, TextLocation start, TextLocation end)
-			{
-				var startOffset = script.GetCurrentOffset(start);
-				var endOffset = script.GetCurrentOffset(end);
-				if (startOffset < endOffset)
-					script.RemoveText(startOffset, endOffset - startOffset);
-			}
+//
+//			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
+//			{
+//				base.VisitConditionalExpression(conditionalExpression);
+//
+//				CheckCondition(conditionalExpression.Condition);
+//			}
+//
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//
+//				CheckCondition(ifElseStatement.Condition);
+//			}
+//
+//			public override void VisitWhileStatement(WhileStatement whileStatement)
+//			{
+//				base.VisitWhileStatement(whileStatement);
+//
+//				CheckCondition(whileStatement.Condition);
+//			}
+//
+//			public override void VisitDoWhileStatement(DoWhileStatement doWhileStatement)
+//			{
+//				base.VisitDoWhileStatement(doWhileStatement);
+//
+//				CheckCondition(doWhileStatement.Condition);
+//			}
+//
+//			public override void VisitForStatement(ForStatement forStatement)
+//			{
+//				base.VisitForStatement(forStatement);
+//
+//				CheckCondition(forStatement.Condition);
+//			}
+//
+//			void CheckCondition(Expression condition)
+//			{
+//				if (condition is PrimitiveExpression)
+//					return;
+//
+//				var resolveResult = ctx.Resolve(condition);
+//				if (!(resolveResult.IsCompileTimeConstant && resolveResult.ConstantValue is bool))
+//					return;
+//
+//				var value = (bool)resolveResult.ConstantValue;
+//				var conditionalExpr = condition.Parent as ConditionalExpression;
+//				var ifElseStatement = condition.Parent as IfElseStatement;
+//				var valueStr = value.ToString().ToLowerInvariant();
+//
+//				CodeAction action;
+//				if (conditionalExpr != null) {
+//					var replaceExpr = value ? conditionalExpr.TrueExpression : conditionalExpr.FalseExpression;
+//					action = new CodeAction(
+//						string.Format(ctx.TranslateString("Replace '?:' with '{0}' branch"), valueStr),
+//						script => script.Replace(conditionalExpr, replaceExpr.Clone()),
+//						condition);
+//				} else if (ifElseStatement != null) {
+//					action = new CodeAction(
+//						string.Format(ctx.TranslateString("Replace 'if' with '{0}' branch"), valueStr),
+//						script => {
+//							var statement = value ? ifElseStatement.TrueStatement : ifElseStatement.FalseStatement;
+//							var blockStatement = statement as BlockStatement;
+//							if (statement.IsNull || (blockStatement != null && blockStatement.Statements.Count == 0)) {
+//								script.Remove(ifElseStatement);
+//								return;
+//							}
+//
+//							TextLocation start, end;
+//							if (blockStatement != null) {
+//								start = blockStatement.Statements.FirstOrNullObject().StartLocation;
+//								end = blockStatement.Statements.LastOrNullObject().EndLocation;
+//							} else {
+//								start = statement.StartLocation;
+//								end = statement.EndLocation;
+//							}
+//							RemoveText(script, ifElseStatement.StartLocation, start);
+//							RemoveText(script, end, ifElseStatement.EndLocation);
+//							script.FormatText(ifElseStatement.Parent);
+//						}, condition);
+//				} else {
+//					action = new CodeAction(
+//						string.Format(ctx.TranslateString("Replace expression with '{0}'"), valueStr),
+//						script => script.Replace(condition, new PrimitiveExpression(value)), 
+//						condition
+//					);
+//				}
+//				AddIssue(new CodeIssue(condition, string.Format(ctx.TranslateString("Condition is always '{0}'"), valueStr), 
+//					new [] { action }));
+//			}
+//			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
+//			{
+//				base.VisitConditionalExpression(conditionalExpression);
+//
+//				CheckCondition(conditionalExpression.Condition);
+//			}
+//
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//
+//				CheckCondition(ifElseStatement.Condition);
+//			}
+//
+//			public override void VisitWhileStatement(WhileStatement whileStatement)
+//			{
+//				base.VisitWhileStatement(whileStatement);
+//
+//				CheckCondition(whileStatement.Condition);
+//			}
+//
+//			public override void VisitDoWhileStatement(DoWhileStatement doWhileStatement)
+//			{
+//				base.VisitDoWhileStatement(doWhileStatement);
+//
+//				CheckCondition(doWhileStatement.Condition);
+//			}
+//
+//			public override void VisitForStatement(ForStatement forStatement)
+//			{
+//				base.VisitForStatement(forStatement);
+//
+//				CheckCondition(forStatement.Condition);
+//			}
+//
+//			void CheckCondition(Expression condition)
+//			{
+//				if (condition is PrimitiveExpression)
+//					return;
+//
+//				var resolveResult = ctx.Resolve(condition);
+//				if (!(resolveResult.IsCompileTimeConstant && resolveResult.ConstantValue is bool))
+//					return;
+//
+//				var value = (bool)resolveResult.ConstantValue;
+//				var conditionalExpr = condition.Parent as ConditionalExpression;
+//				var ifElseStatement = condition.Parent as IfElseStatement;
+//				var valueStr = value.ToString().ToLowerInvariant();
+//
+//				CodeAction action;
+//				if (conditionalExpr != null) {
+//					var replaceExpr = value ? conditionalExpr.TrueExpression : conditionalExpr.FalseExpression;
+//					action = new CodeAction(
+//						string.Format(ctx.TranslateString("Replace '?:' with '{0}' branch"), valueStr),
+//						script => script.Replace(conditionalExpr, replaceExpr.Clone()),
+//						condition);
+//				} else if (ifElseStatement != null) {
+//					action = new CodeAction(
+//						string.Format(ctx.TranslateString("Replace 'if' with '{0}' branch"), valueStr),
+//						script => {
+//							var statement = value ? ifElseStatement.TrueStatement : ifElseStatement.FalseStatement;
+//							var blockStatement = statement as BlockStatement;
+//							if (statement.IsNull || (blockStatement != null && blockStatement.Statements.Count == 0)) {
+//								script.Remove(ifElseStatement);
+//								return;
+//							}
+//
+//							TextLocation start, end;
+//							if (blockStatement != null) {
+//								start = blockStatement.Statements.FirstOrNullObject().StartLocation;
+//								end = blockStatement.Statements.LastOrNullObject().EndLocation;
+//							} else {
+//								start = statement.StartLocation;
+//								end = statement.EndLocation;
+//							}
+//							RemoveText(script, ifElseStatement.StartLocation, start);
+//							RemoveText(script, end, ifElseStatement.EndLocation);
+//							script.FormatText(ifElseStatement.Parent);
+//						}, condition);
+//				} else {
+//					action = new CodeAction(
+//						string.Format(ctx.TranslateString("Replace expression with '{0}'"), valueStr),
+//						script => script.Replace(condition, new PrimitiveExpression(value)), 
+//						condition
+//					);
+//				}
+//				AddIssue(new CodeIssue(condition, string.Format(ctx.TranslateString("Condition is always '{0}'"), valueStr), 
+//					new [] { action }));
+//			}
+//
+//			void RemoveText(Script script, TextLocation start, TextLocation end)
+//			{
+//				var startOffset = script.GetCurrentOffset(start);
+//				var endOffset = script.GetCurrentOffset(end);
+//				if (startOffset < endOffset)
+//					script.RemoveText(startOffset, endOffset - startOffset);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConstantConditionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConstantConditionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConstantConditionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -44,20 +44,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Simplify negative relational expression",
-					   Description = "Simplify negative relational expression",
-                       Category = IssueCategories.PracticesAndImprovements,
-					   Severity = Severity.Suggestion)]
+	[ExportDiagnosticAnalyzer("Simplify negative relational expression", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Simplify negative relational expression")]
 	public class NegativeRelationalExpressionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "NegativeRelationalExpressionIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,69 +73,69 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			bool IsFloatingPoint (AstNode node)
-			{
-				var typeDef = ctx.Resolve (node).Type.GetDefinition ();
-				return typeDef != null &&
-					(typeDef.KnownTypeCode == KnownTypeCode.Single || typeDef.KnownTypeCode == KnownTypeCode.Double);
-			}
-
-			public override void VisitUnaryOperatorExpression (UnaryOperatorExpression unaryOperatorExpression)
-			{
-				base.VisitUnaryOperatorExpression (unaryOperatorExpression);
-
-				if (unaryOperatorExpression.Operator != UnaryOperatorType.Not)
-					return;
-
-				var expr = unaryOperatorExpression.Expression;
-				while (expr != null && expr is ParenthesizedExpression)
-					expr = ((ParenthesizedExpression)expr).Expression;
-
-				var binaryOperatorExpr = expr as BinaryOperatorExpression;
-				if (binaryOperatorExpr == null)
-					return;
-				switch (binaryOperatorExpr.Operator) {
-					case BinaryOperatorType.BitwiseAnd:
-					case BinaryOperatorType.BitwiseOr:
-					case BinaryOperatorType.ConditionalAnd:
-					case BinaryOperatorType.ConditionalOr:
-					case BinaryOperatorType.ExclusiveOr:
-						return;
-				}
-
-				var negatedOp = CSharpUtil.NegateRelationalOperator(binaryOperatorExpr.Operator);
-				if (negatedOp == BinaryOperatorType.Any)
-					return;
-
-				if (IsFloatingPoint (binaryOperatorExpr.Left) || IsFloatingPoint (binaryOperatorExpr.Right)) {
-					if (negatedOp != BinaryOperatorType.Equality && negatedOp != BinaryOperatorType.InEquality)
-						return;
-				}
-
-				AddIssue (new CodeIssue(unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"), ctx.TranslateString ("Simplify negative relational expression"),
-					script => script.Replace (unaryOperatorExpression,
-						new BinaryOperatorExpression (binaryOperatorExpr.Left.Clone (), negatedOp,
-							binaryOperatorExpr.Right.Clone ()))));
-			}
-			
-			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-			{
-				if (operatorDeclaration.OperatorType.IsComparisonOperator()) {
-					// Ignore operator declaration; within them it's common to define one operator
-					// by negating another.
-					return;
-				}
-				base.VisitOperatorDeclaration(operatorDeclaration);
-			}
+//			bool IsFloatingPoint (AstNode node)
+//			{
+//				var typeDef = ctx.Resolve (node).Type.GetDefinition ();
+//				return typeDef != null &&
+//					(typeDef.KnownTypeCode == KnownTypeCode.Single || typeDef.KnownTypeCode == KnownTypeCode.Double);
+//			}
+//
+//			public override void VisitUnaryOperatorExpression (UnaryOperatorExpression unaryOperatorExpression)
+//			{
+//				base.VisitUnaryOperatorExpression (unaryOperatorExpression);
+//
+//				if (unaryOperatorExpression.Operator != UnaryOperatorType.Not)
+//					return;
+//
+//				var expr = unaryOperatorExpression.Expression;
+//				while (expr != null && expr is ParenthesizedExpression)
+//					expr = ((ParenthesizedExpression)expr).Expression;
+//
+//				var binaryOperatorExpr = expr as BinaryOperatorExpression;
+//				if (binaryOperatorExpr == null)
+//					return;
+//				switch (binaryOperatorExpr.Operator) {
+//					case BinaryOperatorType.BitwiseAnd:
+//					case BinaryOperatorType.BitwiseOr:
+//					case BinaryOperatorType.ConditionalAnd:
+//					case BinaryOperatorType.ConditionalOr:
+//					case BinaryOperatorType.ExclusiveOr:
+//						return;
+//				}
+//
+//				var negatedOp = CSharpUtil.NegateRelationalOperator(binaryOperatorExpr.Operator);
+//				if (negatedOp == BinaryOperatorType.Any)
+//					return;
+//
+//				if (IsFloatingPoint (binaryOperatorExpr.Left) || IsFloatingPoint (binaryOperatorExpr.Right)) {
+//					if (negatedOp != BinaryOperatorType.Equality && negatedOp != BinaryOperatorType.InEquality)
+//						return;
+//				}
+//
+//				AddIssue (new CodeIssue(unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"), ctx.TranslateString ("Simplify negative relational expression"),
+//					script => script.Replace (unaryOperatorExpression,
+//						new BinaryOperatorExpression (binaryOperatorExpr.Left.Clone (), negatedOp,
+//							binaryOperatorExpr.Right.Clone ()))));
+//			}
+//			
+//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
+//			{
+//				if (operatorDeclaration.OperatorType.IsComparisonOperator()) {
+//					// Ignore operator declaration; within them it's common to define one operator
+//					// by negating another.
+//					return;
+//				}
+//				base.VisitOperatorDeclaration(operatorDeclaration);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(NegativeRelationalExpressionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class NegativeRelationalExpressionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return NegativeRelationalExpressionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

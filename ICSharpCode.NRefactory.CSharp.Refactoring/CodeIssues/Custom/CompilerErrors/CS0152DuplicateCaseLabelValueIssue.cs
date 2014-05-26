@@ -43,20 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Duplicate case label value issue",
-	                   Description = "A case label value is duplicate.",
-	                   Category = IssueCategories.CompilerErrors,
-	                   Severity = Severity.Error)]
+	[ExportDiagnosticAnalyzer("Duplicate case label value issue", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "A case label value is duplicate.")]
 	public class CS0152DuplicateCaseLabelValueIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "CS0152DuplicateCaseLabelValueIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.CompilerErrors;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -75,39 +71,39 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitSwitchSection(SwitchSection switchSection)
-			{
-				base.VisitSwitchSection(switchSection);
-
-				var parent = switchSection.Parent as SwitchStatement;
-				if (parent == null)
-					return;
-
-				foreach (var curLabel in switchSection.CaseLabels) {
-					if (curLabel.Expression.IsNull)
-						continue;
-					var curValue = ctx.Resolve(curLabel.Expression).ConstantValue;
-					if (curValue == null)
-						continue;
-					foreach (var sect in parent.SwitchSections) {
-						if (sect.CaseLabels.Any(label => label != curLabel && Equals(curValue, ctx.Resolve(label.Expression).ConstantValue))) {
-							AddIssue(new CodeIssue(curLabel, string.Format(ctx.TranslateString("Duplicate case label value '{0}'"), curValue)));
-							break;
-						}
-					}
-				}
-
-			}
+//
+//			public override void VisitSwitchSection(SwitchSection switchSection)
+//			{
+//				base.VisitSwitchSection(switchSection);
+//
+//				var parent = switchSection.Parent as SwitchStatement;
+//				if (parent == null)
+//					return;
+//
+//				foreach (var curLabel in switchSection.CaseLabels) {
+//					if (curLabel.Expression.IsNull)
+//						continue;
+//					var curValue = ctx.Resolve(curLabel.Expression).ConstantValue;
+//					if (curValue == null)
+//						continue;
+//					foreach (var sect in parent.SwitchSections) {
+//						if (sect.CaseLabels.Any(label => label != curLabel && Equals(curValue, ctx.Resolve(label.Expression).ConstantValue))) {
+//							AddIssue(new CodeIssue(curLabel, string.Format(ctx.TranslateString("Duplicate case label value '{0}'"), curValue)));
+//							break;
+//						}
+//					}
+//				}
+//
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CS0152DuplicateCaseLabelValueIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class CS0152DuplicateCaseLabelValueFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CS0152DuplicateCaseLabelValueIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

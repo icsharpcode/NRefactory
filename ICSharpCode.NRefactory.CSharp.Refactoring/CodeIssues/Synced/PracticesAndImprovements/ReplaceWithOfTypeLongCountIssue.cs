@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Replace with OfType<T>().LongCount()",
-	                  Description = "Replace with call to OfType<T>().LongCount()",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ReplaceWithOfType.LongCount")]
+	[ExportDiagnosticAnalyzer("Replace with OfType<T>().LongCount()", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with call to OfType<T>().LongCount()", AnalysisDisableKeyword = "ReplaceWithOfType.LongCount")]
 	public class ReplaceWithOfTypeLongCountIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ReplaceWithOfTypeLongCountIssue";
+		const string Description            = "Replace with OfType<T>().LongCount()";
+		const string MessageFormat          = "Replace with call to OfType<T>().LongCount()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -67,20 +62,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			return new ReplaceWithOfTypeAnyIssue.GatherVisitor<ReplaceWithOfTypeLongCountIssue>(context, "LongCount");
+			return new ReplaceWithOfTypeAnyIssue.GatherVisitor<ReplaceWithOfTypeLongCountIssue>(semanticModel, addDiagnostic, cancellationToken, "LongCount");
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ReplaceWithOfTypeLongCountIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ReplaceWithOfTypeLongCountFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ReplaceWithOfTypeLongCountIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

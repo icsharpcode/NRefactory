@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDelegateCase ()
 		{
-			const string usingSystemClassFooPublicEventEventHandlerFooVoidTestFooDelegate = @"using System;
+			TestIssue<EventUnsubscriptionViaAnonymousDelegateIssue>(@"using System;
 
 class Bar
 {
@@ -47,17 +47,13 @@ class Bar
 	{
 		Foo -= delegate { };
 	}
-}";
-			string input = usingSystemClassFooPublicEventEventHandlerFooVoidTestFooDelegate;
-			TestRefactoringContext context;
-			var issues = GetIssues (new EventUnsubscriptionViaAnonymousDelegateIssue(), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestLambdaCase ()
 		{
-			string input = @"using System;
+			TestIssue<EventUnsubscriptionViaAnonymousDelegateIssue>(@"using System;
 
 class Bar
 {
@@ -67,16 +63,13 @@ class Bar
 	{
 		Foo -= (s ,e) => { };
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new EventUnsubscriptionViaAnonymousDelegateIssue(), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestDisable ()
 		{
-			string input = @"using System;
+			TestWrongContext<EventUnsubscriptionViaAnonymousDelegateIssue>(@"using System;
 
 class Bar
 {
@@ -87,10 +80,7 @@ class Bar
 		// ReSharper disable once EventUnsubscriptionViaAnonymousDelegate
 		Foo -= delegate { };
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new EventUnsubscriptionViaAnonymousDelegateIssue(), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 

@@ -43,44 +43,35 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'string.StartsWith' is culture-aware",
-	                  Description = "Warns when a culture-aware 'StartsWith' call is used by default.",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "StringStartsWithIsCultureSpecific")]
+	[ExportDiagnosticAnalyzer("'string.StartsWith' is culture-aware", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns when a culture-aware 'StartsWith' call is used by default.", AnalysisDisableKeyword = "StringStartsWithIsCultureSpecific")]
 	public class StringStartsWithIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "StringStartsWithIsCultureSpecificIssue";
+		const string Description            = "'IndexOf' is culture-aware and missing a StringComparison argument";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Add 'StringComparison.Ordinal'", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Add 'StringComparison.CurrentCulture'", Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-		protected override IGatherVisitor CreateVisitor(BaseSemanticModel context)
-		{
-			return new StringIndexOfIsCultureSpecificIssue.GatherVisitor<StringStartsWithIsCultureSpecificIssue>(context, "StartsWith");
+			return new StringIndexOfIsCultureSpecificIssue.GatherVisitor<StringStartsWithIsCultureSpecificIssue>(semanticModel, addDiagnostic, cancellationToken, "StartsWith");
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(StringStartsWithIsCultureSpecificIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class StringStartsWithIsCultureSpecificFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return StringStartsWithIsCultureSpecificIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

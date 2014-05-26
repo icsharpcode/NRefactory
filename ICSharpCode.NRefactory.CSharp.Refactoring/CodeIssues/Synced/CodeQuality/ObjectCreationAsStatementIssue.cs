@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Possible unassigned object created by 'new'",
-		Description = "Possible unassigned object created by 'new'",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "ObjectCreationAsStatement")]
+	[ExportDiagnosticAnalyzer("Possible unassigned object created by 'new'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Possible unassigned object created by 'new'", AnalysisDisableKeyword = "ObjectCreationAsStatement")]
 	public class ObjectCreationAsStatementIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "ObjectCreationAsStatementIssue";
 		const string Description            = "";
-		const string MessageFormat          = "";
+		const string MessageFormat          = "Possible unassigned object created by 'new' expression";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -76,24 +71,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
-			{
-				base.VisitObjectCreateExpression(objectCreateExpression);
-				if (!(objectCreateExpression.Parent is ExpressionStatement))
-					return;
-				AddIssue(new CodeIssue(objectCreateExpression.NewToken,
-					ctx.TranslateString("Possible unassigned object created by 'new' expression")));
-			}
+//
+//			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
+//			{
+//				base.VisitObjectCreateExpression(objectCreateExpression);
+//				if (!(objectCreateExpression.Parent is ExpressionStatement))
+//					return;
+//				AddIssue(new CodeIssue(objectCreateExpression.NewToken,
+//					ctx.TranslateString("")));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ObjectCreationAsStatementIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ObjectCreationAsStatementIssueFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ObjectCreationAsStatementIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -39,88 +39,70 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void GenericClass()
 		{
-			var input = @"
+			TestIssue<StaticFieldInGenericTypeIssue>(@"
 class Foo<T>
 {
 	static string Data;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void GenericClassWithGenericField()
 		{
-			var input = @"
+			TestWrongContext<StaticFieldInGenericTypeIssue>(@"
 class Foo<T>
 {
 	static System.Collections.Generic.IList<T> Cache;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void GenericClassWithMultipleGenericFields()
 		{
-			var input = @"
+			TestIssue<StaticFieldInGenericTypeIssue>(@"
 class Foo<T1, T2>
 {
 	static System.Collections.Generic.IList<T1> Cache;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void NestedGenericClassWithGenericField()
 		{
-			var input = @"
+			TestIssue<StaticFieldInGenericTypeIssue>(@"
 class Foo<T1>
 {
 	class Bar<T2>
 	{
 		static System.Collections.Generic.IList<T1> Cache;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void NonGenericClass()
 		{
-			var input = @"
+			TestWrongContext<StaticFieldInGenericTypeIssue>(@"
 class Foo
 {
 	static string Data;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void NonStaticField()
 		{
-			var input = @"
+			TestWrongContext<StaticFieldInGenericTypeIssue>(@"
 class Foo<T>
 {
 	string Data;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestMicrosoftSuppressMessage()
 		{
-			var input = @"using System.Diagnostics.CodeAnalysis;
+			TestIssue<StaticFieldInGenericTypeIssue>(@"using System.Diagnostics.CodeAnalysis;
 
 class Foo<T>
 {
@@ -128,16 +110,13 @@ class Foo<T>
 	static string Data;
 
 	static string OtherData;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestAssemblyMicrosoftSuppressMessage()
 		{
-			var input = @"using System.Diagnostics.CodeAnalysis;
+			TestWrongContext<StaticFieldInGenericTypeIssue>(@"using System.Diagnostics.CodeAnalysis;
 
 [assembly:SuppressMessage(""Microsoft.Design"", ""CA1000:DoNotDeclareStaticMembersOnGenericTypes"")]
 
@@ -146,10 +125,7 @@ class Foo<T>
 	static string Data;
 
 	static string OtherData;
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new StaticFieldInGenericTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
         [Test]
@@ -162,7 +138,7 @@ class Foo<T>
     // ReSharper disable once StaticFieldInGenericType
 	static string Data;
 }";
-            TestWrongContext<StaticFieldInGenericTypeIssue>(input);
+			TestWrongContext<StaticFieldInGenericTypeIssue>(input);
         }
 
 	}

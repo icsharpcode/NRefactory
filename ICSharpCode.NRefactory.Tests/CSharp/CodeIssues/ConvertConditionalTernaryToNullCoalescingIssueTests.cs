@@ -37,18 +37,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			var input = @"class Foo
+			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		string c = str != null ? str : ""default"";
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ConvertConditionalTernaryToNullCoalescingIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-
-			CheckFix (context, issues [0], @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -61,18 +56,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2 ()
 		{
-			var input = @"class Foo
+			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		string c = null != str ? str : ""default"";
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ConvertConditionalTernaryToNullCoalescingIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			
-			CheckFix (context, issues [0], @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -85,18 +75,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase3 ()
 		{
-			var input = @"class Foo
+			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		string c = null == str ? ""default"" : str;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ConvertConditionalTernaryToNullCoalescingIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			
-			CheckFix (context, issues [0], @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -108,18 +93,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase4 ()
 		{
-			var input = @"class Foo
+			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		string c = str == null ? ""default"" : str;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ConvertConditionalTernaryToNullCoalescingIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			
-			CheckFix (context, issues [0], @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -131,17 +111,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
         [Test]
         public void TestDisable()
         {
-            var input = @"class Foo
+			TestWrongContext<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 // ReSharper disable once ConvertConditionalTernaryToNullCoalescing
 		string c = str != null ? str : ""default"";
 	}
-}";
-            TestRefactoringContext context;
-            var issues = GetIssues(new ConvertConditionalTernaryToNullCoalescingIssue(), input, out context);
-            Assert.AreEqual(0, issues.Count);
+}");
         }
 	
 		[Test]

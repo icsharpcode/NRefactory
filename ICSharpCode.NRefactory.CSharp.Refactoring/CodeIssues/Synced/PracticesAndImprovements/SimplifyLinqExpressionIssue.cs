@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Simplify LINQ expression",
-		Description = "Simplify LINQ expression",
-		Category = IssueCategories.PracticesAndImprovements,
-		Severity = Severity.Suggestion,
-		AnalysisDisableKeyword = "SimplifyLinqExpression")]
+	[ExportDiagnosticAnalyzer("Simplify LINQ expression", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Simplify LINQ expression", AnalysisDisableKeyword = "SimplifyLinqExpression")]
 	public class SimplifyLinqExpressionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "SimplifyLinqExpressionIssue";
+		const string Description            = "Simplify LINQ expression";
+		const string MessageFormat          = "Simplify LINQ expression";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,77 +72,77 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static readonly Expression simpleExpression = new Choice {
-				new UnaryOperatorExpression (UnaryOperatorType.Not, new AnyNode()),
-				new BinaryOperatorExpression(new AnyNode(), BinaryOperatorType.Equality, new AnyNode()),
-				new BinaryOperatorExpression(new AnyNode(), BinaryOperatorType.InEquality, new AnyNode())
-			};
-
-			static readonly AstNode argumentPattern = new Choice {
-				new LambdaExpression  {
-					Parameters = { new ParameterDeclaration(PatternHelper.AnyType(true), Pattern.AnyString) },
-					Body = new Choice {
-						new NamedNode ("expr", simpleExpression),
-						new BlockStatement { new ReturnStatement(new NamedNode ("expr", simpleExpression))}
-					} 
-				},
-				new AnonymousMethodExpression {
-					Parameters = { new ParameterDeclaration(PatternHelper.AnyType(true), Pattern.AnyString) },
-					Body = new BlockStatement { new ReturnStatement(new NamedNode ("expr", simpleExpression))}
-				}
-			};
-
-			public override void VisitUnaryOperatorExpression(UnaryOperatorExpression unaryOperatorExpression)
-			{
-				base.VisitUnaryOperatorExpression(unaryOperatorExpression);
-				if (unaryOperatorExpression.Operator != UnaryOperatorType.Not)
-					return;
-				var invocation =  CSharpUtil.GetInnerMostExpression(unaryOperatorExpression.Expression) as InvocationExpression;
-				if (invocation == null)
-					return; 
-				var rr = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-
-				if (rr.Member.DeclaringType.Name != "Enumerable" || rr.Member.DeclaringType.Namespace != "System.Linq")
-					return;
-				if (!new[] { "All", "Any" }.Contains(rr.Member.Name))
-					return;
-				if (invocation.Arguments.Count != 1)
-					return;
-				var arg = invocation.Arguments.First();
-				var match = argumentPattern.Match(arg);
-				if (!match.Success)
-					return;
-				AddIssue(new CodeIssue (
-					unaryOperatorExpression,
-					ctx.TranslateString("Simplify LINQ expression"),
-					ctx.TranslateString("Simplify LINQ expression"),
-					s => {
-						var target = invocation.Target.Clone() as MemberReferenceExpression;
-						target.MemberName = target.MemberName == "All" ? "Any" : "All";
-
-						var expr = arg.Clone();
-						var nmatch = argumentPattern.Match(expr);
-						var cond = nmatch.Get<Expression>("expr").Single();
-						cond.ReplaceWith(CSharpUtil.InvertCondition(cond));
-						var simplifiedInvocation = new InvocationExpression(
-							target,
-							expr
-						);
-						s.Replace(unaryOperatorExpression, simplifiedInvocation);
-					}
-				));
-			}
+//			static readonly Expression simpleExpression = new Choice {
+//				new UnaryOperatorExpression (UnaryOperatorType.Not, new AnyNode()),
+//				new BinaryOperatorExpression(new AnyNode(), BinaryOperatorType.Equality, new AnyNode()),
+//				new BinaryOperatorExpression(new AnyNode(), BinaryOperatorType.InEquality, new AnyNode())
+//			};
+//
+//			static readonly AstNode argumentPattern = new Choice {
+//				new LambdaExpression  {
+//					Parameters = { new ParameterDeclaration(PatternHelper.AnyType(true), Pattern.AnyString) },
+//					Body = new Choice {
+//						new NamedNode ("expr", simpleExpression),
+//						new BlockStatement { new ReturnStatement(new NamedNode ("expr", simpleExpression))}
+//					} 
+//				},
+//				new AnonymousMethodExpression {
+//					Parameters = { new ParameterDeclaration(PatternHelper.AnyType(true), Pattern.AnyString) },
+//					Body = new BlockStatement { new ReturnStatement(new NamedNode ("expr", simpleExpression))}
+//				}
+//			};
+//
+//			public override void VisitUnaryOperatorExpression(UnaryOperatorExpression unaryOperatorExpression)
+//			{
+//				base.VisitUnaryOperatorExpression(unaryOperatorExpression);
+//				if (unaryOperatorExpression.Operator != UnaryOperatorType.Not)
+//					return;
+//				var invocation =  CSharpUtil.GetInnerMostExpression(unaryOperatorExpression.Expression) as InvocationExpression;
+//				if (invocation == null)
+//					return; 
+//				var rr = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//
+//				if (rr.Member.DeclaringType.Name != "Enumerable" || rr.Member.DeclaringType.Namespace != "System.Linq")
+//					return;
+//				if (!new[] { "All", "Any" }.Contains(rr.Member.Name))
+//					return;
+//				if (invocation.Arguments.Count != 1)
+//					return;
+//				var arg = invocation.Arguments.First();
+//				var match = argumentPattern.Match(arg);
+//				if (!match.Success)
+//					return;
+//				AddIssue(new CodeIssue (
+//					unaryOperatorExpression,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString("Simplify LINQ expression"),
+//					s => {
+//						var target = invocation.Target.Clone() as MemberReferenceExpression;
+//						target.MemberName = target.MemberName == "All" ? "Any" : "All";
+//
+//						var expr = arg.Clone();
+//						var nmatch = argumentPattern.Match(expr);
+//						var cond = nmatch.Get<Expression>("expr").Single();
+//						cond.ReplaceWith(CSharpUtil.InvertCondition(cond));
+//						var simplifiedInvocation = new InvocationExpression(
+//							target,
+//							expr
+//						);
+//						s.Replace(unaryOperatorExpression, simplifiedInvocation);
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(SimplifyLinqExpressionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class SimplifyLinqExpressionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return SimplifyLinqExpressionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -45,93 +45,90 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'string.IndexOf' is culture-aware",
-	                  Description = "Warns when a culture-aware 'IndexOf' call is used by default.",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
+	[ExportDiagnosticAnalyzer("'string.IndexOf' is culture-aware", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns when a culture-aware 'IndexOf' call is used by default.", AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
 	public class StringIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "StringIndexOfIsCultureSpecificIssue";
+		const string Description            = "'IndexOf' is culture-aware and missing a StringComparison argument";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Add 'StringComparison.Ordinal'", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Add 'StringComparison.CurrentCulture'", Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			return new GatherVisitor<StringIndexOfIsCultureSpecificIssue>(semanticModel, addDiagnostic, cancellationToken, "IndexOf");
 		}
 
 		internal class GatherVisitor<T> : GatherVisitorBase<T> where T : GatherVisitorCodeIssueProvider
 		{
 			readonly string memberName;
 
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken, string memberName)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
+				this.memberName = memberName;
 			}
 
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-
-				MemberReferenceExpression mre = invocationExpression.Target as MemberReferenceExpression;
-				if (mre == null)
-					return;
-				if (mre.MemberName != memberName)
-					return;
-
-				var rr = ctx.Resolve(invocationExpression) as InvocationResolveResult;
-				if (rr == null || rr.IsError) {
-					// Not an invocation resolve result - e.g. could be a UnknownMemberResolveResult instead
-					return;
-				}
-				if (!(rr.Member.DeclaringTypeDefinition != null && rr.Member.DeclaringTypeDefinition.KnownTypeCode == KnownTypeCode.String)) {
-					// Not a string operation
-					return;
-				}
-				IParameter firstParameter = rr.Member.Parameters.FirstOrDefault();
-				if (firstParameter == null || !firstParameter.Type.IsKnownType(KnownTypeCode.String))
-					return; // First parameter not a string
-				IParameter lastParameter = rr.Member.Parameters.Last();
-				if (lastParameter.Type.Name == "StringComparison")
-					return; // already specifying a string comparison
-				AddIssue(new CodeIssue(
-					invocationExpression.LParToken.StartLocation, 
-					invocationExpression.RParToken.EndLocation,
-					string.Format(ctx.TranslateString("'{0}' is culture-aware and missing a StringComparison argument"), rr.Member.FullName),
-					new CodeAction(ctx.TranslateString("Add 'StringComparison.Ordinal'"), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
-					new CodeAction(ctx.TranslateString("Add 'StringComparison.CurrentCulture'"), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
-				));
-			}
-
-			void AddArgument(Script script, InvocationExpression invocationExpression, string stringComparison)
-			{
-				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
-				var newArgument = astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison);
-				var copy = (InvocationExpression)invocationExpression.Clone();
-				copy.Arguments.Add(newArgument);
-				script.Replace(invocationExpression, copy);
-			}
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//
+//				MemberReferenceExpression mre = invocationExpression.Target as MemberReferenceExpression;
+//				if (mre == null)
+//					return;
+//				if (mre.MemberName != memberName)
+//					return;
+//
+//				var rr = ctx.Resolve(invocationExpression) as InvocationResolveResult;
+//				if (rr == null || rr.IsError) {
+//					// Not an invocation resolve result - e.g. could be a UnknownMemberResolveResult instead
+//					return;
+//				}
+//				if (!(rr.Member.DeclaringTypeDefinition != null && rr.Member.DeclaringTypeDefinition.KnownTypeCode == KnownTypeCode.String)) {
+//					// Not a string operation
+			//					return;		const string Description            = "'IndexOf' is culture-aware and missing a StringComparison argument";
+			
+//				}
+//				IParameter firstParameter = rr.Member.Parameters.FirstOrDefault();
+//				if (firstParameter == null || !firstParameter.Type.IsKnownType(KnownTypeCode.String))
+//					return; // First parameter not a string
+//				IParameter lastParameter = rr.Member.Parameters.Last();
+//				if (lastParameter.Type.Name == "StringComparison")
+//					return; // already specifying a string comparison
+//				AddIssue(new CodeIssue(
+//					invocationExpression.LParToken.StartLocation, 
+//					invocationExpression.RParToken.EndLocation,
+//					string.Format(ctx.TranslateString(""), rr.Member.FullName),
+//					new CodeAction(ctx.TranslateString(""), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
+//					new CodeAction(ctx.TranslateString(""), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
+//				));
+//			}
+//
+//			void AddArgument(Script script, InvocationExpression invocationExpression, string stringComparison)
+//			{
+//				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
+//				var newArgument = astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison);
+//				var copy = (InvocationExpression)invocationExpression.Clone();
+//				copy.Arguments.Add(newArgument);
+//				script.Replace(invocationExpression, copy);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(StringIndexOfIsCultureSpecificIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class StringIndexOfIsCultureSpecificFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return StringIndexOfIsCultureSpecificIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

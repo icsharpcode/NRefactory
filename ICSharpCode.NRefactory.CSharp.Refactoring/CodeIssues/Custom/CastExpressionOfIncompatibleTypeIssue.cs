@@ -44,15 +44,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Type cast expression of incompatible type",
-		Description = "Type cast expression of incompatible type",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning)]
+	[ExportDiagnosticAnalyzer("Type cast expression of incompatible type", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Type cast expression of incompatible type")]
 	public class CastExpressionOfIncompatibleTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "CastExpressionOfIncompatibleTypeIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -72,46 +68,46 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<CastExpressionOfIncompatibleTypeIssue>
 		{
-			readonly CSharpConversions conversion;
+			//readonly CSharpConversions conversion;
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitCastExpression(CastExpression castExpression)
-			{
-				base.VisitCastExpression(castExpression);
-
-				VisitTypeCastExpression(castExpression, ctx.Resolve(castExpression.Expression).Type,
-					ctx.ResolveType(castExpression.Type));
-			}
-
-			public override void VisitAsExpression(AsExpression asExpression)
-			{
-				base.VisitAsExpression(asExpression);
-
-				VisitTypeCastExpression(asExpression, ctx.Resolve(asExpression.Expression).Type,
-					ctx.ResolveType(asExpression.Type));
-			}
-
-			void VisitTypeCastExpression(Expression expression, IType exprType, IType castToType)
-			{
-				if (exprType.Kind == TypeKind.Unknown || castToType.Kind == TypeKind.Unknown || castToType.Kind == TypeKind.TypeParameter)
-					return;
-				var foundConversion = conversion.ExplicitConversion(exprType, castToType);
-				if (foundConversion == Conversion.None)
-					AddIssue(new CodeIssue(expression, ctx.TranslateString("Type cast expression of incompatible type")));
-			}
+//			public override void VisitCastExpression(CastExpression castExpression)
+//			{
+//				base.VisitCastExpression(castExpression);
+//
+//				VisitTypeCastExpression(castExpression, ctx.Resolve(castExpression.Expression).Type,
+//					ctx.ResolveType(castExpression.Type));
+//			}
+//
+//			public override void VisitAsExpression(AsExpression asExpression)
+//			{
+//				base.VisitAsExpression(asExpression);
+//
+//				VisitTypeCastExpression(asExpression, ctx.Resolve(asExpression.Expression).Type,
+//					ctx.ResolveType(asExpression.Type));
+//			}
+//
+//			void VisitTypeCastExpression(Expression expression, IType exprType, IType castToType)
+//			{
+//				if (exprType.Kind == TypeKind.Unknown || castToType.Kind == TypeKind.Unknown || castToType.Kind == TypeKind.TypeParameter)
+//					return;
+//				var foundConversion = conversion.ExplicitConversion(exprType, castToType);
+//				if (foundConversion == Conversion.None)
+//					AddIssue(new CodeIssue(expression, ctx.TranslateString("Type cast expression of incompatible type")));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CastExpressionOfIncompatibleTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class CastExpressionOfIncompatibleTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CastExpressionOfIncompatibleTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

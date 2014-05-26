@@ -43,25 +43,21 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Equal expression comparison",
-	                  Description="Comparing equal expression for equality is usually useless",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "EqualExpressionComparison")]
+	[ExportDiagnosticAnalyzer("Equal expression comparison", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Comparing equal expression for equality is usually useless", AnalysisDisableKeyword = "EqualExpressionComparison")]
 	public class EqualExpressionComparisonIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
+		internal const string DiagnosticId  = "EqualExpressionComparisonIssue";
+		const string Description            = "Equal expression comparison";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with 'true'", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with 'false'", Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
@@ -77,87 +73,87 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			void AddIssue(AstNode nodeToReplace, AstNode highlightNode, bool replaceWithTrue)
-			{
-				AddIssue(new CodeIssue(
-					highlightNode, 
-					ctx.TranslateString("Equal expression comparison"), 
-					replaceWithTrue ? ctx.TranslateString("Replace with 'true'") : ctx.TranslateString("Replace with 'false'"), 
-					script =>  {
-						script.Replace(nodeToReplace, new PrimitiveExpression(replaceWithTrue));
-					}
-				));
-			}
-
-
-			readonly BinaryOperatorExpression pattern = 
-				new BinaryOperatorExpression(
-					PatternHelper.OptionalParentheses(new AnyNode("expression")), 
-					BinaryOperatorType.Any, 
-					PatternHelper.OptionalParentheses(new Backreference("expression"))
-				);
-
-			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-			{
-				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-
-				if (binaryOperatorExpression.Operator != BinaryOperatorType.Equality &&
-				    binaryOperatorExpression.Operator != BinaryOperatorType.InEquality &&
-				    binaryOperatorExpression.Operator != BinaryOperatorType.GreaterThan &&
-				    binaryOperatorExpression.Operator != BinaryOperatorType.GreaterThanOrEqual &&
-				    binaryOperatorExpression.Operator != BinaryOperatorType.LessThan &&
-				    binaryOperatorExpression.Operator != BinaryOperatorType.LessThanOrEqual) {
-					return;
-				}
-
-				var match = pattern.Match(binaryOperatorExpression);
-				if (match.Success) {
-					AddIssue(binaryOperatorExpression, binaryOperatorExpression.OperatorToken, binaryOperatorExpression.Operator == BinaryOperatorType.Equality);
-					return;
-				}
-			}
-
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-				var rr = ctx.Resolve(invocationExpression) as InvocationResolveResult;
-				if (rr == null || rr.Member.Name != "Equals" || !rr.Member.ReturnType.IsKnownType(KnownTypeCode.Boolean))
-					return;
-
-				if (rr.Member.IsStatic) {
-					if (rr.Member.Parameters.Count != 2)
-						return;
-					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.FirstOrDefault(), invocationExpression.Arguments.Last())) {
-						if ((invocationExpression.Parent is UnaryOperatorExpression) && ((UnaryOperatorExpression)invocationExpression.Parent).Operator == UnaryOperatorType.Not) {
-							AddIssue(invocationExpression.Parent, invocationExpression.Parent, false);
-						} else {
-							AddIssue(invocationExpression, invocationExpression, true);
-						}
-					}
-				} else {
-					if (rr.Member.Parameters.Count != 1)
-						return;
-					var target = invocationExpression.Target as MemberReferenceExpression;
-					if (target == null)
-						return;
-					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.FirstOrDefault(), target.Target)) {
-						if ((invocationExpression.Parent is UnaryOperatorExpression) && ((UnaryOperatorExpression)invocationExpression.Parent).Operator == UnaryOperatorType.Not) {
-							AddIssue(invocationExpression.Parent, invocationExpression.Parent, false);
-						} else {
-							AddIssue(invocationExpression, invocationExpression, true);
-						}
-					}
-				}
-			}
+//			void AddIssue(AstNode nodeToReplace, AstNode highlightNode, bool replaceWithTrue)
+//			{
+//				AddIssue(new CodeIssue(
+//					highlightNode, 
+//					ctx.TranslateString(""), 
+//					replaceWithTrue ? ctx.TranslateString() : ctx.TranslateString(), 
+//					script =>  {
+//						script.Replace(nodeToReplace, new PrimitiveExpression(replaceWithTrue));
+//					}
+//				));
+//			}
+//
+//
+//			readonly BinaryOperatorExpression pattern = 
+//				new BinaryOperatorExpression(
+//					PatternHelper.OptionalParentheses(new AnyNode("expression")), 
+//					BinaryOperatorType.Any, 
+//					PatternHelper.OptionalParentheses(new Backreference("expression"))
+//				);
+//
+//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+//			{
+//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+//
+//				if (binaryOperatorExpression.Operator != BinaryOperatorType.Equality &&
+//				    binaryOperatorExpression.Operator != BinaryOperatorType.InEquality &&
+//				    binaryOperatorExpression.Operator != BinaryOperatorType.GreaterThan &&
+//				    binaryOperatorExpression.Operator != BinaryOperatorType.GreaterThanOrEqual &&
+//				    binaryOperatorExpression.Operator != BinaryOperatorType.LessThan &&
+//				    binaryOperatorExpression.Operator != BinaryOperatorType.LessThanOrEqual) {
+//					return;
+//				}
+//
+//				var match = pattern.Match(binaryOperatorExpression);
+//				if (match.Success) {
+//					AddIssue(binaryOperatorExpression, binaryOperatorExpression.OperatorToken, binaryOperatorExpression.Operator == BinaryOperatorType.Equality);
+//					return;
+//				}
+//			}
+//
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//				var rr = ctx.Resolve(invocationExpression) as InvocationResolveResult;
+//				if (rr == null || rr.Member.Name != "Equals" || !rr.Member.ReturnType.IsKnownType(KnownTypeCode.Boolean))
+//					return;
+//
+//				if (rr.Member.IsStatic) {
+//					if (rr.Member.Parameters.Count != 2)
+//						return;
+//					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.FirstOrDefault(), invocationExpression.Arguments.Last())) {
+//						if ((invocationExpression.Parent is UnaryOperatorExpression) && ((UnaryOperatorExpression)invocationExpression.Parent).Operator == UnaryOperatorType.Not) {
+//							AddIssue(invocationExpression.Parent, invocationExpression.Parent, false);
+//						} else {
+//							AddIssue(invocationExpression, invocationExpression, true);
+//						}
+//					}
+//				} else {
+//					if (rr.Member.Parameters.Count != 1)
+//						return;
+//					var target = invocationExpression.Target as MemberReferenceExpression;
+//					if (target == null)
+//						return;
+//					if (CSharpUtil.AreConditionsEqual(invocationExpression.Arguments.FirstOrDefault(), target.Target)) {
+//						if ((invocationExpression.Parent is UnaryOperatorExpression) && ((UnaryOperatorExpression)invocationExpression.Parent).Operator == UnaryOperatorType.Not) {
+//							AddIssue(invocationExpression.Parent, invocationExpression.Parent, false);
+//						} else {
+//							AddIssue(invocationExpression, invocationExpression, true);
+//						}
+//					}
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(EqualExpressionComparisonIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class EqualExpressionComparisonFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return EqualExpressionComparisonIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

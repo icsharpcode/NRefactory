@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Simplify conditional expression",
-	                  Description = "Conditional expression can be simplified",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "SimplifyConditionalTernaryExpression")]
+	[ExportDiagnosticAnalyzer("Simplify conditional expression", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Conditional expression can be simplified", AnalysisDisableKeyword = "SimplifyConditionalTernaryExpression")]
 	public class SimplifyConditionalTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "SimplifyConditionalTernaryExpressionIssue";
+		const string Description            = "Simplify conditional expression";
+		const string MessageFormat          = "Simplify conditional expression";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,96 +72,96 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static bool? GetBool(Expression trueExpression)
-			{
-				var pExpr = trueExpression as PrimitiveExpression;
-				if (pExpr == null || !(pExpr.Value is bool))
-					return null;
-				return (bool)pExpr.Value;
-			}
-
-			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
-			{
-				base.VisitConditionalExpression(conditionalExpression);
-
-				bool? trueBranch = GetBool(CSharpUtil.GetInnerMostExpression(conditionalExpression.TrueExpression));
-				bool? falseBranch = GetBool(CSharpUtil.GetInnerMostExpression(conditionalExpression.FalseExpression));
-
-				if (trueBranch == falseBranch || 
-				    trueBranch == true && falseBranch == false) // Handled by RedundantTernaryExpressionIssue
-					return;
-
-				AddIssue(new CodeIssue(
-					conditionalExpression.QuestionMarkToken.StartLocation,
-					conditionalExpression.FalseExpression.EndLocation,
-					ctx.TranslateString("Simplify conditional expression"),
-					ctx.TranslateString("Simplify conditional expression"),
-					script => {
-						if (trueBranch == false && falseBranch == true) {
-							script.Replace(conditionalExpression, CSharpUtil.InvertCondition(conditionalExpression.Condition));
-							return;
-						}
-						if (trueBranch == true) {
-							script.Replace(
-								conditionalExpression,
-								new BinaryOperatorExpression(
-									conditionalExpression.Condition.Clone(), 
-									BinaryOperatorType.ConditionalOr,
-									conditionalExpression.FalseExpression.Clone()
-								)
-							);
-							return;
-						}
-
-						if (trueBranch == false) {
-							script.Replace(
-								conditionalExpression,
-								new BinaryOperatorExpression(
-									CSharpUtil.InvertCondition(conditionalExpression.Condition), 
-									BinaryOperatorType.ConditionalAnd,
-									conditionalExpression.FalseExpression.Clone()
-								)
-							);
-							return;
-						}
-						
-						if (falseBranch == true) {
-							script.Replace(
-								conditionalExpression,
-								new BinaryOperatorExpression(
-									CSharpUtil.InvertCondition(conditionalExpression.Condition), 
-									BinaryOperatorType.ConditionalOr,
-									conditionalExpression.TrueExpression.Clone()
-								)
-							);
-							return;
-						}
-
-						if (falseBranch == false) {
-							script.Replace(
-								conditionalExpression,
-								new BinaryOperatorExpression(
-									conditionalExpression.Condition.Clone(), 
-									BinaryOperatorType.ConditionalAnd,
-									conditionalExpression.TrueExpression.Clone()
-								)
-							);
-							return;
-						}
-
-						// Should never happen
-					}
-				));
-			}
+//			static bool? GetBool(Expression trueExpression)
+//			{
+//				var pExpr = trueExpression as PrimitiveExpression;
+//				if (pExpr == null || !(pExpr.Value is bool))
+//					return null;
+//				return (bool)pExpr.Value;
+//			}
+//
+//			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
+//			{
+//				base.VisitConditionalExpression(conditionalExpression);
+//
+//				bool? trueBranch = GetBool(CSharpUtil.GetInnerMostExpression(conditionalExpression.TrueExpression));
+//				bool? falseBranch = GetBool(CSharpUtil.GetInnerMostExpression(conditionalExpression.FalseExpression));
+//
+//				if (trueBranch == falseBranch || 
+//				    trueBranch == true && falseBranch == false) // Handled by RedundantTernaryExpressionIssue
+//					return;
+//
+//				AddIssue(new CodeIssue(
+//					conditionalExpression.QuestionMarkToken.StartLocation,
+//					conditionalExpression.FalseExpression.EndLocation,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString("Simplify conditional expression"),
+//					script => {
+//						if (trueBranch == false && falseBranch == true) {
+//							script.Replace(conditionalExpression, CSharpUtil.InvertCondition(conditionalExpression.Condition));
+//							return;
+//						}
+//						if (trueBranch == true) {
+//							script.Replace(
+//								conditionalExpression,
+//								new BinaryOperatorExpression(
+//									conditionalExpression.Condition.Clone(), 
+//									BinaryOperatorType.ConditionalOr,
+//									conditionalExpression.FalseExpression.Clone()
+//								)
+//							);
+//							return;
+//						}
+//
+//						if (trueBranch == false) {
+//							script.Replace(
+//								conditionalExpression,
+//								new BinaryOperatorExpression(
+//									CSharpUtil.InvertCondition(conditionalExpression.Condition), 
+//									BinaryOperatorType.ConditionalAnd,
+//									conditionalExpression.FalseExpression.Clone()
+//								)
+//							);
+//							return;
+//						}
+//						
+//						if (falseBranch == true) {
+//							script.Replace(
+//								conditionalExpression,
+//								new BinaryOperatorExpression(
+//									CSharpUtil.InvertCondition(conditionalExpression.Condition), 
+//									BinaryOperatorType.ConditionalOr,
+//									conditionalExpression.TrueExpression.Clone()
+//								)
+//							);
+//							return;
+//						}
+//
+//						if (falseBranch == false) {
+//							script.Replace(
+//								conditionalExpression,
+//								new BinaryOperatorExpression(
+//									conditionalExpression.Condition.Clone(), 
+//									BinaryOperatorType.ConditionalAnd,
+//									conditionalExpression.TrueExpression.Clone()
+//								)
+//							);
+//							return;
+//						}
+//
+//						// Should never happen
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(SimplifyConditionalTernaryExpressionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class SimplifyConditionalTernaryExpressionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return SimplifyConditionalTernaryExpressionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

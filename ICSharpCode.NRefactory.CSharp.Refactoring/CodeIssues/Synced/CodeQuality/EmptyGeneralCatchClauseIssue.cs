@@ -42,22 +42,17 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
 	/// <summary>
 	/// A catch clause that catches System.Exception and has an empty body
 	/// </summary>
-	[IssueDescription("Empty general catch clause",
-	                  Description= "A catch clause that catches System.Exception and has an empty body",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Empty general catch clause", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "A catch clause that catches System.Exception and has an empty body", AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
 	public class EmptyGeneralCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "EmptyGeneralCatchClauseIssue";
+		const string Description            = "Empty general catch clause suppresses any error";
+		const string MessageFormat          = "Empty general catch clause suppresses any error";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -80,34 +75,34 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitCatchClause(CatchClause catchClause)
-			{
-				base.VisitCatchClause(catchClause);
-
-				AstType type = catchClause.Type;
-				if (!type.IsNull) {
-					var resolvedType = ctx.Resolve(type);
-
-					if (resolvedType.IsError ||
-						!resolvedType.Type.Namespace.Equals("System") || !resolvedType.Type.Name.Equals("Exception"))
-						return;
-				}
-
-				var body = catchClause.Body;
-				if (body.Statements.Any())
-					return;
-
-				AddIssue(new CodeIssue(catchClause.CatchToken, ctx.TranslateString("Empty general catch clause suppresses any error")));
-			}
+//			public override void VisitCatchClause(CatchClause catchClause)
+//			{
+//				base.VisitCatchClause(catchClause);
+//
+//				AstType type = catchClause.Type;
+//				if (!type.IsNull) {
+//					var resolvedType = ctx.Resolve(type);
+//
+//					if (resolvedType.IsError ||
+//						!resolvedType.Type.Namespace.Equals("System") || !resolvedType.Type.Name.Equals("Exception"))
+//						return;
+//				}
+//
+//				var body = catchClause.Body;
+//				if (body.Statements.Any())
+//					return;
+//
+//				AddIssue(new CodeIssue(catchClause.CatchToken, ctx.TranslateString("")));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(EmptyGeneralCatchClauseIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class EmptyGeneralCatchClauseFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return EmptyGeneralCatchClauseIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

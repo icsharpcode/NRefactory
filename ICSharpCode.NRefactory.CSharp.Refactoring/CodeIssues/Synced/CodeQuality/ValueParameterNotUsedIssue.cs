@@ -44,21 +44,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'value' parameter not used",
-	       Description = "Warns about property or indexer setters and event adders or removers that do not use the value parameter.",
-		Category = IssueCategories.CodeQualityIssues,
-	       Severity = Severity.Warning,
-           AnalysisDisableKeyword = "ValueParameterNotUsed")]
+	[ExportDiagnosticAnalyzer("'value' parameter not used", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns about property or indexer setters and event adders or removers that do not use the value parameter.", AnalysisDisableKeyword = "ValueParameterNotUsed")]
 	public class ValueParameterNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		internal const string DiagnosticId = "ValueParameterNotUsedIssue";
+		const string Description = "";
+		const string MessageFormat = "";
+		const string Category = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -66,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -74,70 +69,70 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<ValueParameterNotUsedIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
+				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-            public override void VisitAccessor(Accessor accessor)
-		    {
-		        if (accessor.Role == PropertyDeclaration.SetterRole) {
-                    FindIssuesInAccessor(accessor, ctx.TranslateString("The setter does not use the 'value' parameter"));
-                } else if (accessor.Role == CustomEventDeclaration.AddAccessorRole) {
-                    FindIssuesInAccessor(accessor, ctx.TranslateString("The add accessor does not use the 'value' parameter"));
-                } else if (accessor.Role == CustomEventDeclaration.RemoveAccessorRole) {
-                    FindIssuesInAccessor(accessor, ctx.TranslateString("The remove accessor does not use the 'value' parameter"));
-                }
-		    }
-
-		    public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-		    {
-                if (eventDeclaration.AddAccessor.Body.Statements.Count == 0 && eventDeclaration.RemoveAccessor.Body.Statements.Count == 0)
-                    return;
-		        
-		        base.VisitCustomEventDeclaration(eventDeclaration);
-		    }
-
-		    void FindIssuesInAccessor(Accessor accessor, string accessorName)
-			{
-				var body = accessor.Body;
-				if (!IsEligible(body))
-					return;
-
-				var localResolveResult = ctx.GetResolverStateBefore(body)
-					.LookupSimpleNameOrTypeName("value", new List<IType>(), NameLookupMode.Expression) as LocalResolveResult; 
-				if (localResolveResult == null)
-					return;
-
-				bool referenceFound = false;
-				foreach (var result in ctx.FindReferences (body, localResolveResult.Variable)) {
-					var node = result.Node;
-					if (node.StartLocation >= body.StartLocation && node.EndLocation <= body.EndLocation) {
-						referenceFound = true;
-						break;
-					}
-				}
-
-				if(!referenceFound)
-					AddIssue(new CodeIssue(accessor.Keyword, accessorName));
-			}
-
-			static bool IsEligible(BlockStatement body)
-			{
-				if (body == null || body.IsNull)
-					return false;
-				if (body.Statements.FirstOrNullObject() is ThrowStatement)
-					return false;
-				return true;
-			}
+//
+//			public override void VisitAccessor(Accessor accessor)
+//			{
+//				if (accessor.Role == PropertyDeclaration.SetterRole) {
+//					FindIssuesInAccessor(accessor, ctx.TranslateString("The setter does not use the 'value' parameter"));
+//				} else if (accessor.Role == CustomEventDeclaration.AddAccessorRole) {
+//					FindIssuesInAccessor(accessor, ctx.TranslateString("The add accessor does not use the 'value' parameter"));
+//				} else if (accessor.Role == CustomEventDeclaration.RemoveAccessorRole) {
+//					FindIssuesInAccessor(accessor, ctx.TranslateString("The remove accessor does not use the 'value' parameter"));
+//				}
+//			}
+//
+//			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
+//			{
+//				if (eventDeclaration.AddAccessor.Body.Statements.Count == 0 && eventDeclaration.RemoveAccessor.Body.Statements.Count == 0)
+//					return;
+//		        
+//				base.VisitCustomEventDeclaration(eventDeclaration);
+//			}
+//
+//			void FindIssuesInAccessor(Accessor accessor, string accessorName)
+//			{
+//				var body = accessor.Body;
+//				if (!IsEligible(body))
+//					return;
+//
+//				var localResolveResult = ctx.GetResolverStateBefore(body)
+//					.LookupSimpleNameOrTypeName("value", new List<IType>(), NameLookupMode.Expression) as LocalResolveResult; 
+//				if (localResolveResult == null)
+//					return;
+//
+//				bool referenceFound = false;
+//				foreach (var result in ctx.FindReferences (body, localResolveResult.Variable)) {
+//					var node = result.Node;
+//					if (node.StartLocation >= body.StartLocation && node.EndLocation <= body.EndLocation) {
+//						referenceFound = true;
+//						break;
+//					}
+//				}
+//
+//				if (!referenceFound)
+//					AddIssue(new CodeIssue(accessor.Keyword, accessorName));
+//			}
+//
+//			static bool IsEligible(BlockStatement body)
+//			{
+//				if (body == null || body.IsNull)
+//					return false;
+//				if (body.Statements.FirstOrNullObject() is ThrowStatement)
+//					return false;
+//				return true;
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ValueParameterNotUsedIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ValueParameterNotUsedFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ValueParameterNotUsedIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

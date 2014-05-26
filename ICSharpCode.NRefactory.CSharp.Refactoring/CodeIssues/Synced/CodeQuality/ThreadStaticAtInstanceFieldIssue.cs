@@ -43,16 +43,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-    [IssueDescription("[ThreadStatic] doesn't work with instance fields",
-                      Description = "[ThreadStatic] doesn't work with instance fields",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-                      AnalysisDisableKeyword = "ThreadStaticAtInstanceField")]
+	[ExportDiagnosticAnalyzer("[ThreadStatic] doesn't work with instance fields", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "[ThreadStatic] doesn't work with instance fields", AnalysisDisableKeyword = "ThreadStaticAtInstanceField")]
 	public class ThreadStaticAtInstanceFieldIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "ThreadStaticAtInstanceFieldIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -72,73 +67,73 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<ThreadStaticAtInstanceFieldIssue>
 		{
-			IType threadStaticAttribute;
+			//IType threadStaticAttribute;
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
-				threadStaticAttribute = ctx.Compilation.FindType(typeof(ThreadStaticAttribute));
+				//threadStaticAttribute = ctx.Compilation.FindType(typeof(ThreadStaticAttribute));
 			}
 
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-			}
-			
-			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-			{
-                if (fieldDeclaration.HasModifier(Modifiers.Static))
-                    return;
-
-                foreach (var attributeSection in fieldDeclaration.Attributes) {
-					int attributeCount = attributeSection.Attributes.Count;
-					foreach (var attribute in attributeSection.Attributes) {
-						var resolvedAttribute = ctx.Resolve(attribute.Type) as TypeResolveResult;
-						if (resolvedAttribute == null)
-							continue;
-						if (threadStaticAttribute.Equals(resolvedAttribute.Type)) {
-							string title = ctx.TranslateString("ThreadStatic does nothing on instance fields");
-							if (attributeCount == 1)
-								AddIssue(new CodeIssue(attributeSection, title, GetActions(attribute, attributeSection, fieldDeclaration)));
-							else
-								AddIssue(new CodeIssue(attribute, title, GetActions(attribute, attributeSection, fieldDeclaration)));
-						}
-					}
-				}
-			}
-
-			IEnumerable<CodeAction> GetActions(Attribute attribute, AttributeSection attributeSection, FieldDeclaration fieldDeclaration)
-			{
-				string removeAttributeMessage = ctx.TranslateString("Remove attribute");
-				yield return new CodeAction(removeAttributeMessage, script => {
-					if (attributeSection.Attributes.Count > 1) {
-						var newSection = new AttributeSection();
-						newSection.AttributeTarget = attributeSection.AttributeTarget;
-						foreach (var attr in attributeSection.Attributes) {
-							if (attr != attribute)
-								newSection.Attributes.Add((Attribute)attr.Clone());
-						}
-						script.Replace(attributeSection, newSection);
-					} else {
-						script.Remove(attributeSection);
-					}
-				}, attribute);
-
-				var makeStaticMessage = ctx.TranslateString("Make the field static");
-				yield return new CodeAction(makeStaticMessage, script => {
-					var newDeclaration = (FieldDeclaration)fieldDeclaration.Clone();
-					newDeclaration.Modifiers |= Modifiers.Static;
-					script.Replace(fieldDeclaration, newDeclaration);
-				}, fieldDeclaration.NameToken);
-			}
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//			}
+//			
+//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+//			{
+//                if (fieldDeclaration.HasModifier(Modifiers.Static))
+//                    return;
+//
+//                foreach (var attributeSection in fieldDeclaration.Attributes) {
+//					int attributeCount = attributeSection.Attributes.Count;
+//					foreach (var attribute in attributeSection.Attributes) {
+//						var resolvedAttribute = ctx.Resolve(attribute.Type) as TypeResolveResult;
+//						if (resolvedAttribute == null)
+//							continue;
+//						if (threadStaticAttribute.Equals(resolvedAttribute.Type)) {
+//							string title = ctx.TranslateString("ThreadStatic does nothing on instance fields");
+//							if (attributeCount == 1)
+//								AddIssue(new CodeIssue(attributeSection, title, GetActions(attribute, attributeSection, fieldDeclaration)));
+//							else
+//								AddIssue(new CodeIssue(attribute, title, GetActions(attribute, attributeSection, fieldDeclaration)));
+//						}
+//					}
+//				}
+//			}
+//
+//			IEnumerable<CodeAction> GetActions(Attribute attribute, AttributeSection attributeSection, FieldDeclaration fieldDeclaration)
+//			{
+//				string removeAttributeMessage = ctx.TranslateString("Remove attribute");
+//				yield return new CodeAction(removeAttributeMessage, script => {
+//					if (attributeSection.Attributes.Count > 1) {
+//						var newSection = new AttributeSection();
+//						newSection.AttributeTarget = attributeSection.AttributeTarget;
+//						foreach (var attr in attributeSection.Attributes) {
+//							if (attr != attribute)
+//								newSection.Attributes.Add((Attribute)attr.Clone());
+//						}
+//						script.Replace(attributeSection, newSection);
+//					} else {
+//						script.Remove(attributeSection);
+//					}
+//				}, attribute);
+//
+//				var makeStaticMessage = ctx.TranslateString("Make the field static");
+//				yield return new CodeAction(makeStaticMessage, script => {
+//					var newDeclaration = (FieldDeclaration)fieldDeclaration.Clone();
+//					newDeclaration.Modifiers |= Modifiers.Static;
+//					script.Replace(fieldDeclaration, newDeclaration);
+//				}, fieldDeclaration.NameToken);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ThreadStaticAtInstanceFieldIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ThreadStaticAtInstanceFieldFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ThreadStaticAtInstanceFieldIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

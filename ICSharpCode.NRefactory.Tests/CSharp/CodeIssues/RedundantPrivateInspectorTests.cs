@@ -37,20 +37,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			var input = @"class Foo
+			Test<RedundantPrivateIssue>(@"class Foo
 {
 	static private int foo;
 	private void Bar (string str)
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantPrivateIssue (), input, out context);
-			Assert.AreEqual (2, issues.Count);
-
-			
-			CheckFix (context, issues, @"class Foo
+}", 2, @"class Foo
 {
 	static int foo;
 	void Bar (string str)

@@ -43,20 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Missing interface members",
-		Description = "Searches for missing interface implementations",
-		Category = IssueCategories.CompilerErrors,
-		Severity = Severity.Error)]
+	[ExportDiagnosticAnalyzer("Missing interface members", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Searches for missing interface implementations")]
 	public class MissingInterfaceMemberImplementationIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "MissingInterfaceMemberImplementationIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.CompilerErrors;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -76,35 +72,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				if (typeDeclaration.ClassType == ClassType.Interface || typeDeclaration.ClassType == ClassType.Enum)
-					return;
-				base.VisitTypeDeclaration(typeDeclaration);
-				var rr = ctx.Resolve(typeDeclaration);
-				if (rr.IsError)
-					return;
-				foreach (var baseType in typeDeclaration.BaseTypes) {
-					var bt = ctx.Resolve(baseType);
-					if (bt.IsError || bt.Type.Kind != TypeKind.Interface)
-						continue;
-					bool interfaceMissing;
-					var toImplement = ImplementInterfaceAction.CollectMembersToImplement(rr.Type.GetDefinition(), bt.Type, false, out interfaceMissing);
-					if (toImplement.Count == 0)
-						continue;
-
-					AddIssue(new CodeIssue(baseType, ctx.TranslateString("Missing interface member implementations")) { ActionProvider = { typeof(ImplementInterfaceAction), typeof(ImplementInterfaceExplicitAction)} });
-				}
-			}
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				if (typeDeclaration.ClassType == ClassType.Interface || typeDeclaration.ClassType == ClassType.Enum)
+//					return;
+//				base.VisitTypeDeclaration(typeDeclaration);
+//				var rr = ctx.Resolve(typeDeclaration);
+//				if (rr.IsError)
+//					return;
+//				foreach (var baseType in typeDeclaration.BaseTypes) {
+//					var bt = ctx.Resolve(baseType);
+//					if (bt.IsError || bt.Type.Kind != TypeKind.Interface)
+//						continue;
+//					bool interfaceMissing;
+//					var toImplement = ImplementInterfaceAction.CollectMembersToImplement(rr.Type.GetDefinition(), bt.Type, false, out interfaceMissing);
+//					if (toImplement.Count == 0)
+//						continue;
+//
+//					AddIssue(new CodeIssue(baseType, ctx.TranslateString("Missing interface member implementations")) { ActionProvider = { typeof(ImplementInterfaceAction), typeof(ImplementInterfaceExplicitAction)} });
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(MissingInterfaceMemberImplementationIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class MissingInterfaceMemberImplementationFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return MissingInterfaceMemberImplementationIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

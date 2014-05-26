@@ -83,7 +83,7 @@ class TestClass
 		[Test]
 		public void TestGotoUnreachableBlock ()
 		{
-			var input = @"
+			Test<UnreachableCodeIssue> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -96,13 +96,7 @@ class TestClass
 			x = 3;
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new UnreachableCodeIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			var issue = issues [0];
-			Assert.AreEqual(9, issue.Start.Line);
-			Assert.AreEqual(9, issue.End.Line);
+}", 1);
 		}
 
 		[Test]

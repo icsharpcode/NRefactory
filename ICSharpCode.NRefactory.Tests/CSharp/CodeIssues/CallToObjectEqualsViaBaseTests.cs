@@ -37,19 +37,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void SimpleCase()
 		{
-			var input = @"
+			Test<CallToObjectEqualsViaBaseIssue>(@"
 class Foo
 {
 	Foo()
 	{
 		bool b = base.Equals (""blah"");
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new CallToObjectEqualsViaBaseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-			CheckFix(context, issues, @"
+}", @"
 class Foo
 {
 	Foo()
@@ -62,7 +57,7 @@ class Foo
 		[Test]
 		public void NonObjectBase()
 		{
-			var input = @"
+			Test<CallToObjectEqualsViaBaseIssue>(@"
 class Foo
 {
 }
@@ -72,12 +67,7 @@ class Bar : Foo
 	{
 		bool b = base.Equals (""blah"");
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new CallToObjectEqualsViaBaseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			CheckFix(context, issues, @"
+}", @"
 class Foo
 {
 }
@@ -93,7 +83,7 @@ class Bar : Foo
 		[Test]
 		public void IgnoresCallsToOtherObjects()
 		{
-			var input = @"
+			TestWrongContext<CallToObjectEqualsViaBaseIssue>(@"
 class Foo
 {
 }
@@ -105,10 +95,7 @@ class Bar : Foo
 		var foo2 = new Foo();
 		bool b = foo1.Equals(foo2);
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new CallToObjectEqualsViaBaseIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 	}
 }

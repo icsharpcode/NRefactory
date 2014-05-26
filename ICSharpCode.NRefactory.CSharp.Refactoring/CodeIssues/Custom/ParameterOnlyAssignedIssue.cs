@@ -43,15 +43,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Parameter is only assigned",
-					   Description = "Parameter is assigned but its value is never used.",
-					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning)]
+	[ExportDiagnosticAnalyzer("Parameter is only assigned", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Parameter is assigned but its value is never used.")]
 	public class ParameterOnlyAssignedIssue : VariableOnlyAssignedIssue
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "ParameterOnlyAssignedIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -76,31 +72,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
-			{
-				base.VisitParameterDeclaration(parameterDeclaration);
-
-				var resolveResult = ctx.Resolve(parameterDeclaration) as LocalResolveResult;
-				if (resolveResult == null)
-					return;
-
-				var parameterModifier = parameterDeclaration.ParameterModifier;
-				if (parameterModifier == ParameterModifier.Out || parameterModifier == ParameterModifier.Ref ||
-					!TestOnlyAssigned(ctx, parameterDeclaration.Parent, resolveResult.Variable)) {
-					return;
-				}
-				AddIssue(new CodeIssue(parameterDeclaration.NameToken, 
-					ctx.TranslateString("Parameter is assigned but its value is never used")));
-			}
+//			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
+//			{
+//				base.VisitParameterDeclaration(parameterDeclaration);
+//
+//				var resolveResult = ctx.Resolve(parameterDeclaration) as LocalResolveResult;
+//				if (resolveResult == null)
+//					return;
+//
+//				var parameterModifier = parameterDeclaration.ParameterModifier;
+//				if (parameterModifier == ParameterModifier.Out || parameterModifier == ParameterModifier.Ref ||
+//					!TestOnlyAssigned(ctx, parameterDeclaration.Parent, resolveResult.Variable)) {
+//					return;
+//				}
+//				AddIssue(new CodeIssue(parameterDeclaration.NameToken, 
+//					ctx.TranslateString("Parameter is assigned but its value is never used")));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ParameterOnlyAssignedIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ParameterOnlyAssignedFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ParameterOnlyAssignedIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

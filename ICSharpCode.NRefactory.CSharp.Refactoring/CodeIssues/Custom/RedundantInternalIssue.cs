@@ -44,23 +44,19 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
+	[ExportDiagnosticAnalyzer("Remove redundant 'internal' modifier", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Removes 'internal' modifiers that are not required.")]
 	/// <summary>
 	/// Finds redundant internal modifiers.
 	/// </summary>
-	[IssueDescription("Remove redundant 'internal' modifier",
-	       Description="Removes 'internal' modifiers that are not required.", 
-	       Category = IssueCategories.RedundanciesInCode,
-	       Severity = Severity.Hint)]
 	public class RedundantInternalIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "RedundantInternalIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -79,34 +75,34 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				foreach (var token_ in typeDeclaration.ModifierTokens) {
-					var token = token_;
-					if (token.Modifier == Modifiers.Internal) {
-						AddIssue(new CodeIssue(token, ctx.TranslateString("Keyword 'internal' is redundant.  This is the default modifier."), ctx.TranslateString("Remove 'internal' modifier"), script => {
-							int offset = script.GetCurrentOffset(token.StartLocation);
-							int endOffset = script.GetCurrentOffset(token.GetNextNode().StartLocation);
-							script.RemoveText(offset, endOffset - offset);
-						}) { IssueMarker = IssueMarker.GrayOut });
-					}
-				}
-			}
-
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-				// SKIP
-			}
+//
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				foreach (var token_ in typeDeclaration.ModifierTokens) {
+//					var token = token_;
+//					if (token.Modifier == Modifiers.Internal) {
+//						AddIssue(new CodeIssue(token, ctx.TranslateString("Keyword 'internal' is redundant.  This is the default modifier."), ctx.TranslateString("Remove 'internal' modifier"), script => {
+//							int offset = script.GetCurrentOffset(token.StartLocation);
+//							int endOffset = script.GetCurrentOffset(token.GetNextNode().StartLocation);
+//							script.RemoveText(offset, endOffset - offset);
+//						}) { IssueMarker = IssueMarker.GrayOut });
+//					}
+//				}
+//			}
+//
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//				// SKIP
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(RedundantInternalIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RedundantInternalFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return RedundantInternalIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

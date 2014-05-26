@@ -37,31 +37,25 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"
+			Test<PublicConstructorInAbstractClassIssue>(@"
 abstract class TestClass
 {
 	public TestClass ()
 	{
 	}
-}";
-			var output = @"
+}", @"
 abstract class TestClass
 {
 	protected TestClass ()
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new PublicConstructorInAbstractClassIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			CheckFix(context, issues, output);
+}");
 		}
 		
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"
+			TestWrongContext<PublicConstructorInAbstractClassIssue>(@"
 abstract class TestClass
 {
 	static TestClass ()
@@ -71,17 +65,13 @@ abstract class TestClass
 	{
 		var i = 1;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new PublicConstructorInAbstractClassIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void TestInspectorCase3()
 		{
-			var input = @"
+			Test<PublicConstructorInAbstractClassIssue>(@"
 abstract class TestClass
 {
 	public TestClass ()
@@ -96,8 +86,7 @@ abstract class TestClass
 	{
 		Console.WriteLine(str);
 	}
-}";
-			var output = @"
+}", @"
 abstract class TestClass
 {
 	protected TestClass ()
@@ -112,18 +101,13 @@ abstract class TestClass
 	{
 		Console.WriteLine(str);
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new PublicConstructorInAbstractClassIssue(), input, out context);
-			Assert.AreEqual(2, issues.Count);
-			
-			CheckFix(context, issues, output);
+}");
 		}
 
 		[Test]
 		public void TestResharperDisable()
 		{
-			var input = @"
+			TestWrongContext<PublicConstructorInAbstractClassIssue>(@"
 //Resharper disable PublicConstructorInAbstractClass
 abstract class TestClass
 {
@@ -132,11 +116,7 @@ abstract class TestClass
 	}
 //Resharper restore PublicConstructorInAbstractClass
 }
-";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new PublicConstructorInAbstractClassIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 	}
 }

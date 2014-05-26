@@ -44,21 +44,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Class can be converted to static",
-	                  Description = "If all fields, properties and methods members are static, the class can be made static.",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint,
-	                  AnalysisDisableKeyword = "ConvertToStaticType")]
+	[ExportDiagnosticAnalyzer("Class can be converted to static", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "If all fields, properties and methods members are static, the class can be made static.", AnalysisDisableKeyword = "ConvertToStaticType")]
 	public class ConvertToStaticTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertToStaticTypeIssue";
+		const string Description            = "This class is recommended to be defined as static";
+		const string MessageFormat          = "Make class static";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -78,45 +73,45 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			static bool IsMainMethod(IMember f)
-			{
-				return 
-					f.SymbolKind == SymbolKind.Method &&
-					(f.ReturnType.IsKnownType(KnownTypeCode.Void) || f.ReturnType.IsKnownType(KnownTypeCode.Int32)) &&
-					f.IsStatic &&
-					f.Name == "Main";
-			}
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				base.VisitTypeDeclaration(typeDeclaration);
-
-				if (typeDeclaration == null || typeDeclaration.ClassType != ClassType.Class || typeDeclaration.HasModifier(Modifiers.Static))
-					return;
-				if (!typeDeclaration.Members.Any() || typeDeclaration.HasModifier(Modifiers.Abstract) || typeDeclaration.HasModifier(Modifiers.Partial))
-					return;
-				if (typeDeclaration.Members.Where(m => !(m is TypeDeclaration)).Any(f => !f.HasModifier(Modifiers.Static) && !f.HasModifier(Modifiers.Const)))
-					return;
-				var rr = ctx.Resolve(typeDeclaration);
-				if (rr.IsError || rr.Type.GetMembers().Any(IsMainMethod))
-					return;
-				AddIssue(new CodeIssue(
-					typeDeclaration.NameToken, 
-					ctx.TranslateString("This class is recommended to be defined as static"),
-					ctx.TranslateString("Make class static"),
-					s => s.ChangeModifier(typeDeclaration, (typeDeclaration.Modifiers & ~Modifiers.Sealed) | Modifiers.Static)
-				));
-			}
+//
+//			static bool IsMainMethod(IMember f)
+//			{
+//				return 
+//					f.SymbolKind == SymbolKind.Method &&
+//					(f.ReturnType.IsKnownType(KnownTypeCode.Void) || f.ReturnType.IsKnownType(KnownTypeCode.Int32)) &&
+//					f.IsStatic &&
+//					f.Name == "Main";
+//			}
+//
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				base.VisitTypeDeclaration(typeDeclaration);
+//
+//				if (typeDeclaration == null || typeDeclaration.ClassType != ClassType.Class || typeDeclaration.HasModifier(Modifiers.Static))
+//					return;
+//				if (!typeDeclaration.Members.Any() || typeDeclaration.HasModifier(Modifiers.Abstract) || typeDeclaration.HasModifier(Modifiers.Partial))
+//					return;
+//				if (typeDeclaration.Members.Where(m => !(m is TypeDeclaration)).Any(f => !f.HasModifier(Modifiers.Static) && !f.HasModifier(Modifiers.Const)))
+//					return;
+//				var rr = ctx.Resolve(typeDeclaration);
+//				if (rr.IsError || rr.Type.GetMembers().Any(IsMainMethod))
+//					return;
+//				AddIssue(new CodeIssue(
+//					typeDeclaration.NameToken, 
+//					ctx.TranslateString(""),
+//					ctx.TranslateString(""),
+//					s => s.ChangeModifier(typeDeclaration, (typeDeclaration.Modifiers & ~Modifiers.Sealed) | Modifiers.Static)
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertToStaticTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertToStaticTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertToStaticTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

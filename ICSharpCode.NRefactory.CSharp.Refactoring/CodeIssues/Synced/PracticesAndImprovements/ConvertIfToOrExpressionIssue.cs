@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'if' statement can be re-written as '||' expression",
-	                  Description = "Convert 'if' to '||' expression",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ConvertIfToOrExpression")]
+	[ExportDiagnosticAnalyzer("'if' statement can be re-written as '||' expression", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'if' to '||' expression", AnalysisDisableKeyword = "ConvertIfToOrExpression")]
 	public class ConvertIfToOrExpressionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertIfToOrExpressionIssue";
+		const string Description            = "Convert to '|=' expresssion";
+		const string MessageFormat          = "Replace with '||'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -70,13 +65,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
-		internal static bool CheckTarget(Expression target, Expression expr)
-		{
-			return !target.DescendantNodesAndSelf().Any(
-				n => (n is IdentifierExpression || n is MemberReferenceExpression) && 
-				expr.DescendantNodesAndSelf().Any(n2 => ((INode)n).IsMatch(n2))
-			);
-		}
+//		internal static bool CheckTarget(Expression target, Expression expr)
+//		{
+//			return !target.DescendantNodesAndSelf().Any(
+//				n => (n is IdentifierExpression || n is MemberReferenceExpression) && 
+//				expr.DescendantNodesAndSelf().Any(n2 => ((INode)n).IsMatch(n2))
+//			);
+//		}
 
 		class GatherVisitor : GatherVisitorBase<ConvertIfToOrExpressionIssue>
 		{
@@ -85,92 +80,92 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static readonly AstNode ifPattern = 
-				new IfElseStatement(
-					new AnyNode ("condition"),
-					PatternHelper.EmbeddedStatement (
-						new AssignmentExpression(
-							new AnyNode("target"),
-							new PrimitiveExpression (true)
-						)
-					)
-				);
-
-			static readonly AstNode varDelarationPattern = 
-				new VariableDeclarationStatement(new AnyNode("type"), Pattern.AnyString, new AnyNode("initializer"));
-
-			void AddTo(IfElseStatement ifElseStatement, VariableDeclarationStatement varDeclaration, Expression expr)
-			{
-			}
-
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
-
-				var match = ifPattern.Match(ifElseStatement);
-				if (match.Success) {
-					var varDeclaration = ifElseStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) as VariableDeclarationStatement;
-					var target = match.Get<Expression>("target").Single();
-					var match2 = varDelarationPattern.Match(varDeclaration);
-					if (match2.Success) {
-						if (varDeclaration == null || target == null)
-							return;
-						var initializer = varDeclaration.Variables.FirstOrDefault();
-						if (initializer == null || !(target is IdentifierExpression) || ((IdentifierExpression)target).Identifier != initializer.Name)
-							return;
-						var expr = match.Get<Expression>("condition").Single();
-						if (!CheckTarget(target, expr))
-							return;
-						AddIssue(new CodeIssue(
-							ifElseStatement.IfToken,
-							ctx.TranslateString("Convert to '||' expresssion"),
-							ctx.TranslateString("Replace with '||'"),
-							script => {
-								var variable = varDeclaration.Variables.First();
-								script.Replace(
-									varDeclaration, 
-									new VariableDeclarationStatement(
-									varDeclaration.Type.Clone(),
-									variable.Name,
-									new BinaryOperatorExpression(variable.Initializer.Clone(), BinaryOperatorType.ConditionalOr, expr.Clone()) 
-									)
-									);
-								script.Remove(ifElseStatement); 
-							}
-						) { IssueMarker = IssueMarker.DottedLine });
-						return;
-					} else {
-						var expr = match.Get<Expression>("condition").Single();
-						if (!CheckTarget(target, expr))
-							return;
-						AddIssue(new CodeIssue(
-							ifElseStatement.IfToken,
-							ctx.TranslateString("Convert to '|=' expresssion"),
-							ctx.TranslateString("Replace with '|='"),
-							script => {
-								script.Replace(
-									ifElseStatement, 
-									new ExpressionStatement(
-										new AssignmentExpression(
-											target.Clone(),
-											AssignmentOperatorType.BitwiseOr,
-											expr.Clone()) 
-										)
-									);
-							}
-						));
-					}
-				}
-			}
+//			static readonly AstNode ifPattern = 
+//				new IfElseStatement(
+//					new AnyNode ("condition"),
+//					PatternHelper.EmbeddedStatement (
+//						new AssignmentExpression(
+//							new AnyNode("target"),
+//							new PrimitiveExpression (true)
+//						)
+//					)
+//				);
+//
+//			static readonly AstNode varDelarationPattern = 
+//				new VariableDeclarationStatement(new AnyNode("type"), Pattern.AnyString, new AnyNode("initializer"));
+//
+//			void AddTo(IfElseStatement ifElseStatement, VariableDeclarationStatement varDeclaration, Expression expr)
+//			{
+//			}
+//
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//
+//				var match = ifPattern.Match(ifElseStatement);
+//				if (match.Success) {
+//					var varDeclaration = ifElseStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) as VariableDeclarationStatement;
+//					var target = match.Get<Expression>("target").Single();
+//					var match2 = varDelarationPattern.Match(varDeclaration);
+//					if (match2.Success) {
+//						if (varDeclaration == null || target == null)
+//							return;
+//						var initializer = varDeclaration.Variables.FirstOrDefault();
+//						if (initializer == null || !(target is IdentifierExpression) || ((IdentifierExpression)target).Identifier != initializer.Name)
+//							return;
+//						var expr = match.Get<Expression>("condition").Single();
+//						if (!CheckTarget(target, expr))
+//							return;
+//						AddIssue(new CodeIssue(
+//							ifElseStatement.IfToken,
+//							ctx.TranslateString("Convert to '||' expresssion"),
+//							ctx.TranslateString(""),
+//							script => {
+//								var variable = varDeclaration.Variables.First();
+//								script.Replace(
+//									varDeclaration, 
+//									new VariableDeclarationStatement(
+//									varDeclaration.Type.Clone(),
+//									variable.Name,
+//									new BinaryOperatorExpression(variable.Initializer.Clone(), BinaryOperatorType.ConditionalOr, expr.Clone()) 
+//									)
+//									);
+//								script.Remove(ifElseStatement); 
+//							}
+//						) { IssueMarker = IssueMarker.DottedLine });
+//						return;
+//					} else {
+//						var expr = match.Get<Expression>("condition").Single();
+//						if (!CheckTarget(target, expr))
+//							return;
+//						AddIssue(new CodeIssue(
+//							ifElseStatement.IfToken,
+//							ctx.TranslateString(""),
+//							ctx.TranslateString("Replace with '|='"),
+//							script => {
+//								script.Replace(
+//									ifElseStatement, 
+//									new ExpressionStatement(
+//										new AssignmentExpression(
+//											target.Clone(),
+//											AssignmentOperatorType.BitwiseOr,
+//											expr.Clone()) 
+//										)
+//									);
+//							}
+//						));
+//					}
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertIfToOrExpressionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertIfToOrExpressionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertIfToOrExpressionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

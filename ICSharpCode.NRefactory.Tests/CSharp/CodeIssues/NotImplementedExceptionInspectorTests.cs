@@ -37,17 +37,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			var input = @"class Foo
+			TestIssue<NotImplementedExceptionIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		throw new System.NotImplementedException ();
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new NotImplementedExceptionIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 	}
 }

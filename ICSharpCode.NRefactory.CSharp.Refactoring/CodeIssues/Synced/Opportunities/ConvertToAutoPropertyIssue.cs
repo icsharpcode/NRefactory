@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Convert property to auto property",
-		Description = "Convert property to auto property",
-		Category = IssueCategories.Opportunities,
-		Severity = Severity.Suggestion,
-		AnalysisDisableKeyword = "ConvertToAutoProperty")]
+	[ExportDiagnosticAnalyzer("Convert property to auto property", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert property to auto property", AnalysisDisableKeyword = "ConvertToAutoProperty")]
 	public class ConvertToAutoPropertyIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertToAutoPropertyIssue";
+		const string Description            = "Convert to auto property";
+		const string MessageFormat          = "Convert to auto property";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -72,63 +67,63 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<ConvertToAutoPropertyIssue>
 		{
-			readonly Stack<TypeDeclaration> typeStack = new Stack<TypeDeclaration>();
+			//readonly Stack<TypeDeclaration> typeStack = new Stack<TypeDeclaration>();
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-				// SKIP
-			}
-
-			bool IsValidField(IField field)
-			{
-				if (field == null || field.Attributes.Count > 0 || field.IsVolatile)
-					return false;
-				foreach (var m in typeStack.Peek().Members.OfType<FieldDeclaration>()) {
-					foreach (var i in m.Variables) {
-						if (i.StartLocation == field.BodyRegion.Begin) {
-							if (!i.Initializer.IsNull)
-								return false;
-							break;
-						}
-					}
-				}
-				return true;
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-			{
-				var field = RemoveBackingStoreAction.GetBackingField(ctx, propertyDeclaration);
-				if (!IsValidField(field))
-					return;
-				AddIssue(new CodeIssue(
-					propertyDeclaration.NameToken,
-					ctx.TranslateString("Convert to auto property")
-				) {
-					ActionProvider = { typeof (RemoveBackingStoreAction) }
-				}
-				);
-			}
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				typeStack.Push(typeDeclaration); 
-				base.VisitTypeDeclaration(typeDeclaration);
-				typeStack.Pop();
-			}
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//				// SKIP
+//			}
+//
+//			bool IsValidField(IField field)
+//			{
+//				if (field == null || field.Attributes.Count > 0 || field.IsVolatile)
+//					return false;
+//				foreach (var m in typeStack.Peek().Members.OfType<FieldDeclaration>()) {
+//					foreach (var i in m.Variables) {
+//						if (i.StartLocation == field.BodyRegion.Begin) {
+//							if (!i.Initializer.IsNull)
+//								return false;
+//							break;
+//						}
+//					}
+//				}
+//				return true;
+//			}
+//
+//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+//			{
+//				var field = RemoveBackingStoreAction.GetBackingField(ctx, propertyDeclaration);
+//				if (!IsValidField(field))
+//					return;
+//				AddIssue(new CodeIssue(
+//					propertyDeclaration.NameToken,
+//					ctx.TranslateString("Convert to auto property")
+//				) {
+//					ActionProvider = { typeof (RemoveBackingStoreAction) }
+//				}
+//				);
+//			}
+//
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				typeStack.Push(typeDeclaration); 
+//				base.VisitTypeDeclaration(typeDeclaration);
+//				typeStack.Pop();
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertToAutoPropertyIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertToAutoPropertyFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertToAutoPropertyIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

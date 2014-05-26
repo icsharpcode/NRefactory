@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Convert field to readonly",
-	                  Description = "Convert field to readonly",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "FieldCanBeMadeReadOnly.Local")]
+	[ExportDiagnosticAnalyzer("Convert field to readonly", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert field to readonly", AnalysisDisableKeyword = "FieldCanBeMadeReadOnly.Local")]
 	public class FieldCanBeMadeReadOnlyIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "FieldCanBeMadeReadOnlyIssue";
+		const string Description            = "Convert to readonly";
+		const string MessageFormat          = "To readonly";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -72,110 +67,110 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<FieldCanBeMadeReadOnlyIssue>
 		{
-			readonly Stack<List<Tuple<VariableInitializer, IVariable, VariableState>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable, VariableState>>>();
+			//			readonly Stack<List<Tuple<VariableInitializer, IVariable, VariableState>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable, VariableState>>>();
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			void Collect()
-			{
-				foreach (var varDecl in fieldStack.Peek()) {
-					if (varDecl.Item3 == VariableState.None)
-						continue;
-					AddIssue(new CodeIssue(
-						varDecl.Item1.NameToken,
-						ctx.TranslateString("Convert to readonly"),
-						ctx.TranslateString("To readonly"),
-						script => {
-						var field = (FieldDeclaration)varDecl.Item1.Parent;
-						script.ChangeModifier(field, field.Modifiers | Modifiers.Readonly);
-					}
-					));
-				}
-			}
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{	
-				var list = new List<Tuple<VariableInitializer, IVariable, VariableState>>();
-				fieldStack.Push(list);
-
-				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields (this, typeDeclaration)) {
-					if (fieldDeclaration.HasModifier(Modifiers.Const) || fieldDeclaration.HasModifier(Modifiers.Readonly))
-						continue;
-					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
-						continue;
-					if (fieldDeclaration.Variables.Count() > 1)
-						continue;
-					var variable = fieldDeclaration.Variables.First();
-					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
-					if (rr.Type.IsReferenceType == false) {
-						// Value type:
-						var def = rr.Type.GetDefinition();
-						if (def != null && def.KnownTypeCode == KnownTypeCode.None) {
-							// user-defined value type -- might be mutable
-							continue;
-						} else if (ctx.Resolve (variable.Initializer).IsCompileTimeConstant) {
-							// handled by ConvertToConstantIssue
-							continue;
-						}
-					}
-
-					var mr = ctx.Resolve(variable) as MemberResolveResult;
-					if (mr == null || !(mr.Member is IVariable))
-						continue;
-					list.Add(Tuple.Create(variable, (IVariable)mr.Member, VariableState.None)); 
-				}
-				base.VisitTypeDeclaration(typeDeclaration);
-				Collect();
-				fieldStack.Pop();
-			}
-
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-
-				foreach (var node in constructorDeclaration.Descendants) {
-					if (node is AnonymousMethodExpression || node is LambdaExpression) {
-						node.AcceptVisitor(this);
-					} else {
-						var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation (ctx);
-						var newVars = new List<Tuple<VariableInitializer, IVariable, VariableState>>();
-						node.AcceptVisitor(assignmentAnalysis); 
-						foreach (var variable in fieldStack.Pop()) {
-							var state = assignmentAnalysis.GetStatus(variable.Item2);
-							if (variable.Item3 > state)
-								state = variable.Item3;
-							newVars.Add(new Tuple<VariableInitializer, IVariable, VariableState> (variable.Item1, variable.Item2, state));
-						}
-						fieldStack.Push(newVars);
-
-					}
-				}
-			}
-
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-				var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation (ctx);
-				var newVars = new List<Tuple<VariableInitializer, IVariable, VariableState>>();
-				blockStatement.AcceptVisitor(assignmentAnalysis); 
-					foreach (var variable in fieldStack.Pop()) {
-						var state = assignmentAnalysis.GetStatus(variable.Item2);
-						if (state == VariableState.Changed)
-							continue;
-						newVars.Add(new Tuple<VariableInitializer, IVariable, VariableState> (variable.Item1, variable.Item2, state));
-					}
-					fieldStack.Push(newVars);
-			}
+//
+//			void Collect()
+//			{
+//				foreach (var varDecl in fieldStack.Peek()) {
+//					if (varDecl.Item3 == VariableState.None)
+//						continue;
+//					AddIssue(new CodeIssue(
+//						varDecl.Item1.NameToken,
+//						ctx.TranslateString(""),
+//						ctx.TranslateString(""),
+//						script => {
+//						var field = (FieldDeclaration)varDecl.Item1.Parent;
+//						script.ChangeModifier(field, field.Modifiers | Modifiers.Readonly);
+//					}
+//					));
+//				}
+//			}
+//
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{	
+//				var list = new List<Tuple<VariableInitializer, IVariable, VariableState>>();
+//				fieldStack.Push(list);
+//
+//				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields (this, typeDeclaration)) {
+//					if (fieldDeclaration.HasModifier(Modifiers.Const) || fieldDeclaration.HasModifier(Modifiers.Readonly))
+//						continue;
+//					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
+//						continue;
+//					if (fieldDeclaration.Variables.Count() > 1)
+//						continue;
+//					var variable = fieldDeclaration.Variables.First();
+//					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
+//					if (rr.Type.IsReferenceType == false) {
+//						// Value type:
+//						var def = rr.Type.GetDefinition();
+//						if (def != null && def.KnownTypeCode == KnownTypeCode.None) {
+//							// user-defined value type -- might be mutable
+//							continue;
+//						} else if (ctx.Resolve (variable.Initializer).IsCompileTimeConstant) {
+//							// handled by ConvertToConstantIssue
+//							continue;
+//						}
+//					}
+//
+//					var mr = ctx.Resolve(variable) as MemberResolveResult;
+//					if (mr == null || !(mr.Member is IVariable))
+//						continue;
+//					list.Add(Tuple.Create(variable, (IVariable)mr.Member, VariableState.None)); 
+//				}
+//				base.VisitTypeDeclaration(typeDeclaration);
+//				Collect();
+//				fieldStack.Pop();
+//			}
+//
+//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+//			{
+//
+//				foreach (var node in constructorDeclaration.Descendants) {
+//					if (node is AnonymousMethodExpression || node is LambdaExpression) {
+//						node.AcceptVisitor(this);
+//					} else {
+//						var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation (ctx);
+//						var newVars = new List<Tuple<VariableInitializer, IVariable, VariableState>>();
+//						node.AcceptVisitor(assignmentAnalysis); 
+//						foreach (var variable in fieldStack.Pop()) {
+//							var state = assignmentAnalysis.GetStatus(variable.Item2);
+//							if (variable.Item3 > state)
+//								state = variable.Item3;
+//							newVars.Add(new Tuple<VariableInitializer, IVariable, VariableState> (variable.Item1, variable.Item2, state));
+//						}
+//						fieldStack.Push(newVars);
+//
+//					}
+//				}
+//			}
+//
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//				var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation (ctx);
+//				var newVars = new List<Tuple<VariableInitializer, IVariable, VariableState>>();
+//				blockStatement.AcceptVisitor(assignmentAnalysis); 
+//					foreach (var variable in fieldStack.Pop()) {
+//						var state = assignmentAnalysis.GetStatus(variable.Item2);
+//						if (state == VariableState.Changed)
+//							continue;
+//						newVars.Add(new Tuple<VariableInitializer, IVariable, VariableState> (variable.Item1, variable.Item2, state));
+//					}
+//					fieldStack.Push(newVars);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(FieldCanBeMadeReadOnlyIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class FieldCanBeMadeReadOnlyFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return FieldCanBeMadeReadOnlyIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

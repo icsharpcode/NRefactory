@@ -66,18 +66,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestReturnTypeFix ()
 		{
-			var input = @"class Foo
+			Test<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
 {
 	int Bar (string str)
 	{
 		return;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -90,60 +85,48 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestProperty ()
 		{
-			var input = @"class Foo {
+			TestIssue<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo {
 	string Bar 
 	{
 		get {
 			return;
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 
 		
 		[Test]
 		public void TestPropertySetter ()
 		{
-			var input = @"class Foo {
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo {
 	string Bar 
 	{
 		set {
 			return;
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 
 		[Test]
 		public void TestIndexer ()
 		{
-			var input = @"class Foo {
+			TestIssue<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo {
 	string this [int idx]
 	{
 		get {
 			return;
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestAnonymousMethod ()
 		{
-			var input = @"
+			TestIssue<CS0126ReturnMustBeFollowedByAnyExpression>(@"
 using System;
 class Foo
 {
@@ -153,11 +136,7 @@ class Foo
 			return;
 		};
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 
 
@@ -190,7 +169,7 @@ class Foo
 		[Test]
 		public void TestAnonymousMethodReturningVoid ()
 		{
-			var input = @"using System;
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
 
 class Foo
 {
@@ -200,18 +179,14 @@ class Foo
 			return;
 		};
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 
 		[Test]
 		public void TestLambdaMethod ()
 		{
-			var input = @"class Foo
+			TestIssue<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
 {
 	void Bar (string str)
 	{
@@ -219,59 +194,43 @@ class Foo
 			return;
 		};
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestOperatorFalsePositives ()
 		{
-			var input = @"class Foo
+			TestIssue<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
 {
 	public static bool operator == (Foo left, Foo right)
 	{
 		return;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestConstructor ()
 		{
-			var input = @"class Foo
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
 {
 	Foo ()
 	{
 		return;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestDestructor ()
 		{
-			var input = @"class Foo
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
 {
 	~Foo ()
 	{
 		return;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]
@@ -334,7 +293,7 @@ class Test
 		[Test]
 		public void TestAsyncMethod_Void()
 		{
-			var input = @"using System;
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
 using System.Threading.Tasks;
 
 class Test
@@ -343,17 +302,13 @@ class Test
 	{
 		return;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void TestAsyncMethod_Task()
 		{
-			var input = @"using System;
+			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
 using System.Threading.Tasks;
 
 class Test
@@ -362,17 +317,13 @@ class Test
 	{
 		return;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void TestAsyncMethod_TaskOfInt()
 		{
-			var input = @"using System;
+			TestIssue<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
 using System.Threading.Tasks;
 
 class Test
@@ -381,11 +332,7 @@ class Test
 	{
 		return;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0126ReturnMustBeFollowedByAnyExpression (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 		}
 	}
 }

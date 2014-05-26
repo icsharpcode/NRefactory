@@ -44,18 +44,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Non-readonly field referenced in 'GetHashCode()'",
-		Description= "Non-readonly field referenced in 'GetHashCode()'",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "NonReadonlyReferencedInGetHashCode")]
+	[ExportDiagnosticAnalyzer("Non-readonly field referenced in 'GetHashCode()'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Non-readonly field referenced in 'GetHashCode()'", AnalysisDisableKeyword = "NonReadonlyReferencedInGetHashCode")]
 	public class NonReadonlyReferencedInGetHashCodeIssue : GatherVisitorCodeIssueProvider
 	{	
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "NonReadonlyReferencedInGetHashCodeIssue";
 		const string Description            = "";
-		const string MessageFormat          = "";
+		const string MessageFormat          = "Non-readonly field referenced in 'GetHashCode()'";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -77,92 +72,92 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			#region Skipped declarations
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-			{
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-			{
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-			{
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-			{
-			}
-
-			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-			{
-			}
-
-			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
-			{
-			}
-
-			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-			{
-			}
-
-			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
-			{
-			}
-
-			public override void VisitDelegateDeclaration(DelegateDeclaration delegateDeclaration)
-			{
-			}
-			#endregion
-
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				if (methodDeclaration.Name != "GetHashCode" || !methodDeclaration.HasModifier(Modifiers.Override) || methodDeclaration.Parameters.Any())
-					return;
-				if (!ctx.Resolve(methodDeclaration.ReturnType).Type.IsKnownType(KnownTypeCode.Int32))
-					return;
-				base.VisitMethodDeclaration(methodDeclaration);
-			}
-
-			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
-			{
-				base.VisitMemberReferenceExpression(memberReferenceExpression);
-				CheckNode(memberReferenceExpression, memberReferenceExpression.MemberNameToken);
-			}
-
-			public override void VisitIdentifierExpression(IdentifierExpression identifierExpression)
-			{
-				base.VisitIdentifierExpression(identifierExpression);
-				CheckNode(identifierExpression, identifierExpression);
-			}
-
-			void CheckNode(AstNode expr, AstNode nodeToMark)
-			{
-				var resolvedResult = ctx.Resolve(expr);
-				var mrr = resolvedResult as MemberResolveResult;
-				if (mrr == null)
-					return;
-				var member = mrr.Member;
-				var field = member as IField;
-				if (field != null) {
-					if (!field.IsReadOnly && !field.IsConst)
-						AddIssue(new CodeIssue(nodeToMark, "Non-readonly field referenced in 'GetHashCode()'"));
-				}
-			}
+//
+//			#region Skipped declarations
+//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+//			{
+//			}
+//
+//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+//			{
+//			}
+//
+//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+//			{
+//			}
+//
+//			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
+//			{
+//			}
+//
+//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
+//			{
+//			}
+//
+//			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
+//			{
+//			}
+//
+//			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
+//			{
+//			}
+//
+//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
+//			{
+//			}
+//
+//			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
+//			{
+//			}
+//
+//			public override void VisitDelegateDeclaration(DelegateDeclaration delegateDeclaration)
+//			{
+//			}
+//			#endregion
+//
+//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+//			{
+//				if (methodDeclaration.Name != "GetHashCode" || !methodDeclaration.HasModifier(Modifiers.Override) || methodDeclaration.Parameters.Any())
+//					return;
+//				if (!ctx.Resolve(methodDeclaration.ReturnType).Type.IsKnownType(KnownTypeCode.Int32))
+//					return;
+//				base.VisitMethodDeclaration(methodDeclaration);
+//			}
+//
+//			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
+//			{
+//				base.VisitMemberReferenceExpression(memberReferenceExpression);
+//				CheckNode(memberReferenceExpression, memberReferenceExpression.MemberNameToken);
+//			}
+//
+//			public override void VisitIdentifierExpression(IdentifierExpression identifierExpression)
+//			{
+//				base.VisitIdentifierExpression(identifierExpression);
+//				CheckNode(identifierExpression, identifierExpression);
+//			}
+//
+//			void CheckNode(AstNode expr, AstNode nodeToMark)
+//			{
+//				var resolvedResult = ctx.Resolve(expr);
+//				var mrr = resolvedResult as MemberResolveResult;
+//				if (mrr == null)
+//					return;
+//				var member = mrr.Member;
+//				var field = member as IField;
+//				if (field != null) {
+//					if (!field.IsReadOnly && !field.IsConst)
+//						AddIssue(new CodeIssue(nodeToMark, "Non-readonly field referenced in 'GetHashCode()'"));
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(NonReadonlyReferencedInGetHashCodeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class NonReadonlyReferencedInGetHashCodeIssueFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return NonReadonlyReferencedInGetHashCodeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

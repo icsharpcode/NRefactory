@@ -82,22 +82,19 @@ extern alias System;
 		[Test]
 		public void TestTypeParameter()
 		{
-			TestRefactoringContext ctx;
-			var issues = GetIssues(new XmlDocIssue(), @"
+			TestIssue<XmlDocIssue>(@"
 /// <typeparam name=""Undefined""></typeparam>
 class Foo {}
 
 /// <typeparam name=""T""></typeparam>
 class Foo2<T> {}
-", out ctx);
-			Assert.AreEqual(1, issues.Count);
+");
 		}
 
 		[Test]
 		public void TestWrongMethodParameter()
 		{
-			TestRefactoringContext ctx;
-			var issues = GetIssues(new XmlDocIssue(), @"
+			TestIssue<XmlDocIssue>(@"
 class Foo {
 	/// <param name=""undefined""></param>
 	/// <param name=""y""></param>
@@ -110,15 +107,13 @@ class Foo {
 	/// <param name=""y""></param>
 	int this[int x, int y] { get { return 1;  } }
 }
-", out ctx);
-			Assert.AreEqual(2, issues.Count);
+", 2);
 		}
 
 		[Test]
 		public void TestSeeCref()
 		{
-			TestRefactoringContext ctx;
-			var issues = GetIssues(new XmlDocIssue(), @"
+			TestWrongContext<XmlDocIssue>(@"
 /// <summary>
 /// </summary>
 /// <see cref=""Undefined""/>
@@ -131,8 +126,7 @@ class Foo {
 /// </summary>
 /// <see cref=""Foo2""/>
 class Foo2 {}
-", out ctx);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 
 		[Test]

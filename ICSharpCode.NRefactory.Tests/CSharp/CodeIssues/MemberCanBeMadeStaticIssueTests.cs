@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	{
 		int a = 2;
 	}
-}", CommonSubIssues.PrivateMember
+}", MemberCanBeMadeStaticIssue.DiagnosticIdPrivate
 			);
 		}
 
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	{
 		int a = 2;
 	}
-}", CommonSubIssues.NonPrivateMember
+}", MemberCanBeMadeStaticIssue.DiagnosticIdNonPrivate
 			);
 		}
 
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	{
 		int a = 2;
 	}
-}", CommonSubIssues.NonPrivateMember
+}", MemberCanBeMadeStaticIssue.DiagnosticIdNonPrivate
 			);
 		}
 
@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	{
 		int a = 2;
 	}
-}", CommonSubIssues.PrivateMember
+}", MemberCanBeMadeStaticIssue.DiagnosticIdPrivate
 			);
 		}
 
@@ -118,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	{
 		return txt.Trim ();
 	}
-}", CommonSubIssues.PrivateMember
+}", MemberCanBeMadeStaticIssue.DiagnosticIdPrivate
 			);
 		}
 
@@ -133,7 +133,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		int a = 2;
 	}
 }";
-			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, CommonSubIssues.PrivateMember);
+			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, MemberCanBeMadeStaticIssue.DiagnosticIdPrivate);
 		}
 
 		[Test]
@@ -149,7 +149,7 @@ class TestClass : IBase
 		int a = 2;
 	}
 }";
-			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, CommonSubIssues.NonPrivateMember);
+			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, MemberCanBeMadeStaticIssue.DiagnosticIdNonPrivate);
 		}
 
 		[Test]
@@ -163,7 +163,7 @@ class TestClass : IBase
 		int a = 2;
 	}
 }";
-			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, CommonSubIssues.PrivateMember);
+			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, MemberCanBeMadeStaticIssue.DiagnosticIdPrivate);
 		}
 
 		[Test]
@@ -179,7 +179,7 @@ class TestClass
 		int a = 2;
 	}
 }";
-			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, CommonSubIssues.NonPrivateMember);
+			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, MemberCanBeMadeStaticIssue.DiagnosticIdNonPrivate);
 		}
 
 		[Test]
@@ -193,7 +193,7 @@ class TestClass
 	{
 	}
 }";
-			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, CommonSubIssues.NonPrivateMember);
+			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, MemberCanBeMadeStaticIssue.DiagnosticIdNonPrivate);
 		}
 
 		[Test]
@@ -205,7 +205,7 @@ interface ITestInterface
 {
 	void $Test ();
 }";
-			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, CommonSubIssues.PrivateMember);
+			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, MemberCanBeMadeStaticIssue.DiagnosticIdPrivate);
 		}
 
 		[Test]
@@ -219,7 +219,7 @@ class TestClass
 		throw new NotImplementedExceptionIssue();
 	}
 }";
-			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, CommonSubIssues.NonPrivateMember);
+			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, MemberCanBeMadeStaticIssue.DiagnosticIdNonPrivate);
 		}
 
 		[Test]
@@ -234,7 +234,7 @@ class TestClass
 		System.Console.WriteLine (Foo);
 	}
 }";
-			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, CommonSubIssues.NonPrivateMember);
+			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, MemberCanBeMadeStaticIssue.DiagnosticIdNonPrivate);
 		}
 
 		[Test]
@@ -248,7 +248,7 @@ class TestClass
 		int a = 2;
 	}
 }";
-			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, CommonSubIssues.NonPrivateMember);
+			TestWrongContextWithSubIssue<MemberCanBeMadeStaticIssue>(input, MemberCanBeMadeStaticIssue.DiagnosticIdNonPrivate);
 		}
 
 		[Test]
@@ -270,7 +270,7 @@ class TestClass
 			return 2;
 		}
 	}
-}", CommonSubIssues.PrivateMember
+}", MemberCanBeMadeStaticIssue.DiagnosticIdPrivate
 			);
 		}
 
@@ -300,7 +300,7 @@ class TestClass
 		add { Foo += value; }
 		remove { Foo -= value; }
 	}
-}", CommonSubIssues.PrivateMember
+}", MemberCanBeMadeStaticIssue.DiagnosticIdPrivate
 				);
 		}
 
@@ -319,7 +319,7 @@ class TestClass
 		add { throw new NotImplementedException (); }
 		remove { throw new NotImplementedException (); }
 	}
-}", CommonSubIssues.PrivateMember
+}", MemberCanBeMadeStaticIssue.DiagnosticIdPrivate
 				);
 		}
 
@@ -334,7 +334,7 @@ class TestClass
 	{
 		int a = 2;
 	}
-}", CommonSubIssues.PrivateMember);
+}", MemberCanBeMadeStaticIssue.DiagnosticIdPrivate);
 		}
 	}
 }

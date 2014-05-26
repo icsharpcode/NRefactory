@@ -43,25 +43,20 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Use method 'Any()'",
-	                  Description = "Replace usages of 'Count()' with call to 'Any()'",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "UseMethodAny")]
+	[ExportDiagnosticAnalyzer("Use method 'Any()'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace usages of 'Count()' with call to 'Any()'", AnalysisDisableKeyword = "UseMethodAny")]
 	public class UseMethodAnyIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "UseMethodAnyIssue";
+		const string Description            = "Use 'Any()' for increased performance.";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with call to 'Any()'", Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with call to '!Any()'", Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
@@ -76,121 +71,120 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			void AddIssue2(BinaryOperatorExpression binaryOperatorExpression, Expression expr)
-			{
-			}
-
-			readonly AstNode anyPattern =
-				new Choice {
-					PatternHelper.CommutativeOperatorWithOptionalParentheses(
-						new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))),
-						BinaryOperatorType.InEquality,
-						new PrimitiveExpression(0)
-					),
-					new BinaryOperatorExpression (
-						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
-						BinaryOperatorType.GreaterThan,
-						PatternHelper.OptionalParentheses(new PrimitiveExpression(0))
-					),
-					new BinaryOperatorExpression (
-						PatternHelper.OptionalParentheses(new PrimitiveExpression(0)),
-						BinaryOperatorType.LessThan,
-						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
-					),
-					new BinaryOperatorExpression (
-						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
-						BinaryOperatorType.GreaterThanOrEqual,
-						PatternHelper.OptionalParentheses(new PrimitiveExpression(1))
-					),
-					new BinaryOperatorExpression (
-						PatternHelper.OptionalParentheses(new PrimitiveExpression(1)),
-						BinaryOperatorType.LessThanOrEqual,
-						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
-					)
-			};
-
-			readonly AstNode notAnyPattern =
-				new Choice {
-					PatternHelper.CommutativeOperatorWithOptionalParentheses(
-						new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))),
-						BinaryOperatorType.Equality,
-						new PrimitiveExpression(0)
-					),
-					new BinaryOperatorExpression (
-						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
-						BinaryOperatorType.LessThan,
-						PatternHelper.OptionalParentheses(new PrimitiveExpression(1))
-					),
-					new BinaryOperatorExpression (
-						PatternHelper.OptionalParentheses(new PrimitiveExpression(1)),
-						BinaryOperatorType.GreaterThan,
-						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
-					),
-					new BinaryOperatorExpression (
-						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
-						BinaryOperatorType.LessThanOrEqual,
-						PatternHelper.OptionalParentheses(new PrimitiveExpression(0))
-					),
-					new BinaryOperatorExpression (
-						PatternHelper.OptionalParentheses(new PrimitiveExpression(0)),
-						BinaryOperatorType.GreaterThanOrEqual,
-						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
-					)
-				};
-
-			void AddMatch(BinaryOperatorExpression binaryOperatorExpression, Match match, bool negateAny)
-			{
-				AddIssue(new CodeIssue(
-					binaryOperatorExpression,
-					ctx.TranslateString("Use 'Any()' for increased performance."), 
-					negateAny ? ctx.TranslateString("Replace with call to '!Any()'") : ctx.TranslateString("Replace with call to 'Any()'"), 
-					script =>  {
-						Expression expr = new InvocationExpression(new MemberReferenceExpression(match.Get<Expression>("expr").First().Clone(), "Any"));
-						if (negateAny)
-							expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
-						script.Replace(binaryOperatorExpression, expr);
-					}
-				));
-			}
-
-			bool CheckMethod(Match match)
-			{
-				var invocation = match.Get<Expression>("invocation").First();
-				var rr = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
-				if (rr == null || rr.IsError)
-					return false;
-				var method = rr.Member as IMethod;
-				return 
-					method != null &&
-					method.IsExtensionMethod &&
-					method.DeclaringTypeDefinition.Namespace == "System.Linq" && 
-					method.DeclaringTypeDefinition.Name == "Enumerable";
-			}
-
-			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-			{
-				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-				var match = anyPattern.Match(binaryOperatorExpression);
-				if (match.Success && CheckMethod (match)) {
-					AddMatch(binaryOperatorExpression, match, false);
-					return;
-				}
-				match = notAnyPattern.Match(binaryOperatorExpression);
-				if (match.Success && CheckMethod (match)) {
-					AddMatch(binaryOperatorExpression, match, true);
-					return;
-				}
-			}
+//
+//			void AddIssue2(BinaryOperatorExpression binaryOperatorExpression, Expression expr)
+//			{
+//			}
+//
+//			readonly AstNode anyPattern =
+//				new Choice {
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses(
+//						new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))),
+//						BinaryOperatorType.InEquality,
+//						new PrimitiveExpression(0)
+//					),
+//					new BinaryOperatorExpression (
+//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
+//						BinaryOperatorType.GreaterThan,
+//						PatternHelper.OptionalParentheses(new PrimitiveExpression(0))
+//					),
+//					new BinaryOperatorExpression (
+//						PatternHelper.OptionalParentheses(new PrimitiveExpression(0)),
+//						BinaryOperatorType.LessThan,
+//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
+//					),
+//					new BinaryOperatorExpression (
+//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
+//						BinaryOperatorType.GreaterThanOrEqual,
+//						PatternHelper.OptionalParentheses(new PrimitiveExpression(1))
+//					),
+//					new BinaryOperatorExpression (
+//						PatternHelper.OptionalParentheses(new PrimitiveExpression(1)),
+//						BinaryOperatorType.LessThanOrEqual,
+//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
+//					)
+//			};
+//
+//			readonly AstNode notAnyPattern =
+//				new Choice {
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses(
+//						new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))),
+//						BinaryOperatorType.Equality,
+//						new PrimitiveExpression(0)
+//					),
+//					new BinaryOperatorExpression (
+//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
+//						BinaryOperatorType.LessThan,
+//						PatternHelper.OptionalParentheses(new PrimitiveExpression(1))
+//					),
+//					new BinaryOperatorExpression (
+//						PatternHelper.OptionalParentheses(new PrimitiveExpression(1)),
+//						BinaryOperatorType.GreaterThan,
+//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
+//					),
+//					new BinaryOperatorExpression (
+//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
+//						BinaryOperatorType.LessThanOrEqual,
+//						PatternHelper.OptionalParentheses(new PrimitiveExpression(0))
+//					),
+//					new BinaryOperatorExpression (
+//						PatternHelper.OptionalParentheses(new PrimitiveExpression(0)),
+//						BinaryOperatorType.GreaterThanOrEqual,
+//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
+//					)
+//				};
+//
+//			void AddMatch(BinaryOperatorExpression binaryOperatorExpression, Match match, bool negateAny)
+//			{
+//				AddIssue(new CodeIssue(
+//					binaryOperatorExpression,
+//					ctx.TranslateString(""), 
+//					script =>  {
+//						Expression expr = new InvocationExpression(new MemberReferenceExpression(match.Get<Expression>("expr").First().Clone(), "Any"));
+//						if (negateAny)
+//							expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
+//						script.Replace(binaryOperatorExpression, expr);
+//					}
+//				));
+//			}
+//
+//			bool CheckMethod(Match match)
+//			{
+//				var invocation = match.Get<Expression>("invocation").First();
+//				var rr = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
+//				if (rr == null || rr.IsError)
+//					return false;
+//				var method = rr.Member as IMethod;
+//				return 
+//					method != null &&
+//					method.IsExtensionMethod &&
+//					method.DeclaringTypeDefinition.Namespace == "System.Linq" && 
+//					method.DeclaringTypeDefinition.Name == "Enumerable";
+//			}
+//
+//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+//			{
+//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+//				var match = anyPattern.Match(binaryOperatorExpression);
+//				if (match.Success && CheckMethod (match)) {
+//					AddMatch(binaryOperatorExpression, match, false);
+//					return;
+//				}
+//				match = notAnyPattern.Match(binaryOperatorExpression);
+//				if (match.Success && CheckMethod (match)) {
+//					AddMatch(binaryOperatorExpression, match, true);
+//					return;
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(UseMethodAnyIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class UseMethodAnyFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return UseMethodAnyIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

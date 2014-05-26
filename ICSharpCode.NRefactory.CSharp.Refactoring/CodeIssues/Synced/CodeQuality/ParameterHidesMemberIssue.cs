@@ -44,21 +44,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Parameter hides a member",
-					   Description = "Parameter has the same name as a member and hides it.",
-					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning,
-                       AnalysisDisableKeyword = "ParameterHidesMember")]
-    public class ParameterHidesMemberIssue : VariableHidesMemberIssue
+	[ExportDiagnosticAnalyzer("Parameter hides a member", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Parameter has the same name as a member and hides it.", AnalysisDisableKeyword = "ParameterHidesMember")]
+	public class ParameterHidesMemberIssue : VariableHidesMemberIssue
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		internal const string DiagnosticId = "ParameterHidesMemberIssue";
+		const string Description = "";
+		const string MessageFormat = "";
+		const string Category = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -66,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -74,56 +69,56 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<ParameterHidesMemberIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
+				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitParameterDeclaration (ParameterDeclaration parameterDeclaration)
-			{
-				base.VisitParameterDeclaration (parameterDeclaration);
-
-				var rr = ctx.Resolve(parameterDeclaration.Parent) as MemberResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-				var parent = rr.Member;
-				if (parent.SymbolKind == SymbolKind.Constructor || parent.ImplementedInterfaceMembers.Any ())
-					return;
-				if (parent.IsOverride || parent.IsAbstract || parent.IsPublic || parent.IsProtected)
-					return;
-					
-				IMember member;
-                if (HidesMember(ctx, parameterDeclaration, parameterDeclaration.Name, out member)) {
-                    string msg;
-                    switch (member.SymbolKind) {
-                        case SymbolKind.Field:
-                            msg = ctx.TranslateString("Parameter '{0}' hides field '{1}'");
-                            break;
-                        case SymbolKind.Method:
-                            msg = ctx.TranslateString("Parameter '{0}' hides method '{1}'");
-                            break;
-                        case SymbolKind.Property:
-                            msg = ctx.TranslateString("Parameter '{0}' hides property '{1}'");
-                            break;
-                        case SymbolKind.Event:
-                            msg = ctx.TranslateString("Parameter '{0}' hides event '{1}'");
-                            break;
-                        default:
-                            msg = ctx.TranslateString("Parameter '{0}' hides member '{1}'");
-                            break;
-                    }
-					AddIssue(new CodeIssue(parameterDeclaration.NameToken,
-						string.Format(msg, parameterDeclaration.Name, member.FullName)));
-			    }
-			}
+//			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
+//			{
+//				base.VisitParameterDeclaration(parameterDeclaration);
+//
+//				var rr = ctx.Resolve(parameterDeclaration.Parent) as MemberResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//				var parent = rr.Member;
+//				if (parent.SymbolKind == SymbolKind.Constructor || parent.ImplementedInterfaceMembers.Any())
+//					return;
+//				if (parent.IsOverride || parent.IsAbstract || parent.IsPublic || parent.IsProtected)
+//					return;
+//					
+//				IMember member;
+//				if (HidesMember(ctx, parameterDeclaration, parameterDeclaration.Name, out member)) {
+//					string msg;
+//					switch (member.SymbolKind) {
+//						case SymbolKind.Field:
+//							msg = ctx.TranslateString("Parameter '{0}' hides field '{1}'");
+//							break;
+//						case SymbolKind.Method:
+//							msg = ctx.TranslateString("Parameter '{0}' hides method '{1}'");
+//							break;
+//						case SymbolKind.Property:
+//							msg = ctx.TranslateString("Parameter '{0}' hides property '{1}'");
+//							break;
+//						case SymbolKind.Event:
+//							msg = ctx.TranslateString("Parameter '{0}' hides event '{1}'");
+//							break;
+//						default:
+//							msg = ctx.TranslateString("Parameter '{0}' hides member '{1}'");
+//							break;
+//					}
+//					AddIssue(new CodeIssue(parameterDeclaration.NameToken,
+//						string.Format(msg, parameterDeclaration.Name, member.FullName)));
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ParameterHidesMemberIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ParameterHidesMemberFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ParameterHidesMemberIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

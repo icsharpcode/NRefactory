@@ -44,21 +44,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Use array creation expression",
-	                  Description = "Use array creation expression",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "UseArrayCreationExpression")]
+	[ExportDiagnosticAnalyzer("Use array creation expression", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Use array creation expression", AnalysisDisableKeyword = "UseArrayCreationExpression")]
 	public class UseArrayCreationExpressionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "UseArrayCreationExpressionIssue";
+		const string Description            = "Use array create expression";
+		const string MessageFormat          = "Replace with 'new'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -79,47 +74,47 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			}
 
 			
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-
-				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-
-				if (rr.Member.Name != "CreateInstance" ||
-				    !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Array))
-					return;
-				var firstArg = invocationExpression.Arguments.FirstOrDefault() as TypeOfExpression;
-				if (firstArg == null)
-					return;
-				var argRR = ctx.Resolve(invocationExpression.Arguments.ElementAt(1));
-				if (!argRR.Type.IsKnownType(KnownTypeCode.Int32))
-					return;
-
-				AddIssue(new CodeIssue(
-					invocationExpression,
-					ctx.TranslateString("Use array create expression"), 
-					ctx.TranslateString("Replace with 'new'"), 
-					script => {
-						var ac = new ArrayCreateExpression {
-							Type = firstArg.Type.Clone()
-						};
-						foreach (var arg in invocationExpression.Arguments.Skip(1))
-							ac.Arguments.Add(arg.Clone()) ;
-						script.Replace(invocationExpression, ac);
-					}
-				));
-			}
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//
+//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//
+//				if (rr.Member.Name != "CreateInstance" ||
+//				    !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Array))
+//					return;
+//				var firstArg = invocationExpression.Arguments.FirstOrDefault() as TypeOfExpression;
+//				if (firstArg == null)
+//					return;
+//				var argRR = ctx.Resolve(invocationExpression.Arguments.ElementAt(1));
+//				if (!argRR.Type.IsKnownType(KnownTypeCode.Int32))
+//					return;
+//
+//				AddIssue(new CodeIssue(
+//					invocationExpression,
+//					ctx.TranslateString(""), 
+//					ctx.TranslateString(""), 
+//					script => {
+//						var ac = new ArrayCreateExpression {
+//							Type = firstArg.Type.Clone()
+//						};
+//						foreach (var arg in invocationExpression.Arguments.Skip(1))
+//							ac.Arguments.Add(arg.Clone()) ;
+//						script.Replace(invocationExpression, ac);
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(UseArrayCreationExpressionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class UseArrayCreationExpressionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return UseArrayCreationExpressionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

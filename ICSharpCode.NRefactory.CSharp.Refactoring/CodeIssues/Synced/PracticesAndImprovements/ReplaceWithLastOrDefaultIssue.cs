@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Replace with LastOrDefault<T>()",
-	                  Description = "Replace with call to LastOrDefault<T>()",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ReplaceWithLastOrDefault")]
+	[ExportDiagnosticAnalyzer("Replace with LastOrDefault<T>()", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with call to LastOrDefault<T>()", AnalysisDisableKeyword = "ReplaceWithLastOrDefault")]
 	public class ReplaceWithLastOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ReplaceWithLastOrDefaultIssue";
+		const string Description            = "Expression can be simlified to 'LastOrDefault<T>()'";
+		const string MessageFormat          = "Replace with 'LastOrDefault<T>()'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,55 +72,55 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			readonly AstNode pattern =
-				new ConditionalExpression(
-					new InvocationExpression(
-						new MemberReferenceExpression(new AnyNode("expr"), "Any"),
-						new AnyNodeOrNull("param")
-					),
-					new InvocationExpression(
-						new MemberReferenceExpression(new Backreference("expr"), "Last"),
-						new Backreference("param")
-					),
-					new Choice {
-						new NullReferenceExpression(),
-						new DefaultValueExpression(new AnyNode())
-					}
-				);
-
-			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
-			{
-				base.VisitConditionalExpression(conditionalExpression);
-				var match = pattern.Match(conditionalExpression);
-				if (!match.Success)
-					return;
-				var expression = match.Get<Expression>("expr").First();
-				var param      = match.Get<Expression>("param").First();
-
-				AddIssue(new CodeIssue(
-					conditionalExpression,
-					ctx.TranslateString("Expression can be simlified to 'LastOrDefault<T>()'"),
-					ctx.TranslateString("Replace with 'LastOrDefault<T>()'"),
-					script => {
-						var invocation = new InvocationExpression(new MemberReferenceExpression(expression.Clone(), "LastOrDefault"));
-						if (param != null && !param.IsNull)
-							invocation.Arguments.Add(param.Clone());
-						script.Replace(
-							conditionalExpression,
-							invocation
-							);
-					}
-				));
-			}
+//			readonly AstNode pattern =
+//				new ConditionalExpression(
+//					new InvocationExpression(
+//						new MemberReferenceExpression(new AnyNode("expr"), "Any"),
+//						new AnyNodeOrNull("param")
+//					),
+//					new InvocationExpression(
+//						new MemberReferenceExpression(new Backreference("expr"), "Last"),
+//						new Backreference("param")
+//					),
+//					new Choice {
+//						new NullReferenceExpression(),
+//						new DefaultValueExpression(new AnyNode())
+//					}
+//				);
+//
+//			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
+//			{
+//				base.VisitConditionalExpression(conditionalExpression);
+//				var match = pattern.Match(conditionalExpression);
+//				if (!match.Success)
+//					return;
+//				var expression = match.Get<Expression>("expr").First();
+//				var param      = match.Get<Expression>("param").First();
+//
+//				AddIssue(new CodeIssue(
+//					conditionalExpression,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString(""),
+//					script => {
+//						var invocation = new InvocationExpression(new MemberReferenceExpression(expression.Clone(), "LastOrDefault"));
+//						if (param != null && !param.IsNull)
+//							invocation.Arguments.Add(param.Clone());
+//						script.Replace(
+//							conditionalExpression,
+//							invocation
+//							);
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ReplaceWithLastOrDefaultIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ReplaceWithLastOrDefaultFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ReplaceWithLastOrDefaultIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"
+			Test<OperatorIsCanBeUsedIssue>(@"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -49,13 +49,7 @@ namespace Demo
 		{
 			int a = 1;
 			if (typeof (int) == a.GetType()){}}}}
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-			
-			CheckFix(context, issues, @"
+", @"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -75,7 +69,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"
+			Test<OperatorIsCanBeUsedIssue>(@"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -88,12 +82,7 @@ namespace Demo
 		{
 			int a = 1;
 			if (a.GetType() == typeof (int)){}}}}
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-			CheckFix(context, issues, @"
+", @"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -113,7 +102,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase3()
 		{
-			var input = @"
+			Test<OperatorIsCanBeUsedIssue>(@"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -126,13 +115,7 @@ namespace Demo
 		public static void main(string[] args)
 		{
 		if (BaseClass.a.GetType() == typeof (int)){}}}}
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			
-			
-			CheckFix(context, issues, @"
+", @"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -152,7 +135,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase4()
 		{
-			var input = @"
+			Test<OperatorIsCanBeUsedIssue>( @"
 using System;
 using System.Reflection;
 
@@ -166,12 +149,7 @@ namespace Demo
 		public static void main(string[] args)
 		{
 			BaseClass b = new BaseClass();if (typeof (TestClass) == b.GetType()){}}}}
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-
-			CheckFix(context, issues, @"
+", @"
 using System;
 using System.Reflection;
 
@@ -193,7 +171,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase5()
 		{
-			var input = @"
+			TestWrongContext<OperatorIsCanBeUsedIssue>(@"
 using System;
 using System.Reflection;
 
@@ -214,16 +192,13 @@ namespace Demo
 		}
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 
 		[Test]
 		public void TestResharperDisable()
 		{
-			var input = @"using System;
+			TestWrongContext<OperatorIsCanBeUsedIssue>(@"using System;
 using System.Linq;
 using System.Reflection;
 
@@ -242,11 +217,7 @@ namespace Demo
 //Resharper restore OperatorIsCanBeUsed
 		}
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new OperatorIsCanBeUsedIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 	}
 }

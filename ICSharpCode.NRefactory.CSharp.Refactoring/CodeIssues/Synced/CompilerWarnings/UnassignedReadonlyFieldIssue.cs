@@ -43,19 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Unassigned readonly field",
-	                  Description = "Unassigned readonly field",
-		Category = IssueCategories.CompilerWarnings,
-	                  Severity = Severity.Warning,
-	                  PragmaWarning = 649,
-	                  AnalysisDisableKeyword = "UnassignedReadonlyField.Compiler")]
+	[ExportDiagnosticAnalyzer("Unassigned readonly field", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Unassigned readonly field", AnalysisDisableKeyword = "UnassignedReadonlyField.Compiler", PragmaWarning = 649)]
 	public class UnassignedReadonlyFieldIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "UnassignedReadonlyFieldIssue";
+		const string Description            = "Readonly field is never assigned";
+		const string MessageFormat          = "Initialize field from constructor parameter";
 		const string Category               = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -73,93 +67,93 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<UnassignedReadonlyFieldIssue>
 		{
-			readonly Stack<List<Tuple<VariableInitializer, IVariable>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable>>>();
+			//readonly Stack<List<Tuple<VariableInitializer, IVariable>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable>>>();
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			void Collect()
-			{
-				foreach (var varDecl in fieldStack.Peek()) {
-					var resolveResult = ctx.Resolve(varDecl.Item1) as MemberResolveResult;
-					if (resolveResult == null || resolveResult.IsError)
-						continue;
-					AddIssue(new CodeIssue(
-						varDecl.Item1.NameToken,
-						string.Format(ctx.TranslateString("Readonly field '{0}' is never assigned"), varDecl.Item1.Name),
-						ctx.TranslateString("Initialize field from constructor parameter"),
-						script => {
-						script.InsertWithCursor(
-							ctx.TranslateString("Create constructor"),
-							resolveResult.Member.DeclaringTypeDefinition,
-							(s, c) => {
-							return new ConstructorDeclaration {
-								Name = resolveResult.Member.DeclaringTypeDefinition.Name,
-								Modifiers = Modifiers.Public,
-								Body = new BlockStatement {
-										new AssignmentExpression(
-											new MemberReferenceExpression(new ThisReferenceExpression(), varDecl.Item1.Name),
-											new IdentifierExpression(varDecl.Item1.Name)
-										)
-								},
-								Parameters = {
-									new ParameterDeclaration(c.CreateShortType(resolveResult.Type), varDecl.Item1.Name)
-								}
-							};
-						}
-						);
-					}
-					));
-				}
-			}
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				var list = new List<Tuple<VariableInitializer, IVariable>>();
-				fieldStack.Push(list);
-				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields(this, typeDeclaration)) {
-					if (!fieldDeclaration.HasModifier(Modifiers.Readonly))
-						continue;
-//					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
-				
-					if (fieldDeclaration.Variables.Count() > 1)
-						continue;
-					if (!fieldDeclaration.Variables.First().Initializer.IsNull)
-						continue;
-					var variable = fieldDeclaration.Variables.First();
-					var mr = ctx.Resolve(variable) as MemberResolveResult;
-					if (mr == null)
-						continue;
-					list.Add(Tuple.Create(variable, mr.Member as IVariable)); 
-				}
-				base.VisitTypeDeclaration(typeDeclaration);
-				Collect();
-				fieldStack.Pop();
-			}
-
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-				var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation(ctx);
-				var newVars = new List<Tuple<VariableInitializer, IVariable>>();
-				blockStatement.AcceptVisitor(assignmentAnalysis); 
-				foreach (var variable in fieldStack.Pop()) {
-					if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
-						continue;
-					newVars.Add(variable);
-				}
-				fieldStack.Push(newVars);
-			}
+//			void Collect()
+//			{
+//				foreach (var varDecl in fieldStack.Peek()) {
+//					var resolveResult = ctx.Resolve(varDecl.Item1) as MemberResolveResult;
+//					if (resolveResult == null || resolveResult.IsError)
+//						continue;
+//					AddIssue(new CodeIssue(
+//						varDecl.Item1.NameToken,
+//						string.Format(ctx.TranslateString(""), varDecl.Item1.Name),
+//						ctx.TranslateString(""),
+//						script => {
+//						script.InsertWithCursor(
+//							ctx.TranslateString("Create constructor"),
+//							resolveResult.Member.DeclaringTypeDefinition,
+//							(s, c) => {
+//							return new ConstructorDeclaration {
+//								Name = resolveResult.Member.DeclaringTypeDefinition.Name,
+//								Modifiers = Modifiers.Public,
+//								Body = new BlockStatement {
+//										new AssignmentExpression(
+//											new MemberReferenceExpression(new ThisReferenceExpression(), varDecl.Item1.Name),
+//											new IdentifierExpression(varDecl.Item1.Name)
+//										)
+//								},
+//								Parameters = {
+//									new ParameterDeclaration(c.CreateShortType(resolveResult.Type), varDecl.Item1.Name)
+//								}
+//							};
+//						}
+//						);
+//					}
+//					));
+//				}
+//			}
+//
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				var list = new List<Tuple<VariableInitializer, IVariable>>();
+//				fieldStack.Push(list);
+//				foreach (var fieldDeclaration in ConvertToConstantIssue.CollectFields(this, typeDeclaration)) {
+//					if (!fieldDeclaration.HasModifier(Modifiers.Readonly))
+//						continue;
+////					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
+//				
+//					if (fieldDeclaration.Variables.Count() > 1)
+//						continue;
+//					if (!fieldDeclaration.Variables.First().Initializer.IsNull)
+//						continue;
+//					var variable = fieldDeclaration.Variables.First();
+//					var mr = ctx.Resolve(variable) as MemberResolveResult;
+//					if (mr == null)
+//						continue;
+//					list.Add(Tuple.Create(variable, mr.Member as IVariable)); 
+//				}
+//				base.VisitTypeDeclaration(typeDeclaration);
+//				Collect();
+//				fieldStack.Pop();
+//			}
+//
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//				var assignmentAnalysis = new ConvertToConstantIssue.VariableUsageAnalyzation(ctx);
+//				var newVars = new List<Tuple<VariableInitializer, IVariable>>();
+//				blockStatement.AcceptVisitor(assignmentAnalysis); 
+//				foreach (var variable in fieldStack.Pop()) {
+//					if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
+//						continue;
+//					newVars.Add(variable);
+//				}
+//				fieldStack.Push(newVars);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(UnassignedReadonlyFieldIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class UnassignedReadonlyFieldFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return UnassignedReadonlyFieldIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

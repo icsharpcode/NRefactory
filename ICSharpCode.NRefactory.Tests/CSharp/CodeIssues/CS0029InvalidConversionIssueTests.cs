@@ -228,7 +228,7 @@ class TestClass
 		[Test]
 		public void TestBug12490()
 		{
-			var input = @"
+			TestWrongContext<CS0029InvalidConversionIssue>(@"
 class TestClass
 {
 	void TestMethod ()
@@ -236,10 +236,7 @@ class TestClass
 		uint t;
 		t = 6;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
@@ -376,7 +373,7 @@ class TestClass
 		[Test]
 		public void TestCallWithOverloads()
 		{
-			var input = @"
+			TestWrongContext<CS0029InvalidConversionIssue>(@"
 class TestClass
 {
 	enum Enum{ };
@@ -386,16 +383,13 @@ class TestClass
 	{
 		Foo (""Bar"", i);
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestCallWithOverloads2()
 		{
-			var input = @"
+			TestIssue<CS0029InvalidConversionIssue>(@"
 class TestClass
 {
 	enum Enum{ };
@@ -405,10 +399,7 @@ class TestClass
 	{
 		Foo (""Bar"", i);
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 
 		[Test]
@@ -452,7 +443,7 @@ class Project : MissingInterface {}";
 		[Test]
 		public void TestFixedConversion()
 		{
-			var input = @"unsafe struct TestMe
+			TestWrongContext<CS0029InvalidConversionIssue>(@"unsafe struct TestMe
 {
 	fixed int textureID[8], fooBar[12];
 
@@ -462,10 +453,7 @@ class Project : MissingInterface {}";
 			buf [0] = 1;
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new CS0029InvalidConversionIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]

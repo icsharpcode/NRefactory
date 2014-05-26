@@ -43,19 +43,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Static field in generic type",
-	                  Description = "Warns about static fields in generic types.",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  SuppressMessageCategory = "Microsoft.Design",
-	                  SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes",
-                      AnalysisDisableKeyword = "StaticFieldInGenericType"
-	                  )]
+	[ExportDiagnosticAnalyzer("Static field in generic type", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns about static fields in generic types.", SuppressMessageCategory = "Microsoft.Design", SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes", AnalysisDisableKeyword = "StaticFieldInGenericType")]
 	public class StaticFieldInGenericTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "StaticFieldInGenericTypeIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -80,63 +72,63 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			IList<ITypeParameter> availableTypeParameters = new List<ITypeParameter>();
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				var typeResolveResult = ctx.Resolve(typeDeclaration);
-				var typeDefinition = typeResolveResult.Type.GetDefinition();
-				if (typeDefinition == null)
-					return;
-				var newTypeParameters = typeDefinition.TypeParameters;
-
-				var oldTypeParameters = availableTypeParameters; 
-				availableTypeParameters = Concat(availableTypeParameters, newTypeParameters);
-
-				base.VisitTypeDeclaration(typeDeclaration);
-
-				availableTypeParameters = oldTypeParameters;
-			}
-
-			static IList<ITypeParameter> Concat(params IList<ITypeParameter>[] lists)
-			{
-				return lists.SelectMany(l => l).ToList();
-			}
-
-			bool UsesAllTypeParameters(FieldDeclaration fieldDeclaration)
-			{
-				if (availableTypeParameters.Count == 0)
-					return true;
-
-				var fieldType = ctx.Resolve(fieldDeclaration.ReturnType).Type as ParameterizedType;
-				if (fieldType == null)
-					return false;
-
-				// Check that all current type parameters are used in the field type
-				var fieldTypeParameters = fieldType.TypeArguments;
-				foreach (var typeParameter in availableTypeParameters) {
-					if (!fieldTypeParameters.Contains(typeParameter))
-						return false;
-				}
-				return true;
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-			{
-				base.VisitFieldDeclaration(fieldDeclaration);
-				if (fieldDeclaration.Modifiers.HasFlag(Modifiers.Static) && !UsesAllTypeParameters(fieldDeclaration)) {
-					AddIssue(new CodeIssue(fieldDeclaration, ctx.TranslateString("Static field in generic type")));
-				}
-			}
+//			IList<ITypeParameter> availableTypeParameters = new List<ITypeParameter>();
+//
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				var typeResolveResult = ctx.Resolve(typeDeclaration);
+//				var typeDefinition = typeResolveResult.Type.GetDefinition();
+//				if (typeDefinition == null)
+//					return;
+//				var newTypeParameters = typeDefinition.TypeParameters;
+//
+//				var oldTypeParameters = availableTypeParameters; 
+//				availableTypeParameters = Concat(availableTypeParameters, newTypeParameters);
+//
+//				base.VisitTypeDeclaration(typeDeclaration);
+//
+//				availableTypeParameters = oldTypeParameters;
+//			}
+//
+//			static IList<ITypeParameter> Concat(params IList<ITypeParameter>[] lists)
+//			{
+//				return lists.SelectMany(l => l).ToList();
+//			}
+//
+//			bool UsesAllTypeParameters(FieldDeclaration fieldDeclaration)
+//			{
+//				if (availableTypeParameters.Count == 0)
+//					return true;
+//
+//				var fieldType = ctx.Resolve(fieldDeclaration.ReturnType).Type as ParameterizedType;
+//				if (fieldType == null)
+//					return false;
+//
+//				// Check that all current type parameters are used in the field type
+//				var fieldTypeParameters = fieldType.TypeArguments;
+//				foreach (var typeParameter in availableTypeParameters) {
+//					if (!fieldTypeParameters.Contains(typeParameter))
+//						return false;
+//				}
+//				return true;
+//			}
+//
+//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+//			{
+//				base.VisitFieldDeclaration(fieldDeclaration);
+//				if (fieldDeclaration.Modifiers.HasFlag(Modifiers.Static) && !UsesAllTypeParameters(fieldDeclaration)) {
+//					AddIssue(new CodeIssue(fieldDeclaration, ctx.TranslateString("Static field in generic type")));
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(StaticFieldInGenericTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class StaticFieldInGenericTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return StaticFieldInGenericTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

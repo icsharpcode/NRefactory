@@ -44,21 +44,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Convert to lambda expression",
-		Description = "Convert to lambda with expression",
-		Category = IssueCategories.Opportunities,
-		Severity = Severity.Suggestion,
-		AnalysisDisableKeyword = "ConvertToLambdaExpression")]
+	[ExportDiagnosticAnalyzer("Convert to lambda expression", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert to lambda with expression", AnalysisDisableKeyword = "ConvertToLambdaExpression")]
 	public class ConvertToLambdaExpressionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertToLambdaExpressionIssue";
+		const string Description            = "Can be converted to expression";
+		const string MessageFormat          = "Convert to expression";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,81 +72,81 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
-			{
-				base.VisitLambdaExpression(lambdaExpression);
-				BlockStatement block;
-				Expression expr;
-				if (!ConvertLambdaBodyStatementToExpressionAction.TryGetConvertableExpression(lambdaExpression.Body, out block, out expr))
-					return;
-				var node = block.Statements.FirstOrDefault() ?? block;
-				var expressionStatement = node as ExpressionStatement;
-				if (expressionStatement != null) {
-					if (expressionStatement.Expression is AssignmentExpression)
-						return;
-				}
-				var returnTypes = new List<IType>();
-				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, lambdaExpression)) {
-					if (type.Kind != TypeKind.Delegate)
-						continue;
-					var invoke = type.GetDelegateInvokeMethod();
-					if (!returnTypes.Contains(invoke.ReturnType))
-						returnTypes.Add(invoke.ReturnType);
-				}
-				if (returnTypes.Count > 1)
-					return;
-
-				AddIssue(new CodeIssue(
-					node,
-					ctx.TranslateString("Can be converted to expression"),
-					ConvertLambdaBodyStatementToExpressionAction.CreateAction(ctx, node, block, expr)
-				));
-			}
-
-			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
-			{
-				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
-				if (!anonymousMethodExpression.HasParameterList)
-					return;
-				BlockStatement block;
-				Expression expr;
-				if (!ConvertLambdaBodyStatementToExpressionAction.TryGetConvertableExpression(anonymousMethodExpression.Body, out block, out expr))
-					return;
-				var node = block.Statements.FirstOrDefault() ?? block;
-				var returnTypes = new List<IType>();
-				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
-					if (type.Kind != TypeKind.Delegate)
-						continue;
-					var invoke = type.GetDelegateInvokeMethod();
-					if (!returnTypes.Contains(invoke.ReturnType))
-						returnTypes.Add(invoke.ReturnType);
-				}
-				if (returnTypes.Count > 1)
-					return;
-
-				AddIssue(new CodeIssue(
-					node,
-					ctx.TranslateString("Can be converted to expression"),
-					ctx.TranslateString("Convert to lambda expression"),
-					script => {
-						var lambdaExpression = new LambdaExpression();
-						foreach (var parameter in anonymousMethodExpression.Parameters)
-							lambdaExpression.Parameters.Add(parameter.Clone());
-						lambdaExpression.Body = expr.Clone();
-						script.Replace(anonymousMethodExpression, lambdaExpression);
-					}
-				));
-			}
+//
+//			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+//			{
+//				base.VisitLambdaExpression(lambdaExpression);
+//				BlockStatement block;
+//				Expression expr;
+//				if (!ConvertLambdaBodyStatementToExpressionAction.TryGetConvertableExpression(lambdaExpression.Body, out block, out expr))
+//					return;
+//				var node = block.Statements.FirstOrDefault() ?? block;
+//				var expressionStatement = node as ExpressionStatement;
+//				if (expressionStatement != null) {
+//					if (expressionStatement.Expression is AssignmentExpression)
+//						return;
+//				}
+//				var returnTypes = new List<IType>();
+//				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, lambdaExpression)) {
+//					if (type.Kind != TypeKind.Delegate)
+//						continue;
+//					var invoke = type.GetDelegateInvokeMethod();
+//					if (!returnTypes.Contains(invoke.ReturnType))
+//						returnTypes.Add(invoke.ReturnType);
+//				}
+//				if (returnTypes.Count > 1)
+//					return;
+//
+//				AddIssue(new CodeIssue(
+//					node,
+//					ctx.TranslateString(""),
+//					ConvertLambdaBodyStatementToExpressionAction.CreateAction(ctx, node, block, expr)
+//				));
+//			}
+//
+//			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+//			{
+//				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+//				if (!anonymousMethodExpression.HasParameterList)
+//					return;
+//				BlockStatement block;
+//				Expression expr;
+//				if (!ConvertLambdaBodyStatementToExpressionAction.TryGetConvertableExpression(anonymousMethodExpression.Body, out block, out expr))
+//					return;
+//				var node = block.Statements.FirstOrDefault() ?? block;
+//				var returnTypes = new List<IType>();
+//				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
+//					if (type.Kind != TypeKind.Delegate)
+//						continue;
+//					var invoke = type.GetDelegateInvokeMethod();
+//					if (!returnTypes.Contains(invoke.ReturnType))
+//						returnTypes.Add(invoke.ReturnType);
+//				}
+//				if (returnTypes.Count > 1)
+//					return;
+//
+//				AddIssue(new CodeIssue(
+//					node,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString("Convert to lambda expression"),
+//					script => {
+//						var lambdaExpression = new LambdaExpression();
+//						foreach (var parameter in anonymousMethodExpression.Parameters)
+//							lambdaExpression.Parameters.Add(parameter.Clone());
+//						lambdaExpression.Body = expr.Clone();
+//						script.Replace(anonymousMethodExpression, lambdaExpression);
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertToLambdaExpressionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertToLambdaExpressionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertToLambdaExpressionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

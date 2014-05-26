@@ -43,26 +43,21 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription (
-		"Method with optional parameter is hidden by overload",
-		Description = "Method with optional parameter is hidden by overload",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "MethodOverloadWithOptionalParameter")]
+	[ExportDiagnosticAnalyzer("Method with optional parameter is hidden by overload", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Method with optional parameter is hidden by overload", AnalysisDisableKeyword = "MethodOverloadWithOptionalParameter")]
 	public class MethodOverloadWithOptionalParameterIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "MethodOverloadWithOptionalParameterIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Method with optional parameter is hidden by overload", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Indexer with optional parameter is hidden by overload", Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
@@ -77,80 +72,80 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			void CheckParameters(IParameterizedMember member,  List<IParameterizedMember> overloads, List<ParameterDeclaration> parameterDeclarations)
-			{
-				for (int i = 0; i < member.Parameters.Count; i++) {
-					if (!member.Parameters[i].IsOptional)
-						continue;
-
-					foreach (var overload in overloads) {
-						if (overload.Parameters.Count != i)
-							continue;
-						bool equal = true;
-						for (int j = 0; j < i; j++)  {
-							if (overload.Parameters[j].Type != member.Parameters[j].Type) {
-								equal = false;
-								break;
-							}
-						}
-						if (equal) {
-							AddIssue(new CodeIssue(
-								parameterDeclarations[i],
-								member.SymbolKind == SymbolKind.Method ?
-								ctx.TranslateString("Method with optional parameter is hidden by overload") :
-								ctx.TranslateString("Indexer with optional parameter is hidden by overload")));
-						}
-					}
-				}
-			}
-
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				var rr = ctx.Resolve(methodDeclaration) as MemberResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-				var method = rr.Member as IMethod;
-				if (method == null)
-					return;
-				CheckParameters (method, 
-					method.DeclaringType.GetMethods(m =>
-						m.Name == method.Name && m.TypeParameters.Count == method.TypeParameters.Count).Cast<IParameterizedMember>().ToList(),
-					methodDeclaration.Parameters.ToList()
-				);
-
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-			{
-				var rr = ctx.Resolve(indexerDeclaration) as MemberResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-				var method = rr.Member as IProperty;
-				if (method == null)
-					return;
-				CheckParameters (method, 
-					method.DeclaringType.GetProperties(m =>
-						m.IsIndexer &&
-						m != method.UnresolvedMember).Cast<IParameterizedMember>().ToList(),
-					indexerDeclaration.Parameters.ToList()
-				);
-			}
-
-
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-				// SKIP
-			}
+//
+//			void CheckParameters(IParameterizedMember member,  List<IParameterizedMember> overloads, List<ParameterDeclaration> parameterDeclarations)
+//			{
+//				for (int i = 0; i < member.Parameters.Count; i++) {
+//					if (!member.Parameters[i].IsOptional)
+//						continue;
+//
+//					foreach (var overload in overloads) {
+//						if (overload.Parameters.Count != i)
+//							continue;
+//						bool equal = true;
+//						for (int j = 0; j < i; j++)  {
+//							if (overload.Parameters[j].Type != member.Parameters[j].Type) {
+//								equal = false;
+//								break;
+//							}
+//						}
+//						if (equal) {
+//							AddIssue(new CodeIssue(
+//								parameterDeclarations[i],
+//								member.SymbolKind == SymbolKind.Method ?
+			//								ctx.TranslateString("Method with optional parameter is hidden by overload") :
+			//								ctx.TranslateString("Indexer with optional parameter is hidden by overload")));
+//						}
+//					}
+//				}
+//			}
+//
+//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+//			{
+//				var rr = ctx.Resolve(methodDeclaration) as MemberResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//				var method = rr.Member as IMethod;
+//				if (method == null)
+//					return;
+//				CheckParameters (method, 
+//					method.DeclaringType.GetMethods(m =>
+//						m.Name == method.Name && m.TypeParameters.Count == method.TypeParameters.Count).Cast<IParameterizedMember>().ToList(),
+//					methodDeclaration.Parameters.ToList()
+//				);
+//
+//			}
+//
+//			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
+//			{
+//				var rr = ctx.Resolve(indexerDeclaration) as MemberResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//				var method = rr.Member as IProperty;
+//				if (method == null)
+//					return;
+//				CheckParameters (method, 
+//					method.DeclaringType.GetProperties(m =>
+//						m.IsIndexer &&
+//						m != method.UnresolvedMember).Cast<IParameterizedMember>().ToList(),
+//					indexerDeclaration.Parameters.ToList()
+//				);
+//			}
+//
+//
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//				// SKIP
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(MethodOverloadWithOptionalParameterIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class MethodOverloadWithOptionalParameterFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return MethodOverloadWithOptionalParameterIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

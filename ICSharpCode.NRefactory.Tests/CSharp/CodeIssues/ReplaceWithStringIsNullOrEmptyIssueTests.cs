@@ -38,19 +38,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseNS1 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (str != null && str != """")
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -63,19 +58,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseNS2 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (null != str && str != """")
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -88,19 +78,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorNegatedStringEmpty ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (null != str && str != string.Empty)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -113,19 +98,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorStringEmpty ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (null == str || str == string.Empty)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -138,19 +118,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseNS3 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (null != str && """" != str)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -163,19 +138,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseNS4 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (str != null && str != """")
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -188,19 +158,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseSN1 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (str != """" && str != null)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -213,19 +178,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseSN2 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if ("""" != str && str != null)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -238,19 +198,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseSN3 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if ("""" != str && null != str)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -264,19 +219,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseSN4 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (str != """" && null != str)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -289,19 +239,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseNS5 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>( @"class Foo
 {
 	void Bar (string str)
 	{
 		if (str == null || str == """")
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -314,19 +259,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseNS6 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (null == str || str == """")
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -339,19 +279,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseNS7 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (null == str || """" == str)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -364,19 +299,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseNS8 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (str == null || """" == str)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -389,19 +319,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseSN5 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (str == """" || str == null)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -414,19 +339,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseSN6 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if ("""" == str || str == null)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -439,19 +359,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseSN7 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if ("""" == str || null == str)
 			;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -464,19 +379,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCaseSN8 ()
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (str == """" || null == str)
 			;
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -492,19 +402,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[TestCase("null == str || 0 == str.Length")]
 		public void TestInspectorCaseNL (string expression)
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (" + expression + @")
 			;
 	}
-}";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -522,19 +427,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[TestCase("null != str && str.Length > 0")]
 		public void TestInspectorCaseLN (string expression)
 		{
-			var input = @"class Foo
+			Test<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		if (" + expression + @")
 			;
 	}
-}";
-		
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix (context, issues, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -547,7 +447,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestArrays ()
 		{
-			var input = @"class Foo
+			TestWrongContext<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar ()
 	{
@@ -555,11 +455,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		if (foo == null || foo.Length == 0) {
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new ReplaceWithStringIsNullOrEmptyIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 
 		[Test]

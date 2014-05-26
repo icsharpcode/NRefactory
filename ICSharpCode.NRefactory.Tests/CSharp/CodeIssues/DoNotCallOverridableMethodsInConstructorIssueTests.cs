@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void CatchesBadCase()
 		{
-			var input = @"class Foo
+			TestIssue<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
@@ -48,10 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	virtual void Bar ()
 	{
 	}
-}";
-			TestRefactoringContext context;
-            var issues = GetIssues(new DoNotCallOverridableMethodsInConstructorIssue(), input, out context);
-			Assert.AreEqual(2, issues.Count);
+}", 2);
 		}
 
 		[Test]
@@ -77,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void IgnoresGoodCase()
 		{
-			var input = @"class Foo
+			TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
@@ -88,16 +85,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	void Bar ()
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new DoNotCallOverridableMethodsInConstructorIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void IgnoresSealedClasses()
 		{
-			var input = @"sealed class Foo
+			TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(@"sealed class Foo
 {
 	Foo()
 	{
@@ -108,16 +102,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	virtual void Bar ()
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new DoNotCallOverridableMethodsInConstructorIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void IgnoresNonLocalCalls()
 		{
-			var input = @"class Foo
+			TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
@@ -128,16 +119,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	virtual void Bar ()
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new DoNotCallOverridableMethodsInConstructorIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void IgnoresEventHandlers()
 		{
-			var input = @"class Foo
+			TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
@@ -147,10 +135,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	virtual void Bar ()
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new DoNotCallOverridableMethodsInConstructorIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 
@@ -175,7 +160,7 @@ public class Test {
 		[Test]
 		public void SetVirtualProperty()
 		{
-			var input = @"class Foo
+			TestIssue<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
@@ -183,10 +168,7 @@ public class Test {
 	}
 
 	public virtual int AutoProperty { get; set; }
-}";
-			TestRefactoringContext context;
-            var issues = GetIssues(new DoNotCallOverridableMethodsInConstructorIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 	}
 }

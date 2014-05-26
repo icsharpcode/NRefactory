@@ -43,17 +43,12 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Call to base member with implicit default parameters",
-	                  Description="Call to base member with implicit default parameters",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "BaseMethodCallWithDefaultParameter")]
+	[ExportDiagnosticAnalyzer("Call to base member with implicit default parameters", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Call to base member with implicit default parameters", AnalysisDisableKeyword = "BaseMethodCallWithDefaultParameter")]
 	public class BaseMethodCallWithDefaultParameterIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
+		internal const string DiagnosticId  = "BaseMethodCallWithDefaultParameterIssue";
+		const string Description            = "Call to base member with implicit default parameters";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
@@ -76,100 +71,100 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-				var mr = invocationExpression.Target as MemberReferenceExpression;
-				if (mr == null || !(mr.Target is BaseReferenceExpression))
-					return;
-
-				var invocationRR = ctx.Resolve(invocationExpression) as InvocationResolveResult;
-				if (invocationRR == null)
-					return;
-
-				var parentEntity = invocationExpression.GetParent<EntityDeclaration>();
-				if (parentEntity == null)
-					return;
-				var rr = ctx.Resolve(parentEntity) as MemberResolveResult;
-				if (rr == null)
-					return;
-
-				if (invocationExpression.Arguments.Count >= invocationRR.Member.Parameters.Count ||
-					invocationRR.Member.Parameters.Count == 0 || 
-				    !invocationRR.Member.Parameters.Last().IsOptional)
-					return;
-
-				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
-					return;
-				AddIssue(new CodeIssue(
-					invocationExpression.RParToken,
-					ctx.TranslateString("Call to base member with implicit default parameters")
-				));
-			}
-		
-			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
-			{
-				base.VisitIndexerExpression(indexerExpression);
-				if (!(indexerExpression.Target is BaseReferenceExpression))
-					return;
-				var invocationRR = ctx.Resolve(indexerExpression) as InvocationResolveResult;
-				if (invocationRR == null)
-					return;
-
-				var parentEntity = indexerExpression.GetParent<IndexerDeclaration>();
-				if (parentEntity == null)
-					return;
-				var rr = ctx.Resolve(parentEntity) as MemberResolveResult;
-				if (rr == null)
-					return;
-
-				if (indexerExpression.Arguments.Count >= invocationRR.Member.Parameters.Count ||
-				    invocationRR.Member.Parameters.Count == 0 || 
-				    !invocationRR.Member.Parameters.Last().IsOptional)
-					return;
-
-				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
-					return;
-				AddIssue(new CodeIssue(
-					indexerExpression.RBracketToken,
-					ctx.TranslateString("Call to base member with implicit default parameters")
-				));
-			}
+//
+//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//				var mr = invocationExpression.Target as MemberReferenceExpression;
+//				if (mr == null || !(mr.Target is BaseReferenceExpression))
+//					return;
+//
+//				var invocationRR = ctx.Resolve(invocationExpression) as InvocationResolveResult;
+//				if (invocationRR == null)
+//					return;
+//
+//				var parentEntity = invocationExpression.GetParent<EntityDeclaration>();
+//				if (parentEntity == null)
+//					return;
+//				var rr = ctx.Resolve(parentEntity) as MemberResolveResult;
+//				if (rr == null)
+//					return;
+//
+//				if (invocationExpression.Arguments.Count >= invocationRR.Member.Parameters.Count ||
+//					invocationRR.Member.Parameters.Count == 0 || 
+//				    !invocationRR.Member.Parameters.Last().IsOptional)
+//					return;
+//
+//				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
+//					return;
+//				AddIssue(new CodeIssue(
+//					invocationExpression.RParToken,
+//					ctx.TranslateString("Call to base member with implicit default parameters")
+//				));
+//			}
+//		
+//			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
+//			{
+//				base.VisitIndexerExpression(indexerExpression);
+//				if (!(indexerExpression.Target is BaseReferenceExpression))
+//					return;
+//				var invocationRR = ctx.Resolve(indexerExpression) as InvocationResolveResult;
+//				if (invocationRR == null)
+//					return;
+//
+//				var parentEntity = indexerExpression.GetParent<IndexerDeclaration>();
+//				if (parentEntity == null)
+//					return;
+//				var rr = ctx.Resolve(parentEntity) as MemberResolveResult;
+//				if (rr == null)
+//					return;
+//
+//				if (indexerExpression.Arguments.Count >= invocationRR.Member.Parameters.Count ||
+//				    invocationRR.Member.Parameters.Count == 0 || 
+//				    !invocationRR.Member.Parameters.Last().IsOptional)
+//					return;
+//
+//				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
+//					return;
+//				AddIssue(new CodeIssue(
+//					indexerExpression.RBracketToken,
+//					ctx.TranslateString("")
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(BaseMethodCallWithDefaultParameterIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class BaseMethodCallWithDefaultParameterFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return BaseMethodCallWithDefaultParameterIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

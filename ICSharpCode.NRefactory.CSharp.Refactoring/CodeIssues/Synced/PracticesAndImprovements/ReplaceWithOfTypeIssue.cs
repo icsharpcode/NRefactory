@@ -43,63 +43,57 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Replace with OfType<T>",
-	                  Description = "Replace with call to OfType<T>",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ReplaceWithOfType")]
+	[ExportDiagnosticAnalyzer("Replace with OfType<T>", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with call to OfType<T>", AnalysisDisableKeyword = "ReplaceWithOfType")]
 	public class ReplaceWithOfTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal static readonly AstNode selectNotNullPattern =
-			new InvocationExpression(
-				new MemberReferenceExpression(new AnyNode("target"), "SelectNotNull"),
-				new LambdaExpression {
-					Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
-					Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
-				}
-			);
-
-		internal static readonly AstNode wherePatternCase1 =
-			new InvocationExpression(
-				new MemberReferenceExpression(
-					new InvocationExpression(
-						new MemberReferenceExpression(new AnyNode("target"), "Where"),
-						new LambdaExpression {
-							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
-							Body = PatternHelper.OptionalParentheses (new IsExpression(new AnyNode("expr1"), new AnyNode("type")))
-						}
-					), "Select"),
-				new LambdaExpression {
-					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
-					Body = PatternHelper.OptionalParentheses (new AsExpression(PatternHelper.OptionalParentheses (new AnyNode("expr2")), new Backreference("type")))
-				}
-		);
-
-		internal static readonly AstNode wherePatternCase2 =
-			new InvocationExpression(
-				new MemberReferenceExpression(
-					new InvocationExpression(
-						new MemberReferenceExpression(new AnyNode("target"), "Where"),
-						new LambdaExpression {
-							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
-							Body = PatternHelper.OptionalParentheses (new IsExpression(PatternHelper.OptionalParentheses (new AnyNode("expr1")), new AnyNode("type")))
-						}
-					), "Select"),
-				new LambdaExpression {
-					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
-					Body = PatternHelper.OptionalParentheses (new CastExpression(new Backreference("type"), PatternHelper.OptionalParentheses (new AnyNode("expr2"))))
-				}
-		);
-
+//		internal static readonly AstNode selectNotNullPattern =
+//			new InvocationExpression(
+//				new MemberReferenceExpression(new AnyNode("target"), "SelectNotNull"),
+//				new LambdaExpression {
+//					Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
+//					Body = PatternHelper.OptionalParentheses (new AsExpression(new AnyNode("expr1"), new AnyNode("type")))
+//				}
+//			);
+//
+//		internal static readonly AstNode wherePatternCase1 =
+//			new InvocationExpression(
+//				new MemberReferenceExpression(
+//					new InvocationExpression(
+//						new MemberReferenceExpression(new AnyNode("target"), "Where"),
+//						new LambdaExpression {
+//							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
+//							Body = PatternHelper.OptionalParentheses (new IsExpression(new AnyNode("expr1"), new AnyNode("type")))
+//						}
+//					), "Select"),
+//				new LambdaExpression {
+//					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
+//					Body = PatternHelper.OptionalParentheses (new AsExpression(PatternHelper.OptionalParentheses (new AnyNode("expr2")), new Backreference("type")))
+//				}
+//		);
+//
+//		internal static readonly AstNode wherePatternCase2 =
+//			new InvocationExpression(
+//				new MemberReferenceExpression(
+//					new InvocationExpression(
+//						new MemberReferenceExpression(new AnyNode("target"), "Where"),
+//						new LambdaExpression {
+//							Parameters = { PatternHelper.NamedParameter ("param1", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
+//							Body = PatternHelper.OptionalParentheses (new IsExpression(PatternHelper.OptionalParentheses (new AnyNode("expr1")), new AnyNode("type")))
+//						}
+//					), "Select"),
+//				new LambdaExpression {
+//					Parameters = { PatternHelper.NamedParameter ("param2", PatternHelper.AnyType ("paramType", true), Pattern.AnyString) },
+//					Body = PatternHelper.OptionalParentheses (new CastExpression(new Backreference("type"), PatternHelper.OptionalParentheses (new AnyNode("expr2"))))
+//				}
+//		);
 
 		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		const string Description            = "Replace with OfType<T>()";
+		const string MessageFormat          = "Replace with call to OfType<T>()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -112,68 +106,69 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
-		internal static bool CheckParameterMatches(IEnumerable<INode> paramMatch, IEnumerable<INode> expressionMatch)
-		{
-			var p = paramMatch.Single() as ParameterDeclaration;
-			var e = expressionMatch.Single();
-
-			if (p == null)
-				return false;
-			if (e is IdentifierExpression)
-				return p.Name == ((IdentifierExpression)e).Identifier;
-			return false;
-		}
-
+//		internal static bool CheckParameterMatches(IEnumerable<INode> paramMatch, IEnumerable<INode> expressionMatch)
+//		{
+//			var p = paramMatch.Single() as ParameterDeclaration;
+//			var e = expressionMatch.Single();
+//
+//			if (p == null)
+//				return false;
+//			if (e is IdentifierExpression)
+//				return p.Name == ((IdentifierExpression)e).Identifier;
+//			return false;
+//		}
+//
 
 		class GatherVisitor : GatherVisitorBase<ReplaceWithOfTypeIssue>
 		{
-			public GatherVisitor (BaseSemanticModel ctx) : base (ctx)
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitInvocationExpression (InvocationExpression anyInvoke)
-			{
-				var match = selectNotNullPattern.Match (anyInvoke);
-				if (!match.Success) {
-					match = wherePatternCase1.Match (anyInvoke);
-					if (!match.Success) {
-						match = wherePatternCase2.Match (anyInvoke); 
-						if (!match.Success) {
-							base.VisitInvocationExpression(anyInvoke);
-							return;
-						}
-					}
-					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1")) ||
-					    !CheckParameterMatches(match.Get("param2"), match.Get("expr2"))) {
-						base.VisitInvocationExpression (anyInvoke);
-						return;
-					}
-				} else {
-					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1"))) {
-						base.VisitInvocationExpression (anyInvoke);
-						return;
-					}
-				}
-				AddIssue(new CodeIssue(
-					anyInvoke,
-					ctx.TranslateString("Replace with OfType<T>"),
-					ctx.TranslateString("Replace with call to OfType<T>"),
-					script => {
-						var target = match.Get<Expression>("target").Single().Clone ();
-						var type = match.Get<AstType>("type").Single().Clone();
-						script.Replace(anyInvoke, new InvocationExpression(new MemberReferenceExpression(target, "OfType", type)));
-					}
-				));
-			}
+//			public override void VisitInvocationExpression (InvocationExpression anyInvoke)
+//			{
+//				var match = selectNotNullPattern.Match (anyInvoke);
+//				if (!match.Success) {
+//					match = wherePatternCase1.Match (anyInvoke);
+//					if (!match.Success) {
+//						match = wherePatternCase2.Match (anyInvoke); 
+//						if (!match.Success) {
+//							base.VisitInvocationExpression(anyInvoke);
+//							return;
+//						}
+//					}
+//					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1")) ||
+//					    !CheckParameterMatches(match.Get("param2"), match.Get("expr2"))) {
+//						base.VisitInvocationExpression (anyInvoke);
+//						return;
+//					}
+//				} else {
+//					if (!CheckParameterMatches(match.Get("param1"), match.Get("expr1"))) {
+//						base.VisitInvocationExpression (anyInvoke);
+//						return;
+//					}
+//				}
+//				AddIssue(new CodeIssue(
+//					anyInvoke,
+//					ctx.TranslateString("Replace with OfType<T>"),
+//					ctx.TranslateString("Replace with call to OfType<T>"),
+//					script => {
+//						var target = match.Get<Expression>("target").Single().Clone ();
+//						var type = match.Get<AstType>("type").Single().Clone();
+//						script.Replace(anyInvoke, new InvocationExpression(new MemberReferenceExpression(target, "OfType", type)));
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ReplaceWithOfTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ReplaceWithOfTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ReplaceWithOfTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

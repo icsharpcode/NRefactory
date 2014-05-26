@@ -42,93 +42,87 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
 	/// <summary>
 	/// Checks for str == null &amp;&amp; str == " "
 	/// Converts to: string.IsNullOrEmpty (str)
 	/// </summary>
-	[IssueDescription("Use 'String.IsNullOrEmpty'",
-	       Description = "Uses shorter string.IsNullOrEmpty call instead of a longer condition.",
-           Category = IssueCategories.PracticesAndImprovements,
-	       Severity = Severity.Suggestion,
-           AnalysisDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Use 'String.IsNullOrEmpty'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Uses shorter string.IsNullOrEmpty call instead of a longer condition.", AnalysisDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
 	public class ReplaceWithStringIsNullOrEmptyIssue : GatherVisitorCodeIssueProvider
 	{
-		static readonly Pattern pattern = new Choice {
-			// str == null || str == ""
-			// str == null || str.Length == 0
-			new BinaryOperatorExpression (
-				PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality, new NullReferenceExpression ()),
-				BinaryOperatorType.ConditionalOr,
-				new Choice {
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.Equality, new PrimitiveExpression ("")),
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.Equality,
-				                                       new PrimitiveType("string").Member("Empty")),
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (
-						new MemberReferenceExpression (new Backreference ("str"), "Length"),
-						BinaryOperatorType.Equality,
-						new PrimitiveExpression (0)
-					)
-				}
-			),
-			// str == "" || str == null
-			new BinaryOperatorExpression (
-				new Choice {
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality, new PrimitiveExpression ("")),
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality,
-				                                       new PrimitiveType("string").Member("Empty"))
-				},
-				BinaryOperatorType.ConditionalOr,
-				PatternHelper.CommutativeOperator(new Backreference ("str"), BinaryOperatorType.Equality, new NullReferenceExpression ())
-			)
-		};
-		static readonly Pattern negPattern = new Choice {
-			// str != null && str != ""
-			// str != null && str.Length != 0
-			// str != null && str.Length > 0
-			new BinaryOperatorExpression (
-				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode ("str"), BinaryOperatorType.InEquality, new NullReferenceExpression ()),
-				BinaryOperatorType.ConditionalAnd,
-				new Choice {
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.InEquality, new PrimitiveExpression ("")),
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.InEquality,
-				                                   	   new PrimitiveType("string").Member("Empty")),
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (
-						new MemberReferenceExpression (new Backreference ("str"), "Length"),
-						BinaryOperatorType.InEquality,
-						new PrimitiveExpression (0)
-					),
-					new BinaryOperatorExpression (
-						new MemberReferenceExpression (new Backreference ("str"), "Length"),
-						BinaryOperatorType.GreaterThan,
-						new PrimitiveExpression (0)
-					)
-				}
-			),
-			// str != "" && str != null
-			new BinaryOperatorExpression (
-				new Choice {
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.InEquality, new PrimitiveExpression ("")),
-					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality,
-				                                   	   new PrimitiveType("string").Member("Empty"))
-				},
-				BinaryOperatorType.ConditionalAnd,
-				PatternHelper.CommutativeOperatorWithOptionalParentheses(new Backreference ("str"), BinaryOperatorType.InEquality, new NullReferenceExpression ())
-			)
-		};
+//		static readonly Pattern pattern = new Choice {
+//			// str == null || str == ""
+//			// str == null || str.Length == 0
+//			new BinaryOperatorExpression (
+//				PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality, new NullReferenceExpression ()),
+//				BinaryOperatorType.ConditionalOr,
+//				new Choice {
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.Equality, new PrimitiveExpression ("")),
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.Equality,
+//				                                       new PrimitiveType("string").Member("Empty")),
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (
+//						new MemberReferenceExpression (new Backreference ("str"), "Length"),
+//						BinaryOperatorType.Equality,
+//						new PrimitiveExpression (0)
+//					)
+//				}
+//			),
+//			// str == "" || str == null
+//			new BinaryOperatorExpression (
+//				new Choice {
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality, new PrimitiveExpression ("")),
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality,
+//				                                       new PrimitiveType("string").Member("Empty"))
+//				},
+//				BinaryOperatorType.ConditionalOr,
+//				PatternHelper.CommutativeOperator(new Backreference ("str"), BinaryOperatorType.Equality, new NullReferenceExpression ())
+//			)
+//		};
+//		static readonly Pattern negPattern = new Choice {
+//			// str != null && str != ""
+//			// str != null && str.Length != 0
+//			// str != null && str.Length > 0
+//			new BinaryOperatorExpression (
+//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode ("str"), BinaryOperatorType.InEquality, new NullReferenceExpression ()),
+//				BinaryOperatorType.ConditionalAnd,
+//				new Choice {
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.InEquality, new PrimitiveExpression ("")),
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (new Backreference ("str"), BinaryOperatorType.InEquality,
+//				                                   	   new PrimitiveType("string").Member("Empty")),
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (
+//						new MemberReferenceExpression (new Backreference ("str"), "Length"),
+//						BinaryOperatorType.InEquality,
+//						new PrimitiveExpression (0)
+//					),
+//					new BinaryOperatorExpression (
+//						new MemberReferenceExpression (new Backreference ("str"), "Length"),
+//						BinaryOperatorType.GreaterThan,
+//						new PrimitiveExpression (0)
+//					)
+//				}
+//			),
+//			// str != "" && str != null
+//			new BinaryOperatorExpression (
+//				new Choice {
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.InEquality, new PrimitiveExpression ("")),
+//					PatternHelper.CommutativeOperatorWithOptionalParentheses (new AnyNode ("str"), BinaryOperatorType.Equality,
+//				                                   	   new PrimitiveType("string").Member("Empty"))
+//				},
+//				BinaryOperatorType.ConditionalAnd,
+//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new Backreference ("str"), BinaryOperatorType.InEquality, new NullReferenceExpression ())
+//			)
+//		};
 
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ReplaceWithStringIsNullOrEmptyIssue";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Expression can be replaced with !string.IsNullOrEmpty", "Use !string.IsNullOrEmpty", Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Expression can be replaced with string.IsNullOrEmpty", "Use string.IsNullOrEmpty", Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
@@ -143,47 +137,48 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-			{
-				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-				Match m = pattern.Match(binaryOperatorExpression);
-				bool isNegated = false;
-				if (!m.Success) {
-					m = negPattern.Match(binaryOperatorExpression);
-					isNegated = true;
-				}
-				if (m.Success) {
-					var str = m.Get<Expression>("str").Single();
-					var def = ctx.Resolve(str).Type.GetDefinition();
-					if (def == null || def.KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.String)
-						return;
-					AddIssue(new CodeIssue(
-						binaryOperatorExpression,
-						isNegated ? ctx.TranslateString("Expression can be replaced with !string.IsNullOrEmpty") : ctx.TranslateString("Expression can be replaced with string.IsNullOrEmpty"),
-						new CodeAction (
-							isNegated ? ctx.TranslateString("Use !string.IsNullOrEmpty") : ctx.TranslateString("Use string.IsNullOrEmpty"),
-							script => {
-								Expression expr = new PrimitiveType("string").Invoke("IsNullOrEmpty", str.Clone());
-								if (isNegated)
-									expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
-								script.Replace(binaryOperatorExpression, expr);
-							},
-							binaryOperatorExpression
-						)
-					));
-					return;
-				}
-			}
+//
+//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+//			{
+//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+//				Match m = pattern.Match(binaryOperatorExpression);
+//				bool isNegated = false;
+//				if (!m.Success) {
+//					m = negPattern.Match(binaryOperatorExpression);
+//					isNegated = true;
+//				}
+//				if (m.Success) {
+//					var str = m.Get<Expression>("str").Single();
+//					var def = ctx.Resolve(str).Type.GetDefinition();
+//					if (def == null || def.KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.String)
+//						return;
+//					AddIssue(new CodeIssue(
+//						binaryOperatorExpression,
+			//						isNegated ? ctx.TranslateString("Expression can be replaced with !string.IsNullOrEmpty") : ctx.TranslateString(""),
+//						new CodeAction (
+			//							isNegated ? ctx.TranslateString("Use !string.IsNullOrEmpty") : ctx.TranslateString("Use string.IsNullOrEmpty"),
+//							script => {
+//								Expression expr = new PrimitiveType("string").Invoke("IsNullOrEmpty", str.Clone());
+//								if (isNegated)
+//									expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
+//								script.Replace(binaryOperatorExpression, expr);
+//							},
+//							binaryOperatorExpression
+//						)
+//					));
+//					return;
+//				}
+//			}
+//	
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ReplaceWithStringIsNullOrEmptyIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ReplaceWithStringIsNullOrEmptyFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ReplaceWithStringIsNullOrEmptyIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

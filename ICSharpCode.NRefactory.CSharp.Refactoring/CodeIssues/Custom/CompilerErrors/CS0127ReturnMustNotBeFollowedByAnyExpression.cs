@@ -43,20 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("CS0127: A method with a void return type cannot return a value.",
-	                  Description = "Since 'function' returns void, a return keyword must not be followed by an object expression",
-	                  Category = IssueCategories.CompilerErrors,
-	                  Severity = Severity.Error)]
+	[ExportDiagnosticAnalyzer("CS0127: A method with a void return type cannot return a value.", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Since 'function' returns void, a return keyword must not be followed by an object expression")]
 	public class CS0127ReturnMustNotBeFollowedByAnyExpression : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "CS0127ReturnMustNotBeFollowedByAnyExpression";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.CompilerErrors;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -76,42 +72,42 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitReturnStatement(ReturnStatement returnStatement)
-			{
-				base.VisitReturnStatement(returnStatement);
-
-				if (ctx.GetExpectedType(returnStatement.Expression).Kind == TypeKind.Void) {
-					var actions = new List<CodeAction>();
-					actions.Add(new CodeAction(ctx.TranslateString("Remove returned expression"), script => {
-						script.Replace(returnStatement, new ReturnStatement());
-					}, returnStatement));
-
-					var method = returnStatement.GetParent<MethodDeclaration>();
-					if (method != null) {
-						var rr = ctx.Resolve(returnStatement.Expression);
-						if (rr != null && !rr.IsError) {
-							actions.Add(new CodeAction(ctx.TranslateString("Change return type of method."), script => {
-								script.Replace(method.ReturnType, ctx.CreateTypeSystemAstBuilder(method).ConvertType(rr.Type));
-							}, returnStatement));
-						}
-					}
-
-					AddIssue(new CodeIssue(
-						returnStatement, 
-						ctx.TranslateString("Return type is 'void'"),
-						actions
-					));
-				}
-			}
+//			public override void VisitReturnStatement(ReturnStatement returnStatement)
+//			{
+//				base.VisitReturnStatement(returnStatement);
+//
+//				if (ctx.GetExpectedType(returnStatement.Expression).Kind == TypeKind.Void) {
+//					var actions = new List<CodeAction>();
+//					actions.Add(new CodeAction(ctx.TranslateString("Remove returned expression"), script => {
+//						script.Replace(returnStatement, new ReturnStatement());
+//					}, returnStatement));
+//
+//					var method = returnStatement.GetParent<MethodDeclaration>();
+//					if (method != null) {
+//						var rr = ctx.Resolve(returnStatement.Expression);
+//						if (rr != null && !rr.IsError) {
+//							actions.Add(new CodeAction(ctx.TranslateString("Change return type of method."), script => {
+//								script.Replace(method.ReturnType, ctx.CreateTypeSystemAstBuilder(method).ConvertType(rr.Type));
+//							}, returnStatement));
+//						}
+//					}
+//
+//					AddIssue(new CodeIssue(
+//						returnStatement, 
+//						ctx.TranslateString("Return type is 'void'"),
+//						actions
+//					));
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CS0127ReturnMustNotBeFollowedByAnyExpression.DiagnosticId, LanguageNames.CSharp)]
+	public class CS0127ReturnMustNotBeFollowedByAnyExpressionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CS0127ReturnMustNotBeFollowedByAnyExpression.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

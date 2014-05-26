@@ -44,18 +44,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Bitwise operation on enum which has no [Flags] attribute",
-	                   Description = "Bitwise operation on enum which has no [Flags] attribute",
-					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning,
-                       AnalysisDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
+	[ExportDiagnosticAnalyzer("Bitwise operation on enum which has no [Flags] attribute", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Bitwise operation on enum which has no [Flags] attribute", AnalysisDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
 	public class BitwiseOperatorOnEnumWithoutFlagsIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "BitwiseOperatorOnEnumWithoutFlagsIssue";
+		const string Description            = "Bitwise Operations on enum not marked with Flags attribute";
+		const string MessageFormat          = "Bitwise Operations on enum not marked with Flags attribute";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -78,78 +73,78 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static bool IsBitwiseOperator (UnaryOperatorType op)
-			{
-				return op == UnaryOperatorType.BitNot;
-			}
-
-			static bool IsBitwiseOperator (AssignmentOperatorType op)
-			{
-				return op == AssignmentOperatorType.BitwiseAnd || op == AssignmentOperatorType.BitwiseOr ||
-					op == AssignmentOperatorType.ExclusiveOr;
-			}
-
-			static bool IsBitwiseOperator (BinaryOperatorType op)
-			{
-				return op == BinaryOperatorType.BitwiseAnd || op == BinaryOperatorType.BitwiseOr || 
-					op == BinaryOperatorType.ExclusiveOr;
-			}
-
-			bool IsNonFlagsEnum (Expression expr)
-			{
-				var resolveResult = ctx.Resolve (expr);
-				if (resolveResult == null || resolveResult.Type.Kind != TypeKind.Enum)
-					return false;
-
-				// check [Flags]
-				var typeDef = resolveResult.Type.GetDefinition ();
-				return typeDef != null &&
-					typeDef.Attributes.All (attr => attr.AttributeType.FullName != "System.FlagsAttribute");
-			}
-
-			private void AddIssue (CSharpTokenNode operatorToken)
-			{
-				AddIssue (new CodeIssue (operatorToken, ctx.TranslateString ("Bitwise Operations on enum not marked with Flags attribute")));
-			}
-
-			public override void VisitUnaryOperatorExpression (UnaryOperatorExpression unaryOperatorExpression)
-			{
-				base.VisitUnaryOperatorExpression (unaryOperatorExpression);
-
-				if (!IsBitwiseOperator (unaryOperatorExpression.Operator))
-					return;
-				if (IsNonFlagsEnum (unaryOperatorExpression.Expression))
-					AddIssue (unaryOperatorExpression.OperatorToken);
-			}
-
-			public override void VisitAssignmentExpression (AssignmentExpression assignmentExpression)
-			{
-				base.VisitAssignmentExpression (assignmentExpression);
-
-				if (!IsBitwiseOperator (assignmentExpression.Operator))
-					return;
-				if (IsNonFlagsEnum (assignmentExpression.Right))
-					AddIssue (assignmentExpression.OperatorToken);
-			}
-
-			public override void VisitBinaryOperatorExpression (BinaryOperatorExpression binaryOperatorExpression)
-			{
-				base.VisitBinaryOperatorExpression (binaryOperatorExpression);
-
-				if (!IsBitwiseOperator (binaryOperatorExpression.Operator))
-					return;
-				if (IsNonFlagsEnum (binaryOperatorExpression.Left) || IsNonFlagsEnum (binaryOperatorExpression.Right))
-					AddIssue (binaryOperatorExpression.OperatorToken);
-			}
+//			static bool IsBitwiseOperator (UnaryOperatorType op)
+//			{
+//				return op == UnaryOperatorType.BitNot;
+//			}
+//
+//			static bool IsBitwiseOperator (AssignmentOperatorType op)
+//			{
+//				return op == AssignmentOperatorType.BitwiseAnd || op == AssignmentOperatorType.BitwiseOr ||
+//					op == AssignmentOperatorType.ExclusiveOr;
+//			}
+//
+//			static bool IsBitwiseOperator (BinaryOperatorType op)
+//			{
+//				return op == BinaryOperatorType.BitwiseAnd || op == BinaryOperatorType.BitwiseOr || 
+//					op == BinaryOperatorType.ExclusiveOr;
+//			}
+//
+//			bool IsNonFlagsEnum (Expression expr)
+//			{
+//				var resolveResult = ctx.Resolve (expr);
+//				if (resolveResult == null || resolveResult.Type.Kind != TypeKind.Enum)
+//					return false;
+//
+//				// check [Flags]
+//				var typeDef = resolveResult.Type.GetDefinition ();
+//				return typeDef != null &&
+//					typeDef.Attributes.All (attr => attr.AttributeType.FullName != "System.FlagsAttribute");
+//			}
+//
+//			private void AddIssue (CSharpTokenNode operatorToken)
+//			{
+//				AddIssue (new CodeIssue (operatorToken, ctx.TranslateString ("")));
+//			}
+//
+//			public override void VisitUnaryOperatorExpression (UnaryOperatorExpression unaryOperatorExpression)
+//			{
+//				base.VisitUnaryOperatorExpression (unaryOperatorExpression);
+//
+//				if (!IsBitwiseOperator (unaryOperatorExpression.Operator))
+//					return;
+//				if (IsNonFlagsEnum (unaryOperatorExpression.Expression))
+//					AddIssue (unaryOperatorExpression.OperatorToken);
+//			}
+//
+//			public override void VisitAssignmentExpression (AssignmentExpression assignmentExpression)
+//			{
+//				base.VisitAssignmentExpression (assignmentExpression);
+//
+//				if (!IsBitwiseOperator (assignmentExpression.Operator))
+//					return;
+//				if (IsNonFlagsEnum (assignmentExpression.Right))
+//					AddIssue (assignmentExpression.OperatorToken);
+//			}
+//
+//			public override void VisitBinaryOperatorExpression (BinaryOperatorExpression binaryOperatorExpression)
+//			{
+//				base.VisitBinaryOperatorExpression (binaryOperatorExpression);
+//
+//				if (!IsBitwiseOperator (binaryOperatorExpression.Operator))
+//					return;
+//				if (IsNonFlagsEnum (binaryOperatorExpression.Left) || IsNonFlagsEnum (binaryOperatorExpression.Right))
+//					AddIssue (binaryOperatorExpression.OperatorToken);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(BitwiseOperatorOnEnumWithoutFlagsIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class BitwiseOperatorOnEnumWithoutFlagsFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return BitwiseOperatorOnEnumWithoutFlagsIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

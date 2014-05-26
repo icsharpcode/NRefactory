@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Use 'is' operator",
-	                  Description = "'is' operator can be used",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "UseIsOperator")]
+	[ExportDiagnosticAnalyzer("Use 'is' operator", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "'is' operator can be used", AnalysisDisableKeyword = "UseIsOperator")]
 	public class UseIsOperatorIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "UseIsOperatorIssue";
+		const string Description            = "Use 'is' operator";
+		const string MessageFormat          = "Replace with 'is' operator";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,44 +72,44 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static readonly Expression pattern1 = new InvocationExpression(
-				new MemberReferenceExpression(new TypeOfExpression(new AnyNode("Type")), "IsAssignableFrom"),
-				new InvocationExpression(
-				new MemberReferenceExpression(new AnyNode("object"), "GetType")
-			)
-			);
-			static readonly Expression pattern2 = new InvocationExpression(
-				new MemberReferenceExpression(new TypeOfExpression(new AnyNode("Type")), "IsInstanceOfType"),
-				new AnyNode("object")
-			);
-
-
-
-			void AddIssue(AstNode invocationExpression, Match match, bool negate = false)
-			{
-				AddIssue(new CodeIssue(
-					invocationExpression,
-					ctx.TranslateString("Use 'is' operator"),
-					ctx.TranslateString("Replace with 'is' operator"), 
-					s => {
-						Expression expression = new IsExpression(CSharpUtil.AddParensForUnaryExpressionIfRequired(match.Get<Expression>("object").Single().Clone()), match.Get<AstType>("Type").Single().Clone());
-						if (negate)
-							expression = new UnaryOperatorExpression (UnaryOperatorType.Not, new ParenthesizedExpression(expression));
-						s.Replace(invocationExpression, expression);
-					}
-				));
-			}
-
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-				var match = pattern1.Match(invocationExpression);
-				if (!match.Success)
-					match = pattern2.Match(invocationExpression);
-				if (match.Success) {
-					AddIssue(invocationExpression, match);
-				}
-			}
+//			static readonly Expression pattern1 = new InvocationExpression(
+//				new MemberReferenceExpression(new TypeOfExpression(new AnyNode("Type")), "IsAssignableFrom"),
+//				new InvocationExpression(
+//				new MemberReferenceExpression(new AnyNode("object"), "GetType")
+//			)
+//			);
+//			static readonly Expression pattern2 = new InvocationExpression(
+//				new MemberReferenceExpression(new TypeOfExpression(new AnyNode("Type")), "IsInstanceOfType"),
+//				new AnyNode("object")
+//			);
+//
+//
+//
+//			void AddIssue(AstNode invocationExpression, Match match, bool negate = false)
+//			{
+//				AddIssue(new CodeIssue(
+//					invocationExpression,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString(""), 
+//					s => {
+//						Expression expression = new IsExpression(CSharpUtil.AddParensForUnaryExpressionIfRequired(match.Get<Expression>("object").Single().Clone()), match.Get<AstType>("Type").Single().Clone());
+//						if (negate)
+//							expression = new UnaryOperatorExpression (UnaryOperatorType.Not, new ParenthesizedExpression(expression));
+//						s.Replace(invocationExpression, expression);
+//					}
+//				));
+//			}
+//
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//				var match = pattern1.Match(invocationExpression);
+//				if (!match.Success)
+//					match = pattern2.Match(invocationExpression);
+//				if (match.Success) {
+//					AddIssue(invocationExpression, match);
+//				}
+//			}
 
 			/* Unfortunately not quite the same :/
 			static readonly AstNode equalityComparePattern =
@@ -151,12 +146,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(UseIsOperatorIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class UseIsOperatorFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return UseIsOperatorIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestRef ()
 		{
-			string input = @"
+			TestIssue<OptionalParameterRefOutIssue>(@"
 using System.Runtime.InteropServices;
 class Bar
 {
@@ -43,16 +43,13 @@ class Bar
 	{
 	}
 }
-";
-			ICSharpCode.NRefactory6.CSharp.CodeActions.TestRefactoringContext context;
-			var issues = GetIssues (new OptionalParameterRefOutIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+");
 		}
 
 		[Test]
 		public void TestOut ()
 		{
-			string input = @"
+			TestIssue<OptionalParameterRefOutIssue>(@"
 using System.Runtime.InteropServices;
 class Bar
 {
@@ -60,10 +57,7 @@ class Bar
 	{
 	}
 }
-";
-			ICSharpCode.NRefactory6.CSharp.CodeActions.TestRefactoringContext context;
-			var issues = GetIssues (new OptionalParameterRefOutIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+");
 		}
 
 		[Test]

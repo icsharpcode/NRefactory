@@ -44,18 +44,14 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("CS0184:Given expression is never of the provided type",
-		Description = "CS0184:Given expression is never of the provided type.",
-		Category = IssueCategories.CompilerWarnings,
-		Severity = Severity.Warning)]
+	[ExportDiagnosticAnalyzer("CS0184:Given expression is never of the provided type", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "CS0184:Given expression is never of the provided type")]
 	public class ExpressionIsNeverOfProvidedTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "ExpressionIsNeverOfProvidedTypeIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 
@@ -72,56 +68,56 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<ExpressionIsNeverOfProvidedTypeIssue>
 		{
-			readonly CSharpConversions conversions;
+			//readonly CSharpConversions conversions;
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
-				conversions = CSharpConversions.Get(ctx.Compilation);
+				//conversions = CSharpConversions.Get(ctx.Compilation);
 			}
 
-			public override void VisitIsExpression(IsExpression isExpression)
-			{
-				base.VisitIsExpression(isExpression);
-
-//				var conversions = CSharpConversions.Get(ctx.Compilation);
-				var exprType = ctx.Resolve(isExpression.Expression).Type;
-				var providedType = ctx.ResolveType(isExpression.Type);
-
-				if (exprType.Kind == TypeKind.Unknown || providedType.Kind == TypeKind.Unknown)
-					return;
-				if (IsValidReferenceOrBoxingConversion(exprType, providedType))
-					return;
-				
-				var exprTP = exprType as ITypeParameter;
-				var providedTP = providedType as ITypeParameter;
-				if (exprTP != null) {
-					if (IsValidReferenceOrBoxingConversion(exprTP.EffectiveBaseClass, providedType)
-					    && exprTP.EffectiveInterfaceSet.All(i => IsValidReferenceOrBoxingConversion(i, providedType)))
-						return;
-				}
-				if (providedTP != null) {
-					if (IsValidReferenceOrBoxingConversion(exprType, providedTP.EffectiveBaseClass))
-						return;
-				}
-				
-				AddIssue(new CodeIssue(isExpression, ctx.TranslateString("Given expression is never of the provided type")));
-			}
-
-			bool IsValidReferenceOrBoxingConversion(IType fromType, IType toType)
-			{
-				Conversion c = conversions.ExplicitConversion(fromType, toType);
-				return c.IsValid && (c.IsIdentityConversion || c.IsReferenceConversion || c.IsBoxingConversion || c.IsUnboxingConversion);
-			}
+//			public override void VisitIsExpression(IsExpression isExpression)
+//			{
+//				base.VisitIsExpression(isExpression);
+//
+////				var conversions = CSharpConversions.Get(ctx.Compilation);
+//				var exprType = ctx.Resolve(isExpression.Expression).Type;
+//				var providedType = ctx.ResolveType(isExpression.Type);
+//
+//				if (exprType.Kind == TypeKind.Unknown || providedType.Kind == TypeKind.Unknown)
+//					return;
+//				if (IsValidReferenceOrBoxingConversion(exprType, providedType))
+//					return;
+//				
+//				var exprTP = exprType as ITypeParameter;
+//				var providedTP = providedType as ITypeParameter;
+//				if (exprTP != null) {
+//					if (IsValidReferenceOrBoxingConversion(exprTP.EffectiveBaseClass, providedType)
+//					    && exprTP.EffectiveInterfaceSet.All(i => IsValidReferenceOrBoxingConversion(i, providedType)))
+//						return;
+//				}
+//				if (providedTP != null) {
+//					if (IsValidReferenceOrBoxingConversion(exprType, providedTP.EffectiveBaseClass))
+//						return;
+//				}
+//				
+//				AddIssue(new CodeIssue(isExpression, ctx.TranslateString("Given expression is never of the provided type")));
+//			}
+//
+//			bool IsValidReferenceOrBoxingConversion(IType fromType, IType toType)
+//			{
+//				Conversion c = conversions.ExplicitConversion(fromType, toType);
+//				return c.IsValid && (c.IsIdentityConversion || c.IsReferenceConversion || c.IsBoxingConversion || c.IsUnboxingConversion);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ExpressionIsNeverOfProvidedTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ExpressionIsNeverOfProvidedTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ExpressionIsNeverOfProvidedTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

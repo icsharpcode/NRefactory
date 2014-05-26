@@ -31,14 +31,12 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
- 
 	public class ValueParameterNotUsedIssueTests : InspectionActionTestBase
 	{
-       
-        [Test]
-        public void TestPropertySetter()
-        {
-            var input = @"class A
+		[Test]
+		public void TestPropertySetter()
+		{
+			TestIssue<ValueParameterNotUsedIssue>(@"class A
 {
 	int Property1
 	{
@@ -51,17 +49,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		set {
 		}
 	}
-}";
-            TestRefactoringContext context;
-            var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-            Assert.AreEqual(1, issues.Count);
-        }
+}");
+		}
 
 
-        [Test]
-        public void TestDisable()
-        {
-            var input = @"class A
+		[Test]
+		public void TestDisable()
+		{
+			TestWrongContext<ValueParameterNotUsedIssue>(@"class A
 {
     int Property1
     {
@@ -77,30 +72,26 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
         {
         }
     }
-}";
-            TestWrongContext<ValueParameterNotUsedIssue>(input);
-        }
+}");
+		}
 
 		[Test]
 		public void TestMatchingIndexerSetter()
 		{
-			var input = @"class A
+			TestIssue<ValueParameterNotUsedIssue>(@"class A
 {
 	A this[int index]
 	{
 		set {
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestMatchingEventAdder()
 		{
-			var input = @"class A	
+			TestIssue<ValueParameterNotUsedIssue>(@"class A	
 {
 	delegate void TestEventHandler ();
 	TestEventHandler eventTested;
@@ -112,16 +103,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		remove {
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestNonMatchingIndexerSetter()
 		{
-			var input = @"class A
+			TestWrongContext<ValueParameterNotUsedIssue>(@"class A
 {
 	A this[int index]
 	{
@@ -129,52 +117,40 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			A a = value;
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void IgnoresAutoSetter()
 		{
-			var input = @"class A
+			TestWrongContext<ValueParameterNotUsedIssue>(@"class A
 {
 	string  Property { set; }
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
-		
+
 		[Test]
 		public void IgnoreReadOnlyProperty()
 		{
-			var input = @"class A
+			TestWrongContext<ValueParameterNotUsedIssue>(@"class A
 {
 	string  Property { get; }
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
-		
+
 		[Test]
 		public void DoesNotCrashOnNullIndexerAccessorBody()
 		{
-			var input = @"abstract class A
+			TestWrongContext<ValueParameterNotUsedIssue>(@"abstract class A
 {
 	public abstract string this[int i] { get; set; }
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
-		
+
 		[Test]
 		public void DoesNotWarnOnExceptionThrowingAccessor()
 		{
-			var input = @"abstract class A
+			TestWrongContext<ValueParameterNotUsedIssue>(@"abstract class A
 {
 	public string Property
 	{
@@ -182,18 +158,15 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			throw new Exception();
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
-        [Test]
-        public void DoesNotWarnOnEmptyCustomEvent()
-        {
-            // Empty custom events are often used when the event can never be raised
-            // by a class (but the event is required e.g. due to an interface).
-            var input = @"class A	
+		[Test]
+		public void DoesNotWarnOnEmptyCustomEvent()
+		{
+			// Empty custom events are often used when the event can never be raised
+			// by a class (but the event is required e.g. due to an interface).
+			TestWrongContext<ValueParameterNotUsedIssue>(@"class A	
 {
 	delegate void TestEventHandler ();
 	event TestEventHandler EventTested
@@ -201,16 +174,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		add { }
 		remove { }
 	}
-}";
-            TestRefactoringContext context;
-            var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-            Assert.AreEqual(0, issues.Count);
-        }
-        
-        [Test]
-        public void DoesNotWarnOnNotImplementedCustomEvent()
-        {
-            var input = @"class A	
+}");
+		}
+
+		[Test]
+		public void DoesNotWarnOnNotImplementedCustomEvent()
+		{
+			TestWrongContext<ValueParameterNotUsedIssue>(@"class A	
 {
 	delegate void TestEventHandler ();
 	event TestEventHandler EventTested
@@ -218,11 +188,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		add { throw new System.NotImplementedException(); }
 		remove { throw new System.NotImplementedException(); }
 	}
-}";
-            TestRefactoringContext context;
-            var issues = GetIssues(new ValueParameterNotUsedIssue(), input, out context);
-            Assert.AreEqual(0, issues.Count);
-        }
+}");
+		}
 	}
 }
 

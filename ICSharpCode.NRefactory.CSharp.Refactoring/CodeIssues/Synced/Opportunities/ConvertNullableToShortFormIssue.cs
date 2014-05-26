@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Convert 'Nullable<T>' to 'T?'",
-	                  Description = "Convert 'Nullable<T>' to the short form 'T?'",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ConvertNullableToShortForm")]
+	[ExportDiagnosticAnalyzer("Convert 'Nullable<T>' to 'T?'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'Nullable<T>' to the short form 'T?'", AnalysisDisableKeyword = "ConvertNullableToShortForm")]
 	public class ConvertNullableToShortFormIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertNullableToShortFormIssue";
+		const string Description            = "Nullable type can be simplified.";
+		const string MessageFormat          = "Rewrite to '{0}?'";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -76,44 +71,44 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-			static readonly AstType nullType = new SimpleType("");
-
-			void CheckType(AstType simpleType, AstType arg)
-			{
-				if (arg == null || nullType.IsMatch(arg))
-					return;
-				var rr = ctx.Resolve(simpleType);
-				if (rr == null || rr.IsError || rr.Type.Namespace != "System" || rr.Type.Name != "Nullable")
-					return;
-
-				AddIssue(new CodeIssue(
-					simpleType,
-					string.Format(ctx.TranslateString("Type can be simplified to '{0}?'"), arg), 
-					string.Format(ctx.TranslateString("Rewrite to '{0}?'"), arg),
-					script =>  {
-						script.Replace(simpleType, arg.Clone().MakeNullableType());
-					}
-				));
-			}
-
-			public override void VisitSimpleType(SimpleType simpleType)
-			{
-				CheckType(simpleType, simpleType.TypeArguments.FirstOrDefault());
-			}
-
-			public override void VisitMemberType(MemberType memberType)
-			{
-				CheckType(memberType, memberType.TypeArguments.FirstOrDefault());
-			}
+//			static readonly AstType nullType = new SimpleType("");
+//
+//			void CheckType(AstType simpleType, AstType arg)
+//			{
+//				if (arg == null || nullType.IsMatch(arg))
+//					return;
+//				var rr = ctx.Resolve(simpleType);
+//				if (rr == null || rr.IsError || rr.Type.Namespace != "System" || rr.Type.Name != "Nullable")
+//					return;
+//
+//				AddIssue(new CodeIssue(
+//					simpleType,
+//					string.Format(ctx.TranslateString(""), arg), 
+//					string.Format(ctx.TranslateString(""), arg),
+//					script =>  {
+//						script.Replace(simpleType, arg.Clone().MakeNullableType());
+//					}
+//				));
+//			}
+//
+//			public override void VisitSimpleType(SimpleType simpleType)
+//			{
+//				CheckType(simpleType, simpleType.TypeArguments.FirstOrDefault());
+//			}
+//
+//			public override void VisitMemberType(MemberType memberType)
+//			{
+//				CheckType(memberType, memberType.TypeArguments.FirstOrDefault());
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertNullableToShortFormIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertNullableToShortFormFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertNullableToShortFormIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

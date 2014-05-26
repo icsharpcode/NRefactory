@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'if-do-while' statement can be re-written as 'while' statement",
-	                  Description = "Convert 'if-do-while' to 'while' statement",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ConvertIfDoToWhile")]
+	[ExportDiagnosticAnalyzer("'if-do-while' statement can be re-written as 'while' statement", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'if-do-while' to 'while' statement", AnalysisDisableKeyword = "ConvertIfDoToWhile")]
 	public class ConvertIfDoToWhileIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertIfDoToWhileIssue";
+		const string Description            = "Statement can be simplified to 'while' statement";
+		const string MessageFormat          = "Replace with 'while'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,48 +72,48 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static readonly AstNode ifPattern = 
-				new IfElseStatement(
-					new AnyNode ("condition"),
-					PatternHelper.EmbeddedStatement (
-						new DoWhileStatement (new AnyNode("condition2"), new AnyNode ("EmbeddedStatement"))
-					)
-				);
-
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
-				var match = ifPattern.Match(ifElseStatement);
-				if (match.Success) {
-					var cond1 = match.Get<Expression>("condition").Single();
-					var cond2 = match.Get<Expression>("condition2").Single();
-					if (!CSharpUtil.AreConditionsEqual(cond1, cond2))
-						return;
-					AddIssue(new CodeIssue(
-						ifElseStatement.IfToken,
-						ctx.TranslateString("Statement can be simplified to 'while' statement"),
-						ctx.TranslateString("Replace with 'while'"),
-						script => {
-							script.Replace(
-								ifElseStatement, 
-								new WhileStatement(
-									cond1.Clone(),
-									match.Get<Statement>("EmbeddedStatement").Single().Clone()
-								)
-							);
-						}
-					) { IssueMarker = IssueMarker.DottedLine });
-				}
-			}
+//			static readonly AstNode ifPattern = 
+//				new IfElseStatement(
+//					new AnyNode ("condition"),
+//					PatternHelper.EmbeddedStatement (
+//						new DoWhileStatement (new AnyNode("condition2"), new AnyNode ("EmbeddedStatement"))
+//					)
+//				);
+//
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//				var match = ifPattern.Match(ifElseStatement);
+//				if (match.Success) {
+//					var cond1 = match.Get<Expression>("condition").Single();
+//					var cond2 = match.Get<Expression>("condition2").Single();
+//					if (!CSharpUtil.AreConditionsEqual(cond1, cond2))
+//						return;
+//					AddIssue(new CodeIssue(
+//						ifElseStatement.IfToken,
+//						ctx.TranslateString(""),
+//						ctx.TranslateString(""),
+//						script => {
+//							script.Replace(
+//								ifElseStatement, 
+//								new WhileStatement(
+//									cond1.Clone(),
+//									match.Get<Statement>("EmbeddedStatement").Single().Clone()
+//								)
+//							);
+//						}
+//					) { IssueMarker = IssueMarker.DottedLine });
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertIfDoToWhileIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertIfDoToWhileFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertIfDoToWhileIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

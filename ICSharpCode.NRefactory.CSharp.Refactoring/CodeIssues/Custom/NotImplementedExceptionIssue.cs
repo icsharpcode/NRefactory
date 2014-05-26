@@ -42,22 +42,21 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
 	/// <summary>
 	/// This inspector just shows that there is a not implemented exception. It doesn't offer a fix.
 	/// Should only be shown in overview bar, no underlining.
 	/// </summary>
-	[IssueDescription("Show NotImplementedExceptions", Description="Shows NotImplementedException throws in the quick task bar.", Category = IssueCategories.Notifications, Severity = Severity.Suggestion)]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("Show NotImplementedExceptions", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Shows NotImplementedException throws in the quick task bar")]
 	public class NotImplementedExceptionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "NotImplementedExceptionIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.Notifications;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,38 +76,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitThrowStatement(ThrowStatement throwStatement)
-			{
-				var result = ctx.Resolve(throwStatement.Expression);
-				if (result.Type.Equals(ctx.Compilation.FindType(typeof(System.NotImplementedException)))) {
-					AddIssue(new CodeIssue(throwStatement, ctx.TranslateString("NotImplemented exception thrown")) { IssueMarker = IssueMarker.None });
-				}
-
-				base.VisitThrowStatement(throwStatement);
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
-	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
-		{
-			yield return .DiagnosticId;
-		}
-
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
-		{
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
-			}
-			return result;
+//			public override void VisitThrowStatement(ThrowStatement throwStatement)
+//			{
+//				var result = ctx.Resolve(throwStatement.Expression);
+//				if (result.Type.Equals(ctx.Compilation.FindType(typeof(System.NotImplementedException)))) {
+//					AddIssue(new CodeIssue(throwStatement, ctx.TranslateString("NotImplemented exception thrown")) { IssueMarker = IssueMarker.None });
+//				}
+//
+//				base.VisitThrowStatement(throwStatement);
+//			}
 		}
 	}
 }

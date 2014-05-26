@@ -44,21 +44,17 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
+	[ExportDiagnosticAnalyzer("Remove redundant 'private' modifier", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Removes 'private' modifiers that are not required.")]
     /// <summary>
 	/// Finds redundant internal modifiers.
 	/// </summary>
-	[IssueDescription("Remove redundant 'private' modifier",
-	       Description = "Removes 'private' modifiers that are not required.",
-	       Category = IssueCategories.RedundanciesInCode,
-	       Severity = Severity.Hint)]
 	public class RedundantPrivateIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "RedundantPrivateIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 
@@ -80,84 +76,84 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			void CheckNode(EntityDeclaration node)
-			{
-				foreach (var token_ in node.ModifierTokens) {
-					var token = token_;
-					if (token.Modifier == Modifiers.Private) {
-						AddIssue(new CodeIssue(token, ctx.TranslateString("Keyword 'private' is redundant. This is the default modifier."), ctx.TranslateString("Remove redundant 'private' modifier"), script => {
-							script.ChangeModifier (node, node.Modifiers & ~Modifiers.Private);
-						}) { IssueMarker = IssueMarker.GrayOut });
-					}
-				}
-			}
-
-			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-			{
-				// SKIP
-			}
-
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				CheckNode(methodDeclaration);
-			}
-			
-			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-			{
-				CheckNode(fieldDeclaration);
-			}
-			
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-			{
-				CheckNode(propertyDeclaration);
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-			{
-				CheckNode(indexerDeclaration);
-			}
-
-			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
-			{
-				CheckNode(eventDeclaration);
-			}
-			
-			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-			{
-				CheckNode(eventDeclaration);
-			}
-			
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-				CheckNode(constructorDeclaration);
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-			{
-				CheckNode(operatorDeclaration);
-			}
-
-			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
-			{
-				CheckNode(fixedFieldDeclaration);
-			}
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				if (typeDeclaration.Parent is TypeDeclaration) {
-					CheckNode(typeDeclaration);
-				}
-				base.VisitTypeDeclaration(typeDeclaration);
-			}
+//			void CheckNode(EntityDeclaration node)
+//			{
+//				foreach (var token_ in node.ModifierTokens) {
+//					var token = token_;
+//					if (token.Modifier == Modifiers.Private) {
+//						AddIssue(new CodeIssue(token, ctx.TranslateString("Keyword 'private' is redundant. This is the default modifier."), ctx.TranslateString("Remove redundant 'private' modifier"), script => {
+//							script.ChangeModifier (node, node.Modifiers & ~Modifiers.Private);
+//						}) { IssueMarker = IssueMarker.GrayOut });
+//					}
+//				}
+//			}
+//
+//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
+//			{
+//				// SKIP
+//			}
+//
+//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+//			{
+//				CheckNode(methodDeclaration);
+//			}
+//			
+//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+//			{
+//				CheckNode(fieldDeclaration);
+//			}
+//			
+//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+//			{
+//				CheckNode(propertyDeclaration);
+//			}
+//
+//			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
+//			{
+//				CheckNode(indexerDeclaration);
+//			}
+//
+//			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
+//			{
+//				CheckNode(eventDeclaration);
+//			}
+//			
+//			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
+//			{
+//				CheckNode(eventDeclaration);
+//			}
+//			
+//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+//			{
+//				CheckNode(constructorDeclaration);
+//			}
+//
+//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
+//			{
+//				CheckNode(operatorDeclaration);
+//			}
+//
+//			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
+//			{
+//				CheckNode(fixedFieldDeclaration);
+//			}
+//
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				if (typeDeclaration.Parent is TypeDeclaration) {
+//					CheckNode(typeDeclaration);
+//				}
+//				base.VisitTypeDeclaration(typeDeclaration);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(RedundantPrivateIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RedundantPrivateFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return RedundantPrivateIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

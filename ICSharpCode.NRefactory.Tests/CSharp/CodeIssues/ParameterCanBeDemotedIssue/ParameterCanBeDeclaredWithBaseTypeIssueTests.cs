@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void BasicTest()
 		{
-			var input = @"
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class A
 {
 	public virtual void Foo() {}
@@ -51,14 +51,7 @@ class C
 	{
 		b.Foo();
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			var issue = issues [0];
-			Assert.AreEqual(1, issue.Actions.Count);
-
-			CheckFix(context, issues [0], @"
+}", @"
 class A
 {
 	public virtual void Foo() {}
@@ -79,22 +72,19 @@ class C
 		[Test]
 		public void IgnoresUnusedParameters()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class A
 {
 	void F(A a1)
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void IgnoresDirectionalParameters()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA
 {
 }
@@ -104,16 +94,13 @@ class A : IA
 	{
 		object.Equals(a1, null);
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void IgnoresOverrides()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA
 {
 	void Foo();
@@ -136,16 +123,13 @@ class TestClass : TestBase
 	{
 		b.Foo();
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void IgnoresOverridables()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA
 {
 	void Foo();
@@ -161,16 +145,13 @@ class TestClass
 	{
 		b.Foo();
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void HandlesNeededProperties()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA
 {
 	void Foo(string s);
@@ -186,16 +167,13 @@ class TestClass
 	{
 		b.Foo(b.Property);
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void InterfaceTest()
 		{
-			var input = @"
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA
 {
 	void Foo();
@@ -211,14 +189,7 @@ class C
 	{
 		b.Foo();
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			var issue = issues [0];
-			Assert.AreEqual(1, issue.Actions.Count);
-			
-			CheckFix(context, issues [0], @"
+}", @"
 interface IA
 {
 	void Foo();
@@ -240,7 +211,7 @@ class C
 		[Test]
 		public void RespectsExpectedTypeInIfStatement()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class C
 {
 	void F (bool b, bool c)
@@ -248,16 +219,13 @@ class C
 		if (b && c)
 			return;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void MultipleInterfaceTest()
 		{
-			var input = @"
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA1
 {
 	void Foo();
@@ -279,14 +247,7 @@ class Test
 		c.Foo();
 		c.Bar();
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			var issue = issues [0];
-			Assert.AreEqual(1, issue.Actions.Count);
-
-			CheckFix(context, issues [0], @"
+}", @"
 interface IA1
 {
 	void Foo();
@@ -340,21 +301,14 @@ class E : D, IC
 		[Test]
 		public void FindsTopInterface()
 		{
-			var input = baseInput + @"
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void F(E e)
 	{
 		e.Foo();
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			var issue = issues [0];
-			Assert.AreEqual(4, issue.Actions.Count);
-			
-			CheckFix(context, issues [0], baseInput + @"
+}", baseInput + @"
 class Test
 {
 	void F(IA e)
@@ -367,7 +321,7 @@ class Test
 		[Test]
 		public void DoesNotChangeOverload()
 		{
-			var input = baseInput + @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void F(IB b)
@@ -382,16 +336,13 @@ class Test
 	void Bar (IB b)
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void AssignmentToExplicitlyTypedVariable()
 		{
-			var input = baseInput + @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void F(IB b)
@@ -400,16 +351,13 @@ class Test
 		b2 = b;
 		object.Equals(b, b2);
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void GenericMethod()
 		{
-			var input = baseInput + @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void F(IB b)
@@ -420,16 +368,13 @@ class Test
 	void Generic<T> (T arg) where T : IA
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void VariableDeclarationWithTypeInference()
 		{
-			var input = baseInput + @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void Foo (IB b)
@@ -441,16 +386,13 @@ class Test
 	void Foo (IA a)
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void RespectsOutgoingCallsTypeRestrictions()
 		{
-			var input = baseInput + @"
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void F(E e)
@@ -462,14 +404,7 @@ class Test
 	void DemandType(D d)
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			var issue = issues [0];
-			Assert.AreEqual(1, issue.Actions.Count);
-			
-			CheckFix(context, issues [0], baseInput + @"
+}", baseInput + @"
 class Test
 {
 	void F(D e)
@@ -487,7 +422,7 @@ class Test
 		[Test]
 		public void AccountsForNonInvocationMethodGroupUsageInMethodCall()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 delegate void FooDelegate (string s);
 interface IBase
 {
@@ -508,16 +443,13 @@ class TestClass
 	void Baz (FooDelegate fd)
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void AccountsForNonInvocationMethodGroupUsageInVariableDeclaration()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 delegate void FooDelegate (string s);
 interface IBase
 {
@@ -534,16 +466,13 @@ class TestClass
 		derived.Bar();
 		FooDelegate d = derived.Foo;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void AccountsForNonInvocationMethodGroupUsageInAssignmentExpression()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 delegate void FooDelegate (string s);
 interface IBase
 {
@@ -561,17 +490,14 @@ class TestClass
 		FooDelegate d;
 		d = derived.Foo;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Ignore]
 		[Test]
 		public void AccountsForIndexers()
 		{
-			var input = @"
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestClass
 {
 	void Write(string[] s)
@@ -579,15 +505,7 @@ class TestClass
 		object.Equals(s, s);
 		var element = s[1];
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			var issue = issues[0];
-			// Suggested types: IList<T> and IReadOnlyList<T>
-			Assert.AreEqual(2, issue.Actions.Count);
-
-			CheckFix(context, issues [0], @"
+}",1 , @"
 class TestClass
 {
 	void Write(System.Collections.Generic.IList<string> s)
@@ -595,13 +513,13 @@ class TestClass
 		object.Equals(s, s);
 		var element = s[1];
 	}
-}");
+}", 1, 1);
 		}
 		
 		[Test]
 		public void AccountsForArrays()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestClass
 {
 	void Write(string[] s)
@@ -613,32 +531,26 @@ class TestClass
 	void SetValue (out string s)
 	{
 	} 
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void LimitsParamsParametersToArrays()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestClass
 {
 	void Write(params string[] s)
 	{
 		System.Console.WriteLine (s);
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void DoesNotSuggestProgramEntryPointChanges()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestClass
 {
 	public static void Main (string[] args)
@@ -646,16 +558,13 @@ class TestClass
 		if (args.Length > 2) {
 		}
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void IgnoresImplicitInterfaceImplementations()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IHasFoo
 {
 	void Foo (string s);
@@ -666,16 +575,13 @@ class TestClass : IHasFoo
 	{
 		object o = s;
 	} 
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void IgnoresEnumParameters()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 enum ApplicableValues
 {
 	None,
@@ -687,16 +593,13 @@ class TestClass
 	{
 		object o = av;
 	} 
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void CallToOverriddenMember()
 		{
-			var input = @"
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestBase
 {
 	public virtual void Foo()
@@ -713,14 +616,7 @@ class Test : TestBase
 	public override void Foo()
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			var issue = issues[0];
-			Assert.AreEqual(1, issue.Actions.Count);
-			
-			CheckFix(context, issue, @"
+}", @"
 class TestBase
 {
 	public virtual void Foo()
@@ -743,7 +639,7 @@ class Test : TestBase
 		[Test]
 		public void CallToShadowingMember()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestBase
 {
 	public virtual void Foo()
@@ -760,16 +656,13 @@ class Test : TestBase
 	public new void Foo()
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 		
 		[Test]
 		public void CallToShadowingMember2()
 		{
-			var input = @"
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestBaseBase
 {
 	public virtual void Foo()
@@ -792,14 +685,7 @@ class Test : TestBase
 	public override void Foo()
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			var issue = issues[0];
-			Assert.AreEqual(1, issue.Actions.Count);
-			
-			CheckFix(context, issue, @"
+}", @"
 class TestBaseBase
 {
 	public virtual void Foo()
@@ -828,7 +714,7 @@ class Test : TestBase
 		[Test]
 		public void CallToShadowingMemberWithBaseInterface()
 		{
-			var input = @"
+			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IFoo
 {
 	void Foo();
@@ -855,14 +741,7 @@ class Test : TestBase
 	protected override void Foo()
 	{
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(false), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			var issue = issues[0];
-			Assert.AreEqual(1, issue.Actions.Count);
-			
-			CheckFix(context, issue, @"
+}", @"
 interface IFoo
 {
 	void Foo();
@@ -952,7 +831,7 @@ class User {
 		[Test]
 		public void TestMicrosoftSuppressMessage()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class A
 {
 	public virtual void Foo() {}
@@ -968,16 +847,13 @@ class C
 	{
 		b.Foo();
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 		[Test]
 		public void TestDisableAll()
 		{
-			var input = @"// ReSharper disable All
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"// ReSharper disable All
 
 class A
 {
@@ -993,10 +869,7 @@ class C
 	{
 		b.Foo();
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+}");
 		}
 
 
@@ -1006,7 +879,7 @@ class C
 		[Test]
 		public void TestBug14099()
 		{
-			var input = @"
+			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 using System;
 
 public class Test
@@ -1016,10 +889,7 @@ public class Test
 		System.Console.WriteLine (ex.HelpLink);
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ParameterCanBeDeclaredWithBaseTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 
 

@@ -43,19 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription (
-		"Possible compare of value type with 'null'",
-		Description = "Possible compare of value type with 'null'",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "CompareNonConstrainedGenericWithNull")]
+	[ExportDiagnosticAnalyzer("Possible compare of value type with 'null'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Possible compare of value type with 'null'", AnalysisDisableKeyword = "CompareNonConstrainedGenericWithNull")]
 	public class CompareNonConstrainedGenericWithNullIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "CompareNonConstrainedGenericWithNullIssue";
+		const string Description            = "Possible compare of value type with 'null'";
+		const string MessageFormat          = "Replace with 'default'";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -78,58 +72,58 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static readonly AstNode pattern = new Choice {
-				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("node"), BinaryOperatorType.Equality, new NullReferenceExpression ()),
-				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("node"), BinaryOperatorType.InEquality, new NullReferenceExpression ())
-			};
-
-			void CheckCase(IType type, BinaryOperatorExpression binaryOperatorExpression, Expression expr)
-			{
-				if (type.Kind != TypeKind.TypeParameter || type.IsReferenceType == true)
-					return;
-				AddIssue(new CodeIssue(
-					binaryOperatorExpression,
-					ctx.TranslateString("Possible compare of value type with 'null'"),
-					ctx.TranslateString("Replace with 'default'"),
-					s => {
-						var builder = ctx.CreateTypeSystemAstBuilder(binaryOperatorExpression);
-						s.Replace(binaryOperatorExpression, 
-							new BinaryOperatorExpression(expr.Clone(), 
-								binaryOperatorExpression.Operator,
-								new DefaultValueExpression(builder.ConvertType(type))
-							)
-						); 
-					}
-				));
-			}
-
-			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-			{
-				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-				var match = pattern.Match(binaryOperatorExpression);
-				if (!match.Success)
-					return;
-				var expr = match.Get<Expression>("node").SingleOrDefault();
-				if (expr == null)
-					return;
-				var rr = ctx.Resolve(expr);
-
-				var lr = rr as LocalResolveResult;
-				if (lr != null)
-					CheckCase (lr.Variable.Type, binaryOperatorExpression, expr);
-				var mr = rr as MemberResolveResult;
-				if (mr != null)
-					CheckCase (mr.Member.ReturnType, binaryOperatorExpression, expr);
-			}
+//			static readonly AstNode pattern = new Choice {
+//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("node"), BinaryOperatorType.Equality, new NullReferenceExpression ()),
+//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("node"), BinaryOperatorType.InEquality, new NullReferenceExpression ())
+//			};
+//
+//			void CheckCase(IType type, BinaryOperatorExpression binaryOperatorExpression, Expression expr)
+//			{
+//				if (type.Kind != TypeKind.TypeParameter || type.IsReferenceType == true)
+//					return;
+//				AddIssue(new CodeIssue(
+//					binaryOperatorExpression,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString(""),
+//					s => {
+//						var builder = ctx.CreateTypeSystemAstBuilder(binaryOperatorExpression);
+//						s.Replace(binaryOperatorExpression, 
+//							new BinaryOperatorExpression(expr.Clone(), 
+//								binaryOperatorExpression.Operator,
+//								new DefaultValueExpression(builder.ConvertType(type))
+//							)
+//						); 
+//					}
+//				));
+//			}
+//
+//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+//			{
+//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+//				var match = pattern.Match(binaryOperatorExpression);
+//				if (!match.Success)
+//					return;
+//				var expr = match.Get<Expression>("node").SingleOrDefault();
+//				if (expr == null)
+//					return;
+//				var rr = ctx.Resolve(expr);
+//
+//				var lr = rr as LocalResolveResult;
+//				if (lr != null)
+//					CheckCase (lr.Variable.Type, binaryOperatorExpression, expr);
+//				var mr = rr as MemberResolveResult;
+//				if (mr != null)
+//					CheckCase (mr.Member.ReturnType, binaryOperatorExpression, expr);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CompareNonConstrainedGenericWithNullIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class CompareNonConstrainedGenericWithNullFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CompareNonConstrainedGenericWithNullIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

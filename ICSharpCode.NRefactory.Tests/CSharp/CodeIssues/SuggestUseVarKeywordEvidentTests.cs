@@ -37,36 +37,26 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			var input = @"class Foo
+			TestIssue<SuggestUseVarKeywordEvidentIssue>(@"class Foo
 {
 	void Bar (object o)
 	{
 		Foo foo = (Foo)o;
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new SuggestUseVarKeywordEvidentIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
+}");
 			// Fix is done by code action.
 		}
 
 		[Test]
 		public void TestV2 ()
 		{
-			var input = @"class Foo
+			TestWrongContext<SuggestUseVarKeywordEvidentIssue>(@"class Foo
 {
 	void Bar (object o)
 	{
 		Foo foo = (Foo)o;
 	}
-}";
-
-			TestRefactoringContext context;
-			CSharpParser parser = new CSharpParser();
-			parser.CompilerSettings.LanguageVersion = new Version(2, 0, 0);
-			var issues = GetIssues (new SuggestUseVarKeywordEvidentIssue (), input, out context, false, parser);
-			Assert.AreEqual (0, issues.Count);
+}");
 		}
 	}
 }

@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Call to static member via a derived class",
-	                   Description = "Suggests using the class declaring a static function when calling it.",
-		Category = IssueCategories.PracticesAndImprovements,
-	                   Severity = Severity.Warning,
-                       AnalysisDisableKeyword = "AccessToStaticMemberViaDerivedType")]
+	[ExportDiagnosticAnalyzer("Call to static member via a derived class", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Suggests using the class declaring a static function when calling it.", AnalysisDisableKeyword = "AccessToStaticMemberViaDerivedType")]
 	public class AccessToStaticMemberViaDerivedTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "AccessToStaticMemberViaDerivedTypeIssue";
+		const string Description            = "Static method invoked via derived type";
+		const string MessageFormat          = "Use base qualifier '{0}'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -72,99 +67,97 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<AccessToStaticMemberViaDerivedTypeIssue>
 		{
-			readonly BaseSemanticModel context;
-
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
-			{
-				base.VisitMemberReferenceExpression(memberReferenceExpression);
-				if (memberReferenceExpression == null || memberReferenceExpression.Target is ThisReferenceExpression)
-					// Call within current class scope using 'this' or 'base'
-					return;
-				var memberResolveResult = context.Resolve(memberReferenceExpression) as MemberResolveResult;
-				if (memberResolveResult == null)
-					return;
-				if (!memberResolveResult.Member.IsStatic)
-					return;
-				HandleMember(memberReferenceExpression, memberReferenceExpression.Target, memberResolveResult.Member, memberResolveResult.TargetResult);
-			}
-
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-				if (invocationExpression.Target is IdentifierExpression)
-					// Call within current class scope without 'this' or 'base'
-					return;
-				var memberReference = invocationExpression.Target as MemberReferenceExpression;
-				if (memberReference == null || memberReference.Target is ThisReferenceExpression)
-					// Call within current class scope using 'this' or 'base'
-					return;
-				var invocationResolveResult = context.Resolve(invocationExpression) as InvocationResolveResult;
-				if (invocationResolveResult == null)
-					return;
-				HandleMember(invocationExpression, memberReference.Target, invocationResolveResult.Member, invocationResolveResult.TargetResult);
-			}
-
-			void HandleMember(Expression issueAnchor, Expression targetExpression, IMember member, ResolveResult targetResolveResult)
-			{
-				var typeResolveResult = targetResolveResult as TypeResolveResult;
-				if (typeResolveResult == null)
-					return;
-				if (!member.IsStatic)
-					return;
-				if (typeResolveResult.Type.Equals(member.DeclaringType))
-					return;
-				// check whether member.DeclaringType contains the original type
-				// (curiously recurring template pattern)
-				var v = new ContainsTypeVisitor(typeResolveResult.Type.GetDefinition());
-				member.DeclaringType.AcceptVisitor(v);
-				if (v.IsContained)
-					return;
-				AddIssue(new CodeIssue(issueAnchor, context.TranslateString("Static method invoked via derived type"),
-					GetAction(context, targetExpression, member)));
-			}
-
-			CodeAction GetAction(BaseSemanticModel context, Expression targetExpression,
-			                     IMember member)
-			{
-				var builder = context.CreateTypeSystemAstBuilder(targetExpression);
-				var newType = builder.ConvertType(member.DeclaringType);
-				string description = string.Format("{0} '{1}'", context.TranslateString("Use base qualifier"), newType.ToString());
-				return new CodeAction(description, script => {
-					script.Replace(targetExpression, newType);
-				}, targetExpression);
-			}
-
-			sealed class ContainsTypeVisitor : TypeVisitor
-			{
-				readonly ITypeDefinition searchedType;
-				internal bool IsContained;
-
-				public ContainsTypeVisitor(ITypeDefinition searchedType)
-				{
-					this.searchedType = searchedType;
-				}
-
-				public override IType VisitTypeDefinition(ITypeDefinition type)
-				{
-					if (type.Equals(searchedType))
-						IsContained = true;
-					return base.VisitTypeDefinition(type);
-				}
-			}
+//			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
+//			{
+//				base.VisitMemberReferenceExpression(memberReferenceExpression);
+//				if (memberReferenceExpression == null || memberReferenceExpression.Target is ThisReferenceExpression)
+//					// Call within current class scope using 'this' or 'base'
+//					return;
+//				var memberResolveResult = context.Resolve(memberReferenceExpression) as MemberResolveResult;
+//				if (memberResolveResult == null)
+//					return;
+//				if (!memberResolveResult.Member.IsStatic)
+//					return;
+//				HandleMember(memberReferenceExpression, memberReferenceExpression.Target, memberResolveResult.Member, memberResolveResult.TargetResult);
+//			}
+//
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//				if (invocationExpression.Target is IdentifierExpression)
+//					// Call within current class scope without 'this' or 'base'
+//					return;
+//				var memberReference = invocationExpression.Target as MemberReferenceExpression;
+//				if (memberReference == null || memberReference.Target is ThisReferenceExpression)
+//					// Call within current class scope using 'this' or 'base'
+//					return;
+//				var invocationResolveResult = context.Resolve(invocationExpression) as InvocationResolveResult;
+//				if (invocationResolveResult == null)
+//					return;
+//				HandleMember(invocationExpression, memberReference.Target, invocationResolveResult.Member, invocationResolveResult.TargetResult);
+//			}
+//
+//			void HandleMember(Expression issueAnchor, Expression targetExpression, IMember member, ResolveResult targetResolveResult)
+//			{
+//				var typeResolveResult = targetResolveResult as TypeResolveResult;
+//				if (typeResolveResult == null)
+//					return;
+//				if (!member.IsStatic)
+//					return;
+//				if (typeResolveResult.Type.Equals(member.DeclaringType))
+//					return;
+//				// check whether member.DeclaringType contains the original type
+//				// (curiously recurring template pattern)
+//				var v = new ContainsTypeVisitor(typeResolveResult.Type.GetDefinition());
+//				member.DeclaringType.AcceptVisitor(v);
+//				if (v.IsContained)
+//					return;
+//				AddIssue(new CodeIssue(issueAnchor, context.TranslateString("Static method invoked via derived type"),
+//					GetAction(context, targetExpression, member)));
+//			}
+//
+//			CodeAction GetAction(BaseSemanticModel context, Expression targetExpression,
+//			                     IMember member)
+//			{
+//				var builder = context.CreateTypeSystemAstBuilder(targetExpression);
+//				var newType = builder.ConvertType(member.DeclaringType);
+//				string description = string.Format("{0} '{1}'", context.TranslateString("Use base qualifier"), newType.ToString());
+//				return new CodeAction(description, script => {
+//					script.Replace(targetExpression, newType);
+//				}, targetExpression);
+//			}
+//
+//			sealed class ContainsTypeVisitor : TypeVisitor
+//			{
+//				readonly ITypeDefinition searchedType;
+//				internal bool IsContained;
+//
+//				public ContainsTypeVisitor(ITypeDefinition searchedType)
+//				{
+//					this.searchedType = searchedType;
+//				}
+//
+//				public override IType VisitTypeDefinition(ITypeDefinition type)
+//				{
+//					if (type.Equals(searchedType))
+//						IsContained = true;
+//					return base.VisitTypeDefinition(type);
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(AccessToStaticMemberViaDerivedTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class AccessToStaticMemberViaDerivedTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return AccessToStaticMemberViaDerivedTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

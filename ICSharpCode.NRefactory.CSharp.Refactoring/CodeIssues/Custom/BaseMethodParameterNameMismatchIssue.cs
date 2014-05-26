@@ -43,16 +43,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription(
-		"Parameter name differs in base declaration",
-		Description = "Parameter name differs in base declaration",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning)]
+	[ExportDiagnosticAnalyzer("Parameter name differs in base declaration", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Parameter name differs in base declaration")]
 	public class BaseMethodParameterNameMismatchIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "BaseMethodParameterNameMismatchIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -77,87 +72,87 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-			{
-				// skip
-			}
-
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-				// SKIP
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-			{
-				Check (indexerDeclaration);
-			}
-
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				Check (methodDeclaration);
-			}
-
-			void Check (EntityDeclaration entity)
-			{
-				if (!entity.HasModifier(Modifiers.Override))
-					return;
-				var rr = ctx.Resolve(entity) as MemberResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-				var method = rr.Member as IParameterizedMember;
-				if (method == null)
-					return;
-				var baseMethod = InheritanceHelper.GetBaseMember(method) as IParameterizedMember;
-				if (baseMethod == null)
-					return;
-
-				for (int i = 0; i < Math.Min (method.Parameters.Count, baseMethod.Parameters.Count); i++) {
-					var arg     = method.Parameters[i];
-					var baseArg = baseMethod.Parameters[i];
-
-					if (arg.Name != baseArg.Name) {
-						int _i = i;
-						var parameters = entity.GetChildrenByRole (Roles.Parameter);
-						AddIssue(new CodeIssue(
-							parameters.ElementAt(_i).NameToken,
-							ctx.TranslateString("Parameter name differs in base method declaration"),
-							string.Format(ctx.TranslateString("Rename to '{0}'"), baseArg.Name),
-							s => {
-								s.Rename(arg, baseArg.Name);
-							}
-						));
-					}
-				}
-			}
+//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+//			{
+//				// skip
+//			}
+//
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//				// SKIP
+//			}
+//
+//			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
+//			{
+//				Check (indexerDeclaration);
+//			}
+//
+//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+//			{
+//				Check (methodDeclaration);
+//			}
+//
+//			void Check (EntityDeclaration entity)
+//			{
+//				if (!entity.HasModifier(Modifiers.Override))
+//					return;
+//				var rr = ctx.Resolve(entity) as MemberResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//				var method = rr.Member as IParameterizedMember;
+//				if (method == null)
+//					return;
+//				var baseMethod = InheritanceHelper.GetBaseMember(method) as IParameterizedMember;
+//				if (baseMethod == null)
+//					return;
+//
+//				for (int i = 0; i < Math.Min (method.Parameters.Count, baseMethod.Parameters.Count); i++) {
+//					var arg     = method.Parameters[i];
+//					var baseArg = baseMethod.Parameters[i];
+//
+//					if (arg.Name != baseArg.Name) {
+//						int _i = i;
+//						var parameters = entity.GetChildrenByRole (Roles.Parameter);
+//						AddIssue(new CodeIssue(
+//							parameters.ElementAt(_i).NameToken,
+//							ctx.TranslateString("Parameter name differs in base method declaration"),
+//							string.Format(ctx.TranslateString("Rename to '{0}'"), baseArg.Name),
+//							s => {
+//								s.Rename(arg, baseArg.Name);
+//							}
+//						));
+//					}
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(BaseMethodParameterNameMismatchIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class BaseMethodParameterNameMismatchFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return BaseMethodParameterNameMismatchIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

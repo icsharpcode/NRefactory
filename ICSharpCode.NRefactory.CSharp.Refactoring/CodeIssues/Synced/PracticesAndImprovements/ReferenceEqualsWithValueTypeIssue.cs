@@ -44,26 +44,20 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Check for reference equality instead",
-		Description = "Check for reference equality instead",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Suggestion,
-		AnalysisDisableKeyword = "ReferenceEqualsWithValueType"
-	)]
+	[ExportDiagnosticAnalyzer("Check for reference equality instead", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Check for reference equality instead", AnalysisDisableKeyword = "ReferenceEqualsWithValueType")]
 	public class ReferenceEqualsWithValueTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ReferenceEqualsWithValueTypeIssue";
+		const string Description            = "'Object.ReferenceEquals' is always false because it is called with value type";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace expression with 'false'", Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Use Equals()", Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
@@ -79,43 +73,43 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-
-				// Quickly determine if this invocation is eligible to speed up the inspector
-				var nameToken = invocationExpression.Target.GetChildByRole(Roles.Identifier);
-				if (nameToken.Name != "ReferenceEquals")
-					return;
-
-				var resolveResult = ctx.Resolve(invocationExpression) as InvocationResolveResult;
-				if (resolveResult == null ||
-				    resolveResult.Member.DeclaringTypeDefinition == null ||
-				    resolveResult.Member.DeclaringTypeDefinition.KnownTypeCode != KnownTypeCode.Object ||
-				    resolveResult.Member.Name != "ReferenceEquals" ||
-				    invocationExpression.Arguments.All(arg => ctx.Resolve(arg).Type.IsReferenceType ?? true))
-					return;
-
-				var action1 = new CodeAction(ctx.TranslateString("Replace expression with 'false'"),
-					              script => script.Replace(invocationExpression, new PrimitiveExpression(false)), invocationExpression);
-
-				var action2 = new CodeAction(ctx.TranslateString("Use Equals()"),
-					              script => script.Replace(invocationExpression.Target,
-						              new PrimitiveType("object").Member("Equals")), invocationExpression);
-
-				AddIssue(new CodeIssue(invocationExpression,
-					ctx.TranslateString("'Object.ReferenceEquals' is always false because it is called with value type"),
-					new [] { action1, action2 }));
-			}
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//
+//				// Quickly determine if this invocation is eligible to speed up the inspector
+//				var nameToken = invocationExpression.Target.GetChildByRole(Roles.Identifier);
+//				if (nameToken.Name != "ReferenceEquals")
+//					return;
+//
+//				var resolveResult = ctx.Resolve(invocationExpression) as InvocationResolveResult;
+//				if (resolveResult == null ||
+//				    resolveResult.Member.DeclaringTypeDefinition == null ||
+//				    resolveResult.Member.DeclaringTypeDefinition.KnownTypeCode != KnownTypeCode.Object ||
+//				    resolveResult.Member.Name != "ReferenceEquals" ||
+//				    invocationExpression.Arguments.All(arg => ctx.Resolve(arg).Type.IsReferenceType ?? true))
+//					return;
+//
+//				var action1 = new CodeAction(ctx.TranslateString("Replace expression with 'false'"),
+//					              script => script.Replace(invocationExpression, new PrimitiveExpression(false)), invocationExpression);
+//
+//				var action2 = new CodeAction(ctx.TranslateString("Use Equals()"),
+//					              script => script.Replace(invocationExpression.Target,
+//						              new PrimitiveType("object").Member("Equals")), invocationExpression);
+//
+//				AddIssue(new CodeIssue(invocationExpression,
+//					ctx.TranslateString("'Object.ReferenceEquals' is always false because it is called with value type"),
+//					new [] { action1, action2 }));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ReferenceEqualsWithValueTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ReferenceEqualsWithValueTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ReferenceEqualsWithValueTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

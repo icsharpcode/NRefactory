@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"
+			TestIssue<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
@@ -50,16 +50,13 @@ namespace Demo
 		}
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ConvertToStaticTypeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+");
 		}
 
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"
+			TestWrongContext<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
@@ -74,16 +71,13 @@ namespace Demo
 		}
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ConvertToStaticTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 
 		[Test]
 		public void TestInspectorCase3()
 		{
-			var input = @"
+			TestWrongContext<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
@@ -97,16 +91,13 @@ namespace Demo
 		}
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ConvertToStaticTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 
 		[Test]
 		public void TestInspectorCase4()
 		{
-			var input = @"
+			TestWrongContext<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
@@ -121,10 +112,7 @@ namespace Demo
 		}
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new ConvertToStaticTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 
 
@@ -171,7 +159,7 @@ namespace Demo
 		[Test]
 		public void TestResharperDisable()
 		{
-			var input = @"using System;
+			TestWrongContext<ConvertToStaticTypeIssue>(@"using System;
 
 namespace Demo
 {
@@ -187,11 +175,7 @@ namespace Demo
 	}
 //Resharper restore ConcertToStaticType
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new ConvertToStaticTypeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 
 		/// <summary>

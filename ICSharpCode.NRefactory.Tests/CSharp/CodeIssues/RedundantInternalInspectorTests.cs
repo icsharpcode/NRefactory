@@ -36,20 +36,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			var input = @"namespace Test {
+			Test<RedundantInternalIssue>(@"namespace Test {
 	internal class Foo
 	{
 		internal void Bar (string str)
 		{
 		}
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new RedundantInternalIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-
-			CheckFix (context, issues [0], @"namespace Test {
+}", @"namespace Test {
 	class Foo
 	{
 		internal void Bar (string str)

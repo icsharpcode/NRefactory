@@ -43,20 +43,14 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("CS0659: Class overrides Object.Equals but not Object.GetHashCode.",
-		Description = "If two objects are equal then they must both have the same hash code",
-		Category = IssueCategories.CompilerWarnings,
-		Severity = Severity.Warning,
-		PragmaWarning = 1717,
-		AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
+	[ExportDiagnosticAnalyzer("CS0659: Class overrides Object.Equals but not Object.GetHashCode.", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "If two objects are equal then they must both have the same hash code", PragmaWarning = 1717, AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "CS0659ClassOverrideEqualsWithoutGetHashCode";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
 
@@ -77,81 +71,81 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				base.VisitMethodDeclaration(methodDeclaration);
-
-				var resolvedResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
-				if (resolvedResult == null)
-					return;
-				var method = resolvedResult.Member as IMethod;
-
-				if (method == null || !method.Name.Equals("Equals") || ! method.IsOverride)
-					return;
-
-				if (methodDeclaration.Parameters.Count != 1)
-					return;
-	
-				if (!method.Parameters.Single().Type.FullName.Equals("System.Object"))
-					return;
-
-				var classDeclration = method.DeclaringTypeDefinition;
-				if (classDeclration == null)
-					return;
-
-				List<IMethod> getHashCode = new List<IMethod>();
-				var methods = classDeclration.GetMethods();
-
-				foreach (var m in methods) {
-					if (m.Name.Equals("GetHashCode")) {
-						getHashCode.Add(m);
-					}
-				}
-
-				if (!getHashCode.Any()) {
-					AddIssue(ctx, methodDeclaration);
-					return;
-				} else if (getHashCode.Any(f => (f.IsOverride && f.ReturnType.IsKnownType(KnownTypeCode.Int32)))) {
-					return;
-				}
-				AddIssue(ctx, methodDeclaration);
-			}
-
-			private void AddIssue(BaseSemanticModel ctx, AstNode node)
-			{
-				var getHashCode = new MethodDeclaration();
-				getHashCode.Name = "GetHashCode";
-				getHashCode.Modifiers = Modifiers.Public;
-				getHashCode.Modifiers |= Modifiers.Override;
-				getHashCode.ReturnType = new PrimitiveType("int");
-
-				var blockStatement = new BlockStatement();
-				var invocationExpression = new InvocationExpression(new MemberReferenceExpression(new BaseReferenceExpression(),"GetHashCode"));
-				var returnStatement = new ReturnStatement(invocationExpression);
-				blockStatement.Add(returnStatement);
-				getHashCode.Body = blockStatement;
-
-				AddIssue(new CodeIssue(
-					(node as MethodDeclaration).NameToken, 
-					ctx.TranslateString("If two objects are equal then they must both have the same hash code"),
-					new CodeAction(
-					ctx.TranslateString("Override GetHashCode"),
-					script => {
-					script.InsertAfter(node, getHashCode); 
-				},
-				node
-					)));
-			}
+//
+//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+//			{
+//				base.VisitMethodDeclaration(methodDeclaration);
+//
+//				var resolvedResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
+//				if (resolvedResult == null)
+//					return;
+//				var method = resolvedResult.Member as IMethod;
+//
+//				if (method == null || !method.Name.Equals("Equals") || ! method.IsOverride)
+//					return;
+//
+//				if (methodDeclaration.Parameters.Count != 1)
+//					return;
+//	
+//				if (!method.Parameters.Single().Type.FullName.Equals("System.Object"))
+//					return;
+//
+//				var classDeclration = method.DeclaringTypeDefinition;
+//				if (classDeclration == null)
+//					return;
+//
+//				List<IMethod> getHashCode = new List<IMethod>();
+//				var methods = classDeclration.GetMethods();
+//
+//				foreach (var m in methods) {
+//					if (m.Name.Equals("GetHashCode")) {
+//						getHashCode.Add(m);
+//					}
+//				}
+//
+//				if (!getHashCode.Any()) {
+//					AddIssue(ctx, methodDeclaration);
+//					return;
+//				} else if (getHashCode.Any(f => (f.IsOverride && f.ReturnType.IsKnownType(KnownTypeCode.Int32)))) {
+//					return;
+//				}
+//				AddIssue(ctx, methodDeclaration);
+//			}
+//
+//			private void AddIssue(BaseSemanticModel ctx, AstNode node)
+//			{
+//				var getHashCode = new MethodDeclaration();
+//				getHashCode.Name = "GetHashCode";
+//				getHashCode.Modifiers = Modifiers.Public;
+//				getHashCode.Modifiers |= Modifiers.Override;
+//				getHashCode.ReturnType = new PrimitiveType("int");
+//
+//				var blockStatement = new BlockStatement();
+//				var invocationExpression = new InvocationExpression(new MemberReferenceExpression(new BaseReferenceExpression(),"GetHashCode"));
+//				var returnStatement = new ReturnStatement(invocationExpression);
+//				blockStatement.Add(returnStatement);
+//				getHashCode.Body = blockStatement;
+//
+//				AddIssue(new CodeIssue(
+//					(node as MethodDeclaration).NameToken, 
+//					ctx.TranslateString("If two objects are equal then they must both have the same hash code"),
+//					new CodeAction(
+//					ctx.TranslateString("Override GetHashCode"),
+//					script => {
+//					script.InsertAfter(node, getHashCode); 
+//				},
+//				node
+//					)));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CS0659ClassOverrideEqualsWithoutGetHashCode.DiagnosticId, LanguageNames.CSharp)]
+	public class CS0659ClassOverrideEqualsWithoutGetHashCodeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CS0659ClassOverrideEqualsWithoutGetHashCode.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -36,18 +36,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			var input = @"class Foo
+			Test<ConditionalTernaryEqualBranchIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		string c = str != null ? ""default"" : ""default"";
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ConditionalTernaryEqualBranchIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-
-			CheckFix (context, issues [0], @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -60,18 +55,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestMoreComplexBranch ()
 		{
-			var input = @"class Foo
+			Test<ConditionalTernaryEqualBranchIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		var c = str != null ? 3 + (3 * 4) - 12 * str.Length : 3 + (3 * 4) - 12 * str.Length;
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ConditionalTernaryEqualBranchIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-
-			CheckFix (context, issues [0], @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -84,33 +74,27 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestNotEqualBranches ()
 		{
-			var input = @"class Foo
+			TestWrongContext<ConditionalTernaryEqualBranchIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		string c = str != null ? ""default"" : ""default2"";
 	}
-}";
-			TestRefactoringContext context;
-			var issues = GetIssues (new ConditionalTernaryEqualBranchIssue (), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 
 		}
 
 		[Test]
 		public void TestResharperSuppression ()
 		{
-			var input = @"class Foo
+			TestWrongContext<ConditionalTernaryEqualBranchIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 // ReSharper disable once ConditionalTernaryEqualBranch
 		string c = str != null ? ""default"" : ""default"";
 	}
-}";
-			TestRefactoringContext context;
-            var issues = GetIssues(new ConditionalTernaryEqualBranchIssue(), input, out context);
-			Assert.AreEqual (0, issues.Count);
+}");
 
 		}
 
@@ -135,7 +119,7 @@ class TestClass
 		var b = i > 1 ? 1 : 2;
 	}
 }";
-            Test<ConditionalTernaryEqualBranchIssue>(input, 1, output);
+			Test<ConditionalTernaryEqualBranchIssue>(input, 1, output);
         }
 	}
 }

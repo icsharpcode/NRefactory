@@ -42,53 +42,48 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
 	/// <summary>
 	/// Checks for "a != null ? a : other"<expr>
 	/// Converts to: "a ?? other"<expr>
 	/// </summary>
-	[IssueDescription("'?:' expression can be converted to '??' expression",
-	                  Description="'?:' expression can be converted to '??' expression.",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
+	[DiagnosticAnalyzer]
+	[ExportDiagnosticAnalyzer("'?:' expression can be converted to '??' expression", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "'?:' expression can be converted to '??' expression.", AnalysisDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
 	public class ConvertConditionalTernaryToNullCoalescingIssue : GatherVisitorCodeIssueProvider
 	{
-		static readonly Pattern unequalPattern = new Choice {
-			// a != null ? a : other
-			new ConditionalExpression(
-				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
-				new Backreference("a"),
-				new AnyNode("other")
-			),
-
-			// obj != null ? (Type)obj : other
-			new ConditionalExpression(
-				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("obj"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
-				new NamedNode("a", new CastExpression(new AnyNode(), new Backreference("obj"))),
-				new AnyNode("other")
-			)
-
-		};
-
-		static readonly Pattern equalPattern = new Choice {
-			// a == null ? other : a
-			new ConditionalExpression(
-				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.Equality, new NullReferenceExpression()),
-				new AnyNode("other"),
-				new Backreference("a")
-			)
-		};
+//		static readonly Pattern unequalPattern = new Choice {
+//			// a != null ? a : other
+//			new ConditionalExpression(
+//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
+//				new Backreference("a"),
+//				new AnyNode("other")
+//			),
+//
+//			// obj != null ? (Type)obj : other
+//			new ConditionalExpression(
+//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("obj"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
+//				new NamedNode("a", new CastExpression(new AnyNode(), new Backreference("obj"))),
+//				new AnyNode("other")
+//			)
+//
+//		};
+//
+//		static readonly Pattern equalPattern = new Choice {
+//			// a == null ? other : a
+//			new ConditionalExpression(
+//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.Equality, new NullReferenceExpression()),
+//				new AnyNode("other"),
+//				new Backreference("a")
+//			)
+//		};
 
 		
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertConditionalTernaryToNullCoalescingIssue";
+		const string Description            = "'?:' expression can be re-written as '??' expression";
+		const string MessageFormat          = "Replace '?:'  operator with '??";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -107,44 +102,44 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
-			{
-				Match m = unequalPattern.Match(conditionalExpression);
-				bool isEqual = false;
-				if (!m.Success) {
-					isEqual = true;
-					m = equalPattern.Match(conditionalExpression);
-				}
-				if (m.Success) {
-					var a = m.Get<Expression>("a").Single();
-					var other = m.Get<Expression>("other").Single();
-
-					if (isEqual) {
-						var castExpression = other as CastExpression;
-						if (castExpression != null) {
-							a = new CastExpression(castExpression.Type.Clone(), a.Clone());
-							other = castExpression.Expression;
-						}
-					}
-
-					AddIssue(new CodeIssue(conditionalExpression, ctx.TranslateString("'?:' expression can be re-written as '??' expression"), new CodeAction (
-						ctx.TranslateString("Replace '?:'  operator with '??"), script => {
-							var expr = new BinaryOperatorExpression (a.Clone (), BinaryOperatorType.NullCoalescing, other.Clone ());
-							script.Replace (conditionalExpression, expr);
-						}, conditionalExpression)));
-				}
-				base.VisitConditionalExpression (conditionalExpression);
-			}
+//
+//			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
+//			{
+//				Match m = unequalPattern.Match(conditionalExpression);
+//				bool isEqual = false;
+//				if (!m.Success) {
+//					isEqual = true;
+//					m = equalPattern.Match(conditionalExpression);
+//				}
+//				if (m.Success) {
+//					var a = m.Get<Expression>("a").Single();
+//					var other = m.Get<Expression>("other").Single();
+//
+//					if (isEqual) {
+//						var castExpression = other as CastExpression;
+//						if (castExpression != null) {
+//							a = new CastExpression(castExpression.Type.Clone(), a.Clone());
+//							other = castExpression.Expression;
+//						}
+//					}
+//
+//					AddIssue(new CodeIssue(conditionalExpression, ctx.TranslateString(), new CodeAction (
+//						ctx.TranslateString(), script => {
+//							var expr = new BinaryOperatorExpression (a.Clone (), BinaryOperatorType.NullCoalescing, other.Clone ());
+//							script.Replace (conditionalExpression, expr);
+//						}, conditionalExpression)));
+//				}
+//				base.VisitConditionalExpression (conditionalExpression);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertConditionalTernaryToNullCoalescingIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertConditionalTernaryToNullCoalescingFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertConditionalTernaryToNullCoalescingIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

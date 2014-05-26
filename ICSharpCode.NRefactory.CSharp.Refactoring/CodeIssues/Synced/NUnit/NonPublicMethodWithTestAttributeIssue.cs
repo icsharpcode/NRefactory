@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("NUnit Test methods should have public visibility",
-	                  Description = "Non public methods are not found by NUnit.",
-		Category = IssueCategories.NUnit,
-	                  Severity = Severity.Hint,
-	                  AnalysisDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
+	[ExportDiagnosticAnalyzer("NUnit Test methods should have public visibility", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Non public methods are not found by NUnit.", AnalysisDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
 	public class NonPublicMethodWithTestAttributeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "NonPublicMethodWithTestAttributeIssue";
+		const string Description            = "NUnit test methods should be public";
+		const string MessageFormat          = "Make method public";
 		const string Category               = IssueCategories.NUnit;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,41 +72,41 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				var result = ctx.Resolve(methodDeclaration) as MemberResolveResult; 
-				if (result == null || result.IsError)
-					return;
-
-				var member = result.Member;
-				if (member.IsOverride || member.IsStatic || member.IsPublic)
-					return;
-
-				if (!member.Attributes.Any(attr => attr.AttributeType.Name == "TestAttribute" && attr.AttributeType.Namespace == "NUnit.Framework"))
-					return;
-				AddIssue(new CodeIssue(
-					methodDeclaration.NameToken,
-					ctx.TranslateString("NUnit test methods should be public"),
-					ctx.TranslateString("Make method public"),
-					script => {
-						script.ChangeModifier(methodDeclaration, Modifiers.Public);
-					}
-				));
-			}
-
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-				// Empty
-			}
+//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+//			{
+//				var result = ctx.Resolve(methodDeclaration) as MemberResolveResult; 
+//				if (result == null || result.IsError)
+//					return;
+//
+//				var member = result.Member;
+//				if (member.IsOverride || member.IsStatic || member.IsPublic)
+//					return;
+//
+//				if (!member.Attributes.Any(attr => attr.AttributeType.Name == "TestAttribute" && attr.AttributeType.Namespace == "NUnit.Framework"))
+//					return;
+//				AddIssue(new CodeIssue(
+//					methodDeclaration.NameToken,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString(""),
+//					script => {
+//						script.ChangeModifier(methodDeclaration, Modifiers.Public);
+//					}
+//				));
+//			}
+//
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//				// Empty
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(NonPublicMethodWithTestAttributeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class NonPublicMethodWithTestAttributeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return NonPublicMethodWithTestAttributeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

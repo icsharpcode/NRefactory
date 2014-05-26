@@ -43,20 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'if' statement can be re-written as 'switch' statement",
-	                  Description="Convert 'if' to 'switch'",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint)]
+	[ExportDiagnosticAnalyzer("Convert 'if' to 'switch'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "'if' statement can be re-written as 'switch' statement")]
 	public class ConvertIfStatementToSwitchStatementIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertIfStatementToSwitchStatementIssue";
+		const string Description            = "Convert to 'switch' statement";
+		const string MessageFormat          = "Convert to 'switch' statement";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -75,36 +71,36 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
-
-				if (ifElseStatement.Parent is IfElseStatement)
-					return;
-
-				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression (ctx, ifElseStatement.Condition);
-				if (switchExpr == null)
-					return;
-				var switchSections = new List<SwitchSection> ();
-				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr))
-					return;
-				if (switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)) <= 2)
-					return;
-				AddIssue(new CodeIssue(
-					ifElseStatement.IfToken,
-					ctx.TranslateString("Convert to 'switch' statement")) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToSwitchStatementAction) } });
-
-			}
+//
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//
+//				if (ifElseStatement.Parent is IfElseStatement)
+//					return;
+//
+//				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression (ctx, ifElseStatement.Condition);
+//				if (switchExpr == null)
+//					return;
+//				var switchSections = new List<SwitchSection> ();
+//				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr))
+//					return;
+//				if (switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)) <= 2)
+//					return;
+//				AddIssue(new CodeIssue(
+//					ifElseStatement.IfToken,
+//					ctx.TranslateString("")) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToSwitchStatementAction) } });
+//
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertIfStatementToSwitchStatementIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertIfStatementToSwitchStatementFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertIfStatementToSwitchStatementIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

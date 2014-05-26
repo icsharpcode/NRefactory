@@ -43,16 +43,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("[Optional] attribute with 'ref' or 'out' parameter",
-	                  Description="C# doesn't support optional 'ref' or 'out' parameters",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "OptionalParameterRefOut")]
+	[ExportDiagnosticAnalyzer("[Optional] attribute with 'ref' or 'out' parameter", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "C# doesn't support optional 'ref' or 'out' parameters", AnalysisDisableKeyword = "OptionalParameterRefOut")]
 	public class OptionalParameterRefOutIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "OptionalParameterRefOutIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -77,30 +72,30 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
-			{
-				base.VisitParameterDeclaration(parameterDeclaration);
-				if (parameterDeclaration.ParameterModifier != ParameterModifier.Ref && parameterDeclaration.ParameterModifier != ParameterModifier.Out)
-					return;
-				foreach (var sect in parameterDeclaration.Attributes) {
-					foreach (var attr in sect.Attributes) {
-						var rr = ctx.Resolve(attr);
-						if (rr.Type.Name == "OptionalAttribute" && rr.Type.Namespace == "System.Runtime.InteropServices") {
-							AddIssue(new CodeIssue(attr, ctx.TranslateString("A 'ref' or 'out' parameter can't be optional")));
-							return;
-						}
-					}
-				}
-			}
+//			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
+//			{
+//				base.VisitParameterDeclaration(parameterDeclaration);
+//				if (parameterDeclaration.ParameterModifier != ParameterModifier.Ref && parameterDeclaration.ParameterModifier != ParameterModifier.Out)
+//					return;
+//				foreach (var sect in parameterDeclaration.Attributes) {
+//					foreach (var attr in sect.Attributes) {
+//						var rr = ctx.Resolve(attr);
+//						if (rr.Type.Name == "OptionalAttribute" && rr.Type.Namespace == "System.Runtime.InteropServices") {
+//							AddIssue(new CodeIssue(attr, ctx.TranslateString("A 'ref' or 'out' parameter can't be optional")));
+//							return;
+//						}
+//					}
+//				}
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(OptionalParameterRefOutIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class OptionalParameterRefOutIssueFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return OptionalParameterRefOutIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

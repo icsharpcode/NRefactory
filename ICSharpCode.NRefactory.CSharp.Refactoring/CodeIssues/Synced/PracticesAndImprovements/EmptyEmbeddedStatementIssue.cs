@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Empty control statement body",
-	                   Description = "';' should be avoided. Use '{}' instead",
-	                   Category = IssueCategories.PracticesAndImprovements,
-	                   Severity = Severity.Warning,
-	                   AnalysisDisableKeyword = "EmptyEmbeddedStatement")]
+	[ExportDiagnosticAnalyzer("Empty control statement body", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "';' should be avoided. Use '{}' instead", AnalysisDisableKeyword = "EmptyEmbeddedStatement")]
 	public class EmptyEmbeddedStatementIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "EmptyEmbeddedStatementIssue";
+		const string Description            = "';' should be avoided. Use '{}' instead";
+		const string MessageFormat          = "Replace with '{}'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -76,63 +71,63 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitWhileStatement(WhileStatement whileStatement)
-			{
-				base.VisitWhileStatement(whileStatement);
-				var statement = whileStatement.EmbeddedStatement as EmptyStatement;
-				if (statement == null)
-					return;
-
-				AddIssue(new CodeIssue(whileStatement.EmbeddedStatement,
-				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-					script => script.Replace(whileStatement.EmbeddedStatement, new BlockStatement())));
-			}
-
-			public override void VisitForeachStatement(ForeachStatement foreachStatement)
-			{
-				base.VisitForeachStatement(foreachStatement);
-				var statement = foreachStatement.EmbeddedStatement as EmptyStatement;
-				if (statement == null)
-					return;
-
-				AddIssue(new CodeIssue(foreachStatement.EmbeddedStatement,
-				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-					script => script.Replace(foreachStatement.EmbeddedStatement, new BlockStatement())));
-			}
-
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
-				var statement = ifElseStatement.TrueStatement as EmptyStatement;
-				if (statement == null)
-					return;
-				AddIssue(new CodeIssue(ifElseStatement.TrueStatement, 
-				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-					script => script.Replace(ifElseStatement.TrueStatement, new BlockStatement())));
-			}
-
-			public override void VisitForStatement(ForStatement forStatement)
-			{
-				base.VisitForStatement(forStatement);
-
-				var statement = forStatement.EmbeddedStatement as EmptyStatement;
-				if (statement == null)
-					return;
-
-				AddIssue(new CodeIssue(forStatement.EmbeddedStatement,
-				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-					script => script.Replace(forStatement.EmbeddedStatement, new BlockStatement())));
-			}
+//
+//			public override void VisitWhileStatement(WhileStatement whileStatement)
+//			{
+//				base.VisitWhileStatement(whileStatement);
+//				var statement = whileStatement.EmbeddedStatement as EmptyStatement;
+//				if (statement == null)
+//					return;
+//
+//				AddIssue(new CodeIssue(whileStatement.EmbeddedStatement,
+//				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
+//					script => script.Replace(whileStatement.EmbeddedStatement, new BlockStatement())));
+//			}
+//
+//			public override void VisitForeachStatement(ForeachStatement foreachStatement)
+//			{
+//				base.VisitForeachStatement(foreachStatement);
+//				var statement = foreachStatement.EmbeddedStatement as EmptyStatement;
+//				if (statement == null)
+//					return;
+//
+//				AddIssue(new CodeIssue(foreachStatement.EmbeddedStatement,
+//				                     ctx.TranslateString(""), ctx.TranslateString("Replace with '{}'"),
+//					script => script.Replace(foreachStatement.EmbeddedStatement, new BlockStatement())));
+//			}
+//
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//				var statement = ifElseStatement.TrueStatement as EmptyStatement;
+//				if (statement == null)
+//					return;
+//				AddIssue(new CodeIssue(ifElseStatement.TrueStatement, 
+//				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
+//					script => script.Replace(ifElseStatement.TrueStatement, new BlockStatement())));
+//			}
+//
+//			public override void VisitForStatement(ForStatement forStatement)
+//			{
+//				base.VisitForStatement(forStatement);
+//
+//				var statement = forStatement.EmbeddedStatement as EmptyStatement;
+//				if (statement == null)
+//					return;
+//
+//				AddIssue(new CodeIssue(forStatement.EmbeddedStatement,
+//				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString(""),
+//					script => script.Replace(forStatement.EmbeddedStatement, new BlockStatement())));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(EmptyEmbeddedStatementIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class EmptyEmbeddedStatementFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return EmptyEmbeddedStatementIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

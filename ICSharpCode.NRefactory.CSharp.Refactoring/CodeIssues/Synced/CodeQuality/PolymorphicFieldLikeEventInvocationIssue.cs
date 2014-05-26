@@ -43,17 +43,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription (
-		"Invocation of polymorphic field event",
-		Description = "Invocation of polymorphic field event leads to unpredictable result since invocation lists are not virtual",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "PolymorphicFieldLikeEventInvocation")]
+	[ExportDiagnosticAnalyzer("Invocation of polymorphic field event", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Invocation of polymorphic field event leads to unpredictable result since invocation lists are not virtual", AnalysisDisableKeyword = "PolymorphicFieldLikeEventInvocation")]
 	public class PolymorphicFieldLikeEventInvocationIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "PolymorphicFieldLikeEventInvocationIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -78,35 +72,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-				var rr = ctx.Resolve(invocationExpression.Target) as MemberResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-				var evt = rr.Member as IEvent;
-				if (evt == null || !evt.IsOverride)
-					return;
-				if (evt.AddAccessor.HasBody) {
-					AddIssue(new CodeIssue(
-						invocationExpression.Target,
-						string.Format(ctx.TranslateString("The event `{0}' can only appear on the left hand side of `+=' or `-=' operator"), evt.Name)
-					));
-					return;
-				}
-				AddIssue(new CodeIssue(
-					invocationExpression,
-					ctx.TranslateString("Invocation of polymorphic field like event")));
-			}
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//				var rr = ctx.Resolve(invocationExpression.Target) as MemberResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//				var evt = rr.Member as IEvent;
+//				if (evt == null || !evt.IsOverride)
+//					return;
+//				if (evt.AddAccessor.HasBody) {
+//					AddIssue(new CodeIssue(
+//						invocationExpression.Target,
+//						string.Format(ctx.TranslateString("The event `{0}' can only appear on the left hand side of `+=' or `-=' operator"), evt.Name)
+//					));
+//					return;
+//				}
+//				AddIssue(new CodeIssue(
+//					invocationExpression,
+//					ctx.TranslateString("Invocation of polymorphic field like event")));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(PolymorphicFieldLikeEventInvocationIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class PolymorphicFieldLikeEventInvocationFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return PolymorphicFieldLikeEventInvocationIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

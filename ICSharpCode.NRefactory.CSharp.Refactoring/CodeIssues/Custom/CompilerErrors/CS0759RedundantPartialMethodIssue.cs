@@ -42,20 +42,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("CS0759: A partial method implementation is missing a partial method declaration",
-	                   Description = "A partial method must have a defining declaration that defines the signature (name, return type and parameters) of the method. The implementation or method body is optional.",
-	                   Category = IssueCategories.CompilerErrors,
-	                   Severity = Severity.Error)]
+	[ExportDiagnosticAnalyzer("CS0759: A partial method implementation is missing a partial method declaration", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "A partial method must have a defining declaration that defines the signature (name, return type and parameters) of the method. The implementation or method body is optional.")]
 	public class CS0759RedundantPartialMethodIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "CS0759RedundantPartialMethodIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.CompilerErrors;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -75,49 +71,49 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				if (!methodDeclaration.HasModifier(Modifiers.Partial))
-					return;
-
-				var resolveResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
-				if (resolveResult == null)
-					return;
-
-				var method = (IMethod) resolveResult.Member;
-				if (method == null)
-					return;
-
-				if (!method.HasBody)
-					return;
-
-				if (method.Parts.Count == 1) {
-					AddIssue(new CodeIssue(methodDeclaration.NameToken,
-					         string.Format(ctx.TranslateString("CS0759: A partial method `{0}' implementation is missing a partial method declaration"), method.FullName),
-						GetFixAction(methodDeclaration)));
-				}
-			}
-
-			public override void VisitBlockStatement(BlockStatement blockStatement)
-			{
-				//We never need to visit the children of block statements
-			}
-
-			CodeAction GetFixAction(MethodDeclaration methodDeclaration)
-			{
-				return new CodeAction(ctx.TranslateString("Remove 'partial'"), script => {
-					script.ChangeModifier (methodDeclaration, methodDeclaration.Modifiers & ~Modifiers.Partial);
-				}, methodDeclaration);
-			}
+//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+//			{
+//				if (!methodDeclaration.HasModifier(Modifiers.Partial))
+//					return;
+//
+//				var resolveResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
+//				if (resolveResult == null)
+//					return;
+//
+//				var method = (IMethod) resolveResult.Member;
+//				if (method == null)
+//					return;
+//
+//				if (!method.HasBody)
+//					return;
+//
+//				if (method.Parts.Count == 1) {
+//					AddIssue(new CodeIssue(methodDeclaration.NameToken,
+//					         string.Format(ctx.TranslateString("CS0759: A partial method `{0}' implementation is missing a partial method declaration"), method.FullName),
+//						GetFixAction(methodDeclaration)));
+//				}
+//			}
+//
+//			public override void VisitBlockStatement(BlockStatement blockStatement)
+//			{
+//				//We never need to visit the children of block statements
+//			}
+//
+//			CodeAction GetFixAction(MethodDeclaration methodDeclaration)
+//			{
+//				return new CodeAction(ctx.TranslateString("Remove 'partial'"), script => {
+//					script.ChangeModifier (methodDeclaration, methodDeclaration.Modifiers & ~Modifiers.Partial);
+//				}, methodDeclaration);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CS0759RedundantPartialMethodIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class CS0759RedundantPartialMethodIssueFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CS0759RedundantPartialMethodIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

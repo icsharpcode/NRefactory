@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Delegate subtractions",
-		Description = "Delegate subtraction has unpredictable result",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "DelegateSubtraction")]
+	[ExportDiagnosticAnalyzer("Delegate subtractions", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Delegate subtraction has unpredictable result", AnalysisDisableKeyword = "DelegateSubtraction")]
 	public class DelegateSubtractionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "DelegateSubtractionIssue";
+		const string Description            = "Delegate subtraction has unpredictable result";
+		const string MessageFormat          = "Delegate subtraction has unpredictable result";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -77,41 +72,41 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-			{
-				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-				if (binaryOperatorExpression.Operator != BinaryOperatorType.Subtract)
-					return;
-				var rr = ctx.Resolve(binaryOperatorExpression.Right);
-				if (rr.Type.Kind == ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate && !IsEvent (binaryOperatorExpression.Left)) {
-					AddIssue(new CodeIssue(binaryOperatorExpression, ctx.TranslateString("Delegate subtraction has unpredictable result")));
-				}
-			}
-
-			bool IsEvent(AstNode node)
-			{
-				var rr = ctx.Resolve(node) as MemberResolveResult;
-				return rr != null && rr.Member.SymbolKind == ICSharpCode.NRefactory.TypeSystem.SymbolKind.Event;
-			}
-
-			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
-			{
-				base.VisitAssignmentExpression(assignmentExpression);
-				if (assignmentExpression.Operator != AssignmentOperatorType.Subtract)
-					return;
-				var rr = ctx.Resolve(assignmentExpression.Right);
-				if (rr.Type.Kind == ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate && !IsEvent (assignmentExpression.Left))
-					AddIssue(new CodeIssue(assignmentExpression, ctx.TranslateString("Delegate subtraction has unpredictable result")));
-			}
+//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+//			{
+//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+//				if (binaryOperatorExpression.Operator != BinaryOperatorType.Subtract)
+//					return;
+//				var rr = ctx.Resolve(binaryOperatorExpression.Right);
+//				if (rr.Type.Kind == ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate && !IsEvent (binaryOperatorExpression.Left)) {
+//					AddIssue(new CodeIssue(binaryOperatorExpression, ctx.TranslateString("")));
+//				}
+//			}
+//
+//			bool IsEvent(AstNode node)
+//			{
+//				var rr = ctx.Resolve(node) as MemberResolveResult;
+//				return rr != null && rr.Member.SymbolKind == ICSharpCode.NRefactory.TypeSystem.SymbolKind.Event;
+//			}
+//
+//			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
+//			{
+//				base.VisitAssignmentExpression(assignmentExpression);
+//				if (assignmentExpression.Operator != AssignmentOperatorType.Subtract)
+//					return;
+//				var rr = ctx.Resolve(assignmentExpression.Right);
+//				if (rr.Type.Kind == ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate && !IsEvent (assignmentExpression.Left))
+//					AddIssue(new CodeIssue(assignmentExpression, ctx.TranslateString("Delegate subtraction has unpredictable result")));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(DelegateSubtractionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class DelegateSubtractionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return DelegateSubtractionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

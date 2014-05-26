@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'if' statement can be re-written as '??' expression",
-	                  Description="Convert 'if' to '??'",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint,
-	                  AnalysisDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
+	[ExportDiagnosticAnalyzer("'if' statement can be re-written as '??' expression", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'if' to '??'", AnalysisDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
 	public class ConvertIfStatementToNullCoalescingExpressionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertIfStatementToNullCoalescingExpressionIssue";
+		const string Description            = "Convert to '??' expresssion";
+		const string MessageFormat          = "Convert to '??' expresssion";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,34 +72,34 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
-				Expression rightSide;
-				var leftSide = ConvertIfStatementToNullCoalescingExpressionAction.CheckNode(ifElseStatement, out rightSide);
-				if (leftSide == null)
-					return;
-				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(leftSide) || 
-				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(rightSide))
-					return;
-				var previousNode = ifElseStatement.GetPrevSibling(sibling => sibling is Statement) as VariableDeclarationStatement;
-				if (previousNode == null || ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(previousNode))
-					return;
-
-				AddIssue(new CodeIssue(
-					ifElseStatement.IfToken,
-					ctx.TranslateString("Convert to '??' expresssion")
-				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToNullCoalescingExpressionAction) } });
-			}
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//				Expression rightSide;
+//				var leftSide = ConvertIfStatementToNullCoalescingExpressionAction.CheckNode(ifElseStatement, out rightSide);
+//				if (leftSide == null)
+//					return;
+//				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(leftSide) || 
+//				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(rightSide))
+//					return;
+//				var previousNode = ifElseStatement.GetPrevSibling(sibling => sibling is Statement) as VariableDeclarationStatement;
+//				if (previousNode == null || ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(previousNode))
+//					return;
+//
+//				AddIssue(new CodeIssue(
+//					ifElseStatement.IfToken,
+//					ctx.TranslateString("")
+//				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToNullCoalescingExpressionAction) } });
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertIfStatementToNullCoalescingExpressionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertIfStatementToNullCoalescingExpressionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertIfStatementToNullCoalescingExpressionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

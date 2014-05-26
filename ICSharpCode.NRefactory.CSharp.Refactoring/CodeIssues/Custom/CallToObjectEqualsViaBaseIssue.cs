@@ -43,16 +43,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Call to base.Equals resolves to Object.Equals, which is reference equality",
-	                  Description = "Finds potentially erroneous calls to Object.Equals.",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-                      AnalysisDisableKeyword = "BaseObjectEqualsIsObjectEquals")]
+	[ExportDiagnosticAnalyzer("Call to base.Equals resolves to Object.Equals, which is reference equality", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Finds potentially erroneous calls to Object.Equals.", AnalysisDisableKeyword = "BaseObjectEqualsIsObjectEquals")]
 	public class CallToObjectEqualsViaBaseIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "CallToObjectEqualsViaBaseIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -76,52 +71,52 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-
-				if (invocationExpression.Arguments.Count != 1) {
-					return;
-				}
-				var memberExpression = invocationExpression.Target as MemberReferenceExpression;
-				if (memberExpression == null || memberExpression.MemberName != "Equals" || !(memberExpression.Target is BaseReferenceExpression)) {
-					return;
-				}
-				var resolveResult = ctx.Resolve(invocationExpression) as InvocationResolveResult;
-				if (resolveResult == null || !resolveResult.Member.DeclaringTypeDefinition.IsKnownType(KnownTypeCode.Object)) {
-					return;
-				}
-				var title = ctx.TranslateString("Call to base.Equals resolves to Object.Equals, which is reference equality");
-				AddIssue(new CodeIssue(invocationExpression, title, GetActions(invocationExpression)));
-			}
-
-			IEnumerable<CodeAction> GetActions(InvocationExpression invocationExpression)
-			{
-				yield return new CodeAction(ctx.TranslateString("Change invocation to call Object.ReferenceEquals"), script => {
-					var args = Enumerable.Concat(new [] { new ThisReferenceExpression() }, invocationExpression.Arguments.Select(arg => arg.Clone()));
-					var newInvocation = MakeInvocation("object.ReferenceEquals", args);
-					script.Replace(invocationExpression, newInvocation);
-				}, invocationExpression);
-				yield return new CodeAction(ctx.TranslateString("Remove 'base.'"), script => {
-					var newInvocation = MakeInvocation("Equals", invocationExpression.Arguments.Select(arg => arg.Clone()));
-					script.Replace(invocationExpression, newInvocation);
-				}, invocationExpression);
-			}
-
-			static InvocationExpression MakeInvocation(string memberName, IEnumerable<Expression> unClonedArguments)
-			{
-				return new InvocationExpression(new IdentifierExpression(memberName), unClonedArguments);
-			}
+//
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//
+//				if (invocationExpression.Arguments.Count != 1) {
+//					return;
+//				}
+//				var memberExpression = invocationExpression.Target as MemberReferenceExpression;
+//				if (memberExpression == null || memberExpression.MemberName != "Equals" || !(memberExpression.Target is BaseReferenceExpression)) {
+//					return;
+//				}
+//				var resolveResult = ctx.Resolve(invocationExpression) as InvocationResolveResult;
+//				if (resolveResult == null || !resolveResult.Member.DeclaringTypeDefinition.IsKnownType(KnownTypeCode.Object)) {
+//					return;
+//				}
+//				var title = ctx.TranslateString("Call to base.Equals resolves to Object.Equals, which is reference equality");
+//				AddIssue(new CodeIssue(invocationExpression, title, GetActions(invocationExpression)));
+//			}
+//
+//			IEnumerable<CodeAction> GetActions(InvocationExpression invocationExpression)
+//			{
+//				yield return new CodeAction(ctx.TranslateString("Change invocation to call Object.ReferenceEquals"), script => {
+//					var args = Enumerable.Concat(new [] { new ThisReferenceExpression() }, invocationExpression.Arguments.Select(arg => arg.Clone()));
+//					var newInvocation = MakeInvocation("object.ReferenceEquals", args);
+//					script.Replace(invocationExpression, newInvocation);
+//				}, invocationExpression);
+//				yield return new CodeAction(ctx.TranslateString("Remove 'base.'"), script => {
+//					var newInvocation = MakeInvocation("Equals", invocationExpression.Arguments.Select(arg => arg.Clone()));
+//					script.Replace(invocationExpression, newInvocation);
+//				}, invocationExpression);
+//			}
+//
+//			static InvocationExpression MakeInvocation(string memberName, IEnumerable<Expression> unClonedArguments)
+//			{
+//				return new InvocationExpression(new IdentifierExpression(memberName), unClonedArguments);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(CallToObjectEqualsViaBaseIssue.DiagnosticId, LanguageNames.CSharp)]
 	public class FixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CallToObjectEqualsViaBaseIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -43,17 +43,11 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription (
-		"Check if a namespace corresponds to a file location",
-		Description = "Check if a namespace corresponds to a file location",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "CheckNamespace")]
+	[ExportDiagnosticAnalyzer("Check if a namespace corresponds to a file location", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Check if a namespace corresponds to a file location", AnalysisDisableKeyword = "CheckNamespace")]
 	public class CheckNamespaceIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "CheckNamespaceIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
@@ -80,47 +74,47 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
-			{
-				if (string.IsNullOrEmpty(defaultNamespace))
-					return;
-				base.VisitSyntaxTree(syntaxTree);
-			}
-
-			public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
-			{
-				base.VisitNamespaceDeclaration(namespaceDeclaration);
-				// only check top level namespaces
-				if (namespaceDeclaration.Parent is NamespaceDeclaration ||
-				    namespaceDeclaration.FullName == defaultNamespace)
-					return;
-				AddIssue(new CodeIssue(
-					namespaceDeclaration.NamespaceName,
-					string.Format(ctx.TranslateString("Namespace does not correspond to file location, should be: '{0}'"), ctx.DefaultNamespace)
-				));
-			}
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				var ns = typeDeclaration.Parent as NamespaceDeclaration;
-				if (ns == null) {
-					AddIssue(new CodeIssue(
-						typeDeclaration.NameToken,
-						string.Format(ctx.TranslateString("Type should be declared inside the namespace '{0}'"), ctx.DefaultNamespace)
-					));
-				}
-				// skip children
-			}
+//			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
+//			{
+//				if (string.IsNullOrEmpty(defaultNamespace))
+//					return;
+//				base.VisitSyntaxTree(syntaxTree);
+//			}
+//
+//			public override void VisitNamespaceDeclaration(NamespaceDeclaration namespaceDeclaration)
+//			{
+//				base.VisitNamespaceDeclaration(namespaceDeclaration);
+//				// only check top level namespaces
+//				if (namespaceDeclaration.Parent is NamespaceDeclaration ||
+//				    namespaceDeclaration.FullName == defaultNamespace)
+//					return;
+//				AddIssue(new CodeIssue(
+//					namespaceDeclaration.NamespaceName,
+//					string.Format(ctx.TranslateString("Namespace does not correspond to file location, should be: '{0}'"), ctx.DefaultNamespace)
+//				));
+//			}
+//
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				var ns = typeDeclaration.Parent as NamespaceDeclaration;
+//				if (ns == null) {
+//					AddIssue(new CodeIssue(
+//						typeDeclaration.NameToken,
+//						string.Format(ctx.TranslateString("Type should be declared inside the namespace '{0}'"), ctx.DefaultNamespace)
+//					));
+//				}
+//				// skip children
+//			}
 		}
 
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CheckNamespaceIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class CheckNamespaceFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CheckNamespaceIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"using System;
+			TestIssue<EmptyGeneralCatchClauseIssue>(@"using System;
 	using System.IO;
 	namespace Application
 	{
@@ -55,17 +55,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 		}
 	}
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new EmptyGeneralCatchClauseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+");
 		}
 
 
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"using System;
+			TestIssue<EmptyGeneralCatchClauseIssue>(@"using System;
 	using System.IO;
 	namespace Application
 	{
@@ -83,16 +80,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 		}
 	}
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new EmptyGeneralCatchClauseIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+");
 		}
 
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			var input = @"using System;
+			TestWrongContext<EmptyGeneralCatchClauseIssue>(@"using System;
 	using System.IO;
 	namespace Application
 	{
@@ -112,11 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 		}
 	}
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new EmptyGeneralCatchClauseIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 	}
 }

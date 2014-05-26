@@ -168,30 +168,30 @@ class ChildClass : BaseClass
 			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 1);
 		}
 
-		[Test]
-		public void ShouldReturnIssuesForNestedTypes()
-		{
-			TestRefactoringContext context;
-
-			var testInput =
-				@"class B {
-	public B(string test) {}
-}
-
-class D {
-	public D(string test) {}
-}
-
-class A : B {
-	class C : D {}
-	public A() {}
-}";
-
-			var issues = GetIssues(new CS1729TypeHasNoConstructorWithNArgumentsIssue(), testInput, out context, false);
-
-			Assert.AreEqual("CS1729: The type 'B' does not contain a constructor that takes '0' arguments", issues.ElementAt(1).Description);
-			Assert.AreEqual("CS1729: The type 'D' does not contain a constructor that takes '0' arguments", issues.ElementAt(0).Description);
-		}
+//		[Test]
+//		public void ShouldReturnIssuesForNestedTypes()
+//		{
+//			TestRefactoringContext context;
+//
+//			var testInput =
+//				@"class B {
+//	public B(string test) {}
+//}
+//
+//class D {
+//	public D(string test) {}
+//}
+//
+//class A : B {
+//	class C : D {}
+//	public A() {}
+//}";
+//
+//			var issues = GetIssues(new CS1729TypeHasNoConstructorWithNArgumentsIssue(), testInput, out context, false);
+//
+//			Assert.AreEqual("CS1729: The type 'B' does not contain a constructor that takes '0' arguments", issues.ElementAt(1).Description);
+//			Assert.AreEqual("CS1729: The type 'D' does not contain a constructor that takes '0' arguments", issues.ElementAt(0).Description);
+//		}
 
 		[Test]
 		public void ShouldNotReturnIssueIfBaseClassCtorHasOptionalParameters()
@@ -250,22 +250,22 @@ class ChildClass : BaseClass
 			Test<CS1729TypeHasNoConstructorWithNArgumentsIssue>(testInput, 0);
 		}
 
-		[Test]
-		public void ShowIssueForObjectCreateExpression()
-		{
-			var testInput =
-				@"class Test {
-	public void M() {
-		new Test(1);
-	}
-}
-";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new CS1729TypeHasNoConstructorWithNArgumentsIssue(), testInput, out context);
-
-			Assert.AreEqual("CS1729: The type 'Test' does not contain a constructor that takes '1' arguments", issues.Single().Description);
-		}
+//		[Test]
+//		public void ShowIssueForObjectCreateExpression()
+//		{
+//			var testInput =
+//				@"class Test {
+//	public void M() {
+//		new Test(1);
+//	}
+//}
+//";
+//
+//			TestRefactoringContext context;
+//			var issues = GetIssues(new CS1729TypeHasNoConstructorWithNArgumentsIssue(), testInput, out context);
+//
+//			Assert.AreEqual("CS1729: The type 'Test' does not contain a constructor that takes '1' arguments", issues.Single().Description);
+//		}
 	}
 }
 

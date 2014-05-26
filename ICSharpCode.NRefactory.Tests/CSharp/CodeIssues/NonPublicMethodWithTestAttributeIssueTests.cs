@@ -43,7 +43,7 @@ namespace NUnit.Framework {
 		[Test]
 		public void TestImplicitPrivate()
 		{
-			var input = NUnitClasses + 
+			Test<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
 				@"
 [TextFixture]
 class Tests 
@@ -52,12 +52,7 @@ class Tests
 	void NonPublicMethod ()
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new NonPublicMethodWithTestAttributeIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix(context, issues, NUnitClasses + 
+}", NUnitClasses + 
 				@"
 [TextFixture]
 class Tests 
@@ -72,7 +67,7 @@ class Tests
 		[Test]
 		public void TestExplictPrivate()
 		{
-			var input = NUnitClasses + 
+			Test<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
 				@"
 [TextFixture]
 class Tests 
@@ -81,12 +76,7 @@ class Tests
 	private void NonPublicMethod ()
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new NonPublicMethodWithTestAttributeIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix(context, issues, NUnitClasses + 
+}", NUnitClasses + 
 				@"
 [TextFixture]
 class Tests 
@@ -101,7 +91,7 @@ class Tests
 		[Test]
 		public void TestExplictProtected()
 		{
-			var input = NUnitClasses + 
+			Test<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
 				@"
 [TextFixture]
 class Tests 
@@ -110,12 +100,7 @@ class Tests
 	protected void NonPublicMethod ()
 	{
 	}
-}";
-
-			TestRefactoringContext context;
-			var issues = GetIssues (new NonPublicMethodWithTestAttributeIssue (), input, out context);
-			Assert.AreEqual (1, issues.Count);
-			CheckFix(context, issues, NUnitClasses + 
+}", NUnitClasses + 
 				@"
 [TextFixture]
 class Tests 

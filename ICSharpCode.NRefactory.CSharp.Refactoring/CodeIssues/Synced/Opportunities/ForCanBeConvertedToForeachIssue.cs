@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'for' can be converted into 'foreach'",
-	                  Description = "Foreach loops are more efficient",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ForCanBeConvertedToForeach")]
+	[ExportDiagnosticAnalyzer("'for' can be converted into 'foreach'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Foreach loops are more efficient", AnalysisDisableKeyword = "ForCanBeConvertedToForeach")]
 	public class ForCanBeConvertedToForeachIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ForCanBeConvertedToForeachIssue";
+		const string Description            = "'for' loop can be converted to 'foreach'";
+		const string MessageFormat          = "Convert to 'foreach'";
 		const string Category               = IssueCategories.Opportunities;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -76,176 +71,200 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			static readonly AstNode forPattern =
-				new Choice {
-					new ForStatement {
-						Initializers = {
-							new VariableDeclarationStatement {
-								Type = new AnyNode("int"),
-								Variables = {
-									new NamedNode("iteratorInitialzer", new VariableInitializer(Pattern.AnyString, new PrimitiveExpression(0)))
-								}
-							}
-						},
-						Condition = PatternHelper.OptionalParentheses(
-							new BinaryOperatorExpression(
-								PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
-								BinaryOperatorType.LessThan,
-								PatternHelper.OptionalParentheses(
-									new NamedNode("upperBound", new MemberReferenceExpression(new AnyNode (), Pattern.AnyString))
-								)
-							)
-						),
-						Iterators = {
-							new ExpressionStatement(
-								new Choice {
-									new UnaryOperatorExpression(UnaryOperatorType.Increment, new Backreference("iterator")), 
-									new UnaryOperatorExpression(UnaryOperatorType.PostIncrement, new Backreference("iterator")) 
-								}
-							)
-						},
-						EmbeddedStatement = new AnyNode("body")
-					},
-					new ForStatement {
-						Initializers = {
-							new VariableDeclarationStatement {
-								Type = new AnyNode("int"),
-								Variables = {
-									new NamedNode("iteratorInitialzer", new VariableInitializer(Pattern.AnyString, new PrimitiveExpression(0))),
-									new NamedNode("upperBoundInitializer", new VariableInitializer(Pattern.AnyString, new NamedNode("upperBound", new MemberReferenceExpression(new AnyNode (), Pattern.AnyString)))),
-								}
-							}
-						},
-						Condition = PatternHelper.OptionalParentheses(
-							new BinaryOperatorExpression(
-								PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
-								BinaryOperatorType.LessThan,
-								PatternHelper.OptionalParentheses(
-									new AnyNode("upperBoundInitializerName")
-								)
-							)
-						),
-						Iterators = {
-							new ExpressionStatement(
-								new Choice {
-									new UnaryOperatorExpression(UnaryOperatorType.Increment, new Backreference("iterator")), 
-									new UnaryOperatorExpression(UnaryOperatorType.PostIncrement, new Backreference("iterator")) 
-								}
-							)
-						},
-						EmbeddedStatement = new AnyNode("body")
-					},
-				};
-			static readonly AstNode varDeclPattern =
-				new VariableDeclarationStatement {
-					Type = new AnyNode(),
-					Variables = {
-						new VariableInitializer(Pattern.AnyString, new NamedNode("indexer", new IndexerExpression(new AnyNode(), new IdentifierExpression(Pattern.AnyString))))
-					}
-				};
-			static readonly AstNode varTypePattern =
-				new SimpleType("var");
-
-			static bool IsEnumerable(IType type)
-			{
-				return type.Name == "IEnumerable" && (type.Namespace == "System.Collections.Generic" || type.Namespace == "System.Collections");
-			}
-
-			public override void VisitForStatement(ForStatement forStatement)
-			{
-				base.VisitForStatement(forStatement);
-				var forMatch = forPattern.Match(forStatement);
-				if (!forMatch.Success)
-					return;
-				var body = forStatement.EmbeddedStatement as BlockStatement;
-				if (body == null || !body.Statements.Any())
-					return;
-				var varDeclStmt = body.Statements.First() as VariableDeclarationStatement;
-				if (varDeclStmt == null)
-					return;
-				var varMatch = varDeclPattern.Match(varDeclStmt);
-				if (!varMatch.Success)
-					return;
-				var typeNode = forMatch.Get<AstNode>("int").FirstOrDefault();
-				var varDecl = forMatch.Get<VariableInitializer>("iteratorInitialzer").FirstOrDefault();
-				var iterator = forMatch.Get<IdentifierExpression>("iterator").FirstOrDefault();
-				var upperBound = forMatch.Get<MemberReferenceExpression>("upperBound").FirstOrDefault();
-				if (typeNode == null || varDecl == null || iterator == null || upperBound == null)
-					return;
-
-				// Check iterator type
-				if (!varTypePattern.IsMatch(typeNode)) {
-					var typeRR = ctx.Resolve(typeNode);
-					if (!typeRR.Type.IsKnownType(KnownTypeCode.Int32))
-						return;
-				}
-
-				if (varDecl.Name != iterator.Identifier)
-					return;
-
-				var upperBoundInitializer = forMatch.Get<VariableInitializer>("upperBoundInitializer").FirstOrDefault();
-				var upperBoundInitializerName = forMatch.Get<IdentifierExpression>("upperBoundInitializerName").FirstOrDefault();
-				if (upperBoundInitializer != null) {
-					if (upperBoundInitializerName == null || upperBoundInitializer.Name != upperBoundInitializerName.Identifier)
-						return;
-				}
-
-				var indexer = varMatch.Get<IndexerExpression>("indexer").Single();
-				if (((IdentifierExpression)indexer.Arguments.First()).Identifier != iterator.Identifier)
-					return;
-				if (!indexer.Target.IsMatch(upperBound.Target))
-					return;
-
-				var rr = ctx.Resolve(upperBound) as MemberResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-
-				if (!(rr.Member.Name == "Length" && rr.Member.DeclaringType.Name == "Array" && rr.Member.DeclaringType.Namespace == "System") &&
-				!(rr.Member.Name == "Count" && (IsEnumerable(rr.TargetResult.Type) || rr.TargetResult.Type.GetAllBaseTypes().Any(IsEnumerable))))
-					return;
-
-				var variableInitializer = varDeclStmt.Variables.First();
-				var lr = ctx.Resolve(variableInitializer) as LocalResolveResult;
-				if (lr == null)
-					return;
-
-				var ir = ctx.Resolve(varDecl) as LocalResolveResult;
-				if (ir == null)
-					return;
-
-				var analyze = new ConvertToConstantIssue.VariableUsageAnalyzation(ctx);
-				analyze.SetAnalyzedRange(
-					varDeclStmt,
-					forStatement.EmbeddedStatement,
-					false
-				);
-				forStatement.EmbeddedStatement.AcceptVisitor(analyze);
-				if (analyze.GetStatus(lr.Variable) == ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
-				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
-				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod.VariableState.Used)
-					return;
-
-				AddIssue(new CodeIssue(
-					forStatement.ForToken,
-					ctx.TranslateString("'for' loop can be converted to 'foreach'"),
-					ctx.TranslateString("Convert to 'foreach'"),
-					script => {
-						var foreachBody = (BlockStatement)forStatement.EmbeddedStatement.Clone();
-						foreachBody.Statements.First().Remove();
-
-						var fe = new ForeachStatement {
-							VariableType = new PrimitiveType("var"),
-							VariableName = variableInitializer.Name,
-							InExpression = upperBound.Target.Clone(),
-							EmbeddedStatement = foreachBody
-						};
-						script.Replace(forStatement, fe); 
-					}
-				) { IssueMarker = IssueMarker.DottedLine });
-
-			}
+//
+//			static readonly AstNode forPattern =
+//				new Choice {
+//					new ForStatement {
+//						Initializers = {
+//							new VariableDeclarationStatement {
+//								Type = new AnyNode("int"),
+//								Variables = {
+//									new NamedNode("iteratorInitialzer", new VariableInitializer(Pattern.AnyString, new PrimitiveExpression(0)))
+//								}
+//							}
+//						},
+//						Condition = PatternHelper.OptionalParentheses(
+//							new BinaryOperatorExpression(
+//								PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
+//								BinaryOperatorType.LessThan,
+//								PatternHelper.OptionalParentheses(
+//									new NamedNode("upperBound", new MemberReferenceExpression(new AnyNode (), Pattern.AnyString))
+//								)
+//							)
+//						),
+//						Iterators = {
+//							new ExpressionStatement(
+//								new Choice {
+//									new UnaryOperatorExpression(UnaryOperatorType.Increment, new Backreference("iterator")), 
+//									new UnaryOperatorExpression(UnaryOperatorType.PostIncrement, new Backreference("iterator")) 
+//								}
+//							)
+//						},
+//						EmbeddedStatement = new AnyNode("body")
+//					},
+//					new ForStatement {
+//						Initializers = {
+//							new VariableDeclarationStatement {
+//								Type = new AnyNode("int"),
+//								Variables = {
+//									new NamedNode("iteratorInitialzer", new VariableInitializer(Pattern.AnyString, new PrimitiveExpression(0))),
+//									new NamedNode("upperBoundInitializer", new VariableInitializer(Pattern.AnyString, new NamedNode("upperBound", new MemberReferenceExpression(new AnyNode (), Pattern.AnyString)))),
+//								}
+//							}
+//						},
+//						Condition = PatternHelper.OptionalParentheses(
+//							new BinaryOperatorExpression(
+//								PatternHelper.OptionalParentheses(new AnyNode("iterator")), 
+//								BinaryOperatorType.LessThan,
+//								PatternHelper.OptionalParentheses(
+//									new AnyNode("upperBoundInitializerName")
+//								)
+//							)
+//						),
+//						Iterators = {
+//							new ExpressionStatement(
+//								new Choice {
+//									new UnaryOperatorExpression(UnaryOperatorType.Increment, new Backreference("iterator")), 
+//									new UnaryOperatorExpression(UnaryOperatorType.PostIncrement, new Backreference("iterator")) 
+//								}
+//							)
+//						},
+//						EmbeddedStatement = new AnyNode("body")
+//					},
+//				};
+//			static readonly AstNode varDeclPattern =
+//				new VariableDeclarationStatement {
+//					Type = new AnyNode(),
+//					Variables = {
+//						new VariableInitializer(Pattern.AnyString, new NamedNode("indexer", new IndexerExpression(new AnyNode(), new IdentifierExpression(Pattern.AnyString))))
+//					}
+//				};
+//			static readonly AstNode varTypePattern =
+//				new SimpleType("var");
+//
+//			static bool IsEnumerable(IType type)
+//			{
+//				return type.Name == "IEnumerable" && (type.Namespace == "System.Collections.Generic" || type.Namespace == "System.Collections");
+//			}
+//
+//			public override void VisitForStatement(ForStatement forStatement)
+//			{
+//				base.VisitForStatement(forStatement);
+//				var forMatch = forPattern.Match(forStatement);
+//				if (!forMatch.Success)
+//					return;
+//				var body = forStatement.EmbeddedStatement as BlockStatement;
+//				if (body == null || !body.Statements.Any())
+//					return;
+//				var varDeclStmt = body.Statements.First() as VariableDeclarationStatement;
+//				if (varDeclStmt == null)
+//					return;
+//				var varMatch = varDeclPattern.Match(varDeclStmt);
+//				if (!varMatch.Success)
+//					return;
+//				var typeNode = forMatch.Get<AstNode>("int").FirstOrDefault();
+//				var varDecl = forMatch.Get<VariableInitializer>("iteratorInitialzer").FirstOrDefault();
+//				var iterator = forMatch.Get<IdentifierExpression>("iterator").FirstOrDefault();
+//				var upperBound = forMatch.Get<MemberReferenceExpression>("upperBound").FirstOrDefault();
+//				if (typeNode == null || varDecl == null || iterator == null || upperBound == null)
+//					return;
+//
+//				// Check iterator type
+//				if (!varTypePattern.IsMatch(typeNode)) {
+//					var typeRR = ctx.Resolve(typeNode);
+//					if (!typeRR.Type.IsKnownType(KnownTypeCode.Int32))
+//						return;
+//				}
+//
+//				if (varDecl.Name != iterator.Identifier)
+//					return;
+//
+//				var upperBoundInitializer = forMatch.Get<VariableInitializer>("upperBoundInitializer").FirstOrDefault();
+//				var upperBoundInitializerName = forMatch.Get<IdentifierExpression>("upperBoundInitializerName").FirstOrDefault();
+//				if (upperBoundInitializer != null) {
+//					if (upperBoundInitializerName == null || upperBoundInitializer.Name != upperBoundInitializerName.Identifier)
+//						return;
+//				}
+//
+//				var indexer = varMatch.Get<IndexerExpression>("indexer").Single();
+//				if (((IdentifierExpression)indexer.Arguments.First()).Identifier != iterator.Identifier)
+//					return;
+//				if (!indexer.Target.IsMatch(upperBound.Target))
+//					return;
+//
+//				var rr = ctx.Resolve(upperBound) as MemberResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//
+//				if (!(rr.Member.Name == "Length" && rr.Member.DeclaringType.Name == "Array" && rr.Member.DeclaringType.Namespace == "System") &&
+//				!(rr.Member.Name == "Count" && (IsEnumerable(rr.TargetResult.Type) || rr.TargetResult.Type.GetAllBaseTypes().Any(IsEnumerable))))
+//					return;
+//
+//				var variableInitializer = varDeclStmt.Variables.First();
+//				var lr = ctx.Resolve(variableInitializer) as LocalResolveResult;
+//				if (lr == null)
+//					return;
+//
+//				var ir = ctx.Resolve(varDecl) as LocalResolveResult;
+//				if (ir == null)
+//					return;
+//
+//				var analyze = new ConvertToConstantIssue.VariableUsageAnalyzation(ctx);
+//				analyze.SetAnalyzedRange(
+//					varDeclStmt,
+//					forStatement.EmbeddedStatement,
+//					false
+//				);
+//				forStatement.EmbeddedStatement.AcceptVisitor(analyze);
+//				if (analyze.GetStatus(lr.Variable) == ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
+//				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
+//				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod.VariableState.Used)
+//					return;
+//
+//				AddIssue(new CodeIssue(
+//					forStatement.ForToken,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString(""),
+//					script => {
+//						var foreachBody = (BlockStatement)forStatement.EmbeddedStatement.Clone();
+//						foreachBody.Statements.First().Remove();
+//
+//						var fe = new ForeachStatement {
+//							VariableType = new PrimitiveType("var"),
+//							VariableName = variableInitializer.Name,
+//							InExpression = upperBound.Target.Clone(),
+//							EmbeddedStatement = foreachBody
+//						};
+//						script.Replace(forStatement, fe); 
+//					}
+//				) { IssueMarker = IssueMarker.DottedLine });
+//
+//			}
 		}
 	}
+
+	[ExportCodeFixProvider(ForCanBeConvertedToForeachIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ForCanBeConvertedToForeachFixProvider : ICodeFixProvider
+	{
+		public IEnumerable<string> GetFixableDiagnosticIds()
+		{
+			yield return ForCanBeConvertedToForeachIssue.DiagnosticId;
+		}
+
+		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var result = new List<CodeAction>();
+			foreach (var diagonstic in diagnostics) {
+				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				//if (!node.IsKind(SyntaxKind.BaseList))
+				//	continue;
+				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			}
+			return result;
+		}
+	}
+
 }
 

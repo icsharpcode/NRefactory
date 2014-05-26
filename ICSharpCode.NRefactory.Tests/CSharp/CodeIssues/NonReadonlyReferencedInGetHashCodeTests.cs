@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			var input = @"using System;
+			TestIssue<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 public class TestClass1
 {
 	public int a = 1;
@@ -53,16 +53,13 @@ public class TestClass2
 		return c.a;
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new NonReadonlyReferencedInGetHashCodeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+");
 		}
 		
 		[Test]
 		public void TestInspectorCase2()
 		{
-			var input = @"using System;
+			TestIssue<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 public class TestClass1
 {
 	public int a = 1;
@@ -78,16 +75,13 @@ public class TestClass2
 		return c.a;
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new NonReadonlyReferencedInGetHashCodeIssue(), input, out context);
-			Assert.AreEqual(2, issues.Count);
+", 2);
 		}
 		
 		[Test]
 		public void TestInspectorCase3()
 		{
-			var input = @"using System;
+			TestWrongContext<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 public class TestClass1
 {
 	public int a = 1;
@@ -103,16 +97,13 @@ public class TestClass2
 		return c.GetHashCode();
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new NonReadonlyReferencedInGetHashCodeIssue(), input, out context);
-			Assert.AreEqual(0, issues.Count);
+");
 		}
 		
 		[Test]
 		public void TestInspectorCase4()
 		{
-			var input = @"public class Test1
+			TestIssue<NonReadonlyReferencedInGetHashCodeIssue>(@"public class Test1
 {
 	public int a = 1;
 }
@@ -142,17 +133,14 @@ public class Test3
 		return c.a;
 	}
 }
-";
-			TestRefactoringContext context;
-			var issues = GetIssues(new NonReadonlyReferencedInGetHashCodeIssue(), input, out context);
-			Assert.AreEqual(11, issues.Count);
+");
 		}
 		
 		
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			var input = @"using System;
+			TestIssue<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -175,11 +163,7 @@ namespace resharper_test
 		}
 	}
 }
-";
-			
-			TestRefactoringContext context;
-			var issues = GetIssues(new NonReadonlyReferencedInGetHashCodeIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
+", 1);
 		}
 
 

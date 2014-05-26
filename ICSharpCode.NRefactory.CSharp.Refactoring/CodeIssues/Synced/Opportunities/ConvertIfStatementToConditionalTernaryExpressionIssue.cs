@@ -43,21 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'if' statement can be re-written as '?:' expression",
-	                  Description = "Convert 'if' to '?:'",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint,
-	                  AnalysisDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
+	[ExportDiagnosticAnalyzer("'if' statement can be re-written as '?:' expression", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'if' to '?:'", AnalysisDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
 	public class ConvertIfStatementToConditionalTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertIfStatementToConditionalTernaryExpressionIssue";
+		const string Description            = "Convert to '?:' expression";
+		const string MessageFormat          = "Convert to '?:' expression";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -70,40 +65,40 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
-		public static bool IsComplexExpression(AstNode expr)
-		{
-			return expr.StartLocation.Line != expr.EndLocation.Line ||
-			expr is ConditionalExpression ||
-			expr is BinaryOperatorExpression;
-		}
-
-		public static bool IsComplexCondition(Expression expr)
-		{
-			if (expr.StartLocation.Line != expr.EndLocation.Line)
-				return true;
-
-			if (expr is PrimitiveExpression || expr is IdentifierExpression || expr is MemberReferenceExpression || expr is InvocationExpression)
-				return false;
-
-			var pexpr = expr as ParenthesizedExpression;
-			if (pexpr != null)
-				return IsComplexCondition(pexpr.Expression);
-
-			var uOp = expr as UnaryOperatorExpression;
-			if (uOp != null)
-				return IsComplexCondition(uOp.Expression);
-
-			var bop = expr as BinaryOperatorExpression;
-			if (bop == null)
-				return true;
-			return !(bop.Operator == BinaryOperatorType.GreaterThan ||
-			bop.Operator == BinaryOperatorType.GreaterThanOrEqual ||
-			bop.Operator == BinaryOperatorType.Equality ||
-			bop.Operator == BinaryOperatorType.InEquality ||
-			bop.Operator == BinaryOperatorType.LessThan ||
-			bop.Operator == BinaryOperatorType.LessThanOrEqual);
-		}
-
+//		public static bool IsComplexExpression(AstNode expr)
+//		{
+//			return expr.StartLocation.Line != expr.EndLocation.Line ||
+//			expr is ConditionalExpression ||
+//			expr is BinaryOperatorExpression;
+//		}
+//
+//		public static bool IsComplexCondition(Expression expr)
+//		{
+//			if (expr.StartLocation.Line != expr.EndLocation.Line)
+//				return true;
+//
+//			if (expr is PrimitiveExpression || expr is IdentifierExpression || expr is MemberReferenceExpression || expr is InvocationExpression)
+//				return false;
+//
+//			var pexpr = expr as ParenthesizedExpression;
+//			if (pexpr != null)
+//				return IsComplexCondition(pexpr.Expression);
+//
+//			var uOp = expr as UnaryOperatorExpression;
+//			if (uOp != null)
+//				return IsComplexCondition(uOp.Expression);
+//
+//			var bop = expr as BinaryOperatorExpression;
+//			if (bop == null)
+//				return true;
+//			return !(bop.Operator == BinaryOperatorType.GreaterThan ||
+//			bop.Operator == BinaryOperatorType.GreaterThanOrEqual ||
+//			bop.Operator == BinaryOperatorType.Equality ||
+//			bop.Operator == BinaryOperatorType.InEquality ||
+//			bop.Operator == BinaryOperatorType.LessThan ||
+//			bop.Operator == BinaryOperatorType.LessThanOrEqual);
+//		}
+//
 		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToConditionalTernaryExpressionIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
@@ -111,33 +106,33 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
-				Match match;
-				if (!ConvertIfStatementToConditionalTernaryExpressionAction.GetMatch(ifElseStatement, out match))
-					return;
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//				Match match;
+//				if (!ConvertIfStatementToConditionalTernaryExpressionAction.GetMatch(ifElseStatement, out match))
+//					return;
 //				var target = match.Get<Expression>("target").Single();
-				var condition = match.Get<Expression>("condition").Single();
-				var trueExpr = match.Get<Expression>("expr1").Single();
-				var falseExpr = match.Get<Expression>("expr2").Single();
-
-				if (IsComplexCondition(condition) || IsComplexExpression(trueExpr) || IsComplexExpression(falseExpr))
-					return;
-				AddIssue(new CodeIssue(
-					ifElseStatement.IfToken,
-					ctx.TranslateString("Convert to '?:' expression")
-				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToConditionalTernaryExpressionAction) } });
-			}
+//				var condition = match.Get<Expression>("condition").Single();
+//				var trueExpr = match.Get<Expression>("expr1").Single();
+//				var falseExpr = match.Get<Expression>("expr2").Single();
+//
+//				if (IsComplexCondition(condition) || IsComplexExpression(trueExpr) || IsComplexExpression(falseExpr))
+//					return;
+//				AddIssue(new CodeIssue(
+//					ifElseStatement.IfToken,
+//					ctx.TranslateString("")
+//				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToConditionalTernaryExpressionAction) } });
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertIfStatementToConditionalTernaryExpressionIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertIfStatementToConditionalTernaryExpressionFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertIfStatementToConditionalTernaryExpressionIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

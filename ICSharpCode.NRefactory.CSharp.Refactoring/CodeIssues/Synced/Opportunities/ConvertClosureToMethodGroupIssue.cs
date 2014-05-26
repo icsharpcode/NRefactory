@@ -43,25 +43,20 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Convert anonymous method to method group",
-	                  Description = "Anonymous method or lambda expression can be simplified to method group.",
-		Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Suggestion,
-	                  AnalysisDisableKeyword = "ConvertClosureToMethodGroup")]
+	[ExportDiagnosticAnalyzer("Convert anonymous method to method group", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Anonymous method or lambda expression can be simplified to method group.", AnalysisDisableKeyword = "ConvertClosureToMethodGroup")]
 	public class ConvertClosureToMethodGroupIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ConvertClosureToMethodGroupIssue";
+		const string MessageFormat          = "Replace with method group";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Anonymous method can be simplified to method group", MessageFormat, Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Lambda expression can be simplified to method group", MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
@@ -76,142 +71,143 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			static readonly Pattern pattern = new Choice {
-				new BlockStatement {
-					new ReturnStatement (new AnyNode ("invoke")) 
-				},
-				new AnyNode ("invoke")
-			};
-
-			static InvocationExpression AnalyzeBody(AstNode body)
-			{
-				var m = pattern.Match(body);
-				if (m.Success)
-					return m.Get("invoke").Single () as InvocationExpression;
-				return null;
-			}
-
-			static bool IsSimpleTarget(Expression target)
-			{
-				if (target is IdentifierExpression)
-					return true;
-				var mref = target as MemberReferenceExpression;
-				if (mref != null)
-					return IsSimpleTarget (mref.Target);
-				var pref = target as PointerReferenceExpression;
-				if (pref != null)
-					return IsSimpleTarget (pref.Target);
-				return false;
-			}
-
-			void AnalyzeExpression(AstNode expression, AstNode body, AstNodeCollection<ParameterDeclaration> parameters)
-			{
-				var invocation = AnalyzeBody(body);
-				if (invocation == null)
-					return;
-				if (!IsSimpleTarget (invocation.Target))
-					return;
-				var rr = ctx.Resolve (invocation) as CSharpInvocationResolveResult;
-				if (rr == null)
-					return;
-				var lambdaParameters = parameters.ToList();
-				var arguments = rr.GetArgumentsForCall();
-				if (lambdaParameters.Count != arguments.Count)
-					return;
-				for (int i = 0; i < arguments.Count; i++) {
-					var arg = UnpackImplicitIdentityOrReferenceConversion(arguments[i]) as LocalResolveResult;
-					if (arg == null || arg.Variable.Name != lambdaParameters[i].Name)
-						return;
-				}
-				var returnConv = ctx.GetConversion(invocation);
-				if (returnConv.IsExplicit || !(returnConv.IsIdentityConversion || returnConv.IsReferenceConversion))
-					return;
-				var validTypes = TypeGuessing.GetValidTypes (ctx.Resolver, expression).ToList ();
-
-				// search for method group collisions
-				var targetResult = ctx.Resolve(invocation.Target) as MethodGroupResolveResult;
-				if (targetResult != null) {
-					foreach (var t in validTypes) {
-						if (t.Kind != TypeKind.Delegate)
-							continue;
-						var invokeMethod = t.GetDelegateInvokeMethod();
-
-						foreach (var otherMethod in targetResult.Methods) {
-							if (otherMethod == rr.Member)
-								continue;
-							if (ParameterListComparer.Instance.Equals(otherMethod.Parameters, invokeMethod.Parameters))
-								return;
-						}
-					}
-				}
-
-				bool isValidReturnType = false;
-				foreach (var t in validTypes) {
-					if (t.Kind != TypeKind.Delegate)
-						continue;
-					var invokeMethod = t.GetDelegateInvokeMethod();
-					isValidReturnType = rr.Member.ReturnType == invokeMethod.ReturnType || rr.Member.ReturnType.GetAllBaseTypes().Contains(invokeMethod.ReturnType);
-					if (isValidReturnType)
-						break;
-				}
-				if (!isValidReturnType)
-					return;
-
-				if (rr.IsDelegateInvocation) {
-					if (!validTypes.Contains(rr.Member.DeclaringType))
-						return;
-				}
-
-				AddIssue(new CodeIssue(expression,
-				         expression is AnonymousMethodExpression ? ctx.TranslateString("Anonymous method can be simplified to method group") : ctx.TranslateString("Lambda expression can be simplified to method group"), 
-				         ctx.TranslateString("Replace with method group"), script =>  {
-					if (validTypes.Any (t => t.FullName == "System.Func" && t.TypeParameterCount == 1 + parameters.Count) && validTypes.Any (t => t.FullName == "System.Action")) {
-						if (rr != null && rr.Member.ReturnType.Kind != TypeKind.Void) {
-							var builder = ctx.CreateTypeSystemAstBuilder (expression);
-							var type = builder.ConvertType(new TopLevelTypeName("System", "Func", 1));
-							var args = type.GetChildrenByRole(Roles.TypeArgument);
-							args.Clear ();
-							foreach (var pde in parameters) {
-								args.Add (builder.ConvertType (ctx.Resolve (pde).Type));
-							}
-							args.Add (builder.ConvertType (rr.Member.ReturnType));
-							script.Replace(expression, new CastExpression (type, invocation.Target.Clone()));
-							return;
-						}
-					}
-					script.Replace(expression, invocation.Target.Clone());
-				}));
-			}
-			
-			static ResolveResult UnpackImplicitIdentityOrReferenceConversion(ResolveResult rr)
-			{
-				var crr = rr as ConversionResolveResult;
-				if (crr != null && crr.Conversion.IsImplicit && (crr.Conversion.IsIdentityConversion || crr.Conversion.IsReferenceConversion))
-					return crr.Input;
-				return rr;
-			}
-
-			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
-			{
-				base.VisitLambdaExpression(lambdaExpression);
-				AnalyzeExpression(lambdaExpression, lambdaExpression.Body, lambdaExpression.Parameters);
-			}
-
-			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
-			{
-				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
-				AnalyzeExpression(anonymousMethodExpression, anonymousMethodExpression.Body, anonymousMethodExpression.Parameters);
-			}
+//
+//			static readonly Pattern pattern = new Choice {
+//				new BlockStatement {
+//					new ReturnStatement (new AnyNode ("invoke")) 
+//				},
+//				new AnyNode ("invoke")
+//			};
+//
+//			static InvocationExpression AnalyzeBody(AstNode body)
+//			{
+//				var m = pattern.Match(body);
+//				if (m.Success)
+//					return m.Get("invoke").Single () as InvocationExpression;
+//				return null;
+//			}
+//
+//			static bool IsSimpleTarget(Expression target)
+//			{
+//				if (target is IdentifierExpression)
+//					return true;
+//				var mref = target as MemberReferenceExpression;
+//				if (mref != null)
+//					return IsSimpleTarget (mref.Target);
+//				var pref = target as PointerReferenceExpression;
+//				if (pref != null)
+//					return IsSimpleTarget (pref.Target);
+//				return false;
+//			}
+//
+//			void AnalyzeExpression(AstNode expression, AstNode body, AstNodeCollection<ParameterDeclaration> parameters)
+//			{
+//				var invocation = AnalyzeBody(body);
+//				if (invocation == null)
+//					return;
+//				if (!IsSimpleTarget (invocation.Target))
+//					return;
+//				var rr = ctx.Resolve (invocation) as CSharpInvocationResolveResult;
+//				if (rr == null)
+//					return;
+//				var lambdaParameters = parameters.ToList();
+//				var arguments = rr.GetArgumentsForCall();
+//				if (lambdaParameters.Count != arguments.Count)
+//					return;
+//				for (int i = 0; i < arguments.Count; i++) {
+//					var arg = UnpackImplicitIdentityOrReferenceConversion(arguments[i]) as LocalResolveResult;
+//					if (arg == null || arg.Variable.Name != lambdaParameters[i].Name)
+//						return;
+//				}
+//				var returnConv = ctx.GetConversion(invocation);
+//				if (returnConv.IsExplicit || !(returnConv.IsIdentityConversion || returnConv.IsReferenceConversion))
+//					return;
+//				var validTypes = TypeGuessing.GetValidTypes (ctx.Resolver, expression).ToList ();
+//
+//				// search for method group collisions
+//				var targetResult = ctx.Resolve(invocation.Target) as MethodGroupResolveResult;
+//				if (targetResult != null) {
+//					foreach (var t in validTypes) {
+//						if (t.Kind != TypeKind.Delegate)
+//							continue;
+//						var invokeMethod = t.GetDelegateInvokeMethod();
+//
+//						foreach (var otherMethod in targetResult.Methods) {
+//							if (otherMethod == rr.Member)
+//								continue;
+//							if (ParameterListComparer.Instance.Equals(otherMethod.Parameters, invokeMethod.Parameters))
+//								return;
+//						}
+//					}
+//				}
+//
+//				bool isValidReturnType = false;
+//				foreach (var t in validTypes) {
+//					if (t.Kind != TypeKind.Delegate)
+//						continue;
+//					var invokeMethod = t.GetDelegateInvokeMethod();
+//					isValidReturnType = rr.Member.ReturnType == invokeMethod.ReturnType || rr.Member.ReturnType.GetAllBaseTypes().Contains(invokeMethod.ReturnType);
+//					if (isValidReturnType)
+//						break;
+//				}
+//				if (!isValidReturnType)
+//					return;
+//
+//				if (rr.IsDelegateInvocation) {
+//					if (!validTypes.Contains(rr.Member.DeclaringType))
+//						return;
+//				}
+//
+//				AddIssue(new CodeIssue(expression,
+			//				         expression is AnonymousMethodExpression ? ctx.TranslateString("Anonymous method can be simplified to method group") : ctx.TranslateString("Lambda expression can be simplified to method group"), 
+//				         ctx.TranslateString(), script =>  {
+//					if (validTypes.Any (t => t.FullName == "System.Func" && t.TypeParameterCount == 1 + parameters.Count) && validTypes.Any (t => t.FullName == "System.Action")) {
+//						if (rr != null && rr.Member.ReturnType.Kind != TypeKind.Void) {
+//							var builder = ctx.CreateTypeSystemAstBuilder (expression);
+//							var type = builder.ConvertType(new TopLevelTypeName("System", "Func", 1));
+//							var args = type.GetChildrenByRole(Roles.TypeArgument);
+//							args.Clear ();
+//							foreach (var pde in parameters) {
+//								args.Add (builder.ConvertType (ctx.Resolve (pde).Type));
+//							}
+//							args.Add (builder.ConvertType (rr.Member.ReturnType));
+//							script.Replace(expression, new CastExpression (type, invocation.Target.Clone()));
+//							return;
+//						}
+//					}
+//					script.Replace(expression, invocation.Target.Clone());
+//				}));
+//			}
+//			
+//			static ResolveResult UnpackImplicitIdentityOrReferenceConversion(ResolveResult rr)
+//			{
+//				var crr = rr as ConversionResolveResult;
+//				if (crr != null && crr.Conversion.IsImplicit && (crr.Conversion.IsIdentityConversion || crr.Conversion.IsReferenceConversion))
+//					return crr.Input;
+//				return rr;
+//			}
+//
+//			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+//			{
+//				base.VisitLambdaExpression(lambdaExpression);
+//				AnalyzeExpression(lambdaExpression, lambdaExpression.Body, lambdaExpression.Parameters);
+//			}
+//
+//			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+//			{
+//				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+//				AnalyzeExpression(anonymousMethodExpression, anonymousMethodExpression.Body, anonymousMethodExpression.Parameters);
+//			}
+//
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ConvertClosureToMethodGroupIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ConvertClosureToMethodGroupFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ConvertClosureToMethodGroupIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

@@ -47,20 +47,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Static constructor should be parameterless",
-		Description = "Static constructor should be parameterless",
-		Category = IssueCategories.CompilerErrors,
-		Severity = Severity.Error)]
+	[ExportDiagnosticAnalyzer("Static constructor should be parameterless", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Static constructor should be parameterless")]
 	public class StaticConstructorParameterIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
+		internal const string DiagnosticId  = "StaticConstructorParameterIssue";
 		const string Description            = "";
 		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		const string Category               = IssueCategories.CompilerErrors;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -80,31 +76,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-				if (!constructorDeclaration.HasModifier(Modifiers.Static) || !constructorDeclaration.Parameters.Any())
-					return;
-				AddIssue(new CodeIssue(
-					constructorDeclaration.Parameters.First().StartLocation,
-					constructorDeclaration.Parameters.Last().EndLocation,
-					ctx.TranslateString("Static constructor cannot take parameters"),
-					ctx.TranslateString("Remove parameters"),
-					s => {
-						int o1 = ctx.GetOffset(constructorDeclaration.LParToken.EndLocation);
-						int o2 = ctx.GetOffset(constructorDeclaration.RParToken.StartLocation);
-						s.RemoveText(o1, o2 - o1);
-					}
-				));
-			}
+//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+//			{
+//				if (!constructorDeclaration.HasModifier(Modifiers.Static) || !constructorDeclaration.Parameters.Any())
+//					return;
+//				AddIssue(new CodeIssue(
+//					constructorDeclaration.Parameters.First().StartLocation,
+//					constructorDeclaration.Parameters.Last().EndLocation,
+//					ctx.TranslateString("Static constructor cannot take parameters"),
+//					ctx.TranslateString("Remove parameters"),
+//					s => {
+//						int o1 = ctx.GetOffset(constructorDeclaration.LParToken.EndLocation);
+//						int o2 = ctx.GetOffset(constructorDeclaration.RParToken.StartLocation);
+//						s.RemoveText(o1, o2 - o1);
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(StaticConstructorParameterIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class StaticConstructorParameterFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return StaticConstructorParameterIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

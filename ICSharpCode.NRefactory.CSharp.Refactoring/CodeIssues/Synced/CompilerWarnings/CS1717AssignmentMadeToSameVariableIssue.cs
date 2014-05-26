@@ -44,19 +44,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-    [IssueDescription("CS1717:Assignment made to same variable",
-					   Description = "CS1717:Assignment made to same variable.",
-					   Category = IssueCategories.CompilerWarnings,
-					   Severity = Severity.Warning,
-                       PragmaWarning = 1717,
-                       AnalysisDisableKeyword = "CSharpWarnings::CS1717")]
-    public class CS1717AssignmentMadeToSameVariableIssue : GatherVisitorCodeIssueProvider
+	[ExportDiagnosticAnalyzer("CS1717:Assignment made to same variable", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "CS1717:Assignment made to same variable", AnalysisDisableKeyword = "CSharpWarnings::CS1717", PragmaWarning = 1717)]
+	public class CS1717AssignmentMadeToSameVariableIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "CS1717AssignmentMadeToSameVariableIssue";
+		const string Description            = "CS1717:Assignment made to same variable";
+		const string MessageFormat          = "Remove assignment";
 		const string Category               = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -79,59 +73,59 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitAssignmentExpression (AssignmentExpression assignmentExpression)
-			{
-				base.VisitAssignmentExpression (assignmentExpression);
-
-				if (assignmentExpression.Operator != AssignmentOperatorType.Assign)
-					return;
-				if (!(assignmentExpression.Left is IdentifierExpression) && 
-					!(assignmentExpression.Left is MemberReferenceExpression))
-					return;
-
-				var resolveResult = ctx.Resolve (assignmentExpression.Left);
-				var memberResolveResult = resolveResult as MemberResolveResult;
-				if (memberResolveResult != null) {
-					var memberResolveResult2 = ctx.Resolve (assignmentExpression.Right) as MemberResolveResult;
-					if (memberResolveResult2 == null || !AreEquivalent(memberResolveResult, memberResolveResult2))
-						return;
-				} else if (resolveResult is LocalResolveResult) {
-					if (!assignmentExpression.Left.Match (assignmentExpression.Right).Success)
-						return;
-				} else {
-					return;
-				}
-
-				AstNode node;
-				Action<Script> action;
-				if (assignmentExpression.Parent is ExpressionStatement) {
-					node = assignmentExpression.Parent;
-					action = script => script.Remove (assignmentExpression.Parent);
-				} else {
-					node = assignmentExpression;
-					action = script => script.Replace (assignmentExpression, assignmentExpression.Left.Clone ());
-				}
-				AddIssue (new CodeIssue(node, ctx.TranslateString ("CS1717:Assignment made to same variable"),
-					new [] { new CodeAction (ctx.TranslateString ("Remove assignment"), action, node) })
-					{ IssueMarker = IssueMarker.GrayOut }
-				);
-			}
-
-			static bool AreEquivalent(ResolveResult first, ResolveResult second)
-			{
-				var firstPath = AccessPath.FromResolveResult(first);
-				var secondPath = AccessPath.FromResolveResult(second);
-				return firstPath != null && firstPath.Equals(secondPath) && !firstPath.MemberPath.Any(m => !(m is IField));
-			}
+//			public override void VisitAssignmentExpression (AssignmentExpression assignmentExpression)
+//			{
+//				base.VisitAssignmentExpression (assignmentExpression);
+//
+//				if (assignmentExpression.Operator != AssignmentOperatorType.Assign)
+//					return;
+//				if (!(assignmentExpression.Left is IdentifierExpression) && 
+//					!(assignmentExpression.Left is MemberReferenceExpression))
+//					return;
+//
+//				var resolveResult = ctx.Resolve (assignmentExpression.Left);
+//				var memberResolveResult = resolveResult as MemberResolveResult;
+//				if (memberResolveResult != null) {
+//					var memberResolveResult2 = ctx.Resolve (assignmentExpression.Right) as MemberResolveResult;
+//					if (memberResolveResult2 == null || !AreEquivalent(memberResolveResult, memberResolveResult2))
+//						return;
+//				} else if (resolveResult is LocalResolveResult) {
+//					if (!assignmentExpression.Left.Match (assignmentExpression.Right).Success)
+//						return;
+//				} else {
+//					return;
+//				}
+//
+//				AstNode node;
+//				Action<Script> action;
+//				if (assignmentExpression.Parent is ExpressionStatement) {
+//					node = assignmentExpression.Parent;
+//					action = script => script.Remove (assignmentExpression.Parent);
+//				} else {
+//					node = assignmentExpression;
+//					action = script => script.Replace (assignmentExpression, assignmentExpression.Left.Clone ());
+//				}
+//				AddIssue (new CodeIssue(node, ctx.TranslateString (""),
+//					new [] { new CodeAction (ctx.TranslateString (""), action, node) })
+//					{ IssueMarker = IssueMarker.GrayOut }
+//				);
+//			}
+//
+//			static bool AreEquivalent(ResolveResult first, ResolveResult second)
+//			{
+//				var firstPath = AccessPath.FromResolveResult(first);
+//				var secondPath = AccessPath.FromResolveResult(second);
+//				return firstPath != null && firstPath.Equals(secondPath) && !firstPath.MemberPath.Any(m => !(m is IField));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(CS1717AssignmentMadeToSameVariableIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class CS1717AssignmentMadeToSameVariableFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return CS1717AssignmentMadeToSameVariableIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

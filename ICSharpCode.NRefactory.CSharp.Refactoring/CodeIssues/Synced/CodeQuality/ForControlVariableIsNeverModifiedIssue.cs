@@ -44,18 +44,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("'for' loop control variable is never modified",
-					   Description = "'for' loop control variable is never modified.",
-					   Category = IssueCategories.CodeQualityIssues,
-					   Severity = Severity.Warning,
-                       AnalysisDisableKeyword = "ForControlVariableIsNeverModified")]
-    public class ForControlVariableIsNeverModifiedIssue : GatherVisitorCodeIssueProvider
+	[ExportDiagnosticAnalyzer("'for' loop control variable is never modified", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "'for' loop control variable is never modified", AnalysisDisableKeyword = "ForControlVariableIsNeverModified")]
+	public class ForControlVariableIsNeverModifiedIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ForControlVariableIsNeverModifiedIssue";
+		const string Description            = "'for' loop control variable is never modified";
+		const string MessageFormat          = "'for' loop control variable is never modified";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -78,90 +73,90 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static VariableInitializer GetControlVariable(VariableDeclarationStatement variableDecl, 
-														  BinaryOperatorExpression condition)
-			{
-				var controlVariables = variableDecl.Variables.Where (
-					v =>
-					{
-						var identifier = new IdentifierExpression (v.Name);
-						return condition.Left.Match (identifier).Success ||
-							condition.Right.Match (identifier).Success;
-					}).ToList ();
-				return controlVariables.Count == 1 ? controlVariables [0] : null;
-			}
-
-			static VariableInitializer GetControlVariable(VariableDeclarationStatement variableDecl,
-														  UnaryOperatorExpression condition)
-			{
-				var controlVariables = variableDecl.Variables.Where (
-					v =>
-					{
-						var identifier = new IdentifierExpression (v.Name);
-						return condition.Expression.Match (identifier).Success;
-					}).ToList ();
-				return controlVariables.Count == 1 ? controlVariables [0] : null;
-			}
-
-			public override void VisitForStatement (ForStatement forStatement)
-			{
-				base.VisitForStatement (forStatement);
-
-				if (forStatement.Initializers.Count != 1)
-					return;
-				var variableDecl = forStatement.Initializers.First () as VariableDeclarationStatement;
-				if (variableDecl == null)
-					return;
-
-				VariableInitializer controlVariable = null;
-				if (forStatement.Condition is BinaryOperatorExpression) {
-					controlVariable = GetControlVariable (variableDecl, (BinaryOperatorExpression)forStatement.Condition);
-				} else if (forStatement.Condition is UnaryOperatorExpression) {
-					controlVariable = GetControlVariable (variableDecl, (UnaryOperatorExpression)forStatement.Condition);
-				} else if (forStatement.Condition is IdentifierExpression) {
-					controlVariable = variableDecl.Variables.FirstOrDefault (
-						v => v.Name == ((IdentifierExpression)forStatement.Condition).Identifier);
-				}
-
-				if (controlVariable == null)
-					return;
-
-				var localResolveResult = ctx.Resolve (controlVariable) as LocalResolveResult;
-				if (localResolveResult == null)
-					return;
-
-				var results = ctx.FindReferences (forStatement, localResolveResult.Variable);
-				var modified = false;
-				foreach (var result in results) {
-					if (modified)
-						break;
-					var node = result.Node;
-					var unary = node.Parent as UnaryOperatorExpression;
-					if (unary != null && unary.Expression == node) {
-						modified = unary.Operator == UnaryOperatorType.Decrement ||
-							unary.Operator == UnaryOperatorType.PostDecrement ||
-							unary.Operator == UnaryOperatorType.Increment ||
-							unary.Operator == UnaryOperatorType.PostIncrement;
-						continue;
-					}
-
-					var assignment = node.Parent as AssignmentExpression;
-					modified = assignment != null && assignment.Left == node;
-				}
-
-				if (!modified)
-					AddIssue (new CodeIssue(controlVariable.NameToken,
-						ctx.TranslateString ("'for' loop control variable is never modified")));
-			}
+//			static VariableInitializer GetControlVariable(VariableDeclarationStatement variableDecl, 
+//														  BinaryOperatorExpression condition)
+//			{
+//				var controlVariables = variableDecl.Variables.Where (
+//					v =>
+//					{
+//						var identifier = new IdentifierExpression (v.Name);
+//						return condition.Left.Match (identifier).Success ||
+//							condition.Right.Match (identifier).Success;
+//					}).ToList ();
+//				return controlVariables.Count == 1 ? controlVariables [0] : null;
+//			}
+//
+//			static VariableInitializer GetControlVariable(VariableDeclarationStatement variableDecl,
+//														  UnaryOperatorExpression condition)
+//			{
+//				var controlVariables = variableDecl.Variables.Where (
+//					v =>
+//					{
+//						var identifier = new IdentifierExpression (v.Name);
+//						return condition.Expression.Match (identifier).Success;
+//					}).ToList ();
+//				return controlVariables.Count == 1 ? controlVariables [0] : null;
+//			}
+//
+//			public override void VisitForStatement (ForStatement forStatement)
+//			{
+//				base.VisitForStatement (forStatement);
+//
+//				if (forStatement.Initializers.Count != 1)
+//					return;
+//				var variableDecl = forStatement.Initializers.First () as VariableDeclarationStatement;
+//				if (variableDecl == null)
+//					return;
+//
+//				VariableInitializer controlVariable = null;
+//				if (forStatement.Condition is BinaryOperatorExpression) {
+//					controlVariable = GetControlVariable (variableDecl, (BinaryOperatorExpression)forStatement.Condition);
+//				} else if (forStatement.Condition is UnaryOperatorExpression) {
+//					controlVariable = GetControlVariable (variableDecl, (UnaryOperatorExpression)forStatement.Condition);
+//				} else if (forStatement.Condition is IdentifierExpression) {
+//					controlVariable = variableDecl.Variables.FirstOrDefault (
+//						v => v.Name == ((IdentifierExpression)forStatement.Condition).Identifier);
+//				}
+//
+//				if (controlVariable == null)
+//					return;
+//
+//				var localResolveResult = ctx.Resolve (controlVariable) as LocalResolveResult;
+//				if (localResolveResult == null)
+//					return;
+//
+//				var results = ctx.FindReferences (forStatement, localResolveResult.Variable);
+//				var modified = false;
+//				foreach (var result in results) {
+//					if (modified)
+//						break;
+//					var node = result.Node;
+//					var unary = node.Parent as UnaryOperatorExpression;
+//					if (unary != null && unary.Expression == node) {
+//						modified = unary.Operator == UnaryOperatorType.Decrement ||
+//							unary.Operator == UnaryOperatorType.PostDecrement ||
+//							unary.Operator == UnaryOperatorType.Increment ||
+//							unary.Operator == UnaryOperatorType.PostIncrement;
+//						continue;
+//					}
+//
+//					var assignment = node.Parent as AssignmentExpression;
+//					modified = assignment != null && assignment.Left == node;
+//				}
+//
+//				if (!modified)
+//					AddIssue (new CodeIssue(controlVariable.NameToken,
+//						ctx.TranslateString ("")));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ForControlVariableIsNeverModifiedIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ForControlVariableIsNeverModifiedFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ForControlVariableIsNeverModifiedIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

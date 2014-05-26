@@ -44,22 +44,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription(
-		"Replace with simple assignment",
-		Description = "Replace with simple assignment",
-		Category = IssueCategories.PracticesAndImprovements,
-		Severity = Severity.Suggestion,
-		AnalysisDisableKeyword = "ReplaceWithSimpleAssignment")]
+	[ExportDiagnosticAnalyzer("Replace with simple assignment", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with simple assignment", AnalysisDisableKeyword = "ReplaceWithSimpleAssignment")]
 	public class ReplaceWithSimpleAssignmentIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "ReplaceWithSimpleAssignmentIssue";
+		const string Description            = "Replace with simple assignment";
+		const string MessageFormat          = "Replace with '{0}'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -79,55 +73,55 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			static readonly AstNode truePattern = 
-				new AssignmentExpression(
-					new AnyNode("expr"),
-					AssignmentOperatorType.BitwiseOr,
-					PatternHelper.OptionalParentheses(new PrimitiveExpression(true))
-				);
-
-			static readonly AstNode falsePattern = 
-				new AssignmentExpression(
-					new AnyNode("expr"),
-					AssignmentOperatorType.BitwiseAnd,
-					PatternHelper.OptionalParentheses(new PrimitiveExpression(false))
-				);
-
-			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
-			{
-				base.VisitAssignmentExpression(assignmentExpression);
-				var match = truePattern.Match(assignmentExpression);
-				AssignmentExpression simpleAssignment;
-
-				if (match.Success) {
-					var expr = match.Get<Expression>("expr").Single();
-					simpleAssignment = new AssignmentExpression(expr.Clone(), new PrimitiveExpression(true));
-				} else {
-					match = falsePattern.Match(assignmentExpression);
-					if (!match.Success)
-						return;
-					var expr = match.Get<Expression>("expr").Single();
-					simpleAssignment = new AssignmentExpression(expr.Clone(), new PrimitiveExpression(false));
-				}
-
-				AddIssue(new CodeIssue(
-					assignmentExpression,
-					ctx.TranslateString("Replace with simple assignment"),
-					string.Format(ctx.TranslateString("Replace with '{0}'"), simpleAssignment),
-					script => {
-						script.Replace(assignmentExpression, simpleAssignment);
-					}
-				));
-			}
+//			static readonly AstNode truePattern = 
+//				new AssignmentExpression(
+//					new AnyNode("expr"),
+//					AssignmentOperatorType.BitwiseOr,
+//					PatternHelper.OptionalParentheses(new PrimitiveExpression(true))
+//				);
+//
+//			static readonly AstNode falsePattern = 
+//				new AssignmentExpression(
+//					new AnyNode("expr"),
+//					AssignmentOperatorType.BitwiseAnd,
+//					PatternHelper.OptionalParentheses(new PrimitiveExpression(false))
+//				);
+//
+//			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
+//			{
+//				base.VisitAssignmentExpression(assignmentExpression);
+//				var match = truePattern.Match(assignmentExpression);
+//				AssignmentExpression simpleAssignment;
+//
+//				if (match.Success) {
+//					var expr = match.Get<Expression>("expr").Single();
+//					simpleAssignment = new AssignmentExpression(expr.Clone(), new PrimitiveExpression(true));
+//				} else {
+//					match = falsePattern.Match(assignmentExpression);
+//					if (!match.Success)
+//						return;
+//					var expr = match.Get<Expression>("expr").Single();
+//					simpleAssignment = new AssignmentExpression(expr.Clone(), new PrimitiveExpression(false));
+//				}
+//
+//				AddIssue(new CodeIssue(
+//					assignmentExpression,
+//					ctx.TranslateString(""),
+//					string.Format(ctx.TranslateString(""), simpleAssignment),
+//					script => {
+//						script.Replace(assignmentExpression, simpleAssignment);
+//					}
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(ReplaceWithSimpleAssignmentIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class ReplaceWithSimpleAssignmentFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return ReplaceWithSimpleAssignmentIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

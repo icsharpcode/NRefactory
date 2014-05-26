@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription ("Possible mistaken call to 'object.GetType()'",
-		Description = "Possible mistaken call to 'object.GetType()'",
-		Category = IssueCategories.PracticesAndImprovements,
-		Severity = Severity.Warning, 
-		AnalysisDisableKeyword = "PossibleMistakenCallToGetType" )]
+	[ExportDiagnosticAnalyzer("Possible mistaken call to 'object.GetType()'", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Possible mistaken call to 'object.GetType()'", AnalysisDisableKeyword = "PossibleMistakenCallToGetType")]
 	public class PossibleMistakenCallToGetTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "PossibleMistakenCallToGetTypeIssue";
+		const string Description            = "Possible mistaken call to 'object.GetType()'";
+		const string MessageFormat          = "Remove call to 'object.GetType()'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -77,32 +72,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-
-				var mref = invocationExpression.Target as MemberReferenceExpression;
-				if (mref == null || mref.MemberName != "GetType")
-					return;
-				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-				if (rr == null || !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Type) || rr.Member.IsStatic)
-					return;
-				AddIssue(new CodeIssue (
-					invocationExpression,
-					ctx.TranslateString("Possible mistaken call to 'object.GetType()'"),
-					ctx.TranslateString("Remove call to 'object.GetType()'"),
-					s => s.Replace(invocationExpression, mref.Target.Clone())
-				));
-			}
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//
+//				var mref = invocationExpression.Target as MemberReferenceExpression;
+//				if (mref == null || mref.MemberName != "GetType")
+//					return;
+//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+//				if (rr == null || !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Type) || rr.Member.IsStatic)
+//					return;
+//				AddIssue(new CodeIssue (
+//					invocationExpression,
+//					ctx.TranslateString(""),
+//					ctx.TranslateString(""),
+//					s => s.Replace(invocationExpression, mref.Target.Clone())
+//				));
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(PossibleMistakenCallToGetTypeIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class PossibleMistakenCallToGetTypeFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return PossibleMistakenCallToGetTypeIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

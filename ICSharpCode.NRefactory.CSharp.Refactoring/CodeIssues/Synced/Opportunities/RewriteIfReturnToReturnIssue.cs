@@ -43,20 +43,16 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'if...return' statement can be re-written as 'return' statement",
-	                  Description="Convert 'if...return' to 'return'",
-	                  Category = IssueCategories.Opportunities,
-	                  Severity = Severity.Hint)]
+	[ExportDiagnosticAnalyzer("'if...return' statement can be re-written as 'return' statement", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'if...return' to 'return'")]
 	public class RewriteIfReturnToReturnIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "RewriteIfReturnToReturnIssue";
+		const string Description            = "Convert to 'return' statement";
+		const string MessageFormat          = "Convert to 'return' statement";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -75,35 +71,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-
-			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			{
-				base.VisitIfElseStatement(ifElseStatement);
-
-				if (ifElseStatement.Parent is IfElseStatement)
-					return;
-				Expression c, e1, e2;
-				AstNode rs;
-				if (!ConvertIfStatementToReturnStatementAction.GetMatch(ifElseStatement, out c, out e1, out e2, out rs))
-					return;
-				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexCondition(c) || 
-				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e1) || 
-				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e2))
-					return;
-				AddIssue(new CodeIssue(
-					ifElseStatement.IfToken,
-					ctx.TranslateString("Convert to 'return' statement")
-				) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToReturnStatementAction) } });
-			}
+//
+//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//			{
+//				base.VisitIfElseStatement(ifElseStatement);
+//
+//				if (ifElseStatement.Parent is IfElseStatement)
+//					return;
+//				Expression c, e1, e2;
+//				AstNode rs;
+//				if (!ConvertIfStatementToReturnStatementAction.GetMatch(ifElseStatement, out c, out e1, out e2, out rs))
+//					return;
+//				if (ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexCondition(c) || 
+//				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e1) || 
+//				    ConvertIfStatementToConditionalTernaryExpressionIssue.IsComplexExpression(e2))
+//					return;
+//				AddIssue(new CodeIssue(
+//					ifElseStatement.IfToken,
+//					ctx.TranslateString("")
+//				) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToReturnStatementAction) } });
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(RewriteIfReturnToReturnIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RewriteIfReturnToReturnFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return RewriteIfReturnToReturnIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

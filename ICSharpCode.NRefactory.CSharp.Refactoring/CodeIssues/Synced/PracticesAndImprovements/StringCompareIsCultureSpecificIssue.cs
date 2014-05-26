@@ -44,25 +44,21 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("'string.Compare' is culture-aware",
-	                  Description = "Warns when a culture-aware 'Compare' call is used by default.",
-	                  Category = IssueCategories.PracticesAndImprovements,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "StringCompareIsCultureSpecific")]
+	[ExportDiagnosticAnalyzer("'string.Compare' is culture-aware", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns when a culture-aware 'Compare' call is used by default.", AnalysisDisableKeyword = "StringCompareIsCultureSpecific")]
 	public class StringCompareIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "StringCompareIsCultureSpecificIssue";
+		const string Description            = "'string.Compare' is culture-aware";
+		const string MessageFormat          = "Use culture-aware comparison";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Use ordinal comparison", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Use culture-aware comparison", Category, DiagnosticSeverity.Warning);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule);
+				return ImmutableArray.Create(Rule1, Rule2);
 			}
 		}
 
@@ -78,103 +74,103 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-
-				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-				if (rr == null || rr.IsError)
-					return;
-
-				if (!rr.Member.IsStatic ||
-					rr.Member.Name != "Compare" || 
-				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
-				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
-					return;
-				}
-				if (rr.Member.Parameters.Count != 2 &&
-				    rr.Member.Parameters.Count != 3 &&
-				    rr.Member.Parameters.Count != 5 &&
-				    rr.Member.Parameters.Count != 6)
-					return;
-
-				bool? ignoreCase = null;
-				Expression caseArg = null;
-				IParameter lastParameter = rr.Member.Parameters.Last();
-				if (lastParameter.Type.Name == "StringComparison")
-					return; // already specifying a string comparison
-
-				if (rr.Member.Parameters.Count == 3) {
-					if (!rr.Member.Parameters[2].Type.IsKnownType(KnownTypeCode.Boolean))
-						return;
-					if (rr.Arguments[2].IsCompileTimeConstant) {
-						ignoreCase = (bool)rr.Arguments[2].ConstantValue;
-					} else {
-						caseArg = invocationExpression.Arguments.ElementAt(2);
-					}
-				}
-
-				if (rr.Member.Parameters.Count == 6) {
-					if (!rr.Member.Parameters[5].Type.IsKnownType(KnownTypeCode.Boolean))
-						return;
-					if (rr.Arguments[5].IsCompileTimeConstant) {
-						ignoreCase = (bool)rr.Arguments[5].ConstantValue;
-					} else {
-						caseArg = invocationExpression.Arguments.ElementAt(5);
-					}
-				}
-
-
-				AddIssue(new CodeIssue(
-					invocationExpression,
-					ctx.TranslateString("'string.Compare' is culture-aware"), 
-					new CodeAction(
-						ctx.TranslateString("Use ordinal comparison"), 
-						script => AddArgument(script, invocationExpression, CreateCompareArgument (invocationExpression, ignoreCase, caseArg, "Ordinal")), 
-						invocationExpression
-					),
-					new CodeAction(
-						ctx.TranslateString("Use culture-aware comparison"), 
-						script => AddArgument(script, invocationExpression, CreateCompareArgument (invocationExpression, ignoreCase, caseArg, "Ordinal")), 
-						invocationExpression
-					)
-				));
-			}
-
-			Expression CreateCompareArgument (InvocationExpression invocationExpression, bool? ignoreCase, Expression caseArg, string stringComparison)
-			{
-				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
-				if (caseArg == null)
-					return astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ignoreCase == true ? stringComparison + "IgnoreCase" : stringComparison);
-
-				return new ConditionalExpression(
-					caseArg.Clone(),
-					astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison + "IgnoreCase"),
-					astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison)
-				);
-			}
-
-			void AddArgument(Script script, InvocationExpression invocationExpression, Expression compareArgument)
-			{
-				var copy = (InvocationExpression)invocationExpression.Clone();
-				copy.Arguments.Clear();
-				if (invocationExpression.Arguments.Count() <= 3) {
-					copy.Arguments.AddRange(invocationExpression.Arguments.Take(2).Select(a => a.Clone())); 
-				} else {
-					copy.Arguments.AddRange(invocationExpression.Arguments.Take(5).Select(a => a.Clone())); 
-				}
-				copy.Arguments.Add(compareArgument);
-				script.Replace(invocationExpression, copy);
-			}
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//
+//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+//				if (rr == null || rr.IsError)
+//					return;
+//
+//				if (!rr.Member.IsStatic ||
+//					rr.Member.Name != "Compare" || 
+//				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
+//				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
+//					return;
+//				}
+//				if (rr.Member.Parameters.Count != 2 &&
+//				    rr.Member.Parameters.Count != 3 &&
+//				    rr.Member.Parameters.Count != 5 &&
+//				    rr.Member.Parameters.Count != 6)
+//					return;
+//
+//				bool? ignoreCase = null;
+//				Expression caseArg = null;
+//				IParameter lastParameter = rr.Member.Parameters.Last();
+//				if (lastParameter.Type.Name == "StringComparison")
+//					return; // already specifying a string comparison
+//
+//				if (rr.Member.Parameters.Count == 3) {
+//					if (!rr.Member.Parameters[2].Type.IsKnownType(KnownTypeCode.Boolean))
+//						return;
+//					if (rr.Arguments[2].IsCompileTimeConstant) {
+//						ignoreCase = (bool)rr.Arguments[2].ConstantValue;
+//					} else {
+//						caseArg = invocationExpression.Arguments.ElementAt(2);
+//					}
+//				}
+//
+//				if (rr.Member.Parameters.Count == 6) {
+//					if (!rr.Member.Parameters[5].Type.IsKnownType(KnownTypeCode.Boolean))
+//						return;
+//					if (rr.Arguments[5].IsCompileTimeConstant) {
+//						ignoreCase = (bool)rr.Arguments[5].ConstantValue;
+//					} else {
+//						caseArg = invocationExpression.Arguments.ElementAt(5);
+//					}
+//				}
+//
+//
+//				AddIssue(new CodeIssue(
+//					invocationExpression,
+//					ctx.TranslateString(), 
+//					new CodeAction(
+//						ctx.TranslateString("), 
+//						script => AddArgument(script, invocationExpression, CreateCompareArgument (invocationExpression, ignoreCase, caseArg, "Ordinal")), 
+//						invocationExpression
+//					),
+//					new CodeAction(
+//						ctx.TranslateString(), 
+//						script => AddArgument(script, invocationExpression, CreateCompareArgument (invocationExpression, ignoreCase, caseArg, "Ordinal")), 
+//						invocationExpression
+//					)
+//				));
+//			}
+//
+//			Expression CreateCompareArgument (InvocationExpression invocationExpression, bool? ignoreCase, Expression caseArg, string stringComparison)
+//			{
+//				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
+//				if (caseArg == null)
+//					return astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ignoreCase == true ? stringComparison + "IgnoreCase" : stringComparison);
+//
+//				return new ConditionalExpression(
+//					caseArg.Clone(),
+//					astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison + "IgnoreCase"),
+//					astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison)
+//				);
+//			}
+//
+//			void AddArgument(Script script, InvocationExpression invocationExpression, Expression compareArgument)
+//			{
+//				var copy = (InvocationExpression)invocationExpression.Clone();
+//				copy.Arguments.Clear();
+//				if (invocationExpression.Arguments.Count() <= 3) {
+//					copy.Arguments.AddRange(invocationExpression.Arguments.Take(2).Select(a => a.Clone())); 
+//				} else {
+//					copy.Arguments.AddRange(invocationExpression.Arguments.Take(5).Select(a => a.Clone())); 
+//				}
+//				copy.Arguments.Add(compareArgument);
+//				script.Replace(invocationExpression, copy);
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(StringCompareIsCultureSpecificIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class StringCompareIsCultureSpecificFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return StringCompareIsCultureSpecificIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)

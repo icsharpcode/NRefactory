@@ -43,18 +43,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "", AnalysisDisableKeyword = "")]
-	[IssueDescription("Virtual member call in constructor",
-	                  Description = "Warns about calls to virtual member functions occuring in the constructor.",
-	                  Category = IssueCategories.CodeQualityIssues,
-	                  Severity = Severity.Warning,
-	                  AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
-	public class DoNotCallOverridableMethodsInConstructorIssue : CodeIssueProvider
+	[ExportDiagnosticAnalyzer("Virtual member call in constructor", LanguageNames.CSharp)]
+	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns about calls to virtual member functions occuring in the constructor.", AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
+	public class DoNotCallOverridableMethodsInConstructorIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		internal const string DiagnosticId  = "DoNotCallOverridableMethodsInConstructorIssue";
+		const string Description            = "Virtual member call in constructor";
+		const string MessageFormat          = "Make class '{0}' sealed";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning);
@@ -70,137 +65,130 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
-		public override IEnumerable<CodeIssue> GetIssues(BaseSemanticModel context, string subIssue)
-		{
-			var gv = new GatherVisitor(context);
-			context.RootNode.AcceptVisitor(gv);
-			return gv.CallFinder.FoundIssues;
-		}
-		
 		class GatherVisitor : GatherVisitorBase<DoNotCallOverridableMethodsInConstructorIssue>
 		{
-			internal readonly VirtualCallFinderVisitor CallFinder;
+			// internal readonly VirtualCallFinderVisitor CallFinder;
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
-				CallFinder = new VirtualCallFinderVisitor(context);
+				//CallFinder = new VirtualCallFinderVisitor(context);
 			}
-
-			bool isSealedType;
-
-			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-			{
-				if (typeDeclaration.ClassType != ClassType.Class && typeDeclaration.ClassType != ClassType.Struct)
-					return;
-				bool oldIsSealedType = isSealedType;
-				isSealedType = typeDeclaration.Modifiers.HasFlag(Modifiers.Sealed);
-				CallFinder.CurrentType = typeDeclaration;
-				base.VisitTypeDeclaration(typeDeclaration);
-				isSealedType = oldIsSealedType;
-			}
-
-			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-			{
-				if (isSealedType)
-					return;
-				var body = constructorDeclaration.Body;
-				if (body == null || body.IsNull)
-					return;
-				body.AcceptVisitor(CallFinder);
-			}
-
-			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-			{
-				// nothing
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-			{
-				// nothing
-			}
-
-			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
-			{
-				// nothing
-			}
-
-			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-			{
-				// nothing
-			}
-
-			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
-			{
-				// nothing
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-			{
-				// nothing
-			}
-
-			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
-			{
-				// nothing
-			}
-		}
-
-		class VirtualCallFinderVisitor: GatherVisitorBase<DoNotCallOverridableMethodsInConstructorIssue>
-		{
-			readonly BaseSemanticModel context;
-			public TypeDeclaration CurrentType;
-			public VirtualCallFinderVisitor(BaseSemanticModel context) : base(context)
-			{
-				this.context = context;
-			}
-
-			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
-			{
-				base.VisitMemberReferenceExpression(memberReferenceExpression);
-				var targetMember = context.Resolve(memberReferenceExpression) as MemberResolveResult;
-				if (targetMember != null && targetMember.IsVirtualCall && targetMember.TargetResult is ThisResolveResult) {
-					CreateIssue(memberReferenceExpression);
-				}
-			}
-
-			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-			{
-				base.VisitInvocationExpression(invocationExpression);
-				var targetMethod = context.Resolve(invocationExpression) as InvocationResolveResult;
-				if (targetMethod != null && targetMethod.IsVirtualCall && targetMethod.TargetResult is ThisResolveResult) {
-					CreateIssue(invocationExpression);
-				}
-			}
-
-			void CreateIssue(AstNode node)
-			{
-				AddIssue(new CodeIssue(
-					node,
-					context.TranslateString("Virtual member call in constructor"),
-					new CodeAction(string.Format(context.TranslateString("Make class '{0}' sealed"), CurrentType.Name),
-					               script => script.ChangeModifier(CurrentType, CurrentType.Modifiers | Modifiers.Sealed),
-					               node)));
-			}
-			
-			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
-			{
-				// ignore lambdas
-			}
-			
-			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
-			{
-				// ignore anonymous methods
-			}
+//
+//			bool isSealedType;
+//
+//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//			{
+//				if (typeDeclaration.ClassType != ClassType.Class && typeDeclaration.ClassType != ClassType.Struct)
+//					return;
+//				bool oldIsSealedType = isSealedType;
+//				isSealedType = typeDeclaration.Modifiers.HasFlag(Modifiers.Sealed);
+//				CallFinder.CurrentType = typeDeclaration;
+//				base.VisitTypeDeclaration(typeDeclaration);
+//				isSealedType = oldIsSealedType;
+//			}
+//
+//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+//			{
+//				if (isSealedType)
+//					return;
+//				var body = constructorDeclaration.Body;
+//				if (body == null || body.IsNull)
+//					return;
+//				body.AcceptVisitor(CallFinder);
+//			}
+//
+//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+//			{
+//				// nothing
+//			}
+//
+//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+//			{
+//				// nothing
+//			}
+//
+//			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
+//			{
+//				// nothing
+//			}
+//
+//			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
+//			{
+//				// nothing
+//			}
+//
+//			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
+//			{
+//				// nothing
+//			}
+//
+//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+//			{
+//				// nothing
+//			}
+//
+//			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
+//			{
+//				// nothing
+//			}
+//		}
+//
+//		class VirtualCallFinderVisitor: GatherVisitorBase<DoNotCallOverridableMethodsInConstructorIssue>
+//		{
+//			readonly BaseSemanticModel context;
+//			public TypeDeclaration CurrentType;
+//			public VirtualCallFinderVisitor(BaseSemanticModel context) : base(context)
+//			{
+//				this.context = context;
+//			}
+//
+//			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
+//			{
+//				base.VisitMemberReferenceExpression(memberReferenceExpression);
+//				var targetMember = context.Resolve(memberReferenceExpression) as MemberResolveResult;
+//				if (targetMember != null && targetMember.IsVirtualCall && targetMember.TargetResult is ThisResolveResult) {
+//					CreateIssue(memberReferenceExpression);
+//				}
+//			}
+//
+//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//			{
+//				base.VisitInvocationExpression(invocationExpression);
+//				var targetMethod = context.Resolve(invocationExpression) as InvocationResolveResult;
+//				if (targetMethod != null && targetMethod.IsVirtualCall && targetMethod.TargetResult is ThisResolveResult) {
+//					CreateIssue(invocationExpression);
+//				}
+//			}
+//
+//			void CreateIssue(AstNode node)
+//			{
+//				AddIssue(new CodeIssue(
+//					node,
+//					context.TranslateString(""),
+//					new CodeAction(string.Format(context.TranslateString(""), CurrentType.Name),
+//					               script => script.ChangeModifier(CurrentType, CurrentType.Modifiers | Modifiers.Sealed),
+//					               node)));
+//			}
+//			
+//			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+//			{
+//				// ignore lambdas
+//			}
+//			
+//			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+//			{
+//				// ignore anonymous methods
+//			}
 		}
 	}
 
-	[ExportCodeFixProvider(.DiagnosticId, LanguageNames.CSharp)]
-	public class FixProvider : ICodeFixProvider
+	[ExportCodeFixProvider(DoNotCallOverridableMethodsInConstructorIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class DoNotCallOverridableMethodsInConstructorFixProvider : ICodeFixProvider
 	{
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
-			yield return .DiagnosticId;
+			yield return DoNotCallOverridableMethodsInConstructorIssue.DiagnosticId;
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
