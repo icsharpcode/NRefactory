@@ -249,11 +249,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			)); 
 
 			if (expectedDiagnosics.Count != diagnostics.Count) {
-				Console.WriteLine("Diagnostics: " + diagnostics.Count);
+				Console.WriteLine("Diagnostics: " + diagnostics.Count + " expected: " + expectedDiagnosics.Count);
 				foreach (var diag in diagnostics) {
-					Console.WriteLine(diag.Id +"/"+ diag.GetMessage());
+					Console.WriteLine(diag.Id + "/" + diag.GetMessage());
 				}
-				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count);
+				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count + " was " + diagnostics.Count);
 			}
 
 			for (int i = 0; i < expectedDiagnosics.Count; i++) {

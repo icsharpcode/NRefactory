@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase ()
 		{
-			TestIssue<BaseMethodCallWithDefaultParameterIssue>(@"
+			Analyze<BaseMethodCallWithDefaultParameterIssue>(@"
 public class MyBase
 {
 	public virtual void FooBar(int x = 12)
@@ -49,7 +49,7 @@ public class MyClass : MyBase
 {
 	public override void FooBar(int x = 12)
 	{
-		base.FooBar();
+		$base.FooBar()$;
 	}
 }
 ");
@@ -58,7 +58,7 @@ public class MyClass : MyBase
 		[Test]
 		public void TestInterfaceCase ()
 		{
-			TestIssue<BaseMethodCallWithDefaultParameterIssue>(@"
+			Analyze<BaseMethodCallWithDefaultParameterIssue>(@"
 public class MyBase
 {
 	public virtual int this[int x, int y = 12] {
@@ -72,7 +72,7 @@ public class MyClass : MyBase
 {
 	public override int this[int x, int y = 12] {
 		get {
-			return base[x];
+			return $base[x]$;
 		}
 	}
 }

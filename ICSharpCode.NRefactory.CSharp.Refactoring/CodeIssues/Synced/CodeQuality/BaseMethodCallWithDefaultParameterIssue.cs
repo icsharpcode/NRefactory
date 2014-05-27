@@ -24,21 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -71,114 +64,94 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//				var mr = invocationExpression.Target as MemberReferenceExpression;
-//				if (mr == null || !(mr.Target is BaseReferenceExpression))
-//					return;
-//
-//				var invocationRR = ctx.Resolve(invocationExpression) as InvocationResolveResult;
-//				if (invocationRR == null)
-//					return;
-//
-//				var parentEntity = invocationExpression.GetParent<EntityDeclaration>();
-//				if (parentEntity == null)
-//					return;
-//				var rr = ctx.Resolve(parentEntity) as MemberResolveResult;
-//				if (rr == null)
-//					return;
-//
-//				if (invocationExpression.Arguments.Count >= invocationRR.Member.Parameters.Count ||
-//					invocationRR.Member.Parameters.Count == 0 || 
-//				    !invocationRR.Member.Parameters.Last().IsOptional)
-//					return;
-//
-//				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
-//					return;
-//				AddIssue(new CodeIssue(
-//					invocationExpression.RParToken,
-//					ctx.TranslateString("Call to base member with implicit default parameters")
-//				));
-//			}
-//		
-//			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
-//			{
-//				base.VisitIndexerExpression(indexerExpression);
-//				if (!(indexerExpression.Target is BaseReferenceExpression))
-//					return;
-//				var invocationRR = ctx.Resolve(indexerExpression) as InvocationResolveResult;
-//				if (invocationRR == null)
-//					return;
-//
-//				var parentEntity = indexerExpression.GetParent<IndexerDeclaration>();
-//				if (parentEntity == null)
-//					return;
-//				var rr = ctx.Resolve(parentEntity) as MemberResolveResult;
-//				if (rr == null)
-//					return;
-//
-//				if (indexerExpression.Arguments.Count >= invocationRR.Member.Parameters.Count ||
-//				    invocationRR.Member.Parameters.Count == 0 || 
-//				    !invocationRR.Member.Parameters.Last().IsOptional)
-//					return;
-//
-//				if (!InheritanceHelper.GetBaseMembers(rr.Member, false).Any(m => m == invocationRR.Member))
-//					return;
-//				AddIssue(new CodeIssue(
-//					indexerExpression.RBracketToken,
-//					ctx.TranslateString("")
-//				));
-//			}
-		}
-	}
 
-	[ExportCodeFixProvider(BaseMethodCallWithDefaultParameterIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class BaseMethodCallWithDefaultParameterFixProvider : ICodeFixProvider
-	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
-		{
-			yield return BaseMethodCallWithDefaultParameterIssue.DiagnosticId;
-		}
-
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
-		{
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
+			{
+				// skip
 			}
-			return result;
+
+			public override void VisitDestructorDeclaration(DestructorDeclarationSyntax node)
+			{
+				// skip
+			}
+
+			public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
+			{
+				// skip
+			}
+
+			public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
+			{
+				// skip
+			}
+
+			public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
+			{
+				// skip
+			}
+
+			public override void VisitEventDeclaration(EventDeclarationSyntax node)
+			{
+				// skip
+			}
+
+			public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node)
+			{
+				// skip
+			}
+
+			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
+			{
+				base.VisitInvocationExpression(node);
+				var mr = node.Expression as MemberAccessExpressionSyntax;
+				if (mr == null || !mr.Expression.IsKind(SyntaxKind.BaseExpression))
+					return;
+
+				var invocationRR = semanticModel.GetSymbolInfo(node);
+				if (invocationRR.Symbol == null)
+					return;
+
+				var parentEntity = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+				if (parentEntity == null)
+					return;
+				var rr = semanticModel.GetDeclaredSymbol(parentEntity);
+				if (rr == null || rr.OverriddenMethod != invocationRR.Symbol)
+					return;
+
+				var parameters = invocationRR.Symbol.GetParameters();
+				if (node.ArgumentList.Arguments.Count >= parameters.Length ||
+					parameters.Length == 0 || 
+					!parameters.Last().IsOptional)
+					return;
+				AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.Span)));
+			}
+
+			public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
+			{
+				base.VisitElementAccessExpression(node);
+
+				var mr = node.Expression;
+				if (mr == null || !mr.IsKind(SyntaxKind.BaseExpression))
+					return;
+
+				var invocationRR = semanticModel.GetSymbolInfo(node);
+				if (invocationRR.Symbol == null)
+					return;
+
+				var parentEntity = node.FirstAncestorOrSelf<IndexerDeclarationSyntax>();
+				if (parentEntity == null)
+					return;
+				var rr = semanticModel.GetDeclaredSymbol(parentEntity);
+				if (rr == null || rr.OverriddenProperty != invocationRR.Symbol)
+					return;
+
+				var parameters = invocationRR.Symbol.GetParameters();
+				if (node.ArgumentList.Arguments.Count >= parameters.Length ||
+					parameters.Length == 0 || 
+					!parameters.Last().IsOptional)
+					return;
+				AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.Span)));
+			}
 		}
 	}
 }
