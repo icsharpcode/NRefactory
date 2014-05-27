@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase ()
 		{
-			Test<BaseMemberHasParamsIssue>(@"class FooBar
+			Analyze<BaseMemberHasParamsIssue>(@"class FooBar
 {
 	public virtual void Foo(string fmt, params object[] args)
 	{
@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 class FooBar2 : FooBar
 {
-	public override void Foo(string fmt, object[] args)
+	public override void Foo(string fmt, $object[] args$)
 	{
 		System.Console.WriteLine(fmt, args);
 	}
@@ -85,8 +85,6 @@ class FooBar2 : FooBar
 }");
 		}
 
-
-
 		[Test]
 		public void TestDisable ()
 		{
@@ -108,4 +106,3 @@ class FooBar2 : FooBar
 		}
 	}
 }
-

@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "BaseMemberHasParamsIssue";
 		const string Description            = "Base parameter has 'params' modifier, but missing in overrider";
-		const string MessageFormat          = "Base method has a 'params' modifier";
+		const string MessageFormat          = "Base method '{0}' has a 'params' modifier";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -72,36 +72,30 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				if (!methodDeclaration.HasModifier(Modifiers.Override))
-//					return;
-//				var lastParam = methodDeclaration.Parameters.LastOrDefault();
-//				if (lastParam == null || lastParam.ParameterModifier == ParameterModifier.Params)
-//					return;
-//				var type = lastParam.Type as ComposedType;
-//				if (type == null || !type.ArraySpecifiers.Any())
-//					return;
-//				var rr = ctx.Resolve(methodDeclaration) as MemberResolveResult;
-//				if (rr == null)
-//					return;
-//				var baseMember = InheritanceHelper.GetBaseMember(rr.Member) as IMethod;
-//				if (baseMember == null || baseMember.Parameters.Count == 0 || !baseMember.Parameters.Last().IsParams)
-//					return;
-//				AddIssue(new CodeIssue(
-//					lastParam.NameToken,
-//					string.Format(ctx.TranslateString("Base method '{0}' has a 'params' modifier"), baseMember.FullName),
-//					ctx.TranslateString("Add 'params' modifier"),
-//					script => {
-//						script.ChangeModifier(lastParam, ParameterModifier.Params);
-//					}
-//				));
-//			}
+			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
+			{
+				if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.OverrideKeyword)))
+					return;
+				var lastParam = node.ParameterList.Parameters.LastOrDefault();
+				if (lastParam == null || lastParam.Modifiers.Any(m => m.IsKind(SyntaxKind.ParamsKeyword)))
+					return;
+				if (lastParam.Type == null || !lastParam.Type.IsKind(SyntaxKind.ArrayType))
+					return;
+				var rr = semanticModel.GetDeclaredSymbol(node);
+				if (rr == null || !rr.IsOverride)
+					return;
+				var baseMember = rr.OverriddenMethod;
+				if (baseMember == null || baseMember.Parameters.Length == 0 || !baseMember.Parameters.Last().IsParams)
+					return;
+				VisitLeadingTrivia(node);
+				AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, lastParam.Span), baseMember.Name));
+			}
 
-//			public override void VisitBlockStatement(BlockStatement blockStatement)
-//			{
-//				// SKIP
-//			}
+
+			public override void VisitBlock(BlockSyntax node)
+			{
+				// SKIP
+			}
 		}
 	}
 
@@ -119,9 +113,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				if (!node.IsKind(SyntaxKind.Parameter))
+					continue;
+				var param = (ParameterSyntax)node;
+				var newRoot = root.ReplaceNode(node, param.AddModifiers(SyntaxFactory.Token(SyntaxKind.ParamsKeyword)).WithAdditionalAnnotations(Formatter.Annotation));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Add 'params' modifier", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;

@@ -23,26 +23,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
-using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
+	[Ignore("TODO - AST pattern machting!")]
 	[TestFixture]
 	public class AdditionalOfTypeIssuesTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestAdditionalCase ()
 		{
-			Test<AdditionalOfTypeIssues>(@"using System.Linq;
+			Analyze<AdditionalOfTypeIssues>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
 	{
-		obj.Where(o => (o is Test));
+		$obj.Where(o => (o is Test))$;
 	}
 }", @"using System.Linq;
 class Test
@@ -66,12 +64,5 @@ class Test
 	}
 }");
 		}
-
-
-
-
-
-
 	}
 }
-
