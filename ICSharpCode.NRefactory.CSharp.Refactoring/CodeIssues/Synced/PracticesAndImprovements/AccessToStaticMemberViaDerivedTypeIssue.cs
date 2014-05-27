@@ -36,9 +36,6 @@ using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -72,83 +69,53 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
-//			{
-//				base.VisitMemberReferenceExpression(memberReferenceExpression);
-//				if (memberReferenceExpression == null || memberReferenceExpression.Target is ThisReferenceExpression)
-//					// Call within current class scope using 'this' or 'base'
-//					return;
-//				var memberResolveResult = context.Resolve(memberReferenceExpression) as MemberResolveResult;
-//				if (memberResolveResult == null)
-//					return;
-//				if (!memberResolveResult.Member.IsStatic)
-//					return;
-//				HandleMember(memberReferenceExpression, memberReferenceExpression.Target, memberResolveResult.Member, memberResolveResult.TargetResult);
-//			}
-//
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//				if (invocationExpression.Target is IdentifierExpression)
-//					// Call within current class scope without 'this' or 'base'
-//					return;
-//				var memberReference = invocationExpression.Target as MemberReferenceExpression;
-//				if (memberReference == null || memberReference.Target is ThisReferenceExpression)
-//					// Call within current class scope using 'this' or 'base'
-//					return;
-//				var invocationResolveResult = context.Resolve(invocationExpression) as InvocationResolveResult;
-//				if (invocationResolveResult == null)
-//					return;
-//				HandleMember(invocationExpression, memberReference.Target, invocationResolveResult.Member, invocationResolveResult.TargetResult);
-//			}
-//
-//			void HandleMember(Expression issueAnchor, Expression targetExpression, IMember member, ResolveResult targetResolveResult)
-//			{
-//				var typeResolveResult = targetResolveResult as TypeResolveResult;
-//				if (typeResolveResult == null)
-//					return;
-//				if (!member.IsStatic)
-//					return;
-//				if (typeResolveResult.Type.Equals(member.DeclaringType))
-//					return;
-//				// check whether member.DeclaringType contains the original type
-//				// (curiously recurring template pattern)
-//				var v = new ContainsTypeVisitor(typeResolveResult.Type.GetDefinition());
-//				member.DeclaringType.AcceptVisitor(v);
-//				if (v.IsContained)
-//					return;
-//				AddIssue(new CodeIssue(issueAnchor, context.TranslateString("Static method invoked via derived type"),
-//					GetAction(context, targetExpression, member)));
-//			}
-//
-//			CodeAction GetAction(BaseSemanticModel context, Expression targetExpression,
-//			                     IMember member)
-//			{
-//				var builder = context.CreateTypeSystemAstBuilder(targetExpression);
-//				var newType = builder.ConvertType(member.DeclaringType);
-//				string description = string.Format("{0} '{1}'", context.TranslateString("Use base qualifier"), newType.ToString());
-//				return new CodeAction(description, script => {
-//					script.Replace(targetExpression, newType);
-//				}, targetExpression);
-//			}
-//
-//			sealed class ContainsTypeVisitor : TypeVisitor
-//			{
-//				readonly ITypeDefinition searchedType;
-//				internal bool IsContained;
-//
-//				public ContainsTypeVisitor(ITypeDefinition searchedType)
-//				{
-//					this.searchedType = searchedType;
-//				}
-//
-//				public override IType VisitTypeDefinition(ITypeDefinition type)
-//				{
-//					if (type.Equals(searchedType))
-//						IsContained = true;
-//					return base.VisitTypeDefinition(type);
-//				}
-//			}
+			public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
+			{
+				base.VisitMemberAccessExpression(node);
+				if (node.Expression.IsKind(SyntaxKind.ThisExpression) || node.Expression.IsKind(SyntaxKind.BaseExpression))
+					// Call within current class scope using 'this' or 'base'
+					return;
+				var memberResolveResult = semanticModel.GetSymbolInfo(node);
+				if (memberResolveResult.Symbol == null)
+					return;
+				if (!memberResolveResult.Symbol.IsStatic)
+					return;
+
+				HandleMember(node, node.Expression, memberResolveResult, semanticModel.GetTypeInfo(node.Expression));
+			}
+
+			void HandleMember(SyntaxNode issueAnchor, SyntaxNode targetExpression, SymbolInfo targetResolveResult, TypeInfo typeInfo)
+			{
+				var rr = targetResolveResult;
+				if (rr.Symbol == null || typeInfo.Type == null)
+					return;
+				if (!rr.Symbol.IsStatic)
+					return;
+
+				if (rr.Symbol.ContainingType.Equals(typeInfo.Type))
+					return;
+
+				// check whether member.DeclaringType contains the original type
+				// (curiously recurring template pattern)
+				if (CheckCuriouslyRecurringTemplatePattern(rr.Symbol.ContainingType, typeInfo.Type))
+					return;
+
+				AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, targetExpression.Span)));
+			}
+
+			static bool CheckCuriouslyRecurringTemplatePattern(ITypeSymbol containingType, ITypeSymbol type)
+			{
+				if (containingType.Equals(type))
+					return true;
+				var nt = containingType as INamedTypeSymbol;
+				if (nt == null)
+					return false;
+				foreach (var typeArg in nt.TypeArguments) {
+					if (CheckCuriouslyRecurringTemplatePattern(typeArg, type))
+						return true;
+				}
+				return false;
+			}
 		}
 	}
 
@@ -162,14 +129,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Use base qualifier '{0}'", document.WithSyntaxRoot(newRoot)));
+				if (node == null)
+					continue;
+				var typeInfo = semanticModel.GetSymbolInfo(node.Parent);
+				var newType = typeInfo.Symbol.ContainingType.ToMinimalDisplayString(semanticModel, node.SpanStart);
+				var newRoot = root.ReplaceNode(node, SyntaxFactory.ParseTypeName(newType).WithLeadingTrivia(node.GetLeadingTrivia()));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Use base qualifier '{0}'", newType), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

@@ -275,7 +275,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			workspace.Open(ProjectInfo.Create(
 				projectId,
 				VersionStamp.Create(),
-				"", "", LanguageNames.CSharp, null, null, null, null,
+				"a", "a.exe", LanguageNames.CSharp, null, null, null, null,
 				new [] {
 					DocumentInfo.Create(
 						documentId, 
@@ -300,6 +300,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 				Console.WriteLine(output);
 				Console.WriteLine("got:");
 				Console.WriteLine(txt);
+				Console.WriteLine("-----Mismatch:");
+				for (int i = 0; i < txt.Length; i++) {
+					if (i >= output.Length) {
+						Console.Write("#");
+						continue;
+					}
+					if (txt[i] != output[i]) {
+						Console.Write("#");
+						continue;
+					}
+					Console.Write(txt[i]);
+				}
 				Assert.Fail();
 			}
 		}

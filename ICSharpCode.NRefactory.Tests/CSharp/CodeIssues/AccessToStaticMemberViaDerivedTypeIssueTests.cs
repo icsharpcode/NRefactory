@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void MemberInvocation()
 		{
-			Test<AccessToStaticMemberViaDerivedTypeIssue>(@"
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"
 class A
 {
 	public static void F() { }
@@ -46,7 +46,7 @@ class C
 {
 	void Main()
 	{
-		B.F ();
+		$B$.F ();
 	}
 }", @"
 class A
@@ -86,7 +86,7 @@ class C
 		[Test]
 		public void PropertyAccess()
 		{
-			Test<AccessToStaticMemberViaDerivedTypeIssue>(@"
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"
 class A
 {
 	public static string Property { get; set; }
@@ -96,7 +96,7 @@ class C
 {
 	void Main()
 	{
-		System.Console.WriteLine(B.Property);
+		System.Console.WriteLine($B$.Property);
 	}
 }", @"
 class A
@@ -117,8 +117,7 @@ class C
 		[Test]
 		public void FieldAccess()
 		{
-			Test<AccessToStaticMemberViaDerivedTypeIssue>(@"
-class A
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"class A
 {
 	public static string Property;
 }
@@ -127,10 +126,9 @@ class C
 {
 	void Main()
 	{
-		System.Console.WriteLine(B.Property);
+		System.Console.WriteLine($B$.Property);
 	}
-}", @"
-class A
+}", @"class A
 {
 	public static string Property;
 }
@@ -148,7 +146,7 @@ class C
 		[Test]
 		public void NestedClass()
 		{
-			Test<AccessToStaticMemberViaDerivedTypeIssue>(@"
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"
 class A
 {
 	public class B
@@ -161,7 +159,7 @@ class D
 {
 	void Main()
 	{
-		A.C.F ();
+		$A.C$.F ();
 	}
 }", @"
 class A
@@ -185,8 +183,7 @@ class D
 		[Test]
 		public void ExpandsTypeWithNamespaceIfNeccessary()
 		{
-			Test<AccessToStaticMemberViaDerivedTypeIssue>(@"
-namespace First
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"namespace First
 {
 	class A
 	{
@@ -200,11 +197,10 @@ namespace Second
 	{
 		void Main()
 		{
-			B.F ();
+			$B$.F ();
 		}
 	}
-}", @"
-namespace First
+}", @"namespace First
 {
 	class A
 	{
