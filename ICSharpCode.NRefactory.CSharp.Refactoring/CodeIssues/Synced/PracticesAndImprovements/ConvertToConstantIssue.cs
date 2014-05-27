@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Convert local variable or field to constant", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert local variable or field to constant", AnalysisDisableKeyword = "ConvertToConstant.Local")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToConstant.Local")]
 	public class ConvertToConstantIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConvertToConstantIssue";
-		const string Description            = "";
+		const string Description            = "Convert local variable or field to constant";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 

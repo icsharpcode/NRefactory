@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Unassigned readonly field", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Unassigned readonly field", AnalysisDisableKeyword = "UnassignedReadonlyField.Compiler", PragmaWarning = 649)]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnassignedReadonlyField.Compiler", PragmaWarning = 649)]
 	public class UnassignedReadonlyFieldIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "UnassignedReadonlyFieldIssue";
-		const string Description            = "Readonly field is never assigned";
-		const string MessageFormat          = "Initialize field from constructor parameter";
+		const string Description            = "Unassigned readonly field";
+		const string MessageFormat          = "Readonly field is never assigned";
 		const string Category               = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -165,7 +165,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Initialize field from constructor parameter", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

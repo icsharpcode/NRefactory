@@ -47,12 +47,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant lambda explicit type specification", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Explicit type specification can be removed as it can be implicitly inferred", AnalysisDisableKeyword = "RedundantLambdaParameterType")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantLambdaParameterType")]
 	public class RedundantLambdaParameterTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantLambdaParameterTypeIssue";
-		const string Description            = "Redundant lambda explicit type specification";
-		const string MessageFormat          = "Remove parameter type specification";
+		const string Description            = "Explicit type specification can be removed as it can be implicitly inferred";
+		const string MessageFormat          = "Redundant lambda explicit type specification";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -140,7 +140,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove parameter type specification", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

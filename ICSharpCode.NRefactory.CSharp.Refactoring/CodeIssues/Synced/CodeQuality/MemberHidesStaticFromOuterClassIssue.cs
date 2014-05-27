@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Member hides static member from outer class", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Member hides static member from outer class", AnalysisDisableKeyword = "MemberHidesStaticFromOuterClass")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "MemberHidesStaticFromOuterClass")]
 	public class MemberHidesStaticFromOuterClassIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "MemberHidesStaticFromOuterClassIssue";
-		const string Description            = "";
+		const string Description            = "Member hides static member from outer class";
 		const string MessageFormat          = "{0} '{1}' hides {2} from outer class";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

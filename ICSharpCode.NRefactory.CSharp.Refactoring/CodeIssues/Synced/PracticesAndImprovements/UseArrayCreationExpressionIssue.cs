@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Use array creation expression", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Use array creation expression", AnalysisDisableKeyword = "UseArrayCreationExpression")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UseArrayCreationExpression")]
 	public class UseArrayCreationExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "UseArrayCreationExpressionIssue";
-		const string Description            = "Use array create expression";
-		const string MessageFormat          = "Replace with 'new'";
+		const string Description            = "Use array creation expression";
+		const string MessageFormat          = "Use array create expression";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'new'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

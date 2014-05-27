@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Unused local variable", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Local variable is never used.", AnalysisDisableKeyword = "UnusedVariable.Compiler", PragmaWarning = 163)]
+	[NRefactoryCodeDiagnosticAnalyzer( AnalysisDisableKeyword = "UnusedVariable.Compiler", PragmaWarning = 163)]
 	public class LocalVariableNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "LocalVariableNotUsedIssue";
 		const string Description            = "Local variable is never used";
-		const string MessageFormat          = "Remove unused local variable '{0}'";
+		const string MessageFormat          = "Local variable is never used";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -146,7 +146,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove unused local variable '{0}'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

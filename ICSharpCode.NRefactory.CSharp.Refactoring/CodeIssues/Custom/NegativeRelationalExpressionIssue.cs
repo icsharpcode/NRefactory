@@ -45,11 +45,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Simplify negative relational expression", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Simplify negative relational expression")]
 	public class NegativeRelationalExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "NegativeRelationalExpressionIssue";
-		const string Description            = "";
+		const string Description            = "Simplify negative relational expression";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 

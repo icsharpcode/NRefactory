@@ -45,11 +45,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Type cast expression of incompatible type", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Type cast expression of incompatible type")]
 	public class CastExpressionOfIncompatibleTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CastExpressionOfIncompatibleTypeIssue";
-		const string Description            = "";
+		const string Description            = "Type cast expression of incompatible type";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

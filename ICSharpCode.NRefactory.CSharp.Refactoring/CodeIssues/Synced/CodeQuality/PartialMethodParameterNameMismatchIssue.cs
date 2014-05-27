@@ -45,11 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Parameter name differs in partial method declaration", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Parameter name differs in partial method declaration", AnalysisDisableKeyword = "PartialMethodParameterNameMismatch")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PartialMethodParameterNameMismatch")]
 	public class PartialMethodParameterNameMismatchIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "PartialMethodParameterNameMismatchIssue";
-		const string Description            = "";
+		const string Description            = "Parameter name differs in partial method declaration";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

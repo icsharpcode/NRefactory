@@ -44,20 +44,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant comma in array initializer", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Redundant comma in array initializer.", AnalysisDisableKeyword = "RedundantCommaInArrayInitializer")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantCommaInArrayInitializer")]
 	public class RedundantCommaInArrayInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantCommaInArrayInitializerIssue";
-		const string MessageFormat          = "Remove ','";
+		const string Description            = "Redundant comma in array initializer";
+		const string MessageFormat          = "Redundant comma in {0}";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Redundant comma in object initializer", MessageFormat, Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Redundant comma in collection initializer", MessageFormat, Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, "Redundant comma in array initializer", MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		//			"Redundant comma in object initializer"
+		//			"Redundant comma in collection initializer"
+		//			"Redundant comma in array initializer"
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1, Rule2, Rule3);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 
@@ -118,7 +120,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove ','", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'if' statement can be re-written as '&&' expression", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'if' to '&&' expression")]
 	public class ConvertIfToAndExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConvertIfToAndExpressionIssue";
-		const string Description            = "";
+		const string Description            = "Convert 'if' to '&&' expression";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.Opportunities;
 

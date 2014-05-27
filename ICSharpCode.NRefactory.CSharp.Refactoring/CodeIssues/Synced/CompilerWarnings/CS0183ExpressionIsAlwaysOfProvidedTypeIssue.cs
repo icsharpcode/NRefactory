@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS0183:Given expression is always of the provided type", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "CS0183:Given expression is always of the provided type", AnalysisDisableKeyword = "CSharpWarnings::CS0183", PragmaWarning = 183)]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CSharpWarnings::CS0183", PragmaWarning = 183)]
 	public class CS0183ExpressionIsAlwaysOfProvidedTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS0183ExpressionIsAlwaysOfProvidedTypeIssue";
-		const string Description            = "Given expression is always of the provided type. Consider comparing with 'null' instead";
-		const string MessageFormat          = "Compare with 'null'";
+		const string Description            = "CS0183:Given expression is always of the provided type";
+		const string MessageFormat          = "Given expression is always of the provided type. Consider comparing with 'null' instead";
 		const string Category               = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Compare with 'null'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

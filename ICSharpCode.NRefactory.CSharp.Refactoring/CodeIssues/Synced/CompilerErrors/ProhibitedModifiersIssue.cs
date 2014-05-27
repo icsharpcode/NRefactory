@@ -45,12 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Checks for prohibited modifiers", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Checks for prohibited modifiers")]
 	public class ProhibitedModifiersIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ProhibitedModifiersIssue";
-		const string Description            = "Static constructors can't have any other modifier";
-		const string MessageFormat          = "Remove prohibited modifier";
+		const string Description            = "Checks for prohibited modifiers";
+		const string MessageFormat          = "Static constructors can't have any other modifier";
 		const string Category               = IssueCategories.CompilerErrors;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true);
@@ -271,7 +270,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove prohibited modifier", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

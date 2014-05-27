@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant explicit nullable type creation", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Value types are implicitly convertible to nullables", AnalysisDisableKeyword = "RedundantExplicitNullableCreation")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantExplicitNullableCreation")]
 	public class RedundantExplicitNullableCreationIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantExplicitNullableCreationIssue";
-		const string Description            = "Redundant explicit nullable type creation";
-		const string MessageFormat          = "Remove redundant 'new'";
+		const string Description            = "Value types are implicitly convertible to nullables";
+		const string MessageFormat          = "Redundant explicit nullable type creation";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -115,7 +115,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant 'new'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

@@ -45,15 +45,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Parentheses are redundant if attribute has no arguments", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Parentheses are redundant if attribute has no arguments.", AnalysisDisableKeyword = "RedundantAttributeParentheses")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantAttributeParentheses")]
 	public class RedundantAttributeParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantAttributeParenthesesIssue";
-		const string Description            = "Parentheses are redundant if attribute has no arguments";
-		const string MessageFormat          = "Remove '()'";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Parentheses are redundant if attribute has no arguments.", "Parentheses are redundant if attribute has no arguments", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -103,7 +101,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

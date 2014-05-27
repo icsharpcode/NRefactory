@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Replace with single call to First(...)", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with single call to First(...)", AnalysisDisableKeyword = "ReplaceWithSingleCallToFirst")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToFirst")]
 	public class ReplaceWithSingleCallToFirstIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ReplaceWithSingleCallToFirstIssue";
-		const string Description            = "Redundant Where() call with predicate followed by First()";
-		const string MessageFormat          = "Replace with single call to 'First'";
+		const string Description            = "Replace with single call to First(...)";
+		const string MessageFormat          = "Redundant Where() call with predicate followed by First()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with single call to 'First'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

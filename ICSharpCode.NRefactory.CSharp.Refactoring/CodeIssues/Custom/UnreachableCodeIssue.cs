@@ -45,11 +45,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Code is unreachable", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Code is unreachable")]
 	public class UnreachableCodeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "";
+		internal const string DiagnosticId  = "UnreachableCodeIssue";
+		const string Description            = "Code is unreachable";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.RedundanciesInCode;
 

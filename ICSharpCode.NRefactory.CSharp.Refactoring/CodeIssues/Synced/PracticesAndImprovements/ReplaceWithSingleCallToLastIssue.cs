@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Replace with single call to Last(...)", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with single call to Last(...)", AnalysisDisableKeyword = "ReplaceWithSingleCallToLast")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToLast")]
 	public class ReplaceWithSingleCallToLastIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ReplaceWithSingleCallToLastIssue";
-		const string Description            = "Redundant Where() call with predicate followed by Last()";
-		const string MessageFormat          = "Replace with single call to 'Last'";
+		const string Description            = "Replace with single call to Last(...)";
+		const string MessageFormat          = "Redundant Where() call with predicate followed by Last()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with single call to 'Last'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

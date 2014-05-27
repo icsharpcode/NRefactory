@@ -45,11 +45,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Condition is always 'true' or always 'false'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Condition is always 'true' or always 'false'")]
 	public class ConstantConditionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConstantConditionIssue";
-		const string Description            = "";
+		const string Description            = "Condition is always 'true' or always 'false'";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

@@ -43,15 +43,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant explicit argument name specification", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "Redundant explicit argument name specification", AnalysisDisableKeyword = "RedundantArgumentName")]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantArgumentName")]
 	public class RedundantArgumentNameIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantArgumentNameIssue";
-		const string Description            = "Redundant argument name specification";
-		const string MessageFormat          = "Remove argument name specification";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Redundant explicit argument name specification", "Redundant argument name specification", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -136,6 +134,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeFixProvider(RedundantArgumentNameIssue.DiagnosticId, LanguageNames.CSharp)]
 	public class RedundantArgumentNameFixProvider : ICodeFixProvider
 	{
+		const string CodeActionMessage = "Remove argument name specification";
+
 		public IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return RedundantArgumentNameIssue.DiagnosticId;
@@ -162,7 +162,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					}
 					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.Argument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
 
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)));
 					continue;
 				}
 				var attrListSyntax = node.Parent.Parent as AttributeArgumentListSyntax;
@@ -180,7 +180,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					}
 					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.AttributeArgument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
 
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)));
 					continue;
 				}
 			}

@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Convert 'Nullable<T>' to 'T?'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'Nullable<T>' to the short form 'T?'", AnalysisDisableKeyword = "ConvertNullableToShortForm")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertNullableToShortForm")]
 	public class ConvertNullableToShortFormIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConvertNullableToShortFormIssue";
-		const string Description            = "Nullable type can be simplified.";
-		const string MessageFormat          = "Rewrite to '{0}?'";
+		const string Description            = "Convert 'Nullable<T>' to the short form 'T?'";
+		const string MessageFormat          = "Nullable type can be simplified.";
 		const string Category               = IssueCategories.Opportunities;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Rewrite to '{0}?'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

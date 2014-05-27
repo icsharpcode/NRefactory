@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Replace with simple assignment", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with simple assignment", AnalysisDisableKeyword = "ReplaceWithSimpleAssignment")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSimpleAssignment")]
 	public class ReplaceWithSimpleAssignmentIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ReplaceWithSimpleAssignmentIssue";
 		const string Description            = "Replace with simple assignment";
-		const string MessageFormat          = "Replace with '{0}'";
+		const string MessageFormat          = "Replace with simple assignment";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -133,7 +133,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with '{0}'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

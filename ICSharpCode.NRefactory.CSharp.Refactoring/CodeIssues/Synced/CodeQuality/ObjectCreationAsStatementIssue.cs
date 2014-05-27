@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Possible unassigned object created by 'new'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Possible unassigned object created by 'new'", AnalysisDisableKeyword = "ObjectCreationAsStatement")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ObjectCreationAsStatement")]
 	public class ObjectCreationAsStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ObjectCreationAsStatementIssue";
-		const string Description            = "";
+		const string Description            = "Possible unassigned object created by 'new'";
 		const string MessageFormat          = "Possible unassigned object created by 'new' expression";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

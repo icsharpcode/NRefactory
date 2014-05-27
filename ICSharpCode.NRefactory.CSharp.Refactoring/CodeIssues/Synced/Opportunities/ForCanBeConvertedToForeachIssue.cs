@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'for' can be converted into 'foreach'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Foreach loops are more efficient", AnalysisDisableKeyword = "ForCanBeConvertedToForeach")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ForCanBeConvertedToForeach")]
 	public class ForCanBeConvertedToForeachIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ForCanBeConvertedToForeachIssue";
-		const string Description            = "'for' loop can be converted to 'foreach'";
-		const string MessageFormat          = "Convert to 'foreach'";
+		const string Description            = "Foreach loops are more efficient";
+		const string MessageFormat          = "'for' loop can be converted to 'foreach'";
 		const string Category               = IssueCategories.Opportunities;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -260,7 +260,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Convert to 'foreach'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

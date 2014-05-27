@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant field initializer", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Initializing field with default value is redundant.", AnalysisDisableKeyword = "RedundantDefaultFieldInitializer")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantDefaultFieldInitializer")]
 	public class RedundantDefaultFieldInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantDefaultFieldInitializerIssue";
-		const string Description            = "Initializing field by default value is redundant";
-		const string MessageFormat          = "Remove field initializer";
+		const string Description            = "Initializing field with default value is redundant.";
+		const string MessageFormat          = "Initializing field by default value is redundant";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -161,7 +161,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove field initializer", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

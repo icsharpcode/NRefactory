@@ -40,15 +40,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant anonymous type property namen", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "The name can be inferred from the initializer expression", AnalysisDisableKeyword = "RedundantAnonymousTypePropertyName")]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantAnonymousTypePropertyName")]
 	public class RedundantAnonymousTypePropertyNameIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantAnonymousTypePropertyNameIssue";
-		const string Description            = "Redundant explicit property name";
-		const string MessageFormat          = "Remove redundant name";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "The name can be inferred from the initializer expression", "Redundant explicit property name", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -106,7 +104,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
 				if (node.IsKind(SyntaxKind.NameEquals)) {
 					var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant name", document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

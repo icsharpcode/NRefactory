@@ -47,15 +47,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant condition check before assignment", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Check for inequality before assignment is redundant if (x != value) x = value;", AnalysisDisableKeyword = "RedundantCheckBeforeAssignment")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantCheckBeforeAssignment")]
 	public class RedundantCheckBeforeAssignmentIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantCheckBeforeAssignmentIssue";
-		const string Description            = "Redundant condition check before assignment";
-		const string MessageFormat          = "Remove redundant check";
-		const string Category               = IssueCategories.RedundanciesInCode;
+		const string Description   = "Check for inequality before assignment is redundant if (x != value) x = value;";
+		const string MessageFormat = "Redundant condition check before assignment";
+		const string Category      = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant check", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

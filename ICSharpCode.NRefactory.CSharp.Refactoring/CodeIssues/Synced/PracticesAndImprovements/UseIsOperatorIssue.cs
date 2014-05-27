@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Use 'is' operator", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "'is' operator can be used", AnalysisDisableKeyword = "UseIsOperator")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UseIsOperator")]
 	public class UseIsOperatorIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "UseIsOperatorIssue";
-		const string Description            = "Use 'is' operator";
-		const string MessageFormat          = "Replace with 'is' operator";
+		const string Description            = "'is' operator can be used";
+		const string MessageFormat          = "Use 'is' operator";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -163,7 +163,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'is' operator", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

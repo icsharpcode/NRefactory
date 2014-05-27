@@ -47,19 +47,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant class or interface specification in base types list", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Type is either mentioned in the base type list of another part or in another base type", AnalysisDisableKeyword = "RedundantExtendsListEntry")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantExtendsListEntry")]
 	public class RedundantExtendsListEntryIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantExtendsListEntryIssue";
-		const string MessageFormat          = "Remove redundant base type reference";
+		const string Description            = "Type is either mentioned in the base type list of another part or in another base type";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Base interface is redundant", MessageFormat, Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Base type is already specified in other parts", MessageFormat, Category, DiagnosticSeverity.Warning, true);
-
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, "{0}", Category, DiagnosticSeverity.Warning, true);
+		// "Base interface is redundant" / "Base type is already specified in other parts"
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1, Rule2);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 
@@ -185,7 +184,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant base type reference", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

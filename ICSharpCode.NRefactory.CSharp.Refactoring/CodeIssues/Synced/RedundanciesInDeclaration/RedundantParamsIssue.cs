@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'params' is ignored on overrides", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "'params' is ignored on overrides", AnalysisDisableKeyword = "RedundantParams")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantParams")]
 	public class RedundantParamsIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantParamsIssue";
-		const string Description            = "'params' is always ignored in overrides";
-		const string MessageFormat          = "Remove 'params' modifier";
+		const string Description            = "'params' is ignored on overrides";
+		const string MessageFormat          = "'params' is always ignored in overrides";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -124,7 +124,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove 'params' modifier", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

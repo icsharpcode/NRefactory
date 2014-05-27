@@ -48,11 +48,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Static constructor should be parameterless", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Static constructor should be parameterless")]
 	public class StaticConstructorParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "StaticConstructorParameterIssue";
-		const string Description            = "";
+		const string Description            = "Static constructor should be parameterless";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerErrors;
 

@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS0126: A method with return type cannot return without value.", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Since 'function' doesn't return void, a return keyword must be followed by an object expression")]
 	public class CS0126ReturnMustBeFollowedByAnyExpression : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS0126ReturnMustBeFollowedByAnyExpression";
-		const string Description            = "";
+		const string Description            = "Since 'function' doesn't return void, a return keyword must be followed by an object expression";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerErrors;
 

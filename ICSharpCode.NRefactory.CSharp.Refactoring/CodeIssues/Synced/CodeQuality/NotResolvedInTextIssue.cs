@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Cannot resolve symbol in text argument", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Cannot resolve symbol in text argument", AnalysisDisableKeyword = "NotResolvedInText")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NotResolvedInText")]
 	public class NotResolvedInTextIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "NotResolvedInTextIssue";
-		const string Description            = "The parameter '{0}' can't be resolved";
-		const string MessageFormat          = "Swap parameter";
+		const string Description            = "Cannot resolve symbol in text argument";
+		const string MessageFormat          = "The parameter '{0}' can't be resolved";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -292,7 +292,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Swap parameter", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

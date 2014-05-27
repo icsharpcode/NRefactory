@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant member override", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "The override of a virtual member is redundant because it consists of only a call to the base", AnalysisDisableKeyword = "RedundantOverridenMember")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantOverridenMember")]
 	public class RedundantOverridenMemberIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantOverridenMemberIssue";
-		const string Description            = "Redundant method override";
-		const string MessageFormat          = "Remove redundant method override";
+		const string Description            = "The override of a virtual member is redundant because it consists of only a call to the base";
+		const string MessageFormat          = "Redundant method override";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -311,7 +311,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant method override", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

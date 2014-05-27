@@ -45,11 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'value' parameter not used", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns about property or indexer setters and event adders or removers that do not use the value parameter.", AnalysisDisableKeyword = "ValueParameterNotUsed")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ValueParameterNotUsed")]
 	public class ValueParameterNotUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId = "ValueParameterNotUsedIssue";
-		const string Description = "";
+		const string Description = "Warns about property or indexer setters and event adders or removers that do not use the value parameter.";
 		const string MessageFormat = "";
 		const string Category = IssueCategories.CodeQualityIssues;
 

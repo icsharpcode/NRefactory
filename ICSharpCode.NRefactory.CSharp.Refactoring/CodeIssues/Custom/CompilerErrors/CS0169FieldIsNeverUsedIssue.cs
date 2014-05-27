@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS0169: Field is never used", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "CS0169: Field is never used", PragmaWarning = 169)]
+	[NRefactoryCodeDiagnosticAnalyzer(PragmaWarning = 169)]
 	public class CS0169FieldIsNeverUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS0169FieldIsNeverUsedIssue";
-		const string Description            = "";
+		const string Description            = "CS0169: Field is never used";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerWarnings;
 

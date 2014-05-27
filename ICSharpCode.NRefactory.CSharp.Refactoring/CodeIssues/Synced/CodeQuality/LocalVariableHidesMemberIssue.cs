@@ -45,11 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Local variable hides member", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Local variable has the same name as a member and hides it.", AnalysisDisableKeyword = "LocalVariableHidesMember")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "LocalVariableHidesMember")]
 	public class LocalVariableHidesMemberIssue : VariableHidesMemberIssue
 	{
 		internal const string DiagnosticId  = "LocalVariableHidesMemberIssue";
-		const string Description            = "";
+		const string Description            = "Local variable has the same name as a member and hides it";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

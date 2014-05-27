@@ -44,7 +44,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Replace with OfType<T> (extended)", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with call to OfType<T> (extended cases)")]
 	public class AdditionalOfTypeIssues : GatherVisitorCodeIssueProvider
 	{
 //		static readonly AstNode whereSimpleCase =
@@ -61,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //			);
 
 		internal const string DiagnosticId  = "AdditionalOfTypeIssues";
-		const string Description            = "";
+		const string Description            = "Replace with call to OfType<T> (extended cases)";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 

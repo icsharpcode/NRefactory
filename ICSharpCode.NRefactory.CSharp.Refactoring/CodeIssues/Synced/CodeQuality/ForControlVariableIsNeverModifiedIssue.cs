@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'for' loop control variable is never modified", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "'for' loop control variable is never modified", AnalysisDisableKeyword = "ForControlVariableIsNeverModified")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ForControlVariableIsNeverModified")]
 	public class ForControlVariableIsNeverModifiedIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ForControlVariableIsNeverModifiedIssue";

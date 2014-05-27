@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Use 'String.IsNullOrEmpty'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Uses shorter string.IsNullOrEmpty call instead of a longer condition.", AnalysisDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
 	public class ReplaceWithStringIsNullOrEmptyIssue : GatherVisitorCodeIssueProvider
 	{
 //		static readonly Pattern pattern = new Choice {
@@ -115,14 +115,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //		};
 
 		internal const string DiagnosticId  = "ReplaceWithStringIsNullOrEmptyIssue";
+		const string Description            = "Uses shorter string.IsNullOrEmpty call instead of a longer condition.";
+		const string MessageFormat          = "Expression can be replaced with '{0}'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Expression can be replaced with !string.IsNullOrEmpty", "Use !string.IsNullOrEmpty", Category, DiagnosticSeverity.Info, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Expression can be replaced with string.IsNullOrEmpty", "Use string.IsNullOrEmpty", Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1, Rule2);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 
@@ -190,7 +191,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Use '{0}'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

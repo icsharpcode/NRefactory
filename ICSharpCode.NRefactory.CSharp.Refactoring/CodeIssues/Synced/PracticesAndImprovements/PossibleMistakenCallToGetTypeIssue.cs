@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Possible mistaken call to 'object.GetType()'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Possible mistaken call to 'object.GetType()'", AnalysisDisableKeyword = "PossibleMistakenCallToGetType")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PossibleMistakenCallToGetType")]
 	public class PossibleMistakenCallToGetTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "PossibleMistakenCallToGetTypeIssue";
 		const string Description            = "Possible mistaken call to 'object.GetType()'";
-		const string MessageFormat          = "Remove call to 'object.GetType()'";
+		const string MessageFormat          = "Possible mistaken call to 'object.GetType()'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -109,7 +109,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove call to 'object.GetType()'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

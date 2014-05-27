@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant assignment", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Value assigned to a variable or parameter is not used in all execution path.")]
 	public class RedundantAssignmentIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantAssignmentIssue";
-		const string Description            = "";
+		const string Description            = "Value assigned to a variable or parameter is not used in all execution path";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

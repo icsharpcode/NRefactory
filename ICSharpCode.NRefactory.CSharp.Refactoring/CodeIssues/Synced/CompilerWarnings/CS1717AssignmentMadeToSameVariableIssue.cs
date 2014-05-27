@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS1717:Assignment made to same variable", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "CS1717:Assignment made to same variable", AnalysisDisableKeyword = "CSharpWarnings::CS1717", PragmaWarning = 1717)]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CSharpWarnings::CS1717", PragmaWarning = 1717)]
 	public class CS1717AssignmentMadeToSameVariableIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS1717AssignmentMadeToSameVariableIssue";
 		const string Description            = "CS1717:Assignment made to same variable";
-		const string MessageFormat          = "Remove assignment";
+		const string MessageFormat          = "CS1717:Assignment made to same variable";
 		const string Category               = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -137,7 +137,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove assignment", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

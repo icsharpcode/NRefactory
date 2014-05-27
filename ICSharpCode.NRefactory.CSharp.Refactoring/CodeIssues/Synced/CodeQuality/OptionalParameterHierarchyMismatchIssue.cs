@@ -45,11 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Mismatch optional parameter value in overridden method", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "The value of an optional parameter in a method does not match the base method.", AnalysisDisableKeyword = "OptionalParameterHierarchyMismatch")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "OptionalParameterHierarchyMismatch")]
 	public class OptionalParameterHierarchyMismatchIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "OptionalParameterHierarchyMismatchIssue";
-		const string Description            = "";
+		const string Description            = "The value of an optional parameter in a method does not match the base method";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

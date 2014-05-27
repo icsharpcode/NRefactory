@@ -40,15 +40,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'true' is redundant as for statement condition", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "true is redundant as for statement condition, thus can be safely ommited", AnalysisDisableKeyword = "ForStatementConditionIsTrue")]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "ForStatementConditionIsTrue")]
 	public class ForStatementConditionIsTrueIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ForStatementConditionIsTrueIssue";
-		const string Description            = "true is redundant as for statement condition, thus can be safely ommited";
-		const string MessageFormat          = "'true' is redundant as for statement condition";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "true is redundant as for statement condition, thus can be safely ommited", "'true' is redundant as for statement condition", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Convert field to readonly", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert field to readonly", AnalysisDisableKeyword = "FieldCanBeMadeReadOnly.Local")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "FieldCanBeMadeReadOnly.Local")]
 	public class FieldCanBeMadeReadOnlyIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "FieldCanBeMadeReadOnlyIssue";
-		const string Description            = "Convert to readonly";
-		const string MessageFormat          = "To readonly";
+		const string Description            = "Convert field to readonly";
+		const string MessageFormat          = "Convert field to readonly";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -182,7 +182,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "To readonly", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

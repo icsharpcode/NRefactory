@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Static field in generic type", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns about static fields in generic types.", SuppressMessageCategory = "Microsoft.Design", SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes", AnalysisDisableKeyword = "StaticFieldInGenericType")]
+	[NRefactoryCodeDiagnosticAnalyzer(SuppressMessageCategory = "Microsoft.Design", SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes", AnalysisDisableKeyword = "StaticFieldInGenericType")]
 	public class StaticFieldInGenericTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "StaticFieldInGenericTypeIssue";
-		const string Description            = "";
+		const string Description            = "Warns about static fields in generic types.";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

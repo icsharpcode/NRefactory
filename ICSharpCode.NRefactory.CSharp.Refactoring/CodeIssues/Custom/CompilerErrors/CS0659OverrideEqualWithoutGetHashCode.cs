@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS0659: Class overrides Object.Equals but not Object.GetHashCode.", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "If two objects are equal then they must both have the same hash code", PragmaWarning = 1717, AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
+	[NRefactoryCodeDiagnosticAnalyzer(PragmaWarning = 1717, AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS0659ClassOverrideEqualsWithoutGetHashCode";
-		const string Description            = "";
+		const string Description            = "If two objects are equal then they must both have the same hash code";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerWarnings;
 

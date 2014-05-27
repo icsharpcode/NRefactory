@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'?:' expression has identical true and false branches", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "'?:' expression has identical true and false branches", AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class ConditionalTernaryEqualBranchIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConditionalTernaryEqualBranchIssue";
 		const string Description            = "'?:' expression has identical true and false branches";
-		const string MessageFormat          = "Replace '?:' with branch";
+		const string MessageFormat          = "'?:' expression has identical true and false branches";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -104,7 +104,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace '?:' with branch", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

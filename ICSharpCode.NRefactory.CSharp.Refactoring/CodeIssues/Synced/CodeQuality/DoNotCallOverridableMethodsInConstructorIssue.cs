@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Virtual member call in constructor", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns about calls to virtual member functions occuring in the constructor.", AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
 	public class DoNotCallOverridableMethodsInConstructorIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "DoNotCallOverridableMethodsInConstructorIssue";
-		const string Description            = "Virtual member call in constructor";
-		const string MessageFormat          = "Make class '{0}' sealed";
+		const string Description            = "Warns about calls to virtual member functions occuring in the constructor.";
+		const string MessageFormat          = "Virtual member call in constructor";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -200,7 +200,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make class '{0}' sealed", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

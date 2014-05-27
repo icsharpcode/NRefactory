@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Simplify LINQ expression", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Simplify LINQ expression", AnalysisDisableKeyword = "SimplifyLinqExpression")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SimplifyLinqExpression")]
 	public class SimplifyLinqExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "SimplifyLinqExpressionIssue";
@@ -154,7 +154,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Simplify LINQ expression", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

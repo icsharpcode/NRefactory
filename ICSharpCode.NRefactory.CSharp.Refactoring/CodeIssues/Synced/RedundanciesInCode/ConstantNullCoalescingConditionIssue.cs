@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'??' condition is known to be null or not null", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Finds redundant null coalescing expressions such as expr ?? expr", AnalysisDisableKeyword = "ConstantNullCoalescingCondition")]
+	[NRefactoryCodeDiagnosticAnalyzer (AnalysisDisableKeyword = "ConstantNullCoalescingCondition")]
 	public class ConstantNullCoalescingConditionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConstantNullCoalescingConditionIssue";
-
+		const string Description = "Finds redundant null coalescing expressions such as expr ?? expr";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Redundant ??. Right side is always null.", "Remove redundant right side", Category, DiagnosticSeverity.Warning, true);

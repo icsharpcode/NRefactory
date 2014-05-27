@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Parameter is only assigned", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Parameter is assigned but its value is never used.")]
 	public class ParameterOnlyAssignedIssue : VariableOnlyAssignedIssue
 	{
 		internal const string DiagnosticId  = "ParameterOnlyAssignedIssue";
-		const string Description            = "";
+		const string Description            = "Parameter is assigned but its value is never used";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

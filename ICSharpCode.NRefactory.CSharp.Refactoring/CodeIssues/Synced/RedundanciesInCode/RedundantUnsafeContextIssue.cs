@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant 'unsafe' modifier", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Unsafe modifier in redundant in unsafe context or when no unsafe constructs are used.", AnalysisDisableKeyword = "RedundantUnsafeContext")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantUnsafeContext")]
 	public class RedundantUnsafeContextIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "'unsafe' modifier is redundant.";
-		const string MessageFormat          = "Remove redundant 'unsafe' modifier";
+		internal const string DiagnosticId  = "RedundantUnsafeContextIssue";
+		const string Description            = "Unsafe modifier in redundant in unsafe context or when no unsafe constructs are used.";
+		const string MessageFormat          = "'unsafe' modifier is redundant.";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -195,7 +195,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant 'unsafe' modifier", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

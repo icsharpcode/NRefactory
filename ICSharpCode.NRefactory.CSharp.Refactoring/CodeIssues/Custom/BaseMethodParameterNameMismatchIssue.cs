@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Parameter name differs in base declaration", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Parameter name differs in base declaration")]
 	public class BaseMethodParameterNameMismatchIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "BaseMethodParameterNameMismatchIssue";
-		const string Description            = "";
+		const string Description            = "Parameter name differs in base declaration";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

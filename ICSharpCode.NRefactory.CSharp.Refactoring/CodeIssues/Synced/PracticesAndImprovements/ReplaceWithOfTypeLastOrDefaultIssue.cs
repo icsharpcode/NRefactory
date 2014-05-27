@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Replace with OfType<T>().LastOrDefault()", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with call to OfType<T>().LastOrDefault()", AnalysisDisableKeyword = "ReplaceWithOfType.LastOrDefault")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithOfType.LastOrDefault")]
 	public class ReplaceWithOfTypeLastOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "Replace with OfType<T>().LastOrDefault()";
-		const string MessageFormat          = "Replace with call to OfType<T>().LastOrDefault()";
+		internal const string DiagnosticId  = "ReplaceWithOfTypeLastOrDefaultIssue";
+		const string Description            = "Replace with call to OfType<T>().LastOrDefault()";
+		const string MessageFormat          = "Replace with OfType<T>().LastOrDefault()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with call to OfType<T>().LastOrDefault()", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

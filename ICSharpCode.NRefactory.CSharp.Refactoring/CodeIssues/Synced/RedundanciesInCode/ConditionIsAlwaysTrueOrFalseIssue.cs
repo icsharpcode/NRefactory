@@ -42,15 +42,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Expression is always 'true' or always 'false'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Value of the expression can be determined at compile time", AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
 	public class ConditionIsAlwaysTrueOrFalseIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticIdTrue  = "ConditionIsAlwaysTrueOrFalseIssue.True";
 		internal const string DiagnosticIdFalse = "ConditionIsAlwaysTrueOrFalseIssue.False";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, "Expression is always 'true'", "Replace with 'true'", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, "Expression is always 'false'", "Replace with 'false'", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, "Value of the expression is always 'true'", "Expression is always 'true'", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, "Value of the expression is always 'false'", "Expression is always 'false'", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -161,7 +161,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					SyntaxFactory.LiteralExpression(diagonstic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression) 
 					.WithLeadingTrivia(node.GetLeadingTrivia())
 					.WithTrailingTrivia(node.GetTrailingTrivia()));
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? "Replace with 'true'" : "Replace with 'false'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Unused label", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Label is never referenced", AnalysisDisableKeyword = "UnusedLabel", PragmaWarning = 164)]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnusedLabel", PragmaWarning = 164)]
 	public class UnusedLabelIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "UnusedLabelIssue";
-		const string Description            = "Label is unused";
-		const string MessageFormat          = "Remove unused label";
+		const string Description            = "Label is never referenced";
+		const string MessageFormat          = "Label is unused";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -191,7 +191,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove unused label", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

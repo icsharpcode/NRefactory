@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Unused type parameter", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Type parameter is never used.", AnalysisDisableKeyword = "UnusedTypeParameter")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnusedTypeParameter")]
 	public class UnusedTypeParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		//static FindReferences refFinder = new FindReferences();

@@ -41,15 +41,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Array creation can be replaced with array initializer", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.", AnalysisDisableKeyword = "ArrayCreationCanBeReplacedWithArrayInitializer")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ArrayCreationCanBeReplacedWithArrayInitializer")]
 	public class ArrayCreationCanBeReplacedWithArrayInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ArrayCreationCanBeReplacedWithArrayInitializerIssue";
-		const string Description            = "Redundant array creation expression";
-		const string MessageFormat          = "Use array initializer";
+		const string Description            = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.";
+		const string MessageFormat          = "Redundant array creation expression";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -119,7 +119,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var sourceSpan = diagonstic.Location.SourceSpan;
-				result.Add(CodeActionFactory.Create(sourceSpan, diagonstic.Severity, diagonstic.GetMessage(), document.WithText(text.Replace(sourceSpan, ""))));
+				result.Add(CodeActionFactory.Create(sourceSpan, diagonstic.Severity, "Use array initializer", document.WithText(text.Replace(sourceSpan, ""))));
 			}
 			return result;
 		}

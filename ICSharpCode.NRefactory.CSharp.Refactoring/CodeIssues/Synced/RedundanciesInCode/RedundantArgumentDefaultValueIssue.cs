@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant argument with default value", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "The parameter is optional with the same default value", AnalysisDisableKeyword = "RedundantArgumentDefaultValue")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantArgumentDefaultValue")]
 	public class RedundantArgumentDefaultValueIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantArgumentDefaultValueIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Argument values are redundant", "Remove redundant arguments", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Argument value is redundant", "Remove redundant argument", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "The parameter is optional with the same default value", "{0}", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1, Rule2);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 
@@ -165,7 +164,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				 
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant arguments", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

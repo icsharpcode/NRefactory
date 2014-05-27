@@ -44,19 +44,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Make constructor in abstract class protected", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Constructor in abstract class should not be public", AnalysisDisableKeyword = "PublicConstructorInAbstractClass")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PublicConstructorInAbstractClass")]
 	public class PublicConstructorInAbstractClassIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId = "PublicConstructorInAbstractClassIssue";
-		const string Description = "Constructor in Abstract Class should not be public";
+		const string Description = "Constructor in abstract class should not be public";
+		const string MessageFormat = "Constructor in abstract class should not be public";
 		const string Category = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor(DiagnosticId, Description, "Make constructor protected", Category, DiagnosticSeverity.Info, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor(DiagnosticId, Description, "Make constructor private", Category, DiagnosticSeverity.Info, true);
-
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		// "Make constructor protected" / "Make constructor private"
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1, Rule2);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 

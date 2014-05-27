@@ -45,11 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Function never returns", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Function does not reach its end or a 'return' statement by any of possible execution paths.", AnalysisDisableKeyword = "FunctionNeverReturns")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "FunctionNeverReturns")]
 	public class FunctionNeverReturnsIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "FunctionNeverReturnsIssue";
-		const string Description            = "";
+		const string Description            = "Function does not reach its end or a 'return' statement by any of possible execution paths.";
 		const string MessageFormat          = "{0} never reaches its end or a 'return' statement.";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

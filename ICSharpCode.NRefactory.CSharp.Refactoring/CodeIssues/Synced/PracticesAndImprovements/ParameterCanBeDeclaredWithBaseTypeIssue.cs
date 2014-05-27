@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Parameter can be declared with base type", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Finds parameters that can be demoted to a base class.", SuppressMessageCategory="Microsoft.Design", SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters")]
+	[NRefactoryCodeDiagnosticAnalyzer(SuppressMessageCategory="Microsoft.Design", SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters")]
 	public class ParameterCanBeDeclaredWithBaseTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		bool tryResolve;
@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		}
 
 		internal const string DiagnosticId  = "ParameterCanBeDeclaredWithBaseTypeIssue";
-		const string Description            = "";
+		const string Description            = "Finds parameters that can be demoted to a base class.";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 

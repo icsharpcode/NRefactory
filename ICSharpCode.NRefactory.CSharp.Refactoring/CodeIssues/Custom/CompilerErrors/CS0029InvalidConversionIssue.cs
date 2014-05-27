@@ -45,7 +45,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS0029: Cannot implicitly convert type 'A' to 'B'.", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "This error occurs when trying to assign a value of an incompatible type.")]
 	public class CS0029InvalidConversionIssue : GatherVisitorCodeIssueProvider
 	{
 		// This class handles both
@@ -54,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		// CS0266: Cannot implicitly convert type 'type1' to 'type2'. An explicit conversion exists (are you missing a cast?)
 		
 		internal const string DiagnosticId  = "CS0029InvalidConversionIssue";
-		const string Description            = "";
+		const string Description            = "This error occurs when trying to assign a value of an incompatible type.";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerErrors;
 

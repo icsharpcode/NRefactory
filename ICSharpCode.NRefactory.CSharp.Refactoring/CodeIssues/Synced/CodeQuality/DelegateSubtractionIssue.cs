@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Delegate subtractions", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Delegate subtraction has unpredictable result", AnalysisDisableKeyword = "DelegateSubtraction")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DelegateSubtraction")]
 	public class DelegateSubtractionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "DelegateSubtractionIssue";

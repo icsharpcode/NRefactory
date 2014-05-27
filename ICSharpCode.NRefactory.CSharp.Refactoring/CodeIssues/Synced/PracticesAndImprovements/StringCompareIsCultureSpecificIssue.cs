@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'string.Compare' is culture-aware", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns when a culture-aware 'Compare' call is used by default.", AnalysisDisableKeyword = "StringCompareIsCultureSpecific")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringCompareIsCultureSpecific")]
 	public class StringCompareIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "StringCompareIsCultureSpecificIssue";
-		const string Description            = "'string.Compare' is culture-aware";
-		const string MessageFormat          = "Use culture-aware comparison";
+		const string Description            = "Warns when a culture-aware 'Compare' call is used by default.";
+		const string MessageFormat          = "'string.Compare' is culture-aware";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Use ordinal comparison", Category, DiagnosticSeverity.Warning, true);
@@ -182,7 +182,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Use culture-aware comparison", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

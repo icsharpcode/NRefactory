@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Convert to lambda expression", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert to lambda with expression", AnalysisDisableKeyword = "ConvertToLambdaExpression")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToLambdaExpression")]
 	public class ConvertToLambdaExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConvertToLambdaExpressionIssue";
-		const string Description            = "Can be converted to expression";
-		const string MessageFormat          = "Convert to expression";
+		const string Description            = "Convert to lambda with expression";
+		const string MessageFormat          = "Can be converted to expression";
 		const string Category               = IssueCategories.Opportunities;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -158,7 +158,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Convert to expression", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

@@ -45,18 +45,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	// OfType -> Underline (+suggest to compare to null)
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant 'IEnumerable.Cast<T>' or 'IEnumerable.OfType<T>' call", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Redundant 'IEnumerable.Cast<T>' or 'IEnumerable.OfType<T>' call", AnalysisDisableKeyword = "RedundantEnumerableCastCall")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEnumerableCastCall")]
 	public class RedundantEnumerableCastCallIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantEnumerableCastCallIssue";
+		const string Description = "Redundant 'IEnumerable.Cast<T>' or 'IEnumerable.OfType<T>' call";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Redundant 'IEnumerable.Cast<T>' call", "Remove 'Cast<T>' call", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Redundant 'IEnumerable.OfType<T>' call.", null, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, "Redundant '{0}' call", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1, Rule2);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 
@@ -148,7 +148,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove 'Cast<T>' call", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

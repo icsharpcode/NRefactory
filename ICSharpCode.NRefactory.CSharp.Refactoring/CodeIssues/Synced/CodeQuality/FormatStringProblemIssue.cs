@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("String formatting problems", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Finds issues with format strings.", AnalysisDisableKeyword = "FormatStringProblem")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "FormatStringProblem")]
 	public class FormatStringProblemIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "FormatStringProblemIssue";
-		const string Description            = "The index is out of bounds of the passed arguments";
+		const string Description            = "The string format index is out of bounds of the passed arguments";
 		const string MessageFormat          = "The index '{0}' is out of bounds of the passed arguments";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

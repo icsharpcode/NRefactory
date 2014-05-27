@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Replace with single call to Any(...)", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with single call to Any(...)", AnalysisDisableKeyword = "ReplaceWithSingleCallToAny")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToAny")]
 	public class ReplaceWithSingleCallToAnyIssue : GatherVisitorCodeIssueProvider
 	{
 //		static readonly AstNode pattern =
@@ -58,8 +58,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //					Pattern.AnyString));
 		
 		internal const string DiagnosticId  = "ReplaceWithSingleCallToAnyIssue";
-		const string Description            = "Redundant Where() call with predicate followed by Any()";
-		const string MessageFormat          = "Replace with single call to 'Any'";
+		const string Description            = "Replace with single call to Any(...)";
+		const string MessageFormat          = "Redundant Where() call with predicate followed by Any()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -160,7 +160,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with single call to 'Any'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

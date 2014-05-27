@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("[ThreadStatic] doesn't work with instance fields", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "[ThreadStatic] doesn't work with instance fields", AnalysisDisableKeyword = "ThreadStaticAtInstanceField")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ThreadStaticAtInstanceField")]
 	public class ThreadStaticAtInstanceFieldIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ThreadStaticAtInstanceFieldIssue";
-		const string Description            = "";
+		const string Description            = "[ThreadStatic] doesn't work with instance fields";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

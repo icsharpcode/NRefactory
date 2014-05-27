@@ -45,14 +45,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Remove redundant 'internal' modifier", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Removes 'internal' modifiers that are not required.")]
 	/// <summary>
 	/// Finds redundant internal modifiers.
 	/// </summary>
 	public class RedundantInternalIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantInternalIssue";
-		const string Description            = "";
+		const string Description            = "Removes 'internal' modifiers that are not required";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.RedundanciesInCode;
 

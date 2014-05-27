@@ -45,13 +45,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Member can be made static", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "A member doesn't use 'this' object neither explicit nor implicit. It can be made static.", AnalysisDisableKeyword = "MemberCanBeMadeStatic.Local")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "MemberCanBeMadeStatic.Local")]
 	public class MemberCanBeMadeStaticIssue : GatherVisitorCodeIssueProvider
 	{
 		public const string DiagnosticIdPrivate  = "MemberCanBeMadeStatic.Private";
 		public const string DiagnosticIdNonPrivate  = "MemberCanBeMadeStatic.NonPrivate";
-		const string Description            = "Member can be made static";
-		const string MessageFormat          = "Make '{0}' static";
+		const string Description            = "A member doesn't use 'this' object neither explicit nor implicit. It can be made static.";
+		const string MessageFormat          = "Member can be made static";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -238,7 +238,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make '{0}' static", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

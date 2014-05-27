@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'if-do-while' statement can be re-written as 'while' statement", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'if-do-while' to 'while' statement", AnalysisDisableKeyword = "ConvertIfDoToWhile")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfDoToWhile")]
 	public class ConvertIfDoToWhileIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConvertIfDoToWhileIssue";
-		const string Description            = "Statement can be simplified to 'while' statement";
-		const string MessageFormat          = "Replace with 'while'";
+		const string Description            = "Convert 'if-do-while' to 'while' statement";
+		const string MessageFormat          = "Statement can be simplified to 'while' statement";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -125,7 +125,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'while'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

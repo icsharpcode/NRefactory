@@ -43,12 +43,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Underlying type of enum is int", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "The default underlying type of enums is int, so defining it explicitly is redundant.", AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
 	public class EnumUnderlyingTypeIsIntIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EnumUnderlyingTypeIsIntIssue";
-		const string Description            = "Default underlying type of enums is already int";
-		const string MessageFormat          = "Remove redundant ': int'";
+		const string Description            = "The default underlying type of enums is int, so defining it explicitly is redundant.";
+		const string MessageFormat          = "Default underlying type of enums is already int";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					node.Parent.RemoveNode(node, SyntaxRemoveOptions.KeepExteriorTrivia)
 					.WithAdditionalAnnotations(Formatter.Annotation)
 				);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant ': int'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

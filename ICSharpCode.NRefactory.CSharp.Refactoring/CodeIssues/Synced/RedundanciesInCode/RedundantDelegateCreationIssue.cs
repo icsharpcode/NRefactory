@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Explicit delegate creation expression is redundant", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Explicit delegate creation expression is redundant", AnalysisDisableKeyword = "RedundantDelegateCreation")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantDelegateCreation")]
 	public class RedundantDelegateCreationIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantDelegateCreationIssue";
-		const string Description            = "Redundant explicit delegate declaration";
-		const string MessageFormat          = "Remove redundant 'new'";
+		const string Description            = "Explicit delegate creation expression is redundant";
+		const string MessageFormat          = "Redundant explicit delegate declaration";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant 'new'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

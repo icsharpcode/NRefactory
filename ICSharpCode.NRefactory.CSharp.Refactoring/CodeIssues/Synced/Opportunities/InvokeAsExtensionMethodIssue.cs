@@ -46,12 +46,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Convert static method call to extension method call", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "If an extension method is called as static method convert it to method syntax", AnalysisDisableKeyword = "InvokeAsExtensionMethod")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "InvokeAsExtensionMethod")]
 	public class InvokeAsExtensionMethodIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "InvokeAsExtensionMethodIssue";
-		const string Description            = "Convert static method call to extension method call";
-		const string MessageFormat          = "Convert to extension method call";
+		const string Description            = "If an extension method is called as static method convert it to method syntax";
+		const string MessageFormat          = "Convert static method call to extension method call";
 		const string Category               = IssueCategories.Opportunities;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -125,7 +125,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Convert to extension method call", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

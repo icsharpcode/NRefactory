@@ -48,11 +48,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Show NotImplementedExceptions", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Shows NotImplementedException throws in the quick task bar")]
 	public class NotImplementedExceptionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "NotImplementedExceptionIssue";
-		const string Description            = "";
+		const string Description            = "Shows NotImplementedException throws in the quick task bar";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.Notifications;
 

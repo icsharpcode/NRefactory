@@ -42,19 +42,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Double negation operator", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Double negation is meaningless", AnalysisDisableKeyword = "DoubleNegationOperator")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoubleNegationOperator")]
 	public class DoubleNegationOperatorIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "DoubleNegationOperatorIssue";
-		const string Description            = "Double negation is redundant";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Remove '!!'", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Remove '~~'", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Double negation is meaningless", "Double negation is redundant", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 
@@ -79,7 +77,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 					if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.LogicalNotExpression))
 						return;
-					AddIssue(Diagnostic.Create(Rule1, node.GetLocation()));
+					AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 
 				}
 
@@ -88,7 +86,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 					if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.BitwiseNotExpression))
 						return;
-					AddIssue(Diagnostic.Create(Rule2, node.GetLocation()));
+					AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 				}
 			}
 		}
@@ -117,7 +115,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (innerUnaryOperatorExpr == null)
 					continue;
 				var newRoot = root.ReplaceNode(node, innerUnaryOperatorExpr.Operand.SkipParens());
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, node.IsKind(SyntaxKind.LogicalNotExpression) ? "Remove '!!'" : "Remove '~~'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

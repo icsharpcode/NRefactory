@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Use of lock (this) or MethodImplOptions.Synchronized is discouraged", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns about using lock (this) or MethodImplOptions.Synchronized.")]
 	public class LockThisIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "LockThisIssue";
-		const string Description            = "";
+		const string Description            = "Warns about using lock (this) or MethodImplOptions.Synchronized.";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

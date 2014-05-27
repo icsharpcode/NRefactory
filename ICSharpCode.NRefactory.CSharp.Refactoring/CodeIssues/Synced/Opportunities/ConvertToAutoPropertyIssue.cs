@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Convert property to auto property", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert property to auto property", AnalysisDisableKeyword = "ConvertToAutoProperty")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToAutoProperty")]
 	public class ConvertToAutoPropertyIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConvertToAutoPropertyIssue";
-		const string Description            = "Convert to auto property";
+		const string Description            = "Convert property to auto property";
 		const string MessageFormat          = "Convert to auto property";
 		const string Category               = IssueCategories.Opportunities;
 
@@ -135,7 +135,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Convert to auto property", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

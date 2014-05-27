@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Use method IsInstanceOfType", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Use method IsInstanceOfType", AnalysisDisableKeyword = "UseMethodIsInstanceOfType")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UseMethodIsInstanceOfType")]
 	public class UseMethodIsInstanceOfTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "UseMethodIsInstanceOfTypeIssue";
-		const string Description            = "Use method IsInstanceOfType (...)";
-		const string MessageFormat          = "Replace with call to IsInstanceOfType";
+		const string Description            = "Use method IsInstanceOfType";
+		const string MessageFormat          = "Use method IsInstanceOfType (...)";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -117,7 +117,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with call to IsInstanceOfType", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

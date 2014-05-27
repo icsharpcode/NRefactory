@@ -47,19 +47,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant 'this.' qualifier", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description= "'this.' is redundant and can be removed safely.", AnalysisDisableKeyword = "RedundantThisQualifier")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantThisQualifier")]
 	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantThisQualifierIssue";
-		const string Description            = "'this.' is redundant and can be removed safely.";
-		const string MessageFormat          = "Remove 'this.'";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		public const string InsideConstructors = DiagnosticId +".InsideConstructors";
 		public const string EverywhereElse     = DiagnosticId + ".EverywhereElse";
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (InsideConstructors, "Inside constructors", MessageFormat, Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (EverywhereElse, "Everywhere else", MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (InsideConstructors, "Inside constructors", "'this.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (EverywhereElse, "Everywhere else", "'this.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -125,7 +123,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						token.Name
 						.WithLeadingTrivia(token.GetLeadingTrivia())
 						.WithTrailingTrivia(token.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(token.Span, diagonstic.Severity, "Remove 'this.'", document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

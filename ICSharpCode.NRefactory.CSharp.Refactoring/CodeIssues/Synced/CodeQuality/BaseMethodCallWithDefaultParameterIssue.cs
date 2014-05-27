@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Call to base member with implicit default parameters", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Call to base member with implicit default parameters", AnalysisDisableKeyword = "BaseMethodCallWithDefaultParameter")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseMethodCallWithDefaultParameter")]
 	public class BaseMethodCallWithDefaultParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "BaseMethodCallWithDefaultParameterIssue";
 		const string Description            = "Call to base member with implicit default parameters";
-		const string MessageFormat          = "";
+		const string MessageFormat          = "Call to base member with implicit default parameters";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);

@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Event unsubscription via anonymous delegate", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Event unsubscription via anonymous delegate is useless", AnalysisDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
 	public class EventUnsubscriptionViaAnonymousDelegateIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EventUnsubscriptionViaAnonymousDelegateIssue";

@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Parameter has no matching param tag in the XML comment", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Parameter has no matching param tag in the XML comment", AnalysisDisableKeyword = "CSharpWarnings::CS1573", PragmaWarning = 1573)]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CSharpWarnings::CS1573", PragmaWarning = 1573)]
 	public class CS1573ParameterHasNoMatchingParamTagIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS1573ParameterHasNoMatchingParamTagIssue";
-		const string Description            = "";
+		const string Description            = "Parameter has no matching param tag in the XML comment";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerWarnings;
 

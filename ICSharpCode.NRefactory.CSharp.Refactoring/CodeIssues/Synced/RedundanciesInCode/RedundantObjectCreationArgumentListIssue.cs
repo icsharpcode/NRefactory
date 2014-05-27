@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant empty argument list on object creation expression", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "When object creation uses object or collection initializer, empty argument list is redundant.", AnalysisDisableKeyword = "RedundantEmptyObjectCreationArgumentList")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEmptyObjectCreationArgumentList")]
 	public class RedundantObjectCreationArgumentListIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantObjectCreationArgumentListIssue";
-		const string Description            = "Empty argument list is redundant";
-		const string MessageFormat          = "Remove '()'";
+		const string Description            = "When object creation uses object or collection initializer, empty argument list is redundant.";
+		const string MessageFormat          = "Empty argument list is redundant";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

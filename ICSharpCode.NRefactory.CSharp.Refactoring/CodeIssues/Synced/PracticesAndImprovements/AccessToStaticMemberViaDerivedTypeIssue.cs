@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Call to static member via a derived class", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Suggests using the class declaring a static function when calling it.", AnalysisDisableKeyword = "AccessToStaticMemberViaDerivedType")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "AccessToStaticMemberViaDerivedType")]
 	public class AccessToStaticMemberViaDerivedTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "AccessToStaticMemberViaDerivedTypeIssue";
-		const string Description            = "Static method invoked via derived type";
-		const string MessageFormat          = "Use base qualifier '{0}'";
+		const string Description            = "Suggests using the class declaring a static function when calling it.";
+		const string MessageFormat          = "Static method invoked via derived type";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -169,7 +169,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Use base qualifier '{0}'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Simplify conditional expression", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Conditional expression can be simplified", AnalysisDisableKeyword = "SimplifyConditionalTernaryExpression")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SimplifyConditionalTernaryExpression")]
 	public class SimplifyConditionalTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "SimplifyConditionalTernaryExpressionIssue";
-		const string Description            = "Simplify conditional expression";
+		const string Description            = "Conditional expression can be simplified";
 		const string MessageFormat          = "Simplify conditional expression";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
@@ -173,7 +173,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Simplify conditional expression", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'if...return' statement can be re-written as 'return' statement", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'if...return' to 'return'")]
 	public class RewriteIfReturnToReturnIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RewriteIfReturnToReturnIssue";
-		const string Description            = "Convert to 'return' statement";
+		const string Description            = "Convert 'if...return' to 'return'";
 		const string MessageFormat          = "Convert to 'return' statement";
 		const string Category               = IssueCategories.Opportunities;
 
@@ -111,7 +110,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Convert to 'return' statement", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

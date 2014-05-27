@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Possible assignment to readonly field", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Check if a readonly field is used as assignment target", AnalysisDisableKeyword = "PossibleAssignmentToReadonlyField")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PossibleAssignmentToReadonlyField")]
 	public class PossibleAssignmentToReadonlyFieldIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "PossibleAssignmentToReadonlyFieldIssue";
-		const string Description            = "";
+		const string Description            = "Check if a readonly field is used as assignment target";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

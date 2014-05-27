@@ -45,11 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Non-readonly field referenced in 'GetHashCode()'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Non-readonly field referenced in 'GetHashCode()'", AnalysisDisableKeyword = "NonReadonlyReferencedInGetHashCode")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NonReadonlyReferencedInGetHashCode")]
 	public class NonReadonlyReferencedInGetHashCodeIssue : GatherVisitorCodeIssueProvider
 	{	
 		internal const string DiagnosticId  = "NonReadonlyReferencedInGetHashCodeIssue";
-		const string Description            = "";
+		const string Description            = "Non-readonly field referenced in 'GetHashCode()'";
 		const string MessageFormat          = "Non-readonly field referenced in 'GetHashCode()'";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

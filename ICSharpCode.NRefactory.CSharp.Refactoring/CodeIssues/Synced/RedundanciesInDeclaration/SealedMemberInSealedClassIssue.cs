@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Sealed member in sealed class", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "'sealed' modifier is redundant in sealed classes", AnalysisDisableKeyword = "SealedMemberInSealedClass")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SealedMemberInSealedClass")]
 	public class SealedMemberInSealedClassIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "SealedMemberInSealedClassIssue";
-		const string Description            = "Keyword 'sealed' is redundant in sealed classes.";
-		const string MessageFormat          = "Remove redundant 'sealed' modifier";
+		const string Description            = "'sealed' modifier is redundant in sealed classes";
+		const string MessageFormat          = "Keyword 'sealed' is redundant in sealed classes.";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -178,7 +178,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant 'sealed' modifier", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

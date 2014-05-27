@@ -43,12 +43,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant 'partial' modifier in type declaration", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Class is declared partial but has only one part", AnalysisDisableKeyword = "PartialTypeWithSinglePart")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PartialTypeWithSinglePart")]
 	public class PartialTypeWithSinglePartIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "PartialTypeWithSinglePartIssue";
-		const string Description            = "Partial class with single part";
-		const string MessageFormat          = "Remove 'partial'";
+		const string Description            = "Class is declared partial but has only one part";
+		const string MessageFormat          = "Partial class with single part";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -133,7 +133,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				// if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove 'partial'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

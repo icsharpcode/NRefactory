@@ -43,11 +43,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS0759: A partial method implementation is missing a partial method declaration", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "A partial method must have a defining declaration that defines the signature (name, return type and parameters) of the method. The implementation or method body is optional.")]
 	public class CS0759RedundantPartialMethodIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS0759RedundantPartialMethodIssue";
-		const string Description            = "";
+		const string Description            = "A partial method must have a defining declaration that defines the signature (name, return type and parameters) of the method. The implementation or method body is optional.";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerErrors;
 

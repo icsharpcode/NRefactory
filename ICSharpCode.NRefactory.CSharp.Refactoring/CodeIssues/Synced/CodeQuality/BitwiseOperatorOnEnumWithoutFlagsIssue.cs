@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Bitwise operation on enum which has no [Flags] attribute", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Bitwise operation on enum which has no [Flags] attribute", AnalysisDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
 	public class BitwiseOperatorOnEnumWithoutFlagsIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "BitwiseOperatorOnEnumWithoutFlagsIssue";
-		const string Description            = "Bitwise Operations on enum not marked with Flags attribute";
-		const string MessageFormat          = "Bitwise Operations on enum not marked with Flags attribute";
+		const string Description            = "Bitwise operation on enum which has no [Flags] attribute";
+		const string MessageFormat          = "Bitwise Operations on enum not marked with [Flags] attribute";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);

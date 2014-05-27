@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Operator 'is' can be used", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Operator Is can be used instead of comparing object GetType() and instances of System.Type object.", AnalysisDisableKeyword = "OperatorIsCanBeUsed")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "OperatorIsCanBeUsed")]
 	public class OperatorIsCanBeUsedIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "OperatorIsCanBeUsedIssue";
-		const string Description            = "Operator 'is' can be used";
-		const string MessageFormat          = "Replace with 'is' operator";
+		const string Description            = "Operator Is can be used instead of comparing object GetType() and instances of System.Type object";
+		const string MessageFormat          = "Operator 'is' can be used";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -131,7 +131,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'is' operator", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

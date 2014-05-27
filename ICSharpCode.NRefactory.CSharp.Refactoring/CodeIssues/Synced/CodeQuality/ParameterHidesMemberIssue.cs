@@ -45,11 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Parameter hides a member", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Parameter has the same name as a member and hides it.", AnalysisDisableKeyword = "ParameterHidesMember")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ParameterHidesMember")]
 	public class ParameterHidesMemberIssue : VariableHidesMemberIssue
 	{
 		internal const string DiagnosticId = "ParameterHidesMemberIssue";
-		const string Description = "";
+		const string Description = "Parameter has the same name as a member and hides it";
 		const string MessageFormat = "";
 		const string Category = IssueCategories.CodeQualityIssues;
 

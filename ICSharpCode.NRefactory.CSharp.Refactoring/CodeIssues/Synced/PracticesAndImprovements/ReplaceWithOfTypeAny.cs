@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Replace with OfType<T>().Any()", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with call to OfType<T>().Any()", AnalysisDisableKeyword = "ReplaceWithOfType.Any")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithOfType.Any")]
 	public class ReplaceWithOfTypeAnyIssue : GatherVisitorCodeIssueProvider
 	{
 //		static readonly AstNode selectPattern =
@@ -91,8 +91,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 
 		internal const string DiagnosticId  = "ReplaceWithOfTypeAnyIssue";
-		const string Description            = "Replace with OfType<T>().Any()";
-		const string MessageFormat          = "Replace with call to OfType<T>().Any()";
+		const string Description            = "Replace with call to OfType<T>().Any()";
+		const string MessageFormat          = "Replace with OfType<T>().Any()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -239,7 +239,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with call to OfType<T>().Any()", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

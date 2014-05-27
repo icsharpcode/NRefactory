@@ -45,11 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS0618: Member is obsolete", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "CS0618: Member is obsolete", PragmaWarning = 618)]
+	[NRefactoryCodeDiagnosticAnalyzer(PragmaWarning = 618)]
 	public class CS0618UsageOfObsoleteMemberIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS0618UsageOfObsoleteMemberIssue";
-		const string Description            = "";
+		const string Description            = "CS0618: Member is obsolete";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerWarnings;
 

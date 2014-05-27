@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant empty object or collection initializer", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Redundant empty object or collection initializer.", AnalysisDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
 	public class RedundantObjectOrCollectionInitializerIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantObjectOrCollectionInitializerIssue";
-		const string Description            = "Empty object or collection initializer is redundant";
-		const string MessageFormat          = "Remove initializer";
+		const string Description            = "Redundant empty object or collection initializer.";
+		const string MessageFormat          = "Empty object or collection initializer is redundant";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove initializer", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

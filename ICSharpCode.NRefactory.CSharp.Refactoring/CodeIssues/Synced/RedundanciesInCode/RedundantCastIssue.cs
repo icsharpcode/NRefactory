@@ -42,15 +42,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant cast", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "Type cast can be safely removed.", AnalysisDisableKeyword = "RedundantCast")]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantCast")]
 	public class RedundantCastIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantCastIssue";
-		const string Description            = "Type cast is redundant";
-		const string MessageFormat          = "Remove cast to '{0}'";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Type cast can be safely removed.", "Type cast is redundant", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -77,12 +75,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (expressionSymbol.Symbol == null || fullSymbol == null)
 					return;
 				var rt = expressionSymbol.Symbol.GetReturnType();
-				Console.WriteLine(rt +"/" + fullSymbol);
 				if (rt == null)
 					return;
 				var conversion = semanticModel.Compilation.ClassifyConversion(rt, fullSymbol);
 				if (conversion.IsIdentity) {
-					AddIssue(Diagnostic.Create(Rule, node.GetLocation(), typeSyntax));
+					AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 					return;
 				}
 				if (!conversion.Exists)
@@ -292,9 +289,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					SyntaxNode outerTypeCastNode = ca;
 					while (outerTypeCastNode.Parent is ParenthesizedExpressionSyntax)
 						outerTypeCastNode = outerTypeCastNode.Parent;
-
 					var newRoot = root.ReplaceNode(outerTypeCastNode, ca.Expression.SkipParens());
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Remove cast to '{0}'", ca.Type), document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Duplicate case label value issue", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "A case label value is duplicate.")]
 	public class CS0152DuplicateCaseLabelValueIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS0152DuplicateCaseLabelValueIssue";
-		const string Description            = "";
+		const string Description            = "A case label value is duplicate";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerErrors;
 

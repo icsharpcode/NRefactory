@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Remove redundant statement", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Remove redundant statement", AnalysisDisableKeyword = "RemoveRedundantOrStatement")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RemoveRedundantOrStatement")]
 	public class RemoveRedundantOrStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RemoveRedundantOrStatementIssue";
-		const string Description            = "Statement is redundant";
-		const string MessageFormat          = "Remove redundant statement";
+		const string Description            = "Remove redundant statement";
+		const string MessageFormat          = "Statement is redundant";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -111,7 +111,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant statement", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

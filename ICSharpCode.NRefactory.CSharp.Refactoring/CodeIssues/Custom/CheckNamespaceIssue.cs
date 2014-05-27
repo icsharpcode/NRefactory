@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Check if a namespace corresponds to a file location", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Check if a namespace corresponds to a file location", AnalysisDisableKeyword = "CheckNamespace")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CheckNamespace")]
 	public class CheckNamespaceIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CheckNamespaceIssue";
-		const string Description            = "";
+		const string Description            = "Check if a namespace corresponds to a file location";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

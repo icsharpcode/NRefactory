@@ -45,11 +45,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS1729: Class does not contain a 0 argument constructor", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "CS1729: Class does not contain a 0 argument constructor")]
 	public class CS1729TypeHasNoConstructorWithNArgumentsIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS1729TypeHasNoConstructorWithNArgumentsIssue";
-		const string Description            = "";
+		const string Description            = "CS1729: Class does not contain a 0 argument constructor";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerErrors;
 

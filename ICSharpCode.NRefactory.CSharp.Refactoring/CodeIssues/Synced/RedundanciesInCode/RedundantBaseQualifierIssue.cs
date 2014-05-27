@@ -44,15 +44,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant 'base.' qualifier", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "'base.' is redundant and can safely be removed.", AnalysisDisableKeyword = "RedundantBaseQualifier")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBaseQualifier")]
 	public class RedundantBaseQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantBaseQualifierIssue";
-		const string Description            = "'base.' is redundant and can be removed safely.";
-		const string MessageFormat          = "Remove 'base.'";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'base.' is redundant and can safely be removed.", "'base.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -110,7 +108,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						parentMa.Name
 						.WithLeadingTrivia(parentMa.GetLeadingTrivia())
 						.WithTrailingTrivia(parentMa.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(parentMa.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(parentMa.Span, diagonstic.Severity, "Remove 'base.'", document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

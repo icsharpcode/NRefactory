@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Equal expression comparison", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Comparing equal expression for equality is usually useless", AnalysisDisableKeyword = "EqualExpressionComparison")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EqualExpressionComparison")]
 	public class EqualExpressionComparisonIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EqualExpressionComparisonIssue";
-		const string Description            = "Equal expression comparison";
-		const string MessageFormat          = "";
+		const string Description            = "Comparing equal expression for equality is usually useless";
+		const string MessageFormat          = "Equal expression comparison";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with 'true'", Category, DiagnosticSeverity.Warning, true);

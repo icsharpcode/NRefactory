@@ -42,15 +42,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant 'case' label", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzerAttribute(Description = "'case' label is redundant.", AnalysisDisableKeyword = "RedundantCaseLabel")]
+	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantCaseLabel")]
 	public class RedundantCaseLabelIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantCaseLabelIssue";
-		const string Description            = "Redundant case label";
-		const string MessageFormat          = "Remove 'case {0}'";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'case' label is redundant.", "Redundant case label", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -80,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				foreach (var caseLabel in node.Labels) {
 					if (caseLabel.IsKind(SyntaxKind.DefaultSwitchLabel))
 						continue;
-					AddIssue (Diagnostic.Create(Rule, caseLabel.GetLocation(), caseLabel.Value));
+					AddIssue (Diagnostic.Create(Rule, caseLabel.GetLocation()));
 				}
 			}
 		}
@@ -99,9 +97,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as SwitchLabelSyntax;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Remove 'case {0}'", node.Value), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

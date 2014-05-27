@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Possible compare of value type with 'null'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Possible compare of value type with 'null'", AnalysisDisableKeyword = "CompareNonConstrainedGenericWithNull")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CompareNonConstrainedGenericWithNull")]
 	public class CompareNonConstrainedGenericWithNullIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CompareNonConstrainedGenericWithNullIssue";
 		const string Description            = "Possible compare of value type with 'null'";
-		const string MessageFormat          = "Replace with 'default'";
+		const string MessageFormat          = "Possible compare of value type with 'null'";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -135,7 +135,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'default'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

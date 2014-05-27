@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'if' statement can be re-written as '??' expression", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Convert 'if' to '??'", AnalysisDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
 	public class ConvertIfStatementToNullCoalescingExpressionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConvertIfStatementToNullCoalescingExpressionIssue";
-		const string Description            = "Convert to '??' expresssion";
+		const string Description            = "Convert 'if' to '??'";
 		const string MessageFormat          = "Convert to '??' expresssion";
 		const string Category               = IssueCategories.Opportunities;
 
@@ -111,7 +111,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Convert to '??' expresssion", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

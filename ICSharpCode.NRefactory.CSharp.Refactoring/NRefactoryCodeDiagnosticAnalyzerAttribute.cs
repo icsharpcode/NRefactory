@@ -39,8 +39,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			internal set;
 		}
 
-		public string Description { get; set; }
-
 		public string AnalysisDisableKeyword { get; set; }
 		public string SuppressMessageCategory { get; set; }
 		public string SuppressMessageCheckId { get; set; }

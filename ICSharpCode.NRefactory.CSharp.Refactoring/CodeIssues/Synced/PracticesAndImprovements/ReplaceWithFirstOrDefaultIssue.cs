@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Replace with FirstOrDefault<T>()", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with call to FirstOrDefault<T>()", AnalysisDisableKeyword = "ReplaceWithFirstOrDefault")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithFirstOrDefault")]
 	public class ReplaceWithFirstOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ReplaceWithFirstOrDefaultIssue";
-		const string Description            = "Expression can be simlified to 'FirstOrDefault<T>()'";
-		const string MessageFormat          = "Replace with 'FirstOrDefault<T>()'";
+		const string Description            = "Replace with call to FirstOrDefault<T>()";
+		const string MessageFormat          = "Expression can be simlified to 'FirstOrDefault<T>()'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -132,7 +132,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'FirstOrDefault<T>()'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

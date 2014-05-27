@@ -45,11 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Possible multiple enumeration of IEnumerable", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Possible multiple enumeration of IEnumerable", AnalysisDisableKeyword = "PossibleMultipleEnumeration")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PossibleMultipleEnumeration")]
 	public class PossibleMultipleEnumerationIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "PossibleMultipleEnumerationIssue";
-		const string Description            = "";
+		const string Description            = "Possible multiple enumeration of IEnumerable";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

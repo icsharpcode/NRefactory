@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Base parameter has 'params' modifier, but missing in overrider", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Base parameter has 'params' modifier, but missing in overrider", AnalysisDisableKeyword = "BaseMemberHasParams")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseMemberHasParams")]
 	public class BaseMemberHasParamsIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "";
-		const string Description            = "Base method has a 'params' modifier";
-		const string MessageFormat          = "Add 'params' modifier";
+		internal const string DiagnosticId  = "BaseMemberHasParamsIssue";
+		const string Description            = "Base parameter has 'params' modifier, but missing in overrider";
+		const string MessageFormat          = "Base method has a 'params' modifier";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Add 'params' modifier", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

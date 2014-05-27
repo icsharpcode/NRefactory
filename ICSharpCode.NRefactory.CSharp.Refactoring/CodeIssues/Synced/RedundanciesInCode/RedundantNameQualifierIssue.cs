@@ -45,15 +45,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant name qualifier", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Removes namespace usages that are obsolete.", AnalysisDisableKeyword = "RedundantNameQualifier")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantNameQualifier")]
 	public class RedundantNameQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantNameQualifierIssue";
-		const string Description            = "Qualifier is redundant";
-		const string MessageFormat          = "Remove redundant qualifier";
+
+		const string Description = "Removes namespace usages that are obsolete.";
+		const string MessageFormat = "Qualifier is redundant";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -123,16 +124,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						memberAccess.Name
 						.WithLeadingTrivia(memberAccess.GetLeadingTrivia())
 						.WithTrailingTrivia(memberAccess.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)));
 					continue;
 				}
+
 				var qualifiedName = node.Parent as QualifiedNameSyntax;
 				if (qualifiedName != null) {
 					var newRoot = root.ReplaceNode((SyntaxNode)qualifiedName,
 						qualifiedName.Right
 						.WithLeadingTrivia(qualifiedName.GetLeadingTrivia())
 						.WithTrailingTrivia(qualifiedName.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(qualifiedName.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+					result.Add(CodeActionFactory.Create(qualifiedName.Span, diagonstic.Severity, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)));
 				}
 			}
 			return result;

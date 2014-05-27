@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Replace with single call to SingleOrDefault(...)", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Replace with single call to SingleOrDefault(...)", AnalysisDisableKeyword = "ReplaceWithSingleCallToSingleOrDefault")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToSingleOrDefault")]
 	public class ReplaceWithSingleCallToSingleOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ReplaceWithSingleCallToSingleOrDefaultIssue";
-		const string Description            = "Redundant Where() call with predicate followed by SingleOrDefault()";
-		const string MessageFormat          = "Replace with single call to 'SingleOrDefault'";
+		const string Description            = "Replace with single call to SingleOrDefault(...)";
+		const string MessageFormat          = "Redundant Where() call with predicate followed by SingleOrDefault()";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with single call to 'SingleOrDefault'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

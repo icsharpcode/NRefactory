@@ -47,11 +47,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Empty general catch clause", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "A catch clause that catches System.Exception and has an empty body", AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
 	public class EmptyGeneralCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EmptyGeneralCatchClauseIssue";
-		const string Description            = "Empty general catch clause suppresses any error";
+		const string Description            = "A catch clause that catches System.Exception and has an empty body";
 		const string MessageFormat          = "Empty general catch clause suppresses any error";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

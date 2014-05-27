@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Static event removal check", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Checks if static events are removed")]
 	public class StaticEventSubscriptionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "StaticEventSubscriptionIssue";
-		const string Description            = "";
+		const string Description            = "Checks if static events are removed";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

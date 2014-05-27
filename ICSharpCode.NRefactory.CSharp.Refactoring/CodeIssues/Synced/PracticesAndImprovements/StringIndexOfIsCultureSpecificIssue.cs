@@ -46,19 +46,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'string.IndexOf' is culture-aware", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns when a culture-aware 'IndexOf' call is used by default.", AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
 	public class StringIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "StringIndexOfIsCultureSpecificIssue";
-		const string Description            = "'IndexOf' is culture-aware and missing a StringComparison argument";
+		const string Description            = "Warns when a culture-aware 'IndexOf' call is used by default.";
+		const string MessageFormat          = "'IndexOf' is culture-aware and missing a StringComparison argument";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Add 'StringComparison.Ordinal'", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Add 'StringComparison.CurrentCulture'", Category, DiagnosticSeverity.Warning, true);
-
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		// "Add 'StringComparison.Ordinal'" / "Add 'StringComparison.CurrentCulture'
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1, Rule2);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 

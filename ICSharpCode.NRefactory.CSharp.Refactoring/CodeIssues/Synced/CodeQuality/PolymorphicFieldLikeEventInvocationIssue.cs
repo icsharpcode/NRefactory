@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Invocation of polymorphic field event", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Invocation of polymorphic field event leads to unpredictable result since invocation lists are not virtual", AnalysisDisableKeyword = "PolymorphicFieldLikeEventInvocation")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PolymorphicFieldLikeEventInvocation")]
 	public class PolymorphicFieldLikeEventInvocationIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "PolymorphicFieldLikeEventInvocationIssue";
-		const string Description            = "";
+		const string Description            = "Invocation of polymorphic field event leads to unpredictable result since invocation lists are not virtual";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

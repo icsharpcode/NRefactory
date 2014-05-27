@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Method with optional parameter is hidden by overload", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Method with optional parameter is hidden by overload", AnalysisDisableKeyword = "MethodOverloadWithOptionalParameter")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "MethodOverloadWithOptionalParameter")]
 	public class MethodOverloadWithOptionalParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "MethodOverloadWithOptionalParameterIssue";
-		const string Description            = "";
+		const string Description            = "Method with optional parameter is hidden by overload";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

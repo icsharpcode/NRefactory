@@ -48,11 +48,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Use 'var'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Use 'var' keyword when possible", AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "SuggestUseVarKeywordEvidentIssue";
-		const string Description            = "Use 'var' keyword";
+		const string Description            = "Use 'var' keyword when possible";
 		const string MessageFormat          = "Use 'var' keyword";
 		const string Category               = IssueCategories.Opportunities;
 
@@ -146,7 +146,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Use 'var' keyword", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

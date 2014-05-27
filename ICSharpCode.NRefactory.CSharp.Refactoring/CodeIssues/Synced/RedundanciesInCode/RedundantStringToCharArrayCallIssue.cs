@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant 'string.ToCharArray()' call", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Redundant 'string.ToCharArray()' call", AnalysisDisableKeyword = "RedundantStringToCharArrayCall")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantStringToCharArrayCall")]
 	public class RedundantStringToCharArrayCallIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantStringToCharArrayCallIssue";
 		const string Description            = "Redundant 'string.ToCharArray()' call";
-		const string MessageFormat          = "Remove redundant 'string.ToCharArray()' call";
+		const string MessageFormat          = "Redundant 'string.ToCharArray()' call";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -128,7 +128,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant 'string.ToCharArray()' call", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

@@ -45,22 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Redundant using directive", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Using directive is not required and can safely be removed.", AnalysisDisableKeyword = "RedundantUsingDirective")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantUsingDirective")]
 	public class RedundantUsingDirectiveIssue : GatherVisitorCodeIssueProvider
 	{
-		List<string> namespacesToKeep = new List<string>();
-
-		/// <summary>
-		/// The list of namespaces that should be kept even if they are not being used.
-		/// Used in SharpDevelop to always keep the "System" namespace around.
-		/// </summary>
-		public IList<string> NamespacesToKeep {
-			get { return namespacesToKeep; }
-		}
-
 		internal const string DiagnosticId  = "RedundantUsingDirectiveIssue";
-		const string Description            = "Using directive is not used by code and can be removed safely.";
-		const string MessageFormat          = "Remove redundant using directives";
+		const string Description            = "Using directive is not required and can safely be removed.";
+		const string MessageFormat          = "Using directive is not used by code and can be removed safely.";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -75,6 +65,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
+
+
+		readonly List<string> namespacesToKeep = new List<string>();
+
+		/// <summary>
+		/// The list of namespaces that should be kept even if they are not being used.
+		/// Used in SharpDevelop to always keep the "System" namespace around.
+		/// </summary>
+		public IList<string> NamespacesToKeep {
+			get { return namespacesToKeep; }
+		}
+
 
 //		public override IEnumerable<CodeIssue> GetIssues(BaseSemanticModel context, string subIssue)
 //		{
@@ -213,7 +215,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant using directives", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

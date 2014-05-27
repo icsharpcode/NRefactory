@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Missing interface members", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Searches for missing interface implementations")]
 	public class MissingInterfaceMemberImplementationIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "MissingInterfaceMemberImplementationIssue";
-		const string Description            = "";
+		const string Description            = "Searches for missing interface implementations";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerErrors;
 

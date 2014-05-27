@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Long literal ends with 'l' instead of 'L'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Lowercase 'l' is often confused with '1'", AnalysisDisableKeyword = "LongLiteralEndingLowerL")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "LongLiteralEndingLowerL")]
 	public class LongLiteralEndingLowerLIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "LongLiteralEndingLowerLIssue";
-		const string Description            = "Long literal ends with 'l' instead of 'L'";
-		const string MessageFormat          = "Make suffix upper case";
+		const string Description            = "Lowercase 'l' is often confused with '1'";
+		const string MessageFormat          = "Long literal ends with 'l' instead of 'L'";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make suffix upper case", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

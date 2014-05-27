@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'?:' expression can be converted to '??' expression", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "'?:' expression can be converted to '??' expression.", AnalysisDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
 	public class ConvertConditionalTernaryToNullCoalescingIssue : GatherVisitorCodeIssueProvider
 	{
 //		static readonly Pattern unequalPattern = new Choice {
@@ -79,8 +79,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		
 		internal const string DiagnosticId  = "ConvertConditionalTernaryToNullCoalescingIssue";
-		const string Description            = "'?:' expression can be re-written as '??' expression";
-		const string MessageFormat          = "Replace '?:'  operator with '??";
+		const string Description            = "'?:' expression can be converted to '??' expression.";
+		const string MessageFormat          = "'?:' expression can be re-written as '??' expression";
 		const string Category               = IssueCategories.Opportunities;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -151,7 +151,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace '?:'  operator with '??", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

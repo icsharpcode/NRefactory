@@ -44,11 +44,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Convert 'if' to 'switch'", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "'if' statement can be re-written as 'switch' statement")]
 	public class ConvertIfStatementToSwitchStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConvertIfStatementToSwitchStatementIssue";
-		const string Description            = "Convert to 'switch' statement";
+		const string Description            = "'if' statement can be re-written as 'switch' statement";
 		const string MessageFormat          = "Convert to 'switch' statement";
 		const string Category               = IssueCategories.Opportunities;
 
@@ -112,7 +111,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Convert to 'switch' statement", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

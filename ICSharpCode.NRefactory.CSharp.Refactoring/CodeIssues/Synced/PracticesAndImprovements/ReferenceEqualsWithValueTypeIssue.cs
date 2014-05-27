@@ -45,19 +45,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Check for reference equality instead", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Check for reference equality instead", AnalysisDisableKeyword = "ReferenceEqualsWithValueType")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReferenceEqualsWithValueType")]
 	public class ReferenceEqualsWithValueTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ReferenceEqualsWithValueTypeIssue";
-		const string Description            = "'Object.ReferenceEquals' is always false because it is called with value type";
+		const string Description            = "Check for reference equality instead";
+		const string MessageFormat          = "'Object.ReferenceEquals' is always false because it is called with value type";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace expression with 'false'", Category, DiagnosticSeverity.Info, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Use Equals()", Category, DiagnosticSeverity.Info, true);
-
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		// "Replace expression with 'false'" / "Use Equals()"
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1, Rule2);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 

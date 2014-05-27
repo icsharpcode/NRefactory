@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("[Optional] attribute with 'ref' or 'out' parameter", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "C# doesn't support optional 'ref' or 'out' parameters", AnalysisDisableKeyword = "OptionalParameterRefOut")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "OptionalParameterRefOut")]
 	public class OptionalParameterRefOutIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "OptionalParameterRefOutIssue";
-		const string Description            = "";
+		const string Description            = "C# doesn't support optional 'ref' or 'out' parameters";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

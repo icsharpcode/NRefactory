@@ -44,12 +44,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("NUnit Test methods should have public visibility", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Non public methods are not found by NUnit.", AnalysisDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
 	public class NonPublicMethodWithTestAttributeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "NonPublicMethodWithTestAttributeIssue";
-		const string Description            = "NUnit test methods should be public";
-		const string MessageFormat          = "Make method public";
+		const string Description            = "Non public methods are not found by NUnit";
+		const string MessageFormat          = "NUnit test methods should be public";
 		const string Category               = IssueCategories.NUnit;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
@@ -118,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make method public", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

@@ -44,11 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Call to base.Equals resolves to Object.Equals, which is reference equality", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Finds potentially erroneous calls to Object.Equals.", AnalysisDisableKeyword = "BaseObjectEqualsIsObjectEquals")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseObjectEqualsIsObjectEquals")]
 	public class CallToObjectEqualsViaBaseIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CallToObjectEqualsViaBaseIssue";
-		const string Description            = "";
+		const string Description            = "Finds potentially erroneous calls to Object.Equals.";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 

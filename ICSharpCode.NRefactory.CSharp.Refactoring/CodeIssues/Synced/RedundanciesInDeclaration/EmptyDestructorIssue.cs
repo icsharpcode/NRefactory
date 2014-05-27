@@ -41,12 +41,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Empty destructor", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Empty destructor is redundant", AnalysisDisableKeyword = "EmptyDestructor")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyDestructor")]
 	public class EmptyDestructorIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EmptyDestructorIssue";
 		const string Description            = "Empty destructor is redundant";
-		const string MessageFormat          = "Remove redundant destructor";
+		const string MessageFormat          = "Empty destructor is redundant";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (!node.IsKind(SyntaxKind.DestructorDeclaration))
 					continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant destructor", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

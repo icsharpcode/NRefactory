@@ -47,12 +47,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Anonymous method signature is not required", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Detects when no delegate parameter is used in the anonymous method body.", AnalysisDisableKeyword = "UnusedAnonymousMethodSignature")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnusedAnonymousMethodSignature")]
 	public class UnusedAnonymousMethodSignatureIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "UnusedAnonymousMethodSignatureIssue";
-		const string Description            = "Specifying signature is redundant because no parameter is used";
-		const string MessageFormat          = "Remove redundant signature";
+		const string Description            = "Detects when no delegate parameter is used in the anonymous method body.";
+		const string MessageFormat          = "Specifying signature is redundant because no parameter is used";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -131,7 +131,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant signature", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}

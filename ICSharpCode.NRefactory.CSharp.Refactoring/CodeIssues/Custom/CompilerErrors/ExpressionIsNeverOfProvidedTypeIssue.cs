@@ -45,11 +45,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("CS0184:Given expression is never of the provided type", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "CS0184:Given expression is never of the provided type")]
 	public class ExpressionIsNeverOfProvidedTypeIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ExpressionIsNeverOfProvidedTypeIssue";
-		const string Description            = "";
+		const string Description            = "CS0184:Given expression is never of the provided type";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerWarnings;
 

@@ -44,12 +44,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("Validate Xml documentation", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Validate Xml docs")]
 	public class XmlDocIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "XmlDocIssue";
-		const string Description            = "";
-		const string MessageFormat          = "";
+		const string Description            = "Validate Xml docs";
+		const string MessageFormat          = "{0}";
 		const string Category               = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);

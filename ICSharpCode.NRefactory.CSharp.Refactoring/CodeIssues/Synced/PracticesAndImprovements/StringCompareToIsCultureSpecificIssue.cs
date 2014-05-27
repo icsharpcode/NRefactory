@@ -45,19 +45,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[ExportDiagnosticAnalyzer("'string.CompareTo' is culture-aware", LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(Description = "Warns when a culture-aware 'string.CompareTo' call is used by default.", AnalysisDisableKeyword = "StringCompareToIsCultureSpecific")]
+	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringCompareToIsCultureSpecific")]
 	public class StringCompareToIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "StringCompareToIsCultureSpecificIssue";
-		const string Description            = "'string.CompareTo' is culture-aware";
+		const string Description            = "Warns when a culture-aware 'string.CompareTo' call is used by default.";
+		const string MessageFormat          = "'string.CompareTo' is culture-aware";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Use ordinal comparison", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Use culture-aware comparison", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		// "Use ordinal comparison" / "Use culture-aware comparison"
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
-				return ImmutableArray.Create(Rule1, Rule2);
+				return ImmutableArray.Create(Rule);
 			}
 		}
 
