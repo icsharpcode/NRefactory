@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestUnary ()
 		{
-			var input = @"
+			Analyze<BitwiseOperatorOnEnumWithoutFlagsIssue> (@"
 enum TestEnum
 {
 	Item1, Item2
@@ -44,15 +44,29 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x = ~TestEnum.Item1;
+		var x = $~$TestEnum.Item1;
 	}
-}";
-			Test<BitwiseOperatorOnEnumWithoutFlagsIssue> (input, 1);
+}");
 		}
 
 		public void TestAssignment (string op, bool bitwise = true)
 		{
-			var input = @"
+			if (bitwise) {
+				Analyze<BitwiseOperatorOnEnumWithoutFlagsIssue>(@"
+enum TestEnum
+{
+	Item1, Item2
+}
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = TestEnum.Item1;
+		x $" + op + @"=$ TestEnum.Item2;
+	}
+}");
+			} else {
+				Analyze<BitwiseOperatorOnEnumWithoutFlagsIssue>(@"
 enum TestEnum
 {
 	Item1, Item2
@@ -64,8 +78,8 @@ class TestClass
 		var x = TestEnum.Item1;
 		x " + op + @"= TestEnum.Item2;
 	}
-}";
-			Test<BitwiseOperatorOnEnumWithoutFlagsIssue> (input, bitwise ? 1: 0);
+}");
+			}
 		}
 		[Test]
 		public void TestAssignment ()
@@ -78,8 +92,8 @@ class TestClass
 
 		public void TestBinary (string op, bool bitwise = true)
 		{
-
-			var input = @"
+			if (bitwise) {
+				Analyze<BitwiseOperatorOnEnumWithoutFlagsIssue> (@"
 enum TestEnum
 {
 	Item1, Item2
@@ -88,10 +102,23 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		var x =  TestEnum.Item1 " + op + @" TestEnum.Item2;
+		var x = TestEnum.Item1 $" + op + @"$ TestEnum.Item2;
 	}
-}";
-			Test<BitwiseOperatorOnEnumWithoutFlagsIssue> (input, bitwise ? 1 : 0);
+}");
+			} else {
+				Analyze<BitwiseOperatorOnEnumWithoutFlagsIssue> (@"
+enum TestEnum
+{
+	Item1, Item2
+}
+class TestClass
+{
+	void TestMethod ()
+	{
+		var x = TestEnum.Item1 " + op + @" TestEnum.Item2;
+	}
+}");
+			}
 		}
 
 		[Test]
