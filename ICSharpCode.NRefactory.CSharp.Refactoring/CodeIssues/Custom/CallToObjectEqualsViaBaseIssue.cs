@@ -36,9 +36,7 @@ using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -49,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "CallToObjectEqualsViaBaseIssue";
 		const string Description            = "Finds potentially erroneous calls to Object.Equals.";
-		const string MessageFormat          = "";
+		const string MessageFormat          = "Call to base.Equals resolves to Object.Equals, which is reference equality";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -71,43 +69,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//
-//				if (invocationExpression.Arguments.Count != 1) {
-//					return;
-//				}
-//				var memberExpression = invocationExpression.Target as MemberReferenceExpression;
-//				if (memberExpression == null || memberExpression.MemberName != "Equals" || !(memberExpression.Target is BaseReferenceExpression)) {
-//					return;
-//				}
-//				var resolveResult = ctx.Resolve(invocationExpression) as InvocationResolveResult;
-//				if (resolveResult == null || !resolveResult.Member.DeclaringTypeDefinition.IsKnownType(KnownTypeCode.Object)) {
-//					return;
-//				}
-//				var title = ctx.TranslateString("Call to base.Equals resolves to Object.Equals, which is reference equality");
-//				AddIssue(new CodeIssue(invocationExpression, title, GetActions(invocationExpression)));
-//			}
-//
-//			IEnumerable<CodeAction> GetActions(InvocationExpression invocationExpression)
-//			{
-//				yield return new CodeAction(ctx.TranslateString("Change invocation to call Object.ReferenceEquals"), script => {
-//					var args = Enumerable.Concat(new [] { new ThisReferenceExpression() }, invocationExpression.Arguments.Select(arg => arg.Clone()));
-//					var newInvocation = MakeInvocation("object.ReferenceEquals", args);
-//					script.Replace(invocationExpression, newInvocation);
-//				}, invocationExpression);
-//				yield return new CodeAction(ctx.TranslateString("Remove 'base.'"), script => {
-//					var newInvocation = MakeInvocation("Equals", invocationExpression.Arguments.Select(arg => arg.Clone()));
-//					script.Replace(invocationExpression, newInvocation);
-//				}, invocationExpression);
-//			}
-//
-//			static InvocationExpression MakeInvocation(string memberName, IEnumerable<Expression> unClonedArguments)
-//			{
-//				return new InvocationExpression(new IdentifierExpression(memberName), unClonedArguments);
-//			}
+
+			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
+			{
+				base.VisitInvocationExpression(node);
+				if (node.ArgumentList.Arguments.Count != 1)
+					return;
+				var memberExpression = node.Expression as MemberAccessExpressionSyntax;
+				if (memberExpression == null || memberExpression.Name.Identifier.ToString() != "Equals" || !(memberExpression.Expression.IsKind(SyntaxKind.BaseExpression)))
+					return;
+
+				var resolveResult = semanticModel.GetSymbolInfo(node);
+				if (resolveResult.Symbol == null || resolveResult.Symbol.ContainingType.SpecialType != SpecialType.System_Object)
+					return;
+				AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.Span)));
+			}
 		}
 	}
 
@@ -124,11 +100,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as InvocationExpressionSyntax;
+				if (node == null)
+					continue;
+
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Change invocation to call 'object.ReferenceEquals'", arg => {
+					var arguments = new SeparatedSyntaxList<ArgumentSyntax>();
+					arguments = arguments.Add(SyntaxFactory.Argument(SyntaxFactory.ThisExpression())); 
+					arguments = arguments.Add(node.ArgumentList.Arguments[0]); 
+
+					return Task.FromResult(document.WithSyntaxRoot(
+						root.ReplaceNode(
+							node, 
+							SyntaxFactory.InvocationExpression(
+								SyntaxFactory.ParseExpression("object.ReferenceEquals"),
+								SyntaxFactory.ArgumentList(arguments)
+							)
+								.WithLeadingTrivia(node.GetLeadingTrivia())
+								.WithAdditionalAnnotations(Formatter.Annotation))
+						)
+					);
+				}));
+
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove 'base.'", arg => {
+					return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, node.WithExpression(SyntaxFactory.IdentifierName("Equals")))));
+				}));
 			}
 			return result;
 		}

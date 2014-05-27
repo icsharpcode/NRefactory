@@ -23,9 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
@@ -33,23 +31,22 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	[TestFixture]
 	public class CallToObjectEqualsViaBaseTests : InspectionActionTestBase
 	{
-
 		[Test]
 		public void SimpleCase()
 		{
-			Test<CallToObjectEqualsViaBaseIssue>(@"
+			Analyze<CallToObjectEqualsViaBaseIssue>(@"
 class Foo
 {
 	Foo()
 	{
-		bool b = base.Equals (""blah"");
+		bool b = $base.Equals(""blah"")$;
 	}
 }", @"
 class Foo
 {
 	Foo()
 	{
-		bool b = object.ReferenceEquals (this, ""blah"");
+		bool b = object.ReferenceEquals(this, ""blah"");
 	}
 }");
 		}
@@ -57,7 +54,7 @@ class Foo
 		[Test]
 		public void NonObjectBase()
 		{
-			Test<CallToObjectEqualsViaBaseIssue>(@"
+			Analyze<CallToObjectEqualsViaBaseIssue>(@"
 class Foo
 {
 }
@@ -65,7 +62,7 @@ class Bar : Foo
 {
 	void Baz ()
 	{
-		bool b = base.Equals (""blah"");
+		bool b = $base.Equals(""blah"")$;
 	}
 }", @"
 class Foo
@@ -75,7 +72,7 @@ class Bar : Foo
 {
 	void Baz ()
 	{
-		bool b = object.ReferenceEquals (this, ""blah"");
+		bool b = object.ReferenceEquals(this, ""blah"");
 	}
 }");
 		}
@@ -99,4 +96,3 @@ class Bar : Foo
 		}
 	}
 }
-
