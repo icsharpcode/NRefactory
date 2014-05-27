@@ -51,8 +51,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string Description            = "Use 'Any()' for increased performance.";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with call to 'Any()'", Category, DiagnosticSeverity.Info);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with call to '!Any()'", Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with call to 'Any()'", Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with call to '!Any()'", Category, DiagnosticSeverity.Info, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

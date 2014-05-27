@@ -51,8 +51,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string Description = "Constructor in Abstract Class should not be public";
 		const string Category = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor(DiagnosticId, Description, "Make constructor protected", Category, DiagnosticSeverity.Info);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor(DiagnosticId, Description, "Make constructor private", Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor(DiagnosticId, Description, "Make constructor protected", Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor(DiagnosticId, Description, "Make constructor private", Category, DiagnosticSeverity.Info, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

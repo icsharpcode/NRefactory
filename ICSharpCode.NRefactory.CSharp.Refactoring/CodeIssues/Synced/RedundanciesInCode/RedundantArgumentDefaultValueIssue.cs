@@ -51,8 +51,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string DiagnosticId  = "RedundantArgumentDefaultValueIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Argument values are redundant", "Remove redundant arguments", Category, DiagnosticSeverity.Warning);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Argument value is redundant", "Remove redundant argument", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Argument values are redundant", "Remove redundant arguments", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Argument value is redundant", "Remove redundant argument", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

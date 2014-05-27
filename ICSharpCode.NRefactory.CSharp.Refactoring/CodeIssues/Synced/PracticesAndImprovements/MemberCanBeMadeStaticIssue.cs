@@ -54,8 +54,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Make '{0}' static";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdNonPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdNonPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

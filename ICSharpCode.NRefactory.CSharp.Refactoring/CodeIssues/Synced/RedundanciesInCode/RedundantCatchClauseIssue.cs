@@ -50,9 +50,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string DiagnosticId  = "RedundantCatchClauseIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Remove redundant catch clauses", "Remove all '{0}' redundant 'catch' clauses", Category, DiagnosticSeverity.Info);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Catch clause with a single 'throw' statement is redundant.", "Remove 'catch'", Category, DiagnosticSeverity.Info);
-		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, "'try' statement is redundant", "Remove 'try' statement", Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Remove redundant catch clauses", "Remove all '{0}' redundant 'catch' clauses", Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Catch clause with a single 'throw' statement is redundant.", "Remove 'catch'", Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, "'try' statement is redundant", "Remove 'try' statement", Category, DiagnosticSeverity.Info, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -117,8 +117,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string DiagnosticId  = "ReplaceWithStringIsNullOrEmptyIssue";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Expression can be replaced with !string.IsNullOrEmpty", "Use !string.IsNullOrEmpty", Category, DiagnosticSeverity.Info);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Expression can be replaced with string.IsNullOrEmpty", "Use string.IsNullOrEmpty", Category, DiagnosticSeverity.Info);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Expression can be replaced with !string.IsNullOrEmpty", "Use !string.IsNullOrEmpty", Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Expression can be replaced with string.IsNullOrEmpty", "Use string.IsNullOrEmpty", Category, DiagnosticSeverity.Info, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

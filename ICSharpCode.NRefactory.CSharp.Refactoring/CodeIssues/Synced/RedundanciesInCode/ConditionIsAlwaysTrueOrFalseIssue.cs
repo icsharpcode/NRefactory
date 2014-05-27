@@ -49,8 +49,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string DiagnosticIdFalse = "ConditionIsAlwaysTrueOrFalseIssue.False";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, "Expression is always 'true'", "Replace with 'true'", Category, DiagnosticSeverity.Warning);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, "Expression is always 'false'", "Replace with 'false'", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, "Expression is always 'true'", "Replace with 'true'", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, "Expression is always 'false'", "Replace with 'false'", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

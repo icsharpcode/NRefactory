@@ -51,12 +51,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string DiagnosticId  = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead.", "Replace with '{0}.IsNaN(...)' call", Category, DiagnosticSeverity.Warning);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead.", "Replace with '!{0}.IsNaN(...)' call", Category, DiagnosticSeverity.Warning);
-		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method.", "Replace with '{0}.IsNegativeInfinity(...)' call", Category, DiagnosticSeverity.Warning);
-		static readonly DiagnosticDescriptor Rule4 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method.", "Replace with '!{0}.IsNegativeInfinity(...)' call", Category, DiagnosticSeverity.Warning);
-		static readonly DiagnosticDescriptor Rule5 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method.", "Replace with '{0}.IsPositiveInfinity(...)' call", Category, DiagnosticSeverity.Warning);
-		static readonly DiagnosticDescriptor Rule6 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method.", "Replace with '!{0}.IsPositiveInfinity(...)' call", Category, DiagnosticSeverity.Warning);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead.", "Replace with '{0}.IsNaN(...)' call", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead.", "Replace with '!{0}.IsNaN(...)' call", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method.", "Replace with '{0}.IsNegativeInfinity(...)' call", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule4 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method.", "Replace with '!{0}.IsNegativeInfinity(...)' call", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule5 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method.", "Replace with '{0}.IsPositiveInfinity(...)' call", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule6 = new DiagnosticDescriptor (DiagnosticId, "Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method.", "Replace with '!{0}.IsPositiveInfinity(...)' call", Category, DiagnosticSeverity.Warning, true);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
