@@ -36,8 +36,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestCase()
 		{
-			Test<EnumUnderlyingTypeIsIntIssue>(@"
-public enum Foo : int
+			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
+public enum Foo $: int$
 {
     Bar
 }", @"
@@ -50,7 +50,7 @@ public enum Foo
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<EnumUnderlyingTypeIsIntIssue>(@"
+			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
 // ReSharper disable once EnumUnderlyingTypeIsInt
 public enum Foo : int
 {
@@ -62,10 +62,10 @@ public enum Foo : int
 		[Test]
 		public void TestNestedCase()
 		{
-			Test<EnumUnderlyingTypeIsIntIssue>(@"
+			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
 class Outer
 {
-    public enum Foo : int
+    public enum Foo $: int$
     {
         Bar
     }
@@ -82,7 +82,7 @@ class Outer
 		[Test]
 		public void TestDisabledForNoUnderlyingType()
 		{
-			TestWrongContext<EnumUnderlyingTypeIsIntIssue>(@"
+			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
 public enum Foo
 {
     Bar
@@ -92,11 +92,11 @@ public enum Foo
 		[Test]
 		public void TestDisabledForOtherTypes()
 		{
-			Test<EnumUnderlyingTypeIsIntIssue>(@"
+			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
 public enum Foo : byte
 {
     Bar
-}", 0);
+}");
 		}
 	}
 }

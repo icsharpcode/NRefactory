@@ -94,7 +94,7 @@ class Test {
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<StringIndexOfIsCultureSpecificIssue>(@"using System;
+			Analyze<StringIndexOfIsCultureSpecificIssue>(@"using System;
 using System.Collections.Generic;
 class Test {
 	public void StringIndexOfStringCalls(List<string> list)

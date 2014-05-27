@@ -148,7 +148,7 @@ class TestClass
 		var x = !(a || b);
 	}
 }";
-			TestWrongContext<NegativeRelationalExpressionIssue> (input);
+			Analyze<NegativeRelationalExpressionIssue> (input);
 		}
 
 	}

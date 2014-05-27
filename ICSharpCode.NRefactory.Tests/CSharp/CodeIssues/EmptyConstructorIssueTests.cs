@@ -34,19 +34,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<EmptyConstructorIssue>(@"using System;class Test {private int member; public Test(){}}", @"using System;class Test {private int member; }");
+			Analyze<EmptyConstructorIssue>(@"using System;class Test {private int member; $public Test(){}$}", @"using System;class Test {private int member; }");
 		}
 
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Test<EmptyConstructorIssue>(@"using System;class Test {private int member;public Test(){} static Test(){}}", @"using System;class Test {private int member;static Test(){}}");
+			Analyze<EmptyConstructorIssue>(@"using System;class Test {private int member;$public Test(){}$ static Test(){}}", @"using System;class Test {private int member;static Test(){}}");
 		}
 
 		[Test]
 		public void TestResharperDisable()
 		{
-			TestWrongContext<EmptyConstructorIssue>(@"using System;
+			Analyze<EmptyConstructorIssue>(@"using System;
 	//Resharper disable EmptyConstructor
 class Test {
 	public Test(){
@@ -58,19 +58,19 @@ class Test {
 		[Test]
 		public void TestNegateCase1()
 		{
-			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test(){Foo();}}");
+			Analyze<EmptyConstructorIssue>(@"using System;class Test {public Test(){Foo();}}");
 		}
 
 		[Test]
 		public void TestNegateCase2()
 		{
-			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test(){Bar();} private Test(){}}");
+			Analyze<EmptyConstructorIssue>(@"using System;class Test {public Test(){Bar();} private Test(){}}");
 		}
 
 		[Test]
 		public void TestNegateCase3()
 		{
-			TestWrongContext<EmptyConstructorIssue>(@"using System;class Test {public Test() : base(4) {}}");
+			Analyze<EmptyConstructorIssue>(@"using System;class Test {public Test() : base(4) {}}");
 		}
 	}
 }

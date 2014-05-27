@@ -171,7 +171,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase5()
 		{
-			TestWrongContext<OperatorIsCanBeUsedIssue>(@"
+			Analyze<OperatorIsCanBeUsedIssue>(@"
 using System;
 using System.Reflection;
 
@@ -198,7 +198,7 @@ namespace Demo
 		[Test]
 		public void TestResharperDisable()
 		{
-			TestWrongContext<OperatorIsCanBeUsedIssue>(@"using System;
+			Analyze<OperatorIsCanBeUsedIssue>(@"using System;
 using System.Linq;
 using System.Reflection;
 

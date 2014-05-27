@@ -89,7 +89,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<RedundantEmptyDefaultSwitchBranchIssue>(@"
+			Analyze<RedundantEmptyDefaultSwitchBranchIssue>(@"
 class Test
 {
 	void TestMethod (int i = 0)

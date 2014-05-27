@@ -56,7 +56,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -70,7 +70,7 @@ class Test
 		[Test]
 		public void TestJunk ()
 		{
-			TestWrongContext<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -78,7 +78,7 @@ class Test
 		obj.Select (x => q as Test).Where (q => q != null && true);
 	}
 }");
-			TestWrongContext<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)

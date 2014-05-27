@@ -58,7 +58,7 @@ class Test
 		[Test]
 		public void TestInvalidCase1()
 		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
+			Analyze<RedundantExplicitArraySizeIssue>(@"
 class Test
 {
 	void Foo (int i)
@@ -72,7 +72,7 @@ class Test
 		[Test]
 		public void TestInvalidCase2()
 		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
+			Analyze<RedundantExplicitArraySizeIssue>(@"
 class Test
 {
 	void Foo ()
@@ -86,7 +86,7 @@ class Test
 		[Test]
 		public void TestInvalidCase3()
 		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
+			Analyze<RedundantExplicitArraySizeIssue>(@"
 class Test
 {
 	void Foo ()
@@ -100,7 +100,7 @@ class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<RedundantExplicitArraySizeIssue>(@"
+			Analyze<RedundantExplicitArraySizeIssue>(@"
 class Test
 {
 	void Foo ()

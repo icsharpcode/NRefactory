@@ -60,7 +60,7 @@ class FooBar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<UseMethodIsInstanceOfTypeIssue> (@"using System;
+			Analyze<UseMethodIsInstanceOfTypeIssue> (@"using System;
 class FooBar
 {
 	void Foo()

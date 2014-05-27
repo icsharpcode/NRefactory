@@ -218,7 +218,7 @@ class TestClass
 		[Test]
 		public void TestNullCoalesingOperator ()
 		{
-			TestWrongContext<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
+			Analyze<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
 class TestClass
 {
 	void TestMethod (A obj)
@@ -252,7 +252,7 @@ class TestClass
 		[Test]
 		public void TestNonRedundantDoubleCast ()
 		{
-			TestWrongContext<RedundantCastIssue> (@"
+			Analyze<RedundantCastIssue> (@"
 class Foo
 {
 	void Bar ()
@@ -267,7 +267,7 @@ class Foo
 		[Test]
 		public void TestNonRedundantFloatCast ()
 		{
-			TestWrongContext<RedundantCastIssue> (@"
+			Analyze<RedundantCastIssue> (@"
 class Foo
 {
 	void Bar ()
@@ -281,7 +281,7 @@ class Foo
 		[Test]
 		public void TestNonRedundantFloatCastCase2 ()
 		{
-			TestWrongContext<RedundantCastIssue> (@"
+			Analyze<RedundantCastIssue> (@"
 using System;
 
 class Foo
@@ -297,7 +297,7 @@ class Foo
 		[Test, Ignore("https://github.com/icsharpcode/NRefactory/issues/118")]
 		public void TestNonRedundantCastDueToOverloading ()
 		{
-			TestWrongContext<RedundantCastIssue> (@"
+			Analyze<RedundantCastIssue> (@"
 class Foo
 {
 	void F(string a) {}
@@ -316,7 +316,7 @@ class Foo
 		[Test]
 		public void TestBug17945 ()
 		{
-			TestWrongContext<RedundantCastIssue> (@"
+			Analyze<RedundantCastIssue> (@"
 namespace Bug
 {
     public class C
@@ -337,7 +337,7 @@ namespace Bug
 		[Test]
 		public void TestOverloadSelector ()
 		{
-			TestWrongContext<RedundantCastIssue> (@"
+			Analyze<RedundantCastIssue> (@"
 public class Foo
 {
 	public void Bar (object o)

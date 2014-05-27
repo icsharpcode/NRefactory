@@ -111,7 +111,7 @@ class Test
 		[Test]
 		public void TestNoIssue()
 		{
-			TestWrongContext<CS0152DuplicateCaseLabelValueIssue>(@"
+			Analyze<CS0152DuplicateCaseLabelValueIssue>(@"
 class Test
 {
 	void TestMethod (int i = 0)

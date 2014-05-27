@@ -98,7 +98,7 @@ class Test
 		[Test]
 		public void TestInvalid()
 		{
-			TestWrongContext<RedundantEmptyFinallyBlockIssue>(@"
+			Analyze<RedundantEmptyFinallyBlockIssue>(@"
 using System;
 class Test
 {
@@ -117,7 +117,7 @@ class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<RedundantEmptyFinallyBlockIssue>(@"
+			Analyze<RedundantEmptyFinallyBlockIssue>(@"
 using System;
 class Test
 {

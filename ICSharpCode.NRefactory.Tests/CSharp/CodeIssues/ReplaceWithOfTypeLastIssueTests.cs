@@ -76,7 +76,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -90,7 +90,7 @@ class Test
 		[Test]
 		public void TestJunk ()
 		{
-			TestWrongContext<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -98,7 +98,7 @@ class Test
 		obj.Select (x => q as Test).Last (q => q != null);
 	}
 }");
-			TestWrongContext<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeLastIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)

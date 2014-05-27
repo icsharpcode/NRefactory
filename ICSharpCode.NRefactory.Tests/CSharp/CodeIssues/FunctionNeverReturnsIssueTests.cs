@@ -101,7 +101,7 @@ class TestClass
 		return ""_"" + TestMethod(x - 1);
 	}
 }";
-			TestWrongContext<FunctionNeverReturnsIssue> (input);
+			Analyze<FunctionNeverReturnsIssue> (input);
 		}
 
 		[Test]
@@ -230,7 +230,7 @@ class TestClass
 		set;
 	}
 }";
-			TestWrongContext<FunctionNeverReturnsIssue> (input);
+			Analyze<FunctionNeverReturnsIssue> (input);
 		}
 
 		[Test]
@@ -320,7 +320,7 @@ class TestClass
 		while (true) ;
 	}
 }";
-			TestWrongContext<FunctionNeverReturnsIssue> (input);
+			Analyze<FunctionNeverReturnsIssue> (input);
 		}
 
 		[Test]
@@ -345,7 +345,7 @@ class TestClass
 		}
 	}
 }";
-			TestWrongContext<FunctionNeverReturnsIssue> (input);
+			Analyze<FunctionNeverReturnsIssue> (input);
 		}
 
 		[Test]
@@ -363,7 +363,7 @@ class TestClass
 		}
 	}
 }";
-			TestWrongContext<FunctionNeverReturnsIssue> (input);
+			Analyze<FunctionNeverReturnsIssue> (input);
 		}
 
 		[Test]
@@ -437,7 +437,7 @@ class TestClass
 		       select y;
 	}
 }";
-			TestWrongContext<FunctionNeverReturnsIssue> (input);
+			Analyze<FunctionNeverReturnsIssue> (input);
 		}
 
 		[Test]
@@ -454,7 +454,7 @@ class TestClass
 			TestMethod();
 	}
 }";
-			TestWrongContext<FunctionNeverReturnsIssue> (input);
+			Analyze<FunctionNeverReturnsIssue> (input);
 		}
 
 		[Test]
@@ -470,7 +470,7 @@ class TestClass
 			TestMethod ();
 	}
 }";
-			TestWrongContext<FunctionNeverReturnsIssue> (input);
+			Analyze<FunctionNeverReturnsIssue> (input);
 		}
 
 		[Test]
@@ -488,13 +488,13 @@ class TestClass
 		return value ?? parent.TestMethod();
 	}
 }";
-			TestWrongContext<FunctionNeverReturnsIssue> (input);
+			Analyze<FunctionNeverReturnsIssue> (input);
 		}
 
 		[Test]
 		public void TestPropertyGetterInSetter ()
 		{
-			TestWrongContext<FunctionNeverReturnsIssue> (@"using System;
+			Analyze<FunctionNeverReturnsIssue> (@"using System;
 class TestClass
 {
 	int a;
@@ -508,7 +508,7 @@ class TestClass
 		[Test]
 		public void TestRecursiveFunctionBug ()
 		{
-			TestWrongContext<FunctionNeverReturnsIssue> (@"using System;
+			Analyze<FunctionNeverReturnsIssue> (@"using System;
 class TestClass
 {
 	bool Foo (int i)
@@ -524,7 +524,7 @@ class TestClass
 		[Test]
 		public void TestBug17769 ()
 		{
-			TestWrongContext<FunctionNeverReturnsIssue> (@"
+			Analyze<FunctionNeverReturnsIssue> (@"
 using System.Linq;
 class A
 {

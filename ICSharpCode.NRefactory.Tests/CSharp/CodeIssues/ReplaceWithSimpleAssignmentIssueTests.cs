@@ -80,7 +80,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithSimpleAssignmentIssue>(@"
+			Analyze<ReplaceWithSimpleAssignmentIssue>(@"
 class Test
 {
 	void Foo (bool b)

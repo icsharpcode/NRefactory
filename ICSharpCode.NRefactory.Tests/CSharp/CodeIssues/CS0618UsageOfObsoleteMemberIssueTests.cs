@@ -214,7 +214,7 @@ class MyClass
 	}
 }
 ";
-			TestWrongContext<CS0618UsageOfObsoleteMemberIssue>(input);
+			Analyze<CS0618UsageOfObsoleteMemberIssue>(input);
 		}
 
 
@@ -241,7 +241,7 @@ public class Foo
 	}
 }
 ";
-			TestWrongContext<CS0618UsageOfObsoleteMemberIssue>(input);
+			Analyze<CS0618UsageOfObsoleteMemberIssue>(input);
 		}
 	}
 }

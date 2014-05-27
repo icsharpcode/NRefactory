@@ -83,7 +83,7 @@ class Foo
 		[Test]
 		public void TestResharperSuppression()
 		{
-			TestWrongContext<ThreadStaticAtInstanceFieldIssue>(@"using System;
+			Analyze<ThreadStaticAtInstanceFieldIssue>(@"using System;
 class Foo
 {
 // ReSharper disable once ThreadStaticAtInstanceField
@@ -132,7 +132,7 @@ class TestClass
 		[Test]
 		public void StaticField()
 		{
-			TestWrongContext<ThreadStaticAtInstanceFieldIssue>(@"
+			Analyze<ThreadStaticAtInstanceFieldIssue>(@"
 using System;
 class TestClass
 {

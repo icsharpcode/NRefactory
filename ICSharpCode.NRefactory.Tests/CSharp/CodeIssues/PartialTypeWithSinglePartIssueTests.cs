@@ -67,7 +67,7 @@ partial class TestClass
 partial class TestClass
 {
 }";
-			TestWrongContext<PartialTypeWithSinglePartIssue>(input);
+			Analyze<PartialTypeWithSinglePartIssue>(input);
 		}
 
 		[Test]

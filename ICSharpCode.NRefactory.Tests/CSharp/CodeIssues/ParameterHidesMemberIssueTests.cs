@@ -58,7 +58,7 @@ class TestClass
 	{
 	}
 }";
-			TestWrongContext<ParameterHidesMemberIssue> (input);
+			Analyze<ParameterHidesMemberIssue> (input);
 		}
 
 		[Test]

@@ -78,7 +78,7 @@ class TestClass
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConvertToLambdaExpressionIssue> (@"
+			Analyze<ConvertToLambdaExpressionIssue> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -95,7 +95,7 @@ class TestClass
 		[Test]
 		public void TestAssignmentExpression ()
 		{
-			TestWrongContext<ConvertToLambdaExpressionIssue>(@"
+			Analyze<ConvertToLambdaExpressionIssue>(@"
 using System;
 public class Test
 {
@@ -118,7 +118,7 @@ public class Test
 		[Test]
 		public void TestBug14840 ()
 		{
-			TestWrongContext<ConvertToLambdaExpressionIssue>(@"using System;
+			Analyze<ConvertToLambdaExpressionIssue>(@"using System;
 using System.Collections.Generic;
 
 class C
@@ -182,7 +182,7 @@ class TestClass
 		[Test]
 		public void TestAnonymousMethodWithoutParameterList ()
 		{
-			TestWrongContext<ConvertToLambdaExpressionIssue> (@"
+			Analyze<ConvertToLambdaExpressionIssue> (@"
 class TestClass
 {
 	void TestMethod ()

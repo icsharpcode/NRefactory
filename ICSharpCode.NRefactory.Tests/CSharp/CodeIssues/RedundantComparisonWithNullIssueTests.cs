@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperDisable()
 		{
-			TestWrongContext<RedundantComparisonWithNullIssue> (@"using System;
+			Analyze<RedundantComparisonWithNullIssue> (@"using System;
 class Test {
 	public void test(){
 	int a = 0;
@@ -91,7 +91,7 @@ class TestClass
         [Test]
         public void TestDisable()
         {
-			TestWrongContext<RedundantComparisonWithNullIssue> (
+			Analyze<RedundantComparisonWithNullIssue> (
                 @"using System;
 class TestClass
 {

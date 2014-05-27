@@ -81,7 +81,7 @@ class TestClass : BaseClass
     public TestClass(int data) : base() { }
 }
 ";
-            TestWrongContext<RedundantBaseConstructorCallIssue>(input);
+            Analyze<RedundantBaseConstructorCallIssue>(input);
         }
 	}
 }

@@ -33,12 +33,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase()
 		{
-			Test<EmptyDestructorIssue>(@"
+			Analyze<EmptyDestructorIssue>(@"
 class Foo
 {
-	~Foo()
+	$~Foo()
 	{
-	}
+	}$
 }", @"
 class Foo
 {
@@ -48,15 +48,15 @@ class Foo
 		[Test]
 		public void TestCaseWithNesting()
 		{
-			Test<EmptyDestructorIssue>(@"
+			Analyze<EmptyDestructorIssue>(@"
 class Foo
 {
-	~Foo()
+	$~Foo()
 	{
 		{}
 		;
 		{;}
-	}
+	}$
 }", @"
 class Foo
 {
@@ -66,7 +66,7 @@ class Foo
 		[Test]
 		public void TestDisabledForNonEmpty()
 		{
-			TestWrongContext<EmptyDestructorIssue>(@"
+			Analyze<EmptyDestructorIssue>(@"
 class Foo
 {
 	~Foo()
@@ -79,7 +79,7 @@ class Foo
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<EmptyDestructorIssue>(@"
+			Analyze<EmptyDestructorIssue>(@"
 class Foo
 {
 	// ReSharper disable once EmptyDestructor

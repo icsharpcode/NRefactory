@@ -58,7 +58,7 @@ class TestClass
         [Test]
 	    public void TestDisable()
 	    {
-            TestWrongContext<RedundantObjectOrCollectionInitializerIssue>(@" class TestClass
+            Analyze<RedundantObjectOrCollectionInitializerIssue>(@" class TestClass
     {
         void TestMethod()
         {

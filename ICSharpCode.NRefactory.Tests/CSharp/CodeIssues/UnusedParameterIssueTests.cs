@@ -228,7 +228,7 @@ class TestClass : ISerializable {
 		this.text = info.GetString(""Text"");
 	}
 }";
-			TestWrongContext<UnusedParameterIssue> (input);
+			Analyze<UnusedParameterIssue> (input);
 		}
 	}
 }

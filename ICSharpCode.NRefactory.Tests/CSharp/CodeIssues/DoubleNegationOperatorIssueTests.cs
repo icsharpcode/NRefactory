@@ -36,17 +36,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestLogicalNot ()
 		{
-			Test<DoubleNegationOperatorIssue> (@"
+			Analyze<DoubleNegationOperatorIssue> (@"
 class TestClass
 {
 	bool GetBool () { }
 
 	void TestMethod ()
 	{
-		var x = !!GetBool ();
-		x = !(!(GetBool ()));
+		var x = $!!GetBool ()$;
+		x = $!(!(GetBool ()))$;
 	}
-}", 2, @"
+}", @"
 class TestClass
 {
 	bool GetBool () { }
@@ -62,14 +62,14 @@ class TestClass
 		[Test]
 		public void TestBitwiseNot ()
 		{
-			Test<DoubleNegationOperatorIssue> (@"
+			Analyze<DoubleNegationOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod ()
 	{
-		var x = ~(~(123));
+		var x = $~(~(123))$;
 	}
-}", 1, @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
@@ -82,7 +82,7 @@ class TestClass
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<DoubleNegationOperatorIssue> (@"
+			Analyze<DoubleNegationOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod ()

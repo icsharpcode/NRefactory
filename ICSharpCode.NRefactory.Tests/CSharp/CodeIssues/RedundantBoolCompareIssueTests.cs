@@ -87,7 +87,7 @@ class TestClass
 		[Test]
 		public void TestInvalid ()
 		{
-			TestWrongContext<RedundantBoolCompareIssue> (@"
+			Analyze<RedundantBoolCompareIssue> (@"
 class TestClass
 {
 	void TestMethod (bool? x)

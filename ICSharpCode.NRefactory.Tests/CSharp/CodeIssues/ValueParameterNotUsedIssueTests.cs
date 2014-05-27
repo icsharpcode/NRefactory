@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<ValueParameterNotUsedIssue>(@"class A
+			Analyze<ValueParameterNotUsedIssue>(@"class A
 {
     int Property1
     {
@@ -109,7 +109,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestNonMatchingIndexerSetter()
 		{
-			TestWrongContext<ValueParameterNotUsedIssue>(@"class A
+			Analyze<ValueParameterNotUsedIssue>(@"class A
 {
 	A this[int index]
 	{
@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void IgnoresAutoSetter()
 		{
-			TestWrongContext<ValueParameterNotUsedIssue>(@"class A
+			Analyze<ValueParameterNotUsedIssue>(@"class A
 {
 	string  Property { set; }
 }");
@@ -132,7 +132,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void IgnoreReadOnlyProperty()
 		{
-			TestWrongContext<ValueParameterNotUsedIssue>(@"class A
+			Analyze<ValueParameterNotUsedIssue>(@"class A
 {
 	string  Property { get; }
 }");
@@ -141,7 +141,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void DoesNotCrashOnNullIndexerAccessorBody()
 		{
-			TestWrongContext<ValueParameterNotUsedIssue>(@"abstract class A
+			Analyze<ValueParameterNotUsedIssue>(@"abstract class A
 {
 	public abstract string this[int i] { get; set; }
 }");
@@ -150,7 +150,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void DoesNotWarnOnExceptionThrowingAccessor()
 		{
-			TestWrongContext<ValueParameterNotUsedIssue>(@"abstract class A
+			Analyze<ValueParameterNotUsedIssue>(@"abstract class A
 {
 	public string Property
 	{
@@ -166,7 +166,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		{
 			// Empty custom events are often used when the event can never be raised
 			// by a class (but the event is required e.g. due to an interface).
-			TestWrongContext<ValueParameterNotUsedIssue>(@"class A	
+			Analyze<ValueParameterNotUsedIssue>(@"class A	
 {
 	delegate void TestEventHandler ();
 	event TestEventHandler EventTested
@@ -180,7 +180,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void DoesNotWarnOnNotImplementedCustomEvent()
 		{
-			TestWrongContext<ValueParameterNotUsedIssue>(@"class A	
+			Analyze<ValueParameterNotUsedIssue>(@"class A	
 {
 	delegate void TestEventHandler ();
 	event TestEventHandler EventTested

@@ -57,7 +57,7 @@ class Foo
 		[Test]
 		public void TestValueTypes ()
 		{
-			TestWrongContext<RedundantToStringCallIssue>(@"
+			Analyze<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (int i)
@@ -71,7 +71,7 @@ class Foo
 		[Test]
 		public void ConcatenationOperatorWithToStringAsOnlyString ()
 		{
-			TestWrongContext<RedundantToStringCallIssue>(@"
+			Analyze<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (int i)
@@ -84,7 +84,7 @@ class Foo
 		[Test]
 		public void IgnoresCallsToIFormattableToString ()
 		{
-			TestWrongContext<RedundantToStringCallIssue>(@"
+			Analyze<RedundantToStringCallIssue>(@"
 class Foo
 {
 	void Bar (System.DateTime dt)

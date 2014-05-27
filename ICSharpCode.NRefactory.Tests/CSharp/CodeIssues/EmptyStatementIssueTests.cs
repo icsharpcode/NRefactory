@@ -35,15 +35,15 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase()
 		{
-			Test<EmptyStatementIssue>(@"
+			Analyze<EmptyStatementIssue>(@"
 class Test
 {
 	public void Foo ()
 	{
-		;
+		$;$
 	}
 }
-", 1, @"
+", @"
 class Test
 {
 	public void Foo ()
@@ -56,7 +56,7 @@ class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<EmptyStatementIssue>(@"
+			Analyze<EmptyStatementIssue>(@"
 class Test
 {
 	public void Foo ()
@@ -71,7 +71,7 @@ class Test
 		[Test]
 		public void TestEmbeddedStatements()
 		{
-			TestWrongContext<EmptyStatementIssue>(@"
+			Analyze<EmptyStatementIssue>(@"
 class Test
 {
 	public void Foo ()
@@ -88,7 +88,7 @@ class Test
 		[Test]
 		public void TestInvalidCase()
 		{
-			TestWrongContext<EmptyStatementIssue>(@"
+			Analyze<EmptyStatementIssue>(@"
 class Test
 {
 	public void Foo ()

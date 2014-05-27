@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInitializedField ()
 		{
-			TestWrongContext<CS0169FieldIsNeverUsedIssue>(@"class Test
+			Analyze<CS0169FieldIsNeverUsedIssue>(@"class Test
 {
 	object fooBar = new object ();
 	public static void Main (string[] args)
@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestFieldAssignedInConstructor ()
 		{
-			TestWrongContext<CS0169FieldIsNeverUsedIssue>(@"class Test
+			Analyze<CS0169FieldIsNeverUsedIssue>(@"class Test
 {
 	object fooBar;
 	public Test ()
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestPragmaDisable ()
 		{
-			TestWrongContext<CS0169FieldIsNeverUsedIssue>(@"class Test
+			Analyze<CS0169FieldIsNeverUsedIssue>(@"class Test
 {
 #pragma warning disable 169
 	object fooBar;

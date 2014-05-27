@@ -63,7 +63,7 @@ public class Bar
 		[Test]
 		public void TestStaticCall ()
 		{
-			TestWrongContext<PossibleMistakenCallToGetTypeIssue>(@"
+			Analyze<PossibleMistakenCallToGetTypeIssue>(@"
 using System;
 
 public class Bar
@@ -80,7 +80,7 @@ public class Bar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<PossibleMistakenCallToGetTypeIssue>(@"
+			Analyze<PossibleMistakenCallToGetTypeIssue>(@"
 public class Bar
 {
 	public void FooBar(Type a)

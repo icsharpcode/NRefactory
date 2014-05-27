@@ -83,7 +83,7 @@ public class MyClass : MyBase
 		[Test]
 		public void TestDoNotWarnCase ()
 		{
-			TestWrongContext<BaseMethodCallWithDefaultParameterIssue>(@"
+			Analyze<BaseMethodCallWithDefaultParameterIssue>(@"
 public class MyBase
 {
 	public virtual void FooBar(int x = 12)
@@ -105,7 +105,7 @@ public class MyClass : MyBase
 		[Test]
 		public void TestDoNotWarnInParamsCase ()
 		{
-			TestWrongContext<BaseMethodCallWithDefaultParameterIssue>(@"
+			Analyze<BaseMethodCallWithDefaultParameterIssue>(@"
 public class MyBase
 {
 	public virtual void FooBar(params int[] x)
@@ -127,7 +127,7 @@ public class MyClass : MyBase
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<BaseMethodCallWithDefaultParameterIssue> (@"
+			Analyze<BaseMethodCallWithDefaultParameterIssue> (@"
 public class MyBase
 {
 	public virtual void FooBar(int x = 12)

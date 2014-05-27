@@ -56,7 +56,7 @@ class Foo
 		[Test]
 		public void TestInspectorCase2 ()
 		{
-			TestWrongContext<RedundantUsingDirectiveIssue>(@"using System;
+			Analyze<RedundantUsingDirectiveIssue>(@"using System;
 
 class Foo
 {
@@ -69,7 +69,7 @@ class Foo
 		[Test]
 		public void TestInspectorCase3 ()
 		{
-			TestWrongContext<RedundantUsingDirectiveIssue>(@"using System;
+			Analyze<RedundantUsingDirectiveIssue>(@"using System;
 using System.Collections.Generic;
 
 namespace Foo
@@ -84,7 +84,7 @@ namespace Foo
 		[Test]
 		public void Linq1 ()
 		{
-			TestWrongContext<RedundantUsingDirectiveIssue>(@"using System;
+			Analyze<RedundantUsingDirectiveIssue>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -100,7 +100,7 @@ class Bar
 		[Test]
 		public void Linq2 ()
 		{
-			TestWrongContext<RedundantUsingDirectiveIssue>(@"using System;
+			Analyze<RedundantUsingDirectiveIssue>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -243,7 +243,7 @@ class Foo
 		[Test]
 		public void TestKeywordsInNamespace ()
 		{
-			TestWrongContext<RedundantUsingDirectiveIssue>(@"
+			Analyze<RedundantUsingDirectiveIssue>(@"
 
 namespace org.eclipse.jgit.@internal.storage.file
 {

@@ -54,7 +54,7 @@ static class Foo
 		[Test]
 		public void TestValidStaticClass ()
 		{
-			TestWrongContext<ProhibitedModifiersIssue>(@"
+			Analyze<ProhibitedModifiersIssue>(@"
 static class Foo
 {
 	public const int f = 1;
@@ -165,7 +165,7 @@ class Foo
 		[Test]
 		public void TestValidSealed ()
 		{
-			TestWrongContext<ProhibitedModifiersIssue>(@"
+			Analyze<ProhibitedModifiersIssue>(@"
 class Foo
 {
 	public override sealed void Bar () 

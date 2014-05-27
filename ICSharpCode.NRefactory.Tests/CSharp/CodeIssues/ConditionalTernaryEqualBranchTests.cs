@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestNotEqualBranches ()
 		{
-			TestWrongContext<ConditionalTernaryEqualBranchIssue>(@"class Foo
+			Analyze<ConditionalTernaryEqualBranchIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperSuppression ()
 		{
-			TestWrongContext<ConditionalTernaryEqualBranchIssue>(@"class Foo
+			Analyze<ConditionalTernaryEqualBranchIssue>(@"class Foo
 {
 	void Bar (string str)
 	{

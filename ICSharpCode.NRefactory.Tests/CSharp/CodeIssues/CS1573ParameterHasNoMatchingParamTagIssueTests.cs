@@ -63,7 +63,7 @@ class Foo {
 		[Test]
 		public void TestNoParamDocs()
 		{
-			TestWrongContext<CS1573ParameterHasNoMatchingParamTagIssue>(@"
+			Analyze<CS1573ParameterHasNoMatchingParamTagIssue>(@"
 class Foo {
 	/// <summary/>
 	public void FooBar(int x, int y, int z)
@@ -76,7 +76,7 @@ class Foo {
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<CS1573ParameterHasNoMatchingParamTagIssue>(@"
+			Analyze<CS1573ParameterHasNoMatchingParamTagIssue>(@"
 class Foo {
 	/// <summary/>
 	/// <param name = ""y""></param>
@@ -92,7 +92,7 @@ class Foo {
 		[Test]
 		public void TestPragmaDisable()
 		{
-			TestWrongContext<CS1573ParameterHasNoMatchingParamTagIssue>(@"
+			Analyze<CS1573ParameterHasNoMatchingParamTagIssue>(@"
 class Foo {
 	/// <summary/>
 	/// <param name = ""y""></param>

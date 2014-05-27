@@ -82,7 +82,7 @@ class FooBar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<UseIsOperatorIssue> (@"using System;
+			Analyze<UseIsOperatorIssue> (@"using System;
 class FooBar
 {
 	void Foo()

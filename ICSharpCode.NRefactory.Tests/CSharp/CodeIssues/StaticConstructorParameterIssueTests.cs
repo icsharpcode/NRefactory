@@ -57,7 +57,7 @@ class Foo
 		[Test]
 		public void TestNoIssue()
 		{
-			TestWrongContext<StaticConstructorParameterIssue>(@"
+			Analyze<StaticConstructorParameterIssue>(@"
 class Foo
 {
 	static Foo ()

@@ -102,7 +102,7 @@ public class FooBar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<MethodOverloadWithOptionalParameterIssue>(@"
+			Analyze<MethodOverloadWithOptionalParameterIssue>(@"
 using System;
 
 public class FooBar

@@ -94,7 +94,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 
 		static TestSemanticHighlightingVisitor CreateHighighting(string text)
 		{
-			var syntaxTree = CSharpSyntaxTree.ParseText(text, "a.cs");
+			var syntaxTree = CSharpSyntaxTree.ParseText(text, null, "a.cs");
 			/*if (syntaxTree.Errors.Count > 0) {
 				Console.WriteLine(text);
 				Console.WriteLine("---");

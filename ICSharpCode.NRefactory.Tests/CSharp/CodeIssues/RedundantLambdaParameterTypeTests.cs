@@ -130,7 +130,7 @@ namespace application
 		[Test]
 		public void TestInspectorCase3()
 		{
-			TestWrongContext<RedundantLambdaParameterTypeIssue>(@"using System;
+			Analyze<RedundantLambdaParameterTypeIssue>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -153,7 +153,7 @@ namespace application
 		[Test]
 		public void TestInvalidContext()
 		{
-			TestWrongContext<RedundantLambdaParameterTypeIssue>(@"using System;
+			Analyze<RedundantLambdaParameterTypeIssue>(@"using System;
 		using System.Collections.Generic;
 		using System.Linq;
 
@@ -175,7 +175,7 @@ namespace application
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			TestWrongContext<RedundantLambdaParameterTypeIssue>(@"using System;
+			Analyze<RedundantLambdaParameterTypeIssue>(@"using System;
 		using System.Collections.Generic;
 		using System.Linq;
 

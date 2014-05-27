@@ -58,7 +58,7 @@ sealed class Foo
 		[Test]
 		public void TestValid ()
 		{
-			TestWrongContext<SealedMemberInSealedClassIssue>(@"
+			Analyze<SealedMemberInSealedClassIssue>(@"
 class Foo
 {
 	public sealed override string ToString()
@@ -73,7 +73,7 @@ class Foo
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<SealedMemberInSealedClassIssue>(@"
+			Analyze<SealedMemberInSealedClassIssue>(@"
 sealed class Foo
 {
 	// ReSharper disable once SealedMemberInSealedClass

@@ -57,7 +57,7 @@ public class Test
 		[Test]
 		public void TestInvalidCase()
 		{
-			TestWrongContext<StringCompareToIsCultureSpecificIssue>(@"
+			Analyze<StringCompareToIsCultureSpecificIssue>(@"
 public class Test
 {
 	void Foo (object b)
@@ -72,7 +72,7 @@ public class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<StringCompareToIsCultureSpecificIssue>(@"
+			Analyze<StringCompareToIsCultureSpecificIssue>(@"
 public class Test
 {
 	void Foo (string b)

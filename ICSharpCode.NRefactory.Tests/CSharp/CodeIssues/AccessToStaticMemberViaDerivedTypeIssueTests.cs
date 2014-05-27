@@ -67,7 +67,7 @@ class C
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<AccessToStaticMemberViaDerivedTypeIssue>(@"
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"
 class A
 {
 	public static void F() { }
@@ -228,7 +228,7 @@ namespace Second
 		[Test]
 		public void IgnoresCorrectCalls()
 		{
-			TestWrongContext<AccessToStaticMemberViaDerivedTypeIssue>(@"
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"
 class A
 {
 	public static void F() { }
@@ -245,7 +245,7 @@ class B
 		[Test]
 		public void IgnoresNonStaticCalls()
 		{
-			TestWrongContext<AccessToStaticMemberViaDerivedTypeIssue>(@"
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"
 class A
 {
 	public void F() { }
@@ -264,7 +264,7 @@ class C
 		[Test]
 		public void IgnoresOwnMemberFunctions()
 		{
-			TestWrongContext<AccessToStaticMemberViaDerivedTypeIssue>(@"
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"
 class A
 {
 	protected static void F() { }
@@ -283,7 +283,7 @@ class B : A
 		[Test]
 		public void IgnoresCuriouslyRecurringTemplatePattern()
 		{
-			TestWrongContext<AccessToStaticMemberViaDerivedTypeIssue>(@"
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"
 class Base<T>
 {
 	public static void F() { }

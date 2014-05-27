@@ -107,7 +107,7 @@ public class FooBase
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<RedundantDelegateCreationIssue>(@"
+			Analyze<RedundantDelegateCreationIssue>(@"
 using System;
 
 public class FooBase

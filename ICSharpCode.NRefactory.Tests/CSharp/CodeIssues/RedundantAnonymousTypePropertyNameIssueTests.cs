@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSimpleCase()
 		{
-			Test<RedundantAnonymousTypePropertyNameIssue>(@"
+			Analyze<RedundantAnonymousTypePropertyNameIssue>(@"
 class FooBar
 {
 	public int Foo;
@@ -44,7 +44,7 @@ class TestClass
 {
 	public void Test(FooBar f)
 	{
-		var n = new { Foo = f.Foo, b = 12 };
+		var n = new { $Foo =$ f.Foo, b = 12 };
 	}
 }", @"
 class FooBar
@@ -64,7 +64,7 @@ class TestClass
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<RedundantAnonymousTypePropertyNameIssue>(@"
+			Analyze<RedundantAnonymousTypePropertyNameIssue>(@"
 class FooBar
 {
 	public int Foo;

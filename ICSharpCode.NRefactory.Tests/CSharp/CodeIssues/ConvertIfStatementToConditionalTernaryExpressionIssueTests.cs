@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSkipComplexCondition ()
 		{
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+			Analyze<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
 	static int Bar (int x)
 	{
@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSkipIfElseIf ()
 		{
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+			Analyze<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
 	static int Bar (int x)
 	{
@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSkipComplexTrueExpression ()
 		{
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+			Analyze<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
 	static int Bar (int x)
 	{
@@ -108,7 +108,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSkipComplexFalseExpression ()
 		{
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+			Analyze<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
 	static int Bar (int x)
 	{
@@ -127,7 +127,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+			Analyze<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
 	static int Bar (int x)
 	{
@@ -145,7 +145,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSkipAnnoyingCase1 ()
 		{
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+			Analyze<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
 	int Bar(string example)
 	{

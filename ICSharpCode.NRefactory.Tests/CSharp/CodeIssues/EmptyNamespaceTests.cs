@@ -35,42 +35,42 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase()
 		{
-			Test<EmptyNamespaceIssue>(@"
-namespace Foo
+			Analyze<EmptyNamespaceIssue>(@"
+$namespace Foo
 {
-}", @"");
+}$", @"");
 		}
 
 		[Test]
 		public void TestCaseWithRegions()
 		{
-			Test<EmptyNamespaceIssue>(@"
-namespace Foo
+			Analyze<EmptyNamespaceIssue>(@"
+$namespace Foo
 {
 	#region Bar
 	#endregion
-}", @"");
+}$", @"");
 		}
 
 		[Test]
 		public void TestCaseWithUsing()
 		{
-			Test<EmptyNamespaceIssue>(@"
-namespace Foo
+			Analyze<EmptyNamespaceIssue>(@"
+$namespace Foo
 {
 	using System;
-}", @"");
+}$", @"");
 		}
 
 		[Test]
 		public void TestCaseWithNesting()
 		{
-			Test<EmptyNamespaceIssue>(@"
+			Analyze<EmptyNamespaceIssue>(@"
 namespace Foo
 {
-	namespace Bar
+	$namespace Bar
 	{
-	}
+	}$
 }", @"
 namespace Foo
 {
@@ -80,7 +80,7 @@ namespace Foo
 		[Test]
 		public void TestDisabledForNonEmpty()
 		{
-			TestWrongContext<EmptyNamespaceIssue>(@"
+			Analyze<EmptyNamespaceIssue>(@"
 namespace Foo
 {
 	class Bar
@@ -92,7 +92,7 @@ namespace Foo
 		[Test]
 		public void TestDisabledForRegionsWithClasses()
 		{
-			TestWrongContext<EmptyNamespaceIssue>(@"
+			Analyze<EmptyNamespaceIssue>(@"
 namespace Foo
 {
 	#region Baz
@@ -106,11 +106,10 @@ namespace Foo
 		[Test]
 		public void TestDisable()
 		{
-			var input = @"// ReSharper disable once EmptyNamespace
+			Analyze<EmptyNamespaceIssue>(@"// ReSharper disable once EmptyNamespace
 namespace Foo
 {
-}";
-			TestWrongContext<EmptyNamespaceIssue>(input);
+}");
 		}
 	}
 }

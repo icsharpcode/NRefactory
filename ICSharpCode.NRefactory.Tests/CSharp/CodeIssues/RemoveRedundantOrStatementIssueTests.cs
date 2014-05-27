@@ -81,7 +81,7 @@ class MainClass
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<RemoveRedundantOrStatementIssue>(@"
+			Analyze<RemoveRedundantOrStatementIssue>(@"
 class MainClass
 {
 	static bool bb { get; set; }

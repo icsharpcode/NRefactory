@@ -112,7 +112,7 @@ unsafe class Program
 		[Test]
 		public void TestValidFixedPointer ()
 		{
-			TestWrongContext<RedundantUnsafeContextIssue>(@"
+			Analyze<RedundantUnsafeContextIssue>(@"
 unsafe struct Foo {
 	public fixed char fixedBuffer[128];
 }
@@ -123,7 +123,7 @@ unsafe struct Foo {
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<RedundantUnsafeContextIssue>(@"
+			Analyze<RedundantUnsafeContextIssue>(@"
 unsafe class Foo
 {
 	public static void Main (string[] args)
@@ -138,7 +138,7 @@ unsafe class Foo
 		[Test]
 		public void TestSizeOf ()
 		{
-			TestWrongContext<RedundantUnsafeContextIssue>(@"
+			Analyze<RedundantUnsafeContextIssue>(@"
 public static class TestClass
 {
 	struct TestStruct {
@@ -155,7 +155,7 @@ public static class TestClass
 		[Test]
 		public void TestFixed ()
 		{
-			TestWrongContext<RedundantUnsafeContextIssue>(@"
+			Analyze<RedundantUnsafeContextIssue>(@"
 class Foo
 {
 	unsafe struct TestStruct

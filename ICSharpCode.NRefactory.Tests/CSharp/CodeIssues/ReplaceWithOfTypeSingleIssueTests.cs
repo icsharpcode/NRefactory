@@ -76,7 +76,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithOfTypeSingleIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeSingleIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -90,7 +90,7 @@ class Test
 		[Test]
 		public void TestJunk ()
 		{
-			TestWrongContext<ReplaceWithOfTypeSingleIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeSingleIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -98,7 +98,7 @@ class Test
 		obj.Select (x => q as Test).Single (q => q != null);
 	}
 }");
-			TestWrongContext<ReplaceWithOfTypeSingleIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeSingleIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)

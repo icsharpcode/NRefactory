@@ -35,12 +35,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestComparsionWithNull ()
 		{
-			Test<ConditionIsAlwaysTrueOrFalseIssue>(@"
+			Analyze<ConditionIsAlwaysTrueOrFalseIssue>(@"
 class Test
 {
 	void Foo(int i)
 	{
-		if (i == null) {
+		if ($i == null$) {
 		}
 	}
 }
@@ -60,13 +60,13 @@ class Test
 		[Test]
 		public void TestComparsionWithNullCase2 ()
 		{
-			Test<ConditionIsAlwaysTrueOrFalseIssue>(@"
+			Analyze<ConditionIsAlwaysTrueOrFalseIssue>(@"
 enum Bar { A, B }
 class Test
 {
 	void Foo(Bar i)
 	{
-		if (i != null) {
+		if ($i != null$) {
 		}
 	}
 }
@@ -87,12 +87,12 @@ class Test
 		[Test]
 		public void TestComparison ()
 		{
-			Test<ConditionIsAlwaysTrueOrFalseIssue>(@"
+			Analyze<ConditionIsAlwaysTrueOrFalseIssue>(@"
 class Test
 {
 	void Foo(int i)
 	{
-		if (1 > 2) {
+		if ($1 > 2$) {
 		}
 	}
 }
@@ -111,12 +111,12 @@ class Test
 		[Test]
 		public void TestUnary ()
 		{
-			Test<ConditionIsAlwaysTrueOrFalseIssue>(@"
+			Analyze<ConditionIsAlwaysTrueOrFalseIssue>(@"
 class Test
 {
 	void Foo(int i)
 	{
-		if (!true) {
+		if ($!true$) {
 		}
 	}
 }
@@ -136,7 +136,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConditionIsAlwaysTrueOrFalseIssue>(@"
+			Analyze<ConditionIsAlwaysTrueOrFalseIssue>(@"
 class Test
 {
 	void Foo(int i)
@@ -153,7 +153,7 @@ class Test
 		[Test]
 		public void CompareWithNullable ()
 		{
-			TestWrongContext<ConditionIsAlwaysTrueOrFalseIssue>(@"
+			Analyze<ConditionIsAlwaysTrueOrFalseIssue>(@"
 class Bar
 {
 	public void Test(int? a)
@@ -198,7 +198,7 @@ class Bar
 		[Test]
 		public void UserDefinedOperators()
 		{
-			TestWrongContext<ConditionIsAlwaysTrueOrFalseIssue>(@"
+			Analyze<ConditionIsAlwaysTrueOrFalseIssue>(@"
 struct Foo 
 {
 	public static bool operator ==(Foo value, object o)
@@ -231,7 +231,7 @@ class Bar
 		[Test]
 		public void TestBug15099()
 		{
-			TestWrongContext<ConditionIsAlwaysTrueOrFalseIssue>(@"
+			Analyze<ConditionIsAlwaysTrueOrFalseIssue>(@"
 struct Foo 
 {
 	string name;

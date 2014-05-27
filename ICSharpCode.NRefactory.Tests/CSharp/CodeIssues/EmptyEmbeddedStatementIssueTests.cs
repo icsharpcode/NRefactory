@@ -89,7 +89,7 @@ class TestClass
 		if (i > 0);
 	}
 }";
-			TestWrongContext<EmptyEmbeddedStatementIssue>(input);
+			Analyze<EmptyEmbeddedStatementIssue>(input);
 		}
 	}
 	

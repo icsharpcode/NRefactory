@@ -143,7 +143,7 @@ class Test
 		[Test]
 		public void TestCaseSelectWhereGabage ()
 		{
-			TestWrongContext<ReplaceWithOfTypeIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -151,7 +151,7 @@ class Test
 		obj.Where(o => o is Test).Select (x => o as Test);
 	}
 }");
-			TestWrongContext<ReplaceWithOfTypeIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -202,7 +202,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithOfTypeIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)

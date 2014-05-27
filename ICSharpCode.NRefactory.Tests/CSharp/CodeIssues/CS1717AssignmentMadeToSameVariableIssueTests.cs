@@ -70,7 +70,7 @@ class TestClass
 #pragma warning restore 1717
 	}
 }";
-            TestWrongContext<CS1717AssignmentMadeToSameVariableIssue>(input);
+            Analyze<CS1717AssignmentMadeToSameVariableIssue>(input);
         }
 
         [Test]
@@ -86,7 +86,7 @@ class TestClass
         a = a;
 	}
 }";
-            TestWrongContext<CS1717AssignmentMadeToSameVariableIssue>(input);
+            Analyze<CS1717AssignmentMadeToSameVariableIssue>(input);
         }
 
 

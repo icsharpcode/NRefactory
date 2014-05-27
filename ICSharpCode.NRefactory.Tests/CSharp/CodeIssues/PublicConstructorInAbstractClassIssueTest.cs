@@ -55,7 +55,7 @@ abstract class TestClass
 		[Test]
 		public void TestInspectorCase2()
 		{
-			TestWrongContext<PublicConstructorInAbstractClassIssue>(@"
+			Analyze<PublicConstructorInAbstractClassIssue>(@"
 abstract class TestClass
 {
 	static TestClass ()
@@ -107,7 +107,7 @@ abstract class TestClass
 		[Test]
 		public void TestResharperDisable()
 		{
-			TestWrongContext<PublicConstructorInAbstractClassIssue>(@"
+			Analyze<PublicConstructorInAbstractClassIssue>(@"
 //Resharper disable PublicConstructorInAbstractClass
 abstract class TestClass
 {

@@ -93,7 +93,7 @@ class Test : IF, IB
 		[Test]
 		public void TestImplementedInterface ()
 		{
-			TestWrongContext<MissingInterfaceMemberImplementationIssue>(@"
+			Analyze<MissingInterfaceMemberImplementationIssue>(@"
 interface IF
 {
 	void Foo();
@@ -112,7 +112,7 @@ class Test : IF
 		[Test]
 		public void TestInterfaceInheritance ()
 		{
-			TestWrongContext<MissingInterfaceMemberImplementationIssue>(@"
+			Analyze<MissingInterfaceMemberImplementationIssue>(@"
 	public interface IService
 	{
 		string ServiceName { get; }
@@ -132,7 +132,7 @@ class Test : IF
 		[Test]
 		public void TestBug14944 ()
 		{
-			TestWrongContext<MissingInterfaceMemberImplementationIssue>(@"
+			Analyze<MissingInterfaceMemberImplementationIssue>(@"
 using System.Collections;
 using System.Collections.Generic;
 using System;
@@ -163,7 +163,7 @@ abstract class Test<T> : IEnumerable, IEnumerable<T>
 		[Test]
 		public void TestAlreadyImplementedByInheritance ()
 		{
-			TestWrongContext<MissingInterfaceMemberImplementationIssue>(@"
+			Analyze<MissingInterfaceMemberImplementationIssue>(@"
 using System;
 using System.Collections;
 using System.Collections.Generic;

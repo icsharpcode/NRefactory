@@ -239,7 +239,7 @@ class C : B
 		[Test]
 		public void TestDisableForInterfaceMismatch ()
 		{
-			TestWrongContext<OptionalParameterHierarchyMismatchIssue>(@"class A
+			Analyze<OptionalParameterHierarchyMismatchIssue>(@"class A
 {
     public virtual void Foo(int a = 1)
     {
@@ -266,7 +266,7 @@ class B : A, IA
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<OptionalParameterHierarchyMismatchIssue>(@"
+			Analyze<OptionalParameterHierarchyMismatchIssue>(@"
 class Base
 {
 	public virtual void TestMethod(int value = 1) {}
@@ -305,7 +305,7 @@ class Derived : Base
 		[Test]
 		public void TestDisableForExplicitInterfaceImplementation ()
 		{
-			TestWrongContext<OptionalParameterHierarchyMismatchIssue>(@"
+			Analyze<OptionalParameterHierarchyMismatchIssue>(@"
 interface IA
 {
     void Foo(int a = 1);

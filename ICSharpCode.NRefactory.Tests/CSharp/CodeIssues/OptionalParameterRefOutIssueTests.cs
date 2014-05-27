@@ -63,7 +63,7 @@ class Bar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<OptionalParameterRefOutIssue>(@"
+			Analyze<OptionalParameterRefOutIssue>(@"
 using System.Runtime.InteropServices;
 class Bar
 {

@@ -97,7 +97,7 @@ class TestClass
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<BitwiseOperatorOnEnumWithoutFlagsIssue>(@"
+			Analyze<BitwiseOperatorOnEnumWithoutFlagsIssue>(@"
 enum TestEnum
 {
     Item1, Item2

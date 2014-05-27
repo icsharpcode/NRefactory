@@ -69,7 +69,7 @@ class FooBar2 : FooBar
 		[Test]
 		public void TestValidCase ()
 		{
-			TestWrongContext<RedundantParamsIssue>(@"class FooBar
+			Analyze<RedundantParamsIssue>(@"class FooBar
 {
 	public virtual void Foo(string fmt, object[] args)
 	{
@@ -88,7 +88,7 @@ class FooBar2 : FooBar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<RedundantParamsIssue>(@"class FooBar
+			Analyze<RedundantParamsIssue>(@"class FooBar
 {
 	public virtual void Foo(string fmt, object[] args)
 	{

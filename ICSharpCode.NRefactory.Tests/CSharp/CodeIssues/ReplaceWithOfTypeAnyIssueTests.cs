@@ -76,7 +76,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -90,7 +90,7 @@ class Test
 		[Test]
 		public void TestJunk ()
 		{
-			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -98,7 +98,7 @@ class Test
 		obj.Select (x => q as Test).Any (q => q != null);
 	}
 }");
-			TestWrongContext<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeAnyIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)

@@ -59,7 +59,7 @@ class TestClass
 		[Test]
 		public void TestNecessaryParameter ()
 		{
-			TestWrongContext<UnusedAnonymousMethodSignatureIssue>(@"
+			Analyze<UnusedAnonymousMethodSignatureIssue>(@"
 class TestClass
 {
 	void TestMethod()
@@ -103,7 +103,7 @@ class TestClass
 		[Test]
 		public void TestAmbiguousCase ()
 		{
-			TestWrongContext<UnusedAnonymousMethodSignatureIssue>(@"
+			Analyze<UnusedAnonymousMethodSignatureIssue>(@"
 using System;
 class TestClass
 {
@@ -123,7 +123,7 @@ class TestClass
 		[Test]
 		public void TestBug15058 ()
 		{
-			TestWrongContext<UnusedAnonymousMethodSignatureIssue>(@"
+			Analyze<UnusedAnonymousMethodSignatureIssue>(@"
 using System;
 using System.Threading;
 

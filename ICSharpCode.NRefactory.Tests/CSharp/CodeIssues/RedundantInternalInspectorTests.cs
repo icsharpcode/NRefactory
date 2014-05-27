@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestNestedClass ()
 		{
-			TestWrongContext<RedundantInternalIssue>(@"class Foo
+			Analyze<RedundantInternalIssue>(@"class Foo
 {
 	internal class Nested
 	{

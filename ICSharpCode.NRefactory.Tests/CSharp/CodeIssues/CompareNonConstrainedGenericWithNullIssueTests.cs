@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInvalid ()
 		{
-			TestWrongContext<CompareNonConstrainedGenericWithNullIssue>(@"public class Bar
+			Analyze<CompareNonConstrainedGenericWithNullIssue>(@"public class Bar
 {
 	public void Foo<T> (T t) where T : class
 	{
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<CompareNonConstrainedGenericWithNullIssue>(@"public class Bar
+			Analyze<CompareNonConstrainedGenericWithNullIssue>(@"public class Bar
 {
 	public void Foo<T> (T t)
 	{

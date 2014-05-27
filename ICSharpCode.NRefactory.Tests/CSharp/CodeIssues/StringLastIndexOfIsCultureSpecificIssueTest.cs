@@ -58,7 +58,7 @@ public class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<StringLastIndexOfIsCultureSpecificIssue>(@"
+			Analyze<StringLastIndexOfIsCultureSpecificIssue>(@"
 public class Test
 {
 	public void Foo (string bar)

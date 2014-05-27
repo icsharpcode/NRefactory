@@ -56,7 +56,7 @@ class Foo
 		[Test]
 		public void TestAnonymousMethodSubscription_ValidCase()
 		{
-			TestWrongContext<StaticEventSubscriptionIssue>(@"
+			Analyze<StaticEventSubscriptionIssue>(@"
 using System;
 
 class Foo
@@ -98,7 +98,7 @@ class Foo
 		[Test]
 		public void TestNoIssue()
 		{
-			TestWrongContext<StaticEventSubscriptionIssue>(@"
+			Analyze<StaticEventSubscriptionIssue>(@"
 using System;
 
 class Foo
@@ -124,7 +124,7 @@ class Foo
 		[Test]
 		public void TestNonStatic()
 		{
-			TestWrongContext<StaticEventSubscriptionIssue>(@"
+			Analyze<StaticEventSubscriptionIssue>(@"
 using System;
 
 class Foo
@@ -146,7 +146,7 @@ class Foo
 		[Test]
 		public void TestNullAssignment()
 		{
-			TestWrongContext<StaticEventSubscriptionIssue>(@"
+			Analyze<StaticEventSubscriptionIssue>(@"
 using System;
 
 class Foo

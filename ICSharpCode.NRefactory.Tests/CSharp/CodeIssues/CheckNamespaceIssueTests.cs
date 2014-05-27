@@ -54,13 +54,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void CheckValidNamespace ()
 		{
-			TestWrongContext<CheckNamespaceIssue>(@"namespace Test {}");
+			Analyze<CheckNamespaceIssue>(@"namespace Test {}");
 		}
 
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<CheckNamespaceIssue>(@"
+			Analyze<CheckNamespaceIssue>(@"
 // ReSharper disable once CheckNamespace
 namespace Foo {}");
 		}

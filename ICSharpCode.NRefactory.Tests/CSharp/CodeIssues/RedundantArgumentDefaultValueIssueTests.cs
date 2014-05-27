@@ -130,7 +130,7 @@ class Test
 		[Test]
 		public void TestInvalid()
 		{
-			TestWrongContext<RedundantArgumentDefaultValueIssue>(@"
+			Analyze<RedundantArgumentDefaultValueIssue>(@"
 class Test
 { 
 	public void Bar (int foo = 22)
@@ -143,7 +143,7 @@ class Test
 		[Test]
 		public void TestInvalidCase2()
 		{
-			TestWrongContext<RedundantArgumentDefaultValueIssue>(@"
+			Analyze<RedundantArgumentDefaultValueIssue>(@"
 class Test
 { 
 	public void Bar (int foo = 22, int bar = 3)
@@ -156,7 +156,7 @@ class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<RedundantArgumentDefaultValueIssue>(@"
+			Analyze<RedundantArgumentDefaultValueIssue>(@"
 class Test
 { 
 	public void Bar (int foo = 22)
@@ -330,7 +330,7 @@ class TestClass
 		[Test]
 		public void IgnoresIfParamsAreUsed()
 		{
-			TestWrongContext<RedundantArgumentDefaultValueIssue>(@"
+			Analyze<RedundantArgumentDefaultValueIssue>(@"
 class TestClass
 {
 	void Foo(string a1 = ""a1"", string a2 = ""a2"", string a3 = ""a3"", params string[] extraStrings)

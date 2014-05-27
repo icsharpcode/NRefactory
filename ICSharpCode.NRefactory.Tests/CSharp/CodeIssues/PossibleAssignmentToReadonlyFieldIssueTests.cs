@@ -55,7 +55,7 @@ class FooBar<T> where T : IFoo
 		[Test]
 		public void TestClassTypeParameter()
 		{
-			TestWrongContext<PossibleAssignmentToReadonlyFieldIssue>(@"
+			Analyze<PossibleAssignmentToReadonlyFieldIssue>(@"
 interface IFoo
 {
 	int Property { get; set; }
@@ -98,7 +98,7 @@ class FooBar
 		[Test]
 		public void TestConstructor ()
 		{
-			TestWrongContext<PossibleAssignmentToReadonlyFieldIssue>(@"
+			Analyze<PossibleAssignmentToReadonlyFieldIssue>(@"
 interface IFoo
 {
 	int Property { get; set; }
@@ -123,7 +123,7 @@ class FooBar<T> where T : IFoo
 		[Test]
 		public void TestBug15038 ()
 		{
-			TestWrongContext<PossibleAssignmentToReadonlyFieldIssue>(@"
+			Analyze<PossibleAssignmentToReadonlyFieldIssue>(@"
 using System;
 using System.Collections.Generic;
 
@@ -142,7 +142,7 @@ public class Multipart
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<PossibleAssignmentToReadonlyFieldIssue>(@"
+			Analyze<PossibleAssignmentToReadonlyFieldIssue>(@"
 interface IFoo
 {
 	int Property { get; set; }
@@ -173,7 +173,7 @@ class FooBar<T> where T : IFoo
 		[Test]
 		public void TestBug15109()
 		{
-			TestWrongContext<PossibleAssignmentToReadonlyFieldIssue>(@"
+			Analyze<PossibleAssignmentToReadonlyFieldIssue>(@"
 namespace TestProject 
 {
 	class FileInfo {

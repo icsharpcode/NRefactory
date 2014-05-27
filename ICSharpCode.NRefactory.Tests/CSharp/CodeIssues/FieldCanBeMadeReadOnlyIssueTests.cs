@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyIssue>(@"class Test
 {
 	// ReSharper disable once FieldCanBeMadeReadOnly.Local
 	object fooBar = new object ();
@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestFactoryMethod ()
 		{
-			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyIssue>(@"class Test
 {
 	object fooBar;
 	
@@ -113,7 +113,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestFactoryMethodCase2 ()
 		{
-			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyIssue>(@"class Test
 {
 	object fooBar;
 	
@@ -150,7 +150,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		public void TestInitalizedValueTypeField ()
 		{
 			// Is handled by the 'to const' issue.
-			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyIssue>(@"class Test
 {
 	int fooBar = 12;
 	public void FooBar ()
@@ -164,7 +164,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSpecializedFieldBug ()
 		{
-			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"
+			Analyze<FieldCanBeMadeReadOnlyIssue>(@"
 using System;
 class Test<T> where T : IDisposable
 {
@@ -180,7 +180,7 @@ class Test<T> where T : IDisposable
 		[Test]
 		public void TestFieldAssignedInConstructorLambda ()
 		{
-			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"
+			Analyze<FieldCanBeMadeReadOnlyIssue>(@"
 using System;
 
 class Test
@@ -197,7 +197,7 @@ class Test
 		[Test]
 		public void MutableStruct ()
 		{
-			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyIssue>(@"class Test
 {
 	MutableStruct m;
 	public static void Main (string[] args)
@@ -217,7 +217,7 @@ struct MutableStruct {
 		[Test]
 		public void TestUnassignedField ()
 		{
-			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyIssue>(@"class Test
 {
 	object fooBar;
 }");

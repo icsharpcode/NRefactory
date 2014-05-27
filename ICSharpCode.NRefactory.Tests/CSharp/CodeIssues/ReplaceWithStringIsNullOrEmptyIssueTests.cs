@@ -447,7 +447,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestArrays ()
 		{
-			TestWrongContext<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
+			Analyze<ReplaceWithStringIsNullOrEmptyIssue>(@"class Foo
 {
 	void Bar ()
 	{

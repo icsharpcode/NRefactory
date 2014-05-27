@@ -76,7 +76,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithOfTypeSingleOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeSingleOrDefaultIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -90,7 +90,7 @@ class Test
 		[Test]
 		public void TestJunk ()
 		{
-			TestWrongContext<ReplaceWithOfTypeSingleOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeSingleOrDefaultIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -98,7 +98,7 @@ class Test
 		obj.Select (x => q as Test).SingleOrDefault (q => q != null);
 	}
 }");
-			TestWrongContext<ReplaceWithOfTypeSingleOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeSingleOrDefaultIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)

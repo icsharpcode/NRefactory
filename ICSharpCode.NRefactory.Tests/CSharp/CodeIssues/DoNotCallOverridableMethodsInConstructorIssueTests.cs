@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	{
 	}
 }";
-            TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(input);
+            Analyze<DoNotCallOverridableMethodsInConstructorIssue>(input);
 		}
 
 
@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void IgnoresGoodCase()
 		{
-			TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
+			Analyze<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void IgnoresSealedClasses()
 		{
-			TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(@"sealed class Foo
+			Analyze<DoNotCallOverridableMethodsInConstructorIssue>(@"sealed class Foo
 {
 	Foo()
 	{
@@ -108,7 +108,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void IgnoresNonLocalCalls()
 		{
-			TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
+			Analyze<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
@@ -125,7 +125,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void IgnoresEventHandlers()
 		{
-			TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
+			Analyze<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
@@ -154,7 +154,7 @@ public class Test {
     }
 }
 ";		
-			TestWrongContext<DoNotCallOverridableMethodsInConstructorIssue>(input);
+			Analyze<DoNotCallOverridableMethodsInConstructorIssue>(input);
 		}
 		
 		[Test]

@@ -82,7 +82,7 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase3()
 		{
-			TestWrongContext<RedundantCheckBeforeAssignmentIssue>(@"using System;
+			Analyze<RedundantCheckBeforeAssignmentIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -105,7 +105,7 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase4()
 		{
-			TestWrongContext<RedundantCheckBeforeAssignmentIssue>(@"using System;
+			Analyze<RedundantCheckBeforeAssignmentIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -128,7 +128,7 @@ namespace resharper_test
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			TestWrongContext<RedundantCheckBeforeAssignmentIssue>(@"using System;
+			Analyze<RedundantCheckBeforeAssignmentIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass

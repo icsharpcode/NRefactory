@@ -76,7 +76,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithOfTypeLongCountIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeLongCountIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -90,7 +90,7 @@ class Test
 		[Test]
 		public void TestJunk ()
 		{
-			TestWrongContext<ReplaceWithOfTypeLongCountIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeLongCountIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -98,7 +98,7 @@ class Test
 		obj.Select (x => q as Test).LongCount (q => q != null);
 	}
 }");
-			TestWrongContext<ReplaceWithOfTypeLongCountIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeLongCountIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)

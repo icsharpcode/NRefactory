@@ -72,7 +72,7 @@ class C
 		[Test]
 		public void IgnoresUnusedParameters()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class A
 {
 	void F(A a1)
@@ -84,7 +84,7 @@ class A
 		[Test]
 		public void IgnoresDirectionalParameters()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA
 {
 }
@@ -100,7 +100,7 @@ class A : IA
 		[Test]
 		public void IgnoresOverrides()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA
 {
 	void Foo();
@@ -129,7 +129,7 @@ class TestClass : TestBase
 		[Test]
 		public void IgnoresOverridables()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA
 {
 	void Foo();
@@ -151,7 +151,7 @@ class TestClass
 		[Test]
 		public void HandlesNeededProperties()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IA
 {
 	void Foo(string s);
@@ -211,7 +211,7 @@ class C
 		[Test]
 		public void RespectsExpectedTypeInIfStatement()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class C
 {
 	void F (bool b, bool c)
@@ -321,7 +321,7 @@ class Test
 		[Test]
 		public void DoesNotChangeOverload()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void F(IB b)
@@ -342,7 +342,7 @@ class Test
 		[Test]
 		public void AssignmentToExplicitlyTypedVariable()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void F(IB b)
@@ -357,7 +357,7 @@ class Test
 		[Test]
 		public void GenericMethod()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void F(IB b)
@@ -374,7 +374,7 @@ class Test
 		[Test]
 		public void VariableDeclarationWithTypeInference()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
 class Test
 {
 	void Foo (IB b)
@@ -422,7 +422,7 @@ class Test
 		[Test]
 		public void AccountsForNonInvocationMethodGroupUsageInMethodCall()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 delegate void FooDelegate (string s);
 interface IBase
 {
@@ -449,7 +449,7 @@ class TestClass
 		[Test]
 		public void AccountsForNonInvocationMethodGroupUsageInVariableDeclaration()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 delegate void FooDelegate (string s);
 interface IBase
 {
@@ -472,7 +472,7 @@ class TestClass
 		[Test]
 		public void AccountsForNonInvocationMethodGroupUsageInAssignmentExpression()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 delegate void FooDelegate (string s);
 interface IBase
 {
@@ -519,7 +519,7 @@ class TestClass
 		[Test]
 		public void AccountsForArrays()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestClass
 {
 	void Write(string[] s)
@@ -537,7 +537,7 @@ class TestClass
 		[Test]
 		public void LimitsParamsParametersToArrays()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestClass
 {
 	void Write(params string[] s)
@@ -550,7 +550,7 @@ class TestClass
 		[Test]
 		public void DoesNotSuggestProgramEntryPointChanges()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestClass
 {
 	public static void Main (string[] args)
@@ -564,7 +564,7 @@ class TestClass
 		[Test]
 		public void IgnoresImplicitInterfaceImplementations()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 interface IHasFoo
 {
 	void Foo (string s);
@@ -581,7 +581,7 @@ class TestClass : IHasFoo
 		[Test]
 		public void IgnoresEnumParameters()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 enum ApplicableValues
 {
 	None,
@@ -639,7 +639,7 @@ class Test : TestBase
 		[Test]
 		public void CallToShadowingMember()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class TestBase
 {
 	public virtual void Foo()
@@ -831,7 +831,7 @@ class User {
 		[Test]
 		public void TestMicrosoftSuppressMessage()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 class A
 {
 	public virtual void Foo() {}
@@ -853,7 +853,7 @@ class C
 		[Test]
 		public void TestDisableAll()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"// ReSharper disable All
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"// ReSharper disable All
 
 class A
 {
@@ -879,7 +879,7 @@ class C
 		[Test]
 		public void TestBug14099()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
 using System;
 
 public class Test
@@ -896,7 +896,7 @@ public class Test
 		[Test]
 		public void TestPreferGenerics()
 		{
-			TestWrongContext<ParameterCanBeDeclaredWithBaseTypeIssue>(@"using System.Collections.Generic;
+			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"using System.Collections.Generic;
 
 class Test
 {

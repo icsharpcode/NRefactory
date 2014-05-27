@@ -49,7 +49,7 @@ class Foo<T>
 		[Test]
 		public void GenericClassWithGenericField()
 		{
-			TestWrongContext<StaticFieldInGenericTypeIssue>(@"
+			Analyze<StaticFieldInGenericTypeIssue>(@"
 class Foo<T>
 {
 	static System.Collections.Generic.IList<T> Cache;
@@ -82,7 +82,7 @@ class Foo<T1>
 		[Test]
 		public void NonGenericClass()
 		{
-			TestWrongContext<StaticFieldInGenericTypeIssue>(@"
+			Analyze<StaticFieldInGenericTypeIssue>(@"
 class Foo
 {
 	static string Data;
@@ -92,7 +92,7 @@ class Foo
 		[Test]
 		public void NonStaticField()
 		{
-			TestWrongContext<StaticFieldInGenericTypeIssue>(@"
+			Analyze<StaticFieldInGenericTypeIssue>(@"
 class Foo<T>
 {
 	string Data;
@@ -116,7 +116,7 @@ class Foo<T>
 		[Test]
 		public void TestAssemblyMicrosoftSuppressMessage()
 		{
-			TestWrongContext<StaticFieldInGenericTypeIssue>(@"using System.Diagnostics.CodeAnalysis;
+			Analyze<StaticFieldInGenericTypeIssue>(@"using System.Diagnostics.CodeAnalysis;
 
 [assembly:SuppressMessage(""Microsoft.Design"", ""CA1000:DoNotDeclareStaticMembersOnGenericTypes"")]
 
@@ -138,7 +138,7 @@ class Foo<T>
     // ReSharper disable once StaticFieldInGenericType
 	static string Data;
 }";
-			TestWrongContext<StaticFieldInGenericTypeIssue>(input);
+			Analyze<StaticFieldInGenericTypeIssue>(input);
         }
 
 	}

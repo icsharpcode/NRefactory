@@ -102,7 +102,7 @@ class Foo
 		[Test]
 		public void Lambda_SwapParameterOrder ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"using System;
+			Analyze<ConvertClosureToMethodGroupIssue>(@"using System;
 class Foo
 {
 	void Bar (string str)
@@ -140,7 +140,7 @@ class Foo
 		[Test]
 		public void TestSkipComplexCase ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"using System;
+			Analyze<ConvertClosureToMethodGroupIssue>(@"using System;
 using System.Linq;
 
 class Foo
@@ -157,7 +157,7 @@ class Foo
 		[Test]
 		public void CallInvolvesOptionalParameter ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"using System;
+			Analyze<ConvertClosureToMethodGroupIssue>(@"using System;
 class Foo
 {
 	int MyMethod (int x, int y = 1) { return x * y; }
@@ -172,7 +172,7 @@ class Foo
 		[Test]
 		public void CallExpandsParams ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"using System;
+			Analyze<ConvertClosureToMethodGroupIssue>(@"using System;
 class Foo
 {
 	int MyMethod (params object[] args) { return 0; }
@@ -190,7 +190,7 @@ class Foo
 		[Test]
 		public void TestBug12184 ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"using System;
+			Analyze<ConvertClosureToMethodGroupIssue>(@"using System;
 using System.Threading.Tasks;
 
 class C
@@ -234,7 +234,7 @@ class Foo
 		[Test]
 		public void Return_BoxingConversion ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"using System;
+			Analyze<ConvertClosureToMethodGroupIssue>(@"using System;
 class Foo
 {
 	void Bar (string str)
@@ -262,7 +262,7 @@ class Foo
 		[Test]
 		public void Parameter_BoxingConversion ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"using System;
+			Analyze<ConvertClosureToMethodGroupIssue>(@"using System;
 class Foo
 {
 	void Bar (string str)
@@ -279,7 +279,7 @@ class Foo
 		[Test]
 		public void TestBug14759 ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"using System;
+			Analyze<ConvertClosureToMethodGroupIssue>(@"using System;
 using System.Collections.Generic;
 
 class C
@@ -302,7 +302,7 @@ class C
 		[Test]
 		public void TestTargetCollision ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"
+			Analyze<ConvertClosureToMethodGroupIssue>(@"
 using System;
 
 class Program
@@ -323,7 +323,7 @@ class Program
 		[Test]
 		public void TestBug15868 ()
 		{
-			TestWrongContext<ConvertClosureToMethodGroupIssue>(@"
+			Analyze<ConvertClosureToMethodGroupIssue>(@"
 using System;
 
 delegate bool FooBar ();

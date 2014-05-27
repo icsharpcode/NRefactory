@@ -55,7 +55,7 @@ class A
 		}
 	}
 }";
-            TestWrongContext<RedundantCatchClauseIssue>(input);
+            Analyze<RedundantCatchClauseIssue>(input);
         }
 
 		[Test]
@@ -269,7 +269,7 @@ class A
 		[Test]
 		public void TestBugBug14451()
 		{
-			TestWrongContext<RedundantCatchClauseIssue>(@"
+			Analyze<RedundantCatchClauseIssue>(@"
 using System;
 public class Test {
     public void Foo() {

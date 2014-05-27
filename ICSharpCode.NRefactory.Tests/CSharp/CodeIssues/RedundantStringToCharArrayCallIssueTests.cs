@@ -116,7 +116,7 @@ class FooBar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<RedundantStringToCharArrayCallIssue>(@"
+			Analyze<RedundantStringToCharArrayCallIssue>(@"
 using System;
 class FooBar
 {

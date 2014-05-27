@@ -107,7 +107,7 @@ class C
 		[Test]
 		public void IgnoresIfNullArgument()
 		{
-			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
+			Analyze<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -125,7 +125,7 @@ class C
 		[Test]
 		public void IgnoresIfNotExtensionMethod()
 		{
-			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
+			Analyze<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -143,7 +143,7 @@ class C
 		[Test]
 		public void IgnoresIfAlreadyExtensionMethodCallSyntax()
 		{
-			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
+			Analyze<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -162,7 +162,7 @@ class C
 		[Test]
 		public void IgnoresPropertyInvocation()
 		{
-			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
+			Analyze<InvokeAsExtensionMethodIssue>(@"
 static class B
 {
 	public static int Ext { get; set; }
@@ -180,7 +180,7 @@ class C
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<InvokeAsExtensionMethodIssue>(@"
+			Analyze<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {

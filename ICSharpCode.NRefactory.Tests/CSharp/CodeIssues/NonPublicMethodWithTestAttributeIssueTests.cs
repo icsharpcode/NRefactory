@@ -128,7 +128,7 @@ class Tests
 	}
 }
 ";
-			TestWrongContext<NonPublicMethodWithTestAttributeIssue>(input);
+			Analyze<NonPublicMethodWithTestAttributeIssue>(input);
 		}
 
 
@@ -148,7 +148,7 @@ class Tests
 	// ReSharper restore All
 }
 ";
-			TestWrongContext<NonPublicMethodWithTestAttributeIssue>(input);
+			Analyze<NonPublicMethodWithTestAttributeIssue>(input);
 		}
 	}
 }

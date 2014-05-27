@@ -81,7 +81,7 @@ public class TestClass2
 		[Test]
 		public void TestInspectorCase3()
 		{
-			TestWrongContext<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 public class TestClass1
 {
 	public int a = 1;
@@ -171,7 +171,7 @@ namespace resharper_test
 		[Test]
 		public void TestConst()
 		{
-			TestWrongContext<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 public class TestClass1
 {
 	public const int a = 1;
@@ -187,7 +187,7 @@ public class TestClass1
 		[Test]
 		public void TestReadOnly()
 		{
-			TestWrongContext<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 public class TestClass1
 {
 	public readonly int a = 1;

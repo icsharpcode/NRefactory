@@ -57,7 +57,7 @@ public class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<StringStartsWithIsCultureSpecificIssue>(@"
+			Analyze<StringStartsWithIsCultureSpecificIssue>(@"
 public class Test
 {
 	public void Foo (string bar)

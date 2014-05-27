@@ -49,7 +49,7 @@ class TestClass
 		[Test]
 		public void SupportsFixedArguments()
 		{
-			TestWrongContext<FormatStringProblemIssue>(@"
+			Analyze<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -66,7 +66,7 @@ class TestClass
 		[Test]
 		public void IgnoresCallWithUnknownNumberOfArguments()
 		{
-			TestWrongContext<FormatStringProblemIssue>(@"
+			Analyze<FormatStringProblemIssue>(@"
 class TestClass
 {
 	string Bar(params object[] args)
@@ -131,7 +131,7 @@ class TestClass
 		[Test]
 		public void IgnoresStringWithGoodArguments()
 		{
-			TestWrongContext<FormatStringProblemIssue>(@"
+			Analyze<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -144,7 +144,7 @@ class TestClass
 		[Test]
 		public void IgnoresStringWithGoodArguments_ExplicitArrayCreation()
 		{
-			TestWrongContext<FormatStringProblemIssue>(@"
+			Analyze<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -157,7 +157,7 @@ class TestClass
 		[Test]
 		public void IgnoresNonFormattingCall()
 		{
-			TestWrongContext<FormatStringProblemIssue>(@"
+			Analyze<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -170,7 +170,7 @@ class TestClass
 		[Test]
 		public void HandlesCallsWithExtraArguments()
 		{
-			TestWrongContext<FormatStringProblemIssue>(@"
+			Analyze<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -213,7 +213,7 @@ class TestClass
 		[Test]
 		public void TestBug14405()
 		{
-			TestWrongContext<FormatStringProblemIssue>(@"
+			Analyze<FormatStringProblemIssue>(@"
 using System;
 class TestClass
 {
@@ -226,7 +226,7 @@ class TestClass
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<FormatStringProblemIssue>(@"
+			Analyze<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()
@@ -243,7 +243,7 @@ class TestClass
 		[Test]
 		public void TestBug15867()
 		{
-			TestWrongContext<FormatStringProblemIssue>(@"
+			Analyze<FormatStringProblemIssue>(@"
 class TestClass
 {
 	void Foo()

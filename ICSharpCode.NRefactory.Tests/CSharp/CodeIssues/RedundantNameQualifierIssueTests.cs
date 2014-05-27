@@ -37,14 +37,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			Test<RedundantNameQualifierIssue>(@"using System;
+			Analyze<RedundantNameQualifierIssue>(@"using System;
 class Foo
 {
 	void Bar (string str)
 	{
-		System.Console.WriteLine ();
+		$System.$Console.WriteLine ();
 	}
-}", 1, @"using System;
+}", @"using System;
 class Foo
 {
 	void Bar (string str)
@@ -57,13 +57,13 @@ class Foo
 		[Test]
 		public void TestInspectorCase2 ()
 		{
-			Test<RedundantNameQualifierIssue>(@"using System.Text;
+			Analyze<RedundantNameQualifierIssue>(@"using System.Text;
 class Foo
 {
-	void Bar (System.Text.StringBuilder b)
+	void Bar ($System.Text.$StringBuilder b)
 	{
 	}
-}", 1, @"using System.Text;
+}", @"using System.Text;
 class Foo
 {
 	void Bar (StringBuilder b)
@@ -75,13 +75,13 @@ class Foo
 		[Test]
 		public void UsingAlias()
 		{
-			TestWrongContext<RedundantNameQualifierIssue>(@"using IEnumerable = System.Collections.IEnumerable;");
+			Analyze<RedundantNameQualifierIssue>(@"using IEnumerable = System.Collections.IEnumerable;");
 		}
 
         [Test]
         public void TestDisable()
         {
-			TestWrongContext<RedundantNameQualifierIssue>(@"using System;
+			Analyze<RedundantNameQualifierIssue>(@"using System;
 class Foo
 {
 	void Bar (string str)

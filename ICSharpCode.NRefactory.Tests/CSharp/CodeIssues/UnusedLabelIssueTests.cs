@@ -56,7 +56,7 @@ class Foo
 		[Test]
 		public void TestInvalidCase ()
 		{
-			TestWrongContext<UnusedLabelIssue>(@"
+			Analyze<UnusedLabelIssue>(@"
 class Foo
 {
 	void Test()
@@ -71,7 +71,7 @@ class Foo
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<UnusedLabelIssue>(@"
+			Analyze<UnusedLabelIssue>(@"
 class Foo
 {
 	void Test()
@@ -86,7 +86,7 @@ class Foo
 		[Test]
 		public void TestPragmaDisable ()
 		{
-			TestWrongContext<UnusedLabelIssue>(@"
+			Analyze<UnusedLabelIssue>(@"
 class Foo
 {
 	void Test()

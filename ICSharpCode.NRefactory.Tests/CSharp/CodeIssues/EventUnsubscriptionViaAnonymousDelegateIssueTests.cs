@@ -69,7 +69,7 @@ class Bar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<EventUnsubscriptionViaAnonymousDelegateIssue>(@"using System;
+			Analyze<EventUnsubscriptionViaAnonymousDelegateIssue>(@"using System;
 
 class Bar
 {

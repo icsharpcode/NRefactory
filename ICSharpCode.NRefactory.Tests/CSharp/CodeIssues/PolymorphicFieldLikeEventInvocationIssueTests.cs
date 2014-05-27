@@ -86,7 +86,7 @@ public class Foo : Bar
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<PolymorphicFieldLikeEventInvocationIssue>(@"
+			Analyze<PolymorphicFieldLikeEventInvocationIssue>(@"
 using System;
 
 public class Bar

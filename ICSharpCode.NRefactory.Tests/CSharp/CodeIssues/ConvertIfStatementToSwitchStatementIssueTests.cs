@@ -163,7 +163,7 @@ class TestClass
 		[Test]
 		public void TestNonConstantExpression ()
 		{
-			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (int a, int c)
@@ -180,7 +180,7 @@ class TestClass
 		}
 	}
 }");
-			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (int a, int c)
@@ -197,7 +197,7 @@ class TestClass
 		}
 	}
 }");
-			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (int a, int c)
@@ -219,7 +219,7 @@ class TestClass
 		[Test]
 		public void TestNonEqualityComparison ()
 		{
-			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (int a)
@@ -300,7 +300,7 @@ class TestClass
 		[Test]
 		public void TestInvalidType ()
 		{
-			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (double a)
@@ -360,7 +360,7 @@ class TestClass
 		[Test]
 		public void TestτooSimpleCase1()
 		{
-			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (int a)
@@ -377,7 +377,7 @@ class TestClass
 		[Test]
 		public void TestτooSimpleCase2()
 		{
-			TestWrongContext<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (int a)

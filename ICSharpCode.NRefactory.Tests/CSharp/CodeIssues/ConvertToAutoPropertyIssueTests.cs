@@ -64,7 +64,7 @@ class FooBar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+			Analyze<ConvertToAutoPropertyIssue>(@"
 class FooBar
 {
 	int foo;
@@ -82,7 +82,7 @@ class FooBar
 		[Test]
 		public void TestArrayBug ()
 		{
-			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+			Analyze<ConvertToAutoPropertyIssue>(@"
 class Bar {
 	public int foo;
 }
@@ -104,7 +104,7 @@ class FooBar
 		[Test]
 		public void TestBug16108Case1 ()
 		{
-			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+			Analyze<ConvertToAutoPropertyIssue>(@"
 class MyClass
 {
     [DebuggerHiddenAttribute]
@@ -123,7 +123,7 @@ class MyClass
 		[Test]
 		public void TestBug16108Case2 ()
 		{
-			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+			Analyze<ConvertToAutoPropertyIssue>(@"
 class MyClass
 {
     int a = 4;
@@ -142,7 +142,7 @@ class MyClass
 		[Test]
 		public void TestBug16448()
 		{
-			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+			Analyze<ConvertToAutoPropertyIssue>(@"
 using System;
 
 public class Foo
@@ -167,7 +167,7 @@ public class Foo
 		[Test]
 		public void TestBug17107()
 		{
-			TestWrongContext<ConvertToAutoPropertyIssue>(@"
+			Analyze<ConvertToAutoPropertyIssue>(@"
 using System;
 
 public class Foo

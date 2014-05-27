@@ -171,7 +171,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<EqualExpressionComparisonIssue>(@"class Foo
+			Analyze<EqualExpressionComparisonIssue>(@"class Foo
 {
 	static int Bar (object o)
 	{

@@ -58,7 +58,7 @@ class Test
 		[Test]
 		public void TestInvalid()
 		{
-			TestWrongContext<RedundantExplicitArrayCreationIssue>(@"
+			Analyze<RedundantExplicitArrayCreationIssue>(@"
 class Test
 {
 	void Foo ()
@@ -73,7 +73,7 @@ class Test
 		public void TestInvalidCase2()
 		{
 
-			TestWrongContext<RedundantExplicitArrayCreationIssue>(@"
+			Analyze<RedundantExplicitArrayCreationIssue>(@"
 class Test
 {
 	void Foo ()
@@ -87,7 +87,7 @@ class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<RedundantExplicitArrayCreationIssue>(@"
+			Analyze<RedundantExplicitArrayCreationIssue>(@"
 class Test
 {
 	void Foo ()

@@ -96,7 +96,7 @@ class Bar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
 	public void FooBar(string[] args)

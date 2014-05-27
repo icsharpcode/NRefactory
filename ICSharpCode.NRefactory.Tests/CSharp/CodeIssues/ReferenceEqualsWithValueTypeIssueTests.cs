@@ -91,7 +91,7 @@ class TestClass
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ReferenceEqualsWithValueTypeIssue> (@"
+			Analyze<ReferenceEqualsWithValueTypeIssue> (@"
 class TestClass
 {
 	void TestMethod (int i, int j)

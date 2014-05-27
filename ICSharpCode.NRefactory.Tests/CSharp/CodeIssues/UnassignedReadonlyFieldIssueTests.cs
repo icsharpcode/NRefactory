@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+			Analyze<UnassignedReadonlyFieldIssue>(@"class Test
 {
 	// ReSharper disable once UnassignedReadonlyField.Compiler
 	readonly object fooBar;
@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestPragmaDisable ()
 		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+			Analyze<UnassignedReadonlyFieldIssue>(@"class Test
 {
 	#pragma warning disable 649
 	readonly int test;
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestAlreadyInitalized ()
 		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"class Test
+			Analyze<UnassignedReadonlyFieldIssue>(@"class Test
 {
 	public Test (object fooBar)
 	{
@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestAlreadyInitalizedCase2 ()
 		{
-			TestWrongContext<UnassignedReadonlyFieldIssue>(@"
+			Analyze<UnassignedReadonlyFieldIssue>(@"
 using System;
 public class FooBar
 {

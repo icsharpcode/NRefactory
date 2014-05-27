@@ -123,7 +123,7 @@ sealed class TestClass
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (@"
+			Analyze<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (@"
 class TestClass
 {
 	void TestMethod (TestClass x)
@@ -138,7 +138,7 @@ class TestClass
 		[Test]
 		public void TestPragmaDisable()
 		{
-			TestWrongContext<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (@"
+			Analyze<CS0183ExpressionIsAlwaysOfProvidedTypeIssue> (@"
 class TestClass
 {
 	void TestMethod (TestClass x)

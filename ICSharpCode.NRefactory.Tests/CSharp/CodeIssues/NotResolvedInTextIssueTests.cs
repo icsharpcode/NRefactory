@@ -164,7 +164,7 @@ class A
 		[Test]
 		public void TestInvalidArgumentException()
 		{
-			TestWrongContext<NotResolvedInTextIssue>(@"
+			Analyze<NotResolvedInTextIssue>(@"
 using System;
 class A
 {
@@ -347,7 +347,7 @@ class A
 		[Test]
 		public void TestConstructorValidCase()
 		{
-			TestWrongContext<NotResolvedInTextIssue>(@"
+			Analyze<NotResolvedInTextIssue>(@"
 using System;
 class A
 {
@@ -367,7 +367,7 @@ class A
 		[Test]
 		public void TestBug15039()
 		{
-			TestWrongContext<NotResolvedInTextIssue>(@"
+			Analyze<NotResolvedInTextIssue>(@"
 using System;
 class A
 {

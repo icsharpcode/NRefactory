@@ -55,7 +55,7 @@ class Test
 		[Test]
 		public void TestInvalidCase1()
 		{
-			TestWrongContext<StringCompareIsCultureSpecificIssue>(@"
+			Analyze<StringCompareIsCultureSpecificIssue>(@"
 class Test
 {
 	void Foo ()
@@ -88,7 +88,7 @@ class Test
 		[Test]
 		public void TestInvalidCase2()
 		{
-			TestWrongContext<StringCompareIsCultureSpecificIssue>(@"
+			Analyze<StringCompareIsCultureSpecificIssue>(@"
 class Test
 {
 	void Foo ()
@@ -141,7 +141,7 @@ class Test
 		[Test]
 		public void TestInvalidCase4()
 		{
-			TestWrongContext<StringCompareIsCultureSpecificIssue>(@"
+			Analyze<StringCompareIsCultureSpecificIssue>(@"
 class Test
 {
 	void Foo ()
@@ -194,7 +194,7 @@ class Test
 		[Test]
 		public void TestInvalid()
 		{
-			TestWrongContext<StringCompareIsCultureSpecificIssue>(@"
+			Analyze<StringCompareIsCultureSpecificIssue>(@"
 class Test
 {
 	void Foo ()
@@ -228,7 +228,7 @@ class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<StringCompareIsCultureSpecificIssue>(@"
+			Analyze<StringCompareIsCultureSpecificIssue>(@"
 class Test
 {
 	void Foo()

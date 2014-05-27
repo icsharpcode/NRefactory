@@ -167,7 +167,7 @@ class Foo
 		[Test]
 		public void TestInvalidCase ()
 		{
-			TestWrongContext<SimplifyConditionalTernaryExpressionIssue>(@"
+			Analyze<SimplifyConditionalTernaryExpressionIssue>(@"
 class Foo
 {
 	void FooBar (int a, int b, bool c, boold d)
@@ -181,7 +181,7 @@ class Foo
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<SimplifyConditionalTernaryExpressionIssue>(@"
+			Analyze<SimplifyConditionalTernaryExpressionIssue>(@"
 class Foo
 {
 	void Bar ()
@@ -197,7 +197,7 @@ class Foo
 		[Test]
 		public void TestSkipRedundantCase ()
 		{
-			TestWrongContext<SimplifyConditionalTernaryExpressionIssue>(@"
+			Analyze<SimplifyConditionalTernaryExpressionIssue>(@"
 class Foo
 {
 	void Bar ()

@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2()
 		{
-			TestWrongContext<RedundantBaseQualifierIssue>(@"using System;am : BaseClass
+			Analyze<RedundantBaseQualifierIssue>(@"using System;am : BaseClass
 		{
 			public void method2(int a)
 			{
@@ -165,7 +165,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void ComplexTests ()
 		{
-			TestWrongContext<RedundantBaseQualifierIssue>(@"
+			Analyze<RedundantBaseQualifierIssue>(@"
 
 class Base {
 	public int a;
@@ -232,7 +232,7 @@ class Foo : Base
 {
 	int a = base.a;
 }";
-			TestWrongContext<RedundantBaseQualifierIssue>(input);
+			Analyze<RedundantBaseQualifierIssue>(input);
 		}
 	}
 }

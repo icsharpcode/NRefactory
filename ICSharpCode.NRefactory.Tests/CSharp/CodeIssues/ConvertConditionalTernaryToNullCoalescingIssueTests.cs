@@ -111,7 +111,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
         [Test]
         public void TestDisable()
         {
-			TestWrongContext<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{

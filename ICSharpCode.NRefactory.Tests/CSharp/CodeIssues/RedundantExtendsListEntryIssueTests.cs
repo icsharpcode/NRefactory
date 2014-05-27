@@ -145,7 +145,7 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase3()
 		{
-			TestWrongContext<RedundantExtendsListEntryIssue>(@"using System;
+			Analyze<RedundantExtendsListEntryIssue>(@"using System;
 
 namespace resharper_test
 {
@@ -176,7 +176,7 @@ namespace resharper_test
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			TestWrongContext<RedundantExtendsListEntryIssue>(@"using System;
+			Analyze<RedundantExtendsListEntryIssue>(@"using System;
 
 namespace resharper_test
 {

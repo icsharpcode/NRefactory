@@ -178,7 +178,7 @@ class TestClass
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<CompareOfFloatsByEqualityOperatorIssue> (@"
+			Analyze<CompareOfFloatsByEqualityOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod (double x, float y)

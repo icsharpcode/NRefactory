@@ -56,7 +56,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase2()
 		{
-			TestWrongContext<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
@@ -77,7 +77,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase3()
 		{
-			TestWrongContext<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
@@ -97,7 +97,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase4()
 		{
-			TestWrongContext<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
@@ -119,7 +119,7 @@ namespace Demo
 		[Test]
 		public void TestEntryPoint()
 		{
-			TestWrongContext<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
@@ -139,7 +139,7 @@ namespace Demo
 		[Test]
 		public void TestAbstract()
 		{
-			TestWrongContext<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
@@ -159,7 +159,7 @@ namespace Demo
 		[Test]
 		public void TestResharperDisable()
 		{
-			TestWrongContext<ConvertToStaticTypeIssue>(@"using System;
+			Analyze<ConvertToStaticTypeIssue>(@"using System;
 
 namespace Demo
 {

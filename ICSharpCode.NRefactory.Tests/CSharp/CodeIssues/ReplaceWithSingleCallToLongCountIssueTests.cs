@@ -55,7 +55,7 @@ public class CSharpDemo {
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<ReplaceWithSingleCallToLongCountIssue>(@"using System.Linq;
+			Analyze<ReplaceWithSingleCallToLongCountIssue>(@"using System.Linq;
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;

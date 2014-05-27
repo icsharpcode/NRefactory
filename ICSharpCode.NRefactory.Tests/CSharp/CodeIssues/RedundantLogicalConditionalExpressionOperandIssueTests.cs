@@ -133,7 +133,7 @@ class Test
 		[Test]
 		public void TestInvalid()
 		{
-			TestWrongContext<RedundantLogicalConditionalExpressionOperandIssue>(@"
+			Analyze<RedundantLogicalConditionalExpressionOperandIssue>(@"
 class Test
 {
 	void Foo ()
@@ -151,7 +151,7 @@ class Test
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<RedundantLogicalConditionalExpressionOperandIssue>(@"
+			Analyze<RedundantLogicalConditionalExpressionOperandIssue>(@"
 class Test
 {
 	void Foo ()

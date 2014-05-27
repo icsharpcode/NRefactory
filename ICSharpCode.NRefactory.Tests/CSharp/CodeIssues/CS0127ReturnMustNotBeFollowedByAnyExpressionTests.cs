@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSimpleInvalidCase ()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo
+			Analyze<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo
 {
 	string Bar (string str)
 	{
@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestProperty ()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo {
+			Analyze<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo {
 	string Bar 
 	{
 		get {
@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestIndexer ()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo {
+			Analyze<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo {
 	string this [int idx]
 	{
 		get {
@@ -147,7 +147,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestAnonymousMethodReturningValue ()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo
+			Analyze<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo
 {
 	void Bar (string str)
 	{
@@ -161,7 +161,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestLambdaMethod ()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo
+			Analyze<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo
 {
 	void Bar (string str)
 	{
@@ -175,7 +175,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestOperatorFalsePositives ()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo
+			Analyze<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"class Foo
 {
 	public static bool operator == (Foo left, Foo right)
 	{
@@ -212,7 +212,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDontShowUpOnUndecidableCase ()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"
+			Analyze<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"
 using System;
 
 class Test
@@ -237,7 +237,7 @@ class Test
 		[Test]
 		public void TestBug14843 ()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"
+			Analyze<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"
 using System;
 
 class Foo {
@@ -289,7 +289,7 @@ class Test
 		[Test]
 		public void TestAsyncMethod_TaskOfInt()
 		{
-			TestWrongContext<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"using System;
+			Analyze<CS0127ReturnMustNotBeFollowedByAnyExpression>(@"using System;
 using System.Threading.Tasks;
 
 class Test

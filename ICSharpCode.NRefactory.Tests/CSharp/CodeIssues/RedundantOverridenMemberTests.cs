@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperDisable()
 		{
-			TestWrongContext<RedundantOverridenMemberIssue>(@"namespace Demo
+			Analyze<RedundantOverridenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -94,7 +94,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2()
 		{
-			TestWrongContext<RedundantOverridenMemberIssue>(@"namespace Demo
+			Analyze<RedundantOverridenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -117,7 +117,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase3()
 		{
-			TestWrongContext<RedundantOverridenMemberIssue>(@"namespace Demo
+			Analyze<RedundantOverridenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -340,14 +340,14 @@ class C : A
 		public override event EventHandler FooBar { add { base.FooBar += value; } remove { base.FooBar2 -= value; } }
 	}
 }";
-			TestWrongContext<RedundantOverridenMemberIssue>(input);
+			Analyze<RedundantOverridenMemberIssue>(input);
 		}
 
 
 		[Test]
 		public void TestGetHashCode()
 		{
-			TestWrongContext<RedundantOverridenMemberIssue>(@"
+			Analyze<RedundantOverridenMemberIssue>(@"
 class Bar
 {
 	public override bool Equals (object obj)
@@ -380,7 +380,7 @@ class Bar
 		[Test]
 		public void TestPropertyBug()
 		{
-			TestWrongContext<RedundantOverridenMemberIssue>(@"
+			Analyze<RedundantOverridenMemberIssue>(@"
 class BaseFoo
 {
 	public virtual int Foo { get; set; }

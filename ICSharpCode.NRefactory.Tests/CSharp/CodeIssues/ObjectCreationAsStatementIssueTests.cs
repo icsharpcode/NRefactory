@@ -50,7 +50,7 @@ class Foo
 		[Test]
 		public void TestNoIssue ()
 		{
-			TestWrongContext<ObjectCreationAsStatementIssue>(@"
+			Analyze<ObjectCreationAsStatementIssue>(@"
 class Foo
 {
 	void Bar ()
@@ -64,7 +64,7 @@ class Foo
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ObjectCreationAsStatementIssue>(@"
+			Analyze<ObjectCreationAsStatementIssue>(@"
 class Foo
 {
 	void Bar ()

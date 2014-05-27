@@ -55,7 +55,7 @@ public class CSharpDemo {
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<ReplaceWithSingleCallToFirstOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithSingleCallToFirstOrDefaultIssue>(@"using System.Linq;
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;

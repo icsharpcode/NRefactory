@@ -89,7 +89,7 @@ class Test
 		[Test]
 		public void TestInvalid ()
 		{
-			TestWrongContext<ForCanBeConvertedToForeachIssue>(@"
+			Analyze<ForCanBeConvertedToForeachIssue>(@"
 class Test
 {
 	void Foo (object[] o)
@@ -106,7 +106,7 @@ class Test
 		[Test]
 		public void TestInvalidCase2 ()
 		{
-			TestWrongContext<ForCanBeConvertedToForeachIssue>(@"
+			Analyze<ForCanBeConvertedToForeachIssue>(@"
 class Test
 {
 	void Foo (object[] o)
@@ -123,7 +123,7 @@ class Test
 		[Test]
 		public void TestInvalidCase3 ()
 		{
-			TestWrongContext<ForCanBeConvertedToForeachIssue>(@"
+			Analyze<ForCanBeConvertedToForeachIssue>(@"
 class Test
 {
 	void Foo (object[] o)
@@ -210,7 +210,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ForCanBeConvertedToForeachIssue>(@"
+			Analyze<ForCanBeConvertedToForeachIssue>(@"
 class Test
 {
 	void Foo (object[] o)

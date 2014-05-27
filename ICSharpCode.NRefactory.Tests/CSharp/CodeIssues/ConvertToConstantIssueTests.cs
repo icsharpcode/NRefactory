@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestWrongLocalType ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public static void Main (string[] args)
 	{
@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestChangingVariableCase1 ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public static void Main (string[] args)
 	{
@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestChangingVariableCase2 ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public static void Main (string[] args)
 	{
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestChangingVariableCase3 ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public static void Main (string[] args)
 	{
@@ -108,7 +108,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestChangingVariableCase4 ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public static void Main (string[] args)
 	{
@@ -127,7 +127,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestChangingVariableCase5 ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public static void Main (string[] args)
 	{
@@ -142,7 +142,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestChangingVariableCase6 ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public static void Main (string[] args)
 	{
@@ -156,7 +156,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public static void Main (string[] args)
 	{
@@ -190,7 +190,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestReadonlyField ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	readonly int fooBar = 12;
 	public static void Main (string[] args)
@@ -225,7 +225,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestChangingField ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public Test ()
 	{
@@ -243,7 +243,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestWrongFieldType ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	object fooBar = 12;
 	public static void Main (string[] args)
@@ -256,7 +256,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestChangingFieldCase2 ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	int fooBar = 12;
 	public Test ()
@@ -269,7 +269,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestChangingFieldCase3 ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	int fooBar = 12;
 	public Test ()
@@ -348,7 +348,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestNeverSuggestForControlVariable ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"class Test
+			Analyze<ConvertToConstantIssue>(@"class Test
 {
 	public static void Main (string[] args)
 	{
@@ -384,7 +384,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestArbitraryStructCase ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"
+			Analyze<ConvertToConstantIssue>(@"
 struct Bar {
 	public int A;
 }
@@ -402,7 +402,7 @@ class Test
 		[Test]
 		public void TestArbitraryStructCase2 ()
 		{
-			TestWrongContext<ConvertToConstantIssue>(@"
+			Analyze<ConvertToConstantIssue>(@"
 struct Bar {
 	public int A;
 }

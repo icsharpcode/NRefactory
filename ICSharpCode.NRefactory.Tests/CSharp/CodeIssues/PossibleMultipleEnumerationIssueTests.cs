@@ -727,7 +727,7 @@ class TestClass
 		// ReSharper restore PossibleMultipleEnumeration
 	}
 }";
-			TestWrongContext<PossibleMultipleEnumerationIssue> (input);
+			Analyze<PossibleMultipleEnumerationIssue> (input);
 		}
 	}
 }

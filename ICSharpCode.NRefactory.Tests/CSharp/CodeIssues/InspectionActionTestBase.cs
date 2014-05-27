@@ -35,6 +35,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.Host.Mef;
 using System.Reflection;
+using System.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
@@ -159,138 +160,31 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 		}
 
-		protected static void TestWrongContext<T>(string input) where T : ISemanticModelAnalyzer, new()
-		{
-			Test<T>(input, 0);
-		}
-
 		protected static void Test<T>(string input, int expectedDiagnostics = 1, string output = null, int issueToFix = -1, int actionToRun = 0) where T : ISemanticModelAnalyzer, new()
 		{
-			var syntaxTree = CSharpSyntaxTree.ParseText(input);
-
-			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
-
-			var diagnostics = new List<Diagnostic>();
-			diagnostics.AddRange(AnalyzerDriver.GetDiagnostics(compilation,
-				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
-				CancellationToken.None
-			)); 
-
-			if (expectedDiagnostics >= 0) {
-				Console.WriteLine("Diagnostics: " + diagnostics.Count);
-				foreach (var diag in diagnostics) {
-					Console.WriteLine(diag.Id +"/"+ diag.GetMessage());
-				}
-				Assert.AreEqual(expectedDiagnostics, diagnostics.Count);
-			}
-
-			if (output == null)
-				return;
-
-			var workspace = new TestWorkspace();
-			var projectId = ProjectId.CreateNewId();
-			var documentId = DocumentId.CreateNewId(projectId);
-			workspace.Open(ProjectInfo.Create(
-				projectId,
-				VersionStamp.Create(),
-				"", "", LanguageNames.CSharp, null, null, null, null,
-				new [] {
-					DocumentInfo.Create(
-						documentId, 
-						"a.cs",
-						null,
-						SourceCodeKind.Regular,
-						TextLoader.From(TextAndVersion.Create(SourceText.From(input), VersionStamp.Create())))
-				}
-			)); 
-			if (issueToFix < 0) {
-				diagnostics.Reverse();
-				foreach (var v in diagnostics) {
-					RunFix(workspace, projectId, documentId, v);
-				}
-			} else {
-				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
-			}
-
-			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
-			if (output != txt) {
-				Console.WriteLine("expected:");
-				Console.WriteLine(output);
-				Console.WriteLine("got:");
-				Console.WriteLine(txt);
-				Assert.Fail();
-			}
+			Assert.Fail("Use Analyze"); 
 		}
 
 		protected static void Test<T> (string input, string output, int fixIndex = 0)
 			where T : ISemanticModelAnalyzer, new ()
 		{
-			Test<T>(input, 1, output, fixIndex);
+			Assert.Fail("Use Analyze"); 
 		}
 
 		protected static void TestIssue<T> (string input, int issueCount = 1)
 			where T : ISemanticModelAnalyzer, new ()
 		{
-			Test<T>(input, issueCount);
+			Assert.Fail("Use Analyze"); 
 		}
 
 		protected static void TestWrongContextWithSubIssue<T>(string input, string id) where T : ISemanticModelAnalyzer, new()
 		{
-			TestWithSubIssue<T>(input, id, 0);
-		}
-
-		protected static void TestWithSubIssue<T>(string input, string subIssueId, int expectedDiagnostics = 1, string output = null, int issueToFix = -1, int actionToRun = 0) where T : ISemanticModelAnalyzer, new()
-		{
-			var syntaxTree = CSharpSyntaxTree.ParseText(input);
-
-			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
-
-			var diagnostics = new List<Diagnostic>();
-			var allDiagnostics = AnalyzerDriver.GetDiagnostics(compilation, System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()), CancellationToken.None);
-			diagnostics.AddRange(allDiagnostics.Where(d => d.Id == subIssueId)); 
-
-			if (expectedDiagnostics >= 0)
-				Assert.AreEqual(expectedDiagnostics, diagnostics.Count);
-			if (output == null)
-				return;
-
-			var workspace = new TestWorkspace();
-			var projectId = ProjectId.CreateNewId();
-			var documentId = DocumentId.CreateNewId(projectId);
-			workspace.Open(ProjectInfo.Create(
-				projectId,
-				VersionStamp.Create(),
-				"", "", LanguageNames.CSharp, null, null, null, null,
-				new [] {
-					DocumentInfo.Create(
-						documentId, 
-						"a.cs",
-						null,
-						SourceCodeKind.Regular,
-						TextLoader.From(TextAndVersion.Create(SourceText.From(input), VersionStamp.Create())))
-				}
-			)); 
-			if (issueToFix < 0) {
-				foreach (var v in diagnostics) {
-					RunFix(workspace, projectId, documentId, v);
-				}
-			} else {
-				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
-			}
-
-			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
-			if (output != txt) {
-				Console.WriteLine("expected:");
-				Console.WriteLine(output);
-				Console.WriteLine("got:");
-				Console.WriteLine(txt);
-				Assert.Fail();
-			}
+			Assert.Fail("Use AnalyzeWithRule"); 
 		}
 
 		protected static void TestWithSubIssue<T>(string input, string output, string subIssue, int fixIndex = 0) where T : ISemanticModelAnalyzer, new()
 		{
-			TestWithSubIssue<T>(input, subIssue, -1, output, fixIndex, 0);
+			Assert.Fail("Use AnalyzeWithRule"); 
 		}
 
 		class TestDiagnosticAnalyzer<T> : IDiagnosticAnalyzer
@@ -312,7 +206,190 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 			#endregion
 		}
-	}
 
+		static TextSpan GetWholeSpan(Diagnostic d)
+		{
+			int start = d.Location.SourceSpan.Start;
+			int end = d.Location.SourceSpan.End;
+			foreach (var a in d.AdditionalLocations) {
+				start = Math.Min(start, a.SourceSpan.Start);
+				end = Math.Max(start, a.SourceSpan.End);
+			}
+			return TextSpan.FromBounds(start, end);
+		}
+
+		protected static void Analyze<T>(string input, string output = null, int issueToFix = -1, int actionToRun = 0, Action<int, Diagnostic> diagnosticCheck = null) where T : ISemanticModelAnalyzer, new()
+		{
+			var text = new StringBuilder();
+		
+			var expectedDiagnosics = new List<TextSpan> ();
+			int start = -1;
+			for (int i = 0; i < input.Length; i++) {
+				char ch = input [i];
+				if (ch == '$') {
+					if (start < 0) {
+						start = text.Length;
+						continue;
+					}
+					expectedDiagnosics.Add(TextSpan.FromBounds(start, text.Length));
+					start = -1;
+				} else {
+					text.Append(ch);
+				}
+			}
+
+			var syntaxTree = CSharpSyntaxTree.ParseText(text.ToString());
+
+			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
+
+			var diagnostics = new List<Diagnostic>();
+			diagnostics.AddRange(AnalyzerDriver.GetDiagnostics(compilation,
+				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
+				CancellationToken.None
+			)); 
+
+			if (expectedDiagnosics.Count != diagnostics.Count) {
+				Console.WriteLine("Diagnostics: " + diagnostics.Count);
+				foreach (var diag in diagnostics) {
+					Console.WriteLine(diag.Id +"/"+ diag.GetMessage());
+				}
+				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count);
+			}
+
+			for (int i = 0; i < expectedDiagnosics.Count; i++) {
+				var d = diagnostics [i];
+				var wholeSpan = GetWholeSpan(d);
+				if (wholeSpan != expectedDiagnosics [i]) {
+					Assert.Fail("Diagnostic " + i +" span mismatch expected: " + expectedDiagnosics[i] + " but was " + wholeSpan);
+				}
+				if (diagnosticCheck != null)
+					diagnosticCheck (i, d);
+			}
+
+			if (output == null)
+				return;
+
+			var workspace = new TestWorkspace();
+			var projectId = ProjectId.CreateNewId();
+			var documentId = DocumentId.CreateNewId(projectId);
+			workspace.Open(ProjectInfo.Create(
+				projectId,
+				VersionStamp.Create(),
+				"", "", LanguageNames.CSharp, null, null, null, null,
+				new [] {
+					DocumentInfo.Create(
+						documentId, 
+						"a.cs",
+						null,
+						SourceCodeKind.Regular,
+						TextLoader.From(TextAndVersion.Create(SourceText.From(text.ToString()), VersionStamp.Create())))
+				}
+			)); 
+			if (issueToFix < 0) {
+				diagnostics.Reverse();
+				foreach (var v in diagnostics) {
+					RunFix(workspace, projectId, documentId, v);
+				}
+			} else {
+				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
+			}
+
+			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
+			if (output != txt) {
+				Console.WriteLine("expected:");
+				Console.WriteLine(output);
+				Console.WriteLine("got:");
+				Console.WriteLine(txt);
+				Assert.Fail();
+			}
+		}
+
+		protected static void AnalyzeWithRule<T>(string input, string ruleId, string output = null, int issueToFix = -1, int actionToRun = 0, Action<int, Diagnostic> diagnosticCheck = null) where T : ISemanticModelAnalyzer, new()
+		{
+			var text = new StringBuilder();
+
+			var expectedDiagnosics = new List<TextSpan> ();
+			int start = -1;
+			for (int i = 0; i < input.Length; i++) {
+				char ch = input [i];
+				if (ch == '$') {
+					if (start < 0) {
+						start = text.Length;
+						continue;
+					}
+					expectedDiagnosics.Add(TextSpan.FromBounds(start, text.Length));
+					start = -1;
+				} else {
+					text.Append(ch);
+				}
+			}
+
+			var syntaxTree = CSharpSyntaxTree.ParseText(text.ToString());
+
+			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
+
+			var diagnostics = new List<Diagnostic>();
+
+			diagnostics.AddRange(AnalyzerDriver.GetDiagnostics(compilation,
+				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
+				CancellationToken.None
+			).Where(d => d.Id == ruleId)); 
+
+			if (expectedDiagnosics.Count != diagnostics.Count) {
+				Console.WriteLine("Diagnostics: " + diagnostics.Count);
+				foreach (var diag in diagnostics) {
+					Console.WriteLine(diag.Id +"/"+ diag.GetMessage());
+				}
+				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count);
+			}
+
+			for (int i = 0; i < expectedDiagnosics.Count; i++) {
+				var d = diagnostics [i];
+				var wholeSpan = GetWholeSpan(d);
+				if (wholeSpan != expectedDiagnosics [i]) {
+					Assert.Fail("Diagnostic " + i +" span mismatch expected: " + expectedDiagnosics[i] + " but was " + wholeSpan);
+				}
+				if (diagnosticCheck != null)
+					diagnosticCheck (i, d);
+			}
+
+			if (output == null)
+				return;
+
+			var workspace = new TestWorkspace();
+			var projectId = ProjectId.CreateNewId();
+			var documentId = DocumentId.CreateNewId(projectId);
+			workspace.Open(ProjectInfo.Create(
+				projectId,
+				VersionStamp.Create(),
+				"", "", LanguageNames.CSharp, null, null, null, null,
+				new [] {
+					DocumentInfo.Create(
+						documentId, 
+						"a.cs",
+						null,
+						SourceCodeKind.Regular,
+						TextLoader.From(TextAndVersion.Create(SourceText.From(text.ToString()), VersionStamp.Create())))
+				}
+			)); 
+			if (issueToFix < 0) {
+				diagnostics.Reverse();
+				foreach (var v in diagnostics) {
+					RunFix(workspace, projectId, documentId, v);
+				}
+			} else {
+				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
+			}
+
+			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
+			if (output != txt) {
+				Console.WriteLine("expected:");
+				Console.WriteLine(output);
+				Console.WriteLine("got:");
+				Console.WriteLine(txt);
+				Assert.Fail();
+			}
+		}
+	}
 }
 

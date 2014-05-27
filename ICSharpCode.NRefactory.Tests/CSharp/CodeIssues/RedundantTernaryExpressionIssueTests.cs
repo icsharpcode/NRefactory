@@ -57,7 +57,7 @@ class Foo
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<RedundantTernaryExpressionIssue>(@"
+			Analyze<RedundantTernaryExpressionIssue>(@"
 class Foo
 {
 	void Bar ()

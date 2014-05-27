@@ -228,7 +228,7 @@ class TestClass
 		[Test]
 		public void TestBug12490()
 		{
-			TestWrongContext<CS0029InvalidConversionIssue>(@"
+			Analyze<CS0029InvalidConversionIssue>(@"
 class TestClass
 {
 	void TestMethod ()
@@ -373,7 +373,7 @@ class TestClass
 		[Test]
 		public void TestCallWithOverloads()
 		{
-			TestWrongContext<CS0029InvalidConversionIssue>(@"
+			Analyze<CS0029InvalidConversionIssue>(@"
 class TestClass
 {
 	enum Enum{ };
@@ -437,13 +437,13 @@ class Test {
 	public Project Project { get; set; }
 }
 class Project : MissingInterface {}";
-			TestWrongContext<CS0029InvalidConversionIssue>(input);
+			Analyze<CS0029InvalidConversionIssue>(input);
 		}
 
 		[Test]
 		public void TestFixedConversion()
 		{
-			TestWrongContext<CS0029InvalidConversionIssue>(@"unsafe struct TestMe
+			Analyze<CS0029InvalidConversionIssue>(@"unsafe struct TestMe
 {
 	fixed int textureID[8], fooBar[12];
 
@@ -549,7 +549,7 @@ public class EmptyClass
 	}
 }
 ";
-			TestWrongContext<CS0029InvalidConversionIssue> (input);
+			Analyze<CS0029InvalidConversionIssue> (input);
 		}
 	}
 }

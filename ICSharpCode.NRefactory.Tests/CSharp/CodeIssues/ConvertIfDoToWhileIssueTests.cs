@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInvalidCase ()
 		{
-			TestWrongContext<ConvertIfDoToWhileIssue>(@"class FooBar
+			Analyze<ConvertIfDoToWhileIssue>(@"class FooBar
 {
 	public void FooFoo (int x)
 	{
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConvertIfDoToWhileIssue>(@"class FooBar
+			Analyze<ConvertIfDoToWhileIssue>(@"class FooBar
 {
 	public void FooFoo (int x)
 	{

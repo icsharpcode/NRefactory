@@ -194,7 +194,7 @@ class TestClass
     // ReSharper disable once RedundantDefaultFieldInitializer
 	int i = 0;
 }";
-            TestWrongContext<RedundantDefaultFieldInitializerIssue>(input);
+            Analyze<RedundantDefaultFieldInitializerIssue>(input);
         }
 
 

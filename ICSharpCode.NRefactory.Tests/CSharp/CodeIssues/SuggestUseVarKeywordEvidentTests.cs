@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestV2 ()
 		{
-			TestWrongContext<SuggestUseVarKeywordEvidentIssue>(@"class Foo
+			Analyze<SuggestUseVarKeywordEvidentIssue>(@"class Foo
 {
 	void Bar (object o)
 	{

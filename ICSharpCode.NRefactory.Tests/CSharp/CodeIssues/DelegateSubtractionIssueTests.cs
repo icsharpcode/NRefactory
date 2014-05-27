@@ -65,7 +65,7 @@ class Foo
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<DelegateSubtractionIssue>(@"
+			Analyze<DelegateSubtractionIssue>(@"
 using System;
 class Foo
 {
@@ -84,7 +84,7 @@ class Foo
 		[Test]
 		public void TestBug18061()
 		{
-			TestWrongContext<DelegateSubtractionIssue>(@"
+			Analyze<DelegateSubtractionIssue>(@"
 using System;
 class Test
 {

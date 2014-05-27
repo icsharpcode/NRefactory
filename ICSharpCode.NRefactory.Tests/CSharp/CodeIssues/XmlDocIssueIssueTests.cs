@@ -113,7 +113,7 @@ class Foo {
 		[Test]
 		public void TestSeeCref()
 		{
-			TestWrongContext<XmlDocIssue>(@"
+			Analyze<XmlDocIssue>(@"
 /// <summary>
 /// </summary>
 /// <see cref=""Undefined""/>
@@ -132,7 +132,7 @@ class Foo2 {}
 		[Test]
 		public void TestValidCref()
 		{
-			TestWrongContext<XmlDocIssue>(@"
+			Analyze<XmlDocIssue>(@"
 using System;
 
 namespace Foo {
@@ -151,7 +151,7 @@ namespace Foo {
 		[Test]
 		public void TestBug17729 ()
 		{
-			TestWrongContext<XmlDocIssue>(@"
+			Analyze<XmlDocIssue>(@"
 using System;
 
 class Foo {
@@ -167,7 +167,7 @@ class Foo {
 		[Test]
 		public void TestSeeCRefMember ()
 		{
-			TestWrongContext<XmlDocIssue>(@"
+			Analyze<XmlDocIssue>(@"
 using System;
 
 namespace Foo

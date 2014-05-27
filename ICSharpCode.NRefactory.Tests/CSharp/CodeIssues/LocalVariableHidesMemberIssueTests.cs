@@ -58,7 +58,7 @@ class TestClass
         int i, j;
     }
 }";
-            TestWrongContext<LocalVariableHidesMemberIssue>(input);
+            Analyze<LocalVariableHidesMemberIssue>(input);
 	    }
 
 		[Test]

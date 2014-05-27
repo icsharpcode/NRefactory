@@ -78,7 +78,7 @@ class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<UseArrayCreationExpressionIssue> (@"
+			Analyze<UseArrayCreationExpressionIssue> (@"
 class Test
 {
 	void Foo()

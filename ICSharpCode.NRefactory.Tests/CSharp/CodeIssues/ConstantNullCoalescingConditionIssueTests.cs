@@ -120,7 +120,7 @@ class TestClass
 		[Test]
 		public void TestSmartUsageInParam()
 		{
-			TestWrongContext<ConstantNullCoalescingConditionIssue>(@"
+			Analyze<ConstantNullCoalescingConditionIssue>(@"
 class TestClass
 {
 	void Foo(object o)
@@ -134,7 +134,7 @@ class TestClass
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<ConstantNullCoalescingConditionIssue>(@"
+			Analyze<ConstantNullCoalescingConditionIssue>(@"
 class TestClass
 {
 	void Foo()

@@ -83,7 +83,7 @@ class Bar : Foo
 		[Test]
 		public void IgnoresCallsToOtherObjects()
 		{
-			TestWrongContext<CallToObjectEqualsViaBaseIssue>(@"
+			Analyze<CallToObjectEqualsViaBaseIssue>(@"
 class Foo
 {
 }

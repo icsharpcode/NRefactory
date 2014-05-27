@@ -63,7 +63,7 @@ class Program
 		[Test]
 		public void InvalidCase1()
 		{
-			TestWrongContext<RedundantLambdaSignatureParenthesesIssue>(@"
+			Analyze<RedundantLambdaSignatureParenthesesIssue>(@"
 class Program
 {
 	public delegate int MyDel(int j);
@@ -79,7 +79,7 @@ class Program
 		[Test]
 		public void InvalidCase2()
 		{
-			TestWrongContext<RedundantLambdaSignatureParenthesesIssue>(@"
+			Analyze<RedundantLambdaSignatureParenthesesIssue>(@"
 using System;
 
 class Program
@@ -96,7 +96,7 @@ class Program
 		[Test]
 		public void TestInvalid()
 		{
-			TestWrongContext<RedundantLambdaSignatureParenthesesIssue>(@"
+			Analyze<RedundantLambdaSignatureParenthesesIssue>(@"
 class Program
 {
 	public delegate int MyDel(int j);
@@ -113,7 +113,7 @@ class Program
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<RedundantLambdaSignatureParenthesesIssue>(@"
+			Analyze<RedundantLambdaSignatureParenthesesIssue>(@"
 class Program
 {
 	public delegate int MyDel(int j);

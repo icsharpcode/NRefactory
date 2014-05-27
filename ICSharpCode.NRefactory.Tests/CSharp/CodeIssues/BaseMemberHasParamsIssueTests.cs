@@ -69,7 +69,7 @@ class FooBar2 : FooBar
 		[Test]
 		public void TestValidCase ()
 		{
-			TestWrongContext<BaseMemberHasParamsIssue>(@"class FooBar
+			Analyze<BaseMemberHasParamsIssue>(@"class FooBar
 {
 	public virtual void Foo(string fmt, params object[] args)
 	{
@@ -90,7 +90,7 @@ class FooBar2 : FooBar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<BaseMemberHasParamsIssue>(@"class FooBar
+			Analyze<BaseMemberHasParamsIssue>(@"class FooBar
 {
 	public virtual void Foo(string fmt, params object[] args)
 	{

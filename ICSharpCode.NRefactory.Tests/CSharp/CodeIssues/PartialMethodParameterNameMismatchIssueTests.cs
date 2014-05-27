@@ -65,7 +65,7 @@ partial class Test
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<PartialMethodParameterNameMismatchIssue>(@"
+			Analyze<PartialMethodParameterNameMismatchIssue>(@"
 // ReSharper disable PartialMethodParameterNameMismatch
 partial class Test
 {

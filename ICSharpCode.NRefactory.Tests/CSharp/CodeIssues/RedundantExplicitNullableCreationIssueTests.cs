@@ -80,7 +80,7 @@ class FooBar
 		[Test]
 		public void TestInvalid()
 		{
-			TestWrongContext<RedundantExplicitNullableCreationIssue>(@"
+			Analyze<RedundantExplicitNullableCreationIssue>(@"
 class FooBar
 {
 	void Test()
@@ -94,7 +94,7 @@ class FooBar
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<RedundantExplicitNullableCreationIssue>(@"
+			Analyze<RedundantExplicitNullableCreationIssue>(@"
 class FooBar
 {
 	void Test()

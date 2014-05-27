@@ -51,7 +51,7 @@ public class Foo
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<MemberHidesStaticFromOuterClassIssue>(@"
+			Analyze<MemberHidesStaticFromOuterClassIssue>(@"
 public class Foo
 {
 	public class Bar

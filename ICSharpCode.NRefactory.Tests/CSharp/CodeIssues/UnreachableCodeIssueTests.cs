@@ -77,7 +77,7 @@ class TestClass
 		int a = 1;
 	}
 }";
-			TestWrongContext<UnreachableCodeIssue> (input);
+			Analyze<UnreachableCodeIssue> (input);
 		}
 
 		[Test]

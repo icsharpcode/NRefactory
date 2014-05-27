@@ -75,7 +75,7 @@ class TestClass
 			return 0;
 	}
 }";
-			TestWrongContext<RedundantIfElseBlockIssue>(input);
+			Analyze<RedundantIfElseBlockIssue>(input);
 		}
 
 		[Test]

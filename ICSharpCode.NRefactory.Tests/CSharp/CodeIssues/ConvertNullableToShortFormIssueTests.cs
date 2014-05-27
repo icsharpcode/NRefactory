@@ -77,7 +77,7 @@ class Foo
 		[Test]
 		public void TestAlreadyShort ()
 		{
-			TestWrongContext<ConvertNullableToShortFormIssue>(@"class Foo
+			Analyze<ConvertNullableToShortFormIssue>(@"class Foo
 {
 	int? Bar (int o)
 	{
@@ -89,7 +89,7 @@ class Foo
 		[Test]
 		public void TestInvalid ()
 		{
-			TestWrongContext<ConvertNullableToShortFormIssue>(@"using System;
+			Analyze<ConvertNullableToShortFormIssue>(@"using System;
 namespace NN {
 	class Nullable<T> {}
 	class Foo
@@ -105,7 +105,7 @@ namespace NN {
 		[Test]
 		public void TestInvalidTypeOf ()
 		{
-			TestWrongContext<ConvertNullableToShortFormIssue>(@"using System;
+			Analyze<ConvertNullableToShortFormIssue>(@"using System;
 class Foo
 {
 	bool Bar (object o)
@@ -123,7 +123,7 @@ class Foo
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConvertNullableToShortFormIssue>(@"class Foo
+			Analyze<ConvertNullableToShortFormIssue>(@"class Foo
 {
 	void Bar ()
 	{

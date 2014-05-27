@@ -37,13 +37,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			Analyze<RedundantThisQualifierIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
-		this.Bar (str);
+		$this.$Bar (str);
 	}
-}", 1, @"class Foo
+}", @"class Foo
 {
 	void Bar (string str)
 	{
@@ -55,30 +55,29 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSkipConstructors ()
 		{
-			var input = @"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	public Foo ()
 	{
 		this.Bar (str);
 	}
-}";
-			TestWrongContextWithSubIssue<RedundantThisQualifierIssue>(input, RedundantThisQualifierIssue.EverywhereElse);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 
 
 		[Test]
 		public void TestInsideConstructors ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			Analyze<RedundantThisQualifierIssue>(@"class Foo
 {
 	public Foo(string str)
 	{
-		this.Bar(str);
+		$this.$Bar(str);
 	}
 	void Bar(string str)
 	{
 	}
-}", 1, @"class Foo
+}", @"class Foo
 {
 	public Foo(string str)
 	{
@@ -93,33 +92,32 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInsideConstructorsSkipMembers ()
 		{
-			var input = @"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
 		this.Bar (str);
 	}
-}";
-			TestWrongContextWithSubIssue<RedundantThisQualifierIssue>(input, RedundantThisQualifierIssue.InsideConstructors);
+}", RedundantThisQualifierIssue.InsideConstructors);
 		}
 		
 		[Test]
 		public void TestRequiredThisInAssignmentFromFieldToLocal ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
 	{
 		var a = this.a;
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 		
 		[Test]
 		public void TestRequiredThisInAssignmentFromDelegateToLocal ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -128,42 +126,42 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Console.WriteLine (this.a);
 		};
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 		
 		[Test]
 		public void TestRedundantThisInAssignmentFromFieldToLocal ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
 	{
-		var b = this.a;
+		var b = $this.$a;
 	}
-}", @"class Foo
+}", RedundantThisQualifierIssue.EverywhereElse, @"class Foo
 {
 	int a;
 	void Bar ()
 	{
 		var b = a;
 	}
-}", RedundantThisQualifierIssue.EverywhereElse);
+}");
 		}
 
 		[Test]
 		public void TestRedundantThisInAssignmentFromDelegateToLocal ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
 	{
 		Action b = () => {
-			Console.WriteLine (this.a);
+			Console.WriteLine ($this.$a);
 		};
 	}
-}", @"class Foo
+}", RedundantThisQualifierIssue.EverywhereElse, @"class Foo
 {
 	int a;
 	void Bar ()
@@ -172,13 +170,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Console.WriteLine (a);
 		};
 	}
-}", RedundantThisQualifierIssue.EverywhereElse);
+}");
 		}
 		
 		[Test]
 		public void TestRequiredThisInExtensionMethodCall ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"static class Extensions
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"static class Extensions
 {
 	public static void Ext (this Foo foo)
 	{
@@ -191,13 +189,13 @@ class Foo
 	{
 		this.Ext ();
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 
 		[Test]
 		public void TestRequiredThisToAvoidCS0135 ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -207,13 +205,13 @@ class Foo
 		}
 		this.a = 2;
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 
 		[Test]
 		public void TestRequiredThisToAvoidCS0844 ()
 		{
-			Test<RedundantThisQualifierIssue>(@"class Foo
+			Analyze<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -223,13 +221,13 @@ class Foo
 		}
 		var a = 2;
 	}
-}", 0);
+}");
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithLambda ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -237,13 +235,13 @@ class Foo
 		Action<int> action = (int a) => a.ToString();
 		this.a = 2;
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithDelegate ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -251,14 +249,14 @@ class Foo
 		Action<int> action = delegate (int a) { a.ToString(); };
 		this.a = 2;
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 
 		[Ignore("Roslyn bug!")]
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithForeach ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -267,13 +265,13 @@ class Foo
 		foreach (var a in ""abc"")
 			System.Console.WriteLine (a);
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithFor ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -282,13 +280,13 @@ class Foo
 		for (int a = 0; a < 2; a++)
 			System.Console.WriteLine (a);
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithUsing ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a;
 	void Bar ()
@@ -297,13 +295,13 @@ class Foo
 		using (var a = new System.IO.MemoryStream())
 			a.Flush();
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 		
 		[Test]
 		public void TestRequiredThisToAvoidCS0135WithFixed ()
 		{
-			TestWithSubIssue<RedundantThisQualifierIssue>(@"class Baz
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Baz
 {
 	public int c;
 }
@@ -317,22 +315,22 @@ class Foo
 		fixed (int* a = &b.c)
 			Console.WriteLine(a == null);
 	}
-}", RedundantThisQualifierIssue.EverywhereElse, 0);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 		
 		[Test]
 		public void TestResharperDisableRestore ()
 		{
-			Test<RedundantThisQualifierIssue> (@"class Foo
+			Analyze<RedundantThisQualifierIssue> (@"class Foo
 {
 	void Bar (string str)
 	{
 		// ReSharper disable RedundantThisQualifier
 		this.Bar (str);
 		// ReSharper restore RedundantThisQualifier
-		this.Bar (str);
+		$this.$Bar (str);
 	}
-}", 1);
+}");
 		}
 
 //		[Test]
@@ -363,11 +361,10 @@ class Foo
 		[Test]
 		public void InvalidUseOfThisInFieldInitializer()
 		{
-			var input = @"class Foo
+			AnalyzeWithRule<RedundantThisQualifierIssue>(@"class Foo
 {
 	int a = this.a;
-}";
-			TestWrongContextWithSubIssue<RedundantThisQualifierIssue>(input, RedundantThisQualifierIssue.EverywhereElse);
+}", RedundantThisQualifierIssue.EverywhereElse);
 		}
 	}
 }

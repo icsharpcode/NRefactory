@@ -95,7 +95,7 @@ class Bar
 		[Test]
 		public void InvalidIfNoTypeCast()
 		{
-			TestWrongContext<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
@@ -190,7 +190,7 @@ class Bar
 		[Test]
 		public void TestDisable()
 		{
-			TestWrongContext<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
@@ -209,7 +209,7 @@ class Bar
 		[Test]
 		public void TestInvaludValueType()
 		{
-			TestWrongContext<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public int Baz (object foo)

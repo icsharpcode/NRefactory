@@ -33,17 +33,16 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void MethodInvocation1()
 		{
-			var input = @"
+			Analyze<RedundantArgumentNameIssue>(@"
 class TestClass
 {
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo(1,b: 2);
+		Foo(1,$b:$ 2);
 	}
 }
-";
-			var output = @"
+", @"
 class TestClass
 {
 	public void Foo(int a, int b, double c = 0.1){}
@@ -52,24 +51,22 @@ class TestClass
 		Foo(1, 2);
 	}
 }
-";
-			Test<RedundantArgumentNameIssue>(input, 1, output);
+");
 		}
 		
 		[Test]
 		public void MethodInvocation2()
 		{
-			var input = @"
+			Analyze<RedundantArgumentNameIssue>(@"
 class TestClass
 {
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo(a: 1, b: 2, c: 0.2);
+		Foo($a:$ 1, $b:$ 2, $c:$ 0.2);
 	}
 }
-";
-			var output = @"
+", @"
 class TestClass
 {
 	public void Foo(int a, int b, double c = 0.1){}
@@ -78,24 +75,22 @@ class TestClass
 		Foo(1, b: 2, c: 0.2);
 	}
 }
-";
-			Test<RedundantArgumentNameIssue>(input, 3, output, 0);
+", 0);
 		}
 		
 		[Test]
 		public void MethodInvocation3()
 		{
-			var input = @"
+			Analyze<RedundantArgumentNameIssue>(@"
 class TestClass
 {
 	public void Foo(int a, int b, double c = 0.1){}
 	public void F()
 	{
-		Foo(a: 1, b: 2, c: 0.2);
+		Foo($a:$ 1, $b:$ 2, $c:$ 0.2);
 	}
 }
-";
-			var output = @"
+", @"
 class TestClass
 {
 	public void Foo(int a, int b, double c = 0.1){}
@@ -104,15 +99,14 @@ class TestClass
 		Foo(1, 2, c: 0.2);
 	}
 }
-";
-			Test<RedundantArgumentNameIssue>(input, 3, output, 1);
+", 1);
 		}
 
 
 		[Test]
 		public void MethodInvocation4()
 		{
-			Test<RedundantArgumentNameIssue>(@"
+			Analyze<RedundantArgumentNameIssue>(@"
 class TestClass
 {
 	public void Foo (int a = 2, int b = 3, int c = 4, int d = 5, int e = 5)
@@ -121,10 +115,10 @@ class TestClass
 
 	public void F ()
 	{
-		Foo(1, b: 2, d: 2, c: 3, e:19);
+		Foo(1, $b:$ 2, d: 2, c: 3, e:19);
 	}
 }
-", 1, @"
+", @"
 class TestClass
 {
 	public void Foo (int a = 2, int b = 3, int c = 4, int d = 5, int e = 5)
@@ -138,12 +132,11 @@ class TestClass
 }
 ");
 		}
-	
 
 		[Test]
 		public void IndexerExpression() 
 		{
-			var input = @"
+			Analyze<RedundantArgumentNameIssue>(@"
 public class TestClass
 {
 	public int this[int i, int j]
@@ -157,11 +150,10 @@ internal class Test
 	private void Foo()
 	{
 		var TestBases = new TestClass();
-		int a = TestBases[i: 1, j: 2];
+		int a = TestBases[$i:$ 1, $j:$ 2];
 	}
 }
-";
-			var output = @"
+", @"
 public class TestClass
 {
 	public int this[int i, int j]
@@ -178,26 +170,24 @@ internal class Test
 		int a = TestBases[1, j: 2];
 	}
 }
-";
-			Test<RedundantArgumentNameIssue>(input, 2, output, 0);
+", 0);
 		}
 		
 		[Test]
 		public void TestAttributes()
 		{
-			var input = @"using System;
+			Analyze<RedundantArgumentNameIssue>(@"using System;
 class MyAttribute : Attribute
 {
 	public MyAttribute(int x, int y) {}
 }
 
 
-[MyAttribute(x: 1, y: 2)]
+[MyAttribute($x:$ 1, $y:$ 2)]
 class TestClass
 {
 }
-";
-			var output = @"using System;
+", @"using System;
 class MyAttribute : Attribute
 {
 	public MyAttribute(int x, int y) {}
@@ -208,14 +198,13 @@ class MyAttribute : Attribute
 class TestClass
 {
 }
-";
-			Test<RedundantArgumentNameIssue>(input, 2, output, 1);
+", 1);
 		}
 		
 		[Test]
 		public void TestObjectCreation()
 		{
-			var input = @"
+			Analyze<RedundantArgumentNameIssue>(@"
 class TestClass
 {
 	public TestClass (int x, int y)
@@ -224,12 +213,10 @@ class TestClass
 
 	public void Foo ()
 	{
-		new TestClass (0, y:1);
+		new TestClass (0, $y:$1);
 	}
 }
-"
-				;
-			var output = @"
+", @"
 class TestClass
 {
 	public TestClass (int x, int y)
@@ -241,15 +228,14 @@ class TestClass
 		new TestClass (0, 1);
 	}
 }
-";
-			Test<RedundantArgumentNameIssue>(input, 1, output);
+");
 		}
 		
 		
 		[Test]
 		public void Invalid()
 		{
-			var input = @"
+			Analyze<RedundantArgumentNameIssue>(@"
 public class TestClass
 {
 	public int this[int i, int j , int k]
@@ -263,11 +249,10 @@ internal class Test
 	private void Foo()
 	{
 		var TestBases = new TestClass();
-		int a = TestBases[ j: 1, i: 2, k: 3];
+		int a = TestBases[j: 1, i: 2, k: 3];
 	}
 }
-";
-			Test<RedundantArgumentNameIssue>(input, 0);
+");
 		}
 
 	}

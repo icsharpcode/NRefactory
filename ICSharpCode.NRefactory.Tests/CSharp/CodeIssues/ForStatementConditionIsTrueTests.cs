@@ -37,19 +37,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<ForStatementConditionIsTrueIssue>(@"using System;
+			Analyze<ForStatementConditionIsTrueIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
 	{
 		public void method()
 		{
-			for (; true ;)
+			for (; $true$ ;)
 			{}
 		}
 	}
 }
-", 1, @"using System;
+", @"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -67,19 +67,19 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Test<ForStatementConditionIsTrueIssue>(@"using System;
+			Analyze<ForStatementConditionIsTrueIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
 	{
 		public void method()
 		{
-			for (int a; true ; )
+			for (int a; $true$ ; )
 			{}
 		}
 	}
 }
-", 1, @"using System;
+", @"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -97,7 +97,7 @@ namespace resharper_test
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			TestWrongContext<ForStatementConditionIsTrueIssue>(@"using System;
+			Analyze<ForStatementConditionIsTrueIssue>(@"using System;
 namespace resharper_test
 {
 	public class baseClass

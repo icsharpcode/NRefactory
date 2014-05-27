@@ -469,7 +469,7 @@ class TestClass
 		[Test]
 		public void TestBug11795 ()
 		{
-			TestWrongContext<RedundantAssignmentIssue>(@"
+			Analyze<RedundantAssignmentIssue>(@"
 using System;
 using System.Text.RegularExpressions;
 using System.IO;
@@ -500,7 +500,7 @@ public class Test
 		[Test]
 		public void TestBug14929 ()
 		{
-			TestWrongContext<RedundantAssignmentIssue>(@"
+			Analyze<RedundantAssignmentIssue>(@"
 using system;
 
 public class Test

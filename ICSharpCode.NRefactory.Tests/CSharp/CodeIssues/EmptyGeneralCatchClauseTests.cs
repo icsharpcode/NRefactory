@@ -86,7 +86,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			TestWrongContext<EmptyGeneralCatchClauseIssue>(@"using System;
+			Analyze<EmptyGeneralCatchClauseIssue>(@"using System;
 	using System.IO;
 	namespace Application
 	{

@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<ConvertIfToOrExpressionIssue>(@"class Foo
+			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
 {
 	int Bar(int o)
 	{
@@ -114,7 +114,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestNullCheckBug ()
 		{
-			TestWrongContext<ConvertIfToOrExpressionIssue>(@"class Foo
+			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
 {
 	public bool Enabled { get; set; }
 

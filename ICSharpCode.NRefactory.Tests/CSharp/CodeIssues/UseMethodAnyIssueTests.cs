@@ -112,7 +112,7 @@ class Bar
 		[Test]
 		public void TestDisable ()
 		{
-			TestWrongContext<UseMethodAnyIssue>(@"
+			Analyze<UseMethodAnyIssue>(@"
 using System;
 using System.Linq;
 class Bar
@@ -130,7 +130,7 @@ class Bar
 		[Test]
 		public void TestWrongMethod ()
 		{
-			TestWrongContext<UseMethodAnyIssue>(@"
+			Analyze<UseMethodAnyIssue>(@"
 using System;
 using System.Linq;
 class Bar

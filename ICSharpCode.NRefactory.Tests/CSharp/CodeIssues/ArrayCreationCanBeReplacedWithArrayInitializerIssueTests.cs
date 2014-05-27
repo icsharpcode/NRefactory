@@ -34,33 +34,31 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestVariableDeclarationCase1()
 		{
-			var input = @"
+			Analyze<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
 class TestClass
 {
 	void TestMethod ()
 	{
-		int[] foo = new int[] {1, 2, 3};
+		int[] foo = $new int[] ${1, 2, 3};
 	}
-}";
-			var output = @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
 	{
 		int[] foo = {1, 2, 3};
 	}
-}";
-			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 1, output);
+}");
 		}
 
 		[Test]
 		public void TestFieldCase1()
 		{
-			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
+			Analyze<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
 class TestClass
 {
-	int[] foo = new int[] {1, 2, 3};
-}", 1, @"
+	int[] foo = $new int[] ${1, 2, 3};
+}", @"
 class TestClass
 {
 	int[] foo = {1, 2, 3};
@@ -71,14 +69,14 @@ class TestClass
 		[Test]
 		public void TestVariableDeclarationCase2()
 		{
-			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
+			Analyze<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
 class TestClass
 {
 	void TestMethod ()
 	{
-		int[] foo = new [] {1, 2, 3};
+		int[] foo = $new [] ${1, 2, 3};
 	}
-}", 1, @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
@@ -91,51 +89,47 @@ class TestClass
 		[Test]
 		public void TestFieldCase2()
 		{
-			var input = @"
+			Analyze<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
 class TestClass
 {
-	public int[] filed = new [] {1,2,3};
-}";
-			var output = @"
+	public int[] filed = $new [] ${1,2,3};
+}", @"
 class TestClass
 {
 	public int[] filed = {1,2,3};
-}";
-			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 1, output);
+}");
 		}
 
 		[Test]
 		public void TestNoProblem1()
 		{
-			var input = @"
+			Analyze<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
 class TestClass
 {
 	void TestMethod ()
 	{
 		var foo = new[] {1, 2, 3};
 	}
-}";
-			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 0);
+}");
 		}
 
 		[Test]
 		public void TestNoProblem2()
 		{
-			var input = @"
+			Analyze<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
 class TestClass
 {
 	void TestMethod ()
 	{
 		var foo = new int[] {1, 2, 3};
 	}
-}";
-			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 0);
+}");
 		}
 
 		[Test]
 		public void TestNoProblem3()
 		{
-			var input = @"
+			Analyze<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(@"
 class TestClass
 {
 	Void Foo(int[] a)
@@ -144,8 +138,7 @@ class TestClass
 	{
 		Foo(new int[]{1,2,3});
 	}
-}";
-			Test<ArrayCreationCanBeReplacedWithArrayInitializerIssue>(input, 0);
+}");
 		}
 	}
 }

@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestPropertySetter ()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo {
+			Analyze<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo {
 	string Bar 
 	{
 		set {
@@ -169,7 +169,7 @@ class Foo
 		[Test]
 		public void TestAnonymousMethodReturningVoid ()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
+			Analyze<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
 
 class Foo
 {
@@ -212,7 +212,7 @@ class Foo
 		[Test]
 		public void TestConstructor ()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
+			Analyze<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
 {
 	Foo ()
 	{
@@ -224,7 +224,7 @@ class Foo
 		[Test]
 		public void TestDestructor ()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
+			Analyze<CS0126ReturnMustBeFollowedByAnyExpression>(@"class Foo
 {
 	~Foo ()
 	{
@@ -236,7 +236,7 @@ class Foo
 		[Test]
 		public void TestDontShowUpOnUndecidableCase ()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+			Analyze<CS0126ReturnMustBeFollowedByAnyExpression>(@"
 using System;
 
 class Test
@@ -256,7 +256,7 @@ class Test
 		[Test]
 		public void TestParallelForBug ()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+			Analyze<CS0126ReturnMustBeFollowedByAnyExpression>(@"
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -276,7 +276,7 @@ class Test
 		[Test]
 		public void TestConstructorInitializer ()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"
+			Analyze<CS0126ReturnMustBeFollowedByAnyExpression>(@"
 using System;
 
 class Test
@@ -293,7 +293,7 @@ class Test
 		[Test]
 		public void TestAsyncMethod_Void()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
+			Analyze<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
 using System.Threading.Tasks;
 
 class Test
@@ -308,7 +308,7 @@ class Test
 		[Test]
 		public void TestAsyncMethod_Task()
 		{
-			TestWrongContext<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
+			Analyze<CS0126ReturnMustBeFollowedByAnyExpression>(@"using System;
 using System.Threading.Tasks;
 
 class Test

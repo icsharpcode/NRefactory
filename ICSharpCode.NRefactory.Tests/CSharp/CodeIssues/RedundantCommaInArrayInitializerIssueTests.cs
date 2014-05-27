@@ -107,7 +107,7 @@ class TestClass
 		var a = new TestClass { 1, };
 	}
 }";
-			TestWrongContext<RedundantCommaInArrayInitializerIssue>(input);
+			Analyze<RedundantCommaInArrayInitializerIssue>(input);
 		}
 	}
 }

@@ -110,7 +110,7 @@ class TestClass
 		}
 	}
 }";
-            TestWrongContext<RedundantCaseLabelIssue>(input);
+            Analyze<RedundantCaseLabelIssue>(input);
         }
     }
 }
