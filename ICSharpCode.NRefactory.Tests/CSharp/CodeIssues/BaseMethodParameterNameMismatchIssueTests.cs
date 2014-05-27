@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestMethod ()
 		{
-			Test<BaseMethodParameterNameMismatchIssue>(@"
+			Analyze<BaseMethodParameterNameMismatchIssue>(@"
 class Foo
 {
 	public virtual void FooBar (int bar) {}
@@ -42,7 +42,7 @@ class Foo
 
 class Bar : Foo
 {
-	public override void FooBar (int foo)
+	public override void FooBar (int $foo$)
 	{
 	}
 }
@@ -64,7 +64,7 @@ class Bar : Foo
 		[Test]
 		public void TestIndexer ()
 		{
-			Test<BaseMethodParameterNameMismatchIssue>(@"
+			Analyze<BaseMethodParameterNameMismatchIssue>(@"
 class Foo
 {
 	protected virtual int this[int i, int j] { get { return 1; } }
@@ -72,7 +72,7 @@ class Foo
 
 class Bar : Foo
 {
-	protected override int this[int i, int x] { get { return 1; } }
+	protected override int this[int i, int $x$] { get { return 1; } }
 }
 ", @"
 class Foo

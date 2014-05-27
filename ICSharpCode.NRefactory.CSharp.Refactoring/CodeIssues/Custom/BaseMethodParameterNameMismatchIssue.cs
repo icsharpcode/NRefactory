@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "BaseMethodParameterNameMismatchIssue";
 		const string Description            = "Parameter name differs in base declaration";
-		const string MessageFormat          = "";
+		const string MessageFormat          = "Parameter name differs in base declaration";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -71,78 +71,92 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-//			{
-//				// skip
-//			}
-//
-//			public override void VisitBlockStatement(BlockStatement blockStatement)
-//			{
-//				// SKIP
-//			}
-//
-//			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-//			{
-//				Check (indexerDeclaration);
-//			}
-//
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				Check (methodDeclaration);
-//			}
-//
-//			void Check (EntityDeclaration entity)
-//			{
-//				if (!entity.HasModifier(Modifiers.Override))
-//					return;
-//				var rr = ctx.Resolve(entity) as MemberResolveResult;
-//				if (rr == null || rr.IsError)
-//					return;
-//				var method = rr.Member as IParameterizedMember;
-//				if (method == null)
-//					return;
-//				var baseMethod = InheritanceHelper.GetBaseMember(method) as IParameterizedMember;
-//				if (baseMethod == null)
-//					return;
-//
-//				for (int i = 0; i < Math.Min (method.Parameters.Count, baseMethod.Parameters.Count); i++) {
-//					var arg     = method.Parameters[i];
-//					var baseArg = baseMethod.Parameters[i];
-//
-//					if (arg.Name != baseArg.Name) {
-//						int _i = i;
-//						var parameters = entity.GetChildrenByRole (Roles.Parameter);
-//						AddIssue(new CodeIssue(
-//							parameters.ElementAt(_i).NameToken,
-//							ctx.TranslateString("Parameter name differs in base method declaration"),
-//							string.Format(ctx.TranslateString("Rename to '{0}'"), baseArg.Name),
-//							s => {
-//								s.Rename(arg, baseArg.Name);
-//							}
-//						));
-//					}
-//				}
-//			}
+			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax constructorDeclaration)
+			{
+				// skip
+			}
+
+			public override void VisitDestructorDeclaration(DestructorDeclarationSyntax destructorDeclaration)
+			{
+				// skip
+			}
+
+			public override void VisitOperatorDeclaration(OperatorDeclarationSyntax operatorDeclaration)
+			{
+				// skip
+			}
+
+			public override void VisitPropertyDeclaration(PropertyDeclarationSyntax propertyDeclaration)
+			{
+				// skip
+			}
+
+			public override void VisitFieldDeclaration(FieldDeclarationSyntax fieldDeclaration)
+			{
+				// skip
+			}
+
+			public override void VisitEventDeclaration(EventDeclarationSyntax node)
+			{
+				// skip
+			}
+
+			public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node)
+			{
+				// skip
+			}
+
+			public override void VisitBlock(BlockSyntax node)
+			{
+				// SKIP
+			}
+
+			public override void VisitIndexerDeclaration(IndexerDeclarationSyntax indexerDeclaration)
+			{
+				var rr = semanticModel.GetDeclaredSymbol(indexerDeclaration);
+				if (rr == null || !rr.IsOverride)
+					return;
+				var baseProperty = rr.OverriddenProperty;
+				if (baseProperty == null)
+					return;
+				Check(indexerDeclaration.ParameterList.Parameters, rr.Parameters, baseProperty.Parameters); 
+			}
+
+		
+			public override void VisitMethodDeclaration(MethodDeclarationSyntax methodDeclaration)
+			{
+				var rr = semanticModel.GetDeclaredSymbol(methodDeclaration);
+				if (rr == null || !rr.IsOverride)
+					return;
+				var baseMethod = rr.OverriddenMethod;
+				if (baseMethod == null)
+					return;
+				Check(methodDeclaration.ParameterList.Parameters, rr.Parameters, baseMethod.Parameters); 
+			}
+
+			void Check(SeparatedSyntaxList<ParameterSyntax> syntaxParams, ImmutableArray<IParameterSymbol> list1, ImmutableArray<IParameterSymbol> list2)
+			{
+				var upper = Math.Min(list1.Length, list2.Length);
+				for (int i = 0; i < upper; i++) {
+					var arg     = list1[i];
+					var baseArg = list2[i];
+
+					if (arg.Name != baseArg.Name) {
+						AddIssue (Diagnostic.Create(
+							Rule.Id,
+							Rule.Category,
+							Rule.MessageFormat,
+							Rule.DefaultSeverity,
+							Rule.IsEnabledByDefault,
+							4,
+							false,
+							Location.Create(semanticModel.SyntaxTree, syntaxParams[i].Identifier.Span),
+							null,
+							new [] { baseArg.Name }
+						));
+					}
+				}
+			}
 		}
 	}
 
@@ -160,10 +174,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				if (!node.IsKind(SyntaxKind.Parameter))
+					continue;
+				var renamedParameter = ((ParameterSyntax)node).WithIdentifier(SyntaxFactory.Identifier(diagonstic.CustomTags[0]));
+				var newRoot = root.ReplaceNode(node, renamedParameter);
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Rename to '{0}'", diagonstic.CustomTags[0]), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}
