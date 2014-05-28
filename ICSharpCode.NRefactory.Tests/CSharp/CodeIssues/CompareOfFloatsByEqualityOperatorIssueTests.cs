@@ -32,65 +32,63 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	[TestFixture]
 	public class CompareOfFloatsByEqualityOperatorIssueTests : InspectionActionTestBase
 	{
-		static void Test (string inputOp, string outputOp)
+		static void TestOperator (string inputOp, string outputOp)
 		{
-			var input = @"
+			Analyze<CompareOfFloatsByEqualityOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod ()
 	{
 		double x = 0.1;
-		bool test = x " + inputOp + @" 0.1;
-		bool test2 = x " + inputOp + @" 1ul;
+		bool test = $x " + inputOp + @" 0.1$;
+		bool test2 = $x " + inputOp + @" 1ul$;
 	}
-}";
-			var output = @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
 	{
 		double x = 0.1;
-		bool test = System.Math.Abs (x - 0.1) " + outputOp + @" EPSILON;
-		bool test2 = System.Math.Abs (x - 1ul) " + outputOp + @" EPSILON;
+		bool test = System.Math.Abs(x - 0.1) " + outputOp + @" EPSILON;
+		bool test2 = System.Math.Abs(x - 1ul) " + outputOp + @" EPSILON;
 	}
-}";
-			Test<CompareOfFloatsByEqualityOperatorIssue> (input, 2, output);
+}");
 		}
 
 		[Test]
 		public void TestEquality ()
 		{
-			Test ("==", "<");
+			TestOperator ("==", "<");
 		}
 
 		[Test]
 		public void TestInequality ()
 		{
-			Test ("!=", ">");
+			TestOperator ("!=", ">");
 		}
 
 		[Test]
 		public void TestZero ()
 		{
-			Test<CompareOfFloatsByEqualityOperatorIssue> (@"
+			Analyze<CompareOfFloatsByEqualityOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod (double x, float y)
 	{
-		bool test = x == 0;
-		bool test2 = 0.0e10 != x;
-		bool test3 = 0L == y;
-		bool test4 = y != 0.0000;
+		bool test = $x == 0$;
+		bool test2 = $0.0e10 != x$;
+		bool test3 = $0L == y$;
+		bool test4 = $y != 0.0000$;
 	}
-}", 4, @"
+}", @"
 class TestClass
 {
 	void TestMethod (double x, float y)
 	{
-		bool test = System.Math.Abs (x) < EPSILON;
-		bool test2 = System.Math.Abs (x) > EPSILON;
-		bool test3 = System.Math.Abs (y) < EPSILON;
-		bool test4 = System.Math.Abs (y) > EPSILON;
+		bool test = System.Math.Abs(x) < EPSILON;
+		bool test2 = System.Math.Abs(x) > EPSILON;
+		bool test3 = System.Math.Abs(y) < EPSILON;
+		bool test4 = System.Math.Abs(y) > EPSILON;
 	}
 }");
 		}
@@ -98,25 +96,25 @@ class TestClass
 		[Test]
 		public void TestNaN ()
 		{
-			Test<CompareOfFloatsByEqualityOperatorIssue> (@"
+			Analyze<CompareOfFloatsByEqualityOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod (double x, float y)
 	{
-		bool test = x == System.Double.NaN;
-		bool test2 = x != double.NaN;
-		bool test3 = y == float.NaN;
-		bool test4 = x != float.NaN;
+		bool test = $x == System.Double.NaN$;
+		bool test2 = $x != double.NaN$;
+		bool test3 = $y == float.NaN$;
+		bool test4 = $x != float.NaN$;
 	}
-}", 4, @"
+}", @"
 class TestClass
 {
 	void TestMethod (double x, float y)
 	{
-		bool test = double.IsNaN (x);
-		bool test2 = !double.IsNaN (x);
-		bool test3 = float.IsNaN (y);
-		bool test4 = !double.IsNaN (x);
+		bool test = double.IsNaN(x);
+		bool test2 = !double.IsNaN(x);
+		bool test3 = float.IsNaN(y);
+		bool test4 = !double.IsNaN(x);
 	}
 }");
 		}
@@ -125,26 +123,25 @@ class TestClass
 		[Test]
 		public void TestPositiveInfinity ()
 		{
-
-			Test<CompareOfFloatsByEqualityOperatorIssue> (@"
+			Analyze<CompareOfFloatsByEqualityOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod (double x, float y)
 	{
-		bool test = x == System.Double.PositiveInfinity;
-		bool test2 = x != double.PositiveInfinity;
-		bool test3 = y == float.PositiveInfinity;
-		bool test4 = x != float.PositiveInfinity;
+		bool test = $x == System.Double.PositiveInfinity$;
+		bool test2 = $x != double.PositiveInfinity$;
+		bool test3 = $y == float.PositiveInfinity$;
+		bool test4 = $x != float.PositiveInfinity$;
 	}
-}", 4, @"
+}", @"
 class TestClass
 {
 	void TestMethod (double x, float y)
 	{
-		bool test = double.IsPositiveInfinity (x);
-		bool test2 = !double.IsPositiveInfinity (x);
-		bool test3 = float.IsPositiveInfinity (y);
-		bool test4 = !double.IsPositiveInfinity (x);
+		bool test = double.IsPositiveInfinity(x);
+		bool test2 = !double.IsPositiveInfinity(x);
+		bool test3 = float.IsPositiveInfinity(y);
+		bool test4 = !double.IsPositiveInfinity(x);
 	}
 }");
 		}
@@ -152,25 +149,25 @@ class TestClass
 		[Test]
 		public void TestNegativeInfinity ()
 		{
-			Test<CompareOfFloatsByEqualityOperatorIssue> (@"
+			Analyze<CompareOfFloatsByEqualityOperatorIssue> (@"
 class TestClass
 {
 	void TestMethod (double x, float y)
 	{
-		bool test = x == System.Double.NegativeInfinity;
-		bool test2 = x != double.NegativeInfinity;
-		bool test3 = y == float.NegativeInfinity;
-		bool test4 = x != float.NegativeInfinity;
+		bool test = $x == System.Double.NegativeInfinity$;
+		bool test2 = $x != double.NegativeInfinity$;
+		bool test3 = $y == float.NegativeInfinity$;
+		bool test4 = $x != float.NegativeInfinity$;
 	}
-}", 4, @"
+}", @"
 class TestClass
 {
 	void TestMethod (double x, float y)
 	{
-		bool test = double.IsNegativeInfinity (x);
-		bool test2 = !double.IsNegativeInfinity (x);
-		bool test3 = float.IsNegativeInfinity (y);
-		bool test4 = !double.IsNegativeInfinity (x);
+		bool test = double.IsNegativeInfinity(x);
+		bool test2 = !double.IsNegativeInfinity(x);
+		bool test3 = float.IsNegativeInfinity(y);
+		bool test4 = !double.IsNegativeInfinity(x);
 	}
 }");
 		}
