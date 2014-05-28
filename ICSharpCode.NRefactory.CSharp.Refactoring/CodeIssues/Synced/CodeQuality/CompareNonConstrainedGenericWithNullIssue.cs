@@ -72,49 +72,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			static readonly AstNode pattern = new Choice {
-//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("node"), BinaryOperatorType.Equality, new NullReferenceExpression ()),
-//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("node"), BinaryOperatorType.InEquality, new NullReferenceExpression ())
-//			};
-//
-//			void CheckCase(IType type, BinaryOperatorExpression binaryOperatorExpression, Expression expr)
-//			{
-//				if (type.Kind != TypeKind.TypeParameter || type.IsReferenceType == true)
-//					return;
-//				AddIssue(new CodeIssue(
-//					binaryOperatorExpression,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					s => {
-//						var builder = ctx.CreateTypeSystemAstBuilder(binaryOperatorExpression);
-//						s.Replace(binaryOperatorExpression, 
-//							new BinaryOperatorExpression(expr.Clone(), 
-//								binaryOperatorExpression.Operator,
-//								new DefaultValueExpression(builder.ConvertType(type))
-//							)
-//						); 
-//					}
-//				));
-//			}
-//
-//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-//			{
-//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-//				var match = pattern.Match(binaryOperatorExpression);
-//				if (!match.Success)
-//					return;
-//				var expr = match.Get<Expression>("node").SingleOrDefault();
-//				if (expr == null)
-//					return;
-//				var rr = ctx.Resolve(expr);
-//
-//				var lr = rr as LocalResolveResult;
-//				if (lr != null)
-//					CheckCase (lr.Variable.Type, binaryOperatorExpression, expr);
-//				var mr = rr as MemberResolveResult;
-//				if (mr != null)
-//					CheckCase (mr.Member.ReturnType, binaryOperatorExpression, expr);
-//			}
+			void CheckCase(ITypeSymbol type, ExpressionSyntax expr)
+			{
+				if (type.TypeKind != TypeKind.TypeParameter || type.IsReferenceType)
+					return;
+				AddIssue (Diagnostic.Create(Rule, expr.GetLocation()));
+			}
+
+			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
+			{
+				base.VisitBinaryExpression(node);
+				var left = node.Left.SkipParens();
+				var right = node.Right.SkipParens();
+				ExpressionSyntax expr = null, highlightExpr = null;
+				if (left.IsKind(SyntaxKind.NullLiteralExpression)) {
+					expr = right;
+					highlightExpr = node.Left;
+				}
+				if (right.IsKind(SyntaxKind.NullLiteralExpression)) {
+					expr = left;
+					highlightExpr = node.Right;
+				}
+				if (expr == null)
+					return;
+				var rr = semanticModel.GetTypeInfo(expr);
+				CheckCase (rr.Type, highlightExpr);
+			}
 		}
 	}
 
@@ -128,14 +111,33 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'default'", document.WithSyntaxRoot(newRoot)));
+				if (!node.IsKind(SyntaxKind.NullLiteralExpression))
+					continue;
+				result.Add(CodeActionFactory.Create(
+					node.Span,
+					diagonstic.Severity,
+					"Replace with 'default'",
+					token => {
+						var bOp = (BinaryExpressionSyntax)node.Parent;
+						var n = node == bOp.Left.SkipParens() ? bOp.Right : bOp.Left;
+						var info = semanticModel.GetTypeInfo(n);
+
+						var newRoot = root.ReplaceNode(
+							node,
+							SyntaxFactory.DefaultExpression(
+								SyntaxFactory.ParseTypeName(info.Type.ToMinimalDisplayString(semanticModel, node.SpanStart)))
+								.WithLeadingTrivia(node.GetLeadingTrivia()
+							)
+						);
+
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					})
+				);
 			}
 			return result;
 		}

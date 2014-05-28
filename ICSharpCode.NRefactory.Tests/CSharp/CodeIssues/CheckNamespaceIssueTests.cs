@@ -28,6 +28,7 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
+	[Ignore("TODO")]
 	[TestFixture]
 	public class CheckNamespaceIssueTests : InspectionActionTestBase
 	{

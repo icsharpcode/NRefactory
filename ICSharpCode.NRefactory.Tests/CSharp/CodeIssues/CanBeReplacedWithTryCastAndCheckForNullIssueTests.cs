@@ -30,18 +30,19 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
+	[Ignore("TODO: port action first.")]
 	[TestFixture]
 	public class CanBeReplacedWithTryCastAndCheckForNullIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void SimpleCase()
 		{
-			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
 	{
-		if (foo is Bar) {
+		if (foo $is$ Bar) {
 			Baz ((Bar)foo);
 			return (Bar)foo;
 		}
@@ -54,12 +55,12 @@ class Bar
 		[Test]
 		public void ComplexCase()
 		{
-			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public IDisposable Baz (object foo)
 	{
-		if (((foo) is Bar)) {
+		if (((foo) $is$ Bar)) {
 			Baz ((Bar)foo);
 			Baz (foo as Bar);
 			Baz (((foo) as Bar));
@@ -75,12 +76,12 @@ class Bar
 		[Test]
 		public void IfElseCase()
 		{
-			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
 	{
-		if (foo is Bar) {
+		if (foo $is$ Bar) {
 			Baz ((Bar)foo);
 			return (Bar)foo;
 		} else {
@@ -112,13 +113,13 @@ class Bar
 		[Test]
 		public void NestedIf()
 		{
-			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
 	{
 		if (foo is string) {
-		} else if (foo is Bar) {
+		} else if (foo $is$ Bar) {
 			Baz ((Bar)foo);
 			return (Bar)foo;
 		}
@@ -131,12 +132,12 @@ class Bar
 		[Test]
 		public void TestNegatedCaseWithReturn()
 		{
-			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
 	{
-		if (!(foo is Bar))
+		if (!(foo $is$ Bar))
 			return null;
 		Baz ((Bar)foo);
 		return (Bar)foo;
@@ -148,13 +149,13 @@ class Bar
 		[Test]
 		public void TestNegatedCaseWithBreak()
 		{
-			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
 	{
 		for (int i = 0; i < 10; i++) {
-			if (!(foo is Bar))
+			if (!(foo $is$ Bar))
 				break;
 			Baz ((Bar)foo);
 		}
@@ -167,13 +168,13 @@ class Bar
 		[Test]
 		public void TestCaseWithContinue()
 		{
-			TestIssue<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
+			Analyze<CanBeReplacedWithTryCastAndCheckForNullIssue>(@"
 class Bar
 {
 	public Bar Baz (object foo)
 	{
 		for (int i = 0; i < 10; i++) {
-			if (!(foo is Bar)) {
+			if (!(foo $is$ Bar)) {
 				continue;
 			} else {
 				foo = new Bar ();
@@ -185,7 +186,6 @@ class Bar
 }
 ");
 		}
-
 
 		[Test]
 		public void TestDisable()
@@ -225,4 +225,3 @@ class Bar
 		}
 	}
 }
-

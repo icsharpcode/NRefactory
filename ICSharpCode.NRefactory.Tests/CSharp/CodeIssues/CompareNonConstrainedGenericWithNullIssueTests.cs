@@ -34,11 +34,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestLocal ()
 		{
-			Test<CompareNonConstrainedGenericWithNullIssue>(@"public class Bar
+			Analyze<CompareNonConstrainedGenericWithNullIssue>(@"public class Bar
 {
 	public void Foo<T> (T t)
 	{
-		if (t == null) {
+		if (t == $null$) {
 		}
 	}
 }", @"public class Bar
@@ -54,12 +54,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestField ()
 		{
-			Test<CompareNonConstrainedGenericWithNullIssue>(@"public class Bar<T>
+			Analyze<CompareNonConstrainedGenericWithNullIssue>(@"public class Bar<T>
 {
 	T t;
 	public void Foo ()
 	{
-		if (t == null) {
+		if (t == $null$) {
 		}
 	}
 }", @"public class Bar<T>
