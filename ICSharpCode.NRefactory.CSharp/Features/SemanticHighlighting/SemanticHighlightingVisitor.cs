@@ -223,6 +223,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 //			VisitChildrenAfter(memberReferenceExpression, memberNameToken);
 //		}
 
+
+		public override void DefaultVisit(SyntaxNode node)
+		{
+			if (node.Span.End < region.Start || node.Span.Start > region.End)
+				return;
+			base.DefaultVisit(node);
+		}
 		void HighlightStringFormatItems(LiteralExpressionSyntax expr)
 		{
 			if (!expr.Token.IsKind(SyntaxKind.StringLiteralToken))
