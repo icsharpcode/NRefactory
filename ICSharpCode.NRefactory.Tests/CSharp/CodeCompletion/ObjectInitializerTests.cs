@@ -790,9 +790,7 @@ class Test
 	}
 }
 ",
-				provider => {
-					Assert.IsNotNull(provider.Find("Children"), "'Children' not found.");
-				});
+				provider => Assert.IsNotNull(provider.Find("Children"), "'Children' not found."));
 		}
 
 		[Test]
@@ -820,6 +818,34 @@ class Test
 					Assert.IsNotNull(provider.Find("Children"), "'Children' not found.");
 				});
 		}
+
+		/// <summary>
+		/// Bug 20110 - [Forms] Autocomplete doesn't work for the Placeholder property 
+		/// </summary>
+		[Test]
+		public void TestBug20110()
+		{
+			CodeCompletionBugTests.CombinedProviderTest(
+				@"
+public class Entry
+{
+	public string Placeholder { get; set; }
+}
+
+class Test
+{
+	public static void Main(string [] args)
+	{
+		var dict = new Entry {
+			$c$
+		};
+	}
+}
+",
+				provider => Assert.IsNotNull(provider.Find("Placeholder"), "'Children' not found."));
+		}
+
+	
 	}
 }
 
