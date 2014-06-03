@@ -31,6 +31,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeCompletion;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
+	[Ignore("TODO roslyn port.")]
 	[TestFixture]
 	public class ConstantNullCoalescingConditionIssueTests : InspectionActionTestBase
 	{

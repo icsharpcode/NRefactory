@@ -65,48 +65,63 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
+		internal static InvocationExpressionSyntax AnalyzeBody(SyntaxNode body)
+		{
+			var result = body as InvocationExpressionSyntax;
+			if (result != null)
+				return result;
+			var block = body as BlockSyntax;
+			if (block != null && block.Statements.Count == 1) {
+				var stmt = block.Statements[0] as ExpressionStatementSyntax;
+				if (stmt != null)
+					result = stmt.Expression as InvocationExpressionSyntax;
+			}
+			return result;
+		}
+
 		class GatherVisitor : GatherVisitorBase<ConvertClosureToMethodGroupIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			static readonly Pattern pattern = new Choice {
-//				new BlockStatement {
-//					new ReturnStatement (new AnyNode ("invoke")) 
-//				},
-//				new AnyNode ("invoke")
-//			};
-//
-//			static InvocationExpression AnalyzeBody(AstNode body)
-//			{
-//				var m = pattern.Match(body);
-//				if (m.Success)
-//					return m.Get("invoke").Single () as InvocationExpression;
-//				return null;
-//			}
-//
-//			static bool IsSimpleTarget(Expression target)
-//			{
-//				if (target is IdentifierExpression)
-//					return true;
-//				var mref = target as MemberReferenceExpression;
-//				if (mref != null)
-//					return IsSimpleTarget (mref.Target);
-//				var pref = target as PointerReferenceExpression;
-//				if (pref != null)
-//					return IsSimpleTarget (pref.Target);
-//				return false;
-//			}
-//
-//			void AnalyzeExpression(AstNode expression, AstNode body, AstNodeCollection<ParameterDeclaration> parameters)
-//			{
-//				var invocation = AnalyzeBody(body);
-//				if (invocation == null)
-//					return;
-//				if (!IsSimpleTarget (invocation.Target))
-//					return;
+
+			public override void VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax node)
+			{
+				base.VisitSimpleLambdaExpression(node);
+				AnalyzeExpression(node, node.Body, new [] { node.Parameter });
+			}
+
+			public override void VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax node)
+			{
+				base.VisitParenthesizedLambdaExpression(node);
+				AnalyzeExpression(node, node.Body, node.ParameterList.Parameters);
+			}
+
+			public override void VisitAnonymousMethodExpression(AnonymousMethodExpressionSyntax node)
+			{
+				base.VisitAnonymousMethodExpression(node);
+				AnalyzeExpression(node, node.Block, node.ParameterList.Parameters);
+			}
+
+			static bool IsSimpleTarget(ExpressionSyntax target)
+			{
+				if (target is IdentifierNameSyntax)
+					return true;
+				var mref = target as MemberAccessExpressionSyntax;
+				if (mref != null)
+					return IsSimpleTarget (mref.Expression);
+				return false;
+			}
+
+			void AnalyzeExpression(SyntaxNode node, SyntaxNode body, IReadOnlyList<ParameterSyntax> parameters)
+			{
+				var invocation = AnalyzeBody(body);
+				if (invocation == null)
+					return;
+				if (!IsSimpleTarget (invocation.Expression))
+					return;
+
 //				var rr = ctx.Resolve (invocation) as CSharpInvocationResolveResult;
 //				if (rr == null)
 //					return;
@@ -159,7 +174,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //				}
 //
 //				AddIssue(new CodeIssue(expression,
-			//				         expression is AnonymousMethodExpression ? ctx.TranslateString("Anonymous method can be simplified to method group") : ctx.TranslateString("Lambda expression can be simplified to method group"), 
+//				         expression is AnonymousMethodExpression ? ctx.TranslateString("Anonymous method can be simplified to method group") : ctx.TranslateString("Lambda expression can be simplified to method group"), 
 //				         ctx.TranslateString(), script =>  {
 //					if (validTypes.Any (t => t.FullName == "System.Func" && t.TypeParameterCount == 1 + parameters.Count) && validTypes.Any (t => t.FullName == "System.Action")) {
 //						if (rr != null && rr.Member.ReturnType.Kind != TypeKind.Void) {
@@ -177,7 +192,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //					}
 //					script.Replace(expression, invocation.Target.Clone());
 //				}));
-//			}
+			}
 //			
 //			static ResolveResult UnpackImplicitIdentityOrReferenceConversion(ResolveResult rr)
 //			{
@@ -186,19 +201,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //					return crr.Input;
 //				return rr;
 //			}
-//
-//			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
-//			{
-//				base.VisitLambdaExpression(lambdaExpression);
-//				AnalyzeExpression(lambdaExpression, lambdaExpression.Body, lambdaExpression.Parameters);
-//			}
-//
-//			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
-//			{
-//				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
-//				AnalyzeExpression(anonymousMethodExpression, anonymousMethodExpression.Body, anonymousMethodExpression.Parameters);
-//			}
-//
 		}
 	}
 
@@ -216,10 +218,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with method group", document.WithSyntaxRoot(newRoot)));
+				if (!node.IsKind(SyntaxKind.BaseList))
+					continue;
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with method group", token => {
+					var c1 = node as AnonymousMethodExpressionSyntax;
+					var c2 = node as ParenthesizedLambdaExpressionSyntax;
+					var c3 = node as SimpleLambdaExpressionSyntax;
+					InvocationExpressionSyntax invoke = null;
+					if (c1 != null)
+						invoke = ConvertClosureToMethodGroupIssue.AnalyzeBody(c1.Block);
+					if (c2 != null)
+						invoke = ConvertClosureToMethodGroupIssue.AnalyzeBody(c2.Body);
+					if (c3 != null)
+						invoke = ConvertClosureToMethodGroupIssue.AnalyzeBody(c3.Body);
+					var newRoot = root.ReplaceNode(node, invoke.Expression);
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}));
 			}
 			return result;
 		}
