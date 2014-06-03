@@ -36,9 +36,7 @@ using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -51,33 +49,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
 	public class ConvertConditionalTernaryToNullCoalescingIssue : GatherVisitorCodeIssueProvider
 	{
-//		static readonly Pattern unequalPattern = new Choice {
-//			// a != null ? a : other
-//			new ConditionalExpression(
-//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
-//				new Backreference("a"),
-//				new AnyNode("other")
-//			),
-//
-//			// obj != null ? (Type)obj : other
-//			new ConditionalExpression(
-//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("obj"), BinaryOperatorType.InEquality, new NullReferenceExpression()),
-//				new NamedNode("a", new CastExpression(new AnyNode(), new Backreference("obj"))),
-//				new AnyNode("other")
-//			)
-//
-//		};
-//
-//		static readonly Pattern equalPattern = new Choice {
-//			// a == null ? other : a
-//			new ConditionalExpression(
-//				PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.Equality, new NullReferenceExpression()),
-//				new AnyNode("other"),
-//				new Backreference("a")
-//			)
-//		};
-
-		
 		internal const string DiagnosticId  = "ConvertConditionalTernaryToNullCoalescingIssue";
 		const string Description            = "'?:' expression can be converted to '??' expression.";
 		const string MessageFormat          = "'?:' expression can be re-written as '??' expression";
@@ -102,35 +73,44 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
-//			{
-//				Match m = unequalPattern.Match(conditionalExpression);
-//				bool isEqual = false;
-//				if (!m.Success) {
-//					isEqual = true;
-//					m = equalPattern.Match(conditionalExpression);
-//				}
-//				if (m.Success) {
-//					var a = m.Get<Expression>("a").Single();
-//					var other = m.Get<Expression>("other").Single();
-//
-//					if (isEqual) {
-//						var castExpression = other as CastExpression;
-//						if (castExpression != null) {
-//							a = new CastExpression(castExpression.Type.Clone(), a.Clone());
-//							other = castExpression.Expression;
-//						}
-//					}
-//
-//					AddIssue(new CodeIssue(conditionalExpression, ctx.TranslateString(), new CodeAction (
-//						ctx.TranslateString(), script => {
-//							var expr = new BinaryOperatorExpression (a.Clone (), BinaryOperatorType.NullCoalescing, other.Clone ());
-//							script.Replace (conditionalExpression, expr);
-//						}, conditionalExpression)));
-//				}
-//				base.VisitConditionalExpression (conditionalExpression);
-//			}
+
+			static ExpressionSyntax AnalyzeBinaryExpression (ExpressionSyntax node)
+			{
+				var bOp = node.SkipParens() as BinaryExpressionSyntax;
+				if (bOp == null)
+					return null;
+				if (bOp.IsKind(SyntaxKind.NotEqualsExpression) || bOp.IsKind(SyntaxKind.EqualsExpression)) {
+					if (bOp.Left != null && bOp.Left.SkipParens().IsKind(SyntaxKind.NullLiteralExpression))
+						return bOp.Right;
+					if (bOp.Right != null && bOp.Right.SkipParens().IsKind(SyntaxKind.NullLiteralExpression))
+						return bOp.Left;
+				}
+				return null;
+			}
+
+			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
+			{
+				base.VisitConditionalExpression(node);
+				var obj = AnalyzeBinaryExpression(node.Condition);
+				if (obj == null)
+					return;
+				if (node.Condition.SkipParens().IsKind(SyntaxKind.NotEqualsExpression)) {
+					if (obj.SkipParens().IsEquivalentTo(node.WhenTrue.SkipParens(), true)) {
+						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+						return;
+					}
+					var cast = node.WhenTrue as CastExpressionSyntax;
+					if (cast != null && cast.Expression != null && obj.SkipParens().IsEquivalentTo(cast.Expression.SkipParens(), true)) {
+						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+						return;
+					}
+				} else {
+					if (obj.SkipParens().IsEquivalentTo(node.WhenFalse.SkipParens(), true)) {
+						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+						return;
+					}
+				}
+			}
 		}
 	}
 
@@ -147,11 +127,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace '?:'  operator with '??", document.WithSyntaxRoot(newRoot)));
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as ConditionalExpressionSyntax;
+				if (node == null)
+					continue;
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace '?:'  operator with '??", token => {
+					ExpressionSyntax a, other;
+					if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
+						a = node.WhenFalse;
+						other = node.WhenTrue;
+					} else {
+						other = node.WhenFalse;
+						a = node.WhenTrue;
+					}
+
+					if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
+						var castExpression = other as CastExpressionSyntax;
+						if (castExpression != null) {
+							a = SyntaxFactory.CastExpression(castExpression.Type, a);
+							other = castExpression.Expression;
+						}
+					}
+
+					ExpressionSyntax newNode = SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, a, other);
+
+					var newRoot = root.ReplaceNode(node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+ 				}));
 			}
 			return result;
 		}

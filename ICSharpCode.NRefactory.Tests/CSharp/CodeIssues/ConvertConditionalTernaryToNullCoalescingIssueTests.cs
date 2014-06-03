@@ -37,11 +37,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
-		string c = str != null ? str : ""default"";
+		string c = $str != null ? str : ""default""$;
 	}
 }", @"class Foo
 {
@@ -56,11 +56,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2 ()
 		{
-			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
-		string c = null != str ? str : ""default"";
+		string c = $null != str ? str : ""default""$;
 	}
 }", @"class Foo
 {
@@ -69,17 +69,16 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		string c = str ?? ""default"";
 	}
 }");
-
 		}
 
 		[Test]
 		public void TestInspectorCase3 ()
 		{
-			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
-		string c = null == str ? ""default"" : str;
+		string c = $null == str ? ""default"" : str$;
 	}
 }", @"class Foo
 {
@@ -93,11 +92,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase4 ()
 		{
-			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (string str)
 	{
-		string c = str == null ? ""default"" : str;
+		string c = $str == null ? ""default"" : str$;
 	}
 }", @"class Foo
 {
@@ -124,11 +123,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestCastCase ()
 		{
-			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (Foo o, Bar b)
 	{
-		IDisposable c = o != null ? (IDisposable)o : b;
+		IDisposable c = $o != null ? (IDisposable)o : b$;
 	}
 }", @"class Foo
 {
@@ -142,11 +141,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestCastCase2 ()
 		{
-			Test<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
 {
 	void Bar (Foo o, Bar b)
 	{
-		IDisposable c = o == null ? (IDisposable)b : o;
+		IDisposable c = $o == null ? (IDisposable)b : o$;
 	}
 }", @"class Foo
 {
