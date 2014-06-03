@@ -151,7 +151,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
 			{
 				base.VisitBinaryExpression(node);
-				Console.WriteLine(node.CSharpKind());
 				if (!node.IsKind(SyntaxKind.EqualsExpression) && !node.IsKind(SyntaxKind.NotEqualsExpression))
 					return;
 

@@ -37,9 +37,7 @@ using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -72,18 +70,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitConditionalExpression (ConditionalExpression conditionalExpression)
-//			{
-//				base.VisitConditionalExpression (conditionalExpression);
-//
-//				if (!conditionalExpression.TrueExpression.Match (conditionalExpression.FalseExpression).Success)
-//					return;
-//				var action = new CodeAction (ctx.TranslateString (""),
-//					script => script.Replace (conditionalExpression, conditionalExpression.TrueExpression.Clone ()), conditionalExpression.QuestionMarkToken);
-//				AddIssue (new CodeIssue(conditionalExpression, 
-//					ctx.TranslateString (""), new [] { action }));
-//			}
+
+			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
+			{
+				base.VisitConditionalExpression(node);
+				if (!node.WhenTrue.IsEquivalentTo(node.WhenFalse, true))
+					return;
+				AddIssue (Diagnostic.Create(Rule, node.GetLocation()));
+			}
 		}
 	}
 
@@ -100,11 +94,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace '?:' with branch", document.WithSyntaxRoot(newRoot)));
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as ConditionalExpressionSyntax;
+				if (node == null)
+					continue;
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace '?:' with branch", token => {
+					var newRoot = root.ReplaceNode(node, node.WhenTrue.WithAdditionalAnnotations(Formatter.Annotation));
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}));
 			}
 			return result;
 		}
