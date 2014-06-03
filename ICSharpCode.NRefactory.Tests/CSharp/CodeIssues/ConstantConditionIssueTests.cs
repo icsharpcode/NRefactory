@@ -35,16 +35,15 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestConditionalExpression ()
 		{
-			var input = @"
+			Analyze<ConstantConditionIssue> (@"
 class TestClass
 {
 	void TestMethod ()
 	{
-		var a = 1 > 0 ? 1 : 0;
-		var b = 1 < 0 ? 1 : 0;
+		var a = $1 > 0$ ? 1 : 0;
+		var b = $1 < 0$ ? 1 : 0;
 	}
-}";
-			var output = @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
@@ -52,88 +51,81 @@ class TestClass
 		var a = 1;
 		var b = 0;
 	}
-}";
-			Test<ConstantConditionIssue> (input, 2, output);
+}");
 		}
 
 		[Test]
 		public void TestIf ()
 		{
-			var input = @"
+			Analyze<ConstantConditionIssue> (@"
 class TestClass
 {
-	void TestMethod ()
-	{
-		int i;
-		if (1 > 0)
-			i = 1;
-		if (1 > 0) {
-			i = 1;
-		}
-		if (1 < 0)
-			i = 1;
-		if (1 == 0) {
-			i = 1;
-		} else {
-			i = 0;
-		}
-		if (1 == 0) {
-			i = 1;
-		} else
-			i = 0;
-	}
-}";
-			var output = @"
+    void TestMethod ()
+    {
+        int i;
+        if ($1 > 0$)
+        	i = 1;
+        if ($1 > 0$) {
+        	i = 1;
+        }
+        if ($1 < 0$)
+        	i = 1;
+        if ($1 == 0$) {
+        	i = 1;
+        } else {
+        	i = 0;
+        }
+        if ($1 == 0$) {
+        	i = 1;
+        } else
+        	i = 0;
+    }
+}", @"
 class TestClass
 {
-	void TestMethod ()
-	{
-		int i;
-		i = 1;
-		i = 1;
-		i = 0;
-		i = 0;
-	}
-}";
-			Test<ConstantConditionIssue> (input, 5, output);
+    void TestMethod ()
+    {
+        int i;
+        i = 1;
+        i = 1;
+        i = 0;
+        i = 0;
+    }
+}");
 		}
 
 		[Test]
 		public void TestFor ()
 		{
-			var input = @"
+			Analyze<ConstantConditionIssue> (@"
 class TestClass
 {
 	void TestMethod ()
 	{
-		for (int i = 0; 1 > 0; i++) ;
+		for (int i = 0; $1 > 0$; i++) ;
 	}
-}";
-			var output = @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
 	{
-		for (int i = 0; true; i++)
-			;
+		for (int i = 0; true; i++) ;
 	}
-}";
-			Test<ConstantConditionIssue> (input, 1, output);
+}");
 		}
 
 		[Test]
 		public void TestWhile ()
 		{
-			var input = @"
+			Analyze<ConstantConditionIssue> (@"
 class TestClass
 {
 	void TestMethod ()
 	{
-		while (1 > 0)
+		while ($1 > 0$)
 			;
 	}
-}";
-			var output = @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
@@ -141,23 +133,21 @@ class TestClass
 		while (true)
 			;
 	}
-}";
-			Test<ConstantConditionIssue> (input, 1, output);
+}");
 		}
 
 		[Test]
 		public void TestDoWhile ()
 		{
-			var input = @"
+			Analyze<ConstantConditionIssue> (@"
 class TestClass
 {
 	void TestMethod ()
 	{
 		do {
-		} while (1 < 0);
+		} while ($1 < 0$);
 	}
-}";
-			var output = @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
@@ -165,14 +155,13 @@ class TestClass
 		do {
 		} while (false);
 	}
-}";
-			Test<ConstantConditionIssue> (input, 1, output);
+}");
 		}
 
 		[Test]
 		public void TestNoIssue ()
 		{
-			var input = @"
+			Analyze<ConstantConditionIssue> (@"
 class TestClass
 {
 	void TestMethod (int x = true)
@@ -181,8 +170,7 @@ class TestClass
 		if (false) ;
 		if (x) ;
 	}
-}";
-			Test<ConstantConditionIssue> (input, 0);
+}");
 		}
 	}
 }

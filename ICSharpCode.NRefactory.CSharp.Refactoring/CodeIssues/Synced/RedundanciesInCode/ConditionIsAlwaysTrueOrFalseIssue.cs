@@ -73,7 +73,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
 			{
 				base.VisitBinaryExpression(node);
-
 				if (CheckConstant(node))
 					return;
 
@@ -93,10 +92,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				// note null == null is checked by similiar expression comparison.
 				var expr = right.SkipParens();
 
-				var rr = semanticModel.GetSymbolInfo(expr);
-				if (rr.Symbol == null)
+				var rr = semanticModel.GetTypeInfo(expr);
+				if (rr.Type == null)
 					return false;
-				var returnType = rr.Symbol.GetReturnType();
+				var returnType = rr.Type;
 				if (returnType != null && returnType.IsValueType) {
 					// nullable check
 					if (returnType.IsNullableType())
@@ -125,7 +124,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var rr = semanticModel.GetConstantValue(expr);
 				if (rr.HasValue && rr.Value is bool) {
 					var result = (bool)rr.Value;
-					Console.WriteLine("add 2 "+ expr);
 					AddIssue(Diagnostic.Create(result ? Rule1 : Rule2, expr.GetLocation()));
 					return true;
 				}

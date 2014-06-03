@@ -169,7 +169,7 @@ class Bar
 		[Test]
 		public void UserDefinedOperatorsNoReferences()
 		{
-			TestIssue<ConditionIsAlwaysTrueOrFalseIssue>(@"
+			Analyze<ConditionIsAlwaysTrueOrFalseIssue>(@"
 struct Foo 
 {
 	public static bool operator ==(Foo value, Foo o)
@@ -187,7 +187,7 @@ class Bar
 {
 	public void Test(Foo a)
 	{
-		if (a != null) {
+		if ($a != null$) {
 
 		}
 	}
