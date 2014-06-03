@@ -349,6 +349,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						return contextList.Result;
 					}
 					var lookup = new MemberLookup(ctx.CurrentTypeDefinition, Compilation.MainAssembly);
+					var list = typeof(System.Collections.IList).ToTypeReference().Resolve(Compilation);
 					bool isProtectedAllowed = ctx.CurrentTypeDefinition != null && initializerType.GetDefinition() != null ? 
 						ctx.CurrentTypeDefinition.IsDerivedFrom(initializerType.GetDefinition()) : 
 						false;
@@ -364,7 +365,8 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					}
 
 					foreach (IProperty m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Property)) {
-						if (m.CanSet && lookup.IsAccessible(m.Setter, isProtectedAllowed)) {
+						if (m.CanSet && lookup.IsAccessible(m.Setter, isProtectedAllowed)  || 
+							m.CanGet && lookup.IsAccessible(m.Getter, isProtectedAllowed) && m.ReturnType.GetDefinition() != null && m.ReturnType.GetDefinition().IsDerivedFrom(list.GetDefinition())) {
 							var data = contextList.AddMember(m);
 							if (data != null)
 								data.DisplayFlags |= DisplayFlags.NamedArgument;
@@ -379,7 +381,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					// case 1)
 
 					// check if the object is a list, if not only provide object initalizers
-					var list = typeof(System.Collections.IList).ToTypeReference().Resolve(Compilation);
 					if (initializerType.Kind != TypeKind.Array && list != null) {
 						var def = initializerType.GetDefinition(); 
 						if (def != null && !def.IsDerivedFrom(list.GetDefinition()))

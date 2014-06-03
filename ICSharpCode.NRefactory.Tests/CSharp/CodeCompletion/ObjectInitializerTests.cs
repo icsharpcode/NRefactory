@@ -751,7 +751,7 @@ class C : S
 		public void TestUnfinishedDictionaryInitializer()
 		{
 			CodeCompletionBugTests.CombinedProviderTest(
-@"class Test
+				@"class Test
 {
 	public static void Main(string [] args)
 	{
@@ -763,6 +763,35 @@ class C : S
 ",
 				provider => {
 					Assert.IsNotNull(provider.Find("args"), "'args' not found.");
+				});
+		}	
+
+		/// <summary>
+		/// Bug 19908 - [Forms] Autocomplete doesn't work for the Children property of Forms layouts
+		/// </summary>
+		[Test]
+		public void TestBug19908()
+		{
+			CodeCompletionBugTests.CombinedProviderTest(
+				@"using System.Collections.Generic;
+
+class Foo
+{
+	public List<int> Children { get {} }
+}
+
+class Test
+{
+	public static void Main(string [] args)
+	{
+		var dict = new Foo {
+			$c$
+		}
+	}
+}
+",
+				provider => {
+					Assert.IsNotNull(provider.Find("Children"), "'Children' not found.");
 				});
 		}
 	}
