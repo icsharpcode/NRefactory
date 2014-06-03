@@ -794,6 +794,32 @@ class Test
 					Assert.IsNotNull(provider.Find("Children"), "'Children' not found.");
 				});
 		}
+
+		[Test]
+		public void TestBug19908_Case2()
+		{
+			CodeCompletionBugTests.CombinedProviderTest(
+				@"using System.Collections.Generic;
+
+class Foo
+{
+	public IList<int> Children { get {} }
+}
+
+class Test
+{
+	public static void Main(string [] args)
+	{
+		var dict = new Foo {
+			$c$
+		}
+	}
+}
+",
+				provider => {
+					Assert.IsNotNull(provider.Find("Children"), "'Children' not found.");
+				});
+		}
 	}
 }
 
