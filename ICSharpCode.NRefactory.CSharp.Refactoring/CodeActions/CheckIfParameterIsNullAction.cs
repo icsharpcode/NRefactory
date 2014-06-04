@@ -24,71 +24,88 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.PatternMatching;
+using System;
+using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
+	[NRefactoryCodeRefactoringProvider(Description = "Checks function parameter is not null")]
+	[ExportCodeRefactoringProvider("Check if parameter is null", LanguageNames.CSharp)]
 	/// <summary>
 	/// Creates a 'if (param == null) throw new System.ArgumentNullException ();' contruct for a parameter.
 	/// </summary>
-	[ContextAction("Check if parameter is null", Description = "Checks function parameter is not null.")]
-	public class CheckIfParameterIsNullAction : SpecializedCodeAction<ParameterDeclaration>
+	public class CheckIfParameterIsNullAction : SpecializedCodeAction<ParameterSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, ParameterDeclaration parameter)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, ParameterSyntax node, CancellationToken cancellationToken)
 		{
-			if (!parameter.NameToken.Contains(context.Location))
-				return null;
-			BlockStatement bodyStatement;
-			if (parameter.Parent is LambdaExpression) {
-				bodyStatement = parameter.Parent.GetChildByRole (LambdaExpression.BodyRole) as BlockStatement;
-			} else {
-				bodyStatement = parameter.Parent.GetChildByRole (Roles.Body);
-			}
-			if (bodyStatement == null || bodyStatement.IsNull)
-				return null;
-			var type = context.ResolveType(parameter.Type);
-			if (type.IsReferenceType == false || HasNullCheck(parameter)) 
-				return null;
-			
-			return new CodeAction(context.TranslateString("Add null check for parameter"), script => {
-				var statement = new IfElseStatement() {
-					Condition = new BinaryOperatorExpression (new IdentifierExpression (parameter.Name), BinaryOperatorType.Equality, new NullReferenceExpression ()),
-					TrueStatement = new ThrowStatement (new ObjectCreateExpression (context.CreateShortType("System", "ArgumentNullException"), new PrimitiveExpression (parameter.Name)))
-				};
-				script.AddTo(bodyStatement, statement);
-			}, parameter.NameToken);
+			throw new NotImplementedException();
 		}
-
-		static bool HasNullCheck (ParameterDeclaration parameter)
-		{
-			var visitor = new CheckNullVisitor (parameter);
-			parameter.Parent.AcceptVisitor (visitor, null);
-			return visitor.ContainsNullCheck;
-		}
-		
-		class CheckNullVisitor : DepthFirstAstVisitor<object, object>
-		{
-			readonly Expression pattern;
-			
-			internal bool ContainsNullCheck;
-			
-			public CheckNullVisitor (ParameterDeclaration parameter)
-			{
-				pattern = PatternHelper.CommutativeOperator(new IdentifierExpression(parameter.Name), BinaryOperatorType.Any, new NullReferenceExpression());
-			}
-			
-			public override object VisitIfElseStatement (IfElseStatement ifElseStatement, object data)
-			{
-				if (ifElseStatement.Condition is BinaryOperatorExpression) {
-					var binOp = ifElseStatement.Condition as BinaryOperatorExpression;
-					if ((binOp.Operator == BinaryOperatorType.Equality || binOp.Operator == BinaryOperatorType.InEquality) && pattern.IsMatch(binOp)) {
-						ContainsNullCheck = true;
-					}
-				}
-				
-				return base.VisitIfElseStatement (ifElseStatement, data);
-			}
-		}
+//		protected override CodeAction GetAction(SemanticModel context, ParameterDeclaration parameter)
+//		{
+//			if (!parameter.NameToken.Contains(context.Location))
+//				return null;
+//			BlockStatement bodyStatement;
+//			if (parameter.Parent is LambdaExpression) {
+//				bodyStatement = parameter.Parent.GetChildByRole (LambdaExpression.BodyRole) as BlockStatement;
+//			} else {
+//				bodyStatement = parameter.Parent.GetChildByRole (Roles.Body);
+//			}
+//			if (bodyStatement == null || bodyStatement.IsNull)
+//				return null;
+//			var type = context.ResolveType(parameter.Type);
+//			if (type.IsReferenceType == false || HasNullCheck(parameter)) 
+//				return null;
+//			
+//			return new CodeAction(context.TranslateString("Add null check for parameter"), script => {
+//				var statement = new IfElseStatement() {
+//					Condition = new BinaryOperatorExpression (new IdentifierExpression (parameter.Name), BinaryOperatorType.Equality, new NullReferenceExpression ()),
+//					TrueStatement = new ThrowStatement (new ObjectCreateExpression (context.CreateShortType("System", "ArgumentNullException"), new PrimitiveExpression (parameter.Name)))
+//				};
+//				script.AddTo(bodyStatement, statement);
+//			}, parameter.NameToken);
+//		}
+//
+//		static bool HasNullCheck (ParameterDeclaration parameter)
+//		{
+//			var visitor = new CheckNullVisitor (parameter);
+//			parameter.Parent.AcceptVisitor (visitor, null);
+//			return visitor.ContainsNullCheck;
+//		}
+//		
+//		class CheckNullVisitor : DepthFirstAstVisitor<object, object>
+//		{
+//			readonly Expression pattern;
+//			
+//			internal bool ContainsNullCheck;
+//			
+//			public CheckNullVisitor (ParameterDeclaration parameter)
+//			{
+//				pattern = PatternHelper.CommutativeOperator(new IdentifierExpression(parameter.Name), BinaryOperatorType.Any, new NullReferenceExpression());
+//			}
+//			
+//			public override object VisitIfElseStatement (IfElseStatement ifElseStatement, object data)
+//			{
+//				if (ifElseStatement.Condition is BinaryOperatorExpression) {
+//					var binOp = ifElseStatement.Condition as BinaryOperatorExpression;
+//					if ((binOp.Operator == BinaryOperatorType.Equality || binOp.Operator == BinaryOperatorType.InEquality) && pattern.IsMatch(binOp)) {
+//						ContainsNullCheck = true;
+//					}
+//				}
+//				
+//				return base.VisitIfElseStatement (ifElseStatement, data);
+//			}
+//		}
 	}
 }

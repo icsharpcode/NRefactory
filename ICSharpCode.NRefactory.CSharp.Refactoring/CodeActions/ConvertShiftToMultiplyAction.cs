@@ -24,38 +24,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Convert '<<'/'>>' to '*'/'/'",
-	               Description = "Convert '<<'/'>>' to '*'/'/'")]
-	public class ConvertShiftToMultiplyAction : SpecializedCodeAction <BinaryOperatorExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Convert '<<'/'>>' to '*'/'/'")]
+	[ExportCodeRefactoringProvider("Convert '<<'/'>>' to '*'/'/'", LanguageNames.CSharp)]
+	public class ConvertShiftToMultiplyAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, BinaryOperatorExpression node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.OperatorToken.Contains(context.Location))
-				return null;
-			if (node.Operator != BinaryOperatorType.ShiftLeft && node.Operator != BinaryOperatorType.ShiftRight || !(node.Right is PrimitiveExpression))
-				return null;
-
-			var value = context.Resolve(node.Right).ConstantValue;
-			if (!(value is int))
-				return null;
-
-			return new CodeAction (
-				node.Operator == BinaryOperatorType.ShiftLeft ? context.TranslateString("Replace with '*'") : context.TranslateString("Replace with '/'"),
-				script => script.Replace(
-					node, 
-					new BinaryOperatorExpression(
-						node.Left.Clone(), 
-						node.Operator == BinaryOperatorType.ShiftLeft ? BinaryOperatorType.Multiply : BinaryOperatorType.Divide,
-						new PrimitiveExpression(1 << (int)value)
-					)
-				),
-				node.OperatorToken
-			);
+			throw new NotImplementedException();
 		}
+//		protected override CodeAction GetAction(SemanticModel context, BinaryOperatorExpression node)
+//		{
+//			if (!node.OperatorToken.Contains(context.Location))
+//				return null;
+//			if (node.Operator != BinaryOperatorType.ShiftLeft && node.Operator != BinaryOperatorType.ShiftRight || !(node.Right is PrimitiveExpression))
+//				return null;
+//
+//			var value = context.Resolve(node.Right).ConstantValue;
+//			if (!(value is int))
+//				return null;
+//
+//			return new CodeAction (
+//				node.Operator == BinaryOperatorType.ShiftLeft ? context.TranslateString("Replace with '*'") : context.TranslateString("Replace with '/'"),
+//				script => script.Replace(
+//					node, 
+//					new BinaryOperatorExpression(
+//						node.Left.Clone(), 
+//						node.Operator == BinaryOperatorType.ShiftLeft ? BinaryOperatorType.Multiply : BinaryOperatorType.Divide,
+//						new PrimitiveExpression(1 << (int)value)
+//					)
+//				),
+//				node.OperatorToken
+//			);
+//		}
 	}
 }

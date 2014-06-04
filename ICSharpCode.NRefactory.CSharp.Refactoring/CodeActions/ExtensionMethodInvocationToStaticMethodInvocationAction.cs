@@ -23,46 +23,63 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Collections.Generic;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
+using System;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Invoke using static method syntax",
-	               Description = "Converts the call into static method call syntax.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Converts the call into static method call syntax")]
+	[ExportCodeRefactoringProvider("Invoke using static method syntax", LanguageNames.CSharp)]
 	public class ExtensionMethodInvocationToStaticMethodInvocationAction : ICodeRefactoringProvider
 	{
-		#region ICodeActionProvider implementation
-
-		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var invocation = context.GetNode<InvocationExpression>();
-			if (invocation == null)
-				yield break;
-			var memberReference = invocation.Target as MemberReferenceExpression;
-			if (memberReference == null)
-				yield break;
-			var invocationRR = context.Resolve(invocation) as CSharpInvocationResolveResult;
-			if (invocationRR == null)
-				yield break;
-			if (invocationRR.IsExtensionMethodInvocation)
-				yield return new CodeAction(context.TranslateString("Convert to static method call"), script => {
-					script.Replace(invocation, ToStaticMethodInvocation(invocation, memberReference, invocationRR));
-				}, invocation);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-
-		#endregion
-
-		AstNode ToStaticMethodInvocation(InvocationExpression invocation, MemberReferenceExpression memberReference,
-		                                 CSharpInvocationResolveResult invocationRR)
-		{
-			var newArgumentList = invocation.Arguments.Select(arg => arg.Clone()).ToList();
-			newArgumentList.Insert(0, memberReference.Target.Clone());
-			var newTarget = memberReference.Clone() as MemberReferenceExpression;
-			newTarget.Target = new IdentifierExpression(invocationRR.Member.DeclaringType.Name);
-			return new InvocationExpression(newTarget, newArgumentList);
-		}
+//		#region ICodeActionProvider implementation
+//
+//		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
+//		{
+//			var invocation = context.GetNode<InvocationExpression>();
+//			if (invocation == null)
+//				yield break;
+//			var memberReference = invocation.Target as MemberReferenceExpression;
+//			if (memberReference == null)
+//				yield break;
+//			var invocationRR = context.Resolve(invocation) as CSharpInvocationResolveResult;
+//			if (invocationRR == null)
+//				yield break;
+//			if (invocationRR.IsExtensionMethodInvocation)
+//				yield return new CodeAction(context.TranslateString("Convert to static method call"), script => {
+//					script.Replace(invocation, ToStaticMethodInvocation(invocation, memberReference, invocationRR));
+//				}, invocation);
+//		}
+//
+//		#endregion
+//
+//		AstNode ToStaticMethodInvocation(InvocationExpression invocation, MemberReferenceExpression memberReference,
+//		                                 CSharpInvocationResolveResult invocationRR)
+//		{
+//			var newArgumentList = invocation.Arguments.Select(arg => arg.Clone()).ToList();
+//			newArgumentList.Insert(0, memberReference.Target.Clone());
+//			var newTarget = memberReference.Clone() as MemberReferenceExpression;
+//			newTarget.Target = new IdentifierExpression(invocationRR.Member.DeclaringType.Name);
+//			return new InvocationExpression(newTarget, newArgumentList);
+//		}
 
 	}
 }

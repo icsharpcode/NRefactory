@@ -23,49 +23,66 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Semantics;
+using System;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Create delegate", Description = "Creates a delegate declaration out of an event declaration.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Creates a delegate declaration out of an event declaration")]
+	[ExportCodeRefactoringProvider("Create delegate", LanguageNames.CSharp)]
 	public class CreateDelegateAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var simpleType = context.GetNode<SimpleType>();
-			if (simpleType != null && (simpleType.Parent is EventDeclaration || simpleType.Parent is CustomEventDeclaration)) 
-				return GetActions(context, simpleType);
-
-			return Enumerable.Empty<CodeAction>();
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-
-		static IEnumerable<CodeAction> GetActions(SemanticModel context, SimpleType node)
-		{
-			var resolveResult = context.Resolve(node) as UnknownIdentifierResolveResult;
-			if (resolveResult == null)
-				yield break;
-
-			yield return new CodeAction(context.TranslateString("Create delegate"), script => {
-				script.CreateNewType(CreateType(context,  node));
-			}, node);
-
-		}
-
-		static DelegateDeclaration CreateType(SemanticModel context, SimpleType simpleType)
-		{
-			var result = new DelegateDeclaration() {
-				Name = simpleType.Identifier,
-				Modifiers = ((EntityDeclaration)simpleType.Parent).Modifiers,
-				ReturnType = new PrimitiveType("void"),
-				Parameters = {
-					new ParameterDeclaration(new PrimitiveType("object"), "sender"),
-					new ParameterDeclaration(context.CreateShortType("System", "EventArgs"), "e")
-				}
-			};
-			return result;
-		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var simpleType = context.GetNode<SimpleType>();
+//			if (simpleType != null && (simpleType.Parent is EventDeclaration || simpleType.Parent is CustomEventDeclaration)) 
+//				return GetActions(context, simpleType);
+//
+//			return Enumerable.Empty<CodeAction>();
+//		}
+//
+//		static IEnumerable<CodeAction> GetActions(SemanticModel context, SimpleType node)
+//		{
+//			var resolveResult = context.Resolve(node) as UnknownIdentifierResolveResult;
+//			if (resolveResult == null)
+//				yield break;
+//
+//			yield return new CodeAction(context.TranslateString("Create delegate"), script => {
+//				script.CreateNewType(CreateType(context,  node));
+//			}, node);
+//
+//		}
+//
+//		static DelegateDeclaration CreateType(SemanticModel context, SimpleType simpleType)
+//		{
+//			var result = new DelegateDeclaration() {
+//				Name = simpleType.Identifier,
+//				Modifiers = ((EntityDeclaration)simpleType.Parent).Modifiers,
+//				ReturnType = new PrimitiveType("void"),
+//				Parameters = {
+//					new ParameterDeclaration(new PrimitiveType("object"), "sender"),
+//					new ParameterDeclaration(context.CreateShortType("System", "EventArgs"), "e")
+//				}
+//			};
+//			return result;
+//		}
 	}
 }

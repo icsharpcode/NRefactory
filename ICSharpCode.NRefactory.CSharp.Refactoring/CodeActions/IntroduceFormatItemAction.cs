@@ -25,10 +25,19 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.PatternMatching;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -36,70 +45,77 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Introduce format item. Works on strings that contain selections.
 	/// "this is <some> string" => string.Format ("this is {0} string", <some>)
 	/// </summary>
-	[ContextAction("Introduce format item", Description = "Creates a string.format call with the selection as parameter.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Creates a string.format call with the selection as parameter")]
+	[ExportCodeRefactoringProvider("Introduce format item", LanguageNames.CSharp)]
 	public class IntroduceFormatItemAction : ICodeRefactoringProvider
 	{
-		readonly static MemberReferenceExpression PrototypeFormatReference = new PrimitiveType ("string").Member("Format");
-		
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			if (!context.IsSomethingSelected) {
-				yield break;
-			}
-			var pexpr = context.GetNode<PrimitiveExpression>();
-			if (pexpr == null || !(pexpr.Value is string)) {
-				yield break;
-			}
-			if (pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal)) {
-				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 1) && new TextLocation(context.Location.Line, context.Location.Column + 1) < pexpr.EndLocation)) {
-					yield break;
-				}
-			} else {
-				if (!(pexpr.StartLocation < context.Location && context.Location < pexpr.EndLocation)) {
-					yield break;
-				}
-			}
-
-			yield return new CodeAction (context.TranslateString("Introduce format item"), script => {
-				var invocation = context.GetNode<InvocationExpression>();
-				if (invocation != null && invocation.Target.IsMatch(PrototypeFormatReference)) {
-					AddFormatCallToInvocation(context, script, pexpr, invocation);
-					return;
-				}
-			
-				var arg = CreateFormatArgument(context);
-				var newInvocation = new InvocationExpression (PrototypeFormatReference.Clone()) {
-					Arguments = { CreateFormatString(context, pexpr, 0), arg }
-				};
-			
-				script.Replace(pexpr, newInvocation);
-				script.Select(arg);
-			}, pexpr);
-
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-		
-		void AddFormatCallToInvocation (SemanticModel context, Script script, PrimitiveExpression pExpr, InvocationExpression invocation)
-		{
-			var newInvocation = (InvocationExpression)invocation.Clone ();
-			
-			newInvocation.Arguments.First ().ReplaceWith (CreateFormatString (context, pExpr, newInvocation.Arguments.Count () - 1));
-			newInvocation.Arguments.Add (CreateFormatArgument (context));
-			
-			script.Replace (invocation, newInvocation);
-		}
-		
-		static PrimitiveExpression CreateFormatArgument (SemanticModel context)
-		{
-			return new PrimitiveExpression (context.SelectedText);
-		}
-		
-		static PrimitiveExpression CreateFormatString(SemanticModel context, PrimitiveExpression pExpr, int argumentNumber)
-		{
-			var start = context.GetOffset(pExpr.StartLocation);
-			var end = context.GetOffset(pExpr.EndLocation);
-			var sStart = context.GetOffset(context.SelectionStart);
-			var sEnd = context.GetOffset(context.SelectionEnd);
-			return new PrimitiveExpression("", context.GetText(start, sStart - start) + "{" + argumentNumber + "}" + context.GetText(sEnd, end - sEnd));
-		}
+//		readonly static MemberReferenceExpression PrototypeFormatReference = new PrimitiveType ("string").Member("Format");
+//		
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			if (!context.IsSomethingSelected) {
+//				yield break;
+//			}
+//			var pexpr = context.GetNode<PrimitiveExpression>();
+//			if (pexpr == null || !(pexpr.Value is string)) {
+//				yield break;
+//			}
+//			if (pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal)) {
+//				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 1) && new TextLocation(context.Location.Line, context.Location.Column + 1) < pexpr.EndLocation)) {
+//					yield break;
+//				}
+//			} else {
+//				if (!(pexpr.StartLocation < context.Location && context.Location < pexpr.EndLocation)) {
+//					yield break;
+//				}
+//			}
+//
+//			yield return new CodeAction (context.TranslateString("Introduce format item"), script => {
+//				var invocation = context.GetNode<InvocationExpression>();
+//				if (invocation != null && invocation.Target.IsMatch(PrototypeFormatReference)) {
+//					AddFormatCallToInvocation(context, script, pexpr, invocation);
+//					return;
+//				}
+//			
+//				var arg = CreateFormatArgument(context);
+//				var newInvocation = new InvocationExpression (PrototypeFormatReference.Clone()) {
+//					Arguments = { CreateFormatString(context, pexpr, 0), arg }
+//				};
+//			
+//				script.Replace(pexpr, newInvocation);
+//				script.Select(arg);
+//			}, pexpr);
+//
+//		}
+//		
+//		void AddFormatCallToInvocation (SemanticModel context, Script script, PrimitiveExpression pExpr, InvocationExpression invocation)
+//		{
+//			var newInvocation = (InvocationExpression)invocation.Clone ();
+//			
+//			newInvocation.Arguments.First ().ReplaceWith (CreateFormatString (context, pExpr, newInvocation.Arguments.Count () - 1));
+//			newInvocation.Arguments.Add (CreateFormatArgument (context));
+//			
+//			script.Replace (invocation, newInvocation);
+//		}
+//		
+//		static PrimitiveExpression CreateFormatArgument (SemanticModel context)
+//		{
+//			return new PrimitiveExpression (context.SelectedText);
+//		}
+//		
+//		static PrimitiveExpression CreateFormatString(SemanticModel context, PrimitiveExpression pExpr, int argumentNumber)
+//		{
+//			var start = context.GetOffset(pExpr.StartLocation);
+//			var end = context.GetOffset(pExpr.EndLocation);
+//			var sStart = context.GetOffset(context.SelectionStart);
+//			var sEnd = context.GetOffset(context.SelectionEnd);
+//			return new PrimitiveExpression("", context.GetText(start, sStart - start) + "{" + argumentNumber + "}" + context.GetText(sEnd, end - sEnd));
+//		}
 	}
 }

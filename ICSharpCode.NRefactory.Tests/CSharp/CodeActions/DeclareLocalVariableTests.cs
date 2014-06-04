@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void TestSimpleInline ()
 		{
-			TestRefactoringContext.UseExplict = true;
+			//TestRefactoringContext.UseExplict = true;
 			Test<DeclareLocalVariableAction> (@"class TestClass
 {
 	int Foo() {}
@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void TestReplaceAll ()
 		{
-			TestRefactoringContext.UseExplict = true;
+			//TestRefactoringContext.UseExplict = true;
 			Test<DeclareLocalVariableAction> (@"class TestClass
 {
 	void Test ()
@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void DeclareLocalExpressionTest ()
 		{
-			TestRefactoringContext.UseExplict = true;
+			//TestRefactoringContext.UseExplict = true;
 			Test<DeclareLocalVariableAction> (@"class TestClass
 {
 	void Test ()
@@ -148,7 +148,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void TestBug693855 ()
 		{
-			TestRefactoringContext.UseExplict = true;
+			//TestRefactoringContext.UseExplict = true;
 			Test<DeclareLocalVariableAction> (@"class TestClass
 {
 	void Test ()
@@ -187,7 +187,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void TestBug693875 ()
 		{
-			TestRefactoringContext.UseExplict = true;
+			//TestRefactoringContext.UseExplict = true;
 			Test<DeclareLocalVariableAction> (@"class TestClass
 {
 	void DoStuff() 
@@ -220,7 +220,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveParens ()
 		{
-			TestRefactoringContext.UseExplict = true;
+			//TestRefactoringContext.UseExplict = true;
 			Test<DeclareLocalVariableAction> (@"class TestClass
 {
 	void Test ()
@@ -242,7 +242,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveParensComplexCase ()
 		{
-			TestRefactoringContext.UseExplict = true;
+			//TestRefactoringContext.UseExplict = true;
 			Test<DeclareLocalVariableAction> (@"class TestClass
 {
 	void Test ()
@@ -272,7 +272,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void TestBug9873 ()
 		{
-			TestRefactoringContext.UseExplict = true;
+			//TestRefactoringContext.UseExplict = true;
 			Test<DeclareLocalVariableAction> (@"class TestClass
 {
 	void DoStuff() 

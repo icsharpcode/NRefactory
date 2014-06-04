@@ -27,28 +27,42 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.PatternMatching;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Replace postfix expression with assignment", Description = "Replace postfix expression with assignment")]
-	public class ReplacePostfixExpressionWithAssignmentAction : SpecializedCodeAction<UnaryOperatorExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Replace postfix expression with assignment")]
+	[ExportCodeRefactoringProvider("Replace postfix expression with assignment", LanguageNames.CSharp)]
+	public class ReplacePostfixExpressionWithAssignmentAction : SpecializedCodeAction<PostfixUnaryExpressionSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, UnaryOperatorExpression node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, PostfixUnaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (node.Operator != UnaryOperatorType.PostIncrement && node.Operator != UnaryOperatorType.PostDecrement)
-				return null;
-			string desc = node.Operator == UnaryOperatorType.PostIncrement ? context.TranslateString("Replace with '{0} += 1'") : context.TranslateString("Replace with '{0} -= 1'");
-			return new CodeAction(
-				string.Format(desc, CSharpUtil.GetInnerMostExpression(node.Expression)),
-				s => s.Replace(node, new AssignmentExpression (
-					CSharpUtil.GetInnerMostExpression(node.Expression).Clone(),
-					node.Operator == UnaryOperatorType.PostIncrement ? AssignmentOperatorType.Add : AssignmentOperatorType.Subtract,
-					new PrimitiveExpression(1)
-				)),
-				node.OperatorToken
-			);
+			throw new NotImplementedException();
 		}
+//		protected override CodeAction GetAction(SemanticModel context, UnaryOperatorExpression node)
+//		{
+//			if (node.Operator != UnaryOperatorType.PostIncrement && node.Operator != UnaryOperatorType.PostDecrement)
+//				return null;
+//			string desc = node.Operator == UnaryOperatorType.PostIncrement ? context.TranslateString("Replace with '{0} += 1'") : context.TranslateString("Replace with '{0} -= 1'");
+//			return new CodeAction(
+//				string.Format(desc, CSharpUtil.GetInnerMostExpression(node.Expression)),
+//				s => s.Replace(node, new AssignmentExpression (
+//					CSharpUtil.GetInnerMostExpression(node.Expression).Clone(),
+//					node.Operator == UnaryOperatorType.PostIncrement ? AssignmentOperatorType.Add : AssignmentOperatorType.Subtract,
+//					new PrimitiveExpression(1)
+//				)),
+//				node.OperatorToken
+//			);
+//		}
 	}
 }
 

@@ -27,32 +27,46 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.PatternMatching;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Replace assignment with postfix expression", Description = "Replace assignment with postfix expression")]
-	public class ReplaceAssignmentWithPostfixExpressionAction : SpecializedCodeAction<AssignmentExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Replace assignment with postfix expression")]
+	[ExportCodeRefactoringProvider("Replace assignment with postfix expression", LanguageNames.CSharp)]
+	public class ReplaceAssignmentWithPostfixExpressionAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
-		static readonly AstNode onePattern = PatternHelper.OptionalParentheses(new PrimitiveExpression (1));
-
-		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
+//		static readonly AstNode onePattern = PatternHelper.OptionalParentheses(new PrimitiveExpression (1));
+//
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.OperatorToken.Contains(context.Location))
-				return null;
-			node = ReplaceWithOperatorAssignmentAction.CreateAssignment(node) ?? node;
-			if (node.Operator != AssignmentOperatorType.Add && node.Operator != AssignmentOperatorType.Subtract || !onePattern.IsMatch (node.Right))
-				return null;
-			string desc = node.Operator == AssignmentOperatorType.Add ? context.TranslateString("Replace with '{0}++'") : context.TranslateString("Replace with '{0}--'");
-			return new CodeAction(
-				string.Format(desc, node.Left),
-				s => s.Replace(node, new UnaryOperatorExpression(
-					node.Operator == AssignmentOperatorType.Add ? UnaryOperatorType.PostIncrement : UnaryOperatorType.PostDecrement,
-					node.Left.Clone()
-				)),
-				node.OperatorToken
-			);
+			throw new NotImplementedException();
 		}
+//		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
+//		{
+//			if (!node.OperatorToken.Contains(context.Location))
+//				return null;
+//			node = ReplaceWithOperatorAssignmentAction.CreateAssignment(node) ?? node;
+//			if (node.Operator != AssignmentOperatorType.Add && node.Operator != AssignmentOperatorType.Subtract || !onePattern.IsMatch (node.Right))
+//				return null;
+//			string desc = node.Operator == AssignmentOperatorType.Add ? context.TranslateString("Replace with '{0}++'") : context.TranslateString("Replace with '{0}--'");
+//			return new CodeAction(
+//				string.Format(desc, node.Left),
+//				s => s.Replace(node, new UnaryOperatorExpression(
+//					node.Operator == AssignmentOperatorType.Add ? UnaryOperatorType.PostIncrement : UnaryOperatorType.PostDecrement,
+//					node.Left.Clone()
+//				)),
+//				node.OperatorToken
+//			);
+//		}
 	}
 }
 

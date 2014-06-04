@@ -23,51 +23,71 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.PatternMatching;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Invert logical expression", Description = "Inverts a logical expression")]
+	[NRefactoryCodeRefactoringProvider(Description = "Inverts a logical expression")]
+	[ExportCodeRefactoringProvider("Invert logical expression", LanguageNames.CSharp)]
 	public class InvertLogicalExpressionAction : ICodeRefactoringProvider
 	{
-		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			Expression expr = null;
-			AstNode token;
-			if (!NegateRelationalExpressionAction.GetLogicalExpression (context, out expr, out token))
-				yield break;
-
-			var uOp = expr as UnaryOperatorExpression;
-			if (uOp != null) {
-				yield return new CodeAction(
-					string.Format(context.TranslateString("Invert '{0}'"), expr),
-					script => {
-						script.Replace(uOp, CSharpUtil.InvertCondition(CSharpUtil.GetInnerMostExpression(uOp.Expression)));
-					}, token
-				);	
-				yield break;
-			}
-
-			var negativeExpression = CSharpUtil.InvertCondition(expr);
-			if (expr.Parent is ParenthesizedExpression && expr.Parent.Parent is UnaryOperatorExpression) {
-				var unaryOperatorExpression = expr.Parent.Parent as UnaryOperatorExpression;
-				if (unaryOperatorExpression.Operator == UnaryOperatorType.Not) {
-					yield return new CodeAction(
-						string.Format(context.TranslateString("Invert '{0}'"), unaryOperatorExpression),
-						script => {
-							script.Replace(unaryOperatorExpression, negativeExpression);
-						}, token
-					);	
-					yield break;
-				}
-			}
-			var newExpression = new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(negativeExpression));
-			yield return new CodeAction(
-				string.Format(context.TranslateString("Invert '{0}'"), expr),
-				script => {
-					script.Replace(expr, newExpression);
-				}, token
-			);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
+//		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
+//		{
+//			Expression expr = null;
+//			AstNode token;
+//			if (!NegateRelationalExpressionAction.GetLogicalExpression (context, out expr, out token))
+//				yield break;
+//
+//			var uOp = expr as UnaryOperatorExpression;
+//			if (uOp != null) {
+//				yield return new CodeAction(
+//					string.Format(context.TranslateString("Invert '{0}'"), expr),
+//					script => {
+//						script.Replace(uOp, CSharpUtil.InvertCondition(CSharpUtil.GetInnerMostExpression(uOp.Expression)));
+//					}, token
+//				);	
+//				yield break;
+//			}
+//
+//			var negativeExpression = CSharpUtil.InvertCondition(expr);
+//			if (expr.Parent is ParenthesizedExpression && expr.Parent.Parent is UnaryOperatorExpression) {
+//				var unaryOperatorExpression = expr.Parent.Parent as UnaryOperatorExpression;
+//				if (unaryOperatorExpression.Operator == UnaryOperatorType.Not) {
+//					yield return new CodeAction(
+//						string.Format(context.TranslateString("Invert '{0}'"), unaryOperatorExpression),
+//						script => {
+//							script.Replace(unaryOperatorExpression, negativeExpression);
+//						}, token
+//					);	
+//					yield break;
+//				}
+//			}
+//			var newExpression = new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(negativeExpression));
+//			yield return new CodeAction(
+//				string.Format(context.TranslateString("Invert '{0}'"), expr),
+//				script => {
+//					script.Replace(expr, newExpression);
+//				}, token
+//			);
+//		}
 	}
 }

@@ -30,6 +30,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
+	[Ignore("Requires ConvertIfStatementToSwitchStatementAction")]
 	[TestFixture]
 	public class ConvertIfStatementToSwitchStatementIssueTests : InspectionActionTestBase
 	{

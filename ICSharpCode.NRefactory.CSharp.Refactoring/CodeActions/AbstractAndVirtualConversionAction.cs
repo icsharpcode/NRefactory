@@ -23,16 +23,34 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory6.CSharp;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.Semantics;
+using System;
 using System.Linq;
-
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
+   
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Make abstract member virtual", Description = "Implements an abstract member as a virtual one")]
+	[NRefactoryCodeRefactoringProvider(Description = "Implements an abstract member as a virtual one")]
+	[ExportCodeRefactoringProvider("Make abstract member virtual", LanguageNames.CSharp)]
 	public class AbstractAndVirtualConversionAction : ICodeRefactoringProvider
 	{
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		{
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
+		}
+		/*
 		static BlockStatement CreateNotImplementedBody(SemanticModel context, out ThrowStatement throwStatement)
 		{
 			throwStatement = new ThrowStatement(new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException")));
@@ -193,6 +211,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return false;
 			return first is EmptyStatement || first is ThrowStatement;
 		}
+		*/
 	}
 }
 

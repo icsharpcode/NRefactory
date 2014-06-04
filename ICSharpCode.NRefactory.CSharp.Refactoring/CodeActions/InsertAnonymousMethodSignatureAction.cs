@@ -24,71 +24,86 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Insert anonymous method signature", Description = "Inserts a signature to parameterless anonymous methods.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Inserts a signature to parameterless anonymous methods")]
+	[ExportCodeRefactoringProvider("Insert anonymous method signature", LanguageNames.CSharp)]
 	public class InsertAnonymousMethodSignatureAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			IType type;
-			var anonymousMethodExpression = GetAnonymousMethodExpression(context, out type);
-			if (anonymousMethodExpression == null) {
-				yield break;
-			}
-			yield return new CodeAction (context.TranslateString("Insert anonymous method signature"), script => {
-				var delegateMethod = type.GetDelegateInvokeMethod();
-				
-				var sb = new StringBuilder ("(");
-				for (int k = 0; k < delegateMethod.Parameters.Count; k++) {
-					if (k > 0) {
-						sb.Append(", ");
-					}
-					
-					var paramType = delegateMethod.Parameters [k].Type;
-					
-					sb.Append(context.CreateShortType(paramType));
-					sb.Append(" ");
-					sb.Append(delegateMethod.Parameters [k].Name);
-				}
-				sb.Append(")");
-				
-				script.InsertText(context.GetOffset(anonymousMethodExpression.DelegateToken.EndLocation), sb.ToString());
-			}, anonymousMethodExpression);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-		
-		static AnonymousMethodExpression GetAnonymousMethodExpression (SemanticModel context, out IType delegateType)
-		{
-			delegateType = null;
-			
-			var anonymousMethodExpression = context.GetNode<AnonymousMethodExpression> ();
-			if (anonymousMethodExpression == null || !anonymousMethodExpression.DelegateToken.Contains (context.Location) || anonymousMethodExpression.HasParameterList)
-				return null;
-			
-			IType resolvedType = null;
-			var parent = anonymousMethodExpression.Parent;
-			
-			if (parent is AssignmentExpression) {
-				resolvedType = context.Resolve (((AssignmentExpression)parent).Left).Type;
-			} else if (parent is VariableInitializer) {
-				resolvedType = context.Resolve (((VariableDeclarationStatement)parent.Parent).Type).Type;
-			} else if (parent is InvocationExpression) {
-				// TODO: handle invocations
-			}
-			if (resolvedType == null)
-				return null;
-			delegateType = resolvedType;
-			if (delegateType.Kind != TypeKind.Delegate) 
-				return null;
-			
-			return anonymousMethodExpression;
-		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			IType type;
+//			var anonymousMethodExpression = GetAnonymousMethodExpression(context, out type);
+//			if (anonymousMethodExpression == null) {
+//				yield break;
+//			}
+//			yield return new CodeAction (context.TranslateString("Insert anonymous method signature"), script => {
+//				var delegateMethod = type.GetDelegateInvokeMethod();
+//				
+//				var sb = new StringBuilder ("(");
+//				for (int k = 0; k < delegateMethod.Parameters.Count; k++) {
+//					if (k > 0) {
+//						sb.Append(", ");
+//					}
+//					
+//					var paramType = delegateMethod.Parameters [k].Type;
+//					
+//					sb.Append(context.CreateShortType(paramType));
+//					sb.Append(" ");
+//					sb.Append(delegateMethod.Parameters [k].Name);
+//				}
+//				sb.Append(")");
+//				
+//				script.InsertText(context.GetOffset(anonymousMethodExpression.DelegateToken.EndLocation), sb.ToString());
+//			}, anonymousMethodExpression);
+//		}
+//		
+//		static AnonymousMethodExpression GetAnonymousMethodExpression (SemanticModel context, out IType delegateType)
+//		{
+//			delegateType = null;
+//			
+//			var anonymousMethodExpression = context.GetNode<AnonymousMethodExpression> ();
+//			if (anonymousMethodExpression == null || !anonymousMethodExpression.DelegateToken.Contains (context.Location) || anonymousMethodExpression.HasParameterList)
+//				return null;
+//			
+//			IType resolvedType = null;
+//			var parent = anonymousMethodExpression.Parent;
+//			
+//			if (parent is AssignmentExpression) {
+//				resolvedType = context.Resolve (((AssignmentExpression)parent).Left).Type;
+//			} else if (parent is VariableInitializer) {
+//				resolvedType = context.Resolve (((VariableDeclarationStatement)parent.Parent).Type).Type;
+//			} else if (parent is InvocationExpression) {
+//				// TODO: handle invocations
+//			}
+//			if (resolvedType == null)
+//				return null;
+//			delegateType = resolvedType;
+//			if (delegateType.Kind != TypeKind.Delegate) 
+//				return null;
+//			
+//			return anonymousMethodExpression;
+//		}
 	}
 }
 

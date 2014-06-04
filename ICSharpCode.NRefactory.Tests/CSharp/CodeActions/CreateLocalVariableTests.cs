@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void ExplicitTestAssignment ()
 		{
-			TestRefactoringContext.UseExplict = true;
+			//TestRefactoringContext.UseExplict = true;
 			string result = RunContextAction (
 				new CreateLocalVariableAction (),
 				"using System;" + Environment.NewLine +

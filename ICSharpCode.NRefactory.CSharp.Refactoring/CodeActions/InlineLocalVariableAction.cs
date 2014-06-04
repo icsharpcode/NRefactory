@@ -24,81 +24,97 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Inline local variable", Description = "Inlines a local variable.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Inlines a local variable")]
+	[ExportCodeRefactoringProvider("Inline local variable", LanguageNames.CSharp)]
 	public class InlineLocalVariableAction : ICodeRefactoringProvider
 	{
-		static FindReferences refFinder = new FindReferences();
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			if (context.IsSomethingSelected) {
-				yield break;
-			}
-			var node = context.GetNode<VariableDeclarationStatement>();
-			if (node == null || node.Variables.Count != 1) {
-				yield break;
-			}
-			var initializer = node.Variables.First();
-			if (!initializer.NameToken.Contains(context.Location) || initializer.Initializer.IsNull) {
-				yield break;
-			}
-			var resolveResult = context.Resolve(initializer) as LocalResolveResult;
-			if (resolveResult == null || resolveResult.IsError) {
-				yield break;
-			}
-			var unit = context.RootNode as SyntaxTree;
-			if (unit == null) {
-				yield break;
-			}
-			yield return new CodeAction(context.TranslateString("Inline local variable"), script => {
-				refFinder.FindLocalReferences(resolveResult.Variable, context.UnresolvedFile, unit, context.Compilation, (n, r) => script.Replace(n, AddParensIfRequired (n, initializer.Initializer.Clone())), default(CancellationToken));
-				script.Remove(node);
-			}, initializer);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-
-		public static bool RequiresParens(AstNode replaceNode, AstNode replaceWithNode)
-		{
-			if (!(replaceWithNode is BinaryOperatorExpression) &&
-			    !(replaceWithNode is AssignmentExpression) &&
-			    !(replaceWithNode is AsExpression) &&
-			    !(replaceWithNode is IsExpression) &&
-			    !(replaceWithNode is CastExpression) &&
-			    !(replaceWithNode is LambdaExpression) &&
-				!(replaceWithNode is ConditionalExpression)) {
-				return false;
-			}
-
-			var cond = replaceNode.Parent as ConditionalExpression;
-			if (cond != null && cond.Condition == replaceNode)
-				return true;
-
-			var indexer = replaceNode.Parent as IndexerExpression;
-			if (indexer != null && indexer.Target == replaceNode)
-				return true;
-
-			return replaceNode.Parent is BinaryOperatorExpression || 
-				replaceNode.Parent is UnaryOperatorExpression || 
-				replaceNode.Parent is AssignmentExpression || 
-				replaceNode.Parent is MemberReferenceExpression ||
-				replaceNode.Parent is AsExpression || 
-				replaceNode.Parent is IsExpression || 
-				replaceNode.Parent is CastExpression ||
-				replaceNode.Parent is LambdaExpression ||
-				replaceNode.Parent is PointerReferenceExpression;
-		}
-
-		static Expression AddParensIfRequired(AstNode replaceNode, Expression expression)
-		{
-			if (RequiresParens(replaceNode, expression))
-				return new ParenthesizedExpression(expression);
-			return expression;
-		}
+//		static FindReferences refFinder = new FindReferences();
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			if (context.IsSomethingSelected) {
+//				yield break;
+//			}
+//			var node = context.GetNode<VariableDeclarationStatement>();
+//			if (node == null || node.Variables.Count != 1) {
+//				yield break;
+//			}
+//			var initializer = node.Variables.First();
+//			if (!initializer.NameToken.Contains(context.Location) || initializer.Initializer.IsNull) {
+//				yield break;
+//			}
+//			var resolveResult = context.Resolve(initializer) as LocalResolveResult;
+//			if (resolveResult == null || resolveResult.IsError) {
+//				yield break;
+//			}
+//			var unit = context.RootNode as SyntaxTree;
+//			if (unit == null) {
+//				yield break;
+//			}
+//			yield return new CodeAction(context.TranslateString("Inline local variable"), script => {
+//				refFinder.FindLocalReferences(resolveResult.Variable, context.UnresolvedFile, unit, context.Compilation, (n, r) => script.Replace(n, AddParensIfRequired (n, initializer.Initializer.Clone())), default(CancellationToken));
+//				script.Remove(node);
+//			}, initializer);
+//		}
+//
+//		public static bool RequiresParens(AstNode replaceNode, AstNode replaceWithNode)
+//		{
+//			if (!(replaceWithNode is BinaryOperatorExpression) &&
+//			    !(replaceWithNode is AssignmentExpression) &&
+//			    !(replaceWithNode is AsExpression) &&
+//			    !(replaceWithNode is IsExpression) &&
+//			    !(replaceWithNode is CastExpression) &&
+//			    !(replaceWithNode is LambdaExpression) &&
+//				!(replaceWithNode is ConditionalExpression)) {
+//				return false;
+//			}
+//
+//			var cond = replaceNode.Parent as ConditionalExpression;
+//			if (cond != null && cond.Condition == replaceNode)
+//				return true;
+//
+//			var indexer = replaceNode.Parent as IndexerExpression;
+//			if (indexer != null && indexer.Target == replaceNode)
+//				return true;
+//
+//			return replaceNode.Parent is BinaryOperatorExpression || 
+//				replaceNode.Parent is UnaryOperatorExpression || 
+//				replaceNode.Parent is AssignmentExpression || 
+//				replaceNode.Parent is MemberReferenceExpression ||
+//				replaceNode.Parent is AsExpression || 
+//				replaceNode.Parent is IsExpression || 
+//				replaceNode.Parent is CastExpression ||
+//				replaceNode.Parent is LambdaExpression ||
+//				replaceNode.Parent is PointerReferenceExpression;
+//		}
+//
+//		static Expression AddParensIfRequired(AstNode replaceNode, Expression expression)
+//		{
+//			if (RequiresParens(replaceNode, expression))
+//				return new ParenthesizedExpression(expression);
+//			return expression;
+//		}
 	}
 }

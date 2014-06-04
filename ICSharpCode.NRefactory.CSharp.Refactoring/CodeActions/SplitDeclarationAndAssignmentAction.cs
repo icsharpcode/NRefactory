@@ -28,63 +28,78 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.PatternMatching;
 using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Split local variable declaration and assignment", Description = "Splits local variable declaration and assignment.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Splits local variable declaration and assignment")]
+	[ExportCodeRefactoringProvider("Split local variable declaration and assignment", LanguageNames.CSharp)]
 	public class SplitDeclarationAndAssignmentAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			if (context.IsSomethingSelected) {
-				yield break;
-			}
-			AstType type;
-			var varInitializer = GetVariableDeclarationStatement(context, out type);
-			if (varInitializer == null)
-				yield break;
-			var statement = varInitializer.GetParent<Statement>();
-			var declaration = varInitializer.GetParent<VariableDeclarationStatement>();
-			if (declaration == null || (declaration.Modifiers & Modifiers.Const) != 0)
-				yield break;
-
-			var selectedNode = varInitializer.GetNodeAt(context.Location) ?? varInitializer;
-
-			yield return new CodeAction(context.TranslateString("Split local variable declaration and assignment"), script => {
-				var assign = new AssignmentExpression (new IdentifierExpression (varInitializer.Name), AssignmentOperatorType.Assign, varInitializer.Initializer.Clone());
-
-				if (declaration != null && declaration.Type.IsVar())
-					script.Replace(declaration.Type, type);
-				if (declaration.Parent is ForStatement) {
-					script.InsertBefore(statement, new VariableDeclarationStatement (type, varInitializer.Name));
-					script.Replace(declaration, assign);
-				} else {
-					script.Replace(varInitializer, new IdentifierExpression (varInitializer.Name));
-					script.InsertAfter(statement, new ExpressionStatement (assign));
-				}
-
-			}, selectedNode);
-		}
-		
-		static VariableInitializer GetVariableDeclarationStatement (SemanticModel context, out AstType resolvedType, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			var result = context.GetNode<VariableInitializer> ();
-			if (result != null && !result.Initializer.IsNull && context.Location <= result.Initializer.StartLocation) {
-				var type = context.Resolve(result).Type;
-				if (type.Equals(SpecialType.NullType) || type.Equals(SpecialType.UnknownType)) {
-					resolvedType = new PrimitiveType ("object");
-				} else {
-					resolvedType = context.CreateShortType (type);
-				}
-				return result;
-			}
-			resolvedType = null;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			return null;
 		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			if (context.IsSomethingSelected) {
+//				yield break;
+//			}
+//			AstType type;
+//			var varInitializer = GetVariableDeclarationStatement(context, out type);
+//			if (varInitializer == null)
+//				yield break;
+//			var statement = varInitializer.GetParent<Statement>();
+//			var declaration = varInitializer.GetParent<VariableDeclarationStatement>();
+//			if (declaration == null || (declaration.Modifiers & Modifiers.Const) != 0)
+//				yield break;
+//
+//			var selectedNode = varInitializer.GetNodeAt(context.Location) ?? varInitializer;
+//
+//			yield return new CodeAction(context.TranslateString("Split local variable declaration and assignment"), script => {
+//				var assign = new AssignmentExpression (new IdentifierExpression (varInitializer.Name), AssignmentOperatorType.Assign, varInitializer.Initializer.Clone());
+//
+//				if (declaration != null && declaration.Type.IsVar())
+//					script.Replace(declaration.Type, type);
+//				if (declaration.Parent is ForStatement) {
+//					script.InsertBefore(statement, new VariableDeclarationStatement (type, varInitializer.Name));
+//					script.Replace(declaration, assign);
+//				} else {
+//					script.Replace(varInitializer, new IdentifierExpression (varInitializer.Name));
+//					script.InsertAfter(statement, new ExpressionStatement (assign));
+//				}
+//
+//			}, selectedNode);
+//		}
+//		
+//		static VariableInitializer GetVariableDeclarationStatement (SemanticModel context, out AstType resolvedType, CancellationToken cancellationToken = default(CancellationToken))
+//		{
+//			var result = context.GetNode<VariableInitializer> ();
+//			if (result != null && !result.Initializer.IsNull && context.Location <= result.Initializer.StartLocation) {
+//				var type = context.Resolve(result).Type;
+//				if (type.Equals(SpecialType.NullType) || type.Equals(SpecialType.UnknownType)) {
+//					resolvedType = new PrimitiveType ("object");
+//				} else {
+//					resolvedType = context.CreateShortType (type);
+//				}
+//				return result;
+//			}
+//			resolvedType = null;
+//			return null;
+//		}
 	}
 }
 

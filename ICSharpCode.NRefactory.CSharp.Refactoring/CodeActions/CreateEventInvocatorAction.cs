@@ -25,120 +25,137 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Create event invocator", Description = "Creates a standard OnXXX event method.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Creates a standard OnXXX event method.")]
+	[ExportCodeRefactoringProvider("Create event invocator", LanguageNames.CSharp)]
 	public class CreateEventInvocatorAction : ICodeRefactoringProvider
 	{
-		/// <summary>
-		/// If <c>true</c> an explicit type will be used for the handler variable; otherwise, 'var' will be used as type.
-		/// Default value is <c>false</c>
-		/// </summary>
-		public bool UseExplictType {
-			get;
-			set;
-		}
-
-		public static MethodDeclaration CreateEventInvocator (SemanticModel context, TypeDeclaration declaringType, EventDeclaration eventDeclaration, VariableInitializer initializer, IMethod invokeMethod, bool useExplictType)
-		{
-			bool hasSenderParam = false;
-			IEnumerable<IParameter> pars = invokeMethod.Parameters;
-			if (invokeMethod.Parameters.Any()) {
-				var first = invokeMethod.Parameters [0];
-				if (first.Name == "sender" /*&& first.Type == "System.Object"*/) {
-					hasSenderParam = true;
-					pars = invokeMethod.Parameters.Skip(1);
-				}
-			}
-			const string handlerName = "handler";
-
-			var arguments = new List<Expression>();
-			if (hasSenderParam)
-				arguments.Add(eventDeclaration.HasModifier (Modifiers.Static) ? (Expression)new PrimitiveExpression (null) : new ThisReferenceExpression());
-			bool useThisMemberReference = false;
-			foreach (var par in pars) {
-				arguments.Add(new IdentifierExpression(par.Name));
-				useThisMemberReference |= par.Name == initializer.Name;
-			}
-			var proposedHandlerName = GetNameProposal(initializer);
-			var modifiers = eventDeclaration.HasModifier(Modifiers.Static) ? Modifiers.Static : Modifiers.Protected | Modifiers.Virtual;
-			if (declaringType.HasModifier (Modifiers.Sealed)) {
-				modifiers = Modifiers.None;
-			}
-			var methodDeclaration = new MethodDeclaration {
-				Name = proposedHandlerName,
-				ReturnType = new PrimitiveType ("void"),
-				Modifiers = modifiers,
-				Body = new BlockStatement {
-					new VariableDeclarationStatement (
-						useExplictType ? eventDeclaration.ReturnType.Clone () : new PrimitiveType ("var"), handlerName, 
-						useThisMemberReference ? 
-						(Expression)new MemberReferenceExpression (new ThisReferenceExpression (), initializer.Name) 
-						: new IdentifierExpression (initializer.Name)
-						),
-					new IfElseStatement {
-						Condition = new BinaryOperatorExpression (new IdentifierExpression (handlerName), BinaryOperatorType.InEquality, new PrimitiveExpression (null)),
-						TrueStatement = new InvocationExpression (new IdentifierExpression (handlerName), arguments)
-					}
-				}
-			};
-
-			foreach (var par in pars) {
-				var typeName = context.CreateShortType(par.Type);
-				var decl = new ParameterDeclaration(typeName, par.Name);
-				methodDeclaration.Parameters.Add(decl);
-			}
-			return methodDeclaration;
-		}
-
-		static string GetNameProposal(VariableInitializer initializer)
-		{
-			return "On" + char.ToUpper(initializer.Name[0]) + initializer.Name.Substring(1);
-		}
-
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			VariableInitializer initializer;
-			var eventDeclaration = GetEventDeclaration(context, out initializer);
-			if (eventDeclaration == null) {
-				yield break;
-			}
-			var type = (TypeDeclaration)eventDeclaration.Parent;
-			var proposedHandlerName = GetNameProposal(initializer);
-			if (type.Members.Any(m => m is MethodDeclaration && m.Name == proposedHandlerName)) {
-				yield break;
-			}
-			var resolvedType = context.Resolve(eventDeclaration.ReturnType).Type;
-			if (resolvedType.Kind == TypeKind.Unknown) {
-				yield break;
-			}
-			var invokeMethod = resolvedType.GetDelegateInvokeMethod();
-			if (invokeMethod == null) {
-				yield break;
-			}
-			yield return new CodeAction(context.TranslateString("Create event invocator"), script => {
-				var methodDeclaration = CreateEventInvocator (context, type, eventDeclaration, initializer, invokeMethod, UseExplictType);
-				script.InsertWithCursor(
-					context.TranslateString("Create event invocator"),
-					Script.InsertPosition.After,
-					methodDeclaration
-				);
-			}, initializer);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-
-		static EventDeclaration GetEventDeclaration (SemanticModel context, out VariableInitializer initializer)
-		{
-			var result = context.GetNode<EventDeclaration> ();
-			if (result == null) {
-				initializer = null;
-				return null;
-			}
-			initializer = result.Variables.FirstOrDefault (v => v.NameToken.Contains (context.Location));
-			return initializer != null ? result : null;
-		}
+//		/// <summary>
+//		/// If <c>true</c> an explicit type will be used for the handler variable; otherwise, 'var' will be used as type.
+//		/// Default value is <c>false</c>
+//		/// </summary>
+//		public bool UseExplictType {
+//			get;
+//			set;
+//		}
+//
+//		public static MethodDeclaration CreateEventInvocator (SemanticModel context, TypeDeclaration declaringType, EventDeclaration eventDeclaration, VariableInitializer initializer, IMethod invokeMethod, bool useExplictType)
+//		{
+//			bool hasSenderParam = false;
+//			IEnumerable<IParameter> pars = invokeMethod.Parameters;
+//			if (invokeMethod.Parameters.Any()) {
+//				var first = invokeMethod.Parameters [0];
+//				if (first.Name == "sender" /*&& first.Type == "System.Object"*/) {
+//					hasSenderParam = true;
+//					pars = invokeMethod.Parameters.Skip(1);
+//				}
+//			}
+//			const string handlerName = "handler";
+//
+//			var arguments = new List<Expression>();
+//			if (hasSenderParam)
+//				arguments.Add(eventDeclaration.HasModifier (Modifiers.Static) ? (Expression)new PrimitiveExpression (null) : new ThisReferenceExpression());
+//			bool useThisMemberReference = false;
+//			foreach (var par in pars) {
+//				arguments.Add(new IdentifierExpression(par.Name));
+//				useThisMemberReference |= par.Name == initializer.Name;
+//			}
+//			var proposedHandlerName = GetNameProposal(initializer);
+//			var modifiers = eventDeclaration.HasModifier(Modifiers.Static) ? Modifiers.Static : Modifiers.Protected | Modifiers.Virtual;
+//			if (declaringType.HasModifier (Modifiers.Sealed)) {
+//				modifiers = Modifiers.None;
+//			}
+//			var methodDeclaration = new MethodDeclaration {
+//				Name = proposedHandlerName,
+//				ReturnType = new PrimitiveType ("void"),
+//				Modifiers = modifiers,
+//				Body = new BlockStatement {
+//					new VariableDeclarationStatement (
+//						useExplictType ? eventDeclaration.ReturnType.Clone () : new PrimitiveType ("var"), handlerName, 
+//						useThisMemberReference ? 
+//						(Expression)new MemberReferenceExpression (new ThisReferenceExpression (), initializer.Name) 
+//						: new IdentifierExpression (initializer.Name)
+//						),
+//					new IfElseStatement {
+//						Condition = new BinaryOperatorExpression (new IdentifierExpression (handlerName), BinaryOperatorType.InEquality, new PrimitiveExpression (null)),
+//						TrueStatement = new InvocationExpression (new IdentifierExpression (handlerName), arguments)
+//					}
+//				}
+//			};
+//
+//			foreach (var par in pars) {
+//				var typeName = context.CreateShortType(par.Type);
+//				var decl = new ParameterDeclaration(typeName, par.Name);
+//				methodDeclaration.Parameters.Add(decl);
+//			}
+//			return methodDeclaration;
+//		}
+//
+//		static string GetNameProposal(VariableInitializer initializer)
+//		{
+//			return "On" + char.ToUpper(initializer.Name[0]) + initializer.Name.Substring(1);
+//		}
+//
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			VariableInitializer initializer;
+//			var eventDeclaration = GetEventDeclaration(context, out initializer);
+//			if (eventDeclaration == null) {
+//				yield break;
+//			}
+//			var type = (TypeDeclaration)eventDeclaration.Parent;
+//			var proposedHandlerName = GetNameProposal(initializer);
+//			if (type.Members.Any(m => m is MethodDeclaration && m.Name == proposedHandlerName)) {
+//				yield break;
+//			}
+//			var resolvedType = context.Resolve(eventDeclaration.ReturnType).Type;
+//			if (resolvedType.Kind == TypeKind.Unknown) {
+//				yield break;
+//			}
+//			var invokeMethod = resolvedType.GetDelegateInvokeMethod();
+//			if (invokeMethod == null) {
+//				yield break;
+//			}
+//			yield return new CodeAction(context.TranslateString("Create event invocator"), script => {
+//				var methodDeclaration = CreateEventInvocator (context, type, eventDeclaration, initializer, invokeMethod, UseExplictType);
+//				script.InsertWithCursor(
+//					context.TranslateString("Create event invocator"),
+//					Script.InsertPosition.After,
+//					methodDeclaration
+//				);
+//			}, initializer);
+//		}
+//
+//		static EventDeclaration GetEventDeclaration (SemanticModel context, out VariableInitializer initializer)
+//		{
+//			var result = context.GetNode<EventDeclaration> ();
+//			if (result == null) {
+//				initializer = null;
+//				return null;
+//			}
+//			initializer = result.Variables.FirstOrDefault (v => v.NameToken.Contains (context.Location));
+//			return initializer != null ? result : null;
+//		}
 	}
 }
 

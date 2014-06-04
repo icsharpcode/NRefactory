@@ -27,61 +27,75 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.PatternMatching;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Replace operator assignment with assignment", Description = "Replace operator assignment with assignment")]
-	public class ReplaceOperatorAssignmentWithAssignmentAction : SpecializedCodeAction<AssignmentExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Replace operator assignment with assignment")]
+	[ExportCodeRefactoringProvider("Replace operator assignment with assignment", LanguageNames.CSharp)]
+	public class ReplaceOperatorAssignmentWithAssignmentAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.OperatorToken.Contains(context.Location))
-				return null;
-			var op = GetAssignmentOperator(node.Operator);
-			if (op == BinaryOperatorType.Any)
-				return null;
-
-			return new CodeAction(
-				context.TranslateString("Replace with '='"),
-				s => s.Replace(
-					node,
-					new AssignmentExpression(
-						node.Left.Clone(), 
-						new BinaryOperatorExpression(node.Left.Clone(), op, node.Right.Clone())
-					)
-				),
-				node.OperatorToken
-			);
+			throw new NotImplementedException();
 		}
-
-		static BinaryOperatorType GetAssignmentOperator(AssignmentOperatorType op)
-		{
-			switch (op) {
-				case AssignmentOperatorType.BitwiseAnd:
-					return BinaryOperatorType.BitwiseAnd;
-				case AssignmentOperatorType.BitwiseOr:
-					return BinaryOperatorType.BitwiseOr;
-				case AssignmentOperatorType.ExclusiveOr:
-					return BinaryOperatorType.ExclusiveOr;
-				case AssignmentOperatorType.Add:
-					return BinaryOperatorType.Add;
-				case AssignmentOperatorType.Subtract:
-					return BinaryOperatorType.Subtract;
-				case AssignmentOperatorType.Multiply:
-					return BinaryOperatorType.Multiply;
-				case AssignmentOperatorType.Divide:
-					return BinaryOperatorType.Divide;
-				case AssignmentOperatorType.Modulus:
-					return BinaryOperatorType.Modulus;
-				case AssignmentOperatorType.ShiftLeft:
-					return BinaryOperatorType.ShiftLeft;
-				case AssignmentOperatorType.ShiftRight:
-					return BinaryOperatorType.ShiftRight;
-				default:
-					return BinaryOperatorType.Any;
-			}
-		}
+//		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
+//		{
+//			if (!node.OperatorToken.Contains(context.Location))
+//				return null;
+//			var op = GetAssignmentOperator(node.Operator);
+//			if (op == BinaryOperatorType.Any)
+//				return null;
+//
+//			return new CodeAction(
+//				context.TranslateString("Replace with '='"),
+//				s => s.Replace(
+//					node,
+//					new AssignmentExpression(
+//						node.Left.Clone(), 
+//						new BinaryOperatorExpression(node.Left.Clone(), op, node.Right.Clone())
+//					)
+//				),
+//				node.OperatorToken
+//			);
+//		}
+//
+//		static BinaryOperatorType GetAssignmentOperator(AssignmentOperatorType op)
+//		{
+//			switch (op) {
+//				case AssignmentOperatorType.BitwiseAnd:
+//					return BinaryOperatorType.BitwiseAnd;
+//				case AssignmentOperatorType.BitwiseOr:
+//					return BinaryOperatorType.BitwiseOr;
+//				case AssignmentOperatorType.ExclusiveOr:
+//					return BinaryOperatorType.ExclusiveOr;
+//				case AssignmentOperatorType.Add:
+//					return BinaryOperatorType.Add;
+//				case AssignmentOperatorType.Subtract:
+//					return BinaryOperatorType.Subtract;
+//				case AssignmentOperatorType.Multiply:
+//					return BinaryOperatorType.Multiply;
+//				case AssignmentOperatorType.Divide:
+//					return BinaryOperatorType.Divide;
+//				case AssignmentOperatorType.Modulus:
+//					return BinaryOperatorType.Modulus;
+//				case AssignmentOperatorType.ShiftLeft:
+//					return BinaryOperatorType.ShiftLeft;
+//				case AssignmentOperatorType.ShiftRight:
+//					return BinaryOperatorType.ShiftRight;
+//				default:
+//					return BinaryOperatorType.Any;
+//			}
+//		}
 	}
 }
 

@@ -25,50 +25,66 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Implement interface explicit", Description = "Creates an interface implementation.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Creates an interface implementation")]
+	[ExportCodeRefactoringProvider("Implement interface explicit", LanguageNames.CSharp)]
 	public class ImplementInterfaceExplicitAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
-			if (service == null)
-				yield break;
-
-			var type = context.GetNode<AstType>();
-			if (type == null || type.Role != Roles.BaseType)
-				yield break;
-			var state = context.GetResolverStateBefore(type);
-			if (state.CurrentTypeDefinition == null)
-				yield break;
-
-			var resolveResult = context.Resolve(type);
-			if (resolveResult.Type.Kind != TypeKind.Interface)
-				yield break;
-
-			bool interfaceMissing;
-			var toImplement = ImplementInterfaceAction.CollectMembersToImplement(
-				state.CurrentTypeDefinition,
-				resolveResult.Type,
-				false,
-				out interfaceMissing
-			);
-			if (toImplement.Count == 0)
-				yield break;
-
-			yield return new CodeAction(context.TranslateString("Implement interface explicit"), script =>
-				script.InsertWithCursor(
-					context.TranslateString("Implement Interface"),
-					state.CurrentTypeDefinition,
-					(s, c) => ImplementInterfaceAction.GenerateImplementation (c, toImplement.Select (t => Tuple.Create (t.Item1, true)), interfaceMissing).ToList()
-				)
-			, type);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
+//			if (service == null)
+//				yield break;
+//
+//			var type = context.GetNode<AstType>();
+//			if (type == null || type.Role != Roles.BaseType)
+//				yield break;
+//			var state = context.GetResolverStateBefore(type);
+//			if (state.CurrentTypeDefinition == null)
+//				yield break;
+//
+//			var resolveResult = context.Resolve(type);
+//			if (resolveResult.Type.Kind != TypeKind.Interface)
+//				yield break;
+//
+//			bool interfaceMissing;
+//			var toImplement = ImplementInterfaceAction.CollectMembersToImplement(
+//				state.CurrentTypeDefinition,
+//				resolveResult.Type,
+//				false,
+//				out interfaceMissing
+//			);
+//			if (toImplement.Count == 0)
+//				yield break;
+//
+//			yield return new CodeAction(context.TranslateString("Implement interface explicit"), script =>
+//				script.InsertWithCursor(
+//					context.TranslateString("Implement Interface"),
+//					state.CurrentTypeDefinition,
+//					(s, c) => ImplementInterfaceAction.GenerateImplementation (c, toImplement.Select (t => Tuple.Create (t.Item1, true)), interfaceMissing).ToList()
+//				)
+//			, type);
+//		}
 	}
 }

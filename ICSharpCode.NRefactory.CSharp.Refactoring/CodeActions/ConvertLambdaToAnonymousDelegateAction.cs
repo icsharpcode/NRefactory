@@ -24,76 +24,88 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
+using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Convert lambda to anonymous delegate",
-	               Description = "Converts a lambda to an anonymous delegate.")]
-	public class ConvertLambdaToAnonymousDelegateAction : SpecializedCodeAction<LambdaExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Converts a lambda to an anonymous delegate")]
+	[ExportCodeRefactoringProvider("Convert lambda to anonymous delegate", LanguageNames.CSharp)]
+	public class ConvertLambdaToAnonymousDelegateAction : SpecializedCodeAction<SimpleLambdaExpressionSyntax>
 	{
-		#region implemented abstract members of SpecializedCodeAction
-		protected override CodeAction GetAction(SemanticModel context, LambdaExpression node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, SimpleLambdaExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (context.Location < node.StartLocation || context.Location >= node.Body.StartLocation)
-				return null;
-
-			var lambdaResolveResult = context.Resolve(node) as LambdaResolveResult;
-			if (lambdaResolveResult == null)
-				return null;
-
-			return new CodeAction(context.TranslateString("Convert to anonymous delegate"), script => {
-				BlockStatement newBody;
-				if (node.Body is BlockStatement) {
-					newBody = (BlockStatement)node.Body.Clone();
-				} else {
-					var expression = (Expression)node.Body.Clone();
-
-					Statement statement;
-					if (RequireReturnStatement(context, node)) {
-						statement = new ReturnStatement(expression);
-					}
-					else {
-						statement = expression;
-					}
-
-					newBody = new BlockStatement {
-						Statements = {
-							statement
-						}
-					};
-				}
-				var method = new AnonymousMethodExpression (newBody, GetParameters(lambdaResolveResult.Parameters, context));
-				script.Replace(node, method);
-			}, node);
+			throw new NotImplementedException();
 		}
-		#endregion
-
-		IEnumerable<ParameterDeclaration> GetParameters(IList<IParameter> parameters, SemanticModel context)
-		{
-			if (parameters == null || parameters.Count == 0)
-				return null;
-			var result = new List<ParameterDeclaration> ();
-			foreach (var parameter in parameters) {
-				var type = context.CreateShortType(parameter.Type);
-				var name = parameter.Name;
-				ParameterModifier modifier = ParameterModifier.None;
-				if (parameter.IsRef) 
-					modifier |= ParameterModifier.Ref;
-				if (parameter.IsOut)
-					modifier |= ParameterModifier.Out;
-				result.Add (new ParameterDeclaration(type, name, modifier));
-			}
-			return result;
-		}
-
-		static bool RequireReturnStatement (SemanticModel context, LambdaExpression lambda)
-		{
-			var type = LambdaHelper.GetLambdaReturnType (context, lambda);
-			return type != null && type.ReflectionName != "System.Void";
-		}
+//		protected override CodeAction GetAction(SemanticModel context, LambdaExpression node)
+//		{
+//			if (context.Location < node.StartLocation || context.Location >= node.Body.StartLocation)
+//				return null;
+//
+//			var lambdaResolveResult = context.Resolve(node) as LambdaResolveResult;
+//			if (lambdaResolveResult == null)
+//				return null;
+//
+//			return new CodeAction(context.TranslateString("Convert to anonymous delegate"), script => {
+//				BlockStatement newBody;
+//				if (node.Body is BlockStatement) {
+//					newBody = (BlockStatement)node.Body.Clone();
+//				} else {
+//					var expression = (Expression)node.Body.Clone();
+//
+//					Statement statement;
+//					if (RequireReturnStatement(context, node)) {
+//						statement = new ReturnStatement(expression);
+//					}
+//					else {
+//						statement = expression;
+//					}
+//
+//					newBody = new BlockStatement {
+//						Statements = {
+//							statement
+//						}
+//					};
+//				}
+//				var method = new AnonymousMethodExpression (newBody, GetParameters(lambdaResolveResult.Parameters, context));
+//				script.Replace(node, method);
+//			}, node);
+//		}
+//
+//		IEnumerable<ParameterDeclaration> GetParameters(IList<IParameter> parameters, SemanticModel context)
+//		{
+//			if (parameters == null || parameters.Count == 0)
+//				return null;
+//			var result = new List<ParameterDeclaration> ();
+//			foreach (var parameter in parameters) {
+//				var type = context.CreateShortType(parameter.Type);
+//				var name = parameter.Name;
+//				ParameterModifier modifier = ParameterModifier.None;
+//				if (parameter.IsRef) 
+//					modifier |= ParameterModifier.Ref;
+//				if (parameter.IsOut)
+//					modifier |= ParameterModifier.Out;
+//				result.Add (new ParameterDeclaration(type, name, modifier));
+//			}
+//			return result;
+//		}
+//
+//		static bool RequireReturnStatement (SemanticModel context, LambdaExpression lambda)
+//		{
+//			var type = LambdaHelper.GetLambdaReturnType (context, lambda);
+//			return type != null && type.ReflectionName != "System.Void";
+//		}
 	}
 }
 

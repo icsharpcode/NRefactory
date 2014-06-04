@@ -64,7 +64,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 }");
 		}
 
-
 		[Test]
 		public void VirtualIndexerToAbstractTest()
 		{
@@ -84,7 +83,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 }");
 		}
 
-
 		[Test]
 		public void NonVirtualStaticToVirtualTest()
 		{
@@ -101,7 +99,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	}
 }");
 		}
-
 
 		[Test]
 		public void NonVirtualToVirtualTest()

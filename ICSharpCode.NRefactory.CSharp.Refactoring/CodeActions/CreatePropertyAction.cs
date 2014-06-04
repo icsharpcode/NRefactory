@@ -24,108 +24,125 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Create property", Description = "Creates a property for a undefined variable.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Creates a property for a undefined variable")]
+	[ExportCodeRefactoringProvider("Create property", LanguageNames.CSharp)]
 	public class CreatePropertyAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var identifier = CreateFieldAction.GetCreatePropertyOrFieldNode (context);
-			if (identifier == null)
-				yield break;
-			if (CreateFieldAction.IsInvocationTarget(identifier))
-				yield break;
-
-			var propertyName = GetPropertyName(identifier);
-			if (propertyName == null)
-				yield break;
-
-			var statement = context.GetNode<Statement>();
-			if (statement == null)
-				yield break;
-
-			if (!(context.Resolve(identifier).IsError))
-				yield break;
-
-			var guessedType = TypeGuessing.GuessAstType(context, identifier);
-			if (guessedType == null)
-				yield break;
-			var state = context.GetResolverStateBefore(identifier);
-			if (state.CurrentTypeDefinition == null)
-				yield break;
-			
-			bool createInOtherType = false;
-			ResolveResult targetResolveResult = null;
-			if (identifier is MemberReferenceExpression) {
-				targetResolveResult = context.Resolve(((MemberReferenceExpression)identifier).Target);
-				if (targetResolveResult.Type.GetDefinition() == null || targetResolveResult.Type.GetDefinition().Region.IsEmpty)
-					yield break;
-				createInOtherType = !state.CurrentTypeDefinition.Equals(targetResolveResult.Type.GetDefinition());
-			}
-
-			bool isStatic = targetResolveResult is TypeResolveResult;
-			if (createInOtherType) {
-				if (isStatic && targetResolveResult.Type.Kind == TypeKind.Interface || targetResolveResult.Type.Kind == TypeKind.Enum)
-					yield break;
-			} else {
-				if (state.CurrentMember == null)
-					yield break;
-				isStatic |= state.CurrentTypeDefinition.IsStatic;
-				if (targetResolveResult == null)
-					isStatic |= state.CurrentMember.IsStatic;
-			}
-			isStatic &= !(identifier is NamedExpression);
-
-	//			var service = (NamingConventionService)context.GetService(typeof(NamingConventionService));
-//			if (service != null && !service.IsValidName(propertyName, AffectedEntity.Property, Modifiers.Private, isStatic)) { 
-//				yield break;
-//			}
-
-			yield return new CodeAction(context.TranslateString("Create property"), script => {
-				var decl = new PropertyDeclaration() {
-					ReturnType = guessedType,
-					Name = propertyName,
-					Getter = new Accessor(),
-					Setter = new Accessor()
-				};
-				if (isStatic)
-					decl.Modifiers |= Modifiers.Static;
-				
-				if (createInOtherType) {
-					if (targetResolveResult.Type.Kind == TypeKind.Interface) {
-						decl.Modifiers = Modifiers.None;
-					} else {
-						decl.Modifiers |= Modifiers.Public;
-					}
-					script.InsertWithCursor(
-						context.TranslateString("Create property"),
-						targetResolveResult.Type.GetDefinition(),
-						(s, c) => decl);
-
-					return;
-				}
-
-				script.InsertWithCursor(context.TranslateString("Create property"), Script.InsertPosition.Before, decl);
-
-			}, identifier.GetNodeAt(context.Location) ?? identifier) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
-		}
-
-		internal static string GetPropertyName(Expression expr)
-		{
-			if (expr is IdentifierExpression) 
-				return ((IdentifierExpression)expr).Identifier;
-			if (expr is MemberReferenceExpression) 
-				return ((MemberReferenceExpression)expr).MemberName;
-			if (expr is NamedExpression) 
-				return ((NamedExpression)expr).Name;
-
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			return null;
 		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var identifier = CreateFieldAction.GetCreatePropertyOrFieldNode (context);
+//			if (identifier == null)
+//				yield break;
+//			if (CreateFieldAction.IsInvocationTarget(identifier))
+//				yield break;
+//
+//			var propertyName = GetPropertyName(identifier);
+//			if (propertyName == null)
+//				yield break;
+//
+//			var statement = context.GetNode<Statement>();
+//			if (statement == null)
+//				yield break;
+//
+//			if (!(context.Resolve(identifier).IsError))
+//				yield break;
+//
+//			var guessedType = TypeGuessing.GuessAstType(context, identifier);
+//			if (guessedType == null)
+//				yield break;
+//			var state = context.GetResolverStateBefore(identifier);
+//			if (state.CurrentTypeDefinition == null)
+//				yield break;
+//			
+//			bool createInOtherType = false;
+//			ResolveResult targetResolveResult = null;
+//			if (identifier is MemberReferenceExpression) {
+//				targetResolveResult = context.Resolve(((MemberReferenceExpression)identifier).Target);
+//				if (targetResolveResult.Type.GetDefinition() == null || targetResolveResult.Type.GetDefinition().Region.IsEmpty)
+//					yield break;
+//				createInOtherType = !state.CurrentTypeDefinition.Equals(targetResolveResult.Type.GetDefinition());
+//			}
+//
+//			bool isStatic = targetResolveResult is TypeResolveResult;
+//			if (createInOtherType) {
+//				if (isStatic && targetResolveResult.Type.Kind == TypeKind.Interface || targetResolveResult.Type.Kind == TypeKind.Enum)
+//					yield break;
+//			} else {
+//				if (state.CurrentMember == null)
+//					yield break;
+//				isStatic |= state.CurrentTypeDefinition.IsStatic;
+//				if (targetResolveResult == null)
+//					isStatic |= state.CurrentMember.IsStatic;
+//			}
+//			isStatic &= !(identifier is NamedExpression);
+//
+//	//			var service = (NamingConventionService)context.GetService(typeof(NamingConventionService));
+////			if (service != null && !service.IsValidName(propertyName, AffectedEntity.Property, Modifiers.Private, isStatic)) { 
+////				yield break;
+////			}
+//
+//			yield return new CodeAction(context.TranslateString("Create property"), script => {
+//				var decl = new PropertyDeclaration() {
+//					ReturnType = guessedType,
+//					Name = propertyName,
+//					Getter = new Accessor(),
+//					Setter = new Accessor()
+//				};
+//				if (isStatic)
+//					decl.Modifiers |= Modifiers.Static;
+//				
+//				if (createInOtherType) {
+//					if (targetResolveResult.Type.Kind == TypeKind.Interface) {
+//						decl.Modifiers = Modifiers.None;
+//					} else {
+//						decl.Modifiers |= Modifiers.Public;
+//					}
+//					script.InsertWithCursor(
+//						context.TranslateString("Create property"),
+//						targetResolveResult.Type.GetDefinition(),
+//						(s, c) => decl);
+//
+//					return;
+//				}
+//
+//				script.InsertWithCursor(context.TranslateString("Create property"), Script.InsertPosition.Before, decl);
+//
+//			}, identifier.GetNodeAt(context.Location) ?? identifier) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
+//		}
+//
+//		internal static string GetPropertyName(Expression expr)
+//		{
+//			if (expr is IdentifierExpression) 
+//				return ((IdentifierExpression)expr).Identifier;
+//			if (expr is MemberReferenceExpression) 
+//				return ((MemberReferenceExpression)expr).MemberName;
+//			if (expr is NamedExpression) 
+//				return ((NamedExpression)expr).Name;
+//
+//			return null;
+//		}
 	}
 }
 

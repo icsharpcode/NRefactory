@@ -24,96 +24,108 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Convert LINQ query to fluent syntax",
-	               Description = "Converts a LINQ query to the equivalent fluent syntax.")]
-	public class LinqQueryToFluentAction : SpecializedCodeAction<QueryExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Converts a LINQ query to the equivalent fluent syntax")]
+	[ExportCodeRefactoringProvider("Convert LINQ query to fluent syntax", LanguageNames.CSharp)]
+	public class LinqQueryToFluentAction : SpecializedCodeAction<QueryExpressionSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, QueryExpression node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, QueryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			AstNode currentNode = node;
-			for (;;) {
-				QueryContinuationClause continuationParent = currentNode.Parent as QueryContinuationClause;
-				if (continuationParent != null) {
-					currentNode = continuationParent;
-					continue;
-				}
-				QueryExpression exprParent = currentNode.Parent as QueryExpression;
-				if (exprParent != null) {
-					currentNode = exprParent;
-					continue;
-				}
-
-				break;
-			}
-
-			node = (QueryExpression)currentNode;
-
-			return new CodeAction(context.TranslateString("Convert LINQ query to fluent syntax"),
-			                      script => ConvertQueryToFluent(context, script, node),
-			                      node);
+			throw new NotImplementedException();
 		}
-
-		static void ConvertQueryToFluent(SemanticModel context, Script script, QueryExpression query) {
-			IEnumerable<string> underscoreIdentifiers = GetNameProposals (context, query, "_");
-			Expression newExpression = GetFluentFromQuery(query, underscoreIdentifiers);
-			script.Replace (query, newExpression);
-		}
-
-		static IEnumerable<string> GetNameProposals(SemanticModel context, QueryExpression query, string baseName)
-		{
-			var resolver = context.GetResolverStateBefore(query);
-			int current = -1;
-			string nameProposal;
-			for (;;) {
-				do {
-					++current;
-					nameProposal = baseName + (current == 0 ? string.Empty : current.ToString());
-				} while (IsNameUsed (resolver, query, nameProposal));
-
-				yield return nameProposal;
-			}
-		}
-
-		static bool IsNameUsed(CSharpResolver resolver, QueryExpression query, string name)
-		{
-			if (resolver.ResolveSimpleName(name, new List<IType>()) is LocalResolveResult) {
-				return true;
-			}
-
-			if (query.Ancestors.OfType <VariableInitializer>().Any(variable => variable.Name == name)) {
-				return true;
-			}
-
-			if (query.Ancestors.OfType <BlockStatement>()
-			    .Any(blockStatement => DeclaresLocalVariable(blockStatement, name))) {
-
-				return true;
-			}
-
-			return query.Descendants.OfType<Identifier> ().Any (identifier => identifier.Name == name);
-		}
-
-		static bool DeclaresLocalVariable(BlockStatement blockStatement, string name) {
-			return blockStatement.Descendants.OfType <VariableInitializer>()
-				.Any(variable => variable.Name == name &&
-				     variable.Ancestors.OfType<BlockStatement>().First() == blockStatement);
-		}
-
-		static Expression GetFluentFromQuery (QueryExpression query, IEnumerable<string> underscoreIdentifiers)
-		{
-			var queryExpander = new QueryExpressionExpander();
-			var expandResult = queryExpander.ExpandQueryExpressions(query, underscoreIdentifiers);
-
-			return (Expression) expandResult.AstNode;
-		}
+//		protected override CodeAction GetAction(SemanticModel context, QueryExpression node)
+//		{
+//			AstNode currentNode = node;
+//			for (;;) {
+//				QueryContinuationClause continuationParent = currentNode.Parent as QueryContinuationClause;
+//				if (continuationParent != null) {
+//					currentNode = continuationParent;
+//					continue;
+//				}
+//				QueryExpression exprParent = currentNode.Parent as QueryExpression;
+//				if (exprParent != null) {
+//					currentNode = exprParent;
+//					continue;
+//				}
+//
+//				break;
+//			}
+//
+//			node = (QueryExpression)currentNode;
+//
+//			return new CodeAction(context.TranslateString("Convert LINQ query to fluent syntax"),
+//			                      script => ConvertQueryToFluent(context, script, node),
+//			                      node);
+//		}
+//
+//		static void ConvertQueryToFluent(SemanticModel context, Script script, QueryExpression query) {
+//			IEnumerable<string> underscoreIdentifiers = GetNameProposals (context, query, "_");
+//			Expression newExpression = GetFluentFromQuery(query, underscoreIdentifiers);
+//			script.Replace (query, newExpression);
+//		}
+//
+//		static IEnumerable<string> GetNameProposals(SemanticModel context, QueryExpression query, string baseName)
+//		{
+//			var resolver = context.GetResolverStateBefore(query);
+//			int current = -1;
+//			string nameProposal;
+//			for (;;) {
+//				do {
+//					++current;
+//					nameProposal = baseName + (current == 0 ? string.Empty : current.ToString());
+//				} while (IsNameUsed (resolver, query, nameProposal));
+//
+//				yield return nameProposal;
+//			}
+//		}
+//
+//		static bool IsNameUsed(CSharpResolver resolver, QueryExpression query, string name)
+//		{
+//			if (resolver.ResolveSimpleName(name, new List<IType>()) is LocalResolveResult) {
+//				return true;
+//			}
+//
+//			if (query.Ancestors.OfType <VariableInitializer>().Any(variable => variable.Name == name)) {
+//				return true;
+//			}
+//
+//			if (query.Ancestors.OfType <BlockStatement>()
+//			    .Any(blockStatement => DeclaresLocalVariable(blockStatement, name))) {
+//
+//				return true;
+//			}
+//
+//			return query.Descendants.OfType<Identifier> ().Any (identifier => identifier.Name == name);
+//		}
+//
+//		static bool DeclaresLocalVariable(BlockStatement blockStatement, string name) {
+//			return blockStatement.Descendants.OfType <VariableInitializer>()
+//				.Any(variable => variable.Name == name &&
+//				     variable.Ancestors.OfType<BlockStatement>().First() == blockStatement);
+//		}
+//
+//		static Expression GetFluentFromQuery (QueryExpression query, IEnumerable<string> underscoreIdentifiers)
+//		{
+//			var queryExpander = new QueryExpressionExpander();
+//			var expandResult = queryExpander.ExpandQueryExpressions(query, underscoreIdentifiers);
+//
+//			return (Expression) expandResult.AstNode;
+//		}
 	}
 }
 

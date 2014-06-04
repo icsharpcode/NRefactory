@@ -23,47 +23,59 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	/// <summary>
-	///  Copies documented comments from base to overriding methods.
-	/// </summary>
-	using System;
-	using System.Collections.Generic;
-	
-	[ContextAction("Copy comments from base", Description = "Copies documented comments from base to overriding methods.")]
-	public class CopyCommentsFromBase: SpecializedCodeAction <MethodDeclaration>
+	// TODO: Why only methods ?
+	[NRefactoryCodeRefactoringProvider(Description = "Copies documented comments from base to overriding methods")]
+	[ExportCodeRefactoringProvider("Copy comments from base", LanguageNames.CSharp)]
+	public class CopyCommentsFromBase: SpecializedCodeAction <MethodDeclarationSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, MethodDeclaration node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, MethodDeclarationSyntax node, CancellationToken cancellationToken)
 		{
-			if (node == null || !node.HasModifier(Modifiers.Override))
-				return null;
-			if (!node.NameToken.Contains(context.Location))
-				return null;
-			
-			IMethod resolvedMember = (IMethod)(context.Resolve(node) as MemberResolveResult).Member;
-			
-			if (resolvedMember == null)
-				return null;
-			
-			IMethod originalMember = (IMethod)InheritanceHelper.GetBaseMember(resolvedMember);
-		
-			if (originalMember == null || originalMember.Documentation == null)
-				return null;
-			string comments = originalMember.Documentation.ToString();
-			
-			if (string.IsNullOrEmpty(comments))
-				return null;
-			
-			string[] lines = comments.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-			return new CodeAction(context.TranslateString("Copy comments from base"), script => {
-				foreach (string co in lines) {
-					script.InsertBefore(node, new Comment(co, CommentType.Documentation));
-				}
-			}, node.NameToken);
+			throw new NotImplementedException();
 		}
+//		protected override CodeAction GetAction(SemanticModel context, MethodDeclaration node)
+//		{
+//			if (node == null || !node.HasModifier(Modifiers.Override))
+//				return null;
+//			if (!node.NameToken.Contains(context.Location))
+//				return null;
+//			
+//			IMethod resolvedMember = (IMethod)(context.Resolve(node) as MemberResolveResult).Member;
+//			
+//			if (resolvedMember == null)
+//				return null;
+//			
+//			IMethod originalMember = (IMethod)InheritanceHelper.GetBaseMember(resolvedMember);
+//		
+//			if (originalMember == null || originalMember.Documentation == null)
+//				return null;
+//			string comments = originalMember.Documentation.ToString();
+//			
+//			if (string.IsNullOrEmpty(comments))
+//				return null;
+//			
+//			string[] lines = comments.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+//			return new CodeAction(context.TranslateString("Copy comments from base"), script => {
+//				foreach (string co in lines) {
+//					script.InsertBefore(node, new Comment(co, CommentType.Documentation));
+//				}
+//			}, node.NameToken);
+//		}
 	}
 }

@@ -24,30 +24,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Invert conditional operator", Description = "Inverts an '?:' expression.")]
-	public class InvertConditionalOperatorAction : SpecializedCodeAction<ConditionalExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Inverts an '?:' expression.")]
+	[ExportCodeRefactoringProvider("Invert conditional operator", LanguageNames.CSharp)]
+	public class InvertConditionalOperatorAction : SpecializedCodeAction<ConditionalExpressionSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, ConditionalExpression conditionalExpr)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, ConditionalExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (context.Location != conditionalExpr.Condition.StartLocation && context.Location < conditionalExpr.Condition.EndLocation ||
-			    context.Location != conditionalExpr.TrueExpression.StartLocation && conditionalExpr.TrueExpression.Contains(context.Location) ||
-			    context.Location != conditionalExpr.FalseExpression.StartLocation && conditionalExpr.FalseExpression.Contains(context.Location))
-				return null;
-
-			var node = conditionalExpr.GetNodeAt(context.Location);
-			if (node == null)
-				return null;
-
-			return new CodeAction (context.TranslateString("Invert '?:'"), script => {
-				script.Replace(conditionalExpr.Condition, CSharpUtil.InvertCondition(conditionalExpr.Condition.Clone()));
-				script.Replace(conditionalExpr.TrueExpression, conditionalExpr.FalseExpression.Clone());
-				script.Replace(conditionalExpr.FalseExpression, conditionalExpr.TrueExpression.Clone());
-				script.FormatText(conditionalExpr);
-			}, node);
+			throw new NotImplementedException();
 		}
+//		protected override CodeAction GetAction(SemanticModel context, ConditionalExpression conditionalExpr)
+//		{
+//			if (context.Location != conditionalExpr.Condition.StartLocation && context.Location < conditionalExpr.Condition.EndLocation ||
+//			    context.Location != conditionalExpr.TrueExpression.StartLocation && conditionalExpr.TrueExpression.Contains(context.Location) ||
+//			    context.Location != conditionalExpr.FalseExpression.StartLocation && conditionalExpr.FalseExpression.Contains(context.Location))
+//				return null;
+//
+//			var node = conditionalExpr.GetNodeAt(context.Location);
+//			if (node == null)
+//				return null;
+//
+//			return new CodeAction (context.TranslateString("Invert '?:'"), script => {
+//				script.Replace(conditionalExpr.Condition, CSharpUtil.InvertCondition(conditionalExpr.Condition.Clone()));
+//				script.Replace(conditionalExpr.TrueExpression, conditionalExpr.FalseExpression.Clone());
+//				script.Replace(conditionalExpr.FalseExpression, conditionalExpr.TrueExpression.Clone());
+//				script.FormatText(conditionalExpr);
+//			}, node);
+//		}
 	}
 }
 

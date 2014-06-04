@@ -24,70 +24,86 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Implement abstract members", Description = "Implements abstract members from an abstract class.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Implements abstract members from an abstract class")]
+	[ExportCodeRefactoringProvider("Implement abstract members", LanguageNames.CSharp)]
 	public class ImplementAbstractMembersAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
-			if (service == null)
-				yield break;
-
-			var type = context.GetNode<AstType>();
-			if (type == null || type.Role != Roles.BaseType)
-				yield break;
-			var state = context.GetResolverStateBefore(type);
-			if (state.CurrentTypeDefinition == null)
-				yield break;
-
-			var resolveResult = context.Resolve(type);
-			if (resolveResult.Type.Kind != TypeKind.Class || resolveResult.Type.GetDefinition() == null || !resolveResult.Type.GetDefinition().IsAbstract)
-				yield break;
-
-			var toImplement = CollectMembersToImplement(state.CurrentTypeDefinition, resolveResult.Type);
-			if (toImplement.Count == 0)
-				yield break;
-
-			yield return new CodeAction(
-				context.TranslateString("Implement abstract members"), 
-				script => script.InsertWithCursor(
-					context.TranslateString("Implement abstract members"), 
-					state.CurrentTypeDefinition, (s, c) => ImplementInterfaceAction.GenerateImplementation(c, toImplement.Select(m => Tuple.Create(m, false)), true)
-				.Select(entity => {
-					var decl = entity as EntityDeclaration;
-					if (decl != null)
-						decl.Modifiers |= Modifiers.Override;
-					return entity;
-				}).ToList()), type);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-
-		public static List<IMember> CollectMembersToImplement(ITypeDefinition implementingType, IType abstractType)
-		{
-			var toImplement = new List<IMember>();
-			bool alreadyImplemented;
-			foreach (var member in abstractType.GetMembers (d => !d.IsSynthetic  && d.IsAbstract)) {
-				alreadyImplemented = false;
-				var allBaseTypes = member.DeclaringType.GetAllBaseTypes().ToList ();
-				foreach (var cmet in implementingType.GetMembers (d => d.SymbolKind == member.SymbolKind && d.Name == member.Name)) {
-					if (allBaseTypes.Contains(cmet.DeclaringType))
-						continue;
-					if (ImplementInterfaceAction.CompareMembers(member, cmet)) {
-						alreadyImplemented = true;
-						break;
-					}
-				}
-				if (!alreadyImplemented) 
-					toImplement.Add(member);
-			}
-			return toImplement;
-		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var service = (CodeGenerationService)context.GetService(typeof(CodeGenerationService)); 
+//			if (service == null)
+//				yield break;
+//
+//			var type = context.GetNode<AstType>();
+//			if (type == null || type.Role != Roles.BaseType)
+//				yield break;
+//			var state = context.GetResolverStateBefore(type);
+//			if (state.CurrentTypeDefinition == null)
+//				yield break;
+//
+//			var resolveResult = context.Resolve(type);
+//			if (resolveResult.Type.Kind != TypeKind.Class || resolveResult.Type.GetDefinition() == null || !resolveResult.Type.GetDefinition().IsAbstract)
+//				yield break;
+//
+//			var toImplement = CollectMembersToImplement(state.CurrentTypeDefinition, resolveResult.Type);
+//			if (toImplement.Count == 0)
+//				yield break;
+//
+//			yield return new CodeAction(
+//				context.TranslateString("Implement abstract members"), 
+//				script => script.InsertWithCursor(
+//					context.TranslateString("Implement abstract members"), 
+//					state.CurrentTypeDefinition, (s, c) => ImplementInterfaceAction.GenerateImplementation(c, toImplement.Select(m => Tuple.Create(m, false)), true)
+//				.Select(entity => {
+//					var decl = entity as EntityDeclaration;
+//					if (decl != null)
+//						decl.Modifiers |= Modifiers.Override;
+//					return entity;
+//				}).ToList()), type);
+//		}
+//
+//		public static List<IMember> CollectMembersToImplement(ITypeDefinition implementingType, IType abstractType)
+//		{
+//			var toImplement = new List<IMember>();
+//			bool alreadyImplemented;
+//			foreach (var member in abstractType.GetMembers (d => !d.IsSynthetic  && d.IsAbstract)) {
+//				alreadyImplemented = false;
+//				var allBaseTypes = member.DeclaringType.GetAllBaseTypes().ToList ();
+//				foreach (var cmet in implementingType.GetMembers (d => d.SymbolKind == member.SymbolKind && d.Name == member.Name)) {
+//					if (allBaseTypes.Contains(cmet.DeclaringType))
+//						continue;
+//					if (ImplementInterfaceAction.CompareMembers(member, cmet)) {
+//						alreadyImplemented = true;
+//						break;
+//					}
+//				}
+//				if (!alreadyImplemented) 
+//					toImplement.Add(member);
+//			}
+//			return toImplement;
+//		}
 
 	}
 }

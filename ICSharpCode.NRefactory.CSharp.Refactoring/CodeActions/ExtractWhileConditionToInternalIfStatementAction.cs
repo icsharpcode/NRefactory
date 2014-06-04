@@ -24,45 +24,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.PatternMatching;
-using Mono.CSharp;
-using ICSharpCode.NRefactory.TypeSystem;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Extract field", Description = "Extracts a field from a local variable declaration.")]
-	public class ExtractWhileConditionToInternalIfStatementAction : SpecializedCodeAction<WhileStatement>
+	[NRefactoryCodeRefactoringProvider(Description = "Extracts a field from a local variable declaration")]
+	[ExportCodeRefactoringProvider("Extract field", LanguageNames.CSharp)]
+	public class ExtractWhileConditionToInternalIfStatementAction : SpecializedCodeAction<WhileStatementSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, WhileStatement node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, WhileStatementSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.WhileToken.Contains(context.Location))
-				return null;
-
-			return new CodeAction(
-				context.TranslateString("Extract condition to internal 'if' statement"),
-				script => {
-					script.Replace(node.Condition, new PrimitiveExpression(true));
-					var ifStmt = new IfElseStatement(
-						CSharpUtil.InvertCondition(node.Condition),
-						new BreakStatement()
-					);
-
-					var block = node.EmbeddedStatement as BlockStatement;
-					if (block != null) {
-						script.InsertAfter(block.LBraceToken, ifStmt);
-					} else {
-						var blockStatement = new BlockStatement {
-							ifStmt
-						};
-						if (!(node.EmbeddedStatement is EmptyStatement))
-							blockStatement.Statements.Add(node.EmbeddedStatement.Clone());
-						script.Replace(node.EmbeddedStatement, blockStatement);
-					}
-				},
-				node
-			);
+			throw new NotImplementedException();
 		}
+//		protected override CodeAction GetAction(SemanticModel context, WhileStatement node)
+//		{
+//			if (!node.WhileToken.Contains(context.Location))
+//				return null;
+//
+//			return new CodeAction(
+//				context.TranslateString("Extract condition to internal 'if' statement"),
+//				script => {
+//					script.Replace(node.Condition, new PrimitiveExpression(true));
+//					var ifStmt = new IfElseStatement(
+//						CSharpUtil.InvertCondition(node.Condition),
+//						new BreakStatement()
+//					);
+//
+//					var block = node.EmbeddedStatement as BlockStatement;
+//					if (block != null) {
+//						script.InsertAfter(block.LBraceToken, ifStmt);
+//					} else {
+//						var blockStatement = new BlockStatement {
+//							ifStmt
+//						};
+//						if (!(node.EmbeddedStatement is EmptyStatement))
+//							blockStatement.Statements.Add(node.EmbeddedStatement.Clone());
+//						script.Replace(node.EmbeddedStatement, blockStatement);
+//					}
+//				},
+//				node
+//			);
+//		}
 	}
 }

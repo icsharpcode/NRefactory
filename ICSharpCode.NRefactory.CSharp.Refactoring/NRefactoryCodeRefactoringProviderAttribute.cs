@@ -46,6 +46,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			get;
 			set;
 		}
+
+		public string Category {
+			get;
+			set;
+		}
 	}
 
 }

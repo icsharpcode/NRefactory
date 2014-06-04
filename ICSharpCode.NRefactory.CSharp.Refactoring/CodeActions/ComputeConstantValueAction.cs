@@ -23,31 +23,50 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory6.CSharp;
-using ICSharpCode.NRefactory.Semantics;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Compute constant value", Description = "Computes the value of the current expression and replaces it.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Computes the value of the current expression and replaces it")]
+	[ExportCodeRefactoringProvider("Compute constant value", LanguageNames.CSharp)]
 	public class ComputeConstantValueAction : ICodeRefactoringProvider
 	{
-		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var expression = context.GetNode(i => i is BinaryOperatorExpression || i is UnaryOperatorExpression);
-			if (expression == null)
-				yield break;
-			var node = context.GetNode();
-			if (node == null || !(node is PrimitiveExpression) && node.StartLocation != context.Location)
-				yield break;
-
-			var rr = context.Resolve(expression);
-			if (rr.ConstantValue == null)
-				yield break;
-			yield return new CodeAction(
-				context.TranslateString("Compute constant value"),
-				script => script.Replace(expression, new PrimitiveExpression(rr.ConstantValue)), 
-				node
-			);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
+//		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
+//		{
+//			var expression = context.GetNode(i => i is BinaryOperatorExpression || i is UnaryOperatorExpression);
+//			if (expression == null)
+//				yield break;
+//			var node = context.GetNode();
+//			if (node == null || !(node is PrimitiveExpression) && node.StartLocation != context.Location)
+//				yield break;
+//
+//			var rr = context.Resolve(expression);
+//			if (rr.ConstantValue == null)
+//				yield break;
+//			yield return new CodeAction(
+//				context.TranslateString("Compute constant value"),
+//				script => script.Replace(expression, new PrimitiveExpression(rr.ConstantValue)), 
+//				node
+//			);
+//		}
 	}
 }

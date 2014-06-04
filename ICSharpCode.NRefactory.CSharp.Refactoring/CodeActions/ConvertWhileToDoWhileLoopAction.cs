@@ -23,8 +23,20 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -32,29 +44,36 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Converts a while loop to a do...while loop.
 	/// For instance: while (foo) {} becomes do { } while (foo);
 	/// </summary>
-	[ContextAction("Convert while loop to do...while", Description = "Convert while loop to do...while (changing semantics)")]
+	[NRefactoryCodeRefactoringProvider(Description = "Convert while loop to do...while (changing semantics)")]
+	[ExportCodeRefactoringProvider("Convert while loop to do...while", LanguageNames.CSharp)]
 	public class ConvertWhileToDoWhileLoopAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var whileLoop = context.GetNode<WhileStatement>();
-			if (whileLoop == null || !whileLoop.WhileToken.Contains(context.Location)) {
-				yield break;
-			}
-
-			yield return new CodeAction(context.TranslateString("Convert to do...while loop"),
-			                            script => ApplyAction(script, whileLoop),
-			                            whileLoop.WhileToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-
-		void ApplyAction(Script script, WhileStatement statement) {
-			var doWhile = new DoWhileStatement {
-				Condition = statement.Condition.Clone(),
-				EmbeddedStatement = statement.EmbeddedStatement.Clone()
-			};
-
-			script.Replace(statement, doWhile);
-		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var whileLoop = context.GetNode<WhileStatement>();
+//			if (whileLoop == null || !whileLoop.WhileToken.Contains(context.Location)) {
+//				yield break;
+//			}
+//
+//			yield return new CodeAction(context.TranslateString("Convert to do...while loop"),
+//			                            script => ApplyAction(script, whileLoop),
+//			                            whileLoop.WhileToken);
+//		}
+//
+//		void ApplyAction(Script script, WhileStatement statement) {
+//			var doWhile = new DoWhileStatement {
+//				Condition = statement.Condition.Clone(),
+//				EmbeddedStatement = statement.EmbeddedStatement.Clone()
+//			};
+//
+//			script.Replace(statement, doWhile);
+//		}
 	}
 }
 

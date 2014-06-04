@@ -24,61 +24,74 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
-using ICSharpCode.NRefactory.Semantics;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Create enum value", Description = "Creates an enum value for a undefined enum value.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Creates an enum value for a undefined enum value")]
+	[ExportCodeRefactoringProvider("Create enum value", LanguageNames.CSharp)]
 	public class CreateEnumValue : ICodeRefactoringProvider
 	{
-		internal static bool IsInvocationTarget(AstNode node)
-		{
-			var invoke = node.Parent as InvocationExpression;
-			return invoke != null && invoke.Target == node;
-		}
-		
-		internal static Expression GetCreatePropertyOrFieldNode(SemanticModel context)
-		{
-			return context.GetNode(n => n is IdentifierExpression || n is MemberReferenceExpression || n is NamedExpression) as Expression;
-		}
-		
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var expr = GetCreatePropertyOrFieldNode(context);
-			if (expr == null)
-				yield break;
-			if (!(expr is MemberReferenceExpression))
-				yield break;
-			var propertyName = CreatePropertyAction.GetPropertyName(expr);
-			if (propertyName == null)
-				yield break;
-			if (IsInvocationTarget(expr))
-				yield break;
-			var statement = expr.GetParent<Statement>();
-			if (statement == null)
-				yield break;
-			if (!(context.Resolve(expr).IsError))
-				yield break;
-			var guessedType = TypeGuessing.GuessType(context, expr);
-			if (guessedType == null || guessedType.Kind != TypeKind.Enum)
-				yield break;
-			var state = context.GetResolverStateBefore(expr);
-			if (state.CurrentMember == null || state.CurrentTypeDefinition == null)
-				yield break;
-
-			yield return new CodeAction(context.TranslateString("Create enum value"), script => {
-				var decl = new EnumMemberDeclaration {
-					Name = propertyName
-				};
-				script.InsertWithCursor(context.TranslateString("Create enum value"), guessedType.GetDefinition (), (s, c) => decl);
-			}, expr) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
+//		internal static bool IsInvocationTarget(AstNode node)
+//		{
+//			var invoke = node.Parent as InvocationExpression;
+//			return invoke != null && invoke.Target == node;
+//		}
+//		
+//		internal static Expression GetCreatePropertyOrFieldNode(SemanticModel context)
+//		{
+//			return context.GetNode(n => n is IdentifierExpression || n is MemberReferenceExpression || n is NamedExpression) as Expression;
+//		}
+//		
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var expr = GetCreatePropertyOrFieldNode(context);
+//			if (expr == null)
+//				yield break;
+//			if (!(expr is MemberReferenceExpression))
+//				yield break;
+//			var propertyName = CreatePropertyAction.GetPropertyName(expr);
+//			if (propertyName == null)
+//				yield break;
+//			if (IsInvocationTarget(expr))
+//				yield break;
+//			var statement = expr.GetParent<Statement>();
+//			if (statement == null)
+//				yield break;
+//			if (!(context.Resolve(expr).IsError))
+//				yield break;
+//			var guessedType = TypeGuessing.GuessType(context, expr);
+//			if (guessedType == null || guessedType.Kind != TypeKind.Enum)
+//				yield break;
+//			var state = context.GetResolverStateBefore(expr);
+//			if (state.CurrentMember == null || state.CurrentTypeDefinition == null)
+//				yield break;
+//
+//			yield return new CodeAction(context.TranslateString("Create enum value"), script => {
+//				var decl = new EnumMemberDeclaration {
+//					Name = propertyName
+//				};
+//				script.InsertWithCursor(context.TranslateString("Create enum value"), guessedType.GetDefinition (), (s, c) => decl);
+//			}, expr) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
+//		}
 		
 	}
 }

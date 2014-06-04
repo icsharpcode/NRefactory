@@ -24,54 +24,69 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Convert method group to lambda expression",
-	               Description = "Convert method group to lambda expression")]
+	[NRefactoryCodeRefactoringProvider(Description = "Convert method group to lambda expression")]
+	[ExportCodeRefactoringProvider("Convert method group to lambda expression", LanguageNames.CSharp)]
 	public class ConvertMethodGroupToLambdaAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			Expression node = context.GetNode<IdentifierExpression>();
-			if (node == null) {
-				var mr = context.GetNode<MemberReferenceExpression>();
-				if (mr == null || !mr.MemberNameToken.IsInside(context.Location))
-					yield break;
-				node = mr;
-			}
-			if (node == null)
-				yield break;
-			var rr = context.Resolve(node) as MethodGroupResolveResult;
-			if (rr == null || rr.IsError)
-				yield break;
-			var type = TypeGuessing.GetValidTypes(context.Resolver, node).FirstOrDefault(t => t.Kind == TypeKind.Delegate);
-			if (type == null)
-				yield break;
-			var invocationMethod = type.GetDelegateInvokeMethod();
-			if (invocationMethod == null)
-				yield break;
-
-			yield return new CodeAction(
-				context.TranslateString("Convert to lambda expression"), 
-				script => {
-					var invocation = new InvocationExpression(node.Clone(), invocationMethod.Parameters.Select(p => new IdentifierExpression(context.GetNameProposal(p.Name))));
-					var lambda = new LambdaExpression {
-						Body = invocation
-					};
-					lambda.Parameters.AddRange(
-						invocation.Arguments
-							.Cast<IdentifierExpression>()
-							.Select(p => new ParameterDeclaration { Name = p.Identifier })
-					);
-					script.Replace(node, lambda);
-				},
-				node
-			);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			Expression node = context.GetNode<IdentifierExpression>();
+//			if (node == null) {
+//				var mr = context.GetNode<MemberReferenceExpression>();
+//				if (mr == null || !mr.MemberNameToken.IsInside(context.Location))
+//					yield break;
+//				node = mr;
+//			}
+//			if (node == null)
+//				yield break;
+//			var rr = context.Resolve(node) as MethodGroupResolveResult;
+//			if (rr == null || rr.IsError)
+//				yield break;
+//			var type = TypeGuessing.GetValidTypes(context.Resolver, node).FirstOrDefault(t => t.Kind == TypeKind.Delegate);
+//			if (type == null)
+//				yield break;
+//			var invocationMethod = type.GetDelegateInvokeMethod();
+//			if (invocationMethod == null)
+//				yield break;
+//
+//			yield return new CodeAction(
+//				context.TranslateString("Convert to lambda expression"), 
+//				script => {
+//					var invocation = new InvocationExpression(node.Clone(), invocationMethod.Parameters.Select(p => new IdentifierExpression(context.GetNameProposal(p.Name))));
+//					var lambda = new LambdaExpression {
+//						Body = invocation
+//					};
+//					lambda.Parameters.AddRange(
+//						invocation.Arguments
+//							.Cast<IdentifierExpression>()
+//							.Select(p => new ParameterDeclaration { Name = p.Identifier })
+//					);
+//					script.Replace(node, lambda);
+//				},
+//				node
+//			);
+//		}
 	}
 }

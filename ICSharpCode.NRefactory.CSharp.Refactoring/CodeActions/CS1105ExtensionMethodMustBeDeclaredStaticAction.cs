@@ -24,34 +24,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Extension methods must be declared static")]
+	[NRefactoryCodeRefactoringProvider(Description = "Extension methods must be declared static")]
+	[ExportCodeRefactoringProvider("Extension methods must be declared static", LanguageNames.CSharp)]
 	public class CS1105ExtensionMethodMustBeDeclaredStaticAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var method = context.GetNode<MethodDeclaration>();
-			if (method == null || !method.NameToken.Contains(context.Location))
-				yield break;
-
-			if (method.HasModifier(Modifiers.Static))
-				yield break;
-			var param = method.Parameters.FirstOrDefault();
-			if (param == null || param.ParameterModifier != ParameterModifier.This)
-				yield break;
-			yield return new CodeAction(
-				context.TranslateString("Convert method to static"),
-				script => script.ChangeModifier(method, method.Modifiers | Modifiers.Static), 
-				method) {
-				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
-			};
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var method = context.GetNode<MethodDeclaration>();
+//			if (method == null || !method.NameToken.Contains(context.Location))
+//				yield break;
+//
+//			if (method.HasModifier(Modifiers.Static))
+//				yield break;
+//			var param = method.Parameters.FirstOrDefault();
+//			if (param == null || param.ParameterModifier != ParameterModifier.This)
+//				yield break;
+//			yield return new CodeAction(
+//				context.TranslateString("Convert method to static"),
+//				script => script.ChangeModifier(method, method.Modifiers | Modifiers.Static), 
+//				method) {
+//				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
+//			};
+//		}
 	}
 }
 

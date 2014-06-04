@@ -30,18 +30,19 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
+	[Ignore("Requires 'ConvertIfStatementToConditionalTernaryExpressionAction'.")]
 	[TestFixture]
 	public class ConvertIfStatementToConditionalTernaryExpressionIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestIfElse ()
 		{
-			TestIssue<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
+			Analyze<ConvertIfStatementToConditionalTernaryExpressionIssue>(@"class Foo
 {
 	static int Bar (int x)
 	{
 		int result;
-		if (x > 10)
+		$if$ (x > 10)
 			result = 10;
 		else
 			result = 20;

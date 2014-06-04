@@ -23,125 +23,142 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
+using System;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction ("Convert 'switch' to 'if'", Description = "Convert 'switch' statement to 'if' statement")]
-	public class ConvertSwitchToIfAction : SpecializedCodeAction<SwitchStatement>
+	[NRefactoryCodeRefactoringProvider(Description = "Convert 'switch' statement to 'if' statement")]
+	[ExportCodeRefactoringProvider("Convert 'switch' to 'if'", LanguageNames.CSharp)]
+	public class ConvertSwitchToIfAction : SpecializedCodeAction<SwitchStatementSyntax>
 	{
-		static readonly InsertParenthesesVisitor insertParenthesesVisitor = new InsertParenthesesVisitor ();
-
-		protected override CodeAction GetAction (SemanticModel context, SwitchStatement node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, SwitchStatementSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.SwitchToken.Contains (context.Location))
-				return null;
-
-			// empty switch
-			if (node.SwitchSections.Count == 0)
-				return null;
-
-			// switch with default only
-			if (node.SwitchSections.First ().CaseLabels.Any (label => label.Expression.IsNull))
-				return null;
-
-			// check non-trailing breaks
-			foreach (var switchSection in node.SwitchSections) {
-				var lastStatement = switchSection.Statements.LastOrDefault ();
-				var finder = new NonTrailingBreakFinder (lastStatement as BreakStatement);
-				if (switchSection.AcceptVisitor (finder))
-					return null;
-			}
-			
-			return new CodeAction (context.TranslateString ("Convert to 'if'"),
-				script =>
-				{
-					IfElseStatement ifStatement = null;
-					IfElseStatement currentStatement = null;
-					foreach (var switchSection in node.SwitchSections) {
-						var condition = CollectCondition (node.Expression, switchSection.CaseLabels);
-						var bodyStatement = new BlockStatement ();
-						var lastStatement = switchSection.Statements.LastOrDefault ();
-						foreach (var statement in switchSection.Statements) {
-							// skip trailing break
-							if (statement == lastStatement && statement is BreakStatement)
-								continue;
-							bodyStatement.Add (statement.Clone ());
-						}
-
-						// default -> else
-						if (condition == null) {
-							currentStatement.FalseStatement = bodyStatement;
-							break;
-						}
-						var elseIfStatement = new IfElseStatement (condition, bodyStatement);
-						if (ifStatement == null)
-							ifStatement = elseIfStatement;
-						else
-							currentStatement.FalseStatement = elseIfStatement;
-						currentStatement = elseIfStatement;
-					}
-					script.Replace (node, ifStatement);
-					script.FormatText (ifStatement);
-				}, node);
+			throw new NotImplementedException();
 		}
-
-		static Expression CollectCondition(Expression switchExpr, AstNodeCollection<CaseLabel> caseLabels)
-		{
-			// default
-			if (caseLabels.Count == 0 || caseLabels.Any (label => label.Expression.IsNull))
-				return null;
-
-			var conditionList = caseLabels.Select (
-				label => new BinaryOperatorExpression (switchExpr.Clone (), BinaryOperatorType.Equality, label.Expression.Clone ()))
-				.ToArray ();
-
-			// insert necessary parentheses
-			foreach (var expr in conditionList)
-				expr.AcceptVisitor (insertParenthesesVisitor);
-
-			if (conditionList.Length == 1)
-				return conditionList [0];
-
-			// combine case labels into an conditional or expression
-			BinaryOperatorExpression condition = null;
-			BinaryOperatorExpression currentCondition = null;
-			for (int i = 0; i < conditionList.Length - 1; i++) {
-				var newCondition = new BinaryOperatorExpression
-				{
-					Operator = BinaryOperatorType.ConditionalOr,
-					Left = conditionList[i]
-				};
-				if (currentCondition == null)
-					condition = newCondition;
-				else
-					currentCondition.Right = newCondition;
-				currentCondition = newCondition;
-			}
-			currentCondition.Right = conditionList [conditionList.Length - 1];
-
-			return condition;
-		}
-		
-		class NonTrailingBreakFinder : DepthFirstAstVisitor<bool>
-		{
-			BreakStatement trailingBreakStatement;
-
-			public NonTrailingBreakFinder (BreakStatement trailingBreak)
-			{
-				trailingBreakStatement = trailingBreak;
-			}
-
-			protected override bool VisitChildren (AstNode node)
-			{
-				return node.Children.Any (child => child.AcceptVisitor (this));
-			}
-
-			public override bool VisitBreakStatement (BreakStatement breakStatement)
-			{
-				return breakStatement != trailingBreakStatement;
-			}
-		}
+//		static readonly InsertParenthesesVisitor insertParenthesesVisitor = new InsertParenthesesVisitor ();
+//
+//		protected override CodeAction GetAction (SemanticModel context, SwitchStatement node)
+//		{
+//			if (!node.SwitchToken.Contains (context.Location))
+//				return null;
+//
+//			// empty switch
+//			if (node.SwitchSections.Count == 0)
+//				return null;
+//
+//			// switch with default only
+//			if (node.SwitchSections.First ().CaseLabels.Any (label => label.Expression.IsNull))
+//				return null;
+//
+//			// check non-trailing breaks
+//			foreach (var switchSection in node.SwitchSections) {
+//				var lastStatement = switchSection.Statements.LastOrDefault ();
+//				var finder = new NonTrailingBreakFinder (lastStatement as BreakStatement);
+//				if (switchSection.AcceptVisitor (finder))
+//					return null;
+//			}
+//			
+//			return new CodeAction (context.TranslateString ("Convert to 'if'"),
+//				script =>
+//				{
+//					IfElseStatement ifStatement = null;
+//					IfElseStatement currentStatement = null;
+//					foreach (var switchSection in node.SwitchSections) {
+//						var condition = CollectCondition (node.Expression, switchSection.CaseLabels);
+//						var bodyStatement = new BlockStatement ();
+//						var lastStatement = switchSection.Statements.LastOrDefault ();
+//						foreach (var statement in switchSection.Statements) {
+//							// skip trailing break
+//							if (statement == lastStatement && statement is BreakStatement)
+//								continue;
+//							bodyStatement.Add (statement.Clone ());
+//						}
+//
+//						// default -> else
+//						if (condition == null) {
+//							currentStatement.FalseStatement = bodyStatement;
+//							break;
+//						}
+//						var elseIfStatement = new IfElseStatement (condition, bodyStatement);
+//						if (ifStatement == null)
+//							ifStatement = elseIfStatement;
+//						else
+//							currentStatement.FalseStatement = elseIfStatement;
+//						currentStatement = elseIfStatement;
+//					}
+//					script.Replace (node, ifStatement);
+//					script.FormatText (ifStatement);
+//				}, node);
+//		}
+//
+//		static Expression CollectCondition(Expression switchExpr, AstNodeCollection<CaseLabel> caseLabels)
+//		{
+//			// default
+//			if (caseLabels.Count == 0 || caseLabels.Any (label => label.Expression.IsNull))
+//				return null;
+//
+//			var conditionList = caseLabels.Select (
+//				label => new BinaryOperatorExpression (switchExpr.Clone (), BinaryOperatorType.Equality, label.Expression.Clone ()))
+//				.ToArray ();
+//
+//			// insert necessary parentheses
+//			foreach (var expr in conditionList)
+//				expr.AcceptVisitor (insertParenthesesVisitor);
+//
+//			if (conditionList.Length == 1)
+//				return conditionList [0];
+//
+//			// combine case labels into an conditional or expression
+//			BinaryOperatorExpression condition = null;
+//			BinaryOperatorExpression currentCondition = null;
+//			for (int i = 0; i < conditionList.Length - 1; i++) {
+//				var newCondition = new BinaryOperatorExpression
+//				{
+//					Operator = BinaryOperatorType.ConditionalOr,
+//					Left = conditionList[i]
+//				};
+//				if (currentCondition == null)
+//					condition = newCondition;
+//				else
+//					currentCondition.Right = newCondition;
+//				currentCondition = newCondition;
+//			}
+//			currentCondition.Right = conditionList [conditionList.Length - 1];
+//
+//			return condition;
+//		}
+//		
+//		class NonTrailingBreakFinder : DepthFirstAstVisitor<bool>
+//		{
+//			BreakStatement trailingBreakStatement;
+//
+//			public NonTrailingBreakFinder (BreakStatement trailingBreak)
+//			{
+//				trailingBreakStatement = trailingBreak;
+//			}
+//
+//			protected override bool VisitChildren (AstNode node)
+//			{
+//				return node.Children.Any (child => child.AcceptVisitor (this));
+//			}
+//
+//			public override bool VisitBreakStatement (BreakStatement breakStatement)
+//			{
+//				return breakStatement != trailingBreakStatement;
+//			}
+//		}
 	}
 }

@@ -23,52 +23,70 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction ("Converts statement of lambda body to expression",
-					Description = "Converts statement of lambda body to expression")]
-	public class ConvertLambdaBodyStatementToExpressionAction : SpecializedCodeAction<LambdaExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Converts statement of lambda body to expression")]
+	[ExportCodeRefactoringProvider("Converts statement of lambda body to expression", LanguageNames.CSharp)]
+	public class ConvertLambdaBodyStatementToExpressionAction : SpecializedCodeAction<SimpleLambdaExpressionSyntax>
 	{
-		internal static bool TryGetConvertableExpression(AstNode body, out BlockStatement blockStatement, out Expression expr)
+//		internal static bool TryGetConvertableExpression(AstNode body, out BlockStatement blockStatement, out Expression expr)
+//		{
+//			expr = null;
+//			blockStatement = body as BlockStatement;
+//			if (blockStatement == null || blockStatement.Statements.Count > 1)
+//				return false;
+//			var returnStatement = blockStatement.Statements.FirstOrNullObject() as ReturnStatement;
+//			if (returnStatement != null) {
+//				expr = returnStatement.Expression;
+//			} else {
+//				var exprStatement = blockStatement.Statements.FirstOrNullObject() as ExpressionStatement;
+//				if (exprStatement == null)
+//					return false;
+//				expr = exprStatement.Expression;
+//			}
+//			return true;
+//		}
+//
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, SimpleLambdaExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			expr = null;
-			blockStatement = body as BlockStatement;
-			if (blockStatement == null || blockStatement.Statements.Count > 1)
-				return false;
-			var returnStatement = blockStatement.Statements.FirstOrNullObject() as ReturnStatement;
-			if (returnStatement != null) {
-				expr = returnStatement.Expression;
-			} else {
-				var exprStatement = blockStatement.Statements.FirstOrNullObject() as ExpressionStatement;
-				if (exprStatement == null)
-					return false;
-				expr = exprStatement.Expression;
-			}
-			return true;
+			throw new NotImplementedException();
 		}
-
-		internal static CodeAction CreateAction (BaseSemanticModel context, AstNode node, BlockStatement blockStatement, Expression expr)
-		{
-			return new CodeAction (
-				context.TranslateString ("Convert to lambda expression"),
-				script => script.Replace (blockStatement, expr.Clone ()), 
-				node
-			);
-		}
-
-		protected override CodeAction GetAction (SemanticModel context, LambdaExpression node)
-		{
-			if (!node.ArrowToken.Contains (context.Location))
-				return null;
-
-			BlockStatement blockStatement;
-			Expression expr;
-			if (!TryGetConvertableExpression(node.Body, out blockStatement, out expr))
-				return null;
-
-			
-			return CreateAction (context, node.ArrowToken, blockStatement, expr);
-		}
+//		internal static CodeAction CreateAction (BaseSemanticModel context, AstNode node, BlockStatement blockStatement, Expression expr)
+//		{
+//			return new CodeAction (
+//				context.TranslateString ("Convert to lambda expression"),
+//				script => script.Replace (blockStatement, expr.Clone ()), 
+//				node
+//			);
+//		}
+//
+//		protected override CodeAction GetAction (SemanticModel context, LambdaExpression node)
+//		{
+//			if (!node.ArrowToken.Contains (context.Location))
+//				return null;
+//
+//			BlockStatement blockStatement;
+//			Expression expr;
+//			if (!TryGetConvertableExpression(node.Body, out blockStatement, out expr))
+//				return null;
+//
+//			
+//			return CreateAction (context, node.ArrowToken, blockStatement, expr);
+//		}
 	}
 }

@@ -84,7 +84,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Assert.AreEqual (HomogenizeEol (output), result);
 		}
 
-		static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions(ICodeRefactoringProvider action, string input, out ICSharpCode.NRefactory6.CSharp.CodeIssues.InspectionActionTestBase.TestWorkspace workspace, out Document doc)
+		internal static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions<T>(string input) where T : ICodeRefactoringProvider, new ()
+		{
+			InspectionActionTestBase.TestWorkspace workspace;
+			Document doc;
+			return GetActions(new T(), input, out workspace, out doc);
+		}
+
+		static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions(ICodeRefactoringProvider action, string input, out InspectionActionTestBase.TestWorkspace workspace, out Document doc)
 		{
 			var idx = input.IndexOf("$", StringComparison.Ordinal);
 			if (idx > 0)

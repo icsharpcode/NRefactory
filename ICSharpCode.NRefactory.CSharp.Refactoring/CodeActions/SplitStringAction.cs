@@ -24,38 +24,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Split string literal", Description = "Splits string literal into two.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Splits string literal into two")]
+	[ExportCodeRefactoringProvider("Split string literal", LanguageNames.CSharp)]
 	public class SplitStringAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			if (context.IsSomethingSelected) {
-				yield break;
-			}
-			var pexpr = context.GetNode<PrimitiveExpression>();
-			if (pexpr == null || !(pexpr.Value is string)) {
-				yield break;
-			}
-			if (pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal)) {
-				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 2) &&
-					new TextLocation(context.Location.Line, context.Location.Column + 2) < pexpr.EndLocation)) {
-					yield break;
-				}
-			} else {
-				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 1) && new TextLocation(context.Location.Line, context.Location.Column + 1) < pexpr.EndLocation)) {
-					yield break;
-				}
-			}
-
-			yield return new CodeAction(context.TranslateString("Split string literal"), script => {
-				int offset = context.GetOffset (context.Location);
-				script.InsertText (offset, pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal) ? "\" + @\"" : "\" + \"");
-			}, pexpr);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			if (context.IsSomethingSelected) {
+//				yield break;
+//			}
+//			var pexpr = context.GetNode<PrimitiveExpression>();
+//			if (pexpr == null || !(pexpr.Value is string)) {
+//				yield break;
+//			}
+//			if (pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal)) {
+//				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 2) &&
+//					new TextLocation(context.Location.Line, context.Location.Column + 2) < pexpr.EndLocation)) {
+//					yield break;
+//				}
+//			} else {
+//				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 1) && new TextLocation(context.Location.Line, context.Location.Column + 1) < pexpr.EndLocation)) {
+//					yield break;
+//				}
+//			}
+//
+//			yield return new CodeAction(context.TranslateString("Split string literal"), script => {
+//				int offset = context.GetOffset (context.Location);
+//				script.InsertText (offset, pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal) ? "\" + @\"" : "\" + \"");
+//			}, pexpr);
+//		}
 	}
 }

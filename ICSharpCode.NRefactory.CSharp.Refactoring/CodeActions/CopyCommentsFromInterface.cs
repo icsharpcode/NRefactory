@@ -23,62 +23,73 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	/// <summary>
-	///  Copies documented comments from interface to overriding methods.
-	/// </summary>
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	
-	[ContextAction("Copy comments from interface", Description = "Copies documented comments from interface to implementing methods.")]
-	public class CopyCommentsFromInterface: SpecializedCodeAction <MethodDeclaration>
+	// TODO: Why only methods ?
+	[NRefactoryCodeRefactoringProvider(Description = "Copies documented comments from interface to implementing methods")]
+	[ExportCodeRefactoringProvider("Copy comments from interface", LanguageNames.CSharp)]
+	public class CopyCommentsFromInterface: SpecializedCodeAction <MethodDeclarationSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, MethodDeclaration node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, MethodDeclarationSyntax node, CancellationToken cancellationToken)
 		{
-			if (!(node.PrivateImplementationType.IsNull))
-				return null;
-			
-			if (!node.NameToken.Contains(context.Location))
-				return null;
-			
-			var memberResolveResult = context.Resolve(node) as MemberResolveResult;
-			if (memberResolveResult == null)
-				return null;
-			var method = memberResolveResult.Member as IMethod;
-			if (method == null || method.Documentation != null)
-				return null;
-			
-			IList<IMember> interfaceMethods = method.ImplementedInterfaceMembers;
-			
-			if (interfaceMethods.Count != 1 || method.DeclaringType.Kind == TypeKind.Interface)
-				return null;
-			
-			var interfaceMethod = interfaceMethods.SingleOrDefault();
-
-			if (interfaceMethod == null)
-				return null;
-
-			if (interfaceMethod.Documentation == null)
-				return null;
-
-			string comments = interfaceMethod.Documentation.ToString();
-			
-			if (comments == "")
-				return null;
-			
-			string[] lines = comments.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-			return new CodeAction(context.TranslateString("Copy comments from interface"), script =>
-			{
-				foreach (string co in lines) {
-					script.InsertBefore(node, new Comment(co, CommentType.Documentation));
-				}
-			}, node);
-			
+			throw new NotImplementedException();
 		}
+//		protected override CodeAction GetAction(SemanticModel context, MethodDeclaration node)
+//		{
+//			if (!(node.PrivateImplementationType.IsNull))
+//				return null;
+//			
+//			if (!node.NameToken.Contains(context.Location))
+//				return null;
+//			
+//			var memberResolveResult = context.Resolve(node) as MemberResolveResult;
+//			if (memberResolveResult == null)
+//				return null;
+//			var method = memberResolveResult.Member as IMethod;
+//			if (method == null || method.Documentation != null)
+//				return null;
+//			
+//			IList<IMember> interfaceMethods = method.ImplementedInterfaceMembers;
+//			
+//			if (interfaceMethods.Count != 1 || method.DeclaringType.Kind == TypeKind.Interface)
+//				return null;
+//			
+//			var interfaceMethod = interfaceMethods.SingleOrDefault();
+//
+//			if (interfaceMethod == null)
+//				return null;
+//
+//			if (interfaceMethod.Documentation == null)
+//				return null;
+//
+//			string comments = interfaceMethod.Documentation.ToString();
+//			
+//			if (comments == "")
+//				return null;
+//			
+//			string[] lines = comments.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+//			return new CodeAction(context.TranslateString("Copy comments from interface"), script =>
+//			{
+//				foreach (string co in lines) {
+//					script.InsertBefore(node, new Comment(co, CommentType.Documentation));
+//				}
+//			}, node);
+//			
+//		}
 	}
 }

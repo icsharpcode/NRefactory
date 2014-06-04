@@ -23,74 +23,87 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Convert anonymous delegate to lambda",
-		Description = "Converts an anonymous delegate into a lambda")]
-	public class ConvertAnonymousDelegateToLambdaAction : SpecializedCodeAction<AnonymousMethodExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Converts an anonymous delegate into a lambda")]
+	[ExportCodeRefactoringProvider("Convert anonymous delegate to lambda", LanguageNames.CSharp)]
+	public class ConvertAnonymousDelegateToLambdaAction : SpecializedCodeAction<AnonymousMethodExpressionSyntax>
 	{
-		#region implemented abstract members of SpecializedCodeAction
-
-		protected override CodeAction GetAction(SemanticModel context, AnonymousMethodExpression node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, AnonymousMethodExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (context.Location < node.DelegateToken.StartLocation || context.Location >= node.Body.StartLocation)
-				return null;
-
-			Expression convertExpression = null;
-
-			var stmt = node.Body.Statements.FirstOrDefault();
-			if (stmt == null)
-				return null;
-			if (stmt.GetNextSibling(s => s.Role == BlockStatement.StatementRole) == null) {
-				var exprStmt = stmt as ExpressionStatement;
-				if (exprStmt != null) {
-					convertExpression = exprStmt.Expression;
-				}
-			}
-
-			IType guessedType = null;
-			if (!node.HasParameterList) {
-				guessedType = TypeGuessing.GuessType(context, node);
-				if (guessedType.Kind != TypeKind.Delegate)
-					return null;
-			}
-
-			return new CodeAction(context.TranslateString("Convert to lambda"), 
-				script => {
-					var parent = node.Parent;
-					while (!(parent is Statement))
-						parent = parent.Parent;
-					bool explicitLambda = parent is VariableDeclarationStatement && ((VariableDeclarationStatement)parent).Type.IsVar();
-					var lambda = new LambdaExpression ();
-
-					if (convertExpression != null) {
-						lambda.Body = convertExpression.Clone();
-					} else {
-						lambda.Body = node.Body.Clone();
-					}
-					if (node.HasParameterList) {
-						foreach (var parameter in node.Parameters) {
-							if (explicitLambda) {
-								lambda.Parameters.Add(new ParameterDeclaration { Type = parameter.Type.Clone(), Name = parameter.Name });
-							} else {
-								lambda.Parameters.Add(new ParameterDeclaration { Name = parameter.Name });
-							}
-						}
-					} else {
-						var method = guessedType.GetDelegateInvokeMethod ();
-						foreach (var parameter in method.Parameters) {
-							lambda.Parameters.Add(new ParameterDeclaration { Name = parameter.Name });
-						}
-					}
-					script.Replace(node, lambda);
-				}, 
-				node);
+			throw new NotImplementedException();
 		}
 
-		#endregion
+//		protected override CodeAction GetAction(SemanticModel context, AnonymousMethodExpression node)
+//		{
+//			if (context.Location < node.DelegateToken.StartLocation || context.Location >= node.Body.StartLocation)
+//				return null;
+//
+//			Expression convertExpression = null;
+//
+//			var stmt = node.Body.Statements.FirstOrDefault();
+//			if (stmt == null)
+//				return null;
+//			if (stmt.GetNextSibling(s => s.Role == BlockStatement.StatementRole) == null) {
+//				var exprStmt = stmt as ExpressionStatement;
+//				if (exprStmt != null) {
+//					convertExpression = exprStmt.Expression;
+//				}
+//			}
+//
+//			IType guessedType = null;
+//			if (!node.HasParameterList) {
+//				guessedType = TypeGuessing.GuessType(context, node);
+//				if (guessedType.Kind != TypeKind.Delegate)
+//					return null;
+//			}
+//
+//			return new CodeAction(context.TranslateString("Convert to lambda"), 
+//				script => {
+//					var parent = node.Parent;
+//					while (!(parent is Statement))
+//						parent = parent.Parent;
+//					bool explicitLambda = parent is VariableDeclarationStatement && ((VariableDeclarationStatement)parent).Type.IsVar();
+//					var lambda = new LambdaExpression ();
+//
+//					if (convertExpression != null) {
+//						lambda.Body = convertExpression.Clone();
+//					} else {
+//						lambda.Body = node.Body.Clone();
+//					}
+//					if (node.HasParameterList) {
+//						foreach (var parameter in node.Parameters) {
+//							if (explicitLambda) {
+//								lambda.Parameters.Add(new ParameterDeclaration { Type = parameter.Type.Clone(), Name = parameter.Name });
+//							} else {
+//								lambda.Parameters.Add(new ParameterDeclaration { Name = parameter.Name });
+//							}
+//						}
+//					} else {
+//						var method = guessedType.GetDelegateInvokeMethod ();
+//						foreach (var parameter in method.Parameters) {
+//							lambda.Parameters.Add(new ParameterDeclaration { Name = parameter.Name });
+//						}
+//					}
+//					script.Replace(node, lambda);
+//				}, 
+//				node);
+//		}
 
 	}
 }

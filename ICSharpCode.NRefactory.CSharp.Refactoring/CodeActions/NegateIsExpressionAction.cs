@@ -23,36 +23,56 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
+
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction ("Negate 'is' expression", Description = "Negate an is expression.")]
-	public class NegateIsExpressionAction : SpecializedCodeAction<IsExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Negate an is expression")]
+	[ExportCodeRefactoringProvider("Negate 'is' expression", LanguageNames.CSharp)]
+	public class NegateIsExpressionAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
-		protected override CodeAction GetAction (SemanticModel context, IsExpression node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.IsToken.Contains(context.Location))
-				return null;
-			var pExpr = node.Parent as ParenthesizedExpression;
-			if (pExpr != null) {
-				var uOp = pExpr.Parent as UnaryOperatorExpression;
-				if (uOp != null && uOp.Operator == UnaryOperatorType.Not) {
-					return new CodeAction(
-						string.Format(context.TranslateString("Negate '{0}'"), uOp),
-						script => {
-							script.Replace(uOp, node.Clone());
-						}, 
-						node.IsToken
-					);
-				}
-			}
-
-			return new CodeAction (
-				string.Format (context.TranslateString ("Negate '{0}'"), node),
-				script => {
-					script.Replace (node, new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(node.Clone())));
-				}, 
-				node.IsToken
-			);
+			throw new NotImplementedException();
 		}
+//		protected override CodeAction GetAction (SemanticModel context, IsExpression node)
+//		{
+//			if (!node.IsToken.Contains(context.Location))
+//				return null;
+//			var pExpr = node.Parent as ParenthesizedExpression;
+//			if (pExpr != null) {
+//				var uOp = pExpr.Parent as UnaryOperatorExpression;
+//				if (uOp != null && uOp.Operator == UnaryOperatorType.Not) {
+//					return new CodeAction(
+//						string.Format(context.TranslateString("Negate '{0}'"), uOp),
+//						script => {
+//							script.Replace(uOp, node.Clone());
+//						}, 
+//						node.IsToken
+//					);
+//				}
+//			}
+//
+//			return new CodeAction (
+//				string.Format (context.TranslateString ("Negate '{0}'"), node),
+//				script => {
+//					script.Replace (node, new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(node.Clone())));
+//				}, 
+//				node.IsToken
+//			);
+//		}
 	}
 }

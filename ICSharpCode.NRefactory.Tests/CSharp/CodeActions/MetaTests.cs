@@ -28,8 +28,6 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.CodeActions;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory6.CSharp;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions

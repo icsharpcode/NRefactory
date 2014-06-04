@@ -23,84 +23,101 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
+using System;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction ("Merge nested 'if'", Description = "Merge two nested 'if' statements.")]
-	public class MergeNestedIfAction : SpecializedCodeAction<IfElseStatement>
+	[NRefactoryCodeRefactoringProvider(Description = "Merge two nested 'if' statements")]
+	[ExportCodeRefactoringProvider("Merge nested 'if'", LanguageNames.CSharp)]
+	public class MergeNestedIfAction : SpecializedCodeAction<IfStatementSyntax>
 	{
-		static readonly InsertParenthesesVisitor insertParenthesesVisitor = new InsertParenthesesVisitor ();
-
-		protected override CodeAction GetAction (SemanticModel context, IfElseStatement node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, IfStatementSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.IfToken.Contains (context.Location))
-				return null;
-
-			IfElseStatement outerIfStatement;
-			IfElseStatement innerIfStatement = GetInnerIfStatement (node);
-			if (innerIfStatement != null) {
-				if (!innerIfStatement.FalseStatement.IsNull)
-					return null;
-				outerIfStatement = node;
-			} else {
-				outerIfStatement = GetOuterIfStatement (node);
-				if (outerIfStatement == null || !outerIfStatement.FalseStatement.IsNull)
-					return null;
-				innerIfStatement = node;
-			}
-
-			return new CodeAction (context.TranslateString ("Merge nested 'if's"),
-				script =>
-				{
-					var mergedIfStatement = new IfElseStatement
-					{
-						Condition = new BinaryOperatorExpression (outerIfStatement.Condition.Clone (),
-																  BinaryOperatorType.ConditionalAnd, 
-																  innerIfStatement.Condition.Clone ()),
-						TrueStatement = innerIfStatement.TrueStatement.Clone ()
-					};
-					mergedIfStatement.Condition.AcceptVisitor (insertParenthesesVisitor);
-					script.Replace (outerIfStatement, mergedIfStatement);
-				}, node);
+			throw new NotImplementedException();
 		}
-
-		static IfElseStatement GetOuterIfStatement (IfElseStatement node)
-		{
-			var outerIf = node.Parent as IfElseStatement;
-			if (outerIf != null)
-				return outerIf;
-
-			var blockStatement = node.Parent as BlockStatement;
-			while (blockStatement != null && blockStatement.Statements.Count == 1) {
-				outerIf = blockStatement.Parent as IfElseStatement;
-				if (outerIf != null)
-					return outerIf;
-				blockStatement = blockStatement.Parent as BlockStatement;
-			}
-
-			return null;
-		}
-
-		static IfElseStatement GetInnerIfStatement (IfElseStatement node)
-		{
-			if (!node.FalseStatement.IsNull)
-				return null;
-
-			var innerIf = node.TrueStatement as IfElseStatement;
-			if (innerIf != null)
-				return innerIf;
-
-			var blockStatement = node.TrueStatement as BlockStatement;
-			while (blockStatement != null && blockStatement.Statements.Count == 1) {
-				innerIf = blockStatement.Statements.First () as IfElseStatement;
-				if (innerIf != null)
-					return innerIf;
-				blockStatement = blockStatement.Statements.First () as BlockStatement;
-			}
-
-			return null;
-		}
+//		static readonly InsertParenthesesVisitor insertParenthesesVisitor = new InsertParenthesesVisitor ();
+//
+//		protected override CodeAction GetAction (SemanticModel context, IfElseStatement node)
+//		{
+//			if (!node.IfToken.Contains (context.Location))
+//				return null;
+//
+//			IfElseStatement outerIfStatement;
+//			IfElseStatement innerIfStatement = GetInnerIfStatement (node);
+//			if (innerIfStatement != null) {
+//				if (!innerIfStatement.FalseStatement.IsNull)
+//					return null;
+//				outerIfStatement = node;
+//			} else {
+//				outerIfStatement = GetOuterIfStatement (node);
+//				if (outerIfStatement == null || !outerIfStatement.FalseStatement.IsNull)
+//					return null;
+//				innerIfStatement = node;
+//			}
+//
+//			return new CodeAction (context.TranslateString ("Merge nested 'if's"),
+//				script =>
+//				{
+//					var mergedIfStatement = new IfElseStatement
+//					{
+//						Condition = new BinaryOperatorExpression (outerIfStatement.Condition.Clone (),
+//																  BinaryOperatorType.ConditionalAnd, 
+//																  innerIfStatement.Condition.Clone ()),
+//						TrueStatement = innerIfStatement.TrueStatement.Clone ()
+//					};
+//					mergedIfStatement.Condition.AcceptVisitor (insertParenthesesVisitor);
+//					script.Replace (outerIfStatement, mergedIfStatement);
+//				}, node);
+//		}
+//
+//		static IfElseStatement GetOuterIfStatement (IfElseStatement node)
+//		{
+//			var outerIf = node.Parent as IfElseStatement;
+//			if (outerIf != null)
+//				return outerIf;
+//
+//			var blockStatement = node.Parent as BlockStatement;
+//			while (blockStatement != null && blockStatement.Statements.Count == 1) {
+//				outerIf = blockStatement.Parent as IfElseStatement;
+//				if (outerIf != null)
+//					return outerIf;
+//				blockStatement = blockStatement.Parent as BlockStatement;
+//			}
+//
+//			return null;
+//		}
+//
+//		static IfElseStatement GetInnerIfStatement (IfElseStatement node)
+//		{
+//			if (!node.FalseStatement.IsNull)
+//				return null;
+//
+//			var innerIf = node.TrueStatement as IfElseStatement;
+//			if (innerIf != null)
+//				return innerIf;
+//
+//			var blockStatement = node.TrueStatement as BlockStatement;
+//			while (blockStatement != null && blockStatement.Statements.Count == 1) {
+//				innerIf = blockStatement.Statements.First () as IfElseStatement;
+//				if (innerIf != null)
+//					return innerIf;
+//				blockStatement = blockStatement.Statements.First () as BlockStatement;
+//			}
+//
+//			return null;
+//		}
 	}
 }

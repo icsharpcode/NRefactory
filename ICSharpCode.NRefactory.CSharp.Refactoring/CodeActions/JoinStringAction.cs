@@ -23,40 +23,59 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction ("Join string literal", Description = "Join string literals.")]
-	public class JoinStringAction : SpecializedCodeAction<BinaryOperatorExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Join string literals")]
+	[ExportCodeRefactoringProvider("Join string literal", LanguageNames.CSharp)]
+	public class JoinStringAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
-		protected override CodeAction GetAction (SemanticModel context, BinaryOperatorExpression node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (node.Operator != BinaryOperatorType.Add)
-				return null;
-
-			PrimitiveExpression left;
-			var leftBinaryOperatorExpr = node.Left as BinaryOperatorExpression;
-			if (leftBinaryOperatorExpr != null && leftBinaryOperatorExpr.Operator == BinaryOperatorType.Add) {
-				left = leftBinaryOperatorExpr.Right as PrimitiveExpression;
-			} else {
-				left = node.Left as PrimitiveExpression;
-			}
-			var right = node.Right as PrimitiveExpression;
-
-			if (left == null || right == null ||
-				!(left.Value is string) || !(right.Value is string) || !node.OperatorToken.Contains(context.Location))
-				return null;
-
-			var isLeftVerbatim = left.LiteralValue.StartsWith("@", System.StringComparison.Ordinal);
-			var isRightVerbatime = right.LiteralValue.StartsWith("@", System.StringComparison.Ordinal);
-			if (isLeftVerbatim != isRightVerbatime)
-				return null;
-
-			return new CodeAction (context.TranslateString ("Join strings"), script => {
-				var start = context.GetOffset (left.EndLocation) - 1;
-				var end = context.GetOffset (right.StartLocation) + (isLeftVerbatim ? 2 : 1);
-				script.RemoveText (start, end - start);
-			}, node.OperatorToken);
-		}
+			throw new NotImplementedException();
+		} 
+//		protected override CodeAction GetAction (SemanticModel context, BinaryOperatorExpression node)
+//		{
+//			if (node.Operator != BinaryOperatorType.Add)
+//				return null;
+//
+//			PrimitiveExpression left;
+//			var leftBinaryOperatorExpr = node.Left as BinaryOperatorExpression;
+//			if (leftBinaryOperatorExpr != null && leftBinaryOperatorExpr.Operator == BinaryOperatorType.Add) {
+//				left = leftBinaryOperatorExpr.Right as PrimitiveExpression;
+//			} else {
+//				left = node.Left as PrimitiveExpression;
+//			}
+//			var right = node.Right as PrimitiveExpression;
+//
+//			if (left == null || right == null ||
+//				!(left.Value is string) || !(right.Value is string) || !node.OperatorToken.Contains(context.Location))
+//				return null;
+//
+//			var isLeftVerbatim = left.LiteralValue.StartsWith("@", System.StringComparison.Ordinal);
+//			var isRightVerbatime = right.LiteralValue.StartsWith("@", System.StringComparison.Ordinal);
+//			if (isLeftVerbatim != isRightVerbatime)
+//				return null;
+//
+//			return new CodeAction (context.TranslateString ("Join strings"), script => {
+//				var start = context.GetOffset (left.EndLocation) - 1;
+//				var end = context.GetOffset (right.StartLocation) + (isLeftVerbatim ? 2 : 1);
+//				script.RemoveText (start, end - start);
+//			}, node.OperatorToken);
+//		}
 	}
 }

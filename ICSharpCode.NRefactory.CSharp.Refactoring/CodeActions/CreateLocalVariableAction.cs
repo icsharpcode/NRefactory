@@ -23,51 +23,71 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
+using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Create local variable", Description = "Creates a local variable for a undefined variable.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Creates a local variable for a undefined variable")]
+	[ExportCodeRefactoringProvider("Create local variable", LanguageNames.CSharp)]
 	public class CreateLocalVariableAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var identifier = context.GetNode<IdentifierExpression>();
-			if (identifier == null) {
-				yield break;
-			}
-			if (CreateFieldAction.IsInvocationTarget(identifier)) {
-				yield break;
-			}
-			var statement = context.GetNode<Statement>();
-			if (statement == null) {
-				yield break;
-			}
-
-			if (!(context.Resolve(identifier).IsError)) {
-				yield break;
-			}
-			var guessedType = TypeGuessing.GuessAstType(context, identifier);
-			if (guessedType == null) {
-				yield break;
-			}
-
-			yield return new CodeAction(context.TranslateString("Create local variable"), script => {
-				var initializer = new VariableInitializer(identifier.Identifier);
-				var decl = new VariableDeclarationStatement() {
-					Type = guessedType,
-					Variables = { initializer }
-				};
-				if (identifier.Parent is AssignmentExpression && ((AssignmentExpression)identifier.Parent).Left == identifier) {
-					initializer.Initializer = ((AssignmentExpression)identifier.Parent).Right.Clone();
-					if (!context.UseExplicitTypes)
-						decl.Type = new SimpleType("var");
-					script.Replace(statement, decl);
-				} else {
-					script.InsertBefore(statement, decl);
-				}
-			}, identifier) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var identifier = context.GetNode<IdentifierExpression>();
+//			if (identifier == null) {
+//				yield break;
+//			}
+//			if (CreateFieldAction.IsInvocationTarget(identifier)) {
+//				yield break;
+//			}
+//			var statement = context.GetNode<Statement>();
+//			if (statement == null) {
+//				yield break;
+//			}
+//
+//			if (!(context.Resolve(identifier).IsError)) {
+//				yield break;
+//			}
+//			var guessedType = TypeGuessing.GuessAstType(context, identifier);
+//			if (guessedType == null) {
+//				yield break;
+//			}
+//
+//			yield return new CodeAction(context.TranslateString("Create local variable"), script => {
+//				var initializer = new VariableInitializer(identifier.Identifier);
+//				var decl = new VariableDeclarationStatement() {
+//					Type = guessedType,
+//					Variables = { initializer }
+//				};
+//				if (identifier.Parent is AssignmentExpression && ((AssignmentExpression)identifier.Parent).Left == identifier) {
+//					initializer.Initializer = ((AssignmentExpression)identifier.Parent).Right.Clone();
+//					if (!context.UseExplicitTypes)
+//						decl.Type = new SimpleType("var");
+//					script.Replace(statement, decl);
+//				} else {
+//					script.InsertBefore(statement, decl);
+//				}
+//			}, identifier) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
+//		}
 	}
 }
 

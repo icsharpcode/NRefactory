@@ -26,46 +26,62 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
+using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Class, struct or interface method must have a return type", Description = "Found method without return type.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Found method without return type")]
+	[ExportCodeRefactoringProvider("Class, struct or interface method must have a return type", LanguageNames.CSharp)]
 	public class CS1520MethodMustHaveAReturnTypeAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var entity = context.GetNode<ConstructorDeclaration>();
-			if (entity == null)
-				yield break;
-			var type = entity.Parent as TypeDeclaration;
-
-			if (type == null || entity.Name == type.Name)
-				yield break;
-
-			var typeDeclaration = entity.GetParent<TypeDeclaration>();
-
-			yield return new CodeAction(context.TranslateString("This is a constructor"), script => script.Replace(entity.NameToken, Identifier.Create(typeDeclaration.Name, TextLocation.Empty)), entity) {
-				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
-			};
-
-			yield return new CodeAction(context.TranslateString("This is a void method"), script => {
-				var generatedMethod = new MethodDeclaration();
-				generatedMethod.Modifiers = entity.Modifiers;
-				generatedMethod.ReturnType = new PrimitiveType("void");
-				generatedMethod.Name = entity.Name;
-				generatedMethod.Parameters.AddRange(entity.Parameters.Select(parameter => (ParameterDeclaration)parameter.Clone()));
-				generatedMethod.Body = (BlockStatement)entity.Body.Clone();
-				generatedMethod.Attributes.AddRange(entity.Attributes.Select(attribute => (AttributeSection)attribute.Clone()));
-
-				script.Replace(entity, generatedMethod);
-			}, entity) {
-				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
-			};
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var entity = context.GetNode<ConstructorDeclaration>();
+//			if (entity == null)
+//				yield break;
+//			var type = entity.Parent as TypeDeclaration;
+//
+//			if (type == null || entity.Name == type.Name)
+//				yield break;
+//
+//			var typeDeclaration = entity.GetParent<TypeDeclaration>();
+//
+//			yield return new CodeAction(context.TranslateString("This is a constructor"), script => script.Replace(entity.NameToken, Identifier.Create(typeDeclaration.Name, TextLocation.Empty)), entity) {
+//				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
+//			};
+//
+//			yield return new CodeAction(context.TranslateString("This is a void method"), script => {
+//				var generatedMethod = new MethodDeclaration();
+//				generatedMethod.Modifiers = entity.Modifiers;
+//				generatedMethod.ReturnType = new PrimitiveType("void");
+//				generatedMethod.Name = entity.Name;
+//				generatedMethod.Parameters.AddRange(entity.Parameters.Select(parameter => (ParameterDeclaration)parameter.Clone()));
+//				generatedMethod.Body = (BlockStatement)entity.Body.Clone();
+//				generatedMethod.Attributes.AddRange(entity.Attributes.Select(attribute => (AttributeSection)attribute.Clone()));
+//
+//				script.Replace(entity, generatedMethod);
+//			}, entity) {
+//				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
+//			};
+//		}
 	}
 }
 

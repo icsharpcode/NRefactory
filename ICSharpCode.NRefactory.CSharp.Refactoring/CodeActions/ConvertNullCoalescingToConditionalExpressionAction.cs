@@ -24,30 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Convert '??' to '?:'",
-	               Description = "Convert '??' to '?:'")]
-	public class ConvertNullCoalescingToConditionalExpressionAction : SpecializedCodeAction<BinaryOperatorExpression>
+	[NRefactoryCodeRefactoringProvider(Description = "Convert '??' to '?:'")]
+	[ExportCodeRefactoringProvider("Convert '??' to '?:'", LanguageNames.CSharp)]
+	public class ConvertNullCoalescingToConditionalExpressionAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel ctx, BinaryOperatorExpression node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			if (node.Operator != BinaryOperatorType.NullCoalescing || !node.OperatorToken.Contains(ctx.Location))
-				return null;
-			return new CodeAction(
-				ctx.TranslateString("Replace with '?:' expression"),
-				script => {
-					Expression expr = new ConditionalExpression (
-						new BinaryOperatorExpression(node.Left.Clone(), BinaryOperatorType.InEquality, new NullReferenceExpression ()),
-						node.Left.Clone(),
-						node.Right.Clone()
-					);
-					script.Replace(node, expr);
-				},
-				node
-			);
+			throw new NotImplementedException();
 		}
+//		protected override CodeAction GetAction(SemanticModel ctx, BinaryOperatorExpression node)
+//		{
+//			if (node.Operator != BinaryOperatorType.NullCoalescing || !node.OperatorToken.Contains(ctx.Location))
+//				return null;
+//			return new CodeAction(
+//				ctx.TranslateString("Replace with '?:' expression"),
+//				script => {
+//					Expression expr = new ConditionalExpression (
+//						new BinaryOperatorExpression(node.Left.Clone(), BinaryOperatorType.InEquality, new NullReferenceExpression ()),
+//						node.Left.Clone(),
+//						node.Right.Clone()
+//					);
+//					script.Replace(node, expr);
+//				},
+//				node
+//			);
+//		}
 
 	}
 }

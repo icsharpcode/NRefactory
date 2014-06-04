@@ -23,174 +23,185 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
 using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.PatternMatching;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction (
-		"Convert 'if' to 'switch'", 
-		Description = "Convert 'if' statement to 'switch' statement")]
-	public class ConvertIfStatementToSwitchStatementAction : SpecializedCodeAction<IfElseStatement>
+	[NRefactoryCodeRefactoringProvider(Description = "Convert 'if' statement to 'switch' statement")]
+	[ExportCodeRefactoringProvider("Convert 'if' to 'switch'", LanguageNames.CSharp)]
+	public class ConvertIfStatementToSwitchStatementAction : SpecializedCodeAction<IfStatementSyntax>
 	{
-		protected override CodeAction GetAction (SemanticModel context, IfElseStatement node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, IfStatementSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.IfToken.Contains (context.Location))
-				return null;
-
-			var switchExpr = GetSwitchExpression (context, node.Condition);
-			if (switchExpr == null)
-				return null;
-
-			var switchSections = new List<SwitchSection> ();
-			if (!CollectSwitchSections (switchSections, context, node, switchExpr))
-				return null;
-
-			return new CodeAction (context.TranslateString ("Convert to 'switch'"),
-				script =>
-				{
-					var switchStatement = new SwitchStatement { Expression = switchExpr.Clone () };
-					switchStatement.SwitchSections.AddRange (switchSections);
-					script.Replace (node, switchStatement);
-				},
-				node
-			);
+			throw new NotImplementedException();
 		}
-
-		internal static Expression GetSwitchExpression (BaseSemanticModel context, Expression expr)
-		{
-			var binaryOp = expr as BinaryOperatorExpression;
-			if (binaryOp == null)
-				return null;
-
-			if (binaryOp.Operator == BinaryOperatorType.ConditionalOr)
-				return GetSwitchExpression (context, binaryOp.Left);
-
-			if (binaryOp.Operator == BinaryOperatorType.Equality) {
-				Expression switchExpr = null;
-				if (IsConstantExpression (context, binaryOp.Right))
-					switchExpr = binaryOp.Left;
-				if (IsConstantExpression (context, binaryOp.Left))
-					switchExpr = binaryOp.Right;
-				if (switchExpr != null && IsValidSwitchType (context.Resolve (switchExpr).Type))
-					return switchExpr;
-			}
-
-			return null;
-		}
-
-		static bool IsConstantExpression (BaseSemanticModel context, Expression expr)
-		{
-			if (expr is PrimitiveExpression || expr is NullReferenceExpression)
-				return true;
-			return context.Resolve (expr).IsCompileTimeConstant;
-		}
-
-		static readonly KnownTypeCode [] validTypes = 
-		{
-			KnownTypeCode.String, KnownTypeCode.Boolean, KnownTypeCode.Char,
-			KnownTypeCode.Byte, KnownTypeCode.SByte,
-			KnownTypeCode.Int16, KnownTypeCode.Int32, KnownTypeCode.Int64,
-			KnownTypeCode.UInt16, KnownTypeCode.UInt32, KnownTypeCode.UInt64
-		};
-
-		static bool IsValidSwitchType (IType type)
-		{
-			if (type.Kind == TypeKind.Enum)
-				return true;
-			var typeDefinition = type.GetDefinition ();
-			if (typeDefinition == null)
-				return false;
-
-			if (typeDefinition.KnownTypeCode == KnownTypeCode.NullableOfT) {
-				var nullableType = (ParameterizedType)type;
-				typeDefinition = nullableType.TypeArguments [0].GetDefinition ();
-				if (typeDefinition == null)
-					return false;
-			}
-			return Array.IndexOf (validTypes, typeDefinition.KnownTypeCode) != -1;
-		}
-
-		internal static bool CollectSwitchSections (ICollection<SwitchSection> result, BaseSemanticModel context, 
-										   IfElseStatement ifStatement, Expression switchExpr)
-		{
-			// if
-			var section = new SwitchSection ();
-			if (!CollectCaseLabels (section.CaseLabels, context, ifStatement.Condition, switchExpr))
-				return false;
-			CollectSwitchSectionStatements (section.Statements, context, ifStatement.TrueStatement);
-			result.Add (section);
-
-			if (ifStatement.TrueStatement.Descendants.Any(n => n is BreakStatement))
-				return false;
-
-			if (ifStatement.FalseStatement.IsNull)
-				return true;
-
-			// else if
-			var falseStatement = ifStatement.FalseStatement as IfElseStatement;
-			if (falseStatement != null)
-				return CollectSwitchSections (result, context, falseStatement, switchExpr);
-
-			if (ifStatement.FalseStatement.Descendants.Any(n => n is BreakStatement))
-				return false;
-			// else (default label)
-			var defaultSection = new SwitchSection ();
-			defaultSection.CaseLabels.Add (new CaseLabel ());
-			CollectSwitchSectionStatements (defaultSection.Statements, context, ifStatement.FalseStatement);
-			result.Add (defaultSection);
-
-			return true;
-		}
-
-		static bool CollectCaseLabels (AstNodeCollection<CaseLabel> result, BaseSemanticModel context, 
-									   Expression condition, Expression switchExpr)
-		{
-			if (condition is ParenthesizedExpression)
-				return CollectCaseLabels (result, context, ((ParenthesizedExpression)condition).Expression, switchExpr);
-
-			var binaryOp = condition as BinaryOperatorExpression;
-			if (binaryOp == null)
-				return false;
-
-			if (binaryOp.Operator == BinaryOperatorType.ConditionalOr)
-				return CollectCaseLabels (result, context, binaryOp.Left, switchExpr) &&
-					   CollectCaseLabels (result, context, binaryOp.Right, switchExpr);
-
-			if (binaryOp.Operator == BinaryOperatorType.Equality) {
-				if (switchExpr.Match (binaryOp.Left).Success) {
-					if (IsConstantExpression (context, binaryOp.Right)) {
-						result.Add (new CaseLabel (binaryOp.Right.Clone ()));
-						return true;
-					}
-				} else if (switchExpr.Match (binaryOp.Right).Success) {
-					if (IsConstantExpression (context, binaryOp.Left)) {
-						result.Add (new CaseLabel (binaryOp.Left.Clone ()));
-						return true;
-					}
-				}
-			}
-
-			return false;
-		}
-		
-		static void CollectSwitchSectionStatements (AstNodeCollection<Statement> result, BaseSemanticModel context, 
-												    Statement statement)
-		{
-			BlockStatement blockStatement = statement as BlockStatement;
-			if (blockStatement != null)
-				result.AddRange(blockStatement.Statements.Select(s => s.Clone()));
-			else
-				result.Add(statement.Clone());
-
-			// add 'break;' at end if necessary
-			var reachabilityAnalysis = context.CreateReachabilityAnalysis (statement);
-			if (reachabilityAnalysis.IsEndpointReachable(statement))
-				result.Add(new BreakStatement());
-		}
+//		protected override CodeAction GetAction (SemanticModel context, IfElseStatement node)
+//		{
+//			if (!node.IfToken.Contains (context.Location))
+//				return null;
+//
+//			var switchExpr = GetSwitchExpression (context, node.Condition);
+//			if (switchExpr == null)
+//				return null;
+//
+//			var switchSections = new List<SwitchSection> ();
+//			if (!CollectSwitchSections (switchSections, context, node, switchExpr))
+//				return null;
+//
+//			return new CodeAction (context.TranslateString ("Convert to 'switch'"),
+//				script =>
+//				{
+//					var switchStatement = new SwitchStatement { Expression = switchExpr.Clone () };
+//					switchStatement.SwitchSections.AddRange (switchSections);
+//					script.Replace (node, switchStatement);
+//				},
+//				node
+//			);
+//		}
+//
+//		internal static Expression GetSwitchExpression (BaseSemanticModel context, Expression expr)
+//		{
+//			var binaryOp = expr as BinaryOperatorExpression;
+//			if (binaryOp == null)
+//				return null;
+//
+//			if (binaryOp.Operator == BinaryOperatorType.ConditionalOr)
+//				return GetSwitchExpression (context, binaryOp.Left);
+//
+//			if (binaryOp.Operator == BinaryOperatorType.Equality) {
+//				Expression switchExpr = null;
+//				if (IsConstantExpression (context, binaryOp.Right))
+//					switchExpr = binaryOp.Left;
+//				if (IsConstantExpression (context, binaryOp.Left))
+//					switchExpr = binaryOp.Right;
+//				if (switchExpr != null && IsValidSwitchType (context.Resolve (switchExpr).Type))
+//					return switchExpr;
+//			}
+//
+//			return null;
+//		}
+//
+//		static bool IsConstantExpression (BaseSemanticModel context, Expression expr)
+//		{
+//			if (expr is PrimitiveExpression || expr is NullReferenceExpression)
+//				return true;
+//			return context.Resolve (expr).IsCompileTimeConstant;
+//		}
+//
+//		static readonly KnownTypeCode [] validTypes = 
+//		{
+//			KnownTypeCode.String, KnownTypeCode.Boolean, KnownTypeCode.Char,
+//			KnownTypeCode.Byte, KnownTypeCode.SByte,
+//			KnownTypeCode.Int16, KnownTypeCode.Int32, KnownTypeCode.Int64,
+//			KnownTypeCode.UInt16, KnownTypeCode.UInt32, KnownTypeCode.UInt64
+//		};
+//
+//		static bool IsValidSwitchType (IType type)
+//		{
+//			if (type.Kind == TypeKind.Enum)
+//				return true;
+//			var typeDefinition = type.GetDefinition ();
+//			if (typeDefinition == null)
+//				return false;
+//
+//			if (typeDefinition.KnownTypeCode == KnownTypeCode.NullableOfT) {
+//				var nullableType = (ParameterizedType)type;
+//				typeDefinition = nullableType.TypeArguments [0].GetDefinition ();
+//				if (typeDefinition == null)
+//					return false;
+//			}
+//			return Array.IndexOf (validTypes, typeDefinition.KnownTypeCode) != -1;
+//		}
+//
+//		internal static bool CollectSwitchSections (ICollection<SwitchSection> result, BaseSemanticModel context, 
+//										   IfElseStatement ifStatement, Expression switchExpr)
+//		{
+//			// if
+//			var section = new SwitchSection ();
+//			if (!CollectCaseLabels (section.CaseLabels, context, ifStatement.Condition, switchExpr))
+//				return false;
+//			CollectSwitchSectionStatements (section.Statements, context, ifStatement.TrueStatement);
+//			result.Add (section);
+//
+//			if (ifStatement.TrueStatement.Descendants.Any(n => n is BreakStatement))
+//				return false;
+//
+//			if (ifStatement.FalseStatement.IsNull)
+//				return true;
+//
+//			// else if
+//			var falseStatement = ifStatement.FalseStatement as IfElseStatement;
+//			if (falseStatement != null)
+//				return CollectSwitchSections (result, context, falseStatement, switchExpr);
+//
+//			if (ifStatement.FalseStatement.Descendants.Any(n => n is BreakStatement))
+//				return false;
+//			// else (default label)
+//			var defaultSection = new SwitchSection ();
+//			defaultSection.CaseLabels.Add (new CaseLabel ());
+//			CollectSwitchSectionStatements (defaultSection.Statements, context, ifStatement.FalseStatement);
+//			result.Add (defaultSection);
+//
+//			return true;
+//		}
+//
+//		static bool CollectCaseLabels (AstNodeCollection<CaseLabel> result, BaseSemanticModel context, 
+//									   Expression condition, Expression switchExpr)
+//		{
+//			if (condition is ParenthesizedExpression)
+//				return CollectCaseLabels (result, context, ((ParenthesizedExpression)condition).Expression, switchExpr);
+//
+//			var binaryOp = condition as BinaryOperatorExpression;
+//			if (binaryOp == null)
+//				return false;
+//
+//			if (binaryOp.Operator == BinaryOperatorType.ConditionalOr)
+//				return CollectCaseLabels (result, context, binaryOp.Left, switchExpr) &&
+//					   CollectCaseLabels (result, context, binaryOp.Right, switchExpr);
+//
+//			if (binaryOp.Operator == BinaryOperatorType.Equality) {
+//				if (switchExpr.Match (binaryOp.Left).Success) {
+//					if (IsConstantExpression (context, binaryOp.Right)) {
+//						result.Add (new CaseLabel (binaryOp.Right.Clone ()));
+//						return true;
+//					}
+//				} else if (switchExpr.Match (binaryOp.Right).Success) {
+//					if (IsConstantExpression (context, binaryOp.Left)) {
+//						result.Add (new CaseLabel (binaryOp.Left.Clone ()));
+//						return true;
+//					}
+//				}
+//			}
+//
+//			return false;
+//		}
+//		
+//		static void CollectSwitchSectionStatements (AstNodeCollection<Statement> result, BaseSemanticModel context, 
+//												    Statement statement)
+//		{
+//			BlockStatement blockStatement = statement as BlockStatement;
+//			if (blockStatement != null)
+//				result.AddRange(blockStatement.Statements.Select(s => s.Clone()));
+//			else
+//				result.Add(statement.Clone());
+//
+//			// add 'break;' at end if necessary
+//			var reachabilityAnalysis = context.CreateReachabilityAnalysis (statement);
+//			if (reachabilityAnalysis.IsEndpointReachable(statement))
+//				result.Add(new BreakStatement());
+//		}
 	}
 }

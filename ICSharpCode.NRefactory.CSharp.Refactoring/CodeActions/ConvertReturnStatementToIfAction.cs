@@ -24,55 +24,68 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Convert 'return' to 'if'",
-	               Description = "Convert 'return' to 'if'")]
-	public class ConvertReturnStatementToIfAction : SpecializedCodeAction <ReturnStatement>
+	[NRefactoryCodeRefactoringProvider(Description = "Convert 'return' to 'if'")]
+	[ExportCodeRefactoringProvider("Convert 'return' to 'if'", LanguageNames.CSharp)]
+	public class ConvertReturnStatementToIfAction : SpecializedCodeAction <ReturnStatementSyntax>
 	{
-		protected override CodeAction GetAction(SemanticModel context, ReturnStatement node)
+		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, ReturnStatementSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.ReturnToken.Contains(context.Location))
-				return null;
-
-			if (node.Expression is ConditionalExpression)
-				return CreateForConditionalExpression(context, node, (ConditionalExpression)node.Expression);
-			var bOp = node.Expression as BinaryOperatorExpression;
-			if (bOp != null && bOp.Operator == BinaryOperatorType.NullCoalescing)
-				return CreateForNullCoalesingExpression(context, node, bOp);
-			return null;
+			throw new NotImplementedException();
 		}
-
-		CodeAction CreateForConditionalExpression(SemanticModel ctx, ReturnStatement node, ConditionalExpression conditionalExpression)
-		{
-			return new CodeAction (
-				ctx.TranslateString("Replace with 'if' statement"),
-				script => {
-					var ifStatement = new IfElseStatement(conditionalExpression.Condition.Clone(), new ReturnStatement(conditionalExpression.TrueExpression.Clone()));
-					script.Replace(node, ifStatement); 
-					script.InsertAfter(ifStatement, new ReturnStatement(conditionalExpression.FalseExpression.Clone()));
-				},
-				node
-			);
-		}
-
-		CodeAction CreateForNullCoalesingExpression(SemanticModel ctx, ReturnStatement node, BinaryOperatorExpression bOp)
-		{
-			return new CodeAction (
-				ctx.TranslateString("Replace with 'if' statement"),
-				script => {
-					var ifStatement = new IfElseStatement(new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.InEquality, new NullReferenceExpression()), new ReturnStatement(bOp.Left.Clone()));
-					script.Replace(node, ifStatement); 
-					script.InsertAfter(ifStatement, new ReturnStatement(bOp.Right.Clone()));
-				},
-				node
-			);
-		}
+//		protected override CodeAction GetAction(SemanticModel context, ReturnStatement node)
+//		{
+//			if (!node.ReturnToken.Contains(context.Location))
+//				return null;
+//
+//			if (node.Expression is ConditionalExpression)
+//				return CreateForConditionalExpression(context, node, (ConditionalExpression)node.Expression);
+//			var bOp = node.Expression as BinaryOperatorExpression;
+//			if (bOp != null && bOp.Operator == BinaryOperatorType.NullCoalescing)
+//				return CreateForNullCoalesingExpression(context, node, bOp);
+//			return null;
+//		}
+//
+//		CodeAction CreateForConditionalExpression(SemanticModel ctx, ReturnStatement node, ConditionalExpression conditionalExpression)
+//		{
+//			return new CodeAction (
+//				ctx.TranslateString("Replace with 'if' statement"),
+//				script => {
+//					var ifStatement = new IfElseStatement(conditionalExpression.Condition.Clone(), new ReturnStatement(conditionalExpression.TrueExpression.Clone()));
+//					script.Replace(node, ifStatement); 
+//					script.InsertAfter(ifStatement, new ReturnStatement(conditionalExpression.FalseExpression.Clone()));
+//				},
+//				node
+//			);
+//		}
+//
+//		CodeAction CreateForNullCoalesingExpression(SemanticModel ctx, ReturnStatement node, BinaryOperatorExpression bOp)
+//		{
+//			return new CodeAction (
+//				ctx.TranslateString("Replace with 'if' statement"),
+//				script => {
+//					var ifStatement = new IfElseStatement(new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.InEquality, new NullReferenceExpression()), new ReturnStatement(bOp.Left.Clone()));
+//					script.Replace(node, ifStatement); 
+//					script.InsertAfter(ifStatement, new ReturnStatement(bOp.Right.Clone()));
+//				},
+//				node
+//			);
+//		}
 	}
 }
 

@@ -25,148 +25,162 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Remove backing store for property", Description = "Removes the backing store of a property and creates an auto property.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Removes the backing store of a property and creates an auto property")]
+	[ExportCodeRefactoringProvider("Remove backing store for property", LanguageNames.CSharp)]
 	public class RemoveBackingStoreAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var property = context.GetNode<PropertyDeclaration>();
-			if (property == null || !property.NameToken.Contains(context.Location))
-				yield break;
-
-			var field = GetBackingField(context, property);
-			if (!IsValidField(field, property.GetParent<TypeDeclaration>())) {
-				yield break;
-			}
-			// create new auto property
-			var newProperty = (PropertyDeclaration)property.Clone();
-			newProperty.Getter.Body = BlockStatement.Null;
-			newProperty.Setter.Body = BlockStatement.Null;
-			
-			yield return new CodeAction(context.TranslateString("Convert to auto property"), script => {
-				script.Rename((IEntity)field, newProperty.Name);
-				var oldField = context.RootNode.GetNodeAt<FieldDeclaration>(field.Region.Begin);
-				if (oldField.Variables.Count == 1) {
-					script.Remove(oldField);
-				} else {
-					var newField = (FieldDeclaration)oldField.Clone();
-					foreach (var init in newField.Variables) {
-						if (init.Name == field.Name) {
-							init.Remove();
-							break;
-						}
-					}
-					script.Replace(oldField, newField);
-				}
-				script.Replace (property, newProperty);
-			}, property.NameToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-
-		static bool IsValidField(IField field, TypeDeclaration declaringType)
-		{
-			if (field == null || field.Attributes.Count > 0)
-				return false;
-			foreach (var m in declaringType.Members.OfType<FieldDeclaration>()) {
-				foreach (var i in m.Variables) {
-					if (i.StartLocation == field.BodyRegion.Begin) {
-						if (!i.Initializer.IsNull)
-							return false;
-						break;
-					}
-				}
-			}
-			return true;
-		}
-
-//		void ReplaceBackingFieldReferences (MDSemanticModel context, IField backingStore, PropertyDeclaration property)
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 //		{
-//			using (var monitor = IdeApp.Workbench.ProgressMonitors.GetSearchProgressMonitor (true, true)) {
-//				foreach (var memberRef in MonoDevelop.Ide.FindInFiles.ReferenceFinder.FindReferences (backingStore, monitor)) {
-//					if (property.Contains (memberRef.Line, memberRef.Column))
-//						continue;
-//					if (backingStore.Location.Line == memberRef.Line && backingStore.Location.Column == memberRef.Column)
-//						continue;
-//					context.Do (new TextReplaceChange () {
-//						FileName = memberRef.FileName,
-//						Offset = memberRef.Position,
-//						RemovedChars = memberRef.Name.Length,
-//						InsertedText = property.Name
-//					});
-//				}
+//			var property = context.GetNode<PropertyDeclaration>();
+//			if (property == null || !property.NameToken.Contains(context.Location))
+//				yield break;
+//
+//			var field = GetBackingField(context, property);
+//			if (!IsValidField(field, property.GetParent<TypeDeclaration>())) {
+//				yield break;
 //			}
+//			// create new auto property
+//			var newProperty = (PropertyDeclaration)property.Clone();
+//			newProperty.Getter.Body = BlockStatement.Null;
+//			newProperty.Setter.Body = BlockStatement.Null;
+//			
+//			yield return new CodeAction(context.TranslateString("Convert to auto property"), script => {
+//				script.Rename((IEntity)field, newProperty.Name);
+//				var oldField = context.RootNode.GetNodeAt<FieldDeclaration>(field.Region.Begin);
+//				if (oldField.Variables.Count == 1) {
+//					script.Remove(oldField);
+//				} else {
+//					var newField = (FieldDeclaration)oldField.Clone();
+//					foreach (var init in newField.Variables) {
+//						if (init.Name == field.Name) {
+//							init.Remove();
+//							break;
+//						}
+//					}
+//					script.Replace(oldField, newField);
+//				}
+//				script.Replace (property, newProperty);
+//			}, property.NameToken);
 //		}
 //
-		static readonly Version csharp3 = new Version(3, 0);
-		
-		internal static IField GetBackingField (BaseSemanticModel context, PropertyDeclaration propertyDeclaration)
-		{
-			// automatic properties always need getter & setter
-			if (propertyDeclaration == null || propertyDeclaration.Getter.IsNull || propertyDeclaration.Setter.IsNull || propertyDeclaration.Getter.Body.IsNull || propertyDeclaration.Setter.Body.IsNull)
-				return null;
-			if (!context.Supports(csharp3) || propertyDeclaration.HasModifier (ICSharpCode.NRefactory6.CSharp.Modifiers.Abstract) || ((TypeDeclaration)propertyDeclaration.Parent).ClassType == ClassType.Interface)
-				return null;
-			var getterField = ScanGetter (context, propertyDeclaration);
-			if (getterField == null)
-				return null;
-			var setterField = ScanSetter (context, propertyDeclaration);
-			if (setterField == null)
-				return null;
-			if (!getterField.Equals(setterField))
-				return null;
-			return getterField;
-		}
-		
-		internal static IField ScanGetter (BaseSemanticModel context, PropertyDeclaration propertyDeclaration)
-		{
-			if (propertyDeclaration.Getter.Body.Statements.Count != 1)
-				return null;
-			var returnStatement = propertyDeclaration.Getter.Body.Statements.First () as ReturnStatement;
-			if (returnStatement == null)
-				return null;
-			if (!IsPossibleExpression(returnStatement.Expression))
-				return null;
-			var result = context.Resolve (returnStatement.Expression);
-			if (result == null || !(result is MemberResolveResult))
-				return null;
-			return ((MemberResolveResult)result).Member as IField;
-		}
-		
-		internal static IField ScanSetter (BaseSemanticModel context, PropertyDeclaration propertyDeclaration)
-		{
-			if (propertyDeclaration.Setter.Body.Statements.Count != 1)
-				return null;
-			var setAssignment = propertyDeclaration.Setter.Body.Statements.First () as ExpressionStatement;
-			var assignment = setAssignment != null ? setAssignment.Expression as AssignmentExpression : null;
-			if (assignment == null || assignment.Operator != AssignmentOperatorType.Assign)
-				return null;
-			var idExpr = assignment.Right as IdentifierExpression;
-			if (idExpr == null || idExpr.Identifier != "value")
-				return null;
-			if (!IsPossibleExpression(assignment.Left))
-				return null;
-			var result = context.Resolve (assignment.Left);
-			if (result == null || !(result is MemberResolveResult))
-				return null;
-			return ((MemberResolveResult)result).Member as IField;
-		}
-
-		static bool IsPossibleExpression(Expression left)
-		{
-			if (left is IdentifierExpression)
-				return true;
-			var mr = left as MemberReferenceExpression;
-			if (mr == null)
-				return false;
-			return mr.Target is ThisReferenceExpression;
-		}
+//		static bool IsValidField(IField field, TypeDeclaration declaringType)
+//		{
+//			if (field == null || field.Attributes.Count > 0)
+//				return false;
+//			foreach (var m in declaringType.Members.OfType<FieldDeclaration>()) {
+//				foreach (var i in m.Variables) {
+//					if (i.StartLocation == field.BodyRegion.Begin) {
+//						if (!i.Initializer.IsNull)
+//							return false;
+//						break;
+//					}
+//				}
+//			}
+//			return true;
+//		}
+//
+////		void ReplaceBackingFieldReferences (MDSemanticModel context, IField backingStore, PropertyDeclaration property)
+////		{
+////			using (var monitor = IdeApp.Workbench.ProgressMonitors.GetSearchProgressMonitor (true, true)) {
+////				foreach (var memberRef in MonoDevelop.Ide.FindInFiles.ReferenceFinder.FindReferences (backingStore, monitor)) {
+////					if (property.Contains (memberRef.Line, memberRef.Column))
+////						continue;
+////					if (backingStore.Location.Line == memberRef.Line && backingStore.Location.Column == memberRef.Column)
+////						continue;
+////					context.Do (new TextReplaceChange () {
+////						FileName = memberRef.FileName,
+////						Offset = memberRef.Position,
+////						RemovedChars = memberRef.Name.Length,
+////						InsertedText = property.Name
+////					});
+////				}
+////			}
+////		}
+////
+//		static readonly Version csharp3 = new Version(3, 0);
+//		
+//		internal static IField GetBackingField (BaseSemanticModel context, PropertyDeclaration propertyDeclaration)
+//		{
+//			// automatic properties always need getter & setter
+//			if (propertyDeclaration == null || propertyDeclaration.Getter.IsNull || propertyDeclaration.Setter.IsNull || propertyDeclaration.Getter.Body.IsNull || propertyDeclaration.Setter.Body.IsNull)
+//				return null;
+//			if (!context.Supports(csharp3) || propertyDeclaration.HasModifier (ICSharpCode.NRefactory6.CSharp.Modifiers.Abstract) || ((TypeDeclaration)propertyDeclaration.Parent).ClassType == ClassType.Interface)
+//				return null;
+//			var getterField = ScanGetter (context, propertyDeclaration);
+//			if (getterField == null)
+//				return null;
+//			var setterField = ScanSetter (context, propertyDeclaration);
+//			if (setterField == null)
+//				return null;
+//			if (!getterField.Equals(setterField))
+//				return null;
+//			return getterField;
+//		}
+//		
+//		internal static IField ScanGetter (BaseSemanticModel context, PropertyDeclaration propertyDeclaration)
+//		{
+//			if (propertyDeclaration.Getter.Body.Statements.Count != 1)
+//				return null;
+//			var returnStatement = propertyDeclaration.Getter.Body.Statements.First () as ReturnStatement;
+//			if (returnStatement == null)
+//				return null;
+//			if (!IsPossibleExpression(returnStatement.Expression))
+//				return null;
+//			var result = context.Resolve (returnStatement.Expression);
+//			if (result == null || !(result is MemberResolveResult))
+//				return null;
+//			return ((MemberResolveResult)result).Member as IField;
+//		}
+//		
+//		internal static IField ScanSetter (BaseSemanticModel context, PropertyDeclaration propertyDeclaration)
+//		{
+//			if (propertyDeclaration.Setter.Body.Statements.Count != 1)
+//				return null;
+//			var setAssignment = propertyDeclaration.Setter.Body.Statements.First () as ExpressionStatement;
+//			var assignment = setAssignment != null ? setAssignment.Expression as AssignmentExpression : null;
+//			if (assignment == null || assignment.Operator != AssignmentOperatorType.Assign)
+//				return null;
+//			var idExpr = assignment.Right as IdentifierExpression;
+//			if (idExpr == null || idExpr.Identifier != "value")
+//				return null;
+//			if (!IsPossibleExpression(assignment.Left))
+//				return null;
+//			var result = context.Resolve (assignment.Left);
+//			if (result == null || !(result is MemberResolveResult))
+//				return null;
+//			return ((MemberResolveResult)result).Member as IField;
+//		}
+//
+//		static bool IsPossibleExpression(Expression left)
+//		{
+//			if (left is IdentifierExpression)
+//				return true;
+//			var mr = left as MemberReferenceExpression;
+//			if (mr == null)
+//				return false;
+//			return mr.Target is ThisReferenceExpression;
+//		}
 	}
 }
 

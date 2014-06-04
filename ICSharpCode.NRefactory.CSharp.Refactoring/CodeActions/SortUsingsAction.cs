@@ -25,74 +25,89 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using System.Threading;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[ContextAction("Sort usings", Description = "Sorts usings by their origin and then alphabetically.")]
+	[NRefactoryCodeRefactoringProvider(Description = "Sorts usings by their origin and then alphabetically")]
+	[ExportCodeRefactoringProvider("Sort usings", LanguageNames.CSharp)]
 	public class SortUsingsAction: ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			var usingNode = FindUsingNodeAtCursor(context);
-			if (usingNode == null)
-				yield break;
-
-			yield return new CodeAction(context.TranslateString("Sort usings"), script =>
-			{
-				var blocks = EnumerateUsingBlocks(context.RootNode);
-
-				foreach (var block in blocks)
-				{
-					var originalNodes = block.ToArray();
-					var sortedNodes = UsingHelper.SortUsingBlock(originalNodes, context).ToArray();
-
-					for (var i = 0; i < originalNodes.Length; ++i)
-						script.Replace(originalNodes[i], sortedNodes[i].Clone());
-				}
-			}, usingNode);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return null;
 		}
-
-		private static AstNode FindUsingNodeAtCursor(SemanticModel context)
-		{
-			// If cursor is inside using declaration
-			var locationAsIs = context.Location;
-			// If cursor is at end of line with using declaration
-			var locationLeft = new TextLocation(locationAsIs.Line, locationAsIs.Column - 1);
-
-			var possibleNodes = new[] { locationAsIs, locationLeft }
-				.Select(_ => context.RootNode.GetNodeAt(_, IsUsingDeclaration));
-			var usingNode = possibleNodes.Where(_ => _ != null).Distinct().SingleOrDefault();
-
-			return usingNode;
-		}
-
-		private static bool IsUsingDeclaration(AstNode node)
-		{
-			return node is UsingDeclaration || node is UsingAliasDeclaration;
-		}
-
-		private static IEnumerable<IEnumerable<AstNode>> EnumerateUsingBlocks(AstNode root)
-		{
-			var alreadyAddedNodes = new HashSet<AstNode>();
-
-			foreach (var child in root.Descendants)
-				if (IsUsingDeclaration(child) && !alreadyAddedNodes.Contains(child)) {
-					var blockNodes = EnumerateUsingBlockNodes(child);
-
-					alreadyAddedNodes.UnionWith(blockNodes);
-					yield return blockNodes;
-				}
-		}
-
-		private static IEnumerable<AstNode> EnumerateUsingBlockNodes(AstNode firstNode)
-		{
-			for (var node = firstNode; IsUsingDeclaration(node); node = node.GetNextSibling (n => n.Role != Roles.NewLine))
-				yield return node;
-		}
+//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		{
+//			var usingNode = FindUsingNodeAtCursor(context);
+//			if (usingNode == null)
+//				yield break;
+//
+//			yield return new CodeAction(context.TranslateString("Sort usings"), script =>
+//			{
+//				var blocks = EnumerateUsingBlocks(context.RootNode);
+//
+//				foreach (var block in blocks)
+//				{
+//					var originalNodes = block.ToArray();
+//					var sortedNodes = UsingHelper.SortUsingBlock(originalNodes, context).ToArray();
+//
+//					for (var i = 0; i < originalNodes.Length; ++i)
+//						script.Replace(originalNodes[i], sortedNodes[i].Clone());
+//				}
+//			}, usingNode);
+//		}
+//
+//		private static AstNode FindUsingNodeAtCursor(SemanticModel context)
+//		{
+//			// If cursor is inside using declaration
+//			var locationAsIs = context.Location;
+//			// If cursor is at end of line with using declaration
+//			var locationLeft = new TextLocation(locationAsIs.Line, locationAsIs.Column - 1);
+//
+//			var possibleNodes = new[] { locationAsIs, locationLeft }
+//				.Select(_ => context.RootNode.GetNodeAt(_, IsUsingDeclaration));
+//			var usingNode = possibleNodes.Where(_ => _ != null).Distinct().SingleOrDefault();
+//
+//			return usingNode;
+//		}
+//
+//		private static bool IsUsingDeclaration(AstNode node)
+//		{
+//			return node is UsingDeclaration || node is UsingAliasDeclaration;
+//		}
+//
+//		private static IEnumerable<IEnumerable<AstNode>> EnumerateUsingBlocks(AstNode root)
+//		{
+//			var alreadyAddedNodes = new HashSet<AstNode>();
+//
+//			foreach (var child in root.Descendants)
+//				if (IsUsingDeclaration(child) && !alreadyAddedNodes.Contains(child)) {
+//					var blockNodes = EnumerateUsingBlockNodes(child);
+//
+//					alreadyAddedNodes.UnionWith(blockNodes);
+//					yield return blockNodes;
+//				}
+//		}
+//
+//		private static IEnumerable<AstNode> EnumerateUsingBlockNodes(AstNode firstNode)
+//		{
+//			for (var node = firstNode; IsUsingDeclaration(node); node = node.GetNextSibling (n => n.Role != Roles.NewLine))
+//				yield return node;
+//		}
 	}
 }
