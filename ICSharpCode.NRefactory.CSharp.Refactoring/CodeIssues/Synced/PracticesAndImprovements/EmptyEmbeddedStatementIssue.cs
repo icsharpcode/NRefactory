@@ -48,8 +48,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	public class EmptyEmbeddedStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EmptyEmbeddedStatementIssue";
-		const string Description            = "';' should be avoided. Use '{}' instead";
-		const string MessageFormat          = "';' should be avoided. Use '{}' instead";
+		const string Description            = "Empty control statement body";
+		const string MessageFormat          = "';' should be avoided. Use '{{}}' instead";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
@@ -71,54 +71,39 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitWhileStatement(WhileStatement whileStatement)
-//			{
-//				base.VisitWhileStatement(whileStatement);
-//				var statement = whileStatement.EmbeddedStatement as EmptyStatement;
-//				if (statement == null)
-//					return;
-//
-//				AddIssue(new CodeIssue(whileStatement.EmbeddedStatement,
-//				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-//					script => script.Replace(whileStatement.EmbeddedStatement, new BlockStatement())));
-//			}
-//
-//			public override void VisitForeachStatement(ForeachStatement foreachStatement)
-//			{
-//				base.VisitForeachStatement(foreachStatement);
-//				var statement = foreachStatement.EmbeddedStatement as EmptyStatement;
-//				if (statement == null)
-//					return;
-//
-//				AddIssue(new CodeIssue(foreachStatement.EmbeddedStatement,
-//				                     ctx.TranslateString(""), ctx.TranslateString("Replace with '{}'"),
-//					script => script.Replace(foreachStatement.EmbeddedStatement, new BlockStatement())));
-//			}
-//
-//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-//			{
-//				base.VisitIfElseStatement(ifElseStatement);
-//				var statement = ifElseStatement.TrueStatement as EmptyStatement;
-//				if (statement == null)
-//					return;
-//				AddIssue(new CodeIssue(ifElseStatement.TrueStatement, 
-//				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString("Replace with '{}'"),
-//					script => script.Replace(ifElseStatement.TrueStatement, new BlockStatement())));
-//			}
-//
-//			public override void VisitForStatement(ForStatement forStatement)
-//			{
-//				base.VisitForStatement(forStatement);
-//
-//				var statement = forStatement.EmbeddedStatement as EmptyStatement;
-//				if (statement == null)
-//					return;
-//
-//				AddIssue(new CodeIssue(forStatement.EmbeddedStatement,
-//				                     ctx.TranslateString("';' should be avoided. Use '{}' instead"), ctx.TranslateString(""),
-//					script => script.Replace(forStatement.EmbeddedStatement, new BlockStatement())));
-//			}
+
+			public override void VisitWhileStatement(WhileStatementSyntax node)
+			{
+				base.VisitWhileStatement(node);
+				Check(node.Statement);
+			}
+
+			public override void VisitForEachStatement(ForEachStatementSyntax node)
+			{
+				base.VisitForEachStatement(node);
+				Check(node.Statement);
+			}
+
+			public override void VisitIfStatement(IfStatementSyntax node)
+			{
+				base.VisitIfStatement(node);
+				Check(node.Statement);
+				if (node.Else != null)
+					Check(node.Else.Statement);
+			}
+
+			public override void VisitForStatement(ForStatementSyntax node)
+			{
+				base.VisitForStatement(node);
+				Check(node.Statement);
+			}
+
+			void Check(SyntaxNode body)
+			{
+				if (body == null || !body.IsKind(SyntaxKind.EmptyStatement))
+					return;
+				AddIssue(Diagnostic.Create(Rule, body.GetLocation()));
+			}
 		}
 	}
 
@@ -136,10 +121,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with '{}'", document.WithSyntaxRoot(newRoot)));
+				if (!node.IsKind(SyntaxKind.EmptyStatement))
+					continue;
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with '{}'", token => {
+					var newRoot = root.ReplaceNode(node, SyntaxFactory.Block().WithAdditionalAnnotations(Formatter.Annotation));
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}));
 			}
 			return result;
 		}

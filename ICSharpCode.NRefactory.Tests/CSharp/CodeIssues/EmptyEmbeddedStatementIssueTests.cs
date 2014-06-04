@@ -28,69 +28,67 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
-{	
+{
 	[TestFixture]
 	public class EmptyEmbeddedStatementIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestSimple ()
+		public void TestSimple()
 		{
-			var input = @"
+			Analyze<EmptyEmbeddedStatementIssue>(@"
 class TestClass
 {
-	void TestMethod (int i)
-	{
-		if (i > 0);
-	}
-}";
-			var output = @"
+    void TestMethod (int i)
+    {
+        if (i > 0)$;$
+    }
+}", @"
 class TestClass
 {
-	void TestMethod (int i)
-	{
-		if (i > 0) {
-		}
-	}
-}";
-			Test<EmptyEmbeddedStatementIssue>(input, output);
-		}
-		[Test]
-		public void TestForeach()
-		{
-			var input = @"
-class TestClass
-{
-	void TestMethod (int[] list)
-	{
-		foreach (var i in list);
-	}
-}";
-			var output = @"
-class TestClass
-{
-	void TestMethod (int[] list)
-	{
-		foreach (var i in list) {
-		}
-	}
-}";
-			Test<EmptyEmbeddedStatementIssue>(input, output);
+    void TestMethod (int i)
+    {
+        if (i > 0)
+        {
+        }
+    }
+}");
 		}
 
 		[Test]
-		public void TestDisable ()
+		public void TestForeach()
 		{
-			var input = @"
+			Analyze<EmptyEmbeddedStatementIssue>(@"
 class TestClass
 {
-	void TestMethod (int i)
-	{
+    void TestMethod (int[] list)
+    {
+        foreach (var i in list)$;$
+    }
+}", @"
+class TestClass
+{
+    void TestMethod (int[] list)
+    {
+        foreach (var i in list)
+        {
+        }
+    }
+}");
+		}
+
+		[Test]
+		public void TestDisable()
+		{
+			Analyze<EmptyEmbeddedStatementIssue>(@"
+class TestClass
+{
+    void TestMethod (int i)
+    {
 //ReSharper disable once EmptyEmbeddedStatement
-		if (i > 0);
-	}
-}";
-			Analyze<EmptyEmbeddedStatementIssue>(input);
+        if (i > 0);
+    }
+}");
 		}
 	}
-	
+    
 }
