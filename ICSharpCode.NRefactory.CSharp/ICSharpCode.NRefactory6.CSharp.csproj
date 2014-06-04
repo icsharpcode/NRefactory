@@ -136,6 +136,7 @@
     <Compile Include="Util\NamespaceExtensions.cs" />
     <Compile Include="Util\CompilationExtensions.cs" />
     <Compile Include="Util\SyntaxExtensions.cs" />
+    <Compile Include="Util\CSharpUtil.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />

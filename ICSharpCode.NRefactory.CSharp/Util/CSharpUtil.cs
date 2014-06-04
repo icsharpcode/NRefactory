@@ -25,12 +25,13 @@
 // THE SOFTWARE.
 using System;
 using ICSharpCode.NRefactory6.CSharp;
-using ICSharpCode.NRefactory.PatternMatching;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class CSharpUtil
 	{
+		/*
 		/// <summary>
 		/// Inverts a boolean condition. Note: The condition object can be frozen (from AST) it's cloned internally.
 		/// </summary>
@@ -161,20 +162,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 			return BinaryOperatorType.Any;
 		}
-
-		public static bool AreConditionsEqual(Expression cond1, Expression cond2)
+		*/
+	
+		public static bool AreConditionsEqual(ExpressionSyntax cond1, ExpressionSyntax cond2)
 		{
 			if (cond1 == null || cond2 == null)
 				return false;
-			return GetInnerMostExpression(cond1).IsMatch(GetInnerMostExpression(cond2));
-		}
-
-		public static Expression GetInnerMostExpression(Expression target)
-		{
-			while (target is ParenthesizedExpression)
-				target = ((ParenthesizedExpression)target).Expression;
-			return target;
+			return cond1.SkipParens().IsEquivalentTo(cond2.SkipParens(), true);
 		}
 	}
 }
-

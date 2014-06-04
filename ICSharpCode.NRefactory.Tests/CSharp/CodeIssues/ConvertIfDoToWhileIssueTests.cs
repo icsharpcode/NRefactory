@@ -36,46 +36,49 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase ()
 		{
-			Test<ConvertIfDoToWhileIssue>(@"class FooBar
+			Analyze<ConvertIfDoToWhileIssue>(@"class FooBar
 {
-	public void FooFoo (int x)
-	{
-		if (x < 10) {
-			do {
-				Console.WriteLine (x++);
-			} while (x < 10);
-		}
-	}
+    public void FooFoo(int x)
+    {
+        $if$ (x < 10)
+        {
+            do
+            {
+                Console.WriteLine(x++);
+            } while (x < 10);
+        }
+    }
 }", @"class FooBar
 {
-	public void FooFoo (int x)
-	{
-		while (x < 10) {
-			Console.WriteLine (x++);
-		}
-	}
+    public void FooFoo(int x)
+    {
+        while (x < 10)
+        {
+            Console.WriteLine(x++);
+        }
+    }
 }");
 		}
 
 		[Test]
 		public void TestWithoutBlocks ()
 		{
-			Test<ConvertIfDoToWhileIssue>(@"class FooBar
+			Analyze<ConvertIfDoToWhileIssue>(@"class FooBar
 {
-	public void FooFoo (int x)
-	{
-		if (x < 10)
-			do 
-				Console.WriteLine (x++);
-			while (x < 10);
-	}
+    public void FooFoo(int x)
+    {
+        $if$ (x < 10)
+            do 
+                Console.WriteLine(x++);
+            while (x < 10);
+    }
 }", @"class FooBar
 {
-	public void FooFoo (int x)
-	{
-		while (x < 10)
-			Console.WriteLine (x++);
-	}
+    public void FooFoo(int x)
+    {
+        while (x < 10)
+            Console.WriteLine(x++);
+    }
 }");
 		}
 
@@ -94,7 +97,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	}
 }");
 		}
-
 
 		[Test]
 		public void TestDisable ()

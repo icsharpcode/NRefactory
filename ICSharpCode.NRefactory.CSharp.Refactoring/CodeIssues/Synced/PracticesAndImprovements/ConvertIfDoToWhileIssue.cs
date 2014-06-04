@@ -65,6 +65,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
+		internal static DoStatementSyntax GetEmbeddedDoStatement (SyntaxNode block)
+		{
+			var blockSyntax = block as BlockSyntax;
+			if (blockSyntax != null) {
+				if (blockSyntax.Statements.Count == 1)
+					return blockSyntax.Statements[0] as DoStatementSyntax;
+				return null;
+			}
+			return block as DoStatementSyntax;
+		}
+
 		class GatherVisitor : GatherVisitorBase<ConvertIfDoToWhileIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
@@ -72,39 +83,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			static readonly AstNode ifPattern = 
-//				new IfElseStatement(
-//					new AnyNode ("condition"),
-//					PatternHelper.EmbeddedStatement (
-//						new DoWhileStatement (new AnyNode("condition2"), new AnyNode ("EmbeddedStatement"))
-//					)
-//				);
-//
-//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-//			{
-//				base.VisitIfElseStatement(ifElseStatement);
-//				var match = ifPattern.Match(ifElseStatement);
-//				if (match.Success) {
-//					var cond1 = match.Get<Expression>("condition").Single();
-//					var cond2 = match.Get<Expression>("condition2").Single();
-//					if (!CSharpUtil.AreConditionsEqual(cond1, cond2))
-//						return;
-//					AddIssue(new CodeIssue(
-//						ifElseStatement.IfToken,
-//						ctx.TranslateString(""),
-//						ctx.TranslateString(""),
-//						script => {
-//							script.Replace(
-//								ifElseStatement, 
-//								new WhileStatement(
-//									cond1.Clone(),
-//									match.Get<Statement>("EmbeddedStatement").Single().Clone()
-//								)
-//							);
-//						}
-//					) { IssueMarker = IssueMarker.DottedLine });
-//				}
-//			}
+			public override void VisitIfStatement(IfStatementSyntax node)
+			{
+				base.VisitIfStatement(node);
+				if (node.Else != null)
+					return;
+				var embeddedDo = GetEmbeddedDoStatement (node.Statement);
+				if (embeddedDo == null)
+					return;
+				if (!CSharpUtil.AreConditionsEqual(node.Condition, embeddedDo.Condition))
+					return;
+				AddIssue(Diagnostic.Create(Rule, node.IfKeyword.GetLocation()));
+			}
 		}
 	}
 
@@ -121,11 +111,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'while'", document.WithSyntaxRoot(newRoot)));
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as IfStatementSyntax;
+				if (node == null)
+					continue;
+
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'while'", token => {
+					var newNode = SyntaxFactory.WhileStatement(
+						node.Condition,
+						ConvertIfDoToWhileIssue.GetEmbeddedDoStatement(node.Statement).Statement
+					);
+					var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}));
 			}
 			return result;
 		}
