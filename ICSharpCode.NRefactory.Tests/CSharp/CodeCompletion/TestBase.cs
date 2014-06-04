@@ -37,7 +37,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		{
 			public override void Fail (string message)
 			{
-				throw new Exception ("Assertion failed:"+  message);
+				Console.WriteLine ("Assertion failed:" + message);
+				//				throw new Exception ("Assertion failed:"+  message);
 			}
 			public override void Write (string o)
 			{

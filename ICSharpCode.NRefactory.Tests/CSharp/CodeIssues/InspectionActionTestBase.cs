@@ -45,7 +45,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		static MetadataReference systemAssembly = new MetadataFileReference(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
 		static MetadataReference systemXmlLinq = new MetadataFileReference(typeof(System.Xml.Linq.XElement).Assembly.Location);
 		static MetadataReference systemCore = new MetadataFileReference(typeof(Enumerable).Assembly.Location);
-		internal static MetadataReference[] DefaultMetadataReferences = new MetadataReference[] {
+
+		internal static MetadataReference[] DefaultMetadataReferences = {
 			mscorlib,
 			systemAssembly,
 			systemCore,

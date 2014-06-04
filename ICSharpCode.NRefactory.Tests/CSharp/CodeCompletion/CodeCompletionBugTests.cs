@@ -269,7 +269,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 						null,
 						new CSharpCompilationOptions (
 							OutputKind.DynamicallyLinkedLibrary,
-							"",
+							"TestProject.dll",
 							"",
 							"Script",
 							null,
@@ -316,9 +316,16 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			);
 
 			var engine = new CompletionEngine(workspace, new TestFactory ());
-
-			var compilation = workspace.CurrentSolution.GetProject(projectId).GetCompilationAsync().Result;
-			
+			var project = workspace.CurrentSolution.GetProject(projectId);
+			Compilation compilation;
+			try {
+				compilation = project.GetCompilationAsync().Result;
+			} catch (AggregateException e) {
+				Console.WriteLine(e.InnerException);
+				foreach (var inner in e.InnerExceptions)
+					Console.WriteLine("----" + inner);
+				Assert.Fail("Error while creating compilation. See output for details."); 
+			}
 			if (!workspace.TryApplyChanges(workspace.CurrentSolution.WithDocumentText(documentId, SourceText.From(editorText)))) {
 				Assert.Fail();
 			}
