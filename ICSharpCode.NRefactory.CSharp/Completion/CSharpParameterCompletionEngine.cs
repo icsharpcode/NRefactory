@@ -208,7 +208,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			var bracketStack = new Stack<int> ();
 
 			var lex = new MiniLexer (text);
-			char lastChar = '0';
 			bool failed = lex.Parse ((ch, off) => {
 				if (lex.IsInString || lex.IsInChar || lex.IsInVerbatimString || lex.IsInSingleComment || lex.IsInMultiLineComment || lex.IsInPreprocessorDirective)
 					return false;
@@ -226,10 +225,9 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					chevronStack.Push (startOffset + off);
 					break;
 				case '>':
-					if (lastChar == '=')
-						break;
+					//Don't abort if we don't have macthing '<' for '>' it could be if (i > 0) Foo($
 					if (chevronStack.Count == 0) {
-						return true;
+						return false;
 					}
 					chevronStack.Pop ();
 					break;
@@ -252,7 +250,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					bracketStack.Pop ();
 					break;
 				}
-				lastChar = ch;
 				return false;
 			});
 			if (failed)
