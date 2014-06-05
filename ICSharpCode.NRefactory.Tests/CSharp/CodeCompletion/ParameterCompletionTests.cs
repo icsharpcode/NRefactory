@@ -1265,7 +1265,6 @@ class NUnitTestClass {
 		/// <summary>
 		/// Bug 12824 - Invalid argument intellisense inside lambda
 		/// </summary>
-		[Ignore("Parser bug.")]
 		[Test]
 		public void TestBug12824 ()
 		{
@@ -1284,6 +1283,24 @@ public class MyEventArgs
 }");
 			string name = provider.Data.First().FullName;
 			Assert.AreEqual ("System.Exception..ctor", name);
+		}
+
+		[Test]
+		public void TestAfterGreaterSign ()
+		{
+			var provider = CreateProvider (@"
+class Test
+{
+	static void Foo (int num) {}
+	public static void Main (string[] args)
+	{
+		int i = 0;
+		if (i > 0)
+			Foo ($
+	}
+}");
+			Assert.AreEqual (1, provider.Count);
+			Assert.AreEqual (1, provider.GetParameterCount (0));
 		}
 	}
 }
