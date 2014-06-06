@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert anonymous delegate to lambda", LanguageNames.CSharp)]
 	public class ConvertAnonymousDelegateToLambdaAction : SpecializedCodeAction<AnonymousMethodExpressionSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, AnonymousMethodExpressionSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, AnonymousMethodExpressionSyntax node, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}

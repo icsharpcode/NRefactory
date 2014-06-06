@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert 'return' to 'if'", LanguageNames.CSharp)]
 	public class ConvertReturnStatementToIfAction : SpecializedCodeAction <ReturnStatementSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, ReturnStatementSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ReturnStatementSyntax node, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}

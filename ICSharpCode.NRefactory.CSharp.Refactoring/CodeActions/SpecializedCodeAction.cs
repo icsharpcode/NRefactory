@@ -27,18 +27,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		/// <param name='node'>
 		/// The AstNode it's ensured that the node is always != null, if called.
 		/// </param>
-		protected abstract IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, T node, CancellationToken cancellationToken);
+		protected abstract IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, T node, CancellationToken cancellationToken);
 
 		#region ICodeActionProvider implementation
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			var node = root.FindNode(span);
+			var node = root.FindNode(span, false, true);
 			var foundNode = (T)node.AncestorsAndSelf().FirstOrDefault(n => n is T);
 			if (foundNode == null)
-				return null;
-			return GetActions(model, root, span, foundNode, cancellationToken);
+				return Enumerable.Empty<CodeAction>();
+			return GetActions(document, model, root, span, foundNode, cancellationToken);
 		}
 		#endregion
 	}

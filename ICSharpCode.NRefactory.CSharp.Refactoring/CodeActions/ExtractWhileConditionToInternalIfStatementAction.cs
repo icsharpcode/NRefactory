@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Extract field", LanguageNames.CSharp)]
 	public class ExtractWhileConditionToInternalIfStatementAction : SpecializedCodeAction<WhileStatementSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, WhileStatementSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, WhileStatementSyntax node, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}

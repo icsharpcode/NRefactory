@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	public class CheckIfParameterIsNullAction : SpecializedCodeAction<ParameterSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, ParameterSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ParameterSyntax node, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}

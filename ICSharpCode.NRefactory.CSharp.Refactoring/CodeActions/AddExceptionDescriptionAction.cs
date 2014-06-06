@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //				result = result.NextSibling;
 //			return result;
 //		}
-		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, ThrowStatementSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ThrowStatementSyntax node, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}

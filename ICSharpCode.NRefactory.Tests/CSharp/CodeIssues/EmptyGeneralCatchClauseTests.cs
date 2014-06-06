@@ -33,11 +33,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	[TestFixture]
 	public class EmptyGeneralCatchClauseTests : InspectionActionTestBase
 	{
-		
 		[Test]
 		public void TestInspectorCase1()
 		{
-			TestIssue<EmptyGeneralCatchClauseIssue>(@"using System;
+			Analyze<EmptyGeneralCatchClauseIssue>(@"using System;
 	using System.IO;
 	namespace Application
 	{
@@ -49,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 				{
 					F ();
 				}
-				catch (Exception e)
+				$catch$ (Exception e)
 				{
 				}
 			}
@@ -58,11 +57,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 ");
 		}
 
-
 		[Test]
 		public void TestInspectorCase2()
 		{
-			TestIssue<EmptyGeneralCatchClauseIssue>(@"using System;
+			Analyze<EmptyGeneralCatchClauseIssue>(@"using System;
 	using System.IO;
 	namespace Application
 	{
@@ -74,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 				{
 					F ();
 				}
-				catch
+				$catch$
 				{
 				}
 			}

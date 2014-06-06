@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Invert conditional operator", LanguageNames.CSharp)]
 	public class InvertConditionalOperatorAction : SpecializedCodeAction<ConditionalExpressionSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, ConditionalExpressionSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ConditionalExpressionSyntax node, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}

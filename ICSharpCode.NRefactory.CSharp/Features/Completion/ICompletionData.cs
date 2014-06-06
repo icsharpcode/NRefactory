@@ -34,10 +34,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		
 		string DisplayText { get; set; }
 
-		string Description { get; set; }
-		
-		string CompletionText { get; set; }
-		
 		DisplayFlags DisplayFlags { get; set; }
 		
 		bool HasOverloads { 

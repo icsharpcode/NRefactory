@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert 'switch' to 'if'", LanguageNames.CSharp)]
 	public class ConvertSwitchToIfAction : SpecializedCodeAction<SwitchStatementSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, SwitchStatementSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, SwitchStatementSyntax node, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}

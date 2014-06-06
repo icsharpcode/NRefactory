@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert LINQ query to fluent syntax", LanguageNames.CSharp)]
 	public class LinqQueryToFluentAction : SpecializedCodeAction<QueryExpressionSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, QueryExpressionSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, QueryExpressionSyntax node, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}

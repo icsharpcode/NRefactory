@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Join local variable declaration and assignment", LanguageNames.CSharp)]
 	public class JoinDeclarationAndAssignmentAction : SpecializedCodeAction<VariableDeclaratorSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(SemanticModel semanticModel, SyntaxNode root, TextSpan span, VariableDeclaratorSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, VariableDeclaratorSyntax node, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}
