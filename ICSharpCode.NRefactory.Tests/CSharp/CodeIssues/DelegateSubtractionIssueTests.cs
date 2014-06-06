@@ -35,13 +35,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSubtraction()
 		{
-			TestIssue<DelegateSubtractionIssue>(@"
+			Analyze<DelegateSubtractionIssue>(@"
 using System;
 class Foo
 {
 	void Bar (Action a, Action b)
 	{
-		(a - b) ();
+		($a - b$) ();
 	}
 }
 ");
@@ -50,13 +50,13 @@ class Foo
 		[Test]
 		public void TestAssignmentSubtraction()
 		{
-			TestIssue<DelegateSubtractionIssue>(@"
+			Analyze<DelegateSubtractionIssue>(@"
 using System;
 class Foo
 {
 	void Bar (Action a, Action b)
 	{
-		a -= b;
+		$a -= b$;
 	}
 }
 ");
