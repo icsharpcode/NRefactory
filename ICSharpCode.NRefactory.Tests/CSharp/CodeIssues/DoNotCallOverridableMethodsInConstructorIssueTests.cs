@@ -33,28 +33,27 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	[TestFixture]
 	public class DoNotCallOverridableMethodsInConstructorIssueTests : InspectionActionTestBase
 	{ 
-
 		[Test]
 		public void CatchesBadCase()
 		{
-			TestIssue<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
+			Analyze<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
-		Bar();
-		Bar();
+		$Bar()$;
+		$this.Bar()$;
 	}
 
 	virtual void Bar ()
 	{
 	}
-}", 2);
+}");
 		}
 
 		[Test]
 		public void TestDisable()
 		{
-            var input = @"class Foo
+            Analyze<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
@@ -65,8 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	virtual void Bar ()
 	{
 	}
-}";
-            Analyze<DoNotCallOverridableMethodsInConstructorIssue>(input);
+}");
 		}
 
 
@@ -145,7 +143,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBug14450()
 		{
-			var input = @"
+			Analyze<DoNotCallOverridableMethodsInConstructorIssue>(@"
 using System;
 
 public class Test {
@@ -153,18 +151,17 @@ public class Test {
         action();
     }
 }
-";		
-			Analyze<DoNotCallOverridableMethodsInConstructorIssue>(input);
+");
 		}
 		
 		[Test]
 		public void SetVirtualProperty()
 		{
-			TestIssue<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
+			Analyze<DoNotCallOverridableMethodsInConstructorIssue>(@"class Foo
 {
 	Foo()
 	{
-		this.AutoProperty = 1;
+		$this.AutoProperty$ = 1;
 	}
 
 	public virtual int AutoProperty { get; set; }
