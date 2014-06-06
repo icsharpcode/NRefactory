@@ -36,12 +36,6 @@ using System.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-//	public class CompletionEngineCache
-//	{
-//		public List<INamespace>  namespaces;
-//		public ICompletionData[] importCompletion;
-//	}
-
 	public class CompletionEngine 
 	{
 		static readonly CompletionContextHandler[] handlers = {
@@ -120,7 +114,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //		}
 		}
 	
-		public CompletionResult GetCompletionData(Document document, SemanticModel semanticModel, int position, bool isCtrlSpace, CancellationToken cancellationToken = default(CancellationToken))
+		public CompletionResult GetCompletionData(Document document, SemanticModel semanticModel, int position, bool forceCompletion, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var ctx = SyntaxContext.Create(workspace, document, semanticModel, position, cancellationToken);
 			
@@ -184,10 +178,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			char lastLastChar = position >= 2 ? text [position - 2] : '\0';
 			char lastChar = text [position - 1];
 			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.CSharpKind() == SyntaxKind.ObjectCreationExpression) {
-				if (lastChar == ' ' || isCtrlSpace)
-					return HandleObjectCreationExpression(ctx, semanticModel, position, isCtrlSpace, cancellationToken);
+				if (lastChar == ' ' || forceCompletion)
+					return HandleObjectCreationExpression(ctx, semanticModel, position, forceCompletion, cancellationToken);
 			}
-			if (!isCtrlSpace && (char.IsLetter(lastLastChar) || lastLastChar == '_') &&
+			if (!forceCompletion && (char.IsLetter(lastLastChar) || lastLastChar == '_') &&
 			    (char.IsLetterOrDigit(lastChar) || lastChar == '_')) {
 				return CompletionResult.Empty;
 			}
@@ -200,11 +194,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 			}
 			
-			if (!isCtrlSpace && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')
+			if (!forceCompletion && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')
 				return CompletionResult.Empty;
 			
 			if (ctx.IsInsideNamingContext ( lastChar == ' ' && !char.IsWhiteSpace(lastLastChar))) {
-				if (isCtrlSpace)
+				if (forceCompletion)
 					return HandleNamingContext(ctx);
 				return CompletionResult.Empty;
 			}

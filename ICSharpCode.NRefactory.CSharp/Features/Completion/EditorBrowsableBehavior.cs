@@ -24,17 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.CodeAnalysis.Recommendations;
-using Microsoft.CodeAnalysis;
-using System.Threading;
-using Microsoft.CodeAnalysis.CSharp;
-
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Text;
-
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public enum EditorBrowsableBehavior
@@ -43,11 +32,4 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		Normal,
 		IncludeAdvanced
 	}
-
-//	public class CompletionEngineCache
-//	{
-//		public List<INamespace>  namespaces;
-//		public ICompletionData[] importCompletion;
-//	}
-
 }

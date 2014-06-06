@@ -125,7 +125,6 @@
     <Compile Include="Features\Completion\ContextHandler\KeywordContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\RoslynRecommendationsCompletionContextHandler.cs" />
     <Compile Include="Features\Completion\CompletionEngine.cs" />
-    <Compile Include="Features\Completion\ExtensionMethods.cs" />
     <Compile Include="Util\SyntaxContext.cs" />
     <Compile Include="Features\ParameterHinting\ParameterHintingEngine.cs" />
     <Compile Include="Features\ParameterHinting\ParameterHintingResult.cs" />

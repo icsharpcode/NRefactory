@@ -150,9 +150,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				return new CompletionData(keyword);
 			}
 			
-			ICompletionData ICompletionDataFactory.CreateEnumMemberCompletionData(IFieldSymbol field)
+			ISymbolCompletionData ICompletionDataFactory.CreateEnumMemberCompletionData(IFieldSymbol field)
 			{
-				return new CompletionData(field.ContainingType.Name + "." + field.Name);
+				return new SymbolCompletionData(field, field.ContainingType.Name + "." + field.Name);
 			}
 
 
@@ -637,7 +637,7 @@ class Test
 			Assert.IsNotNull (provider, "provider not found.");
 			for (int i = 0; i < provider.Count; i++) {
 				var varname = provider [i];
-				Console.WriteLine (varname.CompletionText);
+				Console.WriteLine (varname.DisplayText);
 			}
 			Assert.AreEqual (6, provider.Count);
 			CodeCompletionBugTests.CheckObjectMembers (provider); // 4 from System.Object
