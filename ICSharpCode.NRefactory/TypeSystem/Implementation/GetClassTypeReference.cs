@@ -108,8 +108,6 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				}
 			} else {
 				IAssembly asm = assembly.Resolve(context);
-				if (asm == null && assembly.ToString () == "System.Runtime")
-					asm = DefaultAssemblyReference.Corlib.Resolve (context);
 				if (asm != null) {
 					type = asm.GetTypeDefinition(fullTypeName);
 				}
