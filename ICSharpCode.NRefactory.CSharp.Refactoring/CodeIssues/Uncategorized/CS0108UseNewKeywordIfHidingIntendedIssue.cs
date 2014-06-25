@@ -76,14 +76,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
             {
             }
 
-            //new can be applied to:
-            //property
-            //type
-            //method
-            //indexer
             public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
             {
-                base.VisitFieldDeclaration(node);
                 foreach (var variable in node.Declaration.Variables)
                 {
                     //this can only be 1; if it's null, then there was no base field
@@ -100,7 +94,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
             public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
             {
-                base.VisitPropertyDeclaration(node);
+                if (node.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.OverrideKeyword)))
+                    return;
+
                 var hidden = semanticModel.LookupBaseMembers(node.SpanStart).Where(v => v.Name.Equals(node.Identifier.ValueText)).FirstOrDefault();
                 if (hidden == null)
                     return;
@@ -112,7 +108,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
             {
                 base.VisitClassDeclaration(node);
                 //we need to ignore non-nested classes, else they throw exceptions
-
                 if (node.Parent is CompilationUnitSyntax)
                     return;
                 var hidden = semanticModel.LookupBaseMembers(node.SpanStart).Where(v => v.Name.Equals(node.Identifier.ValueText)).FirstOrDefault();
@@ -124,7 +119,6 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
             public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
             {
-                base.VisitMethodDeclaration(node);
                 //ignore overriding methods
                 if (node.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.OverrideKeyword)))
                     return;
@@ -142,7 +136,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
             public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
             {
-                base.VisitIndexerDeclaration(node);
+                if (node.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.OverrideKeyword)))
+                    return;
+
                 var nodeSymbol = semanticModel.GetDeclaredSymbol(node);
                 var containingClass = nodeSymbol.ContainingType;
                 var baseType = containingClass.BaseType;
@@ -161,6 +157,91 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                         if (DoParametersMatch(b, semanticModel.GetDeclaredSymbol(node)))
                         {
                             AddIssue(Diagnostic.Create(Rule, node.ThisKeyword.GetLocation()));
+                            return; //we found it
+                        }
+
+                    }
+                } while (baseType != null);
+            }
+
+            public override void VisitStructDeclaration(StructDeclarationSyntax node)
+            {
+                base.VisitStructDeclaration(node);
+                //we need to ignore non-nested
+                if (node.Parent is CompilationUnitSyntax)
+                    return;
+                var hidden = semanticModel.LookupBaseMembers(node.SpanStart).Where(v => v.Name.Equals(node.Identifier.ValueText)).FirstOrDefault();
+                if (hidden == null)
+                    return;
+                else //note we just need the span of the identifier, not the entire property body
+                    AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+            }
+
+            public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
+            {
+                if (node.Parent is CompilationUnitSyntax)
+                    return;
+                base.VisitInterfaceDeclaration(node);
+                var hidden = semanticModel.LookupBaseMembers(node.SpanStart).Where(v => v.Name.Equals(node.Identifier.ValueText)).FirstOrDefault();
+                if (hidden == null)
+                    return;
+                else //note we just need the span of the identifier, not the entire property body
+                    AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+            }
+
+            public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
+            {
+                //we need to ignore non-nested
+                if (node.Parent is CompilationUnitSyntax)
+                    return;
+                var hidden = semanticModel.LookupBaseMembers(node.SpanStart).Where(v => v.Name.Equals(node.Identifier.ValueText)).FirstOrDefault();
+                if (hidden == null)
+                    return;
+                else //note we just need the span of the identifier, not the entire property body
+                    AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+            }
+
+            public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node)
+            {
+                if (node.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.OverrideKeyword)))
+                    return;
+
+                foreach (var variable in node.Declaration.Variables)
+                {
+                    //this can only be 1; if it's null, then there was no base field
+                    var hidden = semanticModel.LookupBaseMembers(variable.SpanStart).Where(v => v.Name.Equals(variable.Identifier.ValueText)).FirstOrDefault();
+                    if (hidden == null)
+                        return;
+                    else
+                    {
+                        AddIssue(Diagnostic.Create(Rule, variable.GetLocation()));
+                        return;
+                    }
+                }
+            }
+
+            public override void VisitDelegateDeclaration(DelegateDeclarationSyntax node)
+            {
+                if (node.Parent is CompilationUnitSyntax)
+                    return;
+
+                var nodeSymbol = semanticModel.GetDeclaredSymbol(node);
+                var containingClass = nodeSymbol.ContainingType;
+                var baseType = containingClass.BaseType;
+                if (baseType == null)
+                    return; //somehow we're at System.Object already..
+                do
+                {
+                    //break and quit if we cannot find an indexer in the base classes
+                    var b = baseType.GetMembers().Where(m => m.Name.Equals(nodeSymbol.Name)).FirstOrDefault();
+                    if (b == null)
+                        baseType = baseType.BaseType;
+                    else
+                    {
+                        //if they have the same name and the same parameters, it's an issue
+                        if (DoParametersMatch(b, semanticModel.GetDeclaredSymbol(node)))
+                        {
+                            AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
                             return; //we found it
                         }
 
@@ -204,7 +285,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
                         if (node.CSharpKind() != SyntaxKind.VariableDeclarator)
                             newRoot = root.ReplaceNode(node, AddNewModifier(node));
                         else //this one wants to be awkward - you can't add modifiers to a variable declarator
-                            newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as FieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
+                        {
+                            SyntaxNode declaringNode = node.Parent.Parent;
+                            if(declaringNode is FieldDeclarationSyntax)
+                                newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as FieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
+                            else //it's an event declaration
+                                newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as EventFieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
+                        }
                         return Task.FromResult(document.WithSyntaxRoot(newRoot.WithAdditionalAnnotations(Formatter.Annotation)));
                     }));
             }
@@ -213,21 +300,34 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
         private SyntaxNode AddNewModifier(SyntaxNode node)
         {
+            SyntaxToken newToken = SyntaxFactory.Token(SyntaxKind.NewKeyword);
             switch(node.CSharpKind())
             {
                 //couldn't find a common base
                 case SyntaxKind.IndexerDeclaration:
                     var indexer = (IndexerDeclarationSyntax)node;
-                    return indexer.AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword));
+                    return indexer.AddModifiers(newToken);
                 case SyntaxKind.ClassDeclaration:
                     var classDecl = (ClassDeclarationSyntax)node;
-                    return classDecl.AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword));
+                    return classDecl.AddModifiers(newToken);
                 case SyntaxKind.PropertyDeclaration:
                     var propDecl = (PropertyDeclarationSyntax)node;
-                    return propDecl.AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword));
+                    return propDecl.AddModifiers(newToken);
                 case SyntaxKind.MethodDeclaration:
                     var methDecl = (MethodDeclarationSyntax)node;
-                    return methDecl.AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword));
+                    return methDecl.AddModifiers(newToken);
+                case SyntaxKind.StructDeclaration:
+                    var structDecl = (StructDeclarationSyntax)node;
+                    return structDecl.AddModifiers(newToken);
+                case SyntaxKind.EnumDeclaration:
+                    var enumDecl = (EnumDeclarationSyntax)node;
+                    return enumDecl.AddModifiers(newToken);
+                case SyntaxKind.InterfaceDeclaration:
+                    var intDecl = (InterfaceDeclarationSyntax)node;
+                    return intDecl.AddModifiers(newToken);
+                case SyntaxKind.DelegateDeclaration:
+                    var deleDecl = (DelegateDeclarationSyntax)node;
+                    return deleDecl.AddModifiers(newToken);
                 default:
                     return node;
             }

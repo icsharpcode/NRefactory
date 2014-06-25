@@ -300,6 +300,155 @@ class Baz : Foo
         }
 
         [Test]
+        public void TestStruct()
+        {
+            Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+class Foo
+{
+    public struct Bar
+    {
+    }
+}
+
+class Baz : Foo
+{
+    public struct $Bar$
+    {
+    }
+}", @"
+class Foo
+{
+    public struct Bar
+    {
+    }
+}
+
+class Baz : Foo
+{
+    public new struct Bar
+    {
+    }
+}");
+        }
+
+        [Test]
+        public void TestEnum()
+        {
+            Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+class Foo
+{
+    public enum Bar
+    {
+        a
+    }
+}
+
+class Baz : Foo
+{
+    public enum $Bar$
+    {
+    }
+}", @"
+class Foo
+{
+    public enum Bar
+    {
+        a
+    }
+}
+
+class Baz : Foo
+{
+    public new enum Bar
+    {
+    }
+}");
+        }
+
+        [Test]
+        public void TestInterface()
+        {
+            Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+class Foo
+{
+    public interface Bar
+    {
+    }
+}
+
+class Baz : Foo
+{
+    public interface $Bar$
+    {
+    }
+}", @"
+class Foo
+{
+    public interface Bar
+    {
+    }
+}
+
+class Baz : Foo
+{
+    public new interface Bar
+    {
+    }
+}");
+        }
+
+        [Test]
+        public void TestDelegate()
+        {
+            Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+class Foo
+{
+    public delegate int Bar(int a, bool b);
+}
+
+class Baz : Foo
+{
+    public delegate int $Bar$(int a, bool b);
+}", @"
+class Foo
+{
+    public delegate int Bar(int a, bool b);
+}
+
+class Baz : Foo
+{
+    public new delegate int Bar(int a, bool b);
+}");
+        }
+
+        [Test]
+        public void TestEvent()
+        {
+            Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+public delegate int Test(bool a);
+
+class Foo
+{
+    public event Test Bar;
+}
+
+class Baz : Foo
+{
+    public event Test $Bar$;
+}", @"
+public delegate int Test(bool a);
+
+class Foo
+{
+    public event Test Bar;
+}
+
+class Baz : Foo
+{
+    public new event Test Bar;
+}");
+        }
+        [Test]
         public void FurtherUpInheritanceTree()
         {
             Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
