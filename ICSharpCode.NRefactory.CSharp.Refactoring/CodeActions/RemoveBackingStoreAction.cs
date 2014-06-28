@@ -48,8 +48,156 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+            SyntaxToken token = root.FindToken(span.Start);
+            var property = token.Parent as PropertyDeclarationSyntax;
+            if(property == null || !property.Identifier.Span.Contains(span))
+                return Enumerable.Empty<CodeAction>();
+
+            var field = GetBackingField(model, property);
+            if (!IsValidField(field, property.Parent as TypeDeclarationSyntax))
+                return Enumerable.Empty<CodeAction>();
+            //variable declarator->declaration->field declaration
+            var backingFieldNode = root.FindToken(field.Locations.First().SourceSpan.Start).Parent.Parent.Parent as FieldDeclarationSyntax;
+            // create new auto property
+            var accessorDeclList = new SyntaxList<AccessorDeclarationSyntax>();
+            accessorDeclList = accessorDeclList.Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+            accessorDeclList = accessorDeclList.Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+            var accessorList = SyntaxFactory.AccessorList(accessorDeclList);
+            var newProperty = property.WithAccessorList(accessorList);
+
+            var propertyAnnotation = new SyntaxAnnotation();
+            var fieldAnnotation = new SyntaxAnnotation();
+
+            //annotate our property node and our field node
+            //kinda hacky? Not sure how better to do it..
+            root = root.ReplaceNode(property, property.WithAdditionalAnnotations(propertyAnnotation));
+            root = root.ReplaceNode(root.FindNode(backingFieldNode.Span), backingFieldNode.WithAdditionalAnnotations(fieldAnnotation));
+
+            return new[] { CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to auto property", 
+                PerformAction(document, model, root, newProperty, propertyAnnotation, fieldAnnotation)) };
 		}
+
+        private Document PerformAction(Document document, SemanticModel model, SyntaxNode root, PropertyDeclarationSyntax newProperty, SyntaxAnnotation propAnno, SyntaxAnnotation fieldAnno)
+        {
+            //todo: find a way to rename symbols
+            var oldField = root.GetAnnotatedNodes(fieldAnno).First() as FieldDeclarationSyntax;
+            if (oldField.Declaration.Variables.Count == 1)
+            {
+                var newRoot = root.RemoveNode(oldField, SyntaxRemoveOptions.KeepNoTrivia);
+                var oldProperty = newRoot.GetAnnotatedNodes(propAnno).First();
+                newRoot = newRoot.ReplaceNode(oldProperty, newProperty.WithAdditionalAnnotations(Formatter.Annotation));
+
+                return document.WithSyntaxRoot(newRoot);
+            }
+            else
+            {
+                //todo
+                return null;
+                //return document.WithSyntaxRoot(root.ReplaceNode(oldField, newField));
+            }
+        }
+
+        internal static IFieldSymbol GetBackingField (SemanticModel model, PropertyDeclarationSyntax property)
+		{
+            var getter = property.AccessorList.Accessors.FirstOrDefault(a => a.IsKind(SyntaxKind.GetAccessorDeclaration));
+            var setter = property.AccessorList.Accessors.FirstOrDefault(a => a.IsKind(SyntaxKind.SetAccessorDeclaration));
+
+			// automatic properties always need getter & setter
+			if (property == null || getter == null || setter == null|| getter.Body == null || setter.Body == null)
+				return null;
+            //todo: check version?
+			if (property.Modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword)) || property.Parent is InterfaceDeclarationSyntax)
+				return null;
+			var getterField = ScanGetter(model, getter);
+			if (getterField == null)
+				return null;
+			var setterField = ScanSetter (model, setter);
+			if (setterField == null)
+				return null;
+			if (!getterField.Equals(setterField))
+				return null;
+			return getterField;
+		}
+
+        internal static IFieldSymbol ScanGetter(SemanticModel model, AccessorDeclarationSyntax getter)
+        {
+            if (getter == null || getter.Body == null || getter.Body.Statements.Count != 1) //no getter/get;/get we can't easily work out
+                return null;
+            var retStatement = getter.Body.Statements.First() as ReturnStatementSyntax;
+            if (retStatement == null)
+                return null;
+            if (!IsPossibleExpression(retStatement.Expression))
+                return null;
+            var retSymbol = model.GetSymbolInfo(retStatement.Expression).Symbol;
+            return ((IFieldSymbol)retSymbol);
+        }
+
+        internal static IFieldSymbol ScanSetter(SemanticModel model, AccessorDeclarationSyntax setter)
+        {
+            if (setter == null || setter.Body == null || setter.Body.Statements.Count != 1) //no getter/get;/get we can't easily work out
+                return null;
+            var setAssignment = setter.Body.Statements.First().ChildNodes().OfType<ExpressionSyntax>().First();
+            var assignment = setAssignment != null ? setAssignment as BinaryExpressionSyntax : null;
+            if (assignment == null || !assignment.OperatorToken.IsKind(SyntaxKind.EqualsToken))
+                return null;
+            var id = assignment.Right as IdentifierNameSyntax;
+            if (id == null || id.Identifier.ValueText != "value")
+                return null;
+            if (!IsPossibleExpression(assignment.Left))
+                return null;
+            var retSymbol = model.GetSymbolInfo(assignment.Left).Symbol;
+            return ((IFieldSymbol)retSymbol);
+
+        }
+
+        internal static bool IsPossibleExpression(ExpressionSyntax left)
+        {
+            if (left is IdentifierNameSyntax)
+                return true;
+            var mr = left as MemberAccessExpressionSyntax;
+            if (mr == null)
+                return false;
+            return mr.Expression is ThisExpressionSyntax;
+        }
+
+        internal static bool IsValidField(IFieldSymbol field, TypeDeclarationSyntax type)
+        {
+            if (field == null || field.GetAttributes().Count() > 0)
+                return false;
+            foreach(var m in type.Members.OfType<FieldDeclarationSyntax>())
+            {
+                foreach (var i in m.Declaration.Variables)
+                {
+                    if (i.SpanStart == field.Locations.First().SourceSpan.Start)
+                    {
+                        if (i.Initializer != null)
+                            return false;
+                        break;
+                    }
+                }
+            }
+            return true;
+        }
+
+        //		static bool IsValidField(IField field, TypeDeclaration declaringType)
+        //		{
+        //			if (field == null || field.Attributes.Count > 0)
+        //				return false;
+        //			foreach (var m in declaringType.Members.OfType<FieldDeclaration>()) {
+        //				foreach (var i in m.Variables) {
+        //					if (i.StartLocation == field.BodyRegion.Begin) {
+        //						if (!i.Initializer.IsNull)
+        //							return false;
+        //						break;
+        //					}
+        //				}
+        //			}
+        //			return true;
+        //		}
+
 //		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 //		{
 //			var property = context.GetNode<PropertyDeclaration>();

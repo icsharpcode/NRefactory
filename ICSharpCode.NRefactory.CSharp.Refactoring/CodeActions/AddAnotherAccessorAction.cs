@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
                 accessor = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration);
 
                 var getter = propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.GetAccessorDeclaration));
-                var getField = ScanGetter(model, getter);
+                var getField = RemoveBackingStoreAction.ScanGetter(model, getter);
 
                 if(getField == null && getter.Body == null)
                 {
@@ -110,7 +110,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
                 accessor = SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration);
 
                 var setter = propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.SetAccessorDeclaration));
-                var setField = ScanSetter(model, setter);
+                var setField = RemoveBackingStoreAction.ScanSetter(model, setter);
 
                 if (setField == null && setter.Body == null)
                 {
@@ -138,44 +138,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
             return document.WithSyntaxRoot(newRoot);
         }
 
-        private IFieldSymbol ScanGetter(SemanticModel model, AccessorDeclarationSyntax getter)
-        {
-            if (getter == null || getter.Body == null || getter.Body.Statements.Count != 1) //no getter/get;/get we can't easily work out
-                return null;
-            var retStatement = getter.Body.Statements.First() as ReturnStatementSyntax;
-            if (retStatement == null)
-                return null;
-            if (!IsPossibleExpression(retStatement.Expression))
-                return null;
-            var retSymbol = model.GetSymbolInfo(retStatement.Expression).Symbol;
-            return ((IFieldSymbol)retSymbol);
-        }
+        
 
-        private IFieldSymbol ScanSetter(SemanticModel model, AccessorDeclarationSyntax setter)
-        {
-            if (setter == null || setter.Body == null || setter.Body.Statements.Count != 1) //no getter/get;/get we can't easily work out
-                return null;
-            var setAssignment = setter.Body.Statements.First().ChildNodes().OfType<ExpressionSyntax>().First();
-            var assignment = setAssignment != null ? setAssignment as BinaryExpressionSyntax : null;
-            if (assignment == null || !assignment.OperatorToken.IsKind(SyntaxKind.EqualsToken))
-                return null;
-            var id = assignment.Right as IdentifierNameSyntax;
-            if (id == null || id.Identifier.ValueText != "value")
-                return null;
-            if (!IsPossibleExpression(assignment.Left))
-                return null;
-            var retSymbol = model.GetSymbolInfo(assignment.Left).Symbol;
-            return ((IFieldSymbol)retSymbol);
-
-        }
-        private bool IsPossibleExpression(ExpressionSyntax left)
-        {
-            if (left is IdentifierNameSyntax)
-                return true;
-            var mr = left as MemberAccessExpressionSyntax;
-            if (mr == null)
-                return false;
-            return mr.Expression is ThisExpressionSyntax;
-        }
 	}
 }

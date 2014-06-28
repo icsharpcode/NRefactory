@@ -35,26 +35,22 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void TestSimpleStore ()
 		{
-			string result = RunContextAction (
-				new RemoveBackingStoreAction (),
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	int field;" + Environment.NewLine +
-				"	public int $Field {" + Environment.NewLine +
-				"		get { return field; }" + Environment.NewLine +
-				"		set { field = value; }" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	public int Field {" + Environment.NewLine +
-				"		get;" + Environment.NewLine +
-				"		set;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
+            Test<RemoveBackingStoreAction>(@"
+class TestClass
+{
+    int field;
+    public int $Field
+    {
+        get { return field; }
+        set { field = value; }
+    }
+}
+",@"
+class TestClass
+{
+    public int Field { get; set; }
+}
+");
 		}
 		
 		/// <summary>
