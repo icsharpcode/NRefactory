@@ -43,21 +43,22 @@ class TestClass
 		}
 		catch$ {
 		}
-	}
+    }
 }", @"
 class TestClass
 {
 	public void F()
 	{
 		try {
-		} catch (System.Exception e) {
 		}
-	}
+		catch (System.Exception e)
+        {
+		}
+    }
 }");
 		}
 
 		[Test]
-		[Ignore("Needs whitespace ast nodes")]
 		public void PreservesWhitespaceInBody()
 		{
 			Test<AddCatchTypeAction>(@"
@@ -78,7 +79,8 @@ class TestClass
 	{
 		try {
 		}
-		catch (System.Exception e) {
+		catch (System.Exception e)
+        {
 
 		}
 	}
@@ -106,7 +108,9 @@ class TestClass
 	public void F()
 	{
 		try {
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+        {
 		}
 	}
 }");
@@ -123,7 +127,7 @@ class TestClass
 	{
 		try {
 		}
-		catch (Exception) {
+		catch$ (Exception) {
 		}
 	}
 }");
