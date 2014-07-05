@@ -49,20 +49,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
             var model = await document.GetSemanticModelAsync(cancellationToken);
             var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
             var token = root.FindToken(span.Start);
-
-            /*var binOp = token.Parent as BinaryExpressionSyntax;
-            if (binOp == null)
+            var node = token.Parent as BinaryExpressionSyntax;
+            if(node == null)
                 return Enumerable.Empty<CodeAction>();
-            var outerLeft = GetOuterLeft(binOp);
-            if(outerLeft == binOp.Left)
+            var assignment = CreateAssignment(node).WithAdditionalAnnotations(Formatter.Annotation);
+            if(assignment == null)
                 return Enumerable.Empty<CodeAction>();
-            var op = GetAssignmentOperator(binOp.OperatorToken);
-            if(IsOpAssignment(op))
-            {
-
-            }*/
-            throw new NotImplementedException();
-            return null;
+            return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format("Replace with '{0}='", node.Left.ToString()), document.WithSyntaxRoot(
+                root.ReplaceNode(node, assignment))) };
         }
 
         internal static ExpressionSyntax GetOuterLeft(BinaryExpressionSyntax bop)
@@ -79,10 +73,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
             if (bop == null)
                 return null;
             var outerLeft = GetOuterLeft(bop);
-            if (!outerLeft.IsEquivalentTo(bop.Left))
+            if (!((IdentifierNameSyntax)outerLeft).Identifier.Value.Equals(((IdentifierNameSyntax)node.Left).Identifier.Value))
                 return null;
             var op = GetAssignmentOperator(bop.OperatorToken);
-            if(op == null)
+            if(op == SyntaxKind.None)
                 return null;
             return SyntaxFactory.BinaryExpression(op, node.Left, SplitIfAction.GetRightSide(outerLeft.Parent as BinaryExpressionSyntax));
         }
@@ -111,23 +105,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
                 case SyntaxKind.GreaterThanGreaterThanToken:
                     return SyntaxKind.RightShiftAssignmentExpression;
 				default:
-                    return SyntaxKind.SimpleAssignmentExpression;
+                    return SyntaxKind.None;
 			}
 		}
-//		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
-//		{
-//			if (!node.OperatorToken.Contains(context.Location))
-//				return null;
-//
-//			var ae = CreateAssignment(node);
-//			if (ae == null)
-//				return null;
-//			return new CodeAction (
-//				string.Format(context.TranslateString("Replace with '{0}='"), ((BinaryOperatorExpression)node.Right).OperatorToken),
-//				s => s.Replace(node, ae),
-//				node.OperatorToken
-//			);
-//		}
+
 	}
 }
 
