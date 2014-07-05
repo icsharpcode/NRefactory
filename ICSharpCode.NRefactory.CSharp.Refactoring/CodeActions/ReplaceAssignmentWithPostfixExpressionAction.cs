@@ -44,8 +44,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Replace assignment with postfix expression", LanguageNames.CSharp)]
 	public class ReplaceAssignmentWithPostfixExpressionAction : ICodeRefactoringProvider
 	{
-//		static readonly AstNode onePattern = PatternHelper.OptionalParentheses(new PrimitiveExpression (1));
-//
         public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
         {
             var model = await document.GetSemanticModelAsync(cancellationToken);
@@ -72,24 +70,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
             return new [] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format(desc, node.Left.ToString()), document.WithSyntaxRoot(
                 root.ReplaceNode(node as ExpressionSyntax, newNode)))};
         }
-
-//		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
-//		{
-//			if (!node.OperatorToken.Contains(context.Location))
-//				return null;
-//			node = ReplaceWithOperatorAssignmentAction.CreateAssignment(node) ?? node;
-//			if (node.Operator != AssignmentOperatorType.Add && node.Operator != AssignmentOperatorType.Subtract || !onePattern.IsMatch (node.Right))
-//				return null;
-//			string desc = node.Operator == AssignmentOperatorType.Add ? context.TranslateString("Replace with '{0}++'") : context.TranslateString("Replace with '{0}--'");
-//			return new CodeAction(
-//				string.Format(desc, node.Left),
-//				s => s.Replace(node, new UnaryOperatorExpression(
-//					node.Operator == AssignmentOperatorType.Add ? UnaryOperatorType.PostIncrement : UnaryOperatorType.PostDecrement,
-//					node.Left.Clone()
-//				)),
-//				node.OperatorToken
-//			);
-//		}
     }
 }
 

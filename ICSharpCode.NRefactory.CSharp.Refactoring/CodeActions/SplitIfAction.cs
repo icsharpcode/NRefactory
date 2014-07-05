@@ -114,19 +114,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //			);
 //		}
 //
-//		internal static Expression GetRightSide(BinaryOperatorExpression expression)
-//		{
-//			var parent = expression.Parent as BinaryOperatorExpression;
-//			if (parent != null) {
-//				if (parent.Left == expression) {
-//					var parentClone = (BinaryOperatorExpression)parent.Clone();
-//					parentClone.Left = expression.Right.Clone();
-//					return parentClone;
-//				}
-//
-//			}
-//			return expression.Right.Clone();
-//		}
 //
 //		internal static Expression GetLeftSide(BinaryOperatorExpression expression)
 //		{
