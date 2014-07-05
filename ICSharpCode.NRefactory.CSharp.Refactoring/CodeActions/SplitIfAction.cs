@@ -48,7 +48,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+            var token = root.FindToken(span.Start);
+            var ifNode = token.Parent.AncestorsAndSelf().OfType<IfStatementSyntax>().FirstOrDefault();
+            if(ifNode == null)
+                return Enumerable.Empty<CodeAction>();
+            var binOp = token.Parent as BinaryExpressionSyntax;
+
+            if (binOp == null)
+                return Enumerable.Empty<CodeAction>();
+
+            if (binOp.Ancestors().OfType<BinaryExpressionSyntax>().Any(b => !b.OperatorToken.IsKind(binOp.OperatorToken.CSharpKind())))
+                return Enumerable.Empty<CodeAction>();
+			if (binOp.OperatorToken.IsKind(SyntaxKind.AmpersandAmpersandToken)) 
+            {
+			    var nestedIf = ifNode.WithCondition(GetRightSide(binOp));
+                var outerIf = ifNode.WithCondition(GetLeftSide(binOp)).WithStatement(SyntaxFactory.Block(nestedIf));
+                return new [] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Split if", document.WithSyntaxRoot(
+                    root.ReplaceNode(ifNode, outerIf.WithAdditionalAnnotations(Formatter.Annotation))))};
+			}
+            else if (binOp.OperatorToken.IsKind(SyntaxKind.BarBarToken)) 
+            {
+                var newElse = ifNode.WithCondition(GetRightSide(binOp));
+                var newIf = ifNode.WithCondition(GetLeftSide(binOp)).WithElse(SyntaxFactory.ElseClause(newElse));
+                return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Split if", document.WithSyntaxRoot(
+                    root.ReplaceNode(ifNode, newIf.WithAdditionalAnnotations(Formatter.Annotation))))};
+			}
+            return Enumerable.Empty<CodeAction>();
 		}
 
         internal static ExpressionSyntax GetRightSide(BinaryExpressionSyntax expression)
@@ -56,7 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var parent = expression.Parent as BinaryExpressionSyntax;
 			if (parent != null) 
             {
-				if (parent.Left == expression) 
+				if (parent.Left.IsEquivalentTo(expression))
                 {
                     var parentClone = (parent as BinaryExpressionSyntax).WithLeft(expression.Right);
 					return parentClone;
@@ -64,69 +89,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			}
 			return expression.Right;
 		}
-//		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
-//		{
-//			var ifStatement = context.GetNode<IfElseStatement>();
-//			if (ifStatement == null)
-//				yield break;
-//			var bOp = ifStatement.GetNodeAt<BinaryOperatorExpression>(context.Location);
-//			if (bOp == null || !bOp.OperatorToken.Contains(context.Location))
-//				yield break;
-//			if (bOp.Ancestors.OfType<BinaryOperatorExpression>().Any(b => b.Operator != bOp.Operator))
-//				yield break;
-//			if (bOp.Operator == BinaryOperatorType.ConditionalAnd) {
-//				yield return CreateAndSplit(context, ifStatement, bOp);
-//			} else if (bOp.Operator == BinaryOperatorType.ConditionalOr) {
-//				yield return CreateOrSplit(context, ifStatement, bOp);
-//			}
-//		}
-//
-//		static CodeAction CreateAndSplit(SemanticModel context, IfElseStatement ifStatement, BinaryOperatorExpression bOp)
-//		{
-//			return new CodeAction(
-//				context.TranslateString("Split if"),
-//				script => {
-//					var nestedIf = (IfElseStatement)ifStatement.Clone();
-//					nestedIf.Condition = GetRightSide(bOp); 
-//					script.Replace(ifStatement.Condition, GetLeftSide(bOp));
-//					script.Replace(ifStatement.TrueStatement, new BlockStatement { nestedIf });
-//				},
-//				bOp.OperatorToken
-//			);
-//		}
-//
-//		static CodeAction CreateOrSplit(SemanticModel context, IfElseStatement ifStatement, BinaryOperatorExpression bOp)
-//		{
-//			return new CodeAction(
-//				context.TranslateString("Split if"),
-//				script => {
-//					var newElse = (IfElseStatement)ifStatement.Clone();
-//					newElse.Condition = GetRightSide(bOp); 
-//					
-//					var newIf = (IfElseStatement)ifStatement.Clone();
-//					newIf.Condition = GetLeftSide(bOp); 
-//					newIf.FalseStatement = newElse;
-//
-//					script.Replace(ifStatement, newIf);
-//					script.FormatText(newIf);
-//				},
-//				bOp.OperatorToken
-//			);
-//		}
-//
-//
-//		internal static Expression GetLeftSide(BinaryOperatorExpression expression)
-//		{
-//			var parent = expression.Parent as BinaryOperatorExpression;
-//			if (parent != null) {
-//				if (parent.Right == expression) {
-//					var parentClone = (BinaryOperatorExpression)parent.Clone();
-//					parentClone.Right = expression.Left.Clone();
-//					return parentClone;
-//				}
-//			}
-//			return expression.Left.Clone();
-//		}
+
+		internal static ExpressionSyntax GetLeftSide(BinaryExpressionSyntax expression)
+		{
+			var parent = expression.Parent as BinaryExpressionSyntax;
+			if (parent != null) 
+            {
+				if (parent.Right.IsEquivalentTo(expression))
+                {
+					var parentClone = (parent as BinaryExpressionSyntax).WithRight(expression.Left);
+					return parentClone;
+				}
+			}
+			return expression.Left;
+		}
 	}
 }
 

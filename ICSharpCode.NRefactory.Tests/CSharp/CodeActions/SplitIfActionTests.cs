@@ -49,12 +49,14 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a) {
-			if (b) {
-				return;
-			}
-		}
-	}
+        if (a)
+        {
+            if (b)
+            {
+                return;
+            }
+        }
+    }
 }
 ");
 		}
@@ -79,16 +81,22 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a) {
-			if (b) {
-				return;
-			} else {
-				Something ();
-			}
-		} else {
-			Something ();
-		}
-	}
+        if (a)
+        {
+            if (b)
+            {
+                return;
+            }
+            else
+            {
+                Something();
+            }
+        }
+        else
+        {
+            Something();
+        }
+    }
 }
 ");
 		}
@@ -111,12 +119,15 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a) {
-			return;
-		} else if (b) {
-			return;
-		}
-	}
+        if (a)
+        {
+            return;
+        }
+        else if (b)
+        {
+            return;
+        }
+    }
 }
 ");
 		}
@@ -141,14 +152,19 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a) {
-			return;
-		} else if (b) {
-			return;
-		} else {
-			Something ();
-		}
-	}
+        if (a)
+        {
+            return;
+        }
+        else if (b)
+        {
+            return;
+        }
+        else
+        {
+            Something();
+        }
+    }
 }
 ");
 		}
@@ -171,12 +187,14 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a && b) {
-			if (!a && !b) {
-				return;
-			}
-		}
-	}
+        if (a && b)
+        {
+            if (!a && !b)
+            {
+                return;
+            }
+        }
+    }
 }
 ");
 		}
@@ -199,12 +217,15 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (!b) {
-			return;
-		} else if (a && b) {
-			return;
-		}
-	}
+        if (!b)
+        {
+            return;
+        }
+        else if (a && b)
+        {
+            return;
+        }
+    }
 }
 ");
 		}
