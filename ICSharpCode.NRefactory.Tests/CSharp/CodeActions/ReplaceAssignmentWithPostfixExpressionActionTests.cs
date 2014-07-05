@@ -47,7 +47,7 @@ class Test
 {
 	void Foo (int i)
 	{
-		i++;
+        i++;
 	}
 }");
 		}
@@ -67,7 +67,7 @@ class Test
 {
 	void Foo (int i)
 	{
-		i--;
+        i--;
 	}
 }");
 		}
@@ -88,7 +88,7 @@ class Test
 {
 	void Foo (int i)
 	{
-		i++;
+        i++;
 	}
 }");
 		}

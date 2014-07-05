@@ -74,21 +74,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
             desc = String.Format(desc, (postfix.Operand as IdentifierNameSyntax).Identifier.ValueText);
             return new []{ CodeActionFactory.Create(span, DiagnosticSeverity.Info, desc, document.WithSyntaxRoot(newRoot))};
         }
-//		protected override CodeAction GetAction(SemanticModel context, UnaryOperatorExpression node)
-//		{
-//			if (node.Operator != UnaryOperatorType.PostIncrement && node.Operator != UnaryOperatorType.PostDecrement)
-//				return null;
-//			string desc = node.Operator == UnaryOperatorType.PostIncrement ? context.TranslateString("Replace with '{0} += 1'") : context.TranslateString("Replace with '{0} -= 1'");
-//			return new CodeAction(
-//				string.Format(desc, CSharpUtil.GetInnerMostExpression(node.Expression)),
-//				s => s.Replace(node, new AssignmentExpression (
-//					CSharpUtil.GetInnerMostExpression(node.Expression).Clone(),
-//					node.Operator == UnaryOperatorType.PostIncrement ? AssignmentOperatorType.Add : AssignmentOperatorType.Subtract,
-//					new PrimitiveExpression(1)
-//				)),
-//				node.OperatorToken
-//			);
-//		}
 	}
 }
 

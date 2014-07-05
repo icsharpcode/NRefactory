@@ -42,12 +42,93 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replace assignment with operator assignment")]
 	[ExportCodeRefactoringProvider("Replace assignment with operator assignment", LanguageNames.CSharp)]
-	public class ReplaceWithOperatorAssignmentAction : SpecializedCodeAction<BinaryExpressionSyntax>
+	public class ReplaceWithOperatorAssignmentAction : ICodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
+        public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+        {
+            var model = await document.GetSemanticModelAsync(cancellationToken);
+            var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+            var token = root.FindToken(span.Start);
+
+            /*var binOp = token.Parent as BinaryExpressionSyntax;
+            if (binOp == null)
+                return Enumerable.Empty<CodeAction>();
+            var outerLeft = GetOuterLeft(binOp);
+            if(outerLeft == binOp.Left)
+                return Enumerable.Empty<CodeAction>();
+            var op = GetAssignmentOperator(binOp.OperatorToken);
+            if(IsOpAssignment(op))
+            {
+
+            }*/
+            throw new NotImplementedException();
+            return null;
+        }
+
+        internal static ExpressionSyntax GetOuterLeft(BinaryExpressionSyntax bop)
 		{
-			throw new NotImplementedException();
+            var leftBop = bop.Left as BinaryExpressionSyntax;
+			if (leftBop != null && bop.OperatorToken.IsKind(leftBop.OperatorToken.CSharpKind()))
+				return GetOuterLeft(leftBop);
+			return bop.Left;
 		}
+
+        internal static BinaryExpressionSyntax CreateAssignment(BinaryExpressionSyntax node)
+        {
+            var bop = node.Right as BinaryExpressionSyntax;
+            if (bop == null)
+                return null;
+            var outerLeft = GetOuterLeft(bop);
+            if (!outerLeft.IsEquivalentTo(bop.Left))
+                return null;
+            var op = GetAssignmentOperator(bop.OperatorToken);
+            if(op == null)
+                return null;
+            return SyntaxFactory.BinaryExpression(op, node.Left, SplitIfAction.GetRightSide(outerLeft.Parent as BinaryExpressionSyntax));
+        }
+
+		/*internal static AssignmentExpression CreateAssignment(AssignmentExpression node)
+		{
+			var bop = node.Right as BinaryOperatorExpression;
+			if (bop == null)
+				return null;
+			var outerLeft = GetOuterLeft(bop);
+			if (!outerLeft.IsMatch(node.Left))
+				return null;
+			var op = GetAssignmentOperator(bop.Operator);
+			if (op == AssignmentOperatorType.Any)
+				return null;
+			return new AssignmentExpression(node.Left.Clone(), op, SplitIfAction.GetRightSide((BinaryOperatorExpression)outerLeft.Parent));
+		}*/
+
+        internal static SyntaxKind GetAssignmentOperator(SyntaxToken token)
+        {
+			switch (token.CSharpKind()) {
+				case SyntaxKind.AmpersandToken:
+                    return SyntaxKind.AndAssignmentExpression;
+				case SyntaxKind.BarToken:
+                    return SyntaxKind.OrAssignmentExpression;
+				case SyntaxKind.CaretToken:
+                    return SyntaxKind.ExclusiveOrAssignmentExpression;
+				case SyntaxKind.PlusToken:
+                    return SyntaxKind.AddAssignmentExpression;
+                case SyntaxKind.MinusToken:
+                    return SyntaxKind.SubtractAssignmentExpression;
+                case SyntaxKind.AsteriskToken:
+                    return SyntaxKind.MultiplyAssignmentExpression;
+                case SyntaxKind.SlashToken:
+                    return SyntaxKind.DivideAssignmentExpression;
+				case SyntaxKind.PercentToken:
+                    return SyntaxKind.ModuloAssignmentExpression;
+				case SyntaxKind.LessThanLessThanToken:
+                    return SyntaxKind.LeftShiftAssignmentExpression;
+                case SyntaxKind.GreaterThanGreaterThanToken:
+                    return SyntaxKind.RightShiftAssignmentExpression;
+				default:
+                    return SyntaxKind.SimpleAssignmentExpression;
+			}
+		}
+
 //		internal static AssignmentExpression CreateAssignment(AssignmentExpression node)
 //		{
 //			var bop = node.Right as BinaryOperatorExpression;

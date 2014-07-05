@@ -50,6 +50,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			return null;
 		}
+
+        internal static ExpressionSyntax GetRightSide(BinaryExpressionSyntax expression)
+		{
+			var parent = expression.Parent as BinaryExpressionSyntax;
+			if (parent != null) 
+            {
+				if (parent.Left == expression) 
+                {
+                    var parentClone = (parent as BinaryExpressionSyntax).WithLeft(expression.Right);
+					return parentClone;
+				}
+			}
+			return expression.Right;
+		}
 //		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
 //		{
 //			var ifStatement = context.GetNode<IfElseStatement>();
