@@ -41,15 +41,20 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	string $Test { get; set; }
 }", @"class TestClass
 {
-	string test;
-	string Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
+    string test;
+
+    string Test
+    {
+        get
+        {
+            return test;
+        }
+
+        set
+        {
+            test = value;
+        }
+    }
 }");
 		}
 
@@ -61,15 +66,20 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public static string $Test { get; set; }
 }", @"class TestClass
 {
-	static string test;
-	public static string Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
+    static string test;
+
+    public static string Test
+    {
+        get
+        {
+            return test;
+        }
+
+        set
+        {
+            test = value;
+        }
+    }
 }");
 		}
 
