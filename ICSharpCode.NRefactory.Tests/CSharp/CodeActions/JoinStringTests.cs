@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	{
 		public void Test (string input, string output)
 		{
-			Test<JoinStringAction> (@"
+			Test<JoinStringAction>(@"
 class TestClass
 {
 	string TestMethod (string arg)
