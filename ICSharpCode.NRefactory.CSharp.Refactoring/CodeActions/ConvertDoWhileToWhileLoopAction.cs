@@ -52,7 +52,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+            var node = root.FindNode(span) as DoStatementSyntax;
+            if (node == null)
+                return Enumerable.Empty<CodeAction>();
+            return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Convert to while loop", document.WithSyntaxRoot(root.ReplaceNode(node as StatementSyntax, 
+                SyntaxFactory.WhileStatement(node.Condition, node.Statement).WithAdditionalAnnotations(Formatter.Annotation))))};
 		}
 
 //		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
