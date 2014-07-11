@@ -43,10 +43,10 @@ class Foo {
 }", @"
 class Foo {
 	void Bar(int x) {
-		do
-			x++;
-		while (x > 0);
-	}
+        do
+            x++;
+        while (x > 0);
+    }
 }");
 		}
 
@@ -60,11 +60,10 @@ class Foo {
 }", @"
 class Foo {
 	void Bar(int x) {
-		do {
-			x++;
-		}
-		while (x > 0);
-	}
+        do
+        { x++; }
+        while (x > 0);
+    }
 }");
 		}
 
