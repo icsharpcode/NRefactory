@@ -37,18 +37,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			Test<RedundantPrivateIssue>(@"class Foo
+			Analyze<RedundantPrivateIssue>(@"class Foo
 {
-	static private int foo;
-	private void Bar (string str)
+	static $private$ int foo;
+	$private$ void Bar (string str)
 	{
 	}
-}", 2, @"class Foo
+}", @"class Foo
 {
-	static int foo;
-	void Bar (string str)
-	{
-	}
+    static int foo;
+    void Bar(string str)
+    {
+    }
 }");
 		}
 	
@@ -56,16 +56,16 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestNestedClass ()
 		{
-			Test<RedundantPrivateIssue>(@"class Foo
+			Analyze<RedundantPrivateIssue>(@"class Foo
 {
-	private class Nested
+	$private$ class Nested
 	{
 	}
 }", @"class Foo
 {
-	class Nested
-	{
-	}
+    class Nested
+    {
+    }
 }");
 		}
 	}

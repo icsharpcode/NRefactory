@@ -74,76 +74,97 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
+            private void AddIssue(SyntaxNode node, Location location)
+            {
+                AddIssue(Diagnostic.Create(Rule, location));
+            }
 
-//			void CheckNode(EntityDeclaration node)
-//			{
-//				foreach (var token_ in node.ModifierTokens) {
-//					var token = token_;
-//					if (token.Modifier == Modifiers.Private) {
-//						AddIssue(new CodeIssue(token, ctx.TranslateString("Keyword 'private' is redundant. This is the default modifier."), ctx.TranslateString("Remove redundant 'private' modifier"), script => {
-//							script.ChangeModifier (node, node.Modifiers & ~Modifiers.Private);
-//						}) { IssueMarker = IssueMarker.GrayOut });
-//					}
-//				}
-//			}
-//
-//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-//			{
-//				// SKIP
-//			}
-//
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				CheckNode(methodDeclaration);
-//			}
-//			
-//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-//			{
-//				CheckNode(fieldDeclaration);
-//			}
-//			
-//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-//			{
-//				CheckNode(propertyDeclaration);
-//			}
-//
-//			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-//			{
-//				CheckNode(indexerDeclaration);
-//			}
-//
-//			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
-//			{
-//				CheckNode(eventDeclaration);
-//			}
-//			
-//			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-//			{
-//				CheckNode(eventDeclaration);
-//			}
-//			
-//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//			{
-//				CheckNode(constructorDeclaration);
-//			}
-//
-//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-//			{
-//				CheckNode(operatorDeclaration);
-//			}
-//
-//			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
-//			{
-//				CheckNode(fixedFieldDeclaration);
-//			}
-//
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{
-//				if (typeDeclaration.Parent is TypeDeclaration) {
-//					CheckNode(typeDeclaration);
-//				}
-//				base.VisitTypeDeclaration(typeDeclaration);
-//			}
+			public override void VisitDestructorDeclaration(DestructorDeclarationSyntax node)
+			{
+				// SKIP
+			}
+
+			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
+			{
+                SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                if (privateToken != null)
+                    AddIssue(node, privateToken.GetLocation());
+			}
+
+            public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
+			{
+                SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                if (privateToken != null)
+                    AddIssue(node, privateToken.GetLocation());
+			}
+
+            public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
+			{
+                SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                if (privateToken != null)
+                    AddIssue(node, privateToken.GetLocation());
+			}
+
+            public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
+			{
+                SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                if (privateToken != null)
+                    AddIssue(node, privateToken.GetLocation());
+			}
+
+            public override void VisitEventDeclaration(EventDeclarationSyntax node)
+			{
+                SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                if (privateToken != null)
+                    AddIssue(node, privateToken.GetLocation());
+			}
+
+            public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
+			{
+                SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                if (privateToken != null)
+                    AddIssue(node, privateToken.GetLocation());
+			}
+
+            public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
+			{
+                SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                if (privateToken != null)
+                    AddIssue(node, privateToken.GetLocation());
+			}
+
+            public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+            {
+                if (node.Parent is TypeDeclarationSyntax)
+                {
+                    SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                    if (privateToken != null)
+                        AddIssue(node, privateToken.GetLocation());
+				}
+				base.VisitClassDeclaration(node);
+            }
+
+            public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
+            {
+                if (node.Parent is TypeDeclarationSyntax)
+                {
+                    SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                    if (privateToken != null)
+                        AddIssue(node, privateToken.GetLocation());
+                }
+                base.VisitInterfaceDeclaration(node);
+            }
+
+            public override void VisitStructDeclaration(StructDeclarationSyntax node)
+            {
+                if (node.Parent is StructDeclarationSyntax)
+                {
+                    SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
+                    if (privateToken != null)
+                        AddIssue(node, privateToken.GetLocation());
+                }
+                base.VisitStructDeclaration(node);
+            }
 		}
 	}
 
@@ -161,12 +182,59 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+                var newRoot = root.ReplaceNode(node, RemovePrivateFromNode(node).WithAdditionalAnnotations(Formatter.Annotation));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}
+
+        private SyntaxNode RemovePrivateFromNode(SyntaxNode node)
+        {
+            //there seem to be no base classes to support WithModifiers.
+            //dynamic modifiersNode = node;
+            //return modifiersNode.WithModifiers(SyntaxFactory.TokenList(modifiersNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            MethodDeclarationSyntax methodNode = node as MethodDeclarationSyntax;
+            if(methodNode != null)
+                return methodNode.WithModifiers(SyntaxFactory.TokenList(methodNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+            
+            FieldDeclarationSyntax fieldNode = node as FieldDeclarationSyntax;
+            if (fieldNode != null)
+                return fieldNode.WithModifiers(SyntaxFactory.TokenList(fieldNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            PropertyDeclarationSyntax propertyNode = node as PropertyDeclarationSyntax;
+            if (propertyNode != null)
+                return propertyNode.WithModifiers(SyntaxFactory.TokenList(propertyNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            IndexerDeclarationSyntax indexerNode = node as IndexerDeclarationSyntax;
+            if (indexerNode != null)
+                return indexerNode.WithModifiers(SyntaxFactory.TokenList(indexerNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            EventDeclarationSyntax eventNode = node as EventDeclarationSyntax;
+            if (eventNode != null)
+                return eventNode.WithModifiers(SyntaxFactory.TokenList(eventNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            ConstructorDeclarationSyntax ctrNode = node as ConstructorDeclarationSyntax;
+            if (ctrNode != null)
+                return ctrNode.WithModifiers(SyntaxFactory.TokenList(ctrNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            OperatorDeclarationSyntax opNode = node as OperatorDeclarationSyntax;
+            if (opNode != null)
+                return opNode.WithModifiers(SyntaxFactory.TokenList(opNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            ClassDeclarationSyntax classNode = node as ClassDeclarationSyntax;
+            if (classNode != null)
+                return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            InterfaceDeclarationSyntax interfaceNode = node as InterfaceDeclarationSyntax;
+            if (interfaceNode != null)
+                return interfaceNode.WithModifiers(SyntaxFactory.TokenList(interfaceNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            StructDeclarationSyntax structNode = node as StructDeclarationSyntax;
+            if (structNode != null)
+                return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+            return node;
+        }
 	}
 }
