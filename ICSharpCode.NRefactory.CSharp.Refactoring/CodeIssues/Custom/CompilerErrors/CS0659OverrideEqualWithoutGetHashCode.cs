@@ -71,72 +71,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				base.VisitMethodDeclaration(methodDeclaration);
-//
-//				var resolvedResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
-//				if (resolvedResult == null)
-//					return;
-//				var method = resolvedResult.Member as IMethod;
-//
-//				if (method == null || !method.Name.Equals("Equals") || ! method.IsOverride)
-//					return;
-//
-//				if (methodDeclaration.Parameters.Count != 1)
-//					return;
-//	
-//				if (!method.Parameters.Single().Type.FullName.Equals("System.Object"))
-//					return;
-//
-//				var classDeclration = method.DeclaringTypeDefinition;
-//				if (classDeclration == null)
-//					return;
-//
-//				List<IMethod> getHashCode = new List<IMethod>();
-//				var methods = classDeclration.GetMethods();
-//
-//				foreach (var m in methods) {
-//					if (m.Name.Equals("GetHashCode")) {
-//						getHashCode.Add(m);
-//					}
-//				}
-//
-//				if (!getHashCode.Any()) {
-//					AddIssue(ctx, methodDeclaration);
-//					return;
-//				} else if (getHashCode.Any(f => (f.IsOverride && f.ReturnType.IsKnownType(KnownTypeCode.Int32)))) {
-//					return;
-//				}
-//				AddIssue(ctx, methodDeclaration);
-//			}
-//
-//			private void AddIssue(BaseSemanticModel ctx, AstNode node)
-//			{
-//				var getHashCode = new MethodDeclaration();
-//				getHashCode.Name = "GetHashCode";
-//				getHashCode.Modifiers = Modifiers.Public;
-//				getHashCode.Modifiers |= Modifiers.Override;
-//				getHashCode.ReturnType = new PrimitiveType("int");
-//
-//				var blockStatement = new BlockStatement();
-//				var invocationExpression = new InvocationExpression(new MemberReferenceExpression(new BaseReferenceExpression(),"GetHashCode"));
-//				var returnStatement = new ReturnStatement(invocationExpression);
-//				blockStatement.Add(returnStatement);
-//				getHashCode.Body = blockStatement;
-//
-//				AddIssue(new CodeIssue(
-//					(node as MethodDeclaration).NameToken, 
-//					ctx.TranslateString("If two objects are equal then they must both have the same hash code"),
-//					new CodeAction(
-//					ctx.TranslateString("Override GetHashCode"),
-//					script => {
-//					script.InsertAfter(node, getHashCode); 
-//				},
-//				node
-//					)));
-//			}
+
+            public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
+            {
+                base.VisitMethodDeclaration(node);
+
+                var methodSymbol = semanticModel.GetDeclaredSymbol(node);
+                if(methodSymbol == null || !methodSymbol.Name.Equals("Equals") || !methodSymbol.IsOverride ||
+                    methodSymbol.Parameters.Count() != 1 || (!methodSymbol.Parameters.Single().Type.GetFullName().Equals("object") && 
+                    !methodSymbol.Parameters.Single().Type.GetFullName().Equals("System.Object")))
+                    return;
+
+                var classSymbol = methodSymbol.ContainingType;
+                if (classSymbol == null)
+                    return;
+
+                var hashCode = classSymbol.GetMembers().OfType<IMethodSymbol>().Where(m => m.Name.Equals("GetHashCode"));
+                if (hashCode.Count() == 0 || !hashCode.Any(h => (h.IsOverride && (h.ReturnType.GetFullName().Equals("System.Int32") || h.ReturnType.GetFullName().Equals("int")))))
+                    AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+            }
 		}
 	}
 
@@ -152,11 +105,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
+			foreach (var diagonstic in diagnostics)
+            {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+                var hashCode = SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)), "GetHashCode").WithModifiers(
+                    new SyntaxTokenList().Add(SyntaxFactory.Token(SyntaxKind.PublicKeyword)).Add(SyntaxFactory.Token(SyntaxKind.OverrideKeyword)))
+                    .WithBody(SyntaxFactory.Block(
+                    SyntaxFactory.ReturnStatement().WithExpression(SyntaxFactory.ParseExpression("base.GetHashCode()")))).WithAdditionalAnnotations(Formatter.Annotation);
+				var newRoot = root.InsertNodesAfter(node, new List<SyntaxNode>(){hashCode});
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
