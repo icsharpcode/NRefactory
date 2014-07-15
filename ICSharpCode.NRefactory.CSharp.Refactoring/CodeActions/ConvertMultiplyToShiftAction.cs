@@ -64,34 +64,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(log2))).WithAdditionalAnnotations(Formatter.Annotation));
             return new []{ CodeActionFactory.Create(span, DiagnosticSeverity.Info, isLeftShift ? "Replace with '<<'" : "Replace with '>>'", document.WithSyntaxRoot(newRoot))};
 		}
-//		protected override CodeAction GetAction(SemanticModel context, BinaryOperatorExpression node)
-//		{
-//			if (!node.OperatorToken.Contains(context.Location))
-//				return null;
-//			if (node.Operator != BinaryOperatorType.Multiply && node.Operator != BinaryOperatorType.Divide || !(node.Right is PrimitiveExpression))
-//				return null;
-//
-//			var valueObj = context.Resolve(node.Right).ConstantValue;
-//			if (!(valueObj is int))
-//				return null;
-//			var value = (int)valueObj;
-//
-//			var log2 = (int)Math.Log(value, 2);
-//			if (value != 1 << log2)
-//				return null;
-//
-//			return new CodeAction (
-//				node.Operator == BinaryOperatorType.Multiply ? context.TranslateString("Replace with '<<'") : context.TranslateString("Replace with '>>'"),
-//				script => script.Replace(
-//					node, 
-//					new BinaryOperatorExpression(
-//						node.Left.Clone(), 
-//						node.Operator == BinaryOperatorType.Multiply ? BinaryOperatorType.ShiftLeft : BinaryOperatorType.ShiftRight,
-//						new PrimitiveExpression(log2)
-//					)
-//				),
-//				node.OperatorToken
-//			);
-//		}
 	}
 }
