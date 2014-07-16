@@ -106,6 +106,12 @@
     <Reference Include="Microsoft.CodeAnalysis.CSharp">
       <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Desktop">
+      <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.CSharp.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Desktop">
+      <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.Desktop.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory\Properties\GlobalAssemblyInfo.cs">

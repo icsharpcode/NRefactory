@@ -41,22 +41,28 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	public class InspectionActionTestBase
 	{
-		static MetadataReference mscorlib = new MetadataFileReference(typeof(Console).Assembly.Location);
-		static MetadataReference systemAssembly = new MetadataFileReference(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
-		static MetadataReference systemXmlLinq = new MetadataFileReference(typeof(System.Xml.Linq.XElement).Assembly.Location);
-		static MetadataReference systemCore = new MetadataFileReference(typeof(Enumerable).Assembly.Location);
+		static MetadataReference mscorlib;
+		static MetadataReference systemAssembly;
+		static MetadataReference systemXmlLinq;
+		static MetadataReference systemCore;
 
-		internal static MetadataReference[] DefaultMetadataReferences = {
-			mscorlib,
-			systemAssembly,
-			systemCore,
-			systemXmlLinq
-		};
+		internal static MetadataReference[] DefaultMetadataReferences;
 		
 		static Dictionary<string, ICodeFixProvider> providers = new Dictionary<string, ICodeFixProvider>();
 
 		static InspectionActionTestBase()
 		{
+			mscorlib = new MetadataFileReference(typeof(Console).Assembly.Location);
+			systemAssembly = new MetadataFileReference(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
+			systemXmlLinq = new MetadataFileReference(typeof(System.Xml.Linq.XElement).Assembly.Location);
+			systemCore = new MetadataFileReference(typeof(Enumerable).Assembly.Location);
+			DefaultMetadataReferences = new [] {
+				mscorlib,
+				systemAssembly,
+				systemCore,
+				systemXmlLinq
+			};
+
 			foreach (var provider in typeof(IssueCategories).Assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false).Length > 0)) {
 				var attr = (ExportCodeFixProviderAttribute)provider.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false) [0];
 				var codeFixProvider = (ICodeFixProvider)Activator.CreateInstance(provider);
@@ -78,11 +84,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			string assemblyName = "")
 		{
 			if (compOptions == null) {
-				compOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
+				compOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, "a.dll");
 			}
-
 			return CSharpCompilation.Create(
-				assemblyName == "" ? GetUniqueName() : assemblyName,
+				string.IsNullOrEmpty(assemblyName) ?  GetUniqueName() : assemblyName,
 				trees,
 				references,
 				compOptions);
@@ -242,10 +247,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			var syntaxTree = CSharpSyntaxTree.ParseText(text.ToString());
 
 			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
-
+			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
 			var diagnostics = new List<Diagnostic>();
 			diagnostics.AddRange(AnalyzerDriver.GetDiagnostics(compilation,
 				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
+				options,
 				CancellationToken.None
 			)); 
 
@@ -342,9 +348,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
 
 			var diagnostics = new List<Diagnostic>();
+			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
 
 			diagnostics.AddRange(AnalyzerDriver.GetDiagnostics(compilation,
 				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
+				options,
 				CancellationToken.None
 			).Where(d => d.Id == ruleId)); 
 

@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 	{
 		protected abstract CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken);
 
-		void ISemanticModelAnalyzer.AnalyzeSemanticModel(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		void ISemanticModelAnalyzer.AnalyzeSemanticModel(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, AnalyzerOptions options, CancellationToken cancellationToken)
 		{
 			var visitor = CreateVisitor(semanticModel, addDiagnostic, cancellationToken);
 			if (visitor == null)

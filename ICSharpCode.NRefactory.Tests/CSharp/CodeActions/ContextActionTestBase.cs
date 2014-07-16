@@ -100,9 +100,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			 workspace = new InspectionActionTestBase.TestWorkspace();
 			var projectId = ProjectId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
-			workspace.GetOptions().WithChangedOption(CSharpFormattingOptions.OpenBracesInNewLineForControl, false);
-
-
+			workspace.Options.WithChangedOption(CSharpFormattingOptions.OpenBracesInNewLineForControl, false);
 			workspace.Open(ProjectInfo.Create(
 				projectId,
 				VersionStamp.Create(),
