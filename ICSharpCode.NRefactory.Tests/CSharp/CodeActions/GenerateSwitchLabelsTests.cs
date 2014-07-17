@@ -36,37 +36,37 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void Test ()
 		{
-			string result = RunContextAction (
-				new GenerateSwitchLabelsAction (),
-				"using System;" + Environment.NewLine +
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test (ConsoleModifiers mods)" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		$switch (mods) {" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"using System;" + Environment.NewLine +
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test (ConsoleModifiers mods)" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		switch (mods) {" + Environment.NewLine +
-				"		case ConsoleModifiers.Alt:" + Environment.NewLine +
-				"			break;" + Environment.NewLine +
-				"		case ConsoleModifiers.Shift:" + Environment.NewLine +
-				"			break;" + Environment.NewLine +
-				"		case ConsoleModifiers.Control:" + Environment.NewLine +
-				"			break;" + Environment.NewLine +
-				"		default:" + Environment.NewLine +
-				"			throw new ArgumentOutOfRangeException ();" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
+            Test<GenerateSwitchLabelsAction>(@"
+using System;
+
+class TestClass
+{
+    void Test (ConsoleModifiers mods)
+    {
+        $switch (mods)
+        {
+        }
+    }
+}", @"
+using System;
+
+class TestClass
+{
+    void Test (ConsoleModifiers mods)
+    {
+        switch (mods)
+        {
+            case ConsoleModifiers.Alt:
+                break;
+            case ConsoleModifiers.Shift:
+                break;
+            case ConsoleModifiers.Control:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+}");
 		}
 
 		[Test]
@@ -94,17 +94,18 @@ class Foo
 {
 	void Bar (ConsoleModifiers mods)
 	{
-		switch (mods) {
-		case ConsoleModifiers.Alt:
-			break;
-		case ConsoleModifiers.Shift:
-			break;
-		case ConsoleModifiers.Control:
-			break;
-		default:
-			throw new ArgumentOutOfRangeException ();
-		}
-	}
+        switch (mods)
+        {
+            case ConsoleModifiers.Alt:
+                break;
+            case ConsoleModifiers.Shift:
+                break;
+            case ConsoleModifiers.Control:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
 }
 ");
 

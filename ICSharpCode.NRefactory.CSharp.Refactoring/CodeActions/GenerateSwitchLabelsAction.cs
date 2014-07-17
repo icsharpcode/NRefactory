@@ -48,91 +48,73 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+            var switchStatement = root.FindNode(span) as SwitchStatementSyntax;
+            if (switchStatement == null)
+                return Enumerable.Empty<CodeAction>();
+
+            var result = model.GetSymbolInfo(switchStatement.Expression);
+            var resultType = result.Symbol.GetReturnType();
+            if(resultType.TypeKind != TypeKind.Enum)
+                return Enumerable.Empty<CodeAction>();
+
+            if(switchStatement.Sections.Count == 0)
+            {
+                SyntaxList<SwitchSectionSyntax> sections = new SyntaxList<SwitchSectionSyntax>();
+                foreach(var field in resultType.GetMembers().OfType<IFieldSymbol>())
+                {
+                    if (!field.IsConst)
+                        continue;
+                    sections = sections.Add(GetSectionFromSymbol(model, field, span).WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(SyntaxFactory.BreakStatement())));
+                }
+                sections = sections.Add(SyntaxFactory.SwitchSection()
+                    .WithLabels(SyntaxFactory.SingletonList<SwitchLabelSyntax>(SyntaxFactory.SwitchLabel(SyntaxKind.DefaultSwitchLabel)))
+                    .WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(
+                        SyntaxFactory.ThrowStatement(
+                        SyntaxFactory.ObjectCreationExpression(
+                            SyntaxFactory.IdentifierName("ArgumentOutOfRangeException")).WithArgumentList(SyntaxFactory.ArgumentList())))));
+                var newRoot = root.ReplaceNode(switchStatement, switchStatement.WithSections(sections).WithAdditionalAnnotations(Formatter.Annotation));
+                return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Create switch labels", document.WithSyntaxRoot(newRoot)) };
+            }
+            else
+            {
+                List<IFieldSymbol> fields = new List<IFieldSymbol>();
+                foreach(var field in resultType.GetMembers())
+                {
+                    var fieldSymbol = field as IFieldSymbol;
+                    if (fieldSymbol == null || !fieldSymbol.IsConst)
+                        continue;
+                    if (!IsHandled(model, switchStatement, fieldSymbol))
+                        fields.Add(fieldSymbol);
+                }
+                if (fields.Count == 0)
+                    return Enumerable.Empty<CodeAction>();
+                var newSections = new SyntaxList<SwitchSectionSyntax>().AddRange(
+                    fields.Select(f => GetSectionFromSymbol(model, f, span).WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(SyntaxFactory.BreakStatement()))));
+
+                //default section - if it exists, remove it, add in our new sections, and replace it
+                var defaultSection = switchStatement.Sections.FirstOrDefault(s => s.Labels.Any(l => l.Value == null));
+
+                if(defaultSection == null)
+                    newSections = switchStatement.Sections.AddRange(newSections);
+                else
+                    newSections = switchStatement.Sections.Remove(defaultSection).AddRange(newSections).Add(defaultSection);
+
+                var newRoot = root.ReplaceNode(switchStatement, switchStatement.WithSections(newSections).WithAdditionalAnnotations(Formatter.Annotation));
+                return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Create missing switch labels", document.WithSyntaxRoot(newRoot)) };
+            }
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var switchStatement = context.GetNode<SwitchStatement> ();
-//
-//			if (switchStatement == null || !switchStatement.SwitchToken.Contains(context.Location))
-//				yield break;
-//			var result = context.Resolve(switchStatement.Expression);
-//			if (result.Type.Kind != TypeKind.Enum)
-//				yield break;
-//
-//			if (switchStatement.SwitchSections.Count == 0) {
-//				yield return new CodeAction(context.TranslateString("Create switch labels"), script => {
-//					var type = result.Type;
-//					var newSwitch = (SwitchStatement)switchStatement.Clone();
-//					
-//					var target = context.CreateShortType(result.Type);
-//					foreach (var field in type.GetFields ()) {
-//						if (field.IsSynthetic || !field.IsConst)
-//							continue;
-//						newSwitch.SwitchSections.Add(new SwitchSection() {
-//							CaseLabels = {
-//								new CaseLabel(target.Clone().Member(field.Name))
-//							},
-//							Statements = {
-//								new BreakStatement()
-//							}
-//						});
-//					}
-//					
-//					newSwitch.SwitchSections.Add(new SwitchSection() {
-//						CaseLabels = {
-//							new CaseLabel()
-//						},
-//						Statements = {
-//							new ThrowStatement(new ObjectCreateExpression(context.CreateShortType("System", "ArgumentOutOfRangeException")))
-//						}
-//					});
-//					
-//					script.Replace(switchStatement, newSwitch);
-//				}, switchStatement);
-//			} else {
-//				var missingFields = new List<IField>();
-//				foreach (var field in result.Type.GetFields ()) {
-//					if (field.IsSynthetic || !field.IsConst)
-//						continue;
-//					if (!IsHandled(context, switchStatement, field)) {
-//						missingFields.Add(field); 
-//					}
-//				}
-//				if (missingFields.Count == 0)
-//					yield break;
-//				yield return new CodeAction(context.TranslateString("Create missing switch labels"), script => {
-//					var type = result.Type;
-//					//var newSwitch = (SwitchStatement)switchStatement.Clone();
-//					var insertNode = (AstNode)switchStatement.SwitchSections.LastOrDefault(s => !s.CaseLabels.Any(label => label.Expression.IsNull)) ?? switchStatement.LBraceToken;
-//
-//					var target = context.CreateShortType(result.Type);
-//					foreach (var field in missingFields) {
-//						script.InsertAfter(insertNode, new SwitchSection() {
-//							CaseLabels =  {
-//								new CaseLabel(target.Clone().Member(field.Name))
-//							},
-//							Statements =  {
-//								new BreakStatement()
-//							}
-//						});
-//					}
-//				}, switchStatement);
-//			}
-//		}
-//
-//		static bool IsHandled(SemanticModel context, SwitchStatement switchStatement, IField field)
-//		{
-//			foreach (var sect in switchStatement.SwitchSections) {
-//				foreach (var caseLabel in sect.CaseLabels) {
-//					var resolveCase = context.Resolve(caseLabel.Expression) as MemberResolveResult;
-//					if (resolveCase == null)
-//						continue;
-//					if (field == resolveCase.Member)
-//						return true;
-//				}
-//			}
-//			return false;
-//		}
+
+        private SwitchSectionSyntax GetSectionFromSymbol(SemanticModel model, IFieldSymbol field, TextSpan span)
+        {
+            return SyntaxFactory.SwitchSection().WithLabels(SyntaxFactory.SingletonList<SwitchLabelSyntax>(SyntaxFactory.SwitchLabel(SyntaxKind.CaseSwitchLabel, 
+                SyntaxFactory.IdentifierName(field.ToMinimalDisplayString(model, span.Start))))).WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(SyntaxFactory.BreakStatement()));
+        }
+
+        private bool IsHandled(SemanticModel model, SwitchStatementSyntax switchStatement, IFieldSymbol field)
+        {
+            //if any label in any section has a value equal to the field name, return true
+            return switchStatement.Sections.Any(s => s.Labels.Any(l => l.Value != null && ((MemberAccessExpressionSyntax)l.Value).Name.Identifier.ValueText.Equals(field.Name)));
+        }
 	}
 }
