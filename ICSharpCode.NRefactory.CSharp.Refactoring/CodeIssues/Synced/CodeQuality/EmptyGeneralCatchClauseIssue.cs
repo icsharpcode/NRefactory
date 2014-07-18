@@ -75,25 +75,29 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			public override void VisitCatchClause(CatchClause catchClause)
-//			{
-//				base.VisitCatchClause(catchClause);
-//
-//				AstType type = catchClause.Type;
-//				if (!type.IsNull) {
-//					var resolvedType = ctx.Resolve(type);
-//
-//					if (resolvedType.IsError ||
-//						!resolvedType.Type.Namespace.Equals("System") || !resolvedType.Type.Name.Equals("Exception"))
-//						return;
-//				}
-//
-//				var body = catchClause.Body;
-//				if (body.Statements.Any())
-//					return;
-//
-//				AddIssue(new CodeIssue(catchClause.CatchToken, ctx.TranslateString("")));
-//			}
+            public override void VisitCatchClause(CatchClauseSyntax node)
+            {
+                base.VisitCatchClause(node);
+
+                if (node.Declaration == null)
+                    AddIssue(Diagnostic.Create(Rule, node.CatchKeyword.GetLocation()));
+                else
+                {
+                    var type = node.Declaration.Type;
+                    if (type != null)
+                    {
+                        ITypeSymbol typeSymbol = semanticModel.GetTypeInfo(type).Type;
+                        if (typeSymbol == null || typeSymbol.TypeKind == TypeKind.Error || !typeSymbol.GetFullName().Equals("System.Exception"))
+                            return;
+
+                        BlockSyntax body = node.Block;
+                        if (body.Statements.Any())
+                            return;
+
+                        AddIssue(Diagnostic.Create(Rule, node.CatchKeyword.GetLocation()));
+                    }
+                }
+            }
 		}
 	}
 
@@ -109,12 +113,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+			foreach (var diagonstic in diagnostics)
+            {
+                //original has no fix - leave it without any fixes?
+				//var node = root.FindNode(diagonstic.Location.SourceSpan);
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				//var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				//result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}
