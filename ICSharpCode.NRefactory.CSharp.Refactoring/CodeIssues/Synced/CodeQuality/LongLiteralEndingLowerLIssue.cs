@@ -71,41 +71,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitPrimitiveExpression(PrimitiveExpression primitiveExpression)
-//			{
-//				if (!(primitiveExpression.Value is long || primitiveExpression.Value is ulong))
-//				{
-//					//Literals such as "l" or 'l' are perfectly acceptable.
-//					//Also, no point in visiting integer or boolean literals
-//					return;
-//				}
-//
-//				string literalValue = primitiveExpression.LiteralValue;
-//				if (literalValue.Length < 2) {
-//					return;
-//				}
-//
-//				char prevChar = literalValue [literalValue.Length - 2];
-//				char lastChar = literalValue [literalValue.Length - 1];
-//
-//				if (prevChar == 'u' || prevChar == 'U') {
-//					//No problem, '3ul' is not confusing
-//					return;
-//				}
-//
-//				if (lastChar == 'l' || prevChar == 'l') {
-//					AddIssue(new CodeIssue(primitiveExpression,
-//					         ctx.TranslateString(""),
-//					         ctx.TranslateString(""),
-//					         script => {
-//								object newValue = primitiveExpression.Value;
-//								string newLiteralValue = primitiveExpression.LiteralValue.ToUpperInvariant();
-//								script.Replace(primitiveExpression, new PrimitiveExpression(newValue, newLiteralValue));
-//							}
-//					));
-//				}
-//			}
+
+            public override void VisitLiteralExpression(LiteralExpressionSyntax node)
+            {
+                if (!(node.Token.Value is long || node.Token.Value is ulong))
+                    return;
+
+                String literal = node.Token.Text;
+                if (literal.Length < 2)
+                    return;
+
+				char prevChar = literal[literal.Length - 2];
+				char lastChar = literal[literal.Length - 1];
+
+                if (prevChar == 'u' || prevChar == 'U') //ul/Ul is not confusing
+                    return;
+
+                if (lastChar == 'l' || prevChar == 'l')
+                    AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+            }
 		}
 	}
 
@@ -123,9 +107,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+                String newLiteral = ((LiteralExpressionSyntax)node).Token.Text.ToUpperInvariant();
+                char prevChar = newLiteral[newLiteral.Length-2];
+                char lastChar = newLiteral[newLiteral.Length-1];
+                double newLong = 0;
+                if (prevChar == 'U' || prevChar == 'L') //match ul, lu, or l. no need to match just u.
+                    newLong = long.Parse(newLiteral.Remove(newLiteral.Length - 2));
+                else if(lastChar == 'L')
+                    newLong = long.Parse(newLiteral.Remove(newLiteral.Length - 1));                   
+                else
+                    newLong = long.Parse(newLiteral); //just in case
+
+				var newRoot = root.ReplaceNode(node, ((LiteralExpressionSyntax)node).WithToken(SyntaxFactory.Literal(newLiteral, newLong)));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make suffix upper case", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
