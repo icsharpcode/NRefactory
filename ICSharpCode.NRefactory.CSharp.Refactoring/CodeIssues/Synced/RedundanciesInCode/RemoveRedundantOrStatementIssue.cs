@@ -72,25 +72,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			readonly AstNode pattern = new ExpressionStatement (
-//				new Choice {
-//					new AssignmentExpression(new AnyNode(), AssignmentOperatorType.BitwiseOr, new PrimitiveExpression(false)),
-//					new AssignmentExpression(new AnyNode(), AssignmentOperatorType.BitwiseAnd, new PrimitiveExpression(true))
-//				}
-//			);
-//
-//			public override void VisitExpressionStatement(ExpressionStatement expressionStatement)
-//			{
-//				base.VisitExpressionStatement(expressionStatement);
-//				if (pattern.IsMatch(expressionStatement)) {
-//					AddIssue(new CodeIssue(
-//						expressionStatement,
-//						ctx.TranslateString(""),
-//						ctx.TranslateString(""),
-//						s => s.Remove(expressionStatement)
-//					) { IssueMarker = IssueMarker.GrayOut });
-//				}
-//			}
+            public override void VisitExpressionStatement(ExpressionStatementSyntax node)
+            {
+                base.VisitExpressionStatement(node);
+                var assignment = node.Expression as BinaryExpressionSyntax;
+                if (assignment == null)
+                    return;
+
+                //check redundant foo |= false
+                var literalRight = assignment.Right as LiteralExpressionSyntax;
+                if(literalRight == null)
+                    return;
+
+                bool isOrWithFalse = assignment.IsKind(SyntaxKind.OrAssignmentExpression) && literalRight.IsKind(SyntaxKind.FalseLiteralExpression);
+                bool isAndWithTrue = (assignment.IsKind(SyntaxKind.AndAssignmentExpression) && literalRight.IsKind(SyntaxKind.TrueLiteralExpression));
+                if (isOrWithFalse || isAndWithTrue)
+                    AddIssue(Diagnostic.Create(Rule, assignment.GetLocation()));
+
+            }
 		}
 	}
 
@@ -106,10 +105,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
+			foreach (var diagonstic in diagnostics)
+            {
+				var node = root.FindNode(diagonstic.Location.SourceSpan).Parent;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant statement", document.WithSyntaxRoot(newRoot)));
 			}

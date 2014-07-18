@@ -34,13 +34,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestOrCase ()
 		{
-			Test<RemoveRedundantOrStatementIssue>(@"
+			Analyze<RemoveRedundantOrStatementIssue>(@"
 class MainClass
 {
 	static bool bb { get; set; }
 	public static void Main(string[] args)
 	{
-		MainClass.bb |= false;
+		$MainClass.bb |= false$;
 	}
 }
 ", @"
@@ -57,13 +57,13 @@ class MainClass
 		[Test]
 		public void TestAndCase ()
 		{
-			Test<RemoveRedundantOrStatementIssue>(@"
+			Analyze<RemoveRedundantOrStatementIssue>(@"
 class MainClass
 {
 	static bool bb { get; set; }
 	public static void Main(string[] args)
 	{
-		MainClass.bb &= true;
+		$MainClass.bb &= true$;
 	}
 }
 ", @"
