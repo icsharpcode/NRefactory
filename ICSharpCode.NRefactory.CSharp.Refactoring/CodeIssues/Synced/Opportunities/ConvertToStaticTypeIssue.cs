@@ -73,36 +73,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			static bool IsMainMethod(IMember f)
-//			{
-//				return 
-//					f.SymbolKind == SymbolKind.Method &&
-//					(f.ReturnType.IsKnownType(KnownTypeCode.Void) || f.ReturnType.IsKnownType(KnownTypeCode.Int32)) &&
-//					f.IsStatic &&
-//					f.Name == "Main";
-//			}
-//
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{
-//				base.VisitTypeDeclaration(typeDeclaration);
-//
-//				if (typeDeclaration == null || typeDeclaration.ClassType != ClassType.Class || typeDeclaration.HasModifier(Modifiers.Static))
-//					return;
-//				if (!typeDeclaration.Members.Any() || typeDeclaration.HasModifier(Modifiers.Abstract) || typeDeclaration.HasModifier(Modifiers.Partial))
-//					return;
-//				if (typeDeclaration.Members.Where(m => !(m is TypeDeclaration)).Any(f => !f.HasModifier(Modifiers.Static) && !f.HasModifier(Modifiers.Const)))
-//					return;
-//				var rr = ctx.Resolve(typeDeclaration);
-//				if (rr.IsError || rr.Type.GetMembers().Any(IsMainMethod))
-//					return;
-//				AddIssue(new CodeIssue(
-//					typeDeclaration.NameToken, 
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					s => s.ChangeModifier(typeDeclaration, (typeDeclaration.Modifiers & ~Modifiers.Sealed) | Modifiers.Static)
-//				));
-//			}
+
+            internal static bool IsMainMethod(IMethodSymbol m)
+            {
+                return (m.ReturnType.SpecialType == SpecialType.System_Int32 || m.ReturnType.SpecialType == SpecialType.System_Void) && m.IsStatic && m.Name.Equals("Main");
+            }
+
+            public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+            {
+                base.VisitClassDeclaration(node);
+
+                ITypeSymbol classType = semanticModel.GetDeclaredSymbol(node);
+                if (!node.Modifiers.Any() || node.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)) || classType.IsAbstract || classType.IsStatic)
+                    return;
+                //ignore implicitly declared (e.g. default ctor)
+                if(classType.GetMembers().Where(m => !(m is ITypeSymbol)).Any(f => (!f.IsStatic && !f.IsImplicitlyDeclared) || (f is IMethodSymbol && IsMainMethod((IMethodSymbol)f))))
+                    return;
+
+                AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+            }
 		}
 	}
 
@@ -118,11 +107,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+			foreach (var diagonstic in diagnostics)
+            {
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as ClassDeclarationSyntax;
+                if(node == null)
+                    continue;
+                var sealedMod = node.Modifiers.Where(m => m.IsKind(SyntaxKind.SealedKeyword)).FirstOrDefault();
+				var newRoot = root.ReplaceNode(node, node.WithModifiers(node.Modifiers.Remove(sealedMod)
+                    .Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Whitespace(" ")))));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make class static", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
