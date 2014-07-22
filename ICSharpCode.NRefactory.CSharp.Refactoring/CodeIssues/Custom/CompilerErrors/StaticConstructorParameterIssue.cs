@@ -75,22 +75,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//			{
-//				if (!constructorDeclaration.HasModifier(Modifiers.Static) || !constructorDeclaration.Parameters.Any())
-//					return;
-//				AddIssue(new CodeIssue(
-//					constructorDeclaration.Parameters.First().StartLocation,
-//					constructorDeclaration.Parameters.Last().EndLocation,
-//					ctx.TranslateString("Static constructor cannot take parameters"),
-//					ctx.TranslateString("Remove parameters"),
-//					s => {
-//						int o1 = ctx.GetOffset(constructorDeclaration.LParToken.EndLocation);
-//						int o2 = ctx.GetOffset(constructorDeclaration.RParToken.StartLocation);
-//						s.RemoveText(o1, o2 - o1);
-//					}
-//				));
-//			}
+            public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
+            {
+                if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) || !node.ParameterList.Parameters.Any())
+                    return;
+                AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+            }
 		}
 	}
 
@@ -107,10 +97,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as ConstructorDeclarationSyntax;
+                if (node == null)
+                    continue;
+                var newRoot = root.ReplaceNode(node, node.WithParameterList(SyntaxFactory.ParameterList().WithTrailingTrivia(node.ParameterList.GetTrailingTrivia())));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
