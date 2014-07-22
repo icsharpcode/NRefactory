@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void HandlesBasicCase()
 		{
-			Test<InvokeAsExtensionMethodIssue>(@"
+			Analyze<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -52,7 +52,7 @@ class C
 	void F()
 	{
 		A a = new A();
-		B.$Ext (a, 1);
+		B.$Ext$(a, 1);
 	}
 }", @"
 class A { }
@@ -65,7 +65,7 @@ class C
 	void F()
 	{
 		A a = new A();
-		a.Ext (1);
+		a.Ext(1);
 	}
 }");
 		}
@@ -73,7 +73,7 @@ class C
 		[Test]
 		public void HandlesReturnValueUsage()
 		{
-			Test<InvokeAsExtensionMethodIssue>(@"
+			Analyze<InvokeAsExtensionMethodIssue>(@"
 class A { }
 static class B
 {
@@ -84,7 +84,7 @@ class C
 	void F()
 	{
 		A a = new A();
-		if (B.$Ext (a, 1))
+		if (B.$Ext$ (a, 1))
 			return;
 	}
 }", @"
@@ -117,7 +117,7 @@ class C
 {
 	void F()
 	{
-		B.$Ext (null);
+		B.Ext(null);
 	}
 }");
 		}
@@ -135,7 +135,7 @@ class C
 {
 	void F()
 	{
-		B.$Ext (new A());
+		B.Ext (new A());
 	}
 }");
 		}
@@ -154,7 +154,7 @@ class C
 	void F()
 	{
 		A a = new A();
-		a.$Ext (1);
+		a.Ext (1);
 	}
 }");
 		}
@@ -171,7 +171,7 @@ class C
 {
 	void F()
 	{
-		B.$Ext();
+		B.Ext();
 	}
 }");
 		}
