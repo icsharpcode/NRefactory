@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	[TestFixture]
 	public class JoinStringTests : ContextActionTestBase
 	{
-		public void Test (string input, string output)
+		public void Test(string input, string output)
 		{
 			Test<JoinStringAction>(@"
 class TestClass
@@ -52,21 +52,21 @@ class TestClass
 		}
 
 		[Test]
-		public void TestRegularString ()
+		public void TestRegularString()
 		{
-			Test ("\"a\" $+ \"a\"", "\"aa\"");
-			Test ("arg + \"a\" $+ \"a\"", "arg + \"aa\"");
+			Test("\"a\" $+ \"a\"", "\"aa\"");
+			Test("arg + \"a\" $+ \"a\"", "arg + \"aa\"");
 		}
 
 		[Test]
-		public void TestVerbatimString ()
+		public void TestVerbatimString()
 		{
-			Test ("@\"a\" $+ @\"a\"", "@\"aa\"");
+			Test("@\"a\" $+ @\"a\"", "@\"aa\"");
 		}
 
-		public void TestWrongContext (string input)
+		public void TestWrongContext(string input)
 		{
-			TestWrongContext<JoinStringAction> (@"
+			TestWrongContext<JoinStringAction>(@"
 class TestClass
 {
 	string TestMethod ()
@@ -77,10 +77,10 @@ class TestClass
 		}
 
 		[Test]
-		public void TestWrongContext ()
+		public void TestWrongContext()
 		{
-			TestWrongContext ("@\"a\" $+ \"a\"");
-			TestWrongContext ("\"a\" $+ @\"a\"");
+			TestWrongContext("@\"a\" $+ \"a\"");
+			TestWrongContext("\"a\" $+ @\"a\"");
 		}
 	}
 }

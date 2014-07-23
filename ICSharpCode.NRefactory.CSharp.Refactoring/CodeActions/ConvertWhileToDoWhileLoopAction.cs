@@ -53,10 +53,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
-            var node = root.FindNode(span) as WhileStatementSyntax;
-            if (node == null)
-                return Enumerable.Empty<CodeAction>();
-            return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Convert to do...while loop", document.WithSyntaxRoot(root.ReplaceNode(node as StatementSyntax, 
+			var node = root.FindNode(span) as WhileStatementSyntax;
+			if (node == null)
+				return Enumerable.Empty<CodeAction>();
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Convert to do...while loop", document.WithSyntaxRoot(root.ReplaceNode(node as StatementSyntax, 
                 SyntaxFactory.DoStatement(node.Statement, node.Condition).WithAdditionalAnnotations(Formatter.Annotation))))};
 		}
 	}

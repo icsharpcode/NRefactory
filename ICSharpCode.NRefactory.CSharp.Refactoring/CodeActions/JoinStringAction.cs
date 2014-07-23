@@ -44,50 +44,50 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Join string literal", LanguageNames.CSharp)]
 	public class JoinStringAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
-        public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-        {
-            var model = await document.GetSemanticModelAsync(cancellationToken);
-            var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		{
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
-            var node = root.FindNode(span) as BinaryExpressionSyntax;
-            //ignore nodes except string concat.
-            if (node == null || !node.OperatorToken.IsKind(SyntaxKind.PlusToken))
-                return Enumerable.Empty<CodeAction>();
+			var node = root.FindNode(span) as BinaryExpressionSyntax;
+			//ignore nodes except string concat.
+			if (node == null || !node.OperatorToken.IsKind(SyntaxKind.PlusToken))
+				return Enumerable.Empty<CodeAction>();
 
-            LiteralExpressionSyntax left;
-            var leftBinaryExpr = node.Left as BinaryExpressionSyntax;
-            //if there is something other than a string literal on the left, then just take the right node (e.g. a+b+c => a+(b+c))
-            if (leftBinaryExpr != null && leftBinaryExpr.OperatorToken.IsKind(SyntaxKind.PlusToken))
-                left = leftBinaryExpr.Right as LiteralExpressionSyntax;
-            else
-                left = node.Left as LiteralExpressionSyntax;
+			LiteralExpressionSyntax left;
+			var leftBinaryExpr = node.Left as BinaryExpressionSyntax;
+			//if there is something other than a string literal on the left, then just take the right node (e.g. a+b+c => a+(b+c))
+			if (leftBinaryExpr != null && leftBinaryExpr.OperatorToken.IsKind(SyntaxKind.PlusToken))
+				left = leftBinaryExpr.Right as LiteralExpressionSyntax;
+			else
+				left = node.Left as LiteralExpressionSyntax;
 
-            var right = node.Right as LiteralExpressionSyntax;
+			var right = node.Right as LiteralExpressionSyntax;
 
-            //ignore non-string literals
-            if(left == null || right == null || !left.IsKind(SyntaxKind.StringLiteralExpression) || !right.IsKind(SyntaxKind.StringLiteralExpression))
-                return Enumerable.Empty<CodeAction>();
+			//ignore non-string literals
+			if (left == null || right == null || !left.IsKind(SyntaxKind.StringLiteralExpression) || !right.IsKind(SyntaxKind.StringLiteralExpression))
+				return Enumerable.Empty<CodeAction>();
 
-            bool isLeftVerbatim = left.Token.IsVerbatimStringLiteral();
-            bool isRightVerbatim = right.Token.IsVerbatimStringLiteral();
-            if(isLeftVerbatim != isRightVerbatim)
-                return Enumerable.Empty<CodeAction>();
+			bool isLeftVerbatim = left.Token.IsVerbatimStringLiteral();
+			bool isRightVerbatim = right.Token.IsVerbatimStringLiteral();
+			if (isLeftVerbatim != isRightVerbatim)
+				return Enumerable.Empty<CodeAction>();
 
-            String newString = left.Token.ValueText + right.Token.ValueText;
-            LiteralExpressionSyntax stringLit;
+			String newString = left.Token.ValueText + right.Token.ValueText;
+			LiteralExpressionSyntax stringLit;
 
-            if(isLeftVerbatim)
-                stringLit = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal("@\"" + newString + "\"", newString));
-            else
-                stringLit = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(newString));
+			if (isLeftVerbatim)
+				stringLit = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal("@\"" + newString + "\"", newString));
+			else
+				stringLit = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(newString));
 
-            ExpressionSyntax exprNode;
+			ExpressionSyntax exprNode;
 
-            if (leftBinaryExpr == null)
-                exprNode = stringLit;
-            else
-                exprNode = leftBinaryExpr.WithRight(stringLit);
-            return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Join strings", document.WithSyntaxRoot(root.ReplaceNode(node, exprNode as ExpressionSyntax))) };
-        }
-    }
+			if (leftBinaryExpr == null)
+				exprNode = stringLit;
+			else
+				exprNode = leftBinaryExpr.WithRight(stringLit);
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Join strings", document.WithSyntaxRoot(root.ReplaceNode(node, exprNode as ExpressionSyntax))) };
+		}
+	}
 }
