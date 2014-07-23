@@ -193,7 +193,7 @@ namespace Demo
 		/// Bug 16844 - Convert class to static 
 		/// </summary>
 		[Test]
-		public void TestBug16844 ()
+		public void TestBug16844()
 		{
 			Analyze<ConvertToStaticTypeIssue>(@"
 class ShouldBeStatic

@@ -48,20 +48,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToStaticType")]
 	public class ConvertToStaticTypeIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "ConvertToStaticTypeIssue";
-		const string Description            = "If all fields, properties and methods members are static, the class can be made static.";
-		const string MessageFormat          = "This class is recommended to be defined as static";
-		const string Category               = IssueCategories.Opportunities;
+		internal const string DiagnosticId = "ConvertToStaticTypeIssue";
+		const string Description = "If all fields, properties and methods members are static, the class can be made static.";
+		const string MessageFormat = "This class is recommended to be defined as static";
+		const string Category = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		{
+			get
+			{
 				return ImmutableArray.Create(Rule);
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -70,28 +72,28 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<ConvertToStaticTypeIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
+				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-            internal static bool IsMainMethod(IMethodSymbol m)
-            {
-                return (m.ReturnType.SpecialType == SpecialType.System_Int32 || m.ReturnType.SpecialType == SpecialType.System_Void) && m.IsStatic && m.Name.Equals("Main");
-            }
+			internal static bool IsMainMethod(IMethodSymbol m)
+			{
+				return (m.ReturnType.SpecialType == SpecialType.System_Int32 || m.ReturnType.SpecialType == SpecialType.System_Void) && m.IsStatic && m.Name.Equals("Main");
+			}
 
-            public override void VisitClassDeclaration(ClassDeclarationSyntax node)
-            {
-                base.VisitClassDeclaration(node);
+			public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+			{
+				base.VisitClassDeclaration(node);
 
-                ITypeSymbol classType = semanticModel.GetDeclaredSymbol(node);
-                if (!node.Modifiers.Any() || node.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)) || classType.IsAbstract || classType.IsStatic)
-                    return;
-                //ignore implicitly declared (e.g. default ctor)
-                if(classType.GetMembers().Where(m => !(m is ITypeSymbol)).Any(f => (!f.IsStatic && !f.IsImplicitlyDeclared) || (f is IMethodSymbol && IsMainMethod((IMethodSymbol)f))))
-                    return;
+				ITypeSymbol classType = semanticModel.GetDeclaredSymbol(node);
+				if (!node.Modifiers.Any() || node.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)) || classType.IsAbstract || classType.IsStatic)
+					return;
+				//ignore implicitly declared (e.g. default ctor)
+				if (classType.GetMembers().Where(m => !(m is ITypeSymbol)).Any(f => (!f.IsStatic && !f.IsImplicitlyDeclared) || (f is IMethodSymbol && IsMainMethod((IMethodSymbol)f))))
+					return;
 
-                AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
-            }
+				AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
 		}
 	}
 
@@ -107,14 +109,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics)
-            {
+			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan) as ClassDeclarationSyntax;
-                if(node == null)
-                    continue;
-                var sealedMod = node.Modifiers.Where(m => m.IsKind(SyntaxKind.SealedKeyword)).FirstOrDefault();
+				if (node == null)
+					continue;
+				var sealedMod = node.Modifiers.Where(m => m.IsKind(SyntaxKind.SealedKeyword)).FirstOrDefault();
 				var newRoot = root.ReplaceNode(node, node.WithModifiers(node.Modifiers.Remove(sealedMod)
-                    .Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Whitespace(" ")))));
+					.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Whitespace(" ")))));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make class static", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
