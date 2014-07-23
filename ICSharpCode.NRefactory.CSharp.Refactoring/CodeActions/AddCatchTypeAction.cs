@@ -49,15 +49,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
-            var exceptionType = document.Project.GetCompilationAsync().Result.GetTypeByMetadataName("System.Exception");
+			var exceptionType = document.Project.GetCompilationAsync().Result.GetTypeByMetadataName("System.Exception");
 
-            var catchClause = root.FindNode(span) as CatchClauseSyntax;
-            if (catchClause == null || catchClause.Declaration != null)
-                return Enumerable.Empty<CodeAction>();
-            var newIdent = SyntaxFactory.IdentifierName(exceptionType.ToMinimalDisplayString(model, span.Start));
-            var newRoot = root.ReplaceNode(catchClause, catchClause.WithDeclaration(SyntaxFactory.CatchDeclaration(newIdent, SyntaxFactory.Identifier("e"))
-                .WithAdditionalAnnotations(Formatter.Annotation)));
-            return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Add type specifier", document.WithSyntaxRoot(newRoot)) };
+			var catchClause = root.FindNode(span) as CatchClauseSyntax;
+			if (catchClause == null || catchClause.Declaration != null)
+				return Enumerable.Empty<CodeAction>();
+			var newIdent = SyntaxFactory.IdentifierName(exceptionType.ToMinimalDisplayString(model, span.Start));
+			var newRoot = root.ReplaceNode(catchClause, catchClause.WithDeclaration(SyntaxFactory.CatchDeclaration(newIdent, SyntaxFactory.Identifier("e"))
+				.WithAdditionalAnnotations(Formatter.Annotation)));
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Add type specifier", document.WithSyntaxRoot(newRoot)) };
 		}
 	}
 }
