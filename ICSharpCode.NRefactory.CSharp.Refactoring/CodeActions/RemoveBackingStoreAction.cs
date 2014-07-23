@@ -57,22 +57,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
             var field = GetBackingField(model, property);
             if (!IsValidField(field, property.Parent as TypeDeclarationSyntax))
                 return Enumerable.Empty<CodeAction>();
+
             //variable declarator->declaration->field declaration
-            var backingFieldNode = root.FindToken(field.Locations.First().SourceSpan.Start).Parent.Parent.Parent as FieldDeclarationSyntax;
+            var backingFieldNode = root.FindNode(field.Locations.First().SourceSpan).Ancestors().OfType<FieldDeclarationSyntax>().First();
+
             // create new auto property
-            var accessorDeclList = new SyntaxList<AccessorDeclarationSyntax>();
-            accessorDeclList = accessorDeclList.Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
-            accessorDeclList = accessorDeclList.Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
-            var accessorList = SyntaxFactory.AccessorList(accessorDeclList);
-            var newProperty = property.WithAccessorList(accessorList);
+            var accessorDeclList = new SyntaxList<AccessorDeclarationSyntax>()
+                .Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)))
+                .Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+            var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(accessorDeclList))
+                .WithTrailingTrivia(property.GetTrailingTrivia()).WithAdditionalAnnotations(Formatter.Annotation);
 
             var propertyAnnotation = new SyntaxAnnotation();
             var fieldAnnotation = new SyntaxAnnotation();
 
             //annotate our property node and our field node
-            //kinda hacky? Not sure how better to do it..
             root = root.ReplaceNode(property, property.WithAdditionalAnnotations(propertyAnnotation));
             root = root.ReplaceNode(root.FindNode(backingFieldNode.Span), backingFieldNode.WithAdditionalAnnotations(fieldAnnotation));
 
@@ -83,13 +82,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
         private Document PerformAction(Document document, SemanticModel model, SyntaxNode root, String name,
             PropertyDeclarationSyntax newProperty, SyntaxAnnotation propAnno, SyntaxAnnotation fieldAnno)
         {
-            //todo: find a way to rename symbols
             var oldField = root.GetAnnotatedNodes(fieldAnno).First() as FieldDeclarationSyntax;
             if (oldField.Declaration.Variables.Count == 1)
             {
                 var newRoot = root.RemoveNode(oldField, SyntaxRemoveOptions.KeepNoTrivia);
                 var oldProperty = newRoot.GetAnnotatedNodes(propAnno).First();
-                newRoot = newRoot.ReplaceNode(oldProperty, newProperty.WithAdditionalAnnotations(Formatter.Annotation));
+                newRoot = newRoot.ReplaceNode(oldProperty, newProperty);
 
                 return document.WithSyntaxRoot(newRoot);
             }
