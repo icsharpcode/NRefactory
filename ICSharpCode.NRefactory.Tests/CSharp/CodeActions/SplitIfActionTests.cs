@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAndSimple()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -64,7 +64,7 @@ class Test
 		[Test]
 		public void TestAndIfElse()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -100,11 +100,11 @@ class Test
 }
 ");
 		}
-	
+
 		[Test]
 		public void TestOrSimple()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -135,7 +135,7 @@ class Test
 		[Test]
 		public void TestOrIfElse()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -172,7 +172,7 @@ class Test
 		[Test]
 		public void TestComplexAnd()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -202,7 +202,7 @@ class Test
 		[Test]
 		public void TestAndOr()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -229,11 +229,11 @@ class Test
 }
 ");
 		}
-	
+
 		[Test]
 		public void TestInvalid()
 		{
-			TestWrongContext<SplitIfAction> (@"
+			TestWrongContext<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)

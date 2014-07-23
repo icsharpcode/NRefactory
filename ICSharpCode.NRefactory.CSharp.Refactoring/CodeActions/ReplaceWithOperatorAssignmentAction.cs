@@ -44,68 +44,68 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Replace assignment with operator assignment", LanguageNames.CSharp)]
 	public class ReplaceWithOperatorAssignmentAction : ICodeRefactoringProvider
 	{
-        public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-        {
-            var model = await document.GetSemanticModelAsync(cancellationToken);
-            var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-            var token = root.FindToken(span.Start);
-            var node = token.Parent as BinaryExpressionSyntax;
-            if(node == null)
-                return Enumerable.Empty<CodeAction>();
-            var assignment = CreateAssignment(node).WithAdditionalAnnotations(Formatter.Annotation);
-            if(assignment == null)
-                return Enumerable.Empty<CodeAction>();
-            return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format("Replace with '{0}='", node.Left.ToString()), document.WithSyntaxRoot(
-                root.ReplaceNode(node, assignment))) };
-        }
-
-        internal static ExpressionSyntax GetOuterLeft(BinaryExpressionSyntax bop)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-            var leftBop = bop.Left as BinaryExpressionSyntax;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
+			var node = token.Parent as BinaryExpressionSyntax;
+			if (node == null)
+				return Enumerable.Empty<CodeAction>();
+			var assignment = CreateAssignment(node).WithAdditionalAnnotations(Formatter.Annotation);
+			if (assignment == null)
+				return Enumerable.Empty<CodeAction>();
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format("Replace with '{0}='", node.Left.ToString()), document.WithSyntaxRoot(
+                root.ReplaceNode(node, assignment))) };
+		}
+
+		internal static ExpressionSyntax GetOuterLeft(BinaryExpressionSyntax bop)
+		{
+			var leftBop = bop.Left as BinaryExpressionSyntax;
 			if (leftBop != null && bop.OperatorToken.IsKind(leftBop.OperatorToken.CSharpKind()))
 				return GetOuterLeft(leftBop);
 			return bop.Left;
 		}
 
-        internal static BinaryExpressionSyntax CreateAssignment(BinaryExpressionSyntax node)
-        {
-            var bop = node.Right as BinaryExpressionSyntax;
-            if (bop == null)
-                return null;
-            var outerLeft = GetOuterLeft(bop);
-            if (!((IdentifierNameSyntax)outerLeft).Identifier.Value.Equals(((IdentifierNameSyntax)node.Left).Identifier.Value))
-                return null;
-            var op = GetAssignmentOperator(bop.OperatorToken);
-            if(op == SyntaxKind.None)
-                return null;
-            return SyntaxFactory.BinaryExpression(op, node.Left, SplitIfAction.GetRightSide(outerLeft.Parent as BinaryExpressionSyntax));
-        }
+		internal static BinaryExpressionSyntax CreateAssignment(BinaryExpressionSyntax node)
+		{
+			var bop = node.Right as BinaryExpressionSyntax;
+			if (bop == null)
+				return null;
+			var outerLeft = GetOuterLeft(bop);
+			if (!((IdentifierNameSyntax)outerLeft).Identifier.Value.Equals(((IdentifierNameSyntax)node.Left).Identifier.Value))
+				return null;
+			var op = GetAssignmentOperator(bop.OperatorToken);
+			if (op == SyntaxKind.None)
+				return null;
+			return SyntaxFactory.BinaryExpression(op, node.Left, SplitIfAction.GetRightSide(outerLeft.Parent as BinaryExpressionSyntax));
+		}
 
-        internal static SyntaxKind GetAssignmentOperator(SyntaxToken token)
-        {
+		internal static SyntaxKind GetAssignmentOperator(SyntaxToken token)
+		{
 			switch (token.CSharpKind()) {
 				case SyntaxKind.AmpersandToken:
-                    return SyntaxKind.AndAssignmentExpression;
+					return SyntaxKind.AndAssignmentExpression;
 				case SyntaxKind.BarToken:
-                    return SyntaxKind.OrAssignmentExpression;
+					return SyntaxKind.OrAssignmentExpression;
 				case SyntaxKind.CaretToken:
-                    return SyntaxKind.ExclusiveOrAssignmentExpression;
+					return SyntaxKind.ExclusiveOrAssignmentExpression;
 				case SyntaxKind.PlusToken:
-                    return SyntaxKind.AddAssignmentExpression;
-                case SyntaxKind.MinusToken:
-                    return SyntaxKind.SubtractAssignmentExpression;
-                case SyntaxKind.AsteriskToken:
-                    return SyntaxKind.MultiplyAssignmentExpression;
-                case SyntaxKind.SlashToken:
-                    return SyntaxKind.DivideAssignmentExpression;
+					return SyntaxKind.AddAssignmentExpression;
+				case SyntaxKind.MinusToken:
+					return SyntaxKind.SubtractAssignmentExpression;
+				case SyntaxKind.AsteriskToken:
+					return SyntaxKind.MultiplyAssignmentExpression;
+				case SyntaxKind.SlashToken:
+					return SyntaxKind.DivideAssignmentExpression;
 				case SyntaxKind.PercentToken:
-                    return SyntaxKind.ModuloAssignmentExpression;
+					return SyntaxKind.ModuloAssignmentExpression;
 				case SyntaxKind.LessThanLessThanToken:
-                    return SyntaxKind.LeftShiftAssignmentExpression;
-                case SyntaxKind.GreaterThanGreaterThanToken:
-                    return SyntaxKind.RightShiftAssignmentExpression;
+					return SyntaxKind.LeftShiftAssignmentExpression;
+				case SyntaxKind.GreaterThanGreaterThanToken:
+					return SyntaxKind.RightShiftAssignmentExpression;
 				default:
-                    return SyntaxKind.None;
+					return SyntaxKind.None;
 			}
 		}
 

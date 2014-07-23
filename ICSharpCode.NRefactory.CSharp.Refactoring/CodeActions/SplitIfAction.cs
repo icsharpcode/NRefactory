@@ -48,42 +48,37 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-            var token = root.FindToken(span.Start);
-            var ifNode = token.Parent.AncestorsAndSelf().OfType<IfStatementSyntax>().FirstOrDefault();
-            if(ifNode == null)
-                return Enumerable.Empty<CodeAction>();
-            var binOp = token.Parent as BinaryExpressionSyntax;
+			var token = root.FindToken(span.Start);
+			var ifNode = token.Parent.AncestorsAndSelf().OfType<IfStatementSyntax>().FirstOrDefault();
+			if (ifNode == null)
+				return Enumerable.Empty<CodeAction>();
+			var binOp = token.Parent as BinaryExpressionSyntax;
 
-            if (binOp == null)
-                return Enumerable.Empty<CodeAction>();
+			if (binOp == null)
+				return Enumerable.Empty<CodeAction>();
 
-            if (binOp.Ancestors().OfType<BinaryExpressionSyntax>().Any(b => !b.OperatorToken.IsKind(binOp.OperatorToken.CSharpKind())))
-                return Enumerable.Empty<CodeAction>();
-			if (binOp.OperatorToken.IsKind(SyntaxKind.AmpersandAmpersandToken)) 
-            {
-			    var nestedIf = ifNode.WithCondition(GetRightSide(binOp));
-                var outerIf = ifNode.WithCondition(GetLeftSide(binOp)).WithStatement(SyntaxFactory.Block(nestedIf));
-                return new [] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Split if", document.WithSyntaxRoot(
+			if (binOp.Ancestors().OfType<BinaryExpressionSyntax>().Any(b => !b.OperatorToken.IsKind(binOp.OperatorToken.CSharpKind())))
+				return Enumerable.Empty<CodeAction>();
+			if (binOp.OperatorToken.IsKind(SyntaxKind.AmpersandAmpersandToken)) {
+				var nestedIf = ifNode.WithCondition(GetRightSide(binOp));
+				var outerIf = ifNode.WithCondition(GetLeftSide(binOp)).WithStatement(SyntaxFactory.Block(nestedIf));
+				return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Split if", document.WithSyntaxRoot(
                     root.ReplaceNode(ifNode, outerIf.WithAdditionalAnnotations(Formatter.Annotation))))};
-			}
-            else if (binOp.OperatorToken.IsKind(SyntaxKind.BarBarToken)) 
-            {
-                var newElse = ifNode.WithCondition(GetRightSide(binOp));
-                var newIf = ifNode.WithCondition(GetLeftSide(binOp)).WithElse(SyntaxFactory.ElseClause(newElse));
-                return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Split if", document.WithSyntaxRoot(
+			} else if (binOp.OperatorToken.IsKind(SyntaxKind.BarBarToken)) {
+				var newElse = ifNode.WithCondition(GetRightSide(binOp));
+				var newIf = ifNode.WithCondition(GetLeftSide(binOp)).WithElse(SyntaxFactory.ElseClause(newElse));
+				return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Split if", document.WithSyntaxRoot(
                     root.ReplaceNode(ifNode, newIf.WithAdditionalAnnotations(Formatter.Annotation))))};
 			}
-            return Enumerable.Empty<CodeAction>();
+			return Enumerable.Empty<CodeAction>();
 		}
 
-        internal static ExpressionSyntax GetRightSide(BinaryExpressionSyntax expression)
+		internal static ExpressionSyntax GetRightSide(BinaryExpressionSyntax expression)
 		{
 			var parent = expression.Parent as BinaryExpressionSyntax;
-			if (parent != null) 
-            {
-				if (parent.Left.IsEquivalentTo(expression))
-                {
-                    var parentClone = (parent as BinaryExpressionSyntax).WithLeft(expression.Right);
+			if (parent != null) {
+				if (parent.Left.IsEquivalentTo(expression)) {
+					var parentClone = (parent as BinaryExpressionSyntax).WithLeft(expression.Right);
 					return parentClone;
 				}
 			}
@@ -93,10 +88,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal static ExpressionSyntax GetLeftSide(BinaryExpressionSyntax expression)
 		{
 			var parent = expression.Parent as BinaryExpressionSyntax;
-			if (parent != null) 
-            {
-				if (parent.Right.IsEquivalentTo(expression))
-                {
+			if (parent != null) {
+				if (parent.Right.IsEquivalentTo(expression)) {
 					var parentClone = (parent as BinaryExpressionSyntax).WithRight(expression.Left);
 					return parentClone;
 				}

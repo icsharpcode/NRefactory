@@ -44,32 +44,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Replace assignment with postfix expression", LanguageNames.CSharp)]
 	public class ReplaceAssignmentWithPostfixExpressionAction : ICodeRefactoringProvider
 	{
-        public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-        {
-            var model = await document.GetSemanticModelAsync(cancellationToken);
-            var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-            var token = root.FindToken(span.Start);
-            
-            var node = token.Parent as BinaryExpressionSyntax;
-            if(node == null)
-                return Enumerable.Empty<CodeAction>();
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		{
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
 
-            var updatedNode = ReplaceWithOperatorAssignmentAction.CreateAssignment(node) ?? node;
+			var node = token.Parent as BinaryExpressionSyntax;
+			if (node == null)
+				return Enumerable.Empty<CodeAction>();
 
-            if ((!updatedNode.OperatorToken.IsKind(SyntaxKind.PlusEqualsToken) && !updatedNode.OperatorToken.IsKind(SyntaxKind.MinusEqualsToken)))
-                return Enumerable.Empty<CodeAction>();
+			var updatedNode = ReplaceWithOperatorAssignmentAction.CreateAssignment(node) ?? node;
 
-            var rightLiteral = updatedNode.Right as LiteralExpressionSyntax;
-            if (rightLiteral == null || ((int)rightLiteral.Token.Value) != 1)
-                return Enumerable.Empty<CodeAction>();
+			if ((!updatedNode.OperatorToken.IsKind(SyntaxKind.PlusEqualsToken) && !updatedNode.OperatorToken.IsKind(SyntaxKind.MinusEqualsToken)))
+				return Enumerable.Empty<CodeAction>();
 
-            String desc = updatedNode.OperatorToken.IsKind(SyntaxKind.PlusEqualsToken) ? "Replace with '{0}++'" : "Replace with '{0}--'";
+			var rightLiteral = updatedNode.Right as LiteralExpressionSyntax;
+			if (rightLiteral == null || ((int)rightLiteral.Token.Value) != 1)
+				return Enumerable.Empty<CodeAction>();
 
-            var newNode = SyntaxFactory.PostfixUnaryExpression(updatedNode.OperatorToken.IsKind(SyntaxKind.PlusEqualsToken) ? SyntaxKind.PostIncrementExpression :
-                SyntaxKind.PostDecrementExpression, updatedNode.Left).WithAdditionalAnnotations(Formatter.Annotation);
-            return new [] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format(desc, node.Left.ToString()), document.WithSyntaxRoot(
+			String desc = updatedNode.OperatorToken.IsKind(SyntaxKind.PlusEqualsToken) ? "Replace with '{0}++'" : "Replace with '{0}--'";
+
+			var newNode = SyntaxFactory.PostfixUnaryExpression(updatedNode.OperatorToken.IsKind(SyntaxKind.PlusEqualsToken) ? SyntaxKind.PostIncrementExpression :
+				SyntaxKind.PostDecrementExpression, updatedNode.Left).WithAdditionalAnnotations(Formatter.Annotation);
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format(desc, node.Left.ToString()), document.WithSyntaxRoot(
                 root.ReplaceNode(node as ExpressionSyntax, newNode)))};
-        }
-    }
+		}
+	}
 }
 

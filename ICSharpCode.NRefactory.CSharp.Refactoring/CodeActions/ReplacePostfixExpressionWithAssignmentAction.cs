@@ -45,35 +45,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	public class ReplacePostfixExpressionWithAssignmentAction : ICodeRefactoringProvider
 	{
 
-        public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-        {
-            var model = await document.GetSemanticModelAsync(cancellationToken);
-            var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-            var token = root.FindToken(span.Start);
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		{
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
 
-            PostfixUnaryExpressionSyntax postfix = token.Parent.Parent as PostfixUnaryExpressionSyntax;
-            if (postfix == null || !(postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken) || postfix.OperatorToken.IsKind(SyntaxKind.MinusMinusToken)))
-            {
-                return Enumerable.Empty<CodeAction>();
-            }
-            string desc;
-            SyntaxKind expType;
-            if (postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken))
-            {
-                desc ="Replace '{0}++' with '{0} += 1'";
-                expType = SyntaxKind.AddAssignmentExpression;
+			PostfixUnaryExpressionSyntax postfix = token.Parent.Parent as PostfixUnaryExpressionSyntax;
+			if (postfix == null || !(postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken) || postfix.OperatorToken.IsKind(SyntaxKind.MinusMinusToken))) {
+				return Enumerable.Empty<CodeAction>();
+			}
+			string desc;
+			SyntaxKind expType;
+			if (postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken)) {
+				desc = "Replace '{0}++' with '{0} += 1'";
+				expType = SyntaxKind.AddAssignmentExpression;
 
-            }
-            else
-            {
-                desc = "Replace '{0}--' with '{0} -= 1'";
-                expType = SyntaxKind.SubtractAssignmentExpression;
-            }
-            var binexp = SyntaxFactory.BinaryExpression(expType, postfix.Operand, SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1)));
-            var newRoot = root.ReplaceNode(postfix as ExpressionSyntax, binexp.WithAdditionalAnnotations(Formatter.Annotation));
-            desc = String.Format(desc, (postfix.Operand as IdentifierNameSyntax).Identifier.ValueText);
-            return new []{ CodeActionFactory.Create(span, DiagnosticSeverity.Info, desc, document.WithSyntaxRoot(newRoot))};
-        }
+			} else {
+				desc = "Replace '{0}--' with '{0} -= 1'";
+				expType = SyntaxKind.SubtractAssignmentExpression;
+			}
+			var binexp = SyntaxFactory.BinaryExpression(expType, postfix.Operand, SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1)));
+			var newRoot = root.ReplaceNode(postfix as ExpressionSyntax, binexp.WithAdditionalAnnotations(Formatter.Annotation));
+			desc = String.Format(desc, (postfix.Operand as IdentifierNameSyntax).Identifier.ValueText);
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, desc, document.WithSyntaxRoot(newRoot)) };
+		}
 	}
 }
 
