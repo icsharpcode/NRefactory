@@ -46,18 +46,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-            if (!node.OperatorToken.Span.Contains(span) || !(node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken) || node.OperatorToken.IsKind(SyntaxKind.GreaterThanGreaterThanToken)))
-                return Enumerable.Empty<CodeAction>();
+			if (!node.OperatorToken.Span.Contains(span) || !(node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken) || node.OperatorToken.IsKind(SyntaxKind.GreaterThanGreaterThanToken)))
+				return Enumerable.Empty<CodeAction>();
 
-            var rightSide = node.Right as LiteralExpressionSyntax;
-            if (rightSide == null || !(rightSide.Token.Value is int))
-                return Enumerable.Empty<CodeAction>();
+			var rightSide = node.Right as LiteralExpressionSyntax;
+			if (rightSide == null || !(rightSide.Token.Value is int))
+				return Enumerable.Empty<CodeAction>();
 
-            bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken);
+			bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken);
 
-            var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.MultiplyExpression : SyntaxKind.DivideExpression, node.Left,
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1 << (int)rightSide.Token.Value))).WithAdditionalAnnotations(Formatter.Annotation));
-            return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, isLeftShift ? "Replace with '*'" : "Replace with '/'", document.WithSyntaxRoot(newRoot)) };
+			var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.MultiplyExpression : SyntaxKind.DivideExpression, node.Left,
+				SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1 << (int)rightSide.Token.Value))).WithAdditionalAnnotations(Formatter.Annotation));
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, isLeftShift ? "Replace with '*'" : "Replace with '/'", document.WithSyntaxRoot(newRoot)) };
 		}
 	}
 }

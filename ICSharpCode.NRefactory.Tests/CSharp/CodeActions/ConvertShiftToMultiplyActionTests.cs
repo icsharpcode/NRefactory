@@ -32,9 +32,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertShiftToMultiplyActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestShiftLeft ()
+		public void TestShiftLeft()
 		{
-			Test<ConvertShiftToMultiplyAction> (@"
+			Test<ConvertShiftToMultiplyAction>(@"
 class TestClass
 {
 	int TestMethod (int i)
@@ -52,9 +52,9 @@ class TestClass
 		}
 
 		[Test]
-		public void TestShiftRight ()
+		public void TestShiftRight()
 		{
-			Test<ConvertShiftToMultiplyAction> (@"
+			Test<ConvertShiftToMultiplyAction>(@"
 class TestClass
 {
 	int TestMethod (int i)

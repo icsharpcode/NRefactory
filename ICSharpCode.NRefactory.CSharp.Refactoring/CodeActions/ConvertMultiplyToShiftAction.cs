@@ -47,22 +47,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-            if (!node.OperatorToken.Span.Contains(span) || !(node.OperatorToken.IsKind(SyntaxKind.AsteriskToken) || node.OperatorToken.IsKind(SyntaxKind.SlashToken)))
-                return Enumerable.Empty<CodeAction>();
-            var rightSide = node.Right as LiteralExpressionSyntax;
-            if(rightSide == null || !(rightSide.Token.Value is int))
-                return Enumerable.Empty<CodeAction>();
+			if (!node.OperatorToken.Span.Contains(span) || !(node.OperatorToken.IsKind(SyntaxKind.AsteriskToken) || node.OperatorToken.IsKind(SyntaxKind.SlashToken)))
+				return Enumerable.Empty<CodeAction>();
+			var rightSide = node.Right as LiteralExpressionSyntax;
+			if (rightSide == null || !(rightSide.Token.Value is int))
+				return Enumerable.Empty<CodeAction>();
 
-            int value = (int)rightSide.Token.Value;
-            int log2 = (int)Math.Log(value, 2);
-            if(value != 1 << log2)
-                return Enumerable.Empty<CodeAction>();
+			int value = (int)rightSide.Token.Value;
+			int log2 = (int)Math.Log(value, 2);
+			if (value != 1 << log2)
+				return Enumerable.Empty<CodeAction>();
 
-            bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.AsteriskToken);
+			bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.AsteriskToken);
 
-            var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.LeftShiftExpression : SyntaxKind.RightShiftExpression, node.Left, 
-                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(log2))).WithAdditionalAnnotations(Formatter.Annotation));
-            return new []{ CodeActionFactory.Create(span, DiagnosticSeverity.Info, isLeftShift ? "Replace with '<<'" : "Replace with '>>'", document.WithSyntaxRoot(newRoot))};
+			var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.LeftShiftExpression : SyntaxKind.RightShiftExpression, node.Left,
+				SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(log2))).WithAdditionalAnnotations(Formatter.Annotation));
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, isLeftShift ? "Replace with '<<'" : "Replace with '>>'", document.WithSyntaxRoot(newRoot)) };
 		}
 	}
 }
