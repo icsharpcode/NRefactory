@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Join string literals")]
 	[ExportCodeRefactoringProvider("Join string literal", LanguageNames.CSharp)]
-	public class JoinStringAction : ICodeRefactoringProvider
+	public class JoinStringAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
         public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
         {
@@ -89,34 +89,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
                 exprNode = leftBinaryExpr.WithRight(stringLit);
             return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Join strings", document.WithSyntaxRoot(root.ReplaceNode(node, exprNode as ExpressionSyntax))) };
         }
-//		protected override CodeAction GetAction (SemanticModel context, BinaryOperatorExpression node)
-//		{
-//			if (node.Operator != BinaryOperatorType.Add)
-//				return null;
-//
-//			PrimitiveExpression left;
-//			var leftBinaryOperatorExpr = node.Left as BinaryOperatorExpression;
-//			if (leftBinaryOperatorExpr != null && leftBinaryOperatorExpr.Operator == BinaryOperatorType.Add) {
-//				left = leftBinaryOperatorExpr.Right as PrimitiveExpression;
-//			} else {
-//				left = node.Left as PrimitiveExpression;
-//			}
-//			var right = node.Right as PrimitiveExpression;
-//
-//			if (left == null || right == null ||
-//				!(left.Value is string) || !(right.Value is string) || !node.OperatorToken.Contains(context.Location))
-//				return null;
-//
-//			var isLeftVerbatim = left.LiteralValue.StartsWith("@", System.StringComparison.Ordinal);
-//			var isRightVerbatime = right.LiteralValue.StartsWith("@", System.StringComparison.Ordinal);
-//			if (isLeftVerbatim != isRightVerbatime)
-//				return null;
-//
-//			return new CodeAction (context.TranslateString ("Join strings"), script => {
-//				var start = context.GetOffset (left.EndLocation) - 1;
-//				var end = context.GetOffset (right.StartLocation) + (isLeftVerbatim ? 2 : 1);
-//				script.RemoveText (start, end - start);
-//			}, node.OperatorToken);
-//		}
     }
 }
