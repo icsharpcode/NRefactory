@@ -49,11 +49,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		public static BlockSyntax GetNotImplementedBlock()
 		{
-			return SyntaxFactory.Block(
-				SyntaxFactory.ThrowStatement(
-					SyntaxFactory.ObjectCreationExpression(
-						SyntaxFactory.QualifiedName(SyntaxFactory.IdentifierName(@"System"), SyntaxFactory.IdentifierName(@"NotImplementedException")))
-							.WithArgumentList(SyntaxFactory.ArgumentList())));
+			return SyntaxFactory.Block(SyntaxFactory.ThrowStatement(SyntaxFactory.ObjectCreationExpression(
+				SyntaxFactory.QualifiedName(SyntaxFactory.IdentifierName(@"System"), SyntaxFactory.IdentifierName(@"NotImplementedException")))
+				.WithArgumentList(SyntaxFactory.ArgumentList())));
 		}
 
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
