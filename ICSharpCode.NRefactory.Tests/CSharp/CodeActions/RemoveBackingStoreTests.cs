@@ -32,10 +32,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	[TestFixture]
 	public class RemoveBackingStoreTests : ContextActionTestBase
 	{
-		[Test()]
-		public void TestSimpleStore ()
+		[Test]
+		public void TestSimpleStore()
 		{
-            Test<RemoveBackingStoreAction>(@"
+			Test<RemoveBackingStoreAction>(@"
 class TestClass
 {
     int field;
@@ -45,7 +45,7 @@ class TestClass
         set { field = value; }
     }
 }
-",@"
+", @"
 class TestClass
 {
     public int Field
@@ -56,14 +56,14 @@ class TestClass
 }
 ");
 		}
-		
+
 		/// <summary>
 		/// Bug 3292 -Error in analysis service
 		/// </summary>
-		[Test()]
-		public void TestBug3292 ()
+		[Test]
+		public void TestBug3292()
 		{
-			TestWrongContext<RemoveBackingStoreAction> (
+			TestWrongContext<RemoveBackingStoreAction>(
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
 				"	int field;" + Environment.NewLine +
@@ -76,11 +76,11 @@ class TestClass
 				"}"
 			);
 		}
-		
+
 		[Test()]
-		public void TestBug3292Case2 ()
+		public void TestBug3292Case2()
 		{
-			TestWrongContext<RemoveBackingStoreAction> (
+			TestWrongContext<RemoveBackingStoreAction>(
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
 				"	int field;" + Environment.NewLine +
@@ -98,7 +98,7 @@ class TestClass
 		[Test]
 		public void TestWrongLocation()
 		{
-			TestWrongContext<RemoveBackingStoreAction> (@"class TestClass
+			TestWrongContext<RemoveBackingStoreAction>(@"class TestClass
 {
 	string test;
 	public $string Test {
@@ -111,7 +111,7 @@ class TestClass
 	}
 }");
 
-			TestWrongContext<RemoveBackingStoreAction> (@"class TestClass
+			TestWrongContext<RemoveBackingStoreAction>(@"class TestClass
 {
 	string test;
 	public string $FooBar.Test {
@@ -124,7 +124,7 @@ class TestClass
 	}
 }");
 
-			TestWrongContext<RemoveBackingStoreAction> (@"class TestClass
+			TestWrongContext<RemoveBackingStoreAction>(@"class TestClass
 {
 	string test;
 	public string Test ${
@@ -142,7 +142,7 @@ class TestClass
 		/// Bug 16108 - Convert to autoproperty issues
 		/// </summary>
 		[Test]
-		public void TestBug16108Case1 ()
+		public void TestBug16108Case1()
 		{
 			TestWrongContext<RemoveBackingStoreAction>(@"
 class MyClass
@@ -161,7 +161,7 @@ class MyClass
 		/// Bug 16108 - Convert to autoproperty issues
 		/// </summary>
 		[Test]
-		public void TestBug16108Case2 ()
+		public void TestBug16108Case2()
 		{
 			TestWrongContext<RemoveBackingStoreAction>(@"
 class MyClass
@@ -180,7 +180,7 @@ class MyClass
 		/// Bug 16447 - Convert to Auto Property removes multiple variable if declared inline
 		/// </summary>
 		[Test]
-		public void TestBug16447 ()
+		public void TestBug16447()
 		{
 			Test<RemoveBackingStoreAction>(@"
 public class Foo

@@ -34,9 +34,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class AddAnotherAccessorTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestAddSet ()
+		public void TestAddSet()
 		{
-            Test<AddAnotherAccessorAction>(@"
+			Test<AddAnotherAccessorAction>(@"
 class TestClass
 {
     int field;
@@ -65,11 +65,11 @@ class TestClass
     }
 }");
 		}
-		
+
 		[Test]
-		public void TestAddSet_ReadOnlyField ()
+		public void TestAddSet_ReadOnlyField()
 		{
-            Test<AddAnotherAccessorAction>(@"
+			Test<AddAnotherAccessorAction>(@"
 class TestClass
 {
     readonly int field;
@@ -98,11 +98,11 @@ class TestClass
     }
 }");
 		}
-		
+
 		[Test]
-		public void TestAddGet ()
+		public void TestAddGet()
 		{
-            Test<AddAnotherAccessorAction>(@"
+			Test<AddAnotherAccessorAction>(@"
 class TestClass
 {
     int field;
@@ -132,9 +132,9 @@ class TestClass
 		}
 
 		[Test]
-		public void TestAutoProperty ()
+		public void TestAutoProperty()
 		{
-			Test<AddAnotherAccessorAction> (@"
+			Test<AddAnotherAccessorAction>(@"
 class TestClass
 {
     string $Test 
