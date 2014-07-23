@@ -59,27 +59,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
                 .WithAdditionalAnnotations(Formatter.Annotation)));
             return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Add type specifier", document.WithSyntaxRoot(newRoot)) };
 		}
-
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var catchClause = context.GetNode<CatchClause>();
-//			if (catchClause == null)
-//				yield break;
-//			if (!catchClause.Type.IsNull)
-//				yield break;
-//			yield return new CodeAction(context.TranslateString("Add type specifier"), script => {
-//				var newType = context.CreateShortType("System", "Exception");
-//				var namingHelper = new NamingHelper(context);
-//				var newIdentifier = Identifier.Create(namingHelper.GenerateVariableName(newType, "e"));
-//
-//				script.Replace(catchClause, new CatchClause {
-//					Type = newType,
-//					VariableNameToken = newIdentifier,
-//					Body = catchClause.Body.Clone() as BlockStatement
-//				});
-//				script.Select(newType);
-//			}, catchClause);
-//		}
-
 	}
 }
