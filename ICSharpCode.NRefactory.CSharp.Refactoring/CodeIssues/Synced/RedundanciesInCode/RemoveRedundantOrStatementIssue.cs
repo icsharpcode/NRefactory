@@ -47,20 +47,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RemoveRedundantOrStatement")]
 	public class RemoveRedundantOrStatementIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "RemoveRedundantOrStatementIssue";
-		const string Description            = "Remove redundant statement";
-		const string MessageFormat          = "Statement is redundant";
-		const string Category               = IssueCategories.RedundanciesInCode;
+		internal const string DiagnosticId = "RemoveRedundantOrStatementIssue";
+		const string Description = "Remove redundant statement";
+		const string MessageFormat = "Statement is redundant";
+		const string Category = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		{
+			get
+			{
 				return ImmutableArray.Create(Rule);
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -68,28 +70,28 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<RemoveRedundantOrStatementIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
+				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-            public override void VisitExpressionStatement(ExpressionStatementSyntax node)
-            {
-                base.VisitExpressionStatement(node);
-                var assignment = node.Expression as BinaryExpressionSyntax;
-                if (assignment == null)
-                    return;
+			public override void VisitExpressionStatement(ExpressionStatementSyntax node)
+			{
+				base.VisitExpressionStatement(node);
+				var assignment = node.Expression as BinaryExpressionSyntax;
+				if (assignment == null)
+					return;
 
-                //check redundant foo |= false
-                var literalRight = assignment.Right as LiteralExpressionSyntax;
-                if(literalRight == null)
-                    return;
+				//check redundant foo |= false
+				var literalRight = assignment.Right as LiteralExpressionSyntax;
+				if (literalRight == null)
+					return;
 
-                bool isOrWithFalse = assignment.IsKind(SyntaxKind.OrAssignmentExpression) && literalRight.IsKind(SyntaxKind.FalseLiteralExpression);
-                bool isAndWithTrue = (assignment.IsKind(SyntaxKind.AndAssignmentExpression) && literalRight.IsKind(SyntaxKind.TrueLiteralExpression));
-                if (isOrWithFalse || isAndWithTrue)
-                    AddIssue(Diagnostic.Create(Rule, assignment.GetLocation()));
+				bool isOrWithFalse = assignment.IsKind(SyntaxKind.OrAssignmentExpression) && literalRight.IsKind(SyntaxKind.FalseLiteralExpression);
+				bool isAndWithTrue = (assignment.IsKind(SyntaxKind.AndAssignmentExpression) && literalRight.IsKind(SyntaxKind.TrueLiteralExpression));
+				if (isOrWithFalse || isAndWithTrue)
+					AddIssue(Diagnostic.Create(Rule, assignment.GetLocation()));
 
-            }
+			}
 		}
 	}
 
@@ -105,8 +107,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics)
-            {
+			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan).Parent;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant statement", document.WithSyntaxRoot(newRoot)));

@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class RemoveRedundantOrStatementIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestOrCase ()
+		public void TestOrCase()
 		{
 			Analyze<RemoveRedundantOrStatementIssue>(@"
 class MainClass
@@ -55,7 +55,7 @@ class MainClass
 		}
 
 		[Test]
-		public void TestAndCase ()
+		public void TestAndCase()
 		{
 			Analyze<RemoveRedundantOrStatementIssue>(@"
 class MainClass
@@ -79,7 +79,7 @@ class MainClass
 
 
 		[Test]
-		public void TestDisable ()
+		public void TestDisable()
 		{
 			Analyze<RemoveRedundantOrStatementIssue>(@"
 class MainClass
