@@ -47,20 +47,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[NRefactoryCodeDiagnosticAnalyzer(PragmaWarning = 1717, AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "CS0659ClassOverrideEqualsWithoutGetHashCode";
-		const string Description            = "If two objects are equal then they must both have the same hash code";
-		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CompilerWarnings;
+		internal const string DiagnosticId = "CS0659ClassOverrideEqualsWithoutGetHashCode";
+		const string Description = "If two objects are equal then they must both have the same hash code";
+		const string MessageFormat = "";
+		const string Category = IssueCategories.CompilerWarnings;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		{
+			get
+			{
 				return ImmutableArray.Create(Rule);
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -72,24 +74,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-            public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
-            {
-                base.VisitMethodDeclaration(node);
+			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
+			{
+				base.VisitMethodDeclaration(node);
 
-                var methodSymbol = semanticModel.GetDeclaredSymbol(node);
-                if(methodSymbol == null || !methodSymbol.Name.Equals("Equals") || !methodSymbol.IsOverride ||
-                    methodSymbol.Parameters.Count() != 1 || (!methodSymbol.Parameters.Single().Type.GetFullName().Equals("object") && 
-                    !methodSymbol.Parameters.Single().Type.GetFullName().Equals("System.Object")))
-                    return;
+				var methodSymbol = semanticModel.GetDeclaredSymbol(node);
+				if (methodSymbol == null || !methodSymbol.Name.Equals("Equals") || !methodSymbol.IsOverride ||
+					methodSymbol.Parameters.Count() != 1 || (!methodSymbol.Parameters.Single().Type.GetFullName().Equals("object") &&
+					!methodSymbol.Parameters.Single().Type.GetFullName().Equals("System.Object")))
+					return;
 
-                var classSymbol = methodSymbol.ContainingType;
-                if (classSymbol == null)
-                    return;
+				var classSymbol = methodSymbol.ContainingType;
+				if (classSymbol == null)
+					return;
 
-                var hashCode = classSymbol.GetMembers().OfType<IMethodSymbol>().Where(m => m.Name.Equals("GetHashCode"));
-                if (hashCode.Count() == 0 || !hashCode.Any(h => (h.IsOverride && (h.ReturnType.GetFullName().Equals("System.Int32") || h.ReturnType.GetFullName().Equals("int")))))
-                    AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
-            }
+				var hashCode = classSymbol.GetMembers().OfType<IMethodSymbol>().Where(m => m.Name.Equals("GetHashCode"));
+				if (hashCode.Count() == 0 || !hashCode.Any(h => (h.IsOverride && (h.ReturnType.GetFullName().Equals("System.Int32") || h.ReturnType.GetFullName().Equals("int")))))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
 		}
 	}
 
@@ -105,14 +107,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics)
-            {
+			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-                var hashCode = SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)), "GetHashCode").WithModifiers(
-                    new SyntaxTokenList().Add(SyntaxFactory.Token(SyntaxKind.PublicKeyword)).Add(SyntaxFactory.Token(SyntaxKind.OverrideKeyword)))
-                    .WithBody(SyntaxFactory.Block(
-                    SyntaxFactory.ReturnStatement().WithExpression(SyntaxFactory.ParseExpression("base.GetHashCode()")))).WithAdditionalAnnotations(Formatter.Annotation);
-				var newRoot = root.InsertNodesAfter(node, new List<SyntaxNode>(){hashCode});
+				var hashCode = SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)), "GetHashCode").WithModifiers(
+					new SyntaxTokenList().Add(SyntaxFactory.Token(SyntaxKind.PublicKeyword)).Add(SyntaxFactory.Token(SyntaxKind.OverrideKeyword)))
+					.WithBody(SyntaxFactory.Block(
+					SyntaxFactory.ReturnStatement().WithExpression(SyntaxFactory.ParseExpression("base.GetHashCode()")))).WithAdditionalAnnotations(Formatter.Annotation);
+				var newRoot = root.InsertNodesAfter(node, new List<SyntaxNode>() { hashCode });
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
