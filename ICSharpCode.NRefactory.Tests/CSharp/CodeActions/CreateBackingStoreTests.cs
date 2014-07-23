@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	[TestFixture]
 	public class CreateBackingStoreTests : ContextActionTestBase
 	{
-		[Test()]
+		[Test]
 		public void TestSimpleStore()
 		{
 			Test<CreateBackingStoreAction>(@"class TestClass
@@ -58,7 +58,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestStaticStore()
 		{
 			Test<CreateBackingStoreAction>(@"class TestClass
