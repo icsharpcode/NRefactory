@@ -50,20 +50,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportDiagnosticAnalyzer("Static constructor should be parameterless", LanguageNames.CSharp)]
 	public class StaticConstructorParameterIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "StaticConstructorParameterIssue";
-		const string Description            = "Static constructor should be parameterless";
-		const string MessageFormat          = "";
-		const string Category               = IssueCategories.CompilerErrors;
+		internal const string DiagnosticId = "StaticConstructorParameterIssue";
+		const string Description = "Static constructor should be parameterless";
+		const string MessageFormat = "";
+		const string Category = IssueCategories.CompilerErrors;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		{
+			get
+			{
 				return ImmutableArray.Create(Rule);
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -75,12 +77,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-            public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
-            {
-                if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) || !node.ParameterList.Parameters.Any())
-                    return;
-                AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
-            }
+			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
+			{
+				if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) || !node.ParameterList.Parameters.Any())
+					return;
+				AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
 		}
 	}
 
@@ -98,9 +100,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan) as ConstructorDeclarationSyntax;
-                if (node == null)
-                    continue;
-                var newRoot = root.ReplaceNode(node, node.WithParameterList(SyntaxFactory.ParameterList().WithTrailingTrivia(node.ParameterList.GetTrailingTrivia())));
+				if (node == null)
+					continue;
+				var newRoot = root.ReplaceNode(node, node.WithParameterList(SyntaxFactory.ParameterList().WithTrailingTrivia(node.ParameterList.GetTrailingTrivia())));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
