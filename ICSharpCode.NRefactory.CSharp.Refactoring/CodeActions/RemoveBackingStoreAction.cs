@@ -77,10 +77,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
             root = root.ReplaceNode(root.FindNode(backingFieldNode.Span), backingFieldNode.WithAdditionalAnnotations(fieldAnnotation));
 
             return new[] { CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to auto property", 
-                PerformAction(document, model, root, newProperty, propertyAnnotation, fieldAnnotation)) };
+                PerformAction(document, model, root, field.Name, newProperty, propertyAnnotation, fieldAnnotation)) };
 		}
 
-        private Document PerformAction(Document document, SemanticModel model, SyntaxNode root, PropertyDeclarationSyntax newProperty, SyntaxAnnotation propAnno, SyntaxAnnotation fieldAnno)
+        private Document PerformAction(Document document, SemanticModel model, SyntaxNode root, String name,
+            PropertyDeclarationSyntax newProperty, SyntaxAnnotation propAnno, SyntaxAnnotation fieldAnno)
         {
             //todo: find a way to rename symbols
             var oldField = root.GetAnnotatedNodes(fieldAnno).First() as FieldDeclarationSyntax;
@@ -94,9 +95,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
             }
             else
             {
-                //todo
-                return null;
-                //return document.WithSyntaxRoot(root.ReplaceNode(oldField, newField));
+                FieldDeclarationSyntax newField = oldField.WithDeclaration(SyntaxFactory.VariableDeclaration(oldField.Declaration.Type));
+                //need to replace the field with one missing the variable field
+                foreach(var variable in oldField.Declaration.Variables)
+                {
+                    if (!variable.Identifier.ValueText.Equals(name))
+                        newField = newField.AddDeclarationVariables(variable);
+                }
+                var newRoot = root.ReplaceNode(oldField, newField.WithAdditionalAnnotations(Formatter.Annotation));
+                var oldProperty = newRoot.GetAnnotatedNodes(propAnno).First();
+                newRoot = newRoot.ReplaceNode(oldProperty, newProperty.WithAdditionalAnnotations(Formatter.Annotation));
+                return document.WithSyntaxRoot(newRoot);
             }
         }
 
@@ -181,22 +190,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
             }
             return true;
         }
-
-        //		static bool IsValidField(IField field, TypeDeclaration declaringType)
-        //		{
-        //			if (field == null || field.Attributes.Count > 0)
-        //				return false;
-        //			foreach (var m in declaringType.Members.OfType<FieldDeclaration>()) {
-        //				foreach (var i in m.Variables) {
-        //					if (i.StartLocation == field.BodyRegion.Begin) {
-        //						if (!i.Initializer.IsNull)
-        //							return false;
-        //						break;
-        //					}
-        //				}
-        //			}
-        //			return true;
-        //		}
 
 //		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 //		{

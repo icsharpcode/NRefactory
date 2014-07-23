@@ -190,11 +190,8 @@ public class Foo
 ", @"
 public class Foo
 {
-	int _bpm = 120, _index = 1;
-	int Count {
-		get;
-		set;
-	}
+    int _bpm = 120, _index = 1;
+    int Count { get; set; }
 }
 ");
 		}
