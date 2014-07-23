@@ -34,9 +34,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class GenerateSwitchLabelsTests : ContextActionTestBase
 	{
 		[Test]
-		public void Test ()
+		public void Test()
 		{
-            Test<GenerateSwitchLabelsAction>(@"
+			Test<GenerateSwitchLabelsAction>(@"
 using System;
 
 class TestClass
@@ -70,7 +70,7 @@ class TestClass
 		}
 
 		[Test]
-		public void TestAddMissing ()
+		public void TestAddMissing()
 		{
 			Test<GenerateSwitchLabelsAction>(@"
 using System;
