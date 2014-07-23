@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class RedundantPrivateInspectorTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestInspectorCase1 ()
+		public void TestInspectorCase1()
 		{
 			Analyze<RedundantPrivateIssue>(@"class Foo
 {
@@ -51,10 +51,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
     }
 }");
 		}
-	
-	
+
+
 		[Test]
-		public void TestNestedClass ()
+		public void TestNestedClass()
 		{
 			Analyze<RedundantPrivateIssue>(@"class Foo
 {
