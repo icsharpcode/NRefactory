@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Join string literals")]
 	[ExportCodeRefactoringProvider("Join string literal", LanguageNames.CSharp)]
-	public class JoinStringAction : SpecializedCodeAction<BinaryExpressionSyntax>
+	public class JoinStringAction : ICodeRefactoringProvider
 	{
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
