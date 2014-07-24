@@ -50,20 +50,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
 	public class EmptyGeneralCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "EmptyGeneralCatchClauseIssue";
-		const string Description            = "A catch clause that catches System.Exception and has an empty body";
-		const string MessageFormat          = "Empty general catch clause suppresses any error";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		internal const string DiagnosticId = "EmptyGeneralCatchClauseIssue";
+		const string Description = "A catch clause that catches System.Exception and has an empty body";
+		const string MessageFormat = "Empty general catch clause suppresses any error";
+		const string Category = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		{
+			get
+			{
 				return ImmutableArray.Create(Rule);
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -71,29 +73,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<EmptyGeneralCatchClauseIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
+				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-//			public override void VisitCatchClause(CatchClause catchClause)
-//			{
-//				base.VisitCatchClause(catchClause);
-//
-//				AstType type = catchClause.Type;
-//				if (!type.IsNull) {
-//					var resolvedType = ctx.Resolve(type);
-//
-//					if (resolvedType.IsError ||
-//						!resolvedType.Type.Namespace.Equals("System") || !resolvedType.Type.Name.Equals("Exception"))
-//						return;
-//				}
-//
-//				var body = catchClause.Body;
-//				if (body.Statements.Any())
-//					return;
-//
-//				AddIssue(new CodeIssue(catchClause.CatchToken, ctx.TranslateString("")));
-//			}
+			public override void VisitCatchClause(CatchClauseSyntax node)
+			{
+				base.VisitCatchClause(node);
+
+				if (node.Declaration == null)
+					AddIssue(Diagnostic.Create(Rule, node.CatchKeyword.GetLocation()));
+				else {
+					var type = node.Declaration.Type;
+					if (type != null) {
+						ITypeSymbol typeSymbol = semanticModel.GetTypeInfo(type).Type;
+						if (typeSymbol == null || typeSymbol.TypeKind == TypeKind.Error || !typeSymbol.GetFullName().Equals("System.Exception"))
+							return;
+
+						BlockSyntax body = node.Block;
+						if (body.Statements.Any())
+							return;
+
+						AddIssue(Diagnostic.Create(Rule, node.CatchKeyword.GetLocation()));
+					}
+				}
+			}
 		}
 	}
 
@@ -110,11 +114,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+				//original has no fix - leave it without any fixes?
+				//var node = root.FindNode(diagonstic.Location.SourceSpan);
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				//var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				//result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}
