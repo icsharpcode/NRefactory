@@ -46,31 +46,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			if (!node.OperatorToken.Span.Contains(span) || !(node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken) || node.OperatorToken.IsKind(SyntaxKind.GreaterThanGreaterThanToken)))
+				return Enumerable.Empty<CodeAction>();
+
+			var rightSide = node.Right as LiteralExpressionSyntax;
+			if (rightSide == null || !(rightSide.Token.Value is int))
+				return Enumerable.Empty<CodeAction>();
+
+			bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken);
+
+			var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.MultiplyExpression : SyntaxKind.DivideExpression, node.Left,
+				SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1 << (int)rightSide.Token.Value))).WithAdditionalAnnotations(Formatter.Annotation));
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, isLeftShift ? "Replace with '*'" : "Replace with '/'", document.WithSyntaxRoot(newRoot)) };
 		}
-//		protected override CodeAction GetAction(SemanticModel context, BinaryOperatorExpression node)
-//		{
-//			if (!node.OperatorToken.Contains(context.Location))
-//				return null;
-//			if (node.Operator != BinaryOperatorType.ShiftLeft && node.Operator != BinaryOperatorType.ShiftRight || !(node.Right is PrimitiveExpression))
-//				return null;
-//
-//			var value = context.Resolve(node.Right).ConstantValue;
-//			if (!(value is int))
-//				return null;
-//
-//			return new CodeAction (
-//				node.Operator == BinaryOperatorType.ShiftLeft ? context.TranslateString("Replace with '*'") : context.TranslateString("Replace with '/'"),
-//				script => script.Replace(
-//					node, 
-//					new BinaryOperatorExpression(
-//						node.Left.Clone(), 
-//						node.Operator == BinaryOperatorType.ShiftLeft ? BinaryOperatorType.Multiply : BinaryOperatorType.Divide,
-//						new PrimitiveExpression(1 << (int)value)
-//					)
-//				),
-//				node.OperatorToken
-//			);
-//		}
 	}
 }

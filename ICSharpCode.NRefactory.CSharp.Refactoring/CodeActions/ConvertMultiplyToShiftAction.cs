@@ -47,36 +47,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			if (!node.OperatorToken.Span.Contains(span) || !(node.OperatorToken.IsKind(SyntaxKind.AsteriskToken) || node.OperatorToken.IsKind(SyntaxKind.SlashToken)))
+				return Enumerable.Empty<CodeAction>();
+			var rightSide = node.Right as LiteralExpressionSyntax;
+			if (rightSide == null || !(rightSide.Token.Value is int))
+				return Enumerable.Empty<CodeAction>();
+
+			int value = (int)rightSide.Token.Value;
+			int log2 = (int)Math.Log(value, 2);
+			if (value != 1 << log2)
+				return Enumerable.Empty<CodeAction>();
+
+			bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.AsteriskToken);
+
+			var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.LeftShiftExpression : SyntaxKind.RightShiftExpression, node.Left,
+				SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(log2))).WithAdditionalAnnotations(Formatter.Annotation));
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, isLeftShift ? "Replace with '<<'" : "Replace with '>>'", document.WithSyntaxRoot(newRoot)) };
 		}
-//		protected override CodeAction GetAction(SemanticModel context, BinaryOperatorExpression node)
-//		{
-//			if (!node.OperatorToken.Contains(context.Location))
-//				return null;
-//			if (node.Operator != BinaryOperatorType.Multiply && node.Operator != BinaryOperatorType.Divide || !(node.Right is PrimitiveExpression))
-//				return null;
-//
-//			var valueObj = context.Resolve(node.Right).ConstantValue;
-//			if (!(valueObj is int))
-//				return null;
-//			var value = (int)valueObj;
-//
-//			var log2 = (int)Math.Log(value, 2);
-//			if (value != 1 << log2)
-//				return null;
-//
-//			return new CodeAction (
-//				node.Operator == BinaryOperatorType.Multiply ? context.TranslateString("Replace with '<<'") : context.TranslateString("Replace with '>>'"),
-//				script => script.Replace(
-//					node, 
-//					new BinaryOperatorExpression(
-//						node.Left.Clone(), 
-//						node.Operator == BinaryOperatorType.Multiply ? BinaryOperatorType.ShiftLeft : BinaryOperatorType.ShiftRight,
-//						new PrimitiveExpression(log2)
-//					)
-//				),
-//				node.OperatorToken
-//			);
-//		}
 	}
 }
