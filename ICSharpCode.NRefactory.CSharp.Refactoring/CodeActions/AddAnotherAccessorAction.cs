@@ -47,62 +47,81 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Add another accessor", LanguageNames.CSharp)]
 	public class AddAnotherAccessorAction : ICodeRefactoringProvider
 	{
+		public static BlockSyntax GetNotImplementedBlock()
+		{
+			return SyntaxFactory.Block(SyntaxFactory.ThrowStatement(SyntaxFactory.ObjectCreationExpression(
+				SyntaxFactory.QualifiedName(SyntaxFactory.IdentifierName(@"System"), SyntaxFactory.IdentifierName(@"NotImplementedException")))
+				.WithArgumentList(SyntaxFactory.ArgumentList())));
+		}
+
 		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+			var token = root.FindToken(span.Start);
+			var propertyDeclaration = token.Parent as PropertyDeclarationSyntax;
+
+			var accessors = propertyDeclaration.AccessorList.Accessors;
+			//ignore if it has both accessors
+			if (propertyDeclaration == null || accessors.Count == 2)
+				return Enumerable.Empty<CodeAction>();
+			//ignore interfaces
+			if (propertyDeclaration.Parent is InterfaceDeclarationSyntax)
+				return Enumerable.Empty<CodeAction>();
+			//if it has a getter, then we need a setter (we've checked for 2 accessors)
+			bool needsSetter = accessors.Any(m => m.IsKind(SyntaxKind.GetAccessorDeclaration));
+
+			return new[] { CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Add another accessor", PerformAction(document, model, root, propertyDeclaration, needsSetter)) };
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var pdecl = context.GetNode<PropertyDeclaration> ();
-//			if (pdecl == null || !pdecl.Getter.IsNull && !pdecl.Setter.IsNull || !pdecl.NameToken.Contains(context.Location)) { 
-//				yield break;
-//			}
-//
-//			var type = pdecl.Parent as TypeDeclaration;
-//			if (type != null && type.ClassType == ClassType.Interface) {
-//				yield break;
-//			}
-//			yield return new CodeAction (pdecl.Setter.IsNull ? context.TranslateString("Add setter") : context.TranslateString("Add getter"), script => {
-//				Statement accessorStatement = null;
-//			
-//				var accessor = new Accessor ();
-//				if (!pdecl.Getter.IsNull && !pdecl.Getter.Body.IsNull || !pdecl.Setter.IsNull && !pdecl.Setter.Body.IsNull) {
-//					accessorStatement = BuildAccessorStatement(context, pdecl);
-//					accessor.Body = new BlockStatement { accessorStatement };
-//				}
-//
-//				accessor.Role = pdecl.Setter.IsNull ? PropertyDeclaration.SetterRole : PropertyDeclaration.GetterRole;
-//
-//				if (pdecl.Setter.IsNull && !pdecl.Getter.IsNull) {
-//					script.InsertAfter(pdecl.Getter, accessor);
-//				} else if (pdecl.Getter.IsNull && !pdecl.Setter.IsNull) {
-//					script.InsertBefore(pdecl.Setter, accessor);
-//				} else {
-//					script.InsertBefore(pdecl.Getter, accessor);
-//				}
-//				script.FormatText(pdecl);
-//				if (accessorStatement != null)
-//					script.Select(accessorStatement);
-//			}, pdecl.NameToken);
-//		}
-//		
-//		static Statement BuildAccessorStatement (SemanticModel context, PropertyDeclaration pdecl)
-//		{
-//			if (pdecl.Setter.IsNull && !pdecl.Getter.IsNull) {
-//				var field = RemoveBackingStoreAction.ScanGetter (context, pdecl);
-//				if (field != null && !field.IsReadOnly && !field.IsConst) 
-//					return new AssignmentExpression (new IdentifierExpression (field.Name), AssignmentOperatorType.Assign, new IdentifierExpression ("value"));
-//			}
-//			
-//			if (!pdecl.Setter.IsNull && pdecl.Getter.IsNull) {
-//				var field = RemoveBackingStoreAction.ScanSetter (context, pdecl);
-//				if (field != null) 
-//					return new ReturnStatement (new IdentifierExpression (field.Name));
-//			}
-//			
-//			return new ThrowStatement (new ObjectCreateExpression (context.CreateShortType ("System", "NotImplementedException")));
-//		}
+
+		private Document PerformAction(Document document, SemanticModel model, SyntaxNode root, PropertyDeclarationSyntax propertyDeclaration, bool needsSetter)
+		{
+			AccessorDeclarationSyntax accessor = null;
+			PropertyDeclarationSyntax newProp = null;
+			if (needsSetter) {
+				accessor = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration);
+
+				var getter = propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.GetAccessorDeclaration));
+				var getField = RemoveBackingStoreAction.ScanGetter(model, getter);
+
+				if (getField == null && getter.Body == null) {
+					//get;
+					accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)).WithTrailingTrivia(getter.GetTrailingTrivia());
+				} else if (getField == null || getField.IsReadOnly) {
+					//readonly or no field can be found
+					accessor = accessor.WithBody(GetNotImplementedBlock());
+				} else {
+					//now we add a 'field = value'.
+					accessor = accessor.WithBody(SyntaxFactory.Block(
+						SyntaxFactory.ExpressionStatement(
+							SyntaxFactory.BinaryExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName(getField.Name), SyntaxFactory.IdentifierName("value")))));
+				}
+				newProp = propertyDeclaration.WithAccessorList(propertyDeclaration.AccessorList.AddAccessors(accessor));
+			} else {
+				accessor = SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration);
+
+				var setter = propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.SetAccessorDeclaration));
+				var setField = RemoveBackingStoreAction.ScanSetter(model, setter);
+
+				if (setField == null && setter.Body == null) {
+					//set;
+					accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)).WithTrailingTrivia(setter.GetTrailingTrivia());
+				} else if (setField == null) {
+					//no field can be found
+					accessor = accessor.WithBody(GetNotImplementedBlock());
+				} else {
+					//now we add a 'return field;'.
+					accessor = accessor.WithBody(SyntaxFactory.Block(
+						SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(setField.Name))));
+				}
+				var accessorDeclList = new SyntaxList<AccessorDeclarationSyntax>();
+				accessorDeclList = accessorDeclList.Add(accessor);
+				accessorDeclList = accessorDeclList.Add(propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.SetAccessorDeclaration)));
+				var accessorList = SyntaxFactory.AccessorList(accessorDeclList);
+				newProp = propertyDeclaration.WithAccessorList(accessorList);
+			}
+			var newRoot = root.ReplaceNode(propertyDeclaration, newProp).WithAdditionalAnnotations(Formatter.Annotation);
+			return document.WithSyntaxRoot(newRoot);
+		}
 	}
 }

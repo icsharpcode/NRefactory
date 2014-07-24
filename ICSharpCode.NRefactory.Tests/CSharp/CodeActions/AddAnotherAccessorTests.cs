@@ -34,112 +34,120 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class AddAnotherAccessorTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestAddSet ()
+		public void TestAddSet()
 		{
-			string result = RunContextAction (
-				new AddAnotherAccessorAction (),
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	int field;" + Environment.NewLine +
-				"	public int $Field {" + Environment.NewLine +
-				"		get {" + Environment.NewLine +
-				"			return field;" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	int field;" + Environment.NewLine +
-				"	public int Field {" + Environment.NewLine +
-				"		get {" + Environment.NewLine +
-				"			return field;" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"		set {" + Environment.NewLine +
-				"			field = value;" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
-		}
-		
-		[Test]
-		public void TestAddSet_ReadOnlyField ()
-		{
-			string result = RunContextAction (
-				new AddAnotherAccessorAction (),
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	readonly int field;" + Environment.NewLine +
-				"	public int $Field {" + Environment.NewLine +
-				"		get {" + Environment.NewLine +
-				"			return field;" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	readonly int field;" + Environment.NewLine +
-				"	public int Field {" + Environment.NewLine +
-				"		get {" + Environment.NewLine +
-				"			return field;" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"		set {" + Environment.NewLine +
-				"			throw new System.NotImplementedException ();" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
-		}
-		
-		[Test]
-		public void TestAddGet ()
-		{
-			string result = RunContextAction (
-				new AddAnotherAccessorAction (),
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	int field;" + Environment.NewLine +
-				"	public int $Field {" + Environment.NewLine +
-				"		set {" + Environment.NewLine +
-				"			field = value;" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	int field;" + Environment.NewLine +
-				"	public int Field {" + Environment.NewLine +
-				"		get {" + Environment.NewLine +
-				"			return field;" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"		set {" + Environment.NewLine +
-				"			field = value;" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
+			Test<AddAnotherAccessorAction>(@"
+class TestClass
+{
+    int field;
+	public int $Field 
+    {
+        get 
+        {
+            return field;
+        }
+	}
+}", @"
+class TestClass
+{
+    int field;
+    public int Field
+    {
+        get
+        {
+            return field;
+        }
+
+        set
+        {
+            field = value;
+        }
+    }
+}");
 		}
 
-		[Test()]
-		public void TestAutoProperty ()
+		[Test]
+		public void TestAddSet_ReadOnlyField()
 		{
-			Test<AddAnotherAccessorAction> (@"class TestClass
+			Test<AddAnotherAccessorAction>(@"
+class TestClass
 {
-	string $Test {
-		get;
+    readonly int field;
+	public int $Field
+    {
+		get
+        {
+            return field;
+        }
 	}
-}", @"class TestClass
+}", @"
+class TestClass
 {
-	string Test {
-		get;
-		set;
-	}
+    readonly int field;
+    public int Field
+    {
+        get
+        {
+            return field;
+        }
+
+        set
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+}");
+		}
+
+		[Test]
+		public void TestAddGet()
+		{
+			Test<AddAnotherAccessorAction>(@"
+class TestClass
+{
+    int field;
+    public int $Field {
+        set 
+        {
+            field = value;
+        }
+    }
+}", @"
+class TestClass
+{
+    int field;
+    public int Field
+    {
+        get
+        {
+            return field;
+        }
+
+        set
+        {
+            field = value;
+        }
+    }
+}");
+		}
+
+		[Test]
+		public void TestAutoProperty()
+		{
+			Test<AddAnotherAccessorAction>(@"
+class TestClass
+{
+    string $Test 
+    {
+        get;
+    }
+}", @"
+class TestClass
+{
+    string Test
+    {
+        get; set;
+    }
 }");
 		}
 	}
