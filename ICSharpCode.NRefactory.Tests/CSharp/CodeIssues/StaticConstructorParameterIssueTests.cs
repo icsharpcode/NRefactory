@@ -37,17 +37,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestSimpleCase()
 		{
-			Test<StaticConstructorParameterIssue>(@"
+			Analyze<StaticConstructorParameterIssue>(@"
 class Foo
 {
-	static Foo (int bar)
+	static $Foo$(int bar)
 	{
 	}
 }
 ", @"
 class Foo
 {
-	static Foo ()
+	static Foo()
 	{
 	}
 }
