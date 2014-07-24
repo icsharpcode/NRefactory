@@ -52,36 +52,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
-		}
 
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var node = context.GetNode<DoWhileStatement>();
-//			if (node == null)
-//				yield break;
-//
-//			var target = node.DoToken;
-//			if (!target.Contains(context.Location)) {
-//				target = node.WhileToken;
-//				if (!target.Contains(context.Location)) {
-//					yield break;
-//				}
-//			}
-//
-//			yield return new CodeAction(context.TranslateString("Convert to while loop"),
-//			                            script => ConvertToWhileLoop(script, node),
-//			                            target);
-//
-//		}
-//
-//		static void ConvertToWhileLoop(Script script, DoWhileStatement originalStatement)
-//		{
-//			script.Replace(originalStatement, new WhileStatement {
-//				Condition = originalStatement.Condition.Clone(),
-//				EmbeddedStatement = originalStatement.EmbeddedStatement.Clone()
-//			});
-//		}
+			var node = root.FindNode(span) as DoStatementSyntax;
+			if (node == null)
+				return Enumerable.Empty<CodeAction>();
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Convert to while loop", document.WithSyntaxRoot(root.ReplaceNode(node as StatementSyntax, 
+                SyntaxFactory.WhileStatement(node.Condition, node.Statement).WithAdditionalAnnotations(Formatter.Annotation))))};
+		}
 	}
 }
 

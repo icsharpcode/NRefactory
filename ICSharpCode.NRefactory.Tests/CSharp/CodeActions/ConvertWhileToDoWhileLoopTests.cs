@@ -34,7 +34,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertWhileToDoWhileLoopTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestSimple() {
+		public void TestSimple()
+		{
 			Test<ConvertWhileToDoWhileLoopAction>(@"
 class Foo {
 	void Bar(int x) {
@@ -43,15 +44,16 @@ class Foo {
 }", @"
 class Foo {
 	void Bar(int x) {
-		do
-			x++;
-		while (x > 0);
-	}
+        do
+            x++;
+        while (x > 0);
+    }
 }");
 		}
 
 		[Test]
-		public void TestBlock() {
+		public void TestBlock()
+		{
 			Test<ConvertWhileToDoWhileLoopAction>(@"
 class Foo {
 	void Bar(int x) {
@@ -60,16 +62,16 @@ class Foo {
 }", @"
 class Foo {
 	void Bar(int x) {
-		do {
-			x++;
-		}
-		while (x > 0);
-	}
+        do
+        { x++; }
+        while (x > 0);
+    }
 }");
 		}
 
 		[Test]
-		public void TestDisabledOutOfToken() {
+		public void TestDisabledOutOfToken()
+		{
 			TestWrongContext<ConvertWhileToDoWhileLoopAction>(@"
 class Foo {
 	void Bar(int x) {

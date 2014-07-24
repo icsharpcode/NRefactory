@@ -27,7 +27,7 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
-{/* TOOD: Enable - it's not possible to compile this file on mono 3.0.7 due to an internal compiler error.
+{
 	[TestFixture]
 	public class ConvertDoWhileToWhileLoopTests : ContextActionTestBase
 	{
@@ -38,17 +38,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 class Foo {
 	void TestMethod() {
 		int x = 1;
-		$do
+		do
 			x++;
-		while (x != 1);
+		$while (x != 1);
 	}
 }", @"
 class Foo {
 	void TestMethod() {
 		int x = 1;
-		while (x != 1)
-			x++;
-	}
+        while (x != 1)
+            x++;
+    }
 }");
 		}
 
@@ -65,6 +65,6 @@ class Foo {
 	}
 }");
 		}
-	}*/
+	}
 }
 

@@ -44,38 +44,50 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Join string literal", LanguageNames.CSharp)]
 	public class JoinStringAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
-		} 
-//		protected override CodeAction GetAction (SemanticModel context, BinaryOperatorExpression node)
-//		{
-//			if (node.Operator != BinaryOperatorType.Add)
-//				return null;
-//
-//			PrimitiveExpression left;
-//			var leftBinaryOperatorExpr = node.Left as BinaryOperatorExpression;
-//			if (leftBinaryOperatorExpr != null && leftBinaryOperatorExpr.Operator == BinaryOperatorType.Add) {
-//				left = leftBinaryOperatorExpr.Right as PrimitiveExpression;
-//			} else {
-//				left = node.Left as PrimitiveExpression;
-//			}
-//			var right = node.Right as PrimitiveExpression;
-//
-//			if (left == null || right == null ||
-//				!(left.Value is string) || !(right.Value is string) || !node.OperatorToken.Contains(context.Location))
-//				return null;
-//
-//			var isLeftVerbatim = left.LiteralValue.StartsWith("@", System.StringComparison.Ordinal);
-//			var isRightVerbatime = right.LiteralValue.StartsWith("@", System.StringComparison.Ordinal);
-//			if (isLeftVerbatim != isRightVerbatime)
-//				return null;
-//
-//			return new CodeAction (context.TranslateString ("Join strings"), script => {
-//				var start = context.GetOffset (left.EndLocation) - 1;
-//				var end = context.GetOffset (right.StartLocation) + (isLeftVerbatim ? 2 : 1);
-//				script.RemoveText (start, end - start);
-//			}, node.OperatorToken);
-//		}
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+
+			var node = root.FindNode(span) as BinaryExpressionSyntax;
+			//ignore nodes except string concat.
+			if (node == null || !node.OperatorToken.IsKind(SyntaxKind.PlusToken))
+				return Enumerable.Empty<CodeAction>();
+
+			LiteralExpressionSyntax left;
+			var leftBinaryExpr = node.Left as BinaryExpressionSyntax;
+			//if there is something other than a string literal on the left, then just take the right node (e.g. a+b+c => a+(b+c))
+			if (leftBinaryExpr != null && leftBinaryExpr.OperatorToken.IsKind(SyntaxKind.PlusToken))
+				left = leftBinaryExpr.Right as LiteralExpressionSyntax;
+			else
+				left = node.Left as LiteralExpressionSyntax;
+
+			var right = node.Right as LiteralExpressionSyntax;
+
+			//ignore non-string literals
+			if (left == null || right == null || !left.IsKind(SyntaxKind.StringLiteralExpression) || !right.IsKind(SyntaxKind.StringLiteralExpression))
+				return Enumerable.Empty<CodeAction>();
+
+			bool isLeftVerbatim = left.Token.IsVerbatimStringLiteral();
+			bool isRightVerbatim = right.Token.IsVerbatimStringLiteral();
+			if (isLeftVerbatim != isRightVerbatim)
+				return Enumerable.Empty<CodeAction>();
+
+			String newString = left.Token.ValueText + right.Token.ValueText;
+			LiteralExpressionSyntax stringLit;
+
+			if (isLeftVerbatim)
+				stringLit = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal("@\"" + newString + "\"", newString));
+			else
+				stringLit = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(newString));
+
+			ExpressionSyntax exprNode;
+
+			if (leftBinaryExpr == null)
+				exprNode = stringLit;
+			else
+				exprNode = leftBinaryExpr.WithRight(stringLit);
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Join strings", document.WithSyntaxRoot(root.ReplaceNode(node, exprNode as ExpressionSyntax))) };
+		}
 	}
 }
