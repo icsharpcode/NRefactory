@@ -36,12 +36,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			TestIssue<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeIssue>(@"
 using System;
 
 namespace Demo
 {
-	public sealed class TestClass
+	public sealed class $TestClass$
 	{
 		static public int A;
 		static public int ReturnAPlusOne()
@@ -49,8 +49,20 @@ namespace Demo
 			return A + 1;
 		}
 	}
-}
-");
+}", @"
+using System;
+
+namespace Demo
+{
+	public static class TestClass
+	{
+		static public int A;
+		static public int ReturnAPlusOne()
+		{
+			return A + 1;
+		}
+	}
+}");
 		}
 
 		[Test]
@@ -70,8 +82,7 @@ namespace Demo
 			return A + 1;
 		}
 	}
-}
-");
+}");
 		}
 
 		[Test]
@@ -182,9 +193,9 @@ namespace Demo
 		/// Bug 16844 - Convert class to static 
 		/// </summary>
 		[Test]
-		public void TestBug16844 ()
+		public void TestBug16844()
 		{
-			TestIssue<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeIssue>(@"
 class ShouldBeStatic
 {
     static void Func ()

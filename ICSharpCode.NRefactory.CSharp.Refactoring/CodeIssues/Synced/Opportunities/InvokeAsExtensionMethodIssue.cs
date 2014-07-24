@@ -49,20 +49,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "InvokeAsExtensionMethod")]
 	public class InvokeAsExtensionMethodIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "InvokeAsExtensionMethodIssue";
-		const string Description            = "If an extension method is called as static method convert it to method syntax";
-		const string MessageFormat          = "Convert static method call to extension method call";
-		const string Category               = IssueCategories.Opportunities;
+		internal const string DiagnosticId = "InvokeAsExtensionMethodIssue";
+		const string Description = "If an extension method is called as static method convert it to method syntax";
+		const string MessageFormat = "Convert static method call to extension method call";
+		const string Category = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		{
+			get
+			{
 				return ImmutableArray.Create(Rule);
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -70,41 +72,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<InvokeAsExtensionMethodIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
+				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitInvocationExpression(InvocationExpression invocation)
-//			{
-//				base.VisitInvocationExpression(invocation);
-//				var memberReference = invocation.Target as MemberReferenceExpression;
-//				if (memberReference == null)
-//					return;
-//				var firstArgument = invocation.Arguments.FirstOrDefault();
-//				if (firstArgument is NullReferenceExpression)
-//					return;
-//				var invocationRR = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
-//				if (invocationRR == null)
-//					return;
-//				var method = invocationRR.Member as IMethod;
-//				if (method == null || !method.IsExtensionMethod || invocationRR.IsExtensionMethodInvocation)
-//					return;
-//
-//				AddIssue(new CodeIssue(
-//					memberReference.MemberNameToken,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					script => {
-//						script.Replace (
-//							invocation, 
-//							new InvocationExpression(
-//								new MemberReferenceExpression(firstArgument.Clone(), memberReference.MemberName),
-//								invocation.Arguments.Skip(1).Select(arg => arg.Clone())
-//							)
-//						);
-//					}
-//				));
-//			}
+
+			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
+			{
+				base.VisitInvocationExpression(node);
+				var memberReference = node.Expression as MemberAccessExpressionSyntax;
+				if (memberReference == null)
+					return;
+				var firstArgument = node.ArgumentList.Arguments.FirstOrDefault();
+				if (firstArgument == null || firstArgument.Expression.IsKind(SyntaxKind.NullLiteralExpression))
+					return;
+				var expressionSymbol = semanticModel.GetSymbolInfo(node.Expression).Symbol as IMethodSymbol;
+				//ignore non-extensions and reduced extensions (so a.Ext, as opposed to B.Ext(a))
+				if (expressionSymbol == null || !expressionSymbol.IsExtensionMethod || expressionSymbol.MethodKind == MethodKind.ReducedExtension)
+					return;
+				AddIssue(Diagnostic.Create(Rule, memberReference.Name.GetLocation()));
+			}
 		}
 	}
 
@@ -121,10 +107,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagonstic.Location.SourceSpan).Parent.Parent as InvocationExpressionSyntax;
+				if (node == null)
+					continue;
+				var newRoot = root.ReplaceNode(node, node.WithArgumentList(node.ArgumentList.WithArguments(node.ArgumentList.Arguments.RemoveAt(0)))
+					.WithExpression(((MemberAccessExpressionSyntax)node.Expression).WithExpression(node.ArgumentList.Arguments.First().Expression))
+					.WithLeadingTrivia(node.GetLeadingTrivia()));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Convert to extension method call", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
