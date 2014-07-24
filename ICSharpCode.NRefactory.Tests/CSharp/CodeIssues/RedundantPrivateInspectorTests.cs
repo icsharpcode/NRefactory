@@ -35,37 +35,37 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class RedundantPrivateInspectorTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestInspectorCase1 ()
+		public void TestInspectorCase1()
 		{
-			Test<RedundantPrivateIssue>(@"class Foo
+			Analyze<RedundantPrivateIssue>(@"class Foo
 {
-	static private int foo;
-	private void Bar (string str)
-	{
-	}
-}", 2, @"class Foo
-{
-	static int foo;
-	void Bar (string str)
-	{
-	}
-}");
-		}
-	
-	
-		[Test]
-		public void TestNestedClass ()
-		{
-			Test<RedundantPrivateIssue>(@"class Foo
-{
-	private class Nested
+	static $private$ int foo;
+	$private$ void Bar (string str)
 	{
 	}
 }", @"class Foo
 {
-	class Nested
+    static int foo;
+    void Bar(string str)
+    {
+    }
+}");
+		}
+
+
+		[Test]
+		public void TestNestedClass()
+		{
+			Analyze<RedundantPrivateIssue>(@"class Foo
+{
+	$private$ class Nested
 	{
 	}
+}", @"class Foo
+{
+    class Nested
+    {
+    }
 }");
 		}
 	}
