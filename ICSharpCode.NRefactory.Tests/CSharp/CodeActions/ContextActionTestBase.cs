@@ -37,6 +37,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
@@ -99,7 +100,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			 workspace = new InspectionActionTestBase.TestWorkspace();
 			var projectId = ProjectId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
-			//workspace.Options.WithChangedOption(CSharpFormattingOptions.OpenBracesInNewLineForControl, false);
+			workspace.Options.WithChangedOption(CSharpFormattingOptions.OpenBracesInNewLineForControl, false);
 			workspace.Open(ProjectInfo.Create(
 				projectId,
 				VersionStamp.Create(),

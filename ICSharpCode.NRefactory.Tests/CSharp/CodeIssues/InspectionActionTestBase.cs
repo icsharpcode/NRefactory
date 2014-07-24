@@ -113,8 +113,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		internal class TestWorkspace : Workspace
 		{
 			readonly static MefHostServices services = MefHostServices.Create(new [] { 
-				typeof(MefHostServices).Assembly/*,
-				typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions).Assembly*/
+				typeof(MefHostServices).Assembly,
+				typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions).Assembly
 			});
 			
 			
