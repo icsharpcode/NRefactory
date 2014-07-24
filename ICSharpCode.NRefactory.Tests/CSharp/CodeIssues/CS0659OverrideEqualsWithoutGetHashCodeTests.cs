@@ -42,7 +42,7 @@ namespace application
 {
 	public class BaseClass
 	{
-		public override bool Equals(object o)
+		public override bool $Equals$(object o)
 		{
 			return base.Equals(o);
 		}
@@ -57,13 +57,14 @@ namespace application
 		{
 			return base.Equals(o);
 		}
-		public override int GetHashCode ()
-		{
-			return base.GetHashCode ();
-		}
-	}
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+    }
 }";
-			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, output);
+			Analyze<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, output);
 		}
 
 		[Test]
@@ -81,11 +82,11 @@ namespace application
 		}
 	}
 }";
-			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
+			Analyze<CS0659ClassOverrideEqualsWithoutGetHashCode>(input);
 		}
 
 		[Test]
-		public void PatialClass()
+		public void PartialClass()
 		{
 			var input = @"
 namespace application
@@ -99,14 +100,14 @@ namespace application
 	}
 	public partial class BaseClass
 	{
-		public override int GetHashCode ()
+		public override int GetHashCode()
 		{
-			return base.GetHashCode ();
+			return base.GetHashCode();
 		}
 	}
 }";
 
-			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
+			Analyze<CS0659ClassOverrideEqualsWithoutGetHashCode>(input);
 		}
 
 		[Test]
@@ -127,7 +128,7 @@ namespace application
 		}
 	}
 }";
-			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
+			Analyze<CS0659ClassOverrideEqualsWithoutGetHashCode>(input);
 		}
 
 		[Test]
@@ -146,7 +147,7 @@ namespace application
 //Resharper restore CSharpWarnings::CS0659
 	}
 }";
-			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
+			Analyze<CS0659ClassOverrideEqualsWithoutGetHashCode>(input);
 		}
 
 		[Test]
@@ -165,7 +166,7 @@ namespace application
 #pragma warning restore 0659
 	}
 }";
-			Test<CS0659ClassOverrideEqualsWithoutGetHashCode>(input, 0);
+			Analyze<CS0659ClassOverrideEqualsWithoutGetHashCode>(input);
 		}
 	}
 }
