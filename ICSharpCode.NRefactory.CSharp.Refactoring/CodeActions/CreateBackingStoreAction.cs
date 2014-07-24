@@ -48,52 +48,62 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+			var property = root.FindNode(span) as PropertyDeclarationSyntax;
+			if (property == null)
+				return Enumerable.Empty<CodeAction>();
+
+			if (property.AccessorList.Accessors.Any(b => b.Body != null)) //ignore properties with >=1 accessor body
+				return Enumerable.Empty<CodeAction>();
+			String name = GetNameProposal(property.Identifier.ValueText, model, root);
+
+			//create our backing store
+			var backingStore = SyntaxFactory.FieldDeclaration(
+				SyntaxFactory.VariableDeclaration(property.Type,
+					SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(SyntaxFactory.VariableDeclarator(name))))
+					.WithModifiers(property.Modifiers.Where(m => m.IsKind(SyntaxKind.StaticKeyword)).FirstOrDefault() == null ? SyntaxFactory.TokenList() :
+					SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword))).WithAdditionalAnnotations(Formatter.Annotation);
+
+			//create our new property
+			ExpressionSyntax fieldExpression = (name == "value") ? SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(),
+				SyntaxFactory.IdentifierName("value")) as ExpressionSyntax : SyntaxFactory.IdentifierName(name);
+			var getBody = SyntaxFactory.Block(SyntaxFactory.ReturnStatement(fieldExpression));
+			var getter = SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration, getBody);
+
+			var setBody = SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(SyntaxKind.SimpleAssignmentExpression, fieldExpression,
+				SyntaxFactory.IdentifierName("value"))));
+			var setter = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration, setBody);
+
+			var newPropAnno = new SyntaxAnnotation();
+			var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(new SyntaxList<AccessorDeclarationSyntax>().Add(getter).Add(setter)))
+				.WithAdditionalAnnotations(newPropAnno).WithAdditionalAnnotations(Formatter.Annotation);
+
+			var newRoot = root.ReplaceNode(property, newProperty);
+			return new[]{ CodeActionFactory.Create(span, DiagnosticSeverity.Info, "blah", document.WithSyntaxRoot(newRoot.InsertNodesBefore(newRoot.GetAnnotatedNodes(newPropAnno).First(),
+                new List<SyntaxNode>(){backingStore})))};
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var property = context.GetNode<PropertyDeclaration>();
-//			if (property == null || !property.NameToken.Contains(context.Location))
-//				yield break;
-//
-//			if (!(!property.Getter.IsNull && !property.Setter.IsNull && // automatic properties always need getter & setter
-//			      property.Getter.Body.IsNull &&
-//			      property.Setter.Body.IsNull)) {
-//				yield break;
-//			}
-//
-//			yield return new CodeAction(context.TranslateString("Create backing store"), script => {
-//				string backingStoreName = context.GetNameProposal (property.Name);
-//				
-//				// create field
-//				var backingStore = new FieldDeclaration ();
-//				if (property.Modifiers.HasFlag (Modifiers.Static))
-//					backingStore.Modifiers |= Modifiers.Static;
-//				backingStore.ReturnType = property.ReturnType.Clone ();
-//				
-//				var initializer = new VariableInitializer (backingStoreName);
-//				backingStore.Variables.Add (initializer);
-//				
-//				// create new property & implement the get/set bodies
-//				var newProperty = (PropertyDeclaration)property.Clone ();
-//				Expression id1;
-//				if (backingStoreName == "value")
-//					id1 = new ThisReferenceExpression().Member("value");
-//				else
-//					id1 = new IdentifierExpression (backingStoreName);
-//				Expression id2 = id1.Clone();
-//				newProperty.Getter.Body = new BlockStatement () {
-//					new ReturnStatement (id1)
-//				};
-//				newProperty.Setter.Body = new BlockStatement () {
-//					new AssignmentExpression (id2, AssignmentOperatorType.Assign, new IdentifierExpression ("value"))
-//				};
-//				
-//				script.Replace (property, newProperty);
-//				script.InsertBefore (property, backingStore);
-//				script.Link (initializer, id1, id2);
-//			}, property.NameToken);
-//		}
+
+		public String GetNameProposal(String name, SemanticModel model, SyntaxNode node)
+		{
+			String baseName = char.ToLower(name[0]) + name.Substring(1);
+			var enclosingClass = node.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().FirstOrDefault();
+			if (enclosingClass == null)
+				return baseName;
+
+			INamedTypeSymbol typeSymbol = model.GetDeclaredSymbol(enclosingClass);
+			IEnumerable<String> members = typeSymbol.MemberNames;
+
+			String proposedName = null;
+			int number = 0;
+			do {
+				proposedName = baseName;
+				if (number != 0) {
+					proposedName = baseName + number.ToString();
+				}
+				number++;
+			} while (!members.Contains(proposedName));
+			return proposedName;
+		}
 	}
 }
 

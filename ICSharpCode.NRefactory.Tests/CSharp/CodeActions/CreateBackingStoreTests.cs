@@ -33,50 +33,60 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	[TestFixture]
 	public class CreateBackingStoreTests : ContextActionTestBase
 	{
-		[Test()]
-		public void TestSimpleStore ()
+		[Test]
+		public void TestSimpleStore()
 		{
-			Test<CreateBackingStoreAction> (@"class TestClass
+			Test<CreateBackingStoreAction>(@"class TestClass
 {
 	string $Test { get; set; }
 }", @"class TestClass
 {
-	string test;
-	string Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
+    string test;
+
+    string Test
+    {
+        get
+        {
+            return test;
+        }
+
+        set
+        {
+            test = value;
+        }
+    }
 }");
 		}
 
-		[Test()]
-		public void TestStaticStore ()
+		[Test]
+		public void TestStaticStore()
 		{
-			Test<CreateBackingStoreAction> (@"class TestClass
+			Test<CreateBackingStoreAction>(@"class TestClass
 {
 	public static string $Test { get; set; }
 }", @"class TestClass
 {
-	static string test;
-	public static string Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
+    static string test;
+
+    public static string Test
+    {
+        get
+        {
+            return test;
+        }
+
+        set
+        {
+            test = value;
+        }
+    }
 }");
 		}
 
 		[Test]
 		public void TestWrongLocation()
 		{
-			TestWrongContext<CreateBackingStoreAction> (@"class TestClass
+			TestWrongContext<CreateBackingStoreAction>(@"class TestClass
 {
 	public $string Test {
 		get;
@@ -84,7 +94,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	}
 }");
 
-			TestWrongContext<CreateBackingStoreAction> (@"class TestClass
+			TestWrongContext<CreateBackingStoreAction>(@"class TestClass
 {
 	public string $FooBar.Test {
 		get;
@@ -92,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	}
 }");
 
-			TestWrongContext<CreateBackingStoreAction> (@"class TestClass
+			TestWrongContext<CreateBackingStoreAction>(@"class TestClass
 {
 	public string Test ${
 		get;
