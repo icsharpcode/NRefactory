@@ -42,27 +42,34 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replace postfix expression with assignment")]
 	[ExportCodeRefactoringProvider("Replace postfix expression with assignment", LanguageNames.CSharp)]
-	public class ReplacePostfixExpressionWithAssignmentAction : SpecializedCodeAction<PostfixUnaryExpressionSyntax>
+	public class ReplacePostfixExpressionWithAssignmentAction : ICodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, PostfixUnaryExpressionSyntax node, CancellationToken cancellationToken)
+
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
+
+			PostfixUnaryExpressionSyntax postfix = token.Parent.Parent as PostfixUnaryExpressionSyntax;
+			if (postfix == null || !(postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken) || postfix.OperatorToken.IsKind(SyntaxKind.MinusMinusToken))) {
+				return Enumerable.Empty<CodeAction>();
+			}
+			string desc;
+			SyntaxKind expType;
+			if (postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken)) {
+				desc = "Replace '{0}++' with '{0} += 1'";
+				expType = SyntaxKind.AddAssignmentExpression;
+
+			} else {
+				desc = "Replace '{0}--' with '{0} -= 1'";
+				expType = SyntaxKind.SubtractAssignmentExpression;
+			}
+			var binexp = SyntaxFactory.BinaryExpression(expType, postfix.Operand, SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1)));
+			var newRoot = root.ReplaceNode(postfix as ExpressionSyntax, binexp.WithAdditionalAnnotations(Formatter.Annotation));
+			desc = String.Format(desc, (postfix.Operand as IdentifierNameSyntax).Identifier.ValueText);
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, desc, document.WithSyntaxRoot(newRoot)) };
 		}
-//		protected override CodeAction GetAction(SemanticModel context, UnaryOperatorExpression node)
-//		{
-//			if (node.Operator != UnaryOperatorType.PostIncrement && node.Operator != UnaryOperatorType.PostDecrement)
-//				return null;
-//			string desc = node.Operator == UnaryOperatorType.PostIncrement ? context.TranslateString("Replace with '{0} += 1'") : context.TranslateString("Replace with '{0} -= 1'");
-//			return new CodeAction(
-//				string.Format(desc, CSharpUtil.GetInnerMostExpression(node.Expression)),
-//				s => s.Replace(node, new AssignmentExpression (
-//					CSharpUtil.GetInnerMostExpression(node.Expression).Clone(),
-//					node.Operator == UnaryOperatorType.PostIncrement ? AssignmentOperatorType.Add : AssignmentOperatorType.Subtract,
-//					new PrimitiveExpression(1)
-//				)),
-//				node.OperatorToken
-//			);
-//		}
 	}
 }
 

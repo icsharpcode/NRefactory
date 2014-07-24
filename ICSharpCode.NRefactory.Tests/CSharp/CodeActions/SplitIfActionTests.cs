@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAndSimple()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -49,12 +49,14 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a) {
-			if (b) {
-				return;
-			}
-		}
-	}
+        if (a)
+        {
+            if (b)
+            {
+                return;
+            }
+        }
+    }
 }
 ");
 		}
@@ -62,7 +64,7 @@ class Test
 		[Test]
 		public void TestAndIfElse()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -79,24 +81,30 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a) {
-			if (b) {
-				return;
-			} else {
-				Something ();
-			}
-		} else {
-			Something ();
-		}
-	}
+        if (a)
+        {
+            if (b)
+            {
+                return;
+            }
+            else
+            {
+                Something();
+            }
+        }
+        else
+        {
+            Something();
+        }
+    }
 }
 ");
 		}
-	
+
 		[Test]
 		public void TestOrSimple()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -111,12 +119,15 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a) {
-			return;
-		} else if (b) {
-			return;
-		}
-	}
+        if (a)
+        {
+            return;
+        }
+        else if (b)
+        {
+            return;
+        }
+    }
 }
 ");
 		}
@@ -124,7 +135,7 @@ class Test
 		[Test]
 		public void TestOrIfElse()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -141,14 +152,19 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a) {
-			return;
-		} else if (b) {
-			return;
-		} else {
-			Something ();
-		}
-	}
+        if (a)
+        {
+            return;
+        }
+        else if (b)
+        {
+            return;
+        }
+        else
+        {
+            Something();
+        }
+    }
 }
 ");
 		}
@@ -156,7 +172,7 @@ class Test
 		[Test]
 		public void TestComplexAnd()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -171,12 +187,14 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (a && b) {
-			if (!a && !b) {
-				return;
-			}
-		}
-	}
+        if (a && b)
+        {
+            if (!a && !b)
+            {
+                return;
+            }
+        }
+    }
 }
 ");
 		}
@@ -184,7 +202,7 @@ class Test
 		[Test]
 		public void TestAndOr()
 		{
-			Test <SplitIfAction> (@"
+			Test<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)
@@ -199,20 +217,23 @@ class Test
 {
 	void Foo (bool a, bool b)
 	{
-		if (!b) {
-			return;
-		} else if (a && b) {
-			return;
-		}
-	}
+        if (!b)
+        {
+            return;
+        }
+        else if (a && b)
+        {
+            return;
+        }
+    }
 }
 ");
 		}
-	
+
 		[Test]
 		public void TestInvalid()
 		{
-			TestWrongContext<SplitIfAction> (@"
+			TestWrongContext<SplitIfAction>(@"
 class Test
 {
 	void Foo (bool a, bool b)

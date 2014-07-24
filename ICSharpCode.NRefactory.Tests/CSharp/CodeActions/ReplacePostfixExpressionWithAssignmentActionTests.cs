@@ -34,9 +34,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ReplacePostfixExpressionWithAssignmentActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestAdd ()
+		public void TestAdd()
 		{
-			Test<ReplacePostfixExpressionWithAssignmentAction> (@"
+			Test<ReplacePostfixExpressionWithAssignmentAction>(@"
 class Test
 {
 	void Foo (int i)
@@ -48,15 +48,15 @@ class Test
 {
 	void Foo (int i)
 	{
-		i += 1;
+        i += 1;
 	}
 }");
 		}
 
 		[Test]
-		public void TestSub ()
+		public void TestSub()
 		{
-			Test<ReplacePostfixExpressionWithAssignmentAction> (@"
+			Test<ReplacePostfixExpressionWithAssignmentAction>(@"
 class Test
 {
 	void Foo (int i)
@@ -68,7 +68,7 @@ class Test
 {
 	void Foo (int i)
 	{
-		i -= 1;
+        i -= 1;
 	}
 }");
 		}
