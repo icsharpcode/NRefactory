@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{7E891659-45F3-42B5-B940-A728780CCAE9}</ProjectGuid>
+    <ProjectGuid>{53DCA265-3C3C-42F9-B647-F72BA678122B}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
@@ -138,7 +138,10 @@
     <Compile Include="Util\CSharpUtil.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="OutputVisitor\" />
+    <Folder Include="Refactoring\" />
+  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
@@ -151,15 +154,7 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
-  <ItemGroup>
-    <Folder Include="Features\" />
-    <Folder Include="Features\SemanticHighlighting\" />
-    <Folder Include="Refactoring\" />
-    <Folder Include="Features\FrameworkLookup\" />
-    <Folder Include="Features\ParameterHinting\" />
-    <Folder Include="Features\Completion\ContextHandler\" />
-    <Folder Include="OutputVisitor\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />
   </ItemGroup>
