@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, VariableDeclaratorSyntax node, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			yield break;
 		}
 //		static readonly FindReferences refFinder = new FindReferences ();
 //		protected override CodeAction GetAction (SemanticModel context, VariableInitializer node)

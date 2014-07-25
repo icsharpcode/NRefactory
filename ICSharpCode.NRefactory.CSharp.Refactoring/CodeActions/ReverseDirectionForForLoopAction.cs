@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ForStatementSyntax node, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			yield break;
 		}
 //		static bool? IsForward(ExpressionStatement statement, string name, out Expression step)
 //		{
@@ -100,7 +100,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //
 //				var altUpwardPattern = new Choice {
 //					PatternHelper.OptionalParentheses(new BinaryOperatorExpression(PatternHelper.OptionalParentheses(new IdentifierExpression(name)), BinaryOperatorType.LessThanOrEqual, PatternHelper.OptionalParentheses(new AnyNode("bound")))),
-		//					PatternHelper.OptionalParenthesthrow new NotImplementedException();es(new BinaryOperatorExpression(PatternHelper.OptionalParentheses(new AnyNode("bound")), BinaryOperatorType.GreaterThanOrEqual, PatternHelper.OptionalParentheses(new IdentifierExpression(name))))
+		//					PatternHelper.OptionalParenthesyield break;es(new BinaryOperatorExpression(PatternHelper.OptionalParentheses(new AnyNode("bound")), BinaryOperatorType.GreaterThanOrEqual, PatternHelper.OptionalParentheses(new IdentifierExpression(name))))
 //				};
 //				var altUpMatch = altUpwardPattern.Match(condition);
 //				if (altUpMatch.Success) {

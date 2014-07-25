@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, SimpleLambdaExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			yield break;
 		}
 //		internal static CodeAction CreateAction (BaseSemanticModel context, AstNode node, BlockStatement blockStatement, Expression expr)
 //		{

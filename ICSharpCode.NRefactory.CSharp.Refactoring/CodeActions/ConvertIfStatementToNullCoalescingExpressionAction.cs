@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, IfStatementSyntax node, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			yield break;
 		}
 //		protected override CodeAction GetAction (SemanticModel context, IfElseStatement node)
 //		{
