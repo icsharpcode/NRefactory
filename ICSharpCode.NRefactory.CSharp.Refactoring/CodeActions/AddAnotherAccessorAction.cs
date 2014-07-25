@@ -61,9 +61,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var token = root.FindToken(span.Start);
 			var propertyDeclaration = token.Parent as PropertyDeclarationSyntax;
 
+			if (propertyDeclaration == null || propertyDeclaration.AccessorList == null)
+				return Enumerable.Empty<CodeAction>();
 			var accessors = propertyDeclaration.AccessorList.Accessors;
+
 			//ignore if it has both accessors
-			if (propertyDeclaration == null || accessors.Count == 2)
+			if (accessors.Count == 2)
 				return Enumerable.Empty<CodeAction>();
 			//ignore interfaces
 			if (propertyDeclaration.Parent is InterfaceDeclarationSyntax)
@@ -125,3 +128,4 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		}
 	}
 }
+
