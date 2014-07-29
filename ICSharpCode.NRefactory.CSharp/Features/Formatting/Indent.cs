@@ -26,11 +26,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.CodeAnalysis.Options;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis;
 
-namespace ICSharpCode.NRefactory6.CSharp
+namespace ICSharpCode.NRefactory6.CSharp.Formatting
 {
 	public enum IndentType
 	{
@@ -45,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 	public class Indent
 	{
 		readonly CloneableStack<IndentType> indentStack = new CloneableStack<IndentType>();
-		readonly OptionSet options;
+		readonly TextEditorOptions options;
 		int curIndent;
 		int extraSpaces;
 		string indentString;
@@ -56,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 		}
 
-		public Indent(OptionSet options)
+		public Indent(TextEditorOptions options)
 		{
 			this.options = options;
 			Reset();
@@ -147,14 +144,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			switch (indentType) {
 				case IndentType.Block:
-					return options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp);
+					return options.IndentSize;
 				case IndentType.DoubleBlock:
-					return options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp) * 2;
+					return options.IndentSize * 2;
 				case IndentType.Alignment:
 				case IndentType.Continuation:
-					return options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp);
+					return options.ContinuationIndent;
 				case IndentType.Label:
-					return options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp);
+					return options.LabelIndent;
 				case IndentType.Empty:
 					return 0;
 				default:
@@ -164,12 +161,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		void Update()
 		{
-			if (!options.GetOption(FormattingOptions.UseTabs, LanguageNames.CSharp)) {
+			if (options.TabsToSpaces) {
 				indentString = new string(' ', curIndent + ExtraSpaces);
 				return;
 			}
-			var tabSize = options.GetOption(FormattingOptions.TabSize, LanguageNames.CSharp);
-			indentString = new string('\t', curIndent / tabSize) + new string(' ', curIndent % tabSize) + new string(' ', ExtraSpaces);
+			indentString = new string('\t', curIndent / options.TabSize) + new string(' ', curIndent % options.TabSize) + new string(' ', ExtraSpaces);
 		}
 
 		public int ExtraSpaces {
@@ -200,13 +196,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			var result = new Indent(options);
 			foreach (var i in indentStack)
-					result.Push(i);
+				result.Push(i);
 			return result;
 		}
 
-		public static Indent ConvertFrom(string indentString, Indent correctIndent, OptionSet options = null)
+		public static Indent ConvertFrom(string indentString, Indent correctIndent, TextEditorOptions options = null)
 		{
-			options = options ?? correctIndent.options;
+			options = options ?? TextEditorOptions.Default;
 			var result = new Indent(options);
 
 			var indent = string.Concat(indentString.Where(c => c == ' ' || c == '\t'));
@@ -245,5 +241,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 			RemoveAlignment();
 			Push(IndentType.Alignment);
 		}
+
 	}
 }

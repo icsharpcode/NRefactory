@@ -26,7 +26,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory6.CSharp
+namespace ICSharpCode.NRefactory6.CSharp.Formatting
 {
 	/// <summary>
 	/// The text editor options class holds basic information about the text editor settings that influences code generation and formatting beside

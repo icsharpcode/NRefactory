@@ -1,10 +1,10 @@
-           //
-// GeneralTests.cs
+//
+// UsingPlacement.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2014 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,38 +23,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.IndentationTests
+namespace ICSharpCode.NRefactory6.CSharp.Formatting
 {
-	[TestFixture]
-	public class GeneralTests
-	{
-		[Test]
-		public void UsingDeclarationTests()
-		{
-			var indent = Helper.CreateEngine("using NUnit.Framework;\n$");
-			Assert.AreEqual("", indent.ThisLineIndent);
-			Assert.AreEqual("", indent.NextLineIndent);
-		}
-
-		[Test]
-		public void NestedUsingDeclarationTest()
-		{
-			var indent = Helper.CreateEngine(@"
-namespace Foo {
-	namespace Bar {
-		using NUnit.Framework;$");
-			Assert.AreEqual("\t\t", indent.ThisLineIndent);
-			Assert.AreEqual("\t\t", indent.NextLineIndent);
-		}
-
-		[Test]
-		public void TestMixedLineEndingPosition()
-		{
-			var indent = Helper.CreateEngine("\n\r\n$");
-			Assert.AreEqual(3, indent.Offset);
-		}
+	public enum UsingPlacement {
+		TopOfFile,
+		InsideNamespace
 	}
 }
-

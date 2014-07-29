@@ -433,6 +433,14 @@
     <Compile Include="CSharp\CodeActions\SplitStringTests.cs" />
     <Compile Include="CSharp\CodeActions\UseAsAndNullCheckActionTests.cs" />
     <Compile Include="CSharp\CodeActions\UseStringFormatTests.cs" />
+    <Compile Include="IndentationTests\AlignmentTests.cs" />
+    <Compile Include="IndentationTests\AllInOneTests.cs" />
+    <Compile Include="IndentationTests\BlockTest.cs" />
+    <Compile Include="IndentationTests\CommentTests.cs" />
+    <Compile Include="IndentationTests\GeneralTests.cs" />
+    <Compile Include="IndentationTests\Helper.cs" />
+    <Compile Include="IndentationTests\PreProcessorTests.cs" />
+    <Compile Include="IndentationTests\StringTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -470,16 +478,8 @@
     <None Include="IndentationTests\TestFiles\Strings.cs" />
     <None Include="IndentationTests\TestFiles\SwitchCase.cs" />
     <None Include="IndentationTests\TestFiles\TextArea.cs" />
-    <None Include="IndentationTests\TextPasteIndentEngineTests.cs" />
-    <None Include="IndentationTests\AlignmentTests.cs" />
-    <None Include="IndentationTests\AllInOneTests.cs" />
-    <None Include="IndentationTests\BlockTest.cs" />
-    <None Include="IndentationTests\CommentTests.cs" />
-    <None Include="IndentationTests\GeneralTests.cs" />
-    <None Include="IndentationTests\Helper.cs" />
-    <None Include="IndentationTests\PreProcessorTests.cs" />
-    <None Include="IndentationTests\StringTests.cs" />
     <None Include="packages.config" />
+    <None Include="IndentationTests\TextPasteIndentEngineTests.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

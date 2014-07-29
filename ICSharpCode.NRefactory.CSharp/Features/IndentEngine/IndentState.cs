@@ -32,6 +32,7 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis;
+using ICSharpCode.NRefactory6.CSharp.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -133,7 +134,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </remarks>
 		public virtual void InitializeState()
 		{
-			ThisLineIndent = new Indent(Engine.options);
+			ThisLineIndent = new Indent(Engine.textEditorOptions);
 			NextLineIndent = ThisLineIndent.Clone();
 		}
 
@@ -196,7 +197,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			// replace ThisLineIndent with NextLineIndent if the newLineChar is pushed
 			if (ch == Engine.newLineChar)
 			{
-				var delta = Engine.options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp);
+				var delta = Engine.textEditorOptions.ContinuationIndent;
 				while (NextLineIndent.CurIndent - ThisLineIndent.CurIndent > delta &&
 					   NextLineIndent.PopIf(IndentType.Continuation)) ;
 				ThisLineIndent = NextLineIndent.Clone();
@@ -476,7 +477,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			else if (ch == '.' && !IsMemberReferenceDotHandled)
 			{
 				// OPTION: CSharpFormattingOptions.AlignToMemberReferenceDot
-				if (true /*Engine.options.AlignToMemberReferenceDot*/ && !Engine.isLineStart)
+				if (Engine.formattingOptions.AlignToMemberReferenceDot && !Engine.isLineStart)
 				{
 					IsMemberReferenceDotHandled = true;
 					NextLineIndent.RemoveAlignment();
@@ -519,11 +520,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 			// OPTION: IDocumentIndentEngine.EnableCustomIndentLevels
 			var parent = Parent as BracesBodyState;
 			if (parent == null || parent.LastBlockIndent == null || !Engine.EnableCustomIndentLevels)
-			{			
-				if (!Engine.options.GetOption(CSharpFormattingOptions.IndentBlock)) {
-					NextLineIndent.RemoveAlignment();
-					NextLineIndent.PopIf(IndentType.Continuation);
-				}
+			{
+				NextLineIndent.RemoveAlignment();
+				NextLineIndent.PopIf(IndentType.Continuation);
 			}
 			else
 			{
@@ -558,14 +557,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 			{
 				ThisLineIndent.RemoveAlignment();
 				ThisLineIndent.PopTry();
-				/*BraceStyle style;
+				BraceStyle style;
 				if (TryGetBraceStyle(this.CurrentBody, out style)) {
 					if (style == BraceStyle.NextLineShifted ||
 						style == BraceStyle.NextLineShifted2||
 						style == BraceStyle.BannerStyle) {
 						ThisLineIndent.Push(IndentType.Block);
 					}
-				}*/
+				}
 			}
 
 			base.OnExit();
@@ -710,7 +709,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			if (blocks.Contains(keyword) && Engine.NeedsReindent)
 			{
-				LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.options);
+				LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
 			}
 		}
 
@@ -756,7 +755,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 					return;
 				}
 				// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
-				if (true /*Engine.options.AlignEmbeddedStatements*/ &&
+				if (Engine.formattingOptions.AlignEmbeddedStatements &&
 					previousStatement == Statement.If &&
 					CurrentStatement == Statement.If)
 				{
@@ -765,7 +764,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				}
 
 				// OPTION: CSharpFormattingOptions.AlignEmbeddedStatements
-				if (true /*Engine.options.AlignEmbeddedStatements*/ &&
+				if (Engine.formattingOptions.AlignEmbeddedStatements &&
 					previousStatement == Statement.Lock &&
 					CurrentStatement == Statement.Lock)
 				{
@@ -774,7 +773,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				}
 
 				// OPTION: CSharpFormattingOptions.AlignEmbeddedUsingStatements
-				if (true /*Engine.options.AlignEmbeddedStatements*/ &&
+				if (Engine.formattingOptions.AlignEmbeddedStatements &&
 					previousStatement == Statement.Using &&
 					CurrentStatement == Statement.Using)
 				{
@@ -796,84 +795,84 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			if (blocks.Contains(keyword) && Engine.NeedsReindent)
 			{
-				LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.options);
+				LastBlockIndent = Indent.ConvertFrom(Engine.CurrentIndent, ThisLineIndent, Engine.textEditorOptions);
 			}
 		}
 
-//		/// <summary>
-//		///     Pushes a new level of indentation depending on the given
-//		///     <paramref name="braceStyle"/>.
-//		/// </summary>
-//		void AddIndentation(BraceStyle braceStyle)
-//		{
-//			switch (braceStyle)
-//			{
-//				case BraceStyle.NextLineShifted:
-//					ThisLineIndent.Push(IndentType.Block);
-//					NextLineIndent.Push(IndentType.Block);
-//					break;
-//				case BraceStyle.DoNotChange:
-//				case BraceStyle.EndOfLine:
-//				case BraceStyle.EndOfLineWithoutSpace:
-//				case BraceStyle.NextLine:
-//				case BraceStyle.BannerStyle:
-//					NextLineIndent.Push(IndentType.Block);
-//					break;
-//				case BraceStyle.NextLineShifted2:
-//					ThisLineIndent.Push(IndentType.Block);
-//					NextLineIndent.Push(IndentType.DoubleBlock);
-//					break;
-//			}
-//		}
+		/// <summary>
+		///     Pushes a new level of indentation depending on the given
+		///     <paramref name="braceStyle"/>.
+		/// </summary>
+		void AddIndentation(BraceStyle braceStyle)
+		{
+			switch (braceStyle)
+			{
+				case BraceStyle.NextLineShifted:
+					ThisLineIndent.Push(IndentType.Block);
+					NextLineIndent.Push(IndentType.Block);
+					break;
+				case BraceStyle.DoNotChange:
+				case BraceStyle.EndOfLine:
+				case BraceStyle.EndOfLineWithoutSpace:
+				case BraceStyle.NextLine:
+				case BraceStyle.BannerStyle:
+					NextLineIndent.Push(IndentType.Block);
+					break;
+				case BraceStyle.NextLineShifted2:
+					ThisLineIndent.Push(IndentType.Block);
+					NextLineIndent.Push(IndentType.DoubleBlock);
+					break;
+			}
+		}
 
-//		bool TryGetBraceStyle (Body body, out BraceStyle style)
-//		{
-//			style = BraceStyle.DoNotChange;
-//			switch (body)
-//			{
-//				case Body.None:
-//					if (!Engine.options.IndentBlocks)
-//						return false;
-//					style = Engine.options.StatementBraceStyle;
-//					return true;
-//				case Body.Namespace:
-//					if (!Engine.options.IndentNamespaceBody)
-//						return false;
-//					style = Engine.options.NamespaceBraceStyle;
-//					return true;
-//				case Body.Class:
-//					if (!Engine.options.IndentClassBody)
-//						return false;
-//					style = Engine.options.ClassBraceStyle;
-//					return true;
-//				case Body.Struct:
-//					if (!Engine.options.IndentStructBody)
-//						return false;
-//					style = Engine.options.StructBraceStyle;
-//					return true;
-//				case Body.Interface:
-//					if (!Engine.options.IndentInterfaceBody)
-//						return false;
-//					style = Engine.options.InterfaceBraceStyle;
-//					return true;
-//				case Body.Enum:
-//					if (!Engine.options.IndentEnumBody)
-//						return false;
-//					style = Engine.options.EnumBraceStyle;
-//					return true;
-//				case Body.Switch:
-//					if (!Engine.options.IndentSwitchBody)
-//						return false;
-//					style = Engine.options.StatementBraceStyle;
-//					return true;
-//				case Body.Try:
-//				case Body.Catch:
-//				case Body.Finally:
-//					style = Engine.options.StatementBraceStyle;
-//					return true;
-//			}
-//			return false;
-//		}
+		bool TryGetBraceStyle (Body body, out BraceStyle style)
+		{
+			style = BraceStyle.DoNotChange;
+			switch (body)
+			{
+				case Body.None:
+					if (!Engine.formattingOptions.IndentBlocks)
+						return false;
+					style = Engine.formattingOptions.StatementBraceStyle;
+					return true;
+				case Body.Namespace:
+					if (!Engine.formattingOptions.IndentNamespaceBody)
+						return false;
+					style = Engine.formattingOptions.NamespaceBraceStyle;
+					return true;
+				case Body.Class:
+					if (!Engine.formattingOptions.IndentClassBody)
+						return false;
+					style = Engine.formattingOptions.ClassBraceStyle;
+					return true;
+				case Body.Struct:
+					if (!Engine.formattingOptions.IndentStructBody)
+						return false;
+					style = Engine.formattingOptions.StructBraceStyle;
+					return true;
+				case Body.Interface:
+					if (!Engine.formattingOptions.IndentInterfaceBody)
+						return false;
+					style = Engine.formattingOptions.InterfaceBraceStyle;
+					return true;
+				case Body.Enum:
+					if (!Engine.formattingOptions.IndentEnumBody)
+						return false;
+					style = Engine.formattingOptions.EnumBraceStyle;
+					return true;
+				case Body.Switch:
+					if (!Engine.formattingOptions.IndentSwitchBody)
+						return false;
+					style = Engine.formattingOptions.StatementBraceStyle;
+					return true;
+				case Body.Try:
+				case Body.Catch:
+				case Body.Finally:
+					style = Engine.formattingOptions.StatementBraceStyle;
+					return true;
+			}
+			return false;
+		}
 
 		/// <summary>
 		///     Pushes a new level of indentation depending on the given
@@ -881,14 +880,20 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		void AddIndentation(Body body)
 		{
-			NextLineIndent.Push(IndentType.Block);
+			var isExpression = Parent is ParenthesesBodyState || Parent is SquareBracketsBodyState ||
+				(Parent is BracesBodyState && ((BracesBodyState)Parent).IsRightHandExpression);
+			if (isExpression && Engine.formattingOptions.IndentBlocksInsideExpressions && Engine.isLineStart)
+			{
+				AddIndentation(BraceStyle.NextLineShifted);
+			}
 
-//			BraceStyle style;
-//			if (TryGetBraceStyle (body, out style)) {
-//				AddIndentation(style);
-//			} else {
-//				NextLineIndent.Push(IndentType.Empty);
-//			}
+			BraceStyle style;
+			if (TryGetBraceStyle(body, out style))
+			{
+				AddIndentation(style);
+			} else {
+				NextLineIndent.Push(IndentType.Empty);
+			}
 		}
 
 		/// <summary>
@@ -947,7 +952,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public override void InitializeState()
 		{
-			ThisLineIndent = new Indent(Engine.options);
+			ThisLineIndent = new Indent(Engine.textEditorOptions);
 			NextLineIndent = ThisLineIndent.Clone();
 		}
 	}
@@ -998,7 +1003,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			NextLineIndent.PopWhile(IndentType.Continuation);
 			
 
-			if (Engine.options.GetOption(CSharpFormattingOptions.IndentSwitchCaseSection))
+			if (Engine.formattingOptions.IndentCaseBody)
 			{
 				NextLineIndent.Push(IndentType.Block);
 			}
@@ -1030,7 +1035,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			else if (breakContinueReturnGotoKeywords.Contains(keyword) && Engine.isLineStartBeforeWordToken)
 			{
 				// OPTION: Engine.formattingOptions.IndentBreakStatements
-				if (true/*!Engine.options.IndentBreakStatements*/)
+				if (!Engine.formattingOptions.IndentBreakStatements)
 				{
 					ThisLineIndent = Parent.ThisLineIndent.Clone();
 				}
@@ -1086,7 +1091,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			if (ch == Engine.newLineChar)
 			{
-				if (!Engine.options.GetOption(CSharpFormattingOptions.OpenBracesInNewLineForAnonymousMethods)) {
+				if (Engine.formattingOptions.AnonymousMethodBraceStyle == BraceStyle.EndOfLine || 
+					Engine.formattingOptions.AnonymousMethodBraceStyle == BraceStyle.EndOfLineWithoutSpace) {
 					if (NextLineIndent.PopIf(IndentType.Continuation)) {
 						NextLineIndent.Push(IndentType.Block);
 					}
@@ -1095,7 +1101,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			else if (!IsSomethingPushed)
 			{
 				// OPTION: CSharpFormattingOptions.AlignToFirstMethodCallArgument
-				if (true /* Engine.options.AlignToFirstMethodCallArgument*/)
+				if (Engine.formattingOptions.AlignToFirstMethodCallArgument)
 				{
 					NextLineIndent.PopTry();
 					// align the next line at the beginning of the open bracket
@@ -1180,7 +1186,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			else if (!IsSomethingPushed)
 			{
 				// OPTION: CSharpFormattingOptions.AlignToFirstIndexerArgument
-				if (true /*Engine.options.AlignToFirstIndexerArgument*/)
+				if (Engine.formattingOptions.AlignToFirstIndexerArgument)
 				{
 					NextLineIndent.PopTry();
 					// align the next line at the beginning of the open bracket
@@ -1353,8 +1359,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public override void InitializeState()
 		{
-			// OPTION: IndentPreprocessorDirectives
-			if (true /*Engine.options.IndentPreprocessorDirectives*/)
+			// OPTION: IndentPreprocessorStatements
+			if (Engine.formattingOptions.IndentPreprocessorDirectives)
 			{
 				if (Engine.ifDirectiveIndents.Count > 0)
 				{
@@ -1367,7 +1373,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 			else
 			{
-				ThisLineIndent = new Indent(Engine.options);
+				ThisLineIndent = new Indent(Engine.textEditorOptions);
 			}
 
 			NextLineIndent = Parent.NextLineIndent.Clone();
@@ -1694,8 +1700,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public override void InitializeState()
 		{
-			// OPTION: IndentPreprocessorDirectives
-			if (true/*Engine.options.IndentPreprocessorDirectives*/ &&
+			if (Engine.formattingOptions.IndentPreprocessorDirectives &&
 			    Engine.ifDirectiveIndents.Count > 0)
 			{
 				ThisLineIndent = Engine.ifDirectiveIndents.Peek().Clone();
@@ -1950,7 +1955,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public override void InitializeState()
 		{
 			ThisLineIndent = Parent.ThisLineIndent.Clone();
-			NextLineIndent = new Indent(Engine.options);
+			NextLineIndent = new Indent(Engine.textEditorOptions);
 		}
 
 		public override IndentState Clone(CSharpIndentEngine engine)

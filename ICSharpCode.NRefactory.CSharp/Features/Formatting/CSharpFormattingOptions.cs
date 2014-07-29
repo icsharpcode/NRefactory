@@ -28,50 +28,8 @@ using System;
 using System.Reflection;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory6.CSharp
+namespace ICSharpCode.NRefactory6.CSharp.Formatting
 {
-	public enum BraceStyle
-	{
-		DoNotChange,
-		EndOfLine,
-		EndOfLineWithoutSpace,
-		NextLine,
-		NextLineShifted,
-		NextLineShifted2,
-		BannerStyle
-	}
-
-	public enum PropertyFormatting
-	{
-		AllowOneLine,
-		ForceOneLine,
-		ForceNewLine
-	}
-
-	public enum Wrapping {
-		DoNotChange,
-		DoNotWrap,
-		WrapAlways,
-		WrapIfTooLong
-	}
-
-	public enum NewLinePlacement {
-		DoNotCare,
-		NewLine,
-		SameLine
-	}
-
-	public enum UsingPlacement {
-		TopOfFile,
-		InsideNamespace
-	}
-
-	public enum EmptyLineFormatting {
-		DoNotChange,
-		Indent,
-		DoNotIndent
-	}
-
 	public class CSharpFormattingOptions
 	{
 		public string Name {

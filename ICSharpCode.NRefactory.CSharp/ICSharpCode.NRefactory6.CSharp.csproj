@@ -113,8 +113,6 @@
     <Compile Include="Features\IndentEngine\ITextPasteHandler.cs" />
     <Compile Include="Features\IndentEngine\NullIStateMachineIndentEngine.cs" />
     <Compile Include="Features\IndentEngine\TextPasteIndentEngine.cs" />
-    <Compile Include="Features\Formatter\FormattingOptionsFactory.cs" />
-    <Compile Include="Features\Formatter\Indent.cs" />
     <Compile Include="Features\SemanticHighlighting\SemanticHighlightingVisitor.cs" />
     <Compile Include="Util\FormatStringHelper.cs" />
     <Compile Include="Util\UnicodeNewline.cs" />
@@ -136,6 +134,16 @@
     <Compile Include="Util\CompilationExtensions.cs" />
     <Compile Include="Util\SyntaxExtensions.cs" />
     <Compile Include="Util\CSharpUtil.cs" />
+    <Compile Include="Features\Formatting\FormattingOptionsFactory.cs" />
+    <Compile Include="Features\Formatting\Indent.cs" />
+    <Compile Include="Features\Formatting\CSharpFormattingOptions.cs" />
+    <Compile Include="Features\Formatting\BraceStyle.cs" />
+    <Compile Include="Features\Formatting\PropertyFormatting.cs" />
+    <Compile Include="Features\Formatting\Wrapping.cs" />
+    <Compile Include="Features\Formatting\NewLinePlacement.cs" />
+    <Compile Include="Features\Formatting\UsingPlacement.cs" />
+    <Compile Include="Features\Formatting\EmptyLineFormatting.cs" />
+    <Compile Include="Features\Formatting\TextEditorOptions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
