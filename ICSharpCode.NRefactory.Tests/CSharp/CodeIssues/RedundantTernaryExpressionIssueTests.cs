@@ -35,12 +35,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTrueFalseCase ()
 		{
-			Test<RedundantTernaryExpressionIssue>(@"
+			Analyze<RedundantTernaryExpressionIssue>(@"
 class Foo
 {
 	void Bar ()
 	{
-		var a = 1 < 2 ? true : false;
+		var a = 1 < 2 $? true : false$;
 	}
 }
 ", @"

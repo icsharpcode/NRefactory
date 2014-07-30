@@ -72,27 +72,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			readonly AstNode pattern = new ConditionalExpression(
-//				new AnyNode (), 
-//				PatternHelper.OptionalParentheses(new PrimitiveExpression(true)),
-//				PatternHelper.OptionalParentheses(new PrimitiveExpression(false))
-//			);
-//
-//			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
-//			{
-//				base.VisitConditionalExpression(conditionalExpression);
-//				if (pattern.IsMatch(conditionalExpression)) {
-//					AddIssue(new CodeIssue(
-//						conditionalExpression.QuestionMarkToken.StartLocation,
-//						conditionalExpression.FalseExpression.EndLocation,
-//						ctx.TranslateString(""),
-//						ctx.TranslateString(""),
-//						script => {
-//							script.Replace(conditionalExpression, conditionalExpression.Condition.Clone());
-//						}
-//					) { IssueMarker = IssueMarker.GrayOut });
-//				}
-//			}
+			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
+			{
+				base.VisitConditionalExpression(node);
+				if (node.QuestionToken == null)
+					return;
+				var whenTrue = node.WhenTrue as LiteralExpressionSyntax;
+				var whenFalse = node.WhenFalse as LiteralExpressionSyntax;
+				if (whenTrue == null || whenFalse == null || whenTrue.Token == null || whenFalse == null || !(bool)whenTrue.Token.Value || (bool)whenFalse.Token.Value)
+					return;
+
+				AddIssue(Diagnostic.Create(Rule, Location.Create(node.SyntaxTree, new TextSpan(node.QuestionToken.SpanStart, (node.WhenFalse.Span.End - node.QuestionToken.SpanStart)))));
+			}
 		}
 	}
 
@@ -109,10 +100,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as ConditionalExpressionSyntax;
+				if (node == null)
+					continue;
+				var newRoot = root.ReplaceNode(node, node.Condition);
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace by condition", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
