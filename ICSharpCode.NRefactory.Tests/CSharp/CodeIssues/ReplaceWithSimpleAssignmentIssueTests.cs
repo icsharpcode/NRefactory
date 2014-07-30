@@ -34,14 +34,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class ReplaceWithSimpleAssignmentIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestOrCase ()
+		public void TestOrCase()
 		{
-			Test<ReplaceWithSimpleAssignmentIssue>(@"
+			Analyze<ReplaceWithSimpleAssignmentIssue>(@"
 class Test
 {
 	void Foo (bool b)
 	{
-		b |= true;
+		$b |= true$;
 	}
 }
 ", @"
@@ -56,14 +56,14 @@ class Test
 		}
 
 		[Test]
-		public void TestAndCase ()
+		public void TestAndCase()
 		{
-			Test<ReplaceWithSimpleAssignmentIssue >(@"
+			Analyze<ReplaceWithSimpleAssignmentIssue >(@"
 class Test
 {
 	void Foo (bool b)
 	{
-		b |= true;
+		$b &= false$;
 	}
 }
 ", @"
@@ -71,7 +71,7 @@ class Test
 {
 	void Foo (bool b)
 	{
-		b = true;
+		b = false;
 	}
 }
 ");
