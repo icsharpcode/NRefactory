@@ -199,7 +199,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			{
 				var delta = Engine.textEditorOptions.ContinuationIndent;
 				while (NextLineIndent.CurIndent - ThisLineIndent.CurIndent > delta &&
-					   NextLineIndent.PopIf(IndentType.Continuation)) ;
+					NextLineIndent.PopIf(IndentType.Continuation)) ;
 				ThisLineIndent = NextLineIndent.Clone();
 			}
 		}
@@ -274,7 +274,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 	/// </remarks>
 	public abstract class BracketsBodyBaseState : IndentState
 	{
-	
+
 		/// <summary>
 		///     When derived in a concrete bracket body state, represents
 		///     the closed bracket character pair.
@@ -489,7 +489,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 					ThisLineIndent.RemoveAlignment();
 					while (ThisLineIndent.CurIndent > PreviousLineIndent && 
-					       ThisLineIndent.PopIf(IndentType.Continuation)) ;
+						ThisLineIndent.PopIf(IndentType.Continuation)) ;
 					ThisLineIndent.Push(IndentType.Continuation);
 					NextLineIndent = ThisLineIndent.Clone();
 				}
@@ -548,7 +548,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public override void OnExit()
 		{
-			if (Parent is BracesBodyState)
+			if (Parent is BracesBodyState && !((BracesBodyState)Parent).IsRightHandExpression)
 			{
 				((BracesBodyState)Parent).OnStatementExit();
 			}
@@ -698,7 +698,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				CurrentStatement = Statement.Else;
 
 				// OPTION: CSharpFormattingOptions.AlignElseInIfStatements
-				if (true && NestedIfStatementLevels.Count > 0)
+				if (!Engine.formattingOptions.AlignElseInIfStatements && NestedIfStatementLevels.Count > 0)
 				{
 					ThisLineIndent = NestedIfStatementLevels.Pop().Clone();
 					NextLineIndent = ThisLineIndent.Clone();
@@ -750,10 +750,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 				// return if this is a using declaration or alias
 				if (CurrentStatement == Statement.Using &&
-				   (this is GlobalBodyState || CurrentBody == Body.Namespace))
+					(this is GlobalBodyState || CurrentBody == Body.Namespace))
 				{
 					return;
 				}
+
 				// OPTION: CSharpFormattingOptions.AlignEmbeddedIfStatements
 				if (Engine.formattingOptions.AlignEmbeddedStatements &&
 					previousStatement == Statement.If &&
@@ -1001,7 +1002,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			NextLineIndent.RemoveAlignment();
 			NextLineIndent.PopWhile(IndentType.Continuation);
-			
 
 			if (Engine.formattingOptions.IndentCaseBody)
 			{
@@ -1701,7 +1701,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public override void InitializeState()
 		{
 			if (Engine.formattingOptions.IndentPreprocessorDirectives &&
-			    Engine.ifDirectiveIndents.Count > 0)
+				Engine.ifDirectiveIndents.Count > 0)
 			{
 				ThisLineIndent = Engine.ifDirectiveIndents.Peek().Clone();
 				NextLineIndent = ThisLineIndent.Clone();

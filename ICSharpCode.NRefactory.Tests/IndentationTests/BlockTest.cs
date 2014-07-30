@@ -340,6 +340,7 @@ class Foo {
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not implemented.")]
 		[Test]
 		public void TestBrackets_AngleBrackets()
 		{
@@ -349,11 +350,12 @@ class Foo {
 	{
 		Func<a, b, c, // > 
 				$");
-			Assert.Inconclusive("Not implemented.");
+			//Assert.Inconclusive("Not implemented.");
 			Assert.AreEqual("\t\t     ", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t     ", indent.NextLineIndent);
 		}
 
+		[Ignore("Not implemented.")]
 		[Test]
 		public void TestBrackets_AngleBrackets2()
 		{
@@ -363,7 +365,7 @@ class Foo {
 	{
 		Func<a, b, c, // >
 				d> $");
-			Assert.Inconclusive("Not implemented.");
+			//Assert.Inconclusive("Not implemented.");
 			Assert.AreEqual("\t\t     ", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
