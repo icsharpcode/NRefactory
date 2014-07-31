@@ -71,93 +71,92 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			void CheckNode(EntityDeclaration node)
-//			{
-//				if (!node.HasModifier(Modifiers.Override))
-//					return;
-//				var type = node.Parent as TypeDeclaration;
-//				if (type == null || !type.HasModifier(Modifiers.Sealed))
-//					return;
-//				foreach (var token_ in node.ModifierTokens) {
-//					var token = token_;
-//					if (token.Modifier == Modifiers.Sealed) {
-//						AddIssue(new CodeIssue(
-//							token, 
-//							ctx.TranslateString(""), 
-//							ctx.TranslateString(""), 
-//							script => script.ChangeModifier(node, node.Modifiers & ~Modifiers.Sealed)
-//						) { IssueMarker = IssueMarker.GrayOut });
-//					}
-//				}
-//			}
-//
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				base.VisitMethodDeclaration(methodDeclaration);
-//				CheckNode(methodDeclaration);
-//			}
-//
-//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-//			{
-//				base.VisitFieldDeclaration(fieldDeclaration);
-//				CheckNode(fieldDeclaration);
-//			}
-//
-//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-//			{
-//				base.VisitPropertyDeclaration(propertyDeclaration);
-//				CheckNode(propertyDeclaration);
-//			}
-//
-//			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-//			{
-//				base.VisitIndexerDeclaration(indexerDeclaration);
-//				CheckNode(indexerDeclaration);
-//			}
-//
-//			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
-//			{
-//				base.VisitEventDeclaration(eventDeclaration);
-//				CheckNode(eventDeclaration);
-//			}
-//
-//			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-//			{
-//				base.VisitCustomEventDeclaration(eventDeclaration);
-//				CheckNode(eventDeclaration);
-//			}
-//
-//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//			{
-//				base.VisitConstructorDeclaration(constructorDeclaration);
-//				CheckNode(constructorDeclaration);
-//			}
-//
-//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-//			{
-//				base.VisitOperatorDeclaration(operatorDeclaration);
-//				CheckNode(operatorDeclaration);
-//			}
-//
-//			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
-//			{
-//				base.VisitFixedFieldDeclaration(fixedFieldDeclaration);
-//				CheckNode(fixedFieldDeclaration);
-//			}
-//
-//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-//			{
-//				// SKIP
-//			}
-//
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{
-//				if (typeDeclaration.Parent is TypeDeclaration) {
-//					CheckNode(typeDeclaration);
-//				}
-//				base.VisitTypeDeclaration(typeDeclaration);
-//			}
+
+			public bool HasIssue(SyntaxNode node)
+			{
+				var type = node.Parent as TypeDeclarationSyntax;
+				if (type == null || !type.Modifiers.Any(m => m.IsKind(SyntaxKind.SealedKeyword)))
+					return false;
+				return semanticModel.GetDeclaredSymbol(node).IsSealed;
+			}
+
+			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
+			{
+				base.VisitMethodDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+				
+			}
+
+			public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
+			{
+				base.VisitFieldDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.Declaration.GetLocation()));
+			}
+
+			public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
+			{
+				base.VisitIndexerDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.ThisKeyword.GetLocation()));
+			}
+
+			public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
+			{
+				base.VisitPropertyDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
+
+			public override void VisitEventDeclaration(EventDeclarationSyntax node)
+			{
+				base.VisitEventDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
+
+			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
+			{
+				base.VisitConstructorDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
+
+			public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
+			{
+				base.VisitOperatorDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.OperatorKeyword.GetLocation()));
+			}
+
+			public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+			{
+				base.VisitClassDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
+
+			public override void VisitStructDeclaration(StructDeclarationSyntax node)
+			{
+				base.VisitStructDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
+
+			public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
+			{
+				base.VisitInterfaceDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
+
+			public override void VisitDelegateDeclaration(DelegateDeclarationSyntax node)
+			{
+				base.VisitDelegateDeclaration(node);
+				if (HasIssue(node))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
 		}
 	}
 
@@ -177,7 +176,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var newRoot = root.ReplaceNode(node, RedundantPrivateIssue.RemoveModifierFromNode(node, SyntaxKind.SealedKeyword));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant 'sealed' modifier", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;

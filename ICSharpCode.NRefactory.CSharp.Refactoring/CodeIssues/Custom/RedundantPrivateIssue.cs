@@ -70,6 +70,55 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
+		public static SyntaxNode RemoveModifierFromNode(SyntaxNode node, SyntaxKind modifier)
+		{
+			//there seem to be no base classes to support WithModifiers.
+			//dynamic modifiersNode = node;
+			//return modifiersNode.WithModifiers(SyntaxFactory.TokenList(modifiersNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
+
+			MethodDeclarationSyntax methodNode = node as MethodDeclarationSyntax;
+			if (methodNode != null)
+				return methodNode.WithModifiers(SyntaxFactory.TokenList(methodNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			FieldDeclarationSyntax fieldNode = node as FieldDeclarationSyntax;
+			if (fieldNode != null)
+				return fieldNode.WithModifiers(SyntaxFactory.TokenList(fieldNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			PropertyDeclarationSyntax propertyNode = node as PropertyDeclarationSyntax;
+			if (propertyNode != null)
+				return propertyNode.WithModifiers(SyntaxFactory.TokenList(propertyNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			IndexerDeclarationSyntax indexerNode = node as IndexerDeclarationSyntax;
+			if (indexerNode != null)
+				return indexerNode.WithModifiers(SyntaxFactory.TokenList(indexerNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			EventDeclarationSyntax eventNode = node as EventDeclarationSyntax;
+			if (eventNode != null)
+				return eventNode.WithModifiers(SyntaxFactory.TokenList(eventNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			ConstructorDeclarationSyntax ctrNode = node as ConstructorDeclarationSyntax;
+			if (ctrNode != null)
+				return ctrNode.WithModifiers(SyntaxFactory.TokenList(ctrNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			OperatorDeclarationSyntax opNode = node as OperatorDeclarationSyntax;
+			if (opNode != null)
+				return opNode.WithModifiers(SyntaxFactory.TokenList(opNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			ClassDeclarationSyntax classNode = node as ClassDeclarationSyntax;
+			if (classNode != null)
+				return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			InterfaceDeclarationSyntax interfaceNode = node as InterfaceDeclarationSyntax;
+			if (interfaceNode != null)
+				return interfaceNode.WithModifiers(SyntaxFactory.TokenList(interfaceNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			StructDeclarationSyntax structNode = node as StructDeclarationSyntax;
+			if (structNode != null)
+				return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(m => !m.IsKind(modifier))));
+
+			return node;
+		}
+
 		class GatherVisitor : GatherVisitorBase<RedundantPrivateIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
@@ -181,59 +230,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				var newRoot = root.ReplaceNode(node, RemovePrivateFromNode(node).WithAdditionalAnnotations(Formatter.Annotation));
+				var newRoot = root.ReplaceNode(node, RedundantPrivateIssue.RemoveModifierFromNode(node, SyntaxKind.PrivateKeyword).WithAdditionalAnnotations(Formatter.Annotation));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
-		}
-
-		private SyntaxNode RemovePrivateFromNode(SyntaxNode node)
-		{
-			//there seem to be no base classes to support WithModifiers.
-			//dynamic modifiersNode = node;
-			//return modifiersNode.WithModifiers(SyntaxFactory.TokenList(modifiersNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			MethodDeclarationSyntax methodNode = node as MethodDeclarationSyntax;
-			if (methodNode != null)
-				return methodNode.WithModifiers(SyntaxFactory.TokenList(methodNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			FieldDeclarationSyntax fieldNode = node as FieldDeclarationSyntax;
-			if (fieldNode != null)
-				return fieldNode.WithModifiers(SyntaxFactory.TokenList(fieldNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			PropertyDeclarationSyntax propertyNode = node as PropertyDeclarationSyntax;
-			if (propertyNode != null)
-				return propertyNode.WithModifiers(SyntaxFactory.TokenList(propertyNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			IndexerDeclarationSyntax indexerNode = node as IndexerDeclarationSyntax;
-			if (indexerNode != null)
-				return indexerNode.WithModifiers(SyntaxFactory.TokenList(indexerNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			EventDeclarationSyntax eventNode = node as EventDeclarationSyntax;
-			if (eventNode != null)
-				return eventNode.WithModifiers(SyntaxFactory.TokenList(eventNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			ConstructorDeclarationSyntax ctrNode = node as ConstructorDeclarationSyntax;
-			if (ctrNode != null)
-				return ctrNode.WithModifiers(SyntaxFactory.TokenList(ctrNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			OperatorDeclarationSyntax opNode = node as OperatorDeclarationSyntax;
-			if (opNode != null)
-				return opNode.WithModifiers(SyntaxFactory.TokenList(opNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			ClassDeclarationSyntax classNode = node as ClassDeclarationSyntax;
-			if (classNode != null)
-				return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			InterfaceDeclarationSyntax interfaceNode = node as InterfaceDeclarationSyntax;
-			if (interfaceNode != null)
-				return interfaceNode.WithModifiers(SyntaxFactory.TokenList(interfaceNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			StructDeclarationSyntax structNode = node as StructDeclarationSyntax;
-			if (structNode != null)
-				return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(m => !m.IsKind(SyntaxKind.PrivateKeyword))));
-
-			return node;
 		}
 	}
 }
