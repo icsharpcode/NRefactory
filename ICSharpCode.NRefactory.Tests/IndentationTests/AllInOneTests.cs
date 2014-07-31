@@ -28,7 +28,6 @@ using ICSharpCode.NRefactory6.CSharp;
 using NUnit.Framework;
 using System;
 using Microsoft.CodeAnalysis.Options;
-using ICSharpCode.NRefactory6.CSharp.Formatting;
 
 namespace ICSharpCode.NRefactory6.IndentationTests
 {
@@ -38,9 +37,9 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 		const string ProjectDir = "../../";
 		const string TestFilesPath = "ICSharpCode.NRefactory6.Tests/IndentationTests/TestFiles";
 
-		public void BeginFileTest(string fileName, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
+		public void BeginFileTest(string fileName, OptionSet options = null)
 		{
-			Helper.ReadAndTest(System.IO.Path.Combine(ProjectDir, TestFilesPath, fileName), policy, options);
+			Helper.ReadAndTest(System.IO.Path.Combine(ProjectDir, TestFilesPath, fileName), options);
 		}
 
 		[Test]

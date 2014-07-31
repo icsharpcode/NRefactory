@@ -26,7 +26,6 @@
 
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp;
-using ICSharpCode.NRefactory6.CSharp.Formatting;
 
 namespace ICSharpCode.NRefactory6.IndentationTests
 {

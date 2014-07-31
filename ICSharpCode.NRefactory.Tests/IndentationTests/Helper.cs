@@ -31,88 +31,12 @@ using System.Text;
 using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Options;
-using ICSharpCode.NRefactory6.CSharp.Formatting;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Text;
-using ICSharpCode.NRefactory6.CSharp.CodeIssues;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.Host.Mef;
-using System.ComponentModel.Composition.Hosting;
-using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.IndentationTests
 {
 	internal static class Helper
 	{
-		static Document CreateDocument (string text)
-		{
-
-			var workspace = new InspectionActionTestBase.TestWorkspace();
-
-			var projectId = ProjectId.CreateNewId();
-			var solutionId = SolutionId.CreateNewId();
-			var documentId = DocumentId.CreateNewId(projectId);
-
-			workspace.Open(ProjectInfo.Create(
-				projectId,
-				VersionStamp.Create(),
-				"TestProject",
-				"TestProject",
-				LanguageNames.CSharp,
-				null,
-				null,
-				new CSharpCompilationOptions(
-					OutputKind.DynamicallyLinkedLibrary,
-					"TestProject.dll",
-					"",
-					"Script",
-					null,
-					false,
-					false,
-					true,
-					null,
-					null,
-					null,
-					0,
-					0,
-					Platform.AnyCpu,
-					ReportDiagnostic.Default,
-					4,
-					null,
-					false,
-					DebugInformationKind.None,
-					SubsystemVersion.None,
-					null,
-					true,
-					null,
-					null,
-					null,
-					null
-				),
-				new CSharpParseOptions(
-					LanguageVersion.CSharp6,
-					DocumentationMode.None,
-					SourceCodeKind.Regular,
-					ImmutableArray.Create("DEBUG", "TEST")
-				),
-				new [] {
-					DocumentInfo.Create(
-						documentId,
-						"a.cs",
-						null,
-						SourceCodeKind.Regular,
-						TextLoader.From(TextAndVersion.Create(SourceText.From(text), VersionStamp.Create())) 
-					)
-				},
-				null,
-				InspectionActionTestBase.DefaultMetadataReferences
-			)
-			);
-			return workspace.CurrentSolution.GetDocument(documentId);
-		}
-
-		public static IDocumentIndentEngine CreateEngine(string text, CSharpFormattingOptions formatOptions = null, IEnumerable<string> symbols = null)
+		public static IDocumentIndentEngine CreateEngine(string text, OptionSet formatOptions = null, IEnumerable<string> symbols = null)
 		{
 			var policy = formatOptions;
 			if (policy == null) {
@@ -135,7 +59,7 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 				sb.Append(ch);
 			}
 
-			var document = CreateDocument (sb.ToString());
+			var document = new ReadOnlyDocument(sb.ToString());
 			var options = new TextEditorOptions();
 
 			var csi = new CSharpIndentEngine(document, options, policy) {
@@ -152,12 +76,12 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 		}
 
 
-		public static void RandomTests(string filePath, int count, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
+		public static void RandomTests(string filePath, int count, OptionSet options = null)
 		{
 			if (File.Exists(filePath))
 			{
 				var code = File.ReadAllText(filePath);
-				var document = CreateDocument (code);
+				var document = new ReadOnlyDocument(code);
 				policy = policy ?? FormattingOptionsFactory.CreateMono();
 				options = options ?? new TextEditorOptions { IndentBlankLines = false };
 
@@ -165,7 +89,7 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 				Random rnd = new Random();
 
 				for (int i = 0; i < count; i++) {
-					int offset = rnd.Next(code.Length);
+					int offset = rnd.Next(document.TextLength);
 					engine.Update(offset);
 					if (engine.CurrentIndent.Length == 0)
 						continue;
@@ -179,13 +103,13 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 		}
 
 
-		public static void ReadAndTest(string filePath, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
+		public static void ReadAndTest(string filePath, OptionSet options = null)
 		{
 			if (File.Exists(filePath))
 			{
 				filePath = Path.GetFullPath(filePath);
 				var code = File.ReadAllText(filePath);
-				var document = CreateDocument(code);
+				var document = new ReadOnlyDocument(code);
 				if (policy == null) {
 					policy = FormattingOptionsFactory.CreateMono();
 					policy.AlignToFirstIndexerArgument = policy.AlignToFirstMethodCallArgument = true;
@@ -203,7 +127,7 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 							if (engine.CurrentIndent.Length > 0) {
 								if (engine.NeedsReindent) {
 									errors++;
-									Console.WriteLine(string.Format("Indent: {2}, Current indent: {3} in {0}:{1}", filePath, engine.Offset, engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
+									Console.WriteLine(string.Format("Indent: {2}, Current indent: {3} in {0}:{1}", filePath, engine.Location.Line, engine.ThisLineIndent.Length, engine.CurrentIndent.Length));
 								}
 							}
 						}

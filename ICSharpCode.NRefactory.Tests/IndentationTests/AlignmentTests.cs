@@ -25,8 +25,6 @@
 // THE SOFTWARE.
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp;
-using ICSharpCode.NRefactory6.CSharp.Formatting;
-using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 
 namespace ICSharpCode.NRefactory6.IndentationTests
 {

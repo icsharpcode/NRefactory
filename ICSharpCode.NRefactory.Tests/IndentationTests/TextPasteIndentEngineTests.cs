@@ -27,18 +27,17 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp;
 using System.Text;
 using Microsoft.CodeAnalysis.Options;
-using ICSharpCode.NRefactory6.CSharp.Formatting;
 
 namespace ICSharpCode.NRefactory6.IndentationTests
 {
 	[TestFixture]
 	public class TextPasteIndentEngineTests
 	{
-		public static CacheIndentEngine CreateEngine(string text, CSharpFormattingOptions formatOptions = null, TextEditorOptions options = null)
+		public static CacheIndentEngine CreateEngine(string text, OptionSet options = null)
 		{
-			if (formatOptions == null) {
-				formatOptions = FormattingOptionsFactory.CreateMono();
-				formatOptions.AlignToFirstIndexerArgument = formatOptions.AlignToFirstMethodCallArgument = true;
+			if (options == null) {
+				options = FormattingOptionsFactory.CreateMono();
+			//	options.AlignToFirstIndexerArgument = formatOptions.AlignToFirstMethodCallArgument = true;
 			}
 			
 			var sb = new StringBuilder();
@@ -78,7 +77,7 @@ class Foo
 		System.Console.WriteLine ($);
 	}
 }");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			var text = handler.FormatPlainText(indent.Offset, "Foo", null);
 			Assert.AreEqual("Foo", text);
 		}

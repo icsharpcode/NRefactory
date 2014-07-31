@@ -30,7 +30,6 @@ using System.Text;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
-using ICSharpCode.NRefactory6.CSharp.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -50,12 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <summary>
 		///     Formatting options.
 		/// </summary>
-		internal readonly CSharpFormattingOptions formattingOptions;
-
-		/// <summary>
-		///     Text editor options.
-		/// </summary>
-		internal readonly TextEditorOptions textEditorOptions;
+		internal readonly OptionSet options;
 
 		/// <summary>
 		///     A readonly reference to the document that's parsed
@@ -187,6 +181,15 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 		}
 
+//		/// <inheritdoc />
+//		public TextLocation Location
+//		{
+//			get
+//			{
+//				return new TextLocation(line, column);
+//			}
+//		}
+
 		/// <inheritdoc />
 		public bool EnableCustomIndentLevels
 		{
@@ -274,10 +277,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <param name="textEditorOptions">
 		///    Text editor options for indentation.
 		/// </param>
-		public CSharpIndentEngine(Document document, TextEditorOptions textEditorOptions, CSharpFormattingOptions formattingOptions)
+		public CSharpIndentEngine(Document document, OptionSet formattingOptions)
 		{
-			this.formattingOptions = formattingOptions;
-			this.textEditorOptions = textEditorOptions;
+			this.options = formattingOptions;
 			this.document = document;
 
 			this.currentState = new GlobalBodyState(this);
@@ -286,7 +288,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			this.customConditionalSymbols = new HashSet<string>();
 			this.wordToken = new StringBuilder();
 			this.previousKeyword = string.Empty;
-			this.newLineChar = textEditorOptions.EolMarker[0];
+			this.newLineChar = formattingOptions.GetOption(FormattingOptions.NewLine, LanguageNames.CSharp)[0];
 		}
 
 		/// <summary>
@@ -297,8 +299,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </param>
 		public CSharpIndentEngine(CSharpIndentEngine prototype)
 		{
-			this.formattingOptions = prototype.formattingOptions;
-			this.textEditorOptions = prototype.textEditorOptions;
+			this.options = prototype.options;
 			this.document = prototype.document;
 
 			this.newLineChar = prototype.newLineChar;
@@ -387,8 +388,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 				if (ch == '\t')
 				{
-					var nextTabStop = (column - 1 + textEditorOptions.IndentSize) / textEditorOptions.IndentSize;
-					column = 1 + nextTabStop * textEditorOptions.IndentSize;
+					var indentSize = options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp);
+					var nextTabStop = (column - 1 + indentSize) / indentSize;
+					column = 1 + nextTabStop * indentSize;
 				}
 				else
 				{
