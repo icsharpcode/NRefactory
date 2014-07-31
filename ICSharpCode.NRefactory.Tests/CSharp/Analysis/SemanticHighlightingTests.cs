@@ -472,7 +472,6 @@ partial class Test
 		[Test]
 		public void TestBug17011()
 		{
-			Console.WriteLine(Environment.Version);
 			TestColor (@"
 using System.Text;
 

@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 	public class AllInOneTests
 	{
 		const string ProjectDir = "../../";
-		const string TestFilesPath = "ICSharpCode.NRefactory.Tests/IndentationTests/TestFiles";
+		const string TestFilesPath = "ICSharpCode.NRefactory6.Tests/IndentationTests/TestFiles";
 
 		public void BeginFileTest(string fileName, CSharpFormattingOptions policy = null, TextEditorOptions options = null)
 		{

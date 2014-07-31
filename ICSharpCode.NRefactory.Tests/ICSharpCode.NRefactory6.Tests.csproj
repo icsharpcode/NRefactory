@@ -15,6 +15,7 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <OutputPath>..\bin\$(Configuration)\</OutputPath>
+    <UseMSBuildEngine>False</UseMSBuildEngine>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
