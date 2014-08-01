@@ -36,30 +36,30 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestMethod()
 		{
-			Test<CS1105ExtensionMethodMustBeDeclaredStaticAction> (
-				@"static class Foo
+			Test<CS1105ExtensionMethodMustBeDeclaredStaticAction> (@"
+static class Foo
 {
-	public void $FooBar (this string foo)
+	public void $FooBar(this string foo)
 	{
 
 	}
-}",
-				@"static class Foo
+}",@"
+static class Foo
 {
-	public static void FooBar (this string foo)
+	public static void FooBar(this string foo)
 	{
 
 	}
-}", 0, true);
+}");
 		}
 
 		[Test]
 		public void TestWrongContext1()
 		{
-			TestWrongContext<CS1105ExtensionMethodMustBeDeclaredStaticAction> (
-				@"static class Foo
+			TestWrongContext<CS1105ExtensionMethodMustBeDeclaredStaticAction> (@"
+static class Foo
 {
-	public static void $FooBar (this string foo)
+	public static void $FooBar(this string foo)
 	{
 
 	}
@@ -69,10 +69,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestWrongContext2()
 		{
-			TestWrongContext<CS1105ExtensionMethodMustBeDeclaredStaticAction> (
-				@"class Foo
+			TestWrongContext<CS1105ExtensionMethodMustBeDeclaredStaticAction> (@"
+class Foo
 {
-	public void $FooBar (string foo)
+	public void $FooBar(string foo)
 	{
 
 	}
