@@ -72,46 +72,30 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			readonly AstNode pattern =
-//				new ConditionalExpression(
-//					new InvocationExpression(
-//						new MemberReferenceExpression(new AnyNode("expr"), "Any"),
-//						new AnyNodeOrNull("param")
-//					),
-//					new InvocationExpression(
-//						new MemberReferenceExpression(new Backreference("expr"), "Last"),
-//						new Backreference("param")
-//					),
-//					new Choice {
-//						new NullReferenceExpression(),
-//						new DefaultValueExpression(new AnyNode())
-//					}
-//				);
-//
-//			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
-//			{
-//				base.VisitConditionalExpression(conditionalExpression);
-//				var match = pattern.Match(conditionalExpression);
-//				if (!match.Success)
-//					return;
-//				var expression = match.Get<Expression>("expr").First();
-//				var param      = match.Get<Expression>("param").First();
-//
-//				AddIssue(new CodeIssue(
-//					conditionalExpression,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					script => {
-//						var invocation = new InvocationExpression(new MemberReferenceExpression(expression.Clone(), "LastOrDefault"));
-//						if (param != null && !param.IsNull)
-//							invocation.Arguments.Add(param.Clone());
-//						script.Replace(
-//							conditionalExpression,
-//							invocation
-//							);
-//					}
-//				));
-//			}
+			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
+			{
+				base.VisitConditionalExpression(node);
+				//pattern is Any(param) ? Last(param) : null/default
+				var anyInvocation = node.Condition as InvocationExpressionSyntax;
+				var lastInvocation = node.WhenTrue as InvocationExpressionSyntax;
+				var nullDefaultWhenFalse = node.WhenFalse;
+
+				if (anyInvocation == null || lastInvocation == null || nullDefaultWhenFalse == null)
+					return;
+				var anyExpression = anyInvocation.Expression as MemberAccessExpressionSyntax;
+				if (anyExpression == null || anyExpression.Name.Identifier.ValueText != "Any")
+					return;
+				var anyParam = anyInvocation.ArgumentList;
+
+				var lastExpression = lastInvocation.Expression as MemberAccessExpressionSyntax;
+				if (lastExpression == null || lastExpression.Name.Identifier.ValueText != "Last" || !lastInvocation.ArgumentList.IsEquivalentTo(anyParam))
+					return;
+
+				if (!nullDefaultWhenFalse.IsKind(SyntaxKind.NullLiteralExpression) && !nullDefaultWhenFalse.IsKind(SyntaxKind.DefaultExpression))
+					return;
+
+				AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+			}
 		}
 	}
 
@@ -127,12 +111,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'LastOrDefault<T>()'", document.WithSyntaxRoot(newRoot)));
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
+				//replace a conditional Any(x) ? Last(x) : null/default with LastOrDefault(x)
+				var parameterExpr = ((InvocationExpressionSyntax)node.Condition).ArgumentList;
+				var newRoot = root.ReplaceNode((ExpressionSyntax)node, SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+					((InvocationExpressionSyntax)node.Condition).Expression, SyntaxFactory.IdentifierName("LastOrDefault")), parameterExpr));
+				result.Add(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'LastOrDefault<T>()'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}
