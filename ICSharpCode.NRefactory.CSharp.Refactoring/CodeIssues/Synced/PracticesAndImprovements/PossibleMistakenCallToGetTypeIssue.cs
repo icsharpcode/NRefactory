@@ -67,28 +67,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<PossibleMistakenCallToGetTypeIssue>
 		{
+			private INamedTypeSymbol systemType;
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
+				systemType = semanticModel.Compilation.GetTypeByMetadataName("System.Type");
 			}
 
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//
-//				var mref = invocationExpression.Target as MemberReferenceExpression;
-//				if (mref == null || mref.MemberName != "GetType")
-//					return;
-//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-//				if (rr == null || !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Type) || rr.Member.IsStatic)
-//					return;
-//				AddIssue(new CodeIssue (
-//					invocationExpression,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					s => s.Replace(invocationExpression, mref.Target.Clone())
-//				));
-//			}
+			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
+			{
+				base.VisitInvocationExpression(node);
+				var memberExpr = node.Expression as MemberAccessExpressionSyntax;
+				if (memberExpr == null || memberExpr.Name.Identifier.ValueText != "GetType")
+					return;
+				var methodSymbol = semanticModel.GetSymbolInfo(memberExpr);
+				if (methodSymbol.Symbol == null || !methodSymbol.Symbol.ContainingType.Equals(systemType) || methodSymbol.Symbol.IsStatic)
+					return;
+				AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+			}
 		}
 	}
 
@@ -105,10 +101,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagonstic.Location.SourceSpan).DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().First();
+				if (node == null)
+					continue;
+				var newRoot = root.ReplaceNode(node, ((MemberAccessExpressionSyntax)node.Expression).Expression);
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove call to 'object.GetType()'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
