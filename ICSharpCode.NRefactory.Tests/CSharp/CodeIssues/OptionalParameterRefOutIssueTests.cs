@@ -33,13 +33,26 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class OptionalParameterRefOutIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestRef ()
+		public void TestRef()
 		{
-			TestIssue<OptionalParameterRefOutIssue>(@"
+			Analyze<OptionalParameterRefOutIssue>(@"
 using System.Runtime.InteropServices;
 class Bar
 {
-	public void Foo([Optional] ref int test)
+	public void Foo($[Optional] ref int test$)
+	{
+	}
+}");
+		}
+
+		[Test]
+		public void TestOut()
+		{
+			Analyze<OptionalParameterRefOutIssue>(@"
+using System.Runtime.InteropServices;
+class Bar
+{
+	public void Foo($[Optional] out int test$)
 	{
 	}
 }
@@ -47,21 +60,7 @@ class Bar
 		}
 
 		[Test]
-		public void TestOut ()
-		{
-			TestIssue<OptionalParameterRefOutIssue>(@"
-using System.Runtime.InteropServices;
-class Bar
-{
-	public void Foo([Optional] out int test)
-	{
-	}
-}
-");
-		}
-
-		[Test]
-		public void TestDisable ()
+		public void TestDisable()
 		{
 			Analyze<OptionalParameterRefOutIssue>(@"
 using System.Runtime.InteropServices;
