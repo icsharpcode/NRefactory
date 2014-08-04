@@ -72,83 +72,71 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			#region Skipped declarations
-//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//			{
-//			}
-//
-//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-//			{
-//			}
-//
-//			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-//			{
-//			}
-//
-//			public override void VisitIndexerDeclaration(IndexerDeclaration indexerDeclaration)
-//			{
-//			}
-//
-//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-//			{
-//			}
-//
-//			public override void VisitCustomEventDeclaration(CustomEventDeclaration eventDeclaration)
-//			{
-//			}
-//
-//			public override void VisitEventDeclaration(EventDeclaration eventDeclaration)
-//			{
-//			}
-//
-//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-//			{
-//			}
-//
-//			public override void VisitFixedFieldDeclaration(FixedFieldDeclaration fixedFieldDeclaration)
-//			{
-//			}
-//
-//			public override void VisitDelegateDeclaration(DelegateDeclaration delegateDeclaration)
-//			{
-//			}
-//			#endregion
-//
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				if (methodDeclaration.Name != "GetHashCode" || !methodDeclaration.HasModifier(Modifiers.Override) || methodDeclaration.Parameters.Any())
-//					return;
-//				if (!ctx.Resolve(methodDeclaration.ReturnType).Type.IsKnownType(KnownTypeCode.Int32))
-//					return;
-//				base.VisitMethodDeclaration(methodDeclaration);
-//			}
-//
-//			public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
-//			{
-//				base.VisitMemberReferenceExpression(memberReferenceExpression);
-//				CheckNode(memberReferenceExpression, memberReferenceExpression.MemberNameToken);
-//			}
-//
-//			public override void VisitIdentifierExpression(IdentifierExpression identifierExpression)
-//			{
-//				base.VisitIdentifierExpression(identifierExpression);
-//				CheckNode(identifierExpression, identifierExpression);
-//			}
-//
-//			void CheckNode(AstNode expr, AstNode nodeToMark)
-//			{
-//				var resolvedResult = ctx.Resolve(expr);
-//				var mrr = resolvedResult as MemberResolveResult;
-//				if (mrr == null)
-//					return;
-//				var member = mrr.Member;
-//				var field = member as IField;
-//				if (field != null) {
-//					if (!field.IsReadOnly && !field.IsConst)
-//						AddIssue(new CodeIssue(nodeToMark, "Non-readonly field referenced in 'GetHashCode()'"));
-//				}
-//			}
+
+			#region Skip these
+			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
+			{
+			}
+
+			public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
+			{
+			}
+
+			public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
+			{
+			}
+
+			public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
+			{
+			}
+
+			public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
+			{
+			}
+
+			public override void VisitEventDeclaration(EventDeclarationSyntax node)
+			{
+			}
+
+			public override void VisitDestructorDeclaration(DestructorDeclarationSyntax node)
+			{
+			}
+
+			public override void VisitDelegateDeclaration(DelegateDeclarationSyntax node)
+			{
+			}
+
+			#endregion
+
+			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
+			{
+				IMethodSymbol method = semanticModel.GetDeclaredSymbol(node);
+				if (method == null || method.Name != "GetHashCode" || !method.IsOverride || method.Parameters.Count() > 0)
+					return;
+				if (method.ReturnType.SpecialType != SpecialType.System_Int32)
+					return;
+				base.VisitMethodDeclaration(node);
+			}
+
+
+			//note that visiting both identifier AND memberaccess would double up on issues - r.r.a in TestInspector4 would give issues for r, r.r, and r.r.a.
+			public override void VisitIdentifierName(IdentifierNameSyntax node)
+			{
+				base.VisitIdentifierName(node);
+				CheckNode(node, node.GetLocation());
+			}
+
+			private void CheckNode(SyntaxNode node, Location location)
+			{
+				var symbol = semanticModel.GetSymbolInfo(node).Symbol as IFieldSymbol;
+				if (symbol == null)
+					return;
+				if (!symbol.IsReadOnly && !symbol.IsConst) {
+					AddIssue(Diagnostic.Create(Rule, location));
+					Console.WriteLine(location.ToString());
+				}
+
+			}
 		}
 	}
 
@@ -166,10 +154,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document));
 			}
 			return result;
 		}

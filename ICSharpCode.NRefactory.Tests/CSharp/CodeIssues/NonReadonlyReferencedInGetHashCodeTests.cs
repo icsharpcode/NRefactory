@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			TestIssue<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 public class TestClass1
 {
 	public int a = 1;
@@ -50,7 +50,7 @@ public class TestClass2
 		TestClass1 c = new TestClass1();
 		int b = 1;
 		b++;
-		return c.a;
+		return c.$a$;
 	}
 }
 ");
@@ -59,7 +59,7 @@ public class TestClass2
 		[Test]
 		public void TestInspectorCase2()
 		{
-			TestIssue<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 public class TestClass1
 {
 	public int a = 1;
@@ -71,11 +71,10 @@ public class TestClass2
 	public override int GetHashCode()
 	{
 		TestClass1 c = new TestClass1();
-		b++;
-		return c.a;
+		$b$++;
+		return c.$a$;
 	}
-}
-", 2);
+}");
 		}
 		
 		[Test]
@@ -96,14 +95,14 @@ public class TestClass2
 		b++;
 		return c.GetHashCode();
 	}
-}
-");
+}");
 		}
 		
 		[Test]
 		public void TestInspectorCase4()
 		{
-			TestIssue<NonReadonlyReferencedInGetHashCodeIssue>(@"public class Test1
+			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"
+public class Test1
 {
 	public int a = 1;
 }
@@ -115,8 +114,8 @@ public class Test2
 	public override int GetHashCode()
 	{
 		Test1 c = new Test1();
-		q = 1 + q + r.a;
-		return c.a;
+		$q$ = 1 + $q$ + $r$.$a$;
+		return c.$a$;
 	}
 }
 
@@ -129,18 +128,17 @@ public class Test3
 	{
 		Test1 c = new Test1();
 		c.GetHashCode();
-		q = 1 + q + r.r.a;
-		return c.a;
+		$q$ = 1 + $q$ + $r$.$r$.$a$;
+		return c.$a$;
 	}
-}
-");
+}");
 		}
 		
 		
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			TestIssue<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -158,12 +156,12 @@ namespace resharper_test
 //Resharper disable NonReadonlyReferencedInGetHashCode
 			tmpval = a + 3;
 //Resharper restore NonReadonlyReferencedInGetHashCode
-			a = tmpval + 5;
+			a = $tmpval$ + 5;
 			return fooval;
 		}
 	}
 }
-", 1);
+");
 		}
 
 
