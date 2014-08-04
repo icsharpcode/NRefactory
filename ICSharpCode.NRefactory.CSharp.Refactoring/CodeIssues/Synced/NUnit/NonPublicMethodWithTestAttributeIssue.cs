@@ -72,32 +72,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				var result = ctx.Resolve(methodDeclaration) as MemberResolveResult; 
-//				if (result == null || result.IsError)
-//					return;
-//
-//				var member = result.Member;
-//				if (member.IsOverride || member.IsStatic || member.IsPublic)
-//					return;
-//
-//				if (!member.Attributes.Any(attr => attr.AttributeType.Name == "TestAttribute" && attr.AttributeType.Namespace == "NUnit.Framework"))
-//					return;
-//				AddIssue(new CodeIssue(
-//					methodDeclaration.NameToken,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					script => {
-//						script.ChangeModifier(methodDeclaration, Modifiers.Public);
-//					}
-//				));
-//			}
-//
-//			public override void VisitBlockStatement(BlockStatement blockStatement)
-//			{
-//				// Empty
-//			}
+			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
+			{
+				//missing this, we don't visit trivia - so the resharper disable is ignored
+				base.VisitMethodDeclaration(node);
+				IMethodSymbol methodSymbol = semanticModel.GetDeclaredSymbol(node);
+				if (methodSymbol == null || methodSymbol.IsOverride || methodSymbol.IsStatic || node.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
+					return;
+
+				if (!methodSymbol.GetAttributes().Any(a => a.AttributeClass.Name == "TestAttribute" && a.AttributeClass.ContainingNamespace.ToDisplayString() == "NUnit.Framework"))
+					return;
+
+				AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
+
+			public override void VisitBlock(BlockSyntax node)
+			{
+			}
 		}
 	}
 
@@ -113,12 +104,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make method public", document.WithSyntaxRoot(newRoot)));
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as MethodDeclarationSyntax;
+				if (node == null)
+					continue;
+				var newMethod = node.WithModifiers(SyntaxFactory.TokenList(new SyntaxTokenList().Add(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
+					.AddRange(node.Modifiers.ToArray().Where(m => !(m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword) || m.IsKind(SyntaxKind.InternalKeyword))))));
+				var newRoot = root.ReplaceNode(node, newMethod);
+				result.Add(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make method public", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}
