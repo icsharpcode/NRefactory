@@ -98,18 +98,18 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				if (context.CurrentAssembly != null) {
 					type = context.CurrentAssembly.GetTypeDefinition(fullTypeName);
 				}
-				if (type == null) {
-					var compilation = context.Compilation;
-					foreach (var asm in compilation.Assemblies) {
-						type = asm.GetTypeDefinition(fullTypeName);
-						if (type != null)
-							break;
-					}
-				}
 			} else {
 				IAssembly asm = assembly.Resolve(context);
 				if (asm != null) {
 					type = asm.GetTypeDefinition(fullTypeName);
+				}
+			}
+			if (type == null) {
+				var compilation = context.Compilation;
+				foreach (var asm in compilation.Assemblies) {
+					type = asm.GetTypeDefinition(fullTypeName);
+					if (type != null)
+						break;
 				}
 			}
 			return type ?? new UnknownType(fullTypeName);
