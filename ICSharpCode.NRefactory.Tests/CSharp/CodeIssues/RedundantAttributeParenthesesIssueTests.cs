@@ -33,26 +33,40 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class RedundantAttributeParenthesesIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void Test ()
+		public void Test()
 		{
-			var input = @"
-[Test ()]
-class TestClass { }";
-			var output = @"
+			Analyze<RedundantAttributeParenthesesIssue>(@"
+[$Test()$]
+class TestClass { }", @"
 [Test]
-class TestClass { }";
-			Test<RedundantAttributeParenthesesIssue> (input, 1, output);
+class TestClass { }");
 		}
 
+		[Test]
+		public void IgnoreNoParentheses()
+		{
+			Analyze<RedundantAttributeParenthesesIssue>(@"
+[Test]
+class TestClass { }");
+
+		}
+
+		[Test]
+		public void IgnoreParameters()
+		{
+			Analyze<RedundantAttributeParenthesesIssue>(@"
+[Test(1)]
+class TestClass { }");
+
+		}
 		
 		[Test]
 		public void TestDisable ()
 		{
-			var input = @"
+			Analyze<RedundantAttributeParenthesesIssue>(@"
 // Resharper disable once RedundantAttributeParentheses
 [Test ()]
-class TestClass { }";
-			Test<RedundantAttributeParenthesesIssue> (input, 0);
+class TestClass { }");
 		}
 
 	}

@@ -71,16 +71,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			public override void VisitAttribute(Attribute attribute)
-//			{
-//				base.VisitAttribute(attribute);
-//
-//				if (attribute.Arguments.Count > 0 || !attribute.HasArgumentList)
-//					return;
-//
-//				AddIssue(new CodeIssue(attribute.LParToken.StartLocation, attribute.RParToken.StartLocation, ctx.TranslateString(""), ctx.TranslateString(""), script =>
-//					script.Replace(attribute, new Attribute { Type = attribute.Type.Clone() })) { IssueMarker = IssueMarker.GrayOut });
-//			}
+			public override void VisitAttribute(AttributeSyntax node)
+			{
+				base.VisitAttribute(node);
+				if (node.ArgumentList == null || node.ArgumentList.Arguments.Count > 0)
+					return;
+				AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+			}
 		}
 	}
 
@@ -96,12 +93,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)));
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as AttributeSyntax;
+				if (node == null)
+					continue;
+				var newRoot = root.ReplaceNode(node, node.WithArgumentList(null));
+				result.Add(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
 		}
