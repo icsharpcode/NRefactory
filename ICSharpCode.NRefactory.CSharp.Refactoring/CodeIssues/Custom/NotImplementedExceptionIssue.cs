@@ -70,20 +70,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		class GatherVisitor : GatherVisitorBase<NotImplementedExceptionIssue>
 		{
+			private INamedTypeSymbol notImpl;
+
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
+				notImpl = semanticModel.Compilation.GetTypeByMetadataName("System.NotImplementedException");
 			}
 
-//			public override void VisitThrowStatement(ThrowStatement throwStatement)
-//			{
-//				var result = ctx.Resolve(throwStatement.Expression);
-//				if (result.Type.Equals(ctx.Compilation.FindType(typeof(System.NotImplementedException)))) {
-//					AddIssue(new CodeIssue(throwStatement, ctx.TranslateString("NotImplemented exception thrown")) { IssueMarker = IssueMarker.None });
-//				}
-//
-//				base.VisitThrowStatement(throwStatement);
-//			}
+			public override void VisitThrowStatement(ThrowStatementSyntax node)
+			{
+				var result = semanticModel.GetTypeInfo(node.Expression).Type;
+				if (result == null || result.Equals(notImpl))
+					AddIssue(Diagnostic.Create(Rule, node.Expression.GetLocation()));
+				base.VisitThrowStatement(node);
+			}
 		}
 	}
 }
