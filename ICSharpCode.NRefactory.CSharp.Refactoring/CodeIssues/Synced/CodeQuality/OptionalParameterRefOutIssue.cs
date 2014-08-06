@@ -72,21 +72,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
-//			{
-//				base.VisitParameterDeclaration(parameterDeclaration);
-//				if (parameterDeclaration.ParameterModifier != ParameterModifier.Ref && parameterDeclaration.ParameterModifier != ParameterModifier.Out)
-//					return;
-//				foreach (var sect in parameterDeclaration.Attributes) {
-//					foreach (var attr in sect.Attributes) {
-//						var rr = ctx.Resolve(attr);
-//						if (rr.Type.Name == "OptionalAttribute" && rr.Type.Namespace == "System.Runtime.InteropServices") {
-//							AddIssue(new CodeIssue(attr, ctx.TranslateString("A 'ref' or 'out' parameter can't be optional")));
-//							return;
-//						}
-//					}
-//				}
-//			}
+			public override void VisitParameter(ParameterSyntax node)
+			{
+				base.VisitParameter(node);
+				if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.RefKeyword) || m.IsKind(SyntaxKind.OutKeyword)))
+					return;
+				foreach (var attributeLists in node.AttributeLists) {
+					foreach (var attribute in attributeLists.Attributes) {
+						var attrSymbol = semanticModel.GetTypeInfo(attribute).Type;
+						if (attrSymbol == null)
+							continue;
+						if (attrSymbol.Name == "OptionalAttribute" && attrSymbol.ContainingNamespace.Name == "InteropServices") {
+							AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+							return;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -104,10 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document));
 			}
 			return result;
 		}
