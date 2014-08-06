@@ -34,12 +34,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class SealedMemberInSealedClassIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestBasicCase ()
+		public void TestBasicCase()
 		{
-			Test<SealedMemberInSealedClassIssue>(@"
+			Analyze<SealedMemberInSealedClassIssue>(@"
 sealed class Foo
 {
-	public sealed override string ToString()
+	public sealed override string $ToString$()
 	{
 		return ""''"";
 	}
@@ -56,7 +56,7 @@ sealed class Foo
 		}
 
 		[Test]
-		public void TestValid ()
+		public void TestValid()
 		{
 			Analyze<SealedMemberInSealedClassIssue>(@"
 class Foo
@@ -71,7 +71,7 @@ class Foo
 
 
 		[Test]
-		public void TestDisable ()
+		public void TestDisable()
 		{
 			Analyze<SealedMemberInSealedClassIssue>(@"
 sealed class Foo
