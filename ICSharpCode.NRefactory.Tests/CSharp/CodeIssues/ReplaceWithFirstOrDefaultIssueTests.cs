@@ -34,67 +34,67 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class ReplaceWithFirstOrDefaultIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestBasicCase ()
+		public void TestBasicCase()
 		{
-			Test<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
 	public void FooBar(string[] args)
 	{
-		var first = args.Any () ? args.First () : null;
+		var first = $args.Any() ? args.First() : null$;
 	}
 }", @"using System.Linq;
 class Bar
 {
 	public void FooBar(string[] args)
 	{
-		var first = args.FirstOrDefault ();
+		var first = args.FirstOrDefault();
 	}
 }");
 		}
 
 		[Test]
-		public void TestBasicCaseWithExpression ()
+		public void TestBasicCaseWithExpression()
 		{
-			Test<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
 	public void FooBar(string[] args)
 	{
-		args.Any (a => a != null) ? args.First (a => a != null) : null;
+		$args.Any(a => a != null) ? args.First(a => a != null) : null$;
 	}
 }", @"using System.Linq;
 class Bar
 {
 	public void FooBar(string[] args)
 	{
-		args.FirstOrDefault (a => a != null);
+		args.FirstOrDefault(a => a != null);
 	}
 }");
 		}
 
 		[Test]
-		public void TestBasicCaseWithDefault ()
+		public void TestBasicCaseWithDefault()
 		{
-			Test<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
 	public void FooBar<T>(T[] args)
 	{
-		var first = args.Any () ? args.First () : default(T);
+		var first = $args.Any() ? args.First() : default(T)$;
 	}
 }", @"using System.Linq;
 class Bar
 {
 	public void FooBar<T>(T[] args)
 	{
-		var first = args.FirstOrDefault ();
+		var first = args.FirstOrDefault();
 	}
 }");
 		}
 
 		[Test]
-		public void TestDisable ()
+		public void TestDisable()
 		{
 			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
@@ -102,7 +102,7 @@ class Bar
 	public void FooBar(string[] args)
 	{
 		// ReSharper disable once ReplaceWithFirstOrDefault
-		var first = args.Any () ? args.First () : null;
+		var first = args.Any() ? args.First() : null;
 	}
 }");
 		}

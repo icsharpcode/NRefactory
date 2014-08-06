@@ -34,67 +34,67 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class ReplaceWithLastOrDefaultIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestBasicCase ()
+		public void TestBasicCase()
 		{
-			Test<ReplaceWithLastOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithLastOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
 	public void FooBar(string[] args)
 	{
-		var first = args.Any () ? args.Last () : null;
+		var first = $args.Any() ? args.Last() : null$;
 	}
 }", @"using System.Linq;
 class Bar
 {
 	public void FooBar(string[] args)
 	{
-		var first = args.LastOrDefault ();
+		var first = args.LastOrDefault();
 	}
 }");
 		}
 
 		[Test]
-		public void TestBasicCaseWithExpression ()
+		public void TestBasicCaseWithExpression()
 		{
-			Test<ReplaceWithLastOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithLastOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
 	public void FooBar(string[] args)
 	{
-		args.Any (a => a != null) ? args.Last (a => a != null) : null;
+		$args.Any(a => a != null) ? args.Last(a => a != null) : null$;
 	}
 }", @"using System.Linq;
 class Bar
 {
 	public void FooBar(string[] args)
 	{
-		args.LastOrDefault (a => a != null);
+		args.LastOrDefault(a => a != null);
 	}
 }");
 		}
 
 		[Test]
-		public void TestBasicCaseWithDefault ()
+		public void TestBasicCaseWithDefault()
 		{
-			Test<ReplaceWithLastOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithLastOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
 	public void FooBar<T>(T[] args)
 	{
-		var first = args.Any () ? args.Last () : default(T);
+		var first = $args.Any() ? args.Last() : default(T)$;
 	}
 }", @"using System.Linq;
 class Bar
 {
 	public void FooBar<T>(T[] args)
 	{
-		var first = args.LastOrDefault ();
+		var first = args.LastOrDefault();
 	}
 }");
 		}
 
 		[Test]
-		public void TestDisable ()
+		public void TestDisable()
 		{
 			Analyze<ReplaceWithLastOrDefaultIssue>(@"using System.Linq;
 class Bar
@@ -102,7 +102,7 @@ class Bar
 	public void FooBar(string[] args)
 	{
 		// ReSharper disable once ReplaceWithLastOrDefault
-		var first = args.Any () ? args.Last () : null;
+		var first = args.Any() ? args.Last() : null;
 	}
 }");
 		}
