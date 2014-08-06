@@ -43,22 +43,22 @@ namespace NUnit.Framework {
 		[Test]
 		public void TestImplicitPrivate()
 		{
-			Test<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
+			Analyze<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
 				@"
-[TextFixture]
+[TestFixture]
 class Tests 
 {
 	[Test]
-	void NonPublicMethod ()
+	void $NonPublicMethod$()
 	{
 	}
 }", NUnitClasses + 
 				@"
-[TextFixture]
+[TestFixture]
 class Tests 
 {
 	[Test]
-	public void NonPublicMethod ()
+	public void NonPublicMethod()
 	{
 	}
 }");
@@ -67,22 +67,22 @@ class Tests
 		[Test]
 		public void TestExplictPrivate()
 		{
-			Test<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
+			Analyze<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
 				@"
-[TextFixture]
+[TestFixture]
 class Tests 
 {
 	[Test]
-	private void NonPublicMethod ()
+	private void $NonPublicMethod$()
 	{
 	}
-}", NUnitClasses + 
+}", NUnitClasses +
 				@"
-[TextFixture]
+[TestFixture]
 class Tests 
 {
 	[Test]
-	public void NonPublicMethod ()
+	public void NonPublicMethod()
 	{
 	}
 }");
@@ -91,13 +91,13 @@ class Tests
 		[Test]
 		public void TestExplictProtected()
 		{
-			Test<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
+			Analyze<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
 				@"
-[TextFixture]
+[TestFixture]
 class Tests 
 {
 	[Test]
-	protected void NonPublicMethod ()
+	protected void $NonPublicMethod$()
 	{
 	}
 }", NUnitClasses + 
@@ -106,7 +106,7 @@ class Tests
 class Tests 
 {
 	[Test]
-	public void NonPublicMethod ()
+	public void NonPublicMethod()
 	{
 	}
 }");
@@ -116,19 +116,17 @@ class Tests
 		[Test]
 		public void TestDisable()
 		{
-			var input = NUnitClasses + 
-				@"
-[TextFixture]
+			Analyze<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + @"
+[TestFixture]
 class Tests 
 {
-	// ReSharper disable once NUnit.NonPublicMethodWithTestAttribute
+	//ReSharper disable once NUnit.NonPublicMethodWithTestAttribute
 	[Test]
-	void NonPublicMethod ()
+	void NonPublicMethod()
 	{
 	}
 }
-";
-			Analyze<NonPublicMethodWithTestAttributeIssue>(input);
+");
 		}
 
 
@@ -137,12 +135,12 @@ class Tests
 		{
 			var input = NUnitClasses + 
 				@"
-[TextFixture]
+[TestFixture]
 class Tests 
 {
 	// ReSharper disable All
 	[Test]
-	void NonPublicMethod ()
+	void NonPublicMethod()
 	{
 	}
 	// ReSharper restore All
