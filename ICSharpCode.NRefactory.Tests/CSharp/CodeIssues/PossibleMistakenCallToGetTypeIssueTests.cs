@@ -37,14 +37,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestGetTypeCase ()
 		{
-			Test<PossibleMistakenCallToGetTypeIssue>(@"
+			Analyze<PossibleMistakenCallToGetTypeIssue>(@"
 using System;
 
 public class Bar
 {
-	public void FooBar (Type a)
+	public void FooBar(Type a)
 	{
-		Console.WriteLine (a.GetType ());
+		Console.WriteLine($a.GetType()$);
 	}
 }
 ", @"
@@ -52,16 +52,16 @@ using System;
 
 public class Bar
 {
-	public void FooBar (Type a)
+	public void FooBar(Type a)
 	{
-		Console.WriteLine (a);
+		Console.WriteLine(a);
 	}
 }
 ");
 		}
 
 		[Test]
-		public void TestStaticCall ()
+		public void TestStaticCall()
 		{
 			Analyze<PossibleMistakenCallToGetTypeIssue>(@"
 using System;
@@ -71,14 +71,14 @@ public class Bar
 	public void FooBar(Type a)
 	{
 		string abc = ""def"";
-		Type.GetType (abc, true);
+		Type.GetType(abc, true);
 	}
 }
 ");
 		}
 
 		[Test]
-		public void TestDisable ()
+		public void TestDisable()
 		{
 			Analyze<PossibleMistakenCallToGetTypeIssue>(@"
 public class Bar
