@@ -73,46 +73,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			static readonly AstNode truePattern = 
-//				new AssignmentExpression(
-//					new AnyNode("expr"),
-//					AssignmentOperatorType.BitwiseOr,
-//					PatternHelper.OptionalParentheses(new PrimitiveExpression(true))
-//				);
-//
-//			static readonly AstNode falsePattern = 
-//				new AssignmentExpression(
-//					new AnyNode("expr"),
-//					AssignmentOperatorType.BitwiseAnd,
-//					PatternHelper.OptionalParentheses(new PrimitiveExpression(false))
-//				);
-//
-//			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
-//			{
-//				base.VisitAssignmentExpression(assignmentExpression);
-//				var match = truePattern.Match(assignmentExpression);
-//				AssignmentExpression simpleAssignment;
-//
-//				if (match.Success) {
-//					var expr = match.Get<Expression>("expr").Single();
-//					simpleAssignment = new AssignmentExpression(expr.Clone(), new PrimitiveExpression(true));
-//				} else {
-//					match = falsePattern.Match(assignmentExpression);
-//					if (!match.Success)
-//						return;
-//					var expr = match.Get<Expression>("expr").Single();
-//					simpleAssignment = new AssignmentExpression(expr.Clone(), new PrimitiveExpression(false));
-//				}
-//
-//				AddIssue(new CodeIssue(
-//					assignmentExpression,
-//					ctx.TranslateString(""),
-//					string.Format(ctx.TranslateString(""), simpleAssignment),
-//					script => {
-//						script.Replace(assignmentExpression, simpleAssignment);
-//					}
-//				));
-//			}
+			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
+			{
+				base.VisitBinaryExpression(node);
+				//ignore non |= and &=
+				if (node.IsKind(SyntaxKind.OrAssignmentExpression)) {
+					LiteralExpressionSyntax right = node.Right as LiteralExpressionSyntax;
+					//if right is true
+					if (right != null && (bool)right.Token.Value) {
+						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+					}
+
+				} else if (node.IsKind(SyntaxKind.AndAssignmentExpression)) {
+					LiteralExpressionSyntax right = node.Right as LiteralExpressionSyntax;
+					//if right is false
+					if (right != null && !(bool)right.Token.Value) {
+						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+					}
+				}
+
+			}
 		}
 	}
 
@@ -129,10 +109,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as BinaryExpressionSyntax;
+				if (node == null)
+					continue;
+				var newRoot = root.ReplaceNode(node, node.WithOperatorToken(SyntaxFactory.Token(SyntaxKind.EqualsToken)));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with '{0}'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
