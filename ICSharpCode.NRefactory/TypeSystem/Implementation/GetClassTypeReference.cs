@@ -87,7 +87,28 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		public string Name { get { return fullTypeName.Name; } }
 		[Obsolete("Use the FullTypeName property instead. GetClassTypeReference now supports nested types, where the Namespace/Name/TPC tripel isn't sufficient for identifying the type.")]
 		public int TypeParameterCount { get { return fullTypeName.TypeParameterCount; } }
-		
+
+		[NonSerialized]
+		bool alreadyTriedToLookupInDifferentAssembly;
+
+		IType ResolveUsingTypeContext (ITypeResolveContext context)
+		{
+			IType type = null;
+
+			if (context.CurrentAssembly != null) {
+				type = context.CurrentAssembly.GetTypeDefinition (fullTypeName);
+			}
+			if (type == null) {
+				var compilation = context.Compilation;
+				foreach (var asm in compilation.Assemblies) {
+					type = asm.GetTypeDefinition (fullTypeName);
+					if (type != null)
+						break;
+				}
+			}
+			return type;
+		}
+
 		public IType Resolve(ITypeResolveContext context)
 		{
 			if (context == null)
@@ -95,23 +116,18 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			
 			IType type = null;
 			if (assembly == null) {
-				if (context.CurrentAssembly != null) {
-					type = context.CurrentAssembly.GetTypeDefinition(fullTypeName);
-				}
+				type = ResolveUsingTypeContext (context);
 			} else {
 				IAssembly asm = assembly.Resolve(context);
 				if (asm != null) {
 					type = asm.GetTypeDefinition(fullTypeName);
 				}
-			}
-			if (type == null) {
-				var compilation = context.Compilation;
-				foreach (var asm in compilation.Assemblies) {
-					type = asm.GetTypeDefinition(fullTypeName);
-					if (type != null)
-						break;
+				if (!alreadyTriedToLookupInDifferentAssembly) {
+					alreadyTriedToLookupInDifferentAssembly = true;
+					type = ResolveUsingTypeContext (context);
 				}
 			}
+
 			return type ?? new UnknownType(fullTypeName);
 		}
 		
