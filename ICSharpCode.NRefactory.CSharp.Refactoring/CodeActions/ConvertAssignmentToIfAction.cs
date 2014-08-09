@@ -42,57 +42,54 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert assignment to 'if'")]
 	[ExportCodeRefactoringProvider("Convert assignment to 'if'", LanguageNames.CSharp)]
-	public class ConvertAssignmentToIfAction : SpecializedCodeAction<BinaryExpressionSyntax>
+	public class ConvertAssignmentToIfAction : ICodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			yield break;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+
+			var node = root.FindNode(span) as BinaryExpressionSyntax;
+			if (node == null || !IsAssignment(node))
+				return Enumerable.Empty<CodeAction>();
+
+			if (node.Right is ConditionalExpressionSyntax) {
+				var ifStatement = CreateForConditionalExpression(model, node, (ConditionalExpressionSyntax)node.Right);
+				return new [] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", document.WithSyntaxRoot(root.ReplaceNode(node.Parent, ifStatement)))};
+			}
+
+			var bOp = node.Right as BinaryExpressionSyntax;
+			//if null coalesce
+			if (bOp != null && bOp.OperatorToken.IsKind(SyntaxKind.QuestionQuestionToken)) {
+				var ifStatement = CreateForNullCoalescingExpression(model, node, bOp);
+				return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", document.WithSyntaxRoot(root.ReplaceNode(node.Parent, ifStatement))) };
+			}
+
+			return Enumerable.Empty<CodeAction>();
 		}
-//		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
-//		{
-//			if (!node.OperatorToken.Contains(context.Location) || !(node.Parent is ExpressionStatement))
-//				return null;
-//
-//			if (node.Right is ConditionalExpression)
-//				return CreateForConditionalExpression(context, node, (ConditionalExpression)node.Right);
-//
-//			var bOp = node.Right as BinaryOperatorExpression;
-//			if (bOp != null && bOp.Operator == BinaryOperatorType.NullCoalescing)
-//				return CreateForNullCoalesingExpression(context, node, bOp);
-//			return null;
-//		}
-//
-//		static CodeAction CreateForConditionalExpression(SemanticModel ctx, AssignmentExpression node, ConditionalExpression conditionalExpression)
-//		{
-//			return new CodeAction (
-//				ctx.TranslateString("Replace with 'if' statement"),
-//				script => {
-//					var ifStatement = new IfElseStatement(
-//						conditionalExpression.Condition.Clone(),
-//						new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.TrueExpression.Clone()),
-//						new AssignmentExpression(node.Left.Clone(), node.Operator, conditionalExpression.FalseExpression.Clone())
-//					);
-//					script.Replace(node.Parent, ifStatement); 
-//				},
-//				node.OperatorToken
-//			);
-//		}
-//
-//		static CodeAction CreateForNullCoalesingExpression(SemanticModel ctx, AssignmentExpression node, BinaryOperatorExpression bOp)
-//		{
-//			return new CodeAction (
-//				ctx.TranslateString("Replace with 'if' statement"),
-//				script => {
-//					var ifStatement = new IfElseStatement(
-//						new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.InEquality, new NullReferenceExpression()), 
-//						new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Left.Clone()),
-//						new AssignmentExpression(node.Left.Clone(), node.Operator, bOp.Right.Clone())
-//					);
-//					script.Replace(node.Parent, ifStatement); 
-//				},
-//				node.OperatorToken
-//			);
-//		}
+
+		private IfStatementSyntax CreateForConditionalExpression(SemanticModel model, BinaryExpressionSyntax expr, ConditionalExpressionSyntax conditional)
+		{
+			return SyntaxFactory.IfStatement(conditional.Condition, SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(expr.CSharpKind(), expr.Left, 
+				conditional.WhenTrue)),
+				SyntaxFactory.ElseClause(SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(expr.CSharpKind(), expr.Left, conditional.WhenFalse))));
+		}
+
+		private IfStatementSyntax CreateForNullCoalescingExpression(SemanticModel model, BinaryExpressionSyntax expr, BinaryExpressionSyntax bOp)
+		{
+			return SyntaxFactory.IfStatement(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, bOp.Left, SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), 
+				SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(expr.CSharpKind(), expr.Left,
+				bOp.Left)),
+				SyntaxFactory.ElseClause(SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(expr.CSharpKind(), expr.Left, bOp.Right))));
+		}
+
+		private bool IsAssignment(BinaryExpressionSyntax node)
+		{
+			return node.IsKind(SyntaxKind.AddAssignmentExpression) || node.IsKind(SyntaxKind.AndAssignmentExpression) || node.IsKind(SyntaxKind.DivideAssignmentExpression) ||
+				node.IsKind(SyntaxKind.ExclusiveOrAssignmentExpression) || node.IsKind(SyntaxKind.LeftShiftAssignmentExpression) || node.IsKind(SyntaxKind.ModuloAssignmentExpression) ||
+				node.IsKind(SyntaxKind.MultiplyAssignmentExpression) || node.IsKind(SyntaxKind.OrAssignmentExpression) || node.IsKind(SyntaxKind.RightShiftAssignmentExpression) ||
+				node.IsKind(SyntaxKind.SimpleAssignmentExpression) || node.IsKind(SyntaxKind.SubtractAssignmentExpression);
+		}
 	}
 }
 
