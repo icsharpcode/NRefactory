@@ -52,48 +52,38 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+			var node = root.FindNode(span) as BinaryExpressionSyntax;
+			if (node == null || !(node.IsKind(SyntaxKind.EqualsExpression) || node.IsKind(SyntaxKind.NotEqualsExpression)))
+				return Enumerable.Empty<CodeAction>();
+			return new [] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Use 'Equals'", document.WithSyntaxRoot(root.ReplaceNode(node, CreateEquals(model, node))))};
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var node = context.GetNode<BinaryOperatorExpression>();
-//			if (node == null || 
-//			    (node.Operator != BinaryOperatorType.Equality && node.Operator != BinaryOperatorType.InEquality) ||
-//			    !node.OperatorToken.Contains(context.Location))
-//				yield break;
-//
-//			yield return new CodeAction(
-//				context.TranslateString("Use 'Equals'"),
-//				script => {
-//					Expression expr = new InvocationExpression(GenerateTarget(context, node), node.Left.Clone(), node.Right.Clone());
-//					if (node.Operator == BinaryOperatorType.InEquality)
-//						expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
-//					script.Replace(node, expr);
-//				}, 
-//				node.OperatorToken
-//			);
-//		}
-//
-//		readonly IList<IType> emptyTypes = new IType[0];
-//
-//		bool HasDifferentEqualsMethod(IEnumerable<IMethod> methods)
-//		{
-//			foreach (var method in methods) {
-//				if (method.Parameters.Count == 2 && method.FullName != "System.Object.Equals") {
-//					return true;
-//				}
-//			}
-//			return false;
-//		}
-//
-//		Expression GenerateTarget(SemanticModel context, BinaryOperatorExpression bOp)
-//		{
-//			var rr = context.Resolver.GetResolverStateBefore(bOp).LookupSimpleNameOrTypeName("Equals", emptyTypes, NameLookupMode.Expression) as MethodGroupResolveResult;
-//			if (rr == null || rr.IsError || HasDifferentEqualsMethod (rr.Methods)) {
-//				return new PrimitiveType ("object").Member("Equals");
-//			}
-//			return new IdentifierExpression("Equals");
-//		}
+
+		private SyntaxNode CreateEquals(SemanticModel model, BinaryExpressionSyntax node)
+		{
+			ExpressionSyntax expr = SyntaxFactory.InvocationExpression(GenerateTarget(model, node), SyntaxFactory.ArgumentList(
+				new SeparatedSyntaxList<ArgumentSyntax>().Add(SyntaxFactory.Argument(node.Left)).Add(SyntaxFactory.Argument(node.Right))));
+			if (node.IsKind(SyntaxKind.NotEqualsExpression))
+				expr = SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, expr);
+			return expr;
+		}
+
+		private ExpressionSyntax GenerateTarget(SemanticModel model, BinaryExpressionSyntax node)
+		{
+			var symbols = model.LookupSymbols(node.SpanStart).OfType<IMethodSymbol>();
+			if (symbols.Count() == 0 || HasDifferentEqualsMethod(symbols))
+				return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ParseExpression("object"), SyntaxFactory.IdentifierName("Equals"));
+			else
+				return SyntaxFactory.IdentifierName("Equals");
+		}
+
+		private bool HasDifferentEqualsMethod(IEnumerable<IMethodSymbol> symbols)
+		{
+			foreach (IMethodSymbol method in symbols) {
+				if(method.Name == "Equals" && method.Parameters.Count() == 2 && method.ToDisplayString() != "object.Equals(object, object)")
+					return true;
+			}
+			return false;
+		}
 	}
 }
 

@@ -32,67 +32,67 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertEqualityOperatorToEqualsActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestEquality ()
+		public void TestEquality()
 		{
-			Test<ConvertEqualityOperatorToEqualsAction> (@"class FooBar
+			Test<ConvertEqualityOperatorToEqualsAction>(@"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
 		if (x $== y) {
 		}
 	}
 }", @"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
-		if (Equals (x, y)) {
+		if (Equals(x, y)) {
 		}
 	}
 }");
 		}
 
 		[Test]
-		public void TestInEquality ()
+		public void TestInequality()
 		{
-			Test<ConvertEqualityOperatorToEqualsAction> (@"class FooBar
+			Test<ConvertEqualityOperatorToEqualsAction>(@"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
 		if (x $!= y) {
 		}
 	}
 }", @"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
-		if (!Equals (x, y)) {
+		if (!Equals(x, y)) {
 		}
 	}
 }");
 		}
 
 		[Test]
-		public void TestEqualsFallback ()
+		public void TestEqualsFallback()
 		{
 			Test<ConvertEqualityOperatorToEqualsAction> (@"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
 		if (x $== y) {
 		}
 	}
-	public new static bool Equals (object o, object x)
+	public new static bool Equals(object o, object x)
 	{
 		return false;
 	}
 }", @"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
-		if (object.Equals (x, y)) {
+		if(object.Equals(x, y)) {
 		}
 	}
-	public new static bool Equals (object o, object x)
+	public new static bool Equals(object o, object x)
 	{
 		return false;
 	}
