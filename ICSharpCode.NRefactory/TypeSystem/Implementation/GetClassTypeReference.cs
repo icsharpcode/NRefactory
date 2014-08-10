@@ -125,7 +125,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					type = asm.GetTypeDefinition(fullTypeName);
 				}
 
-				if (Interlocked.CompareExchange (ref flags, AlreadyTriedToLookupInDifferentAssemblyFlag, 0) == 0) {
+				if ((Interlocked.Exchange (ref flags, flags | AlreadyTriedToLookupInDifferentAssemblyFlag) & AlreadyTriedToLookupInDifferentAssemblyFlag) == 0) {
 					type = ResolveUsingTypeContext (context);
 				}
 			}
