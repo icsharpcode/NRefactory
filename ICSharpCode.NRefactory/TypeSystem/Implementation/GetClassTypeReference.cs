@@ -18,6 +18,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 
 namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 {
@@ -89,7 +90,8 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		public int TypeParameterCount { get { return fullTypeName.TypeParameterCount; } }
 
 		[NonSerialized]
-		bool alreadyTriedToLookupInDifferentAssembly;
+		int flags;
+		const int AlreadyTriedToLookupInDifferentAssemblyFlag = 1;
 
 		IType ResolveUsingTypeContext (ITypeResolveContext context)
 		{
@@ -122,8 +124,8 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				if (asm != null) {
 					type = asm.GetTypeDefinition(fullTypeName);
 				}
-				if (!alreadyTriedToLookupInDifferentAssembly) {
-					alreadyTriedToLookupInDifferentAssembly = true;
+
+				if (Interlocked.CompareExchange (ref flags, AlreadyTriedToLookupInDifferentAssemblyFlag, 0) == 0) {
 					type = ResolveUsingTypeContext (context);
 				}
 			}
