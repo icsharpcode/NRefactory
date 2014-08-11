@@ -88,57 +88,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right))));
 			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '?:' expression", document.WithSyntaxRoot(newRoot)) };
 		}
-//		static readonly AstNode Pattern = 
-//			new IfElseStatement(
-//				new AnyNode("condition"),
-//				PatternHelper.EmbeddedStatement (new ExpressionStatement(new NamedNode ("assign1", new AssignmentExpression(new AnyNode("target"), AssignmentOperatorType.Any, new AnyNode("expr1"))))),
-//				PatternHelper.EmbeddedStatement (new ExpressionStatement(new NamedNode ("assign2", new AssignmentExpression(new Backreference("target"), AssignmentOperatorType.Any, new AnyNode("expr2")))))
-//			);
-//
-//		public static bool GetMatch(IfElseStatement ifElseStatement, out Match match)
-//		{
-//			match = ConvertIfStatementToConditionalTernaryExpressionAction.Pattern.Match(ifElseStatement);
-//			if (!match.Success || ifElseStatement.Parent is IfElseStatement)
-//				return false;
-//			var firstAssign = match.Get<AssignmentExpression>("assign1").Single();
-//			var secondAssign = match.Get<AssignmentExpression>("assign2").Single();
-//			return firstAssign.Operator == secondAssign.Operator;
-//		}
-//
-//		static CodeAction CreateAction (BaseSemanticModel ctx, IfElseStatement ifElseStatement, Match match)
-//		{
-//			var target = match.Get<Expression>("target").Single();
-//			var condition = match.Get<Expression>("condition").Single();
-//			var trueExpr = match.Get<Expression>("expr1").Single();
-//			var falseExpr = match.Get<Expression>("expr2").Single();
-//			var firstAssign = match.Get<AssignmentExpression>("assign1").Single();
-//
-//			return new CodeAction(
-//				ctx.TranslateString("Replace with '?:' expression"),
-//				script => {
-//					script.Replace(
-//						ifElseStatement, 
-//						new ExpressionStatement(
-//							new AssignmentExpression(
-//								target.Clone(),
-//								firstAssign.Operator,
-//								new ConditionalExpression(condition.Clone(), trueExpr.Clone(), falseExpr.Clone())
-//							)
-//						)
-//					); 
-//				},
-//				ifElseStatement
-//			);
-//		}
-//
-//		protected override CodeAction GetAction(SemanticModel context, IfElseStatement node)
-//		{
-//			if (!node.IfToken.Contains(context.Location))
-//				return null;
-//			Match match;
-//			if (!GetMatch(node, out match))
-//				return null;
-//			return CreateAction(context, node, match);
-//		}
 	}
 }
