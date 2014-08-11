@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantInternalInspector.cs
+// RedundantInternalIssue.cs
 //  
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -50,20 +50,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	public class RedundantInternalIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "RedundantInternalIssue";
-		const string Description            = "Removes 'internal' modifiers that are not required";
-		const string MessageFormat          = "";
-		const string Category               = IssueCategories.RedundanciesInCode;
+		internal const string DiagnosticId = "RedundantInternalIssue";
+		const string Description = "Removes 'internal' modifiers that are not required";
+		const string MessageFormat = "";
+		const string Category = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		{
+			get
+			{
 				return ImmutableArray.Create(Rule);
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -74,25 +76,43 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{
-//				foreach (var token_ in typeDeclaration.ModifierTokens) {
-//					var token = token_;
-//					if (token.Modifier == Modifiers.Internal) {
-//						AddIssue(new CodeIssue(token, ctx.TranslateString("Keyword 'internal' is redundant.  This is the default modifier."), ctx.TranslateString("Remove 'internal' modifier"), script => {
-//							int offset = script.GetCurrentOffset(token.StartLocation);
-//							int endOffset = script.GetCurrentOffset(token.GetNextNode().StartLocation);
-//							script.RemoveText(offset, endOffset - offset);
-//						}) { IssueMarker = IssueMarker.GrayOut });
-//					}
-//				}
-//			}
-//
-//			public override void VisitBlockStatement(BlockStatement blockStatement)
-//			{
-//				// SKIP
-//			}
+
+			public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+			{
+				base.VisitClassDeclaration(node);
+				VisitTypeDeclaration(node);
+			}
+
+			public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
+			{
+				base.VisitInterfaceDeclaration(node);
+				VisitTypeDeclaration(node);
+			}
+
+			public override void VisitStructDeclaration(StructDeclarationSyntax node)
+			{
+				base.VisitStructDeclaration(node);
+				VisitTypeDeclaration(node);
+			}
+
+			public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
+			{
+				VisitTypeDeclaration(node);
+			}
+
+			public override void VisitDelegateDeclaration(DelegateDeclarationSyntax node)
+			{
+				base.VisitDelegateDeclaration(node);
+				//delegates don't inherit from basetypedeclaration for some reason
+				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
+
+			public void VisitTypeDeclaration(BaseTypeDeclarationSyntax node)
+			{
+				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)))
+					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+			}
 		}
 	}
 
@@ -110,12 +130,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var newRoot = root.ReplaceNode(node, RemoveInternalModifier(node).WithAdditionalAnnotations(Formatter.Annotation));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
+		}
+
+		public static SyntaxNode RemoveInternalModifier(SyntaxNode node)
+		{
+			Func<SyntaxToken, bool> isNotInternal = (m => !m.IsKind(SyntaxKind.InternalKeyword));
+			var classNode = node as ClassDeclarationSyntax;
+			if (classNode != null)
+				return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(isNotInternal)));
+
+			var structNode = node as StructDeclarationSyntax;
+			if (structNode != null)
+				return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(isNotInternal)));
+
+			var interNode = node as InterfaceDeclarationSyntax;
+			if (interNode != null)
+				return interNode.WithModifiers(SyntaxFactory.TokenList(interNode.Modifiers.Where(isNotInternal)));
+
+			var delegateNode = node as DelegateDeclarationSyntax;
+			if (delegateNode != null)
+				return delegateNode.WithModifiers(SyntaxFactory.TokenList(delegateNode.Modifiers.Where(isNotInternal)));
+
+			var enumNode = node as EnumDeclarationSyntax;
+			if (enumNode != null)
+				return enumNode.WithModifiers(SyntaxFactory.TokenList(enumNode.Modifiers.Where(isNotInternal)));
+			return node;
 		}
 	}
 }

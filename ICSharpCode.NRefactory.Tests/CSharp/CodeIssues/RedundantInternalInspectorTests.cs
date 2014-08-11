@@ -34,33 +34,50 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class RedundantInternalInspectorTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestInspectorCase1 ()
+		public void TestInspectorCase1()
 		{
-			Test<RedundantInternalIssue>(@"namespace Test {
-	internal class Foo
+			Analyze<RedundantInternalIssue>(@"
+namespace Test
+{
+	internal class $Foo$
 	{
-		internal void Bar (string str)
+		internal void Bar(string str)
 		{
 		}
 	}
-}", @"namespace Test {
+}", @"
+namespace Test
+{
 	class Foo
 	{
-		internal void Bar (string str)
+		internal void Bar(string str)
 		{
 		}
 	}
 }");
 		}
 
-		
+
 		[Test]
-		public void TestNestedClass ()
+		public void TestNestedClass()
 		{
-			Analyze<RedundantInternalIssue>(@"class Foo
+			Analyze<RedundantInternalIssue>(@"
+namespace Test
 {
-	internal class Nested
+	class Foo
 	{
+		internal class $Nested$
+		{
+		}
+	}
+}", @"
+namespace Test
+{
+	class Foo
+	{
+		class Nested
+		{
+		}
 	}
 }");
 		}
