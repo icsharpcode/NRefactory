@@ -71,24 +71,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			static readonly AstNode pattern = new SwitchSection {
-//				CaseLabels = { new CaseLabel () },
-//				Statements = { new BreakStatement() }
-//			};
-//
-//			public override void VisitSwitchSection(SwitchSection switchSection)
-//			{
-//				base.VisitSwitchSection(switchSection);
-//				if (!pattern.IsMatch(switchSection))
-//					return;
-//				AddIssue(new CodeIssue(
-//					switchSection,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					script => script.Remove(switchSection)
-//				) { IssueMarker = IssueMarker.GrayOut });
-//			}
+
+			public override void VisitSwitchStatement(SwitchStatementSyntax node)
+			{
+				base.VisitSwitchStatement(node);
+				var defaultCase = node.Sections.FirstOrDefault(s => s.Labels.Any(l => l.IsKind(SyntaxKind.DefaultSwitchLabel)));
+				if (defaultCase == null || defaultCase.Statements.Any(s => !s.IsKind(SyntaxKind.BreakStatement)))
+					return;
+				AddIssue(Diagnostic.Create(Rule, defaultCase.Labels.Last().CaseOrDefaultKeyword.GetLocation()));
+			}
 		}
 	}
 
@@ -105,9 +96,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
+				var node = root.FindNode(diagonstic.Location.SourceSpan).Parent as SwitchSectionSyntax;
+				if (node == null)
+					continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove redundant 'default' branch", document.WithSyntaxRoot(newRoot)));
 			}

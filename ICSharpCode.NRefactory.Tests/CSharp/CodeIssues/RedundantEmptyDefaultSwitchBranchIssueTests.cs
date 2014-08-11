@@ -33,9 +33,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class RedundantEmptyDefaultSwitchBranchIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestDefaultRedundantCase ()
+		public void TestDefaultRedundantCase()
 		{
-			Test<RedundantEmptyDefaultSwitchBranchIssue>(@"
+			Analyze<RedundantEmptyDefaultSwitchBranchIssue>(@"
 class Test
 {
 	void TestMethod (int i = 0)
@@ -44,7 +44,7 @@ class Test
 		case 0:
 			System.Console.WriteLine();
 			break;
-		default:
+		$default$:
 			break;
 		}
 	}
@@ -63,15 +63,15 @@ class Test
 		}
 
 		[Test]
-		public void TestMinimal ()
+		public void TestMinimal()
 		{
-			Test<RedundantEmptyDefaultSwitchBranchIssue>(@"
+			Analyze<RedundantEmptyDefaultSwitchBranchIssue>(@"
 class Test
 {
 	void TestMethod (int i = 0)
 	{
 		switch (i) {
-		default:
+		$default$:
 			break;
 		}
 	}
@@ -87,7 +87,7 @@ class Test
 		}
 
 		[Test]
-		public void TestDisable ()
+		public void TestDisable()
 		{
 			Analyze<RedundantEmptyDefaultSwitchBranchIssue>(@"
 class Test
