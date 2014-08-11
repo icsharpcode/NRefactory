@@ -35,13 +35,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class NotImplementedExceptionInspectorTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestInspectorCase1 ()
+		public void TestInspectorCase1()
 		{
-			TestIssue<NotImplementedExceptionIssue>(@"class Foo
+			Analyze<NotImplementedExceptionIssue>(@"
+class Foo
 {
 	void Bar (string str)
 	{
-		throw new System.NotImplementedException ();
+		throw $new System.NotImplementedException()$;
 	}
 }");
 		}
