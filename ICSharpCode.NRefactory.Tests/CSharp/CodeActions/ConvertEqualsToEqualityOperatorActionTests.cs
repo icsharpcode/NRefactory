@@ -32,18 +32,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertEqualsToEqualityOperatorActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestEquality ()
+		public void TestEquality()
 		{
-			Test<ConvertEqualsToEqualityOperatorAction> (@"class FooBar
+			Test<ConvertEqualsToEqualityOperatorAction>(@"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
-		if ($Equals (x, y)) {
+		if ($Equals(x, y)) {
 		}
 	}
 }", @"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
 		if (x == y) {
 		}
@@ -52,18 +52,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 		[Test]
-		public void TestInEquality ()
+		public void TestInequality()
 		{
 			Test<ConvertEqualsToEqualityOperatorAction> (@"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
-		if (!$Equals (x, y)) {
+		if (!$Equals(x, y)) {
 		}
 	}
 }", @"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
 		if (x != y) {
 		}
@@ -72,27 +72,27 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 		[Test]
-		public void TestEqualsFallback ()
+		public void TestEqualsFallback()
 		{
-			Test<ConvertEqualsToEqualityOperatorAction> (@"class FooBar
+			Test<ConvertEqualsToEqualityOperatorAction>(@"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
-		if (object.$Equals (x, y)) {
+		if (object.$Equals(x, y)) {
 		}
 	}
-	public new static bool Equals (object o, object x)
+	public new static bool Equals(object o, object x)
 	{
 		return false;
 	}
 }", @"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
 		if (x == y) {
 		}
 	}
-	public new static bool Equals (object o, object x)
+	public new static bool Equals(object o, object x)
 	{
 		return false;
 	}
@@ -100,38 +100,38 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 		[Test]
-		public void TestMemberReferencEquals ()
+		public void TestMemberReferencEquals()
 		{
-			Test<ConvertEqualsToEqualityOperatorAction> (@"class FooBar
+			Test<ConvertEqualsToEqualityOperatorAction>(@"class FooBar
 {
 	public void Foo (object x , object y)
 	{
-		if (x.$Equals (y)) {
+		if (x.$Equals(y)) {
 		}
 	}
 }", @"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x , object y)
 	{
-		if (x == y) {
+		if(x == y) {
 		}
 	}
 }");
 		}
 
 		[Test]
-		public void TestNegatedMemberReferencEquals ()
+		public void TestNegatedMemberReferenceEquals()
 		{
-			Test<ConvertEqualsToEqualityOperatorAction> (@"class FooBar
+			Test<ConvertEqualsToEqualityOperatorAction>(@"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
-		if (!x.$Equals (y)) {
+		if (!x.$Equals(y)) {
 		}
 	}
 }", @"class FooBar
 {
-	public void Foo (object x , object y)
+	public void Foo(object x, object y)
 	{
 		if (x != y) {
 		}

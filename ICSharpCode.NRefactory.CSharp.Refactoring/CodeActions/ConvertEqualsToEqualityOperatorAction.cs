@@ -52,8 +52,37 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+			var node = root.FindNode(span) as IdentifierNameSyntax;
+			var invocation = node.Parent as InvocationExpressionSyntax;
+			if (invocation == null)
+				invocation = node.Parent.Parent as InvocationExpressionSyntax; //object.equals gives us memberaccess first.
+
+			if (node == null || invocation == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var symbol = model.GetSymbolInfo(node).Symbol;
+			if (symbol == null || symbol.Name != "Equals" || symbol.ContainingType.SpecialType != SpecialType.System_Object)
+				return Enumerable.Empty<CodeAction>();
+
+			ExpressionSyntax expr = invocation;
+			bool useEquality = true;
+
+			if (invocation.ArgumentList.Arguments.Count != 2 && invocation.ArgumentList.Arguments.Count != 1)
+				return Enumerable.Empty<CodeAction>();
+			//node is identifier, parent is invocation, parent.parent (might) be unary negation
+			var uOp = invocation.Parent as PrefixUnaryExpressionSyntax;
+			if (uOp != null && uOp.IsKind(SyntaxKind.LogicalNotExpression)) {
+				expr = uOp;
+				useEquality = false;
+			}
+
+			var newRoot = root.ReplaceNode(expr, SyntaxFactory.BinaryExpression(useEquality ? SyntaxKind.EqualsExpression : SyntaxKind.NotEqualsExpression,
+				invocation.ArgumentList.Arguments.Count == 1 ? ((MemberAccessExpressionSyntax)invocation.Expression).Expression : invocation.ArgumentList.Arguments.First().Expression,
+				invocation.ArgumentList.Arguments.Last().Expression));
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Use '=='", document.WithSyntaxRoot(newRoot)) };
 		}
+
 //		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 //		{
 //			var node = context.GetNode<InvocationExpression>();
