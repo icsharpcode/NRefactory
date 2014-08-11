@@ -42,63 +42,51 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert 'if' to '?:'")]
 	[ExportCodeRefactoringProvider("Convert 'if' to '?:'", LanguageNames.CSharp)]
-	public class ConvertIfStatementToConditionalTernaryExpressionAction : SpecializedCodeAction <IfStatementSyntax>
+	public class ConvertIfStatementToConditionalTernaryExpressionAction : ICodeRefactoringProvider
 	{
-//		static readonly AstNode Pattern = 
-//			new IfElseStatement(
-//				new AnyNode("condition"),
-//				PatternHelper.EmbeddedStatement (new ExpressionStatement(new NamedNode ("assign1", new AssignmentExpression(new AnyNode("target"), AssignmentOperatorType.Any, new AnyNode("expr1"))))),
-//				PatternHelper.EmbeddedStatement (new ExpressionStatement(new NamedNode ("assign2", new AssignmentExpression(new Backreference("target"), AssignmentOperatorType.Any, new AnyNode("expr2")))))
-//			);
-//
-//		public static bool GetMatch(IfElseStatement ifElseStatement, out Match match)
-//		{
-//			match = ConvertIfStatementToConditionalTernaryExpressionAction.Pattern.Match(ifElseStatement);
-//			if (!match.Success || ifElseStatement.Parent is IfElseStatement)
-//				return false;
-//			var firstAssign = match.Get<AssignmentExpression>("assign1").Single();
-//			var secondAssign = match.Get<AssignmentExpression>("assign2").Single();
-//			return firstAssign.Operator == secondAssign.Operator;
-//		}
-//
-//		static CodeAction CreateAction (BaseSemanticModel ctx, IfElseStatement ifElseStatement, Match match)
-//		{
-//			var target = match.Get<Expression>("target").Single();
-//			var condition = match.Get<Expression>("condition").Single();
-//			var trueExpr = match.Get<Expression>("expr1").Single();
-//			var falseExpr = match.Get<Expression>("expr2").Single();
-//			var firstAssign = match.Get<AssignmentExpression>("assign1").Single();
-//
-//			return new CodeAction(
-//				ctx.TranslateString("Replace with '?:' expression"),
-//				script => {
-//					script.Replace(
-//						ifElseStatement, 
-//						new ExpressionStatement(
-//							new AssignmentExpression(
-//								target.Clone(),
-//								firstAssign.Operator,
-//								new ConditionalExpression(condition.Clone(), trueExpr.Clone(), falseExpr.Clone())
-//							)
-//						)
-//					); 
-//				},
-//				ifElseStatement
-//			);
-//		}
-//
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, IfStatementSyntax node, CancellationToken cancellationToken)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			yield break;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+
+			var node = root.FindNode(span) as IfStatementSyntax;
+			if (node == null || node.Else == null || node.Parent is IfStatementSyntax || node.Else.Statement is IfStatementSyntax)
+				return Enumerable.Empty<CodeAction>();
+
+			var condition = node.Condition;
+			//make sure to check for multiple statements
+			ExpressionStatementSyntax whenTrueExprStatement, whenFalseExprStatement;
+			if (node.Statement is BlockSyntax) {
+				var block = node.Statement as BlockSyntax;
+				if (block.Statements.Count > 1)
+					return Enumerable.Empty<CodeAction>();
+				whenTrueExprStatement = node.Statement.DescendantNodesAndSelf().OfType<ExpressionStatementSyntax>().FirstOrDefault();
+			} else {
+				whenTrueExprStatement = node.Statement as ExpressionStatementSyntax;
+			}
+
+			if (node.Else.Statement is BlockSyntax) {
+				var block = node.Else.Statement as BlockSyntax;
+				if (block.Statements.Count > 1)
+					return Enumerable.Empty<CodeAction>();
+				whenFalseExprStatement = node.Else.Statement.DescendantNodesAndSelf().OfType<ExpressionStatementSyntax>().FirstOrDefault();
+			} else {
+				whenFalseExprStatement = node.Else.Statement as ExpressionStatementSyntax;
+			}
+
+			if (whenTrueExprStatement == null || whenFalseExprStatement == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var trueAssignment = whenTrueExprStatement.Expression as BinaryExpressionSyntax;
+			var falseAssignment = whenFalseExprStatement.Expression as BinaryExpressionSyntax;
+			if (trueAssignment == null || !ConvertAssignmentToIfAction.IsAssignment(trueAssignment) || 
+				falseAssignment == null || !ConvertAssignmentToIfAction.IsAssignment(falseAssignment) || trueAssignment.CSharpKind() != falseAssignment.CSharpKind() ||
+				!trueAssignment.Left.IsEquivalentTo(falseAssignment.Left))
+				return Enumerable.Empty<CodeAction>();
+
+			var newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(trueAssignment.CSharpKind(), trueAssignment.Left,
+				SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right))));
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '?:' expression", document.WithSyntaxRoot(newRoot)) };
 		}
-//		protected override CodeAction GetAction(SemanticModel context, IfElseStatement node)
-//		{
-//			if (!node.IfToken.Contains(context.Location))
-//				return null;
-//			Match match;
-//			if (!GetMatch(node, out match))
-//				return null;
-//			return CreateAction(context, node, match);
-//		}
 	}
 }
