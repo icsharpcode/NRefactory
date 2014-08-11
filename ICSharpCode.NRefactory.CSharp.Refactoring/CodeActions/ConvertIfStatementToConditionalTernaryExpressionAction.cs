@@ -42,8 +42,52 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert 'if' to '?:'")]
 	[ExportCodeRefactoringProvider("Convert 'if' to '?:'", LanguageNames.CSharp)]
-	public class ConvertIfStatementToConditionalTernaryExpressionAction : SpecializedCodeAction <IfStatementSyntax>
+	public class ConvertIfStatementToConditionalTernaryExpressionAction : ICodeRefactoringProvider
 	{
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		{
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+
+			var node = root.FindNode(span) as IfStatementSyntax;
+			if (node == null || node.Else == null || node.Parent is IfStatementSyntax || node.Else.Statement is IfStatementSyntax)
+				return Enumerable.Empty<CodeAction>();
+
+			var condition = node.Condition;
+			//make sure to check for multiple statements
+			ExpressionStatementSyntax whenTrueExprStatement, whenFalseExprStatement;
+			if (node.Statement is BlockSyntax) {
+				var block = node.Statement as BlockSyntax;
+				if (block.Statements.Count > 1)
+					return Enumerable.Empty<CodeAction>();
+				whenTrueExprStatement = node.Statement.DescendantNodesAndSelf().OfType<ExpressionStatementSyntax>().FirstOrDefault();
+			} else {
+				whenTrueExprStatement = node.Statement as ExpressionStatementSyntax;
+			}
+
+			if (node.Else.Statement is BlockSyntax) {
+				var block = node.Else.Statement as BlockSyntax;
+				if (block.Statements.Count > 1)
+					return Enumerable.Empty<CodeAction>();
+				whenFalseExprStatement = node.Else.Statement.DescendantNodesAndSelf().OfType<ExpressionStatementSyntax>().FirstOrDefault();
+			} else {
+				whenFalseExprStatement = node.Else.Statement as ExpressionStatementSyntax;
+			}
+
+			if (whenTrueExprStatement == null || whenFalseExprStatement == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var trueAssignment = whenTrueExprStatement.Expression as BinaryExpressionSyntax;
+			var falseAssignment = whenFalseExprStatement.Expression as BinaryExpressionSyntax;
+			if (trueAssignment == null || !ConvertAssignmentToIfAction.IsAssignment(trueAssignment) || 
+				falseAssignment == null || !ConvertAssignmentToIfAction.IsAssignment(falseAssignment) || trueAssignment.CSharpKind() != falseAssignment.CSharpKind() ||
+				!trueAssignment.Left.IsEquivalentTo(falseAssignment.Left))
+				return Enumerable.Empty<CodeAction>();
+
+			var newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(trueAssignment.CSharpKind(), trueAssignment.Left,
+				SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right))));
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '?:' expression", document.WithSyntaxRoot(newRoot)) };
+		}
 //		static readonly AstNode Pattern = 
 //			new IfElseStatement(
 //				new AnyNode("condition"),
@@ -87,10 +131,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //			);
 //		}
 //
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, IfStatementSyntax node, CancellationToken cancellationToken)
-		{
-			yield break;
-		}
 //		protected override CodeAction GetAction(SemanticModel context, IfElseStatement node)
 //		{
 //			if (!node.IfToken.Contains(context.Location))

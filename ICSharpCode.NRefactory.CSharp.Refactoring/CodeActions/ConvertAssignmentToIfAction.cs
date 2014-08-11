@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				SyntaxFactory.ElseClause(SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(expr.CSharpKind(), expr.Left, bOp.Right))));
 		}
 
-		private bool IsAssignment(BinaryExpressionSyntax node)
+		public static bool IsAssignment(BinaryExpressionSyntax node)
 		{
 			return node.IsKind(SyntaxKind.AddAssignmentExpression) || node.IsKind(SyntaxKind.AndAssignmentExpression) || node.IsKind(SyntaxKind.DivideAssignmentExpression) ||
 				node.IsKind(SyntaxKind.ExclusiveOrAssignmentExpression) || node.IsKind(SyntaxKind.LeftShiftAssignmentExpression) || node.IsKind(SyntaxKind.ModuloAssignmentExpression) ||
