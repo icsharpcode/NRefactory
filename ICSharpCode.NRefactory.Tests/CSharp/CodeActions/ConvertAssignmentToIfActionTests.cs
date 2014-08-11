@@ -33,9 +33,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertAssignmentToIfActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestConditionalOperator ()
+		public void TestConditionalOperator()
 		{
-			Test<ConvertAssignmentToIfAction> (@"
+			Test<ConvertAssignmentToIfAction>(@"
 class TestClass
 {
 	int TestMethod (int o, int p)
@@ -60,12 +60,12 @@ class TestClass
 		}
 
 		[Test]
-		public void TestNullCoalescingOperator ()
+		public void TestNullCoalescingOperator()
 		{
-			Test<ConvertAssignmentToIfAction> (@"
+			Test<ConvertAssignmentToIfAction>(@"
 class Test
 {
-	object TestMethod (object o, object p)
+	object TestMethod(object o, object p)
 	{
 		object z;
 		z $= o ?? p;
@@ -74,7 +74,7 @@ class Test
 }", @"
 class Test
 {
-	object TestMethod (object o, object p)
+	object TestMethod(object o, object p)
 	{
 		object z;
 		if (o != null)
@@ -87,12 +87,12 @@ class Test
 		}
 
 		[Test]
-		public void TestEmbeddedStatement ()
+		public void TestEmbeddedStatement()
 		{
-			Test<ConvertAssignmentToIfAction> (@"
+			Test<ConvertAssignmentToIfAction>(@"
 class TestClass
 {
-	void TestMethod (int i)
+	void TestMethod(int i)
 	{
 		int a;
 		if (i < 10)
@@ -101,7 +101,7 @@ class TestClass
 }", @"
 class TestClass
 {
-	void TestMethod (int i)
+	void TestMethod(int i)
 	{
 		int a;
 		if (i < 10)
@@ -115,9 +115,9 @@ class TestClass
 
 
 		[Test]
-		public void TestAssignment ()
+		public void TestAssignment()
 		{
-			Test<ConvertAssignmentToIfAction> (@"
+			Test<ConvertAssignmentToIfAction>(@"
 class TestClass
 {
 	void TestMethod (int i)
@@ -137,7 +137,7 @@ class TestClass
 			a = 1;
 	}
 }");
-			Test<ConvertAssignmentToIfAction> (@"
+			Test<ConvertAssignmentToIfAction>(@"
 class TestClass
 {
 	void TestMethod (int i)
