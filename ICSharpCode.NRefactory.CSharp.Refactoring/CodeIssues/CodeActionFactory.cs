@@ -54,18 +54,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		sealed class DocumentChangeAction : NRefactoryCodeAction
 		{
-			readonly string description;
+			readonly string title;
 			readonly Func<CancellationToken, Task<Document>> createChangedDocument;
 
-			public override string Description {
+			public override string Title {
 				get {
-					return description;
+					return title;
 				}
 			}
 
-			public DocumentChangeAction(TextSpan textSpan, DiagnosticSeverity severity, string description, Func<CancellationToken, Task<Document>> createChangedDocument) : base(textSpan, severity)
+			public DocumentChangeAction(TextSpan textSpan, DiagnosticSeverity severity, string title, Func<CancellationToken, Task<Document>> createChangedDocument) : base(textSpan, severity)
 			{
-				this.description = description;
+				this.title = title;
 				this.createChangedDocument = createChangedDocument;
 			}
 

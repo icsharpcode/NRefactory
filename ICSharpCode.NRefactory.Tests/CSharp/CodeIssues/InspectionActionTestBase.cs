@@ -249,11 +249,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
 			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
 			var diagnostics = new List<Diagnostic>();
-			diagnostics.AddRange(AnalyzerDriver.GetDiagnostics(compilation,
+			var driver = new AnalyzerDriver<SyntaxNode>(
 				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
+				node => node,
 				options,
 				CancellationToken.None
-			)); 
+			);
+			diagnostics.AddRange(driver.GetDiagnosticsAsync().Result); 
 
 			if (expectedDiagnosics.Count != diagnostics.Count) {
 				Console.WriteLine("Diagnostics: " + diagnostics.Count + " expected: " + expectedDiagnosics.Count);
@@ -349,12 +351,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 			var diagnostics = new List<Diagnostic>();
 			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
-
-			diagnostics.AddRange(AnalyzerDriver.GetDiagnostics(compilation,
+			var driver = new AnalyzerDriver<SyntaxNode>(
 				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
+				node => node,
 				options,
 				CancellationToken.None
-			).Where(d => d.Id == ruleId)); 
+			);
+			diagnostics.AddRange(driver.GetDiagnosticsAsync().Result); 
 
 			if (expectedDiagnosics.Count != diagnostics.Count) {
 				Console.WriteLine("Diagnostics: " + diagnostics.Count);
