@@ -34,45 +34,41 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertIfStatementToNullCoalescingExpressionActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestDeclaration ()
+		public void TestDeclaration()
 		{
-			string input = @"
+			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
 	void Foo()
 	{
 		return null;
 	}
+
 	void TestMethod()
 	{
-		object o = Foo ();
+		object o = Foo();
 		$if (o == null)
-			o = new object ();
+			o = new object();
 	}
-}
-";
-
-			string output = @"
+}", @"
 class TestClass
 {
 	void Foo()
 	{
 		return null;
 	}
+
 	void TestMethod()
 	{
-		object o = Foo () ?? new object ();
+		object o = Foo() ?? new object();
 	}
-}
-";
-
-			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
+}");
 		}
 
 		[Test]
-		public void TestYodaConditionals ()
+		public void TestYodaConditionals()
 		{
-			string input = @"
+			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
 	void Foo()
@@ -81,14 +77,11 @@ class TestClass
 	}
 	void TestMethod()
 	{
-		object o = Foo ();
+		object o = Foo();
 		$if (null == o)
-			o = new object ();
+			o = new object();
 	}
-}
-";
-
-			string output = @"
+}", @"
 class TestClass
 {
 	void Foo()
@@ -97,18 +90,15 @@ class TestClass
 	}
 	void TestMethod()
 	{
-		object o = Foo () ?? new object ();
+		object o = Foo() ?? new object();
 	}
-}
-";
-
-			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
+}");
 		}
 
 		[Test]
-		public void TestAssignment ()
+		public void TestAssignment()
 		{
-			string input = @"
+			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
 	void Foo()
@@ -118,14 +108,11 @@ class TestClass
 	void TestMethod()
 	{
 		object o;
-		o = Foo ();
+		o = Foo();
 		$if (o == null)
-			o = new object ();
+			o = new object();
 	}
-}
-";
-
-			string output = @"
+}", @"
 class TestClass
 {
 	void Foo()
@@ -135,47 +122,38 @@ class TestClass
 	void TestMethod()
 	{
 		object o;
-		o = Foo () ?? new object ();
+		o = Foo() ?? new object();
 	}
-}
-";
-
-			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
+}");
 		}
 
 		[Test]
-		public void TestIsolated ()
+		public void TestIsolated()
 		{
-			string input = @"
+			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
 	object o;
 	void TestMethod()
 	{
 		$if (o == null)
-			o = new object ();
+			o = new object();
 	}
-}
-";
-
-			string output = @"
+}", @"
 class TestClass
 {
 	object o;
 	void TestMethod()
 	{
-		o = o ?? new object ();
+		o = o ?? new object();
 	}
-}
-";
-
-			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
+}");
 		}
 
 		[Test]
-		public void TestBlock ()
+		public void TestBlock()
 		{
-			string input = @"
+			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
 	void Foo()
@@ -184,16 +162,13 @@ class TestClass
 	}
 	void TestMethod()
 	{
-		object o = Foo ();
+		object o = Foo();
 		$if (o == null)
 		{
-			o = new object ();
+			o = new object();
 		}
 	}
-}
-";
-
-			string output = @"
+}", @"
 class TestClass
 {
 	void Foo()
@@ -202,18 +177,15 @@ class TestClass
 	}
 	void TestMethod()
 	{
-		object o = Foo () ?? new object ();
+		object o = Foo() ?? new object();
 	}
-}
-";
-
-			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
+}");
 		}
 
 		[Test]
-		public void TestInvertedCondition ()
+		public void TestInvertedCondition()
 		{
-			string input = @"
+			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
 	void Foo()
@@ -222,17 +194,14 @@ class TestClass
 	}
 	void TestMethod()
 	{
-		object o = Foo ();
+		object o = Foo();
 		$if (o != null)
 		{
 		} else {
-			o = new object ();
+			o = new object();
 		}
 	}
-}
-";
-
-			string output = @"
+}", @"
 class TestClass
 {
 	void Foo()
@@ -241,18 +210,15 @@ class TestClass
 	}
 	void TestMethod()
 	{
-		object o = Foo () ?? new object ();
+		object o = Foo() ?? new object();
 	}
-}
-";
-
-			Assert.AreEqual(output, RunContextAction(new ConvertIfStatementToNullCoalescingExpressionAction(), input));
+}");
 		}
 
 		[Test]
 		public void TestDisabledForImproperCondition()
 		{
-			string input = @"
+			TestWrongContext<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
 	void Foo()
@@ -264,13 +230,10 @@ class TestClass
 		object o = Foo ();
 		$if (o != null)
 		{
-			o = new object ();
+			o = new object();
 		}
 	}
-}
-";
-
-			TestWrongContext<ConvertIfStatementToNullCoalescingExpressionAction>(input);
+}");
 		}
 	}
 }
