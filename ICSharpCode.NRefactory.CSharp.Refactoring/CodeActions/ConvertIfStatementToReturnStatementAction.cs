@@ -42,87 +42,61 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert 'if' to 'return'")]
 	[ExportCodeRefactoringProvider("Convert 'if' to 'return'", LanguageNames.CSharp)]
-	public class ConvertIfStatementToReturnStatementAction : SpecializedCodeAction <IfStatementSyntax>
+	public class ConvertIfStatementToReturnStatementAction : ICodeRefactoringProvider
 	{
-//		static readonly AstNode ifElsePattern = 
-//			new IfElseStatement(
-//				new AnyNode("condition"),
-//				PatternHelper.EmbeddedStatement (new ReturnStatement(new AnyNode("expr1"))),
-//				PatternHelper.EmbeddedStatement (new ReturnStatement(new AnyNode("expr2")))
-//			);
-//
-//		static readonly AstNode ifPattern = 
-//			new IfElseStatement(
-//				new AnyNode("condition"),
-//				PatternHelper.EmbeddedStatement (new ReturnStatement(new AnyNode("expr1")))
-//			);
-//
-//		static readonly AstNode returnPattern = 
-//			new ReturnStatement(new AnyNode("expr2"));
-//
-//		public static bool GetMatch(IfElseStatement ifElseStatement, out Expression condition, out Expression expr1, out Expression expr2, out AstNode returnStatement)
-//		{
-//			var match = ifElsePattern.Match(ifElseStatement);
-//			returnStatement = null;
-//			if (match.Success) {
-//				condition = match.Get<Expression>("condition").Single();
-//				expr1 = match.Get<Expression>("expr1").Single();
-//				expr2 = match.Get<Expression>("expr2").Single();
-//				return true;
-//			}
-//
-//			match = ifPattern.Match(ifElseStatement);
-//			if (match.Success) {
-//				returnStatement = ifElseStatement.GetNextSibling(s => s.Role == BlockStatement.StatementRole);
-//				var match2 = returnPattern.Match(returnStatement);
-//
-//				if (match2.Success) {
-//					condition = match.Get<Expression>("condition").Single();
-//					expr1 = match.Get<Expression>("expr1").Single();
-//					expr2 = match2.Get<Expression>("expr2").Single();
-//					return true;
-//				}
-//			}
-//
-//			condition = expr1 = expr2 = null;
-//			return false;
-//		}
-//
-//		static readonly AstNode truePattern = PatternHelper.OptionalParentheses(new PrimitiveExpression (true));
-//		static readonly AstNode falsePattern = PatternHelper.OptionalParentheses(new PrimitiveExpression (false));
-//
-//		static Expression CreateCondition(Expression c, Expression e1, Expression e2)
-//		{
-//			if (truePattern.IsMatch(e1) && falsePattern.IsMatch(e2))
-//				return c.Clone();
-//			return new ConditionalExpression(c.Clone(), e1.Clone(), e2.Clone());
-//		}
-//
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, IfStatementSyntax node, CancellationToken cancellationToken)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			yield break;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+
+			var node = root.FindNode(span) as IfStatementSyntax;
+			if (node == null)
+				return Enumerable.Empty<CodeAction>();
+
+			ExpressionSyntax condition;
+			ReturnStatementSyntax return1, return2, rs;
+			if (!ConvertIfStatementToReturnStatementAction.GetMatch(node, out condition, out return1, out return2, out rs))
+				return Enumerable.Empty<CodeAction>();
+
+			var newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ReturnStatement(CreateCondition(condition, return1, return2)));
+			if (rs != null) {
+				var retToRemove = newRoot.DescendantNodes().OfType<ReturnStatementSyntax>().FirstOrDefault(r => r.IsEquivalentTo(rs));
+				newRoot = newRoot.RemoveNode(retToRemove, SyntaxRemoveOptions.KeepNoTrivia);
+			}
+
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'return'", document.WithSyntaxRoot(newRoot)) };
 		}
-//		protected override CodeAction GetAction(SemanticModel context, IfElseStatement ifElseStatement)
-//		{
-//			if (!ifElseStatement.IfToken.Contains(context.Location))
-//				return null;
-//
-//			Expression c, e1, e2;
-//			AstNode rs;
-//			if (!ConvertIfStatementToReturnStatementAction.GetMatch(ifElseStatement, out c, out e1, out e2, out rs))
-//				return null;
-//			return new CodeAction (
-//				context.TranslateString("Replace with 'return'"),
-//				script => {
-//					script.Replace(ifElseStatement, new ReturnStatement(
-//					CreateCondition(c, e1, e2)
-//				)); 
-//					if (rs != null)
-//						script.Remove(rs); 
-//				},
-//				ifElseStatement
-//			);
-//		}
+
+		private static bool GetMatch(IfStatementSyntax node, out ExpressionSyntax c, out ReturnStatementSyntax e1, out ReturnStatementSyntax e2, out ReturnStatementSyntax rs)
+		{
+			rs = e1 = e2 = null;
+			c = node.Condition;
+			//attempt to match if(condition) return else return
+			e1 = ConvertIfStatementToNullCoalescingExpressionAction.GetSimpleStatement(node.Statement) as ReturnStatementSyntax;
+			if(e1 == null)
+				return false;
+			e2 = node.Else != null ? ConvertIfStatementToNullCoalescingExpressionAction.GetSimpleStatement(node.Else.Statement) as ReturnStatementSyntax : null;
+			//match
+			if (e1 != null && e2 != null) {
+				return true;
+			}
+
+			//attempt to match if(condition) return
+			if (e1 != null) {
+				rs = node.Parent.ChildThatContainsPosition(node.GetTrailingTrivia().Max(t => t.FullSpan.End) + 1).AsNode() as ReturnStatementSyntax;
+				if (rs != null) {
+					e2 = rs;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private ExpressionSyntax CreateCondition(ExpressionSyntax c, ReturnStatementSyntax e1, ReturnStatementSyntax e2)
+		{
+				return e1.Expression.IsKind(SyntaxKind.TrueLiteralExpression) && e2.Expression.IsKind(SyntaxKind.FalseLiteralExpression) ? 
+					c : SyntaxFactory.ConditionalExpression(c, e1.Expression, e2.Expression);
+		}
 	}
 }
 

@@ -130,8 +130,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return nullIsRight ? condition.Left : condition.Right;
 		}
 
-
-		private StatementSyntax GetSimpleStatement(StatementSyntax statement)
+		internal static StatementSyntax GetSimpleStatement(StatementSyntax statement)
 		{
 			BlockSyntax block;
 			while ((block = statement as BlockSyntax) != null) {
@@ -144,7 +143,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return statement;
 		}
 
-		private bool IsEmpty(StatementSyntax node)
+		internal static bool IsEmpty(StatementSyntax node)
 		{
 			//don't include self
 			return node == null || !node.DescendantNodesAndSelf().Any(d => !(d is EmptyStatementSyntax || d is BlockSyntax));
