@@ -42,30 +42,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert '??' to '?:'")]
 	[ExportCodeRefactoringProvider("Convert '??' to '?:'", LanguageNames.CSharp)]
-	public class ConvertNullCoalescingToConditionalExpressionAction : SpecializedCodeAction<BinaryExpressionSyntax>
+	public class ConvertNullCoalescingToConditionalExpressionAction : ICodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			yield break;
-		}
-//		protected override CodeAction GetAction(SemanticModel ctx, BinaryOperatorExpression node)
-//		{
-//			if (node.Operator != BinaryOperatorType.NullCoalescing || !node.OperatorToken.Contains(ctx.Location))
-//				return null;
-//			return new CodeAction(
-//				ctx.TranslateString("Replace with '?:' expression"),
-//				script => {
-//					Expression expr = new ConditionalExpression (
-//						new BinaryOperatorExpression(node.Left.Clone(), BinaryOperatorType.InEquality, new NullReferenceExpression ()),
-//						node.Left.Clone(),
-//						node.Right.Clone()
-//					);
-//					script.Replace(node, expr);
-//				},
-//				node
-//			);
-//		}
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
 
+			var node = root.FindNode(span) as BinaryExpressionSyntax;
+			if (node == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var ternary = SyntaxFactory.ConditionalExpression(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, node.Left, 
+				SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), node.Left, node.Right);
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '?:' expression", document.WithSyntaxRoot(
+				root.ReplaceNode(node, (ExpressionSyntax)ternary)))};
+		}
 	}
 }
 
