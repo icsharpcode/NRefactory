@@ -42,50 +42,34 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert 'return' to 'if'")]
 	[ExportCodeRefactoringProvider("Convert 'return' to 'if'", LanguageNames.CSharp)]
-	public class ConvertReturnStatementToIfAction : SpecializedCodeAction <ReturnStatementSyntax>
+	public class ConvertReturnStatementToIfAction : ICodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ReturnStatementSyntax node, CancellationToken cancellationToken)
+		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 		{
-			yield break;
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var node = root.FindNode(span) as ReturnStatementSyntax;
+			if (node == null)
+				return Enumerable.Empty<CodeAction>();
+			StatementSyntax statement;
+			ReturnStatementSyntax returnAfter;
+			if (node.Expression is ConditionalExpressionSyntax) {
+				var condition = (ConditionalExpressionSyntax)node.Expression;
+				statement = SyntaxFactory.IfStatement(condition.Condition, SyntaxFactory.ReturnStatement(condition.WhenTrue));
+				returnAfter = SyntaxFactory.ReturnStatement(condition.WhenFalse);
+			} else {
+				var bOp = node.Expression as BinaryExpressionSyntax;
+				if (bOp != null && bOp.IsKind(SyntaxKind.CoalesceExpression)) {
+					statement = SyntaxFactory.IfStatement(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, bOp.Left,
+						SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), SyntaxFactory.ReturnStatement(bOp.Left));
+					returnAfter = SyntaxFactory.ReturnStatement(bOp.Right);
+				} else
+					return Enumerable.Empty<CodeAction>();
+			}
+			SyntaxAnnotation statementAnno = new SyntaxAnnotation();
+			var newRoot = root.ReplaceNode(node, statement.WithAdditionalAnnotations(statementAnno));
+			newRoot = newRoot.InsertNodesAfter(newRoot.GetAnnotatedNodes(statementAnno).First(), new List<SyntaxNode>() { returnAfter });
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", document.WithSyntaxRoot(newRoot)) };
 		}
-//		protected override CodeAction GetAction(SemanticModel context, ReturnStatement node)
-//		{
-//			if (!node.ReturnToken.Contains(context.Location))
-//				return null;
-//
-//			if (node.Expression is ConditionalExpression)
-//				return CreateForConditionalExpression(context, node, (ConditionalExpression)node.Expression);
-//			var bOp = node.Expression as BinaryOperatorExpression;
-//			if (bOp != null && bOp.Operator == BinaryOperatorType.NullCoalescing)
-//				return CreateForNullCoalesingExpression(context, node, bOp);
-//			return null;
-//		}
-//
-//		CodeAction CreateForConditionalExpression(SemanticModel ctx, ReturnStatement node, ConditionalExpression conditionalExpression)
-//		{
-//			return new CodeAction (
-//				ctx.TranslateString("Replace with 'if' statement"),
-//				script => {
-//					var ifStatement = new IfElseStatement(conditionalExpression.Condition.Clone(), new ReturnStatement(conditionalExpression.TrueExpression.Clone()));
-//					script.Replace(node, ifStatement); 
-//					script.InsertAfter(ifStatement, new ReturnStatement(conditionalExpression.FalseExpression.Clone()));
-//				},
-//				node
-//			);
-//		}
-//
-//		CodeAction CreateForNullCoalesingExpression(SemanticModel ctx, ReturnStatement node, BinaryOperatorExpression bOp)
-//		{
-//			return new CodeAction (
-//				ctx.TranslateString("Replace with 'if' statement"),
-//				script => {
-//					var ifStatement = new IfElseStatement(new BinaryOperatorExpression(bOp.Left.Clone(), BinaryOperatorType.InEquality, new NullReferenceExpression()), new ReturnStatement(bOp.Left.Clone()));
-//					script.Replace(node, ifStatement); 
-//					script.InsertAfter(ifStatement, new ReturnStatement(bOp.Right.Clone()));
-//				},
-//				node
-//			);
-//		}
 	}
 }
 
