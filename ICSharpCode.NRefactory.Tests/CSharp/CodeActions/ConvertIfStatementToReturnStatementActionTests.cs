@@ -34,12 +34,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertIfStatementToReturnStatementActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestReturn ()
+		public void TestReturn()
 		{
-			Test<ConvertIfStatementToReturnStatementAction> (@"
+			Test<ConvertIfStatementToReturnStatementAction>(@"
 class TestClass
 {
-	int TestMethod (int i)
+	int TestMethod(int i)
 	{
 		$if (i > 0)
 			return 1;
@@ -49,7 +49,7 @@ class TestClass
 }", @"
 class TestClass
 {
-	int TestMethod (int i)
+	int TestMethod(int i)
 	{
 		return i > 0 ? 1 : 0;
 	}
@@ -57,11 +57,11 @@ class TestClass
 		}
 
 		[Test]
-		public void TestIfElseWithBlocks ()
+		public void TestIfElseWithBlocks()
 		{
 			Test<ConvertIfStatementToReturnStatementAction>(@"class Foo
 {
-	bool Bar (string str)
+	bool Bar(string str)
 	{
 		$if (str.Length > 10) {
 			return true;
@@ -71,7 +71,7 @@ class TestClass
 	}
 }", @"class Foo
 {
-	bool Bar (string str)
+	bool Bar(string str)
 	{
 		return str.Length > 10;
 	}
@@ -79,13 +79,13 @@ class TestClass
 		}
 
 		[Test]
-		public void TestImplicitElse ()
+		public void TestImplicitElse()
 		{
 
-			Test<ConvertIfStatementToReturnStatementAction> (@"
+			Test<ConvertIfStatementToReturnStatementAction>(@"
 class TestClass
 {
-	int TestMethod (int i)
+	int TestMethod(int i)
 	{
 		$if (i > 0)
 			return 1;
@@ -94,12 +94,11 @@ class TestClass
 }", @"
 class TestClass
 {
-	int TestMethod (int i)
+	int TestMethod(int i)
 	{
 		return i > 0 ? 1 : 0;
 	}
 }");
 		}
-
 	}
 }
