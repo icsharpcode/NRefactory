@@ -32,12 +32,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertNullCoalescingToConditionalExpressionActionTests: ContextActionTestBase
 	{
 		[Test]
-		public void TestSimpleCase ()
+		public void TestSimpleCase()
 		{
 			Test<ConvertNullCoalescingToConditionalExpressionAction>(@"
 class Test
 {
-	object Foo (object o, object p)
+	object Foo(object o, object p)
 	{
 		return o $?? p;
 	}
@@ -45,7 +45,7 @@ class Test
 ", @"
 class Test
 {
-	object Foo (object o, object p)
+	object Foo(object o, object p)
 	{
 		return o != null ? o : p;
 	}
