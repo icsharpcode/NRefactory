@@ -34,19 +34,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertReturnStatementToIfActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestConditionalOperator ()
+		public void TestConditionalOperator()
 		{
-			Test<ConvertReturnStatementToIfAction> (@"
+			Test<ConvertReturnStatementToIfAction>(@"
 class TestClass
 {
-	int TestMethod (int i)
+	int TestMethod(int i)
 	{
 		$return i > 0 ? 1 : 0;
 	}
 }", @"
 class TestClass
 {
-	int TestMethod (int i)
+	int TestMethod(int i)
 	{
 		if (i > 0)
 			return 1;
@@ -56,19 +56,19 @@ class TestClass
 		}
 
 		[Test]
-		public void TestNullCoalescingOperator ()
+		public void TestNullCoalescingOperator()
 		{
-			Test<ConvertReturnStatementToIfAction> (@"
+			Test<ConvertReturnStatementToIfAction>(@"
 class Test
 {
-	object Foo (object o, object p)
+	object Foo(object o, object p)
 	{
 		$return o ?? p;
 	}
 }", @"
 class Test
 {
-	object Foo (object o, object p)
+	object Foo(object o, object p)
 	{
 		if (o != null)
 			return o;
