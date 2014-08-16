@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<OperatorIsCanBeUsedIssue>(@"
+			Analyze<OperatorIsCanBeUsedIssue>(@"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -48,8 +48,11 @@ namespace Demo
 		public static void main(string[] args)
 		{
 			int a = 1;
-			if (typeof (int) == a.GetType()){}}}}
-", @"
+			if ($typeof(int) == a.GetType()$) {
+			}
+		}
+	}
+}", @"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -62,14 +65,16 @@ namespace Demo
 		{
 			int a = 1;
 			if (a is int) {
-			}}}}
-");
+			}
+		}
+	}
+}");
 		}
 
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Test<OperatorIsCanBeUsedIssue>(@"
+			Analyze<OperatorIsCanBeUsedIssue>(@"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -81,8 +86,11 @@ namespace Demo
 		public static void main(string[] args)
 		{
 			int a = 1;
-			if (a.GetType() == typeof (int)){}}}}
-", @"
+			if ($a.GetType() == typeof(int)$){
+			}
+		}
+	}
+}", @"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -95,14 +103,16 @@ namespace Demo
 		{
 			int a = 1;
 			if (a is int) {
-			}}}}
-");
+			}
+		}
+	}
+}");
 		}
 
 		[Test]
 		public void TestInspectorCase3()
 		{
-			Test<OperatorIsCanBeUsedIssue>(@"
+			Analyze<OperatorIsCanBeUsedIssue>(@"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -114,8 +124,11 @@ namespace Demo
 		static public int a;
 		public static void main(string[] args)
 		{
-		if (BaseClass.a.GetType() == typeof (int)){}}}}
-", @"
+			if ($BaseClass.a.GetType() == typeof(int)$) {
+			}
+		}
+	}
+}", @"
 using System;
 using System.Linq;
 using System.Reflection;
@@ -128,14 +141,16 @@ namespace Demo
 		public static void main(string[] args)
 		{
 			if (BaseClass.a is int) {
-			}}}}
-");
+			}
+		}
+	}
+}");
 		}
 
 		[Test]
 		public void TestInspectorCase4()
 		{
-			Test<OperatorIsCanBeUsedIssue>( @"
+			Analyze<OperatorIsCanBeUsedIssue>(@"
 using System;
 using System.Reflection;
 
@@ -144,12 +159,17 @@ namespace Demo
 	public sealed class TestClass
 	{
 	}
+
 	public class BaseClass 
 	{
 		public static void main(string[] args)
 		{
-			BaseClass b = new BaseClass();if (typeof (TestClass) == b.GetType()){}}}}
-", @"
+			BaseClass b = new BaseClass();
+			if ($typeof(TestClass) == b.GetType()$) {
+			}
+		}
+	}
+}", @"
 using System;
 using System.Reflection;
 
@@ -158,14 +178,17 @@ namespace Demo
 	public sealed class TestClass
 	{
 	}
+
 	public class BaseClass 
 	{
 		public static void main(string[] args)
 		{
 			BaseClass b = new BaseClass();
 			if (b is TestClass) {
-			}}}}
-");
+			}
+		}
+	}
+}");
 		}
 
 		[Test]
@@ -180,19 +203,18 @@ namespace Demo
 	public class TestClass
 	{
 	}
+
 	public class BaseClass : TestClass
 	{
 		public static void main(string[] args)
 		{
 			BaseClass b = new BaseClass();
-			if ((typeof (TestClass) == b.GetType()))
-			{
+			if ((typeof(TestClass) == b.GetType())) {
 
 			}
 		}
 	}
-}
-");
+}");
 		}
 
 		[Test]
@@ -209,12 +231,10 @@ namespace Demo
 		public static void main(string[] args)
 		{
 			int a = 1;
-//Resharper disable OperatorIsCanBeUsed
-			if ((typeof (int) == a.GetType()))
-			{
-
+			//Resharper disable OperatorIsCanBeUsed
+			if ((typeof (int) == a.GetType())) {
 			}
-//Resharper restore OperatorIsCanBeUsed
+			//Resharper restore OperatorIsCanBeUsed
 		}
 	}
 }");
