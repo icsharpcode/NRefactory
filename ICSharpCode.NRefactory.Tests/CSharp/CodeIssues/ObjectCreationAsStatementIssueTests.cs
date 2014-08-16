@@ -34,43 +34,43 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class ObjectCreationAsStatementIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestSimpleCase ()
+		public void TestSimpleCase()
 		{
-			TestIssue<ObjectCreationAsStatementIssue>(@"
+			Analyze<ObjectCreationAsStatementIssue>(@"
 class Foo
 {
-	void Bar ()
+	void Bar()
 	{
-		new Foo ();
+		$new Foo()$;
 	}
 }
 ");
 		}
 
 		[Test]
-		public void TestNoIssue ()
+		public void TestNoIssue()
 		{
 			Analyze<ObjectCreationAsStatementIssue>(@"
 class Foo
 {
-	void Bar ()
+	void Bar()
 	{
-		System.Console.WriteLine (new Foo ());
+		System.Console.WriteLine(new Foo());
 	}
 }
 ");
 		}
 
 		[Test]
-		public void TestDisable ()
+		public void TestDisable()
 		{
 			Analyze<ObjectCreationAsStatementIssue>(@"
 class Foo
 {
 	void Bar ()
 	{
-		// ReSharper disable once ObjectCreationAsStatement
-		new Foo ();
+		//ReSharper disable once ObjectCreationAsStatement
+		new Foo();
 	}
 }
 ");
