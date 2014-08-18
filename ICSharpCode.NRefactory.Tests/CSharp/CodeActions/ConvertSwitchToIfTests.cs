@@ -33,9 +33,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertSwitchToIfTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestReturn ()
+		public void TestReturn()
 		{
-			Test<ConvertSwitchToIfAction> (@"
+			Test<ConvertSwitchToIfAction>(@"
 class TestClass
 {
 	int TestMethod (int a)
@@ -73,12 +73,12 @@ class TestClass
 		}
 
 		[Test]
-		public void TestWithoutDefault ()
+		public void TestWithoutDefault()
 		{
-			Test<ConvertSwitchToIfAction> (@"
+			Test<ConvertSwitchToIfAction>(@"
 class TestClass
 {
-	int TestMethod (int a)
+	int TestMethod(int a)
 	{
 		$switch (a) {
 		case 0:
@@ -95,7 +95,7 @@ class TestClass
 }", @"
 class TestClass
 {
-	int TestMethod (int a)
+	int TestMethod(int a)
 	{
 		if (a == 0) {
 			return 0;
@@ -109,12 +109,12 @@ class TestClass
 		}
 
 		[Test]
-		public void TestBreak ()
+		public void TestBreak()
 		{
-			Test<ConvertSwitchToIfAction> (@"
+			Test<ConvertSwitchToIfAction>(@"
 class TestClass
 {
-	void TestMethod (int a)
+	void TestMethod(int a)
 	{
 		$switch (a) {
 		case 0:
@@ -134,7 +134,7 @@ class TestClass
 }", @"
 class TestClass
 {
-	void TestMethod (int a)
+	void TestMethod(int a)
 	{
 		if (a == 0) {
 			int b = 1;
@@ -147,12 +147,12 @@ class TestClass
 		}
 		
 		[Test]
-		public void TestOperatorPriority ()
+		public void TestOperatorPriority()
 		{
-			Test<ConvertSwitchToIfAction> (@"
+			Test<ConvertSwitchToIfAction>(@"
 class TestClass
 {
-	int TestMethod (int a)
+	int TestMethod(int a)
 	{
 		$switch (a) {
 		case 0:
@@ -166,7 +166,7 @@ class TestClass
 }", @"
 class TestClass
 {
-	int TestMethod (int a)
+	int TestMethod(int a)
 	{
 		if (a == 0) {
 			return 0;
@@ -180,9 +180,9 @@ class TestClass
 		}
 
 		[Test]
-		public void TestEmptySwitch ()
+		public void TestEmptySwitch()
 		{
-			TestWrongContext<ConvertSwitchToIfAction> (@"
+			TestWrongContext<ConvertSwitchToIfAction>(@"
 class TestClass
 {
 	void TestMethod (int a)
@@ -195,9 +195,9 @@ class TestClass
 		}
 
 		[Test]
-		public void TestSwitchWithDefaultOnly ()
+		public void TestSwitchWithDefaultOnly()
 		{
-			TestWrongContext<ConvertSwitchToIfAction> (@"
+			TestWrongContext<ConvertSwitchToIfAction>(@"
 class TestClass
 {
 	void TestMethod (int a)
@@ -213,9 +213,9 @@ class TestClass
 		}
 		
 		[Test]
-		public void TestNonTrailingBreak ()
+		public void TestNonTrailingBreak()
 		{
-			TestWrongContext<ConvertSwitchToIfAction> (@"
+			TestWrongContext<ConvertSwitchToIfAction>(@"
 class TestClass
 {
 	void TestMethod (int a, int b)
