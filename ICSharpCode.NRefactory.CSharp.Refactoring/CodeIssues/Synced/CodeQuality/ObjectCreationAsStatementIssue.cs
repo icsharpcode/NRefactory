@@ -71,38 +71,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
-//			{
-//				base.VisitObjectCreateExpression(objectCreateExpression);
-//				if (!(objectCreateExpression.Parent is ExpressionStatement))
-//					return;
-//				AddIssue(new CodeIssue(objectCreateExpression.NewToken,
-//					ctx.TranslateString("")));
-//			}
-		}
-	}
 
-	[ExportCodeFixProvider(ObjectCreationAsStatementIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class ObjectCreationAsStatementIssueFixProvider : ICodeFixProvider
-	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
-		{
-			yield return ObjectCreationAsStatementIssue.DiagnosticId;
-		}
-
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
-		{
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.GetMessage(), document.WithSyntaxRoot(newRoot)));
+			public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
+			{
+				base.VisitObjectCreationExpression(node);
+				if (!(node.Parent is ExpressionStatementSyntax))
+					return;
+				AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 			}
-			return result;
 		}
 	}
 }
