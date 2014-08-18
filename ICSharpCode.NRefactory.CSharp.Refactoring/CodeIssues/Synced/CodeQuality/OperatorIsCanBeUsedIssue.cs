@@ -72,45 +72,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			static readonly AstNode pattern = 
-//				PatternHelper.CommutativeOperatorWithOptionalParentheses(
-//					new InvocationExpression(new MemberReferenceExpression(new AnyNode("a"), "GetType"), null),
-//					BinaryOperatorType.Equality,
-//					new TypeOfExpression(new AnyNode("b"))
-//				);
-//
-//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-//			{
-//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-//
-//				var m = pattern.Match(binaryOperatorExpression);
-//				if (!m.Success)
-//					return;
-//
-//				Expression identifier = m.Get<Expression>("a").Single();
-//				AstType type = m.Get<AstType>("b").Single();
-//				
-//				var typeResolved = ctx.Resolve(type) as TypeResolveResult;
-//				if (typeResolved == null)
-//					return;
-//
-//				if (typeResolved.Type.Kind == TypeKind.Class) {
-//					if (!typeResolved.Type.GetDefinition().IsSealed) {
-//						return;
-//					}
-//				}
-//
-//				AddIssue(new CodeIssue(
-//					binaryOperatorExpression, 
-//					ctx.TranslateString(""), 
-//					ctx.TranslateString(""), 
-//					script => {
-//						var isExpr = new IsExpression(identifier.Clone(), type.Clone());
-//						script.Replace(binaryOperatorExpression, isExpr);
-//					}
-//				));
-//			}
+
+			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
+			{
+				base.VisitBinaryExpression(node);
+				//a.gettype == typeof(b) or //typeof(b) == a.gettype
+				if (!node.IsKind(SyntaxKind.EqualsExpression))
+				return;
+ 
+				if(!(Matches(node.Left, node.Right) || !Matches(node.Right, node.Left)))
+					return;				
+
+				ITypeSymbol type = semanticModel.GetTypeInfo(node.Left is TypeOfExpressionSyntax ? ((TypeOfExpressionSyntax)node.Left).Type : ((TypeOfExpressionSyntax)
+					node.Right).Type).Type;
+				if (type == null || !type.IsSealed)
+					return;
+
+				AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+			}
+
+			private bool Matches(ExpressionSyntax member, ExpressionSyntax typeofExpr)
+			{
+				var invoc = member as InvocationExpressionSyntax;
+				var typeOf = typeofExpr as TypeOfExpressionSyntax;
+				if (invoc == null || typeOf == null)
+					return false;
+
+				var memberAccess = invoc.Expression as MemberAccessExpressionSyntax;
+				return memberAccess == null || memberAccess.Name.Identifier.ValueText != "GetType"; 
+			}
 		}
 	}
 
@@ -127,10 +117,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as BinaryExpressionSyntax;
+
+				ExpressionSyntax a;
+				TypeSyntax b;
+				InvocationExpressionSyntax left = node.Left as InvocationExpressionSyntax;
+
+				//we know it's one or the other
+				if (left != null) {
+					a = left.Expression;
+					b = ((TypeOfExpressionSyntax)node.Right).Type;
+				} else {
+					a = ((InvocationExpressionSyntax)node.Right).Expression;
+					b = ((TypeOfExpressionSyntax)node.Left).Type;
+				}
+				var isExpr = SyntaxFactory.BinaryExpression(SyntaxKind.IsExpression, ((MemberAccessExpressionSyntax)a).Expression, b);
+				var newRoot = root.ReplaceNode(node, isExpr);
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'is' operator", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;
