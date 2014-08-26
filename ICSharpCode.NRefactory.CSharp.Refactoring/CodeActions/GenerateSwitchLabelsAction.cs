@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					sections = sections.Add(GetSectionFromSymbol(model, field, span).WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(SyntaxFactory.BreakStatement())));
 				}
 				sections = sections.Add(SyntaxFactory.SwitchSection()
-					.WithLabels(SyntaxFactory.SingletonList<SwitchLabelSyntax>(SyntaxFactory.SwitchLabel(SyntaxKind.DefaultSwitchLabel)))
+					.WithLabels(SyntaxFactory.SingletonList<SwitchLabelSyntax>(SyntaxFactory.DefaultSwitchLabel()))
 					.WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(
 						SyntaxFactory.ThrowStatement(
 						SyntaxFactory.ObjectCreationExpression(
@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					fields.Select(f => GetSectionFromSymbol(model, f, span).WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(SyntaxFactory.BreakStatement()))));
 
 				//default section - if it exists, remove it, add in our new sections, and replace it
-				var defaultSection = switchStatement.Sections.FirstOrDefault(s => s.Labels.Any(l => l.Value == null));
+				var defaultSection = switchStatement.Sections.FirstOrDefault(s => s.Labels.Any(l => ((CaseSwitchLabelSyntax)l).Value == null));
 
 				if (defaultSection == null)
 					newSections = switchStatement.Sections.AddRange(newSections);
@@ -102,14 +102,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		private SwitchSectionSyntax GetSectionFromSymbol(SemanticModel model, IFieldSymbol field, TextSpan span)
 		{
-			return SyntaxFactory.SwitchSection().WithLabels(SyntaxFactory.SingletonList<SwitchLabelSyntax>(SyntaxFactory.SwitchLabel(SyntaxKind.CaseSwitchLabel,
+			return SyntaxFactory.SwitchSection().WithLabels(SyntaxFactory.SingletonList<SwitchLabelSyntax>(SyntaxFactory.CaseSwitchLabel(
 				SyntaxFactory.IdentifierName(field.ToMinimalDisplayString(model, span.Start))))).WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(SyntaxFactory.BreakStatement()));
 		}
 
 		private bool IsHandled(SemanticModel model, SwitchStatementSyntax switchStatement, IFieldSymbol field)
 		{
 			//if any label in any section has a value equal to the field name, return true
-			return switchStatement.Sections.Any(s => s.Labels.Any(l => l.Value != null && ((MemberAccessExpressionSyntax)l.Value).Name.Identifier.ValueText.Equals(field.Name)));
+			return switchStatement.Sections.Any(s => s.Labels.Any(l => l is CaseSwitchLabelSyntax && ((CaseSwitchLabelSyntax)l).Value != null && ((MemberAccessExpressionSyntax)((CaseSwitchLabelSyntax)l).Value).Name.Identifier.ValueText.Equals(field.Name)));
 		}
 	}
 }

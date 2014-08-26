@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var node = root.FindNode(span) as SwitchStatementSyntax;
 
-			if (node == null || node.Sections.Count == 0 || node.Sections.All(l => l.Labels.Any(s => s.CaseOrDefaultKeyword.IsKind(SyntaxKind.DefaultKeyword))))
+			if (node == null || node.Sections.Count == 0 || node.Sections.All(l => l.Labels.Any(s => s.Keyword.IsKind(SyntaxKind.DefaultKeyword))))
 				return Enumerable.Empty<CodeAction>();
 
 			foreach (var section in node.Sections) {
@@ -98,11 +98,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		private ExpressionSyntax CollectCondition(ExpressionSyntax expressionSyntax, SyntaxList<SwitchLabelSyntax> labels)
 		{
 			//default
-			if (labels.Count == 0 || labels.Any(l => l.Value == null))
+			if (labels.Count == 0 || labels.Any(l => l is CaseSwitchLabelSyntax && ((CaseSwitchLabelSyntax)l).Value == null))
 				return null;
 
 			List<ExpressionSyntax> conditionList = 
-				labels.Select(l => (ExpressionSyntax)SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression, expressionSyntax, l.Value)).ToList();
+				labels.Select(l => (ExpressionSyntax)SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression, expressionSyntax, ((CaseSwitchLabelSyntax)l).Value)).ToList();
 
 			//attempt to add parentheses
 			//TODO: port InsertParentheses in-full rather than a make-do (but I didn't think I had the time to do a full-port)

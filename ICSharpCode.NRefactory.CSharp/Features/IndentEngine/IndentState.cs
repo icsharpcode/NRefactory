@@ -1086,7 +1086,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			if (ch == Engine.newLineChar)
 			{
-				if (!Engine.options.GetOption(CSharpFormattingOptions.OpenBracesInNewLineForAnonymousMethods)) {
+				if (!Engine.options.GetOption(CSharpFormattingOptions.NewLinesForBracesInAnonymousMethods)) {
 					if (NextLineIndent.PopIf(IndentType.Continuation)) {
 						NextLineIndent.Push(IndentType.Block);
 					}

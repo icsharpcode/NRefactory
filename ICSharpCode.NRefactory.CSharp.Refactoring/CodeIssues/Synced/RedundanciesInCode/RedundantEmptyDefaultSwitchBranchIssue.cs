@@ -78,7 +78,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var defaultCase = node.Sections.FirstOrDefault(s => s.Labels.Any(l => l.IsKind(SyntaxKind.DefaultSwitchLabel)));
 				if (defaultCase == null || defaultCase.Statements.Any(s => !s.IsKind(SyntaxKind.BreakStatement)))
 					return;
-				AddIssue(Diagnostic.Create(Rule, defaultCase.Labels.Last().CaseOrDefaultKeyword.GetLocation()));
+				var switchLabelSyntax = defaultCase.Labels.Last() as DefaultSwitchLabelSyntax;
+				AddIssue(Diagnostic.Create(Rule, switchLabelSyntax.Keyword.GetLocation()));
 			}
 		}
 	}

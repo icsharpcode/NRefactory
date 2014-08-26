@@ -100,7 +100,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			 workspace = new InspectionActionTestBase.TestWorkspace();
 			var projectId = ProjectId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
-			workspace.Options.WithChangedOption(CSharpFormattingOptions.OpenBracesInNewLineForControl, false);
+			workspace.Options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInControlBlocks, false);
 			workspace.Open(ProjectInfo.Create(
 				projectId,
 				VersionStamp.Create(),
@@ -115,7 +115,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 					"",
 					"Script",
 					null,
-					false,
+					OptimizationLevel.Debug,
 					false,
 					true,
 					null,
@@ -126,15 +126,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 					Platform.AnyCpu,
 					ReportDiagnostic.Default,
 					4,
-					null,
-					false,
-					DebugInformationKind.None,
-					SubsystemVersion.None,
-					null,
-					true,
-					null,
-					null,
-					null,
 					null
 				),
 				new CSharpParseOptions (

@@ -119,9 +119,9 @@ namespace ICSharpCode.NRefactory6.CSharp.ParameterHinting
 							"",
 							"Script",
 							null,
+							OptimizationLevel.Debug,
 							false,
 							false,
-							true,
 							null,
 							null,
 							null,
@@ -131,15 +131,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ParameterHinting
 							ReportDiagnostic.Default,
 							4,
 							null,
-							false,
-							DebugInformationKind.None,
-							SubsystemVersion.None,
-							null,
-							true,
-							null,
-							null,
-							null,
-							null
+							false
 						),
 						new CSharpParseOptions (
 							LanguageVersion.CSharp6,

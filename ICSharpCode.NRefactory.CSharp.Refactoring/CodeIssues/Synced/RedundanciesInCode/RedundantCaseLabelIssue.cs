@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan) as SwitchLabelSyntax;
+				var node = root.FindNode(diagonstic.Location.SourceSpan) as CaseSwitchLabelSyntax;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
 
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Remove 'case {0}'", node.Value), document.WithSyntaxRoot(newRoot)));
