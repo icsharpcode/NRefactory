@@ -293,7 +293,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					start = new TextLocation(line, col);
 				}
 				if (ch == '}' &&!start.IsEmpty) {
-					Colorize(start, new TextLocation(line, col), stringFormatItemColor);
+					Colorize(start, new TextLocation(line, col + 1), stringFormatItemColor);
 					start = TextLocation.Empty;
 				}
 				col++;

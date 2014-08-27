@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 			public string GetColor(TextLocation loc)
 			{
 				foreach (var color in colors) {
-					if (color.Item1.IsInside (loc))
+					if (color.Item1.Contains (loc))
 						return color.Item2;
 				}
 				return null;
@@ -483,6 +483,22 @@ class X
 	}
 }", defaultTextColor);
 		}
+
+		[Test]
+		public void TestStringFormatClosingBrace()
+		{
+			TestColor (@"
+using System.Text;
+
+class TestClass
+{
+	void Foo(StringBuilder sb)
+	{
+		sb.AppendFormat(""{0$}"", 1, 2);
+	}
+}", stringFormatItemColor);
+		}
+
 	}
 }
 
