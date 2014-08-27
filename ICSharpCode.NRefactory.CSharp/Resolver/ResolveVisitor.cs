@@ -809,10 +809,11 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		{
 			CSharpResolver oldResolver = resolver;
 			try {
-				IMember member;
+				IMember member = null;
 				if (unresolvedFile != null) {
 					member = GetMemberFromLocation(memberDeclaration);
-				} else {
+				}
+				if (member == null) {
 					// Re-discover the method:
 					SymbolKind symbolKind = memberDeclaration.SymbolKind;
 					var parameterTypes = TypeSystemConvertVisitor.GetParameterTypes(memberDeclaration.GetChildrenByRole(Roles.Parameter), InterningProvider.Dummy);
