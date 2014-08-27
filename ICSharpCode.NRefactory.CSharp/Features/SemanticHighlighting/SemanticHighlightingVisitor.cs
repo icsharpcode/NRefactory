@@ -253,11 +253,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				}
 				
 				if (ch == '}' && start >= 0) {
-					char next = i + 1 < text.Length ? text [i + 1] : '\0';
-					if (next == '}') {
-						i++;
-						continue;
-					}
 					Colorize(new TextSpan (expr.SpanStart + start, i - start), stringFormatItemColor);
 					start = -1;
 				}
