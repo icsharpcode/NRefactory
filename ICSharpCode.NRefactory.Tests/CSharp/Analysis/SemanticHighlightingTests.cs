@@ -466,6 +466,23 @@ class TestClass
 	}
 }", stringFormatItemColor);
 		}
+
+
+		/// <summary>
+		///Bug 22247 - Wrong colouring of escaped string formater
+		/// </summary>
+		[Test]
+		public void TestBug22247()
+		{
+			TestColor (@"
+class X
+{
+	public static void Main ()
+	{
+		var l = string.Format(""{{{0:d}$}$}"", 100);
+	}
+}", defaultTextColor);
+		}
 	}
 }
 
