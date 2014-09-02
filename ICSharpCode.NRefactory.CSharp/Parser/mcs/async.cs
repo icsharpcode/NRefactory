@@ -480,6 +480,24 @@ namespace Mono.CSharp
 			throw new NotImplementedException ();
 		}
 
+		public void EmitCatchBlock (EmitContext ec)
+		{
+			var catch_value = LocalVariable.CreateCompilerGenerated (ec.Module.Compiler.BuiltinTypes.Exception, block, Location);
+
+			ec.BeginCatchBlock (catch_value.Type);
+			catch_value.EmitAssign (ec);
+
+			ec.EmitThis ();
+			ec.EmitInt ((int) IteratorStorey.State.After);
+			ec.Emit (OpCodes.Stfld, storey.PC.Spec);
+
+			((AsyncTaskStorey) Storey).EmitSetException (ec, new LocalVariableReference (catch_value, Location));
+
+			ec.Emit (OpCodes.Leave, move_next_ok);
+			ec.EndExceptionBlock ();
+
+		}
+
 		protected override void EmitMoveNextEpilogue (EmitContext ec)
 		{
 			var storey = (AsyncTaskStorey) Storey;
@@ -807,7 +825,7 @@ namespace Mono.CSharp
 			args.Add (new Argument (awaiter, Argument.AType.Ref));
 			args.Add (new Argument (new CompilerGeneratedThis (CurrentType, Location), Argument.AType.Ref));
 			using (ec.With (BuilderContext.Options.OmitDebugInfo, true)) {
-				mg.EmitCall (ec, args);
+				mg.EmitCall (ec, args, true);
 			}
 		}
 
@@ -885,7 +903,7 @@ namespace Mono.CSharp
 			args.Add (new Argument (exceptionVariable));
 
 			using (ec.With (BuilderContext.Options.OmitDebugInfo, true)) {
-				mg.EmitCall (ec, args);
+				mg.EmitCall (ec, args, true);
 			}
 		}
 
@@ -909,7 +927,7 @@ namespace Mono.CSharp
 			}
 
 			using (ec.With (BuilderContext.Options.OmitDebugInfo, true)) {
-				mg.EmitCall (ec, args);
+				mg.EmitCall (ec, args, true);
 			}
 		}
 

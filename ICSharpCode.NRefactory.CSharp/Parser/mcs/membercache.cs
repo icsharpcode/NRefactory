@@ -698,14 +698,6 @@ namespace Mono.CSharp {
 						continue;
 
 					//
-					// Ignore user private fields for definite assignment. This is sort of unexpected but
-					// rationale is to have consistent results when using reference assemblies which don't
-					// include any private fields and full assemblies
-					//
-					if ((name_entry.Modifiers & (Modifiers.PRIVATE | Modifiers.BACKING_FIELD)) == Modifiers.PRIVATE)
-						continue;
-
-					//
 					// Fixed size buffers are not subject to definite assignment checking
 					//
 					if (name_entry is FixedFieldSpec || name_entry is ConstSpec)
@@ -720,6 +712,9 @@ namespace Mono.CSharp {
 					//
 					if (!fs.IsPublic && container.MemberDefinition.IsImported && (!fs.MemberType.IsArray && TypeSpec.IsReferenceType (fs.MemberType)))
 						continue;
+
+					//if ((fs.Modifiers & (Modifiers.BACKING_FIELD) != 0)
+					//	continue;
 
 					if (fields == null)
 						fields = new List<FieldSpec> ();

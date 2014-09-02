@@ -135,6 +135,21 @@ namespace ICSharpCode.NRefactory.CSharp
 
 			void AddTypeArguments(ATypeNameExpression texpr, AstType result)
 			{
+				var unbound = texpr.TypeArguments as UnboundTypeArguments;
+				if (unbound != null) { 
+					var loc2 = LocationsBag.GetLocations(texpr.TypeArguments);
+					if (loc2 == null)
+						return;
+					int j = 0;
+					if (j < loc2.Count)
+						result.AddChild(new CSharpTokenNode(Convert(loc2 [j++]), Roles.LChevron), Roles.LChevron);
+					while (j < loc2.Count - 1) {
+						result.AddChild(new CSharpTokenNode(Convert(loc2 [j++]), Roles.LChevron), Roles.Comma);
+					}
+					if (j < loc2.Count)
+						result.AddChild(new CSharpTokenNode(Convert(loc2 [j++]), Roles.RChevron), Roles.RChevron);
+					return;
+				}
 				if (texpr.TypeArguments == null || texpr.TypeArguments.Args == null)
 					return;
 				var loc = LocationsBag.GetLocations(texpr.TypeArguments);
