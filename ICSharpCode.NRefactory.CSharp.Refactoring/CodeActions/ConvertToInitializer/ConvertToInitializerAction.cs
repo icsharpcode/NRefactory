@@ -28,8 +28,8 @@ using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[ContextAction("Convert to initializer",
-	               Description = "Converts a set of assignments and .Add() calls to an initializer.")]
+//	[ContextAction("Convert to initializer",
+//	               Description = "Converts a set of assignments and .Add() calls to an initializer.")]
 	public class ConvertToInitializerAction : CodeActionProvider
 	{
 		#region ICodeActionProvider implementation
