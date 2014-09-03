@@ -144,10 +144,13 @@ namespace ICSharpCode.NRefactory.CSharp
 					if (j < loc2.Count)
 						result.AddChild(new CSharpTokenNode(Convert(loc2 [j++]), Roles.LChevron), Roles.LChevron);
 					while (j < loc2.Count - 1) {
+						result.AddChild (new SimpleType (), Roles.TypeArgument);
 						result.AddChild(new CSharpTokenNode(Convert(loc2 [j++]), Roles.LChevron), Roles.Comma);
 					}
-					if (j < loc2.Count)
+					if (j < loc2.Count) {
+						result.AddChild (new SimpleType (), Roles.TypeArgument);
 						result.AddChild(new CSharpTokenNode(Convert(loc2 [j++]), Roles.RChevron), Roles.RChevron);
+					}
 					return;
 				}
 				if (texpr.TypeArguments == null || texpr.TypeArguments.Args == null)
