@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 		protected TextLocation regionEnd;
 		
 		protected CSharpAstResolver resolver;
-		bool isInAccessorContainingValueParameter;
+		protected bool isInAccessorContainingValueParameter;
 		
 		protected abstract void Colorize(TextLocation start, TextLocation end, TColor color);
 		
