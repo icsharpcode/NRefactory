@@ -43,14 +43,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Finds redundant base qualifier 
 	/// </summary>
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Redundant 'base.' qualifier", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBaseQualifier")]
 	public class RedundantBaseQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantBaseQualifierIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'base.' is redundant and can safely be removed.", "'base.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'base.' is redundant and can safely be removed.", "'base.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true, "Redundant 'base.' qualifier");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

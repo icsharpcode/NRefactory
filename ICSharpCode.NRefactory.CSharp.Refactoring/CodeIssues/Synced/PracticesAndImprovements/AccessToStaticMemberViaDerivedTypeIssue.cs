@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Call to static member via a derived class", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "AccessToStaticMemberViaDerivedType")]
 	public class AccessToStaticMemberViaDerivedTypeIssue : GatherVisitorCodeIssueProvider
 	{
@@ -49,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Static method invoked via derived type";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Call to static member via a derived class");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

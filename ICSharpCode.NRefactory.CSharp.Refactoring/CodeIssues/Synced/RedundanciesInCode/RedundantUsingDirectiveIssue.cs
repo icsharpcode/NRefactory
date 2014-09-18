@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Redundant using directive", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantUsingDirective")]
 	public class RedundantUsingDirectiveIssue : GatherVisitorCodeIssueProvider
 	{
@@ -53,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Using directive is not used by code and can be removed safely.";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Redundant using directive");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

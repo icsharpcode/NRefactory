@@ -42,14 +42,13 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Redundant explicit argument name specification", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantArgumentName")]
 	public class RedundantArgumentNameIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantArgumentNameIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Redundant explicit argument name specification", "Redundant argument name specification", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Redundant explicit argument name specification", "Redundant argument name specification", Category, DiagnosticSeverity.Warning, true, "Redundant explicit argument name specification");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Event unsubscription via anonymous delegate", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
 	public class EventUnsubscriptionViaAnonymousDelegateIssue : GatherVisitorCodeIssueProvider
 	{
@@ -52,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Event unsubscription via anonymous delegate is useless";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Event unsubscription via anonymous delegate");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

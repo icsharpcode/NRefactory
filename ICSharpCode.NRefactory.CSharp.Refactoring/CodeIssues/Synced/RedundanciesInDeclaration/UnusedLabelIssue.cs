@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Unused label", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnusedLabel", PragmaWarning = 164)]
 	public class UnusedLabelIssue : GatherVisitorCodeIssueProvider
 	{
@@ -52,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Label is unused";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Unused label");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Redundant assignment", LanguageNames.CSharp)]
 	public class RedundantAssignmentIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantAssignmentIssue";
@@ -51,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Redundant assignment");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Non-readonly field referenced in 'GetHashCode()'", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NonReadonlyReferencedInGetHashCode")]
 	public class NonReadonlyReferencedInGetHashCodeIssue : GatherVisitorCodeIssueProvider
 	{	
@@ -53,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Non-readonly field referenced in 'GetHashCode()'";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Non-readonly field referenced in 'GetHashCode()'");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

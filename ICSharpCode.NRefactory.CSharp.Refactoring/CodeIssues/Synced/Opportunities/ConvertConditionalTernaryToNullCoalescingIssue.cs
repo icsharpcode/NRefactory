@@ -45,7 +45,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Converts to: "a ?? other"<expr>
 	/// </summary>
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("'?:' expression can be converted to '??' expression", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
 	public class ConvertConditionalTernaryToNullCoalescingIssue : GatherVisitorCodeIssueProvider
 	{
@@ -54,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "'?:' expression can be re-written as '??' expression";
 		const string Category               = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "'?:' expression can be converted to '??' expression");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

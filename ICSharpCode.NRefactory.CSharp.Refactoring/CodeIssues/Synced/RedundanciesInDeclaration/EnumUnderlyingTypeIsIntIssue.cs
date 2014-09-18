@@ -42,7 +42,6 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Underlying type of enum is int", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
 	public class EnumUnderlyingTypeIsIntIssue : GatherVisitorCodeIssueProvider
 	{
@@ -51,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Default underlying type of enums is already int";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Underlying type of enum is int");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

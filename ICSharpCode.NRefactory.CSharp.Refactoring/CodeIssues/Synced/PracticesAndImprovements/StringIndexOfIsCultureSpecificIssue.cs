@@ -45,7 +45,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("'string.IndexOf' is culture-aware", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
 	public class StringIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
@@ -54,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "'IndexOf' is culture-aware and missing a StringComparison argument";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'string.IndexOf' is culture-aware");
 		// "Add 'StringComparison.Ordinal'" / "Add 'StringComparison.CurrentCulture'
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

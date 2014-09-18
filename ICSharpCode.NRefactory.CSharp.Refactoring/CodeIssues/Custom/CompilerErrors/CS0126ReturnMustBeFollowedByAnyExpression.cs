@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("CS0126: A method with return type cannot return without value.", LanguageNames.CSharp)]
 	public class CS0126ReturnMustBeFollowedByAnyExpression : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "CS0126ReturnMustBeFollowedByAnyExpression";
@@ -51,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerErrors;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true, "CS0126: A method with return type cannot return without value.");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("CS0029: Cannot implicitly convert type 'A' to 'B'.", LanguageNames.CSharp)]
 	public class CS0029InvalidConversionIssue : GatherVisitorCodeIssueProvider
 	{
 		// This class handles both
@@ -57,7 +56,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CompilerErrors;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true, "CS0029: Cannot implicitly convert type 'A' to 'B'.");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

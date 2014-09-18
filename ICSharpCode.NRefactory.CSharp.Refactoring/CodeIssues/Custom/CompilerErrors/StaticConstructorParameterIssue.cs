@@ -47,7 +47,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Static constructor should be parameterless", LanguageNames.CSharp)]
 	public class StaticConstructorParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId = "StaticConstructorParameterIssue";
@@ -55,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat = "";
 		const string Category = IssueCategories.CompilerErrors;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true, "Static constructor should be parameterless");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 		{

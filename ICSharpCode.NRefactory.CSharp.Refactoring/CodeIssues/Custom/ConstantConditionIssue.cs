@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Condition is always 'true' or always 'false'", LanguageNames.CSharp)]
 	public class ConstantConditionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConstantConditionIssue";
@@ -52,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Condition is always '{0}'";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Condition is always 'true' or always 'false'");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -121,6 +120,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					Rule.IsEnabledByDefault,
 					4,
 					false,
+					Rule.Description,
+					Rule.HelpLink,
 					condition.GetLocation(),
 					null,
 					new [] { value.ToString() } 

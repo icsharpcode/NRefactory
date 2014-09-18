@@ -44,14 +44,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Comparison of boolean with 'true' or 'false'", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBoolCompare")]
 	public class RedundantBoolCompareIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantBoolCompareIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Comparison of a boolean value with 'true' or 'false' constant.", "Comparison with '{0}' is redundant", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Comparison of a boolean value with 'true' or 'false' constant.", "Comparison with '{0}' is redundant", Category, DiagnosticSeverity.Warning, true, "Comparison of boolean with 'true' or 'false'");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

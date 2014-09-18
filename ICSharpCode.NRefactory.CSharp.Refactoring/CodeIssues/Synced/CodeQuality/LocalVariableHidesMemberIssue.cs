@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Local variable hides member", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "LocalVariableHidesMember")]
 	public class LocalVariableHidesMemberIssue : VariableHidesMemberIssue
 	{
@@ -53,11 +52,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides field '{1}'", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides method '{1}'", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides property '{1}'", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule4 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides event '{1}'", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule5 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides member '{1}'", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides field '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides method '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
+		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides property '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
+		static readonly DiagnosticDescriptor Rule4 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides event '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
+		static readonly DiagnosticDescriptor Rule5 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides member '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

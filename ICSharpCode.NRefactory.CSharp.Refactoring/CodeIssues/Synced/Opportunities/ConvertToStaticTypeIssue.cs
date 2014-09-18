@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Class can be converted to static", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToStaticType")]
 	public class ConvertToStaticTypeIssue : GatherVisitorCodeIssueProvider
 	{
@@ -53,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat = "This class is recommended to be defined as static";
 		const string Category = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Class can be converted to static");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 		{

@@ -47,7 +47,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Converts to: string.IsNullOrEmpty (str)
 	/// </summary>
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Use 'String.IsNullOrEmpty'", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithStringIsNullOrEmpty")]
 	public class ReplaceWithStringIsNullOrEmptyIssue : GatherVisitorCodeIssueProvider
 	{
@@ -119,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Expression can be replaced with '{0}'";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Use 'String.IsNullOrEmpty'");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("'??' condition is known to be null or not null", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer (AnalysisDisableKeyword = "ConstantNullCoalescingCondition")]
 	public class ConstantNullCoalescingConditionIssue : GatherVisitorCodeIssueProvider
 	{
@@ -51,9 +50,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string Description = "Finds redundant null coalescing expressions such as expr ?? expr";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Redundant ??. Right side is always null.", "Remove redundant right side", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Redundant ??. Left side is always null.", "Remove redundant left side", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, "Redundant ??. Left side is never null.", "Remove redundant right side", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, "Redundant ??. Right side is always null.", "Remove redundant right side", Category, DiagnosticSeverity.Warning, true, "'??' condition is known to be null or not null");
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, "Redundant ??. Left side is always null.", "Remove redundant left side", Category, DiagnosticSeverity.Warning, true, "'??' condition is known to be null or not null");
+		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, "Redundant ??. Left side is never null.", "Remove redundant right side", Category, DiagnosticSeverity.Warning, true, "'??' condition is known to be null or not null");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

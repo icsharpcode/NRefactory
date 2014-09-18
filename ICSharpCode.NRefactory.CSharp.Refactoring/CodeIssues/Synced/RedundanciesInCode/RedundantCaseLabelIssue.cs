@@ -41,14 +41,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Redundant 'case' label", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantCaseLabel")]
 	public class RedundantCaseLabelIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantCaseLabelIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'case' label is redundant.", "Redundant case label", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'case' label is redundant.", "Redundant case label", Category, DiagnosticSeverity.Warning, true, "Redundant 'case' label");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -41,7 +41,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Expression is always 'true' or always 'false'", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
 	public class ConditionIsAlwaysTrueOrFalseIssue : GatherVisitorCodeIssueProvider
 	{
@@ -49,8 +48,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal const string DiagnosticIdFalse = "ConditionIsAlwaysTrueOrFalseIssue.False";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, "Value of the expression is always 'true'", "Expression is always 'true'", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, "Value of the expression is always 'false'", "Expression is always 'false'", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, "Value of the expression is always 'true'", "Expression is always 'true'", Category, DiagnosticSeverity.Warning, true, "Expression is always 'true' or always 'false'");
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, "Value of the expression is always 'false'", "Expression is always 'false'", Category, DiagnosticSeverity.Warning, true, "Expression is always 'true' or always 'false'");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

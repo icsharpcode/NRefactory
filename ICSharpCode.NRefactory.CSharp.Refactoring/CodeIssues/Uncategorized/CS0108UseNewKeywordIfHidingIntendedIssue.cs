@@ -45,7 +45,6 @@ using System.Threading.Tasks;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("CS0108:member1 hides inherited member member2. Use the new keyword if hiding was intended.", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CSharpWarnings::CS0108", PragmaWarning = 108)]
 	public class CS0108UseNewKeywordIfHidingIntendedIssue : GatherVisitorCodeIssueProvider
 	{
@@ -54,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat = "member1 hides inherited member member2. Use the new keyword if hiding was intended.";
 		const string Category = IssueCategories.CompilerWarnings;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "CS0108:member1 hides inherited member member2. Use the new keyword if hiding was intended.");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 		{

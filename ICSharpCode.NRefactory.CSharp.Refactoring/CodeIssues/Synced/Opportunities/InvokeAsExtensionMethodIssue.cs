@@ -45,7 +45,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Convert static method call to extension method call", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "InvokeAsExtensionMethod")]
 	public class InvokeAsExtensionMethodIssue : GatherVisitorCodeIssueProvider
 	{
@@ -54,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat = "Convert static method call to extension method call";
 		const string Category = IssueCategories.Opportunities;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Convert static method call to extension method call");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 		{

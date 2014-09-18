@@ -94,7 +94,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 
 		static TestSemanticHighlightingVisitor CreateHighighting(string text)
 		{
-			var syntaxTree = CSharpSyntaxTree.ParseText(text, null, "a.cs");
+			var syntaxTree = CSharpSyntaxTree.ParseText(text, new CSharpParseOptions (), "a.cs");
 			/*if (syntaxTree.Errors.Count > 0) {
 				Console.WriteLine(text);
 				Console.WriteLine("---");
@@ -105,8 +105,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				new []  { syntaxTree },
 				InspectionActionTestBase.DefaultMetadataReferences
 			);
-			var result = new TestSemanticHighlightingVisitor (compilation.GetSemanticModel(syntaxTree));
-			result.Visit(syntaxTree.GetRoot()); 
+			var model = compilation.GetSemanticModel(syntaxTree);
+			var result = new TestSemanticHighlightingVisitor(model);
+			result.Visit(model.SyntaxTree.GetRoot()); 
 			return result;
 		}
 

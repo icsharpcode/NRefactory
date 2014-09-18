@@ -464,7 +464,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 			// "value" is handled in VisitIdentifierExpression()
 			// "alias" is handled in VisitExternAliasDeclaration()
 
-			
 			TColor color;
 			if (TryGetSymbolColor (semanticModel.GetSymbolInfo(node, cancellationToken), out color))
 				Colorize(node.Span, color);

@@ -44,14 +44,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Parentheses are redundant if attribute has no arguments", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantAttributeParentheses")]
 	public class RedundantAttributeParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantAttributeParenthesesIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Parentheses are redundant if attribute has no arguments.", "Parentheses are redundant if attribute has no arguments", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Parentheses are redundant if attribute has no arguments.", "Parentheses are redundant if attribute has no arguments", Category, DiagnosticSeverity.Warning, true, "Parentheses are redundant if attribute has no arguments");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

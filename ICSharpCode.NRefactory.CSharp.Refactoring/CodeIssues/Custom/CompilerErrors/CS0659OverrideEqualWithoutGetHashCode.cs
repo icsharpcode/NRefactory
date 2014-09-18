@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("CS0659: Class overrides Object.Equals but not Object.GetHashCode.", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(PragmaWarning = 1717, AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorCodeIssueProvider
 	{
@@ -52,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat = "";
 		const string Category = IssueCategories.CompilerWarnings;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "CS0659: Class overrides Object.Equals but not Object.GetHashCode.");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 		{

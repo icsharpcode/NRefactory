@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Parameter can be declared with base type", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(SuppressMessageCategory="Microsoft.Design", SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters")]
 	public class ParameterCanBeDeclaredWithBaseTypeIssue : GatherVisitorCodeIssueProvider
 	{
@@ -63,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Parameter can be declared with base type");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

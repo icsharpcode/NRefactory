@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Equal expression comparison", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EqualExpressionComparison")]
 	public class EqualExpressionComparisonIssue : GatherVisitorCodeIssueProvider
 	{
@@ -52,8 +51,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Equal expression comparison";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with 'true'", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with 'false'", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with 'true'", Category, DiagnosticSeverity.Warning, true, "Equal expression comparison");
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with 'false'", Category, DiagnosticSeverity.Warning, true, "Equal expression comparison");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

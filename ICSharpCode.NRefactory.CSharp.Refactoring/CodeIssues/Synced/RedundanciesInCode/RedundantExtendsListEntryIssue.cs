@@ -46,7 +46,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Type is either mentioned in the base type list of other part, or it is interface and appears as other's type base and contains no explicit implementation.
 	/// </summary>
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Redundant class or interface specification in base types list", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantExtendsListEntry")]
 	public class RedundantExtendsListEntryIssue : GatherVisitorCodeIssueProvider
 	{
@@ -54,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string Description            = "Type is either mentioned in the base type list of another part or in another base type";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, "{0}", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, "{0}", Category, DiagnosticSeverity.Warning, true, "Redundant class or interface specification in base types list");
 		// "Base interface is redundant" / "Base type is already specified in other parts"
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

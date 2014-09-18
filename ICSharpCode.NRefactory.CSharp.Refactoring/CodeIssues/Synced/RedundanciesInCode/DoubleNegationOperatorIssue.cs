@@ -41,14 +41,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Double negation operator", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoubleNegationOperator")]
 	public class DoubleNegationOperatorIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "DoubleNegationOperatorIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Double negation is meaningless", "Double negation is redundant", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Double negation is meaningless", "Double negation is redundant", Category, DiagnosticSeverity.Warning, true, "Double negation operator");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

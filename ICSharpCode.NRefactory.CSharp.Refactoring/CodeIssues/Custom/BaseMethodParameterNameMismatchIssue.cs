@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Parameter name differs in base declaration", LanguageNames.CSharp)]
 	public class BaseMethodParameterNameMismatchIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "BaseMethodParameterNameMismatchIssue";
@@ -51,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Parameter name differs in base declaration";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Parameter name differs in base declaration");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
@@ -150,6 +149,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							Rule.IsEnabledByDefault,
 							4,
 							false,
+							Rule.Description,
+							Rule.HelpLink,
 							Location.Create(semanticModel.SyntaxTree, syntaxParams[i].Identifier.Span),
 							null,
 							new [] { baseArg.Name }

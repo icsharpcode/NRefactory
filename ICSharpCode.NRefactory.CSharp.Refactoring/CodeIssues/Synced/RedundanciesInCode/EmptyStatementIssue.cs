@@ -40,14 +40,13 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Empty statement is redundant", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyStatement")]
 	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EmptyStatementIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Empty statement is redundant", "Empty statement is redundant", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Empty statement is redundant", "Empty statement is redundant", Category, DiagnosticSeverity.Warning, true, "Empty statement is redundant");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -43,16 +43,15 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Check if a namespace corresponds to a file location", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CheckNamespace")]
 	public class CheckNamespaceIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "CheckNamespaceIssue";
+		internal const string DiagnosticId  = "CheckNamespaceIssue"; // elcvelcevc
 		const string Description            = "Check if a namespace corresponds to a file location";
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Check if a namespace corresponds to a file location");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

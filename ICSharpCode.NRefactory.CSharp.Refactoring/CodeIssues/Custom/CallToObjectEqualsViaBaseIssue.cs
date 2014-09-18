@@ -41,7 +41,6 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Call to base.Equals resolves to Object.Equals, which is reference equality", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseObjectEqualsIsObjectEquals")]
 	public class CallToObjectEqualsViaBaseIssue : GatherVisitorCodeIssueProvider
 	{
@@ -50,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Call to base.Equals resolves to Object.Equals, which is reference equality";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Call to base.Equals resolves to Object.Equals, which is reference equality");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

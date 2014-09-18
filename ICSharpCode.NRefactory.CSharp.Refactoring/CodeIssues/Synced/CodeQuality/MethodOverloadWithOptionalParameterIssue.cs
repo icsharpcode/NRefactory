@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Method with optional parameter is hidden by overload", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "MethodOverloadWithOptionalParameter")]
 	public class MethodOverloadWithOptionalParameterIssue : GatherVisitorCodeIssueProvider
 	{
@@ -52,8 +51,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Method with optional parameter is hidden by overload", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Indexer with optional parameter is hidden by overload", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Method with optional parameter is hidden by overload", Category, DiagnosticSeverity.Warning, true, "Method with optional parameter is hidden by overload");
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Indexer with optional parameter is hidden by overload", Category, DiagnosticSeverity.Warning, true, "Method with optional parameter is hidden by overload");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

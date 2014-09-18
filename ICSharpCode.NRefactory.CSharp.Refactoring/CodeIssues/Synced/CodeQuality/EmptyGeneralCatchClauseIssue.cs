@@ -46,7 +46,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// A catch clause that catches System.Exception and has an empty body
 	/// </summary>
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Empty general catch clause", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
 	public class EmptyGeneralCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
@@ -55,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat = "Empty general catch clause suppresses any error";
 		const string Category = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Empty general catch clause");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
 		{

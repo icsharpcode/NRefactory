@@ -47,7 +47,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Should only be shown in overview bar, no underlining.
 	/// </summary>
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Show NotImplementedExceptions", LanguageNames.CSharp)]
 	public class NotImplementedExceptionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "NotImplementedExceptionIssue";
@@ -55,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "";
 		const string Category               = IssueCategories.Notifications;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Show NotImplementedExceptions");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

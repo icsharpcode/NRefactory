@@ -39,14 +39,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("'true' is redundant as for statement condition", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "ForStatementConditionIsTrue")]
 	public class ForStatementConditionIsTrueIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ForStatementConditionIsTrueIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "true is redundant as for statement condition, thus can be safely ommited", "'true' is redundant as for statement condition", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "true is redundant as for statement condition, thus can be safely ommited", "'true' is redundant as for statement condition", Category, DiagnosticSeverity.Warning, true, "'true' is redundant as for statement condition");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

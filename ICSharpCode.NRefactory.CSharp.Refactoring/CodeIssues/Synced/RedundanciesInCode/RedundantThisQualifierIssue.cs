@@ -46,7 +46,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Finds redundant this usages.
 	/// </summary>
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Redundant 'this.' qualifier", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantThisQualifier")]
 	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider
 	{
@@ -56,8 +55,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		public const string InsideConstructors = DiagnosticId +".InsideConstructors";
 		public const string EverywhereElse     = DiagnosticId + ".EverywhereElse";
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (InsideConstructors, "Inside constructors", "'this.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (EverywhereElse, "Everywhere else", "'this.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (InsideConstructors, "Inside constructors", "'this.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true, "Redundant 'this.' qualifier");
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (EverywhereElse, "Everywhere else", "'this.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true, "Redundant 'this.' qualifier");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

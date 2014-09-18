@@ -39,14 +39,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Redundant anonymous type property namen", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantAnonymousTypePropertyName")]
 	public class RedundantAnonymousTypePropertyNameIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantAnonymousTypePropertyNameIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "The name can be inferred from the initializer expression", "Redundant explicit property name", Category, DiagnosticSeverity.Warning, true);
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "The name can be inferred from the initializer expression", "Redundant explicit property name", Category, DiagnosticSeverity.Warning, true, "Redundant anonymous type property namen");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
-	[ExportDiagnosticAnalyzer("Member can be made static", LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "MemberCanBeMadeStatic.Local")]
 	public class MemberCanBeMadeStaticIssue : GatherVisitorCodeIssueProvider
 	{
@@ -54,8 +53,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		const string MessageFormat          = "Member can be made static";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdNonPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info, true);
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Member can be made static");
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdNonPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Member can be made static");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
