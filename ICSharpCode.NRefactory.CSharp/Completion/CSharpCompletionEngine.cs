@@ -1942,7 +1942,6 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					if (!lookup.IsAccessible(type, false))
 						continue;
 					IType addType = typePred != null ? typePred(type) : type;
-
 					if (onlyAddConstructors && addType != null) {
 						if (!addType.GetConstructors().Any(c => lookup.IsAccessible(c, true)))
 							continue;
@@ -2126,8 +2125,14 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						if (parent is VariableInitializer) {
 							parent = parent.Parent;
 						}
-						if (parent is VariableDeclarationStatement) {
-							var resolved = ResolveExpression(parent);
+						var varDecl = parent as VariableDeclarationStatement;
+						if (varDecl != null) {
+							ExpressionResolveResult resolved;
+							if (varDecl.Type.IsVar()) {
+								resolved = null;
+							} else {
+								resolved = ResolveExpression(parent);
+							}
 							if (resolved != null) {
 								isAsType = resolved.Result.Type;
 							}

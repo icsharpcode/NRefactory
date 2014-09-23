@@ -6380,5 +6380,32 @@ class MainClass
 ", provider => Assert.IsNotNull(provider.Find("List<int>")));
 		}
 
+		/// <summary>
+		///	Bug 23047 - Completion is not working for is statement 
+		/// </summary>
+		[Test]
+		public void TestBug23047 ()
+		{
+
+			CombinedProviderTest(
+				@"using System;
+
+class User
+{
+}
+
+class MainClass
+{
+    public static int Main ()
+    {
+        object o = null;
+        $var v = o is $
+        return 0;
+    }
+}
+
+", provider => Assert.IsNotNull(provider.Find("User")));
+		}
+
 	}
 }
