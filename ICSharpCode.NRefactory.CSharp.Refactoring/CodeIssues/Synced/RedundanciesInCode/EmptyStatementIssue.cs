@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyStatement")]
-	public class EmptyStatementIssue : DiagnosticAnalyzer
+	public class EmptyStatementIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "EmptyStatementIssue";
 		const string Category               = IssueCategories.RedundanciesInCode;
@@ -55,17 +55,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			}
 		}
 
-		public override void Initialize(AnalysisContext context)
+		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			Console.WriteLine("register");
-			context.RegisterSyntaxNodeAction<SyntaxKind>(ctx => {
-				Console.WriteLine ("block");
-			}, SyntaxKind.Block);
-			context.RegisterSyntaxNodeAction<SyntaxKind>(ctx => {
-				Console.WriteLine ("syntax node action !!!");
-				if (!IsEmbeddedStatement(ctx.Node))
-					ctx.ReportDiagnostic(Diagnostic.Create(Rule, ctx.Node.GetLocation()));
-			}, SyntaxKind.EmptyStatement);
+			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+		}
+
+		class GatherVisitor : GatherVisitorBase<EmptyStatementIssue>
+		{
+			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+				: base (semanticModel, addDiagnostic, cancellationToken)
+			{
+			}
+
+			public override void VisitEmptyStatement(Microsoft.CodeAnalysis.CSharp.Syntax.EmptyStatementSyntax node)
+			{
+				if (IsEmbeddedStatement(node))
+					return;
+				VisitLeadingTrivia(node); 
+				AddIssue (Diagnostic.Create(Rule, node.GetLocation()));
+			}
 		}
 
 		internal static bool IsEmbeddedStatement(SyntaxNode stmt)

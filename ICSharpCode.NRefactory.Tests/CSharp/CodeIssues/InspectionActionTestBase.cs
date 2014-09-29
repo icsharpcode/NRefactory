@@ -249,9 +249,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 			var syntaxTree = CSharpSyntaxTree.ParseText(text.ToString());
 
-			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
+			Compilation compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
 			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
-
 			var diagnostics = new List<Diagnostic>();
 			var driver = new AnalyzerDriver<SyntaxKind>(
 				System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()),
@@ -259,11 +258,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 				options,
 				CancellationToken.None
 			);
-			compilation.WithEventQueue(driver.CompilationEventQueue);
+			compilation = compilation.WithEventQueue(driver.CompilationEventQueue);
+			compilation.GetDiagnostics().Count();
 			diagnostics.AddRange(driver.GetDiagnosticsAsync().Result); 
 
 			if (expectedDiagnosics.Count != diagnostics.Count) {
-				Console.WriteLine("Diagnostics: " + diagnostics.Count + " expected: " + expectedDiagnosics.Count);
 				foreach (var diag in diagnostics) {
 					Console.WriteLine(diag.Id + "/" + diag.GetMessage());
 				}
