@@ -51,19 +51,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 		protected abstract CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken);
 		public override void Initialize(AnalysisContext context)
 		{
-
+			context.RegisterSemanticModelAction(semAnCtx => {
+				var visitor = CreateVisitor(semAnCtx.SemanticModel, semAnCtx.ReportDiagnostic, semAnCtx.CancellationToken);
+				if (visitor == null)
+					return;
+				visitor.Visit(semAnCtx.SemanticModel.SyntaxTree.GetRoot(semAnCtx.CancellationToken)); 
+			});
 		}
-/*		void ISemanticModelAnalyzer.AnalyzeSemanticModel(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, AnalyzerOptions options, CancellationToken cancellationToken)
-		{
-			var visitor = CreateVisitor(semanticModel, addDiagnostic, cancellationToken);
-			if (visitor == null)
-				return;
-			visitor.Visit(semanticModel.SyntaxTree.GetRoot(cancellationToken)); 
-		}
-
-		public abstract ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get;
-		} */
 	}
 
 	/// <summary>

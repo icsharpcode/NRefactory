@@ -166,50 +166,53 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 		}
 
-		protected static void Test<T>(string input, int expectedDiagnostics = 1, string output = null, int issueToFix = -1, int actionToRun = 0) where T : ISemanticModelAnalyzer, new()
+		protected static void Test<T>(string input, int expectedDiagnostics = 1, string output = null, int issueToFix = -1, int actionToRun = 0) where T : DiagnosticAnalyzer, new()
 		{
 			Assert.Fail("Use Analyze"); 
 		}
 
 		protected static void Test<T> (string input, string output, int fixIndex = 0)
-			where T : ISemanticModelAnalyzer, new ()
+			where T : DiagnosticAnalyzer, new ()
 		{
 			Assert.Fail("Use Analyze"); 
 		}
 
 		protected static void TestIssue<T> (string input, int issueCount = 1)
-			where T : ISemanticModelAnalyzer, new ()
+			where T : DiagnosticAnalyzer, new ()
 		{
 			Assert.Fail("Use Analyze"); 
 		}
 
-		protected static void TestWrongContextWithSubIssue<T>(string input, string id) where T : ISemanticModelAnalyzer, new()
+		protected static void TestWrongContextWithSubIssue<T>(string input, string id) where T : DiagnosticAnalyzer, new()
 		{
 			Assert.Fail("Use AnalyzeWithRule"); 
 		}
 
-		protected static void TestWithSubIssue<T>(string input, string output, string subIssue, int fixIndex = 0) where T : ISemanticModelAnalyzer, new()
+		protected static void TestWithSubIssue<T>(string input, string output, string subIssue, int fixIndex = 0) where T : DiagnosticAnalyzer, new()
 		{
 			Assert.Fail("Use AnalyzeWithRule"); 
 		}
 
-		class TestDiagnosticAnalyzer<T> : IDiagnosticAnalyzer
+		class TestDiagnosticAnalyzer<T> : DiagnosticAnalyzer
 		{
-			readonly ISyntaxNodeAnalyzer<T> t;
+			readonly DiagnosticAnalyzer t;
 
-			public TestDiagnosticAnalyzer(ISyntaxNodeAnalyzer<T> t)
+			public TestDiagnosticAnalyzer(DiagnosticAnalyzer t)
 			{
 				this.t = t;
 			}
 
 			#region IDiagnosticAnalyzer implementation
+			public override void Initialize(AnalysisContext context)
+			{
+				t.Initialize(context);
+			}
 
-			System.Collections.Immutable.ImmutableArray<DiagnosticDescriptor> IDiagnosticAnalyzer.SupportedDiagnostics {
+			public override System.Collections.Immutable.ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 				get {
 					return t.SupportedDiagnostics;
 				}
 			}
-
 			#endregion
 		}
 
@@ -224,7 +227,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			return TextSpan.FromBounds(start, end);
 		}
 
-		protected static void Analyze<T>(string input, string output = null, int issueToFix = -1, int actionToRun = 0, Action<int, Diagnostic> diagnosticCheck = null) where T : ISemanticModelAnalyzer, new()
+		protected static void Analyze<T>(string input, string output = null, int issueToFix = -1, int actionToRun = 0, Action<int, Diagnostic> diagnosticCheck = null) where T : DiagnosticAnalyzer, new()
 		{
 			var text = new StringBuilder();
 		
@@ -248,13 +251,15 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
 			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
+
 			var diagnostics = new List<Diagnostic>();
-			var driver = new AnalyzerDriver<SyntaxNode>(
-				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
-				node => node,
+			var driver = new AnalyzerDriver<SyntaxKind>(
+				System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()),
+				node => node.CSharpKind(),
 				options,
 				CancellationToken.None
 			);
+			compilation.WithEventQueue(driver.CompilationEventQueue);
 			diagnostics.AddRange(driver.GetDiagnosticsAsync().Result); 
 
 			if (expectedDiagnosics.Count != diagnostics.Count) {
@@ -325,7 +330,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 		}
 
-		protected static void AnalyzeWithRule<T>(string input, string ruleId, string output = null, int issueToFix = -1, int actionToRun = 0, Action<int, Diagnostic> diagnosticCheck = null) where T : ISemanticModelAnalyzer, new()
+		protected static void AnalyzeWithRule<T>(string input, string ruleId, string output = null, int issueToFix = -1, int actionToRun = 0, Action<int, Diagnostic> diagnosticCheck = null) where T : DiagnosticAnalyzer, new()
 		{
 			var text = new StringBuilder();
 
@@ -352,7 +357,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			var diagnostics = new List<Diagnostic>();
 			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
 			var driver = new AnalyzerDriver<SyntaxNode>(
-				System.Collections.Immutable.ImmutableArray<IDiagnosticAnalyzer>.Empty.Add(new T()),
+				System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()),
 				node => node,
 				options,
 				CancellationToken.None
