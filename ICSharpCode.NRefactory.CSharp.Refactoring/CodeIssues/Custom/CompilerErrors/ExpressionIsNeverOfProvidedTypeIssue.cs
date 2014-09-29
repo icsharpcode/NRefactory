@@ -111,14 +111,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(ExpressionIsNeverOfProvidedTypeIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class ExpressionIsNeverOfProvidedTypeFixProvider : ICodeFixProvider
+	public class ExpressionIsNeverOfProvidedTypeFixProvider : NRefactoryCodeFixProvider
 	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
+		public override IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return ExpressionIsNeverOfProvidedTypeIssue.DiagnosticId;
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();

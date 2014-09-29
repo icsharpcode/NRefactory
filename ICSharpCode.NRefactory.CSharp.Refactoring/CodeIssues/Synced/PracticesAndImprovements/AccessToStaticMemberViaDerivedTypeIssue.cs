@@ -119,14 +119,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(AccessToStaticMemberViaDerivedTypeIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class AccessToStaticMemberViaDerivedTypeFixProvider : ICodeFixProvider
+	public class AccessToStaticMemberViaDerivedTypeFixProvider : NRefactoryCodeFixProvider
 	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
+		public override IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return AccessToStaticMemberViaDerivedTypeIssue.DiagnosticId;
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);

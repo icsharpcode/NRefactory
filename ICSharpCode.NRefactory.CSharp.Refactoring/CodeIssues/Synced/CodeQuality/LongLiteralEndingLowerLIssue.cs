@@ -95,14 +95,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(LongLiteralEndingLowerLIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class LongLiteralEndingLowerLFixProvider : ICodeFixProvider
+	public class LongLiteralEndingLowerLFixProvider : NRefactoryCodeFixProvider
 	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
+		public override IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return LongLiteralEndingLowerLIssue.DiagnosticId;
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();

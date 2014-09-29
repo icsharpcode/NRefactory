@@ -46,11 +46,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 	/// <summary>
 	/// The code issue provider gets a list of all code issues in a syntax tree.
 	/// </summary>
-	public abstract class GatherVisitorCodeIssueProvider : ISemanticModelAnalyzer
+	public abstract class GatherVisitorCodeIssueProvider : DiagnosticAnalyzer
 	{
 		protected abstract CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken);
+		public override void Initialize(AnalysisContext context)
+		{
 
-		void ISemanticModelAnalyzer.AnalyzeSemanticModel(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, AnalyzerOptions options, CancellationToken cancellationToken)
+		}
+/*		void ISemanticModelAnalyzer.AnalyzeSemanticModel(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, AnalyzerOptions options, CancellationToken cancellationToken)
 		{
 			var visitor = CreateVisitor(semanticModel, addDiagnostic, cancellationToken);
 			if (visitor == null)
@@ -60,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public abstract ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get;
-		}
+		} */
 	}
 
 	/// <summary>

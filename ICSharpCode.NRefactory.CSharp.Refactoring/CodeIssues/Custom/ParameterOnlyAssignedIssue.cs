@@ -90,14 +90,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(ParameterOnlyAssignedIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class ParameterOnlyAssignedFixProvider : ICodeFixProvider
+	public class ParameterOnlyAssignedFixProvider : NRefactoryCodeFixProvider
 	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
+		public override IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return ParameterOnlyAssignedIssue.DiagnosticId;
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();

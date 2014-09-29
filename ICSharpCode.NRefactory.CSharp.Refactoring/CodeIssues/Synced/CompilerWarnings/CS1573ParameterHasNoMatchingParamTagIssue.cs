@@ -295,14 +295,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(CS1573ParameterHasNoMatchingParamTagIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class CS1573ParameterHasNoMatchingParamTagFixProvider : ICodeFixProvider
+	public class CS1573ParameterHasNoMatchingParamTagFixProvider : NRefactoryCodeFixProvider
 	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
+		public override IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return CS1573ParameterHasNoMatchingParamTagIssue.DiagnosticId;
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();

@@ -103,16 +103,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(ArrayCreationCanBeReplacedWithArrayInitializerIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class ArrayCreationCanBeReplacedWithArrayInitializerFixProvider : ICodeFixProvider
+	public class ArrayCreationCanBeReplacedWithArrayInitializerFixProvider : NRefactoryCodeFixProvider
 	{
 		#region ICodeFixProvider implementation
 
-		public IEnumerable<string> GetFixableDiagnosticIds()
+		public override IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return ArrayCreationCanBeReplacedWithArrayInitializerIssue.DiagnosticId;
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
 			var text = await document.GetTextAsync(cancellationToken);
 			var result = new List<CodeAction>();

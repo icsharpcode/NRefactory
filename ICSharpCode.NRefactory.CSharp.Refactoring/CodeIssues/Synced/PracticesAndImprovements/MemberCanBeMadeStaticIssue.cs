@@ -220,15 +220,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(MemberCanBeMadeStaticIssue.DiagnosticIdPrivate, LanguageNames.CSharp)]
-	public class MemberCanBeMadeStaticFixProvider : ICodeFixProvider
+	public class MemberCanBeMadeStaticFixProvider : NRefactoryCodeFixProvider
 	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
+		public override IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return MemberCanBeMadeStaticIssue.DiagnosticIdPrivate;
 			yield return MemberCanBeMadeStaticIssue.DiagnosticIdNonPrivate;
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();

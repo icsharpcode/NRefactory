@@ -127,16 +127,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	}
 
 	[ExportCodeFixProvider(LocalVariableNotUsedIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class LocalVariableNotUsedFixProvider : ICodeFixProvider
+	public class LocalVariableNotUsedFixProvider : NRefactoryCodeFixProvider
 	{
 		#region ICodeFixProvider implementation
 
-		public IEnumerable<string> GetFixableDiagnosticIds()
+		public override IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return LocalVariableNotUsedIssue.DiagnosticId;
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();

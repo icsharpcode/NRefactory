@@ -246,14 +246,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		}
 	}
 	[ExportCodeFixProvider(CS0108UseNewKeywordIfHidingIntendedIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class CS0108UseNewKeywordIfHidingIntendedIssueFixProvider : ICodeFixProvider
+	public class CS0108UseNewKeywordIfHidingIntendedIssueFixProvider : NRefactoryCodeFixProvider
 	{
-		public IEnumerable<string> GetFixableDiagnosticIds()
+		public override IEnumerable<string> GetFixableDiagnosticIds()
 		{
 			yield return CS0108UseNewKeywordIfHidingIntendedIssue.DiagnosticId;
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
 		{
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
