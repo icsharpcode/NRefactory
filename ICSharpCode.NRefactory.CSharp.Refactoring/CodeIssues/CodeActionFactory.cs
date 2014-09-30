@@ -29,6 +29,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Simplification;
+using System.Runtime.Serialization;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -52,27 +54,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new DocumentChangeAction(textSpan, severity, description, createChangedDocument);
 		}
 
-		sealed class DocumentChangeAction : NRefactoryCodeAction
-		{
-			readonly string title;
-			readonly Func<CancellationToken, Task<Document>> createChangedDocument;
-
-			public override string Title {
-				get {
-					return title;
-				}
-			}
-
-			public DocumentChangeAction(TextSpan textSpan, DiagnosticSeverity severity, string title, Func<CancellationToken, Task<Document>> createChangedDocument) : base(textSpan, severity)
-			{
-				this.title = title;
-				this.createChangedDocument = createChangedDocument;
-			}
-
-			protected override Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
-			{
-				return createChangedDocument.Invoke(cancellationToken);
-			}
-		}
+	
 	}
 }
