@@ -87,13 +87,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.OperatorToken.Span)));
 			}
 
-			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
+			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
 			{
-				base.VisitBinaryExpression(node);
+				base.VisitAssignmentExpression(node);
 				switch (node.CSharpKind())  {
 					case SyntaxKind.OrAssignmentExpression:
 					case SyntaxKind.AndAssignmentExpression:
 					case SyntaxKind.ExclusiveOrAssignmentExpression:
+						if (IsNonFlagsEnum(node.Left) || IsNonFlagsEnum(node.Right))
+							AddIssue(Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.OperatorToken.Span)));
+						break;
+				}
+			}
+
+			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
+			{
+				base.VisitBinaryExpression(node);
+				switch (node.CSharpKind())  {
 					case SyntaxKind.BitwiseAndExpression:
 					case SyntaxKind.BitwiseOrExpression:
 					case SyntaxKind.ExclusiveOrExpression:
