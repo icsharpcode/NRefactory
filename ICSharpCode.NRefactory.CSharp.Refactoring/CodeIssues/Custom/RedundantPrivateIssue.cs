@@ -136,59 +136,51 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
 			{
-				SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-				if (privateToken != null)
-					AddIssue(node, privateToken.GetLocation());
+				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+					AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 			}
 
 			public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
 			{
-				SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-				if (privateToken != null)
-					AddIssue(node, privateToken.GetLocation());
+				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+					AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 			}
 
 			public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
 			{
-				SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-				if (privateToken != null)
-					AddIssue(node, privateToken.GetLocation());
+				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+					AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 			}
 
 			public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
 			{
-				SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-				if (privateToken != null)
-					AddIssue(node, privateToken.GetLocation());
+				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+					AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 			}
 
 			public override void VisitEventDeclaration(EventDeclarationSyntax node)
 			{
-				SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-				if (privateToken != null)
-					AddIssue(node, privateToken.GetLocation());
+				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+					AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 			}
 
 			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
 			{
-				SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-				if (privateToken != null)
-					AddIssue(node, privateToken.GetLocation());
+				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+					AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 			}
 
 			public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
 			{
-				SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-				if (privateToken != null)
-					AddIssue(node, privateToken.GetLocation());
+				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+					AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 			}
 
 			public override void VisitClassDeclaration(ClassDeclarationSyntax node)
 			{
 				if (node.Parent is TypeDeclarationSyntax) {
-					SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-					if (privateToken != null)
-						AddIssue(node, privateToken.GetLocation());
+					if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+						AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 				}
 				base.VisitClassDeclaration(node);
 			}
@@ -196,9 +188,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
 			{
 				if (node.Parent is TypeDeclarationSyntax) {
-					SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-					if (privateToken != null)
-						AddIssue(node, privateToken.GetLocation());
+					if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+						AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 				}
 				base.VisitInterfaceDeclaration(node);
 			}
@@ -206,9 +197,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitStructDeclaration(StructDeclarationSyntax node)
 			{
 				if (node.Parent is StructDeclarationSyntax) {
-					SyntaxToken privateToken = node.Modifiers.Where(m => m.IsKind(SyntaxKind.PrivateKeyword)).FirstOrDefault();
-					if (privateToken != null)
-						AddIssue(node, privateToken.GetLocation());
+					if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
+						AddIssue(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
 				}
 				base.VisitStructDeclaration(node);
 			}

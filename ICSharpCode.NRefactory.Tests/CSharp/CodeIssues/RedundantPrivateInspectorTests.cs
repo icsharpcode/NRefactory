@@ -68,5 +68,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
     }
 }");
 		}
+
+		[Test]
+		public void TestNoModifiers()
+		{
+			Analyze<RedundantPrivateIssue>(@"class Foo
+{
+	static int foo;
+	void Bar (string str)
+	{
+	}
+}");
+		}
 	}
 }
