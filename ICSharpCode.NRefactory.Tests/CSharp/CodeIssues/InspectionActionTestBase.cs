@@ -368,7 +368,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 				foreach (var diag in diagnostics) {
 					Console.WriteLine(diag.Id +"/"+ diag.GetMessage());
 				}
-				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count);
+				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count + " but was:" + diagnostics.Count);
 			}
 
 			for (int i = 0; i < expectedDiagnosics.Count; i++) {

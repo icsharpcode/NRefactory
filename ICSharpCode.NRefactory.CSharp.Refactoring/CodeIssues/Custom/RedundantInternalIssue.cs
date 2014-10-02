@@ -104,13 +104,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				base.VisitDelegateDeclaration(node);
 				//delegates don't inherit from basetypedeclaration for some reason
 				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)))
-					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+					AddIssue(Diagnostic.Create(Rule, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
 			}
 
 			public void VisitTypeDeclaration(BaseTypeDeclarationSyntax node)
 			{
 				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)))
-					AddIssue(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
+					AddIssue(Diagnostic.Create(Rule, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
 			}
 		}
 	}

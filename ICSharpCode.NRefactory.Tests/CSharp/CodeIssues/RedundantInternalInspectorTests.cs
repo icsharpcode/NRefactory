@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Analyze<RedundantInternalIssue>(@"
 namespace Test
 {
-	internal class $Foo$
+	$internal$ class Foo
 	{
 		internal void Bar(string str)
 		{
@@ -66,7 +66,7 @@ namespace Test
 {
 	class Foo
 	{
-		internal class $Nested$
+		$internal$ class Nested
 		{
 		}
 	}
