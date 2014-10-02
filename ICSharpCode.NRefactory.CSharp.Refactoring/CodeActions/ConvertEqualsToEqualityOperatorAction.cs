@@ -54,11 +54,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
 			var node = root.FindNode(span) as IdentifierNameSyntax;
+			if (node == null)
+				return Enumerable.Empty<CodeAction>();
 			var invocation = node.Parent as InvocationExpressionSyntax;
 			if (invocation == null)
 				invocation = node.Parent.Parent as InvocationExpressionSyntax; //object.equals gives us memberaccess first.
 
-			if (node == null || invocation == null)
+			if (invocation == null)
 				return Enumerable.Empty<CodeAction>();
 
 			var symbol = model.GetSymbolInfo(node).Symbol;
