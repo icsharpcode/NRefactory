@@ -273,8 +273,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 			IList<ExpressionSyntax> args;
 			if (node.ArgumentList.Arguments.Count > 1 && FormatStringHelper.TryGetFormattingParameters(semanticModel, node, out fmtArgumets, out args, null, cancellationToken)) {
 				var expr = node.ArgumentList.Arguments.First(); 
-				if (expr != null)
-					HighlightStringFormatItems(expr.Expression as LiteralExpressionSyntax);
+				if (expr != null) {
+					var literalExpressionSyntax = expr.Expression as LiteralExpressionSyntax;
+					if (literalExpressionSyntax != null)
+						HighlightStringFormatItems(literalExpressionSyntax);
+				}
 			}
 
 			base.VisitInvocationExpression(node);
