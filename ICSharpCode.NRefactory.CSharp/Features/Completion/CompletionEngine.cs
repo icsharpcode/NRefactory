@@ -222,6 +222,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return HandlePropertyAccessorContext(true);
 				}
 			}
+			// case (n1, $
+			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.Parent != null &&
+				ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) 
+				return CompletionResult.Empty;
+
 			var result = new CompletionResult();
 			foreach (var handler in handlers)
 				handler.GetCompletionData(result, this, ctx, semanticModel, position, cancellationToken);
@@ -239,6 +244,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				ctx.LeftToken.Parent.Parent != null &&
 				ctx.TargetToken.Parent != null && !ctx.TargetToken.Parent.IsKind(SyntaxKind.NameEquals) &&
 				ctx.LeftToken.Parent.Parent.IsKind(SyntaxKind.AnonymousObjectMemberDeclarator))
+				result.AutoSelect = false;
+
+			if (ctx.TargetToken.IsKind(SyntaxKind.OpenParenToken))
 				result.AutoSelect = false;
 
 			foreach (var type in ctx.InferredTypes) {
