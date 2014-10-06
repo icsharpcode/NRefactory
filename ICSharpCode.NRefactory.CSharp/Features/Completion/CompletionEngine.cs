@@ -36,7 +36,7 @@ using System.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	public class CompletionEngine 
+	public partial class CompletionEngine 
 	{
 		static readonly CompletionContextHandler[] handlers = {
 			new RoslynRecommendationsCompletionContextHandler (),
@@ -178,16 +178,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			char lastLastChar = position >= 2 ? text [position - 2] : '\0';
 			char lastChar = text [position - 1];
 			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.CSharpKind() == SyntaxKind.ObjectCreationExpression) {
-				if (lastChar == ' ' || forceCompletion)
+				if (lastChar == ' ' || forceCompletion) {
 					return HandleObjectCreationExpression(ctx, semanticModel, position, forceCompletion, cancellationToken);
+				}
 			}
 			if (!forceCompletion && (char.IsLetter(lastLastChar) || lastLastChar == '_') &&
 			    (char.IsLetterOrDigit(lastChar) || lastChar == '_')) {
 				return CompletionResult.Empty;
 			}
+
+			if ((lastChar == '"' || lastChar == ':') && ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.Parent != null && 
+				ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.Argument)) {
+				return HandleStringFormatItems(document, semanticModel, position, ctx);
+			}
+
 			if (lastChar == ' ' && !char.IsWhiteSpace(lastLastChar)) {
 				var str = ctx.TargetToken.ToFullString().Trim();
-				
 				switch (str) {
 					case "yield":
 						return HandleYieldStatementExpression();
@@ -222,12 +228,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return HandlePropertyAccessorContext(true);
 				}
 			}
-			// case (n1, $
+
+			// case lambda parameter (n1, $
 			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.Parent != null &&
 				ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) 
 				return CompletionResult.Empty;
 
+			if (ctx.TargetToken.IsKind(SyntaxKind.OpenBraceToken) && 
+				ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.IsKind(SyntaxKind.AnonymousObjectCreationExpression)) {
+				return CompletionResult.Empty;
+			}
+
+			if (ctx.TargetToken.IsKind(SyntaxKind.OpenBraceToken) && 
+				ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.IsKind(SyntaxKind.CollectionInitializerExpression)) {
+				return HandleObjectInitializer(semanticModel, ctx);
+			}
+
 			var result = new CompletionResult();
+
 			foreach (var handler in handlers)
 				handler.GetCompletionData(result, this, ctx, semanticModel, position, cancellationToken);
 			
@@ -374,7 +392,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		CompletionResult HandleObjectCreationExpression(SyntaxContext ctx, SemanticModel semanticModel, int position, bool isCtrlSpace, CancellationToken cancellationToken)
 		{
 			var result = new CompletionResult();
-			
 			foreach (var symbol in Recommender.GetRecommendedSymbolsAtPosition(semanticModel, position, Workspace, null, cancellationToken)) {
 				result.AddData(Factory.CreateSymbolCompletionData(symbol));
 			}
@@ -553,6 +570,98 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return result;
 		}
 
+		CompletionResult HandleObjectInitializer(SemanticModel semanticModel, SyntaxContext ctx)
+		{
+			var result = new CompletionResult();
+			var info = semanticModel.GetSymbolInfo(ctx.TargetToken.Parent.Parent);
+//			var p = n.Parent;
+//			while (p != null && !(p is ObjectCreateExpression)) {
+//				p = p.Parent;
+//			}
+//			var parent = n.Parent as ArrayInitializerExpression;
+//			if (parent == null)
+//				return null;
+//			if (parent.IsSingleElement)
+//				parent = (ArrayInitializerExpression)parent.Parent;
+//			if (p != null) {
+//				var contextList = new CompletionDataWrapper(this);
+//				var initializerResult = ResolveExpression(p);
+//				IType initializerType = null;
+//
+//				if (initializerResult.Result is DynamicInvocationResolveResult) {
+//					var dr = (DynamicInvocationResolveResult)initializerResult.Result;
+//					var constructor = (dr.Target as MethodGroupResolveResult).Methods.FirstOrDefault();
+//					if (constructor != null)
+//						initializerType = constructor.DeclaringType;
+//				} else {
+//					initializerType = initializerResult != null ? initializerResult.Result.Type : null;
+//				}
+//
+//
+//				if (initializerType != null && initializerType.Kind != TypeKind.Unknown) {
+//					// check 3 cases:
+//					// 1) New initalizer { xpr
+//					// 2) Object initializer { prop = val1, field = val2, xpr
+//					// 3) Array initializer { new Foo (), a, xpr
+//					// in case 1 all object/array initializer options should be given - in the others not.
+//
+//					AstNode prev = null;
+//					if (parent.Elements.Count > 1) {
+//						prev = parent.Elements.First();
+//						if (prev is ArrayInitializerExpression && ((ArrayInitializerExpression)prev).IsSingleElement)
+//							prev = ((ArrayInitializerExpression)prev).Elements.FirstOrDefault();
+//					}
+//
+//					if (prev != null && !(prev is NamedExpression)) {
+//						AddContextCompletion(contextList, GetState(), n);
+//						// case 3)
+//						return contextList.Result;
+//					}
+//					var lookup = new MemberLookup(ctx.CurrentTypeDefinition, Compilation.MainAssembly);
+//					bool isProtectedAllowed = ctx.CurrentTypeDefinition != null && initializerType.GetDefinition() != null ? 
+//						ctx.CurrentTypeDefinition.IsDerivedFrom(initializerType.GetDefinition()) : 
+//						false;
+//					foreach (var m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Field)) {
+//						var f = m as IField;
+//						if (f != null && (f.IsReadOnly || f.IsConst))
+//							continue;
+//						if (lookup.IsAccessible(m, isProtectedAllowed)) {
+//							var data = contextList.AddMember(m);
+//							if (data != null)
+//								data.DisplayFlags |= DisplayFlags.NamedArgument;
+//						}
+//					}
+//
+//					foreach (IProperty m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Property)) {
+//						if (m.CanSet && lookup.IsAccessible(m.Setter, isProtectedAllowed)) {
+//							var data = contextList.AddMember(m);
+//							if (data != null)
+//								data.DisplayFlags |= DisplayFlags.NamedArgument;
+//						}
+//					}
+//
+//					if (prev != null && (prev is NamedExpression)) {
+//						// case 2)
+//						return contextList.Result;
+//					}
+//
+//					// case 1)
+//
+//					// check if the object is a list, if not only provide object initalizers
+//					var list = typeof(System.Collections.IList).ToTypeReference().Resolve(Compilation);
+//					if (initializerType.Kind != TypeKind.Array && list != null) {
+//						var def = initializerType.GetDefinition(); 
+//						if (def != null && !def.IsDerivedFrom(list.GetDefinition()))
+//							return contextList.Result;
+//					}
+//
+//					AddContextCompletion(contextList, GetState(), n);
+//					return contextList.Result;
+//				}
+//			}
+			return result;
+		}
+
 		/*
 		IEnumerable<ICompletionData> HandleMemberReferenceCompletion(ExpressionResult expr)
 		{
@@ -607,298 +716,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return miniLexer.IsInPreprocessorDirective;
 		}
 
-		IEnumerable<ICompletionData> HandleObjectInitializer(SyntaxTree unit, AstNode n)
-		{
-			var p = n.Parent;
-			while (p != null && !(p is ObjectCreateExpression)) {
-				p = p.Parent;
-			}
-			var parent = n.Parent as ArrayInitializerExpression;
-			if (parent == null)
-				return null;
-			if (parent.IsSingleElement)
-				parent = (ArrayInitializerExpression)parent.Parent;
-			if (p != null) {
-				var contextList = new CompletionDataWrapper(this);
-				var initializerResult = ResolveExpression(p);
-				IType initializerType = null;
-
-				if (initializerResult.Result is DynamicInvocationResolveResult) {
-					var dr = (DynamicInvocationResolveResult)initializerResult.Result;
-					var constructor = (dr.Target as MethodGroupResolveResult).Methods.FirstOrDefault();
-					if (constructor != null)
-						initializerType = constructor.DeclaringType;
-				} else {
-					initializerType = initializerResult != null ? initializerResult.Result.Type : null;
-				}
 
 
-				if (initializerType != null && initializerType.Kind != TypeKind.Unknown) {
-					// check 3 cases:
-					// 1) New initalizer { xpr
-					// 2) Object initializer { prop = val1, field = val2, xpr
-					// 3) Array initializer { new Foo (), a, xpr
-					// in case 1 all object/array initializer options should be given - in the others not.
-
-					AstNode prev = null;
-					if (parent.Elements.Count > 1) {
-						prev = parent.Elements.First();
-						if (prev is ArrayInitializerExpression && ((ArrayInitializerExpression)prev).IsSingleElement)
-							prev = ((ArrayInitializerExpression)prev).Elements.FirstOrDefault();
-					}
-
-					if (prev != null && !(prev is NamedExpression)) {
-						AddContextCompletion(contextList, GetState(), n);
-						// case 3)
-						return contextList.Result;
-					}
-					var lookup = new MemberLookup(ctx.CurrentTypeDefinition, Compilation.MainAssembly);
-					bool isProtectedAllowed = ctx.CurrentTypeDefinition != null && initializerType.GetDefinition() != null ? 
-						ctx.CurrentTypeDefinition.IsDerivedFrom(initializerType.GetDefinition()) : 
-						false;
-					foreach (var m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Field)) {
-						var f = m as IField;
-						if (f != null && (f.IsReadOnly || f.IsConst))
-							continue;
-						if (lookup.IsAccessible(m, isProtectedAllowed)) {
-							var data = contextList.AddMember(m);
-							if (data != null)
-								data.DisplayFlags |= DisplayFlags.NamedArgument;
-						}
-					}
-
-					foreach (IProperty m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Property)) {
-						if (m.CanSet && lookup.IsAccessible(m.Setter, isProtectedAllowed)) {
-							var data = contextList.AddMember(m);
-							if (data != null)
-								data.DisplayFlags |= DisplayFlags.NamedArgument;
-						}
-					}
-
-					if (prev != null && (prev is NamedExpression)) {
-						// case 2)
-						return contextList.Result;
-					}
-
-					// case 1)
-
-					// check if the object is a list, if not only provide object initalizers
-					var list = typeof(System.Collections.IList).ToTypeReference().Resolve(Compilation);
-					if (initializerType.Kind != TypeKind.Array && list != null) {
-						var def = initializerType.GetDefinition(); 
-						if (def != null && !def.IsDerivedFrom(list.GetDefinition()))
-							return contextList.Result;
-					}
-
-					AddContextCompletion(contextList, GetState(), n);
-					return contextList.Result;
-				}
-			}
-			return null;
-		}
-
-		static readonly DateTime curDate = DateTime.Now;
-
-		IEnumerable<ICompletionData> GenerateNumberFormatitems(bool isFloatingPoint)
-		{
-			yield return factory.CreateFormatItemCompletionData("D", "decimal", 123);
-			yield return factory.CreateFormatItemCompletionData("D5", "decimal", 123);
-			yield return factory.CreateFormatItemCompletionData("C", "currency", 123);
-			yield return factory.CreateFormatItemCompletionData("C0", "currency", 123);
-			yield return factory.CreateFormatItemCompletionData("E", "exponential", 1.23E4);
-			yield return factory.CreateFormatItemCompletionData("E2", "exponential", 1.234);
-			yield return factory.CreateFormatItemCompletionData("e2", "exponential", 1.234);
-			yield return factory.CreateFormatItemCompletionData("F", "fixed-point", 123.45);
-			yield return factory.CreateFormatItemCompletionData("F1", "fixed-point", 123.45);
-			yield return factory.CreateFormatItemCompletionData("G", "general", 1.23E+56);
-			yield return factory.CreateFormatItemCompletionData("g2", "general", 1.23E+56);
-			yield return factory.CreateFormatItemCompletionData("N", "number", 12345.68);
-			yield return factory.CreateFormatItemCompletionData("N1", "number", 12345.68);
-			yield return factory.CreateFormatItemCompletionData("P", "percent", 12.34);
-			yield return factory.CreateFormatItemCompletionData("P1", "percent", 12.34);
-			yield return factory.CreateFormatItemCompletionData("R", "round-trip", 0.1230000001);
-			yield return factory.CreateFormatItemCompletionData("X", "hexadecimal", 1234);
-			yield return factory.CreateFormatItemCompletionData("x8", "hexadecimal", 1234);
-			yield return factory.CreateFormatItemCompletionData("0000", "custom", 123);
-			yield return factory.CreateFormatItemCompletionData("####", "custom", 123);
-			yield return factory.CreateFormatItemCompletionData("##.###", "custom", 1.23);
-			yield return factory.CreateFormatItemCompletionData("##.000", "custom", 1.23);
-			yield return factory.CreateFormatItemCompletionData("## 'items'", "custom", 12);
-		}
-
-		IEnumerable<ICompletionData> GenerateDateTimeFormatitems()
-		{
-			yield return factory.CreateFormatItemCompletionData("D", "long date", curDate);
-			yield return factory.CreateFormatItemCompletionData("d", "short date", curDate);
-			yield return factory.CreateFormatItemCompletionData("F", "full date long", curDate);
-			yield return factory.CreateFormatItemCompletionData("f", "full date short", curDate);
-			yield return factory.CreateFormatItemCompletionData("G", "general long", curDate);
-			yield return factory.CreateFormatItemCompletionData("g", "general short", curDate);
-			yield return factory.CreateFormatItemCompletionData("M", "month", curDate);
-			yield return factory.CreateFormatItemCompletionData("O", "ISO 8601", curDate);
-			yield return factory.CreateFormatItemCompletionData("R", "RFC 1123", curDate);
-			yield return factory.CreateFormatItemCompletionData("s", "sortable", curDate);
-			yield return factory.CreateFormatItemCompletionData("T", "long time", curDate);
-			yield return factory.CreateFormatItemCompletionData("t", "short time", curDate);
-			yield return factory.CreateFormatItemCompletionData("U", "universal full", curDate);
-			yield return factory.CreateFormatItemCompletionData("u", "universal sortable", curDate);
-			yield return factory.CreateFormatItemCompletionData("Y", "year month", curDate);
-			yield return factory.CreateFormatItemCompletionData("yy-MM-dd", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("yyyy MMMMM dd", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("yy-MMM-dd ddd", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("yyyy-M-d dddd", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("hh:mm:ss t z", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("hh:mm:ss tt zz", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("HH:mm:ss tt zz", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("HH:m:s tt zz", "custom", curDate);
-
-		}
-
-		[Flags]
-		enum TestEnum
-		{
-			EnumCaseName = 0,
-			Flag1 = 1,
-			Flag2 = 2,
-			Flags
-		}
-
-		IEnumerable<ICompletionData> GenerateEnumFormatitems()
-		{
-			yield return factory.CreateFormatItemCompletionData("G", "string value", TestEnum.EnumCaseName);
-			yield return factory.CreateFormatItemCompletionData("F", "flags value", TestEnum.Flags);
-			yield return factory.CreateFormatItemCompletionData("D", "integer value", TestEnum.Flags);
-			yield return factory.CreateFormatItemCompletionData("X", "hexadecimal", TestEnum.Flags);
-		}
-
-		IEnumerable<ICompletionData> GenerateTimeSpanFormatitems()
-		{
-			yield return factory.CreateFormatItemCompletionData("c", "invariant", new TimeSpan(0, 1, 23, 456));
-			yield return factory.CreateFormatItemCompletionData("G", "general long", new TimeSpan(0, 1, 23, 456));
-			yield return factory.CreateFormatItemCompletionData("g", "general short", new TimeSpan(0, 1, 23, 456));
-		}
-
-		static Guid defaultGuid = Guid.NewGuid();
-
-		IEnumerable<ICompletionData> GenerateGuidFormatitems()
-		{
-			yield return factory.CreateFormatItemCompletionData("N", "digits", defaultGuid);
-			yield return factory.CreateFormatItemCompletionData("D", "hypens", defaultGuid);
-			yield return factory.CreateFormatItemCompletionData("B", "braces", defaultGuid);
-			yield return factory.CreateFormatItemCompletionData("P", "parentheses", defaultGuid);
-		}
-
-		int GetFormatItemNumber()
-		{
-			int number = 0;
-			var o = offset - 2;
-			while (o > 0) {
-				char ch = document.GetCharAt(o);
-				if (ch == '{')
-					return number;
-				if (!char.IsDigit(ch))
-					break;
-				number = number * 10 + ch - '0';
-				o--;
-			}
-			return -1;
-		}
-
-		IEnumerable<ICompletionData> HandleStringFormatItems()
-		{
-			var formatArgument = GetFormatItemNumber();
-			if (formatArgument < 0)
-				return Enumerable.Empty<ICompletionData>();
-			var followUp = new StringBuilder();
-
-			var o = offset;
-			while (o < document.TextLength) {
-				char ch = document.GetCharAt(o);
-				followUp.Append(ch); 
-				o++;
-				if (ch == ';')
-					break;
-			}
-			var unit = ParseStub(followUp.ToString(), false);
-
-			var invoke = unit.GetNodeAt<InvocationExpression>(location);
-
-			if (invoke != null) {
-				var resolveResult = ResolveExpression(new ExpressionResult(invoke, unit));
-				var invokeResult = resolveResult.Result as InvocationResolveResult;
-				if (invokeResult != null) {
-					var arg = formatArgument + 1; // First argument is the format string
-					if (arg < invoke.Arguments.Count) {
-						var invokeArgument = ResolveExpression(new ExpressionResult(invoke.Arguments.ElementAt(arg), unit));
-						if (invokeArgument != null) {
-							var provider = GetFormatCompletionData(invokeArgument.Result.Type);
-							if (provider != null)
-								return provider;
-							if (!invokeArgument.Result.Type.IsKnownType(KnownTypeCode.Object))
-								return Enumerable.Empty<ICompletionData>();
-						}
-					}
-				}
-			}
-			return HandleStringFormatItemsFallback();
-		}
-
-		IEnumerable<ICompletionData> HandleStringFormatItemsFallback()
-		{
-			var unit = ParseStub("a}\");", false);
-
-			var invoke = unit.GetNodeAt<InvocationExpression>(location);
-
-			if (invoke == null)
-				return Enumerable.Empty<ICompletionData>();
-
-			var resolveResult = ResolveExpression(new ExpressionResult(invoke, unit));
-			var invokeResult = resolveResult.Result as CSharpInvocationResolveResult;
-			if (invokeResult == null)
-				return Enumerable.Empty<ICompletionData>();
-
-			Expression fmtArgumets;
-			IList<Expression> args;
-			if (FormatStringHelper.TryGetFormattingParameters(invokeResult, invoke, out fmtArgumets, out args, null)) {
-				return GenerateNumberFormatitems(false)
-					.Concat(GenerateDateTimeFormatitems())
-					.Concat(GenerateTimeSpanFormatitems())
-					.Concat(GenerateEnumFormatitems())
-					.Concat(GenerateGuidFormatitems());
-			}
-			return Enumerable.Empty<ICompletionData>();
-
-		}
-
-		IEnumerable<ICompletionData> GetFormatCompletionData(IType type)
-		{
-			if (type.Namespace != "System")
-				return null;
-			switch (type.Name) {
-				case "Int64":
-				case "UInt64":
-				case "Int32":
-				case "UInt32":
-				case "Int16":
-				case "UInt16":
-				case "Byte":
-				case "SByte":
-					return GenerateNumberFormatitems(false);
-				case "Single":
-				case "Double":
-				case "Decimal":
-					return GenerateNumberFormatitems(true);
-				case "Enum":
-					return GenerateEnumFormatitems();
-				case "DateTime":
-					return GenerateDateTimeFormatitems();
-				case "TimeSpan":
-					return GenerateTimeSpanFormatitems();
-				case "Guid":
-					return GenerateGuidFormatitems();
-			}
-			return null;
-		}
 
 		IEnumerable<ICompletionData> HandleToStringFormatItems()
 		{
@@ -934,23 +753,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 						return Enumerable.Empty<ICompletionData>();
 					}
 
-					if (lexer.IsInString || lexer.IsInVerbatimString)
-						return HandleStringFormatItems();
 					return HandleMemberReferenceCompletion(GetExpressionBeforeCursor());
-				case '"':
-					text = GetMemberTextToCaret();
-					lexer = new MiniLexer(text.Item1);
-					lexer.Parse();
-					if (lexer.IsInSingleComment ||
-						lexer.IsInChar ||
-						lexer.IsInMultiLineComment ||
-						lexer.IsInPreprocessorDirective) {
-						return Enumerable.Empty<ICompletionData>();
-					}
-
-					if (lexer.IsInString || lexer.IsInVerbatimString)
-						return HandleToStringFormatItems();
-					return Enumerable.Empty<ICompletionData>();
 				case '.':
 					if (IsInsideCommentStringOrDirective()) {
 						return Enumerable.Empty<ICompletionData>();

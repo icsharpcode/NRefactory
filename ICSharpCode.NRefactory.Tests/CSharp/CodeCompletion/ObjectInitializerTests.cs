@@ -452,7 +452,7 @@ class MyTest
 {
 	public void Test ()
 	{
-		$new IEnumerable<string>[] { new L$
+		$new IEnumerable<string>[] { new $
 	}
 }
 ", provider => {

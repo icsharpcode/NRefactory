@@ -136,10 +136,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 					this.DeclarationBegin = declarationBegin;
 				}
 			}
+
 			ICompletionData ICompletionDataFactory.CreateFormatItemCompletionData(string format, string description, object example)
 			{
-				throw new NotImplementedException();
+				return new CompletionData (format + " - " + description +":" + example);
 			}
+
 			ICompletionData ICompletionDataFactory.CreateXmlDocCompletionData(string tag, string description, string tagInsertionText)
 			{
 				throw new NotImplementedException();
