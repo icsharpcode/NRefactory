@@ -124,10 +124,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 			
 			var trivia = semanticModel.SyntaxTree.GetRoot(cancellationToken).FindTrivia(position - 1);
-			if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)) {
-				return CompletionResult.Empty;
-			}
-			
 			// work around for roslyn bug: missing comments after pre processor directives
 			if (trivia.IsKind(SyntaxKind.IfDirectiveTrivia) ||
 				trivia.IsKind(SyntaxKind.EndIfDirectiveTrivia) ||
@@ -145,9 +141,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return CompletionResult.Empty;
 			}
 			
-			if (trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)) {
-				return CompletionResult.Empty;
-			}
 //			if (ctx.LeftToken.CSharpContextualKind() == SyntaxKind.IdentifierToken &&
 //				(ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.Argument || 
 //					ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.TypeParameterList || 
@@ -177,6 +170,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var text = document.GetTextAsync(cancellationToken).Result; 
 			char lastLastChar = position >= 2 ? text [position - 2] : '\0';
 			char lastChar = text [position - 1];
+
+			if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)) {
+				// should be SyntaxKind.SingleLineDocumentationCommentTrivia - but seems to be broken/not working
+				// if that works in later version this work around can be removed.
+				if (lastChar == '<' && trivia.ToFullString().StartsWith("///", StringComparison.Ordinal)) {
+					return CompletionResult.Create(GetXmlDocumentationCompletionData(document, semanticModel, position, trivia));
+				}
+				return CompletionResult.Empty;
+			}
+
+			if (trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)) {
+				if (lastChar == '<') {
+					return CompletionResult.Create(GetXmlDocumentationCompletionData(document, semanticModel, position, trivia));
+				}
+				return CompletionResult.Empty;
+			}
+
 			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.CSharpKind() == SyntaxKind.ObjectCreationExpression) {
 				if (lastChar == ' ' || forceCompletion) {
 					return HandleObjectCreationExpression(ctx, semanticModel, position, forceCompletion, cancellationToken);
@@ -765,9 +775,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return GetDirectiveCompletionData();
 					// XML doc completion
 				case '<':
-					if (IsInsideDocComment()) {
-						return GetXmlDocumentationCompletionData();
-					}
 					if (controlSpace) {
 						return DefaultControlSpaceItems(ref isComplete);
 					}
@@ -3245,186 +3252,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 		#region Xml Comments
 
-		static readonly List<string> commentTags = new List<string>(new string[] {
-			"c",
-			"code",
-			"example",
-			"exception",
-			"include",
-			"list",
-			"listheader",
-			"item",
-			"term",
-			"description",
-			"para",
-			"param",
-			"paramref",
-			"permission",
-			"remarks",
-			"returns",
-			"see",
-			"seealso",
-			"summary",
-			"value"
-		}
-		);
-
-		public static IEnumerable<string> CommentTags {
-			get {
-				return commentTags;
-			}
-		}
-
-		string GetLastClosingXmlCommentTag()
-		{
-			var line = document.GetLineByNumber(location.Line);
-
-			restart:
-			string lineText = document.GetText(line);
-			if (!lineText.Trim().StartsWith("///", StringComparison.Ordinal))
-				return null;
-			int startIndex = Math.Min(location.Column - 1, lineText.Length - 1) - 1;
-			while (startIndex > 0 && lineText [startIndex] != '<') {
-				--startIndex;
-				if (lineText [startIndex] == '/') {
-					// already closed.
-					startIndex = -1;
-					break;
-				}
-			}
-			if (startIndex < 0 && line.PreviousLine != null) {
-				line = line.PreviousLine;
-				goto restart;
-			}
-
-			if (startIndex >= 0) {
-				int endIndex = startIndex;
-				while (endIndex + 1 < lineText.Length && lineText [endIndex] != '>' && !char.IsWhiteSpace(lineText [endIndex])) {
-					endIndex++;
-				}
-				string tag = endIndex - startIndex - 1 > 0 ? lineText.Substring(
-					startIndex + 1,
-					endIndex - startIndex - 1
-				) : null;
-				if (!string.IsNullOrEmpty(tag) && commentTags.IndexOf(tag) >= 0) {
-					return tag;
-				}
-			}
-			return null;
-		}
-
-		IEnumerable<ICompletionData> GetXmlDocumentationCompletionData()
-		{
-			var closingTag = GetLastClosingXmlCommentTag();
-			if (closingTag != null) {
-				yield return factory.CreateLiteralCompletionData(
-					"/" + closingTag + ">"
-				);
-			}
-
-			yield return factory.CreateXmlDocCompletionData(
-				"c",
-				"Set text in a code-like font"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"code",
-				"Set one or more lines of source code or program output"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"example",
-				"Indicate an example"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"exception",
-				"Identifies the exceptions a method can throw",
-				"exception cref=\"|\"></exception"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"include",
-				"Includes comments from a external file",
-				"include file=\"|\" path=\"\""
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"inheritdoc",
-				"Inherit documentation from a base class or interface",
-				"inheritdoc/"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"list",
-				"Create a list or table",
-				"list type=\"|\""
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"listheader",
-				"Define the heading row"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"item",
-				"Defines list or table item"
-			);
-
-			yield return factory.CreateXmlDocCompletionData("term", "A term to define");
-			yield return factory.CreateXmlDocCompletionData(
-				"description",
-				"Describes a list item"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"para",
-				"Permit structure to be added to text"
-			);
-
-			yield return factory.CreateXmlDocCompletionData(
-				"param",
-				"Describe a parameter for a method or constructor",
-				"param name=\"|\""
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"paramref",
-				"Identify that a word is a parameter name",
-				"paramref name=\"|\"/"
-			);
-
-			yield return factory.CreateXmlDocCompletionData(
-				"permission",
-				"Document the security accessibility of a member",
-				"permission cref=\"|\""
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"remarks",
-				"Describe a type"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"returns",
-				"Describe the return value of a method"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"see",
-				"Specify a link",
-				"see cref=\"|\"/"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"seealso",
-				"Generate a See Also entry",
-				"seealso cref=\"|\"/"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"summary",
-				"Describe a member of a type"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"typeparam",
-				"Describe a type parameter for a generic type or method"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"typeparamref",
-				"Identify that a word is a type parameter name"
-			);
-			yield return factory.CreateXmlDocCompletionData(
-				"value",
-				"Describe a property"
-			);
-
-		}
 
 		#endregion
 

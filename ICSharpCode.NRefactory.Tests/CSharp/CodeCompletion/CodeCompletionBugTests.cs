@@ -144,7 +144,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 
 			ICompletionData ICompletionDataFactory.CreateXmlDocCompletionData(string tag, string description, string tagInsertionText)
 			{
-				throw new NotImplementedException();
+				return new CompletionData (tag);
 			}
 
 			ICompletionData ICompletionDataFactory.CreateGenericData(string keyword, GenericDataType genericDataType)
