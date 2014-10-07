@@ -154,7 +154,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			
 			ISymbolCompletionData ICompletionDataFactory.CreateEnumMemberCompletionData(IFieldSymbol field)
 			{
-				return new SymbolCompletionData(field, field.ContainingType.Name + "." + field.Name);
+				return new SymbolCompletionData(field, field.ContainingType.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat) + "." + field.Name);
 			}
 
 

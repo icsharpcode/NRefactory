@@ -53,7 +53,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					continue;
 				if (string.IsNullOrEmpty(result.DefaultCompletionString))
 					result.DefaultCompletionString = type.Name;
-				
+
+				result.AddData(engine.Factory.CreateSymbolCompletionData(type, type.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
 				foreach (IFieldSymbol field in type.GetMembers().OfType<IFieldSymbol>()) {
 					if (field.DeclaredAccessibility == Accessibility.Public && (field.IsConst || field.IsStatic)) {
 						result.AddData(engine.Factory.CreateEnumMemberCompletionData(field));
