@@ -208,6 +208,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					case "yield":
 						return HandleYieldStatementExpression();
 				}
+
+				// auto popup enum base types
+				var parent = ctx.TargetToken.Parent;
+				if (parent != null && parent.Parent != null && parent.IsKind(SyntaxKind.BaseList) && parent.Parent.IsKind(SyntaxKind.EnumDeclaration)) {
+					var result2 = new CompletionResult();
+					foreach (var handler in handlers)
+						handler.GetCompletionData(result2, this, ctx, semanticModel, position, cancellationToken);
+					return result2;
+				}
 			}
 			
 			if (!forceCompletion && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')

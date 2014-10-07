@@ -129,7 +129,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					result.AddData(factory.CreateGenericData("this", GenericDataType.Keyword));
 				return;
 			}
-			
+			if (parent != null && parent.Parent != null && parent.IsKind(SyntaxKind.BaseList) && parent.Parent.IsKind(SyntaxKind.EnumDeclaration)) {
+				foreach (var kw in validEnumBaseTypes)
+					result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
+				return;
+			}
 			if (parent != null &&
 				parent.Parent != null &&
 				parent.Parent.IsKind(SyntaxKind.FromClause)) {
