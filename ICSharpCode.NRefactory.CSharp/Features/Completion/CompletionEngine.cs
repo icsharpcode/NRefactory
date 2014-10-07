@@ -221,8 +221,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			
 			if (!forceCompletion && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')
 				return CompletionResult.Empty;
-			
-			if (ctx.IsInsideNamingContext ( lastChar == ' ' && !char.IsWhiteSpace(lastLastChar))) {
+
+			if (ctx.IsInsideNamingContext (lastChar == ' ' && !char.IsWhiteSpace(lastLastChar))) {
 				if (forceCompletion)
 					return HandleNamingContext(ctx);
 				return CompletionResult.Empty;

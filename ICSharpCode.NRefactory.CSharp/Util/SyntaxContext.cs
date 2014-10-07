@@ -119,7 +119,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 					parent.IsKind(SyntaxKind.PredefinedType);
 			}
 			if (parent.IsKind(SyntaxKind.NamespaceDeclaration)) {
-				return true;
+				return !ctx.TargetToken.IsKind(SyntaxKind.OpenBraceToken);
 			}
 			return parent.IsKind(SyntaxKind.IdentifierName) && (
 			    parent.Parent.IsKind(SyntaxKind.Parameter) ||
