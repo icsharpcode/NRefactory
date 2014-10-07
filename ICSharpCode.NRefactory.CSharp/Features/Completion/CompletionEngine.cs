@@ -248,17 +248,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.IsKind(SyntaxKind.AnonymousObjectCreationExpression)) {
 				return CompletionResult.Empty;
 			}
-
-			if (ctx.TargetToken.IsKind(SyntaxKind.OpenBraceToken) && 
-				ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.IsKind(SyntaxKind.CollectionInitializerExpression)) {
-				return HandleObjectInitializer(semanticModel, ctx);
+			if ((ctx.TargetToken.IsKind(SyntaxKind.OpenBraceToken) || ctx.TargetToken.IsKind(SyntaxKind.CommaToken)) && 
+				ctx.TargetToken.Parent != null && (
+					ctx.TargetToken.Parent.IsKind(SyntaxKind.CollectionInitializerExpression) ||
+					ctx.TargetToken.Parent.IsKind(SyntaxKind.ObjectInitializerExpression)
+				)) {
+				return HandleObjectInitializer(semanticModel, position, ctx, cancellationToken);
 			}
 
 			var result = new CompletionResult();
 
 			foreach (var handler in handlers)
 				handler.GetCompletionData(result, this, ctx, semanticModel, position, cancellationToken);
-			
+
 			// prevent auto selection for "<number>." case
 			if (ctx.TargetToken.IsKind(SyntaxKind.DotToken)) {
 				var accessExpr = ctx.TargetToken.Parent as MemberAccessExpressionSyntax;
@@ -580,95 +582,90 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return result;
 		}
 
-		CompletionResult HandleObjectInitializer(SemanticModel semanticModel, SyntaxContext ctx)
+		IEnumerable<ISymbol> GetAllMembers (ITypeSymbol type)
 		{
+			if (type == null)
+				yield break;
+			foreach (var member in type.GetMembers()) {
+				yield return member;
+			}
+			foreach (var baseMember in GetAllMembers(type.BaseType))
+				yield return baseMember;
+		}
+
+		CompletionResult HandleObjectInitializer(SemanticModel semanticModel, int position, SyntaxContext ctx, CancellationToken cancellationToken)
+		{
+			var objectCreationExpression = ctx.TargetToken.Parent.Parent;
+			var info = semanticModel.GetSymbolInfo(objectCreationExpression);
 			var result = new CompletionResult();
-			var info = semanticModel.GetSymbolInfo(ctx.TargetToken.Parent.Parent);
-//			var p = n.Parent;
-//			while (p != null && !(p is ObjectCreateExpression)) {
-//				p = p.Parent;
-//			}
-//			var parent = n.Parent as ArrayInitializerExpression;
-//			if (parent == null)
-//				return null;
-//			if (parent.IsSingleElement)
-//				parent = (ArrayInitializerExpression)parent.Parent;
-//			if (p != null) {
-//				var contextList = new CompletionDataWrapper(this);
-//				var initializerResult = ResolveExpression(p);
-//				IType initializerType = null;
-//
-//				if (initializerResult.Result is DynamicInvocationResolveResult) {
-//					var dr = (DynamicInvocationResolveResult)initializerResult.Result;
-//					var constructor = (dr.Target as MethodGroupResolveResult).Methods.FirstOrDefault();
-//					if (constructor != null)
-//						initializerType = constructor.DeclaringType;
-//				} else {
-//					initializerType = initializerResult != null ? initializerResult.Result.Type : null;
-//				}
-//
-//
-//				if (initializerType != null && initializerType.Kind != TypeKind.Unknown) {
-//					// check 3 cases:
-//					// 1) New initalizer { xpr
-//					// 2) Object initializer { prop = val1, field = val2, xpr
-//					// 3) Array initializer { new Foo (), a, xpr
-//					// in case 1 all object/array initializer options should be given - in the others not.
-//
-//					AstNode prev = null;
-//					if (parent.Elements.Count > 1) {
-//						prev = parent.Elements.First();
-//						if (prev is ArrayInitializerExpression && ((ArrayInitializerExpression)prev).IsSingleElement)
-//							prev = ((ArrayInitializerExpression)prev).Elements.FirstOrDefault();
-//					}
-//
-//					if (prev != null && !(prev is NamedExpression)) {
-//						AddContextCompletion(contextList, GetState(), n);
-//						// case 3)
-//						return contextList.Result;
-//					}
-//					var lookup = new MemberLookup(ctx.CurrentTypeDefinition, Compilation.MainAssembly);
-//					bool isProtectedAllowed = ctx.CurrentTypeDefinition != null && initializerType.GetDefinition() != null ? 
-//						ctx.CurrentTypeDefinition.IsDerivedFrom(initializerType.GetDefinition()) : 
-//						false;
-//					foreach (var m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Field)) {
-//						var f = m as IField;
-//						if (f != null && (f.IsReadOnly || f.IsConst))
-//							continue;
-//						if (lookup.IsAccessible(m, isProtectedAllowed)) {
-//							var data = contextList.AddMember(m);
-//							if (data != null)
-//								data.DisplayFlags |= DisplayFlags.NamedArgument;
-//						}
-//					}
-//
-//					foreach (IProperty m in initializerType.GetMembers (m => m.SymbolKind == SymbolKind.Property)) {
-//						if (m.CanSet && lookup.IsAccessible(m.Setter, isProtectedAllowed)) {
-//							var data = contextList.AddMember(m);
-//							if (data != null)
-//								data.DisplayFlags |= DisplayFlags.NamedArgument;
-//						}
-//					}
-//
-//					if (prev != null && (prev is NamedExpression)) {
-//						// case 2)
-//						return contextList.Result;
-//					}
-//
-//					// case 1)
-//
-//					// check if the object is a list, if not only provide object initalizers
-//					var list = typeof(System.Collections.IList).ToTypeReference().Resolve(Compilation);
-//					if (initializerType.Kind != TypeKind.Array && list != null) {
-//						var def = initializerType.GetDefinition(); 
-//						if (def != null && !def.IsDerivedFrom(list.GetDefinition()))
-//							return contextList.Result;
-//					}
-//
-//					AddContextCompletion(contextList, GetState(), n);
-//					return contextList.Result;
-//				}
-//			}
+
+			bool hasObjectInitializers = false;
+			bool hasArrayInitializers  = false;
+
+			var objectCreation = objectCreationExpression as ObjectCreationExpressionSyntax;
+			if (objectCreation != null && objectCreation.Initializer != null && objectCreation.Initializer.Expressions != null) {
+				hasObjectInitializers = objectCreation.Initializer.Expressions.Count > 0 && objectCreation.Initializer.Expressions.Take(objectCreation.Initializer.Expressions.Count - 1).Any(arg => {
+					return arg.IsKind(SyntaxKind.SimpleAssignmentExpression);
+				});
+
+				hasArrayInitializers = objectCreation.Initializer.Expressions.Count > 0 && objectCreation.Initializer.Expressions.Take(objectCreation.Initializer.Expressions.Count - 1).Any(arg => {
+					return !arg.IsKind(SyntaxKind.SimpleAssignmentExpression);
+				});
+			}
+
+			//	case 'new initalizer { xpr' or 'new initalizer { foo, ... , xpr'
+			if (ctx.TargetToken.IsKind(SyntaxKind.OpenBraceToken) || ctx.TargetToken.IsKind(SyntaxKind.CommaToken)) {
+				ITypeSymbol initializerType;
+				if (info.CandidateReason == CandidateReason.LateBound) {
+					if (info.CandidateSymbols.Length == 0)
+						return CompletionResult.Empty;
+					initializerType = info.CandidateSymbols.FirstOrDefault().GetReturnType();
+				} else {
+					if (info.Symbol == null)
+						return CompletionResult.Empty;
+					initializerType = info.Symbol.GetReturnType();
+				}
+
+				if (initializerType == null)
+					return CompletionResult.Empty;
+
+				if (!hasArrayInitializers) {
+					foreach (var m in GetAllMembers (initializerType).Where(m => m.Kind == SymbolKind.Field)) {
+						var f = m as IFieldSymbol;
+						if (f != null && (f.IsReadOnly || f.IsConst))
+							continue;
+
+						if (semanticModel.IsAccessible(position, f)) {
+							result.AddData(factory.CreateSymbolCompletionData(m));
+							/*var data = contextList.AddMember(m);
+							if (data != null)
+								data.DisplayFlags |= DisplayFlags.NamedArgument;*/
+						}
+					}
+
+					foreach (var m in GetAllMembers (initializerType).Where(m => m.Kind == SymbolKind.Property)) {
+						var p = m as IPropertySymbol;
+						if (p == null || p.SetMethod == null)
+							continue;
+						if (semanticModel.IsAccessible(position, p.SetMethod)) {
+							result.AddData(factory.CreateSymbolCompletionData(p));
+						}
+						/*
+							var data = contextList.AddMember(m);
+							if (data != null)
+								data.DisplayFlags |= DisplayFlags.NamedArgument;*/
+					}
+				}
+
+				var type = semanticModel.Compilation.GetTypeSymbol("System.Collections", "IList", 0, cancellationToken); 
+				if (type == null)
+					return result;
+				if (initializerType.AllInterfaces.Any(i => i == type) && (objectCreationExpression.IsKind(SyntaxKind.ArrayInitializerExpression) || !hasObjectInitializers)) {
+					foreach (var handler in handlers)
+						handler.GetCompletionData(result, this, ctx, semanticModel, position, cancellationToken);
+				}
+			}
+		
 			return result;
 		}
 

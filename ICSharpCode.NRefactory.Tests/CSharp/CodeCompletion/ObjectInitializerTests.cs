@@ -623,7 +623,7 @@ class C : S
 }
 
 ");
-			Assert.IsNotNull(provider.Find("Foo"), "'Foo' found.");
+			Assert.IsNotNull(provider.Find("Foo"), "'Foo' not found.");
 			Assert.IsNotNull(provider.Find("Bar"), "'Bar' not found.");
 		}
 
@@ -656,7 +656,7 @@ class C : S
 }
 
 ");
-			Assert.IsNotNull(provider.Find("fld"), "'fld' found.");
+			Assert.IsNotNull(provider.Find("fld"), "'fld' not found.");
 			Assert.IsNotNull(provider.Find("fld2"), "'fld2' not found.");
 		}
 
