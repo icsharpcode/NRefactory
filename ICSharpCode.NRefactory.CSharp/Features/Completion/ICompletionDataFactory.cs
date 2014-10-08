@@ -57,5 +57,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		ISymbolCompletionData CreateEnumMemberCompletionData(IFieldSymbol field);
 
 		ICompletionData CreateNewOverrideCompletionData(int declarationBegin, ITypeSymbol currentType, ISymbol m);
+
+		ICompletionData CreatePartialCompletionData(int declarationBegin, ITypeSymbol currentType, IMethodSymbol method);
 	}
 }

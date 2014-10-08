@@ -159,12 +159,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //				ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.NamespaceDeclaration) {
 //				return CompletionResult.Empty;
 //			}
-
 			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
 			if (incompleteMemberSyntax != null) {
 				var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
 				if (mod.IsKind(SyntaxKind.OverrideKeyword))
 					return HandleOverrideContext(ctx, semanticModel);
+			}
+			if (ctx.TargetToken.Parent != null) {
+				incompleteMemberSyntax = ctx.TargetToken.Parent.Parent as IncompleteMemberSyntax;
+				if (incompleteMemberSyntax != null) {
+					var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
+					if (incompleteMemberSyntax.ToString().StartsWith("partial"))
+						return HandlePartialContext(ctx, incompleteMemberSyntax, semanticModel);
+				}
+
 			}
 			
 			var text = document.GetTextAsync(cancellationToken).Result; 
@@ -422,6 +430,69 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 			return result;
 		}
+
+		CompletionResult HandlePartialContext(SyntaxContext ctx, IncompleteMemberSyntax incompleteMemberSyntax, SemanticModel semanticModel)
+		{
+			var result = new CompletionResult();
+			if (ctx.ContainingTypeDeclaration == null)
+				return result;
+			var curType = GetCurrentType(ctx, semanticModel);
+			if (curType == null)
+				return result;
+			foreach (var method in curType.GetMembers().OfType<IMethodSymbol>()) {
+				// TODO: seems to be broken in roslyn :/
+				if (method.PartialDefinitionPart != null && method.PartialImplementationPart == null) {
+					var data = factory.CreatePartialCompletionData(
+						incompleteMemberSyntax.SpanStart,
+						curType,
+						method
+					);
+					//data.CompletionCategory = col.GetCompletionCategory(m.DeclaringTypeDefinition);
+					result.AddData(data); 
+				}
+			}
+
+			return result;
+//			var wrapper = new CompletionDataWrapper(this);
+//			int declarationBegin = offset;
+//			int j = declarationBegin;
+//			for (int i = 0; i < 3; i++) {
+//				switch (GetPreviousToken(ref j, true)) {
+//					case "public":
+//					case "protected":
+//					case "private":
+//					case "internal":
+//					case "sealed":
+//					case "override":
+//					case "partial":
+//					case "async":
+//						declarationBegin = j;
+//						break;
+//					case "static":
+//						return null; // don't add override completion for static members
+//				}
+//			}
+//
+//			var methods = new List<IUnresolvedMethod>();
+//
+//			foreach (var part in type.Parts) {
+//				foreach (var method in part.Methods) {
+//					if (method.BodyRegion.IsEmpty) {
+//						if (GetImplementation(type, method) != null) {
+//							continue;
+//						}
+//						methods.Add(method);
+//					}
+//				}	
+//			}
+//
+//			foreach (var method in methods) {
+//			} 
+//
+//			return wrapper.Result;
+		}
+
+
 
 		CompletionResult HandleObjectCreationExpression(SyntaxContext ctx, SemanticModel semanticModel, int position, bool isCtrlSpace, CancellationToken cancellationToken)
 		{
@@ -2227,32 +2298,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					//						result.ExpressionContext = ExpressionContext.TypeName;
 					//						return CreateCtrlSpaceCompletionData (completionContext, result);
 					//					}
-				case "partial":
-					// Look for modifiers, in order to find the beginning of the declaration
-					firstMod = wordStart;
-					i = wordStart;
-					for (int n = 0; n < 3; n++) {
-						string mod = GetPreviousToken(ref i, true);
-						if (mod == "public" || mod == "protected" || mod == "private" || mod == "internal" || mod == "sealed") {
-							firstMod = i;
-						} else if (mod == "static") {
-							// static methods are not overridable
-							return null;
-						} else {
-							break;
-						}
-					}
-					if (!IsLineEmptyUpToEol()) {
-						return null;
-					}
-					var state = GetState();
-
-					if (state.CurrentTypeDefinition != null && (state.CurrentTypeDefinition.Kind == TypeKind.Class || state.CurrentTypeDefinition.Kind == TypeKind.Struct)) {
-						string modifiers = document.GetText(firstMod, wordStart - firstMod);
-						return GetPartialCompletionData(state.CurrentTypeDefinition, modifiers);
-					}
-					return null;
-
 				case "public":
 				case "protected":
 				case "private":
@@ -2349,52 +2394,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return false;
 		}
 
-		IEnumerable<ICompletionData> GetPartialCompletionData(ITypeDefinition type, string modifiers)
-		{
-			var wrapper = new CompletionDataWrapper(this);
-			int declarationBegin = offset;
-			int j = declarationBegin;
-			for (int i = 0; i < 3; i++) {
-				switch (GetPreviousToken(ref j, true)) {
-					case "public":
-					case "protected":
-					case "private":
-					case "internal":
-					case "sealed":
-					case "override":
-					case "partial":
-					case "async":
-						declarationBegin = j;
-						break;
-					case "static":
-						return null; // don't add override completion for static members
-				}
-			}
-
-			var methods = new List<IUnresolvedMethod>();
-
-			foreach (var part in type.Parts) {
-				foreach (var method in part.Methods) {
-					if (method.BodyRegion.IsEmpty) {
-						if (GetImplementation(type, method) != null) {
-							continue;
-						}
-						methods.Add(method);
-					}
-				}	
-			}
-
-			foreach (var method in methods) {
-				wrapper.Add(factory.CreateNewPartialCompletionData(
-					declarationBegin,
-					method.DeclaringTypeDefinition,
-					method
-				)
-				);
-			} 
-
-			return wrapper.Result;
-		}
 
 		IMethod GetImplementation(ITypeDefinition type, IUnresolvedMethod method)
 		{

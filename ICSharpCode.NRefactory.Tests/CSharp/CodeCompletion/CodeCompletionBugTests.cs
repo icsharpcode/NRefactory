@@ -162,6 +162,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				return new OverrideCompletionData(m.Name, declarationBegin);
 			}
 
+			public ICompletionData CreatePartialCompletionData (int declarationBegin, ITypeSymbol currentType, IMethodSymbol method)
+			{
+				return new OverrideCompletionData(method.Name, declarationBegin);
+			}
+
 			class SymbolCompletionData : CompletionData, ISymbolCompletionData
 			{
 				readonly ISymbol symbol;
