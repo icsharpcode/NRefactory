@@ -72,8 +72,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 				if (parent.CSharpKind() == SyntaxKind.ClassDeclaration ||
 				    parent.CSharpKind() == SyntaxKind.StructDeclaration ||
-				    parent.CSharpKind() == SyntaxKind.InterfaceDeclaration ||
-				    parent.CSharpKind() == SyntaxKind.EnumDeclaration ||
+					parent.CSharpKind() == SyntaxKind.InterfaceDeclaration) {
+					foreach (var kw in typeLevelKeywords)
+						result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
+					return;
+				} 
+				if (parent.CSharpKind() == SyntaxKind.EnumDeclaration ||
 				    parent.CSharpKind() == SyntaxKind.DelegateDeclaration ||
 				    parent.CSharpKind() == SyntaxKind.PredefinedType ||
 				    parent.CSharpKind() == SyntaxKind.TypeParameterList ||
@@ -118,17 +122,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				result.AddData(factory.CreateGenericData("out", GenericDataType.Keyword));
 				result.AddData(factory.CreateGenericData("ref", GenericDataType.Keyword));
 				result.AddData(factory.CreateGenericData("params", GenericDataType.Keyword));
+				foreach (var kw in primitiveTypesKeywords)
+					result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
+
+				if (ctx.IsParameterTypeContext) {
+					bool isFirst = ctx.LeftToken.GetPreviousToken().IsKind(SyntaxKind.OpenParenToken);
+					if (isFirst)
+						result.AddData(factory.CreateGenericData("this", GenericDataType.Keyword));
+				}
+
+				return;
 			} else {
 				result.AddData(factory.CreateGenericData("var", GenericDataType.Keyword));
 				result.AddData(factory.CreateGenericData("dynamic", GenericDataType.Keyword));
 			}
-			
-			if (ctx.IsParameterTypeContext) {
-				bool isFirst = ctx.LeftToken.GetPreviousToken().IsKind(SyntaxKind.OpenParenToken);
-				if (isFirst)
-					result.AddData(factory.CreateGenericData("this", GenericDataType.Keyword));
-				return;
-			}
+
 			if (parent != null && parent.Parent != null && parent.IsKind(SyntaxKind.BaseList) && parent.Parent.IsKind(SyntaxKind.EnumDeclaration)) {
 				foreach (var kw in validEnumBaseTypes)
 					result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
@@ -151,7 +159,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			foreach (var kw in primitiveTypesKeywords)
 				result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
-			
+
 			foreach (var kw in statementStartKeywords)
 				result.AddData(factory.CreateGenericData(kw, GenericDataType.Keyword));
 			
