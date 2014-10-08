@@ -225,6 +225,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 						handler.GetCompletionData(result2, this, ctx, semanticModel, position, cancellationToken);
 					return result2;
 				}
+				if (ctx.TargetToken.IsKind(SyntaxKind.UsingKeyword))
+					forceCompletion = true;
 			}
 			
 			if (!forceCompletion && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')
@@ -261,10 +263,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) 
 				return CompletionResult.Empty;
 
-			if (ctx.TargetToken.IsKind(SyntaxKind.OpenBraceToken) && 
-				ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.IsKind(SyntaxKind.AnonymousObjectCreationExpression)) {
-				return CompletionResult.Empty;
-			}
+//			if (ctx.TargetToken.IsKind(SyntaxKind.OpenBraceToken) && 
+//				ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.IsKind(SyntaxKind.AnonymousObjectCreationExpression)) {
+//				return CompletionResult.Empty;
+//			}
 			if ((ctx.TargetToken.IsKind(SyntaxKind.OpenBraceToken) || ctx.TargetToken.IsKind(SyntaxKind.CommaToken)) && 
 				ctx.TargetToken.Parent != null && (
 					ctx.TargetToken.Parent.IsKind(SyntaxKind.CollectionInitializerExpression) ||
