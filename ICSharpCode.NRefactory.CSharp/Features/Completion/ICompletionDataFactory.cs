@@ -55,5 +55,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		/// Used for generating enum members Foo.A, Foo.B where the enum 'Foo' is valid.
 		/// </summary>
 		ISymbolCompletionData CreateEnumMemberCompletionData(IFieldSymbol field);
+
+		ICompletionData CreateNewOverrideCompletionData(int declarationBegin, ITypeSymbol currentType, ISymbol m);
 	}
 }

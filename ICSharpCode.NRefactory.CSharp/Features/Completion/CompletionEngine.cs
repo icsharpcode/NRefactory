@@ -371,6 +371,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return null;
 		}
 
+		static bool HasOverridden(ISymbol original, ISymbol testSymbol)
+		{
+			if (original.Kind != testSymbol.Kind)
+				return false;
+			switch (testSymbol.Kind) {
+				case SymbolKind.Method:
+					return ((IMethodSymbol)testSymbol).OverriddenMethod == original;
+				case SymbolKind.Property:
+					return ((IPropertySymbol)testSymbol).OverriddenProperty == original;
+				case SymbolKind.Event:
+					return ((IEventSymbol)testSymbol).OverriddenEvent == original;
+			}
+			return false;
+		}
+
 		CompletionResult HandleOverrideContext(SyntaxContext ctx, SemanticModel semanticModel)
 		{
 			var result = new CompletionResult();
@@ -379,33 +394,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var curType = GetCurrentType(ctx, semanticModel);
 			if (curType == null)
 				return result;
+			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
 			foreach (var m in curType.BaseType.GetMembers ()) {
 				if (!m.IsOverride && !m.IsVirtual || m.ContainingType == curType)
 					continue;
-//				// filter out the "Finalize" methods, because finalizers should be done with destructors.
-//				if (m is IMethod && m.Name == "Finalize") {
-//					continue;
-//				}
-//
-//				var data = factory.CreateNewOverrideCompletionData(
-//					declarationBegin,
-//					currentType,
-//					m
-//				);
-//				// check if the member is already implemented
-//				bool foundMember = curType.GetMembers().Any(cm => SignatureComparer.Ordinal.Equals(
-//					cm,
-//					m
-//				) && cm.DeclaringTypeDefinition == curType.GetDefinition()
-//				);
-//				if (foundMember) {
-//					continue;
-//				}
-//				if (alreadyInserted.Any(cm => SignatureComparer.Ordinal.Equals(cm, m)))
-//					continue;
-//				alreadyInserted.Add(m);
-//				data.CompletionCategory = col.GetCompletionCategory(m.DeclaringTypeDefinition);
-//				col.Add(data);
+				// filter out the "Finalize" methods, because finalizers should be done with destructors.
+				if (m.Kind == SymbolKind.Method && m.Name == "Finalize") {
+					continue;
+				}
+
+				// check if the member is already implemented
+				bool foundMember = curType.GetMembers().Any(cm => HasOverridden (m, cm));
+				if (foundMember)
+					continue;
+
+/*				if (alreadyInserted.Contains(m))
+					continue;
+				alreadyInserted.Add(m);*/
+
+				var data = factory.CreateNewOverrideCompletionData(
+					incompleteMemberSyntax.SpanStart,
+					curType,
+					m
+				);
+				//data.CompletionCategory = col.GetCompletionCategory(m.DeclaringTypeDefinition);
+				result.AddData(data); 
 			}
 			return result;
 		}

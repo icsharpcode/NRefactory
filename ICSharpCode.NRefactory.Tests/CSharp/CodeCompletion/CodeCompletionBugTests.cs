@@ -157,6 +157,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				return new SymbolCompletionData(field, field.ContainingType.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat) + "." + field.Name);
 			}
 
+			public ICompletionData CreateNewOverrideCompletionData (int declarationBegin, ITypeSymbol currentType, ISymbol m)
+			{
+				return new OverrideCompletionData(m.Name, declarationBegin);
+			}
 
 			class SymbolCompletionData : CompletionData, ISymbolCompletionData
 			{
