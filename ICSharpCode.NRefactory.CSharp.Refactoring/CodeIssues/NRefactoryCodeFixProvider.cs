@@ -43,13 +43,16 @@ using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public abstract class NRefactoryCodeFixProvider : ICodeFixProvider
+	public abstract class NRefactoryCodeFixProvider : CodeFixProvider
 	{
-		public abstract IEnumerable<string> GetFixableDiagnosticIds();
+		protected abstract IEnumerable<string> InternalGetFixableDiagnosticIds();
 
-		public abstract Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken);
+		public override ImmutableArray<string> GetFixableDiagnosticIds()
+		{
+			return ImmutableArray<string>.Empty.AddRange(InternalGetFixableDiagnosticIds());
+		}
 
-		public virtual FixAllProvider GetFixAllProvider ()
+		public override FixAllProvider GetFixAllProvider ()
 		{
 			return null;
 		}

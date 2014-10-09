@@ -12,7 +12,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// <summary>
 	/// A specialized code action creates a code action assoziated with one special type of ast nodes.
 	/// </summary>
-	public abstract class SpecializedCodeAction<T> : ICodeRefactoringProvider where T : SyntaxNode
+	public abstract class SpecializedCodeAction<T> : CodeRefactoringProvider where T : SyntaxNode
 	{
 		/// <summary>
 		/// Gets the action for the specified ast node.
@@ -30,8 +30,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		protected abstract IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, T node, CancellationToken cancellationToken);
 
 		#region ICodeActionProvider implementation
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var node = root.FindNode(span, false, true);

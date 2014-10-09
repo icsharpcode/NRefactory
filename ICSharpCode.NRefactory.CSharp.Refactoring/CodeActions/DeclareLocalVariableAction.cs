@@ -43,10 +43,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Declare a local variable out of a selected expression")]
 	[ExportCodeRefactoringProvider("Declare local variable", LanguageNames.CSharp)]
-	public class DeclareLocalVariableAction : ICodeRefactoringProvider
+	public class DeclareLocalVariableAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			return null;

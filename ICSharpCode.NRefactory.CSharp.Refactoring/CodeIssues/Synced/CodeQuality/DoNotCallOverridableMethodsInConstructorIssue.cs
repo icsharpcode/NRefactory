@@ -212,12 +212,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	//	[ExportCodeFixProvider(DoNotCallOverridableMethodsInConstructorIssue.DiagnosticId, LanguageNames.CSharp)]
 	//	public class DoNotCallOverridableMethodsInConstructorFixProvider : NRefactoryCodeFixProvider
 	//	{
-	//		public override IEnumerable<string> GetFixableDiagnosticIds()
+	//		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 	//		{
 	//			yield return DoNotCallOverridableMethodsInConstructorIssue.DiagnosticId;
 	//		}
 	//
-	//		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+	//		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext  context)
 	//		{
 	//			var root = await document.GetSyntaxRootAsync(cancellationToken);
 	//			var result = new List<CodeAction>();

@@ -334,13 +334,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeFixProvider(XmlDocIssue.DiagnosticId, LanguageNames.CSharp)]
 	public class XmlDocFixProvider : NRefactoryCodeFixProvider
 	{
-		public override IEnumerable<string> GetFixableDiagnosticIds()
+		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
 			yield return XmlDocIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(Document document, TextSpan span, IEnumerable<Diagnostic> diagnostics, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
 		{
+			var document = context.Document;
+			var cancellationToken = context.CancellationToken;
+			var span = context.Span;
+			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {

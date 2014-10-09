@@ -42,10 +42,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert 'return' to 'if'")]
 	[ExportCodeRefactoringProvider("Convert 'return' to 'if'", LanguageNames.CSharp)]
-	public class ConvertReturnStatementToIfAction : ICodeRefactoringProvider
+	public class ConvertReturnStatementToIfAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var node = root.FindNode(span) as ReturnStatementSyntax;
 			if (node == null)

@@ -43,10 +43,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Creates a constant for a non constant primitive expression")]
 	[ExportCodeRefactoringProvider("Introduce constant", LanguageNames.CSharp)]
-	public class IntroduceConstantAction : ICodeRefactoringProvider
+	public class IntroduceConstantAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			return null;

@@ -48,14 +48,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 		internal static MetadataReference[] DefaultMetadataReferences;
 		
-		static Dictionary<string, ICodeFixProvider> providers = new Dictionary<string, ICodeFixProvider>();
+		static Dictionary<string, CodeFixProvider> providers = new Dictionary<string, CodeFixProvider>();
 
 		static InspectionActionTestBase()
 		{
-			mscorlib = new MetadataFileReference(typeof(Console).Assembly.Location);
-			systemAssembly = new MetadataFileReference(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
-			systemXmlLinq = new MetadataFileReference(typeof(System.Xml.Linq.XElement).Assembly.Location);
-			systemCore = new MetadataFileReference(typeof(Enumerable).Assembly.Location);
+			mscorlib = MetadataReference.CreateFromFile(typeof(Console).Assembly.Location);
+			systemAssembly = MetadataReference.CreateFromFile(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
+			systemXmlLinq = MetadataReference.CreateFromFile(typeof(System.Xml.Linq.XElement).Assembly.Location);
+			systemCore = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
 			DefaultMetadataReferences = new [] {
 				mscorlib,
 				systemAssembly,
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 			foreach (var provider in typeof(IssueCategories).Assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false).Length > 0)) {
 				var attr = (ExportCodeFixProviderAttribute)provider.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false) [0];
-				var codeFixProvider = (ICodeFixProvider)Activator.CreateInstance(provider);
+				var codeFixProvider = (CodeFixProvider)Activator.CreateInstance(provider);
 				foreach (var id in codeFixProvider.GetFixableDiagnosticIds()) {
 					providers.Add(id, codeFixProvider);
 				}
@@ -150,10 +150,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 		static void RunFix(Workspace workspace, ProjectId projectId, DocumentId documentId, Diagnostic diagnostic, int index = 0)
 		{
-			ICodeFixProvider provider;
+			CodeFixProvider provider;
 			if (providers.TryGetValue(diagnostic.Id, out provider)) {
 				var document = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
-				var action = provider.GetFixesAsync(document, diagnostic.Location.SourceSpan, new[] { diagnostic }, default(CancellationToken)).Result.ElementAtOrDefault(index);
+				var action = provider.GetFixesAsync(new CodeFixContext (document, diagnostic.Location.SourceSpan, new[] { diagnostic }, default(CancellationToken))).Result.ElementAtOrDefault(index);
 				if (action == null) {
 					Assert.Fail("Provider has no fix for " + diagnostic.Id + " at " + diagnostic.Location.SourceSpan);
 					return;
@@ -252,13 +252,15 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Compilation compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
 			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
 			var diagnostics = new List<Diagnostic>();
-			var driver = new AnalyzerDriver<SyntaxKind>(
+
+			var driver = AnalyzerDriver<SyntaxKind>.Create (
+				compilation,
 				System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()),
-				node => node.CSharpKind(),
 				options,
+				out compilation,
 				CancellationToken.None
 			);
-			compilation = compilation.WithEventQueue(driver.CompilationEventQueue);
+//			compilation = compilation.WithEventQueue(driver.CompilationEventQueue);
 			compilation.GetDiagnostics().Count();
 			diagnostics.AddRange(driver.GetDiagnosticsAsync().Result); 
 
@@ -351,14 +353,15 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 			var syntaxTree = CSharpSyntaxTree.ParseText(text.ToString());
 
-			var compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
+			Compilation compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
 
 			var diagnostics = new List<Diagnostic>();
 			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
-			var driver = new AnalyzerDriver<SyntaxNode>(
+			var driver = AnalyzerDriver<SyntaxKind>.Create(
+				compilation,
 				System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()),
-				node => node,
 				options,
+				out compilation,
 				CancellationToken.None
 			);
 			diagnostics.AddRange(driver.GetDiagnosticsAsync().Result); 

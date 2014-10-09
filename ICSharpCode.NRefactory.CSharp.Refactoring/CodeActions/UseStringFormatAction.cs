@@ -42,10 +42,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert concatenation of strings and objects to string.Format()")]
 	[ExportCodeRefactoringProvider("Use string.Format()", LanguageNames.CSharp)]
-	public class UseStringFormatAction : ICodeRefactoringProvider
+	public class UseStringFormatAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			return null;

@@ -46,10 +46,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[NRefactoryCodeRefactoringProvider(Description = "Converts a do...while to a while loop (changing semantics)")]
 	[ExportCodeRefactoringProvider("Convert do...while to while", LanguageNames.CSharp)]
-	public class ConvertDoWhileToWhileLoopAction : ICodeRefactoringProvider
+	public class ConvertDoWhileToWhileLoopAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 

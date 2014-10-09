@@ -41,10 +41,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Swaps left and right arguments.")]
 	[ExportCodeRefactoringProvider("Swap left and right arguments", LanguageNames.CSharp)]
-	public class FlipOperatorArgumentsAction : ICodeRefactoringProvider
+	public class FlipOperatorArgumentsAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var binop = root.FindToken(span.Start).Parent as BinaryExpressionSyntax;

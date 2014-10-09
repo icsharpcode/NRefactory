@@ -42,10 +42,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Extension methods must be declared static")]
 	[ExportCodeRefactoringProvider("Extension methods must be declared static", LanguageNames.CSharp)]
-	public class CS1105ExtensionMethodMustBeDeclaredStaticAction : ICodeRefactoringProvider
+	public class CS1105ExtensionMethodMustBeDeclaredStaticAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var node = root.FindNode(span) as MethodDeclarationSyntax;

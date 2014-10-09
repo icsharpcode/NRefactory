@@ -45,12 +45,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[NRefactoryCodeRefactoringProvider(Description = "Works on 'foreach' loops that allow direct access to its elements")]
 	[ExportCodeRefactoringProvider("Convert 'foreach' loop to 'for'", LanguageNames.CSharp)]
-	public class ConvertForeachToForAction : ICodeRefactoringProvider
+	public class ConvertForeachToForAction : CodeRefactoringProvider
 	{
 		static readonly string[] VariableNames = { "i", "j", "k", "l", "n", "m", "x", "y", "z"};
 		static readonly string[] CollectionNames = { "list" };
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			return null;

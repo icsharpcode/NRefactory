@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts local variable declaration to be implicit typed.")]
 	[ExportCodeRefactoringProvider("Use 'var' keyword", LanguageNames.CSharp)]
-	public class UseVarKeywordAction : ICodeRefactoringProvider
+	public class UseVarKeywordAction : CodeRefactoringProvider
 	{
 		internal static VariableDeclarationSyntax GetVariableDeclarationStatement (SyntaxNode token)
 		{
@@ -52,11 +52,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return token.Parent as ForEachStatementSyntax;
 		}
 
-		#region ICodeRefactoringProvider implementation
-
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		#region CodeRefactoringProvider implementation
+				public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
+	var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var parseOptions = root.SyntaxTree.Options as CSharpParseOptions;
 			if (parseOptions != null && parseOptions.LanguageVersion < LanguageVersion.CSharp3)
 				return Enumerable.Empty<CodeAction> ();

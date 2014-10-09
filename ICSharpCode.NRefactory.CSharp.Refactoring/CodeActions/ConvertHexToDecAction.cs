@@ -43,10 +43,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[NRefactoryCodeRefactoringProvider(Description = "Convert hex to dec.")]
 	[ExportCodeRefactoringProvider("Convert hex to dec.", LanguageNames.CSharp)]
-	public class ConvertHexToDecAction : ICodeRefactoringProvider
+	public class ConvertHexToDecAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);

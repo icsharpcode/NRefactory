@@ -66,12 +66,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 		public void Test<T> (string input, string output, int action = 0, bool expectErrors = false)
-			where T : ICodeRefactoringProvider, new ()
+			where T : CodeRefactoringProvider, new ()
 		{
 			Test(new T(), input, output, action, expectErrors);
 		}
 		
-		public void Test (ICodeRefactoringProvider provider, string input, string output, int action = 0, bool expectErrors = false)
+		public void Test (CodeRefactoringProvider provider, string input, string output, int action = 0, bool expectErrors = false)
 		{
 			string result = RunContextAction (provider, HomogenizeEol (input), action, expectErrors);
 			bool passed = result == output;
@@ -84,14 +84,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Assert.AreEqual (HomogenizeEol (output), result);
 		}
 
-		internal static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions<T>(string input) where T : ICodeRefactoringProvider, new ()
+		internal static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions<T>(string input) where T : CodeRefactoringProvider, new ()
 		{
 			InspectionActionTestBase.TestWorkspace workspace;
 			Document doc;
 			return GetActions(new T(), input, out workspace, out doc);
 		}
 
-		static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions(ICodeRefactoringProvider action, string input, out InspectionActionTestBase.TestWorkspace workspace, out Document doc)
+		static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions(CodeRefactoringProvider action, string input, out InspectionActionTestBase.TestWorkspace workspace, out Document doc)
 		{
 			var idx = input.IndexOf("$", StringComparison.Ordinal);
 			if (idx > 0)
@@ -148,10 +148,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			)
 			);
 			doc = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
-			return action.GetRefactoringsAsync(doc, TextSpan.FromBounds(idx, idx), default(CancellationToken)).Result.ToList();
+			return action.GetRefactoringsAsync(new CodeRefactoringContext (doc, TextSpan.FromBounds(idx, idx), default(CancellationToken))).Result.ToList();
 		}
 
-		protected string RunContextAction (ICodeRefactoringProvider action, string input,
+		protected string RunContextAction (CodeRefactoringProvider action, string input,
 		                                          int actionIndex = 0, bool expectErrors = false)
 		{
 			Document doc;
@@ -167,7 +167,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 		
 		
-		protected void TestWrongContext (ICodeRefactoringProvider action, string input)
+		protected void TestWrongContext (CodeRefactoringProvider action, string input)
 		{
 			Document doc;
 			ICSharpCode.NRefactory6.CSharp.CodeIssues.InspectionActionTestBase.TestWorkspace workspace;
@@ -176,7 +176,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 
-		protected void TestWrongContext<T> (string input) where T : ICodeRefactoringProvider, new ()
+		protected void TestWrongContext<T> (string input) where T : CodeRefactoringProvider, new ()
 		{
 			TestWrongContext(new T(), input);
 		}

@@ -46,10 +46,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Convert do...while to while. For instance, { do x++; while (Foo(x)); } becomes { while(Foo(x)) x++; }.
 	/// Note that this action will often change the semantics of the code.
 	/// </summary>
-	public class ConvertEqualityOperatorToEqualsAction : ICodeRefactoringProvider
+	public class ConvertEqualityOperatorToEqualsAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var node = root.FindNode(span) as BinaryExpressionSyntax;

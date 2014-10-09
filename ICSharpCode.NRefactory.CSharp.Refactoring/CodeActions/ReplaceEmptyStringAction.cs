@@ -39,10 +39,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replaces \"\" with 'string.Empty'.")]
 	[ExportCodeRefactoringProvider("Use string.Empty", LanguageNames.CSharp)]
-	public class ReplaceEmptyStringAction : ICodeRefactoringProvider
+	public class ReplaceEmptyStringAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
 			if (!token.IsKind(SyntaxKind.StringLiteralToken) || token.Value.ToString() != "")

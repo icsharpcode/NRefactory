@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[NRefactoryCodeRefactoringProvider(Description = "Adds second accessor to a property.")]
 	[ExportCodeRefactoringProvider("Add another accessor", LanguageNames.CSharp)]
-	public class AddAnotherAccessorAction : ICodeRefactoringProvider
+	public class AddAnotherAccessorAction : CodeRefactoringProvider
 	{
 		public static BlockSyntax GetNotImplementedBlock()
 		{
@@ -54,8 +54,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				.WithArgumentList(SyntaxFactory.ArgumentList())));
 		}
 
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);

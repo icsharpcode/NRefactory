@@ -42,10 +42,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert 'if' statement to '??' expression", Category = IssueCategories.Opportunities)]
 	[ExportCodeRefactoringProvider("Convert 'if' to '??' expression", LanguageNames.CSharp)]
-	public class ConvertIfStatementToNullCoalescingExpressionAction : ICodeRefactoringProvider
+	public class ConvertIfStatementToNullCoalescingExpressionAction : CodeRefactoringProvider
 	{
-		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 
