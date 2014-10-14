@@ -79,11 +79,17 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Collections.Immutable">
-      <HintPath>..\..\roslyn\Binaries\Debug\System.Collections.Immutable.dll</HintPath>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Desktop">
+      <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.CSharp.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp">
+      <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
       <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Desktop">
+      <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis">
       <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.dll</HintPath>
@@ -91,8 +97,8 @@
     <Reference Include="Microsoft.CodeAnalysis.Workspaces">
       <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.CSharp">
-      <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>..\..\roslyn\Binaries\Debug\System.Collections.Immutable.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

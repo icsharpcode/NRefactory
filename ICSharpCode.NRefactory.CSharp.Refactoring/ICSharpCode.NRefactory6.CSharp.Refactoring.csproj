@@ -93,6 +93,9 @@
     <Reference Include="Microsoft.CodeAnalysis.CSharp">
       <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="System.Composition.AttributedModel">
+      <HintPath>..\..\roslyn\Binaries\Debug\System.Composition.AttributedModel.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory\Properties\GlobalAssemblyInfo.cs">

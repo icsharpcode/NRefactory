@@ -36,6 +36,7 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.Host.Mef;
 using System.Reflection;
 using System.Text;
+using Microsoft.CodeAnalysis.Host;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
@@ -86,6 +87,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			if (compOptions == null) {
 				compOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, "a.dll");
 			}
+
 			return CSharpCompilation.Create(
 				string.IsNullOrEmpty(assemblyName) ?  GetUniqueName() : assemblyName,
 				trees,
@@ -112,14 +114,15 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 
 		internal class TestWorkspace : Workspace
 		{
-			readonly static MefHostServices services = MefHostServices.Create(new [] { 
+			readonly static HostServices services = Microsoft.CodeAnalysis.Host.Mef.MefHostServices.DefaultHost;/* MefHostServices.Create(new [] { 
 				typeof(MefHostServices).Assembly,
 				typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions).Assembly
-			});
+			});*/
 			
 			
 			public TestWorkspace(string workspaceKind = "Test") : base(services , workspaceKind)
 			{
+
 				foreach (var a in MefHostServices.DefaultAssemblies) {
 					Console.WriteLine (a.FullName);
 				}

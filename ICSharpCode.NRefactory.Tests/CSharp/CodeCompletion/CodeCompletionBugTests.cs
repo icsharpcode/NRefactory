@@ -286,16 +286,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 							null,
 							OptimizationLevel.Debug,
 							false,
-							false,
-							null,
-							null,
-							true,
-							0,
-							0,
-							Platform.AnyCpu,
-							ReportDiagnostic.Default,
-							4,
-							null,
 							false
 						),
 						new CSharpParseOptions (

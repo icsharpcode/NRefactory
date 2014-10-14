@@ -93,9 +93,6 @@
     <Reference Include="System.Collections.Immutable">
       <HintPath>..\..\roslyn\Binaries\Debug\System.Collections.Immutable.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
-      <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CodeAnalysis">
       <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.dll</HintPath>
     </Reference>
@@ -113,6 +110,15 @@
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.AttributedModel">
+      <HintPath>..\..\roslyn\Binaries\Debug\System.Composition.AttributedModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Workspaces.Desktop">
+      <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.Workspaces.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
+      <HintPath>..\..\roslyn\Binaries\Debug\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

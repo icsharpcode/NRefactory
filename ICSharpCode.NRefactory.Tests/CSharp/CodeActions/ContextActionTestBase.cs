@@ -117,16 +117,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 					null,
 					OptimizationLevel.Debug,
 					false,
-					true,
-					null,
-					null,
-					null,
-					0,
-					0,
-					Platform.AnyCpu,
-					ReportDiagnostic.Default,
-					4,
-					null
+					true
 				),
 				new CSharpParseOptions (
 					LanguageVersion.CSharp6,
