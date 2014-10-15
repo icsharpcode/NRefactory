@@ -30,6 +30,7 @@ using System.Text;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -55,7 +56,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		///     A readonly reference to the document that's parsed
 		///     by the engine.
 		/// </summary>
-		internal readonly Document document;
+		internal readonly SourceText document;
 
 		/// <summary>
 		///     Represents the new line character.
@@ -105,7 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#region IDocumentIndentEngine
 
 		/// <inheritdoc />
-		public Document Document
+		public SourceText Document
 		{
 			get { return document; }
 		}
@@ -277,7 +278,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <param name="textEditorOptions">
 		///    Text editor options for indentation.
 		/// </param>
-		public CSharpIndentEngine(Document document, OptionSet formattingOptions)
+		public CSharpIndentEngine(SourceText document, OptionSet formattingOptions)
 		{
 			this.options = formattingOptions;
 			this.document = document;
@@ -451,7 +452,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			while (Offset < offset)
 			{
-				Push(Document.GetTextAsync().Result[Offset]);
+				Push(Document[Offset]);
 			}
 		}
 

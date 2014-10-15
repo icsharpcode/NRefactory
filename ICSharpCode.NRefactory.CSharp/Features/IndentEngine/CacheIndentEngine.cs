@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#region IDocumentIndentEngine
 
 		/// <inheritdoc />
-		public Document Document {
+		public SourceText Document {
 			get { return currentEngine.Document; }
 		}
 
@@ -181,7 +181,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			// get the engine caught up
 			int nextSave = (cachedEngines.Count == 0) ? BUFFER_SIZE : cachedEngines.Peek().Offset + BUFFER_SIZE;
 			if (currentEngine.Offset + 1 == position) {
-				char ch = currentEngine.Document.GetTextAsync().Result[currentEngine.Offset];
+				char ch = currentEngine.Document[currentEngine.Offset];
 				currentEngine.Push(ch);
 				if (currentEngine.Offset == nextSave)
 					cachedEngines.Push(currentEngine.Clone());
@@ -192,7 +192,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 					int endCut = currentEngine.Offset + BUFFER_SIZE;
 					if (endCut > position)
 						endCut = position;
-					var sourceText = currentEngine.Document.GetTextAsync().Result;
+					var sourceText = currentEngine.Document;
 					string buffer = sourceText.GetSubText(TextSpan.FromBounds(currentEngine.Offset, endCut)).ToString();
 					foreach (char ch in buffer) {
 						currentEngine.Push(ch);

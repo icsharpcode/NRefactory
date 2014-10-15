@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -33,10 +34,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 	/// </summary>
 	public sealed class NullIStateMachineIndentEngine : IStateMachineIndentEngine
 	{
-		readonly Document document;
+		readonly SourceText document;
 		int offset;
 
-		public NullIStateMachineIndentEngine(Document document)
+		public NullIStateMachineIndentEngine(SourceText document)
 		{
 			if (document == null)
 				throw new ArgumentNullException("document");
@@ -155,7 +156,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return Clone();
 		}
 
-		Document IDocumentIndentEngine.Document {
+		SourceText IDocumentIndentEngine.Document {
 			get {
 				return document;
 			}

@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				text = strategy.Decode(text);
 			}
 			engine.Update(offset);
-			var sourceText = engine.Document.GetTextAsync().Result;
+			var sourceText = engine.Document;
 
 			if (engine.IsInsideStringLiteral) {
 				int idx = text.IndexOf('"');
@@ -207,7 +207,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#region IDocumentIndentEngine
 
 		/// <inheritdoc />
-		public Document Document {
+		public SourceText Document {
 			get { return engine.Document; }
 		}
 

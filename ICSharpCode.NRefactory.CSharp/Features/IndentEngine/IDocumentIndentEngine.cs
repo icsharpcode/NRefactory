@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -36,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <summary>
 		///     A reference to the document that's parsed by the engine.
 		/// </summary>
-		Document Document { get; }
+		SourceText Document { get; }
 
 		/// <summary>
 		///     The indentation string of the current line.

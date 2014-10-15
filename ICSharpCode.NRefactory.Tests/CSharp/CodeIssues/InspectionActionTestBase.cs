@@ -41,18 +41,18 @@ using Microsoft.CodeAnalysis.Host;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	public class InspectionActionTestBase
-	{
-		static MetadataReference mscorlib;
-		static MetadataReference systemAssembly;
-		static MetadataReference systemXmlLinq;
-		static MetadataReference systemCore;
+    {
+        static MetadataReference mscorlib;
+        static MetadataReference systemAssembly;
+        static MetadataReference systemXmlLinq;
+        static MetadataReference systemCore;
 
-		internal static MetadataReference[] DefaultMetadataReferences;
-		
-		static Dictionary<string, CodeFixProvider> providers = new Dictionary<string, CodeFixProvider>();
+        internal static MetadataReference[] DefaultMetadataReferences;
 
-		static InspectionActionTestBase()
-		{
+        static Dictionary<string, CodeFixProvider> providers = new Dictionary<string, CodeFixProvider>();
+
+        static InspectionActionTestBase()
+        {
 			mscorlib = MetadataReference.CreateFromFile(typeof(Console).Assembly.Location);
 			systemAssembly = MetadataReference.CreateFromFile(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
 			systemXmlLinq = MetadataReference.CreateFromFile(typeof(System.Xml.Linq.XElement).Assembly.Location);
