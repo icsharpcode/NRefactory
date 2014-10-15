@@ -208,6 +208,35 @@ class Test {
 			Assert.AreEqual("Test.F", rr.Member.FullName);
 			Assert.IsInstanceOf<TypeResolveResult>(rr.TargetResult);
 		}
+
+        [Test]
+        public void InstanceMethodCallInStaticContext()
+	    {
+            string program = @"using System;
+class Test {
+	void F() {}
+	public void M() {
+		$Test.F()$;
+	}
+}";
+            var rr = Resolve<UnknownMethodResolveResult>(program);
+        }
+
+        [Test]
+        public void ConstField()
+        {
+            string program = @"using System;
+class Test {
+	const int C = 1;
+	public int M() {
+		return $Test.C$;
+	}
+}";
+            var rr = Resolve<MemberResolveResult>(program);
+            Assert.AreEqual("Test.C", rr.Member.FullName);
+            Assert.IsInstanceOf<TypeResolveResult>(rr.TargetResult);
+        }
+
 		
 		[Test]
 		public void TestOuterTemplateParameter()
