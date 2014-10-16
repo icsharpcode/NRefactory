@@ -26,6 +26,7 @@
 
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
 
 namespace ICSharpCode.NRefactory6.IndentationTests
 {
@@ -408,6 +409,7 @@ class Foo {
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_DotExpression()
 		{
@@ -421,6 +423,7 @@ class Foo {
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_LambdaExpression()
 		{
@@ -434,6 +437,7 @@ class Foo {
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_LambdaExpression2()
 		{
@@ -472,11 +476,12 @@ class Foo {
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Option no longer supported")]
 		[Test]
 		public void TestBrackets_NamespaceIndentingOff()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.IndentNamespaceBody = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+//			fmt.IndentNamespaceBody = false;
 			var indent = Helper.CreateEngine(@"
 namespace Bar {
 class Foo {
@@ -486,6 +491,7 @@ void Test ()
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void ThisLineIndentInCollectionInitializer()
 		{
@@ -521,11 +527,12 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_AnonymousMethodAsParameterCase2()
 		{
 			var opt = FormattingOptionsFactory.CreateMono();
-			opt.AlignToFirstMethodCallArgument = false;
+			//opt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -540,12 +547,13 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_StackedIfElse_AlignElseToCorrectIf()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
-			fmt.AlignElseInIfStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			//fmt.AlignEmbeddedStatements = false;
+			//fmt.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -561,9 +569,9 @@ class Foo {
 		[Test]
 		public void TestBrackets_StackedIfElse_AlignElseToCorrectIf2()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
-			fmt.AlignElseInIfStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			//fmt.AlignEmbeddedStatements = false;
+			//fmt.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -583,8 +591,8 @@ class Foo {
 		[Test]
 		public void TestBrackets_StackedIfElse_BreakNestedStatementsOnSemicolon()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -603,9 +611,9 @@ class Foo {
 		[Test]
 		public void TestBrackets_StackedIfElse_ElseIf()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
-			fmt.AlignElseInIfStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
+			// fmt.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -626,8 +634,8 @@ class Foo {
 		[Test]
 		public void TestBrackets_StackedIfElse_BreakNestedStatementsOnIf()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = true;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = true;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -655,8 +663,8 @@ class Foo {
 		[Test]
 		public void TestBrackets_StackedIfElse_BreakNestedStatementsOnAnyStatement()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = true;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = true;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -682,8 +690,8 @@ class Foo {
 		[Test]
 		public void TestBrackets_StackedIfElse_BreakNestedStatementsOnAnonymousBlock()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -699,11 +707,12 @@ class Foo {
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_StackedIfElseIf_IfInNewLine()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -718,11 +727,12 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_RemoveStatementContinuationWhenNoSemicolon()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -740,8 +750,8 @@ class Foo {
 		[Test]
 		public void TestBrackets_CustomIndent()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -758,8 +768,8 @@ class Foo {
 		[Test]
 		public void TestBrackets_CustomIndent2()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -775,8 +785,8 @@ class Foo {
 		[Test]
 		public void TestBrackets_CustomIndent3()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -791,8 +801,8 @@ class Foo {
 		[Test]
 		public void TestBrackets_CustomIndent4()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -809,8 +819,8 @@ class Foo {
 		[Test]
 		public void TestBrackets_CustomIndent5()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -822,11 +832,12 @@ if (true)
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_CustomIndent6()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	void Test ()
@@ -840,11 +851,12 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_AnonymousMethodAsFirstParameterWithoutAlignment()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+			// policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
 
 			var indent = Helper.CreateEngine(@"
 class Foo 
@@ -858,11 +870,12 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_AnonymousMethodOpenBracketAlignment()
 		{
 			var policy = FormattingOptionsFactory.CreateAllman();
-			policy.IndentBlocksInsideExpressions = false;
+			// policy.IndentBlocksInsideExpressions = false;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -879,7 +892,7 @@ class Foo
 		public void TestBrackets_AnonymousMethodCloseingBracketAlignment()
 		{
 			var policy = FormattingOptionsFactory.CreateAllman();
-			policy.IndentBlocksInsideExpressions = false;
+			// policy.IndentBlocksInsideExpressions = false;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -892,11 +905,12 @@ class Foo
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_ArrayCreationAsFirstParameterWithoutAlignment()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+			// policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
 
 			var indent = Helper.CreateEngine(@"
 class Foo 
@@ -910,11 +924,12 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_ObjectCreationAsFirstParameterWithoutAlignment()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+			// policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
 
 			var indent = Helper.CreateEngine(@"
 class Foo 
@@ -928,11 +943,12 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_ArrayCreationAsFirstIndexerParameterWithoutAlignment()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+			// policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
 
 			var indent = Helper.CreateEngine(@"
 class Foo 
@@ -950,7 +966,8 @@ class Foo
 		/// <summary>
 		/// Bug 16231 - smart indent broken in 4.2.0
 		/// </summary>
-		[Test]
+		[Ignore("Not supported anymore")]
+			[Test]
 		public void TestBug16231()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
@@ -973,7 +990,7 @@ class Foo
 		public void TestComplexIfElseElsePlacement_AlignmentOff()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.AlignElseInIfStatements = false;
+			// policy.AlignElseInIfStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -990,11 +1007,12 @@ class Foo
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestComplexIfElseElsePlacement_AlignmentOn()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.AlignElseInIfStatements = true;
+			// policy.AlignElseInIfStatements = true;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -1012,11 +1030,12 @@ class Foo
 		}
 
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestNextLineShifted_OpeningBrace()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.ClassBraceStyle = BraceStyle.NextLineShifted;
+			// policy.ClassBraceStyle = BraceStyle.NextLineShifted;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {$
@@ -1025,11 +1044,12 @@ class Foo
 			Assert.AreEqual("\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestNextLineShifted_ClosingBrace()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.ClassBraceStyle = BraceStyle.NextLineShifted;
+			// policy.ClassBraceStyle = BraceStyle.NextLineShifted;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 	{
@@ -1039,11 +1059,12 @@ class Foo
 			Assert.AreEqual("", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestNextLineShifted2()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.ClassBraceStyle = BraceStyle.NextLineShifted2;
+			// policy.ClassBraceStyle = BraceStyle.NextLineShifted2;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {$
@@ -1052,11 +1073,12 @@ class Foo
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBanner_ClosingBrace()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.ClassBraceStyle = BraceStyle.BannerStyle;
+			// policy.ClassBraceStyle = BraceStyle.BannerStyle;
 			var indent = Helper.CreateEngine(@"
 class Foo {
 	}$
@@ -1065,11 +1087,12 @@ class Foo {
 			Assert.AreEqual("", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestNextLineShifted_IfStatement()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.StatementBraceStyle = BraceStyle.NextLineShifted;
+			// policy.StatementBraceStyle = BraceStyle.NextLineShifted;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -1087,7 +1110,7 @@ class Foo
 		public void TestPreprocessorIndenting_Case1()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.StatementBraceStyle = BraceStyle.NextLineShifted;
+			// policy.StatementBraceStyle = BraceStyle.NextLineShifted;
 			var indent = Helper.CreateEngine(@"
 using System;
 
@@ -1115,7 +1138,7 @@ class X
 		public void TestPreprocessorIndenting_Case2()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.StatementBraceStyle = BraceStyle.NextLineShifted;
+			// policy.StatementBraceStyle = BraceStyle.NextLineShifted;
 			var indent = Helper.CreateEngine(@"
 using System;
 
@@ -1140,11 +1163,12 @@ class X
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestPreprocessorIndenting_Case3()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.StatementBraceStyle = BraceStyle.NextLineShifted;
+			// policy.StatementBraceStyle = BraceStyle.NextLineShifted;
 			var indent = Helper.CreateEngine(@"
 using System;
 
@@ -1169,6 +1193,7 @@ class X
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_IndentBlocksInsideExpressionsOpenBrace()
 		{
@@ -1186,6 +1211,7 @@ class Foo
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBrackets_IndentBlocksInsideExpressions()
 		{
@@ -1207,6 +1233,7 @@ class Foo
 		/// <summary>
 		/// Bug 18463 - Indentation does not work when typed statement does not require semicolon
 		/// </summary>
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestBug18463()
 		{

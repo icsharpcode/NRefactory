@@ -198,8 +198,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 			{
 				var delta = Engine.options.GetOption(FormattingOptions.IndentationSize, LanguageNames.CSharp);
 				while (NextLineIndent.CurIndent - ThisLineIndent.CurIndent > delta &&
-					   NextLineIndent.PopIf(IndentType.Continuation)) ;
+					   NextLineIndent.PopIf(IndentType.Continuation));
 				ThisLineIndent = NextLineIndent.Clone();
+
 			}
 		}
 

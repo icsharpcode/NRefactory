@@ -181,7 +181,7 @@ namespace Foo {
 namespace Foo {
 	class Foo {
 #pragma Foo 42 $");
-			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
@@ -192,7 +192,7 @@ namespace Foo {
 namespace Foo {
 	class Foo {
 #warning Foo $");
-			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
@@ -203,7 +203,7 @@ namespace Foo {
 namespace Foo {
 	class Foo {
 #error Foo $");
-			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
@@ -214,7 +214,7 @@ namespace Foo {
 namespace Foo {
 	class Foo {
 #line 42 $");
-			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
@@ -225,7 +225,7 @@ namespace Foo {
 namespace Foo {
 	class Foo {
 #define Foo 42 $");
-			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
@@ -236,7 +236,7 @@ namespace Foo {
 namespace Foo {
 	class Foo {
 #undef Foo $");
-			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
@@ -277,7 +277,7 @@ namespace Foo {
 		public void TestPreProcessor_IndentPreprocessor()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.IndentPreprocessorDirectives = true;
+			//policy.IndentPreprocessorDirectives = true;
 
 			var indent = Helper.CreateEngine(@"
 namespace Foo {
@@ -292,7 +292,7 @@ namespace Foo {
 		public void TestStateAfterDoublePreprocessorIf()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+			//policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
 
 			var indent = Helper.CreateEngine(@"
 class Foo 
@@ -313,7 +313,7 @@ class Foo
 		public void TestComplexIfElse()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+			//policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
 
 			var indent = Helper.CreateEngine(@"
 class Foo 
@@ -337,7 +337,7 @@ class Foo
 		public void TestDefinedSymbol()
 		{
 			var policy = FormattingOptionsFactory.CreateMono();
-			policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
+			//policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = false;
 
 			var indent = Helper.CreateEngine(@"
 class Foo 

@@ -31,11 +31,12 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 	[TestFixture]
 	public class AlignmentTests
 	{
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void MethodCallAlignment()
 		{
 			var fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = false;
+			// fmt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -45,11 +46,12 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void IndexerAlignment()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstIndexerArgument = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToFirstIndexerArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -59,11 +61,12 @@ Call[A,$", fmt);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void BinaryExpressionAlignment()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstIndexerArgument = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToFirstIndexerArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -80,8 +83,8 @@ class Foo
 		[Test]
 		public void MethodContinuation()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -95,8 +98,8 @@ class Foo
 		[Test]
 		public void MethodContinuationDeep()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -112,9 +115,9 @@ class Foo
 		[Test]
 		public void MethodContinuation_AlignToMemberReferenceDot()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = false;
-			fmt.AlignToMemberReferenceDot = true;
+			var fmt = FormattingOptionsFactory.CreateMono();
+//			fmt.AlignToFirstMethodCallArgument = false;
+//			fmt.AlignToMemberReferenceDot = true;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -129,8 +132,8 @@ class Foo
 		[Test]
 		public void AlignEmbeddedIfStatements()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = true;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = true;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -143,11 +146,12 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void UnalignEmbeddedIfStatements()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -163,8 +167,8 @@ class Foo
 		[Test]
 		public void AlignEmbeddedUsingStatements()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = true;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = true;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -180,8 +184,8 @@ class Foo
 		[Test]
 		public void AlignEmbeddedLockStatements()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = true;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = true;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -193,11 +197,13 @@ class Foo
 			Assert.AreEqual("\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
+
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void UnalignEmbeddedUsingStatements()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignEmbeddedStatements = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignEmbeddedStatements = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -213,8 +219,8 @@ class Foo
 		[Test]
 		public void AlignNamedAttributeArgument()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = true;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToFirstMethodCallArgument = true;
 			var indent = Helper.CreateEngine(@"
 [Attr (1,
        Foo = 2,$
@@ -223,11 +229,12 @@ class Foo
 			Assert.AreEqual("       ", indent.NextLineIndent, "next line indent doesn't match");
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void UnalignNamedAttributeArguments()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 [Attr (1,
 	Foo = 2,$
@@ -240,7 +247,7 @@ class Foo
 		public void TestFormatFirstLineKeepFalse()
 		{
 			var fmt = FormattingOptionsFactory.CreateMono();
-			fmt.KeepCommentsAtFirstColumn = false;
+			// fmt.KeepCommentsAtFirstColumn = false;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -254,7 +261,7 @@ class Foo
 		public void TestFormatFirstLineKeepTrue()
 		{
 			var fmt = FormattingOptionsFactory.CreateMono();
-			fmt.KeepCommentsAtFirstColumn = true;
+			// fmt.KeepCommentsAtFirstColumn = true;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -263,11 +270,12 @@ class Foo
 			Assert.AreEqual("\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestLongBinaryExpressionAlignmentBug()
 		{
 			var fmt = FormattingOptionsFactory.CreateMono();
-			fmt.KeepCommentsAtFirstColumn = true;
+			// fmt.KeepCommentsAtFirstColumn = true;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -279,11 +287,12 @@ class Foo
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test]
 		public void TestIsRightHandExpression_MethodNamedArgs()
 		{
 			var fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = false;
+			// fmt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -298,7 +307,7 @@ class Foo
 		public void TestIsRightHandExpression_MethodNamedArgs2()
 		{
 			var fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = true;
+			// fmt.AlignToFirstMethodCallArgument = true;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -313,7 +322,7 @@ class Foo
 		public void TestIsRightHandExpression_MethodNamedArgs3()
 		{
 			var fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = true;
+			// fmt.AlignToFirstMethodCallArgument = true;
 			var indent = Helper.CreateEngine(@"
 class Foo 
 {
@@ -590,8 +599,8 @@ class Foo
 		[Test]
 		public void BasicMethodContinuation()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -605,8 +614,8 @@ class Foo
 		[Test]
 		public void DeepMethodContinuation()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -622,8 +631,8 @@ class Foo
 		[Test]
 		public void DeepMethodContinuationStatement()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToFirstMethodCallArgument = false;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToFirstMethodCallArgument = false;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -641,8 +650,8 @@ class Foo
 		[Test]
 		public void DeepMethodContinuationStatement_AlignToMemberReferenceDot()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
-			fmt.AlignToMemberReferenceDot = true;
+			var fmt = FormattingOptionsFactory.CreateMono();
+			// fmt.AlignToMemberReferenceDot = true;
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -659,7 +668,7 @@ class Foo
 		[Test]
 		public void TestMethodContinuation()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			var fmt = FormattingOptionsFactory.CreateMono();
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -674,7 +683,7 @@ class Foo
 		[Test]
 		public void TestMethodContinuationCase2()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			var fmt = FormattingOptionsFactory.CreateMono();
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -689,7 +698,7 @@ class Foo
 		[Test]
 		public void TestMethodContinuationCase3a()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			var fmt = FormattingOptionsFactory.CreateMono();
 			var indent = Helper.CreateEngine(@"
 class Foo
 {
@@ -703,7 +712,7 @@ class Foo
 		[Test]
 		public void TestMethodContinuationCase3b()
 		{
-			CSharpFormattingOptions fmt = FormattingOptionsFactory.CreateMono();
+			var fmt = FormattingOptionsFactory.CreateMono();
 			var indent = Helper.CreateEngine(@"
 class Foo
 {

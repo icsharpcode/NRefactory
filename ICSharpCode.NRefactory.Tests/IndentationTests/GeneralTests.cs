@@ -53,7 +53,7 @@ namespace Foo {
 		public void TestMixedLineEndingPosition()
 		{
 			var indent = Helper.CreateEngine("\n\r\n$");
-			Assert.AreEqual(new TextLocation(3, 1), indent.Location);
+			Assert.AreEqual(3, indent.Offset);
 		}
 	}
 }

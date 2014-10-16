@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 namespace Foo {
 	""some string {
 #if true $");
-			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t", indent.NextLineIndent);
 		}
 
@@ -97,7 +97,7 @@ namespace Foo {
 namespace Foo {
 	' { 
 #if true $");
-			Assert.AreEqual("", indent.ThisLineIndent);
+			Assert.AreEqual("\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t", indent.NextLineIndent);
 		}
 
