@@ -25,6 +25,10 @@
 // THE SOFTWARE.
 using System;
 using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Host;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -33,6 +37,16 @@ namespace ICSharpCode.NRefactory6.CSharp
 	/// </summary>
 	public static class FormattingOptionsFactory
 	{
+		readonly static Workspace defaultWs = new TestWorkspace ();
+
+		internal class TestWorkspace : Workspace
+		{
+			readonly static HostServices services = Microsoft.CodeAnalysis.Host.Mef.MefHostServices.DefaultHost;
+			public TestWorkspace(string workspaceKind = "Test") : base(services , workspaceKind)
+			{
+			}
+
+		}
 //		/// <summary>
 //		/// Creates empty CSharpFormatting options.
 //		/// </summary>
@@ -46,7 +60,23 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		public static OptionSet CreateMono()
 		{
-			return null;
+			var options = defaultWs.Options;
+			options = options.WithChangedOption(CSharpFormattingOptions.SpaceAfterMethodCallName, true);
+			options = options.WithChangedOption(CSharpFormattingOptions.SpaceAfterSemicolonsInForStatement, true);
+
+			options = options.WithChangedOption(CSharpFormattingOptions.NewLineForCatch, false);
+			options = options.WithChangedOption(CSharpFormattingOptions.NewLineForFinally, false);
+			options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInAnonymousMethods, false);
+			options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInControlBlocks, false);
+			options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInLambdaExpressionBody, false);
+
+			options = options.WithChangedOption(CSharpFormattingOptions.IndentSwitchSection, false);
+
+			options = options.WithChangedOption(FormattingOptions.UseTabs, LanguageNames.CSharp, true);
+			options = options.WithChangedOption(FormattingOptions.TabSize, LanguageNames.CSharp, 4);
+			options = options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\n");
+
+			return options;
 //				return new CSharpFormattingOptions {
 //					IndentNamespaceBody = true,
 //					IndentClassBody = true,

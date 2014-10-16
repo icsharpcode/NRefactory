@@ -27,6 +27,9 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp;
 using System.Text;
 using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.IndentationTests
 {
@@ -50,20 +53,18 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 				}
 				sb.Append(ch);
 			}
-			
-			var document = new ReadOnlyDocument(sb.ToString());
-			options = options ?? new TextEditorOptions { EolMarker = "\n" };
-			
-			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options, formatOptions));
+
+
+			var document = SourceText.From(sb.ToString());
+
+			var result = new CacheIndentEngine(new CSharpIndentEngine(document, options));
 			result.Update(offset);
 			return result;
 		}
 
-		static TextEditorOptions CreateInvariantOptions()
+		static OptionSet CreateInvariantOptions()
 		{
-			var options = new TextEditorOptions();
-			options.EolMarker = "\n";
-			return options;
+			return null;
 		}
 
 		[Test]
@@ -98,7 +99,7 @@ namespace FooBar
 	}
 }
 ");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" }, FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			
 			var text = handler.FormatPlainText(indent.Offset, "void Bar ()\n{\nSystem.Console.WriteLine ();\n}", null);
 			Assert.AreEqual("void Bar ()\n\t\t{\n\t\t\tSystem.Console.WriteLine ();\n\t\t}", text);
@@ -119,7 +120,7 @@ class Foo
 
 
 ");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" }, FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			
 			for (int i = 0; i < 2; i++) {
 				var text = handler.FormatPlainText(indent.Offset, "void Bar ()\n{\nSystem.Console.WriteLine ();\n}", null);
@@ -138,7 +139,7 @@ class Foo
 	{
 	}
 }");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" }, FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			var text = handler.FormatPlainText(indent.Offset, "int i;\n", null);
 			Assert.AreEqual("int i;\n\t", text);
 		}
@@ -153,7 +154,7 @@ $	void Bar ()
 	{
 	}
 }");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" }, FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			var text = handler.FormatPlainText(indent.Offset, "int i;\n", null);
 			Assert.AreEqual("\tint i;\n", text);
 		}
@@ -169,7 +170,7 @@ void Bar ()
 	
 }
 }");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\n" }, FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			var str = "string str = @\"\n1\n\t2 \n\t\t3\n\";";
 			var text = handler.FormatPlainText(indent.Offset, str, null);
 			Assert.AreEqual(str, text);
@@ -179,7 +180,7 @@ void Bar ()
 		public void TestWindowsLineEnding()
 		{
 			var indent = CreateEngine("\r\nclass Foo\r\n{\r\n\tvoid Bar ()\r\n\t{\r\n\t\t$\r\n\t}\r\n}");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			var text = handler.FormatPlainText(indent.Offset, "Foo();\r\nBar();\r\nTest();", null);
 			Assert.AreEqual("Foo();\n\t\tBar();\n\t\tTest();", text);
 		}
@@ -188,18 +189,19 @@ void Bar ()
 		public void TestPasteBlankLines()
 		{
 			var indent = CreateEngine("class Foo\n{\n\tvoid Bar ()\n\t{\n\t\tSystem.Console.WriteLine ($);\n\t}\n}");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			var text = handler.FormatPlainText(indent.Offset, "\n\n\n", null);
 			Assert.AreEqual("\n\n\n\t\t\t", text);
 		}
 
+		[Ignore("This option isn't part of the roslyn option set")]
 		[Test]
 		public void TestPasteBlankLinesAndIndent()
 		{
 			var indent = CreateEngine("class Foo\n{\n\tvoid Bar ()\n\t{\n\t\tSystem.Console.WriteLine ($);\n\t}\n}");
 			var options = FormattingOptionsFactory.CreateMono();
-			options.EmptyLineFormatting = EmptyLineFormatting.Indent;
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), options);
+//			options.EmptyLineFormatting = EmptyLineFormatting.Indent;
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, options);
 			var text = handler.FormatPlainText(indent.Offset, "\n\n\n", null);
 			Assert.AreEqual("\n\t\t\t\n\t\t\t\n\t\t\t", text);
 		}
@@ -207,10 +209,10 @@ void Bar ()
 		[Test]
 		public void TestWindowsLineEndingCase2()
 		{
-			var textEditorOptions = CreateInvariantOptions ();
-			textEditorOptions.EolMarker = "\r\n";
-			var indent = CreateEngine("\r\nclass Foo\r\n{\r\n\tvoid Bar ()\r\n\t{\r\n\t\t$\r\n\t}\r\n}", FormattingOptionsFactory.CreateMono(), textEditorOptions);
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, textEditorOptions, FormattingOptionsFactory.CreateMono());
+			var options = FormattingOptionsFactory.CreateMono();
+			options = options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\r\n");
+			var indent = CreateEngine("\r\nclass Foo\r\n{\r\n\tvoid Bar ()\r\n\t{\r\n\t\t$\r\n\t}\r\n}", options);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, options);
 			var text = handler.FormatPlainText(indent.Offset, "if (true)\r\nBar();\r\nTest();", null);
 			Assert.AreEqual("if (true)\r\n\t\t\tBar();\r\n\t\tTest();", text);
 		}
@@ -218,10 +220,10 @@ void Bar ()
 		[Test]
 		public void PasteVerbatimStringBug1()
 		{
-			var textEditorOptions = CreateInvariantOptions ();
-			textEditorOptions.EolMarker = "\r\n";
-			var indent = CreateEngine("\r\nclass Foo\r\n{\r\n\tvoid Bar ()\r\n\t{\r\n\t\t$\r\n\t}\r\n}", FormattingOptionsFactory.CreateMono(), textEditorOptions);
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, textEditorOptions, FormattingOptionsFactory.CreateMono());
+			var textEditorOptions = FormattingOptionsFactory.CreateMono();
+			textEditorOptions = textEditorOptions.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\r\n");
+			var indent = CreateEngine("\r\nclass Foo\r\n{\r\n\tvoid Bar ()\r\n\t{\r\n\t\t$\r\n\t}\r\n}", textEditorOptions);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, textEditorOptions);
 			var text = handler.FormatPlainText(indent.Offset, "Console.WriteLine (@\"Hello World!\");\n", null);
 			Assert.AreEqual("Console.WriteLine (@\"Hello World!\");\r\n\t\t", text);
 		}
@@ -230,7 +232,7 @@ void Bar ()
 		public void PasteVerbatimStringBug2()
 		{
 			var indent = CreateEngine("\nclass Foo\n{\n\tvoid Bar ()\n\t{\n\t\t$\n\t}\n}");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			var text = handler.FormatPlainText(indent.Offset, "if (true)\nConsole.WriteLine (@\"Hello\n World!\");\n", null);
 			Assert.AreEqual("if (true)\n\t\t\tConsole.WriteLine (@\"Hello\n World!\");\n\t\t", text);
 		}
@@ -239,7 +241,7 @@ void Bar ()
 		public void PasteVerbatimStringBug3()
 		{
 			var indent = CreateEngine("\nclass Foo\n{\n\tvoid Bar ()\n\t{\n$\n\t}\n}");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 
 			var text = handler.FormatPlainText(indent.Offset, "\t\tSystem.Console.WriteLine(@\"<evlevlle>\");\n", null);
 			Assert.AreEqual("\t\tSystem.Console.WriteLine(@\"<evlevlle>\");\n\t\t", text);
@@ -249,7 +251,7 @@ void Bar ()
 		public void PasteVerbatimStringBug4()
 		{
 			var indent = CreateEngine("\nclass Foo\n{\n\tvoid Bar ()\n\t{\n$\n\t}\n}");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 
 			var text = handler.FormatPlainText(indent.Offset, "var str1 = \n@\"hello\";", null);
 			Assert.AreEqual("\t\tvar str1 = \n\t\t\t@\"hello\";", text);
@@ -263,7 +265,7 @@ class Foo
 {
 	$
 }");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			var text = handler.FormatPlainText(indent.Offset, "// Foo\n\t// Foo 2\n\t// Foo 3", null);
 			Assert.AreEqual("// Foo\n\t// Foo 2\n\t// Foo 3", text);
 		}
@@ -272,7 +274,7 @@ class Foo
 		public void PastemultilineAtFirstColumnCorrection()
 		{
 			var indent = CreateEngine("class Foo\n{\n$\n}");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), FormattingOptionsFactory.CreateMono());
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, FormattingOptionsFactory.CreateMono());
 			var text = handler.FormatPlainText(indent.Offset, "void Bar ()\n{\n\tSystem.Console.WriteLine ();\n}", null);
 			Assert.AreEqual("\tvoid Bar ()\n\t{\n\t\tSystem.Console.WriteLine ();\n\t}", text);
 		}
@@ -281,23 +283,26 @@ class Foo
 		public void TestPasteToWindowsEol()
 		{
 			var indent = CreateEngine("$");
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, new TextEditorOptions { EolMarker = "\r\n" }, FormattingOptionsFactory.CreateMono());
+			var options = FormattingOptionsFactory.CreateMono();
+			options = options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\r\n");
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, options);
 			var text = handler.FormatPlainText(indent.Offset, "namespace Foo\n{\n\tpublic static class FooExtensions\n\t{\n\t\tpublic static int ObjectExtension (this object value)\n\t\t{\n\t\t\treturn 0;\n\t\t}\n\n\t\tpublic static int IntExtension (this int value)\n\t\t{\n\t\t\treturn 0;\n\t\t}\n\t}\n\n\tpublic class Client\n\t{\n\t\tpublic void Method ()\n\t\t{\n\t\t\t0.ToString ();\n\t\t}\n\t}\n}", null);
 			Assert.AreEqual("namespace Foo\r\n{\r\n\tpublic static class FooExtensions\r\n\t{\r\n\t\tpublic static int ObjectExtension (this object value)\r\n\t\t{\r\n\t\t\treturn 0;\r\n\t\t}\r\n\r\n\t\tpublic static int IntExtension (this int value)\r\n\t\t{\r\n\t\t\treturn 0;\r\n\t\t}\r\n\t}\r\n\r\n\tpublic class Client\r\n\t{\r\n\t\tpublic void Method ()\r\n\t\t{\r\n\t\t\t0.ToString ();\r\n\t\t}\r\n\t}\r\n}", text);
 		}
 
+		[Ignore("This option isn't part of the roslyn option set")]
 		[Test]
 		public void PastePreProcessorDirectivesNoIndent()
 		{
 			var opt = FormattingOptionsFactory.CreateMono();
-			opt.IndentPreprocessorDirectives = false;
+//			opt.IndentPreprocessorDirectives = false;
 
 			var indent = CreateEngine(@"
 class Foo
 {
 $
 }", opt);
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, opt);
 			var text = handler.FormatPlainText(indent.Offset, "#if DEBUG\n\tvoid Foo()\n\t{\n\t}\n#endif", null);
 			Assert.AreEqual("#if DEBUG\n\tvoid Foo()\n\t{\n\t}\n#endif", text);
 		}
@@ -306,12 +311,12 @@ $
 		public void PasteInUnterminatedString ()
 		{
 			var opt = FormattingOptionsFactory.CreateMono();
-			opt.IndentPreprocessorDirectives = false;
+		//	opt.IndentPreprocessorDirectives = false;
 
 			var indent = CreateEngine(@"
 var foo = ""hello$
 ", opt);
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, opt);
 			var text = handler.FormatPlainText(indent.Offset, "Hi \" + username;", null);
 			Assert.AreEqual("Hi \" + username;", text);
 		}
@@ -320,12 +325,12 @@ var foo = ""hello$
 		public void PasteInTerminatedString ()
 		{
 			var opt = FormattingOptionsFactory.CreateMono();
-			opt.IndentPreprocessorDirectives = false;
+			//opt.IndentPreprocessorDirectives = false;
 
 			var indent = CreateEngine(@"
 var foo = ""hello$"";
 ", opt);
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, opt);
 			var text = handler.FormatPlainText(indent.Offset, "Hi \" + username;", null);
 			Assert.AreEqual("Hi \\\" + username;", text);
 		}
@@ -334,12 +339,12 @@ var foo = ""hello$"";
 		public void PasteInUnterminatedVerbatimString ()
 		{
 			var opt = FormattingOptionsFactory.CreateMono();
-			opt.IndentPreprocessorDirectives = false;
+			//opt.IndentPreprocessorDirectives = false;
 
 			var indent = CreateEngine(@"
 var foo = @""hello$
 ", opt);
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, opt);
 			var text = handler.FormatPlainText(indent.Offset, "Hi \" + username;", null);
 			Assert.AreEqual("Hi \" + username;", text);
 		}
@@ -348,12 +353,12 @@ var foo = @""hello$
 		public void PasteInTerminatedVerbatimString ()
 		{
 			var opt = FormattingOptionsFactory.CreateMono();
-			opt.IndentPreprocessorDirectives = false;
+			//opt.IndentPreprocessorDirectives = false;
 
 			var indent = CreateEngine(@"
 var foo = @""hello$"";
 ", opt);
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, opt);
 			var text = handler.FormatPlainText(indent.Offset, "Hi \" + username;", null);
 			Assert.AreEqual("Hi \"\" + username;", text);
 		}
@@ -367,7 +372,7 @@ var foo = @""hello$"";
 		{
 			var opt = FormattingOptionsFactory.CreateMono();
 			var indent = CreateEngine("class Foo\n{\n\tpublic static void Main (string[] args)\n\t{\n\t\tConsole.WriteLine ();$\n\t}\n}\n", opt);
-			ITextPasteHandler handler = new TextPasteIndentEngine(indent, CreateInvariantOptions (), opt);
+			ITextPasteHandler handler = new TextPasteIndentEngine(indent, opt);
 			var text = handler.FormatPlainText(indent.Offset, "// Line 1\n// Line 2\n// Line 3", null);
 			Assert.AreEqual("// Line 1\n\t\t// Line 2\n\t\t// Line 3", text);
 		}

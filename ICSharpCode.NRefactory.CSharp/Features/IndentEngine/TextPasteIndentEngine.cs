@@ -144,8 +144,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 				if (delimiterLength > 0) {
 					isNewLine = true;
 					if (gotNewLine || pasteAtLineStart) {
-//						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
-//							indentedText.Append(clonedEngine.ThisLineIndent);
+						if (curLine.Length > 0 /*|| formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent*/)
+							indentedText.Append(clonedEngine.ThisLineIndent);
 					}
 					indentedText.Append(curLine);
 					var newLine = options.GetOption(FormattingOptions.NewLine, LanguageNames.CSharp);
@@ -169,8 +169,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 				if (clonedEngine.IsInsideVerbatimString || clonedEngine.IsInsideMultiLineComment && 
 				    !(clonedEngine.LineBeganInsideVerbatimString || clonedEngine.LineBeganInsideMultiLineComment)) {
 					if (gotNewLine) {
-//						if (curLine.Length > 0 || formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent)
-//							indentedText.Append(clonedEngine.ThisLineIndent);
+						if (curLine.Length > 0 /*|| formattingOptions.EmptyLineFormatting == EmptyLineFormatting.Indent*/)
+							indentedText.Append(clonedEngine.ThisLineIndent);
 					}
 					pasteAtLineStart = false;
 					indentedText.Append(curLine);
