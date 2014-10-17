@@ -64,41 +64,60 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
+		internal static TypeSyntax GetTypeArgument (SyntaxNode node)
+		{
+			var gns = node as GenericNameSyntax;
+			if (gns == null) {
+				var qns = node as QualifiedNameSyntax;
+				if (qns != null)
+					gns = qns.Right as GenericNameSyntax;
+			} else {
+				var parent = gns.Parent as QualifiedNameSyntax;
+				if (parent != null && parent.Right == node)
+					return null;
+			}
+
+			if (gns != null) {
+				if (gns.TypeArgumentList.Arguments.Count == 1) {
+					var typeArgument = gns.TypeArgumentList.Arguments[0];
+					if (!typeArgument.IsKind(SyntaxKind.OmittedTypeArgument))
+						return typeArgument;
+				}
+			}
+
+			return null;
+		}
+
 		class GatherVisitor : GatherVisitorBase<ConvertNullableToShortFormIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//			static readonly AstType nullType = new SimpleType("");
-//
-//			void CheckType(AstType simpleType, AstType arg)
-//			{
-//				if (arg == null || nullType.IsMatch(arg))
-//					return;
-//				var rr = ctx.Resolve(simpleType);
-//				if (rr == null || rr.IsError || rr.Type.Namespace != "System" || rr.Type.Name != "Nullable")
-//					return;
-//
-//				AddIssue(new CodeIssue(
-//					simpleType,
-//					string.Format(ctx.TranslateString(""), arg), 
-//					string.Format(ctx.TranslateString(""), arg),
-//					script =>  {
-//						script.Replace(simpleType, arg.Clone().MakeNullableType());
-//					}
-//				));
-//			}
-//
-//			public override void VisitSimpleType(SimpleType simpleType)
-//			{
-//				CheckType(simpleType, simpleType.TypeArguments.FirstOrDefault());
-//			}
-//
-//			public override void VisitMemberType(MemberType memberType)
-//			{
-//				CheckType(memberType, memberType.TypeArguments.FirstOrDefault());
-//			}
+
+			void CheckType(SyntaxNode simpleType)
+			{
+				if (GetTypeArgument(simpleType) == null)
+					return;
+				var rr = semanticModel.GetSymbolInfo(simpleType);
+				var type = rr.Symbol as ITypeSymbol;
+				if (type == null || type.Name != "Nullable" || type.ContainingNamespace.ToDisplayString() != "System")
+					return;
+
+				AddIssue (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, simpleType.Span)));
+			}
+
+			public override void VisitQualifiedName(QualifiedNameSyntax node)
+			{
+				base.VisitQualifiedName(node);
+				CheckType(node);
+			}
+
+			public override void VisitGenericName(GenericNameSyntax node)
+			{
+				base.VisitGenericName(node);
+				CheckType(node);
+			}
 		}
 	}
 
@@ -120,9 +139,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
+				Console.WriteLine(node.CSharpKind());
+
+				//if (!node.IsKind(SyntaxKind.GenericName))
 				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+
+				var arg = ConvertNullableToShortFormIssue.GetTypeArgument(node);
+
+
+				var newRoot = root.ReplaceNode(node, SyntaxFactory.NullableType(arg).WithAdditionalAnnotations(Formatter.Annotation));
 				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Rewrite to '{0}?'", document.WithSyntaxRoot(newRoot)));
 			}
 			return result;

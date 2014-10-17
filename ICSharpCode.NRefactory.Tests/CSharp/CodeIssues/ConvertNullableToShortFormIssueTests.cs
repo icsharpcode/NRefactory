@@ -34,104 +34,103 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class ConvertNullableToShortFormIssueTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestSimpleCase ()
+		public void TestSimpleCase()
 		{
-			Test<ConvertNullableToShortFormIssue>(@"using System;
+			Analyze<ConvertNullableToShortFormIssue>(@"using System;
 
 class Foo
 {
-	Nullable<int> Bar ()
-	{
-		return 5;
-	}
+    $Nullable<int>$ Bar()
+    {
+        return 5;
+    }
 }", @"using System;
 
 class Foo
 {
-	int? Bar ()
-	{
-		return 5;
-	}
+    int? Bar()
+    {
+        return 5;
+    }
 }");
 		}
 
 		[Test]
-		public void TestFullyQualifiedNameCase ()
-		{
-			Test<ConvertNullableToShortFormIssue>(@"class Foo
-{
-	void Bar ()
-	{
-		System.Nullable<int> a;
-	}
-}", @"class Foo
-{
-	void Bar ()
-	{
-		int? a;
-	}
-}");
-		}
-
-
-		[Test]
-		public void TestAlreadyShort ()
+		public void TestFullyQualifiedNameCase()
 		{
 			Analyze<ConvertNullableToShortFormIssue>(@"class Foo
 {
-	int? Bar (int o)
-	{
-		return 5;
-	}
+    void Bar()
+    {
+        $System.Nullable<int>$ a;
+    }
+}", @"class Foo
+{
+    void Bar()
+    {
+        int? a;
+    }
+}");
+		}
+
+
+		[Test]
+		public void TestAlreadyShort()
+		{
+			Analyze<ConvertNullableToShortFormIssue>(@"class Foo
+{
+    int? Bar(int o)
+    {
+        return 5;
+    }
 }");
 		}
 
 		[Test]
-		public void TestInvalid ()
+		public void TestInvalid()
 		{
 			Analyze<ConvertNullableToShortFormIssue>(@"using System;
 namespace NN {
-	class Nullable<T> {}
-	class Foo
-	{
-		void Bar ()
-		{
-			Nullable<int> a;
-		}
-	}
+    class Nullable<T> {}
+    class Foo
+    {
+        void Bar()
+        {
+            Nullable<int> a;
+        }
+    }
 }");
 		}
 
 		[Test]
-		public void TestInvalidTypeOf ()
+		public void TestInvalidTypeOf()
 		{
 			Analyze<ConvertNullableToShortFormIssue>(@"using System;
 class Foo
 {
-	bool Bar (object o)
-	{
-		return o.GetType() == typeof (Nullable<>);
-	}
-	bool Bar2 (object o)
-	{
-		return o.GetType() == typeof (System.Nullable<>);
-	}
+    bool Bar(object o)
+    {
+        return o.GetType() == typeof(Nullable<>);
+    }
+    bool Bar2(object o)
+    {
+        return o.GetType() == typeof(System.Nullable<>);
+    }
 }
 ");
 		}
 
 		[Test]
-		public void TestDisable ()
+		public void TestDisable()
 		{
 			Analyze<ConvertNullableToShortFormIssue>(@"class Foo
 {
-	void Bar ()
-	{
-		// ReSharper disable once ConvertNullableToShortForm
-		System.Nullable<int> a;
-	}
+    void Bar()
+    {
+        // ReSharper disable once ConvertNullableToShortForm
+        System.Nullable<int> a;
+    }
 }");
 		}
 	}
 }
-
