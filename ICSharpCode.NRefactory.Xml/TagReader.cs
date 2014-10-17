@@ -258,8 +258,10 @@ namespace ICSharpCode.NRefactory.Xml
 			if (tag.IsStartOrEmptyTag || tag.IsEndTag || isXmlDeclr) {
 				// Read attributes for the tag
 				while (HasMoreData()) {
-					// Chech for all forbiden 'name' characters first - see ReadName
-					TryMoveToNonWhiteSpace();
+					if (!TryMoveToNonWhiteSpace())
+						continue;
+
+					// Check for all forbiden 'name' characters first - see ReadName
 					if (TryPeek('<')) break;
 					string endBr;
 					int endBrStart = this.CurrentLocation; // Just peek
@@ -267,7 +269,7 @@ namespace ICSharpCode.NRefactory.Xml
 						GoBack(endBrStart);
 						break;
 					}
-					
+
 					// We have "=\'\"" or name - read attribute
 					int attrStartOffset = this.CurrentLocation;
 					ReadAttribute();
