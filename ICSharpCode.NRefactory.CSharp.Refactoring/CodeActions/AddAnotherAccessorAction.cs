@@ -89,7 +89,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 				var getter = propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.GetAccessorDeclaration));
 				var getField = RemoveBackingStoreAction.ScanGetter(model, getter);
-
 				if (getField == null && getter.Body == null) {
 					//get;
 					accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)).WithTrailingTrivia(getter.GetTrailingTrivia());
@@ -100,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					//now we add a 'field = value'.
 					accessor = accessor.WithBody(SyntaxFactory.Block(
 						SyntaxFactory.ExpressionStatement(
-							SyntaxFactory.BinaryExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName(getField.Name), SyntaxFactory.IdentifierName("value")))));
+							SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName(getField.Name), SyntaxFactory.IdentifierName("value")))));
 				}
 				newProp = propertyDeclaration.WithAccessorList(propertyDeclaration.AccessorList.AddAccessors(accessor));
 			} else {
@@ -108,7 +107,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 				var setter = propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.SetAccessorDeclaration));
 				var setField = RemoveBackingStoreAction.ScanSetter(model, setter);
-
 				if (setField == null && setter.Body == null) {
 					//set;
 					accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)).WithTrailingTrivia(setter.GetTrailingTrivia());

@@ -146,7 +146,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (setter == null || setter.Body == null || setter.Body.Statements.Count != 1) //no getter/get;/get we can't easily work out
 				return null;
 			var setAssignment = setter.Body.Statements.First().ChildNodes().OfType<ExpressionSyntax>().First();
-			var assignment = setAssignment != null ? setAssignment as BinaryExpressionSyntax : null;
+			var assignment = setAssignment != null ? setAssignment as AssignmentExpressionSyntax : null;
 			if (assignment == null || !assignment.OperatorToken.IsKind(SyntaxKind.EqualsToken))
 				return null;
 			var id = assignment.Right as IdentifierNameSyntax;
@@ -161,7 +161,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		internal static bool IsPossibleExpression(ExpressionSyntax left)
 		{
-			if (left is IdentifierNameSyntax)
+			if (left.IsKind(SyntaxKind.IdentifierName))
 				return true;
 			var mr = left as MemberAccessExpressionSyntax;
 			if (mr == null)
