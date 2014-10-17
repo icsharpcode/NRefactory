@@ -51,173 +51,367 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+
+			var token = root.FindToken(span.Start);
+
+			if (!token.IsKind(SyntaxKind.IdentifierToken) &&
+			    !token.IsKind(SyntaxKind.AbstractKeyword) &&
+			    !token.IsKind(SyntaxKind.VirtualKeyword) &&
+			    !token.IsKind(SyntaxKind.ThisKeyword))
+				return null;
+			var declaration = token.Parent as MemberDeclarationSyntax;
+			if (token.IsKind(SyntaxKind.IdentifierToken)) {
+				if (token.Parent.Parent.IsKind(SyntaxKind.VariableDeclaration) && 
+					token.Parent.Parent.Parent.IsKind(SyntaxKind.EventFieldDeclaration)) {
+					declaration = token.Parent.Parent.Parent as MemberDeclarationSyntax;
+				}
+			}
+			if (declaration == null || declaration is BaseTypeDeclarationSyntax)
+				return null;
+			var modifiers = declaration.GetModifiers();
+			if (modifiers.Any(m => m.IsKind(SyntaxKind.OverrideKeyword)))
+				return null;
+
+			var declarationParent = declaration.Parent as TypeDeclarationSyntax;
+
+			var explicitInterface = declaration.GetExplicitInterfaceSpecifierSyntax();
+			if (explicitInterface != null) {
+				return null;
+			}
+			var result = new List<CodeAction>();
+//			if (selectedNode != node.NameToken) {
+//				if ((node is EventDeclaration && node is CustomEventDeclaration || selectedNode.Role != Roles.Identifier) && 
+//					selectedNode.Role != IndexerDeclaration.ThisKeywordRole) {
+//					var modToken = selectedNode as CSharpModifierToken;
+//					if (modToken == null || (modToken.Modifier & (Modifiers.Abstract | Modifiers.Virtual)) == 0)
+//						yield break;
+//				} else {
+//					if (!(node is EventDeclaration || node is CustomEventDeclaration) && selectedNode.Parent != node)
+//						yield break;
+//				}
+//			}
+//			if (!node.GetChildByRole(EntityDeclaration.PrivateImplementationTypeRole).IsNull)
+//				yield break;
+//
+			if (declarationParent.Modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword))) {
+				if (modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword))) {
+					result.Add(CodeActionFactory.Create(
+						token.Span,
+						DiagnosticSeverity.Info,
+						"To non-abstract",
+						t2 => {
+							var newRoot = root.ReplaceNode(declaration, ImplementAbstractDeclaration (declaration).WithAdditionalAnnotations(Formatter.Annotation));
+							return Task.FromResult(document.WithSyntaxRoot(newRoot));
+						}
+					)
+					);
+				} else {
+					if (CheckBody(declaration)) {
+						result.Add(CodeActionFactory.Create(
+							token.Span,
+							DiagnosticSeverity.Info,
+							"To abstract",
+							t2 => {
+								var newRoot = root.ReplaceNode(declaration, MakeAbstractDeclaration(declaration).WithAdditionalAnnotations(Formatter.Annotation));
+								return Task.FromResult(document.WithSyntaxRoot(newRoot));
+							}
+						)
+						);
+					}
+				}
+			}
+
+			if (modifiers.Any(m => m.IsKind(SyntaxKind.VirtualKeyword))) {
+				result.Add(CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					"To non-virtual",
+					t2 => {
+						var newRoot = root.ReplaceNode(declaration, RemoveVirtualModifier (declaration));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+				);
+			} else {
+				if (modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword))) {
+					result.Add(CodeActionFactory.Create(
+						token.Span,
+						DiagnosticSeverity.Info,
+						"To virtual",
+						t2 => {
+							var newRoot = root.ReplaceNode(declaration, ImplementAbstractDeclaration (declaration, true).WithAdditionalAnnotations(Formatter.Annotation));
+							return Task.FromResult(document.WithSyntaxRoot(newRoot));
+						}
+					)
+					);
+				} else {
+					result.Add(CodeActionFactory.Create(
+						token.Span,
+						DiagnosticSeverity.Info,
+						"To virtual",
+						t2 => {
+							var newRoot = root.ReplaceNode(declaration, AddModifier (declaration, SyntaxKind.VirtualKeyword).WithAdditionalAnnotations(Formatter.Annotation));
+							return Task.FromResult(document.WithSyntaxRoot(newRoot));
+						}
+					)
+					);
+				}
+			}
+			return result;
+		}
+
+		static BlockSyntax CreateNotImplementedBody()
+		{
+			var throwStatement = SyntaxFactory.ThrowStatement(
+				SyntaxFactory.ParseExpression("new System.NotImplementedException()")
+			);
+			return SyntaxFactory.Block(throwStatement);
+		}
+
+		static SyntaxNode ImplementAbstractDeclaration (MemberDeclarationSyntax abstractDeclaration, bool implementAsVirtual = false)
+		{
+			var method = abstractDeclaration as MethodDeclarationSyntax;
+
+			var modifier = abstractDeclaration.GetModifiers();
+			var newMods = modifier.Where(m => !m.IsKind(SyntaxKind.AbstractKeyword) && !m.IsKind(SyntaxKind.StaticKeyword));
+			if (implementAsVirtual){
+				newMods = newMods.Concat(
+					new [] { SyntaxFactory.Token(SyntaxKind.VirtualKeyword) }
+				);
+			}
+
+			var newModifier = SyntaxFactory.TokenList(newMods); 
+
+			if (method != null) {
+				return SyntaxFactory.MethodDeclaration (
+					method.AttributeLists,
+					newModifier,
+					method.ReturnType,
+					method.ExplicitInterfaceSpecifier,
+					method.Identifier,
+					method.TypeParameterList,
+					method.ParameterList,
+					method.ConstraintClauses,
+					CreateNotImplementedBody(),
+					method.ExpressionBody);
+			}
+
+			var property = abstractDeclaration as PropertyDeclarationSyntax;
+			if (property != null) {
+				var accessors = new List<AccessorDeclarationSyntax> ();
+				foreach (var accessor in property.AccessorList.Accessors) {
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), accessor.AttributeLists, accessor.Modifiers, CreateNotImplementedBody()));
+				}
+				return SyntaxFactory.PropertyDeclaration(
+					property.AttributeLists,
+					newModifier,
+					property.Type,
+					property.ExplicitInterfaceSpecifier,
+					property.Identifier,
+					SyntaxFactory.AccessorList(SyntaxFactory.List<AccessorDeclarationSyntax>(accessors)),
+					property.ExpressionBody,
+					property.Initializer);
+			}
+
+			var indexer = abstractDeclaration as IndexerDeclarationSyntax;
+			if (indexer != null) {
+				var accessors = new List<AccessorDeclarationSyntax> ();
+				foreach (var accessor in indexer.AccessorList.Accessors) {
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), accessor.AttributeLists, accessor.Modifiers, CreateNotImplementedBody()));
+				}
+				return SyntaxFactory.IndexerDeclaration(
+					indexer.AttributeLists,
+					newModifier,
+					indexer.Type,
+					indexer.ExplicitInterfaceSpecifier,
+					indexer.ParameterList,
+					SyntaxFactory.AccessorList(SyntaxFactory.List<AccessorDeclarationSyntax>(accessors)),
+					indexer.ExpressionBody);
+			}
+
+			var evt = abstractDeclaration as EventDeclarationSyntax;
+			if (evt != null) {
+				var accessors = new List<AccessorDeclarationSyntax> ();
+				foreach (var accessor in evt.AccessorList.Accessors) {
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), CreateNotImplementedBody()));
+				}
+				return SyntaxFactory.EventDeclaration(
+					evt.AttributeLists,
+					newModifier,
+					evt.Type,
+					evt.ExplicitInterfaceSpecifier,
+					evt.Identifier,
+					SyntaxFactory.AccessorList(SyntaxFactory.List<AccessorDeclarationSyntax>(accessors))
+				);
+			}
+
+			var evtField = abstractDeclaration as EventFieldDeclarationSyntax;
+			if (evtField != null) {
+				return SyntaxFactory.EventFieldDeclaration (
+					evtField.AttributeLists,
+					newModifier,
+					evtField.Declaration
+				);
+			}
+
 			return null;
 		}
-		/*
-		static BlockStatement CreateNotImplementedBody(SemanticModel context, out ThrowStatement throwStatement)
+
+		static bool CheckBody(MemberDeclarationSyntax node)
 		{
-			throwStatement = new ThrowStatement(new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException")));
-			return new BlockStatement { throwStatement };
+			var property = node as BasePropertyDeclarationSyntax;
+			if (property != null && property.AccessorList.Accessors.Any(acc => !IsValidBody(acc.Body)))
+				return false;
+
+			var m = node as MethodDeclarationSyntax;
+			if (m != null && !IsValidBody(m.Body))
+				return false;
+			return true;
 		}
 
-		static ThrowStatement ImplementStub (SemanticModel context, EntityDeclaration newNode)
+		static bool IsValidBody(BlockSyntax body)
 		{
-			ThrowStatement throwStatement = null;
-			if (newNode is PropertyDeclaration || newNode is IndexerDeclaration) {
-				var setter = newNode.GetChildByRole(PropertyDeclaration.SetterRole);
-				if (!setter.IsNull)
-					setter.AddChild(CreateNotImplementedBody(context, out throwStatement), Roles.Body); 
-
-				var getter = newNode.GetChildByRole(PropertyDeclaration.GetterRole);
-				if (!getter.IsNull)
-					getter.AddChild(CreateNotImplementedBody(context, out throwStatement), Roles.Body); 
-			} else {
-				newNode.AddChild(CreateNotImplementedBody(context, out throwStatement), Roles.Body); 
-			}
-			return throwStatement;
-		}
-
-		static bool CheckBody(EntityDeclaration node)
-		{
-			var custom = node as CustomEventDeclaration;
-			if (custom != null && !(IsValidBody (custom.AddAccessor.Body) || IsValidBody (custom.RemoveAccessor.Body)))
-			    return false;
-			if (node is PropertyDeclaration || node is IndexerDeclaration) {
-				var setter = node.GetChildByRole(PropertyDeclaration.SetterRole);
-				var getter = node.GetChildByRole(PropertyDeclaration.GetterRole);
-				return IsValidBody(setter.Body) && IsValidBody(getter.Body);
-			} 
-			return IsValidBody(node.GetChildByRole(Roles.Body));
-		}
-
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
-		{
-			var document = context.Document;
-			var span = context.Span;
-			var cancellationToken = context.CancellationToken;
-			var node = context.GetNode<EntityDeclaration>();
-			if (node == null || node.HasModifier(Modifiers.Override))
-				yield break;
-
-			var parent = node.Parent as TypeDeclaration;
-			if (parent == null)
-				yield break;
-
-			var custom = node as CustomEventDeclaration;
-			if (custom != null) {
-				if (!custom.PrivateImplementationType.IsNull)
-					yield break;
-			}
-
-			var selectedNode = node.GetNodeAt(context.Location);
-			if (selectedNode == null)
-				yield break;
-			if (selectedNode != node.NameToken) {
-				if ((node is EventDeclaration && node is CustomEventDeclaration || selectedNode.Role != Roles.Identifier) && 
-				    selectedNode.Role != IndexerDeclaration.ThisKeywordRole) {
-					var modToken = selectedNode as CSharpModifierToken;
-					if (modToken == null || (modToken.Modifier & (Modifiers.Abstract | Modifiers.Virtual)) == 0)
-						yield break;
-				} else {
-					if (!(node is EventDeclaration || node is CustomEventDeclaration) && selectedNode.Parent != node)
-						yield break;
-				}
-			}
-			if (!node.GetChildByRole(EntityDeclaration.PrivateImplementationTypeRole).IsNull)
-				yield break;
-
-			if (parent.HasModifier(Modifiers.Abstract)) {
-				if ((node.Modifiers & Modifiers.Abstract) != 0) {
-					yield return new CodeAction(context.TranslateString("To non-abstract"), script => {
-						var newNode = (EntityDeclaration)node.Clone();
-						newNode.Modifiers &= ~Modifiers.Abstract;
-						var throwStmt = ImplementStub (context, newNode);
-						script.Replace(node, newNode);
-						if (throwStmt != null)
-							script.Select(throwStmt); 
-					}, selectedNode);
-				} else {
-					if (CheckBody(node)) {
-						yield return new CodeAction(context.TranslateString("To abstract"), script => {
-							var newNode = CloneNodeWithoutBodies(node);
-							newNode.Modifiers &= ~Modifiers.Virtual;
-							newNode.Modifiers &= ~Modifiers.Static;
-							newNode.Modifiers |= Modifiers.Abstract;
-							script.Replace(node, newNode);
-						}, selectedNode);
-					}
-				}
-			}
-
-			if ((node.Modifiers & Modifiers.Virtual) != 0) {
-				yield return new CodeAction(context.TranslateString("To non-virtual"), script => {
-					script.ChangeModifier(node, node.Modifiers & ~Modifiers.Virtual);
-				}, selectedNode);
-			} else {
-				if ((node.Modifiers & Modifiers.Abstract) != 0) {
-					yield return new CodeAction(context.TranslateString("To virtual"), script => {
-						var newNode = CloneNodeWithoutBodies(node);
-						newNode.Modifiers &= ~Modifiers.Abstract;
-						newNode.Modifiers &= ~Modifiers.Static;
-						newNode.Modifiers |= Modifiers.Virtual;
-						var throwStmt = ImplementStub (context, newNode);
-						script.Replace(node, newNode);
-						if (throwStmt != null)
-							script.Select(throwStmt);
-					}, selectedNode);
-				} else {
-					yield return new CodeAction(context.TranslateString("To virtual"), script => {
-						script.ChangeModifier(node, (node.Modifiers & ~Modifiers.Static)  | Modifiers.Virtual);
-					}, selectedNode);
-				}
-			}
-
-		}
-
-		static EntityDeclaration CloneNodeWithoutBodies(EntityDeclaration node)
-		{
-			EntityDeclaration newNode;
-			var custom = node as CustomEventDeclaration;
-
-			if (custom == null) {
-				newNode = (EntityDeclaration)node.Clone();
-
-				if (newNode is PropertyDeclaration || node is IndexerDeclaration) {
-					var getter = newNode.GetChildByRole(PropertyDeclaration.GetterRole);
-					if (!getter.IsNull)
-						getter.Body.Remove();
-					var setter = newNode.GetChildByRole(PropertyDeclaration.SetterRole);
-					if (!setter.IsNull)
-						setter.Body.Remove();
-				} else {
-					newNode.GetChildByRole(Roles.Body).Remove();
-				}
-			} else {
-				newNode = new EventDeclaration {
-					Modifiers = custom.Modifiers,
-					ReturnType = custom.ReturnType.Clone(),
-					Variables =  {
-						new VariableInitializer {
-							Name = custom.Name
-						}
-					}
-				};
-			}
-			return newNode;
-		}
-
-		static bool IsValidBody(BlockStatement body)
-		{
-			if (body.IsNull)
+			if (body == null)
 				return true;
 			var first = body.Statements.FirstOrDefault();
 			if (first == null)
 				return true;
-			if (first.GetNextSibling(s => s.Role == BlockStatement.StatementRole) != null)
-				return false;
-			return first is EmptyStatement || first is ThrowStatement;
+//			if (first.GetNextSibling(s => s.Role == BlockStatement.StatementRole) != null)
+//				return false;
+			return first is EmptyStatementSyntax || first is ThrowStatementSyntax;
 		}
-		*/
+
+		static SyntaxNode MakeAbstractDeclaration(MemberDeclarationSyntax abstractDeclaration)
+		{
+			var method = abstractDeclaration as MethodDeclarationSyntax;
+
+			var modifier = abstractDeclaration.GetModifiers();
+			var newModifier = SyntaxFactory.TokenList(modifier.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword) && !m.IsKind(SyntaxKind.StaticKeyword) && !m.IsKind(SyntaxKind.SealedKeyword)).Concat(
+				new [] { SyntaxFactory.Token(SyntaxKind.AbstractKeyword) }
+			)); 
+
+			if (method != null) {
+				return SyntaxFactory.MethodDeclaration (
+					method.AttributeLists,
+					newModifier,
+					method.ReturnType,
+					method.ExplicitInterfaceSpecifier,
+					method.Identifier,
+					method.TypeParameterList,
+					method.ParameterList,
+					method.ConstraintClauses,
+					null,
+					method.ExpressionBody,
+					SyntaxFactory.Token(SyntaxKind.SemicolonToken) );
+			}
+
+			var property = abstractDeclaration as PropertyDeclarationSyntax;
+			if (property != null) {
+				var accessors = new List<AccessorDeclarationSyntax> ();
+				foreach (var accessor in property.AccessorList.Accessors) {
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), null));
+				}
+				return SyntaxFactory.PropertyDeclaration(
+					property.AttributeLists,
+					newModifier,
+					property.Type,
+					property.ExplicitInterfaceSpecifier,
+					property.Identifier,
+					SyntaxFactory.AccessorList(SyntaxFactory.List<AccessorDeclarationSyntax>(accessors)),
+					property.ExpressionBody,
+					property.Initializer);
+			}
+
+			var indexer = abstractDeclaration as IndexerDeclarationSyntax;
+			if (indexer != null) {
+				var accessors = new List<AccessorDeclarationSyntax> ();
+				foreach (var accessor in indexer.AccessorList.Accessors) {
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), accessor.AttributeLists, accessor.Modifiers, accessor.Keyword, null, SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+				}
+				return SyntaxFactory.IndexerDeclaration(
+					indexer.AttributeLists,
+					newModifier,
+					indexer.Type,
+					indexer.ExplicitInterfaceSpecifier,
+					indexer.ParameterList,
+					SyntaxFactory.AccessorList(SyntaxFactory.List<AccessorDeclarationSyntax>(accessors)),
+					indexer.ExpressionBody);
+			}
+			var evt = abstractDeclaration as EventDeclarationSyntax;
+			if (evt != null) {
+				return SyntaxFactory.EventFieldDeclaration(
+					evt.AttributeLists,
+					newModifier,
+					SyntaxFactory.VariableDeclaration(
+						evt.Type,
+						SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+							new [] {
+								SyntaxFactory.VariableDeclarator(evt.Identifier)
+							}
+						)
+					)
+				);
+			}
+			return null;
+		}
+
+		static SyntaxNode AddModifier(MemberDeclarationSyntax abstractDeclaration, SyntaxKind token)
+		{
+			var method = abstractDeclaration as MethodDeclarationSyntax;
+
+			var modifier = abstractDeclaration.GetModifiers();
+			var newMods = modifier.Where(m => !m.IsKind(SyntaxKind.AbstractKeyword) && !m.IsKind(SyntaxKind.StaticKeyword));
+
+			newMods = newMods.Concat(
+				new [] { SyntaxFactory.Token(token) }
+			);
+
+			var newModifier = SyntaxFactory.TokenList(newMods); 
+
+			if (method != null) {
+				return method.WithModifiers(newModifier);
+			}
+
+			var property = abstractDeclaration as PropertyDeclarationSyntax;
+			if (property != null) {
+				return property.WithModifiers(newModifier);
+			}
+
+			var indexer = abstractDeclaration as IndexerDeclarationSyntax;
+			if (indexer != null) {
+				return indexer.WithModifiers(newModifier);
+			}
+
+			var evt = abstractDeclaration as EventDeclarationSyntax;
+			if (evt != null) {
+				return evt.WithModifiers(newModifier);
+			}
+			return null;
+		}
+
+		static SyntaxNode RemoveVirtualModifier(MemberDeclarationSyntax abstractDeclaration)
+		{
+			var method = abstractDeclaration as MethodDeclarationSyntax;
+
+			if (method != null) {
+				return method.WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
+			}
+
+			var property = abstractDeclaration as PropertyDeclarationSyntax;
+			if (property != null) {
+				return property.WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
+			}
+
+			var indexer = abstractDeclaration as IndexerDeclarationSyntax;
+			if (indexer != null) {
+				return indexer.WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
+			}
+
+			var evt = abstractDeclaration as EventDeclarationSyntax;
+			if (evt != null) {
+				return evt.WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
+			}
+			return abstractDeclaration;
+		}
 	}
 }
-

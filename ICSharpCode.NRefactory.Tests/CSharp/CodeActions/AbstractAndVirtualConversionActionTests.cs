@@ -38,14 +38,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<AbstractAndVirtualConversionAction>(
 				@"class Test
 {
-	public $virtual void Foo ()
-	{
-	}
+    public $virtual void Foo()
+    {
+    }
 }", @"class Test
 {
-	public void Foo ()
-	{
-	}
+    public void Foo()
+    {
+    }
 }");
 		}
 
@@ -55,12 +55,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<AbstractAndVirtualConversionAction>(
 				@"abstract class Test
 {
-	public $virtual void Foo ()
-	{
-	}
+    public $virtual void Foo()
+    {
+    }
 }", @"abstract class Test
 {
-	public abstract void Foo ();
+    public abstract void Foo();
 }");
 		}
 
@@ -70,16 +70,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<AbstractAndVirtualConversionAction>(
 				@"abstract class MainClass
 {
-	public virtual int $this [int i] {
-		get {
-			;
-		}
-	}
+    public virtual int $this[int i] {
+        get {
+            ;
+        }
+    }
 }", @"abstract class MainClass
 {
-	public abstract int this [int i] {
-		get;
-	}
+    public abstract int this[int i] { get; }
 }");
 		}
 
@@ -89,14 +87,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<AbstractAndVirtualConversionAction>(
 				@"class Test
 {
-	public static void $Foo ()
-	{
-	}
+    public static void $Foo()
+    {
+    }
 }", @"class Test
 {
-	public virtual void Foo ()
-	{
-	}
+    public virtual void Foo()
+    {
+    }
 }");
 		}
 
@@ -106,14 +104,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<AbstractAndVirtualConversionAction>(
 				@"class Test
 {
-	public void $Foo ()
-	{
-	}
+    public void $Foo()
+    {
+    }
 }", @"class Test
 {
-	public virtual void Foo ()
-	{
-	}
+    public virtual void Foo()
+    {
+    }
 }");
 		}
 
@@ -124,9 +122,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				@"using System;
 class Test : IDisposable
 {
-	void IDisposable.$Dispose ()
-	{
-	}
+    void IDisposable.$Dispose ()
+    {
+    }
 }");
 		}
 
@@ -136,13 +134,13 @@ class Test : IDisposable
 			Test<AbstractAndVirtualConversionAction>(
 				@"abstract class Test
 {
-	public $abstract void Foo ();
+    public $abstract void Foo();
 }", @"abstract class Test
 {
-	public void Foo ()
-	{
-		throw new System.NotImplementedException ();
-	}
+    public void Foo()
+    {
+        throw new System.NotImplementedException();
+    }
 }");
 		}
 
@@ -152,13 +150,13 @@ class Test : IDisposable
 			Test<AbstractAndVirtualConversionAction>(
 				@"abstract class Test
 {
-	public $abstract void Foo ();
+    public $abstract void Foo();
 }", @"abstract class Test
 {
-	public virtual void Foo ()
-	{
-		throw new System.NotImplementedException ();
-	}
+    public virtual void Foo()
+    {
+        throw new System.NotImplementedException();
+    }
 }", 1);
 		}
 
@@ -168,20 +166,25 @@ class Test : IDisposable
 			Test<AbstractAndVirtualConversionAction>(
 				@"abstract class Test
 {
-	public abstract int $Foo {
-		get;
-		set;
-	}
+    public abstract int $Foo
+    {
+        get;
+        set;
+    }
 }", @"abstract class Test
 {
-	public int Foo {
-		get {
-			throw new System.NotImplementedException ();
-		}
-		set {
-			throw new System.NotImplementedException ();
-		}
-	}
+    public int Foo
+    {
+        get
+        {
+            throw new System.NotImplementedException();
+        }
+
+        set
+        {
+            throw new System.NotImplementedException();
+        }
+    }
 }");
 		}
 
@@ -192,11 +195,11 @@ class Test : IDisposable
 				@"using System;
 abstract class Test
 {
-	public abstract event EventHandler $Foo;
+    public abstract event EventHandler $Foo;
 }", @"using System;
 abstract class Test
 {
-	public event EventHandler Foo;
+    public event EventHandler Foo;
 }");
 		}
 
@@ -206,13 +209,13 @@ abstract class Test
 			Test<AbstractAndVirtualConversionAction>(
 				@"abstract class Test
 {
-	public void $Foo ()
-	{
-		throw new System.NotImplementedException ();
-	}
+    public void $Foo()
+    {
+        throw new System.NotImplementedException();
+    }
 }", @"abstract class Test
 {
-	public abstract void Foo ();
+    public abstract void Foo();
 }");
 		}
 
@@ -222,17 +225,17 @@ abstract class Test
 			Test<AbstractAndVirtualConversionAction>(
 				@"abstract class Test
 {
-	public event EventHandler $Foo  {
-		add {
-			throw new System.NotImplementedException ();
-		}
-		remove {
-			throw new System.NotImplementedException ();
-		}
-	}
+    public event EventHandler $Foo  {
+        add {
+            throw new System.NotImplementedException();
+        }
+        remove {
+            throw new System.NotImplementedException();
+        }
+    }
 }", @"abstract class Test
 {
-	public abstract event EventHandler Foo;
+    public abstract event EventHandler Foo;
 }");
 		}
 
@@ -244,10 +247,10 @@ abstract class Test
 				@"using System;
 class Test
 {
-	public static void Main (string[] args)
-	{
-		int $fooBar = 1;
-	}
+    public static void Main(string[] args)
+    {
+        int $fooBar = 1;
+    }
 }");
 		}
 
@@ -259,9 +262,9 @@ class Test
 				@"using System;
 class Test
 {
-	public override string $ToString()
-	{
-	}
+    public override string $ToString()
+    {
+    }
 }");
 		}
 
@@ -269,18 +272,16 @@ class Test
 		public void InvalidMethodTest()
 		{
 			var actions = GetActions<AbstractAndVirtualConversionAction>(
-				@"using System;
+				                       @"using System;
 abstract class Test
 {
-	public virtual string $ToString()
-	{
-		Console.WriteLine (""Hello World"");
-	}
+    public virtual string $ToString()
+    {
+        Console.WriteLine (""Hello World"");
+    }
 }");
 			// only virtual -> non virtual should be provided - no abstract conversion
 			Assert.AreEqual(1, actions.Count); 
 		}
-
 	}
 }
-

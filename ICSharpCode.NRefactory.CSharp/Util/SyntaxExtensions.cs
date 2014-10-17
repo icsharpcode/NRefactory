@@ -365,6 +365,38 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			return isNotNullableReplacable;
 		}
+
+		public static SyntaxTokenList GetModifiers (this MemberDeclarationSyntax member)
+		{
+			if (member == null)
+				throw new ArgumentNullException("member");
+			var method = member as BaseMethodDeclarationSyntax;
+			if (method != null)
+				return method.Modifiers;
+			var property = member as BasePropertyDeclarationSyntax;
+			if (property != null)
+				return property.Modifiers;
+			var field = member as BaseFieldDeclarationSyntax;
+			if (field != null)
+				return field.Modifiers;
+			return new SyntaxTokenList ();
+		}
+
+		public static ExplicitInterfaceSpecifierSyntax GetExplicitInterfaceSpecifierSyntax (this MemberDeclarationSyntax member)
+		{
+			if (member == null)
+				throw new ArgumentNullException("member");
+			var method = member as MethodDeclarationSyntax;
+			if (method != null)
+				return method.ExplicitInterfaceSpecifier;
+			var property = member as BasePropertyDeclarationSyntax;
+			if (property != null)
+				return property.ExplicitInterfaceSpecifier;
+			var evt = member as EventDeclarationSyntax;
+			if (evt != null)
+				return evt.ExplicitInterfaceSpecifier;
+			return null;
+		}
 	}
 }
 

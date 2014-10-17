@@ -139,7 +139,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			)
 			);
 			doc = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
-			return action.GetRefactoringsAsync(new CodeRefactoringContext (doc, TextSpan.FromBounds(idx, idx), default(CancellationToken))).Result.ToList();
+			var result = action.GetRefactoringsAsync(new CodeRefactoringContext(doc, TextSpan.FromBounds(idx, idx), default(CancellationToken))).Result;
+			if (result == null)
+				return null;
+			return result.ToList();
 		}
 
 		protected string RunContextAction (CodeRefactoringProvider action, string input,

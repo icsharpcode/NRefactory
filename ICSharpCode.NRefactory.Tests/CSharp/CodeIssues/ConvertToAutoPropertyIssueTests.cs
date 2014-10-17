@@ -34,11 +34,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase ()
 		{
-			TestIssue<ConvertToAutoPropertyIssue>(@"
+			Analyze<ConvertToAutoPropertyIssue>(@"
 class FooBar
 {
 	int foo;
-	public int Foo {
+	public int $Foo$ {
 		get { return foo; }
 		set { foo = value; }
 	}
@@ -49,11 +49,11 @@ class FooBar
 		[Test]
 		public void TestThisSyntaxCase ()
 		{
-			TestIssue<ConvertToAutoPropertyIssue>(@"
+			Analyze<ConvertToAutoPropertyIssue>(@"
 class FooBar
 {
 	int foo;
-	public int Foo {
+	public int $Foo$ {
 		get { return this.foo; }
 		set { this.foo = value; }
 	}
