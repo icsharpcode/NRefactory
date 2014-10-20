@@ -48,171 +48,124 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Add name for argument", LanguageNames.CSharp)]
 	public class AddArgumentNameAction : SpecializedCodeAction<ExpressionSyntax>
 	{
-//		List<Expression> CollectNodes(AstNode parant, AstNode node)
-//		{
-//			List<Expression> returned = new List<Expression>();
-//
-//			var children = parant.GetChildrenByRole(Roles.Argument);
-//			for (int i = 0; i< children.Count(); i++) {
-//				if (children.ElementAt(i).Equals(node)) {
-//					for (int j = i; j< children.Count(); j++) {
-//						if (children.ElementAt(j) is Expression && children.ElementAt(j).Role == Roles.Argument && !(children.ElementAt(j) is NamedArgumentExpression)) {
-//							returned.Add(children.ElementAt(j));
-//						} else {
-//							break;
-//						}
-//					}
-//				}
-//			}
-//			return returned;
-//		}
+		static CodeAction CreateAttributeCodeAction(Document document, SyntaxNode root, ExpressionSyntax node, IMethodSymbol constructor, AttributeSyntax attribute)
+		{
+			var arguments = attribute.ArgumentList.Arguments;
+			var idx = arguments.IndexOf(node.Parent as AttributeArgumentSyntax);
+
+			var name = constructor.Parameters[idx].Name;
+			return CodeActionFactory.Create(
+				node.Span,
+				DiagnosticSeverity.Info,
+				string.Format("Add argument name '{0}'", name),
+				t2 => {
+					var newArguments = SyntaxFactory.SeparatedList<AttributeArgumentSyntax>(
+						attribute.ArgumentList.Arguments.Take(idx).Concat(
+							attribute.ArgumentList.Arguments.Skip(idx).Select((arg, i) => {
+								if (arg.NameEquals != null)
+									return arg;
+								return SyntaxFactory.AttributeArgument(null, SyntaxFactory.NameColon(constructor.Parameters[i].Name), arg.Expression);
+							})
+						)
+					);
+					var newAttribute = attribute.WithArgumentList(attribute.ArgumentList.WithArguments(newArguments));
+					var newRoot = root.ReplaceNode(attribute, newAttribute).WithAdditionalAnnotations(Formatter.Annotation);
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}
+			);
+		}
+
+		static CodeAction CreateIndexerCodeAction(Document document, SyntaxNode root, ExpressionSyntax node, IPropertySymbol indexer, ElementAccessExpressionSyntax elementAccess)
+		{
+			var arguments = elementAccess.ArgumentList.Arguments;
+			var idx = arguments.IndexOf(node.Parent as ArgumentSyntax);
+
+			var name = indexer.Parameters[idx].Name;
+			return CodeActionFactory.Create(
+				node.Span,
+				DiagnosticSeverity.Info,
+				string.Format("Add argument name '{0}'", name),
+				t2 => {
+					var newArguments = SyntaxFactory.SeparatedList<ArgumentSyntax>(
+						elementAccess.ArgumentList.Arguments.Take(idx).Concat(
+							elementAccess.ArgumentList.Arguments.Skip(idx).Select((arg, i) => {
+								if (arg.NameColon != null)
+									return arg;
+								return arg.WithNameColon(SyntaxFactory.NameColon(indexer.Parameters[i].Name));
+							})
+						)
+					);
+					var newAttribute = elementAccess.WithArgumentList(elementAccess.ArgumentList.WithArguments(newArguments));
+					var newRoot = root.ReplaceNode(elementAccess, newAttribute).WithAdditionalAnnotations(Formatter.Annotation);
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}
+			);
+		}
+
+		static CodeAction CreateInvocationCodeAction(Document document, SyntaxNode root, ExpressionSyntax node, IMethodSymbol method, InvocationExpressionSyntax invocation)
+		{
+			var arguments = invocation.ArgumentList.Arguments;
+			var idx = arguments.IndexOf(node.Parent as ArgumentSyntax);
+			if (idx >= method.Parameters.Length)
+				return null;
+			var parameters = method.Parameters[idx];
+			var name = parameters.Name;
+			return CodeActionFactory.Create(
+				node.Span,
+				DiagnosticSeverity.Info,
+				string.Format("Add argument name '{0}'", name),
+				t2 => {
+					var newArguments = SyntaxFactory.SeparatedList<ArgumentSyntax>(
+						invocation.ArgumentList.Arguments.Take(idx).Concat(
+							invocation.ArgumentList.Arguments.Skip(idx).Select((arg, i) => {
+								if (arg.NameColon != null)
+									return arg;
+								return arg.WithNameColon(SyntaxFactory.NameColon(method.Parameters[i].Name));
+							})
+						)
+					);
+					var newAttribute = invocation.WithArgumentList(invocation.ArgumentList.WithArguments(newArguments));
+					var newRoot = root.ReplaceNode(invocation, newAttribute).WithAdditionalAnnotations(Formatter.Annotation);
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}
+			);
+		}
 
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			yield break;
+			if (!node.Parent.IsKind(SyntaxKind.Argument) && !node.Parent.IsKind(SyntaxKind.AttributeArgument))
+				yield break;
+			if (span.Start != node.SpanStart)
+				yield break;
+			var parent = node.Parent.Parent.Parent;
+			var attribute = parent as AttributeSyntax;
+			if (attribute != null) {
+				var resolvedResult = semanticModel.GetSymbolInfo(attribute);
+				var constructor = resolvedResult.Symbol as IMethodSymbol;
+				if (constructor == null)
+					yield break;
+				yield return CreateAttributeCodeAction(document, root, node, constructor, attribute);
+			}
+
+			var indexerExpression = parent as ElementAccessExpressionSyntax;
+			if (indexerExpression != null) {
+				var resolvedResult = semanticModel.GetSymbolInfo(indexerExpression);
+				var indexer = resolvedResult.Symbol as IPropertySymbol;
+				if (indexer == null)
+					yield break;
+				yield return CreateIndexerCodeAction(document, root, node, indexer, indexerExpression);
+			}
+
+			var invocationExpression = parent as InvocationExpressionSyntax;
+			if (invocationExpression != null) {
+				var resolvedResult = semanticModel.GetSymbolInfo(invocationExpression);
+				var method = resolvedResult.Symbol as IMethodSymbol;
+				if (method == null)
+					yield break;
+				var codeAction = CreateInvocationCodeAction(document, root, node, method, invocationExpression);
+				if (codeAction != null)
+					yield return codeAction;
+			}
 		}
-//		protected override CodeAction GetAction(SemanticModel context, Expression expression)
-//		{	
-//			if (expression == null)
-//				return null;
-//			if (expression.Role != Roles.Argument || expression is NamedArgumentExpression)
-//				return null;
-//			if (context.Location != expression.StartLocation)
-//				return null;
-//			var parent = expression.Parent;
-//			if (!(parent is CSharp.Attribute) && !(parent is IndexerExpression) && !(parent is InvocationExpression))
-//				return null;
-//
-//			var attribute = parent as CSharp.Attribute;
-//			if (attribute != null) {
-//				var resolvedResult = context.Resolve(attribute) as CSharpInvocationResolveResult;
-//				if (resolvedResult == null || resolvedResult.IsError)
-//					return null;
-//				var arguments = attribute.Arguments;
-//				IMember member = resolvedResult.Member;
-//
-//				int index = 0;
-//				int temp = 0; 
-//				List<Expression> nodes = new List<Expression>();
-//				foreach (var argument in arguments) {
-//					if (argument.Equals(expression)) {
-//						nodes = CollectNodes(parent, expression);
-//						break;
-//					}
-//					temp++;
-//				}
-//				index = temp;
-//				if (!nodes.Any())
-//					return null;
-//				var method = member as IMethod;
-//				if (method == null || method.Parameters.Count == 0 || method.Parameters.Last().IsParams)
-//					return null;
-//
-//				var parameterMap = resolvedResult.GetArgumentToParameterMap();
-//				var parameters = method.Parameters;
-//				if (index >= parameterMap.Count)
-//					return null;
-//				var name = parameters[parameterMap[index]].Name;
-//				return new CodeAction(string.Format(context.TranslateString("Add argument name '{0}'"), name), script => {
-//					for (int i = 0; i < nodes.Count; i++) {
-//						int p = index + i;
-//						if (p >= parameterMap.Count)
-//							break;
-//						name = parameters[parameterMap[p]].Name;
-//						var namedArgument = new NamedArgumentExpression(name, arguments.ElementAt(p).Clone());
-//						script.Replace(arguments.ElementAt(p), namedArgument);
-//					}}, 
-//				expression
-//				);
-//			} 
-//
-//			var indexerExpression = parent as IndexerExpression;
-//			if (indexerExpression != null) {
-//				var resolvedResult = context.Resolve(indexerExpression) as CSharpInvocationResolveResult;
-//				if (resolvedResult == null || resolvedResult.IsError)
-//					return null;
-//				var arguments = indexerExpression.Arguments;
-//				IMember member = resolvedResult.Member;
-//				
-//				int index = 0;
-//				int temp = 0; 
-//				List<Expression> nodes = new List<Expression>();
-//				foreach (var argument in arguments) {
-//					if (argument.Equals(expression)) {
-//						nodes = CollectNodes(parent, expression);
-//						break;
-//					}
-//					temp++;
-//				}
-//				index = temp;
-//				if (!nodes.Any())
-//					return null;
-//				var property = member as IProperty;
-//				if (property == null || property.Parameters.Count == 0 || property.Parameters.Last().IsParams) {
-//					return null;
-//				}
-//				var parameterMap = resolvedResult.GetArgumentToParameterMap();
-//				var parameters = property.Parameters;
-//				if (index >= parameterMap.Count)
-//					return null;
-//				var name = parameters[parameterMap[index]].Name;
-//				return new CodeAction(string.Format(context.TranslateString("Add argument name '{0}'"), name), script => {
-//					for (int i = 0; i< nodes.Count; i++) {
-//						int p = index + i;
-//						if (p >= parameterMap.Count)
-//							break;
-//						name = parameters[parameterMap[p]].Name;
-//						var namedArgument = new NamedArgumentExpression(name, arguments.ElementAt(p).Clone());
-//						script.Replace(arguments.ElementAt(p), namedArgument);
-//					}}, 
-//				expression
-//				);
-//			} 
-//
-//			var invocationExpression = parent as InvocationExpression;
-//			if (invocationExpression != null) {
-//				var resolvedResult = context.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-//				if (resolvedResult == null || resolvedResult.IsError)
-//					return null;
-//				var arguments = invocationExpression.Arguments;
-//				IMember member = resolvedResult.Member;
-//				
-//				int index = 0;
-//				int temp = 0; 
-//				List<Expression> nodes = new List<Expression>();
-//				foreach (var argument in arguments) {
-//					if (argument.Equals(expression)) {
-//						nodes = CollectNodes(parent, expression);
-//						break;
-//					}
-//					temp++;
-//				}
-//				index = temp;
-//				if (!nodes.Any())
-//					return null;
-//			
-//				var method = member as IMethod;
-//				if (method == null || method.Parameters.Count == 0 || method.Parameters.Last().IsParams)
-//					return null;
-//
-//				var parameterMap = (resolvedResult as CSharpInvocationResolveResult).GetArgumentToParameterMap();
-//				var parameters = method.Parameters;
-//				if (index >= parameterMap.Count)
-//					return null;
-//				var name = parameters[parameterMap[index]].Name;
-//				return new CodeAction(string.Format(context.TranslateString("Add argument name '{0}'"), name), script => {
-//					for (int i = 0; i< nodes.Count; i++) {
-//						int p = index + i;
-//						if (p >= parameterMap.Count)
-//							break;
-//						name = parameters[parameterMap[p]].Name;
-//						var namedArgument = new NamedArgumentExpression(name, arguments.ElementAt(p).Clone());
-//						script.Replace(arguments.ElementAt(p), namedArgument);
-//					}}, 
-//				expression
-//				);
-//			}
-//			return null;
-//		}
 	}
 }
