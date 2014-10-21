@@ -33,65 +33,62 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertAnonymousDelegateToLambdaTests : ContextActionTestBase
 	{
 		[Test]
-		public void BasicTest ()
+		public void BasicTest()
 		{
 			Test<ConvertAnonymousDelegateToLambdaAction>(@"
 class A
 {
-	void F ()
-	{
-		System.Action<int, int> action = delegate$ (int i1, int i2) { System.Console.WriteLine (i1); };
-	}
+    void F ()
+    {
+        System.Action<int, int> action = delegate$ (int i1, int i2) { System.Console.WriteLine(i1); };
+    }
 }", @"
 class A
 {
-	void F ()
-	{
-		System.Action<int, int> action = (i1, i2) => System.Console.WriteLine (i1);
-	}
+    void F ()
+    {
+        System.Action<int, int> action = (i1, i2) => System.Console.WriteLine(i1);
+    }
 }");
 		}
 
 		[Test]
-		public void VarDeclaration ()
+		public void VarDeclaration()
 		{
 			Test<ConvertAnonymousDelegateToLambdaAction>(@"
 class A
 {
-	void F ()
-	{
-		var action = delegate$ (int i1, int i2) { System.Console.WriteLine (i1); System.Console.WriteLine (i2); };
-	}
+    void F ()
+    {
+        var action = delegate$ (int i1, int i2) { System.Console.WriteLine(i1); System.Console.WriteLine(i2); };
+    }
 }", @"
 class A
 {
-	void F ()
-	{
-		var action = (int i1, int i2) => {
-			System.Console.WriteLine (i1);
-			System.Console.WriteLine (i2);
-		};
-	}
+    void F ()
+    {
+        var action = (int i1, int i2) => { System.Console.WriteLine(i1); System.Console.WriteLine(i2); };
+    }
 }");
 		}
 
 		[Test]
-		public void ParameterLessDelegate ()
+		public void ParameterLessDelegate()
 		{
 			Test<ConvertAnonymousDelegateToLambdaAction>(@"
 class A
 {
-	void F (int i)
-	{
-		System.Action<int> act = $delegate { System.Console.WriteLine (i); };
-	}
+    void F (int i)
+    {
+        System.Action<int> act = $delegate { System.Console.WriteLine(i); };
+    }
 }", @"
 class A
 {
-	void F (int i)
-	{
-		System.Action<int> act = obj => System.Console.WriteLine (i);
-	}
+    void F (int i)
+    {
+        System.Action<int> act = obj => System.Console.WriteLine(i);
+    }
 }");
 		}
 	}

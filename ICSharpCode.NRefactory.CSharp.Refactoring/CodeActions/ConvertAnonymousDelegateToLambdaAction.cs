@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,7 +34,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -46,65 +44,58 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, AnonymousMethodExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			yield break;
+			if (!node.DelegateKeyword.Span.Contains(span))
+				return null;
+
+			ExpressionSyntax convertExpression = null;
+			if (node.Block.Statements.Count == 1) {
+				var stmt = node.Block.Statements.FirstOrDefault() as ExpressionStatementSyntax;
+				if (stmt != null)
+					convertExpression = stmt.Expression;
+			}
+
+			ITypeSymbol guessedType = null;
+			if (node.ParameterList == null) {
+				var info = semanticModel.GetTypeInfo(node);
+				guessedType = info.ConvertedType ?? info.Type;
+				if (guessedType == null)
+					return null;
+			}
+			return new []  { 
+				CodeActionFactory.Create(
+					node.DelegateKeyword.Span,
+					DiagnosticSeverity.Info,
+					"Convert to lambda",
+					t2 => {
+						var parent = node.Parent.Parent.Parent;
+						bool explicitLambda = parent is VariableDeclarationSyntax && ((VariableDeclarationSyntax)parent).Type.IsVar;
+						ParameterListSyntax parameterList;
+						if (node.ParameterList != null) {
+							if (explicitLambda) {
+								parameterList = node.ParameterList;
+							} else {
+								parameterList = SyntaxFactory.ParameterList(
+									SyntaxFactory.SeparatedList(node.ParameterList.Parameters.Select(p => SyntaxFactory.Parameter(p.AttributeLists, p.Modifiers, null, p.Identifier, p.Default)))
+								);
+							}
+						} else {
+							var invokeMethod = guessedType.GetDelegateInvokeMethod();
+							parameterList = SyntaxFactory.ParameterList(
+								SyntaxFactory.SeparatedList(
+									invokeMethod.Parameters.Select(p => 
+										SyntaxFactory.Parameter(SyntaxFactory.Identifier(p.Name))
+									)
+								)
+							);
+						}
+						var lambdaExpression = explicitLambda || parameterList.Parameters.Count > 1 ? 
+							(SyntaxNode)SyntaxFactory.ParenthesizedLambdaExpression(parameterList, (CSharpSyntaxNode)convertExpression ?? node.Block) :
+							SyntaxFactory.SimpleLambdaExpression(parameterList.Parameters[0], (CSharpSyntaxNode)convertExpression ?? node.Block);
+						var newRoot = root.ReplaceNode(node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
-
-//		protected override CodeAction GetAction(SemanticModel context, AnonymousMethodExpression node)
-//		{
-//			if (context.Location < node.DelegateToken.StartLocation || context.Location >= node.Body.StartLocation)
-//				return null;
-//
-//			Expression convertExpression = null;
-//
-//			var stmt = node.Body.Statements.FirstOrDefault();
-//			if (stmt == null)
-//				return null;
-//			if (stmt.GetNextSibling(s => s.Role == BlockStatement.StatementRole) == null) {
-//				var exprStmt = stmt as ExpressionStatement;
-//				if (exprStmt != null) {
-//					convertExpression = exprStmt.Expression;
-//				}
-//			}
-//
-//			IType guessedType = null;
-//			if (!node.HasParameterList) {
-//				guessedType = TypeGuessing.GuessType(context, node);
-//				if (guessedType.Kind != TypeKind.Delegate)
-//					return null;
-//			}
-//
-//			return new CodeAction(context.TranslateString("Convert to lambda"), 
-//				script => {
-//					var parent = node.Parent;
-//					while (!(parent is Statement))
-//						parent = parent.Parent;
-//					bool explicitLambda = parent is VariableDeclarationStatement && ((VariableDeclarationStatement)parent).Type.IsVar();
-//					var lambda = new LambdaExpression ();
-//
-//					if (convertExpression != null) {
-//						lambda.Body = convertExpression.Clone();
-//					} else {
-//						lambda.Body = node.Body.Clone();
-//					}
-//					if (node.HasParameterList) {
-//						foreach (var parameter in node.Parameters) {
-//							if (explicitLambda) {
-//								lambda.Parameters.Add(new ParameterDeclaration { Type = parameter.Type.Clone(), Name = parameter.Name });
-//							} else {
-//								lambda.Parameters.Add(new ParameterDeclaration { Name = parameter.Name });
-//							}
-//						}
-//					} else {
-//						var method = guessedType.GetDelegateInvokeMethod ();
-//						foreach (var parameter in method.Parameters) {
-//							lambda.Parameters.Add(new ParameterDeclaration { Name = parameter.Name });
-//						}
-//					}
-//					script.Replace(node, lambda);
-//				}, 
-//				node);
-//		}
-
 	}
 }
-
