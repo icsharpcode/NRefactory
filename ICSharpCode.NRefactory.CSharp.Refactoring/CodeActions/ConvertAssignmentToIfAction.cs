@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,7 +34,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -52,47 +50,59 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
-			var node = root.FindNode(span) as BinaryExpressionSyntax;
-			if (node == null || !IsAssignment(node))
+			var node = root.FindNode(span) as AssignmentExpressionSyntax;
+			if (node == null)
 				return Enumerable.Empty<CodeAction>();
 
-			if (node.Right is ConditionalExpressionSyntax) {
-				var ifStatement = CreateForConditionalExpression(model, node, (ConditionalExpressionSyntax)node.Right);
-				return new [] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", document.WithSyntaxRoot(root.ReplaceNode(node.Parent, ifStatement)))};
+			if (node.Right.IsKind(SyntaxKind.ConditionalExpression)) {
+				return new [] {
+					CodeActionFactory.Create(
+						span, 
+						DiagnosticSeverity.Info, 
+						"Replace with 'if' statement", 
+						t2 => {
+							var ifStatement = CreateForConditionalExpression(node, (ConditionalExpressionSyntax)node.Right);
+							return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node.Parent, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
+						}
+					)
+				};
 			}
-
-			var bOp = node.Right as BinaryExpressionSyntax;
-			//if null coalesce
-			if (bOp != null && bOp.OperatorToken.IsKind(SyntaxKind.QuestionQuestionToken)) {
-				var ifStatement = CreateForNullCoalescingExpression(model, node, bOp);
-				return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", document.WithSyntaxRoot(root.ReplaceNode(node.Parent, ifStatement))) };
+			if (node.Right.IsKind(SyntaxKind.CoalesceExpression)) {
+				return new[] { 
+					CodeActionFactory.Create(
+						span, 
+						DiagnosticSeverity.Info, 
+						"Replace with 'if' statement", 
+						t2 => {
+							var ifStatement = CreateForNullCoalescingExpression(node, (BinaryExpressionSyntax)node.Right);
+							return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node.Parent, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
+						}
+					)
+				};
 			}
-
 			return Enumerable.Empty<CodeAction>();
 		}
 
-		private IfStatementSyntax CreateForConditionalExpression(SemanticModel model, BinaryExpressionSyntax expr, ConditionalExpressionSyntax conditional)
+		static IfStatementSyntax CreateForConditionalExpression(AssignmentExpressionSyntax expr, ConditionalExpressionSyntax conditional)
 		{
-			return SyntaxFactory.IfStatement(conditional.Condition, SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(expr.CSharpKind(), expr.Left, 
-				conditional.WhenTrue)),
-				SyntaxFactory.ElseClause(SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(expr.CSharpKind(), expr.Left, conditional.WhenFalse))));
+			return SyntaxFactory.IfStatement(
+				conditional.Condition, 
+				SyntaxFactory.ExpressionStatement(
+					SyntaxFactory.AssignmentExpression(expr.CSharpKind(), expr.Left, conditional.WhenTrue)
+				),
+				SyntaxFactory.ElseClause(
+					SyntaxFactory.ExpressionStatement(
+						SyntaxFactory.AssignmentExpression(expr.CSharpKind(), expr.Left, conditional.WhenFalse)
+					)
+				)
+			);
 		}
 
-		private IfStatementSyntax CreateForNullCoalescingExpression(SemanticModel model, BinaryExpressionSyntax expr, BinaryExpressionSyntax bOp)
+		static IfStatementSyntax CreateForNullCoalescingExpression(AssignmentExpressionSyntax expr, BinaryExpressionSyntax bOp)
 		{
 			return SyntaxFactory.IfStatement(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, bOp.Left, SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), 
-				SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(expr.CSharpKind(), expr.Left,
-				bOp.Left)),
-				SyntaxFactory.ElseClause(SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(expr.CSharpKind(), expr.Left, bOp.Right))));
-		}
-
-		public static bool IsAssignment(BinaryExpressionSyntax node)
-		{
-			return node.IsKind(SyntaxKind.AddAssignmentExpression) || node.IsKind(SyntaxKind.AndAssignmentExpression) || node.IsKind(SyntaxKind.DivideAssignmentExpression) ||
-				node.IsKind(SyntaxKind.ExclusiveOrAssignmentExpression) || node.IsKind(SyntaxKind.LeftShiftAssignmentExpression) || node.IsKind(SyntaxKind.ModuloAssignmentExpression) ||
-				node.IsKind(SyntaxKind.MultiplyAssignmentExpression) || node.IsKind(SyntaxKind.OrAssignmentExpression) || node.IsKind(SyntaxKind.RightShiftAssignmentExpression) ||
-				node.IsKind(SyntaxKind.SimpleAssignmentExpression) || node.IsKind(SyntaxKind.SubtractAssignmentExpression);
+				SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(expr.CSharpKind(), expr.Left, bOp.Left)),
+				SyntaxFactory.ElseClause(SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(expr.CSharpKind(), expr.Left, bOp.Right))));
 		}
 	}
 }
-

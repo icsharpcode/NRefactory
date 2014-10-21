@@ -80,10 +80,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (whenTrueExprStatement == null || whenFalseExprStatement == null)
 				return Enumerable.Empty<CodeAction>();
 
-			var trueAssignment = whenTrueExprStatement.Expression as BinaryExpressionSyntax;
-			var falseAssignment = whenFalseExprStatement.Expression as BinaryExpressionSyntax;
-			if (trueAssignment == null || !ConvertAssignmentToIfAction.IsAssignment(trueAssignment) || 
-				falseAssignment == null || !ConvertAssignmentToIfAction.IsAssignment(falseAssignment) || trueAssignment.CSharpKind() != falseAssignment.CSharpKind() ||
+			var trueAssignment = whenTrueExprStatement.Expression as AssignmentExpressionSyntax;
+			var falseAssignment = whenFalseExprStatement.Expression as AssignmentExpressionSyntax;
+			if (trueAssignment == null /*|| !ConvertAssignmentToIfAction.IsAssignment(trueAssignment)*/ || 
+				falseAssignment == null /*|| !ConvertAssignmentToIfAction.IsAssignment(falseAssignment)*/ || trueAssignment.CSharpKind() != falseAssignment.CSharpKind() ||
 				!trueAssignment.Left.IsEquivalentTo(falseAssignment.Left))
 				return Enumerable.Empty<CodeAction>();
 

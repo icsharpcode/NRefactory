@@ -38,24 +38,24 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<ConvertAssignmentToIfAction>(@"
 class TestClass
 {
-	int TestMethod (int o, int p)
-	{
-		int z;
-		z $= i > 0 ? o : p;
-		return z;
-	}
+    int TestMethod (int o, int p)
+    {
+        int z;
+        z $= i > 0 ? o : p;
+        return z;
+    }
 }", @"
 class TestClass
 {
-	int TestMethod (int o, int p)
-	{
-		int z;
-		if (i > 0)
-			z = o;
-		else
-			z = p;
-		return z;
-	}
+    int TestMethod (int o, int p)
+    {
+        int z;
+        if (i > 0)
+            z = o;
+        else
+            z = p;
+        return z;
+    }
 }");
 		}
 
@@ -65,24 +65,24 @@ class TestClass
 			Test<ConvertAssignmentToIfAction>(@"
 class Test
 {
-	object TestMethod(object o, object p)
-	{
-		object z;
-		z $= o ?? p;
-		return z;
-	}
+    object TestMethod(object o, object p)
+    {
+        object z;
+        z $= o ?? p;
+        return z;
+    }
 }", @"
 class Test
 {
-	object TestMethod(object o, object p)
-	{
-		object z;
-		if (o != null)
-			z = o;
-		else
-			z = p;
-		return z;
-	}
+    object TestMethod(object o, object p)
+    {
+        object z;
+        if (o != null)
+            z = o;
+        else
+            z = p;
+        return z;
+    }
 }");
 		}
 
@@ -92,24 +92,24 @@ class Test
 			Test<ConvertAssignmentToIfAction>(@"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		if (i < 10)
-			a $= i > 0 ? 0 : 1;
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        if (i < 10)
+            a $= i > 0 ? 0 : 1;
+    }
 }", @"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		if (i < 10)
-		if (i > 0)
-			a = 0;
-		else
-			a = 1;
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        if (i < 10)
+            if (i > 0)
+                a = 0;
+            else
+                a = 1;
+    }
 }");
 		}
 
@@ -120,46 +120,43 @@ class TestClass
 			Test<ConvertAssignmentToIfAction>(@"
 class TestClass
 {
-	void TestMethod (int i)
-	{
-		int a;
-		a $= i > 0 ? 0 : 1;
-	}
+    void TestMethod (int i)
+    {
+        int a;
+        a $= i > 0 ? 0 : 1;
+    }
 }", @"
 class TestClass
 {
-	void TestMethod (int i)
-	{
-		int a;
-		if (i > 0)
-			a = 0;
-		else
-			a = 1;
-	}
+    void TestMethod (int i)
+    {
+        int a;
+        if (i > 0)
+            a = 0;
+        else
+            a = 1;
+    }
 }");
 			Test<ConvertAssignmentToIfAction>(@"
 class TestClass
 {
-	void TestMethod (int i)
-	{
-		int a;
-		a $+= i > 0 ? 0 : 1;
-	}
+    void TestMethod (int i)
+    {
+        int a;
+        a $+= i > 0 ? 0 : 1;
+    }
 }", @"
 class TestClass
 {
-	void TestMethod (int i)
-	{
-		int a;
-		if (i > 0)
-			a += 0;
-		else
-			a += 1;
-	}
+    void TestMethod (int i)
+    {
+        int a;
+        if (i > 0)
+            a += 0;
+        else
+            a += 1;
+    }
 }");
 		}
-
-
 	}
 }
-

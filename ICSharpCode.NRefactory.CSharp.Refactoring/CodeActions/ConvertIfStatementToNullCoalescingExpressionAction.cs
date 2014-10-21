@@ -80,8 +80,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			} else {
 				var previousExpressionStatement = previousNode as ExpressionStatementSyntax;
 				if (previousExpressionStatement != null) {
-					var previousAssignment = previousExpressionStatement.Expression as BinaryExpressionSyntax;
-					if (previousAssignment != null && ConvertAssignmentToIfAction.IsAssignment(previousAssignment) && comparedNode.IsEquivalentTo(previousAssignment.Left, true)) {
+					var previousAssignment = previousExpressionStatement.Expression as AssignmentExpressionSyntax;
+					if (previousAssignment != null && comparedNode.IsEquivalentTo(previousAssignment.Left, true)) {
 						newRoot = root.ReplaceNode(previousAssignment.Right, SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, previousAssignment.Right, rightSide));
 					}
 				} else {
@@ -126,8 +126,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (contentStatement == null)
 				return null;
 
-			var assignExpr = ((ExpressionStatementSyntax)contentStatement).Expression as BinaryExpressionSyntax;
-			if (assignExpr == null || !ConvertAssignmentToIfAction.IsAssignment(assignExpr) || !assignExpr.Left.IsEquivalentTo(nullIsRight ? condition.Left : condition.Right, true))
+			var assignExpr = ((ExpressionStatementSyntax)contentStatement).Expression as AssignmentExpressionSyntax;
+			if (assignExpr == null || !assignExpr.Left.IsEquivalentTo(nullIsRight ? condition.Left : condition.Right, true))
 				return null;
 			rightSide = assignExpr.Right;
 			return nullIsRight ? condition.Left : condition.Right;
