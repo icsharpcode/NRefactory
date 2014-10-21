@@ -44,6 +44,46 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Compute constant value", LanguageNames.CSharp)]
 	public class ComputeConstantValueAction : CodeRefactoringProvider
 	{
+		static SyntaxNode GetLiteralExpression(object value)
+		{
+			if (value is bool)
+				return SyntaxFactory.LiteralExpression((bool)value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
+			if (value is byte)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((byte)value));
+			if (value is sbyte)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((sbyte)value));
+			if (value is short)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((short)value));
+			if (value is ushort)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((ushort)value));
+			if (value is int)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((int)value));
+			if (value is uint)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((uint)value));
+			if (value is long)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((long)value));
+			if (value is ulong)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((ulong)value));
+
+			if (value is float)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((float)value));
+			if (value is double)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((double)value));
+			if (value is decimal)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal((decimal)value));
+
+			if (value is char)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.CharacterLiteralExpression, SyntaxFactory.Literal((char)value));
+
+			if (value is string)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal((string)value));
+
+			if (value == null)
+				return SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
+
+			return null;
+		}
+
 		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
@@ -51,25 +91,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+			var node = root.FindNode(span);
+			var expr = node.FirstAncestorOrSelf<ExpressionSyntax>(n => n is BinaryExpressionSyntax || n is PostfixUnaryExpressionSyntax || n is PrefixUnaryExpressionSyntax);
+			if (expr == null)
+				return null;
+			if (expr is BinaryExpressionSyntax) {
+				if (((BinaryExpressionSyntax)expr).OperatorToken.SpanStart != span.Start && expr.SpanStart != span.Start)
+					return null;
+			} else {
+				if (expr.SpanStart != span.Start)
+					return null;
+			}
+
+			var result = model.GetConstantValue(expr, cancellationToken);
+			if (!result.HasValue)
+				return null;
+			var syntaxNode = GetLiteralExpression(result.Value);
+			if (syntaxNode == null)
+				return null;
+			return new [] {
+				CodeActionFactory.Create(
+					node.Span,
+					DiagnosticSeverity.Info,
+					"Compute constant value",
+					t2 => {
+						var newRoot = root.ReplaceNode(expr, syntaxNode.WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
-//		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
-//		{
-//			var expression = context.GetNode(i => i is BinaryOperatorExpression || i is UnaryOperatorExpression);
-//			if (expression == null)
-//				yield break;
-//			var node = context.GetNode();
-//			if (node == null || !(node is PrimitiveExpression) && node.StartLocation != context.Location)
-//				yield break;
-//
-//			var rr = context.Resolve(expression);
-//			if (rr.ConstantValue == null)
-//				yield break;
-//			yield return new CodeAction(
-//				context.TranslateString("Compute constant value"),
-//				script => script.Replace(expression, new PrimitiveExpression(rr.ConstantValue)), 
-//				node
-//			);
-//		}
 	}
 }
