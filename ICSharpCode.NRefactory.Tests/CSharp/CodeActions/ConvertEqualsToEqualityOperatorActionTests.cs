@@ -111,9 +111,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	}
 }", @"class FooBar
 {
-	public void Foo(object x , object y)
+	public void Foo (object x , object y)
 	{
-		if(x == y) {
+		if (x == y) {
 		}
 	}
 }");
