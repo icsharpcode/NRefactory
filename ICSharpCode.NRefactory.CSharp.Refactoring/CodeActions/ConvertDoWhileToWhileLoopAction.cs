@@ -59,8 +59,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var node = root.FindNode(span) as DoStatementSyntax;
 			if (node == null)
 				return Enumerable.Empty<CodeAction>();
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Convert to while loop", document.WithSyntaxRoot(root.ReplaceNode(node as StatementSyntax, 
-                SyntaxFactory.WhileStatement(node.Condition, node.Statement).WithAdditionalAnnotations(Formatter.Annotation))))};
+			return new[] { 
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Convert to while loop", 
+					t2 => {
+						var newRoot = root.ReplaceNode(
+							node, 
+							SyntaxFactory.WhileStatement(node.Condition, node.Statement)
+							.WithAdditionalAnnotations(Formatter.Annotation)
+						);
+
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
 	}
 }
