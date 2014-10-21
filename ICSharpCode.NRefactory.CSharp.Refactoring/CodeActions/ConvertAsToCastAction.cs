@@ -58,7 +58,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return Enumerable.Empty<CodeAction> ();
 			var node = token.Parent as BinaryExpressionSyntax;
 
-			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert 'as' to cast", PerformAction (document, root, node)) };
+			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert 'as' to cast", t2 => Task.FromResult(PerformAction (document, root, node))) };
 		}
 
 		static Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax bop)

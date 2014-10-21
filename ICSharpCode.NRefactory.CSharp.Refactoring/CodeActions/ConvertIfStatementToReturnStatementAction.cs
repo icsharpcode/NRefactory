@@ -61,13 +61,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (!ConvertIfStatementToReturnStatementAction.GetMatch(node, out condition, out return1, out return2, out rs))
 				return Enumerable.Empty<CodeAction>();
 
-			var newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ReturnStatement(CreateCondition(condition, return1, return2)));
-			if (rs != null) {
-				var retToRemove = newRoot.DescendantNodes().OfType<ReturnStatementSyntax>().FirstOrDefault(r => r.IsEquivalentTo(rs));
-				newRoot = newRoot.RemoveNode(retToRemove, SyntaxRemoveOptions.KeepNoTrivia);
-			}
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'return'", t2 => {
+				var newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ReturnStatement(CreateCondition(condition, return1, return2)));
+				if (rs != null) {
+					var retToRemove = newRoot.DescendantNodes().OfType<ReturnStatementSyntax>().FirstOrDefault(r => r.IsEquivalentTo(rs));
+					newRoot = newRoot.RemoveNode(retToRemove, SyntaxRemoveOptions.KeepNoTrivia);
+				}
 
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'return'", document.WithSyntaxRoot(newRoot)) };
+				return Task.FromResult(document.WithSyntaxRoot(newRoot));
+			}) };
 		}
 
 		private static bool GetMatch(IfStatementSyntax node, out ExpressionSyntax c, out ReturnStatementSyntax e1, out ReturnStatementSyntax e2, out ReturnStatementSyntax rs)

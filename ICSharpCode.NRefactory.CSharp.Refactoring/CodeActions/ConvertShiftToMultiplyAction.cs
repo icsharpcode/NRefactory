@@ -52,12 +52,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var rightSide = node.Right as LiteralExpressionSyntax;
 			if (rightSide == null || !(rightSide.Token.Value is int))
 				return Enumerable.Empty<CodeAction>();
-
 			bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken);
-
-			var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.MultiplyExpression : SyntaxKind.DivideExpression, node.Left,
-				SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1 << (int)rightSide.Token.Value))).WithAdditionalAnnotations(Formatter.Annotation));
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, isLeftShift ? "Replace with '*'" : "Replace with '/'", document.WithSyntaxRoot(newRoot)) };
+			return new[] {
+				CodeActionFactory.Create(
+					span,
+					DiagnosticSeverity.Info,
+					isLeftShift ? "Replace with '*'" : "Replace with '/'",
+					t2 => {
+						var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.MultiplyExpression : SyntaxKind.DivideExpression, node.Left,
+							SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1 << (int)rightSide.Token.Value))).WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
 	}
 }

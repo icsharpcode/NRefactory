@@ -55,10 +55,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (node == null)
 				return Enumerable.Empty<CodeAction>();
 
-			var ternary = SyntaxFactory.ConditionalExpression(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, node.Left, 
-				SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), node.Left, node.Right);
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '?:' expression", document.WithSyntaxRoot(
-				root.ReplaceNode(node, (ExpressionSyntax)ternary)))};
+			return new[] {
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Replace with '?:' expression", t2 => {
+						var ternary = SyntaxFactory.ConditionalExpression(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, node.Left, 
+							SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), node.Left, node.Right);
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, (ExpressionSyntax)ternary)));
+					}
+				)
+			};
 		}
 	}
 }

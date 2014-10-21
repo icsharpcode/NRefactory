@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (!arg.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseOrExpression)))
 				return Enumerable.Empty<CodeAction>();
 
-			return new[] {  CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, "Replace with bitwise flag comparison", PerformAction(document, root, invocationNode)) };
+			return new[] {  CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, "Replace with bitwise flag comparison", t2 => Task.FromResult(PerformAction(document, root, invocationNode))) };
 		}
 
 		static Document PerformAction(Document document, SyntaxNode root, InvocationExpressionSyntax invocationNode)

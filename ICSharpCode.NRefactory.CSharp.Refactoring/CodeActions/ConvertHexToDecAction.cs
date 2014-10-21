@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var literalValue = token.ToString();
 			if (!literalValue.StartsWith("0X", StringComparison.OrdinalIgnoreCase))
 				return Enumerable.Empty<CodeAction> ();
-			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to dec", PerformAction (document, root, token)) };
+			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to dec", t2 => Task.FromResult(PerformAction (document, root, token))) };
 		}
 
 		static Document PerformAction(Document document, SyntaxNode root, SyntaxToken token)

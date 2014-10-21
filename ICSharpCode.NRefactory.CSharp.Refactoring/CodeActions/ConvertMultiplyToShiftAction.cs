@@ -60,9 +60,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.AsteriskToken);
 
-			var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.LeftShiftExpression : SyntaxKind.RightShiftExpression, node.Left,
-				SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(log2))).WithAdditionalAnnotations(Formatter.Annotation));
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, isLeftShift ? "Replace with '<<'" : "Replace with '>>'", document.WithSyntaxRoot(newRoot)) };
+			return new[] { CodeActionFactory.Create(
+				span, 
+				DiagnosticSeverity.Info, 
+				isLeftShift ? "Replace with '<<'" : "Replace with '>>'", 
+				t2 => {
+					var newRoot = root.ReplaceNode(node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.LeftShiftExpression : SyntaxKind.RightShiftExpression, node.Left,
+						SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(log2))).WithAdditionalAnnotations(Formatter.Annotation));
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}
+			)
+			};
 		}
 	}
 }

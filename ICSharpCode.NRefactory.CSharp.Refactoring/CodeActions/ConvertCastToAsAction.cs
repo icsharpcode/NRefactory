@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var type = model.GetTypeInfo(castExpression.Type).Type;
 			if (type == null || type.IsValueType && !type.IsNullableType())
 				return Enumerable.Empty<CodeAction> ();
-			return new[] { CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert cast to 'as'", PerformAction (document, root, castExpression)) };
+			return new[] { CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert cast to 'as'", t2 => Task.FromResult(PerformAction (document, root, castExpression))) };
 
 //			// only works on reference and nullable types
 //			var type = context.ResolveType (node.Type);

@@ -87,9 +87,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				!trueAssignment.Left.IsEquivalentTo(falseAssignment.Left))
 				return Enumerable.Empty<CodeAction>();
 
-			var newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(trueAssignment.CSharpKind(), trueAssignment.Left,
-				SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right))));
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '?:' expression", document.WithSyntaxRoot(newRoot)) };
+			return new[] { 
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '?:' expression", 
+					t2 => {
+						var newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(trueAssignment.CSharpKind(), trueAssignment.Left,
+							SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right))));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				) 
+			};
 		}
 	}
 }

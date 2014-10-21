@@ -58,32 +58,36 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			if (property.AccessorList.Accessors.Any(b => b.Body != null)) //ignore properties with >=1 accessor body
 				return Enumerable.Empty<CodeAction>();
-			String name = GetNameProposal(property.Identifier.ValueText, model, root);
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "blah", t2 => {
+					String name = GetNameProposal(property.Identifier.ValueText, model, root);
 
-			//create our backing store
-			var backingStore = SyntaxFactory.FieldDeclaration(
-				SyntaxFactory.VariableDeclaration(property.Type,
-					SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(SyntaxFactory.VariableDeclarator(name))))
+					//create our backing store
+					var backingStore = SyntaxFactory.FieldDeclaration(
+						                  SyntaxFactory.VariableDeclaration(property.Type,
+							                  SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(SyntaxFactory.VariableDeclarator(name))))
 					.WithModifiers(property.Modifiers.Where(m => m.IsKind(SyntaxKind.StaticKeyword)).FirstOrDefault() == null ? SyntaxFactory.TokenList() :
-					SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword))).WithAdditionalAnnotations(Formatter.Annotation);
+						SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword))).WithAdditionalAnnotations(Formatter.Annotation);
 
-			//create our new property
-			ExpressionSyntax fieldExpression = (name == "value") ? SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(),
-				SyntaxFactory.IdentifierName("value")) as ExpressionSyntax : SyntaxFactory.IdentifierName(name);
-			var getBody = SyntaxFactory.Block(SyntaxFactory.ReturnStatement(fieldExpression));
-			var getter = SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration, getBody);
+					//create our new property
+					ExpressionSyntax fieldExpression = (name == "value") ? SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(),
+						                                  SyntaxFactory.IdentifierName("value")) as ExpressionSyntax : SyntaxFactory.IdentifierName(name);
+					var getBody = SyntaxFactory.Block(SyntaxFactory.ReturnStatement(fieldExpression));
+					var getter = SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration, getBody);
 
-			var setBody = SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(SyntaxKind.SimpleAssignmentExpression, fieldExpression,
-				SyntaxFactory.IdentifierName("value"))));
-			var setter = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration, setBody);
+					var setBody = SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(SyntaxKind.SimpleAssignmentExpression, fieldExpression,
+						             SyntaxFactory.IdentifierName("value"))));
+					var setter = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration, setBody);
 
-			var newPropAnno = new SyntaxAnnotation();
-			var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(new SyntaxList<AccessorDeclarationSyntax>().Add(getter).Add(setter)))
-				.WithAdditionalAnnotations(newPropAnno).WithAdditionalAnnotations(Formatter.Annotation);
+					var newPropAnno = new SyntaxAnnotation();
+					var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(new SyntaxList<AccessorDeclarationSyntax>().Add(getter).Add(setter)))
+					.WithAdditionalAnnotations(newPropAnno).WithAdditionalAnnotations(Formatter.Annotation);
 
-			var newRoot = root.ReplaceNode(property, newProperty);
-			return new[]{ CodeActionFactory.Create(span, DiagnosticSeverity.Info, "blah", document.WithSyntaxRoot(newRoot.InsertNodesBefore(newRoot.GetAnnotatedNodes(newPropAnno).First(),
-                new List<SyntaxNode>(){backingStore})))};
+					var newRoot = root.ReplaceNode(property, newProperty);
+					return Task.FromResult(document.WithSyntaxRoot(newRoot.InsertNodesBefore(newRoot.GetAnnotatedNodes(newPropAnno).First(), new List<SyntaxNode>() {
+						backingStore
+					})));
+				})
+			};
 		}
 
 		public String GetNameProposal(String name, SemanticModel model, SyntaxNode node)

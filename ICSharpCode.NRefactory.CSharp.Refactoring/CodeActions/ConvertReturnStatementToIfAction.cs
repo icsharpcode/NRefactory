@@ -68,10 +68,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				} else
 					return Enumerable.Empty<CodeAction>();
 			}
-			SyntaxAnnotation statementAnno = new SyntaxAnnotation();
-			var newRoot = root.ReplaceNode(node, statement.WithAdditionalAnnotations(statementAnno));
-			newRoot = newRoot.InsertNodesAfter(newRoot.GetAnnotatedNodes(statementAnno).First(), new List<SyntaxNode>() { returnAfter });
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", document.WithSyntaxRoot(newRoot)) };
+			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", t2 => {
+				SyntaxAnnotation statementAnno = new SyntaxAnnotation();
+				var newRoot = root.ReplaceNode(node, statement.WithAdditionalAnnotations(statementAnno));
+				newRoot = newRoot.InsertNodesAfter(newRoot.GetAnnotatedNodes(statementAnno).First(), new List<SyntaxNode>() { returnAfter });
+				return Task.FromResult(document.WithSyntaxRoot(newRoot));
+			})};
 		}
 	}
 }

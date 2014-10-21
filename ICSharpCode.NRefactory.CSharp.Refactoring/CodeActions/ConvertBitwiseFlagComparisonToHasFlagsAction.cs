@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (testFlagset && !flagsExpression.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseAndExpression)))
 				return Enumerable.Empty<CodeAction>();
 
-			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Replace with 'Enum.HasFlag'", PerformAction (document, root, boP, flagsExpression, targetExpression, testFlagset)) };
+			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Replace with 'Enum.HasFlag'", t2 => Task.FromResult(PerformAction (document, root, boP, flagsExpression, targetExpression, testFlagset))) };
 		}
 
 		Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax boP, ExpressionSyntax flagsExpression, ExpressionSyntax targetExpression, bool testFlagset)

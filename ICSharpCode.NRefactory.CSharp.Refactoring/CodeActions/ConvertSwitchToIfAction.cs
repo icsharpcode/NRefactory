@@ -62,40 +62,48 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					return Enumerable.Empty<CodeAction>();
 			}
 
-			List<IfStatementSyntax> ifNodes = new List<IfStatementSyntax>();
-			ElseClauseSyntax defaultElse = null;
 
-			foreach (var section in node.Sections) {
-				var condition = CollectCondition(node.Expression, section.Labels);
-				var body = SyntaxFactory.Block();
-				var last = section.Statements.LastOrDefault();
-				foreach (var statement in section.Statements) {
-					if (statement.IsEquivalentTo(last) && statement is BreakStatementSyntax)
-						continue;
-					body = body.WithStatements(body.Statements.Add(statement));
-				}
+			return new[] {
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info,
+					"Convert to 'if'",
+					t2 => {
+						List<IfStatementSyntax> ifNodes = new List<IfStatementSyntax>();
+						ElseClauseSyntax defaultElse = null;
 
-				//default => else
-				if (condition == null) {
-					defaultElse = SyntaxFactory.ElseClause(body);
-					break;
-				}
-				ifNodes.Add(SyntaxFactory.IfStatement(condition, body));
-			}
+						foreach (var section in node.Sections) {
+							var condition = CollectCondition(node.Expression, section.Labels);
+							var body = SyntaxFactory.Block();
+							var last = section.Statements.LastOrDefault();
+							foreach (var statement in section.Statements) {
+								if (statement.IsEquivalentTo(last) && statement is BreakStatementSyntax)
+									continue;
+								body = body.WithStatements(body.Statements.Add(statement));
+							}
 
-			IfStatementSyntax ifStatement = null;
-			//reverse the list and chain them
-			foreach (IfStatementSyntax ifs in ifNodes.Reverse<IfStatementSyntax>()) {
-				if (ifStatement == null) {
-					ifStatement = ifs;
-					if (defaultElse != null)
-						ifStatement = ifStatement.WithElse(defaultElse);
-				}
-				else
-					ifStatement = ifs.WithElse(SyntaxFactory.ElseClause(ifStatement));
-			}
+							//default => else
+							if (condition == null) {
+								defaultElse = SyntaxFactory.ElseClause(body);
+								break;
+							}
+							ifNodes.Add(SyntaxFactory.IfStatement(condition, body));
+						}
 
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Convert to 'if'", document.WithSyntaxRoot(root.ReplaceNode((StatementSyntax)node, ifStatement))) };
+						IfStatementSyntax ifStatement = null;
+						//reverse the list and chain them
+						foreach (IfStatementSyntax ifs in ifNodes.Reverse<IfStatementSyntax>()) {
+							if (ifStatement == null) {
+								ifStatement = ifs;
+								if (defaultElse != null)
+									ifStatement = ifStatement.WithElse(defaultElse);
+							}
+							else
+								ifStatement = ifs.WithElse(SyntaxFactory.ElseClause(ifStatement));
+						}
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((StatementSyntax)node, ifStatement)));
+					})
+			};
 		}
 
 		private ExpressionSyntax CollectCondition(ExpressionSyntax expressionSyntax, SyntaxList<SwitchLabelSyntax> labels)
