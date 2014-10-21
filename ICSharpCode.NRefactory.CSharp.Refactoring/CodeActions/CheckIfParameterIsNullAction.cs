@@ -38,6 +38,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
+using System.Runtime.Remoting.Messaging;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -50,62 +51,72 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ParameterSyntax node, CancellationToken cancellationToken)
 		{
-			yield break;
+//			if (!node..NameToken.Contains(context.Location))
+//				return null;
+			var parameter = node;
+			var bodyStatement = parameter.Parent.Parent.ChildNodes().OfType<BlockSyntax>().FirstOrDefault();
+			if (bodyStatement == null)
+				return null;
+
+			var parameterSymbol = semanticModel.GetDeclaredSymbol(node);
+			var type = parameterSymbol.Type;
+			if (type == null || type.IsValueType || HasNullCheck(semanticModel, parameterSymbol, bodyStatement)) 
+				return null;
+			return new [] { CodeActionFactory.Create(
+				node.Span,
+				DiagnosticSeverity.Info,
+				"Add null check for parameter",
+				t2 => {
+					var paramName = node.Identifier.ToString();
+					var ifStatement = SyntaxFactory.IfStatement(
+						SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression, SyntaxFactory.IdentifierName(paramName), SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), 
+						SyntaxFactory.ThrowStatement(
+							SyntaxFactory.ObjectCreationExpression(
+								SyntaxFactory.ParseTypeName("System.ArgumentNullException"), 
+								SyntaxFactory.ArgumentList(
+									SyntaxFactory.SeparatedList(new [] {
+										SyntaxFactory.Argument(
+											SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(paramName))
+										)}
+									)
+								),
+								null
+							)
+						)
+					);
+
+					var newBody = bodyStatement.WithStatements (SyntaxFactory.List<StatementSyntax>(new [] { ifStatement.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation) }.Concat (bodyStatement.Statements)));
+					var newRoot = root.ReplaceNode(bodyStatement, newBody);
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}
+			) };
 		}
-//		protected override CodeAction GetAction(SemanticModel context, ParameterDeclaration parameter)
-//		{
-//			if (!parameter.NameToken.Contains(context.Location))
-//				return null;
-//			BlockStatement bodyStatement;
-//			if (parameter.Parent is LambdaExpression) {
-//				bodyStatement = parameter.Parent.GetChildByRole (LambdaExpression.BodyRole) as BlockStatement;
-//			} else {
-//				bodyStatement = parameter.Parent.GetChildByRole (Roles.Body);
-//			}
-//			if (bodyStatement == null || bodyStatement.IsNull)
-//				return null;
-//			var type = context.ResolveType(parameter.Type);
-//			if (type.IsReferenceType == false || HasNullCheck(parameter)) 
-//				return null;
-//			
-//			return new CodeAction(context.TranslateString("Add null check for parameter"), script => {
-//				var statement = new IfElseStatement() {
-//					Condition = new BinaryOperatorExpression (new IdentifierExpression (parameter.Name), BinaryOperatorType.Equality, new NullReferenceExpression ()),
-//					TrueStatement = new ThrowStatement (new ObjectCreateExpression (context.CreateShortType("System", "ArgumentNullException"), new PrimitiveExpression (parameter.Name)))
-//				};
-//				script.AddTo(bodyStatement, statement);
-//			}, parameter.NameToken);
-//		}
-//
-//		static bool HasNullCheck (ParameterDeclaration parameter)
-//		{
-//			var visitor = new CheckNullVisitor (parameter);
-//			parameter.Parent.AcceptVisitor (visitor, null);
-//			return visitor.ContainsNullCheck;
-//		}
-//		
-//		class CheckNullVisitor : DepthFirstAstVisitor<object, object>
-//		{
-//			readonly Expression pattern;
-//			
-//			internal bool ContainsNullCheck;
-//			
-//			public CheckNullVisitor (ParameterDeclaration parameter)
-//			{
-//				pattern = PatternHelper.CommutativeOperator(new IdentifierExpression(parameter.Name), BinaryOperatorType.Any, new NullReferenceExpression());
-//			}
-//			
-//			public override object VisitIfElseStatement (IfElseStatement ifElseStatement, object data)
-//			{
-//				if (ifElseStatement.Condition is BinaryOperatorExpression) {
-//					var binOp = ifElseStatement.Condition as BinaryOperatorExpression;
-//					if ((binOp.Operator == BinaryOperatorType.Equality || binOp.Operator == BinaryOperatorType.InEquality) && pattern.IsMatch(binOp)) {
-//						ContainsNullCheck = true;
-//					}
-//				}
-//				
-//				return base.VisitIfElseStatement (ifElseStatement, data);
-//			}
-//		}
+
+		static bool HasNullCheck(SemanticModel semanticModel, IParameterSymbol parameterSymbol, BlockSyntax bodyStatement)
+		{
+			foreach (var ifStmt in bodyStatement.DescendantNodes().OfType<IfStatementSyntax>()) {
+				var cond = ifStmt.Condition as BinaryExpressionSyntax;
+				if (cond == null || !cond.IsKind(SyntaxKind.EqualsExpression) && !cond.IsKind(SyntaxKind.NotEqualsExpression))
+					continue;
+				ExpressionSyntax checkParam;
+				if (cond.Left.IsKind(SyntaxKind.NullLiteralExpression)) {
+					checkParam = cond.Right;
+				} else if (cond.Right.IsKind(SyntaxKind.NullLiteralExpression)) {
+					checkParam = cond.Left;
+				} else {
+					continue;
+				}
+				var stmt = ifStmt.Statement;
+				while (stmt is BlockSyntax)
+					stmt = ((BlockSyntax)stmt).Statements.FirstOrDefault();
+				if (!(stmt is ThrowStatementSyntax))
+					continue;
+
+				var param = semanticModel.GetSymbolInfo(checkParam);
+				if (param.Symbol == parameterSymbol)
+					return true;
+			}
+			return false;
+		}
 	}
 }

@@ -33,76 +33,92 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	[TestFixture]
 	public class CheckIfParameterIsNullTests : ContextActionTestBase
 	{
-		[Test()]
-		public void Test ()
+		[Test]
+		public void Test()
 		{
-			string result = RunContextAction (
-				new CheckIfParameterIsNullAction (),
+			string result = RunContextAction(
+				                         new CheckIfParameterIsNullAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test (string $param)" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        Console.WriteLine (param);" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+            
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test (string $param)" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		Console.WriteLine (param);" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"using System;" + Environment.NewLine +
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test (string param)" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		if (param == null)" + Environment.NewLine +
-				"			throw new ArgumentNullException (\"param\");" + Environment.NewLine +
-				"		Console.WriteLine (param);" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test (string param)" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        if (param == null)" + Environment.NewLine +
+				"            throw new ArgumentNullException(\"param\");" + Environment.NewLine +
+				"        Console.WriteLine (param);" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
-		[Test()]
-		public void TestLambda ()
+		[Test]
+		public void TestLambda()
 		{
-			Test<CheckIfParameterIsNullAction> (@"class Foo
+			Test<CheckIfParameterIsNullAction>(@"class Foo
 {
-	void Test ()
-	{
-		var lambda = ($sender, e) => {
-		};
-	}
-}",@"class Foo
+    void Test ()
+    {
+        var lambda = ($sender, e) => {
+        };
+    }
+}", @"class Foo
 {
-	void Test ()
-	{
-		var lambda = (sender, e) => {
-			if (sender == null)
-				throw new System.ArgumentNullException (""sender"");
-		};
-	}
+    void Test ()
+    {
+        var lambda = (sender, e) => {
+            if (sender == null)
+                throw new System.ArgumentNullException(""sender"");
+        };
+    }
 }");
 		}
 
-		[Test()]
-		public void TestAnonymousMethod ()
+		[Test]
+		public void TestAnonymousMethod()
 		{
-			Test<CheckIfParameterIsNullAction> (@"class Foo
+			Test<CheckIfParameterIsNullAction>(@"class Foo
 {
-	void Test ()
-	{
-		var lambda = delegate(object $sender, object e) {
-		};
-	}
-}",@"class Foo
+    void Test ()
+    {
+        var lambda = delegate(object $sender, object e) {
+        };
+    }
+}", @"class Foo
 {
-	void Test ()
-	{
-		var lambda = delegate(object sender, object e) {
-			if (sender == null)
-				throw new System.ArgumentNullException (""sender"");
-		};
-	}
+    void Test ()
+    {
+        var lambda = delegate(object sender, object e) {
+            if (sender == null)
+                throw new System.ArgumentNullException(""sender"");
+        };
+    }
 }");
 		}
+
+		[Test]
+		public void TestNullCheckAlreadyThere()
+		{
+			TestWrongContext<CheckIfParameterIsNullAction>(@"class Foo
+{
+    void Test ()
+    {
+        var lambda = ($sender, e) => {
+            if (sender == null)
+                throw new System.ArgumentNullException(""sender"");
+        };
+    }
+}");
+		}
+
 	}
 }
