@@ -58,28 +58,41 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var node = root.FindNode(span) as BinaryExpressionSyntax;
 			if (node == null || !(node.IsKind(SyntaxKind.EqualsExpression) || node.IsKind(SyntaxKind.NotEqualsExpression)))
 				return Enumerable.Empty<CodeAction>();
-			return new [] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Use 'Equals'", document.WithSyntaxRoot(root.ReplaceNode(node, CreateEquals(model, node))))};
+			return new [] {
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info,
+					"Use 'Equals'", 
+					document.WithSyntaxRoot(root.ReplaceNode(node, CreateEquals(model, node)))
+				)
+			};
 		}
 
-		private SyntaxNode CreateEquals(SemanticModel model, BinaryExpressionSyntax node)
+		SyntaxNode CreateEquals(SemanticModel model, BinaryExpressionSyntax node)
 		{
-			ExpressionSyntax expr = SyntaxFactory.InvocationExpression(GenerateTarget(model, node), SyntaxFactory.ArgumentList(
-				new SeparatedSyntaxList<ArgumentSyntax>().Add(SyntaxFactory.Argument(node.Left)).Add(SyntaxFactory.Argument(node.Right))));
+			var expr = SyntaxFactory.InvocationExpression(
+				GenerateTarget(model, node), 
+				SyntaxFactory.ArgumentList(
+					new SeparatedSyntaxList<ArgumentSyntax>()
+					.Add(SyntaxFactory.Argument(node.Left))
+					.Add(SyntaxFactory.Argument(node.Right))
+				)
+			);
 			if (node.IsKind(SyntaxKind.NotEqualsExpression))
-				expr = SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, expr);
-			return expr;
+				return SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, expr).WithAdditionalAnnotations(Formatter.Annotation);
+			return expr.WithAdditionalAnnotations(Formatter.Annotation);
 		}
 
-		private ExpressionSyntax GenerateTarget(SemanticModel model, BinaryExpressionSyntax node)
+		ExpressionSyntax GenerateTarget(SemanticModel model, BinaryExpressionSyntax node)
 		{
 			var symbols = model.LookupSymbols(node.SpanStart).OfType<IMethodSymbol>();
-			if (symbols.Count() == 0 || HasDifferentEqualsMethod(symbols))
+			if (!symbols.Any() || HasDifferentEqualsMethod(symbols))
 				return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ParseExpression("object"), SyntaxFactory.IdentifierName("Equals"));
 			else
 				return SyntaxFactory.IdentifierName("Equals");
 		}
 
-		private bool HasDifferentEqualsMethod(IEnumerable<IMethodSymbol> symbols)
+		static bool HasDifferentEqualsMethod(IEnumerable<IMethodSymbol> symbols)
 		{
 			foreach (IMethodSymbol method in symbols) {
 				if(method.Name == "Equals" && method.Parameters.Count() == 2 && method.ToDisplayString() != "object.Equals(object, object)")
