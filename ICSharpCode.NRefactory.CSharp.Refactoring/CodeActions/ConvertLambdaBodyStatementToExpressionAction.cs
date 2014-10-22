@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,58 +34,79 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts statement of lambda body to expression")]
 	[ExportCodeRefactoringProvider("Converts statement of lambda body to expression", LanguageNames.CSharp)]
-	public class ConvertLambdaBodyStatementToExpressionAction : SpecializedCodeAction<SimpleLambdaExpressionSyntax>
+	public class ConvertLambdaBodyStatementToExpressionAction : CodeRefactoringProvider
 	{
-//		internal static bool TryGetConvertableExpression(AstNode body, out BlockStatement blockStatement, out Expression expr)
-//		{
-//			expr = null;
-//			blockStatement = body as BlockStatement;
-//			if (blockStatement == null || blockStatement.Statements.Count > 1)
-//				return false;
-//			var returnStatement = blockStatement.Statements.FirstOrNullObject() as ReturnStatement;
-//			if (returnStatement != null) {
-//				expr = returnStatement.Expression;
-//			} else {
-//				var exprStatement = blockStatement.Statements.FirstOrNullObject() as ExpressionStatement;
-//				if (exprStatement == null)
-//					return false;
-//				expr = exprStatement.Expression;
-//			}
-//			return true;
-//		}
-//
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, SimpleLambdaExpressionSyntax node, CancellationToken cancellationToken)
+		internal static bool TryGetConvertableExpression(SyntaxNode body, out BlockSyntax blockStatement, out ExpressionSyntax expr)
 		{
-			yield break;
+			expr = null;
+			blockStatement = body as BlockSyntax;
+			if (blockStatement == null || blockStatement.Statements.Count > 1)
+				return false;
+			var returnStatement = blockStatement.Statements.FirstOrDefault() as ReturnStatementSyntax;
+			if (returnStatement != null) {
+				expr = returnStatement.Expression;
+			} else {
+				var exprStatement = blockStatement.Statements.FirstOrDefault() as ExpressionStatementSyntax;
+				if (exprStatement == null)
+					return false;
+				expr = exprStatement.Expression;
+			}
+			return true;
 		}
-//		internal static CodeAction CreateAction (BaseSemanticModel context, AstNode node, BlockStatement blockStatement, Expression expr)
-//		{
-//			return new CodeAction (
-//				context.TranslateString ("Convert to lambda expression"),
-//				script => script.Replace (blockStatement, expr.Clone ()), 
-//				node
-//			);
-//		}
-//
-//		protected override CodeAction GetAction (SemanticModel context, LambdaExpression node)
-//		{
-//			if (!node.ArrowToken.Contains (context.Location))
-//				return null;
-//
-//			BlockStatement blockStatement;
-//			Expression expr;
-//			if (!TryGetConvertableExpression(node.Body, out blockStatement, out expr))
-//				return null;
-//
-//			
-//			return CreateAction (context, node.ArrowToken, blockStatement, expr);
-//		}
+
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+
+			var token = root.FindToken(span.Start);
+			if (!token.IsKind(SyntaxKind.EqualsGreaterThanToken))
+				return Enumerable.Empty<CodeAction>();
+			var node = token.Parent;
+			if (!node.IsKind(SyntaxKind.ParenthesizedLambdaExpression) && !node.IsKind(SyntaxKind.SimpleLambdaExpression))
+				return Enumerable.Empty<CodeAction>();
+
+			CSharpSyntaxNode body;
+			if (node.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) {
+				body = ((ParenthesizedLambdaExpressionSyntax)node).Body;
+			} else {
+				body = ((SimpleLambdaExpressionSyntax)node).Body;
+			}		
+			if (body == null)
+				return Enumerable.Empty<CodeAction> ();
+
+			BlockSyntax blockStatement;
+			ExpressionSyntax expr;
+			if (!TryGetConvertableExpression(body, out blockStatement, out expr))
+				return null;
+
+			return new []  { 
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					"Convert to lambda expression",
+					t2 => {
+						SyntaxNode lambdaExpression;
+						if (node.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) {
+							lambdaExpression = ((ParenthesizedLambdaExpressionSyntax)node).WithBody(expr);
+						} else {
+							lambdaExpression = ((SimpleLambdaExpressionSyntax)node).WithBody(expr);
+						}
+
+						var newRoot = root.ReplaceNode(node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
+		}
 	}
 }

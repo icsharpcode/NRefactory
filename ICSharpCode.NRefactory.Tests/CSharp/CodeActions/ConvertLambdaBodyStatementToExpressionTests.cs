@@ -55,6 +55,28 @@ class TestClass
 		}
 
 		[Test]
+		public void TestParenthesizedLambdaReturn ()
+		{
+			Test<ConvertLambdaBodyStatementToExpressionAction> (@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		System.Func<int, int> f = (i) $=> {
+			return i + 1;
+		};
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		System.Func<int, int> f = (i) => i + 1;
+	}
+}");
+		}
+
+		[Test]
 		public void TestExpressionStatement ()
 		{
 			Test<ConvertLambdaBodyStatementToExpressionAction> (@"
@@ -63,7 +85,7 @@ class TestClass
 	void TestMethod ()
 	{
 		System.Action<int> f = i $=> {
-			System.Console.Write (i);
+			System.Console.Write(i);
 		};
 	}
 }", @"
@@ -71,7 +93,7 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		System.Action<int> f = i => System.Console.Write (i);
+		System.Action<int> f = i => System.Console.Write(i);
 	}
 }");
 		}
