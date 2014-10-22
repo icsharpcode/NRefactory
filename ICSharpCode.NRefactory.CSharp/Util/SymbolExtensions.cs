@@ -27,6 +27,7 @@ using System;
 using Microsoft.CodeAnalysis;
 using System.Linq;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.Shared.Utilities;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -211,5 +212,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 			return null;
 		}
+
+
 	}
 }

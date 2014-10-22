@@ -29,64 +29,222 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[TestFixture]
-	public class ConvertExplicitToImplicitImplementationTests : ContextActionTestBase
-	{
-		[Test]
-		public void Test ()
-		{
-			Test<ConvertExplicitToImplicitImplementationAction> (@"
+    [TestFixture]
+    public class ConvertExplicitToImplicitImplementationTests : ContextActionTestBase
+    {
+        [Test]
+        public void TestMethod()
+        {
+            Test<ConvertExplicitToImplicitImplementationAction>(@"
 interface ITest
 {
-	void Method ();
+    void Method();
 }
 class TestClass : ITest
 {
-	void $ITest.Method ()
-	{
-	}
+    void $ITest.Method()
+    {
+    }
 }", @"
 interface ITest
 {
-	void Method ();
+    void Method();
 }
 class TestClass : ITest
 {
-	public void Method ()
-	{
-	}
+    public void Method()
+    {
+    }
 }");
-		}
+        }
 
-		[Test]
-		public void TestExistingMethod ()
-		{
-			TestWrongContext<ConvertExplicitToImplicitImplementationAction> (@"
+        [Test]
+        public void TestExistingMethod()
+        {
+            TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
 interface ITest
 {
-	void Method ();
+    void Method ();
 }
 class TestClass : ITest
 {
-	void $ITest.Method ()
-	{
-	}
-	void Method ()
-	{
-	}
+    void $ITest.Method ()
+    {
+    }
+    void Method ()
+    {
+    }
+}");
+        }
+
+        [Test]
+        public void TestProperty()
+        {
+            Test<ConvertExplicitToImplicitImplementationAction>(@"
+interface ITest
+{
+    int Prop { get; set; }
+}
+class TestClass : ITest
+{
+    int $ITest.Prop
+    {
+        get { }
+        set { }
+    }
+}", @"
+interface ITest
+{
+    int Prop { get; set; }
+}
+class TestClass : ITest
+{
+    public int Prop
+    {
+        get { }
+        set { }
+    }
+}");
+        }
+
+        [Test]
+        public void TestExistingProperty()
+        {
+            TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+interface ITest
+{
+    int Prop { get; set; }
+}
+class TestClass : ITest
+{
+    int $ITest.Prop
+    {
+        get { }
+        set { }
+    }
+    public int Prop
+    {
+        get { }
+        set { }
+    }
+}");
+        }
+
+		[Test]
+		public void TestEvent()
+		{
+			Test<ConvertExplicitToImplicitImplementationAction>(@"
+using System;
+
+interface ITest
+{
+    event EventHandler Evt;
+}
+class TestClass : ITest
+{
+    event EventHandler $ITest.Evt
+    {
+        add { }
+        remove { }
+    }
+}", @"
+using System;
+
+interface ITest
+{
+    event EventHandler Evt;
+}
+class TestClass : ITest
+{
+    public event EventHandler Evt
+    {
+        add { }
+        remove { }
+    }
 }");
 		}
 
 		[Test]
-		public void TestNonExplitiImplementation ()
+		public void TestExistingEvent()
 		{
-			TestWrongContext<ConvertExplicitToImplicitImplementationAction> (@"
-class TestClass
+			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+using System;
+
+interface ITest
 {
-	void $Method ()
-	{
-	}
+    event EventHandler Evt;
+}
+class TestClass : ITest
+{
+    event EventHandler $ITest.Evt
+    {
+        add { }
+        remove { }
+    }
+    public event EventHandler Evt;
 }");
 		}
-	}
+
+		[Test]
+		public void TestIndexer()
+		{
+			Test<ConvertExplicitToImplicitImplementationAction>(@"
+interface ITest
+{
+    int this[int i] { get; }
+}
+class TestClass : ITest
+{
+    int $ITest.this[int i]
+    {
+        get { }
+    }
+}", @"
+interface ITest
+{
+    int this[int i] { get; }
+}
+class TestClass : ITest
+{
+    public int this[int i]
+    {
+        get { }
+    }
+}");
+		}
+
+		[Test]
+		public void TestExistingIndexer()
+		{
+			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+interface ITest
+{
+    int this[int i] { get; }
+}
+class TestClass : ITest
+{
+    int $ITest.this[int i]
+    {
+        get { }
+    }
+    public int this[int i]
+    {
+        get { }
+    }
+}");
+		}
+
+
+        [Test]
+        public void TestNonExplitiImplementation()
+        {
+            TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+class TestClass
+{
+    void $Method ()
+    {
+    }
+}");
+        }
+    }
 }
