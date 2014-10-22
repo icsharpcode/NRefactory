@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,7 +34,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -49,7 +47,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var document = context.Document;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 
 			var node = root.FindNode(span) as IfStatementSyntax;
@@ -59,18 +56,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var condition = node.Condition;
 			//make sure to check for multiple statements
 			ExpressionStatementSyntax whenTrueExprStatement, whenFalseExprStatement;
-			if (node.Statement is BlockSyntax) {
-				var block = node.Statement as BlockSyntax;
-				if (block.Statements.Count > 1)
+			var embeddedBlock = node.Statement as BlockSyntax;
+			if (embeddedBlock != null) {
+				if (embeddedBlock.Statements.Count > 1)
 					return Enumerable.Empty<CodeAction>();
 				whenTrueExprStatement = node.Statement.DescendantNodesAndSelf().OfType<ExpressionStatementSyntax>().FirstOrDefault();
 			} else {
 				whenTrueExprStatement = node.Statement as ExpressionStatementSyntax;
 			}
 
-			if (node.Else.Statement is BlockSyntax) {
-				var block = node.Else.Statement as BlockSyntax;
-				if (block.Statements.Count > 1)
+			var elseBlock = node.Else.Statement as BlockSyntax;
+			if (elseBlock != null) {
+				if (elseBlock.Statements.Count > 1)
 					return Enumerable.Empty<CodeAction>();
 				whenFalseExprStatement = node.Else.Statement.DescendantNodesAndSelf().OfType<ExpressionStatementSyntax>().FirstOrDefault();
 			} else {
@@ -90,8 +87,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new[] { 
 				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '?:' expression", 
 					t2 => {
-						var newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(trueAssignment.CSharpKind(), trueAssignment.Left,
-							SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right))));
+						var newRoot = root.ReplaceNode(node, 
+							SyntaxFactory.ExpressionStatement(
+								SyntaxFactory.AssignmentExpression(
+									trueAssignment.CSharpKind(),
+									trueAssignment.Left,
+									SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right)
+								)
+							).WithAdditionalAnnotations(Formatter.Annotation)
+						);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 

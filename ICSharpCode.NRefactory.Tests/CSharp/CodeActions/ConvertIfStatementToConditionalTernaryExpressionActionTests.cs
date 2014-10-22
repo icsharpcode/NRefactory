@@ -38,23 +38,23 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<ConvertIfStatementToConditionalTernaryExpressionAction>(@"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		$if (i > 0) {
-			a = 0;
-		} else {
-			a = 1;
-		}
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        $if (i > 0) {
+            a = 0;
+        } else {
+            a = 1;
+        }
+    }
 }", @"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		a = i > 0 ? 0 : 1;
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        a = i > 0 ? 0 : 1;
+    }
 }");
 		}
 
@@ -64,23 +64,23 @@ class TestClass
 			Test<ConvertIfStatementToConditionalTernaryExpressionAction>(@"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		$if (i > 0)
-			a += 0;
-		else {
-			a += 1;
-		}
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        $if (i > 0)
+            a += 0;
+        else {
+            a += 1;
+        }
+    }
 }", @"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		a += i > 0 ? 0 : 1;
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        a += i > 0 ? 0 : 1;
+    }
 }");
 		}
 
@@ -90,36 +90,36 @@ class TestClass
 			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionAction>(@"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		$if (i > 0)
-			a = 0;
-		else if (i < 5) {
-			a = 1;
-		} else {
-			a = 2;
-		}
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        $if (i > 0)
+            a = 0;
+        else if (i < 5) {
+            a = 1;
+        } else {
+            a = 2;
+        }
+    }
 }");
 		}
 
 		[Test]
 		public void MultipleStatementsInIf()
 		{
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionAction> (@"
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionAction>(@"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		$if (i > 0) {
-			a = 0;
-			a = 2;
-		} else {
-			a = 2;
-		}
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        $if (i > 0) {
+            a = 0;
+            a = 2;
+        } else {
+            a = 2;
+        }
+    }
 }");
 		}
 
@@ -127,47 +127,47 @@ class TestClass
 		public void TestDifferentAssignmentOperator()
 		{
 
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionAction> (@"
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionAction>(@"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		$if (i > 0)
-			a += 0;
-		else {
-			a -= 1;
-		}
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        $if (i > 0)
+            a += 0;
+        else {
+            a -= 1;
+        }
+    }
 }");
 		}
 
 		[Ignore("Are there any cases where this is needed ?")]
 		[Test]
-		public void TestInsertNecessaryParentheses ()
+		public void TestInsertNecessaryParentheses()
 		{
-			Test<ConvertIfStatementToConditionalTernaryExpressionAction> (@"
+			Test<ConvertIfStatementToConditionalTernaryExpressionAction>(@"
 class TestClass
 {
-	void TestMethod (int i)
-	{
-		int a;
-		int b;
-		$if (i > 0)
-			a = b = 0;
-		else {
-			a = 1;
-		}
-	}
+    void TestMethod (int i)
+    {
+        int a;
+        int b;
+        $if (i > 0)
+            a = b = 0;
+        else {
+            a = 1;
+        }
+    }
 }", @"
 class TestClass
 {
-	void TestMethod (int i)
-	{
-		int a;
-		int b;
-		a = i > 0 ? (b = 0) : 1;
-	}
+    void TestMethod (int i)
+    {
+        int a;
+        int b;
+        a = i > 0 ? (b = 0) : 1;
+    }
 }");
 		}
 
@@ -175,18 +175,17 @@ class TestClass
 		public void TestInvalidImplicitElse()
 		{
 
-			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionAction> (@"
+			TestWrongContext<ConvertIfStatementToConditionalTernaryExpressionAction>(@"
 class TestClass
 {
-	void TestMethod(int i)
-	{
-		int a;
-		$if (i > 0)
-			a = 0;
-		a = 1;
-	}
+    void TestMethod(int i)
+    {
+        int a;
+        $if (i > 0)
+            a = 0;
+        a = 1;
+    }
 }");
 		}
 	}
 }
-
