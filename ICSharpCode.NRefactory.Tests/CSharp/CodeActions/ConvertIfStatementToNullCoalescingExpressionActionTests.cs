@@ -39,29 +39,29 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
+    void Foo()
+    {
+        return null;
+    }
 
-	void TestMethod()
-	{
-		object o = Foo();
-		$if (o == null)
-			o = new object();
-	}
+    void TestMethod()
+    {
+        object o = Foo();
+        $if (o == null)
+            o = new object();
+    }
 }", @"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
+    void Foo()
+    {
+        return null;
+    }
 
-	void TestMethod()
-	{
-		object o = Foo() ?? new object();
-	}
+    void TestMethod()
+    {
+        object o = Foo() ?? new object();
+    }
 }");
 		}
 
@@ -71,27 +71,27 @@ class TestClass
 			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
-	void TestMethod()
-	{
-		object o = Foo();
-		$if (null == o)
-			o = new object();
-	}
+    void Foo()
+    {
+        return null;
+    }
+    void TestMethod()
+    {
+        object o = Foo();
+        $if (null == o)
+            o = new object();
+    }
 }", @"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
-	void TestMethod()
-	{
-		object o = Foo() ?? new object();
-	}
+    void Foo()
+    {
+        return null;
+    }
+    void TestMethod()
+    {
+        object o = Foo() ?? new object();
+    }
 }");
 		}
 
@@ -101,29 +101,29 @@ class TestClass
 			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
-	void TestMethod()
-	{
-		object o;
-		o = Foo();
-		$if (o == null)
-			o = new object();
-	}
+    void Foo()
+    {
+        return null;
+    }
+    void TestMethod()
+    {
+        object o;
+        o = Foo();
+        $if (o == null)
+            o = new object();
+    }
 }", @"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
-	void TestMethod()
-	{
-		object o;
-		o = Foo() ?? new object();
-	}
+    void Foo()
+    {
+        return null;
+    }
+    void TestMethod()
+    {
+        object o;
+        o = Foo() ?? new object();
+    }
 }");
 		}
 
@@ -133,20 +133,20 @@ class TestClass
 			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
-	object o;
-	void TestMethod()
-	{
-		$if (o == null)
-			o = new object();
-	}
+    object o;
+    void TestMethod()
+    {
+        $if (o == null)
+            o = new object();
+    }
 }", @"
 class TestClass
 {
-	object o;
-	void TestMethod()
-	{
-		o = o ?? new object();
-	}
+    object o;
+    void TestMethod()
+    {
+        o = o ?? new object();
+    }
 }");
 		}
 
@@ -156,29 +156,29 @@ class TestClass
 			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
-	void TestMethod()
-	{
-		object o = Foo();
-		$if (o == null)
-		{
-			o = new object();
-		}
-	}
+    void Foo()
+    {
+        return null;
+    }
+    void TestMethod()
+    {
+        object o = Foo();
+        $if (o == null)
+        {
+            o = new object();
+        }
+    }
 }", @"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
-	void TestMethod()
-	{
-		object o = Foo() ?? new object();
-	}
+    void Foo()
+    {
+        return null;
+    }
+    void TestMethod()
+    {
+        object o = Foo() ?? new object();
+    }
 }");
 		}
 
@@ -188,30 +188,30 @@ class TestClass
 			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
-	void TestMethod()
-	{
-		object o = Foo();
-		$if (o != null)
-		{
-		} else {
-			o = new object();
-		}
-	}
+    void Foo()
+    {
+        return null;
+    }
+    void TestMethod()
+    {
+        object o = Foo();
+        $if (o != null)
+        {
+        } else {
+            o = new object();
+        }
+    }
 }", @"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
-	void TestMethod()
-	{
-		object o = Foo() ?? new object();
-	}
+    void Foo()
+    {
+        return null;
+    }
+    void TestMethod()
+    {
+        object o = Foo() ?? new object();
+    }
 }");
 		}
 
@@ -221,18 +221,18 @@ class TestClass
 			TestWrongContext<ConvertIfStatementToNullCoalescingExpressionAction>(@"
 class TestClass
 {
-	void Foo()
-	{
-		return null;
-	}
-	void TestMethod()
-	{
-		object o = Foo ();
-		$if (o != null)
-		{
-			o = new object();
-		}
-	}
+    void Foo()
+    {
+        return null;
+    }
+    void TestMethod()
+    {
+        object o = Foo ();
+        $if (o != null)
+        {
+            o = new object();
+        }
+    }
 }");
 		}
 	}

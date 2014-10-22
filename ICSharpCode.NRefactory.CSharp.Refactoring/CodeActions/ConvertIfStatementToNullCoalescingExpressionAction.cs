@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,7 +34,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -49,56 +47,65 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var document = context.Document;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 
 			var node = root.FindNode(span) as IfStatementSyntax;
-			SyntaxAnnotation ifStatementAnnotation = new SyntaxAnnotation();
-			if (node == null)
+			if (node == null || !node.IfKeyword.Span.Contains(span))
 				return Enumerable.Empty<CodeAction>();
 
 			ExpressionSyntax rightSide;
-			var comparedNode = CheckNode(model, node, out rightSide);
+			var comparedNode = CheckNode(node, out rightSide);
 			if (comparedNode == null)
 				return Enumerable.Empty<CodeAction>();
 
-			//get the node prior to this
-			var previousNode = node.Parent.ChildThatContainsPosition(node.GetLeadingTrivia().Min(t => t.SpanStart) - 1).AsNode();
-			var previousDecl = previousNode as VariableDeclarationSyntax;
-			if (previousNode is LocalDeclarationStatementSyntax)
-				previousDecl = ((LocalDeclarationStatementSyntax)previousNode).Declaration;
-			SyntaxNode newRoot = null;
-			if (previousDecl != null && previousDecl.Variables.Count == 1) {
-				var variable = previousDecl.Variables.First();
+			return new[] {
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info,
+					"Replace with '??'", 
+					t2 =>{
+						//get the node prior to this
+						var previousNode = node.Parent.ChildThatContainsPosition(node.GetLeadingTrivia().Min(t => t.SpanStart) - 1).AsNode();
+						var previousDecl = previousNode as VariableDeclarationSyntax;
+						var prevVarDecl = previousNode as LocalDeclarationStatementSyntax;
+						if (prevVarDecl != null)
+							previousDecl = prevVarDecl.Declaration;
+						SyntaxNode newRoot = null;
+						if (previousDecl != null && previousDecl.Variables.Count == 1) {
+							var variable = previousDecl.Variables.First();
+							var comparedNodeIdentifierExpression = comparedNode as IdentifierNameSyntax;
+							if (comparedNodeIdentifierExpression != null && comparedNodeIdentifierExpression.Identifier.ValueText == variable.Identifier.ValueText) {
+								var initialiser = variable.WithInitializer(SyntaxFactory.EqualsValueClause(SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, variable.Initializer.Value, rightSide)));
+								newRoot = root.ReplaceNode(variable, initialiser.WithAdditionalAnnotations(Formatter.Annotation));
+							}
+						} else {
+							var previousExpressionStatement = previousNode as ExpressionStatementSyntax;
+							if (previousExpressionStatement != null) {
+								var previousAssignment = previousExpressionStatement.Expression as AssignmentExpressionSyntax;
+								if (previousAssignment != null && comparedNode.IsEquivalentTo(previousAssignment.Left, true)) {
+									newRoot = root.ReplaceNode(previousAssignment.Right, SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, previousAssignment.Right, rightSide).WithAdditionalAnnotations(Formatter.Annotation));
+								}
+							} else {
+								newRoot = root.ReplaceNode(node, 
+									SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, comparedNode, SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, comparedNode, rightSide)))
+									.WithAdditionalAnnotations(Formatter.Annotation)
+								);
+							}
+						}
+						var ifStatementToRemove = newRoot.DescendantNodes().OfType<IfStatementSyntax>().FirstOrDefault(m => m.IsEquivalentTo(node));
+						if (ifStatementToRemove != null)
+							newRoot = newRoot.RemoveNode(ifStatementToRemove, SyntaxRemoveOptions.KeepNoTrivia);
 
-				var comparedNodeIdentifierExpression = comparedNode as IdentifierNameSyntax;
-				if (comparedNodeIdentifierExpression != null && comparedNodeIdentifierExpression.Identifier.ValueText == variable.Identifier.ValueText) {
-					var initialiser = variable.WithInitializer(SyntaxFactory.EqualsValueClause(SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, variable.Initializer.Value,
-						rightSide)));
-					newRoot = root.ReplaceNode(variable, initialiser);
-				}
-			} else {
-				var previousExpressionStatement = previousNode as ExpressionStatementSyntax;
-				if (previousExpressionStatement != null) {
-					var previousAssignment = previousExpressionStatement.Expression as AssignmentExpressionSyntax;
-					if (previousAssignment != null && comparedNode.IsEquivalentTo(previousAssignment.Left, true)) {
-						newRoot = root.ReplaceNode(previousAssignment.Right, SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, previousAssignment.Right, rightSide));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
-				} else {
-					newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ExpressionStatement(SyntaxFactory.BinaryExpression(SyntaxKind.SimpleAssignmentExpression, comparedNode, SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, comparedNode, rightSide))));
-				}
-			}
-			var ifStatementToRemove = newRoot.DescendantNodes().OfType<IfStatementSyntax>().FirstOrDefault(m => m.IsEquivalentTo(node));
-			if (ifStatementToRemove != null)
-				newRoot = newRoot.RemoveNode(ifStatementToRemove, SyntaxRemoveOptions.KeepNoTrivia);
-
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '??'", document.WithSyntaxRoot(newRoot)) };
+				)
+			};
 		}
 
-		private ExpressionSyntax CheckNode(SemanticModel model, IfStatementSyntax node, out ExpressionSyntax rightSide)
+		static ExpressionSyntax CheckNode(IfStatementSyntax node, out ExpressionSyntax rightSide)
 		{
 			rightSide = null;
-			BinaryExpressionSyntax condition = node.Condition as BinaryExpressionSyntax;
+			var condition = node.Condition as BinaryExpressionSyntax;
 			if (condition == null || !(condition.IsKind(SyntaxKind.EqualsExpression) || condition.IsKind(SyntaxKind.NotEqualsExpression)))
 				return null;
 			var nullSide = condition.Right as LiteralExpressionSyntax;
@@ -110,7 +117,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					return null;
 			}
 			bool isEquality = condition.IsKind(SyntaxKind.EqualsExpression);
-			ExpressionSyntax comparedNode = nullIsRight ? condition.Left : condition.Right;
 			StatementSyntax contentStatement;
 			if (isEquality) {
 				contentStatement = node.Statement;
@@ -122,7 +128,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					return null;
 			}
 
-			contentStatement = GetSimpleStatement(contentStatement) as ExpressionStatementSyntax;
+			contentStatement = GetSimpleStatement(contentStatement);
 			if (contentStatement == null)
 				return null;
 
@@ -146,10 +152,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return statement;
 		}
 
-		internal static bool IsEmpty(StatementSyntax node)
+		internal static bool IsEmpty(SyntaxNode node)
 		{
 			//don't include self
-			return node == null || !node.DescendantNodesAndSelf().Any(d => !(d is EmptyStatementSyntax || d is BlockSyntax));
+			return node == null || node.DescendantNodesAndSelf().All(d => (d is EmptyStatementSyntax || d is BlockSyntax));
 		}
 	}
 }
