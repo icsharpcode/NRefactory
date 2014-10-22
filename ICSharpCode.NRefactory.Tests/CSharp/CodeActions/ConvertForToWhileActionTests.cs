@@ -33,144 +33,152 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertForToWhileActionTests  : ContextActionTestBase
 	{
 		[Test]
-		public void TestSimpleFor ()
+		public void TestSimpleFor()
 		{
 			Test<ConvertForToWhileAction>(@"
 class Test
 {
-	void Foo (object[] o)
-	{
-		$for (int i = 0, oLength = o.Length; i < oLength; i++) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-		}
-	}
+    void Foo (object[] o)
+    {
+        $for (int i = 0, oLength = o.Length; i < oLength; i++)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+        }
+    }
 }", @"
 class Test
 {
-	void Foo (object[] o)
-	{
-		int i = 0, oLength = o.Length;
-		while (i < oLength) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-			i++;
-		}
-	}
+    void Foo (object[] o)
+    {
+        int i = 0, oLength = o.Length;
+        while (i < oLength)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+            i++;
+        }
+    }
 }");
 		}
 
 		[Test]
-		public void TestMissingInitializer ()
+		public void TestMissingInitializer()
 		{
 			Test<ConvertForToWhileAction>(@"
 class Test
 {
-	void Foo ()
-	{
-		$for (; i < oLength; i++) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-		}
-	}
+    void Foo ()
+    {
+        $for (; i < oLength; i++)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+        }
+    }
 }", @"
 class Test
 {
-	void Foo ()
-	{
-		while (i < oLength) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-			i++;
-		}
-	}
+    void Foo ()
+    {
+        while (i < oLength)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+            i++;
+        }
+    }
 }");
 		}
 
 		[Test]
-		public void TestMissingCondition ()
+		public void TestMissingCondition()
 		{
 			Test<ConvertForToWhileAction>(@"
 class Test
 {
-	void Foo (object[] o)
-	{
-		$for (int i = 0, oLength = o.Length;; i++) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-		}
-	}
+    void Foo (object[] o)
+    {
+        $for (int i = 0, oLength = o.Length;; i++)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+        }
+    }
 }", @"
 class Test
 {
-	void Foo (object[] o)
-	{
-		int i = 0, oLength = o.Length;
-		while (true) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-			i++;
-		}
-	}
+    void Foo (object[] o)
+    {
+        int i = 0, oLength = o.Length;
+        while (true)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+            i++;
+        }
+    }
 }");
 		}
 
 		[Test]
-		public void TestInfiniteLoop ()
+		public void TestInfiniteLoop()
 		{
 			Test<ConvertForToWhileAction>(@"
 class Test
 {
-	void Foo (object[] o)
-	{
-		$for (;;) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-		}
-	}
+    void Foo (object[] o)
+    {
+        $for (;;)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+        }
+    }
 }", @"
 class Test
 {
-	void Foo (object[] o)
-	{
-		while (true) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-		}
-	}
+    void Foo (object[] o)
+    {
+        while (true)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+        }
+    }
 }");
 		}
 
 		[Test]
-		public void TestMultipleInitializersAndIterators ()
+		public void TestMultipleInitializersAndIterators()
 		{
 			Test<ConvertForToWhileAction>(@"
 class Test
 {
-	void Foo (object[] o)
-	{
-		$for (i=0,j=0; i < oLength; i++,j++) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-		}
-	}
+    void Foo (object[] o)
+    {
+        $for (i=0,j=0; i < oLength; i++,j++)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+        }
+    }
 }", @"
 class Test
 {
-	void Foo (object[] o)
-	{
-		i = 0;
-		j = 0;
-		while (i < oLength) {
-			var p = o [i];
-			System.Console.WriteLine (p);
-			i++;
-			j++;
-		}
-	}
+    void Foo (object[] o)
+    {
+        i = 0;
+        j = 0;
+        while (i < oLength)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+            i++;
+            j++;
+        }
+    }
 }");
 		}
-
 	}
 }
-

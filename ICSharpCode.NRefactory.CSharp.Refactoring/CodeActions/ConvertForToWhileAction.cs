@@ -46,28 +46,39 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ForStatementSyntax node, CancellationToken cancellationToken)
 		{
-			yield break;
+			if (!node.ForKeyword.Span.Contains(span))
+				return null;
+
+			return new [] { CodeActionFactory.Create(
+				node.Span,
+				DiagnosticSeverity.Info,
+				"Convert to 'while'",
+				t2 => {
+					var statements = new List<StatementSyntax>();
+					var blockSyntax = node.Statement as BlockSyntax;
+					if (blockSyntax != null) {
+						statements.AddRange(blockSyntax.Statements);
+					} else {
+						statements.Add(node.Statement);
+					}
+					statements.AddRange(node.Incrementors.Select(i => SyntaxFactory.ExpressionStatement(i)));
+
+					var whileStatement = SyntaxFactory.WhileStatement(
+							node.Condition ?? SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression),
+							SyntaxFactory.Block(statements));
+					var replaceStatements = new List<StatementSyntax>();
+					if (node.Declaration != null)
+						replaceStatements.Add(SyntaxFactory.LocalDeclarationStatement(node.Declaration).WithAdditionalAnnotations(Formatter.Annotation));
+
+					foreach (var init in node.Initializers) {
+						replaceStatements.Add(SyntaxFactory.ExpressionStatement(init).WithAdditionalAnnotations(Formatter.Annotation));
+					}
+					replaceStatements.Add (whileStatement.WithAdditionalAnnotations(Formatter.Annotation));
+
+					var newRoot = root.ReplaceNode(node, replaceStatements);
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}
+			)};
 		}
-//		protected override CodeAction GetAction(SemanticModel context, ForStatement node)
-//		{
-//			if (!node.ForToken.Contains(context.Location))
-//				return null;
-//			return new CodeAction(
-//				context.TranslateString("Convert to 'while'"),
-//				script => {
-//					var body = node.EmbeddedStatement.Clone();
-//					var blockStatement = body as BlockStatement ?? new BlockStatement { Statements = { body } };
-//					blockStatement.Statements.AddRange(node.Iterators.Select(i => i.Clone ()));
-//					var whileStatement = new WhileStatement(node.Condition.IsNull ? new PrimitiveExpression(true) : node.Condition.Clone(), blockStatement);
-//					foreach (var init in node.Initializers) {
-//						var stmt = init.Clone();
-//						stmt.Role = BlockStatement.StatementRole;
-//						script.InsertBefore(node, stmt);
-//					}
-//					script.Replace(node, whileStatement);
-//				},
-//				node
-//			);
-//		}
 	}
 }
