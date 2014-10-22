@@ -37,32 +37,55 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
+using System.Security.Principal;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts expression of lambda body to statement")]
 	[ExportCodeRefactoringProvider("Converts expression of lambda body to statement", LanguageNames.CSharp)]
-	public class ConvertLambdaBodyExpressionToStatementAction : SpecializedCodeAction<SimpleLambdaExpressionSyntax>
+	public class ConvertLambdaBodyExpressionToStatementAction : CodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, SimpleLambdaExpressionSyntax node, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
-			if (!node.ArrowToken.Span.Contains (span))
-				return Enumerable.Empty<CodeAction> ();
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
-			var bodyExpr = node.Body as ExpressionSyntax;
+			var token = root.FindToken(span.Start);
+			if (!token.IsKind(SyntaxKind.EqualsGreaterThanToken))
+				return Enumerable.Empty<CodeAction>();
+			var node = token.Parent;
+			if (!node.IsKind(SyntaxKind.ParenthesizedLambdaExpression) && !node.IsKind(SyntaxKind.SimpleLambdaExpression))
+				return Enumerable.Empty<CodeAction>();
+
+			ExpressionSyntax bodyExpr = null;
+			if (node.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) {
+				bodyExpr = ((ParenthesizedLambdaExpressionSyntax)node).Body as ExpressionSyntax;
+			} else {
+				bodyExpr = ((SimpleLambdaExpressionSyntax)node).Body as ExpressionSyntax;
+			}		
 			if (bodyExpr == null)
 				return Enumerable.Empty<CodeAction> ();
 
-
 			return new []  { 
 				CodeActionFactory.Create(
-					node.ArrowToken.Span,
+					token.Span,
 					DiagnosticSeverity.Info,
 					"Convert to lambda statement",
 					t2 => {
-						var lambdaExpression = node.WithBody(SyntaxFactory.Block(
-							RequireReturnStatement (semanticModel, node) ? (StatementSyntax)SyntaxFactory.ReturnStatement (bodyExpr) : SyntaxFactory.ExpressionStatement(bodyExpr)
-						));
+						SyntaxNode lambdaExpression;
+						if (node.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) {
+							lambdaExpression = ((ParenthesizedLambdaExpressionSyntax)node).WithBody(SyntaxFactory.Block(
+								RequireReturnStatement (model, node) ? (StatementSyntax)SyntaxFactory.ReturnStatement (bodyExpr) : SyntaxFactory.ExpressionStatement(bodyExpr)
+							));
+						} else {
+							lambdaExpression = ((SimpleLambdaExpressionSyntax)node).WithBody(SyntaxFactory.Block(
+								RequireReturnStatement (model, node) ? (StatementSyntax)SyntaxFactory.ReturnStatement (bodyExpr) : SyntaxFactory.ExpressionStatement(bodyExpr)
+							));
+						}
+
 						var newRoot = root.ReplaceNode(node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
@@ -70,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			};
 		}
 
-		static bool RequireReturnStatement (SemanticModel model, SimpleLambdaExpressionSyntax lambda)
+		static bool RequireReturnStatement (SemanticModel model, SyntaxNode lambda)
 		{
 			var typeInfo = model.GetTypeInfo(lambda);
 			var type = typeInfo.ConvertedType ?? typeInfo.Type;
