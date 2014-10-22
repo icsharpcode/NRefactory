@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,7 +34,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -49,7 +47,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var document = context.Document;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 
 			var node = root.FindNode(span) as IfStatementSyntax;
@@ -61,24 +58,30 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (!ConvertIfStatementToReturnStatementAction.GetMatch(node, out condition, out return1, out return2, out rs))
 				return Enumerable.Empty<CodeAction>();
 
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'return'", t2 => {
-				var newRoot = root.ReplaceNode((StatementSyntax)node, SyntaxFactory.ReturnStatement(CreateCondition(condition, return1, return2)));
-				if (rs != null) {
-					var retToRemove = newRoot.DescendantNodes().OfType<ReturnStatementSyntax>().FirstOrDefault(r => r.IsEquivalentTo(rs));
-					newRoot = newRoot.RemoveNode(retToRemove, SyntaxRemoveOptions.KeepNoTrivia);
-				}
+			return new[] {
+				CodeActionFactory.Create(
+					span,
+					DiagnosticSeverity.Info, 
+					"Replace with 'return'", 
+					t2 => {
+						var newRoot = root.ReplaceNode(node, SyntaxFactory.ReturnStatement(CreateCondition(condition, return1, return2)).WithAdditionalAnnotations(Formatter.Annotation));
+						if (rs != null) {
+							var retToRemove = newRoot.DescendantNodes().OfType<ReturnStatementSyntax>().FirstOrDefault(r => r.IsEquivalentTo(rs));
+							newRoot = newRoot.RemoveNode(retToRemove, SyntaxRemoveOptions.KeepNoTrivia);
+						}
 
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			}) };
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					})
+			};
 		}
 
-		private static bool GetMatch(IfStatementSyntax node, out ExpressionSyntax c, out ReturnStatementSyntax e1, out ReturnStatementSyntax e2, out ReturnStatementSyntax rs)
+		static bool GetMatch(IfStatementSyntax node, out ExpressionSyntax c, out ReturnStatementSyntax e1, out ReturnStatementSyntax e2, out ReturnStatementSyntax rs)
 		{
 			rs = e1 = e2 = null;
 			c = node.Condition;
 			//attempt to match if(condition) return else return
 			e1 = ConvertIfStatementToNullCoalescingExpressionAction.GetSimpleStatement(node.Statement) as ReturnStatementSyntax;
-			if(e1 == null)
+			if (e1 == null)
 				return false;
 			e2 = node.Else != null ? ConvertIfStatementToNullCoalescingExpressionAction.GetSimpleStatement(node.Else.Statement) as ReturnStatementSyntax : null;
 			//match
@@ -97,9 +100,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return false;
 		}
 
-		private ExpressionSyntax CreateCondition(ExpressionSyntax c, ReturnStatementSyntax e1, ReturnStatementSyntax e2)
+		static ExpressionSyntax CreateCondition(ExpressionSyntax c, ReturnStatementSyntax e1, ReturnStatementSyntax e2)
 		{
-				return e1.Expression.IsKind(SyntaxKind.TrueLiteralExpression) && e2.Expression.IsKind(SyntaxKind.FalseLiteralExpression) ? 
+			return e1.Expression.IsKind(SyntaxKind.TrueLiteralExpression) && e2.Expression.IsKind(SyntaxKind.FalseLiteralExpression) ? 
 					c : SyntaxFactory.ConditionalExpression(c, e1.Expression, e2.Expression);
 		}
 	}

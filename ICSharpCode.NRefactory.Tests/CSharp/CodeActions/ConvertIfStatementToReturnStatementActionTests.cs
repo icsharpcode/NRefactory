@@ -39,20 +39,20 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<ConvertIfStatementToReturnStatementAction>(@"
 class TestClass
 {
-	int TestMethod(int i)
-	{
-		$if (i > 0)
-			return 1;
-		else
-			return 0;
-	}
+    int TestMethod(int i)
+    {
+        $if (i > 0)
+            return 1;
+        else
+            return 0;
+    }
 }", @"
 class TestClass
 {
-	int TestMethod(int i)
-	{
-		return i > 0 ? 1 : 0;
-	}
+    int TestMethod(int i)
+    {
+        return i > 0 ? 1 : 0;
+    }
 }");
 		}
 
@@ -61,20 +61,20 @@ class TestClass
 		{
 			Test<ConvertIfStatementToReturnStatementAction>(@"class Foo
 {
-	bool Bar(string str)
-	{
-		$if (str.Length > 10) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    bool Bar(string str)
+    {
+        $if (str.Length > 10) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }", @"class Foo
 {
-	bool Bar(string str)
-	{
-		return str.Length > 10;
-	}
+    bool Bar(string str)
+    {
+        return str.Length > 10;
+    }
 }");
 		}
 
@@ -85,19 +85,19 @@ class TestClass
 			Test<ConvertIfStatementToReturnStatementAction>(@"
 class TestClass
 {
-	int TestMethod(int i)
-	{
-		$if (i > 0)
-			return 1;
-		return 0;
-	}
+    int TestMethod(int i)
+    {
+        $if (i > 0)
+            return 1;
+        return 0;
+    }
 }", @"
 class TestClass
 {
-	int TestMethod(int i)
-	{
-		return i > 0 ? 1 : 0;
-	}
+    int TestMethod(int i)
+    {
+        return i > 0 ? 1 : 0;
+    }
 }");
 		}
 	}
