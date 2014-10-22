@@ -33,74 +33,166 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertImplicitToExplicittImplementationTests : ContextActionTestBase
 	{
 		[Test]
-		public void Test ()
+		public void Test()
 		{
-			Test<ConvertImplicitToExplicitImplementationAction> (@"
+			Test<ConvertImplicitToExplicitImplementationAction>(@"
 interface ITest
 {
-	void Method ();
+    void Method ();
 }
 class TestClass : ITest
 {
-	public void $Method ()
-	{
-	}
+    public void $Method()
+    {
+    }
 }", @"
 interface ITest
 {
-	void Method ();
+    void Method ();
 }
 class TestClass : ITest
 {
-	void ITest.Method ()
-	{
-	}
+    void ITest.Method()
+    {
+    }
 }");
 		}
 
 		[Test]
-		public void TestMultipleInterfaces ()
+		public void TestProperty()
 		{
-			TestWrongContext<ConvertImplicitToExplicitImplementationAction> (@"
+			Test<ConvertImplicitToExplicitImplementationAction>(@"
 interface ITest
 {
-	void Method ();
+    int Prop { get; set; }
+}
+class TestClass : ITest
+{
+    public int $Prop
+    {
+        get { }
+        set { }
+    }
+}", @"
+interface ITest
+{
+    int Prop { get; set; }
+}
+class TestClass : ITest
+{
+    int ITest.Prop
+    {
+        get { }
+        set { }
+    }
+}");
+		}
+
+		[Test]
+		public void TestEvent()
+		{
+			Test<ConvertImplicitToExplicitImplementationAction>(@"
+using System;
+
+interface ITest
+{
+    event EventHandler Evt;
+}
+class TestClass : ITest
+{
+    public event EventHandler $Evt
+    {
+        add { }
+        remove { }
+    }
+}", @"
+using System;
+
+interface ITest
+{
+    event EventHandler Evt;
+}
+class TestClass : ITest
+{
+    event EventHandler ITest.Evt
+    {
+        add { }
+        remove { }
+    }
+}");
+		}
+
+		[Test]
+		public void TestIndexer()
+		{
+			Test<ConvertImplicitToExplicitImplementationAction>(@"
+interface ITest
+{
+    int this[int i] { get; }
+}
+class TestClass : ITest
+{
+    public int $this[int i]
+    {
+        get { }
+    }
+}", @"
+interface ITest
+{
+    int this[int i] { get; }
+}
+class TestClass : ITest
+{
+    int ITest.this[int i]
+    {
+        get { }
+    }
+}");
+		}
+
+		[Test]
+		public void TestMultipleInterfaces()
+		{
+			TestWrongContext<ConvertImplicitToExplicitImplementationAction>(@"
+interface ITest
+{
+    void Method ();
 }
 interface ITest2
 {
-	void Method ();
+    void Method ();
 }
 class TestClass : ITest, ITest2
 {
-	void $Method ()
-	{
-	}
+    void $Method ()
+    {
+    }
 }");
 		}
 
 		[Test]
-		public void TestNonImplicitImplementation ()
+		public void TestNonImplicitImplementation()
 		{
-			TestWrongContext<ConvertImplicitToExplicitImplementationAction> (@"
+			TestWrongContext<ConvertImplicitToExplicitImplementationAction>(@"
 class TestClass
 {
-	void $Method ()
-	{
-	}
+    void $Method ()
+    {
+    }
 }");
 		}
 
 		[Test]
-		public void TestInterfaceMethod ()
+		public void TestInterfaceMethod()
 		{
-			TestWrongContext<ConvertImplicitToExplicitImplementationAction> (@"
+			TestWrongContext<ConvertImplicitToExplicitImplementationAction>(@"
 interface ITest
 {
-	void Method ();
+    void Method ();
 }
 interface ITest2 : ITest
 {
-	void $Method ();
+    void $Method ();
 }");
 		}
 

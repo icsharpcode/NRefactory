@@ -29,13 +29,13 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-    [TestFixture]
-    public class ConvertExplicitToImplicitImplementationTests : ContextActionTestBase
-    {
-        [Test]
-        public void TestMethod()
-        {
-            Test<ConvertExplicitToImplicitImplementationAction>(@"
+	[TestFixture]
+	public class ConvertExplicitToImplicitImplementationTests : ContextActionTestBase
+	{
+		[Test]
+		public void TestMethod()
+		{
+			Test<ConvertExplicitToImplicitImplementationAction>(@"
 interface ITest
 {
     void Method();
@@ -56,12 +56,12 @@ class TestClass : ITest
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void TestExistingMethod()
-        {
-            TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+		[Test]
+		public void TestExistingMethod()
+		{
+			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
 interface ITest
 {
     void Method ();
@@ -75,12 +75,12 @@ class TestClass : ITest
     {
     }
 }");
-        }
+		}
 
-        [Test]
-        public void TestProperty()
-        {
-            Test<ConvertExplicitToImplicitImplementationAction>(@"
+		[Test]
+		public void TestProperty()
+		{
+			Test<ConvertExplicitToImplicitImplementationAction>(@"
 interface ITest
 {
     int Prop { get; set; }
@@ -105,12 +105,12 @@ class TestClass : ITest
         set { }
     }
 }");
-        }
+		}
 
-        [Test]
-        public void TestExistingProperty()
-        {
-            TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+		[Test]
+		public void TestExistingProperty()
+		{
+			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
 interface ITest
 {
     int Prop { get; set; }
@@ -128,7 +128,7 @@ class TestClass : ITest
         set { }
     }
 }");
-        }
+		}
 
 		[Test]
 		public void TestEvent()
@@ -235,16 +235,16 @@ class TestClass : ITest
 		}
 
 
-        [Test]
-        public void TestNonExplitiImplementation()
-        {
-            TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+		[Test]
+		public void TestNonExplitiImplementation()
+		{
+			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
 class TestClass
 {
     void $Method ()
     {
     }
 }");
-        }
-    }
+		}
+	}
 }

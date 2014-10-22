@@ -63,13 +63,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var memberDeclaration = node as MemberDeclarationSyntax;
 			var explicitSyntax = memberDeclaration.GetExplicitInterfaceSpecifierSyntax();
-			if (explicitSyntax == null)
+			if (explicitSyntax == null || !explicitSyntax.Span.Contains(span))
 				return Enumerable.Empty<CodeAction>();
 
 			var enclosingSymbol = model.GetDeclaredSymbol(memberDeclaration, cancellationToken);
 			if (enclosingSymbol == null)
 				return Enumerable.Empty<CodeAction>();
 			var containingType = enclosingSymbol.ContainingType;
+
+
 			foreach (var member in containingType.GetMembers()) {
 				if (member == enclosingSymbol ||
 					member.Kind != enclosingSymbol.Kind)
@@ -79,6 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					case SymbolKind.Property:
 						var property1 = (IPropertySymbol)enclosingSymbol;
 						var property2 = (IPropertySymbol)member;
+
 						foreach (var explictProperty in property1.ExplicitInterfaceImplementations) {
 							if (explictProperty.Name == property2.Name) {
 								if (SignatureComparer.HaveSameSignature(property1.Parameters, property2.Parameters))

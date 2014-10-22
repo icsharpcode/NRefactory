@@ -23,59 +23,125 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Simplification;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	//TODO: Why only method ?
 	[NRefactoryCodeRefactoringProvider(Description = "Convert implict implementation of an interface method to explicit implementation")]
 	[ExportCodeRefactoringProvider("Convert implict to explicit implementation", LanguageNames.CSharp)]
-	public class ConvertImplicitToExplicitImplementationAction : SpecializedCodeAction<MethodDeclarationSyntax>
+	public class ConvertImplicitToExplicitImplementationAction : CodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, MethodDeclarationSyntax node, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
-			yield break;
-		}
-//		protected override CodeAction GetAction (SemanticModel context, MethodDeclaration node)
-//		{
-//			if (!node.PrivateImplementationType.IsNull)
-//				return null;
-//
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var node = root.FindNode(span);
+			while (node != null && !(node is MemberDeclarationSyntax))
+				node = node.Parent;
+			if (node == null)
+				return Enumerable.Empty<CodeAction>();
+
+			if (!node.IsKind(SyntaxKind.MethodDeclaration) &&
+				!node.IsKind(SyntaxKind.PropertyDeclaration) &&
+				!node.IsKind(SyntaxKind.IndexerDeclaration) &&
+				!node.IsKind(SyntaxKind.EventDeclaration))
+				return Enumerable.Empty<CodeAction>();
 //			if (!node.NameToken.Contains (context.Location))
 //				return null;
-//
-//			var memberResolveResult = context.Resolve(node) as MemberResolveResult;
-//			if (memberResolveResult == null)
-//				return null;
-//			var method = memberResolveResult.Member as IMethod;
-//			if (method == null || method.ImplementedInterfaceMembers.Count != 1 || method.DeclaringType.Kind == TypeKind.Interface)
-//				return null;
-//
-//			return new CodeAction (context.TranslateString ("Convert implict to explicit implementation"),
-//				script =>
-//				{
-//					var explicitImpl = (MethodDeclaration)node.Clone ();
-//					// remove visibility modifier
-//					explicitImpl.Modifiers &= ~Modifiers.VisibilityMask;
-//					var implementedInterface = method.ImplementedInterfaceMembers [0].DeclaringType;
-//					explicitImpl.PrivateImplementationType = context.CreateShortType (implementedInterface);
-//					script.Replace (node, explicitImpl);
-//				},
-//				node.NameToken
-//			);
-//		}
+
+			var memberDeclaration = node as MemberDeclarationSyntax;
+			var explicitSyntax = memberDeclaration.GetExplicitInterfaceSpecifierSyntax();
+			if (explicitSyntax != null)
+				return Enumerable.Empty<CodeAction>();
+
+			var enclosingSymbol = model.GetDeclaredSymbol(memberDeclaration, cancellationToken);
+			System.Console.WriteLine(enclosingSymbol);
+			if (enclosingSymbol == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var containingType = enclosingSymbol.ContainingType;
+			System.Console.WriteLine(containingType);
+			if (containingType.TypeKind == TypeKind.Interface)
+				return Enumerable.Empty<CodeAction>();
+
+			var implementingInterface = GetImplementingInterface(enclosingSymbol, containingType);
+			if (implementingInterface == null)
+				return Enumerable.Empty<CodeAction>();
+
+			return new[] {
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Convert implict to explicit implementation", 
+					t2 => {
+						var newNode = memberDeclaration;
+						var nameSpecifier = SyntaxFactory.ExplicitInterfaceSpecifier(SyntaxFactory.ParseName(implementingInterface.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)))
+							.WithAdditionalAnnotations(Simplifier.Annotation);
+						switch (newNode.CSharpKind()) {
+							case SyntaxKind.MethodDeclaration:
+								var method = (MethodDeclarationSyntax)memberDeclaration;
+								newNode = method
+									.WithModifiers(SyntaxFactory.TokenList())
+									.WithExplicitInterfaceSpecifier(nameSpecifier);
+								break;
+							case SyntaxKind.PropertyDeclaration:
+								var property = (PropertyDeclarationSyntax)memberDeclaration;
+								newNode = property
+									.WithModifiers(SyntaxFactory.TokenList())
+									.WithExplicitInterfaceSpecifier(nameSpecifier);
+								break;
+							case SyntaxKind.IndexerDeclaration:
+								var indexer = (IndexerDeclarationSyntax)memberDeclaration;
+								newNode = indexer
+									.WithModifiers(SyntaxFactory.TokenList())
+									.WithExplicitInterfaceSpecifier(nameSpecifier);
+								break;
+							case SyntaxKind.EventDeclaration:
+								var evt = (EventDeclarationSyntax)memberDeclaration;
+								newNode = evt
+									.WithModifiers(SyntaxFactory.TokenList())
+									.WithExplicitInterfaceSpecifier(nameSpecifier);
+								break;
+						}
+						var newRoot = root.ReplaceNode(
+							memberDeclaration,
+							newNode.WithAdditionalAnnotations(Formatter.Annotation)
+						);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				) 
+			};
+		}
+
+		static INamedTypeSymbol GetImplementingInterface(ISymbol enclosingSymbol, INamedTypeSymbol containingType)
+		{
+			INamedTypeSymbol result = null;
+			foreach (var iface in containingType.AllInterfaces) {
+				foreach (var member in iface.GetMembers()) {
+					var implementation = containingType.FindImplementationForInterfaceMember(member);
+					if (implementation == enclosingSymbol) {
+						if (result != null)
+							return null;
+						result = iface;
+					}
+				}
+			}
+			return result;
+		}
 	}
 }
