@@ -46,36 +46,38 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, SimpleLambdaExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			yield break;
+			if (!node.ArrowToken.Span.Contains (span))
+				return Enumerable.Empty<CodeAction> ();
+
+			var bodyExpr = node.Body as ExpressionSyntax;
+			if (bodyExpr == null)
+				return Enumerable.Empty<CodeAction> ();
+
+
+			return new []  { 
+				CodeActionFactory.Create(
+					node.ArrowToken.Span,
+					DiagnosticSeverity.Info,
+					"Convert to lambda statement",
+					t2 => {
+						var lambdaExpression = node.WithBody(SyntaxFactory.Block(
+							RequireReturnStatement (semanticModel, node) ? (StatementSyntax)SyntaxFactory.ReturnStatement (bodyExpr) : SyntaxFactory.ExpressionStatement(bodyExpr)
+						));
+						var newRoot = root.ReplaceNode(node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
-//
-//		protected override CodeAction GetAction (SemanticModel context, LambdaExpression node)
-//		{
-//			if (!node.ArrowToken.Contains (context.Location))
-//				return null;
-//
-//			var bodyExpr = node.Body as Expression;
-//			if (bodyExpr == null)
-//				return null;
-//			return new CodeAction (context.TranslateString ("Convert to lambda statement"),
-//				script =>
-//				{
-//					var body = new BlockStatement ();
-//					if (RequireReturnStatement (context, node)) {
-//						body.Add (new ReturnStatement (bodyExpr.Clone ()));
-//					} else {
-//						body.Add (bodyExpr.Clone ());
-//					}
-//					script.Replace (bodyExpr, body);
-//				},
-//				node
-//			);
-//		}
-//
-//		static bool RequireReturnStatement (SemanticModel context, LambdaExpression lambda)
-//		{
-//			var type = LambdaHelper.GetLambdaReturnType (context, lambda);
-//			return type != null && type.ReflectionName != "System.Void";
-//		}
+
+		static bool RequireReturnStatement (SemanticModel model, SimpleLambdaExpressionSyntax lambda)
+		{
+			var typeInfo = model.GetTypeInfo(lambda);
+			var type = typeInfo.ConvertedType ?? typeInfo.Type;
+			if (type == null || !type.IsDelegateType())
+				return false;
+			var returnType = type.GetDelegateInvokeMethod().GetReturnType();
+			return returnType != null && returnType.SpecialType != SpecialType.System_Void;
+		}
 	}
 }
