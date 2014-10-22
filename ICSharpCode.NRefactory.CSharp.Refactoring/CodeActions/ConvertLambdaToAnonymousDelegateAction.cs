@@ -42,70 +42,83 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts a lambda to an anonymous delegate")]
 	[ExportCodeRefactoringProvider("Convert lambda to anonymous delegate", LanguageNames.CSharp)]
-	public class ConvertLambdaToAnonymousDelegateAction : SpecializedCodeAction<SimpleLambdaExpressionSyntax>
+	public class ConvertLambdaToAnonymousDelegateAction : CodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, SimpleLambdaExpressionSyntax node, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
-			yield break;
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+
+			var token = root.FindToken(span.Start);
+			if (!token.IsKind(SyntaxKind.EqualsGreaterThanToken))
+				return Enumerable.Empty<CodeAction>();
+			var node = token.Parent;
+			if (!node.IsKind(SyntaxKind.ParenthesizedLambdaExpression) && !node.IsKind(SyntaxKind.SimpleLambdaExpression))
+				return Enumerable.Empty<CodeAction>();
+
+			return new []  { 
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					"Convert to anonymous delegate",
+					t2 => {
+						var parameters = new List<ParameterSyntax> ();
+
+						CSharpSyntaxNode bodyExpr;
+						if (node.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) {
+							var ple = (ParenthesizedLambdaExpressionSyntax)node;
+							parameters.AddRange(ConvertParameters(model, node, ple.ParameterList.Parameters));
+							bodyExpr = ple.Body;
+						} else {
+							var sle = ((SimpleLambdaExpressionSyntax)node);
+							parameters.AddRange(ConvertParameters(model, node, new []  { sle.Parameter }));
+							bodyExpr = sle.Body;
+						}
+
+						if (ConvertLambdaBodyExpressionToStatementAction.RequireReturnStatement(model, node)) {
+							bodyExpr = SyntaxFactory.Block(SyntaxFactory.ReturnStatement(bodyExpr as ExpressionSyntax));
+						}
+						var ame = SyntaxFactory.AnonymousMethodExpression(
+							parameters.Count == 0 ? null : SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters)),
+							bodyExpr as BlockSyntax ?? SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(bodyExpr as ExpressionSyntax))
+						);
+
+						var newRoot = root.ReplaceNode(node, ame.WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
-//		protected override CodeAction GetAction(SemanticModel context, LambdaExpression node)
-//		{
-//			if (context.Location < node.StartLocation || context.Location >= node.Body.StartLocation)
-//				return null;
-//
-//			var lambdaResolveResult = context.Resolve(node) as LambdaResolveResult;
-//			if (lambdaResolveResult == null)
-//				return null;
-//
-//			return new CodeAction(context.TranslateString("Convert to anonymous delegate"), script => {
-//				BlockStatement newBody;
-//				if (node.Body is BlockStatement) {
-//					newBody = (BlockStatement)node.Body.Clone();
-//				} else {
-//					var expression = (Expression)node.Body.Clone();
-//
-//					Statement statement;
-//					if (RequireReturnStatement(context, node)) {
-//						statement = new ReturnStatement(expression);
-//					}
-//					else {
-//						statement = expression;
-//					}
-//
-//					newBody = new BlockStatement {
-//						Statements = {
-//							statement
-//						}
-//					};
-//				}
-//				var method = new AnonymousMethodExpression (newBody, GetParameters(lambdaResolveResult.Parameters, context));
-//				script.Replace(node, method);
-//			}, node);
-//		}
-//
-//		IEnumerable<ParameterDeclaration> GetParameters(IList<IParameter> parameters, SemanticModel context)
-//		{
-//			if (parameters == null || parameters.Count == 0)
-//				return null;
-//			var result = new List<ParameterDeclaration> ();
-//			foreach (var parameter in parameters) {
-//				var type = context.CreateShortType(parameter.Type);
-//				var name = parameter.Name;
-//				ParameterModifier modifier = ParameterModifier.None;
-//				if (parameter.IsRef) 
-//					modifier |= ParameterModifier.Ref;
-//				if (parameter.IsOut)
-//					modifier |= ParameterModifier.Out;
-//				result.Add (new ParameterDeclaration(type, name, modifier));
-//			}
-//			return result;
-//		}
-//
-//		static bool RequireReturnStatement (SemanticModel context, LambdaExpression lambda)
-//		{
-//			var type = LambdaHelper.GetLambdaReturnType (context, lambda);
-//			return type != null && type.ReflectionName != "System.Void";
-//		}
+
+		IEnumerable<ParameterSyntax> ConvertParameters(SemanticModel model, SyntaxNode lambda, IEnumerable<ParameterSyntax> list)
+		{
+			ITypeSymbol type = null;
+			int i = 0;
+			foreach (var param in list) {
+				if (param.Type != null) {
+					yield return param;
+				} else {
+					if (type == null) {
+						var typeInfo = model.GetTypeInfo(lambda);
+						type = typeInfo.ConvertedType ?? typeInfo.Type;
+						if (type == null || !type.IsDelegateType())
+							yield break;
+					}
+
+					yield return SyntaxFactory.Parameter(
+						param.AttributeLists,
+						param.Modifiers,
+						SyntaxFactory.ParseTypeName(type.GetDelegateInvokeMethod().Parameters[i].Type.ToMinimalDisplayString(model, lambda.SpanStart)),
+						param.Identifier,
+						null
+					);
+				}
+				i++;
+			}
+		}
 	}
 }
 

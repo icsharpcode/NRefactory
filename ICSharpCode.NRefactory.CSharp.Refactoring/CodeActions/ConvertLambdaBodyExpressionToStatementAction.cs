@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			};
 		}
 
-		static bool RequireReturnStatement (SemanticModel model, SyntaxNode lambda)
+		internal static bool RequireReturnStatement (SemanticModel model, SyntaxNode lambda)
 		{
 			var typeInfo = model.GetTypeInfo(lambda);
 			var type = typeInfo.ConvertedType ?? typeInfo.Type;
