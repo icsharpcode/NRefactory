@@ -60,8 +60,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					span, 
 					DiagnosticSeverity.Info, 
 					"Replace with '?:' expression", t2 => {
-						var ternary = SyntaxFactory.ConditionalExpression(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, node.Left, 
-							SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), node.Left, node.Right);
+						var ternary = SyntaxFactory.ConditionalExpression(
+							SyntaxFactory.BinaryExpression(
+								SyntaxKind.NotEqualsExpression, 
+								node.Left, 
+								SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
+							), 
+							node.Left, 
+							node.Right
+						).WithAdditionalAnnotations(Formatter.Annotation);
 						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, (ExpressionSyntax)ternary)));
 					}
 				)
@@ -69,4 +76,3 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		}
 	}
 }
-
