@@ -32,108 +32,108 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertMethodGroupToLambdaActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestVoidMethod ()
+		public void TestVoidMethod()
 		{
 			Test<ConvertMethodGroupToLambdaAction>(@"
 using System;
 public class Test
 {
-	void Foo ()
-	{
-		Action act = $Foo;
-	}
+    void Foo ()
+    {
+        Action act = $Foo;
+    }
 }
 ", @"
 using System;
 public class Test
 {
-	void Foo ()
-	{
-		Action act = () => Foo ();
-	}
+    void Foo ()
+    {
+        Action act = () => Foo();
+    }
 }
 ");
 		}
 
 		[Test]
-		public void TestParameter ()
+		public void TestParameter()
 		{
 			Test<ConvertMethodGroupToLambdaAction>(@"
 using System;
 public class Test
 {
-	void Foo (int x, int y)
-	{
-		Action<int,int> act = $Foo;
-	}
+    void Foo (int x, int y)
+    {
+        Action<int,int> act = $Foo;
+    }
 }
 ", @"
 using System;
 public class Test
 {
-	void Foo (int x, int y)
-	{
-		Action<int,int> act = (arg1, arg2) => Foo (arg1, arg2);
-	}
+    void Foo (int x, int y)
+    {
+        Action<int,int> act = (arg1, arg2) => Foo(arg1, arg2);
+    }
 }
 ");
 		}
-	
-		[Test]
-		public void TestFunction ()
-		{
-			Test<ConvertMethodGroupToLambdaAction>(@"
-using System;
-public class Test
-{
-	bool Foo (int x, int y)
-	{
-		Func<int,int,bool> act = $Foo;
-	}
-}
-", @"
-using System;
-public class Test
-{
-	bool Foo (int x, int y)
-	{
-		Func<int,int,bool> act = (arg1, arg2) => Foo (arg1, arg2);
-	}
-}
-");
-		}
-	
-		[Test]
-		public void TestOverloads ()
-		{
-			Test<ConvertMethodGroupToLambdaAction>(@"
-using System;
-public class Test
-{
-	static void Foo (int x) { }
-	static void Foo (int x, int y) { }
-	static void Foo () { }
 
-	void Bar ()
-	{
-		Action<int, int> act = Test.$Foo;
-	}
+		[Test]
+		public void TestFunction()
+		{
+			Test<ConvertMethodGroupToLambdaAction>(@"
+using System;
+public class Test
+{
+    bool Foo (int x, int y)
+    {
+        Func<int,int,bool> act = $Foo;
+    }
+}
+", @"
+using System;
+public class Test
+{
+    bool Foo (int x, int y)
+    {
+        Func<int,int,bool> act = (arg1, arg2) => Foo(arg1, arg2);
+    }
+}
+");
+		}
+
+		[Test]
+		public void TestOverloads()
+		{
+			Test<ConvertMethodGroupToLambdaAction>(@"
+using System;
+public class Test
+{
+    static void Foo (int x) { }
+    static void Foo (int x, int y) { }
+    static void Foo () { }
+
+    void Bar ()
+    {
+        Action<int, int> act = Test.$Foo;
+    }
 }", @"
 using System;
 public class Test
 {
-	static void Foo (int x) { }
-	static void Foo (int x, int y) { }
-	static void Foo () { }
+    static void Foo (int x) { }
+    static void Foo (int x, int y) { }
+    static void Foo () { }
 
-	void Bar ()
-	{
-		Action<int, int> act = (arg1, arg2) => Test.Foo (arg1, arg2);
-	}
+    void Bar ()
+    {
+        Action<int, int> act = (arg1, arg2) => Test.Foo(arg1, arg2);
+    }
 }");
 		}
-	
-	
+    
+    
 	}
 }
 

@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			};
 		}
 
-		ParameterSyntax CreateParameterSyntax(SemanticModel model, SyntaxNode node, IParameterSymbol p)
+		static ParameterSyntax CreateParameterSyntax(SemanticModel model, SyntaxNode node, IParameterSymbol p)
 		{
 			return SyntaxFactory.Parameter(
 				SyntaxFactory.List<AttributeListSyntax>(),
