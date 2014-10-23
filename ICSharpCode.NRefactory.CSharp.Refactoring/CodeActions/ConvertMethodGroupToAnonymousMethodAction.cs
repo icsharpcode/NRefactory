@@ -51,46 +51,55 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+			var node = root.FindNode(span);
+			if (!node.IsKind(SyntaxKind.IdentifierName))
+				return Enumerable.Empty<CodeAction>();
+
+			if (node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+				node = node.Parent;
+
+			var info = model.GetTypeInfo(node, cancellationToken);
+			var type = info.ConvertedType ?? info.Type;
+			if (type == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var invocationMethod = type.GetDelegateInvokeMethod();
+			if (invocationMethod == null)
+				return Enumerable.Empty<CodeAction>();
+
+			return new []  { 
+				CodeActionFactory.Create(
+					node.Span,
+					DiagnosticSeverity.Info,
+					"Convert to anonymous method",
+					t2 => {
+						var expr = SyntaxFactory.InvocationExpression(
+							(ExpressionSyntax)node,
+							SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(invocationMethod.Parameters.Select(p => SyntaxFactory.Argument(SyntaxFactory.IdentifierName(p.Name)))))
+						);
+						var parameters = invocationMethod.Parameters.Select(p => CreateParameterSyntax(model, node, p)).ToList();
+						var stmt = invocationMethod.ReturnType.SpecialType == SpecialType.System_Void ? (StatementSyntax)SyntaxFactory.ExpressionStatement(expr) : SyntaxFactory.ReturnStatement(expr);
+						var ame = SyntaxFactory.AnonymousMethodExpression(
+							parameters.Count == 0 ? null : SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters)),
+							SyntaxFactory.Block(stmt)
+						);
+						var newRoot = root.ReplaceNode(node, ame.WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			Expression node = context.GetNode<IdentifierExpression>();
-//			if (node == null) {
-//				var mr = context.GetNode<MemberReferenceExpression>();
-//				if (mr == null || !mr.MemberNameToken.IsInside(context.Location))
-//					yield break;
-//				node = mr;
-//			}
-//			if (node == null)
-//				yield break;
-//			var rr = context.Resolve(node) as MethodGroupResolveResult;
-//			if (rr == null || rr.IsError)
-//				yield break;
-//			var type = TypeGuessing.GetValidTypes(context.Resolver, node).FirstOrDefault(t => t.Kind == TypeKind.Delegate);
-//			if (type == null)
-//				yield break;
-//			var invocationMethod = type.GetDelegateInvokeMethod();
-//			if (invocationMethod == null)
-//				yield break;
-//
-//			yield return new CodeAction(
-//				context.TranslateString("Convert to anonymous method"), 
-//				script => {
-//					var expr = new InvocationExpression(node.Clone(), invocationMethod.Parameters.Select(p => new IdentifierExpression(context.GetNameProposal(p.Name))));
-//					var stmt = invocationMethod.ReturnType.IsKnownType(KnownTypeCode.Void) ? (Statement)expr : new ReturnStatement(expr);
-//					var anonymousMethod = new AnonymousMethodExpression {
-//						Body = new BlockStatement { stmt }
-//					};
-//					foreach (var p in invocationMethod.Parameters) {
-//						var decl = new ParameterDeclaration(context.CreateShortType(p.Type), context.GetNameProposal(p.Name));
-//						anonymousMethod.Parameters.Add(decl); 
-//					}
-//
-//					script.Replace(node, anonymousMethod);
-//				},
-//				node
-//			);
-//		}
+
+		ParameterSyntax CreateParameterSyntax(SemanticModel model, SyntaxNode node, IParameterSymbol p)
+		{
+			return SyntaxFactory.Parameter(
+				SyntaxFactory.List<AttributeListSyntax>(),
+				SyntaxFactory.TokenList(),
+				SyntaxFactory.ParseTypeName(p.Type.ToMinimalDisplayString(model, node.SpanStart)),
+				SyntaxFactory.Identifier(p.Name),
+				null
+			);
+		}
 	}
 }

@@ -176,7 +176,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				} else if (ifElseStatement != null) {
 					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Replace 'if' with '{0}' branch", valueStr), token => {
 						var list = new List<SyntaxNode>();
-						Console.WriteLine (1);
 						StatementSyntax branch;
 						if (value) {
 							branch = ifElseStatement.Statement;
@@ -194,7 +193,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							if (branch != null)
 								list.Add(branch.WithAdditionalAnnotations(Formatter.Annotation));
 						}
-						Console.WriteLine (3);
 						if (list.Count == 0)
 							return Task.FromResult(document);
 						var newRoot = root.ReplaceNode(ifElseStatement, list);

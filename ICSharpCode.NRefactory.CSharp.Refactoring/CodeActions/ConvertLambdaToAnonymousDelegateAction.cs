@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			};
 		}
 
-		IEnumerable<ParameterSyntax> ConvertParameters(SemanticModel model, SyntaxNode lambda, IEnumerable<ParameterSyntax> list)
+		static IEnumerable<ParameterSyntax> ConvertParameters(SemanticModel model, SyntaxNode lambda, IEnumerable<ParameterSyntax> list)
 		{
 			ITypeSymbol type = null;
 			int i = 0;

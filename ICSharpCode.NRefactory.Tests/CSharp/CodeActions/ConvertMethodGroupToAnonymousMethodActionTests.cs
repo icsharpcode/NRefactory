@@ -32,116 +32,117 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ConvertMethodGroupToAnonymousMethodActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestVoidMethod ()
+		public void TestVoidMethod()
 		{
 			Test<ConvertMethodGroupToAnonymousMethodAction>(@"
 using System;
 public class Test
 {
-	void Foo ()
-	{
-		Action act = $Foo;
-	}
+    void Foo ()
+    {
+        Action act = $Foo;
+    }
 }
 ", @"
 using System;
 public class Test
 {
-	void Foo ()
-	{
-		Action act = delegate {
-	Foo ();
-};
-	}
+    void Foo ()
+    {
+        Action act = delegate
+        {
+            Foo();
+        };
+    }
 }
 ");
 		}
 
 		[Test]
-		public void TestParameter ()
+		public void TestParameter()
 		{
 			Test<ConvertMethodGroupToAnonymousMethodAction>(@"
 using System;
 public class Test
 {
-	void Foo (int x, int y)
-	{
-		Action<int,int> act = $Foo;
-	}
+    void Foo (int x, int y)
+    {
+        Action<int,int> act = $Foo;
+    }
 }
 ", @"
 using System;
 public class Test
 {
-	void Foo (int x, int y)
-	{
-		Action<int,int> act = delegate (int arg1, int arg2) {
-	Foo (arg1, arg2);
-};
-	}
+    void Foo (int x, int y)
+    {
+        Action<int,int> act = delegate (int arg1, int arg2)
+        {
+            Foo(arg1, arg2);
+        };
+    }
 }
 ");
 		}
-	
-		[Test]
-		public void TestFunction ()
-		{
-			Test<ConvertMethodGroupToAnonymousMethodAction>(@"
-using System;
-public class Test
-{
-	bool Foo (int x, int y)
-	{
-		Func<int,int,bool> act = $Foo;
-	}
-}
-", @"
-using System;
-public class Test
-{
-	bool Foo (int x, int y)
-	{
-		Func<int,int,bool> act = delegate (int arg1, int arg2) {
-	return Foo (arg1, arg2);
-};
-	}
-}
-");
-		}
-	
-		[Test]
-		public void TestOverloads ()
-		{
-			Test<ConvertMethodGroupToAnonymousMethodAction>(@"
-using System;
-public class Test
-{
-	static void Foo (int x) { }
-	static void Foo (int x, int y) { }
-	static void Foo () { }
 
-	void Bar ()
-	{
-		Action<int, int> act = Test.$Foo;
-	}
+		[Test]
+		public void TestFunction()
+		{
+			Test<ConvertMethodGroupToAnonymousMethodAction>(@"
+using System;
+public class Test
+{
+    bool Foo (int x, int y)
+    {
+        Func<int,int,bool> act = $Foo;
+    }
+}
+", @"
+using System;
+public class Test
+{
+    bool Foo (int x, int y)
+    {
+        Func<int,int,bool> act = delegate (int arg1, int arg2)
+        {
+            return Foo(arg1, arg2);
+        };
+    }
+}
+");
+		}
+
+		[Test]
+		public void TestOverloads()
+		{
+			Test<ConvertMethodGroupToAnonymousMethodAction>(@"
+using System;
+public class Test
+{
+    static void Foo (int x) { }
+    static void Foo (int x, int y) { }
+    static void Foo () { }
+
+    void Bar ()
+    {
+        Action<int, int> act = Test.$Foo;
+    }
 }", @"
 using System;
 public class Test
 {
-	static void Foo (int x) { }
-	static void Foo (int x, int y) { }
-	static void Foo () { }
+    static void Foo (int x) { }
+    static void Foo (int x, int y) { }
+    static void Foo () { }
 
-	void Bar ()
-	{
-		Action<int, int> act = delegate (int arg1, int arg2) {
-			Test.Foo (arg1, arg2);
-		};
-	}
+    void Bar ()
+    {
+        Action<int, int> act = delegate (int arg1, int arg2)
+        {
+            Test.Foo(arg1, arg2);
+        };
+    }
 }");
 		}
-	
-	
 	}
 }
-

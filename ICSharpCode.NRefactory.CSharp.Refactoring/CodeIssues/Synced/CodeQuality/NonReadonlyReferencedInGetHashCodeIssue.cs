@@ -132,7 +132,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					return;
 				if (!symbol.IsReadOnly && !symbol.IsConst) {
 					AddIssue(Diagnostic.Create(Rule, location));
-					Console.WriteLine(location.ToString());
 				}
 
 			}

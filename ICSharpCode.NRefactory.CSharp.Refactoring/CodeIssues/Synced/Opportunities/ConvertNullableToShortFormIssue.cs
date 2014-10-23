@@ -139,7 +139,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagonstic in diagnostics) {
 				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				Console.WriteLine(node.CSharpKind());
 
 				//if (!node.IsKind(SyntaxKind.GenericName))
 				//	continue;

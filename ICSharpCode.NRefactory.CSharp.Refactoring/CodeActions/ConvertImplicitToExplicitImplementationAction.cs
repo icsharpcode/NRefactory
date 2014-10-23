@@ -70,12 +70,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return Enumerable.Empty<CodeAction>();
 
 			var enclosingSymbol = model.GetDeclaredSymbol(memberDeclaration, cancellationToken);
-			System.Console.WriteLine(enclosingSymbol);
 			if (enclosingSymbol == null)
 				return Enumerable.Empty<CodeAction>();
 
 			var containingType = enclosingSymbol.ContainingType;
-			System.Console.WriteLine(containingType);
 			if (containingType.TypeKind == TypeKind.Interface)
 				return Enumerable.Empty<CodeAction>();
 
