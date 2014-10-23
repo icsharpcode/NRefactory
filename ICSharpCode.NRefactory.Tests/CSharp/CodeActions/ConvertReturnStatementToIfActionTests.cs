@@ -39,19 +39,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<ConvertReturnStatementToIfAction>(@"
 class TestClass
 {
-	int TestMethod(int i)
-	{
-		$return i > 0 ? 1 : 0;
-	}
+    int TestMethod(int i)
+    {
+        $return i > 0 ? 1 : 0;
+    }
 }", @"
 class TestClass
 {
-	int TestMethod(int i)
-	{
-		if (i > 0)
-			return 1;
-		return 0;
-	}
+    int TestMethod(int i)
+    {
+        if (i > 0)
+            return 1;
+        return 0;
+    }
 }");
 		}
 
@@ -61,19 +61,19 @@ class TestClass
 			Test<ConvertReturnStatementToIfAction>(@"
 class Test
 {
-	object Foo(object o, object p)
-	{
-		$return o ?? p;
-	}
+    object Foo(object o, object p)
+    {
+        $return o ?? p;
+    }
 }", @"
 class Test
 {
-	object Foo(object o, object p)
-	{
-		if (o != null)
-			return o;
-		return p;
-	}
+    object Foo(object o, object p)
+    {
+        if (o != null)
+            return o;
+        return p;
+    }
 }");
 		}
 	}

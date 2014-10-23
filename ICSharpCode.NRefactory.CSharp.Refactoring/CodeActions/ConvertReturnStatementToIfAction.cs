@@ -53,27 +53,37 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var node = root.FindNode(span) as ReturnStatementSyntax;
 			if (node == null)
 				return Enumerable.Empty<CodeAction>();
-			StatementSyntax statement;
-			ReturnStatementSyntax returnAfter;
-			if (node.Expression is ConditionalExpressionSyntax) {
-				var condition = (ConditionalExpressionSyntax)node.Expression;
-				statement = SyntaxFactory.IfStatement(condition.Condition, SyntaxFactory.ReturnStatement(condition.WhenTrue));
-				returnAfter = SyntaxFactory.ReturnStatement(condition.WhenFalse);
-			} else {
-				var bOp = node.Expression as BinaryExpressionSyntax;
-				if (bOp != null && bOp.IsKind(SyntaxKind.CoalesceExpression)) {
-					statement = SyntaxFactory.IfStatement(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, bOp.Left,
-						SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), SyntaxFactory.ReturnStatement(bOp.Left));
-					returnAfter = SyntaxFactory.ReturnStatement(bOp.Right);
-				} else
-					return Enumerable.Empty<CodeAction>();
-			}
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", t2 => {
-				SyntaxAnnotation statementAnno = new SyntaxAnnotation();
-				var newRoot = root.ReplaceNode(node, statement.WithAdditionalAnnotations(statementAnno));
-				newRoot = newRoot.InsertNodesAfter(newRoot.GetAnnotatedNodes(statementAnno).First(), new List<SyntaxNode>() { returnAfter });
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			})};
+			if (node.Expression is BinaryExpressionSyntax && !node.Expression.IsKind(SyntaxKind.CoalesceExpression))
+				return Enumerable.Empty<CodeAction>();
+
+			return new[] {
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", 
+					t2 => {
+
+						StatementSyntax statement;
+						ReturnStatementSyntax returnAfter;
+						if (node.Expression is ConditionalExpressionSyntax) {
+							var condition = (ConditionalExpressionSyntax)node.Expression;
+							statement = SyntaxFactory.IfStatement(condition.Condition, SyntaxFactory.ReturnStatement(condition.WhenTrue));
+							returnAfter = SyntaxFactory.ReturnStatement(condition.WhenFalse);
+						} else {
+							var bOp = node.Expression as BinaryExpressionSyntax;
+							if (bOp != null && bOp.IsKind(SyntaxKind.CoalesceExpression)) {
+								statement = SyntaxFactory.IfStatement(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, bOp.Left, SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), SyntaxFactory.ReturnStatement(bOp.Left));
+								returnAfter = SyntaxFactory.ReturnStatement(bOp.Right);
+							} else {
+								return null;
+							}
+						}
+
+						var newRoot = root.ReplaceNode(node, new SyntaxNode[] { 
+							statement.WithAdditionalAnnotations(Formatter.Annotation),
+							returnAfter.WithAdditionalAnnotations(Formatter.Annotation)
+						});
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
 	}
 }
