@@ -72,7 +72,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (!(type.SpecialType != SpecialType.System_Nullable_T && type.TypeKind != TypeKind.Unknown && !ContainsAnonymousType(type))) {
 				return Enumerable.Empty<CodeAction> ();
 			}
-			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Use explicit type", PerformAction (document, model, root, type, typeSyntax)) };
+			return new[] { 
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					"Use explicit type", 
+					t2 => Task.FromResult(PerformAction (document, model, root, type, typeSyntax))
+				)
+			};
 		}
 
 		static Document PerformAction(Document document, SemanticModel model, SyntaxNode root, ITypeSymbol type, TypeSyntax typeSyntax)
@@ -88,9 +95,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		static bool ContainsAnonymousType (ITypeSymbol type)
 		{
-			if (type.TypeKind == TypeKind.ArrayType && ContainsAnonymousType(((IArrayTypeSymbol)type).ElementType))
+			if (type.TypeKind == TypeKind.Array && ContainsAnonymousType(((IArrayTypeSymbol)type).ElementType))
 				return true;
-			return type.TypeKind == TypeKind.DynamicType || type.IsAnonymousType;
+			return type.TypeKind == TypeKind.Dynamic || type.IsAnonymousType;
 		}
 	}
 }

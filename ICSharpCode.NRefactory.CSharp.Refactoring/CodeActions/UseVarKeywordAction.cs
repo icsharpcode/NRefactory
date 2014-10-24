@@ -42,26 +42,27 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Use 'var' keyword", LanguageNames.CSharp)]
 	public class UseVarKeywordAction : CodeRefactoringProvider
 	{
-		internal static VariableDeclarationSyntax GetVariableDeclarationStatement (SyntaxNode token)
+		internal static VariableDeclarationSyntax GetVariableDeclarationStatement(SyntaxNode token)
 		{
 			return token.Parent as VariableDeclarationSyntax;
 		}
 
-		internal static ForEachStatementSyntax GetForeachStatement (SyntaxNode token)
+		internal static ForEachStatementSyntax GetForeachStatement(SyntaxNode token)
 		{
 			return token.Parent as ForEachStatementSyntax;
 		}
 
 		#region CodeRefactoringProvider implementation
-				public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
-	var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var parseOptions = root.SyntaxTree.Options as CSharpParseOptions;
 			if (parseOptions != null && parseOptions.LanguageVersion < LanguageVersion.CSharp3)
-				return Enumerable.Empty<CodeAction> ();
+				return Enumerable.Empty<CodeAction>();
 
 			var token = root.FindToken(span.Start);
 
@@ -69,15 +70,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var varDecl = GetVariableDeclarationStatement(token.Parent);
 			if (varDecl != null)
 				type = varDecl.Type;
-			var foreachStmt = GetForeachStatement (token.Parent);
+			var foreachStmt = GetForeachStatement(token.Parent);
 			if (foreachStmt != null)
 				type = foreachStmt.Type;
 			if (type == null || type.IsVar)
-				return Enumerable.Empty<CodeAction> ();
-			if (type != null) {
-				return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Use 'var' keyword", PerformAction (document, root, type)) };
-			}
-			return Enumerable.Empty<CodeAction> ();
+				return Enumerable.Empty<CodeAction>();
+			return new[] {
+				CodeActionFactory.Create(
+					token.Span, 
+					DiagnosticSeverity.Info, 
+					"Use 'var' keyword", 
+					t2 => Task.FromResult(PerformAction(document, root, type))
+				)
+			};
 		}
 
 		#endregion
