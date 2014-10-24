@@ -56,183 +56,299 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+
+			bool hasIndexAccess;
+			var foreachStatement = GetForeachStatement(model, root, span, out hasIndexAccess);
+			if (foreachStatement == null || foreachStatement.Statement == null)
+				return Enumerable.Empty<CodeAction> ();
+
+			string name = GetName(model, span, VariableNames);
+			if (name == null) // very unlikely, but just in case ...
+				return Enumerable.Empty<CodeAction> ();
+			var result = new List<CodeAction>();
+			result.Add(CodeActionFactory.Create(
+				span, 
+				DiagnosticSeverity.Info, 
+				"Convert 'foreach' loop to 'for'", 
+				t2 => {
+					var expressionTypeInfo = model.GetTypeInfo (foreachStatement.Expression);
+					var countProperty = GetCountProperty(expressionTypeInfo.Type);
+					var inExpression = foreachStatement.Expression;
+					var initializer = hasIndexAccess ? 
+						SyntaxFactory.VariableDeclaration(
+							SyntaxFactory.ParseTypeName("int"), 
+							SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+									new [] { 
+										SyntaxFactory.VariableDeclarator(
+											SyntaxFactory.Identifier(name),
+											null, 
+											SyntaxFactory.EqualsValueClause(SyntaxFactory.ParseExpression("0"))
+										)
+									}
+								)
+							)
+						)
+						: 
+						SyntaxFactory.VariableDeclaration(
+							SyntaxFactory.ParseTypeName("var"), 
+							SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+									new [] { 
+										SyntaxFactory.VariableDeclarator(
+											SyntaxFactory.Identifier(name),
+											null, 
+											SyntaxFactory.EqualsValueClause(SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, inExpression,  SyntaxFactory.IdentifierName("GetEnumerator"))))
+										)
+									}
+								)
+							)
+						);
+					var id1 = SyntaxFactory.Identifier(name);
+					var id2 = id1;
+					var id3 = id1;
+					StatementSyntax declarationStatement = null;
+
+					if (inExpression is ObjectCreationExpressionSyntax || inExpression.IsKind(SyntaxKind.ImplicitArrayCreationExpression)) {
+						string listName = GetName(model, span, CollectionNames) ?? "col";
+
+						declarationStatement = SyntaxFactory.LocalDeclarationStatement(SyntaxFactory.VariableDeclaration(
+							SyntaxFactory.ParseTypeName("var"), 
+							SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+									new [] { 
+										SyntaxFactory.VariableDeclarator(
+											SyntaxFactory.Identifier(listName),
+											null, 
+											SyntaxFactory.EqualsValueClause(inExpression)
+										)
+									}
+								)
+							)
+						));
+
+						inExpression = SyntaxFactory.IdentifierName (listName);
+					}
+
+					var variableDeclarationStatement = SyntaxFactory.LocalDeclarationStatement(SyntaxFactory.VariableDeclaration(
+						foreachStatement.Type, 
+						SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+							SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+								new [] { 
+									SyntaxFactory.VariableDeclarator(
+										foreachStatement.Identifier,
+										null, 
+										SyntaxFactory.EqualsValueClause(
+											hasIndexAccess ? 
+											(ExpressionSyntax)SyntaxFactory.ElementAccessExpression(inExpression, SyntaxFactory.BracketedArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new [] { SyntaxFactory.Argument(SyntaxFactory.IdentifierName(id3)) } ))) : 
+											SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(id2), SyntaxFactory.IdentifierName("Current"))
+										)
+									)
+								}
+							)
+						)
+					));
+
+					var statements = new List<StatementSyntax>();
+					statements.Add(variableDeclarationStatement);
+
+					var incrementors = new List<ExpressionSyntax>();
+
+					if (hasIndexAccess)
+						incrementors.Add(SyntaxFactory.PostfixUnaryExpression (SyntaxKind.PostIncrementExpression, SyntaxFactory.IdentifierName(id2)));
+
+					var block = foreachStatement.Statement as BlockSyntax;
+					if (block != null) {
+						foreach (var stmt in block.Statements) {
+							statements.Add(stmt);
+						}
+					} else {
+						statements.Add(foreachStatement.Statement);
+					}
+
+					var forStatement = SyntaxFactory.ForStatement(
+						initializer,
+						SyntaxFactory.SeparatedList<ExpressionSyntax>(),
+						hasIndexAccess ? (ExpressionSyntax)SyntaxFactory.BinaryExpression(SyntaxKind.LessThanExpression, SyntaxFactory.IdentifierName(id1),SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, inExpression, SyntaxFactory.IdentifierName(countProperty))) :
+						SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(id2), SyntaxFactory.IdentifierName("MoveNext"))),
+						SyntaxFactory.SeparatedList<ExpressionSyntax>(incrementors),
+						SyntaxFactory.Block(statements)
+					);
+
+//					if (hasIndexAccess) {
+//						script.Link (initializer.Variables.First ().NameToken, id1, id2, id3);
+//					} else {
+//						script.Link (initializer.Variables.First ().NameToken, id1, id2);
+//					}
+
+					SyntaxNode newRoot;
+					if (declarationStatement != null) {
+						newRoot = root.ReplaceNode(foreachStatement, new [] { declarationStatement.WithAdditionalAnnotations(Formatter.Annotation),  forStatement.WithAdditionalAnnotations(Formatter.Annotation) });
+					} else {
+						newRoot = root.ReplaceNode(foreachStatement, forStatement.WithAdditionalAnnotations(Formatter.Annotation));
+					}
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}
+			));
+
+			if (hasIndexAccess) {
+				result.Add(CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Convert 'foreach' loop to optimized 'for'", 
+					t2 => {
+						var expressionTypeInfo = model.GetTypeInfo (foreachStatement.Expression);
+						var countProperty = GetCountProperty(expressionTypeInfo.Type);
+						var inExpression = foreachStatement.Expression;
+
+						string optimizedUpperBound = GetBoundName(inExpression) + countProperty;
+
+						var initializer = 
+							SyntaxFactory.VariableDeclaration(
+								SyntaxFactory.ParseTypeName("int"), 
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+									SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+										new [] { 
+											SyntaxFactory.VariableDeclarator(
+												SyntaxFactory.Identifier(name),
+												null, 
+												SyntaxFactory.EqualsValueClause(SyntaxFactory.ParseExpression("0"))
+											),
+											SyntaxFactory.VariableDeclarator(
+												SyntaxFactory.Identifier(optimizedUpperBound),
+												null, 
+												SyntaxFactory.EqualsValueClause(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, inExpression, SyntaxFactory.IdentifierName(countProperty)))
+											)
+										}
+									)
+								)
+							);
+						var id1 = SyntaxFactory.Identifier(name);
+						var id2 = id1;
+						var id3 = id1;
+						StatementSyntax declarationStatement = null;
+
+						if (inExpression is ObjectCreationExpressionSyntax || inExpression.IsKind(SyntaxKind.ImplicitArrayCreationExpression)) {
+							string listName = GetName(model, span, CollectionNames) ?? "col";
+
+							declarationStatement = SyntaxFactory.LocalDeclarationStatement(SyntaxFactory.VariableDeclaration(
+								SyntaxFactory.ParseTypeName("var"), 
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+									SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+										new [] { 
+											SyntaxFactory.VariableDeclarator(
+												SyntaxFactory.Identifier(listName),
+												null, 
+												SyntaxFactory.EqualsValueClause(inExpression)
+											)
+										}
+									)
+								)
+							));
+
+							inExpression = SyntaxFactory.IdentifierName (listName);
+						}
+
+						var variableDeclarationStatement = SyntaxFactory.LocalDeclarationStatement(SyntaxFactory.VariableDeclaration(
+							foreachStatement.Type, 
+							SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+									new [] { 
+										SyntaxFactory.VariableDeclarator(
+											foreachStatement.Identifier,
+											null, 
+											SyntaxFactory.EqualsValueClause(
+												hasIndexAccess ? 
+												(ExpressionSyntax)SyntaxFactory.ElementAccessExpression(inExpression, SyntaxFactory.BracketedArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new [] { SyntaxFactory.Argument(SyntaxFactory.IdentifierName(id3)) } ))) : 
+												SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName(id2), SyntaxFactory.IdentifierName("Current"))
+											)
+										)
+									}
+								)
+							)
+						));
+
+						var statements = new List<StatementSyntax>();
+						statements.Add(variableDeclarationStatement);
+
+						var incrementors = new List<ExpressionSyntax>();
+
+						if (hasIndexAccess)
+							incrementors.Add(SyntaxFactory.PostfixUnaryExpression (SyntaxKind.PostIncrementExpression, SyntaxFactory.IdentifierName(id2)));
+
+						var block = foreachStatement.Statement as BlockSyntax;
+						if (block != null) {
+							foreach (var stmt in block.Statements) {
+								statements.Add(stmt);
+							}
+						} else {
+							statements.Add(foreachStatement.Statement);
+						}
+
+						var forStatement = SyntaxFactory.ForStatement(
+							initializer,
+							SyntaxFactory.SeparatedList<ExpressionSyntax>(),
+							SyntaxFactory.BinaryExpression(SyntaxKind.LessThanExpression, SyntaxFactory.IdentifierName(id1), SyntaxFactory.IdentifierName(optimizedUpperBound)),
+							SyntaxFactory.SeparatedList<ExpressionSyntax>(incrementors),
+							SyntaxFactory.Block(statements)
+						);
+
+//						script.Link (initializer.Variables.First ().NameToken, id1, id2, id3);
+
+						SyntaxNode newRoot;
+						if (declarationStatement != null) {
+							newRoot = root.ReplaceNode(foreachStatement, new [] { declarationStatement.WithAdditionalAnnotations(Formatter.Annotation),  forStatement.WithAdditionalAnnotations(Formatter.Annotation) });
+						} else {
+							newRoot = root.ReplaceNode(foreachStatement, forStatement.WithAdditionalAnnotations(Formatter.Annotation));
+						}
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				));
+			}
+
+			return result;
+		}
+		
+		static string GetCountProperty(ITypeSymbol type)
+		{
+			return type.TypeKind == TypeKind.Array ? "Length" : "Count";
+		}
+
+		static ForEachStatementSyntax GetForeachStatement (SemanticModel context, SyntaxNode root, TextSpan span, out bool hasIndexAccess)
+		{
+			var result = root.FindNode (span) as ForEachStatementSyntax;
+			if (result == null) {
+				hasIndexAccess = false;
+				return null;
+			}
+
+			var collection = context.GetTypeInfo (result.Expression);
+			hasIndexAccess = collection.Type.TypeKind == TypeKind.Array || collection.Type.GetMembers().OfType<IPropertySymbol>().Any(p => p.IsIndexer);
+			return result;
+		}
+
+		static string GetName(SemanticModel model, TextSpan span, string[] variableNames)
+		{
+			var symbols = model.LookupSymbols(span.Start).ToList();
+			for (int i = 0; i < 1000; i++) {
+				foreach (var vn in variableNames) {
+					string id = i > 0 ? vn + i : vn;
+					if (symbols.All(s => s.Name != id))
+						return id;
+				}
+			}
 			return null;
 		}
-//
-//		static string GetName(ICSharpCode.NRefactory6.CSharp.Resolver.CSharpResolver state, string[] variableNames)
-//		{
-//			for (int i = 0; i < 1000; i++) {
-//				foreach (var vn in variableNames) {
-//					string id = i > 0 ? vn + i : vn;
-//					var rr = state.LookupSimpleNameOrTypeName(id, new IType[0], NameLookupMode.Expression);
-//					if (rr.IsError) 
-//						return id;
-//				}
-//			}
-//			return null;
-//		}
-//
-//		string GetBoundName(Expression inExpression)
-//		{
-//			var ie = inExpression as IdentifierExpression;
-//			if (ie != null)
-//				return ie.Identifier;
-//			var mre = inExpression as MemberReferenceExpression;
-//			if (mre != null)
-//				return GetBoundName(mre.Target) + mre.MemberName;
-//			return "max";
-//		}
-//
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			bool hasIndexAccess;
-//			var foreachStatement = GetForeachStatement(context, out hasIndexAccess);
-//			if (foreachStatement == null || foreachStatement.EmbeddedStatement == null)
-//				yield break;
-//			var state = context.GetResolverStateBefore (foreachStatement.EmbeddedStatement);
-//			string name = GetName(state, VariableNames);
-//			if (name == null) // very unlikely, but just in case ...
-//				yield break;
-//
-//			yield return new CodeAction(context.TranslateString("Convert 'foreach' loop to 'for'"), script => {
-//				var result = context.Resolve(foreachStatement.InExpression);
-//				var countProperty = GetCountProperty(result.Type);
-//				var inExpression = foreachStatement.InExpression;
-//
-//				var initializer = hasIndexAccess ? new VariableDeclarationStatement(new PrimitiveType("int"), name, new PrimitiveExpression(0)) :
-//				                  new VariableDeclarationStatement(new SimpleType("var"), name, new InvocationExpression(new MemberReferenceExpression (inExpression.Clone (), "GetEnumerator")));
-//				var id1 = new IdentifierExpression(name);
-//				var id2 = id1.Clone();
-//				var id3 = id1.Clone();
-//				Statement declarationStatement = null;
-//				if (inExpression is ObjectCreateExpression || inExpression is ArrayCreateExpression) {
-//					string listName = GetName(state, CollectionNames) ?? "col";
-//					declarationStatement = new VariableDeclarationStatement (
-//						new PrimitiveType ("var"),
-//						listName,
-//						inExpression.Clone ()
-//					);
-//					inExpression = new IdentifierExpression (listName);
-//				}
-//
-//				var variableDeclarationStatement = new VariableDeclarationStatement(
-//					foreachStatement.VariableType.Clone(),
-//					foreachStatement.VariableName,
-//					hasIndexAccess ? (Expression)new IndexerExpression(inExpression.Clone(), id3) : new MemberReferenceExpression(id1, "Current")
-//				);
-//
-//				var forStatement = new ForStatement {
-//					Initializers = { initializer },
-//					Condition = hasIndexAccess ? (Expression)new BinaryOperatorExpression (id1, BinaryOperatorType.LessThan, new MemberReferenceExpression (inExpression.Clone (), countProperty)) :
-//					            new InvocationExpression(new MemberReferenceExpression (id2, "MoveNext")),
-//					EmbeddedStatement = new BlockStatement {
-//						variableDeclarationStatement
-//					}
-//				};
-//
-//				if (hasIndexAccess)
-//					forStatement.Iterators.Add(new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, id2));
-//
-//				if (foreachStatement.EmbeddedStatement is BlockStatement) {
-//					variableDeclarationStatement.Remove();
-//					var oldBlock = (BlockStatement)foreachStatement.EmbeddedStatement.Clone();
-//					if (oldBlock.Statements.Any()) {
-//						oldBlock.Statements.InsertBefore(oldBlock.Statements.First(), variableDeclarationStatement);
-//					} else {
-//						oldBlock.Statements.Add(variableDeclarationStatement);
-//					}
-//					forStatement.EmbeddedStatement = oldBlock;
-//				} else {
-//					forStatement.EmbeddedStatement.AddChild (foreachStatement.EmbeddedStatement.Clone (), BlockStatement.StatementRole);
-//				}
-//				if (declarationStatement != null)
-//					script.InsertBefore (foreachStatement, declarationStatement);
-//				script.Replace (foreachStatement, forStatement);
-//				if (hasIndexAccess) {
-//					script.Link (initializer.Variables.First ().NameToken, id1, id2, id3);
-//				} else {
-//					script.Link (initializer.Variables.First ().NameToken, id1, id2);
-//				}
-//			}, foreachStatement);
-//
-//			if (!hasIndexAccess)
-//				yield break;
-//			yield return new CodeAction(context.TranslateString("Convert 'foreach' loop to optimized 'for'"), script => {
-//				var result = context.Resolve(foreachStatement.InExpression);
-//				var countProperty = GetCountProperty(result.Type);
-//
-//				var initializer = new VariableDeclarationStatement(new PrimitiveType("int"), name, new PrimitiveExpression(0));
-//				var id1 = new IdentifierExpression(name);
-//				var id2 = id1.Clone();
-//				var id3 = id1.Clone();
-//				var inExpression = foreachStatement.InExpression;
-//				Statement declarationStatement = null;
-//				if (inExpression is ObjectCreateExpression || inExpression is ArrayCreateExpression) {
-//					string listName = GetName(state, CollectionNames) ?? "col";
-//					declarationStatement = new VariableDeclarationStatement (
-//						new PrimitiveType ("var"),
-//						listName,
-//						inExpression.Clone ()
-//						);
-//					inExpression = new IdentifierExpression (listName);
-//				}
-//
-//				var variableDeclarationStatement = new VariableDeclarationStatement(
-//					foreachStatement.VariableType.Clone(),
-//					foreachStatement.VariableName,
-//					new IndexerExpression(inExpression.Clone(), id3)
-//					);
-//
-//				string optimizedUpperBound = GetBoundName(inExpression) + countProperty;
-//				initializer.Variables.Add(new VariableInitializer(optimizedUpperBound, new MemberReferenceExpression (inExpression.Clone (), countProperty)));
-//				var forStatement = new ForStatement {
-//					Initializers = { initializer },
-//					Condition = new BinaryOperatorExpression (id1, BinaryOperatorType.LessThan, new IdentifierExpression(optimizedUpperBound)),
-//					Iterators = { new UnaryOperatorExpression (UnaryOperatorType.PostIncrement, id2) },
-//					EmbeddedStatement = new BlockStatement {
-//						variableDeclarationStatement
-//					}
-//				};
-//
-//				if (foreachStatement.EmbeddedStatement is BlockStatement) {
-//					variableDeclarationStatement.Remove();
-//					var oldBlock = (BlockStatement)foreachStatement.EmbeddedStatement.Clone();
-//					if (oldBlock.Statements.Any()) {
-//						oldBlock.Statements.InsertBefore(oldBlock.Statements.First(), variableDeclarationStatement);
-//					} else {
-//						oldBlock.Statements.Add(variableDeclarationStatement);
-//					}
-//					forStatement.EmbeddedStatement = oldBlock;
-//				} else {
-//					forStatement.EmbeddedStatement.AddChild (foreachStatement.EmbeddedStatement.Clone (), BlockStatement.StatementRole);
-//				}
-//				if (declarationStatement != null)
-//					script.InsertBefore (foreachStatement, declarationStatement);
-//				script.Replace (foreachStatement, forStatement);
-//				script.Link (initializer.Variables.First ().NameToken, id1, id2, id3);
-//			}, foreachStatement);
-//		}
-//		
-//		static string GetCountProperty(IType type)
-//		{
-//			return type.Kind == TypeKind.Array ? "Length" : "Count";
-//		}
-//
-//		static ForeachStatement GetForeachStatement (SemanticModel context, out bool hasIndexAccess)
-//		{
-//			var astNode = context.GetNode ();
-//			if (astNode == null) {
-//				hasIndexAccess = false;
-//				return null;
-//			}
-//			var result = (astNode as ForeachStatement) ?? astNode.Parent as ForeachStatement;
-//			if (result == null) {
-//				hasIndexAccess = false;
-//				return null;
-//			}
-//			var collection = context.Resolve (result.InExpression);
-//			hasIndexAccess = collection.Type.Kind == TypeKind.Array || collection.Type.GetProperties(p => p.IsIndexer).Any();
-//			return result;
-//		}
+
+		static string GetBoundName(ExpressionSyntax inExpression)
+		{
+			var ie = inExpression as IdentifierNameSyntax;
+			if (ie != null)
+				return ie.ToString();
+			var mre = inExpression as MemberAccessExpressionSyntax;
+			if (mre != null)
+				return GetBoundName(mre.Expression) + mre.Name;
+			return "max";
+		}
 	}
 }
