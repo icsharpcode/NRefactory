@@ -33,135 +33,138 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class AddOptionalParameterToInvocationTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestSimple ()
+		public void TestSimple()
 		{
-			Test<AddOptionalParameterToInvocationAction> (@"
+			Test<AddOptionalParameterToInvocationAction>(@"
 class TestClass
 {
-	public void Foo(string msg = ""Hello"") {}
-	public void Bar() {
-		$Foo ();
-	}
+    public void Foo(string msg = ""Hello"") {}
+    public void Bar() {
+        $Foo();
+    }
 }", @"
 class TestClass
 {
-	public void Foo(string msg = ""Hello"") {}
-	public void Bar() {
-		Foo (""Hello"");
-	}
+    public void Foo(string msg = ""Hello"") {}
+    public void Bar() {
+        Foo(""Hello"");
+    }
 }");
 		}
 
 		[Test]
-		public void TestMultiple1 ()
+		public void TestMultiple1()
 		{
-			Test<AddOptionalParameterToInvocationAction> (@"
+			Test<AddOptionalParameterToInvocationAction>(@"
 class TestClass
 {
-	public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
-	public void Bar() {
-		$Foo ();
-	}
+    public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
+    public void Bar() {
+        $Foo();
+    }
 }", @"
 class TestClass
 {
-	public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
-	public void Bar() {
-		Foo (""Hello"");
-	}
+    public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
+    public void Bar() {
+        Foo(""Hello"");
+    }
 }");
 		}
 
 		[Test]
-		public void TestExtensionMethod ()
+		public void TestExtensionMethod()
 		{
-			Test<AddOptionalParameterToInvocationAction> (@"
+			Test<AddOptionalParameterToInvocationAction>(@"
 static class Extensions
 {
-	public static void Foo(this string self, string msg = ""Hello"") {}
+    public static void Foo(this string self, string msg = ""Hello"") {}
 }
 class TestClass
 {
-	public void Bar() {
-		string.$Foo ();
-	}
+    public void Bar() {
+        ""test"".$Foo();
+    }
 }", @"
 static class Extensions
 {
-	public static void Foo(this string self, string msg = ""Hello"") {}
+    public static void Foo(this string self, string msg = ""Hello"") {}
 }
 class TestClass
 {
-	public void Bar() {
-		string.Foo (""Hello"");
-	}
+    public void Bar() {
+        ""test"".Foo(""Hello"");
+    }
 }");
 		}
 
 		[Test]
-		public void TestMultiple2 ()
+		public void TestMultiple2()
 		{
-			Test<AddOptionalParameterToInvocationAction> (@"
+			Test<AddOptionalParameterToInvocationAction>(@"
 class TestClass
 {
-	public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
-	public void Bar() {
-		$Foo ();
-	}
+    public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
+    public void Bar() {
+        $Foo();
+    }
 }", @"
 class TestClass
 {
-	public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
-	public void Bar() {
-		Foo (msg2: ""Bar"");
-	}
+    public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
+    public void Bar() {
+        Foo(msg2: ""Bar"");
+    }
 }", 1);
 		}
 
 		[Test]
-		public void TestMultiple3 ()
+		public void TestMultiple3()
 		{
-			Test<AddOptionalParameterToInvocationAction> (@"
+			Test<AddOptionalParameterToInvocationAction>(@"
 class TestClass
 {
-	public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
-	public void Bar() {
-		$Foo ();
-	}
+    public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") { }
+    public void Bar()
+    {
+        $Foo();
+    }
 }", @"
 class TestClass
 {
-	public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
-	public void Bar() {
-		Foo (""Hello"", ""Bar"");
-	}
+    public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") { }
+    public void Bar()
+    {
+        Foo(""Hello"", ""Bar"");
+    }
 }", 2);
 		}
 
 		[Test]
-		public void TestNoMoreParameters ()
+		public void TestNoMoreParameters()
 		{
 			TestWrongContext<AddOptionalParameterToInvocationAction>(@"
 class TestClass
 {
-	public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
-	public void Bar() {
-		$Foo (string.Empty, string.Empty);
-	}
+    public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
+    public void Bar() {
+        $Foo(string.Empty, string.Empty);
+    }
 }
 ");
 		}
 
 		[Test]
-		public void TestParams ()
+		public void TestParams()
 		{
 			TestWrongContext<AddOptionalParameterToInvocationAction>(@"
 class TestClass
 {
-	public void Foo(params string[] p) {}
-	public void Bar() {
-		$Foo ();
-	}
+    public void Foo(params string[] p) {}
+    public void Bar()
+    {
+        $Foo();
+    }
 }
 ");
 		}

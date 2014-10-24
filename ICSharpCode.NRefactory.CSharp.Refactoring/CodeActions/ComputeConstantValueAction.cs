@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Compute constant value", LanguageNames.CSharp)]
 	public class ComputeConstantValueAction : CodeRefactoringProvider
 	{
-		static SyntaxNode GetLiteralExpression(object value)
+		internal static ExpressionSyntax GetLiteralExpression(object value)
 		{
 			if (value is bool)
 				return SyntaxFactory.LiteralExpression((bool)value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);

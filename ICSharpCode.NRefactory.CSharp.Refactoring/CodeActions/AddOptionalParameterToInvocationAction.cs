@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,7 +34,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -51,100 +49,105 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+			var node = root.FindNode(span);
+
+			InvocationExpressionSyntax invocationExpression;
+			if (node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression)) {
+				invocationExpression = node.Parent.Parent as InvocationExpressionSyntax;
+			} else {
+				invocationExpression = node.Parent as InvocationExpressionSyntax;
+			}
+			if (invocationExpression == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var symbolInfo = model.GetSymbolInfo(invocationExpression);
+			var method = symbolInfo.Symbol as IMethodSymbol;
+			if (method == null)
+				return Enumerable.Empty<CodeAction>();
+
+
+			bool foundOptionalParameter = false;
+			foreach (var parameter in method.Parameters) {
+				if (parameter.IsParams) {
+					return Enumerable.Empty<CodeAction>();
+				}
+				if (parameter.IsOptional) {
+					foundOptionalParameter = true;
+					break;
+				}
+			}
+			if (!foundOptionalParameter)
+				return Enumerable.Empty<CodeAction>();
+
+			var result = new List<CodeAction>();
+
+			//Basic sanity checks done, now see if there are any missing optional arguments
+			var missingParameters = new List<IParameterSymbol>(method.Parameters);
+			if (method.Parameters.Length != invocationExpression.ArgumentList.Arguments.Count) {
+				//Extension method
+				if (missingParameters[0].IsThis)
+					missingParameters.RemoveAt (0);
+			}
+
+			foreach (var argument in invocationExpression.ArgumentList.Arguments) {
+				if (argument.NameColon  != null) {
+					missingParameters.RemoveAll(parameter => parameter.Name == argument.NameColon.Name.ToString());
+				} else {
+					missingParameters.RemoveAt(0);
+				}
+			}
+
+			foreach (var parameterToAdd in missingParameters) {
+				//Add specific parameter
+				result.Add(CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					string.Format("Add optional parameter \"{0}\"", parameterToAdd.Name), 
+					t2 => {
+						var newInvocation = AddArgument(invocationExpression, parameterToAdd, parameterToAdd == missingParameters.First()).
+							WithAdditionalAnnotations(Formatter.Annotation);
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(invocationExpression, newInvocation)));
+					}
+				));
+			}
+
+			if (missingParameters.Count > 1) {
+				//Add all parameters at once
+				result.Add(CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Add all optional parameters",
+					t2 => {
+						var newInvocation = invocationExpression;
+						foreach (var parameterToAdd in missingParameters) {
+							newInvocation = AddArgument(newInvocation, parameterToAdd, true);
+						}
+						var newRoot = root.ReplaceNode(invocationExpression, newInvocation)
+							.WithAdditionalAnnotations(Formatter.Annotation);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				));
+			}
+
+			return result;
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var invocationExpression = context.GetNode<InvocationExpression>();
-//			if (invocationExpression == null)
-//				yield break;
-//
-//			var resolveResult = context.Resolve(invocationExpression) as InvocationResolveResult;
-//			if (resolveResult == null) {
-//				yield break;
-//			}
-//
-//			var method = (IMethod)resolveResult.Member;
-//
-//			bool foundOptionalParameter = false;
-//			foreach (var parameter in method.Parameters) {
-//				if (parameter.IsParams) {
-//					yield break;
-//				}
-//
-//				if (parameter.IsOptional) {
-//					foundOptionalParameter = true;
-//					break;
-//				}
-//			}
-//
-//			if (!foundOptionalParameter) {
-//				yield break;
-//			}
-//
-//			//Basic sanity checks done, now see if there are any missing optional arguments
-//			var missingParameters = new List<IParameter>(method.Parameters);
-//			if (resolveResult.Arguments.Count != invocationExpression.Arguments.Count) {
-//				//Extension method
-//				missingParameters.RemoveAt (0);
-//			}
-//			foreach (var argument in invocationExpression.Arguments) {
-//				var namedArgument = argument as NamedArgumentExpression;
-//				if (namedArgument == null) {
-//					missingParameters.RemoveAt(0);
-//				} else {
-//					missingParameters.RemoveAll(parameter => parameter.Name == namedArgument.Name);
-//				}
-//			}
-//
-//			foreach (var parameterToAdd in missingParameters) {
-//				//Add specific parameter
-//				yield return new CodeAction(string.Format(context.TranslateString("Add optional parameter \"{0}\""),
-//				                                         parameterToAdd.Name),
-//				                           script => {
-//
-//					var newInvocation = (InvocationExpression)invocationExpression.Clone();
-//					AddArgument(newInvocation, parameterToAdd, parameterToAdd == missingParameters.First());
-//					script.Replace(invocationExpression, newInvocation);
-//
-//				}, invocationExpression);
-//			}
-//
-//			if (missingParameters.Count > 1) {
-//				//Add all parameters at once
-//				yield return new CodeAction(context.TranslateString("Add all optional parameters"),
-//				                            script => {
-//
-//					var newInvocation = (InvocationExpression)invocationExpression.Clone();
-//
-//					foreach (var parameterToAdd in missingParameters) {
-//						//We'll add the remaining parameters, in the order they were declared in the function
-//						AddArgument(newInvocation, parameterToAdd, true);
-//					}
-//					script.Replace(invocationExpression, newInvocation);
-//
-//				}, invocationExpression);
-//			}
-//		}
-//
-//		static void AddArgument(InvocationExpression newNode, IParameter parameterToAdd, bool isNextInSequence)
-//		{
-//			Expression defaultValue;
-//			if (parameterToAdd.ConstantValue == null) {
-//				defaultValue = new NullReferenceExpression();
-//			}
-//			else {
-//				defaultValue = new PrimitiveExpression(parameterToAdd.ConstantValue);
-//			}
-//			Expression newArgument;
-//			if (newNode.Arguments.Any(argument => argument is NamedExpression) || !isNextInSequence) {
-//				newArgument = new NamedArgumentExpression(parameterToAdd.Name, defaultValue);
-//			}
-//			else {
-//				newArgument = defaultValue;
-//			}
-//			newNode.Arguments.Add(newArgument);
-//		}
+
+		static InvocationExpressionSyntax AddArgument(InvocationExpressionSyntax invocationExpression, IParameterSymbol parameterToAdd, bool isNextInSequence)
+		{
+			ExpressionSyntax defaultValue;
+			if (parameterToAdd.HasExplicitDefaultValue) {
+				defaultValue = ComputeConstantValueAction.GetLiteralExpression(parameterToAdd.ExplicitDefaultValue);
+			} else {
+				return invocationExpression;
+			}
+			ArgumentSyntax newArgument = SyntaxFactory.Argument(defaultValue);
+			if (invocationExpression.ArgumentList.Arguments.Any(argument => argument.NameColon != null) || !isNextInSequence) {
+				newArgument = newArgument.WithNameColon(SyntaxFactory.NameColon(parameterToAdd.Name));
+			}
+
+			var newArguments = invocationExpression.ArgumentList.AddArguments(newArgument);
+			return invocationExpression.WithArgumentList(newArguments);
+		}
 	}
 }
-
