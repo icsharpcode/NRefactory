@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,7 +34,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -69,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					DiagnosticSeverity.Info,
 					"Convert to 'if'",
 					t2 => {
-						List<IfStatementSyntax> ifNodes = new List<IfStatementSyntax>();
+						var ifNodes = new List<IfStatementSyntax>();
 						ElseClauseSyntax defaultElse = null;
 
 						foreach (var section in node.Sections) {
@@ -101,26 +99,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							else
 								ifStatement = ifs.WithElse(SyntaxFactory.ElseClause(ifStatement));
 						}
-						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((StatementSyntax)node, ifStatement)));
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((StatementSyntax)node, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
 					})
 			};
 		}
 
-		private ExpressionSyntax CollectCondition(ExpressionSyntax expressionSyntax, SyntaxList<SwitchLabelSyntax> labels)
+		ExpressionSyntax CollectCondition(ExpressionSyntax expressionSyntax, SyntaxList<SwitchLabelSyntax> labels)
 		{
 			//default
-			if (labels.Count == 0 || labels.Any(l => l is CaseSwitchLabelSyntax && ((CaseSwitchLabelSyntax)l).Value == null))
+			if (labels.Count == 0 || labels.OfType<DefaultSwitchLabelSyntax>().Any())
 				return null;
 
-			List<ExpressionSyntax> conditionList = 
-				labels.Select(l => (ExpressionSyntax)SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression, expressionSyntax, ((CaseSwitchLabelSyntax)l).Value)).ToList();
+			var conditionList = 
+				labels
+					.OfType<CaseSwitchLabelSyntax>()
+					.Select(l => SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression, expressionSyntax, l.Value)).ToList();
 
 			//attempt to add parentheses
 			//TODO: port InsertParentheses in-full rather than a make-do (but I didn't think I had the time to do a full-port)
 			for (int i = 0; i < conditionList.Count; ++i ) {
-				var cond = conditionList[i] as BinaryExpressionSyntax;
-				if (cond == null)
-					continue;
+				var cond = conditionList[i];
 				if (NeedsParentheses((cond.Right))) {
 					conditionList[i] = cond.WithRight(SyntaxFactory.ParenthesizedExpression(cond.Right));
 				}
@@ -130,16 +128,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return conditionList.First();
 
 			//combine case labels
-			BinaryExpressionSyntax condition = null;
-			List<BinaryExpressionSyntax> conds = new List<BinaryExpressionSyntax>();
-			for(int i = 0; i < conditionList.Count - 1; ++i) {
-				var newCondition = SyntaxFactory.BinaryExpression(SyntaxKind.LogicalOrExpression, conditionList[i], conditionList[i]);
-				if (condition == null)
-					condition = newCondition;
-				else
-					condition = SyntaxFactory.BinaryExpression(SyntaxKind.LogicalOrExpression, condition, newCondition);
+			BinaryExpressionSyntax condition = conditionList[0];
+			for(int i = 1; i < conditionList.Count; ++i) {
+				condition = SyntaxFactory.BinaryExpression(SyntaxKind.LogicalOrExpression, condition, conditionList[i]);
 			}
-			condition = SyntaxFactory.BinaryExpression(SyntaxKind.LogicalOrExpression, condition, conditionList.Last());
 			return condition;
 		}
 
@@ -160,10 +152,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					return true;
 			}
 
-			BinaryExpressionSyntax bOp = expr as BinaryExpressionSyntax;
-			if (bOp == null)
-				return false;
-			return NeedsParentheses(bOp.Right);
+			var bOp = expr as BinaryExpressionSyntax;
+			return bOp != null && NeedsParentheses(bOp.Right);
 		}
 	}
 }
