@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, usingNode);
 		}
 
-		private static AstNode FindUsingNodeAtCursor(RefactoringContext context)
+		static AstNode FindUsingNodeAtCursor(RefactoringContext context)
 		{
 			// If cursor is inside using declaration
 			var locationAsIs = context.Location;
@@ -71,12 +71,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return usingNode;
 		}
 
-		private static bool IsUsingDeclaration(AstNode node)
+		static bool IsUsingDeclaration(AstNode node)
 		{
 			return node is UsingDeclaration || node is UsingAliasDeclaration;
 		}
 
-		private static IEnumerable<IEnumerable<AstNode>> EnumerateUsingBlocks(AstNode root)
+		static IEnumerable<IEnumerable<AstNode>> EnumerateUsingBlocks(AstNode root)
 		{
 			var alreadyAddedNodes = new HashSet<AstNode>();
 
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 		}
 
-		private static IEnumerable<AstNode> EnumerateUsingBlockNodes(AstNode firstNode)
+		static IEnumerable<AstNode> EnumerateUsingBlockNodes(AstNode firstNode)
 		{
 			for (var node = firstNode; IsUsingDeclaration(node); node = node.GetNextSibling (n => n.Role != Roles.NewLine))
 				yield return node;

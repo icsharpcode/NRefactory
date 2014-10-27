@@ -188,16 +188,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				UsingInfo x = this;
 				if (x.IsAlias != y.IsAlias)
 					return x.IsAlias ? 1 : -1;
-				else if (x.HasTypesFromOtherAssemblies != y.HasTypesFromOtherAssemblies)
-					return x.HasTypesFromOtherAssemblies ? -1 : 1;
-				else if (x.IsSystem != y.IsSystem)
+				if (x.IsAlias)
+					return StringComparer.OrdinalIgnoreCase.Compare(x.Alias, y.Alias);
+//				if (x.HasTypesFromOtherAssemblies != y.HasTypesFromOtherAssemblies)
+//					return x.HasTypesFromOtherAssemblies ? -1 : 1;
+				if (x.IsSystem != y.IsSystem)
 					return x.IsSystem ? -1 : 1;
-				else if (x.Alias != y.Alias)
-					return StringComparer.Ordinal.Compare(x.Alias, y.Alias);
-				else if (x.Name != y.Name)
-					return StringComparer.Ordinal.Compare(x.Name, y.Name);
-				else
-					return 0;
+				return StringComparer.OrdinalIgnoreCase.Compare(x.Name, y.Name);
 			}
 		}
 	}

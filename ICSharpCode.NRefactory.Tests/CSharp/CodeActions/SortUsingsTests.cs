@@ -88,12 +88,14 @@ using System.Linq;
 using Sys = System;
 using System;
 using FooAlias = Foo;
-using Linq = System.Linq;", @"using System;
+using Linq = System.Linq;",
+
+@"using System;
 using System.Linq;
 using Foo;
+using FooAlias = Foo;
 using Linq = System.Linq;
-using Sys = System;
-using FooAlias = Foo;");
+using Sys = System;");
 		}
 
 		[Test]
@@ -121,6 +123,48 @@ using D;
 using B;
 using C;
 #endif");
+		}
+
+		/// <summary>
+		/// Bug 24015 - Sort usings yields strange result
+		/// </summary>
+		[Test]
+		public void TestBug24015()
+		{
+			Test<SortUsingsAction>(@"$using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using MonoMac.AppKit;
+using MonoMac.Foundation;
+using ReactiveUI;
+using Splat;
+using Xamarin;
+using XTractor.Contracts.Services;
+using XTractor.Platforms.Contracts;
+using XTractor.UI.Core;
+using XTractor.UI.Services;
+using XTractor.UI.ViewModels;
+using XTractor.UI.Mac.Services;
+using XTractor.UI.Mac.Views.Helpers;
+", 
+				@"using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using MonoMac.AppKit;
+using MonoMac.Foundation;
+using ReactiveUI;
+using Splat;
+using Xamarin;
+using XTractor.Contracts.Services;
+using XTractor.Platforms.Contracts;
+using XTractor.UI.Core;
+using XTractor.UI.Mac.Services;
+using XTractor.UI.Mac.Views.Helpers;
+using XTractor.UI.Services;
+using XTractor.UI.ViewModels;
+");
 		}
 	}
 }
