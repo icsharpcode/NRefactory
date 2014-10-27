@@ -26,84 +26,83 @@
 using System;
 using ICSharpCode.NRefactory6.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class CSharpUtil
 	{
-		/*
 		/// <summary>
 		/// Inverts a boolean condition. Note: The condition object can be frozen (from AST) it's cloned internally.
 		/// </summary>
 		/// <param name="condition">The condition to invert.</param>
-		public static Expression InvertCondition(Expression condition)
+		public static ExpressionSyntax InvertCondition(ExpressionSyntax condition)
 		{
 			return InvertConditionInternal(condition);
 		}
 		
-		static Expression InvertConditionInternal(Expression condition)
+		static ExpressionSyntax InvertConditionInternal(ExpressionSyntax condition)
 		{
-			if (condition is ParenthesizedExpression) {
-				return new ParenthesizedExpression(InvertCondition(((ParenthesizedExpression)condition).Expression));
+			if (condition is ParenthesizedExpressionSyntax) {
+				return SyntaxFactory.ParenthesizedExpression(InvertCondition(((ParenthesizedExpressionSyntax)condition).Expression));
 			}
-			
-			if (condition is UnaryOperatorExpression) {
-				var uOp = (UnaryOperatorExpression)condition;
-				if (uOp.Operator == UnaryOperatorType.Not) {
-					if (!(uOp.Parent is Expression))
-						return GetInnerMostExpression(uOp.Expression).Clone();
-					return uOp.Expression.Clone();
-				}
-				return new UnaryOperatorExpression(UnaryOperatorType.Not, uOp.Clone());
-			}
-			
-			if (condition is BinaryOperatorExpression) {
-				var bOp = (BinaryOperatorExpression)condition;
 
-				if ((bOp.Operator == BinaryOperatorType.ConditionalAnd) || (bOp.Operator == BinaryOperatorType.ConditionalOr)) {
-					return new BinaryOperatorExpression(InvertCondition(bOp.Left), NegateConditionOperator(bOp.Operator), InvertCondition(bOp.Right));
-				} else if ((bOp.Operator == BinaryOperatorType.Equality) || (bOp.Operator == BinaryOperatorType.InEquality) || (bOp.Operator == BinaryOperatorType.GreaterThan)
-					|| (bOp.Operator == BinaryOperatorType.GreaterThanOrEqual) || (bOp.Operator == BinaryOperatorType.LessThan) || 
-					(bOp.Operator == BinaryOperatorType.LessThanOrEqual)) {
-					return new BinaryOperatorExpression(bOp.Left.Clone(), NegateRelationalOperator(bOp.Operator), bOp.Right.Clone());
-				} else {
-					var negatedOp = NegateRelationalOperator(bOp.Operator);
-					if (negatedOp == BinaryOperatorType.Any)
-						return new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(condition.Clone()));
-					bOp = (BinaryOperatorExpression)bOp.Clone();
-					bOp.Operator = negatedOp;
-					return bOp;
+			if (condition is PrefixUnaryExpressionSyntax) {
+				var uOp = (PrefixUnaryExpressionSyntax)condition;
+				if (uOp.IsParentKind(SyntaxKind.LogicalNotExpression)) {
+					if (!(uOp.Parent is ExpressionSyntax))
+						return uOp.Operand.SkipParens();
+					return uOp.Operand;
 				}
-			}
-			if (condition is ConditionalExpression) {
-				var cEx = condition.Clone() as ConditionalExpression;
-				cEx.Condition = InvertCondition(cEx.Condition);
-				return cEx;
-			}
-			if (condition is PrimitiveExpression) {
-				var pex = condition as PrimitiveExpression;
-				if (pex.Value is bool) {
-					return new PrimitiveExpression(!((bool)pex.Value)); 
-				}
+				return SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, uOp);
 			}
 			
-			return new UnaryOperatorExpression(UnaryOperatorType.Not, AddParensForUnaryExpressionIfRequired(condition.Clone()));
+			if (condition is BinaryExpressionSyntax) {
+				var bOp = (BinaryExpressionSyntax)condition;
+
+				if (bOp.IsKind(SyntaxKind.LogicalAndExpression) || bOp.IsKind(SyntaxKind.LogicalOrExpression))
+					return SyntaxFactory.BinaryExpression(NegateConditionOperator(bOp.CSharpKind()), InvertCondition(bOp.Left), InvertCondition(bOp.Right));
+
+				if (bOp.IsKind(SyntaxKind.EqualsExpression) ||
+					bOp.IsKind(SyntaxKind.NotEqualsExpression) ||
+					bOp.IsKind(SyntaxKind.GreaterThanExpression) ||
+					bOp.IsKind(SyntaxKind.GreaterThanOrEqualExpression) ||
+					bOp.IsKind(SyntaxKind.LessThanExpression) ||
+					bOp.IsKind(SyntaxKind.LessThanOrEqualExpression)) 
+					return SyntaxFactory.BinaryExpression(NegateRelationalOperator(bOp.CSharpKind()), bOp.Left, bOp.Right);
+
+				return SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, SyntaxFactory.ParenthesizedExpression(condition));
+			}
+
+			if (condition is ConditionalExpressionSyntax) {
+				var cEx = condition as ConditionalExpressionSyntax;
+				return cEx.WithCondition(InvertCondition(cEx.Condition));
+			}
+
+			if (condition is LiteralExpressionSyntax) {
+				if (condition.CSharpKind() == SyntaxKind.TrueLiteralExpression)
+					return SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression); 
+				if (condition.CSharpKind() == SyntaxKind.FalseLiteralExpression)
+					return SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression); 
+			}
+
+			return SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, AddParensForUnaryExpressionIfRequired(condition));
 		}
 
 		/// <summary>
 		/// When negating an expression this is required, otherwise you would end up with
 		/// a or b -> !a or b
 		/// </summary>
-		internal static Expression AddParensForUnaryExpressionIfRequired(Expression expression)
+		internal static ExpressionSyntax AddParensForUnaryExpressionIfRequired(ExpressionSyntax expression)
 		{
-			if ((expression is BinaryOperatorExpression) ||
-			    (expression is AssignmentExpression) ||
-			    (expression is CastExpression) ||
-			    (expression is AsExpression) ||
-			    (expression is IsExpression) ||
-			    (expression is LambdaExpression) ||
-			    (expression is ConditionalExpression)) {
-				return new ParenthesizedExpression(expression);
+			if ((expression is BinaryExpressionSyntax) ||
+			    (expression is AssignmentExpressionSyntax) ||
+				(expression is CastExpressionSyntax) ||
+				(expression is ParenthesizedLambdaExpressionSyntax) ||
+				(expression is SimpleLambdaExpressionSyntax) ||
+				(expression is ConditionalExpressionSyntax)) {
+				return SyntaxFactory.ParenthesizedExpression(expression);
 			}
 
 			return expression;
@@ -115,36 +114,36 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <returns>
 		/// negation of the specified relational operator, or BinaryOperatorType.Any if it's not a relational operator
 		/// </returns>
-		public static BinaryOperatorType NegateRelationalOperator(BinaryOperatorType op)
+		public static SyntaxKind NegateRelationalOperator(SyntaxKind op)
 		{
 			switch (op) {
-				case BinaryOperatorType.GreaterThan:
-					return BinaryOperatorType.LessThanOrEqual;
-				case BinaryOperatorType.GreaterThanOrEqual:
-					return BinaryOperatorType.LessThan;
-				case BinaryOperatorType.Equality:
-					return BinaryOperatorType.InEquality;
-				case BinaryOperatorType.InEquality:
-					return BinaryOperatorType.Equality;
-				case BinaryOperatorType.LessThan:
-					return BinaryOperatorType.GreaterThanOrEqual;
-				case BinaryOperatorType.LessThanOrEqual:
-					return BinaryOperatorType.GreaterThan;
-				case BinaryOperatorType.ConditionalOr:
-					return BinaryOperatorType.ConditionalAnd;
-				case BinaryOperatorType.ConditionalAnd:
-					return BinaryOperatorType.ConditionalOr;
+				case SyntaxKind.EqualsExpression:
+					return SyntaxKind.NotEqualsExpression;
+				case SyntaxKind.NotEqualsExpression:
+					return SyntaxKind.EqualsExpression;
+				case SyntaxKind.GreaterThanExpression:
+					return SyntaxKind.LessThanOrEqualExpression;
+				case SyntaxKind.GreaterThanOrEqualExpression:
+					return SyntaxKind.LessThanExpression;
+				case SyntaxKind.LessThanExpression:
+					return SyntaxKind.GreaterThanOrEqualExpression;
+				case SyntaxKind.LessThanOrEqualExpression:
+					return SyntaxKind.GreaterThanExpression;
+				case SyntaxKind.LogicalOrExpression:
+					return SyntaxKind.LogicalAndExpression;
+				case SyntaxKind.LogicalAndExpression:
+					return SyntaxKind.LogicalOrExpression;
 			}
-			return BinaryOperatorType.Any;
+			throw new ArgumentOutOfRangeException("op");
 		}
 
-		/// <summary>
-		/// Returns true, if the specified operator is a relational operator
-		/// </summary>
-		public static bool IsRelationalOperator(BinaryOperatorType op)
-		{
-			return NegateRelationalOperator(op) != BinaryOperatorType.Any;
-		}
+//		/// <summary>
+//		/// Returns true, if the specified operator is a relational operator
+//		/// </summary>
+//		public static bool IsRelationalOperator(BinaryOperatorType op)
+//		{
+//			return NegateRelationalOperator(op) != BinaryOperatorType.Any;
+//		}
 
 		/// <summary>
 		/// Get negation of the condition operator
@@ -152,17 +151,16 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <returns>
 		/// negation of the specified condition operator, or BinaryOperatorType.Any if it's not a condition operator
 		/// </returns>
-		public static BinaryOperatorType NegateConditionOperator(BinaryOperatorType op)
+		public static SyntaxKind NegateConditionOperator(SyntaxKind op)
 		{
 			switch (op) {
-				case BinaryOperatorType.ConditionalOr:
-					return BinaryOperatorType.ConditionalAnd;
-				case BinaryOperatorType.ConditionalAnd:
-					return BinaryOperatorType.ConditionalOr;
+				case SyntaxKind.LogicalOrExpression:
+					return SyntaxKind.LogicalAndExpression;
+				case SyntaxKind.LogicalAndExpression:
+					return SyntaxKind.LogicalOrExpression;
 			}
-			return BinaryOperatorType.Any;
+			throw new ArgumentOutOfRangeException("op");
 		}
-		*/
 	
 		public static bool AreConditionsEqual(ExpressionSyntax cond1, ExpressionSyntax cond2)
 		{

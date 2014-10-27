@@ -30,6 +30,7 @@ using System.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
+	[Ignore("Needs insertion cursor mode.")]
 	[TestFixture]
 	public class CreateMethodDeclarationTests : ContextActionTestBase
 	{

@@ -37,28 +37,32 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<ExtractWhileConditionToInternalIfStatementAction>(@"
 public class Main 
 {
-	public int Foo (int i)
-	{
-		$while (i < 10) {
-			System.Console.WriteLine (i);
-			i++;
-		}
-		return 2;
-	}
+    public int Foo (int i)
+    {
+        $while (i < 10)
+        {
+            System.Console.WriteLine(i);
+            i++;
+        }
+
+        return 2;
+    }
 }
 ", @"
 public class Main 
 {
-	public int Foo (int i)
-	{
-		while (true) {
-			if (i >= 10)
-				break;
-			System.Console.WriteLine (i);
-			i++;
-		}
-		return 2;
-	}
+    public int Foo (int i)
+    {
+        while (true)
+        {
+            if (i >= 10)
+                break;
+            System.Console.WriteLine(i);
+            i++;
+        }
+
+        return 2;
+    }
 }
 ");
 		}
@@ -69,56 +73,61 @@ public class Main
 			Test<ExtractWhileConditionToInternalIfStatementAction>(@"
 public class Main 
 {
-	public int Foo (int i)
-	{
-		$while (i < 10)
-			System.Console.WriteLine (i++);
-		return 2;
-	}
+    public int Foo (int i)
+    {
+        $while (i < 10)
+            System.Console.WriteLine(i++);
+
+        return 2;
+    }
 }
 ", @"
 public class Main 
 {
-	public int Foo (int i)
-	{
-		while (true) {
-			if (i >= 10)
-				break;
-			System.Console.WriteLine (i++);
-		}
-		return 2;
-	}
+    public int Foo (int i)
+    {
+        while (true)
+        {
+            if (i >= 10)
+                break;
+            System.Console.WriteLine(i++);
+        }
+
+        return 2;
+    }
 }
 ");
 		}
-	
+
 		[Test]
 		public void TestRemoveEmptyStatement()
 		{
 			Test<ExtractWhileConditionToInternalIfStatementAction>(@"
 public class Main 
 {
-	public int Foo (int i)
-	{
-		$while (i++ < 10)
-			;
-		return 2;
-	}
+    public int Foo (int i)
+    {
+        $while (i++ < 10)
+            ;
+
+        return 2;
+    }
 }
 ", @"
 public class Main 
 {
-	public int Foo (int i)
-	{
-		while (true) {
-			if (i++ >= 10)
-				break;
-		}
-		return 2;
-	}
+    public int Foo (int i)
+    {
+        while (true)
+        {
+            if (i++ >= 10)
+                break;
+        }
+
+        return 2;
+    }
 }
 ");
 		}
 	}
 }
-

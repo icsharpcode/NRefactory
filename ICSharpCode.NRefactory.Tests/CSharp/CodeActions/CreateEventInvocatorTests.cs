@@ -30,6 +30,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
+	[Ignore("Needs insertion cursor mode.")]
 	[TestFixture]
 	public class CreateEventInvocatorTests : ContextActionTestBase
 	{

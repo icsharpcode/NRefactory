@@ -30,10 +30,11 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
+	[Ignore("Needs insertion cursor mode.")]
 	[TestFixture]
 	public class CreateDelegateTests : ContextActionTestBase
 	{
-		[Test()]
+		[Test]
 		public void TestCreateDelegate ()
 		{
 			Test<CreateDelegateAction> (
@@ -51,7 +52,7 @@ class TestClass
 ");
 		}
 		
-		[Test()]
+		[Test]
 		public void TestCreatePublicDelegate ()
 		{
 			Test<CreateDelegateAction> (
