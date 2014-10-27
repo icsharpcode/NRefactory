@@ -61,64 +61,82 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //			get;
 //			set;
 //		}
-//
-//		public static MethodDeclaration CreateEventInvocator (SemanticModel context, TypeDeclaration declaringType, EventDeclaration eventDeclaration, VariableInitializer initializer, IMethod invokeMethod, bool useExplictType)
-//		{
-//			bool hasSenderParam = false;
-//			IEnumerable<IParameter> pars = invokeMethod.Parameters;
-//			if (invokeMethod.Parameters.Any()) {
-//				var first = invokeMethod.Parameters [0];
-//				if (first.Name == "sender" /*&& first.Type == "System.Object"*/) {
-//					hasSenderParam = true;
-//					pars = invokeMethod.Parameters.Skip(1);
-//				}
-//			}
-//			const string handlerName = "handler";
-//
-//			var arguments = new List<Expression>();
-//			if (hasSenderParam)
-//				arguments.Add(eventDeclaration.HasModifier (Modifiers.Static) ? (Expression)new PrimitiveExpression (null) : new ThisReferenceExpression());
-//			bool useThisMemberReference = false;
-//			foreach (var par in pars) {
-//				arguments.Add(new IdentifierExpression(par.Name));
-//				useThisMemberReference |= par.Name == initializer.Name;
-//			}
-//			var proposedHandlerName = GetNameProposal(initializer);
-//			var modifiers = eventDeclaration.HasModifier(Modifiers.Static) ? Modifiers.Static : Modifiers.Protected | Modifiers.Virtual;
-//			if (declaringType.HasModifier (Modifiers.Sealed)) {
-//				modifiers = Modifiers.None;
-//			}
-//			var methodDeclaration = new MethodDeclaration {
-//				Name = proposedHandlerName,
-//				ReturnType = new PrimitiveType ("void"),
-//				Modifiers = modifiers,
-//				Body = new BlockStatement {
-//					new VariableDeclarationStatement (
-//						useExplictType ? eventDeclaration.ReturnType.Clone () : new PrimitiveType ("var"), handlerName, 
-//						useThisMemberReference ? 
-//						(Expression)new MemberReferenceExpression (new ThisReferenceExpression (), initializer.Name) 
-//						: new IdentifierExpression (initializer.Name)
-//						),
-//					new IfElseStatement {
-//						Condition = new BinaryOperatorExpression (new IdentifierExpression (handlerName), BinaryOperatorType.InEquality, new PrimitiveExpression (null)),
-//						TrueStatement = new InvocationExpression (new IdentifierExpression (handlerName), arguments)
-//					}
-//				}
-//			};
-//
-//			foreach (var par in pars) {
-//				var typeName = context.CreateShortType(par.Type);
-//				var decl = new ParameterDeclaration(typeName, par.Name);
-//				methodDeclaration.Parameters.Add(decl);
-//			}
-//			return methodDeclaration;
-//		}
-//
-//		static string GetNameProposal(VariableInitializer initializer)
-//		{
-//			return "On" + char.ToUpper(initializer.Name[0]) + initializer.Name.Substring(1);
-//		}
-//
+
+		public static MethodDeclarationSyntax CreateEventInvocator (SemanticModel model, TypeDeclarationSyntax declaringType, bool isStatic, string eventName, IMethodSymbol invokeMethod, bool useExplictType)
+		{
+			bool hasSenderParam = false;
+			var pars = invokeMethod.Parameters;
+			if (invokeMethod.Parameters.Any()) {
+				var first = invokeMethod.Parameters [0];
+				if (first.Name == "sender" /*&& first.Type == "System.Object"*/) {
+					hasSenderParam = true;
+					pars = pars.RemoveAt(0);
+				}
+			}
+
+			const string handlerName = "handler";
+
+			var arguments = new List<ArgumentSyntax>();
+			if (hasSenderParam)
+				arguments.Add(SyntaxFactory.Argument(isStatic ? (ExpressionSyntax)SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression) : SyntaxFactory.ThisExpression()));
+
+			bool useThisMemberReference = false;
+			foreach (var par in pars) {
+				arguments.Add(SyntaxFactory.Argument(SyntaxFactory.IdentifierName(par.Name)));
+				useThisMemberReference |= par.Name == eventName;
+			}
+			var proposedHandlerName = GetNameProposal(eventName);
+			var modifiers = isStatic ? SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)) : SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword), SyntaxFactory.Token(SyntaxKind.VirtualKeyword));
+			if (declaringType.Modifiers.Any(m => m.IsKind(SyntaxKind.SealedKeyword))) {
+				modifiers = SyntaxFactory.TokenList();
+			}
+			var parameters = new List<ParameterSyntax>(pars.Select(p => SyntaxFactory.Parameter(SyntaxFactory.Identifier(p.Name)).WithType(ConvertType(model, declaringType.SpanStart, p.Type))));
+			var methodDeclaration = SyntaxFactory.MethodDeclaration (
+				SyntaxFactory.List<AttributeListSyntax>(),
+				modifiers,
+				SyntaxFactory.ParseTypeName("void"),
+				null,
+				SyntaxFactory.Identifier(proposedHandlerName),
+				null,
+				SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters)),
+				SyntaxFactory.List<TypeParameterConstraintClauseSyntax>(),
+				SyntaxFactory.Block(
+					SyntaxFactory.LocalDeclarationStatement(
+						SyntaxFactory.VariableDeclaration(
+							// TODO:
+//						useExplictType ? eventDeclaration.ReturnType.Clone () : new PrimitiveType ("var"), handlerName, 							SyntaxFactory.ParseTypeName("var"),
+							SyntaxFactory.ParseTypeName("var"),
+							SyntaxFactory.SeparatedList(new [] {
+								SyntaxFactory.VariableDeclarator(
+									SyntaxFactory.Identifier(handlerName), 
+									null,
+									// TODO:
+//						useThisMemberReference ?  //						(Expression)new MemberReferenceExpression (new ThisReferenceExpression (), eventName)  //						: new IdentifierExpression (eventName)
+									SyntaxFactory.EqualsValueClause(SyntaxFactory.IdentifierName(eventName))
+								)
+							})
+						)
+					),
+					SyntaxFactory.IfStatement(
+						SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, SyntaxFactory.IdentifierName(handlerName), SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)),
+						SyntaxFactory.ExpressionStatement(SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(handlerName), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments))))
+					)
+				),
+				null
+			);
+			return methodDeclaration;
+		}
+
+		public static TypeSyntax ConvertType(SemanticModel model, int position, ITypeSymbol type)
+		{
+			return SyntaxFactory.ParseTypeName(type.ToMinimalDisplayString(model, position));
+		}
+
+		static string GetNameProposal(string eventName)
+		{
+			return "On" + char.ToUpper(eventName[0]) + eventName.Substring(1);
+		}
+
 //		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 //		{
 //			VariableInitializer initializer;

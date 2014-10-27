@@ -51,29 +51,42 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
-		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var property = context.GetNode<PropertyDeclaration>();
-//			if (property == null || !property.NameToken.Contains(context.Location))
-//				yield break;
-//
-//			var field = RemoveBackingStoreAction.GetBackingField(context, property);
-//			if (field == null)
-//				yield break;
-//			var resolvedType = ReflectionHelper.ParseReflectionName ("System.EventHandler").Resolve (context.Compilation);
-//			if (resolvedType == null)
-//				yield break;
-//			var type = (TypeDeclaration)property.Parent;
-//
-//			yield return new CodeAction(context.TranslateString("Create changed event"), script => {
-//				var eventDeclaration = CreateChangedEventDeclaration (context, property);
-//				var methodDeclaration = CreateEventInvocatorAction.CreateEventInvocator (context, type, eventDeclaration, eventDeclaration.Variables.First (), resolvedType.GetDelegateInvokeMethod (), false);
-//				var stmt = new ExpressionStatement (new InvocationExpression (
-//					new IdentifierExpression (methodDeclaration.Name),
-//					context.CreateShortType("System", "EventArgs").Member("Empty")
-//				));
+			var property = root.FindNode(span) as PropertyDeclarationSyntax;
+
+			if (property == null || !property.Identifier.Span.Contains(span))
+				return Enumerable.Empty<CodeAction>();
+
+			var field = RemoveBackingStoreAction.GetBackingField(model, property);
+			if (field == null)
+				return Enumerable.Empty<CodeAction>();
+			var type = property.Parent as TypeDeclarationSyntax;
+			if (type == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var resolvedType = model.Compilation.GetTypeSymbol("System", "EventHandler", 0, cancellationToken);
+			if (resolvedType == null)
+				return Enumerable.Empty<CodeAction>();
+
+			return new[] {
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info,
+					"Create changed event",
+					t2 => {
+						var eventDeclaration = CreateChangedEventDeclaration (property);
+						var methodDeclaration = CreateEventInvocatorAction.CreateEventInvocator (
+							model,
+							type, 
+							eventDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)),
+							eventDeclaration.Declaration.Variables.First().Identifier.ToString(),
+							resolvedType.GetDelegateInvokeMethod (), 
+							false
+						);
+						var invocation = SyntaxFactory.ExpressionStatement(SyntaxFactory.InvocationExpression(
+							SyntaxFactory.IdentifierName(methodDeclaration.Identifier.ToString()),
+							SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new [] { SyntaxFactory.Argument(SyntaxFactory.ParseExpression("System.EventArgs.Empty")) }))
+						));
+
 //				script.InsertWithCursor(
 //					context.TranslateString("Create event invocator"),
 //					Script.InsertPosition.After,
@@ -82,21 +95,36 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //					script.InsertBefore (property.Setter.Body.RBraceToken, stmt);
 //					script.FormatText (stmt);
 //				});
-//			}, property.NameToken);
-//		}
-//
-//		EventDeclaration CreateChangedEventDeclaration (SemanticModel context, PropertyDeclaration propertyDeclaration)
-//		{
-//			return new EventDeclaration {
-//				Modifiers = propertyDeclaration.HasModifier (Modifiers.Static) ? Modifiers.Public | Modifiers.Static : Modifiers.Public,
-//				ReturnType = context.CreateShortType("System", "EventHandler"),
-//				Variables = {
-//					new VariableInitializer {
-//						Name = propertyDeclaration.Name + "Changed"
-//					}
-//				}
-//			};
-//		}
+						var newRoot = root.InsertNodesAfter(property, new SyntaxNode[] { 
+							methodDeclaration.WithAdditionalAnnotations(Formatter.Annotation), 
+							eventDeclaration.WithAdditionalAnnotations(Formatter.Annotation)
+						} ).InsertNodesAfter(
+							property.AccessorList.Accessors.First(a => a.IsKind(SyntaxKind.SetAccessorDeclaration)).Body.Statements.First(),
+							new [] { invocation.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation) }
+						);
+
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					})
+			};
+		}
+
+
+		static EventFieldDeclarationSyntax CreateChangedEventDeclaration(PropertyDeclarationSyntax propertyDeclaration)
+		{
+			return SyntaxFactory.EventFieldDeclaration(
+				SyntaxFactory.List<AttributeListSyntax>(),
+				propertyDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) ?
+				SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword)) :
+					SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
+				SyntaxFactory.VariableDeclaration(
+					SyntaxFactory.ParseTypeName("System.EventHandler").WithAdditionalAnnotations(Simplifier.Annotation),
+					SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>( new [] { 
+						SyntaxFactory.VariableDeclarator(propertyDeclaration.Identifier + "Changed")
+					}
+					)
+				)
+			);
+		}
 	}
 }
 

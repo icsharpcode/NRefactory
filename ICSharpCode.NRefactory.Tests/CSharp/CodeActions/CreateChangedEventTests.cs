@@ -32,153 +32,194 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class CreateChangedEventTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestSimpleCase ()
+		public void TestSimpleCase()
 		{
-			Test<CreateChangedEventAction> (@"class TestClass
+			Test<CreateChangedEventAction>(@"class TestClass
 {
-	string test;
-	public string $Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
+    string test;
+    public string $Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
 }", @"class TestClass
 {
-	string test;
-	public event System.EventHandler TestChanged;
-	protected virtual void OnTestChanged (System.EventArgs e)
-	{
-		var handler = TestChanged;
-		if (handler != null)
-			handler (this, e);
-	}
-	public string Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-			OnTestChanged (System.EventArgs.Empty);
-		}
-	}
+    string test;
+    public string Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
+
+    protected virtual void OnTestChanged(System.EventArgs e)
+    {
+        var handler = TestChanged;
+        if (handler != null)
+            handler(this, e);
+    }
+
+    public event System.EventHandler TestChanged;
 }");
 		}
 
 		[Test]
-		public void TestStaticClassCase ()
+		public void TestSimplify()
 		{
-			Test<CreateChangedEventAction> (@"static class TestClass
+			Test<CreateChangedEventAction>(@"using System;
+class TestClass
 {
-	static string test;
-	public static string $Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
-}", @"static class TestClass
+    string test;
+    public string $Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
+}", @"using System;
+class TestClass
 {
-	static string test;
-	public static event System.EventHandler TestChanged;
-	static void OnTestChanged (System.EventArgs e)
-	{
-		var handler = TestChanged;
-		if (handler != null)
-			handler (null, e);
-	}
-	public static string Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-			OnTestChanged (System.EventArgs.Empty);
-		}
-	}
+    string test;
+    public string Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
+
+    protected virtual void OnTestChanged(EventArgs e)
+    {
+        var handler = TestChanged;
+        if (handler != null)
+            handler(this, e);
+    }
+
+    public event EventHandler TestChanged;
 }");
 		}
-	
+
 		[Test]
-		public void TestSealedCase ()
+		public void TestStaticClassCase()
 		{
-			Test<CreateChangedEventAction> (@"sealed class TestClass
+			Test<CreateChangedEventAction>(@"static class TestClass
 {
-	string test;
-	public string $Test {
-		get {
-			return test;
+    static string test;
+    public static string $Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
+}", @"static class TestClass
+{
+    static string test;
+    public static string Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
+
+    static void OnTestChanged(System.EventArgs e)
+    {
+        var handler = TestChanged;
+        if (handler != null)
+            handler(null, e);
+    }
+
+    public static event System.EventHandler TestChanged;
+}");
 		}
-		set {
-			test = value;
-		}
-	}
+
+		[Test]
+		public void TestSealedCase()
+		{
+			Test<CreateChangedEventAction>(@"sealed class TestClass
+{
+    string test;
+    public string $Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
 }", @"sealed class TestClass
 {
-	string test;
-	public event System.EventHandler TestChanged;
-	void OnTestChanged (System.EventArgs e)
-	{
-		var handler = TestChanged;
-		if (handler != null)
-			handler (this, e);
-	}
-	public string Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-			OnTestChanged (System.EventArgs.Empty);
-		}
-	}
+    string test;
+    public string Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
+    void OnTestChanged(System.EventArgs e)
+    {
+        var handler = TestChanged;
+        if (handler != null)
+            handler(this, e);
+    }
+
+    public event System.EventHandler TestChanged;
 }");
 		}
 
 		[Test]
 		public void TestWrongLocation()
 		{
-			TestWrongContext<CreateChangedEventAction> (@"class TestClass
+			TestWrongContext<CreateChangedEventAction>(@"class TestClass
 {
-	string test;
-	public $string Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
+    string test;
+    public $string Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
 }");
 
-			TestWrongContext<CreateChangedEventAction> (@"class TestClass
+			TestWrongContext<CreateChangedEventAction>(@"class TestClass
 {
-	string test;
-	public string $FooBar.Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
+    string test;
+    public string $FooBar.Test {
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
 }");
 
-			TestWrongContext<CreateChangedEventAction> (@"class TestClass
+			TestWrongContext<CreateChangedEventAction>(@"class TestClass
 {
-	string test;
-	public string Test ${
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
+    string test;
+    public string Test ${
+        get {
+            return test;
+        }
+        set {
+            test = value;
+        }
+    }
 }");
 		}
 

@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							else
 								ifStatement = ifs.WithElse(SyntaxFactory.ElseClause(ifStatement));
 						}
-						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((StatementSyntax)node, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
 					})
 			};
 		}
