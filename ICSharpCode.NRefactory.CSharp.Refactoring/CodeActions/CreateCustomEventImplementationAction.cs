@@ -42,20 +42,30 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Create custom event implementation")]
 	[ExportCodeRefactoringProvider("Create custom event implementation", LanguageNames.CSharp)]
-	public class CreateCustomEventImplementationAction : SpecializedCodeAction<InitializerExpressionSyntax>
+	public class CreateCustomEventImplementationAction : CodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, InitializerExpressionSyntax node, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
-			yield break;
-		}
-//		protected override CodeAction GetAction (SemanticModel context, VariableInitializer node)
-//		{
-//			var eventDecl = node.Parent as EventDeclaration;
-//			if (eventDecl == null)
-//				return null;
-//			return new CodeAction (context.TranslateString ("Create custom event implementation"),
-//				script =>
-//				{
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var variableDeclarator = root.FindNode(span) as VariableDeclaratorSyntax;
+			if (variableDeclarator == null || 
+				variableDeclarator.Parent == null || 
+				variableDeclarator.Parent.Parent == null || 
+				!variableDeclarator.Parent.Parent.IsKind(SyntaxKind.EventFieldDeclaration) || 
+				!variableDeclarator.Identifier.Span.Contains(span))
+				return Enumerable.Empty<CodeAction>();
+			var eventDecl = (EventFieldDeclarationSyntax)variableDeclarator.Parent.Parent;
+
+			return new[] {
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info,
+					"Create custom event implementation",
+					t2 => {
 //					var accessor = new Accessor
 //					{
 //						Body = new BlockStatement
@@ -79,7 +89,42 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //						script.InsertBefore (eventDecl, newEventDecl);
 //					}
 //					script.Replace (eventDecl, e);
-//				}, node.NameToken);
-//		}
+
+						var e = SyntaxFactory.EventDeclaration(
+							eventDecl.AttributeLists,
+							eventDecl.Modifiers,
+							eventDecl.Declaration.Type,
+							null,
+							variableDeclarator.Identifier,
+							SyntaxFactory.AccessorList(SyntaxFactory.List<AccessorDeclarationSyntax>(new [] {
+								SyntaxFactory.AccessorDeclaration(SyntaxKind.AddAccessorDeclaration, AbstractAndVirtualConversionAction.CreateNotImplementedBody()),
+								SyntaxFactory.AccessorDeclaration(SyntaxKind.RemoveAccessorDeclaration, AbstractAndVirtualConversionAction.CreateNotImplementedBody())
+							}))
+						);
+
+						SyntaxNode newRoot;
+
+						if (eventDecl.Declaration.Variables.Count > 1) {
+							newRoot = root.ReplaceNode(
+								eventDecl, 
+								new SyntaxNode[] {
+									eventDecl.WithDeclaration(
+											eventDecl.Declaration.WithVariables(
+												SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(
+													eventDecl.Declaration.Variables.Where(decl => decl != variableDeclarator)
+												)
+											)
+									).WithAdditionalAnnotations(Formatter.Annotation),
+									e.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation)
+								}
+							);
+						} else {
+							newRoot = root.ReplaceNode(eventDecl, e.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation));
+						}
+
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					})
+			};
+		}
 	}
 }

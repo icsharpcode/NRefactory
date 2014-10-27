@@ -160,10 +160,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return result;
 		}
 
-		static BlockSyntax CreateNotImplementedBody()
+		internal static BlockSyntax CreateNotImplementedBody()
 		{
 			var throwStatement = SyntaxFactory.ThrowStatement(
-				SyntaxFactory.ParseExpression("new System.NotImplementedException()")
+				SyntaxFactory.ParseExpression("new System.NotImplementedException()").WithAdditionalAnnotations(Simplifier.Annotation)
 			);
 			return SyntaxFactory.Block(throwStatement);
 		}

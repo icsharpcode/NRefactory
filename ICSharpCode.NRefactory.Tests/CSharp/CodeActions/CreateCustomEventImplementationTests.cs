@@ -36,6 +36,31 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void Test ()
 		{
 			Test<CreateCustomEventImplementationAction> (@"
+class TestClass
+{
+	public event System.EventHandler $TestEvent;
+}", @"
+class TestClass
+{
+    public event System.EventHandler TestEvent
+    {
+        add
+        {
+            throw new System.NotImplementedException();
+        }
+
+        remove
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+}");
+		}
+
+		[Test]
+		public void TestSimplification ()
+		{
+			Test<CreateCustomEventImplementationAction> (@"
 using System;
 class TestClass
 {
@@ -44,14 +69,18 @@ class TestClass
 using System;
 class TestClass
 {
-	public event EventHandler TestEvent {
-		add {
-			throw new NotImplementedException ();
-		}
-		remove {
-			throw new NotImplementedException ();
-		}
-	}
+    public event EventHandler TestEvent
+    {
+        add
+        {
+            throw new NotImplementedException();
+        }
+
+        remove
+        {
+            throw new NotImplementedException();
+        }
+    }
 }");
 		}
 
@@ -67,15 +96,20 @@ class TestClass
 using System;
 class TestClass
 {
-	event EventHandler TestEvent2;
-	event EventHandler TestEvent {
-		add {
-			throw new NotImplementedException ();
-		}
-		remove {
-			throw new NotImplementedException ();
-		}
-	}
+    event EventHandler TestEvent2;
+
+    event EventHandler TestEvent
+    {
+        add
+        {
+            throw new NotImplementedException();
+        }
+
+        remove
+        {
+            throw new NotImplementedException();
+        }
+    }
 }");
 		}
 	}
