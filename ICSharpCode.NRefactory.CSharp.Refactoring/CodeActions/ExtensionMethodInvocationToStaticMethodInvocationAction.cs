@@ -51,38 +51,44 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+			var node = root.FindNode(span) as IdentifierNameSyntax;
+			if (node == null || !node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+				return Enumerable.Empty<CodeAction>();
+			var memberAccess = node.Parent as MemberAccessExpressionSyntax;
+			var invocation = node.Parent.Parent as InvocationExpressionSyntax;
+			if (invocation == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var invocationRR = model.GetSymbolInfo(invocation);
+			if (invocationRR.Symbol == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var method = invocationRR.Symbol as IMethodSymbol;
+			if (method == null || !method.IsExtensionMethod)
+				return Enumerable.Empty<CodeAction>();
+
+			return new[] { 
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Convert to static method call", 
+					t2 => {
+						var newRoot = root.ReplaceNode(invocation, ToStaticMethodInvocation(model, invocation, memberAccess, invocationRR).WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				) 
+			};
 		}
-//		#region ICodeActionProvider implementation
-//
-//		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
-//		{
-//			var invocation = context.GetNode<InvocationExpression>();
-//			if (invocation == null)
-//				yield break;
-//			var memberReference = invocation.Target as MemberReferenceExpression;
-//			if (memberReference == null)
-//				yield break;
-//			var invocationRR = context.Resolve(invocation) as CSharpInvocationResolveResult;
-//			if (invocationRR == null)
-//				yield break;
-//			if (invocationRR.IsExtensionMethodInvocation)
-//				yield return new CodeAction(context.TranslateString("Convert to static method call"), script => {
-//					script.Replace(invocation, ToStaticMethodInvocation(invocation, memberReference, invocationRR));
-//				}, invocation);
-//		}
-//
-//		#endregion
-//
-//		AstNode ToStaticMethodInvocation(InvocationExpression invocation, MemberReferenceExpression memberReference,
-//		                                 CSharpInvocationResolveResult invocationRR)
-//		{
-//			var newArgumentList = invocation.Arguments.Select(arg => arg.Clone()).ToList();
-//			newArgumentList.Insert(0, memberReference.Target.Clone());
-//			var newTarget = memberReference.Clone() as MemberReferenceExpression;
-//			newTarget.Target = new IdentifierExpression(invocationRR.Member.DeclaringType.Name);
-//			return new InvocationExpression(newTarget, newArgumentList);
-//		}
+
+		static SyntaxNode ToStaticMethodInvocation(SemanticModel model, InvocationExpressionSyntax invocation, MemberAccessExpressionSyntax memberAccess, SymbolInfo invocationRR)
+		{
+			var newArgumentList = invocation.ArgumentList.Arguments.ToList();
+			newArgumentList.Insert(0, SyntaxFactory.Argument(memberAccess.Expression));
+
+			var newTarget = memberAccess.WithExpression(SyntaxFactory.ParseTypeName(invocationRR.Symbol.ContainingType.ToMinimalDisplayString(model, memberAccess.SpanStart)));
+			return SyntaxFactory.InvocationExpression(newTarget, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(newArgumentList)));
+		}
 
 	}
 }

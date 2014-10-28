@@ -40,28 +40,28 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 class A { }
 static class B
 {
-	public static void Ext (this A a, int i);
+    public static void Ext (this A a, int i);
 }
 class C
 {
-	void F()
-	{
-		A a = new A();
-		a.$Ext (1);
-	}
+    void F()
+    {
+        A a = new A();
+        a.$Ext (1);
+    }
 }", @"
 class A { }
 static class B
 {
-	public static void Ext (this A a, int i);
+    public static void Ext (this A a, int i);
 }
 class C
 {
-	void F()
-	{
-		A a = new A();
-		B.Ext (a, 1);
-	}
+    void F()
+    {
+        A a = new A();
+        B.Ext(a, 1);
+    }
 }");
 		}
 
@@ -72,36 +72,36 @@ class C
 class A { }
 static class B
 {
-	public static bool Ext (this A a, int i)
-	{
-		return false;
-	}
+    public static bool Ext (this A a, int i)
+    {
+        return false;
+    }
 }
 class C
 {
-	void F()
-	{
-		A a = new A();
-		if (a.$Ext (1))
-			return;
-	}
+    void F()
+    {
+        A a = new A();
+        if (a.$Ext (1))
+            return;
+    }
 }", @"
 class A { }
 static class B
 {
-	public static bool Ext (this A a, int i)
-	{
-		return false;
-	}
+    public static bool Ext (this A a, int i)
+    {
+        return false;
+    }
 }
 class C
 {
-	void F()
-	{
-		A a = new A();
-		if (B.Ext (a, 1))
-			return;
-	}
+    void F()
+    {
+        A a = new A();
+        if (B.Ext(a, 1))
+            return;
+    }
 }");
 		}
 
@@ -112,14 +112,14 @@ class C
 class A { }
 static class B
 {
-	public static void Ext (this A a);
+    public static void Ext (this A a);
 }
 class C
 {
-	void F()
-	{
-		B.Ext (a, 1);
-	}
+    void F()
+    {
+        B.$Ext(a, 1);
+    }
 }");
 		}
 
@@ -129,15 +129,15 @@ class C
 			TestWrongContext<ExtensionMethodInvocationToStaticMethodInvocationAction>(@"
 class A
 {
-	public void Ext (int i);
+    public void Ext (int i);
 }
 class C
 {
-	void F()
-	{
-		A a = new A();
-		a.Ext (1);
-	}
+    void F()
+    {
+        A a = new A();
+        a.$Ext(1);
+    }
 }");
 		}
 	}
