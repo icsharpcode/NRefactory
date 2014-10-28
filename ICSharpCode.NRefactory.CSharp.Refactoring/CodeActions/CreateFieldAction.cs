@@ -53,12 +53,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			return null;
 		}
-//		internal static bool IsInvocationTarget(AstNode node)
-//		{
-//			var invoke = node.Parent as InvocationExpression;
-//			return invoke != null && invoke.Target == node;
-//		}
-//
+
+		internal static bool IsInvocationTarget(SyntaxNode node)
+		{
+			var invoke = node.Parent as InvocationExpressionSyntax;
+			return invoke != null && invoke.Expression == node;
+		}
+
 //		internal static Expression GetCreatePropertyOrFieldNode(SemanticModel context)
 //		{
 //			return context.GetNode(n => n is IdentifierExpression || n is MemberReferenceExpression || n is NamedExpression) as Expression;

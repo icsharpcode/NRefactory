@@ -25,20 +25,23 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory6.CSharp.Resolver;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.LanguageServices;
+using Microsoft.CodeAnalysis.CSharp;
+using System.Threading;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class TypeGuessing
 	{
-		static int GetArgumentIndex(IEnumerable<Expression> arguments, AstNode parameter)
+		static int GetArgumentIndex(IEnumerable<ArgumentSyntax> arguments, SyntaxNode parameter)
 		{
+			Console.WriteLine("arg:" +parameter);
 			int argumentNumber = 0;
 			foreach (var arg in arguments) {
+				Console.WriteLine(arg +"/"+parameter);
 				if (arg == parameter) {
 					return argumentNumber;
 				}
@@ -47,292 +50,309 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return -1;
 		}
 
-		static IEnumerable<IType> GetAllValidTypesFromInvocation(CSharpAstResolver resolver, InvocationExpression invoke, AstNode parameter)
+		static IEnumerable<ITypeSymbol> GetAllValidTypesFromInvocation(SemanticModel resolver, InvocationExpressionSyntax invoke, SyntaxNode parameter)
 		{
-			int index = GetArgumentIndex(invoke.Arguments, parameter);
+			int index = GetArgumentIndex(invoke.ArgumentList.Arguments, parameter);
 			if (index < 0)
 				yield break;
+			var targetResult = resolver.GetSymbolInfo(invoke.Expression);
 
-			var targetResult = resolver.Resolve(invoke.Target) as MethodGroupResolveResult;
-			if (targetResult != null) {
-				foreach (var method in targetResult.Methods) {
-					if (index < method.Parameters.Count) {
-						if (method.Parameters [index].IsParams) {
-							var arrayType = method.Parameters [index].Type as ArrayType;
-							if (arrayType != null)
-								yield return arrayType.ElementType;
-						}
-
-						yield return method.Parameters [index].Type;
+//			var targetResult = resolver.Resolve(invoke.Target) as MethodGroupResolveResult;
+//			if (targetResult != null) {
+			foreach (var method in targetResult.CandidateSymbols) {
+				var parameters = method.GetParameters();
+				if (index < parameters.Length) {
+					if (parameters [index].IsParams) {
+						var arrayType = parameters[index].Type as IArrayTypeSymbol;
+						if (arrayType != null)
+							yield return arrayType.ElementType;
 					}
-				}
-				foreach (var extMethods in targetResult.GetExtensionMethods ()) {
-					foreach (var extMethod in extMethods) {
-						IType[] inferredTypes;
-						var m = extMethod;
-						if (CSharpResolver.IsEligibleExtensionMethod(targetResult.TargetType, extMethod, true, out inferredTypes)) {
-							if (inferredTypes != null)
-								m = extMethod.Specialize(new TypeParameterSubstitution(null, inferredTypes));
-						}
-
-						int correctedIndex = index + 1;
-						if (correctedIndex < m.Parameters.Count) {
-							if (m.Parameters [correctedIndex].IsParams) {
-								var arrayType = m.Parameters [correctedIndex].Type as ArrayType;
-								if (arrayType != null)
-									yield return arrayType.ElementType;
-							}
-							yield return m.Parameters [correctedIndex].Type;
-						}
-					}
+					yield return parameters[index].Type;
 				}
 			}
+
+//				foreach (var extMethods in targetResult.GetExtensionMethods ()) {
+//					foreach (var extMethod in extMethods) {
+//						ITypeSymbol[] inferredTypes;
+//						var m = extMethod;
+//						if (CSharpResolver.IsEligibleExtensionMethod(targetResult.TargetType, extMethod, true, out inferredTypes)) {
+//							if (inferredTypes != null)
+//								m = extMethod.Specialize(new TypeParameterSubstitution(null, inferredTypes));
+//						}
+//
+//						int correctedIndex = index + 1;
+//						if (correctedIndex < m.Parameters.Count) {
+//							if (m.Parameters [correctedIndex].IsParams) {
+//								var arrayType = m.Parameters [correctedIndex].Type as ArrayType;
+//								if (arrayType != null)
+//									yield return arrayType.ElementType;
+//							}
+//							yield return m.Parameters [correctedIndex].Type;
+//						}
+//					}
+//				}
+//			}
 		}
 
-		static IEnumerable<IType> GetAllValidTypesFromObjectCreation(CSharpAstResolver resolver, ObjectCreateExpression invoke, AstNode parameter)
+//		static IEnumerable<ITypeSymbol> GetAllValidTypesFromObjectCreation(SemanticModel resolver, ObjectCreateExpressionSyntax invoke, SyntaxNode parameter)
+//		{
+//			int index = GetArgumentIndex(invoke.Arguments, parameter);
+//			if (index < 0)
+//				yield break;
+//
+//			var targetResult = resolver.Resolve(invoke.Type);
+//			if (targetResult is TypeResolveResult) {
+//				var type = ((TypeResolveResult)targetResult).Type;
+//				if (type.Kind == TypeKind.Delegate && index == 0) {
+//					yield return type;
+//					yield break;
+//				}
+//				foreach (var constructor in type.GetConstructors ()) {
+//					if (index < constructor.Parameters.Count)
+//						yield return constructor.Parameters [index].Type;
+//				}
+//			}
+//		}
+//
+//		public static ITypeSymbol GetElementType(SemanticModel resolver, ITypeSymbol type)
+//		{
+//			// TODO: A better get element type method.
+//			if (type.Kind == TypeKind.Array || type.Kind == TypeKind.Dynamic) {
+//				if (type.Kind == TypeKind.Array)
+//					return ((ArrayType)type).ElementType;
+//				return resolver.Compilation.FindType(KnownTypeCode.Object);
+//			}
+//
+//
+//			foreach (var method in type.GetMethods (m => m.Name == "GetEnumerator")) {
+//				ITypeSymbol returnType = null;
+//				foreach (var prop in method.ReturnType.GetProperties(p => p.Name == "Current")) {
+//					if (returnType != null && prop.ReturnType.IsKnownType (KnownTypeCode.Object))
+//						continue;
+//					returnType = prop.ReturnType;
+//				}
+//				if (returnType != null)
+//					return returnType;
+//			}
+//
+//			return resolver.Compilation.FindType(KnownTypeCode.Object);
+//		}
+//
+//		static IEnumerable<ITypeSymbol> GuessFromConstructorInitializer(SemanticModel resolver, SyntaxNode expr)
+//		{
+//			var init = expr.Parent as ConstructorInitializer;
+//			var rr = resolver.Resolve(expr.Parent);
+//			int index = GetArgumentIndex(init.Arguments, expr);
+//			if (index >= 0) {
+//				foreach (var constructor in rr.Type.GetConstructors()) {
+//					if (index < constructor.Parameters.Count) {
+//						yield return constructor.Parameters[index].Type;
+//					}
+//				}
+//			}
+//		}
+
+		public static IEnumerable<ITypeSymbol> GetValidTypes(SemanticModel model, SyntaxNode expr, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			int index = GetArgumentIndex(invoke.Arguments, parameter);
-			if (index < 0)
-				yield break;
+//			if (expr.Role == Roles.Condition) {
+//				return new [] { model.Compilation.FindType (KnownTypeCode.Boolean) };
+//			}
+//
+//			var mref = expr as MemberReferenceExpressionSyntax;
+//			if (mref != null) {
+//				// case: guess enum when trying to access not existent enum member
+//				var rr = model.Resolve(mref.Target);
+//				if (!rr.IsError && rr.Type.Kind == TypeKind.Enum)
+//					return new [] { rr.Type };
+//			}
+//
+//			if (expr.Parent is ParenthesizedExpressionSyntax || expr.Parent is NamedArgumentExpressionSyntax) {
+//				return GetValidTypes(model, expr.Parent);
+//			}
+//			if (expr.Parent is DirectionExpressionSyntax) {
+//				var parent = expr.Parent.Parent;
+//				if (parent is InvocationExpressionSyntax) {
+//					var invoke = (InvocationExpressionSyntax)parent;
+//					return GetAllValidTypesFromInvocation(model, invoke, expr.Parent);
+//				}
+//			}
+//
+//			if (expr.Parent is ArrayInitializerExpressionSyntax) {
+//				if (expr is NamedExpressionSyntax)
+//					return new [] { model.Resolve(((NamedExpressionSyntax)expr).ExpressionSyntax).Type };
+//
+//				var aex = expr.Parent as ArrayInitializerExpressionSyntax;
+//				if (aex.IsSingleElement)
+//					aex = aex.Parent as ArrayInitializerExpressionSyntax;
+//				var type = GetElementType(model, model.Resolve(aex.Parent).Type);
+//				if (type.Kind != TypeKind.Unknown)
+//					return new [] { type };
+//			}
+//
+//			if (expr.Parent is ObjectCreateExpressionSyntax) {
+//				var invoke = (ObjectCreateExpressionSyntax)expr.Parent;
+//				return GetAllValidTypesFromObjectCreation(model, invoke, expr);
+//			}
+//
+//			if (expr.Parent is ArrayCreateExpressionSyntax) {
+//				var ace = (ArrayCreateExpressionSyntax)expr.Parent;
+//				if (!ace.Type.IsNull) {
+//					return new [] { model.Resolve(ace.Type).Type };
+//				}
+//			}
+//
+//			if (expr.Parent is VariableInitializer) {
+//				var initializer = (VariableInitializer)expr.Parent;
+//				var field = initializer.GetParent<FieldDeclaration>();
+//				if (field != null) {
+//					var rr = model.Resolve(field.ReturnType);
+//					if (!rr.IsError)
+//						return new [] { rr.Type };
+//				}
+//				var varStmt = initializer.GetParent<VariableDeclarationStatement>();
+//				if (varStmt != null) {
+//					var rr = model.Resolve(varStmt.Type);
+//					if (!rr.IsError)
+//						return new [] { rr.Type };
+//				}
+//				return new [] { model.Resolve(initializer).Type };
+//			}
+//
+//			if (expr.Parent is CastExpressionSyntax) {
+//				var cast = (CastExpressionSyntax)expr.Parent;
+//				return new [] { model.Resolve(cast.Type).Type };
+//			}
+//
+//			if (expr.Parent is AsExpressionSyntax) {
+//				var cast = (AsExpressionSyntax)expr.Parent;
+//				return new [] { model.Resolve(cast.Type).Type };
+//			}
+//
+//			if (expr.Parent is AssignmentExpressionSyntax) {
+//				var assign = (AssignmentExpressionSyntax)expr.Parent;
+//				var other = assign.Left == expr ? assign.Right : assign.Left;
+//				return new [] { model.Resolve(other).Type };
+//			}
+//
+//			if (expr.Parent is BinaryOperatorExpressionSyntax) {
+//				var assign = (BinaryOperatorExpressionSyntax)expr.Parent;
+//				var other = assign.Left == expr ? assign.Right : assign.Left;
+//				return new [] { model.Resolve(other).Type };
+//			}
+//
+//			if (expr.Parent is ReturnStatement) {
+//				var parent = expr.Ancestors.FirstOrDefault(n => n is EntityDeclaration || n is AnonymousMethodExpressionSyntax|| n is LambdaExpressionSyntax);
+//				if (parent != null) {
+//					var rr = model.Resolve(parent);
+//					if (!rr.IsError)
+//						return new [] { rr.Type };
+//				}
+//				var e = parent as EntityDeclaration;
+//				if (e != null) {
+//					var rt = model.Resolve(e.ReturnType);
+//					if (!rt.IsError)
+//						return new [] { rt.Type };
+//				}
+//			}
+//
+//			if (expr.Parent is YieldReturnStatement) {
+//				var state = model.GetResolverStateBefore(expr);
+//				if (state != null && (state.CurrentMember.ReturnType is ParameterizedType)) {
+//					var pt = (ParameterizedType)state.CurrentMember.ReturnType;
+//					if (pt.FullName == "System.Collections.Generic.IEnumerable") {
+//						return new [] { pt.TypeArguments.First() };
+//					}
+//				}
+//			}
+//
+//			if (expr.Parent is UnaryOperatorExpressionSyntax) {
+//				var uop = (UnaryOperatorExpressionSyntax)expr.Parent;
+//				switch (uop.Operator) {
+//					case UnaryOperatorType.Not:
+//						return new [] { model.Compilation.FindType(KnownTypeCode.Boolean) };
+//						case UnaryOperatorType.Minus:
+//						case UnaryOperatorType.Plus:
+//						case UnaryOperatorType.Increment:
+//						case UnaryOperatorType.Decrement:
+//						case UnaryOperatorType.PostIncrement:
+//						case UnaryOperatorType.PostDecrement:
+//						return new [] { model.Compilation.FindType(KnownTypeCode.Int32) };
+//				}
+//			}
+//
+//			if (expr.Parent is ConstructorInitializer)
+//				return GuessFromConstructorInitializer(model, expr);
+//
+//			if (expr.Parent is NamedExpressionSyntax) {
+//				var rr = model.Resolve(expr.Parent);
+//				if (!rr.IsError) {
+//					return new [] { rr.Type };
+//				}
+//			}
 
-			var targetResult = resolver.Resolve(invoke.Type);
-			if (targetResult is TypeResolveResult) {
-				var type = ((TypeResolveResult)targetResult).Type;
-				if (type.Kind == TypeKind.Delegate && index == 0) {
-					yield return type;
-					yield break;
-				}
-				foreach (var constructor in type.GetConstructors ()) {
-					if (index < constructor.Parameters.Count)
-						yield return constructor.Parameters [index].Type;
-				}
-			}
-		}
-
-		public static IType GetElementType(CSharpAstResolver resolver, IType type)
-		{
-			// TODO: A better get element type method.
-			if (type.Kind == TypeKind.Array || type.Kind == TypeKind.Dynamic) {
-				if (type.Kind == TypeKind.Array)
-					return ((ArrayType)type).ElementType;
-				return resolver.Compilation.FindType(KnownTypeCode.Object);
-			}
-
-
-			foreach (var method in type.GetMethods (m => m.Name == "GetEnumerator")) {
-				IType returnType = null;
-				foreach (var prop in method.ReturnType.GetProperties(p => p.Name == "Current")) {
-					if (returnType != null && prop.ReturnType.IsKnownType (KnownTypeCode.Object))
-						continue;
-					returnType = prop.ReturnType;
-				}
-				if (returnType != null)
-					return returnType;
-			}
-
-			return resolver.Compilation.FindType(KnownTypeCode.Object);
-		}
-
-		static IEnumerable<IType> GuessFromConstructorInitializer(CSharpAstResolver resolver, AstNode expr)
-		{
-			var init = expr.Parent as ConstructorInitializer;
-			var rr = resolver.Resolve(expr.Parent);
-			int index = GetArgumentIndex(init.Arguments, expr);
-			if (index >= 0) {
-				foreach (var constructor in rr.Type.GetConstructors()) {
-					if (index < constructor.Parameters.Count) {
-						yield return constructor.Parameters[index].Type;
-					}
-				}
-			}
-		}
-
-		public static IEnumerable<IType> GetValidTypes(CSharpAstResolver resolver, AstNode expr)
-		{
-			if (expr.Role == Roles.Condition) {
-				return new [] { resolver.Compilation.FindType (KnownTypeCode.Boolean) };
-			}
-
-			var mref = expr as MemberReferenceExpression;
-			if (mref != null) {
-				// case: guess enum when trying to access not existent enum member
-				var rr = resolver.Resolve(mref.Target);
-				if (!rr.IsError && rr.Type.Kind == TypeKind.Enum)
-					return new [] { rr.Type };
-			}
-
-			if (expr.Parent is ParenthesizedExpression || expr.Parent is NamedArgumentExpression) {
-				return GetValidTypes(resolver, expr.Parent);
-			}
-			if (expr.Parent is DirectionExpression) {
+			if (expr.IsKind(SyntaxKind.Argument)) {
 				var parent = expr.Parent.Parent;
-				if (parent is InvocationExpression) {
-					var invoke = (InvocationExpression)parent;
-					return GetAllValidTypesFromInvocation(resolver, invoke, expr.Parent);
+				var invocationParent = parent as InvocationExpressionSyntax;
+				if (invocationParent != null) {
+					return GetAllValidTypesFromInvocation(model, invocationParent, expr);
 				}
 			}
 
-			if (expr.Parent is ArrayInitializerExpression) {
-				if (expr is NamedExpression)
-					return new [] { resolver.Resolve(((NamedExpression)expr).Expression).Type };
+			var types = typeInferenceService.InferTypes(model, expr, cancellationToken).ToList();
 
-				var aex = expr.Parent as ArrayInitializerExpression;
-				if (aex.IsSingleElement)
-					aex = aex.Parent as ArrayInitializerExpression;
-				var type = GetElementType(resolver, resolver.Resolve(aex.Parent).Type);
-				if (type.Kind != TypeKind.Unknown)
-					return new [] { type };
-			}
-
-			if (expr.Parent is ObjectCreateExpression) {
-				var invoke = (ObjectCreateExpression)expr.Parent;
-				return GetAllValidTypesFromObjectCreation(resolver, invoke, expr);
-			}
-
-			if (expr.Parent is ArrayCreateExpression) {
-				var ace = (ArrayCreateExpression)expr.Parent;
-				if (!ace.Type.IsNull) {
-					return new [] { resolver.Resolve(ace.Type).Type };
-				}
-			}
-
-			if (expr.Parent is InvocationExpression) {
-				var parent = expr.Parent;
-				if (parent is InvocationExpression) {
-					var invoke = (InvocationExpression)parent;
-					return GetAllValidTypesFromInvocation(resolver, invoke, expr);
-				}
-			}
-
-			if (expr.Parent is VariableInitializer) {
-				var initializer = (VariableInitializer)expr.Parent;
-				var field = initializer.GetParent<FieldDeclaration>();
-				if (field != null) {
-					var rr = resolver.Resolve(field.ReturnType);
-					if (!rr.IsError)
-						return new [] { rr.Type };
-				}
-				var varStmt = initializer.GetParent<VariableDeclarationStatement>();
-				if (varStmt != null) {
-					var rr = resolver.Resolve(varStmt.Type);
-					if (!rr.IsError)
-						return new [] { rr.Type };
-				}
-				return new [] { resolver.Resolve(initializer).Type };
-			}
-
-			if (expr.Parent is CastExpression) {
-				var cast = (CastExpression)expr.Parent;
-				return new [] { resolver.Resolve(cast.Type).Type };
-			}
-
-			if (expr.Parent is AsExpression) {
-				var cast = (AsExpression)expr.Parent;
-				return new [] { resolver.Resolve(cast.Type).Type };
-			}
-
-			if (expr.Parent is AssignmentExpression) {
-				var assign = (AssignmentExpression)expr.Parent;
-				var other = assign.Left == expr ? assign.Right : assign.Left;
-				return new [] { resolver.Resolve(other).Type };
-			}
-
-			if (expr.Parent is BinaryOperatorExpression) {
-				var assign = (BinaryOperatorExpression)expr.Parent;
-				var other = assign.Left == expr ? assign.Right : assign.Left;
-				return new [] { resolver.Resolve(other).Type };
-			}
-
-			if (expr.Parent is ReturnStatement) {
-				var parent = expr.Ancestors.FirstOrDefault(n => n is EntityDeclaration || n is AnonymousMethodExpression|| n is LambdaExpression);
-				if (parent != null) {
-					var rr = resolver.Resolve(parent);
-					if (!rr.IsError)
-						return new [] { rr.Type };
-				}
-				var e = parent as EntityDeclaration;
-				if (e != null) {
-					var rt = resolver.Resolve(e.ReturnType);
-					if (!rt.IsError)
-						return new [] { rt.Type };
-				}
-			}
-
-			if (expr.Parent is YieldReturnStatement) {
-				var state = resolver.GetResolverStateBefore(expr);
-				if (state != null && (state.CurrentMember.ReturnType is ParameterizedType)) {
-					var pt = (ParameterizedType)state.CurrentMember.ReturnType;
-					if (pt.FullName == "System.Collections.Generic.IEnumerable") {
-						return new [] { pt.TypeArguments.First() };
-					}
-				}
-			}
-
-			if (expr.Parent is UnaryOperatorExpression) {
-				var uop = (UnaryOperatorExpression)expr.Parent;
-				switch (uop.Operator) {
-					case UnaryOperatorType.Not:
-						return new [] { resolver.Compilation.FindType(KnownTypeCode.Boolean) };
-						case UnaryOperatorType.Minus:
-						case UnaryOperatorType.Plus:
-						case UnaryOperatorType.Increment:
-						case UnaryOperatorType.Decrement:
-						case UnaryOperatorType.PostIncrement:
-						case UnaryOperatorType.PostDecrement:
-						return new [] { resolver.Compilation.FindType(KnownTypeCode.Int32) };
-				}
-			}
-
-			if (expr.Parent is ConstructorInitializer)
-				return GuessFromConstructorInitializer(resolver, expr);
-
-			if (expr.Parent is NamedExpression) {
-				var rr = resolver.Resolve(expr.Parent);
-				if (!rr.IsError) {
-					return new [] { rr.Type };
-				}
-			}
-
-			return Enumerable.Empty<IType>();
+			return types;
 		}
-		static readonly IType[] emptyTypes = new IType[0];
-		public static AstType GuessAstType(RefactoringContext context, AstNode expr)
+
+		static readonly ITypeInferenceService typeInferenceService = new CSharpTypeInferenceService ();
+
+		public static TypeSyntax GuessAstType(SemanticModel context, SyntaxNode expr, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var type = GetValidTypes(context.Resolver, expr).ToArray();
-			var typeInference = new TypeInference(context.Compilation);
+			var types = GetValidTypes(context, expr,cancellationToken).ToList();
+			/*var typeInference = new TypeInference(context.Compilation);
 			typeInference.Algorithm = TypeInferenceAlgorithm.Improved;
-			var inferedType = typeInference.FindTypeInBounds(type, emptyTypes);
-			if (inferedType.Kind == TypeKind.Unknown)
-				return new PrimitiveType("object");
-			return context.CreateShortType(inferedType);
-		}
+			var inferedType = typeInference.FindTypeInBounds(type, emptyTypes);*/
 
-		public static IType GuessType(BaseRefactoringContext context, AstNode expr)
-		{
-			if (expr is SimpleType && expr.Role == Roles.TypeArgument) {
-				if (expr.Parent is MemberReferenceExpression || expr.Parent is IdentifierExpression) {
-					var rr = context.Resolve (expr.Parent);
-					var argumentNumber = expr.Parent.GetChildrenByRole (Roles.TypeArgument).TakeWhile (c => c != expr).Count ();
+			if (types.Count == 0)
+				return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.ObjectKeyword));
 
-					var mgrr = rr as MethodGroupResolveResult;
-					if (mgrr != null && mgrr.Methods.Any () && mgrr.Methods.First ().TypeArguments.Count > argumentNumber)
-						return mgrr.Methods.First ().TypeParameters[argumentNumber]; 
-				} else if (expr.Parent is MemberType || expr.Parent is SimpleType) {
-					var rr = context.Resolve (expr.Parent);
-					var argumentNumber = expr.Parent.GetChildrenByRole (Roles.TypeArgument).TakeWhile (c => c != expr).Count ();
-					var mgrr = rr as TypeResolveResult;
-					if (mgrr != null &&  mgrr.Type.TypeParameterCount > argumentNumber) {
-						return mgrr.Type.GetDefinition ().TypeParameters[argumentNumber]; 
-					}
+			var resultType = types[0];
+
+			foreach (var type in types) {
+				if (type.SpecialType == SpecialType.System_Object) {
+					resultType = type;
+					break;
 				}
 			}
 
-			var type = GetValidTypes(context.Resolver, expr).ToArray();
-			var typeInference = new TypeInference(context.Compilation);
-			typeInference.Algorithm = TypeInferenceAlgorithm.Improved;
-			var inferedType = typeInference.FindTypeInBounds(type, emptyTypes);
-			return inferedType;
+			return SyntaxFactory.ParseTypeName(resultType.ToMinimalDisplayString(context, expr.SpanStart));
 		}
+
+//		public static ITypeSymbol GuessType(BaseRefactoringContext context, SyntaxNode expr)
+//		{
+//			if (expr is SimpleType && expr.Role == Roles.TypeArgument) {
+//				if (expr.Parent is MemberReferenceExpressionSyntax || expr.Parent is IdentifierExpressionSyntax) {
+//					var rr = context.Resolve (expr.Parent);
+//					var argumentNumber = expr.Parent.GetChildrenByRole (Roles.TypeArgument).TakeWhile (c => c != expr).Count ();
+//
+//					var mgrr = rr as MethodGroupResolveResult;
+//					if (mgrr != null && mgrr.Methods.Any () && mgrr.Methods.First ().TypeArguments.Count > argumentNumber)
+//						return mgrr.Methods.First ().TypeParameters[argumentNumber]; 
+//				} else if (expr.Parent is MemberType || expr.Parent is SimpleType) {
+//					var rr = context.Resolve (expr.Parent);
+//					var argumentNumber = expr.Parent.GetChildrenByRole (Roles.TypeArgument).TakeWhile (c => c != expr).Count ();
+//					var mgrr = rr as TypeResolveResult;
+//					if (mgrr != null &&  mgrr.Type.TypeParameterCount > argumentNumber) {
+//						return mgrr.Type.GetDefinition ().TypeParameters[argumentNumber]; 
+//					}
+//				}
+//			}
+//
+//			var type = GetValidTypes(context.Resolver, expr).ToArray();
+//			var typeInference = new TypeInference(context.Compilation);
+//			typeInference.Algorithm = TypeInferenceAlgorithm.Improved;
+//			var inferedType = typeInference.FindTypeInBounds(type, emptyTypes);
+//			return inferedType;
+//		}
 	}
 }
 

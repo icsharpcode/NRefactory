@@ -150,6 +150,7 @@
     <Compile Include="Features\Completion\CompletionEngine_StringFormatting.cs" />
     <Compile Include="Features\Completion\CompletionEngine_XmlDoc.cs" />
     <Compile Include="Util\SignatureComparer.cs" />
+    <Compile Include="Refactoring\TypeGuessing.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>

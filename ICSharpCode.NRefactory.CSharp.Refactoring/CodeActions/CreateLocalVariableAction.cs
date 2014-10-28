@@ -51,46 +51,61 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+			var node = root.FindNode(span);
+			if (node.IsKind(SyntaxKind.Argument)) {
+				if (!((ArgumentSyntax)node).Expression.IsKind(SyntaxKind.IdentifierName))
+					return Enumerable.Empty<CodeAction>();
+
+			} else if (node == null || !node.IsKind(SyntaxKind.IdentifierName)) {
+				return Enumerable.Empty<CodeAction>();
+			}
+
+			var symbol = model.GetSymbolInfo(node);
+			if (symbol.Symbol != null)
+				return Enumerable.Empty<CodeAction>();
+			if (CreateFieldAction.IsInvocationTarget(node)) 
+				return Enumerable.Empty<CodeAction>();
+
+			var guessedType = TypeGuessing.GuessAstType(model, node);
+			if (guessedType == null)
+				return Enumerable.Empty<CodeAction>();
+
+			return new[] { 
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Error, 
+					"Create local variable", 
+					t2 => {
+						var decl = SyntaxFactory.LocalDeclarationStatement(
+							SyntaxFactory.VariableDeclaration(
+								guessedType,
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(new [] {
+									SyntaxFactory.VariableDeclarator(node.ToString())
+								})
+							)
+						);
+
+						if (node.Parent.IsKind(SyntaxKind.SimpleAssignmentExpression)) {
+							decl = decl.WithDeclaration(decl.Declaration.WithVariables(
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(new [] {
+									SyntaxFactory.VariableDeclarator(node.ToString()).WithInitializer(
+										SyntaxFactory.EqualsValueClause(((AssignmentExpressionSyntax)node.Parent).Right)
+									)
+								})
+							));
+//							if (!context.UseExplicitTypes)
+							decl = decl.WithDeclaration(decl.Declaration.WithType(SyntaxFactory.ParseTypeName("var")));
+							var root2 = root.ReplaceNode(node.Parent.Parent, decl.WithAdditionalAnnotations(Formatter.Annotation));
+							return Task.FromResult(document.WithSyntaxRoot(root2));
+						} 
+
+						var statement = node.Ancestors().First(n => n is StatementSyntax);
+						var newRoot = root.InsertNodesBefore(statement, new [] { decl.WithAdditionalAnnotations(Formatter.Annotation) });
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				) 
+			};
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var identifier = context.GetNode<IdentifierExpression>();
-//			if (identifier == null) {
-//				yield break;
-//			}
-//			if (CreateFieldAction.IsInvocationTarget(identifier)) {
-//				yield break;
-//			}
-//			var statement = context.GetNode<Statement>();
-//			if (statement == null) {
-//				yield break;
-//			}
-//
-//			if (!(context.Resolve(identifier).IsError)) {
-//				yield break;
-//			}
-//			var guessedType = TypeGuessing.GuessAstType(context, identifier);
-//			if (guessedType == null) {
-//				yield break;
-//			}
-//
-//			yield return new CodeAction(context.TranslateString("Create local variable"), script => {
-//				var initializer = new VariableInitializer(identifier.Identifier);
-//				var decl = new VariableDeclarationStatement() {
-//					Type = guessedType,
-//					Variables = { initializer }
-//				};
-//				if (identifier.Parent is AssignmentExpression && ((AssignmentExpression)identifier.Parent).Left == identifier) {
-//					initializer.Initializer = ((AssignmentExpression)identifier.Parent).Right.Clone();
-//					if (!context.UseExplicitTypes)
-//						decl.Type = new SimpleType("var");
-//					script.Replace(statement, decl);
-//				} else {
-//					script.InsertBefore(statement, decl);
-//				}
-//			}, identifier) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
-//		}
 	}
 }
-

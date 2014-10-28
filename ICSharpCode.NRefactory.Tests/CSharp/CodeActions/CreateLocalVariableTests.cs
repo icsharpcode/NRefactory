@@ -34,167 +34,167 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class CreateLocalVariableTests : ContextActionTestBase
 	{
 		[Test()]
-		public void TestSimpleMethodCall ()
+		public void TestSimpleMethodCall()
 		{
-			string result = RunContextAction (
-				new CreateLocalVariableAction (),
-				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		Console.WriteLine ($foo);" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
-			Assert.AreEqual (
+			string result = RunContextAction(
+				                         new CreateLocalVariableAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        Console.WriteLine ($foo);" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		object foo;" + Environment.NewLine +
-				"		Console.WriteLine (foo);" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        object foo;" + Environment.NewLine +
+				"        Console.WriteLine (foo);" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
 		[Test()]
-		public void TestAssignment ()
+		public void TestAssignment()
 		{
-			string result = RunContextAction (
-				new CreateLocalVariableAction (),
-				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		$foo = 0x10;" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
+			string result = RunContextAction(
+				                         new CreateLocalVariableAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        $foo = 0x10;" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
 
-			Assert.AreEqual (
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		var foo = 0x10;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        var foo = 0x10;" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
 		[Test()]
-		public void ExplicitTestAssignment ()
+		public void ExplicitTestAssignment()
 		{
 			//TestRefactoringContext.UseExplict = true;
-			string result = RunContextAction (
-				new CreateLocalVariableAction (),
-				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		$foo = 0x10;" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
+			string result = RunContextAction(
+				                         new CreateLocalVariableAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        $foo = 0x10;" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
 
-			Assert.AreEqual (
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		int foo = 0x10;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        var foo = 0x10;" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
 		[Test()]
-		public void TestOutParamCall ()
+		public void TestOutParamCall()
 		{
-			string result = RunContextAction (
-				new CreateLocalVariableAction (),
-				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void FooBar(out string par) {}" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		FooBar(out $foo);" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
-			
-			Assert.AreEqual (
+			string result = RunContextAction(
+				                         new CreateLocalVariableAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void FooBar(out string par) {}" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        FooBar(out $foo);" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+            
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void FooBar(out string par) {}" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		string foo;" + Environment.NewLine +
-				"		FooBar(out foo);" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void FooBar(out string par) {}" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        string foo;" + Environment.NewLine +
+				"        FooBar(out foo);" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
 
 		[Test()]
-		public void TestReturn ()
+		public void TestReturn()
 		{
-			string result = RunContextAction (
-				new CreateLocalVariableAction (),
-				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	int Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		return $foo;" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
-			
-			Assert.AreEqual (
+			string result = RunContextAction(
+				                         new CreateLocalVariableAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    int Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        return $foo;" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+            
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	int Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		int foo;" + Environment.NewLine +
-				"		return foo;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    int Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        int foo;" + Environment.NewLine +
+				"        return foo;" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
 		[Test()]
-		public void TestYieldReturn ()
+		public void TestYieldReturn()
 		{
-			string result = RunContextAction (
-				new CreateLocalVariableAction (),
-					"using System;" + Environment.NewLine +
-					"using System.Collections.Generic;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	IEnumerable<TestClass> Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		yield return $foo;" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
-			
-			Assert.AreEqual (
+			string result = RunContextAction(
+				                         new CreateLocalVariableAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "using System.Collections.Generic;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    IEnumerable<TestClass> Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        yield return $foo;" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+            
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"using System.Collections.Generic;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	IEnumerable<TestClass> Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		TestClass foo;" + Environment.NewLine +
-				"		yield return foo;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    IEnumerable<TestClass> Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        TestClass foo;" + Environment.NewLine +
+				"        yield return foo;" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
@@ -207,10 +207,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		$foo();" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        $foo();" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}"
 			);
 		}
@@ -219,20 +219,20 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestBool()
 		{
 			Test<CreateLocalVariableAction>(
-@"class TestClass
+				@"class TestClass
 {
-	void Test ()
-	{
-		object o = !$foo;
-	}
+    void Test ()
+    {
+        object o = !$foo;
+    }
 }", 
-@"class TestClass
+				@"class TestClass
 {
-	void Test ()
-	{
-		bool foo;
-		object o = !foo;
-	}
+    void Test ()
+    {
+        bool foo;
+        object o = !foo;
+    }
 }");
 		}
 
@@ -242,18 +242,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<CreateLocalVariableAction>(@"static class Ext { public static void Foo(this object o, string str) {} }
 class Test
 {
-	public static void Main (string[] args)
-	{
-		args.Foo($foo);
-	}
+    public static void Main (string[] args)
+    {
+        args.Foo($foo);
+    }
 }", @"static class Ext { public static void Foo(this object o, string str) {} }
 class Test
 {
-	public static void Main (string[] args)
-	{
-		string foo;
-		args.Foo(foo);
-	}
+    public static void Main (string[] args)
+    {
+        string foo;
+        args.Foo(foo);
+    }
 }");
 		}
 
@@ -264,20 +264,19 @@ class Test
 			Test<CreateLocalVariableAction>(@"static class Ext { public static void Foo(this object o, string str) {} }
 class Test
 {
-	public static void Main (string[] args)
-	{
-		Ext.Foo(args, $foo);
-	}
+    public static void Main (string[] args)
+    {
+        Ext.Foo(args, $foo);
+    }
 }", @"static class Ext { public static void Foo(this object o, string str) {} }
 class Test
 {
-	public static void Main (string[] args)
-	{
-		string foo;
-		Ext.Foo(args, foo);
-	}
+    public static void Main (string[] args)
+    {
+        string foo;
+        Ext.Foo(args, foo);
+    }
 }");
 		}
-
 	}
 }
