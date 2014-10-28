@@ -51,64 +51,58 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+			var node = root.FindNode(span) as IdentifierNameSyntax;
+			if (node == null || !node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+				return Enumerable.Empty<CodeAction>();
+			var memberAccess = node.Parent as MemberAccessExpressionSyntax;
+			var invocation = node.Parent.Parent as InvocationExpressionSyntax;
+			if (invocation == null || invocation.ArgumentList.Arguments.Count != 1 || invocation.ArgumentList.Arguments[0].Expression.IsKind(SyntaxKind.NullLiteralExpression))
+				return Enumerable.Empty<CodeAction>();
+
+			var invocationRR = model.GetSymbolInfo(invocation);
+			if (invocationRR.Symbol == null)
+				return Enumerable.Empty<CodeAction>();
+
+			var method = invocationRR.Symbol as IMethodSymbol;
+			if (method == null)
+				return Enumerable.Empty<CodeAction>();
+
+			if (method.Name != "Equals" || method.IsStatic || method.ReturnType.SpecialType != SpecialType.System_Boolean)
+				return Enumerable.Empty<CodeAction>();
+
+			return new[] { 
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Flip 'Equals' target and argument", 
+					t2 => {
+						var newRoot = root.ReplaceNode(invocation, 
+							invocation
+							.WithExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, AddParensIfRequired (invocation.ArgumentList.Arguments[0].Expression), memberAccess.Name))
+							.WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new [] { SyntaxFactory.Argument(memberAccess.Expression.SkipParens()) })))
+							.WithAdditionalAnnotations(Formatter.Annotation)
+						);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				) 
+			};
 		}
-//		Expression GetInnerMostExpression(Expression target)
-//		{
-//			while (target is ParenthesizedExpression)
-//				target = ((ParenthesizedExpression)target).Expression;
-//			return target;
-//		}
-//
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var invocation = context.GetNode<InvocationExpression>();
-//			if (invocation == null)
-//				yield break;
-//			if (invocation.Arguments.Count != 1 || invocation.Arguments.First() is NullReferenceExpression)
-//				yield break;
-//			var target = invocation.Target as MemberReferenceExpression;
-//
-//			if (target == null || target.MemberNameToken.StartLocation > context.Location || invocation.LParToken.StartLocation < context.Location)
-//				yield break;
-//
-//			var rr = context.Resolve(invocation) as InvocationResolveResult;
-//			if (rr == null || rr.Member.Name != "Equals" || rr.Member.IsStatic || !rr.Member.ReturnType.IsKnownType(KnownTypeCode.Boolean))
-//				yield break;
-//
-//			yield return new CodeAction(
-//				context.TranslateString("Flip 'Equals' target and argument"),
-//				script => {
-//					script.Replace(
-//						invocation,
-//						new InvocationExpression(
-//							new MemberReferenceExpression(
-//								AddParensIfRequired(invocation.Arguments.First ().Clone()),
-//								"Equals"
-//							),
-//							GetInnerMostExpression (target.Target).Clone()
-//						)
-//				    );
-//				},
-//				invocation
-//			);
-//		}
-//
-//		Expression AddParensIfRequired(Expression expression)
-//		{
-//			if ((expression is BinaryOperatorExpression) ||
-//			    (expression is UnaryOperatorExpression) ||
-//			    (expression is CastExpression) ||
-//			    (expression is AssignmentExpression) ||
-//				(expression is AsExpression) ||
-//			    (expression is IsExpression) ||
-//			    (expression is LambdaExpression) ||
-//			    (expression is ConditionalExpression)) {
-//				return new ParenthesizedExpression(expression);
-//			}
-//
-//			return expression;
-//		}
+
+		internal static ExpressionSyntax AddParensIfRequired(ExpressionSyntax expression)
+		{
+			if ((expression is BinaryExpressionSyntax) ||
+				(expression is PostfixUnaryExpressionSyntax) ||
+				(expression is PrefixUnaryExpressionSyntax) ||
+				(expression is AssignmentExpressionSyntax) ||
+				(expression is CastExpressionSyntax) ||
+				(expression is ParenthesizedLambdaExpressionSyntax) ||
+				(expression is SimpleLambdaExpressionSyntax) ||
+				(expression is ConditionalExpressionSyntax)) {
+				return SyntaxFactory.ParenthesizedExpression(expression);
+			}
+
+			return expression;
+		}
 	}
 }
-
