@@ -33,111 +33,112 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	[TestFixture]
 	public class DeclareLocalVariableTests : ContextActionTestBase
 	{
-		[Test()]
-		public void TestSimpleInline ()
+		[Test]
+		public void TestSimpleInline()
 		{
 			//TestRefactoringContext.UseExplict = true;
-			Test<DeclareLocalVariableAction> (@"class TestClass
+			Test<DeclareLocalVariableAction>(@"class TestClass
 {
-	int Foo() {}
-	void Test ()
-	{
-		<-Foo()->;
-	}
+    int Foo() {}
+    void Test ()
+    {
+        <-Foo()->;
+    }
 }", @"class TestClass
 {
-	int Foo() {}
-	void Test ()
-	{
-		int i = Foo ();
-	}
-}");
-		}
-		[Test()]
-		public void TestSimpleInlineImplicit ()
-		{
-			Test<DeclareLocalVariableAction> (@"class TestClass
-{
-	int Foo() {}
-	void Test ()
-	{
-		<-Foo()->;
-	}
-}", @"class TestClass
-{
-	int Foo() {}
-	void Test ()
-	{
-		var i = Foo ();
-	}
+    int Foo() {}
+    void Test ()
+    {
+        var foo = Foo();
+    }
 }");
 		}
 
-		[Test()]
-		public void TestReplaceAll ()
+		[Test]
+		public void TestSimpleInlineImplicit()
 		{
-			//TestRefactoringContext.UseExplict = true;
-			Test<DeclareLocalVariableAction> (@"class TestClass
+			Test<DeclareLocalVariableAction>(@"class TestClass
 {
-	void Test ()
-	{
-		Console.WriteLine (<-5 + 3->);
-		Console.WriteLine (5 + 3);
-		Console.WriteLine (5 + 3);
-	}
+    int Foo() {}
+    void Test ()
+    {
+        <-Foo()->;
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		int i = 5 + 3;
-		Console.WriteLine (i);
-		Console.WriteLine (i);
-		Console.WriteLine (i);
-	}
+    int Foo() {}
+    void Test ()
+    {
+        var foo = Foo();
+    }
+}");
+		}
+
+		[Test]
+		public void TestReplaceAll()
+		{
+			//TestRefactoringContext.UseExplict = true;
+			Test<DeclareLocalVariableAction>(@"class TestClass
+{
+    void Test ()
+    {
+        Console.WriteLine (<-5 + 3->);
+        Console.WriteLine (5 + 3);
+        Console.WriteLine (5 + 3);
+    }
+}", @"class TestClass
+{
+    void Test ()
+    {
+        var i = 5 + 3;
+        Console.WriteLine (i);
+        Console.WriteLine (i);
+        Console.WriteLine (i);
+    }
 }", 1);
 		}
 
-		[Test()]
-		public void TestReplaceAllImplicit ()
+		[Test]
+		public void TestReplaceAllImplicit()
 		{
-			Test<DeclareLocalVariableAction> (@"class TestClass
+			Test<DeclareLocalVariableAction>(@"class TestClass
 {
-	void Test ()
-	{
-		Console.WriteLine (<-5 + 3->);
-		Console.WriteLine (5 + 3);
-		Console.WriteLine (5 + 3);
-	}
+    void Test ()
+    {
+        Console.WriteLine (<-5 + 3->);
+        Console.WriteLine (5 + 3);
+        Console.WriteLine (5 + 3);
+    }
 }", @"class TestClass
 {
-	void Test ()
-	{
-		var i = 5 + 3;
-		Console.WriteLine (i);
-		Console.WriteLine (i);
-		Console.WriteLine (i);
-	}
+    void Test ()
+    {
+        var i = 5 + 3;
+        Console.WriteLine (i);
+        Console.WriteLine (i);
+        Console.WriteLine (i);
+    }
 }", 1);
 		}
 
-		[Test()]
-		public void DeclareLocalExpressionTest ()
+		[Test]
+		public void DeclareLocalExpressionTest()
 		{
 			//TestRefactoringContext.UseExplict = true;
-			Test<DeclareLocalVariableAction> (@"class TestClass
+			Test<DeclareLocalVariableAction>(@"class TestClass
 {
-	void Test ()
-	{
-		Console.WriteLine (1 +<- 9 ->+ 5);
-	}
+    void Test ()
+    {
+        Console.WriteLine (1 +<- 9 ->+ 5);
+    }
 }
 ", @"class TestClass
 {
-	void Test ()
-	{
-		int i = 9;
-		Console.WriteLine (1 + i + 5);
-	}
+    void Test ()
+    {
+        var i = 9;
+        Console.WriteLine (1 + i + 5);
+    }
 }
 ");
 		}
@@ -145,122 +146,122 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		/// <summary>
 		/// Bug 693855 - Extracting variable from ELSE IF puts it in the wrong place
 		/// </summary>
-		[Test()]
-		public void TestBug693855 ()
+		[Test]
+		public void TestBug693855()
 		{
 			//TestRefactoringContext.UseExplict = true;
-			Test<DeclareLocalVariableAction> (@"class TestClass
+			Test<DeclareLocalVariableAction>(@"class TestClass
 {
-	void Test ()
-	{
-		string str = ""test"";
-		if (str == ""something"") {
-			//do A
-		} else if (<-str == ""other""->) {
-			//do B
-		} else {
-			//do C
-		}
-	}
+    void Test ()
+    {
+        string str = ""test"";
+        if (str == ""something"") {
+            //do A
+        } else if (<-str == ""other""->) {
+            //do B
+        } else {
+            //do C
+        }
+    }
 }", 
-@"class TestClass
+				@"class TestClass
 {
-	void Test ()
-	{
-		string str = ""test"";
-		bool b = str == ""other"";
-		if (str == ""something"") {
-			//do A
-		} else if (b) {
-			//do B
-		} else {
-			//do C
-		}
-	}
+    void Test ()
+    {
+        string str = ""test"";
+        var b = str == ""other"";
+        if (str == ""something"") {
+            //do A
+        } else if (b) {
+            //do B
+        } else {
+            //do C
+        }
+    }
 }");
 		}
-		
-		
+
+        
 		/// <summary>
 		/// Bug 693875 - Extract Local on just method name leaves brackets in wrong place
 		/// </summary>
-		[Test()]
-		public void TestBug693875 ()
+		[Test]
+		public void TestBug693875()
 		{
 			//TestRefactoringContext.UseExplict = true;
-			Test<DeclareLocalVariableAction> (@"class TestClass
+			Test<DeclareLocalVariableAction>(@"class TestClass
 {
-	void DoStuff() 
-	{
-		if (<-GetInt->() == 0) {
-		}
-	}
-	
-	int GetInt()
-	{
-		return 1;
-	}
+    void DoStuff() 
+    {
+        if (<-GetInt->() == 0) {
+        }
+    }
+    
+    int GetInt()
+    {
+        return 1;
+    }
 }", 
-@"class TestClass
+				@"class TestClass
 {
-	void DoStuff() 
-	{
-		System.Func<int> getInt = GetInt;
-		if (getInt() == 0) {
-		}
-	}
-	
-	int GetInt()
-	{
-		return 1;
-	}
+    void DoStuff() 
+    {
+        var getInt = GetInt;
+        if (getInt() == 0) {
+        }
+    }
+    
+    int GetInt()
+    {
+        return 1;
+    }
 }");
 		}
 
 		[Test]
-		public void TestRemoveParens ()
+		public void TestRemoveParens()
 		{
 			//TestRefactoringContext.UseExplict = true;
-			Test<DeclareLocalVariableAction> (@"class TestClass
+			Test<DeclareLocalVariableAction>(@"class TestClass
 {
-	void Test ()
-	{
-		Console.WriteLine ((<- 1 + 9 ->).ToString ());
-	}
+    void Test ()
+    {
+        Console.WriteLine((<- 1 + 9 ->).ToString());
+    }
 }
 ", @"class TestClass
 {
-	void Test ()
-	{
-		int i = 1 + 9;
-		Console.WriteLine (i.ToString ());
-	}
+    void Test ()
+    {
+        var i = 1 + 9;
+        Console.WriteLine(i.ToString());
+    }
 }
 ");
 		}
 
 		[Test]
-		public void TestRemoveParensComplexCase ()
+		public void TestRemoveParensComplexCase()
 		{
 			//TestRefactoringContext.UseExplict = true;
-			Test<DeclareLocalVariableAction> (@"class TestClass
+			Test<DeclareLocalVariableAction>(@"class TestClass
 {
-	void Test ()
-	{
-		int a = <-1 + 9->;
-		Console.WriteLine ((1 + 9).ToString ());
-		Console.WriteLine ((1 + 9));
-	}
+    void Test ()
+    {
+        int a = <-1 + 9->;
+        Console.WriteLine ((1 + 9).ToString ());
+        Console.WriteLine ((1 + 9));
+    }
 }
 ", @"class TestClass
 {
-	void Test ()
-	{
-		int i = 1 + 9;
-		int a = i;
-		Console.WriteLine (i.ToString ());
-		Console.WriteLine (i);
-	}
+    void Test ()
+    {
+        var i = 1 + 9;
+        int a = i;
+        Console.WriteLine (i.ToString ());
+        Console.WriteLine (i);
+    }
 }
 ", 1);
 		}
@@ -269,58 +270,53 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		/// <summary>
 		/// Bug 9873 - Declare local creates invalid code for implicitly typed array 
 		/// </summary>
-		[Test()]
-		public void TestBug9873 ()
+		[Test]
+		public void TestBug9873()
 		{
 			//TestRefactoringContext.UseExplict = true;
-			Test<DeclareLocalVariableAction> (@"class TestClass
+			Test<DeclareLocalVariableAction>(@"class TestClass
 {
-	void DoStuff() 
-	{
-	    foreach (var i in <-new[] { 1, 2, 3 }->) {
-	        Console.WriteLine (i);
-	    }
-	}
+    void DoStuff() 
+    {
+        foreach (var i in <-new[] { 1, 2, 3 }->) {
+            Console.WriteLine (i);
+        }
+    }
 }", 
-			                                  @"class TestClass
+				@"class TestClass
 {
-	void DoStuff() 
-	{
-		int[] arr = new[] {
-			1,
-			2,
-			3
-		};
-		foreach (var i in arr) {
-			Console.WriteLine (i);
-		}
-	}
+    void DoStuff() 
+    {
+        var arr = new[] { 1, 2, 3 };
+        foreach (var i in arr) {
+            Console.WriteLine (i);
+        }
+    }
 }");
 		}
 
 
 		[Test]
-		public void TestCollectionInitializer ()
+		public void TestCollectionInitializer()
 		{
-			Test<DeclareLocalVariableAction> (@"using System.Collections.Generic;
+			Test<DeclareLocalVariableAction>(@"using System.Collections.Generic;
 
 class TestClass
 {
-	void Test (string str)
-	{
-		var list = new List<int> { 1, <-str.Length->, 2 };
-	}
+    void Test (string str)
+    {
+        var list = new List<int> { 1, <-str.Length->, 2 };
+    }
 }", @"using System.Collections.Generic;
 
 class TestClass
 {
-	void Test (string str)
-	{
-		var length = str.Length;
-		var list = new List<int> { 1, length, 2 };
-	}
+    void Test (string str)
+    {
+        var length = str.Length;
+        var list = new List<int> { 1, length, 2 };
+    }
 }");
 		}
-
 	}
 }

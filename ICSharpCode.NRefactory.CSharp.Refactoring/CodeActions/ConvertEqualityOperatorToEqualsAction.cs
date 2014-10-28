@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					span, 
 					DiagnosticSeverity.Info,
 					"Use 'Equals'", 
-					document.WithSyntaxRoot(root.ReplaceNode(node, CreateEquals(model, node)))
+					t2 => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, CreateEquals(model, node))))
 				)
 			};
 		}

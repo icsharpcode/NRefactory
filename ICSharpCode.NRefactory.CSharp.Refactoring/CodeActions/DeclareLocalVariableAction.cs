@@ -38,6 +38,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
+using System.ComponentModel.Composition.Primitives;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -49,23 +50,30 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var document = context.Document;
 			var span = context.Span;
+			if (span.Start == span.End)
+				return Enumerable.Empty<CodeAction>();
+
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
-		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			if (!context.IsSomethingSelected) {
-//				yield break;
-//			}
-//			var selected = new List<AstNode>(context.GetSelectedNodes());
-//
-//			if (selected.Count != 1 || !(selected [0] is Expression)) {
-//				yield break;
-//			}
-//
-//			var expr = selected [0] as Expression;
+			var node = root.FindNode(span);
+			node = node.DescendantNodes().FirstOrDefault(n => span.Contains(n.Span)) ?? node;
+			if (node is ExpressionStatementSyntax)
+				node = ((ExpressionStatementSyntax)node).Expression;
+			if (node is ArgumentSyntax)
+				node = ((ArgumentSyntax)node).Expression;
+			var expr = node as ExpressionSyntax;
+			if (expr == null)
+				return Enumerable.Empty<CodeAction>();
+			var containingBlock = node.Ancestors().FirstOrDefault(a => a is BlockSyntax);
+			Console.WriteLine("cb:" + containingBlock);
+			List<SyntaxNode> nodeList;
+			if (containingBlock != null) {
+				nodeList = containingBlock.DescendantNodes().Where(n => SyntaxFactory.AreEquivalent(n, node)).ToList();
+			} else {
+				return Enumerable.Empty<CodeAction>();
+			}
+
 //			if (expr is ArrayInitializerExpression) {
 //				var arr = (ArrayInitializerExpression)expr;
 //				if (arr.IsSingleElement) {
@@ -75,131 +83,117 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //				}
 //			}
 //
-//			var visitor = new SearchNodeVisitior(expr);
-//			
-//			var node = context.GetNode <BlockStatement>();
-//			if (node != null) {
-//				node.AcceptVisitor(visitor);
-//			}
-//
-//			yield return new CodeAction(context.TranslateString("Declare local variable"), script => {
-//				var resolveResult = context.Resolve(expr);
-//				var guessedType = resolveResult.Type;
-//				if (resolveResult is MethodGroupResolveResult) {
-//					guessedType = GetDelegateType(context, ((MethodGroupResolveResult)resolveResult).Methods.First(), expr);
-//				}
-//				var name = CreateMethodDeclarationAction.CreateBaseName(expr, guessedType);
-//				name = context.GetLocalNameProposal(name, expr.StartLocation);
-//				var type = context.UseExplicitTypes ? context.CreateShortType(guessedType) : new SimpleType("var");
-//				var varDecl = new VariableDeclarationStatement(type, name, expr.Clone());
-//				var replaceNode = visitor.Matches.First () as Expression;
-//				if (replaceNode.Parent is ExpressionStatement) {
-//					script.Replace(replaceNode.Parent, varDecl);
-//					script.Select(varDecl.Variables.First().NameToken);
-//				} else {
-//					var containing = replaceNode.Parent;
-//					while (!(containing.Parent is BlockStatement)) {
-//						containing = containing.Parent;
-//					}
-//
-//					script.InsertBefore(containing, varDecl);
-//					var identifierExpression = new IdentifierExpression(name);
-//					script.Replace(replaceNode, identifierExpression);
-//					script.Link(varDecl.Variables.First().NameToken, identifierExpression);
-//				}
-//			}, expr);
-//
-//			if (visitor.Matches.Count > 1) {
-//				yield return new CodeAction(string.Format(context.TranslateString("Declare local variable (replace '{0}' occurrences)"), visitor.Matches.Count), script => {
-//					var resolveResult = context.Resolve(expr);
-//					var guessedType = resolveResult.Type;
-//					if (resolveResult is MethodGroupResolveResult) {
-//						guessedType = GetDelegateType(context, ((MethodGroupResolveResult)resolveResult).Methods.First(), expr);
-//					}
-//					var linkedNodes = new List<AstNode>();
-//					var name = CreateMethodDeclarationAction.CreateBaseName(expr, guessedType);
+			var result = new List<CodeAction>();
+			result.Add(CodeActionFactory.Create(
+				expr.Span,
+				DiagnosticSeverity.Info,
+				"Declare local variable",
+				t2 => {
+					var resolveResult = model.GetTypeInfo(expr);
+					var guessedType = resolveResult.Type ?? resolveResult.ConvertedType;
+					var name = CreateMethodDeclarationAction.CreateBaseName(expr, guessedType);
 //					name = context.GetLocalNameProposal(name, expr.StartLocation);
-//					var type = context.UseExplicitTypes ? context.CreateShortType(guessedType) : new SimpleType("var");
-//					var varDecl = new VariableDeclarationStatement(type, name, expr.Clone());
-//					linkedNodes.Add(varDecl.Variables.First().NameToken);
-//					var first = visitor.Matches [0];
-//					if (first.Parent is ExpressionStatement) {
-//						script.Replace(first.Parent, varDecl);
-//					} else {
-//						var containing = first.Parent;
-//						while (!(containing.Parent is BlockStatement)) {
-//							containing = containing.Parent;
-//						}
-//
-//						script.InsertBefore(containing, varDecl);
-//						var identifierExpression = new IdentifierExpression(name);
-//						linkedNodes.Add(identifierExpression);
-//						script.Replace(first, identifierExpression);
-//					}
-//					for (int i = 1; i < visitor.Matches.Count; i++) {
-//						var identifierExpression = new IdentifierExpression(name);
-//						linkedNodes.Add(identifierExpression);
-//						script.Replace(visitor.Matches [i], identifierExpression);
-//					}
-//					script.Link(linkedNodes.ToArray ());
-//				}, expr);
-//			}
-//		}
-//
-//		// Gets Action/Func delegate types for a given method.
-//		IType GetDelegateType(SemanticModel context, IMethod method, Expression expr)
-//		{
-//			var parameters = new List<IType>();
-//			var invoke = expr.Parent as InvocationExpression;
-//			if (invoke == null) {
-//				return null;
-//			}
-//			foreach (var arg in invoke.Arguments) {
-//				parameters.Add(context.Resolve(arg).Type);
-//			}
-//
-//			ITypeDefinition genericType;
-//			if (method.ReturnType.FullName == "System.Void") {
-//				genericType = context.Compilation.GetAllTypeDefinitions().FirstOrDefault(t => t.FullName == "System.Action" && t.TypeParameterCount == parameters.Count);
-//			} else {
-//				parameters.Add(method.ReturnType);
-//				genericType = context.Compilation.GetAllTypeDefinitions().FirstOrDefault(t => t.FullName == "System.Func" && t.TypeParameterCount == parameters.Count);
-//			}
-//			if (genericType == null) {
-//				return null;
-//			}
-//			return new ParameterizedType(genericType, parameters);
-//		}
-//
-//				
-//		internal class SearchNodeVisitior : DepthFirstAstVisitor
-//		{
-//			readonly AstNode searchForNode;
-//			public readonly List<AstNode> Matches = new List<AstNode> ();
-//			
-//			public SearchNodeVisitior (AstNode searchForNode)
-//			{
-//				this.searchForNode = searchForNode;
-//				AddNode (searchForNode);
-//			}
-//
-//			void AddNode(AstNode node)
-//			{
-//				if (node.Parent is ParenthesizedExpression) {
-//					Matches.Add(node.Parent);
-//				} else {
-//					Matches.Add(node);
-//				}
-//			}
-//			
-//			protected override void VisitChildren(AstNode node)
-//			{
-//				if (node.StartLocation > searchForNode.StartLocation && node.IsMatch(searchForNode)) {
-//					AddNode(node);
-//					return;
-//				} 
-//				base.VisitChildren (node);
-//			}
-//		}
+					var type = /*context.UseExplicitTypes ? context.CreateShortType(guessedType) :*/ SyntaxFactory.ParseTypeName("var");
+
+					var varDecl = SyntaxFactory.LocalDeclarationStatement(
+						SyntaxFactory.VariableDeclaration(
+							type,
+							SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(new [] {
+								SyntaxFactory.VariableDeclarator(name).WithInitializer(
+									SyntaxFactory.EqualsValueClause(expr.SkipParens())
+								)
+							})
+						)
+					).WithAdditionalAnnotations(Formatter.Annotation);
+
+					SyntaxNode newRoot = root;
+
+					SyntaxNode replaceNode = expr;
+					while (replaceNode.Parent is ParenthesizedExpressionSyntax)
+						replaceNode = replaceNode.Parent;
+
+					if (replaceNode.Parent is ExpressionStatementSyntax) {
+						newRoot = root.ReplaceNode(replaceNode.Parent, varDecl);
+					} else {
+						var identifierExpression = SyntaxFactory.IdentifierName(name);
+						newRoot = root.ReplaceNode(replaceNode, identifierExpression.WithAdditionalAnnotations(Formatter.Annotation));
+
+						var containing = newRoot.FindNode(expr.Span);
+						while (!(containing.Parent is BlockSyntax)) {
+							containing = containing.Parent;
+						}
+						newRoot = newRoot.InsertNodesBefore(containing, new [] { varDecl });
+//						script.Link(varDecl.Variables.First().NameToken, identifierExpression);
+					}
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}
+			));
+
+			if (nodeList.Count > 1) {
+				result.Add(CodeActionFactory.Create(
+					expr.Span,
+					DiagnosticSeverity.Info,
+					string.Format("Declare local variable (replace '{0}' occurrences)", nodeList.Count),
+					t2 => {
+						var resolveResult = model.GetTypeInfo(expr);
+						var guessedType = resolveResult.Type ?? resolveResult.ConvertedType;
+						var name = CreateMethodDeclarationAction.CreateBaseName(expr, guessedType);
+//					name = context.GetLocalNameProposal(name, expr.StartLocation);
+						var type = /*context.UseExplicitTypes ? context.CreateShortType(guessedType) :*/ SyntaxFactory.ParseTypeName("var");
+						var varDecl = SyntaxFactory.LocalDeclarationStatement(
+							SyntaxFactory.VariableDeclaration(
+								type,
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(new [] {
+									SyntaxFactory.VariableDeclarator(name).WithInitializer(
+										SyntaxFactory.EqualsValueClause(expr.SkipParens())
+									)
+								})
+							)
+						).WithAdditionalAnnotations(Formatter.Annotation);
+
+						SyntaxNode newRoot = root.TrackNodes(nodeList);
+
+						SyntaxNode replaceNode = nodeList[0];
+
+						var identifierExpression = SyntaxFactory.IdentifierName(name).WithAdditionalAnnotations(Formatter.Annotation);
+
+						if (replaceNode.Parent is ExpressionStatementSyntax) {
+							Console.WriteLine (1);
+							newRoot = newRoot.ReplaceNode(replaceNode.Parent, varDecl);
+						} else {
+							Console.WriteLine (2);
+							var curReplaceNode = newRoot.GetCurrentNode(replaceNode);
+							while (curReplaceNode.Parent is ParenthesizedExpressionSyntax)
+								curReplaceNode = curReplaceNode.Parent;
+
+							newRoot = newRoot.ReplaceNode(curReplaceNode, identifierExpression);
+
+							var containing = newRoot.FindNode(TextSpan.FromBounds(expr.SpanStart, expr.SpanStart));
+							while (!(containing.Parent is BlockSyntax)) {
+								if (containing.Parent == null)
+									break;
+								containing = containing.Parent;
+							}
+							newRoot = newRoot.InsertNodesBefore(containing, new [] { varDecl });
+//						script.Link(varDecl.Variables.First().NameToken, identifierExpression);
+						}
+
+						for (int i = 1; i < nodeList.Count; i++) {
+							var curReplaceNode = newRoot.GetCurrentNode(nodeList[i]);
+							while (curReplaceNode.Parent is ParenthesizedExpressionSyntax)
+								curReplaceNode = curReplaceNode.Parent;
+							newRoot = newRoot.ReplaceNode(curReplaceNode, identifierExpression);
+						}
+
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				));
+			}
+
+			return result;
+
+
+		}
+
 	}
 }

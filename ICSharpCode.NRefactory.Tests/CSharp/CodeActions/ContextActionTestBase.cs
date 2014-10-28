@@ -91,13 +91,48 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			return GetActions(new T(), input, out workspace, out doc);
 		}
 
+		static string ParseText(string input, out TextSpan span)
+		{
+			int start = -1, end = -1;
+			var result = new StringBuilder(input.Length);
+			int upper = input.Length - 1;
+			for (int i = 0; i < upper; i++) {
+				var ch = input [i];
+				if (ch == '$') {
+					start = end = i;
+					continue;
+				}
+				if (ch == '<' && input [i + 1] == '-') {
+					start = i;
+					i++;
+					continue;
+				}
+				if (ch == '-' && input [i + 1] == '>') {
+					end = i;
+					i++;
+					continue;
+				}
+				result.Append(ch);
+			}
+
+			if (upper >= 0) {
+				var lastChar = input[upper];
+				if (lastChar == '$') {
+					start = end = upper;
+				} else {
+					result.Append(lastChar);
+				}
+			}
+
+			span = TextSpan.FromBounds(start, end);
+			return result.ToString();
+		}
+
 		static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions(CodeRefactoringProvider action, string input, out InspectionActionTestBase.TestWorkspace workspace, out Document doc)
 		{
-			var idx = input.IndexOf("$", StringComparison.Ordinal);
-			if (idx > 0)
-				input = input.Substring(0, idx) + input.Substring(idx + 1);
-			var syntaxTree = CSharpSyntaxTree.ParseText(input);
-			 workspace = new InspectionActionTestBase.TestWorkspace();
+			TextSpan span;
+			string text = ParseText(input, out span);
+			workspace = new InspectionActionTestBase.TestWorkspace();
 			var projectId = ProjectId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
 			workspace.Options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInControlBlocks, false);
@@ -131,7 +166,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 						"a.cs",
 						null,
 						SourceCodeKind.Regular,
-						TextLoader.From(TextAndVersion.Create(SourceText.From(input), VersionStamp.Create())) 
+						TextLoader.From(TextAndVersion.Create(SourceText.From(text), VersionStamp.Create())) 
 					)
 				},
 				null,
@@ -139,7 +174,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			)
 			);
 			doc = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
-			var result = action.GetRefactoringsAsync(new CodeRefactoringContext(doc, TextSpan.FromBounds(idx, idx), default(CancellationToken))).Result;
+			var result = action.GetRefactoringsAsync(new CodeRefactoringContext(doc, span, default(CancellationToken))).Result;
 			if (result == null)
 				return null;
 			return result.ToList();
