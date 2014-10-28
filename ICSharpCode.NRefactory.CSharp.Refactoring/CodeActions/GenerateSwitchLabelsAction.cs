@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					fields.Select(f => GetSectionFromSymbol(model, f, span).WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(SyntaxFactory.BreakStatement()))));
 
 				//default section - if it exists, remove it, add in our new sections, and replace it
-				var defaultSection = switchStatement.Sections.FirstOrDefault(s => s.Labels.Any(l => ((CaseSwitchLabelSyntax)l).Value == null));
+				var defaultSection = switchStatement.Sections.FirstOrDefault(s => s.Labels.Any(l => l is DefaultSwitchLabelSyntax));
 
 				if (defaultSection == null)
 					newSections = switchStatement.Sections.AddRange(newSections);
