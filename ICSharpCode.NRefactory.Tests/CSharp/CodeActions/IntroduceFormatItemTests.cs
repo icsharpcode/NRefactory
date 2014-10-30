@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				"{" + Environment.NewLine +
 				"	void Test ()" + Environment.NewLine +
 				"	{" + Environment.NewLine +
-				"		string str = string.Format (\"Hello {0}!\", \"World\");" + Environment.NewLine +
+				"		string str = string.Format(\"Hello {0}!\", \"World\");" + Environment.NewLine +
 				"	}" + Environment.NewLine +
 				"}", result);
 		}
@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				"{" + Environment.NewLine +
 				"	void Test ()" + Environment.NewLine +
 				"	{" + Environment.NewLine +
-				"		string str = string.Format (\"<-Hello-> {0}!\", \"World\");" + Environment.NewLine +
+				"		string str = string.Format(\"<-Hello-> {0}!\", \"World\");" + Environment.NewLine +
 				"	}" + Environment.NewLine +
 				"}"
 			);
@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				"{" + Environment.NewLine +
 				"	void Test ()" + Environment.NewLine +
 				"	{" + Environment.NewLine +
-				"		string str = string.Format (\"{1} {0}!\", \"World\", \"Hello\");" + Environment.NewLine +
+				"		string str = string.Format(\"{1} {0}!\", \"World\", \"Hello\");" + Environment.NewLine +
 				"	}" + Environment.NewLine +
 				"}", result);
 		}

@@ -53,22 +53,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var document = context.Document;
 			var span = context.Span;
+			if (span.Start == span.End)
+				return Enumerable.Empty<CodeAction>();
+
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
-		}
-//		readonly static MemberReferenceExpression PrototypeFormatReference = new PrimitiveType ("string").Member("Format");
-//		
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			if (!context.IsSomethingSelected) {
-//				yield break;
-//			}
-//			var pexpr = context.GetNode<PrimitiveExpression>();
-//			if (pexpr == null || !(pexpr.Value is string)) {
-//				yield break;
-//			}
+
+			var token = root.FindToken(span.Start);
+			if (!token.IsKind(SyntaxKind.StringLiteralToken) || token.Span.End < span.End)
+				return Enumerable.Empty<CodeAction>();
 //			if (pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal)) {
 //				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 1) && new TextLocation(context.Location.Line, context.Location.Column + 1) < pexpr.EndLocation)) {
 //					yield break;
@@ -78,47 +72,53 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //					yield break;
 //				}
 //			}
-//
-//			yield return new CodeAction (context.TranslateString("Introduce format item"), script => {
-//				var invocation = context.GetNode<InvocationExpression>();
-//				if (invocation != null && invocation.Target.IsMatch(PrototypeFormatReference)) {
-//					AddFormatCallToInvocation(context, script, pexpr, invocation);
-//					return;
-//				}
-//			
-//				var arg = CreateFormatArgument(context);
-//				var newInvocation = new InvocationExpression (PrototypeFormatReference.Clone()) {
-//					Arguments = { CreateFormatString(context, pexpr, 0), arg }
-//				};
-//			
-//				script.Replace(pexpr, newInvocation);
-//				script.Select(arg);
-//			}, pexpr);
-//
-//		}
-//		
-//		void AddFormatCallToInvocation (SemanticModel context, Script script, PrimitiveExpression pExpr, InvocationExpression invocation)
-//		{
-//			var newInvocation = (InvocationExpression)invocation.Clone ();
-//			
-//			newInvocation.Arguments.First ().ReplaceWith (CreateFormatString (context, pExpr, newInvocation.Arguments.Count () - 1));
-//			newInvocation.Arguments.Add (CreateFormatArgument (context));
-//			
-//			script.Replace (invocation, newInvocation);
-//		}
-//		
-//		static PrimitiveExpression CreateFormatArgument (SemanticModel context)
-//		{
-//			return new PrimitiveExpression (context.SelectedText);
-//		}
-//		
-//		static PrimitiveExpression CreateFormatString(SemanticModel context, PrimitiveExpression pExpr, int argumentNumber)
-//		{
-//			var start = context.GetOffset(pExpr.StartLocation);
-//			var end = context.GetOffset(pExpr.EndLocation);
-//			var sStart = context.GetOffset(context.SelectionStart);
-//			var sEnd = context.GetOffset(context.SelectionEnd);
-//			return new PrimitiveExpression("", context.GetText(start, sStart - start) + "{" + argumentNumber + "}" + context.GetText(sEnd, end - sEnd));
-//		}
+
+			return new[] { 
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Introduce format item", 
+					t2 => {
+						var parent = token.Parent;
+						var tokenText = token.ToString();
+
+						int argumentNumber = 0;
+						InvocationExpressionSyntax invocationExpression = null;
+						if (parent.Parent.IsKind(SyntaxKind.Argument)) {
+							invocationExpression = (InvocationExpressionSyntax)parent.Parent.Parent.Parent;
+							var info = model.GetSymbolInfo(invocationExpression);
+							var method = info.Symbol as IMethodSymbol;
+							if (method.Name == "Format" && method.ContainingType.SpecialType == SpecialType.System_String) {
+								argumentNumber = invocationExpression.ArgumentList.Arguments.Count - 1;
+							} else {
+								invocationExpression = null;
+							}
+						}
+
+						var endOffset = span.End - token.SpanStart - 2;
+						string formatText = tokenText.Substring(1, span.Start - token.SpanStart - 1) + "{" + argumentNumber + "}" + tokenText.Substring(endOffset, tokenText.Length - endOffset - 1);
+
+						string argumentText = tokenText.Substring(span.Start - token.SpanStart, span.Length - 2);
+
+						InvocationExpressionSyntax newInvocation;
+						if (invocationExpression != null) {
+							parent = invocationExpression;
+							var argumentList = new List<ArgumentSyntax> ();
+							argumentList.Add(SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(formatText))));
+							argumentList.AddRange(invocationExpression.ArgumentList.Arguments.Skip(1));
+							argumentList.Add(SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(argumentText))));
+							newInvocation = invocationExpression.WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(argumentList)));
+						} else {
+							newInvocation = SyntaxFactory.InvocationExpression(SyntaxFactory.ParseExpression("string.Format"), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new[] {
+								SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(formatText))),
+								SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(argumentText)))
+							})));
+						}
+
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(parent, newInvocation.WithAdditionalAnnotations(Formatter.Annotation))));
+					}
+				)
+			};
+		}
 	}
 }
