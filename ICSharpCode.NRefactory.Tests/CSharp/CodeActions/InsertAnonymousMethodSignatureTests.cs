@@ -35,30 +35,31 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class InsertAnonymousMethodSignatureTests : ContextActionTestBase
 	{
 		[Test()]
-		public void Test ()
+		public void Test()
 		{
-			string result = RunContextAction (
-				new InsertAnonymousMethodSignatureAction (),
+			string result = RunContextAction(
+				                         new InsertAnonymousMethodSignatureAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        EventHandler handler = $delegate {" + Environment.NewLine +
+				                         "        };" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		EventHandler handler = $delegate {" + Environment.NewLine +
-				"		};" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"using System;" + Environment.NewLine +
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		EventHandler handler = delegate(object sender, EventArgs e) {" + Environment.NewLine +
-				"		};" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        EventHandler handler = delegate (object sender, EventArgs e)" + Environment.NewLine +
+				"        {" + Environment.NewLine +
+				"        };" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 	}
