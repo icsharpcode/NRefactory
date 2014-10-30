@@ -100,7 +100,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			};
 		}
 
-		public string GetNameProposal(string name, SemanticModel model, SyntaxNode node)
+		public static string GetNameProposal(string name, SemanticModel model, SyntaxNode node)
 		{
 			string baseName = char.ToLower(name[0]) + name.Substring(1);
 			var enclosingClass = node.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().FirstOrDefault();

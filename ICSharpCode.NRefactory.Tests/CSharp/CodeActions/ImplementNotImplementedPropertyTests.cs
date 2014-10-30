@@ -32,46 +32,54 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ImplementNotImplementedPropertyTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestGetter ()
+		public void TestGetter()
 		{
-			Test<ImplementNotImplementedProperty> (@"class TestClass
+			Test<ImplementNotImplementedProperty>(@"class TestClass
 {
-	string $Test { get { throw new System.NotImplementedException (); } }
+    string $Test { get { throw new System.NotImplementedException (); } }
 }", @"class TestClass
 {
-	readonly string test;
-	string Test {
-		get {
-			return test;
-		}
-	}
+    readonly string test;
+
+    string Test
+    {
+        get
+        {
+            return test;
+        }
+    }
 }");
 		}
 
 		[Test]
-		public void TestGetterAndSetter ()
+		public void TestGetterAndSetter()
 		{
-			Test<ImplementNotImplementedProperty> (@"class TestClass
+			Test<ImplementNotImplementedProperty>(@"class TestClass
 {
-	string $Test {
-		get {
-			throw new System.NotImplementedException ();
-		}
-		set {
-			throw new System.NotImplementedException ();
-		}
-	}
+    string $Test {
+        get {
+            throw new System.NotImplementedException ();
+        }
+        set {
+            throw new System.NotImplementedException ();
+        }
+    }
 }", @"class TestClass
 {
-	string test;
-	string Test {
-		get {
-			return test;
-		}
-		set {
-			test = value;
-		}
-	}
+    string test;
+
+    string Test
+    {
+        get
+        {
+            return test;
+        }
+
+        set
+        {
+            test = value;
+        }
+    }
 }");
 		}
 
@@ -79,44 +87,41 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestWrongLocation()
 		{
-			TestWrongContext<ImplementNotImplementedProperty> (@"class TestClass
+			TestWrongContext<ImplementNotImplementedProperty>(@"class TestClass
 {
-	public $string Test {
-		get {
-			throw new System.NotImplementedException ();
-		}
-		set {
-			throw new System.NotImplementedException ();
-		}
-	}
+    public $string Test {
+        get {
+            throw new System.NotImplementedException ();
+        }
+        set {
+            throw new System.NotImplementedException ();
+        }
+    }
 }");
 
-			TestWrongContext<ImplementNotImplementedProperty> (@"class TestClass
+			TestWrongContext<ImplementNotImplementedProperty>(@"class TestClass
 {
-	public string $FooBar.Test {
-		get {
-			throw new System.NotImplementedException ();
-		}
-		set {
-			throw new System.NotImplementedException ();
-		}
-	}
+    public string $FooBar.Test {
+        get {
+            throw new System.NotImplementedException ();
+        }
+        set {
+            throw new System.NotImplementedException ();
+        }
+    }
 }");
 
-			TestWrongContext<ImplementNotImplementedProperty> (@"class TestClass
+			TestWrongContext<ImplementNotImplementedProperty>(@"class TestClass
 {
-	public string Test ${
-		get {
-			throw new System.NotImplementedException ();
-		}
-		set {
-			throw new System.NotImplementedException ();
-		}
-	}
+    public string Test ${
+        get {
+            throw new System.NotImplementedException ();
+        }
+        set {
+            throw new System.NotImplementedException ();
+        }
+    }
 }");
 		}
-
-
 	}
 }
-

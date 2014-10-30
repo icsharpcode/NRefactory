@@ -52,73 +52,80 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+			var property = root.FindNode(span) as PropertyDeclarationSyntax;
+			if (property == null || !property.Identifier.Span.Contains(span))
+				return Enumerable.Empty<CodeAction>();
+			if (property.AccessorList.Accessors.Any(acc => !IsNotImplemented(model, acc.Body, cancellationToken)))
+				return Enumerable.Empty<CodeAction>();
+			return new[] {
+				CodeActionFactory.Create(
+					property.Identifier.Span, 
+					DiagnosticSeverity.Info, 
+					"Implement property",
+					t2 => {
+						string name = CreateBackingStoreAction.GetNameProposal(property.Identifier.ValueText, model, root);
+
+						//create our backing store
+						var backingStore = SyntaxFactory.FieldDeclaration(
+							SyntaxFactory.VariableDeclaration(
+								property.Type,
+								SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(SyntaxFactory.VariableDeclarator(name)))
+						).WithModifiers(!property.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) ? 
+							SyntaxFactory.TokenList() :
+							SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)))
+							.WithAdditionalAnnotations(Formatter.Annotation);
+
+						//create our new property
+						var fieldExpression = name == "value" ? 
+							(ExpressionSyntax)SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(), SyntaxFactory.IdentifierName("value")) : 
+							SyntaxFactory.IdentifierName(name);
+
+						var list = new SyntaxList<AccessorDeclarationSyntax>();
+
+						var hasSetter = property.AccessorList.Accessors.Any(acc => acc.IsKind(SyntaxKind.SetAccessorDeclaration));
+						if (property.AccessorList.Accessors.Any(acc => acc.IsKind(SyntaxKind.GetAccessorDeclaration))) {
+												var getBody = SyntaxFactory.Block(SyntaxFactory.ReturnStatement(fieldExpression));
+							var getter = SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration, getBody);
+							list = list.Add(getter);
+
+							if (!hasSetter)
+								backingStore = backingStore.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)));
+						}
+						
+						if (hasSetter) {
+							var setBody = SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, fieldExpression,
+								              SyntaxFactory.IdentifierName("value"))));
+							var setter = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration, setBody);
+							list = list.Add(setter);
+						}
+
+						var newPropAnno = new SyntaxAnnotation();
+						var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(list))
+							.WithAdditionalAnnotations(newPropAnno, Formatter.Annotation);
+
+						var newRoot = root.ReplaceNode(property, newProperty);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot.InsertNodesBefore(newRoot.GetAnnotatedNodes(newPropAnno).First(), new List<SyntaxNode>() {
+							backingStore
+						})));
+					})
+			};
 		}
-//		bool IsNotImplemented(SemanticModel context, BlockStatement body)
-//		{
-//			if (body.IsNull)
-//				return true;
-//			if (body.Statements.Count == 1) {
-//				var throwStmt = body.Statements.First () as ThrowStatement;
-//				if (throwStmt != null) {
-//					return context.Resolve (throwStmt.Expression).Type.FullName == "System.NotImplementedException";
-//				}
-//			}
-//			return false;
-//		}
-//
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var property = context.GetNode<PropertyDeclaration> ();
-//			if (property == null || !property.NameToken.Contains(context.Location))
-//				yield break;
-//
-//			if (!IsNotImplemented (context, property.Getter.Body) ||
-//			    !IsNotImplemented (context, property.Setter.Body)) {
-//				yield break;
-//			}
-//			
-//			yield return new CodeAction(context.TranslateString("Implement property"), script => {
-//				string backingStoreName = context.GetNameProposal (property.Name);
-//				
-//				// create field
-//				var backingStore = new FieldDeclaration ();
-//				if (property.Modifiers.HasFlag (Modifiers.Static))
-//					backingStore.Modifiers |= Modifiers.Static;
-//
-//				if (property.Setter.IsNull)
-//					backingStore.Modifiers |= Modifiers.Readonly;
-//				
-//				backingStore.ReturnType = property.ReturnType.Clone ();
-//				
-//				var initializer = new VariableInitializer (backingStoreName);
-//				backingStore.Variables.Add (initializer);
-//				
-//				// create new property & implement the get/set bodies
-//				var newProperty = (PropertyDeclaration)property.Clone ();
-//				Expression id1;
-//				if (backingStoreName == "value")
-//					id1 = new ThisReferenceExpression().Member("value");
-//				else
-//					id1 = new IdentifierExpression (backingStoreName);
-//				Expression id2 = id1.Clone();
-//				newProperty.Getter.Body = new BlockStatement () {
-//					new ReturnStatement (id1)
-//				};
-//				if (!property.Setter.IsNull) {
-//					newProperty.Setter.Body = new BlockStatement () {
-//						new AssignmentExpression (id2, AssignmentOperatorType.Assign, new IdentifierExpression ("value"))
-//					};
-//				}
-//				
-//				script.Replace (property, newProperty);
-//				script.InsertBefore (property, backingStore);
-//				if (!property.Setter.IsNull)
-//					script.Link (initializer, id1, id2);
-//				else
-//					script.Link (initializer, id1);
-//			}, property.NameToken);
-//		}
+
+		static bool IsNotImplemented(SemanticModel context, BlockSyntax body, CancellationToken cancellationToken)
+		{
+			if (body.Statements.Count == 0)
+				return true;
+			if (body.Statements.Count == 1) {
+				var throwStmt = body.Statements.First () as ThrowStatementSyntax;
+				if (throwStmt != null) {
+					var symbolInfo = context.GetSymbolInfo(throwStmt.Expression, cancellationToken);
+					var method = symbolInfo.Symbol as IMethodSymbol;
+					if (method != null && method.ContainingType.Name == "NotImplementedException" && method.ContainingType.ContainingNamespace.Name == "System")
+						return true;
+					return false;
+				}
+			}
+			return false;
+		}
 	}
 }
-
