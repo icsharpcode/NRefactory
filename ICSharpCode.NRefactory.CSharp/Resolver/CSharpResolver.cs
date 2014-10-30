@@ -1833,7 +1833,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		{
 			var lookup = CreateMemberLookup();
 			List<List<IMethod>> extensionMethodGroups = new List<List<IMethod>>();
-			foreach (var inputGroup in GetAllExtensionMethods()) {
+			foreach (var inputGroup in GetAllExtensionMethods(lookup)) {
 				List<IMethod> outputGroup = new List<IMethod>();
 				foreach (var method in inputGroup) {
 					if (name != null && method.Name != name)
@@ -1927,7 +1927,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 		/// Gets all extension methods available in the current using scope.
 		/// This list includes inaccessible methods.
 		/// </summary>
-		IList<List<IMethod>> GetAllExtensionMethods()
+		IList<List<IMethod>> GetAllExtensionMethods(MemberLookup lookup)
 		{
 			var currentUsingScope = context.CurrentUsingScope;
 			if (currentUsingScope == null)
@@ -1941,14 +1941,14 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			for (ResolvedUsingScope scope = currentUsingScope; scope != null; scope = scope.Parent) {
 				INamespace ns = scope.Namespace;
 				if (ns != null) {
-					m = GetExtensionMethods(ns).ToList();
+					m = GetExtensionMethods(lookup, ns).ToList();
 					if (m.Count > 0)
 						extensionMethodGroups.Add(m);
 				}
 				
 				m = scope.Usings
 					.Distinct()
-					.SelectMany(importedNamespace => GetExtensionMethods(importedNamespace))
+					.SelectMany(importedNamespace =>  GetExtensionMethods(lookup, importedNamespace))
 					.ToList();
 				if (m.Count > 0)
 					extensionMethodGroups.Add(m);
@@ -1956,12 +1956,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			return LazyInit.GetOrSet(ref currentUsingScope.AllExtensionMethods, extensionMethodGroups);
 		}
 		
-		IEnumerable<IMethod> GetExtensionMethods(INamespace ns)
+		IEnumerable<IMethod> GetExtensionMethods(MemberLookup lookup, INamespace ns)
 		{
 			// TODO: maybe make this a property on INamespace?
 			return
 				from c in ns.Types
-				where c.IsStatic && c.HasExtensionMethods && c.TypeParameters.Count == 0
+				where c.IsStatic && c.HasExtensionMethods && c.TypeParameters.Count == 0 && lookup.IsAccessible(c, false)
 				from m in c.Methods
 				where m.IsExtensionMethod
 				select m;
