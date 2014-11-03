@@ -42,30 +42,46 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Inverts an '?:' expression.")]
 	[ExportCodeRefactoringProvider("Invert conditional operator", LanguageNames.CSharp)]
-	public class InvertConditionalOperatorAction : SpecializedCodeAction<ConditionalExpressionSyntax>
+	public class InvertConditionalOperatorAction : CodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ConditionalExpressionSyntax node, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
-			yield break;
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+
+			var token = root.FindToken(span.Start);
+
+			var node = token.Parent;
+			if (node.IsKind(SyntaxKind.IdentifierName) && node.SpanStart == span.Start) {
+				node = node.Parent;
+				if (node.Parent is ConditionalExpressionSyntax && node.Parent.SpanStart == span.Start && ((ConditionalExpressionSyntax)node.Parent).Condition == node)
+					node = node.Parent;
+			}
+
+			var condExpr = node as ConditionalExpressionSyntax;
+			if (condExpr == null)
+				return Enumerable.Empty<CodeAction>();
+			return new []  { 
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					"Invert '?:'",
+					t2 => {
+						var newRoot = root.ReplaceNode(
+							condExpr, 
+							condExpr
+							.WithCondition(CSharpUtil.InvertCondition(condExpr.Condition))
+							.WithWhenTrue(condExpr.WhenFalse)
+							.WithWhenFalse(condExpr.WhenTrue)
+							.WithAdditionalAnnotations(Formatter.Annotation)
+						);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
-//		protected override CodeAction GetAction(SemanticModel context, ConditionalExpression conditionalExpr)
-//		{
-//			if (context.Location != conditionalExpr.Condition.StartLocation && context.Location < conditionalExpr.Condition.EndLocation ||
-//			    context.Location != conditionalExpr.TrueExpression.StartLocation && conditionalExpr.TrueExpression.Contains(context.Location) ||
-//			    context.Location != conditionalExpr.FalseExpression.StartLocation && conditionalExpr.FalseExpression.Contains(context.Location))
-//				return null;
-//
-//			var node = conditionalExpr.GetNodeAt(context.Location);
-//			if (node == null)
-//				return null;
-//
-//			return new CodeAction (context.TranslateString("Invert '?:'"), script => {
-//				script.Replace(conditionalExpr.Condition, CSharpUtil.InvertCondition(conditionalExpr.Condition.Clone()));
-//				script.Replace(conditionalExpr.TrueExpression, conditionalExpr.FalseExpression.Clone());
-//				script.Replace(conditionalExpr.FalseExpression, conditionalExpr.TrueExpression.Clone());
-//				script.FormatText(conditionalExpr);
-//			}, node);
-//		}
 	}
 }
-
