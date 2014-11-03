@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			if (condition is PrefixUnaryExpressionSyntax) {
 				var uOp = (PrefixUnaryExpressionSyntax)condition;
-				if (uOp.IsParentKind(SyntaxKind.LogicalNotExpression)) {
+				if (uOp.IsKind(SyntaxKind.LogicalNotExpression)) {
 					if (!(uOp.Parent is ExpressionSyntax))
 						return uOp.Operand.SkipParens();
 					return uOp.Operand;
@@ -137,13 +137,24 @@ namespace ICSharpCode.NRefactory6.CSharp
 			throw new ArgumentOutOfRangeException("op");
 		}
 
-//		/// <summary>
-//		/// Returns true, if the specified operator is a relational operator
-//		/// </summary>
-//		public static bool IsRelationalOperator(BinaryOperatorType op)
-//		{
-//			return NegateRelationalOperator(op) != BinaryOperatorType.Any;
-//		}
+		/// <summary>
+		/// Returns true, if the specified operator is a relational operator
+		/// </summary>
+		public static bool IsRelationalOperator(SyntaxKind op)
+		{
+			switch (op) {
+				case SyntaxKind.EqualsExpression:
+				case SyntaxKind.NotEqualsExpression:
+				case SyntaxKind.GreaterThanExpression:
+				case SyntaxKind.GreaterThanOrEqualExpression:
+				case SyntaxKind.LessThanExpression:
+				case SyntaxKind.LessThanOrEqualExpression:
+				case SyntaxKind.LogicalOrExpression:
+				case SyntaxKind.LogicalAndExpression:
+					return true;
+			}
+			return false;
+		}
 
 		/// <summary>
 		/// Get negation of the condition operator

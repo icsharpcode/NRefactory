@@ -53,41 +53,44 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+			ExpressionSyntax expr;
+			SyntaxToken token;
+			if (!GetLogicalExpression (root, span, out expr, out token))
+				return Enumerable.Empty<CodeAction>();
+			return new[] { 
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					string.Format ("Negate '{0}'", expr),
+					t2 => {
+						var newRoot = root.ReplaceNode(
+							expr,
+							CSharpUtil.InvertCondition(expr).WithAdditionalAnnotations(Formatter.Annotation)
+						);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				) 
+			};
 		}
-//		public static bool GetLogicalExpression (SemanticModel context, out Expression expr, out AstNode token)
-//		{
-//			expr = null;
-//			token = null;
-//			var bOp = context.GetNode<BinaryOperatorExpression>();
-//			if (bOp != null && bOp.OperatorToken.Contains(context.Location) && CSharpUtil.IsRelationalOperator (bOp.Operator)) {
-//				expr = bOp;
-//				token = bOp.OperatorToken;
-//				return true;
-//			}
-//
-//			var uOp = context.GetNode<UnaryOperatorExpression>();
-//			if (uOp != null && uOp.OperatorToken.Contains(context.Location) && uOp.Operator == UnaryOperatorType.Not) {
-//				expr = uOp;
-//				token = uOp.OperatorToken;
-//				return true;
-//			}
-//			return false;
-//		}
-//
-//		public override System.Collections.Generic.IEnumerable<CodeAction> GetActions(SemanticModel context)
-//		{
-//			Expression expr = null;
-//			AstNode token;
-//			if (!GetLogicalExpression (context, out expr, out token))
-//				yield break;
-//			yield return new CodeAction (
-//				string.Format (context.TranslateString ("Negate '{0}'"), expr),
-//				script => {
-//					script.Replace (expr, CSharpUtil.InvertCondition(expr));
-//				}, 
-//				token
-//			);
-//		}
+
+		public static bool GetLogicalExpression (SyntaxNode root, TextSpan span, out ExpressionSyntax expr, out SyntaxToken token)
+		{
+			expr = null;
+			token = default(SyntaxToken);
+			var bOp = root.FindNode(span) as BinaryExpressionSyntax;
+			if (bOp != null && bOp.OperatorToken.Span.Contains(span) && CSharpUtil.IsRelationalOperator (bOp.CSharpKind())) {
+				expr = bOp;
+				token = bOp.OperatorToken;
+				return true;
+			}
+
+			var uOp = root.FindNode(span) as PrefixUnaryExpressionSyntax;
+			if (uOp != null && uOp.OperatorToken.Span.Contains(span) && uOp.IsKind(SyntaxKind.LogicalNotExpression)) {
+				expr = uOp;
+				token = uOp.OperatorToken;
+				return true;
+			}
+			return false;
+		}
 	}
 }
