@@ -12,29 +12,29 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<InvertIfAndSimplify>(
 				@"class TestClass
 {
-	void Test ()
-	{
-		$if (true) {
-			Case1 ();
-			Case2 ();
-		}
+    void Test ()
+    {
+        $if (true) {
+            Case1();
+            Case2();
+        }
         else 
         {
             return;
         }
-	}
+    }
 }",
 				@"class TestClass
 {
-	void Test ()
-	{
-		if (false)
-			return;
-		Case1 ();
-		Case2 ();
-	}
+    void Test ()
+    {
+        if (false)
+            return;
+        Case1();
+        Case2();
+    }
 }"
-				);
+			);
 		}
 
 		[Test]
@@ -43,30 +43,31 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<InvertIfAndSimplify>(
 				@"class TestClass
 {
-	int Test ()
-	{
-		$if (true) {
-			Case1 ();
-		}
-		else 
-		{
-			return 0;
-			testDummyCode ();
-		}
-	}
+    int Test ()
+    {
+        $if (true) {
+            Case1();
+        }
+        else 
+        {
+            return 0;
+            testDummyCode();
+        }
+    }
 }",
 				@"class TestClass
 {
-	int Test ()
-	{
-		if (false) {
-			return 0;
-			testDummyCode ();
-		}
-		Case1 ();
-	}
+    int Test ()
+    {
+        if (false)
+        {
+            return 0;
+            testDummyCode();
+        }
+        Case1();
+    }
 }"
-				);
+			);
 
 		}
 
@@ -76,27 +77,27 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<InvertIfAndSimplify>(
 				@"class TestClass
 {
-	int Test ()
-	{
-		$if (true) {
-			Case1 ();
-		}
+    int Test ()
+    {
+        $if (true) {
+            Case1();
+        }
         else 
             continue;
         return 0;
-	}
+    }
 }",
 				@"class TestClass
 {
-	int Test ()
-	{
-		if (false)
-			continue;
-		Case1 ();
-		return 0;
-	}
+    int Test ()
+    {
+        if (false)
+            continue;
+        Case1();
+        return 0;
+    }
 }"
-				);
+			);
 		}
 
 		[Test]
@@ -105,30 +106,31 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			Test<InvertIfAndSimplify>(
 				@"class TestClass
 {
-	int Test ()
-	{
-		$if (true) {
-			Case1 ();
-		}
-		else 
-		{
-			//TestComment
-			return 0;
-		}
-	}
+    int Test ()
+    {
+        $if (true) {
+            Case1();
+        }
+        else 
+        {
+            //TestComment
+            return 0;
+        }
+    }
 }",
 				@"class TestClass
 {
-	int Test ()
-	{
-		if (false) {
-			//TestComment
-			return 0;
-		}
-		Case1 ();
-	}
+    int Test ()
+    {
+        if (false)
+        {
+            //TestComment
+            return 0;
+        }
+        Case1();
+    }
 }"
-				);
+			);
 
 		}
 	}

@@ -24,7 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -36,7 +35,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -45,6 +43,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Invert If and Simplify", LanguageNames.CSharp)]
 	public class InvertIfAndSimplify : CodeRefactoringProvider
 	{
+		// if (condition) {CodeBlock();}else { return|break|continue;} 
+		// will be reduced to:
+		//if (!condition) return|break|continue;
+		//CodeBlock();
+
 		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
@@ -52,62 +55,67 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var ifStatement = GetIfElseStatement(root, span);
+			if (ifStatement == null)
+				return Enumerable.Empty<CodeAction>();
+			return new[] { 
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Simplify if in loops", 
+					t2 => {
+						var newRoot = root.ReplaceNode(ifStatement, GenerateNewScript(ifStatement));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				) 
+			};
+		}
+
+		static StatementSyntax GenerateNewTrueStatement(StatementSyntax falseStatement)
+		{
+			var blockStatement = falseStatement as BlockSyntax;
+			if (blockStatement != null) {
+				if (blockStatement.Statements.Count == 1) {
+					var stmt = blockStatement.Statements.First();
+					if (stmt.GetLeadingTrivia().All(triva => triva.IsKind(SyntaxKind.WhitespaceTrivia)))
+						return stmt;
+				}
+			}
+			return falseStatement;
+		}
+
+		static IEnumerable<SyntaxNode> GenerateNewScript(IfStatementSyntax ifStatement)
+		{
+			yield return SyntaxFactory.IfStatement(
+				CSharpUtil.InvertCondition(ifStatement.Condition),
+				GenerateNewTrueStatement(ifStatement.Else.Statement)
+			).WithAdditionalAnnotations(Formatter.Annotation);
+
+			var body = ifStatement.Statement as BlockSyntax;
+			if (body != null) {
+				foreach (var stmt in body.Statements) {
+					yield return stmt.WithAdditionalAnnotations(Formatter.Annotation);
+				}
+			} else {
+				yield return ifStatement.Statement.WithAdditionalAnnotations(Formatter.Annotation);
+			}
+		}
+
+		static IfStatementSyntax GetIfElseStatement(SyntaxNode root, TextSpan span)
+		{
+			var result = root.FindNode(span) as IfStatementSyntax;
+			if (result == null || !result.IfKeyword.Span.Contains(span) || result.Else == null)
+				return null;
+
+			var falseStatement = result.Else.Statement;
+			var isQuitingStatement = falseStatement;
+			var blockStatement = falseStatement as BlockSyntax;
+			if (blockStatement != null) {
+				isQuitingStatement = blockStatement.Statements.FirstOrDefault() ?? blockStatement;
+			}
+			if (isQuitingStatement.IsKind(SyntaxKind.ReturnStatement) || isQuitingStatement.IsKind(SyntaxKind.ContinueStatement) || isQuitingStatement.IsKind(SyntaxKind.BreakStatement))
+				return result;
 			return null;
 		}
-//		readonly InsertParenthesesVisitor _insertParenthesesVisitor = new InsertParenthesesVisitor();
-//
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			// if (condition) {CodeBlock();}else { return|break|continue;} 
-//			// will be reduced to:
-//			//if (!condition) return|break|continue;
-//			//CodeBlock();
-//
-//			var ifStatement = GetIfElseStatement(context);
-//			if (ifStatement == null)
-//				yield break;
-//			yield return new CodeAction(context.TranslateString("Simplify if in loops"), script => GenerateNewScript(
-//				script, ifStatement), ifStatement);
-//		}
-//
-//		static Statement GenerateNewTrueStatement(Statement falseStatement)
-//		{
-//			var blockStatement = falseStatement as BlockStatement;
-//			if (blockStatement != null) {
-//				if (blockStatement.Children.Count(n => n.Role != Roles.NewLine && n.Role != Roles.LBrace && n.Role != Roles.RBrace) == 1)
-//					return blockStatement.Statements.First().Clone ();
-//			}
-//			return falseStatement.Clone();
-//		}
-//
-//		void GenerateNewScript(Script script, IfElseStatement ifStatement)
-//		{
-//			var mergedIfStatement = new IfElseStatement
-//			{
-//				Condition = CSharpUtil.InvertCondition(ifStatement.Condition)
-//			};
-//			var falseStatement = ifStatement.FalseStatement;
-//			mergedIfStatement.TrueStatement = GenerateNewTrueStatement(falseStatement);
-//			mergedIfStatement.Condition.AcceptVisitor(_insertParenthesesVisitor);
-//
-//			script.Replace(ifStatement, mergedIfStatement);
-//
-//			SimplifyIfFlowAction.InsertBody(script, ifStatement);
-//		}
-//
-//		static IfElseStatement GetIfElseStatement(SemanticModel context)
-//		{
-//			var result = context.GetNode<IfElseStatement>();
-//			if (result == null || !result.IfToken.Contains(context.Location))
-//				return null;
-//			var falseStatement = result.FalseStatement;
-//			var isQuitingStatement = falseStatement;
-//			var blockStatement = falseStatement as BlockStatement;
-//			if (blockStatement != null)
-//				isQuitingStatement = blockStatement.Statements.FirstOrDefault();
-//			if (isQuitingStatement is ReturnStatement || isQuitingStatement is ContinueStatement || isQuitingStatement is BreakStatement)
-//				return result;
-//			return null;
-//		}
 	}
 }
