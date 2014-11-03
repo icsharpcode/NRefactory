@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -34,8 +33,6 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -44,6 +41,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Invert if", LanguageNames.CSharp)]
 	public class InvertIfAction : CodeRefactoringProvider
 	{
+		// TODO: Invert if without else
+		// ex. if (cond) DoSomething () == if (!cond) return; DoSomething ()
+		// beware of loop contexts return should be continue then.
+
 		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
@@ -51,33 +52,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+			var ifStatement = GetIfElseStatement(root, span);
+			if (ifStatement == null)
+				return Enumerable.Empty<CodeAction>();
+			return new[] { 
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Invert if", 
+					t2 => {
+						var newRoot = root.ReplaceNode(
+							ifStatement,
+							ifStatement
+							.WithCondition(CSharpUtil.InvertCondition(ifStatement.Condition))
+							.WithStatement(ifStatement.Else.Statement)
+							.WithElse(ifStatement.Else.WithStatement(ifStatement.Statement))
+							.WithAdditionalAnnotations(Formatter.Annotation)
+						);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				) 
+			};
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			// TODO: Invert if without else
-//			// ex. if (cond) DoSomething () == if (!cond) return; DoSomething ()
-//			// beware of loop contexts return should be continue then.
-//			
-//			var ifStatement = GetIfElseStatement(context);
-//			if (!(ifStatement != null && !ifStatement.TrueStatement.IsNull && !ifStatement.FalseStatement.IsNull)) {
-//				yield break;
-//
-//			}
-//			yield return new CodeAction (context.TranslateString("Invert if"), script => {
-//				script.Replace(ifStatement.Condition, CSharpUtil.InvertCondition(ifStatement.Condition.Clone()));
-//				script.Replace(ifStatement.TrueStatement, ifStatement.FalseStatement.Clone());
-//				script.Replace(ifStatement.FalseStatement, ifStatement.TrueStatement.Clone());
-//				script.FormatText(ifStatement);
-//			}, ifStatement);
-//		}
-//		
-//		static IfElseStatement GetIfElseStatement (SemanticModel context)
-//		{
-//			var result = context.GetNode<IfElseStatement> ();
-//			if (result != null && result.IfToken.Contains (context.Location))
-//				return result;
-//			return null;
-//		}
+
+		static IfStatementSyntax GetIfElseStatement(SyntaxNode root, TextSpan span)
+		{
+			var result = root.FindNode(span) as IfStatementSyntax;
+			if (result == null || !result.IfKeyword.Span.Contains(span) || result.Else == null)
+				return null;
+			return result;
+		}
 	}
 }

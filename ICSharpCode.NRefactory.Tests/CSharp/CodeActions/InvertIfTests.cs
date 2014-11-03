@@ -34,34 +34,37 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class InvertIfTestsTests : ContextActionTestBase
 	{
 		[Test()]
-		public void Test ()
+		public void Test()
 		{
-			string result = RunContextAction (
-				new InvertIfAction (),
+			string result = RunContextAction(
+				                         new InvertIfAction(),
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        $if (true) {" + Environment.NewLine +
+				                         "            Case1 ();" + Environment.NewLine +
+				                         "        } else {" + Environment.NewLine +
+				                         "            Case2 ();" + Environment.NewLine +
+				                         "        }" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+            
+			Assert.AreEqual(
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		$if (true) {" + Environment.NewLine +
-				"			Case1 ();" + Environment.NewLine +
-				"		} else {" + Environment.NewLine +
-				"			Case2 ();" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		if (false) {" + Environment.NewLine +
-				"			Case2 ();" + Environment.NewLine +
-				"		} else {" + Environment.NewLine +
-				"			Case1 ();" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        if (false)" + Environment.NewLine +
+				"        {" + Environment.NewLine +
+				"            Case2();" + Environment.NewLine +
+				"        }" + Environment.NewLine +
+				"        else" + Environment.NewLine +
+				"        {" + Environment.NewLine +
+				"            Case1();" + Environment.NewLine +
+				"        }" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 	}
