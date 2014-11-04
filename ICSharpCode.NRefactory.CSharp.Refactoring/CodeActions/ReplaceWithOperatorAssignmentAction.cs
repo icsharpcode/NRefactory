@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
-			var node = token.Parent as BinaryExpressionSyntax;
+			var node = token.Parent as AssignmentExpressionSyntax;
 			if (node == null)
 				return Enumerable.Empty<CodeAction>();
 			var assignment = CreateAssignment(node).WithAdditionalAnnotations(Formatter.Annotation);
@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return bop.Left;
 		}
 
-		internal static BinaryExpressionSyntax CreateAssignment(BinaryExpressionSyntax node)
+		internal static AssignmentExpressionSyntax CreateAssignment(AssignmentExpressionSyntax node)
 		{
 			var bop = node.Right as BinaryExpressionSyntax;
 			if (bop == null)
@@ -81,7 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var op = GetAssignmentOperator(bop.OperatorToken);
 			if (op == SyntaxKind.None)
 				return null;
-			return SyntaxFactory.BinaryExpression(op, node.Left, SplitIfAction.GetRightSide(outerLeft.Parent as BinaryExpressionSyntax));
+			return SyntaxFactory.AssignmentExpression(op, node.Left, SplitIfAction.GetRightSide(outerLeft.Parent as BinaryExpressionSyntax));
 		}
 
 		internal static SyntaxKind GetAssignmentOperator(SyntaxToken token)
