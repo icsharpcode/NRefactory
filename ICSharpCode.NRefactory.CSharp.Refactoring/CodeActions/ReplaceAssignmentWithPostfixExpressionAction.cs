@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var token = root.FindToken(span.Start);
 
 			var node = token.Parent as AssignmentExpressionSyntax;
-			if (node == null)
+			if (node == null || !node.OperatorToken.Span.Contains(span))
 				return Enumerable.Empty<CodeAction>();
 
 			var updatedNode = ReplaceWithOperatorAssignmentAction.CreateAssignment(node) ?? node;
@@ -66,12 +66,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (rightLiteral == null || ((int)rightLiteral.Token.Value) != 1)
 				return Enumerable.Empty<CodeAction>();
 
-			String desc = updatedNode.OperatorToken.IsKind(SyntaxKind.PlusEqualsToken) ? "Replace with '{0}++'" : "Replace with '{0}--'";
-
-			var newNode = SyntaxFactory.PostfixUnaryExpression(updatedNode.OperatorToken.IsKind(SyntaxKind.PlusEqualsToken) ? SyntaxKind.PostIncrementExpression :
-				SyntaxKind.PostDecrementExpression, updatedNode.Left).WithAdditionalAnnotations(Formatter.Annotation);
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format(desc, node.Left.ToString()), document.WithSyntaxRoot(
-                root.ReplaceNode(node as ExpressionSyntax, newNode)))};
+			return new []  { 
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? "Replace with '{0}++'" : "Replace with '{0}--'",
+					t2 => {
+						var newNode = SyntaxFactory.PostfixUnaryExpression(updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? SyntaxKind.PostIncrementExpression : SyntaxKind.PostDecrementExpression, updatedNode.Left);
+						var newRoot = root.ReplaceNode(node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
 	}
 }
