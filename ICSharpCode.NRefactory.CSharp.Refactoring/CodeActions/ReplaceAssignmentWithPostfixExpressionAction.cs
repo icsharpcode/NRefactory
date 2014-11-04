@@ -53,13 +53,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
 
-			var node = token.Parent as BinaryExpressionSyntax;
+			var node = token.Parent as AssignmentExpressionSyntax;
 			if (node == null)
 				return Enumerable.Empty<CodeAction>();
 
 			var updatedNode = ReplaceWithOperatorAssignmentAction.CreateAssignment(node) ?? node;
 
-			if ((!updatedNode.OperatorToken.IsKind(SyntaxKind.PlusEqualsToken) && !updatedNode.OperatorToken.IsKind(SyntaxKind.MinusEqualsToken)))
+			if ((!updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) && !updatedNode.IsKind(SyntaxKind.SubtractAssignmentExpression)))
 				return Enumerable.Empty<CodeAction>();
 
 			var rightLiteral = updatedNode.Right as LiteralExpressionSyntax;
