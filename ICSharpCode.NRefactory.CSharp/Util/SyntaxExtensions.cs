@@ -54,6 +54,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return expression;
 		}
 
+		public static SyntaxNode SkipArgument(this SyntaxNode expression)
+		{
+			if (expression is ArgumentSyntax)
+				return ((ArgumentSyntax)expression).Expression;
+			return expression;
+		}
+
 		public static bool CanRemoveParentheses(this ParenthesizedExpressionSyntax node)
 		{
 			return Microsoft.CodeAnalysis.CSharp.Extensions.ParenthesizedExpressionSyntaxExtensions.CanRemoveParentheses(node); 

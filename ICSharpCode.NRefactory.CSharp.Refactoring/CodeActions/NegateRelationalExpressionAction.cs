@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			ExpressionSyntax expr;
 			SyntaxToken token;
-			if (!GetLogicalExpression (root, span, out expr, out token))
+			if (!GetRelationalExpression (root, span, out expr, out token))
 				return Enumerable.Empty<CodeAction>();
 			return new[] { 
 				CodeActionFactory.Create(
@@ -73,18 +73,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			};
 		}
 
-		public static bool GetLogicalExpression (SyntaxNode root, TextSpan span, out ExpressionSyntax expr, out SyntaxToken token)
+		internal static bool GetRelationalExpression (SyntaxNode root, TextSpan span, out ExpressionSyntax expr, out SyntaxToken token)
 		{
 			expr = null;
 			token = default(SyntaxToken);
-			var bOp = root.FindNode(span) as BinaryExpressionSyntax;
+			var bOp = root.FindNode(span).SkipArgument () as BinaryExpressionSyntax;
 			if (bOp != null && bOp.OperatorToken.Span.Contains(span) && CSharpUtil.IsRelationalOperator (bOp.CSharpKind())) {
 				expr = bOp;
 				token = bOp.OperatorToken;
 				return true;
 			}
 
-			var uOp = root.FindNode(span) as PrefixUnaryExpressionSyntax;
+			var uOp = root.FindNode(span).SkipArgument () as PrefixUnaryExpressionSyntax;
 			if (uOp != null && uOp.OperatorToken.Span.Contains(span) && uOp.IsKind(SyntaxKind.LogicalNotExpression)) {
 				expr = uOp;
 				token = uOp.OperatorToken;

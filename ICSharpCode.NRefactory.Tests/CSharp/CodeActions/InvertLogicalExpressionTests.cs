@@ -28,247 +28,270 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[TestFixture]
-	public class InvertLogicalExpressionTests : ContextActionTestBase
-	{
-		[Test]
-		public void ConditionlAnd()
-		{
-			Test<InvertLogicalExpressionAction>(@"
+    [TestFixture]
+    public class InvertLogicalExpressionTests : ContextActionTestBase
+    {
+        [Test]
+        public void ConditionlAnd()
+        {
+            Test<InvertLogicalExpressionAction>(@"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (a $&& b){}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (a $&& b)
+        {
+        }
+    }
 }", @"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (!(!a || !b)) {
-		}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (!(!a || !b))
+        {
+        }
+    }
 }");
-		}
+        }
 
-		[Test]
-		public void ConditionlAndReverse()
-		{
-			Test<InvertLogicalExpressionAction>(@"
+        [Test]
+        public void ConditionlAndReverse()
+        {
+            Test<InvertLogicalExpressionAction>(@"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (!(!a $|| !b)) {
-		}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (!(!a $|| !b))
+        {
+        }
+    }
 }", @"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (a && b) {
-		}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (a && b)
+        {
+        }
+    }
 }");
-		}
+        }
 
-		[Test]
-		public void ConditionlOr()
-		{
-			Test<InvertLogicalExpressionAction>(@"
+        [Test]
+        public void ConditionlOr()
+        {
+            Test<InvertLogicalExpressionAction>(@"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (a $|| b){}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (a $|| b)
+        {
+        }
+    }
 }", @"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (!(!a && !b)) {
-		}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (!(!a && !b))
+        {
+        }
+    }
 }");
-		}
+        }
 
-		[Test]
-		public void ConditionlOrReverse()
-		{
-			Test<InvertLogicalExpressionAction>(@"
+        [Test]
+        public void ConditionlOrReverse()
+        {
+            Test<InvertLogicalExpressionAction>(@"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (!(!a $&& !b)){}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (!(!a $&& !b))
+        {
+        }
+    }
 }", @"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (a || b) {
-		}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (a || b)
+        {
+        }
+    }
 }");
-		}
+        }
 
 
-		[Test]
-		public void ConditionlAnd2()
-		{
-			Test<InvertLogicalExpressionAction>(@"
+        [Test]
+        public void ConditionlAnd2()
+        {
+            Test<InvertLogicalExpressionAction>(@"
 class TestClass
 {
-	public void F()
-	{
-		int a = 1;
-		bool b = true;
-		if ((a > 1) $&& b){}
-	}
+    public void F()
+    {
+        int a = 1;
+        bool b = true;
+        if ((a > 1) $&& b)
+        {
+        }
+    }
 }", @"
 class TestClass
 {
-	public void F()
-	{
-		int a = 1;
-		bool b = true;
-		if (!((a <= 1) || !b)) {
-		}
-	}
+    public void F()
+    {
+        int a = 1;
+        bool b = true;
+        if (!((a <= 1) || !b))
+        {
+        }
+    }
 }");
-		}
+        }
 
-		[Test]
-		public void ConditionlOr2()
-		{
-			Test<InvertLogicalExpressionAction>(@"
+        [Test]
+        public void ConditionlOr2()
+        {
+            Test<InvertLogicalExpressionAction>(@"
 class TestClass
 {
-	public void F()
-	{
-		int a = 1;
-		bool b = true;
-		if (!((a > 1) $|| b)){}
-	}
+    public void F()
+    {
+        int a = 1;
+        bool b = true;
+        if (!((a > 1) $|| b))
+        {
+        }
+    }
 }", @"
 class TestClass
 {
-	public void F()
-	{
-		int a = 1;
-		bool b = true;
-		if ((a <= 1) && !b) {
-		}
-	}
+    public void F()
+    {
+        int a = 1;
+        bool b = true;
+        if ((a <= 1) && !b)
+        {
+        }
+    }
 }");
-		}
-	
-		[Test]
-		public void Equals()
-		{
-			Test<InvertLogicalExpressionAction>(@"
+        }
+    
+        [Test]
+        public void Equals()
+        {
+            Test<InvertLogicalExpressionAction>(@"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (a $== b){}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (a $== b)
+        {
+        }
+    }
 }", @"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (!(a != b)) {
-		}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (!(a != b))
+        {
+        }
+    }
 }");
-		}
+        }
 
-		[Test]
-		public void EqualsReverse()
-		{
-			Test<InvertLogicalExpressionAction>(@"
+        [Test]
+        public void EqualsReverse()
+        {
+            Test<InvertLogicalExpressionAction>(@"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (!(a $!= b)){}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (!(a $!= b))
+        {
+        }
+    }
 }", @"
 class TestClass
 {
-	public void F()
-	{
-		bool a = true;
-		bool b = false;
-		if (a == b) {
-		}
-	}
+    public void F()
+    {
+        bool a = true;
+        bool b = false;
+        if (a == b)
+        {
+        }
+    }
 }");
-		}
+        }
 
-		
-		[Test]
-		public void TestNullCoalescing()
-		{
-			TestWrongContext<InvertLogicalExpressionAction>(@"
+        
+        [Test]
+        public void TestNullCoalescing()
+        {
+            TestWrongContext<InvertLogicalExpressionAction>(@"
 class Foo
 {
-	void Bar (object i, object j)
-	{
-		Console.WriteLine (i $?? j);
-	}
+    void Bar (object i, object j)
+    {
+        Console.WriteLine (i $?? j);
+    }
 }
 ");
-		}
+        }
 
 
-		[Test]
-		public void TestUnaryExpression()
-		{
-			Test<InvertLogicalExpressionAction>(@"
+        [Test]
+        public void TestUnaryExpression()
+        {
+            Test<InvertLogicalExpressionAction>(@"
 class Foo
 {
-	void Bar (bool a, bool b)
-	{
-		Console.WriteLine ($!(a && b));
-	}
+    void Bar (bool a, bool b)
+    {
+        Console.WriteLine ($!(a && b));
+    }
 }
 ", @"
 class Foo
 {
-	void Bar (bool a, bool b)
-	{
-		Console.WriteLine (!a || !b);
-	}
+    void Bar (bool a, bool b)
+    {
+        Console.WriteLine (!a || !b);
+    }
 }
 ");
-		}
-	}
+        }
+    }
 }
