@@ -42,60 +42,64 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replace operator assignment with assignment")]
 	[ExportCodeRefactoringProvider("Replace operator assignment with assignment", LanguageNames.CSharp)]
-	public class ReplaceOperatorAssignmentWithAssignmentAction : SpecializedCodeAction<BinaryExpressionSyntax>
+	public class ReplaceOperatorAssignmentWithAssignmentAction : CodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
+		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
-			yield break;
+			var document = context.Document;
+			var span = context.Span;
+			var cancellationToken = context.CancellationToken;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var token = root.FindToken(span.Start);
+
+			var node = token.Parent as AssignmentExpressionSyntax;
+			if (node == null || !node.OperatorToken.Span.Contains(span))
+				return Enumerable.Empty<CodeAction>();
+			if (node.IsKind(SyntaxKind.SimpleAssignmentExpression))
+				return Enumerable.Empty<CodeAction>();
+
+			return new []  { 
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					"Replace with '='",
+					t2 => {
+						var newNode = SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, node.Left, SyntaxFactory.BinaryExpression(GetAssignmentOperator(node.CSharpKind()), node.Left, node.Right));
+						var newRoot = root.ReplaceNode(node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
-//		protected override CodeAction GetAction(SemanticModel context, AssignmentExpression node)
-//		{
-//			if (!node.OperatorToken.Contains(context.Location))
-//				return null;
-//			var op = GetAssignmentOperator(node.Operator);
-//			if (op == BinaryOperatorType.Any)
-//				return null;
-//
-//			return new CodeAction(
-//				context.TranslateString("Replace with '='"),
-//				s => s.Replace(
-//					node,
-//					new AssignmentExpression(
-//						node.Left.Clone(), 
-//						new BinaryOperatorExpression(node.Left.Clone(), op, node.Right.Clone())
-//					)
-//				),
-//				node.OperatorToken
-//			);
-//		}
-//
-//		static BinaryOperatorType GetAssignmentOperator(AssignmentOperatorType op)
-//		{
-//			switch (op) {
-//				case AssignmentOperatorType.BitwiseAnd:
-//					return BinaryOperatorType.BitwiseAnd;
-//				case AssignmentOperatorType.BitwiseOr:
-//					return BinaryOperatorType.BitwiseOr;
-//				case AssignmentOperatorType.ExclusiveOr:
-//					return BinaryOperatorType.ExclusiveOr;
-//				case AssignmentOperatorType.Add:
-//					return BinaryOperatorType.Add;
-//				case AssignmentOperatorType.Subtract:
-//					return BinaryOperatorType.Subtract;
-//				case AssignmentOperatorType.Multiply:
-//					return BinaryOperatorType.Multiply;
-//				case AssignmentOperatorType.Divide:
-//					return BinaryOperatorType.Divide;
-//				case AssignmentOperatorType.Modulus:
-//					return BinaryOperatorType.Modulus;
-//				case AssignmentOperatorType.ShiftLeft:
-//					return BinaryOperatorType.ShiftLeft;
-//				case AssignmentOperatorType.ShiftRight:
-//					return BinaryOperatorType.ShiftRight;
-//				default:
-//					return BinaryOperatorType.Any;
-//			}
-//		}
+
+		static SyntaxKind GetAssignmentOperator(SyntaxKind op)
+		{
+			switch (op) {
+				case SyntaxKind.AndAssignmentExpression:
+					return SyntaxKind.BitwiseAndExpression;
+				case SyntaxKind.BitwiseOrExpression:
+					return SyntaxKind.BitwiseOrExpression;
+				case SyntaxKind.ExclusiveOrExpression:
+					return SyntaxKind.ExclusiveOrExpression;
+				case SyntaxKind.AddAssignmentExpression:
+					return SyntaxKind.AddExpression;
+				case SyntaxKind.SubtractAssignmentExpression:
+					return SyntaxKind.SubtractExpression;
+				case SyntaxKind.MultiplyAssignmentExpression:
+					return SyntaxKind.MultiplyExpression;
+				case SyntaxKind.DivideAssignmentExpression:
+					return SyntaxKind.DivideExpression;
+				case SyntaxKind.ModuloAssignmentExpression:
+					return SyntaxKind.ModuloExpression;
+				case SyntaxKind.LeftShiftAssignmentExpression:
+					return SyntaxKind.LeftShiftExpression;
+				case SyntaxKind.RightShiftAssignmentExpression:
+					return SyntaxKind.RightShiftExpression;
+				default:
+					throw new ArgumentOutOfRangeException("op", op.ToString());
+			}
+		}
 	}
 }
 

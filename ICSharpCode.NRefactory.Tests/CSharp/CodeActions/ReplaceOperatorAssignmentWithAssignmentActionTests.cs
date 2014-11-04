@@ -33,26 +33,23 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class ReplaceOperatorAssignmentWithAssignmentActionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestAdd ()
+		public void TestAdd()
 		{
-			Test<ReplaceOperatorAssignmentWithAssignmentAction> (@"
+			Test<ReplaceOperatorAssignmentWithAssignmentAction>(@"
 class Test
 {
-	void Foo (int i)
-	{
-		i $+= 1 + 2;
-	}
+    void Foo (int i)
+    {
+        i $+= 1 + 2;
+    }
 }", @"
 class Test
 {
-	void Foo (int i)
-	{
-		i = i + 1 + 2;
-	}
+    void Foo (int i)
+    {
+        i = i + 1 + 2;
+    }
 }");
 		}
-
-
 	}
 }
-
