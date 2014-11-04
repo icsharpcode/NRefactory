@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			};
 		}
 
-		static IEnumerable<SyntaxNode> GetStatements(StatementSyntax statement)
+		internal static IEnumerable<SyntaxNode> GetStatements(StatementSyntax statement)
 		{
 			var blockSyntax = statement as BlockSyntax;
 			if (blockSyntax != null) {

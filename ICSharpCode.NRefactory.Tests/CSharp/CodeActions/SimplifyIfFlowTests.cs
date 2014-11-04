@@ -35,23 +35,23 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void Test()
 		{
 			Test<SimplifyIfFlowAction>(
-@"class TestClass
+				@"class TestClass
 {
-	void Test ()
-	{
-		$if (true) {
-			Case1 ();
-		}
-	}
+    void Test ()
+    {
+        $if (true) {
+            Case1();
+        }
+    }
 }",
-@"class TestClass
+				@"class TestClass
 {
-	void Test ()
-	{
-		if (false)
-			return;
-		Case1 ();
-	}
+    void Test ()
+    {
+        if (false)
+            return;
+        Case1();
+    }
 }"
 			);
 		}
