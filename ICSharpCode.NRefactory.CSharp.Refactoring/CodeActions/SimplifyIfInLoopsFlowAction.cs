@@ -51,57 +51,59 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var ifStatement = GetIfElseStatement(root, span);
+			if (ifStatement == null)
+				return Enumerable.Empty<CodeAction>();
+
+			return new []  { 
+				CodeActionFactory.Create(
+					ifStatement.Span,
+					DiagnosticSeverity.Info,
+					"Simplify if in loops",
+					t2 => {
+						var mergedIfStatement = SyntaxFactory.IfStatement(CSharpUtil.InvertCondition(ifStatement.Condition), SyntaxFactory.ContinueStatement())
+							.WithAdditionalAnnotations(Formatter.Annotation);
+						var newRoot = root.ReplaceNode(ifStatement, new SyntaxNode[] { mergedIfStatement }.Concat(GetStatements(ifStatement.Statement)));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
+		}
+
+		static IEnumerable<SyntaxNode> GetStatements(StatementSyntax statement)
+		{
+			var blockSyntax = statement as BlockSyntax;
+			if (blockSyntax != null) {
+				foreach (var stmt in blockSyntax.Statements)
+					yield return stmt.WithAdditionalAnnotations(Formatter.Annotation);
+			} else {
+				yield return statement.WithAdditionalAnnotations(Formatter.Annotation);
+			}
+		}
+
+		static IfStatementSyntax GetIfElseStatement(SyntaxNode root, TextSpan span)
+		{
+			var result = root.FindNode(span) as IfStatementSyntax;
+			if (result == null)
+				return null;
+			if (!result.IfKeyword.Span.Contains(span) ||
+				result.Statement == null ||
+				result.Else != null)
+				return null;
+
+			var parentBlock = result.Parent as BlockSyntax;
+			if (parentBlock == null)
+				return null;
+
+			if (!(parentBlock.Parent is WhileStatementSyntax || 
+				parentBlock.Parent is ForEachStatementSyntax || 
+				parentBlock.Parent is ForStatementSyntax))
+				return null;
+
+			int i = parentBlock.Statements.IndexOf(result);
+			if (i + 1 >= parentBlock.Statements.Count)
+				return result;
 			return null;
 		}
-//		readonly InsertParenthesesVisitor _insertParenthesesVisitor = new InsertParenthesesVisitor();
-//
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var ifStatement = GetIfElseStatement(context);
-//			if (ifStatement == null)
-//				yield break;
-//			yield return new CodeAction(context.TranslateString("Simplify if in loops"), script => {
-//				GenerateNewScript(script, ifStatement);
-//			}, ifStatement);
-//		}
-//		
-//		void GenerateNewScript(Script script, IfElseStatement ifStatement)
-//		{
-//			var mergedIfStatement = new IfElseStatement {
-//				Condition = CSharpUtil.InvertCondition(ifStatement.Condition),
-//				TrueStatement = new ContinueStatement()
-//			};
-//			mergedIfStatement.Condition.AcceptVisitor(_insertParenthesesVisitor);
-//			
-//			script.Replace(ifStatement, mergedIfStatement);
-//			
-//			SimplifyIfFlowAction.InsertBody(script, ifStatement);
-//		}
-//		
-//		static IfElseStatement GetIfElseStatement(SemanticModel context)
-//		{
-//			var result = context.GetNode<IfElseStatement>();
-//			if (result == null)
-//				return null;
-//			if (!(result.IfToken.Contains(context.Location)
-//				&& !result.TrueStatement.IsNull
-//				&& result.FalseStatement.IsNull))
-//				return null;
-//			if (!(result.Parent is BlockStatement))
-//				return null;
-//			var condition = (result.Parent.Parent is WhileStatement) 
-//				|| (result.Parent.Parent is ForeachStatement) 
-//				|| (result.Parent.Parent is ForStatement);
-//			if (!condition)
-//				return null;
-//			
-//			var nextSibling = result.GetNextSibling(n => n is Statement);
-//			if (nextSibling == null)
-//				return result;
-//			nextSibling = nextSibling.GetNextSibling (n => n is Statement);
-//			if (nextSibling != null)
-//				return null;
-//			return result;
-//		}
 	}
 }

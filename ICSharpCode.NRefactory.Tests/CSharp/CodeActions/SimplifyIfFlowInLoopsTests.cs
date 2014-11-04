@@ -35,28 +35,29 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void Test()
 		{
 			Test<SimplifyIfInLoopsFlowAction>(
-@"class TestClass
+				@"class TestClass
 {
-	void Test ()
-	{
-		while(true)
-       {
-   		$if (true) {
-			    Case1 ();
-		    }
-	    }
-	}
+    void Test ()
+    {
+        while(true)
+        {
+           $if (true) {
+                Case1();
+            }
+        }
+    }
 }",
-@"class TestClass
+				@"class TestClass
 {
-	void Test ()
-	{
-		while(true) {
-			if (false)
-				continue;
-			Case1 ();
-		}
-	}
+    void Test ()
+    {
+        while(true)
+        {
+            if (false)
+                continue;
+            Case1();
+        }
+    }
 }");
 		}
 	}
