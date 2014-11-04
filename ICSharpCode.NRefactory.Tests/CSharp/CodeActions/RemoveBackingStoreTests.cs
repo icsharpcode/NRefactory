@@ -48,11 +48,7 @@ class TestClass
 ", @"
 class TestClass
 {
-    public int Field
-    { 
-        get;
-        set;
-    }
+    public int Field { get; set; }
 }
 ");
 		}
