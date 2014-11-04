@@ -46,33 +46,45 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			yield break;
+			if (!node.IsKind(SyntaxKind.IsExpression) || !node.OperatorToken.Span.Contains(span))
+				return Enumerable.Empty<CodeAction>();
+
+			var pExpr = node.Parent as ParenthesizedExpressionSyntax;
+			if (pExpr != null) {
+				var uOp = pExpr.Parent as PrefixUnaryExpressionSyntax;
+				if (uOp != null && uOp.IsKind(SyntaxKind.LogicalNotExpression)) {
+
+					return new[] { 
+						CodeActionFactory.Create(
+							span, 
+							DiagnosticSeverity.Info, 
+							string.Format ("Negate '{0}'", uOp),
+							t2 => {
+								var newRoot = root.ReplaceNode(
+									uOp,
+									node.WithAdditionalAnnotations(Formatter.Annotation)
+								);
+								return Task.FromResult(document.WithSyntaxRoot(newRoot));
+							}
+						) 
+					};
+				}
+			}
+
+			return new[] { 
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					string.Format ("Negate '{0}'", node),
+					t2 => {
+						var newRoot = root.ReplaceNode(
+							node,
+							SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, SyntaxFactory.ParenthesizedExpression(node)).WithAdditionalAnnotations(Formatter.Annotation)
+						);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				) 
+			};
 		}
-//		protected override CodeAction GetAction (SemanticModel context, IsExpression node)
-//		{
-//			if (!node.IsToken.Contains(context.Location))
-//				return null;
-//			var pExpr = node.Parent as ParenthesizedExpression;
-//			if (pExpr != null) {
-//				var uOp = pExpr.Parent as UnaryOperatorExpression;
-//				if (uOp != null && uOp.Operator == UnaryOperatorType.Not) {
-//					return new CodeAction(
-//						string.Format(context.TranslateString("Negate '{0}'"), uOp),
-//						script => {
-//							script.Replace(uOp, node.Clone());
-//						}, 
-//						node.IsToken
-//					);
-//				}
-//			}
-//
-//			return new CodeAction (
-//				string.Format (context.TranslateString ("Negate '{0}'"), node),
-//				script => {
-//					script.Replace (node, new UnaryOperatorExpression(UnaryOperatorType.Not, new ParenthesizedExpression(node.Clone())));
-//				}, 
-//				node.IsToken
-//			);
-//		}
 	}
 }
