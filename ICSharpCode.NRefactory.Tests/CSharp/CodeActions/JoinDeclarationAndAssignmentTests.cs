@@ -69,8 +69,7 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		int a;
-		int b = 1;
+		int a, b = 1;
 	}
 }");
 		}
