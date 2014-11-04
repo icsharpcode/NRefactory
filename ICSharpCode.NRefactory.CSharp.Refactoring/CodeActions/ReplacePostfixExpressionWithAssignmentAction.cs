@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,7 +34,6 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
@@ -44,7 +42,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Replace postfix expression with assignment", LanguageNames.CSharp)]
 	public class ReplacePostfixExpressionWithAssignmentAction : CodeRefactoringProvider
 	{
-
 		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
@@ -54,25 +51,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
 
-			PostfixUnaryExpressionSyntax postfix = token.Parent.Parent as PostfixUnaryExpressionSyntax;
-			if (postfix == null || !(postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken) || postfix.OperatorToken.IsKind(SyntaxKind.MinusMinusToken))) {
+			var postfix = token.Parent.Parent as PostfixUnaryExpressionSyntax;
+			if (postfix == null || !(postfix.IsKind(SyntaxKind.PostIncrementExpression) || postfix.IsKind(SyntaxKind.PostDecrementExpression)))
 				return Enumerable.Empty<CodeAction>();
-			}
-			string desc;
-			SyntaxKind expType;
-			if (postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken)) {
-				desc = "Replace '{0}++' with '{0} += 1'";
-				expType = SyntaxKind.AddAssignmentExpression;
 
-			} else {
-				desc = "Replace '{0}--' with '{0} -= 1'";
-				expType = SyntaxKind.SubtractAssignmentExpression;
-			}
-			var binexp = SyntaxFactory.BinaryExpression(expType, postfix.Operand, SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1)));
-			var newRoot = root.ReplaceNode(postfix as ExpressionSyntax, binexp.WithAdditionalAnnotations(Formatter.Annotation));
-			desc = String.Format(desc, (postfix.Operand as IdentifierNameSyntax).Identifier.ValueText);
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, desc, document.WithSyntaxRoot(newRoot)) };
+			return new []  { 
+				CodeActionFactory.Create(
+					token.Span,
+					DiagnosticSeverity.Info,
+					string.Format(postfix.IsKind(SyntaxKind.PostIncrementExpression)  ? "Replace '{0}++' with '{0} += 1'" : "Replace '{0}--' with '{0} -= 1'", postfix.Operand.ToString()),
+					t2 => {
+						var op = postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken) ? SyntaxKind.AddAssignmentExpression : SyntaxKind.SubtractAssignmentExpression;
+						var binexp = SyntaxFactory.AssignmentExpression(op, postfix.Operand, SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1)));
+						var newRoot = root.ReplaceNode(postfix, binexp.WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
 	}
 }
-
