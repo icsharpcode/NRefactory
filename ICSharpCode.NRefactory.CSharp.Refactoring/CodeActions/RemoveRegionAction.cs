@@ -51,74 +51,34 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+
+			SyntaxTrivia directive;
+			if (!TryGetDirective(root, span, out directive))
+				return Enumerable.Empty<CodeAction>();
+
+			return new []  { 
+				CodeActionFactory.Create(
+					directive.Span,
+					DiagnosticSeverity.Info,
+					"Remove region",
+					t2 => {
+						var nodes = new List<SyntaxNode> ();
+						var structure = directive.GetStructure();
+						var end = structure as DirectiveTriviaSyntax;
+						foreach (var e in end.GetRelatedDirectives()){
+							nodes.Add(e);
+						}
+						var newRoot = root.RemoveNodes(nodes, SyntaxRemoveOptions.KeepNoTrivia);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			};
 		}
-//		static PreProcessorDirective GetEndDirective(PreProcessorDirective directive)
-//		{
-//			var nextNode = directive.GetNextNode();
-//			int d = 0;
-//			while (nextNode != null) {
-//				var pp = nextNode as PreProcessorDirective;
-//				if (pp != null) {
-//					if (pp.Type == PreProcessorDirectiveType.Region) {
-//						d++;
-//					} else if (pp.Type == PreProcessorDirectiveType.Endregion) {
-//						if (d == 0) {
-//							return pp;
-//						}
-//						d--;
-//					}
-//				}
-//				nextNode = nextNode.GetNextNode();
-//			}
-//			return null;
-//		}
-//
-//		static PreProcessorDirective GetStartDirective(PreProcessorDirective directive)
-//		{
-//			var nextNode = directive.GetPrevNode();
-//			int d = 0;
-//			while (nextNode != null) {
-//				var pp = nextNode as PreProcessorDirective;
-//				if (pp != null) {
-//					if (pp.Type == PreProcessorDirectiveType.Endregion) {
-//						d++;
-//					} else if (pp.Type == PreProcessorDirectiveType.Region) {
-//						if (d == 0) {
-//							return pp;
-//						}
-//						d--;
-//					}
-//				}
-//				nextNode = nextNode.GetPrevNode();
-//			}
-//			return null;
-//		}
-//
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var directive = GetDirective(context);
-//			if (directive == null)
-//				yield break;
-//
-//			PreProcessorDirective endDirective = directive.Type == PreProcessorDirectiveType.Region ? GetEndDirective(directive) : GetStartDirective(directive);
-//
-//			if (endDirective == null)
-//				yield break;
-//
-//			yield return new CodeAction (context.TranslateString("Remove region"), script => {
-//				script.Remove (directive);
-//				script.Remove (endDirective);
-//			}, directive);
-//		}
-//		
-//		static PreProcessorDirective GetDirective (SemanticModel context)
-//		{
-//			var directive = context.GetNode<PreProcessorDirective> ();
-//			if (directive == null || directive.Type != PreProcessorDirectiveType.Region && directive.Type != PreProcessorDirectiveType.Endregion)
-//				return null;
-//			return directive;
-//		}
+
+		static bool TryGetDirective (SyntaxNode root, TextSpan span, out SyntaxTrivia directive)
+		{
+			directive = root.FindTrivia(span.Start);
+			return directive.IsKind(SyntaxKind.RegionDirectiveTrivia) || directive.IsKind(SyntaxKind.EndRegionDirectiveTrivia);
+		}
 	}
 }
-
