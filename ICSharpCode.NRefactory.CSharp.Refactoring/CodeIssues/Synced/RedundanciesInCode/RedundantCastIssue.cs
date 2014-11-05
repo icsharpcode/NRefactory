@@ -161,7 +161,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				// TODO: Check method accessibility & other parameter match.
 				int count = 0;
 				foreach (var method in methods) {
-					if (method.Parameters.Count < nArg)
+					if (method.Parameters.Count <= nArg)
 						continue;
 					var baseTypes = method.Parameters[nArg].Type.GetAllBaseTypes();
 					if (expectedType == method.Parameters[nArg].Type || baseTypes.Any(t => t.Equals(expectedType)))
