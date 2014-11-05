@@ -45,64 +45,89 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Splits local variable declaration and assignment")]
 	[ExportCodeRefactoringProvider("Split local variable declaration and assignment", LanguageNames.CSharp)]
-	public class SplitDeclarationAndAssignmentAction : CodeRefactoringProvider
+	public class SplitDeclarationAndAssignmentAction : SpecializedCodeAction<VariableDeclaratorSyntax>
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, VariableDeclaratorSyntax node, CancellationToken cancellationToken)
 		{
-			var document = context.Document;
-			var span = context.Span;
-			var cancellationToken = context.CancellationToken;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
-			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
+			var declaration = node.Parent as VariableDeclarationSyntax;
+			if (declaration == null || node.Initializer == null || (!node.Identifier.Span.Contains(span) && !node.Initializer.EqualsToken.Span.Contains(span) && node.Initializer.Value.SpanStart != span.Start))
+				yield break;
+			var forStmt = declaration.Parent as ForStatementSyntax;
+			if (forStmt != null) {
+			} else {
+				var variableDecl = declaration.Parent as LocalDeclarationStatementSyntax;
+				if (variableDecl == null || variableDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword)))
+					yield break;
+				var block = variableDecl.Parent as BlockSyntax;
+				if (block == null)
+					yield break;
+			}
+
+			yield return
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Split local variable declaration and assignment", 
+					t2 => {
+						SyntaxNode newRoot;
+						if (forStmt != null) {
+							root = root.TrackNodes(new SyntaxNode[] { forStmt, declaration } );
+							newRoot = root.InsertNodesBefore(
+								root.GetCurrentNode(forStmt),  
+								new [] {
+									SyntaxFactory.LocalDeclarationStatement(
+										SyntaxFactory.VariableDeclaration(
+											declaration.Type,
+											SyntaxFactory.SeparatedList(new [] {
+												SyntaxFactory.VariableDeclarator(node.Identifier)
+											})
+										).WithAdditionalAnnotations(Formatter.Annotation)
+									).WithAdditionalAnnotations(Formatter.Annotation)
+								}
+							);
+							newRoot = newRoot.ReplaceNode(
+								newRoot.GetCurrentNode(declaration),
+								SyntaxFactory.VariableDeclaration(
+										SyntaxFactory.ParseTypeName(""),
+									SyntaxFactory.SeparatedList(new [] {
+											node
+									})
+								).WithAdditionalAnnotations(Formatter.Annotation)
+							);
+						} else {
+							root = root.TrackNodes(new SyntaxNode[] { declaration.Parent, declaration.Type, node } );
+							newRoot = root.InsertNodesAfter(
+								root.GetCurrentNode(declaration.Parent),  
+								new [] {
+									SyntaxFactory.ExpressionStatement(
+										SyntaxFactory.AssignmentExpression(
+											SyntaxKind.SimpleAssignmentExpression, 
+											SyntaxFactory.IdentifierName(node.Identifier), 
+											node.Initializer.Value
+										)
+									).WithAdditionalAnnotations(Formatter.Annotation)
+								}
+							);
+							newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(node), SyntaxFactory.VariableDeclarator(node.Identifier).WithAdditionalAnnotations(Formatter.Annotation));
+
+							if (declaration.Type.ToString() == "var") {
+								var type = semanticModel.GetTypeInfo(declaration.Type).Type;
+
+								newRoot = newRoot.ReplaceNode(
+									newRoot.GetCurrentNode(declaration.Type),
+									SyntaxFactory.ParseTypeName(type.ToMinimalDisplayString(semanticModel, declaration.SpanStart))
+									.WithLeadingTrivia(declaration.Type.GetLeadingTrivia())
+									.WithTrailingTrivia(declaration.Type.GetTrailingTrivia())
+									.WithAdditionalAnnotations(Formatter.Annotation)
+								);
+							}
+						}
+						Console.WriteLine (newRoot);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				);
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			if (context.IsSomethingSelected) {
-//				yield break;
-//			}
-//			AstType type;
-//			var varInitializer = GetVariableDeclarationStatement(context, out type);
-//			if (varInitializer == null)
-//				yield break;
-//			var statement = varInitializer.GetParent<Statement>();
-//			var declaration = varInitializer.GetParent<VariableDeclarationStatement>();
-//			if (declaration == null || (declaration.Modifiers & Modifiers.Const) != 0)
-//				yield break;
-//
-//			var selectedNode = varInitializer.GetNodeAt(context.Location) ?? varInitializer;
-//
-//			yield return new CodeAction(context.TranslateString("Split local variable declaration and assignment"), script => {
-//				var assign = new AssignmentExpression (new IdentifierExpression (varInitializer.Name), AssignmentOperatorType.Assign, varInitializer.Initializer.Clone());
-//
-//				if (declaration != null && declaration.Type.IsVar())
-//					script.Replace(declaration.Type, type);
-//				if (declaration.Parent is ForStatement) {
-//					script.InsertBefore(statement, new VariableDeclarationStatement (type, varInitializer.Name));
-//					script.Replace(declaration, assign);
-//				} else {
-//					script.Replace(varInitializer, new IdentifierExpression (varInitializer.Name));
-//					script.InsertAfter(statement, new ExpressionStatement (assign));
-//				}
-//
-//			}, selectedNode);
-//		}
-//		
-//		static VariableInitializer GetVariableDeclarationStatement (SemanticModel context, out AstType resolvedType, CancellationToken cancellationToken = default(CancellationToken))
-//		{
-//			var result = context.GetNode<VariableInitializer> ();
-//			if (result != null && !result.Initializer.IsNull && context.Location <= result.Initializer.StartLocation) {
-//				var type = context.Resolve(result).Type;
-//				if (type.Equals(SpecialType.NullType) || type.Equals(SpecialType.UnknownType)) {
-//					resolvedType = new PrimitiveType ("object");
-//				} else {
-//					resolvedType = context.CreateShortType (type);
-//				}
-//				return result;
-//			}
-//			resolvedType = null;
-//			return null;
-//		}
+
 	}
 }
 

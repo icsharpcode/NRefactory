@@ -33,160 +33,158 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	public class SplitDeclarationAndAssignmentTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestSimpleExpression ()
+		public void TestSimpleExpression()
 		{
-			string result = RunContextAction (
-				new SplitDeclarationAndAssignmentAction (),
+			string result = RunContextAction(
+				                         new SplitDeclarationAndAssignmentAction(),
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        int $myInt = 5 + 3 * (2 - 10);" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+
+			Assert.AreEqual(
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		int $myInt = 5 + 3 * (2 - 10);" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		int myInt;" + Environment.NewLine +
-				"		myInt = 5 + 3 * (2 - 10);" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        int myInt;" + Environment.NewLine +
+				"        myInt = 5 + 3 * (2 - 10);" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
-		
+
 		[Test]
-		public void TestVarType ()
+		public void TestVarType()
 		{
-			string result = RunContextAction (
-				new SplitDeclarationAndAssignmentAction (),
+			string result = RunContextAction(
+				                         new SplitDeclarationAndAssignmentAction(),
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        var $aVar = this;" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+			Assert.AreEqual(
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		var $aVar = this;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			Assert.AreEqual (
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		TestClass aVar;" + Environment.NewLine +
-				"		aVar = this;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        TestClass aVar;" + Environment.NewLine +
+				"        aVar = this;" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
-		
+
 		[Test]
-		public void TestForStatement ()
+		public void TestForStatement()
 		{
-			string result = RunContextAction (
-				new SplitDeclarationAndAssignmentAction (),
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		for (int $i = 1; i < 10; i++) {}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			Assert.AreEqual (
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		int i;" + Environment.NewLine +
-				"		for (i = 1; i < 10; i++) {" + Environment.NewLine +
-				"		}" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
+			string result = RunContextAction(
+				                         new SplitDeclarationAndAssignmentAction(),
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        for (int $i = 1; i < 10; i++) {}" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+			Assert.AreEqual(
+				@"class TestClass
+{
+    void Test ()
+    {
+        int i;
+        for (i = 1; i < 10; i++) {}
+    }
+}", result);
 		}
-	
-	
+
 		[Test]
-		public void TestPopupAtAssign ()
+		public void TestPopupAtAssign()
 		{
 			Test<SplitDeclarationAndAssignmentAction>(@"class Test
 {
-	public static void Main (string[] args)
-	{
-		var foo $= 5;
-	}
+    public static void Main (string[] args)
+    {
+        var foo $= 5;
+    }
 }", @"class Test
 {
-	public static void Main (string[] args)
-	{
-		int foo;
-		foo = 5;
-	}
+    public static void Main (string[] args)
+    {
+        int foo;
+        foo = 5;
+    }
 }");
 		}
 
 		[Test]
-		public void TestPopupAtBeginningOfExpression ()
+		public void TestPopupAtBeginningOfExpression()
 		{
 			Test<SplitDeclarationAndAssignmentAction>(@"class Test
 {
-	public static void Main (string[] args)
-	{
-		var foo = $5;
-	}
+    public static void Main (string[] args)
+    {
+        var foo = $5;
+    }
 }", @"class Test
 {
-	public static void Main (string[] args)
-	{
-		int foo;
-		foo = 5;
-	}
+    public static void Main (string[] args)
+    {
+        int foo;
+        foo = 5;
+    }
 }");
 		}
 
 		[Test]
-		public void TestMultipleInitializers ()
+		public void TestMultipleInitializers()
 		{
 			Test<SplitDeclarationAndAssignmentAction>(@"class Test
 {
-	public static void Main (string[] args)
-	{
-		int a, b, $foo = 5 + 12, c;
-		Console.WriteLine(foo);
-	}
+    public static void Main (string[] args)
+    {
+        int a, b, $foo = 5 + 12, c;
+        Console.WriteLine(foo);
+    }
 }", @"class Test
 {
-	public static void Main (string[] args)
-	{
-		int a, b, foo, c;
-		foo = 5 + 12;
-		Console.WriteLine(foo);
-	}
+    public static void Main (string[] args)
+    {
+        int a, b, foo, c;
+        foo = 5 + 12;
+        Console.WriteLine(foo);
+    }
 }");
 		}
 
 		[Test]
-		public void TestHideInExpression ()
+		public void TestHideInExpression()
 		{
 			TestWrongContext<SplitDeclarationAndAssignmentAction>(@"class Test
 {
-	public static void Main (string[] args)
-	{
-		var foo = 5 $+ 5;
-	}
+    public static void Main (string[] args)
+    {
+        var foo = 5 $+ 5;
+    }
 }");
 		}
 
 		[Test]
-		public void TestLocalConstants ()
+		public void TestLocalConstants()
 		{
 			TestWrongContext<SplitDeclarationAndAssignmentAction>(@"class Test
 {
-	public static void Main (string[] args)
-	{
-		const int foo $= 5;
-	}
+    public static void Main (string[] args)
+    {
+        const int foo $= 5;
+    }
 }");
 		}
 	}
