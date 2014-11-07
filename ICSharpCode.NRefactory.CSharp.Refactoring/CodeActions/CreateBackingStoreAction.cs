@@ -118,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					proposedName = baseName + number.ToString();
 				}
 				number++;
-			} while (!members.Contains(proposedName));
+			} while (members.Contains(proposedName));
 			return proposedName;
 		}
 	}
