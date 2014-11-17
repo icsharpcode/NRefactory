@@ -37,6 +37,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 	                  Description = "Warns when a culture-aware 'string.CompareTo' call is used by default.",
 	                  Category = IssueCategories.PracticesAndImprovements,
 	                  Severity = Severity.Warning,
+	                  IsEnabledByDefault = false,
 	                  AnalysisDisableKeyword = "StringCompareToIsCultureSpecific")]
 	public class StringCompareToIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{

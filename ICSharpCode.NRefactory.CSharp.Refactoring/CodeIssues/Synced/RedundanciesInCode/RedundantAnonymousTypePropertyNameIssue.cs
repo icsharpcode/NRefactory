@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		"Redundant anonymous type property name",
 		Description = "The name can be inferred from the initializer expression",
 		Category = IssueCategories.RedundanciesInCode,
-		Severity = Severity.Warning,
+		Severity = Severity.Hint,
 		AnalysisDisableKeyword = "RedundantAnonymousTypePropertyName")]
 	public class RedundantAnonymousTypePropertyNameIssue : GatherVisitorCodeIssueProvider
 	{
