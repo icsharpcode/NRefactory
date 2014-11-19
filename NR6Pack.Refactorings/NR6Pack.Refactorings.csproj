@@ -33,10 +33,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertNullCoalescingToConditionalExpressionAction.cs">
+      <Link>ConvertNullCoalescingToConditionalExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\NRefactoryCodeRefactoringProviderAttribute.cs">
+      <Link>Common\NRefactoryCodeRefactoringProviderAttribute.cs</Link>
+    </Compile>
     <Compile Include="Common\CodeActionFactory.cs" />
     <Compile Include="Common\DocumentChangeAction.cs" />
     <Compile Include="Common\NRefactoryCodeAction.cs" />
-    <Compile Include="ConvertNullCoalescingToConditionalExpressionAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
