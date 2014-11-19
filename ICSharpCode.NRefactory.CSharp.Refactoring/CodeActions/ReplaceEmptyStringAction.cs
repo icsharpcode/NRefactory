@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Use string.Empty", LanguageNames.CSharp)]
 	public class ReplaceEmptyStringAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -49,19 +49,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
 			if (!token.IsKind(SyntaxKind.StringLiteralToken) || token.Value.ToString() != "")
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
 					"Use 'string.Empty'",
 					t2 => {
-						var newRoot = root.ReplaceNode(token.Parent, SyntaxFactory.ParseExpression("string.Empty"));
+						var newRoot = root.ReplaceNode((SyntaxNode)token.Parent, SyntaxFactory.ParseExpression("string.Empty"));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }

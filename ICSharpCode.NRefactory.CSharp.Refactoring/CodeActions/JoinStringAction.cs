@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Join string literal", LanguageNames.CSharp)]
 	public class JoinStringAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var node = root.FindNode(span) as BinaryExpressionSyntax;
 			//ignore nodes except string concat.
 			if (node == null || !node.OperatorToken.IsKind(SyntaxKind.PlusToken))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			LiteralExpressionSyntax left;
 			var leftBinaryExpr = node.Left as BinaryExpressionSyntax;
@@ -69,12 +69,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			//ignore non-string literals
 			if (left == null || right == null || !left.IsKind(SyntaxKind.StringLiteralExpression) || !right.IsKind(SyntaxKind.StringLiteralExpression))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			bool isLeftVerbatim = left.Token.IsVerbatimStringLiteral();
 			bool isRightVerbatim = right.Token.IsVerbatimStringLiteral();
 			if (isLeftVerbatim != isRightVerbatim)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			String newString = left.Token.ValueText + right.Token.ValueText;
 			LiteralExpressionSyntax stringLit;
@@ -90,7 +90,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				exprNode = stringLit;
 			else
 				exprNode = leftBinaryExpr.WithRight(stringLit);
-			return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Join strings", document.WithSyntaxRoot(root.ReplaceNode(node, exprNode as ExpressionSyntax))) };
+			context.RegisterRefactoring(
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Join strings", document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, exprNode as ExpressionSyntax)))
+			);
 		}
 	}
 }

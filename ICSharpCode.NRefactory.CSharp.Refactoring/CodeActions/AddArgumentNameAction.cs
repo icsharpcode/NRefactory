@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						)
 					);
 					var newAttribute = attribute.WithArgumentList(attribute.ArgumentList.WithArguments(newArguments));
-					var newRoot = root.ReplaceNode(attribute, newAttribute).WithAdditionalAnnotations(Formatter.Annotation);
+					var newRoot = root.ReplaceNode((SyntaxNode)attribute, newAttribute).WithAdditionalAnnotations(Formatter.Annotation);
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}
 			);
@@ -96,7 +96,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						)
 					);
 					var newAttribute = elementAccess.WithArgumentList(elementAccess.ArgumentList.WithArguments(newArguments));
-					var newRoot = root.ReplaceNode(elementAccess, newAttribute).WithAdditionalAnnotations(Formatter.Annotation);
+					var newRoot = root.ReplaceNode((SyntaxNode)elementAccess, newAttribute).WithAdditionalAnnotations(Formatter.Annotation);
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}
 			);
@@ -125,7 +125,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						)
 					);
 					var newAttribute = invocation.WithArgumentList(invocation.ArgumentList.WithArguments(newArguments));
-					var newRoot = root.ReplaceNode(invocation, newAttribute).WithAdditionalAnnotations(Formatter.Annotation);
+					var newRoot = root.ReplaceNode((SyntaxNode)invocation, newAttribute).WithAdditionalAnnotations(Formatter.Annotation);
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}
 			);

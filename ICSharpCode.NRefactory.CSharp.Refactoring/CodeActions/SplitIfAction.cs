@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Split 'if' statement", LanguageNames.CSharp)]
 	public class SplitIfAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,32 +55,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var ifNode = token.Parent.AncestorsAndSelf().OfType<IfStatementSyntax>().FirstOrDefault();
 			if (ifNode == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var binOp = token.Parent as BinaryExpressionSyntax;
 			if (binOp == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			if (binOp.Ancestors().OfType<BinaryExpressionSyntax>().Any(b => !b.OperatorToken.IsKind(binOp.OperatorToken.CSharpKind())))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			if (binOp.IsKind(SyntaxKind.LogicalAndExpression)) {
-				return new[] {
+				context.RegisterRefactoring(
 					CodeActionFactory.Create(
 						span, 
 						DiagnosticSeverity.Info, 
 						"Split if", t2 => {
 							var nestedIf = ifNode.WithCondition(GetRightSide(binOp));
 							var outerIf = ifNode.WithCondition(GetLeftSide(binOp)).WithStatement(SyntaxFactory.Block(nestedIf));
-							var newRoot = root.ReplaceNode(ifNode, outerIf.WithAdditionalAnnotations(Formatter.Annotation));
+							var newRoot = root.ReplaceNode((SyntaxNode)ifNode, outerIf.WithAdditionalAnnotations(Formatter.Annotation));
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));
 						}
 					)
-				};
+				);
 			}
 
 			if (binOp.IsKind(SyntaxKind.LogicalOrExpression)) {
-				return new[] {
+				context.RegisterRefactoring(
 					CodeActionFactory.Create(
 						span,
 						DiagnosticSeverity.Info,
@@ -88,14 +88,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						t2 => {
 							var newElse = ifNode.WithCondition(GetRightSide(binOp));
 							var newIf = ifNode.WithCondition(GetLeftSide(binOp)).WithElse(SyntaxFactory.ElseClause(newElse));
-							var newRoot = root.ReplaceNode(ifNode, newIf.WithAdditionalAnnotations(Formatter.Annotation));
+							var newRoot = root.ReplaceNode((SyntaxNode)ifNode, newIf.WithAdditionalAnnotations(Formatter.Annotation));
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));
 						}
 					)
-				};
+				);
 			}
-
-			return Enumerable.Empty<CodeAction>();
 		}
 
 		internal static ExpressionSyntax GetRightSide(BinaryExpressionSyntax expression)

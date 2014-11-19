@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Invert logical expression", LanguageNames.CSharp)]
 	public class InvertLogicalExpressionAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,54 +54,54 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			ExpressionSyntax expr;
 			SyntaxToken token;
 			if (!NegateRelationalExpressionAction.GetRelationalExpression (root, span, out expr, out token))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			if (expr.IsKind(SyntaxKind.LogicalNotExpression)) {
-				return new[] { 
+				context.RegisterRefactoring(
 					CodeActionFactory.Create(
 						span, 
 						DiagnosticSeverity.Info, 
 						string.Format ("Invert '{0}'", expr),
 						t2 => {
 							var uOp = expr as PrefixUnaryExpressionSyntax;
-							var newRoot = root.ReplaceNode(
+							var newRoot = root.ReplaceNode((SyntaxNode)
 								expr,
 								CSharpUtil.InvertCondition(uOp.Operand.SkipParens()).WithAdditionalAnnotations(Formatter.Annotation)
 							);
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));
 						}
 					) 
-				};
+				);
 			}
 
 			if (expr.Parent is ParenthesizedExpressionSyntax && expr.Parent.Parent is PrefixUnaryExpressionSyntax) {
 				var unaryOperatorExpression = expr.Parent.Parent as PrefixUnaryExpressionSyntax;
 				if (unaryOperatorExpression.IsKind(SyntaxKind.LogicalNotExpression)) {
 
-					return new[] { 
+					context.RegisterRefactoring(
 						CodeActionFactory.Create(
 							span, 
 							DiagnosticSeverity.Info, 
 							string.Format ("Invert '{0}'", unaryOperatorExpression),
 							t2 => {
 								var uOp = expr as PrefixUnaryExpressionSyntax;
-								var newRoot = root.ReplaceNode(
+								var newRoot = root.ReplaceNode((SyntaxNode)
 									unaryOperatorExpression,
 									CSharpUtil.InvertCondition(expr).WithAdditionalAnnotations(Formatter.Annotation)
 								);
 								return Task.FromResult(document.WithSyntaxRoot(newRoot));
 							}
 						) 
-					};
+					);
 				}
 			}
 
-			return new[] { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					string.Format ("Invert '{0}'", expr),
 					t2 => {
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							expr,
 							SyntaxFactory.PrefixUnaryExpression(
 								SyntaxKind.LogicalNotExpression, 
@@ -111,7 +111,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 	}
 }

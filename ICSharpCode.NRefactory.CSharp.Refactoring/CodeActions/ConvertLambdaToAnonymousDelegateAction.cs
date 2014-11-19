@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert lambda to anonymous delegate", LanguageNames.CSharp)]
 	public class ConvertLambdaToAnonymousDelegateAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,12 +54,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var token = root.FindToken(span.Start);
 			if (!token.IsKind(SyntaxKind.EqualsGreaterThanToken))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var node = token.Parent;
 			if (!node.IsKind(SyntaxKind.ParenthesizedLambdaExpression) && !node.IsKind(SyntaxKind.SimpleLambdaExpression))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new []  { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
@@ -86,11 +86,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							bodyExpr as BlockSyntax ?? SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(bodyExpr as ExpressionSyntax))
 						);
 
-						var newRoot = root.ReplaceNode(node, ame.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, ame.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 		static IEnumerable<ParameterSyntax> ConvertParameters(SemanticModel model, SyntaxNode lambda, IEnumerable<ParameterSyntax> list)

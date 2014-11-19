@@ -38,6 +38,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
@@ -174,10 +175,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			)
 			);
 			doc = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
-			var result = action.GetRefactoringsAsync(new CodeRefactoringContext(doc, span, default(CancellationToken))).Result;
-			if (result == null)
-				return null;
-			return result.ToList();
+			var actions = new List<CodeAction>();
+			var context = new CodeRefactoringContext(doc, span, a => actions.Add(a), default(CancellationToken));
+			action.ComputeRefactoringsAsync(context).Wait();
+			return actions;
 		}
 
 		protected string RunContextAction (CodeRefactoringProvider action, string input,

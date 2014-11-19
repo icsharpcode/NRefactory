@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	public class RemoveBracesAction : CodeRefactoringProvider
 	{
 
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -61,26 +61,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (IsSpecialNode(token, out keyword, out embeddedStatement)) {
 				block = embeddedStatement as BlockSyntax;
 				if (block == null || block.Statements.Count != 1 || block.Statements.First() is VariableDeclarationSyntax)
-					return Enumerable.Empty<CodeAction> ();
+					return;
 			} 
 
 			if (block == null)
-				return Enumerable.Empty<CodeAction> ();
+				return;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
 					string.Format("Remove braces from '{0}'", keyword),
 					t2 => {
-						var parent = block.Parent.ReplaceNode(block, block.Statements.First())
+						var parent = block.Parent.ReplaceNode((SyntaxNode)block, block.Statements.First())
 							.WithAdditionalAnnotations(Formatter.Annotation);
 
-						var newRoot = root.ReplaceNode(block.Parent, parent);
+						var newRoot = root.ReplaceNode((SyntaxNode)block.Parent, parent);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 		internal static bool IsSpecialNode (SyntaxToken token, out string keyword, out StatementSyntax embeddedStatement)

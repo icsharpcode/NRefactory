@@ -41,11 +41,90 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
 using System;
+using System.Reflection;
+using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class SyntaxExtensions
 	{
+		readonly static MethodInfo canRemoveParenthesesMethod;
+		readonly static MethodInfo isLeftSideOfDotMethod;
+		readonly static MethodInfo isRightSideOfDotMethod;
+		readonly static MethodInfo getEnclosingNamedTypeMethod;
+		readonly static MethodInfo isOverridableMethod;
+		readonly static MethodInfo isThisParameterMethod;
+		readonly static MethodInfo isErrorTypeMethod;
+		readonly static MethodInfo getLocalDeclarationMapMethod;
+		readonly static PropertyInfo localDeclarationMapIndexer;
+		readonly static MethodInfo getAncestorsMethod;
+
+		static SyntaxExtensions()
+		{
+			var typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.ParenthesizedExpressionSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
+			canRemoveParenthesesMethod = typeInfo.GetMethod("CanRemoveParentheses", new[] { typeof(ParenthesizedExpressionSyntax) });
+
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.ExpressionSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
+			isLeftSideOfDotMethod = typeInfo.GetMethod("IsLeftSideOfDot", new[] { typeof(ExpressionSyntax) });
+			isRightSideOfDotMethod = typeInfo.GetMethod("IsRightSideOfDot", new[] { typeof(ExpressionSyntax) });
+
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.SemanticModelExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
+			getEnclosingNamedTypeMethod = typeInfo.GetMethod("GetEnclosingNamedType", new[] { typeof(SemanticModel), typeof(int), typeof(CancellationToken) });
+
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.ISymbolExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
+			isOverridableMethod = typeInfo.GetMethod("IsOverridable", new[] { typeof(ISymbol) });
+			isThisParameterMethod = typeInfo.GetMethod("IsThisParameter", new[] { typeof(ISymbol) });
+
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Symbols.TypeSymbolExtensions" + ReflectionNamespaces.CACSharpAsmName, true);
+			var typeSymbolType = Type.GetType("Microsoft.CodeAnalysis.CSharp.Symbols.TypeSymbol" + ReflectionNamespaces.CACSharpAsmName, true);
+			isErrorTypeMethod = typeInfo.GetMethod("IsErrorType", new[] { typeSymbolType });
+
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.MemberDeclarationSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
+			getLocalDeclarationMapMethod = typeInfo.GetMethod("GetLocalDeclarationMap", new[] { typeof(MemberDeclarationSyntax) });
+
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.MemberDeclarationSyntaxExtensions+LocalDeclarationMap" + ReflectionNamespaces.CSWorkspacesAsmName, true);
+			localDeclarationMapIndexer = typeInfo.GetProperties().Single(p => p.GetIndexParameters().Any());
+
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.CommonSyntaxNodeExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
+			getAncestorsMethod = typeInfo.GetMethods().Single(m => m.Name == "GetAncestors" && !m.IsGenericMethod);
+		}
+
+		public static bool IsLeftSideOfDot(this ExpressionSyntax syntax)
+		{
+			return (bool)isLeftSideOfDotMethod.Invoke(null, new object[] { syntax });
+		}
+
+		public static bool IsRightSideOfDot(this ExpressionSyntax syntax)
+		{
+			return (bool)isRightSideOfDotMethod.Invoke(null, new object[] { syntax });
+		}
+
+		public static INamedTypeSymbol GetEnclosingNamedType(this SemanticModel semanticModel, int position, CancellationToken cancellationToken)
+		{
+			return (INamedTypeSymbol)getEnclosingNamedTypeMethod.Invoke(null, new object[] { semanticModel, position, cancellationToken });
+		}
+
+		public static bool IsOverridable(this ISymbol symbol)
+		{
+			return (bool)isOverridableMethod.Invoke(null, new object[] { symbol });
+		}
+
+		public static bool IsThisParameter(this ISymbol symbol)
+		{
+			return (bool)isThisParameterMethod.Invoke(null, new object[] { symbol });
+		}
+
+		static ImmutableArray<SyntaxToken> GetLocalDeclarationMap(this MemberDeclarationSyntax member, string localName)
+		{
+			object map = getLocalDeclarationMapMethod.Invoke(null, new object[] { member });
+			return (ImmutableArray<SyntaxToken>)localDeclarationMapIndexer.GetValue(map);
+		}
+
+		static IEnumerable<SyntaxNode> GetAncestors(this SyntaxToken node)
+		{
+			return (IEnumerable<SyntaxNode>)getAncestorsMethod.Invoke(null, new object[] { node });
+		}
+
 		public static ExpressionSyntax SkipParens(this ExpressionSyntax expression)
 		{
 			while (expression != null && expression.IsKind(SyntaxKind.ParenthesizedExpression)) {
@@ -63,7 +142,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static bool CanRemoveParentheses(this ParenthesizedExpressionSyntax node)
 		{
-			return Microsoft.CodeAnalysis.CSharp.Extensions.ParenthesizedExpressionSyntaxExtensions.CanRemoveParentheses(node); 
+			return (bool)canRemoveParenthesesMethod.Invoke(null, new object[] { node }); 
 		}
 
 		public static bool IsParentKind(this SyntaxNode node, SyntaxKind kind)
@@ -123,7 +202,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		internal static bool IsValidSymbolInfo(ISymbol symbol)
 		{
 			// name bound to only one symbol is valid
-			return symbol != null && !symbol.IsErrorType();
+			return symbol != null && !(bool)isErrorTypeMethod.Invoke(null, new object[] { symbol });
 		}
 
 		private static bool IsThisOrTypeOrNamespace(MemberAccessExpressionSyntax memberAccess, SemanticModel semanticModel)
@@ -165,9 +244,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var enclosingDeclarationSpace = FindImmediatelyEnclosingLocalVariableDeclarationSpace(expression);
 				var enclosingMemberDeclaration = expression.FirstAncestorOrSelf<MemberDeclarationSyntax>();
 				if (enclosingDeclarationSpace != null && enclosingMemberDeclaration != null) {
-					var locals = enclosingMemberDeclaration.GetLocalDeclarationMap() [identifierName.Identifier.ValueText];
+					var locals = enclosingMemberDeclaration.GetLocalDeclarationMap(identifierName.Identifier.ValueText);
 					foreach (var token in locals) {
-						if (token.GetAncestors<SyntaxNode>().Contains(enclosingDeclarationSpace)) {
+						if (token.GetAncestors().Contains(enclosingDeclarationSpace)) {
 							return true;
 						}
 					}
@@ -225,7 +304,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				break;
 			}
 
-			var newExpression = parent.ReplaceNode(originalNode, reducedNode);
+			var newExpression = parent.ReplaceNode((SyntaxNode)originalNode, reducedNode);
 
 			// detect cast ambiguities according to C# spec #7.7.6 
 			if (IsNameOrMemberAccessButNoExpression(newExpression)) {
@@ -333,7 +412,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var castExpression = (CastExpressionSyntax)expression.Parent;
 				if (castExpression.Type == expression)
 				{
-					var newCastExpression = castExpression.ReplaceNode(castExpression.Type, simplifiedNode);
+					var newCastExpression = castExpression.ReplaceNode((SyntaxNode)castExpression.Type, simplifiedNode);
 					var reparsedCastExpression = SyntaxFactory.ParseExpression(newCastExpression.ToString());
 
 					if (!reparsedCastExpression.IsKind(SyntaxKind.CastExpression))

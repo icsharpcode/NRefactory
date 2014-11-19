@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Add braces", LanguageNames.CSharp)]
 	public class AddBracesAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,21 +55,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			string keyword;
 			StatementSyntax embeddedStatement;
 			if (!RemoveBracesAction.IsSpecialNode(token, out keyword, out embeddedStatement))
-				return Enumerable.Empty<CodeAction> ();
+				return;
 			if (embeddedStatement is BlockSyntax)
-				return Enumerable.Empty<CodeAction> ();
-			return new[] {
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
 					string.Format("Add braces to '{0}'", keyword),
 					t2 => {
 						var blockSyntax = SyntaxFactory.Block(embeddedStatement).WithAdditionalAnnotations(Formatter.Annotation);
-						var newRoot = root.ReplaceNode(embeddedStatement, blockSyntax);
+						var newRoot = root.ReplaceNode((SyntaxNode)embeddedStatement, blockSyntax);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 

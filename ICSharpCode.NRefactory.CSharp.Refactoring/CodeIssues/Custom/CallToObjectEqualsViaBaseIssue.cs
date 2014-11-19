@@ -94,7 +94,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CallToObjectEqualsViaBaseIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -102,18 +102,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan) as InvocationExpressionSyntax;
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
 				if (node == null)
 					continue;
 
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Change invocation to call 'object.ReferenceEquals'", arg => {
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Change invocation to call 'object.ReferenceEquals'", arg => {
 					var arguments = new SeparatedSyntaxList<ArgumentSyntax>();
 					arguments = arguments.Add(SyntaxFactory.Argument(SyntaxFactory.ThisExpression())); 
 					arguments = arguments.Add(node.ArgumentList.Arguments[0]); 
 
 					return Task.FromResult(document.WithSyntaxRoot(
-						root.ReplaceNode(
+						root.ReplaceNode((SyntaxNode)
 							node, 
 							SyntaxFactory.InvocationExpression(
 								SyntaxFactory.ParseExpression("object.ReferenceEquals"),
@@ -123,13 +123,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 								.WithAdditionalAnnotations(Formatter.Annotation))
 						)
 					);
-				}));
+				}), diagnostic);
 
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Remove 'base.'", arg => {
-					return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, node.WithExpression(SyntaxFactory.IdentifierName("Equals")))));
-				}));
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove 'base.'", arg => {
+					return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, node.WithExpression(SyntaxFactory.IdentifierName("Equals")))));
+				}), diagnostic);
 			}
-			return result;
 		}
 	}
 }

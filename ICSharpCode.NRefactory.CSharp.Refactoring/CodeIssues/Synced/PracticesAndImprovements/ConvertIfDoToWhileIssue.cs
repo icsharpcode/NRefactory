@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertIfDoToWhileIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -113,21 +113,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan) as IfStatementSyntax;
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as IfStatementSyntax;
 				if (node == null)
 					continue;
 
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with 'while'", token => {
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'while'", token => {
 					var newNode = SyntaxFactory.WhileStatement(
 						node.Condition,
 						ConvertIfDoToWhileIssue.GetEmbeddedDoStatement(node.Statement).Statement
 					);
 					var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}));
+				}), diagnostic);
 			}
-			return result;
 		}
 	}
 }

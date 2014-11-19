@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Extension methods must be declared static", LanguageNames.CSharp)]
 	public class CS1105ExtensionMethodMustBeDeclaredStaticAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -53,14 +53,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var node = root.FindNode(span) as MethodDeclarationSyntax;
 			if (node == null || !node.Identifier.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			IMethodSymbol methodSymbol = model.GetDeclaredSymbol(node);
 			if (methodSymbol == null || methodSymbol.IsStatic || !methodSymbol.IsExtensionMethod)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] { CodeActionFactory.Create(node.Span, DiagnosticSeverity.Error, "Extension methods must be declared static", document.WithSyntaxRoot(
-				root.ReplaceNode(node, node.WithModifiers(node.Modifiers.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword)
-				.WithTrailingTrivia(SyntaxFactory.SyntaxTrivia(SyntaxKind.WhitespaceTrivia, " ")))))))};
+			context.RegisterRefactoring(
+				CodeActionFactory.Create(node.Span, DiagnosticSeverity.Error, "Extension methods must be declared static", document.WithSyntaxRoot(
+				root.ReplaceNode((SyntaxNode)node, node.WithModifiers(node.Modifiers.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword)
+				.WithTrailingTrivia(SyntaxFactory.SyntaxTrivia(SyntaxKind.WhitespaceTrivia, " ")))))))
+			);
 		}
 	}
 }

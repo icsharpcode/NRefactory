@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert cast to 'as'.", LanguageNames.CSharp)]
 	public class ConvertCastToAsAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -57,11 +57,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var token = root.FindToken(span.Start);
 			var castExpression = token.Parent.AncestorsAndSelf().OfType<CastExpressionSyntax>().FirstOrDefault();
 			if (castExpression == null || castExpression.Expression.Span.Contains (span))
-				return Enumerable.Empty<CodeAction> ();
+				return;
 			var type = model.GetTypeInfo(castExpression.Type).Type;
 			if (type == null || type.IsValueType && !type.IsNullableType())
-				return Enumerable.Empty<CodeAction> ();
-			return new[] { CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert cast to 'as'", t2 => Task.FromResult(PerformAction (document, root, castExpression))) };
+				return;
+			context.RegisterRefactoring(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert cast to 'as'", t2 => Task.FromResult(PerformAction (document, root, castExpression))));
 
 //			// only works on reference and nullable types
 //			var type = context.ResolveType (node.Type);
@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var asExpr = (ExpressionSyntax)SyntaxFactory.BinaryExpression(SyntaxKind.AsExpression, castExpr.Expression, token, castExpr.Type);
 			if (nodeToReplace.Parent is ExpressionSyntax)
 				asExpr = SyntaxFactory.ParenthesizedExpression(asExpr);
-			var newRoot = root.ReplaceNode(nodeToReplace, asExpr);
+			var newRoot = root.ReplaceNode((SyntaxNode)nodeToReplace, asExpr);
 			return document.WithSyntaxRoot(newRoot);
 		}
 

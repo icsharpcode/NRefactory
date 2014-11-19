@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert 'if' to '?:'", LanguageNames.CSharp)]
 	public class ConvertIfStatementToConditionalTernaryExpressionAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span) as IfStatementSyntax;
 			if (node == null || node.Else == null || node.Parent is IfStatementSyntax || node.Else.Statement is IfStatementSyntax)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var condition = node.Condition;
 			//make sure to check for multiple statements
@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var embeddedBlock = node.Statement as BlockSyntax;
 			if (embeddedBlock != null) {
 				if (embeddedBlock.Statements.Count > 1)
-					return Enumerable.Empty<CodeAction>();
+					return;
 				whenTrueExprStatement = node.Statement.DescendantNodesAndSelf().OfType<ExpressionStatementSyntax>().FirstOrDefault();
 			} else {
 				whenTrueExprStatement = node.Statement as ExpressionStatementSyntax;
@@ -68,26 +68,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var elseBlock = node.Else.Statement as BlockSyntax;
 			if (elseBlock != null) {
 				if (elseBlock.Statements.Count > 1)
-					return Enumerable.Empty<CodeAction>();
+					return;
 				whenFalseExprStatement = node.Else.Statement.DescendantNodesAndSelf().OfType<ExpressionStatementSyntax>().FirstOrDefault();
 			} else {
 				whenFalseExprStatement = node.Else.Statement as ExpressionStatementSyntax;
 			}
 
 			if (whenTrueExprStatement == null || whenFalseExprStatement == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var trueAssignment = whenTrueExprStatement.Expression as AssignmentExpressionSyntax;
 			var falseAssignment = whenFalseExprStatement.Expression as AssignmentExpressionSyntax;
 			if (trueAssignment == null /*|| !ConvertAssignmentToIfAction.IsAssignment(trueAssignment)*/ || 
 				falseAssignment == null /*|| !ConvertAssignmentToIfAction.IsAssignment(falseAssignment)*/ || trueAssignment.CSharpKind() != falseAssignment.CSharpKind() ||
 				!trueAssignment.Left.IsEquivalentTo(falseAssignment.Left))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with '?:' expression", 
 					t2 => {
-						var newRoot = root.ReplaceNode(node, 
+						var newRoot = root.ReplaceNode((SyntaxNode)node, 
 							SyntaxFactory.ExpressionStatement(
 								SyntaxFactory.AssignmentExpression(
 									trueAssignment.CSharpKind(),
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 	}
 }

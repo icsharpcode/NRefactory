@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Use 'as' and null check", LanguageNames.CSharp)]
 	public class UseAsAndNullCheckAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var isExpression = root.FindNode(span) as BinaryExpressionSyntax;
 
 			if (!isExpression.IsKind(SyntaxKind.IsExpression) || !isExpression.OperatorToken.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var ifElseStatement = isExpression.Parent.AncestorsAndSelf().FirstOrDefault(e => !(e is ParenthesizedExpressionSyntax) && !(e is BinaryExpressionSyntax)) as IfStatementSyntax;
 			var expr = isExpression.Parent as ExpressionSyntax;
@@ -65,14 +65,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				}
 			}
 			if (ifElseStatement == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			int foundCasts;
-			var action = ScanIfElse(model, document, root, ifElseStatement, isExpression, out foundCasts);
-			if (action != null)
-				return action;
-
-			return Enumerable.Empty<CodeAction>();
+			foreach (var action in ScanIfElse(model, document, root, ifElseStatement, isExpression, out foundCasts))
+				context.RegisterRefactoring(action);
 		}
 
 		static bool IsCast(SemanticModel model, SyntaxNode n, ITypeSymbol type)
@@ -102,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (c2.IsKind(SyntaxKind.IsExpression)) {
 					return HandleNegatedCase(ctx, document, root, ifElseStatement, ifElseStatement.Condition, isExpression, out foundCastCount);
 				}
-				return null;
+				return Enumerable.Empty<CodeAction>();
 			}
 
 			var castToType       = isExpression.Right;
@@ -110,7 +107,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var rr = ctx.GetTypeInfo(castToType);
 			if (rr.Type == null || !rr.Type.IsReferenceType)
-				return null;
+				return Enumerable.Empty<CodeAction>();
 			var foundCasts = embeddedStatment.DescendantNodesAndSelf(n => !IsCast(ctx, n, rr.Type)).Where(arg => IsCast(ctx, arg, rr.Type)).ToList();
 			foundCasts.AddRange(ifElseStatement.Condition.DescendantNodesAndSelf(n => !IsCast(ctx, n, rr.Type)).Where(arg => arg.SpanStart > isExpression.Span.End && IsCast(ctx, arg, rr.Type)));
 			foundCastCount = foundCasts.Count;
@@ -140,23 +137,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							foundCasts = ifElseStatement.DescendantNodesAndSelf(n => !IsCast(ctx, n, rr.Type)).Where(arg => IsCast(ctx, arg, rr.Type)).ToList();
 							var newIf = ifElseStatement.TrackNodes(foundCasts.Concat(new [] { outerIs }));
 
-							newIf = newIf.ReplaceNode(newIf.GetCurrentNode(outerIs), binaryOperatorExpression.WithAdditionalAnnotations(Formatter.Annotation));
+							newIf = newIf.ReplaceNode((SyntaxNode)newIf.GetCurrentNode(outerIs), binaryOperatorExpression.WithAdditionalAnnotations(Formatter.Annotation));
 
 							foreach (var c in foundCasts) {
-								newIf = newIf.ReplaceNode(newIf.GetCurrentNode(c), SyntaxFactory.IdentifierName(varName).WithAdditionalAnnotations(Formatter.Annotation));
+								newIf = newIf.ReplaceNode((SyntaxNode)newIf.GetCurrentNode(c), SyntaxFactory.IdentifierName(varName).WithAdditionalAnnotations(Formatter.Annotation));
 							}
 
 							var block = SyntaxFactory.Block(new StatementSyntax[] {
 								varDec,
 								newIf
 							});
-							newRoot = root.ReplaceNode(ifElseStatement, block.WithAdditionalAnnotations(Formatter.Annotation));
+							newRoot = root.ReplaceNode((SyntaxNode)ifElseStatement, block.WithAdditionalAnnotations(Formatter.Annotation));
 						} else {
 							newRoot = root.TrackNodes(foundCasts.Concat(new SyntaxNode[] { ifElseStatement, outerIs }) );
 							newRoot = newRoot.InsertNodesBefore(newRoot.GetCurrentNode(ifElseStatement), new [] { varDec.WithAdditionalAnnotations(Formatter.Annotation) });
-							newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(outerIs), binaryOperatorExpression.WithAdditionalAnnotations(Formatter.Annotation));
+							newRoot = newRoot.ReplaceNode((SyntaxNode)newRoot.GetCurrentNode(outerIs), binaryOperatorExpression.WithAdditionalAnnotations(Formatter.Annotation));
 							foreach (var c in foundCasts) {
-								newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(c), SyntaxFactory.IdentifierName(varName).WithAdditionalAnnotations(Formatter.Annotation));
+								newRoot = newRoot.ReplaceNode((SyntaxNode)newRoot.GetCurrentNode(c), SyntaxFactory.IdentifierName(varName).WithAdditionalAnnotations(Formatter.Annotation));
 							}
 						}
 
@@ -181,7 +178,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var rr = ctx.GetTypeInfo(castToType);
 			if (rr.Type == null || !rr.Type.IsReferenceType)
-				return null;
+				return Enumerable.Empty<CodeAction>();
 
 			List<SyntaxNode> foundCasts;
 
@@ -218,10 +215,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var binaryOperatorExpression = SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression, SyntaxFactory.IdentifierName(varName), SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression));
 						SyntaxNode newRoot;
 						if (IsEmbeddedStatement(ifElseStatement)) {
-							var newIf = ifElseStatement.ReplaceNode(c2, binaryOperatorExpression.WithAdditionalAnnotations(Formatter.Annotation));
+							var newIf = ifElseStatement.ReplaceNode((SyntaxNode)c2, binaryOperatorExpression.WithAdditionalAnnotations(Formatter.Annotation));
 
 							foreach (var c in foundCasts) {
-								newIf = newIf.ReplaceNode(newIf.GetCurrentNode(c), SyntaxFactory.IdentifierName(varName).WithAdditionalAnnotations(Formatter.Annotation));
+								newIf = newIf.ReplaceNode((SyntaxNode)newIf.GetCurrentNode(c), SyntaxFactory.IdentifierName(varName).WithAdditionalAnnotations(Formatter.Annotation));
 							}
 
 							var block = SyntaxFactory.Block(new StatementSyntax[] {
@@ -229,13 +226,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 								newIf
 							});
 
-							newRoot = root.ReplaceNode(ifElseStatement, block.WithAdditionalAnnotations(Formatter.Annotation));
+							newRoot = root.ReplaceNode((SyntaxNode)ifElseStatement, block.WithAdditionalAnnotations(Formatter.Annotation));
 						} else {
 							newRoot = root.TrackNodes(foundCasts.Concat(new SyntaxNode[] { ifElseStatement, c2 }) );
 							newRoot = newRoot.InsertNodesBefore(newRoot.GetCurrentNode(ifElseStatement), new [] { varDec.WithAdditionalAnnotations(Formatter.Annotation) });
-							newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(c2), binaryOperatorExpression.WithAdditionalAnnotations(Formatter.Annotation));
+							newRoot = newRoot.ReplaceNode((SyntaxNode)newRoot.GetCurrentNode(c2), binaryOperatorExpression.WithAdditionalAnnotations(Formatter.Annotation));
 							foreach (var c in foundCasts) {
-								newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(c), SyntaxFactory.IdentifierName(varName).WithAdditionalAnnotations(Formatter.Annotation));
+								newRoot = newRoot.ReplaceNode((SyntaxNode)newRoot.GetCurrentNode(c), SyntaxFactory.IdentifierName(varName).WithAdditionalAnnotations(Formatter.Annotation));
 							}
 						}
 

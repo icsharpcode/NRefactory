@@ -217,16 +217,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	//			yield return DoNotCallOverridableMethodsInConstructorIssue.DiagnosticId;
 	//		}
 	//
-	//		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext  context)
+	//		public override async Task ComputeFixesAsync(CodeFixContext  context)
 	//		{
 	//			var root = await document.GetSyntaxRootAsync(cancellationToken);
 	//			var result = new List<CodeAction>();
-	//			foreach (var diagonstic in diagnostics) {
-	//				var node = root.FindNode(diagonstic.Location.SourceSpan);
+	//			foreach (var diagnostic in diagnostics) {
+	//				var node = root.FindNode(diagnostic.Location.SourceSpan);
 	//				//if (!node.IsKind(SyntaxKind.BaseList))
 	//				//	continue;
 	//				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-	//				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make class '{0}' sealed", document.WithSyntaxRoot(newRoot)));
+	//				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class '{0}' sealed", document.WithSyntaxRoot(newRoot)), diagnostic);
 	//			}
 	//			return result;
 	//		}

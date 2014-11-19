@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert 'as' to cast.", LanguageNames.CSharp)]
 	public class ConvertAsToCastAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,10 +55,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var token = root.FindToken(span.Start);
 
 			if (!token.IsKind(SyntaxKind.AsKeyword))
-				return Enumerable.Empty<CodeAction> ();
+				return;
 			var node = token.Parent as BinaryExpressionSyntax;
 
-			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert 'as' to cast", t2 => Task.FromResult(PerformAction (document, root, node))) };
+			context.RegisterRefactoring(
+				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert 'as' to cast", t2 => Task.FromResult(PerformAction (document, root, node)))
+			);
 		}
 
 		static Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax bop)
@@ -66,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var nodeToReplace = bop.SkipParens();
 			var castExpr = (ExpressionSyntax)SyntaxFactory.CastExpression(bop.Right as TypeSyntax, bop.Left).WithLeadingTrivia(bop.GetLeadingTrivia()).WithTrailingTrivia(bop.GetTrailingTrivia());
 
-			var newRoot = root.ReplaceNode(nodeToReplace, castExpr);
+			var newRoot = root.ReplaceNode((SyntaxNode)nodeToReplace, castExpr);
 			return document.WithSyntaxRoot(newRoot);
 		}
 	}

@@ -44,14 +44,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Create event invocator", LanguageNames.CSharp)]
 	public class CreateEventInvocatorAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
 		}
 //		/// <summary>
 //		/// If <c>true</c> an explicit type will be used for the handler variable; otherwise, 'var' will be used as type.
@@ -137,7 +136,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return "On" + char.ToUpper(eventName[0]) + eventName.Substring(1);
 		}
 
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 //		{
 //			VariableInitializer initializer;
 //			var eventDeclaration = GetEventDeclaration(context, out initializer);

@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		#region CodeRefactoringProvider implementation
 
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var parseOptions = root.SyntaxTree.Options as CSharpParseOptions;
 			if (parseOptions != null && parseOptions.LanguageVersion < LanguageVersion.CSharp3)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var token = root.FindToken(span.Start);
 
@@ -74,22 +74,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (foreachStmt != null)
 				type = foreachStmt.Type;
 			if (type == null || type.IsVar)
-				return Enumerable.Empty<CodeAction>();
-			return new[] {
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span, 
 					DiagnosticSeverity.Info, 
 					"Use 'var' keyword", 
 					t2 => Task.FromResult(PerformAction(document, root, type))
 				)
-			};
+			);
 		}
 
 		#endregion
 
 		static Document PerformAction(Document document, SyntaxNode root, TypeSyntax type)
 		{
-			var newRoot = root.ReplaceNode(
+			var newRoot = root.ReplaceNode((SyntaxNode)
 				type,
 				SyntaxFactory.IdentifierName("var")
 				.WithLeadingTrivia(type.GetLeadingTrivia())

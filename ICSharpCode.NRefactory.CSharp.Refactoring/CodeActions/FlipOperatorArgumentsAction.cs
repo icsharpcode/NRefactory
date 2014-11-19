@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Swap left and right arguments", LanguageNames.CSharp)]
 	public class FlipOperatorArgumentsAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -53,9 +53,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var binop = root.FindToken(span.Start).Parent as BinaryExpressionSyntax;
 
 			if (binop == null || !binop.OperatorToken.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					binop.OperatorToken.Span,
 					DiagnosticSeverity.Info,
@@ -63,11 +63,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					t2 => {
 						var newBinop = SyntaxFactory.BinaryExpression(binop.CSharpKind(), binop.Right, binop.Left)
 							.WithAdditionalAnnotations(Formatter.Annotation);
-						var newRoot = root.ReplaceNode(binop, newBinop);
+						var newRoot = root.ReplaceNode((SyntaxNode)binop, newBinop);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }

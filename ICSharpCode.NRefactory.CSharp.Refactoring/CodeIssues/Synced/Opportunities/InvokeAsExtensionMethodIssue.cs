@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return InvokeAsExtensionMethodIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -109,16 +109,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan).Parent.Parent as InvocationExpressionSyntax;
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan).Parent.Parent as InvocationExpressionSyntax;
 				if (node == null)
 					continue;
-				var newRoot = root.ReplaceNode(node, node.WithArgumentList(node.ArgumentList.WithArguments(node.ArgumentList.Arguments.RemoveAt(0)))
+				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithArgumentList(node.ArgumentList.WithArguments(node.ArgumentList.Arguments.RemoveAt(0)))
 					.WithExpression(((MemberAccessExpressionSyntax)node.Expression).WithExpression(node.ArgumentList.Arguments.First().Expression))
 					.WithLeadingTrivia(node.GetLeadingTrivia()));
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Convert to extension method call", document.WithSyntaxRoot(newRoot)));
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to extension method call", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
-			return result;
 		}
 	}
 }

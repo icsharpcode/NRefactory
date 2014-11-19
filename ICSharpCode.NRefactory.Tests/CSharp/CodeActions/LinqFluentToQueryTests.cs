@@ -28,7 +28,7 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[TestFixture]
+	[TestFixture, Ignore("Not implemented!")]
 	public class LinqFluentToQueryTests : ContextActionTestBase
 	{
 		[Test]

@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert 'if' to 'return'", LanguageNames.CSharp)]
 	public class ConvertIfStatementToReturnStatementAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -51,20 +51,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span) as IfStatementSyntax;
 			if (node == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			ExpressionSyntax condition;
 			ReturnStatementSyntax return1, return2, rs;
 			if (!ConvertIfStatementToReturnStatementAction.GetMatch(node, out condition, out return1, out return2, out rs))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span,
 					DiagnosticSeverity.Info, 
 					"Replace with 'return'", 
 					t2 => {
-						var newRoot = root.ReplaceNode(node, SyntaxFactory.ReturnStatement(CreateCondition(condition, return1, return2)).WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.ReturnStatement(CreateCondition(condition, return1, return2)).WithAdditionalAnnotations(Formatter.Annotation));
 						if (rs != null) {
 							var retToRemove = newRoot.DescendantNodes().OfType<ReturnStatementSyntax>().FirstOrDefault(r => r.IsEquivalentTo(rs));
 							newRoot = newRoot.RemoveNode(retToRemove, SyntaxRemoveOptions.KeepNoTrivia);
@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					})
-			};
+			);
 		}
 
 		static bool GetMatch(IfStatementSyntax node, out ExpressionSyntax c, out ReturnStatementSyntax e1, out ReturnStatementSyntax e2, out ReturnStatementSyntax rs)

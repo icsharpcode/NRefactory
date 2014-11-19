@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					"Join local variable declaration and assignment", 
 					t2 => {
 						root = root.TrackNodes(new SyntaxNode[] { node, nextStatement } );
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							root.GetCurrentNode(node),
 							node.WithInitializer(SyntaxFactory.EqualsValueClause(assignment.Right)).WithAdditionalAnnotations(Formatter.Annotation)
 						);

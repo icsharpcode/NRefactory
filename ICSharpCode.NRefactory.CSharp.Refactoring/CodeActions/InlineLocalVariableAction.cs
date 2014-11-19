@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Inline local variable", LanguageNames.CSharp)]
 	public class InlineLocalVariableAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -56,15 +56,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var node = root.FindNode(span) as VariableDeclaratorSyntax;
 			if (node == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var parent = node.Parent as VariableDeclarationSyntax;
 			if (parent == null || parent.Variables.Count != 1)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var sym = model.GetDeclaredSymbol(node) as ILocalSymbol;
 			if (sym == null)
-				return Enumerable.Empty<CodeAction>();
-			return new[] {
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
@@ -87,13 +87,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						}
 						var replaceExpr = node.Initializer.Value.WithAdditionalAnnotations(Formatter.Annotation);
 						foreach (var removeNode in nodes) {
-							newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(removeNode), AddParensIfRequired(removeNode, replaceExpr));
+							newRoot = newRoot.ReplaceNode((SyntaxNode)newRoot.GetCurrentNode(removeNode), AddParensIfRequired(removeNode, replaceExpr));
 						}
 
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 		public static bool RequiresParens(SyntaxNode replaceNode, SyntaxNode replaceWithNode)

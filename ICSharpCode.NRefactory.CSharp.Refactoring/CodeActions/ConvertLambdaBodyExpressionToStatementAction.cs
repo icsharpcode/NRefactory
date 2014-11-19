@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Converts expression of lambda body to statement", LanguageNames.CSharp)]
 	public class ConvertLambdaBodyExpressionToStatementAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,10 +55,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var token = root.FindToken(span.Start);
 			if (!token.IsKind(SyntaxKind.EqualsGreaterThanToken))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var node = token.Parent;
 			if (!node.IsKind(SyntaxKind.ParenthesizedLambdaExpression) && !node.IsKind(SyntaxKind.SimpleLambdaExpression))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			ExpressionSyntax bodyExpr = null;
 			if (node.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) {
@@ -67,9 +67,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				bodyExpr = ((SimpleLambdaExpressionSyntax)node).Body as ExpressionSyntax;
 			}		
 			if (bodyExpr == null)
-				return Enumerable.Empty<CodeAction> ();
+				return;
 
-			return new []  { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
@@ -86,11 +86,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							));
 						}
 
-						var newRoot = root.ReplaceNode(node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 		internal static bool RequireReturnStatement (SemanticModel model, SyntaxNode lambda)

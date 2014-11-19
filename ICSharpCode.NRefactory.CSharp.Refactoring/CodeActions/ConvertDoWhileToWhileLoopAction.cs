@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert do...while to while", LanguageNames.CSharp)]
 	public class ConvertDoWhileToWhileLoopAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -58,14 +58,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span) as DoStatementSyntax;
 			if (node == null)
-				return Enumerable.Empty<CodeAction>();
-			return new[] { 
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					"Convert to while loop", 
 					t2 => {
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							node, 
 							SyntaxFactory.WhileStatement(node.Condition, node.Statement)
 							.WithAdditionalAnnotations(Formatter.Annotation)
@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }

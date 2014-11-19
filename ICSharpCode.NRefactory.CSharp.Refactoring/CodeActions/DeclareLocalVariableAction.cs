@@ -46,12 +46,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Declare local variable", LanguageNames.CSharp)]
 	public class DeclareLocalVariableAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
 			if (span.Start == span.End)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
@@ -64,13 +64,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				node = ((ArgumentSyntax)node).Expression;
 			var expr = node as ExpressionSyntax;
 			if (expr == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var containingBlock = node.Ancestors().FirstOrDefault(a => a is BlockSyntax);
 			List<SyntaxNode> nodeList;
 			if (containingBlock != null) {
 				nodeList = containingBlock.DescendantNodes().Where(n => SyntaxFactory.AreEquivalent(n, node)).ToList();
 			} else {
-				return Enumerable.Empty<CodeAction>();
+				return;
 			}
 
 //			if (expr is ArrayInitializerExpression) {
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //			}
 //
 			var result = new List<CodeAction>();
-			result.Add(CodeActionFactory.Create(
+			context.RegisterRefactoring(CodeActionFactory.Create(
 				expr.Span,
 				DiagnosticSeverity.Info,
 				"Declare local variable",
@@ -112,10 +112,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						replaceNode = replaceNode.Parent;
 
 					if (replaceNode.Parent is ExpressionStatementSyntax) {
-						newRoot = root.ReplaceNode(replaceNode.Parent, varDecl);
+						newRoot = root.ReplaceNode((SyntaxNode)replaceNode.Parent, varDecl);
 					} else {
 						var identifierExpression = SyntaxFactory.IdentifierName(name);
-						newRoot = root.ReplaceNode(replaceNode, identifierExpression.WithAdditionalAnnotations(Formatter.Annotation));
+						newRoot = root.ReplaceNode((SyntaxNode)replaceNode, identifierExpression.WithAdditionalAnnotations(Formatter.Annotation));
 
 						var containing = newRoot.FindNode(expr.Span);
 						while (!(containing.Parent is BlockSyntax)) {
@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			));
 
 			if (nodeList.Count > 1) {
-				result.Add(CodeActionFactory.Create(
+				context.RegisterRefactoring(CodeActionFactory.Create(
 					expr.Span,
 					DiagnosticSeverity.Info,
 					string.Format("Declare local variable (replace '{0}' occurrences)", nodeList.Count),
@@ -158,14 +158,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 						if (replaceNode.Parent is ExpressionStatementSyntax) {
 							Console.WriteLine (1);
-							newRoot = newRoot.ReplaceNode(replaceNode.Parent, varDecl);
+							newRoot = newRoot.ReplaceNode((SyntaxNode)replaceNode.Parent, varDecl);
 						} else {
 							Console.WriteLine (2);
 							var curReplaceNode = newRoot.GetCurrentNode(replaceNode);
 							while (curReplaceNode.Parent is ParenthesizedExpressionSyntax)
 								curReplaceNode = curReplaceNode.Parent;
 
-							newRoot = newRoot.ReplaceNode(curReplaceNode, identifierExpression);
+							newRoot = newRoot.ReplaceNode((SyntaxNode)curReplaceNode, identifierExpression);
 
 							var containing = newRoot.FindNode(TextSpan.FromBounds(expr.SpanStart, expr.SpanStart));
 							while (!(containing.Parent is BlockSyntax)) {
@@ -181,17 +181,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							var curReplaceNode = newRoot.GetCurrentNode(nodeList[i]);
 							while (curReplaceNode.Parent is ParenthesizedExpressionSyntax)
 								curReplaceNode = curReplaceNode.Parent;
-							newRoot = newRoot.ReplaceNode(curReplaceNode, identifierExpression);
+							newRoot = newRoot.ReplaceNode((SyntaxNode)curReplaceNode, identifierExpression);
 						}
 
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				));
 			}
-
-			return result;
-
-
 		}
 
 	}

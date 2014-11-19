@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantAttributeParenthesesIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -100,10 +100,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as AttributeSyntax;
 				if (node == null)
 					continue;
-				var newRoot = root.ReplaceNode(node, node.WithArgumentList(null));
-				result.Add(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)));
+				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithArgumentList(null));
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
-			return result;
 		}
 	}
 }

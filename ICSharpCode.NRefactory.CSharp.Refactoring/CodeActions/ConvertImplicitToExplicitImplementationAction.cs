@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert implict to explicit implementation", LanguageNames.CSharp)]
 	public class ConvertImplicitToExplicitImplementationAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,34 +54,34 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			while (node != null && !(node is MemberDeclarationSyntax))
 				node = node.Parent;
 			if (node == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			if (!node.IsKind(SyntaxKind.MethodDeclaration) &&
 				!node.IsKind(SyntaxKind.PropertyDeclaration) &&
 				!node.IsKind(SyntaxKind.IndexerDeclaration) &&
 				!node.IsKind(SyntaxKind.EventDeclaration))
-				return Enumerable.Empty<CodeAction>();
+				return;
 //			if (!node.NameToken.Contains (context.Location))
 //				return null;
 
 			var memberDeclaration = node as MemberDeclarationSyntax;
 			var explicitSyntax = memberDeclaration.GetExplicitInterfaceSpecifierSyntax();
 			if (explicitSyntax != null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var enclosingSymbol = model.GetDeclaredSymbol(memberDeclaration, cancellationToken);
 			if (enclosingSymbol == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var containingType = enclosingSymbol.ContainingType;
 			if (containingType.TypeKind == TypeKind.Interface)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var implementingInterface = GetImplementingInterface(enclosingSymbol, containingType);
 			if (implementingInterface == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
@@ -116,14 +116,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 									.WithExplicitInterfaceSpecifier(nameSpecifier);
 								break;
 						}
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							memberDeclaration,
 							newNode.WithAdditionalAnnotations(Formatter.Annotation)
 						);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 
 		static INamedTypeSymbol GetImplementingInterface(ISymbol enclosingSymbol, INamedTypeSymbol containingType)

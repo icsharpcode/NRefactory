@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return AccessToStaticMemberViaDerivedTypeIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -135,16 +135,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				if (node == null)
 					continue;
 				var typeInfo = semanticModel.GetSymbolInfo(node.Parent);
 				var newType = typeInfo.Symbol.ContainingType.ToMinimalDisplayString(semanticModel, node.SpanStart);
-				var newRoot = root.ReplaceNode(node, SyntaxFactory.ParseTypeName(newType).WithLeadingTrivia(node.GetLeadingTrivia()));
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Use base qualifier '{0}'", newType), document.WithSyntaxRoot(newRoot)));
+				var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.ParseTypeName(newType).WithLeadingTrivia(node.GetLeadingTrivia()));
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Use base qualifier '{0}'", newType), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
-			return result;
 		}
 	}
 }

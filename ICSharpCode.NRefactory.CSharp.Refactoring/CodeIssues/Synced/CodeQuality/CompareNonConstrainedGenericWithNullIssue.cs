@@ -108,7 +108,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CompareNonConstrainedGenericWithNullIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -117,20 +117,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				if (!node.IsKind(SyntaxKind.NullLiteralExpression))
 					continue;
-				result.Add(CodeActionFactory.Create(
+				context.RegisterFix(CodeActionFactory.Create(
 					node.Span,
-					diagonstic.Severity,
+					diagnostic.Severity,
 					"Replace with 'default'",
 					token => {
 						var bOp = (BinaryExpressionSyntax)node.Parent;
 						var n = node == bOp.Left.SkipParens() ? bOp.Right : bOp.Left;
 						var info = semanticModel.GetTypeInfo(n);
 
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							node,
 							SyntaxFactory.DefaultExpression(
 								SyntaxFactory.ParseTypeName(info.Type.ToMinimalDisplayString(semanticModel, node.SpanStart)))
@@ -139,10 +139,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						);
 
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
-					})
+					}), diagnostic
 				);
 			}
-			return result;
 		}
 	}
 }

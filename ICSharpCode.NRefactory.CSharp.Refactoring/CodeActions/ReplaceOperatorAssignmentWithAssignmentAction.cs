@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Replace operator assignment with assignment", LanguageNames.CSharp)]
 	public class ReplaceOperatorAssignmentWithAssignmentAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,22 +55,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = token.Parent as AssignmentExpressionSyntax;
 			if (node == null || !node.OperatorToken.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			if (node.IsKind(SyntaxKind.SimpleAssignmentExpression))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new []  { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
 					"Replace with '='",
 					t2 => {
 						var newNode = SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, node.Left, SyntaxFactory.BinaryExpression(GetAssignmentOperator(node.CSharpKind()), node.Left, node.Right));
-						var newRoot = root.ReplaceNode(node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 		static SyntaxKind GetAssignmentOperator(SyntaxKind op)

@@ -29,8 +29,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-
-	[TestFixture]
+	[TestFixture, Ignore("Not implemented!")]
 	public class RemoveRedundantCatchTypeTests : ContextActionTestBase
 	{
 		[Test]

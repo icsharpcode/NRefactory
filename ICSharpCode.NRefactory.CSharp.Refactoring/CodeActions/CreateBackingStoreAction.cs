@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Create backing store for auto property", LanguageNames.CSharp)]
 	public class CreateBackingStoreAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,11 +54,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var property = root.FindNode(span) as PropertyDeclarationSyntax;
 			if (property == null || !property.Identifier.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			if (property.AccessorList.Accessors.Any(b => b.Body != null)) //ignore properties with >=1 accessor body
-				return Enumerable.Empty<CodeAction>();
-			return new[] {
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					property.Identifier.Span, 
 					DiagnosticSeverity.Info, 
@@ -92,12 +92,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(new SyntaxList<AccessorDeclarationSyntax>().Add(getter).Add(setter)))
 							.WithAdditionalAnnotations(newPropAnno, Formatter.Annotation);
 
-						var newRoot = root.ReplaceNode(property, newProperty);
+						var newRoot = root.ReplaceNode((SyntaxNode)property, newProperty);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot.InsertNodesBefore(newRoot.GetAnnotatedNodes(newPropAnno).First(), new List<SyntaxNode>() {
 							backingStore
 						})));
 					})
-			};
+			);
 		}
 
 		public static string GetNameProposal(string name, SemanticModel model, SyntaxNode node)

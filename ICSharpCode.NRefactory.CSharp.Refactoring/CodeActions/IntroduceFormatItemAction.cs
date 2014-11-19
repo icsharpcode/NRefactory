@@ -49,12 +49,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Introduce format item", LanguageNames.CSharp)]
 	public class IntroduceFormatItemAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
 			if (span.Start == span.End)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
@@ -62,18 +62,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var token = root.FindToken(span.Start);
 			if (!token.IsKind(SyntaxKind.StringLiteralToken) || token.Span.End < span.End)
-				return Enumerable.Empty<CodeAction>();
-//			if (pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal)) {
-//				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 1) && new TextLocation(context.Location.Line, context.Location.Column + 1) < pexpr.EndLocation)) {
-//					yield break;
-//				}
-//			} else {
-//				if (!(pexpr.StartLocation < context.Location && context.Location < pexpr.EndLocation)) {
-//					yield break;
-//				}
-//			}
+				return;
+			//			if (pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal)) {
+			//				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 1) && new TextLocation(context.Location.Line, context.Location.Column + 1) < pexpr.EndLocation)) {
+			//					yield break;
+			//				}
+			//			} else {
+			//				if (!(pexpr.StartLocation < context.Location && context.Location < pexpr.EndLocation)) {
+			//					yield break;
+			//				}
+			//			}
 
-			return new[] { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
@@ -115,10 +115,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							})));
 						}
 
-						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(parent, newInvocation.WithAdditionalAnnotations(Formatter.Annotation))));
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)parent, newInvocation.WithAdditionalAnnotations(Formatter.Annotation))));
 					}
 				)
-			};
+			);
 		}
 	}
 }

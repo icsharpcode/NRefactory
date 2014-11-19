@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert 'switch' to 'if'", LanguageNames.CSharp)]
 	public class ConvertSwitchToIfAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -51,17 +51,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var node = root.FindNode(span) as SwitchStatementSyntax;
 
 			if (node == null || node.Sections.Count == 0 || node.Sections.All(l => l.Labels.Any(s => s.Keyword.IsKind(SyntaxKind.DefaultKeyword))))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			foreach (var section in node.Sections) {
 				var lastStatement = section.Statements.LastOrDefault();
 				//ignore non-trailing breaks
 				if(HasNonTrailingBreaks(section, lastStatement as BreakStatementSyntax))
-					return Enumerable.Empty<CodeAction>();
+					return;
 			}
 
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
@@ -99,9 +99,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							else
 								ifStatement = ifs.WithElse(SyntaxFactory.ElseClause(ifStatement));
 						}
-						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
 					})
-			};
+			);
 		}
 
 		ExpressionSyntax CollectCondition(ExpressionSyntax expressionSyntax, SyntaxList<SwitchLabelSyntax> labels)

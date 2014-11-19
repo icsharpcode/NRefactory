@@ -56,12 +56,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var parameter = node;
 			var bodyStatement = parameter.Parent.Parent.ChildNodes().OfType<BlockSyntax>().FirstOrDefault();
 			if (bodyStatement == null)
-				return null;
+				return Enumerable.Empty<CodeAction>();
 
 			var parameterSymbol = semanticModel.GetDeclaredSymbol(node);
 			var type = parameterSymbol.Type;
 			if (type == null || type.IsValueType || HasNullCheck(semanticModel, parameterSymbol, bodyStatement)) 
-				return null;
+				return Enumerable.Empty<CodeAction>();
 			return new [] { CodeActionFactory.Create(
 				node.Span,
 				DiagnosticSeverity.Info,
@@ -86,7 +86,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					);
 
 					var newBody = bodyStatement.WithStatements (SyntaxFactory.List<StatementSyntax>(new [] { ifStatement.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation) }.Concat (bodyStatement.Statements)));
-					var newRoot = root.ReplaceNode(bodyStatement, newBody);
+					var newRoot = root.ReplaceNode((SyntaxNode)bodyStatement, newBody);
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}
 			) };

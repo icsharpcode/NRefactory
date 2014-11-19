@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Invoke using static method syntax", LanguageNames.CSharp)]
 	public class ExtensionMethodInvocationToStaticMethodInvocationAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,31 +54,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span) as IdentifierNameSyntax;
 			if (node == null || !node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var memberAccess = node.Parent as MemberAccessExpressionSyntax;
 			var invocation = node.Parent.Parent as InvocationExpressionSyntax;
 			if (invocation == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var invocationRR = model.GetSymbolInfo(invocation);
 			if (invocationRR.Symbol == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var method = invocationRR.Symbol as IMethodSymbol;
 			if (method == null || !method.IsExtensionMethod)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					"Convert to static method call", 
 					t2 => {
-						var newRoot = root.ReplaceNode(invocation, ToStaticMethodInvocation(model, invocation, memberAccess, invocationRR).WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)invocation, ToStaticMethodInvocation(model, invocation, memberAccess, invocationRR).WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 
 		static SyntaxNode ToStaticMethodInvocation(SemanticModel model, InvocationExpressionSyntax invocation, MemberAccessExpressionSyntax memberAccess, SymbolInfo invocationRR)

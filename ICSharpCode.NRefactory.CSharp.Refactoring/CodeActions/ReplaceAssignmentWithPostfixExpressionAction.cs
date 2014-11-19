@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Replace assignment with postfix expression", LanguageNames.CSharp)]
 	public class ReplaceAssignmentWithPostfixExpressionAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,29 +55,29 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = token.Parent as AssignmentExpressionSyntax;
 			if (node == null || !node.OperatorToken.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var updatedNode = ReplaceWithOperatorAssignmentAction.CreateAssignment(node) ?? node;
 
 			if ((!updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) && !updatedNode.IsKind(SyntaxKind.SubtractAssignmentExpression)))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var rightLiteral = updatedNode.Right as LiteralExpressionSyntax;
 			if (rightLiteral == null || ((int)rightLiteral.Token.Value) != 1)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new []  { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
 					updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? "Replace with '{0}++'" : "Replace with '{0}--'",
 					t2 => {
 						var newNode = SyntaxFactory.PostfixUnaryExpression(updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? SyntaxKind.PostIncrementExpression : SyntaxKind.PostDecrementExpression, updatedNode.Left);
-						var newRoot = root.ReplaceNode(node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }

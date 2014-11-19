@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Use explicit type", LanguageNames.CSharp)]
 	public class UseExplicitTypeAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,36 +55,36 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (varDecl != null) {
 				var v = varDecl.Variables.FirstOrDefault();
 				if (v == null || v.Initializer == null) 
-					return Enumerable.Empty<CodeAction> ();
+					return;
 				type = model.GetTypeInfo(v.Initializer.Value).Type;
 				typeSyntax = varDecl.Type;
 			} else {
 				var foreachStatement = UseVarKeywordAction.GetForeachStatement(token.Parent);
 				if (foreachStatement == null) {
-					return Enumerable.Empty<CodeAction> ();
+					return;
 				}
 				type = model.GetTypeInfo(foreachStatement.Type).Type;
 				typeSyntax = foreachStatement.Type;
 			}
 
 			if (type == null || !typeSyntax.IsVar || type.TypeKind == TypeKind.Error || type.TypeKind == TypeKind.Unknown)
-				return Enumerable.Empty<CodeAction> ();
+				return;
 			if (!(type.SpecialType != SpecialType.System_Nullable_T && type.TypeKind != TypeKind.Unknown && !ContainsAnonymousType(type))) {
-				return Enumerable.Empty<CodeAction> ();
+				return;
 			}
-			return new[] { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
 					"Use explicit type", 
 					t2 => Task.FromResult(PerformAction (document, model, root, type, typeSyntax))
 				)
-			};
+			);
 		}
 
 		static Document PerformAction(Document document, SemanticModel model, SyntaxNode root, ITypeSymbol type, TypeSyntax typeSyntax)
 		{
-			var newRoot = root.ReplaceNode(
+			var newRoot = root.ReplaceNode((SyntaxNode)
 				typeSyntax,
 				SyntaxFactory.ParseTypeName(type.ToMinimalDisplayString(model, typeSyntax.SpanStart))
 				.WithLeadingTrivia(typeSyntax.GetLeadingTrivia())

@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Create changed event for property", LanguageNames.CSharp)]
 	public class CreateChangedEventAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,20 +54,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var property = root.FindNode(span) as PropertyDeclarationSyntax;
 
 			if (property == null || !property.Identifier.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var field = RemoveBackingStoreAction.GetBackingField(model, property);
 			if (field == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var type = property.Parent as TypeDeclarationSyntax;
 			if (type == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var resolvedType = model.Compilation.GetTypeSymbol("System", "EventHandler", 0, cancellationToken);
 			if (resolvedType == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					})
-			};
+			);
 		}
 
 

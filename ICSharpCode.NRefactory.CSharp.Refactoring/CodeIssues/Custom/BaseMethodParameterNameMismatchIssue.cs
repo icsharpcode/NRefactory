@@ -169,7 +169,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return BaseMethodParameterNameMismatchIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -177,15 +177,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				if (!node.IsKind(SyntaxKind.Parameter))
 					continue;
-				var renamedParameter = ((ParameterSyntax)node).WithIdentifier(SyntaxFactory.Identifier(diagonstic.CustomTags[0]));
-				var newRoot = root.ReplaceNode(node, renamedParameter);
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Rename to '{0}'", diagonstic.CustomTags[0]), document.WithSyntaxRoot(newRoot)));
+				var renamedParameter = ((ParameterSyntax)node).WithIdentifier(SyntaxFactory.Identifier(diagnostic.CustomTags[0]));
+				var newRoot = root.ReplaceNode((SyntaxNode)node, renamedParameter);
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Rename to '{0}'", diagnostic.CustomTags[0]), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
-			return result;
 		}
 	}
 }

@@ -60,8 +60,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							DiagnosticSeverity.Info, 
 							string.Format ("Negate '{0}'", uOp),
 							t2 => {
-								var newRoot = root.ReplaceNode(
-									uOp,
+								var newRoot = root.ReplaceNode((SyntaxNode)
+									(SyntaxNode)uOp,
 									node.WithAdditionalAnnotations(Formatter.Annotation)
 								);
 								return Task.FromResult(document.WithSyntaxRoot(newRoot));
@@ -77,8 +77,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					DiagnosticSeverity.Info, 
 					string.Format ("Negate '{0}'", node),
 					t2 => {
-						var newRoot = root.ReplaceNode(
-							node,
+						var newRoot = root.ReplaceNode((SyntaxNode)
+							(SyntaxNode)node,
 							SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, SyntaxFactory.ParenthesizedExpression(node)).WithAdditionalAnnotations(Formatter.Annotation)
 						);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));

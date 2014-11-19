@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		static readonly string[] VariableNames = { "i", "j", "k", "l", "n", "m", "x", "y", "z"};
 		static readonly string[] CollectionNames = { "list" };
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -60,13 +60,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			bool hasIndexAccess;
 			var foreachStatement = GetForeachStatement(model, root, span, out hasIndexAccess);
 			if (foreachStatement == null || foreachStatement.Statement == null)
-				return Enumerable.Empty<CodeAction> ();
+				return;
 
 			string name = GetName(model, span, VariableNames);
 			if (name == null) // very unlikely, but just in case ...
-				return Enumerable.Empty<CodeAction> ();
-			var result = new List<CodeAction>();
-			result.Add(CodeActionFactory.Create(
+				return;
+			context.RegisterRefactoring(CodeActionFactory.Create(
 				span, 
 				DiagnosticSeverity.Info, 
 				"Convert 'foreach' loop to 'for'", 
@@ -183,16 +182,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 					SyntaxNode newRoot;
 					if (declarationStatement != null) {
-						newRoot = root.ReplaceNode(foreachStatement, new [] { declarationStatement.WithAdditionalAnnotations(Formatter.Annotation),  forStatement.WithAdditionalAnnotations(Formatter.Annotation) });
+						newRoot = root.ReplaceNode((SyntaxNode)foreachStatement, new [] { declarationStatement.WithAdditionalAnnotations(Formatter.Annotation),  forStatement.WithAdditionalAnnotations(Formatter.Annotation) });
 					} else {
-						newRoot = root.ReplaceNode(foreachStatement, forStatement.WithAdditionalAnnotations(Formatter.Annotation));
+						newRoot = root.ReplaceNode((SyntaxNode)foreachStatement, forStatement.WithAdditionalAnnotations(Formatter.Annotation));
 					}
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}
 			));
 
 			if (hasIndexAccess) {
-				result.Add(CodeActionFactory.Create(
+				context.RegisterRefactoring(CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					"Convert 'foreach' loop to optimized 'for'", 
@@ -297,16 +296,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 						SyntaxNode newRoot;
 						if (declarationStatement != null) {
-							newRoot = root.ReplaceNode(foreachStatement, new [] { declarationStatement.WithAdditionalAnnotations(Formatter.Annotation),  forStatement.WithAdditionalAnnotations(Formatter.Annotation) });
+							newRoot = root.ReplaceNode((SyntaxNode)foreachStatement, new [] { declarationStatement.WithAdditionalAnnotations(Formatter.Annotation),  forStatement.WithAdditionalAnnotations(Formatter.Annotation) });
 						} else {
-							newRoot = root.ReplaceNode(foreachStatement, forStatement.WithAdditionalAnnotations(Formatter.Annotation));
+							newRoot = root.ReplaceNode((SyntaxNode)foreachStatement, forStatement.WithAdditionalAnnotations(Formatter.Annotation));
 						}
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				));
 			}
-
-			return result;
 		}
 		
 		static string GetCountProperty(ITypeSymbol type)

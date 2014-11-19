@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return DoubleNegationOperatorIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -109,18 +109,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var n = root.FindNode(diagonstic.Location.SourceSpan, true, true);
+			foreach (var diagnostic in diagnostics) {
+				var n = root.FindNode(diagnostic.Location.SourceSpan, true, true);
 				var node = n as PrefixUnaryExpressionSyntax;
 				if (node == null)
 					continue;
 				var innerUnaryOperatorExpr = node.Operand.SkipParens() as PrefixUnaryExpressionSyntax;
 				if (innerUnaryOperatorExpr == null)
 					continue;
-				var newRoot = root.ReplaceNode(node, innerUnaryOperatorExpr.Operand.SkipParens());
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, node.IsKind(SyntaxKind.LogicalNotExpression) ? "Remove '!!'" : "Remove '~~'", document.WithSyntaxRoot(newRoot)));
+				var newRoot = root.ReplaceNode((SyntaxNode)node, innerUnaryOperatorExpr.Operand.SkipParens());
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, node.IsKind(SyntaxKind.LogicalNotExpression) ? "Remove '!!'" : "Remove '~~'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
-			return result;
 		}
 		#endregion
 	}

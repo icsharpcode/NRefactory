@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		//if (!condition) return|break|continue;
 		//CodeBlock();
 
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -57,18 +57,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var ifStatement = GetIfElseStatement(root, span);
 			if (ifStatement == null)
-				return Enumerable.Empty<CodeAction>();
-			return new[] { 
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					"Simplify if in loops", 
 					t2 => {
-						var newRoot = root.ReplaceNode(ifStatement, GenerateNewScript(ifStatement));
+						var newRoot = root.ReplaceNode((SyntaxNode)ifStatement, GenerateNewScript(ifStatement));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 
 		static StatementSyntax GenerateNewTrueStatement(StatementSyntax falseStatement)

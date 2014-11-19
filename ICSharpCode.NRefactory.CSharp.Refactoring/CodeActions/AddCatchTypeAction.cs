@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Add type to general catch clause", LanguageNames.CSharp)]
 	public class AddCatchTypeAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -56,20 +56,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var catchClause = root.FindNode(span) as CatchClauseSyntax;
 			if (catchClause == null || catchClause.Declaration != null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var newIdent = SyntaxFactory.IdentifierName(exceptionType.ToMinimalDisplayString(model, span.Start));
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					"Add type specifier", 
 					t2 => {
-						var newRoot = root.ReplaceNode(catchClause, catchClause.WithDeclaration(SyntaxFactory.CatchDeclaration(newIdent, SyntaxFactory.Identifier("e"))
+						var newRoot = root.ReplaceNode((SyntaxNode)catchClause, catchClause.WithDeclaration(SyntaxFactory.CatchDeclaration(newIdent, SyntaxFactory.Identifier("e"))
 							.WithAdditionalAnnotations(Formatter.Annotation)));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 	}
 }

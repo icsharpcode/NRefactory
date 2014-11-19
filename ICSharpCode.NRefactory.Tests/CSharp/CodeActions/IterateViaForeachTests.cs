@@ -29,7 +29,7 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[TestFixture]
+	[TestFixture, Ignore("Not implemented!")]
 	public class IterateViaForeachTests : ContextActionTestBase
 	{
 		[Test]

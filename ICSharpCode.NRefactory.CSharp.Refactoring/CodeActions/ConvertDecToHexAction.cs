@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert dec to hex.", LanguageNames.CSharp)]
 	public class ConvertDecToHexAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,16 +54,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
 			if (!token.IsKind(SyntaxKind.NumericLiteralToken))
-				return Enumerable.Empty<CodeAction> ();
+				return;
 			var value = token.Value;
 			if (!((value is int) || (value is long) || (value is short) || (value is sbyte) ||
 				(value is uint) || (value is ulong) || (value is ushort) || (value is byte))) {
-				return Enumerable.Empty<CodeAction> ();
+				return;
 			}
 			var literalValue = token.ToString();
 			if (literalValue.StartsWith("0X", System.StringComparison.OrdinalIgnoreCase))
-				return Enumerable.Empty<CodeAction> ();
-			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to hex", t2 => Task.FromResult(PerformAction (document, root, token))) };
+				return;
+			context.RegisterRefactoring(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to hex", t2 => Task.FromResult(PerformAction (document, root, token))));
 		}
 
 		static Document PerformAction(Document document, SyntaxNode root, SyntaxToken token)

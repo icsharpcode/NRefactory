@@ -53,10 +53,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //				DiagnosticSeverity.Info,
 //				"Split string literal",
 //				t2 => {
-//					var parent = block.Parent.ReplaceNode(block, block.Statements.First())
+//					var parent = block.Parent.ReplaceNode((SyntaxNode)block, block.Statements.First())
 //						.WithAdditionalAnnotations(Formatter.Annotation);
 //
-//					var newRoot = root.ReplaceNode(node, parent);
+//					var newRoot = root.ReplaceNode((SyntaxNode)node, parent);
 //					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 //				}
 //			);

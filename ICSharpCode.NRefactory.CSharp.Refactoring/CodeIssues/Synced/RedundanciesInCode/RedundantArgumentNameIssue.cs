@@ -140,7 +140,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantArgumentNameIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -148,8 +148,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				var argListSyntax = node.Parent.Parent as BaseArgumentListSyntax;
 				if (node.IsKind(SyntaxKind.NameColon) && argListSyntax != null) {
 					bool replace = true;
@@ -165,7 +165,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					}
 					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.Argument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
 
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)));
+					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
 					continue;
 				}
 				var attrListSyntax = node.Parent.Parent as AttributeArgumentListSyntax;
@@ -183,11 +183,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					}
 					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.AttributeArgument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
 
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)));
+					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
 					continue;
 				}
 			}
-			return result;
 		}
 	}
 

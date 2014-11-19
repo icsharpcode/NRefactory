@@ -270,13 +270,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 		///     Creates a new CSharpIndentEngine instance.
 		/// </summary>
 		/// <param name="document">
-		///     An instance of <see cref="IDocument"/> which is being parsed.
+		///     An instance of <see cref="SourceText"/> which is being parsed.
 		/// </param>
 		/// <param name="formattingOptions">
 		///     C# formatting options.
-		/// </param>
-		/// <param name="textEditorOptions">
-		///    Text editor options for indentation.
 		/// </param>
 		public CSharpIndentEngine(SourceText document, OptionSet formattingOptions)
 		{

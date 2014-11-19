@@ -230,7 +230,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CompareOfFloatsByEqualityOperatorIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -239,12 +239,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan) as BinaryExpressionSyntax;
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as BinaryExpressionSyntax;
 				if (node == null)
 					continue;
-				var floatType = diagonstic.CustomTags[1];
-				switch (diagonstic.CustomTags[0]) {
+				var floatType = diagnostic.CustomTags[1];
+				switch (diagnostic.CustomTags[0]) {
 					case "1":
 						result.Add(AddIsNaNIssue(document, semanticModel, root, node, node.Right, floatType));
 						break;
@@ -275,7 +275,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						break;
 				}
 			}
-			return result;
 		}
 
 		static CodeAction AddIsNaNIssue(Document document, SemanticModel semanticModel, SyntaxNode root, BinaryExpressionSyntax node, ExpressionSyntax argExpr, string floatType)
@@ -298,7 +297,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node.IsKind(SyntaxKind.NotEqualsExpression))
 					expr = SyntaxFactory.PrefixUnaryExpression (SyntaxKind.LogicalNotExpression, expr);
 				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode(node, expr);
+				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
 				return Task.FromResult(document.WithSyntaxRoot(newRoot));
 			});
 		}
@@ -323,7 +322,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node.IsKind(SyntaxKind.NotEqualsExpression))
 					expr = SyntaxFactory.PrefixUnaryExpression (SyntaxKind.LogicalNotExpression, expr);
 				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode(node, expr);
+				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
 				return Task.FromResult(document.WithSyntaxRoot(newRoot));
 			});
 		}
@@ -348,7 +347,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node.IsKind(SyntaxKind.NotEqualsExpression))
 					expr = SyntaxFactory.PrefixUnaryExpression (SyntaxKind.LogicalNotExpression, expr);
 				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode(node, expr);
+				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
 				return Task.FromResult(document.WithSyntaxRoot(newRoot));
 			});
 		}
@@ -375,7 +374,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					SyntaxFactory.IdentifierName("EPSILON")
 				);
 				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode(node, expr);
+				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
 				return Task.FromResult(document.WithSyntaxRoot(newRoot));
 			});
 		}
@@ -402,7 +401,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					SyntaxFactory.IdentifierName("EPSILON")
 				);
 				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode(node, expr);
+				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
 				return Task.FromResult(document.WithSyntaxRoot(newRoot));
 			});
 		}

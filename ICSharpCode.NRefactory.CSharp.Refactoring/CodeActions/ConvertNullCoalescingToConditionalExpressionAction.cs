@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert '??' to '?:'", LanguageNames.CSharp)]
 	public class ConvertNullCoalescingToConditionalExpressionAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -53,9 +53,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span) as BinaryExpressionSyntax;
 			if (node == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
@@ -69,10 +69,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							node.Left, 
 							node.Right
 						).WithAdditionalAnnotations(Formatter.Annotation);
-						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, (ExpressionSyntax)ternary)));
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, (ExpressionSyntax)ternary)));
 					}
 				)
-			};
+			);
 		}
 	}
 }

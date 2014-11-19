@@ -121,7 +121,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertConditionalTernaryToNullCoalescingIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -129,11 +129,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan) as ConditionalExpressionSyntax;
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
 				if (node == null)
 					continue;
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace '?:'  operator with '??", token => {
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:'  operator with '??", token => {
 					ExpressionSyntax a, other;
 					if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
 						a = node.WhenFalse;
@@ -153,11 +153,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 					ExpressionSyntax newNode = SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, a, other);
 
-					var newRoot = root.ReplaceNode(node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
+					var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
- 				}));
+ 				}), diagnostic);
 			}
-			return result;
 		}
 	}
 }

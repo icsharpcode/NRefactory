@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ArrayCreationCanBeReplacedWithArrayInitializerIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -120,11 +120,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var text = await document.GetTextAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var sourceSpan = diagonstic.Location.SourceSpan;
-				result.Add(CodeActionFactory.Create(sourceSpan, diagonstic.Severity, "Use array initializer", document.WithText(text.Replace(sourceSpan, ""))));
+			foreach (var diagnostic in diagnostics) {
+				var sourceSpan = diagnostic.Location.SourceSpan;
+				context.RegisterFix(CodeActionFactory.Create(sourceSpan, diagnostic.Severity, "Use array initializer", document.WithText(text.Replace(sourceSpan, ""))), diagnostic);
 			}
-			return result;
 		}
 		#endregion
 	}

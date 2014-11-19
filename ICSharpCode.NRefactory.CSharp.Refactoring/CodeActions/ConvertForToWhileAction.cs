@@ -75,7 +75,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					}
 					replaceStatements.Add (whileStatement.WithAdditionalAnnotations(Formatter.Annotation));
 
-					var newRoot = root.ReplaceNode(node, replaceStatements);
+					var newRoot = root.ReplaceNode((SyntaxNode)node, replaceStatements);
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}
 			)};

@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Simplify if flow", LanguageNames.CSharp)]
 	public class SimplifyIfFlowAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -53,9 +53,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var ifStatement = GetIfElseStatement(root, span);
 			if (ifStatement == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new []  { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					ifStatement.Span,
 					DiagnosticSeverity.Info,
@@ -63,11 +63,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					t2 => {
 						var mergedIfStatement = SyntaxFactory.IfStatement(CSharpUtil.InvertCondition(ifStatement.Condition), SyntaxFactory.ReturnStatement())
 							.WithAdditionalAnnotations(Formatter.Annotation);
-						var newRoot = root.ReplaceNode(ifStatement, new SyntaxNode[] { mergedIfStatement }.Concat(SimplifyIfInLoopsFlowAction.GetStatements(ifStatement.Statement)));
+						var newRoot = root.ReplaceNode((SyntaxNode)ifStatement, new SyntaxNode[] { mergedIfStatement }.Concat(SimplifyIfInLoopsFlowAction.GetStatements(ifStatement.Statement)));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 		static IfStatementSyntax GetIfElseStatement(SyntaxNode root, TextSpan span)

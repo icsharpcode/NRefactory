@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Add one or more optional parameters to an invocation, using their default values", LanguageNames.CSharp)]
 	public class AddOptionalParameterToInvocationAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -59,18 +59,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				invocationExpression = node.Parent as InvocationExpressionSyntax;
 			}
 			if (invocationExpression == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var symbolInfo = model.GetSymbolInfo(invocationExpression);
 			var method = symbolInfo.Symbol as IMethodSymbol;
 			if (method == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 
 			bool foundOptionalParameter = false;
 			foreach (var parameter in method.Parameters) {
 				if (parameter.IsParams) {
-					return Enumerable.Empty<CodeAction>();
+					return;
 				}
 				if (parameter.IsOptional) {
 					foundOptionalParameter = true;
@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				}
 			}
 			if (!foundOptionalParameter)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var result = new List<CodeAction>();
 
@@ -100,21 +100,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			foreach (var parameterToAdd in missingParameters) {
 				//Add specific parameter
-				result.Add(CodeActionFactory.Create(
+				context.RegisterRefactoring(CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					string.Format("Add optional parameter \"{0}\"", parameterToAdd.Name), 
 					t2 => {
 						var newInvocation = AddArgument(invocationExpression, parameterToAdd, parameterToAdd == missingParameters.First()).
 							WithAdditionalAnnotations(Formatter.Annotation);
-						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(invocationExpression, newInvocation)));
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)invocationExpression, newInvocation)));
 					}
 				));
 			}
 
 			if (missingParameters.Count > 1) {
 				//Add all parameters at once
-				result.Add(CodeActionFactory.Create(
+				context.RegisterRefactoring(CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					"Add all optional parameters",
@@ -123,14 +123,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						foreach (var parameterToAdd in missingParameters) {
 							newInvocation = AddArgument(newInvocation, parameterToAdd, true);
 						}
-						var newRoot = root.ReplaceNode(invocationExpression, newInvocation)
+						var newRoot = root.ReplaceNode((SyntaxNode)invocationExpression, newInvocation)
 							.WithAdditionalAnnotations(Formatter.Annotation);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				));
 			}
-
-			return result;
 		}
 
 		static InvocationExpressionSyntax AddArgument(InvocationExpressionSyntax invocationExpression, IParameterSymbol parameterToAdd, bool isNextInSequence)

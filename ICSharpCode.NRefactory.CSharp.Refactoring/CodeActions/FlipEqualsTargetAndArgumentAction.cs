@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Swap 'Equals' target and argument", LanguageNames.CSharp)]
 	public class FlipEqualsTargetAndArgumentAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,30 +54,30 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span) as IdentifierNameSyntax;
 			if (node == null || !node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var memberAccess = node.Parent as MemberAccessExpressionSyntax;
 			var invocation = node.Parent.Parent as InvocationExpressionSyntax;
 			if (invocation == null || invocation.ArgumentList.Arguments.Count != 1 || invocation.ArgumentList.Arguments[0].Expression.IsKind(SyntaxKind.NullLiteralExpression))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var invocationRR = model.GetSymbolInfo(invocation);
 			if (invocationRR.Symbol == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var method = invocationRR.Symbol as IMethodSymbol;
 			if (method == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			if (method.Name != "Equals" || method.IsStatic || method.ReturnType.SpecialType != SpecialType.System_Boolean)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					"Flip 'Equals' target and argument", 
 					t2 => {
-						var newRoot = root.ReplaceNode(invocation, 
+						var newRoot = root.ReplaceNode((SyntaxNode)invocation, 
 							invocation
 							.WithExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, AddParensIfRequired (invocation.ArgumentList.Arguments[0].Expression), memberAccess.Name))
 							.WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new [] { SyntaxFactory.Argument(memberAccess.Expression.SkipParens()) })))
@@ -86,7 +86,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 
 		internal static ExpressionSyntax AddParensIfRequired(ExpressionSyntax expression)

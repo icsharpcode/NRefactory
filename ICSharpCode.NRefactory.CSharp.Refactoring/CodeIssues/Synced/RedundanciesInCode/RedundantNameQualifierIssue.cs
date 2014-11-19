@@ -111,7 +111,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantNameQualifierIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -119,15 +119,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				var memberAccess = node.Parent as MemberAccessExpressionSyntax;
 				if (memberAccess != null) {
 					var newRoot = root.ReplaceNode((SyntaxNode)memberAccess,
 						memberAccess.Name
 						.WithLeadingTrivia(memberAccess.GetLeadingTrivia())
 						.WithTrailingTrivia(memberAccess.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)));
+					context.RegisterFix(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)), diagnostic);
 					continue;
 				}
 
@@ -137,10 +137,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						qualifiedName.Right
 						.WithLeadingTrivia(qualifiedName.GetLeadingTrivia())
 						.WithTrailingTrivia(qualifiedName.GetTrailingTrivia()));
-					result.Add(CodeActionFactory.Create(qualifiedName.Span, diagonstic.Severity, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)));
+					context.RegisterFix(CodeActionFactory.Create(qualifiedName.Span, diagnostic.Severity, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)), diagnostic);
 				}
 			}
-			return result;
 		}
 		#endregion
 	}

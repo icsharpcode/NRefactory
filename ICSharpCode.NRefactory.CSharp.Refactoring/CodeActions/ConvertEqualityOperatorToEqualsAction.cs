@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	public class ConvertEqualityOperatorToEqualsAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -57,15 +57,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var node = root.FindNode(span) as BinaryExpressionSyntax;
 			if (node == null || !(node.IsKind(SyntaxKind.EqualsExpression) || node.IsKind(SyntaxKind.NotEqualsExpression)))
-				return Enumerable.Empty<CodeAction>();
-			return new [] {
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
 					"Use 'Equals'", 
-					t2 => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, CreateEquals(model, node))))
+					t2 => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, CreateEquals(model, node))))
 				)
-			};
+			);
 		}
 
 		SyntaxNode CreateEquals(SemanticModel model, BinaryExpressionSyntax node)

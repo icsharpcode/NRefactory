@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return LongLiteralEndingLowerLIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -110,8 +110,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				String newLiteral = ((LiteralExpressionSyntax)node).Token.Text.ToUpperInvariant();
 				char prevChar = newLiteral[newLiteral.Length - 2];
 				char lastChar = newLiteral[newLiteral.Length - 1];
@@ -123,10 +123,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				else
 					newLong = long.Parse(newLiteral); //just in case
 
-				var newRoot = root.ReplaceNode(node, ((LiteralExpressionSyntax)node).WithToken(SyntaxFactory.Literal(newLiteral, newLong)));
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Make suffix upper case", document.WithSyntaxRoot(newRoot)));
+				var newRoot = root.ReplaceNode((SyntaxNode)node, ((LiteralExpressionSyntax)node).WithToken(SyntaxFactory.Literal(newLiteral, newLong)));
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make suffix upper case", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
-			return result;
 		}
 	}
 }

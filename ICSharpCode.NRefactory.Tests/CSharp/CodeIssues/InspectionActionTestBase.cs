@@ -37,6 +37,7 @@ using Microsoft.CodeAnalysis.Host.Mef;
 using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis.Host;
+using Microsoft.CodeAnalysis.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
@@ -156,12 +157,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			CodeFixProvider provider;
 			if (providers.TryGetValue(diagnostic.Id, out provider)) {
 				var document = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
-				var action = provider.GetFixesAsync(new CodeFixContext (document, diagnostic.Location.SourceSpan, new[] { diagnostic }, default(CancellationToken))).Result.ElementAtOrDefault(index);
-				if (action == null) {
+				var actions = new List<CodeAction>();
+				var context = new CodeFixContext(document, diagnostic, (fix, diags) => actions.Add(fix), default(CancellationToken));
+				provider.ComputeFixesAsync(context).Wait();
+				if (!actions.Any()) {
 					Assert.Fail("Provider has no fix for " + diagnostic.Id + " at " + diagnostic.Location.SourceSpan);
 					return;
 				}
-				foreach (var op in action.GetOperationsAsync(default(CancellationToken)).Result) {
+				foreach (var op in actions[index].GetOperationsAsync(default(CancellationToken)).Result) {
 					op.Apply(workspace, default(CancellationToken));
 				}
 			} else {

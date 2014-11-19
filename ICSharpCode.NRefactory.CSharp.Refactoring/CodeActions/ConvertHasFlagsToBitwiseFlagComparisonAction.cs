@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Replace 'Enum.HasFlag' call with bitwise flag comparison", LanguageNames.CSharp)]
 	public class ConvertHasFlagsToBitwiseFlagComparisonAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -51,17 +51,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var node = root.FindToken(span.Start).Parent;
 			if (node.Parent == null || node.Parent.Parent == null || !node.Parent.Parent.IsKind(SyntaxKind.InvocationExpression)) 
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var symbol = model.GetSymbolInfo(node.Parent).Symbol;
 
 			if (symbol == null || symbol.Kind != SymbolKind.Method || symbol.ContainingType.SpecialType != SpecialType.System_Enum || symbol.Name != "HasFlag")
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var invocationNode = (InvocationExpressionSyntax)node.Parent.Parent;
 			var arg = invocationNode.ArgumentList.Arguments.Select(a => a.Expression).First();
 			if (!arg.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseOrExpression)))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {  CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, "Replace with bitwise flag comparison", t2 => Task.FromResult(PerformAction(document, root, invocationNode))) };
+			context.RegisterRefactoring(
+				CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, "Replace with bitwise flag comparison", t2 => Task.FromResult(PerformAction(document, root, invocationNode)))
+			);
 		}
 
 		static Document PerformAction(Document document, SyntaxNode root, InvocationExpressionSyntax invocationNode)
@@ -89,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				SyntaxFactory.ParseExpression("0")
 			);
 
-			var newRoot = root.ReplaceNode(
+			var newRoot = root.ReplaceNode((SyntaxNode)
 				nodeToReplace,
 				expr.WithAdditionalAnnotations(Formatter.Annotation)
 			);

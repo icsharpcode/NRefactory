@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 {
 	class SyntaxContext
 	{
-		readonly Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx;
+		readonly CSharpSyntaxContext ctx;
 		readonly List<ITypeSymbol> inferredTypes;
 
 		public List<ITypeSymbol> InferredTypes {
@@ -128,19 +128,19 @@ namespace ICSharpCode.NRefactory6.CSharp
 				parent.Parent.IsKind(SyntaxKind.ForEachStatement)
 			);
 		}
-		
-		SyntaxContext(Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext ctx, List<ITypeSymbol> inferredTypes)
+
+		SyntaxContext(CSharpSyntaxContext ctx, List<ITypeSymbol> inferredTypes)
 		{
 			this.inferredTypes = inferredTypes;
 			this.ctx = ctx;
 		}
-		
+
 		static readonly CSharpTypeInferenceService inferenceService = new CSharpTypeInferenceService ();
 
 		public static SyntaxContext Create(Workspace workspace, Document document, SemanticModel semanticModel, int position, CancellationToken cancellationToken)
 		{
 			return new SyntaxContext(
-				Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext.CreateContext(workspace, semanticModel, position, cancellationToken),
+				CSharpSyntaxContext.CreateContext(workspace, semanticModel, position, cancellationToken),
 				inferenceService.InferTypes(semanticModel, position, cancellationToken).ToList()
 			);
 		}

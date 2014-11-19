@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert 'if' to '??' expression", LanguageNames.CSharp)]
 	public class ConvertIfStatementToNullCoalescingExpressionAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -51,14 +51,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span) as IfStatementSyntax;
 			if (node == null || !node.IfKeyword.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			ExpressionSyntax rightSide;
 			var comparedNode = CheckNode(node, out rightSide);
 			if (comparedNode == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
@@ -76,17 +76,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							var comparedNodeIdentifierExpression = comparedNode as IdentifierNameSyntax;
 							if (comparedNodeIdentifierExpression != null && comparedNodeIdentifierExpression.Identifier.ValueText == variable.Identifier.ValueText) {
 								var initialiser = variable.WithInitializer(SyntaxFactory.EqualsValueClause(SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, variable.Initializer.Value, rightSide)));
-								newRoot = root.ReplaceNode(variable, initialiser.WithAdditionalAnnotations(Formatter.Annotation));
+								newRoot = root.ReplaceNode((SyntaxNode)variable, initialiser.WithAdditionalAnnotations(Formatter.Annotation));
 							}
 						} else {
 							var previousExpressionStatement = previousNode as ExpressionStatementSyntax;
 							if (previousExpressionStatement != null) {
 								var previousAssignment = previousExpressionStatement.Expression as AssignmentExpressionSyntax;
 								if (previousAssignment != null && comparedNode.IsEquivalentTo(previousAssignment.Left, true)) {
-									newRoot = root.ReplaceNode(previousAssignment.Right, SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, previousAssignment.Right, rightSide).WithAdditionalAnnotations(Formatter.Annotation));
+									newRoot = root.ReplaceNode((SyntaxNode)previousAssignment.Right, SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, previousAssignment.Right, rightSide).WithAdditionalAnnotations(Formatter.Annotation));
 								}
 							} else {
-								newRoot = root.ReplaceNode(node, 
+								newRoot = root.ReplaceNode((SyntaxNode)node, 
 									SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, comparedNode, SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, comparedNode, rightSide)))
 									.WithAdditionalAnnotations(Formatter.Annotation)
 								);
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 		static ExpressionSyntax CheckNode(IfStatementSyntax node, out ExpressionSyntax rightSide)

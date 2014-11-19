@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert assignment to 'if'", LanguageNames.CSharp)]
 	public class ConvertAssignmentToIfAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -52,35 +52,34 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span) as AssignmentExpressionSyntax;
 			if (node == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			if (node.Right.IsKind(SyntaxKind.ConditionalExpression)) {
-				return new [] {
+				context.RegisterRefactoring(
 					CodeActionFactory.Create(
 						span, 
 						DiagnosticSeverity.Info, 
 						"Replace with 'if' statement", 
 						t2 => {
 							var ifStatement = CreateForConditionalExpression(node, (ConditionalExpressionSyntax)node.Right);
-							return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node.Parent, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
+							return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node.Parent, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
 						}
 					)
-				};
+				);
 			}
 			if (node.Right.IsKind(SyntaxKind.CoalesceExpression)) {
-				return new[] { 
+				context.RegisterRefactoring(
 					CodeActionFactory.Create(
 						span, 
 						DiagnosticSeverity.Info, 
 						"Replace with 'if' statement", 
 						t2 => {
 							var ifStatement = CreateForNullCoalescingExpression(node, (BinaryExpressionSyntax)node.Right);
-							return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node.Parent, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
+							return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node.Parent, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
 						}
 					)
-				};
+				);
 			}
-			return Enumerable.Empty<CodeAction>();
 		}
 
 		static IfStatementSyntax CreateForConditionalExpression(AssignmentExpressionSyntax expr, ConditionalExpressionSyntax conditional)

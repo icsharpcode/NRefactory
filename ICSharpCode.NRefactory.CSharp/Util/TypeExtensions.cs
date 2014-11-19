@@ -34,18 +34,31 @@ using System.Threading.Tasks;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Text;
+using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class TypeExtensions
 	{
+		readonly static MethodInfo generateTypeSyntaxMethod;
+		readonly static MethodInfo findDerivedClassesAsyncMethod;
+
+		static TypeExtensions()
+		{
+			var typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.ITypeSymbolExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
+			generateTypeSyntaxMethod = typeInfo.GetMethod("GenerateTypeSyntax", new[] { typeof(ITypeSymbol) });
+
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.FindSymbols.DependentTypeFinder" + ReflectionNamespaces.WorkspacesAsmName, true);
+			findDerivedClassesAsyncMethod = typeInfo.GetMethod("FindDerivedClassesAsync", new[] { typeof(INamedTypeSymbol), typeof(Solution), typeof(IImmutableSet<Project>), typeof(CancellationToken) });
+		}
+
 		public static TypeSyntax GenerateTypeSyntax(this ITypeSymbol typeSymbol, SyntaxAnnotation simplifierAnnotation = null)
-        {
-			var typeSyntax = Microsoft.CodeAnalysis.CSharp.Extensions.ITypeSymbolExtensions.GenerateTypeSyntax(typeSymbol);
+		{
+			var typeSyntax = (TypeSyntax)generateTypeSyntaxMethod.Invoke(null, new object[] { typeSymbol });
 			if (simplifierAnnotation != null)
 				return typeSyntax.WithAdditionalAnnotations(simplifierAnnotation);
 			return typeSyntax;
-        }
+		}
 		
 		#region GetDelegateInvokeMethod
 		/// <summary>
@@ -65,9 +78,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#endregion
 		
 		public static Task<IEnumerable<INamedTypeSymbol>> FindDerivedClassesAsync(this INamedTypeSymbol type, Solution solution, IImmutableSet<Project> projects = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return Microsoft.CodeAnalysis.FindSymbols.DependentTypeFinder.FindDerivedClassesAsync(type, solution, projects, cancellationToken);
-        }
+		{
+			return (Task<IEnumerable<INamedTypeSymbol>>)findDerivedClassesAsyncMethod.Invoke(null, new object[] { type, solution, projects, cancellationToken });
+		}
 		
 		/// <summary>
 		/// Gets the full name of the namespace.
@@ -86,8 +99,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			return type.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
 		}
- 	
-	
+		
+		
 		/// <summary>
 		/// Returns true if the type is public and was tagged with
 		/// [System.ComponentModel.ToolboxItem (true)]

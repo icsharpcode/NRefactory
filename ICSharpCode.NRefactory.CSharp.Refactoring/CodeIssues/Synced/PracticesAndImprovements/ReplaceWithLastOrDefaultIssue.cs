@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ReplaceWithLastOrDefaultIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -120,9 +120,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var parameterExpr = ((InvocationExpressionSyntax)node.Condition).ArgumentList;
 				var newRoot = root.ReplaceNode((ExpressionSyntax)node, SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
 					((InvocationExpressionSyntax)node.Condition).Expression, SyntaxFactory.IdentifierName("LastOrDefault")), parameterExpr));
-				result.Add(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'LastOrDefault<T>()'", document.WithSyntaxRoot(newRoot)));
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'LastOrDefault<T>()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
-			return result;
 		}
 	}
 }

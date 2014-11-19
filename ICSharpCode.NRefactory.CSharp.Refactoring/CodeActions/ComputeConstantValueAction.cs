@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return null;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -94,32 +94,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var node = root.FindNode(span);
 			var expr = node.FirstAncestorOrSelf<ExpressionSyntax>(n => n is BinaryExpressionSyntax || n is PostfixUnaryExpressionSyntax || n is PrefixUnaryExpressionSyntax);
 			if (expr == null)
-				return null;
+				return;
 			if (expr is BinaryExpressionSyntax) {
 				if (((BinaryExpressionSyntax)expr).OperatorToken.SpanStart != span.Start && expr.SpanStart != span.Start)
-					return null;
+					return;
 			} else {
 				if (expr.SpanStart != span.Start)
-					return null;
+					return;
 			}
 
 			var result = model.GetConstantValue(expr, cancellationToken);
 			if (!result.HasValue)
-				return null;
+				return;
 			var syntaxNode = GetLiteralExpression(result.Value);
 			if (syntaxNode == null)
-				return null;
-			return new [] {
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					node.Span,
 					DiagnosticSeverity.Info,
 					"Compute constant value",
 					t2 => {
-						var newRoot = root.ReplaceNode(expr, syntaxNode.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)expr, syntaxNode.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }

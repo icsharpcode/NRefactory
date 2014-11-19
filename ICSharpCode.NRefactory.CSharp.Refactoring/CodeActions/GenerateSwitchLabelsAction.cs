@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Generate switch labels", LanguageNames.CSharp)]
 	public class GenerateSwitchLabelsAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,12 +54,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var switchStatement = root.FindNode(span) as SwitchStatementSyntax;
 			if (switchStatement == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var result = model.GetSymbolInfo(switchStatement.Expression);
 			var resultType = result.Symbol.GetReturnType();
 			if (resultType.TypeKind != TypeKind.Enum)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			if (switchStatement.Sections.Count == 0) {
 				SyntaxList<SwitchSectionSyntax> sections = new SyntaxList<SwitchSectionSyntax>();
@@ -74,8 +74,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						SyntaxFactory.ThrowStatement(
 						SyntaxFactory.ObjectCreationExpression(
 							SyntaxFactory.IdentifierName("ArgumentOutOfRangeException")).WithArgumentList(SyntaxFactory.ArgumentList())))));
-				var newRoot = root.ReplaceNode(switchStatement, switchStatement.WithSections(sections).WithAdditionalAnnotations(Formatter.Annotation));
-				return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Create switch labels", document.WithSyntaxRoot(newRoot)) };
+				var newRoot = root.ReplaceNode((SyntaxNode)switchStatement, switchStatement.WithSections(sections).WithAdditionalAnnotations(Formatter.Annotation));
+				context.RegisterRefactoring(
+					CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Create switch labels", document.WithSyntaxRoot(newRoot))
+				);
 			} else {
 				List<IFieldSymbol> fields = new List<IFieldSymbol>();
 				foreach (var field in resultType.GetMembers()) {
@@ -86,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						fields.Add(fieldSymbol);
 				}
 				if (fields.Count == 0)
-					return Enumerable.Empty<CodeAction>();
+					return;
 				var newSections = new SyntaxList<SwitchSectionSyntax>().AddRange(
 					fields.Select(f => GetSectionFromSymbol(model, f, span).WithStatements(SyntaxFactory.SingletonList<StatementSyntax>(SyntaxFactory.BreakStatement()))));
 
@@ -98,8 +100,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				else
 					newSections = switchStatement.Sections.Remove(defaultSection).AddRange(newSections).Add(defaultSection);
 
-				var newRoot = root.ReplaceNode(switchStatement, switchStatement.WithSections(newSections).WithAdditionalAnnotations(Formatter.Annotation));
-				return new[] { CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Create missing switch labels", document.WithSyntaxRoot(newRoot)) };
+				var newRoot = root.ReplaceNode((SyntaxNode)switchStatement, switchStatement.WithSections(newSections).WithAdditionalAnnotations(Formatter.Annotation));
+				context.RegisterRefactoring(CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Create missing switch labels", document.WithSyntaxRoot(newRoot)) );
 			}
 		}
 

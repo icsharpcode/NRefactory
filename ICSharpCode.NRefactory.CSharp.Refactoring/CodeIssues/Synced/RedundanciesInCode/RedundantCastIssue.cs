@@ -277,7 +277,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantCastIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -285,18 +285,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				var ca = node as CastExpressionSyntax;
 				if (ca != null) {
 					SyntaxNode outerTypeCastNode = ca;
 					while (outerTypeCastNode.Parent is ParenthesizedExpressionSyntax)
 						outerTypeCastNode = outerTypeCastNode.Parent;
-					var newRoot = root.ReplaceNode(outerTypeCastNode, ca.Expression.SkipParens());
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Remove cast to '{0}'", ca.Type), document.WithSyntaxRoot(newRoot)));
+					var newRoot = root.ReplaceNode((SyntaxNode)outerTypeCastNode, ca.Expression.SkipParens());
+					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Remove cast to '{0}'", ca.Type), document.WithSyntaxRoot(newRoot)), diagnostic);
 				}
 			}
-			return result;
 		}
 	}
 }

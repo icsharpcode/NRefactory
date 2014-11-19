@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Negate a relational expression", LanguageNames.CSharp)]
 	public class NegateRelationalExpressionAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -56,21 +56,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			ExpressionSyntax expr;
 			SyntaxToken token;
 			if (!GetRelationalExpression (root, span, out expr, out token))
-				return Enumerable.Empty<CodeAction>();
-			return new[] { 
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					string.Format ("Negate '{0}'", expr),
 					t2 => {
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							expr,
 							CSharpUtil.InvertCondition(expr).WithAdditionalAnnotations(Formatter.Annotation)
 						);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 
 		internal static bool GetRelationalExpression (SyntaxNode root, TextSpan span, out ExpressionSyntax expr, out SyntaxToken token)

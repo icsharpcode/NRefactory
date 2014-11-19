@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Create local variable", LanguageNames.CSharp)]
 	public class CreateLocalVariableAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,23 +55,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var node = root.FindNode(span);
 			if (node.IsKind(SyntaxKind.Argument)) {
 				if (!((ArgumentSyntax)node).Expression.IsKind(SyntaxKind.IdentifierName))
-					return Enumerable.Empty<CodeAction>();
+					return;
 
 			} else if (node == null || !node.IsKind(SyntaxKind.IdentifierName)) {
-				return Enumerable.Empty<CodeAction>();
+				return;
 			}
 
 			var symbol = model.GetSymbolInfo(node);
 			if (symbol.Symbol != null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			if (CreateFieldAction.IsInvocationTarget(node)) 
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var guessedType = TypeGuessing.GuessAstType(model, node);
 			if (guessedType == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Error, 
@@ -96,7 +96,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							));
 //							if (!context.UseExplicitTypes)
 							decl = decl.WithDeclaration(decl.Declaration.WithType(SyntaxFactory.ParseTypeName("var")));
-							var root2 = root.ReplaceNode(node.Parent.Parent, decl.WithAdditionalAnnotations(Formatter.Annotation));
+							var root2 = root.ReplaceNode((SyntaxNode)node.Parent.Parent, decl.WithAdditionalAnnotations(Formatter.Annotation));
 							return Task.FromResult(document.WithSyntaxRoot(root2));
 						} 
 
@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 	}
 }

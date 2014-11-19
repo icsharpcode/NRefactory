@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Create a backing field for a not implemented property", LanguageNames.CSharp)]
 	public class ImplementNotImplementedProperty : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,10 +54,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var property = root.FindNode(span) as PropertyDeclarationSyntax;
 			if (property == null || !property.Identifier.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			if (property.AccessorList.Accessors.Any(acc => !IsNotImplemented(model, acc.Body, cancellationToken)))
-				return Enumerable.Empty<CodeAction>();
-			return new[] {
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					property.Identifier.Span, 
 					DiagnosticSeverity.Info, 
@@ -103,12 +103,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(list))
 							.WithAdditionalAnnotations(newPropAnno, Formatter.Annotation);
 
-						var newRoot = root.ReplaceNode(property, newProperty);
+						var newRoot = root.ReplaceNode((SyntaxNode)property, newProperty);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot.InsertNodesBefore(newRoot.GetAnnotatedNodes(newPropAnno).First(), new List<SyntaxNode>() {
 							backingStore
 						})));
 					})
-			};
+			);
 		}
 
 		static bool IsNotImplemented(SemanticModel context, BlockSyntax body, CancellationToken cancellationToken)

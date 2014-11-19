@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert method group to anoymous method", LanguageNames.CSharp)]
 	public class ConvertMethodGroupToAnonymousMethodAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span);
 			if (!node.IsKind(SyntaxKind.IdentifierName))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			if (node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
 				node = node.Parent;
@@ -62,13 +62,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var info = model.GetTypeInfo(node, cancellationToken);
 			var type = info.ConvertedType ?? info.Type;
 			if (type == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var invocationMethod = type.GetDelegateInvokeMethod();
 			if (invocationMethod == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new []  { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					node.Span,
 					DiagnosticSeverity.Info,
@@ -84,11 +84,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							parameters.Count == 0 ? null : SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters)),
 							SyntaxFactory.Block(stmt)
 						);
-						var newRoot = root.ReplaceNode(node, ame.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, ame.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 		static ParameterSyntax CreateParameterSyntax(SemanticModel model, SyntaxNode node, IParameterSymbol p)

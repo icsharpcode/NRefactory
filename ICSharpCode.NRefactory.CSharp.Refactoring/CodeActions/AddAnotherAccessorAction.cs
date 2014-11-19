@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				.WithArgumentList(SyntaxFactory.ArgumentList())));
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -65,23 +65,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var propertyDeclaration = token.Parent as PropertyDeclarationSyntax;
 
 			if (propertyDeclaration == null || propertyDeclaration.AccessorList == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var accessors = propertyDeclaration.AccessorList.Accessors;
 
 			//ignore if it has both accessors
 			if (accessors.Count == 2)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			//ignore interfaces
 			if (propertyDeclaration.Parent is InterfaceDeclarationSyntax)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			//if it has a getter, then we need a setter (we've checked for 2 accessors)
 			bool needsSetter = accessors.Any(m => m.IsKind(SyntaxKind.GetAccessorDeclaration));
 
-			return new[] { CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Add another accessor", t2 => {
+			context.RegisterRefactoring(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Add another accessor", t2 => {
 				return Task.FromResult(PerformAction(document, model, root, propertyDeclaration, needsSetter));
 				})
-			};
-
+			);
 		}
 
 		private Document PerformAction(Document document, SemanticModel model, SyntaxNode root, PropertyDeclarationSyntax propertyDeclaration, bool needsSetter)
@@ -128,7 +127,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var accessorList = SyntaxFactory.AccessorList(accessorDeclList);
 				newProp = propertyDeclaration.WithAccessorList(accessorList);
 			}
-			var newRoot = root.ReplaceNode(propertyDeclaration, newProp).WithAdditionalAnnotations(Formatter.Annotation);
+			var newRoot = root.ReplaceNode((SyntaxNode)propertyDeclaration, newProp).WithAdditionalAnnotations(Formatter.Annotation);
 			return document.WithSyntaxRoot(newRoot);
 		}
 	}

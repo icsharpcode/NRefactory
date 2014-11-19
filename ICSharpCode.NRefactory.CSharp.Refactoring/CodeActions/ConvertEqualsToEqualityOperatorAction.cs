@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert 'Equals' to '=='", LanguageNames.CSharp)]
 	public class ConvertEqualsToEqualityOperatorAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -52,20 +52,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span) as IdentifierNameSyntax;
 			if (node == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var invocation = node.Parent as InvocationExpressionSyntax ?? node.Parent.Parent as InvocationExpressionSyntax;
 			if (invocation == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var symbol = model.GetSymbolInfo(node).Symbol;
 			if (symbol == null || symbol.Name != "Equals" || symbol.ContainingType.SpecialType != SpecialType.System_Object)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			ExpressionSyntax expr = invocation;
 			bool useEquality = true;
 
 			if (invocation.ArgumentList.Arguments.Count != 2 && invocation.ArgumentList.Arguments.Count != 1)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			//node is identifier, parent is invocation, parent.parent (might) be unary negation
 			var uOp = invocation.Parent as PrefixUnaryExpressionSyntax;
 			if (uOp != null && uOp.IsKind(SyntaxKind.LogicalNotExpression)) {
@@ -73,13 +73,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				useEquality = false;
 			}
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					useEquality ? "Use '=='" : "Use '!='", 
 					t2 => {
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							expr, 
 							SyntaxFactory.BinaryExpression(
 								useEquality ? SyntaxKind.EqualsExpression : SyntaxKind.NotEqualsExpression,
@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 	}
 }

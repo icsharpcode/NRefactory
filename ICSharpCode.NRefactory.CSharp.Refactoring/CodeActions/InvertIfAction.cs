@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		// ex. if (cond) DoSomething () == if (!cond) return; DoSomething ()
 		// beware of loop contexts return should be continue then.
 
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,14 +54,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var ifStatement = GetIfElseStatement(root, span);
 			if (ifStatement == null)
-				return Enumerable.Empty<CodeAction>();
-			return new[] { 
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
 					"Invert if", 
 					t2 => {
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							ifStatement,
 							ifStatement
 							.WithCondition(CSharpUtil.InvertCondition(ifStatement.Condition))
@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 
 		static IfStatementSyntax GetIfElseStatement(SyntaxNode root, TextSpan span)

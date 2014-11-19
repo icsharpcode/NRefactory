@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return NonPublicMethodWithTestAttributeIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -113,10 +113,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					continue;
 				var newMethod = node.WithModifiers(SyntaxFactory.TokenList(new SyntaxTokenList().Add(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
 					.AddRange(node.Modifiers.ToArray().Where(m => !(m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword) || m.IsKind(SyntaxKind.InternalKeyword))))));
-				var newRoot = root.ReplaceNode(node, newMethod);
-				result.Add(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make method public", document.WithSyntaxRoot(newRoot)));
+				var newRoot = root.ReplaceNode((SyntaxNode)node, newMethod);
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make method public", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
-			return result;
 		}
 	}
 }

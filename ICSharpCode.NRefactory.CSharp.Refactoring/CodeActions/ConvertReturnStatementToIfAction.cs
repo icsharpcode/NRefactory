@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert 'return' to 'if'", LanguageNames.CSharp)]
 	public class ConvertReturnStatementToIfAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -52,11 +52,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var node = root.FindNode(span) as ReturnStatementSyntax;
 			if (node == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			if (node.Expression is BinaryExpressionSyntax && !node.Expression.IsKind(SyntaxKind.CoalesceExpression))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", 
 					t2 => {
 
@@ -76,14 +76,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							}
 						}
 
-						var newRoot = root.ReplaceNode(node, new SyntaxNode[] { 
+						var newRoot = root.ReplaceNode((SyntaxNode)node, new SyntaxNode[] { 
 							statement.WithAdditionalAnnotations(Formatter.Annotation),
 							returnAfter.WithAdditionalAnnotations(Formatter.Annotation)
 						});
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }

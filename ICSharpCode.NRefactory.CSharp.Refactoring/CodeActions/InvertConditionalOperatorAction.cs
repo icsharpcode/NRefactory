@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Invert conditional operator", LanguageNames.CSharp)]
 	public class InvertConditionalOperatorAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -63,14 +63,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var condExpr = node as ConditionalExpressionSyntax;
 			if (condExpr == null)
-				return Enumerable.Empty<CodeAction>();
-			return new []  { 
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
 					"Invert '?:'",
 					t2 => {
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							condExpr, 
 							condExpr
 							.WithCondition(CSharpUtil.InvertCondition(condExpr.Condition))
@@ -81,7 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }

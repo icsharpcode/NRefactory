@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Create custom event implementation", LanguageNames.CSharp)]
 	public class CreateCustomEventImplementationAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -57,10 +57,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				variableDeclarator.Parent.Parent == null || 
 				!variableDeclarator.Parent.Parent.IsKind(SyntaxKind.EventFieldDeclaration) || 
 				!variableDeclarator.Identifier.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var eventDecl = (EventFieldDeclarationSyntax)variableDeclarator.Parent.Parent;
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						SyntaxNode newRoot;
 
 						if (eventDecl.Declaration.Variables.Count > 1) {
-							newRoot = root.ReplaceNode(
+							newRoot = root.ReplaceNode((SyntaxNode)
 								eventDecl, 
 								new SyntaxNode[] {
 									eventDecl.WithDeclaration(
@@ -119,12 +119,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 								}
 							);
 						} else {
-							newRoot = root.ReplaceNode(eventDecl, e.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation));
+							newRoot = root.ReplaceNode((SyntaxNode)eventDecl, e.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation));
 						}
 
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					})
-			};
+			);
 		}
 	}
 }

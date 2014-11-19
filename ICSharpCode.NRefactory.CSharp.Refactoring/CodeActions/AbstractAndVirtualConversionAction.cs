@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Make abstract member virtual", LanguageNames.CSharp)]
 	public class AbstractAndVirtualConversionAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -58,7 +58,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			    !token.IsKind(SyntaxKind.AbstractKeyword) &&
 			    !token.IsKind(SyntaxKind.VirtualKeyword) &&
 			    !token.IsKind(SyntaxKind.ThisKeyword))
-				return null;
+				return;
 			var declaration = token.Parent as MemberDeclarationSyntax;
 			if (token.IsKind(SyntaxKind.IdentifierToken)) {
 				if (token.Parent.Parent.IsKind(SyntaxKind.VariableDeclaration) && 
@@ -67,18 +67,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				}
 			}
 			if (declaration == null || declaration is BaseTypeDeclarationSyntax)
-				return null;
+				return;
 			var modifiers = declaration.GetModifiers();
 			if (modifiers.Any(m => m.IsKind(SyntaxKind.OverrideKeyword)))
-				return null;
+				return;
 
 			var declarationParent = declaration.Parent as TypeDeclarationSyntax;
 
 			var explicitInterface = declaration.GetExplicitInterfaceSpecifierSyntax();
 			if (explicitInterface != null) {
-				return null;
+				return;
 			}
-			var result = new List<CodeAction>();
+
 //			if (selectedNode != node.NameToken) {
 //				if ((node is EventDeclaration && node is CustomEventDeclaration || selectedNode.Role != Roles.Identifier) && 
 //					selectedNode.Role != IndexerDeclaration.ThisKeywordRole) {
@@ -95,24 +95,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //
 			if (declarationParent.Modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword))) {
 				if (modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword))) {
-					result.Add(CodeActionFactory.Create(
+					context.RegisterRefactoring(CodeActionFactory.Create(
 						token.Span,
 						DiagnosticSeverity.Info,
 						"To non-abstract",
 						t2 => {
-							var newRoot = root.ReplaceNode(declaration, ImplementAbstractDeclaration (declaration).WithAdditionalAnnotations(Formatter.Annotation));
+							var newRoot = root.ReplaceNode((SyntaxNode)declaration, ImplementAbstractDeclaration (declaration).WithAdditionalAnnotations(Formatter.Annotation));
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));
 						}
 					)
 					);
 				} else {
 					if (CheckBody(declaration)) {
-						result.Add(CodeActionFactory.Create(
+						context.RegisterRefactoring(CodeActionFactory.Create(
 							token.Span,
 							DiagnosticSeverity.Info,
 							"To abstract",
 							t2 => {
-								var newRoot = root.ReplaceNode(declaration, MakeAbstractDeclaration(declaration).WithAdditionalAnnotations(Formatter.Annotation));
+								var newRoot = root.ReplaceNode((SyntaxNode)declaration, MakeAbstractDeclaration(declaration).WithAdditionalAnnotations(Formatter.Annotation));
 								return Task.FromResult(document.WithSyntaxRoot(newRoot));
 							}
 						)
@@ -122,42 +122,41 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			}
 
 			if (modifiers.Any(m => m.IsKind(SyntaxKind.VirtualKeyword))) {
-				result.Add(CodeActionFactory.Create(
+				context.RegisterRefactoring(CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
 					"To non-virtual",
 					t2 => {
-						var newRoot = root.ReplaceNode(declaration, RemoveVirtualModifier (declaration));
+						var newRoot = root.ReplaceNode((SyntaxNode)declaration, RemoveVirtualModifier(declaration));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
 				);
 			} else {
 				if (modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword))) {
-					result.Add(CodeActionFactory.Create(
+					context.RegisterRefactoring(CodeActionFactory.Create(
 						token.Span,
 						DiagnosticSeverity.Info,
 						"To virtual",
 						t2 => {
-							var newRoot = root.ReplaceNode(declaration, ImplementAbstractDeclaration (declaration, true).WithAdditionalAnnotations(Formatter.Annotation));
+							var newRoot = root.ReplaceNode((SyntaxNode)declaration, ImplementAbstractDeclaration(declaration, true).WithAdditionalAnnotations(Formatter.Annotation));
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));
 						}
 					)
 					);
 				} else {
-					result.Add(CodeActionFactory.Create(
+					context.RegisterRefactoring(CodeActionFactory.Create(
 						token.Span,
 						DiagnosticSeverity.Info,
 						"To virtual",
 						t2 => {
-							var newRoot = root.ReplaceNode(declaration, AddModifier (declaration, SyntaxKind.VirtualKeyword).WithAdditionalAnnotations(Formatter.Annotation));
+							var newRoot = root.ReplaceNode((SyntaxNode)declaration, AddModifier(declaration, SyntaxKind.VirtualKeyword).WithAdditionalAnnotations(Formatter.Annotation));
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));
 						}
 					)
 					);
 				}
 			}
-			return result;
 		}
 
 		internal static BlockSyntax CreateNotImplementedBody()

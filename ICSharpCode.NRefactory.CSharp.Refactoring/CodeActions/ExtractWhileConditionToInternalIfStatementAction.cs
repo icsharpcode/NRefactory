@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var newNode = node.WithCondition(SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression))
 							.WithStatement(SyntaxFactory.Block(statements))
 							.WithAdditionalAnnotations(Formatter.Annotation);
-						var newRoot = root.ReplaceNode(node, newNode);
+						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)

@@ -146,7 +146,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConstantConditionIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -155,26 +155,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 
-				var value = bool.Parse(diagonstic.CustomTags[0]);
+				var value = bool.Parse(diagnostic.CustomTags[0]);
 
 				var conditionalExpr = node.Parent as ConditionalExpressionSyntax;
 				var ifElseStatement = node.Parent as IfStatementSyntax;
 				var valueStr = value.ToString().ToLowerInvariant();
 
-				CodeAction action;
 				if (conditionalExpr != null) {
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Replace '?:' with '{0}' branch", valueStr), token => {
+					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace '?:' with '{0}' branch", valueStr), token => {
 						var replaceWith = value ? conditionalExpr.WhenTrue : conditionalExpr.WhenFalse;
-						var newRoot = root.ReplaceNode(conditionalExpr, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)conditionalExpr, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
-					}));
+					}), diagnostic);
 				} else if (ifElseStatement != null) {
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Replace 'if' with '{0}' branch", valueStr), token => {
+					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace 'if' with '{0}' branch", valueStr), token => {
 						var list = new List<SyntaxNode>();
 						StatementSyntax branch;
 						if (value) {
@@ -195,18 +194,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						}
 						if (list.Count == 0)
 							return Task.FromResult(document);
-						var newRoot = root.ReplaceNode(ifElseStatement, list);
+						var newRoot = root.ReplaceNode((SyntaxNode)ifElseStatement, list);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
-					}));
+					}), diagnostic);
 				} else {
-					result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, string.Format("Replace expression with '{0}'", valueStr), token => {
+					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace expression with '{0}'", valueStr), token => {
 						var replaceWith = SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
-						var newRoot = root.ReplaceNode(node, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
-					}));
+					}), diagnostic);
 				}
 			}
-			return result;
 		}
 	}
 }

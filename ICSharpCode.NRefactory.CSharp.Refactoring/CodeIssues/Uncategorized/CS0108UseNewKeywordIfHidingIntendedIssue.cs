@@ -253,7 +253,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CS0108UseNewKeywordIfHidingIntendedIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -268,7 +268,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan);
 
-				result.Add(CodeActionFactory.Create(
+				context.RegisterFix(CodeActionFactory.Create(
 					node.Span,
 					diagnostic.Severity,
 					"Add new modifier to method",
@@ -276,19 +276,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					{
 						SyntaxNode newRoot;
 						if (node.CSharpKind() != SyntaxKind.VariableDeclarator)
-							newRoot = root.ReplaceNode(node, AddNewModifier(node));
+							newRoot = root.ReplaceNode((SyntaxNode)node, AddNewModifier(node));
 						else //this one wants to be awkward - you can't add modifiers to a variable declarator
                         {
 							SyntaxNode declaringNode = node.Parent.Parent;
 							if (declaringNode is FieldDeclarationSyntax)
-								newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as FieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
+								newRoot = root.ReplaceNode((SyntaxNode)node.Parent.Parent, (node.Parent.Parent as FieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
 							else //it's an event declaration
-								newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as EventFieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
+								newRoot = root.ReplaceNode((SyntaxNode)node.Parent.Parent, (node.Parent.Parent as EventFieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
 						}
 						return Task.FromResult(document.WithSyntaxRoot(newRoot.WithAdditionalAnnotations(Formatter.Annotation)));
-					}));
+					}), diagnostic);
 			}
-			return result;
 		}
 
 		private SyntaxNode AddNewModifier(SyntaxNode node)

@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var lambdaExpression = explicitLambda || parameterList.Parameters.Count > 1 ? 
 							(SyntaxNode)SyntaxFactory.ParenthesizedLambdaExpression(parameterList, (CSharpSyntaxNode)convertExpression ?? node.Block) :
 							SyntaxFactory.SimpleLambdaExpression(parameterList.Parameters[0], (CSharpSyntaxNode)convertExpression ?? node.Block);
-						var newRoot = root.ReplaceNode(node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)

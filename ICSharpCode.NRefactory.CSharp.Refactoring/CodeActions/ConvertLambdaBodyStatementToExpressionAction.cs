@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return true;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -70,10 +70,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var token = root.FindToken(span.Start);
 			if (!token.IsKind(SyntaxKind.EqualsGreaterThanToken))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var node = token.Parent;
 			if (!node.IsKind(SyntaxKind.ParenthesizedLambdaExpression) && !node.IsKind(SyntaxKind.SimpleLambdaExpression))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			CSharpSyntaxNode body;
 			if (node.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) {
@@ -82,14 +82,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				body = ((SimpleLambdaExpressionSyntax)node).Body;
 			}		
 			if (body == null)
-				return Enumerable.Empty<CodeAction> ();
+				return;
 
 			BlockSyntax blockStatement;
 			ExpressionSyntax expr;
 			if (!TryGetConvertableExpression(body, out blockStatement, out expr))
-				return null;
+				return;
 
-			return new []  { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
@@ -102,11 +102,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							lambdaExpression = ((SimpleLambdaExpressionSyntax)node).WithBody(expr);
 						}
 
-						var newRoot = root.ReplaceNode(node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }

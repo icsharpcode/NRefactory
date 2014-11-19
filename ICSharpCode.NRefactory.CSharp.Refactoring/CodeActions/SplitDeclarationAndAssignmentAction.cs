@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 									).WithAdditionalAnnotations(Formatter.Annotation)
 								}
 							);
-							newRoot = newRoot.ReplaceNode(
+							newRoot = newRoot.ReplaceNode((SyntaxNode)
 								newRoot.GetCurrentNode(declaration),
 								SyntaxFactory.VariableDeclaration(
 										SyntaxFactory.ParseTypeName(""),
@@ -108,12 +108,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 									).WithAdditionalAnnotations(Formatter.Annotation)
 								}
 							);
-							newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(node), SyntaxFactory.VariableDeclarator(node.Identifier).WithAdditionalAnnotations(Formatter.Annotation));
+							newRoot = newRoot.ReplaceNode((SyntaxNode)newRoot.GetCurrentNode(node), SyntaxFactory.VariableDeclarator(node.Identifier).WithAdditionalAnnotations(Formatter.Annotation));
 
 							if (declaration.Type.ToString() == "var") {
 								var type = semanticModel.GetTypeInfo(declaration.Type).Type;
 
-								newRoot = newRoot.ReplaceNode(
+								newRoot = newRoot.ReplaceNode((SyntaxNode)
 									newRoot.GetCurrentNode(declaration.Type),
 									SyntaxFactory.ParseTypeName(type.ToMinimalDisplayString(semanticModel, declaration.SpanStart))
 									.WithLeadingTrivia(declaration.Type.GetLeadingTrivia())

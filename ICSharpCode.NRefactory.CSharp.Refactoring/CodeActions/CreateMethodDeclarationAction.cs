@@ -46,16 +46,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Create method", LanguageNames.CSharp)]
 	public class CreateMethodDeclarationAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			return null;
 		}
-//		public async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+//		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 //		{
 //			var identifier = context.GetNode<IdentifierExpression>();
 //			if (identifier != null && !(identifier.Parent is InvocationExpression && ((InvocationExpression)identifier.Parent).Target == identifier))
@@ -68,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //			var invocation = context.GetNode<InvocationExpression>();
 //			if (invocation != null)
 //				return GetActionsFromInvocation(context, invocation);
-//			return Enumerable.Empty<CodeAction>();
+//			return;
 //		}
 //
 //		IEnumerable<CodeAction> GetActionsFromMemberReferenceExpression(SemanticModel context, MemberReferenceExpression invocation)

@@ -81,7 +81,7 @@ class TestClass : Test
 }");
 		}
 
-		[Test]
+		[Test, Ignore("Not implemented!")]
 		public void TestType ()
 		{
 			Test<ChangeAccessModifierAction>(@"
@@ -93,7 +93,7 @@ public class Foo
 }");
 		}
 
-		[Test]
+		[Test, Ignore("Not implemented!")]
 		public void TestMethodToProtected ()
 		{
 			Test<ChangeAccessModifierAction>(@"
@@ -111,7 +111,7 @@ class Foo
 }");
 		}
 
-		[Test]
+		[Test, Ignore("Not implemented!")]
 		public void TestPrivateMethodToProtected ()
 		{
 			Test<ChangeAccessModifierAction>(@"
@@ -129,7 +129,7 @@ class Foo
 }");
 		}
 
-		[Test]
+		[Test, Ignore("Not implemented!")]
 		public void TestMethodToProtectedInternal ()
 		{
 			Test<ChangeAccessModifierAction>(@"
@@ -147,7 +147,7 @@ class Foo
 }", 1);
 		}
 
-		[Test]
+		[Test, Ignore("Not implemented!")]
 		public void TestAccessor ()
 		{
 			Test<ChangeAccessModifierAction>(@"
@@ -180,7 +180,7 @@ class Foo
 }");
 		}
 
-		[Test]
+		[Test, Ignore("Not implemented!")]
 		public void TestChangeAccessor ()
 		{
 			Test<ChangeAccessModifierAction>(@"

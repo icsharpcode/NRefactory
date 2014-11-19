@@ -26,13 +26,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.CodeAnalysis.Recommendations;
 using Microsoft.CodeAnalysis;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp;
 
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
+using Microsoft.CodeAnalysis.Recommendations;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {

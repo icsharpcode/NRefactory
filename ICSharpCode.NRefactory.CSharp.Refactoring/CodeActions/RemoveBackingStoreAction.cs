@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Remove backing store for property", LanguageNames.CSharp)]
 	public class RemoveBackingStoreAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -55,11 +55,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			SyntaxToken token = root.FindToken(span.Start);
 			var property = token.Parent as PropertyDeclarationSyntax;
 			if (property == null || !property.Identifier.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var field = GetBackingField(model, property);
 			if (!IsValidField(field, property.Parent as TypeDeclarationSyntax))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			//variable declarator->declaration->field declaration
 			var backingFieldNode = root.FindNode(field.Locations.First().SourceSpan).Ancestors().OfType<FieldDeclarationSyntax>().First();
@@ -75,11 +75,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var fieldAnnotation = new SyntaxAnnotation();
 
 			//annotate our property node and our field node
-			root = root.ReplaceNode(property, property.WithAdditionalAnnotations(propertyAnnotation));
-			root = root.ReplaceNode(root.FindNode(backingFieldNode.Span), backingFieldNode.WithAdditionalAnnotations(fieldAnnotation));
+			root = root.ReplaceNode((SyntaxNode)property, property.WithAdditionalAnnotations(propertyAnnotation));
+			root = root.ReplaceNode((SyntaxNode)root.FindNode(backingFieldNode.Span), backingFieldNode.WithAdditionalAnnotations(fieldAnnotation));
 
-			return new[] { CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to auto property", 
-                PerformAction(document, model, root, field.Name, newProperty, propertyAnnotation, fieldAnnotation)) };
+			context.RegisterRefactoring(
+				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to auto property", 
+                PerformAction(document, model, root, field.Name, newProperty, propertyAnnotation, fieldAnnotation))
+			);
 		}
 
 		private Document PerformAction(Document document, SemanticModel model, SyntaxNode root, String name,
@@ -89,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (oldField.Declaration.Variables.Count == 1) {
 				var newRoot = root.RemoveNode(oldField, SyntaxRemoveOptions.KeepNoTrivia);
 				var oldProperty = newRoot.GetAnnotatedNodes(propAnno).First();
-				newRoot = newRoot.ReplaceNode(oldProperty, newProperty);
+				newRoot = newRoot.ReplaceNode((SyntaxNode)oldProperty, newProperty);
 
 				return document.WithSyntaxRoot(newRoot);
 			} else {
@@ -99,9 +101,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					if (!variable.Identifier.ValueText.Equals(name))
 						newField = newField.AddDeclarationVariables(variable);
 				}
-				var newRoot = root.ReplaceNode(oldField, newField.WithAdditionalAnnotations(Formatter.Annotation));
+				var newRoot = root.ReplaceNode((SyntaxNode)oldField, newField.WithAdditionalAnnotations(Formatter.Annotation));
 				var oldProperty = newRoot.GetAnnotatedNodes(propAnno).First();
-				newRoot = newRoot.ReplaceNode(oldProperty, newProperty.WithAdditionalAnnotations(Formatter.Annotation));
+				newRoot = newRoot.ReplaceNode((SyntaxNode)oldProperty, newProperty.WithAdditionalAnnotations(Formatter.Annotation));
 				return document.WithSyntaxRoot(newRoot);
 			}
 		}

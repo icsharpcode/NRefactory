@@ -211,19 +211,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertClosureToMethodGroupIssue.DiagnosticId;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
+
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				if (!node.IsKind(SyntaxKind.BaseList))
 					continue;
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, "Replace with method group", token => {
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with method group", token => {
 					var c1 = node as AnonymousMethodExpressionSyntax;
 					var c2 = node as ParenthesizedLambdaExpressionSyntax;
 					var c3 = node as SimpleLambdaExpressionSyntax;
@@ -234,11 +234,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						invoke = ConvertClosureToMethodGroupIssue.AnalyzeBody(c2.Body);
 					if (c3 != null)
 						invoke = ConvertClosureToMethodGroupIssue.AnalyzeBody(c3.Body);
-					var newRoot = root.ReplaceNode(node, invoke.Expression);
+					var newRoot = root.ReplaceNode((SyntaxNode)node, invoke.Expression);
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}));
+				}), diagnostic);
 			}
-			return result;
 		}
 	}
 }

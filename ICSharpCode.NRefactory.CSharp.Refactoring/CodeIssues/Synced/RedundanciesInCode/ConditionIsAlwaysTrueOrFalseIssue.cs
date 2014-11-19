@@ -148,7 +148,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdFalse;
 		}
 
-		public override async Task<IEnumerable<CodeAction>> GetFixesAsync(CodeFixContext context)
+		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -156,15 +156,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagonstic in diagnostics) {
-				var node = root.FindNode(diagonstic.Location.SourceSpan);
-				var newRoot = root.ReplaceNode(node,
-					SyntaxFactory.LiteralExpression(diagonstic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression) 
+			foreach (var diagnostic in diagnostics) {
+				var node = root.FindNode(diagnostic.Location.SourceSpan);
+				var newRoot = root.ReplaceNode((SyntaxNode)node,
+					SyntaxFactory.LiteralExpression(diagnostic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression) 
 					.WithLeadingTrivia(node.GetLeadingTrivia())
 					.WithTrailingTrivia(node.GetTrailingTrivia()));
-				result.Add(CodeActionFactory.Create(node.Span, diagonstic.Severity, diagonstic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? "Replace with 'true'" : "Replace with 'false'", document.WithSyntaxRoot(newRoot)));
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? "Replace with 'true'" : "Replace with 'false'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
-			return result;
 		}
 		#endregion
 	}

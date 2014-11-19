@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		protected abstract IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, T node, CancellationToken cancellationToken);
 
 		#region ICodeActionProvider implementation
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -40,8 +40,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var node = root.FindNode(span, false, true);
 			var foundNode = (T)node.AncestorsAndSelf().FirstOrDefault(n => n is T);
 			if (foundNode == null)
-				return Enumerable.Empty<CodeAction>();
-			return GetActions(document, model, root, span, foundNode, cancellationToken);
+				return;
+			foreach (var action in GetActions(document, model, root, span, foundNode, cancellationToken))
+				context.RegisterRefactoring(action);
 		}
 		#endregion
 	}

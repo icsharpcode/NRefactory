@@ -30,7 +30,7 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
-	[TestFixture]
+	[TestFixture, Ignore("Not implemented!")]
 	public class CS1520MethodMustHaveAReturnTypeTests : ContextActionTestBase
 	{
 		[Test]

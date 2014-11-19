@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Remove region", LanguageNames.CSharp)]
 	public class RemoveRegionAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -54,9 +54,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			SyntaxTrivia directive;
 			if (!TryGetDirective(root, span, out directive))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new []  { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					directive.Span,
 					DiagnosticSeverity.Info,
@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 
 		static bool TryGetDirective (SyntaxNode root, TextSpan span, out SyntaxTrivia directive)

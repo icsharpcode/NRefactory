@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Insert anonymous method signature", LanguageNames.CSharp)]
 	public class InsertAnonymousMethodSignatureAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -51,9 +51,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var anonymousMethodExpression = root.FindNode(span) as AnonymousMethodExpressionSyntax;
 			if (anonymousMethodExpression == null || !anonymousMethodExpression.DelegateKeyword.Span.Contains(span) || anonymousMethodExpression.ParameterList != null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new []  { 
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					anonymousMethodExpression.Span,
 					DiagnosticSeverity.Info,
@@ -74,11 +74,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							parameters.Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier(param.Name)).WithType(t));
 						}
 
-						var newRoot = root.ReplaceNode(anonymousMethodExpression, anonymousMethodExpression.WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters))).WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)anonymousMethodExpression, anonymousMethodExpression.WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters))).WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }

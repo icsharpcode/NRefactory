@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Replace bitwise flag comparison with call to 'Enum.HasFlag'", LanguageNames.CSharp)]
 	public class ConvertBitwiseFlagComparisonToHasFlagsAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -52,19 +52,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var token = root.FindToken(span.Start);
 			var boP = token.Parent as BinaryExpressionSyntax;
 			if (boP == null || !boP.OperatorToken.Span.Contains(span))
-				return Enumerable.Empty<CodeAction> ();
+				return;
 
 			ExpressionSyntax flagsExpression, targetExpression;
 			bool testFlagset;
 			if (!AnalyzeComparisonWithNull (boP, out flagsExpression, out targetExpression, out testFlagset) && !AnalyzeComparisonWithFlags (boP, out flagsExpression, out targetExpression, out testFlagset))
-				return Enumerable.Empty<CodeAction> ();
+				return;
 
 			if (!testFlagset && !flagsExpression.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseOrExpression)))
-				return Enumerable.Empty<CodeAction>();
+				return;
 			if (testFlagset && !flagsExpression.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseAndExpression)))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
-			return new[] {  CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Replace with 'Enum.HasFlag'", t2 => Task.FromResult(PerformAction (document, root, boP, flagsExpression, targetExpression, testFlagset))) };
+			context.RegisterRefactoring(
+				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Replace with 'Enum.HasFlag'", t2 => Task.FromResult(PerformAction (document, root, boP, flagsExpression, targetExpression, testFlagset)))
+			);
 		}
 
 		Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax boP, ExpressionSyntax flagsExpression, ExpressionSyntax targetExpression, bool testFlagset)

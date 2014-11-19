@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeRefactoringProvider("Convert explicit to implict implementation", LanguageNames.CSharp)]
 	public class ConvertExplicitToImplicitImplementationAction : CodeRefactoringProvider
 	{
-		public override async Task<IEnumerable<CodeAction>> GetRefactoringsAsync(CodeRefactoringContext context)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
@@ -53,22 +53,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			while (node != null && !(node is MemberDeclarationSyntax))
 				node = node.Parent;
 			if (node == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			if (!node.IsKind(SyntaxKind.MethodDeclaration) &&
 				!node.IsKind(SyntaxKind.PropertyDeclaration) &&
 				!node.IsKind(SyntaxKind.IndexerDeclaration) &&
 				!node.IsKind(SyntaxKind.EventDeclaration))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var memberDeclaration = node as MemberDeclarationSyntax;
 			var explicitSyntax = memberDeclaration.GetExplicitInterfaceSpecifierSyntax();
 			if (explicitSyntax == null || !explicitSyntax.Span.Contains(span))
-				return Enumerable.Empty<CodeAction>();
+				return;
 
 			var enclosingSymbol = model.GetDeclaredSymbol(memberDeclaration, cancellationToken);
 			if (enclosingSymbol == null)
-				return Enumerable.Empty<CodeAction>();
+				return;
 			var containingType = enclosingSymbol.ContainingType;
 
 
@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						foreach (var explictProperty in property1.ExplicitInterfaceImplementations) {
 							if (explictProperty.Name == property2.Name) {
 								if (SignatureComparer.HaveSameSignature(property1.Parameters, property2.Parameters))
-									return Enumerable.Empty<CodeAction>();
+									return;
 							}
 						}
 						break;
@@ -95,7 +95,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						foreach (var explictMethod in method1.ExplicitInterfaceImplementations) {
 							if (explictMethod.Name == method2.Name) {
 								if (SignatureComparer.HaveSameSignature(method1.Parameters, method2.Parameters))
-									return Enumerable.Empty<CodeAction>();
+									return;
 							}
 						}
 						break;
@@ -104,13 +104,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var evt2 = (IEventSymbol)member;
 						foreach (var explictProperty in evt1.ExplicitInterfaceImplementations) {
 							if (explictProperty.Name == evt2.Name)
-								return Enumerable.Empty<CodeAction>();
+								return;
 						}
 						break;
 				}
 			}
 
-			return new[] {
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
@@ -143,14 +143,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 									.WithExplicitInterfaceSpecifier(null);
 								break;
 						}
-						var newRoot = root.ReplaceNode(
+						var newRoot = root.ReplaceNode((SyntaxNode)
 							memberDeclaration,
 							newNode.WithAdditionalAnnotations(Formatter.Annotation)
 						);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
-			};
+			);
 		}
 	}
 }
