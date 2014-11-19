@@ -48,7 +48,7 @@ Use GitHub issues and pull requests to your hearts content. Or go to our [SharpD
 
 ## Got a bit of history for me?
 
-NRefactory is not exactly a new kid on the block. It started a very long time in SharpDevelop, was at times developed in parallel in MonoDevelop, and roundabout 2000 the two teams joined forces to bring NRefactory5 to life as a full open source stack of IDE services (MonoDevelop 3 and SharpDevelop 5 ship(ped) with this version). NR6 is leveraging Roslyn instead of homegrown stack components to make development easier and faster. After all, open source isn't about duplicating effort - at least in our book.
+NRefactory is not exactly a new kid on the block. It started a very long time in SharpDevelop, was at times developed in parallel in MonoDevelop, and roundabout 2010 the two teams joined forces to bring NRefactory5 to life as a full open source stack of IDE services (MonoDevelop 3 and SharpDevelop 5 ship(ped) with this version). NR6 is leveraging Roslyn instead of homegrown stack components to make development easier and faster. After all, open source isn't about duplicating effort - at least in our book.
 
 ## The license?
 
