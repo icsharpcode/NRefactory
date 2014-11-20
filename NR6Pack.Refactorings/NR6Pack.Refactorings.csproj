@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertNullCoalescingToConditionalExpressionAction.cs">
-      <Link>ConvertNullCoalescingToConditionalExpressionAction.cs</Link>
+      <Link>CodeActions\ConvertNullCoalescingToConditionalExpressionAction.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\NRefactoryCodeRefactoringProviderAttribute.cs">
       <Link>Common\NRefactoryCodeRefactoringProviderAttribute.cs</Link>
@@ -92,6 +92,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CodeIssues.html" />
+    <None Include="CodeActions.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CodeIssues\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
