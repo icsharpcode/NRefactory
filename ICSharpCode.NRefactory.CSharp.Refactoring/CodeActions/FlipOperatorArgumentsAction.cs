@@ -55,6 +55,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (binop == null || !binop.OperatorToken.Span.Contains(span))
 				return;
 
+			if (!binop.OperatorToken.IsKind(SyntaxKind.EqualsEqualsToken) && !binop.OperatorToken.IsKind(SyntaxKind.ExclamationEqualsToken))
+				return;
+
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					binop.OperatorToken.Span,
