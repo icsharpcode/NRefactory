@@ -90,40 +90,50 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (needsSetter) {
 				accessor = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration);
 
-				var getter = propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.GetAccessorDeclaration));
-				var getField = RemoveBackingStoreAction.ScanGetter(model, getter);
-				if (getField == null && getter.Body == null) {
+				var getter = propertyDeclaration.AccessorList.Accessors.FirstOrDefault(m => m.IsKind(SyntaxKind.GetAccessorDeclaration));
+				if (getter == null) {
 					//get;
-					accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)).WithTrailingTrivia(getter.GetTrailingTrivia());
-				} else if (getField == null || getField.IsReadOnly) {
-					//readonly or no field can be found
-					accessor = accessor.WithBody(GetNotImplementedBlock());
+					accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
 				} else {
-					//now we add a 'field = value'.
-					accessor = accessor.WithBody(SyntaxFactory.Block(
-						SyntaxFactory.ExpressionStatement(
-							SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName(getField.Name), SyntaxFactory.IdentifierName("value")))));
+					var getField = RemoveBackingStoreAction.ScanGetter(model, getter);
+					if (getField == null && getter.Body == null) {
+						//get;
+						accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)).WithTrailingTrivia(getter.GetTrailingTrivia());
+					} else if (getField == null || getField.IsReadOnly) {
+						//readonly or no field can be found
+						accessor = accessor.WithBody(GetNotImplementedBlock());
+					} else {
+						//now we add a 'field = value'.
+						accessor = accessor.WithBody(SyntaxFactory.Block(
+							SyntaxFactory.ExpressionStatement(
+								SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, SyntaxFactory.IdentifierName(getField.Name), SyntaxFactory.IdentifierName("value")))));
+					}
 				}
 				newProp = propertyDeclaration.WithAccessorList(propertyDeclaration.AccessorList.AddAccessors(accessor));
 			} else {
 				accessor = SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration);
 
-				var setter = propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.SetAccessorDeclaration));
-				var setField = RemoveBackingStoreAction.ScanSetter(model, setter);
-				if (setField == null && setter.Body == null) {
-					//set;
-					accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)).WithTrailingTrivia(setter.GetTrailingTrivia());
-				} else if (setField == null) {
-					//no field can be found
-					accessor = accessor.WithBody(GetNotImplementedBlock());
-				} else {
-					//now we add a 'return field;'.
-					accessor = accessor.WithBody(SyntaxFactory.Block(
-						SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(setField.Name))));
-				}
+				var setter = propertyDeclaration.AccessorList.Accessors.FirstOrDefault(m => m.IsKind(SyntaxKind.SetAccessorDeclaration));
 				var accessorDeclList = new SyntaxList<AccessorDeclarationSyntax>();
-				accessorDeclList = accessorDeclList.Add(accessor);
-				accessorDeclList = accessorDeclList.Add(propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.SetAccessorDeclaration)));
+				if (setter == null) {
+					//set;
+					accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+				} else {
+					var setField = RemoveBackingStoreAction.ScanSetter(model, setter);
+					if (setField == null && setter.Body == null) {
+						//set;
+						accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)).WithTrailingTrivia(setter.GetTrailingTrivia());
+					} else if (setField == null) {
+						//no field can be found
+						accessor = accessor.WithBody(GetNotImplementedBlock());
+					} else {
+						//now we add a 'return field;'.
+						accessor = accessor.WithBody(SyntaxFactory.Block(
+							SyntaxFactory.ReturnStatement(SyntaxFactory.IdentifierName(setField.Name))));
+					}
+					accessorDeclList = accessorDeclList.Add(propertyDeclaration.AccessorList.Accessors.First(m => m.IsKind(SyntaxKind.SetAccessorDeclaration)));
+				}
+				accessorDeclList = accessorDeclList.Insert(0, accessor);
 				var accessorList = SyntaxFactory.AccessorList(accessorDeclList);
 				newProp = propertyDeclaration.WithAccessorList(accessorList);
 			}
