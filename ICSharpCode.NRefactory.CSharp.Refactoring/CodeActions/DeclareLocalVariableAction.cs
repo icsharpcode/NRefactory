@@ -38,7 +38,6 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
-using System.ComponentModel.Composition.Primitives;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -157,10 +156,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var identifierExpression = SyntaxFactory.IdentifierName(name).WithAdditionalAnnotations(Formatter.Annotation);
 
 						if (replaceNode.Parent is ExpressionStatementSyntax) {
-							Console.WriteLine (1);
+							//Console.WriteLine (1);
 							newRoot = newRoot.ReplaceNode((SyntaxNode)replaceNode.Parent, varDecl);
 						} else {
-							Console.WriteLine (2);
+							//Console.WriteLine (2);
 							var curReplaceNode = newRoot.GetCurrentNode(replaceNode);
 							while (curReplaceNode.Parent is ParenthesizedExpressionSyntax)
 								curReplaceNode = curReplaceNode.Parent;

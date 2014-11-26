@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 								);
 							}
 						}
-						Console.WriteLine (newRoot);
+						//Console.WriteLine (newRoot);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				);

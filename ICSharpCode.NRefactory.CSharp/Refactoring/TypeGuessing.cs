@@ -38,10 +38,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 	{
 		static int GetArgumentIndex(IEnumerable<ArgumentSyntax> arguments, SyntaxNode parameter)
 		{
-			Console.WriteLine("arg:" +parameter);
+			//Console.WriteLine("arg:" +parameter);
 			int argumentNumber = 0;
 			foreach (var arg in arguments) {
-				Console.WriteLine(arg +"/"+parameter);
+				//Console.WriteLine(arg +"/"+parameter);
 				if (arg == parameter) {
 					return argumentNumber;
 				}
