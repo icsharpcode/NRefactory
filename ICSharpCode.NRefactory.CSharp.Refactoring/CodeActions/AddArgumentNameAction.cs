@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							attribute.ArgumentList.Arguments.Skip(idx).Select((arg, i) => {
 								if (arg.NameEquals != null)
 									return arg;
-								return SyntaxFactory.AttributeArgument(null, SyntaxFactory.NameColon(constructor.Parameters[i].Name), arg.Expression);
+								return SyntaxFactory.AttributeArgument(null, SyntaxFactory.NameColon(constructor.Parameters[i + idx].Name), arg.Expression);
 							})
 						)
 					);
@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							elementAccess.ArgumentList.Arguments.Skip(idx).Select((arg, i) => {
 								if (arg.NameColon != null)
 									return arg;
-								return arg.WithNameColon(SyntaxFactory.NameColon(indexer.Parameters[i].Name));
+								return arg.WithNameColon(SyntaxFactory.NameColon(indexer.Parameters[i + idx].Name));
 							})
 						)
 					);
