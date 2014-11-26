@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 
 			var node = root.FindNode(span) as BinaryExpressionSyntax;
-			if (node == null)
+			if (node == null || !node.OperatorToken.IsKind(SyntaxKind.QuestionQuestionToken))
 				return;
 
 			context.RegisterRefactoring(

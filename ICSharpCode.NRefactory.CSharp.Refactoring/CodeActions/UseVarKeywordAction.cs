@@ -68,6 +68,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			TypeSyntax type = null;
 			var varDecl = GetVariableDeclarationStatement(token.Parent);
+			if (varDecl != null && varDecl.Parent is FieldDeclarationSyntax)
+				return;
 			if (varDecl != null)
 				type = varDecl.Type;
 			var foreachStmt = GetForeachStatement(token.Parent);
