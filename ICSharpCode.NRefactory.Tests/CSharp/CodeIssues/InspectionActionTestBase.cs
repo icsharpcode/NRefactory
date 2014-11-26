@@ -256,7 +256,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			var syntaxTree = CSharpSyntaxTree.ParseText(text.ToString());
 
 			Compilation compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
-			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
+			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0].AsImmutable (), System.Collections.Immutable.ImmutableDictionary<string, string>.Empty);
 			var diagnostics = new List<Diagnostic>();
 
 			var driver = AnalyzerDriver<SyntaxKind>.Create (
@@ -362,7 +362,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Compilation compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
 
 			var diagnostics = new List<Diagnostic>();
-			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0], new Dictionary<string, string> ());
+			AnalyzerOptions options = new AnalyzerOptions(new AdditionalStream[0].AsImmutable (), System.Collections.Immutable.ImmutableDictionary<string, string>.Empty);
 			var driver = AnalyzerDriver<SyntaxKind>.Create(
 				compilation,
 				System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()),
