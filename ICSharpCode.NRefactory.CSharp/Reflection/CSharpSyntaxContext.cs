@@ -164,7 +164,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public CSharpTypeInferenceService()
 		{
-			instance = typeInfo.Assembly.CreateInstance(typeInfo.FullName);
+			instance = Activator.CreateInstance(typeInfo);
 		}
 
 		public IEnumerable<ITypeSymbol> InferTypes(SemanticModel semanticModel, int position, CancellationToken cancellationToken)
@@ -217,7 +217,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public SpeculationAnalyzer(ExpressionSyntax expression, ExpressionSyntax newExpression, SemanticModel semanticModel, CancellationToken cancellationToken, bool skipVerificationForReplacedNode = false, bool failOnOverloadResolutionFailuresInOriginalCode = false)
 		{
-			instance = typeInfo.Assembly.CreateInstance(typeInfo.FullName, false, BindingFlags.NonPublic, null, new object[] { expression, newExpression, semanticModel, cancellationToken, skipVerificationForReplacedNode, failOnOverloadResolutionFailuresInOriginalCode }, null, new object[0]);
+			instance = Activator.CreateInstance(typeInfo, new object[] { expression, newExpression, semanticModel, cancellationToken, skipVerificationForReplacedNode, failOnOverloadResolutionFailuresInOriginalCode });
 		}
 
 		public bool SymbolsForOriginalAndReplacedNodesAreCompatible()
