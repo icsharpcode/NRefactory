@@ -41,6 +41,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\NRefactoryCodeFixProvider.cs">
       <Link>Common\NRefactoryCodeFixProvider.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\EmptyGeneralCatchClauseIssue.cs">
+      <Link>CodeIssues\CodeQuality\EmptyGeneralCatchClauseIssue.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\NUnit\NonPublicMethodWithTestAttributeIssue.cs">
       <Link>CodeIssues\NUnit\NonPublicMethodWithTestAttributeIssue.cs</Link>
     </Compile>
@@ -50,17 +53,29 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\NRefactoryCodeRefactoringProviderAttribute.cs">
       <Link>Common\NRefactoryCodeRefactoringProviderAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Reflection\CSharpSyntaxContext.cs">
+      <Link>Common\CSharpSyntaxContext.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SymbolExtensions.cs">
+      <Link>Common\SymbolExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\TypeExtensions.cs">
+      <Link>Common\TypeExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\NR6Pack.Refactorings\Common\CodeActionFactory.cs">
       <Link>Common\Refactorings\CodeActionFactory.cs</Link>
     </Compile>
     <Compile Include="..\NR6Pack.Refactorings\Common\DocumentChangeAction.cs">
       <Link>Common\Refactorings\DocumentChangeAction.cs</Link>
     </Compile>
+    <Compile Include="..\NR6Pack.Refactorings\Common\Extensions.cs">
+      <Link>Common\Refactorings\Extensions.cs</Link>
+    </Compile>
     <Compile Include="..\NR6Pack.Refactorings\Common\NRefactoryCodeAction.cs">
       <Link>Common\Refactorings\NRefactoryCodeAction.cs</Link>
     </Compile>
     <Compile Include="CodeFixProvider.cs" />
-    <Compile Include="Common\Forked\GatherVisitorBase.cs" />
+    <Compile Include="Common\GatherVisitorBase.cs" />
     <Compile Include="DiagnosticAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
