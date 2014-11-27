@@ -82,10 +82,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 							//default => else
 							if (condition == null) {
-								defaultElse = SyntaxFactory.ElseClause(body);
+								defaultElse = SyntaxFactory.ElseClause(body)
+									.WithLeadingTrivia(section.GetLeadingTrivia())
+									.WithTrailingTrivia(section.GetTrailingTrivia());
 								break;
 							}
-							ifNodes.Add(SyntaxFactory.IfStatement(condition, body));
+							ifNodes.Add(SyntaxFactory.IfStatement(condition, body).WithLeadingTrivia(section.GetLeadingTrivia()));
 						}
 
 						IfStatementSyntax ifStatement = null;
@@ -99,6 +101,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							else
 								ifStatement = ifs.WithElse(SyntaxFactory.ElseClause(ifStatement));
 						}
+
+						ifStatement = ifStatement.WithLeadingTrivia(node.GetLeadingTrivia().Concat(ifStatement.GetLeadingTrivia())).WithTrailingTrivia(node.GetTrailingTrivia());
+
 						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
 					})
 			);

@@ -308,7 +308,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		
 		static string GetCountProperty(ITypeSymbol type)
 		{
-			return type.TypeKind == TypeKind.Array ? "Length" : "Count";
+			return type.TypeKind == TypeKind.Array || type.SpecialType == SpecialType.System_String ? "Length" : "Count";
 		}
 
 		static ForEachStatementSyntax GetForeachStatement (SemanticModel context, SyntaxNode root, TextSpan span, out bool hasIndexAccess)

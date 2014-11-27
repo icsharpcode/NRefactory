@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ForStatementSyntax node, CancellationToken cancellationToken)
 		{
 			if (!node.ForKeyword.Span.Contains(span))
-				return null;
+				return Enumerable.Empty<CodeAction>();
 
 			return new [] { CodeActionFactory.Create(
 				node.Span,

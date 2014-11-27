@@ -308,7 +308,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (property != null) {
 				var accessors = new List<AccessorDeclarationSyntax> ();
 				foreach (var accessor in property.AccessorList.Accessors) {
-					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), null));
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), accessor.AttributeLists, accessor.Modifiers, accessor.Keyword, null, SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
 				}
 				return SyntaxFactory.PropertyDeclaration(
 					property.AttributeLists,
@@ -351,6 +351,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					)
 				);
 			}
+			var evt2 = abstractDeclaration as EventFieldDeclarationSyntax;
+			if (evt2 != null) {
+				return evt2.WithModifiers(newModifier);
+			}
 			return null;
 		}
 
@@ -385,6 +389,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (evt != null) {
 				return evt.WithModifiers(newModifier);
 			}
+
+			var evt2 = abstractDeclaration as EventFieldDeclarationSyntax;
+			if (evt2 != null) {
+				return evt2.WithModifiers(newModifier);
+			}
 			return null;
 		}
 
@@ -398,17 +407,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var property = abstractDeclaration as PropertyDeclarationSyntax;
 			if (property != null) {
-				return property.WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
+				return property.WithModifiers(SyntaxFactory.TokenList(property.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
 			}
 
 			var indexer = abstractDeclaration as IndexerDeclarationSyntax;
 			if (indexer != null) {
-				return indexer.WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
+				return indexer.WithModifiers(SyntaxFactory.TokenList(indexer.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
 			}
 
 			var evt = abstractDeclaration as EventDeclarationSyntax;
 			if (evt != null) {
-				return evt.WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
+				return evt.WithModifiers(SyntaxFactory.TokenList(evt.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
+			}
+
+			var evt2 = abstractDeclaration as EventFieldDeclarationSyntax;
+			if (evt2 != null) {
+				return evt2.WithModifiers(SyntaxFactory.TokenList(evt2.Modifiers.Where(m => !m.IsKind(SyntaxKind.VirtualKeyword))));
 			}
 			return abstractDeclaration;
 		}

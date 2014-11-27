@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			TypeSyntax type = null;
 			var varDecl = GetVariableDeclarationStatement(token.Parent);
-			if (varDecl != null && varDecl.Parent is FieldDeclarationSyntax)
+			if (varDecl != null && varDecl.Parent is BaseFieldDeclarationSyntax)
 				return;
 			if (varDecl != null)
 				type = varDecl.Type;

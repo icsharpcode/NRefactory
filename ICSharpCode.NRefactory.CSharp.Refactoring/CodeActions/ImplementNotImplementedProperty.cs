@@ -113,7 +113,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		static bool IsNotImplemented(SemanticModel context, BlockSyntax body, CancellationToken cancellationToken)
 		{
-			if (body.Statements.Count == 0)
+			if (body == null || body.Statements.Count == 0)
 				return true;
 			if (body.Statements.Count == 1) {
 				var throwStmt = body.Statements.First () as ThrowStatementSyntax;

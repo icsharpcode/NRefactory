@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, AnonymousMethodExpressionSyntax node, CancellationToken cancellationToken)
 		{
 			if (!node.DelegateKeyword.Span.Contains(span))
-				return null;
+				return Enumerable.Empty<CodeAction>();
 
 			ExpressionSyntax convertExpression = null;
 			if (node.Block.Statements.Count == 1) {
@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var info = semanticModel.GetTypeInfo(node);
 				guessedType = info.ConvertedType ?? info.Type;
 				if (guessedType == null)
-					return null;
+					return Enumerable.Empty<CodeAction>();
 			}
 			return new []  { 
 				CodeActionFactory.Create(
@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 								)
 							);
 						}
-						var lambdaExpression = explicitLambda || parameterList.Parameters.Count > 1 ? 
+						var lambdaExpression = explicitLambda || parameterList.Parameters.Count != 1 ? 
 							(SyntaxNode)SyntaxFactory.ParenthesizedLambdaExpression(parameterList, (CSharpSyntaxNode)convertExpression ?? node.Block) :
 							SyntaxFactory.SimpleLambdaExpression(parameterList.Parameters[0], (CSharpSyntaxNode)convertExpression ?? node.Block);
 						var newRoot = root.ReplaceNode((SyntaxNode)node, lambdaExpression.WithAdditionalAnnotations(Formatter.Annotation));

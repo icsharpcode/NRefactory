@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					DiagnosticSeverity.Info,
 					"Create changed event",
 					t2 => {
-						var eventDeclaration = CreateChangedEventDeclaration (property);
+						var eventDeclaration = CreateChangedEventDeclaration(property);
 						var methodDeclaration = CreateEventInvocatorAction.CreateEventInvocator (
 							model,
 							type, 
@@ -87,20 +87,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(new [] { SyntaxFactory.Argument(SyntaxFactory.ParseExpression("System.EventArgs.Empty")) }))
 						));
 
-//				script.InsertWithCursor(
-//					context.TranslateString("Create event invocator"),
-//					Script.InsertPosition.After,
-//					new AstNode[] { eventDeclaration, methodDeclaration }
-//				).ContinueScript(delegate {
-//					script.InsertBefore (property.Setter.Body.RBraceToken, stmt);
-//					script.FormatText (stmt);
-//				});
-						var newRoot = root.InsertNodesAfter(property, new SyntaxNode[] { 
-							methodDeclaration.WithAdditionalAnnotations(Formatter.Annotation), 
+						var marker = new SyntaxAnnotation();
+						var newRoot = root.ReplaceNode(property, property.WithAdditionalAnnotations(marker));
+
+						newRoot = newRoot.InsertNodesAfter(newRoot.GetAnnotatedNodes(marker).First(), new SyntaxNode[] {
+							methodDeclaration.WithAdditionalAnnotations(Formatter.Annotation),
 							eventDeclaration.WithAdditionalAnnotations(Formatter.Annotation)
-						} ).InsertNodesAfter(
-							property.AccessorList.Accessors.First(a => a.IsKind(SyntaxKind.SetAccessorDeclaration)).Body.Statements.First(),
-							new [] { invocation.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation) }
+						});
+
+						newRoot = newRoot.InsertNodesAfter(newRoot.GetAnnotatedNodes(marker).OfType<PropertyDeclarationSyntax>().First().AccessorList.Accessors.First(a => a.IsKind(SyntaxKind.SetAccessorDeclaration)).Body.Statements.Last(),
+							new[] { invocation.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation) }
 						);
 
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
