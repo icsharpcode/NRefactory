@@ -33,14 +33,258 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\AbstractAndVirtualConversionAction.cs">
+      <Link>CodeActions\AbstractAndVirtualConversionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\AddAnotherAccessorAction.cs">
+      <Link>CodeActions\AddAnotherAccessorAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\AddArgumentNameAction.cs">
+      <Link>CodeActions\AddArgumentNameAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\AddBracesAction.cs">
+      <Link>CodeActions\AddBracesAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\AddCatchTypeAction.cs">
+      <Link>CodeActions\AddCatchTypeAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\AddOptionalParameterToInvocationAction.cs">
+      <Link>CodeActions\AddOptionalParameterToInvocationAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\CheckIfParameterIsNullAction.cs">
+      <Link>CodeActions\CheckIfParameterIsNullAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ComputeConstantValueAction.cs">
+      <Link>CodeActions\ComputeConstantValueAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertAnonymousDelegateToLambdaAction.cs">
+      <Link>CodeActions\ConvertAnonymousDelegateToLambdaAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertAssignmentToIfAction.cs">
+      <Link>CodeActions\ConvertAssignmentToIfAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertAsToCastAction.cs">
+      <Link>CodeActions\ConvertAsToCastAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs">
+      <Link>CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertCastToAsAction.cs">
+      <Link>CodeActions\ConvertCastToAsAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertDecToHexAction.cs">
+      <Link>CodeActions\ConvertDecToHexAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertDoWhileToWhileLoopAction.cs">
+      <Link>CodeActions\ConvertDoWhileToWhileLoopAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertEqualityOperatorToEqualsAction.cs">
+      <Link>CodeActions\ConvertEqualityOperatorToEqualsAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertEqualsToEqualityOperatorAction.cs">
+      <Link>CodeActions\ConvertEqualsToEqualityOperatorAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertExplicitToImplicitImplementationAction.cs">
+      <Link>CodeActions\ConvertExplicitToImplicitImplementationAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertForeachToForAction.cs">
+      <Link>CodeActions\ConvertForeachToForAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertForToWhileAction.cs">
+      <Link>CodeActions\ConvertForToWhileAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonAction.cs">
+      <Link>CodeActions\ConvertHasFlagsToBitwiseFlagComparisonAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertHexToDecAction.cs">
+      <Link>CodeActions\ConvertHexToDecAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertIfStatementToConditionalTernaryExpressionAction.cs">
+      <Link>CodeActions\ConvertIfStatementToConditionalTernaryExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertIfStatementToNullCoalescingExpressionAction.cs">
+      <Link>CodeActions\ConvertIfStatementToNullCoalescingExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertIfStatementToReturnStatementAction.cs">
+      <Link>CodeActions\ConvertIfStatementToReturnStatementAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertImplicitToExplicitImplementationAction.cs">
+      <Link>CodeActions\ConvertImplicitToExplicitImplementationAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertLambdaBodyExpressionToStatementAction.cs">
+      <Link>CodeActions\ConvertLambdaBodyExpressionToStatementAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertLambdaBodyStatementToExpressionAction.cs">
+      <Link>CodeActions\ConvertLambdaBodyStatementToExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertLambdaToAnonymousDelegateAction.cs">
+      <Link>CodeActions\ConvertLambdaToAnonymousDelegateAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertMethodGroupToAnonymousMethodAction.cs">
+      <Link>CodeActions\ConvertMethodGroupToAnonymousMethodAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertMethodGroupToLambdaAction.cs">
+      <Link>CodeActions\ConvertMethodGroupToLambdaAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertMultiplyToShiftAction.cs">
+      <Link>CodeActions\ConvertMultiplyToShiftAction.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertNullCoalescingToConditionalExpressionAction.cs">
       <Link>CodeActions\ConvertNullCoalescingToConditionalExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertReturnStatementToIfAction.cs">
+      <Link>CodeActions\ConvertReturnStatementToIfAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertShiftToMultiplyAction.cs">
+      <Link>CodeActions\ConvertShiftToMultiplyAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertSwitchToIfAction.cs">
+      <Link>CodeActions\ConvertSwitchToIfAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertWhileToDoWhileLoopAction.cs">
+      <Link>CodeActions\ConvertWhileToDoWhileLoopAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\CreateBackingStoreAction.cs">
+      <Link>CodeActions\CreateBackingStoreAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\CreateChangedEventAction.cs">
+      <Link>CodeActions\CreateChangedEventAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\CreateCustomEventImplementationAction.cs">
+      <Link>CodeActions\CreateCustomEventImplementationAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs">
+      <Link>CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationAction.cs">
+      <Link>CodeActions\ExtensionMethodInvocationToStaticMethodInvocationAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ExtractAnonymousMethodAction.cs">
+      <Link>CodeActions\ExtractAnonymousMethodAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs">
+      <Link>CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\FlipEqualsTargetAndArgumentAction.cs">
+      <Link>CodeActions\FlipEqualsTargetAndArgumentAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\FlipOperatorArgumentsAction.cs">
+      <Link>CodeActions\FlipOperatorArgumentsAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\GenerateSwitchLabelsAction.cs">
+      <Link>CodeActions\GenerateSwitchLabelsAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ImplementNotImplementedProperty.cs">
+      <Link>CodeActions\ImplementNotImplementedProperty.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\InvertConditionalOperatorAction.cs">
+      <Link>CodeActions\InvertConditionalOperatorAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\InvertIfAction.cs">
+      <Link>CodeActions\InvertIfAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\InvertIfAndSimplify.cs">
+      <Link>CodeActions\InvertIfAndSimplify.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\InvertLogicalExpressionAction.cs">
+      <Link>CodeActions\InvertLogicalExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\JoinDeclarationAndAssignmentAction.cs">
+      <Link>CodeActions\JoinDeclarationAndAssignmentAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\JoinStringAction.cs">
+      <Link>CodeActions\JoinStringAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\NegateIsExpressionAction.cs">
+      <Link>CodeActions\NegateIsExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\NegateRelationalExpressionAction.cs">
+      <Link>CodeActions\NegateRelationalExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\RemoveBackingStoreAction.cs">
+      <Link>CodeActions\RemoveBackingStoreAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\RemoveBracesAction.cs">
+      <Link>CodeActions\RemoveBracesAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\RemoveRegionAction.cs">
+      <Link>CodeActions\RemoveRegionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ReplaceAssignmentWithPostfixExpressionAction.cs">
+      <Link>CodeActions\ReplaceAssignmentWithPostfixExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ReplaceEmptyStringAction.cs">
+      <Link>CodeActions\ReplaceEmptyStringAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs">
+      <Link>CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ReplacePostfixExpressionWithAssignmentAction.cs">
+      <Link>CodeActions\ReplacePostfixExpressionWithAssignmentAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ReplaceWithOperatorAssignmentAction.cs">
+      <Link>CodeActions\ReplaceWithOperatorAssignmentAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\SimplifyIfFlowAction.cs">
+      <Link>CodeActions\SimplifyIfFlowAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\SimplifyIfInLoopsFlowAction.cs">
+      <Link>CodeActions\SimplifyIfInLoopsFlowAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\SpecializedCodeAction.cs">
+      <Link>CodeActions\SpecializedCodeAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\SplitDeclarationAndAssignmentAction.cs">
+      <Link>CodeActions\SplitDeclarationAndAssignmentAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\SplitIfAction.cs">
+      <Link>CodeActions\SplitIfAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\UseAsAndNullCheckAction.cs">
+      <Link>CodeActions\UseAsAndNullCheckAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\UseExplicitTypeAction.cs">
+      <Link>CodeActions\UseExplicitTypeAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\UseVarKeywordAction.cs">
+      <Link>CodeActions\UseVarKeywordAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\IssueCategories.cs">
+      <Link>Common\IssueCategories.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\NRefactoryCodeRefactoringProviderAttribute.cs">
       <Link>Common\NRefactoryCodeRefactoringProviderAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Refactoring\TypeGuessing.cs">
+      <Link>Common\TypeGuessing.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Reflection\CSharpSyntaxContext.cs">
+      <Link>Common\CSharpSyntaxContext.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\CompilationExtensions.cs">
+      <Link>Common\CompilationExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\CSharpUtil.cs">
+      <Link>Common\CSharpUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\NamespaceExtensions.cs">
+      <Link>Common\NamespaceExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SignatureComparer.cs">
+      <Link>Common\SignatureComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SymbolExtensions.cs">
+      <Link>Common\SymbolExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SyntaxExtensions.cs">
+      <Link>Common\SyntaxExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\TypeExtensions.cs">
+      <Link>Common\TypeExtensions.cs</Link>
+    </Compile>
     <Compile Include="Common\CodeActionFactory.cs" />
     <Compile Include="Common\DocumentChangeAction.cs" />
+    <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\NRefactoryCodeAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -98,7 +342,7 @@
     <None Include="CodeActions.html" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="CodeIssues\" />
+    <None Include="missing.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
