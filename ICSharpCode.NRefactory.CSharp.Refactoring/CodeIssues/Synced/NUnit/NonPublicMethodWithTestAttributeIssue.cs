@@ -111,9 +111,29 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as MethodDeclarationSyntax;
 				if (node == null)
 					continue;
-				var newMethod = node.WithModifiers(SyntaxFactory.TokenList(new SyntaxTokenList().Add(SyntaxFactory.Token(SyntaxKind.PublicKeyword))
-					.AddRange(node.Modifiers.ToArray().Where(m => !(m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword) || m.IsKind(SyntaxKind.InternalKeyword))))));
-				var newRoot = root.ReplaceNode((SyntaxNode)node, newMethod);
+
+				Func<SyntaxToken, bool> isModifierToRemove =
+					m => (m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword) || m.IsKind(SyntaxKind.InternalKeyword));
+
+				// Get trivia for new modifier
+				var leadingTrivia = SyntaxTriviaList.Empty;
+				var trailingTrivia = SyntaxTriviaList.Create(SyntaxFactory.Space);
+				var removedModifiers = node.Modifiers.Where(isModifierToRemove);
+				if (removedModifiers.Any())
+				{
+					leadingTrivia = removedModifiers.First().LeadingTrivia;
+				}
+				else
+				{
+					// Method begins directly with return type, use its leading trivia
+					leadingTrivia = node.ReturnType.GetLeadingTrivia();
+				}
+
+				var newMethod = node.WithModifiers(SyntaxFactory.TokenList(new SyntaxTokenList()
+					.Add(SyntaxFactory.Token(leadingTrivia, SyntaxKind.PublicKeyword, trailingTrivia))
+					.AddRange(node.Modifiers.ToArray().Where(m => !isModifierToRemove(m)))))
+					.WithReturnType(node.ReturnType.WithoutLeadingTrivia());
+                var newRoot = root.ReplaceNode((SyntaxNode)node, newMethod);
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make method public", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

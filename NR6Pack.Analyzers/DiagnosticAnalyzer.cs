@@ -25,7 +25,7 @@ namespace NR6Pack.Analyzers
         public override void Initialize(AnalysisContext context)
         {
             // TODO: Consider registering other actions that act on syntax instead of or in addition to symbols
-            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
+            //context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
         }
 
         private static void AnalyzeSymbol(SymbolAnalysisContext context)
