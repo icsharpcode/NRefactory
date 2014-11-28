@@ -342,7 +342,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CodeIssues.html" />
     <None Include="CodeActions.html" />
   </ItemGroup>
   <ItemGroup>
