@@ -32,11 +32,11 @@ using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-	[IssueDescription ("Function never returns",
-		Description = "Function does not reach its end or a 'return' statement by any of possible execution paths.",
-		Category = IssueCategories.CodeQualityIssues,
-		Severity = Severity.Warning,
-		AnalysisDisableKeyword = "FunctionNeverReturns")]
+//	[IssueDescription ("Function never returns",
+//		Description = "Function does not reach its end or a 'return' statement by any of possible execution paths.",
+//		Category = IssueCategories.CodeQualityIssues,
+//		Severity = Severity.Warning,
+//		AnalysisDisableKeyword = "FunctionNeverReturns")]
 	public class FunctionNeverReturnsIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
