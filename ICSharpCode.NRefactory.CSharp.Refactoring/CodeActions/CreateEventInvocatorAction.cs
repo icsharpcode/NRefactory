@@ -61,121 +61,47 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //			set;
 //		}
 
-		public static MethodDeclarationSyntax CreateEventInvocator (SemanticModel model, TypeDeclarationSyntax declaringType, bool isStatic, string eventName, IMethodSymbol invokeMethod, bool useExplictType)
-		{
-			bool hasSenderParam = false;
-			var pars = invokeMethod.Parameters;
-			if (invokeMethod.Parameters.Any()) {
-				var first = invokeMethod.Parameters [0];
-				if (first.Name == "sender" /*&& first.Type == "System.Object"*/) {
-					hasSenderParam = true;
-					pars = pars.RemoveAt(0);
-				}
-			}
 
-			const string handlerName = "handler";
-
-			var arguments = new List<ArgumentSyntax>();
-			if (hasSenderParam)
-				arguments.Add(SyntaxFactory.Argument(isStatic ? (ExpressionSyntax)SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression) : SyntaxFactory.ThisExpression()));
-
-			bool useThisMemberReference = false;
-			foreach (var par in pars) {
-				arguments.Add(SyntaxFactory.Argument(SyntaxFactory.IdentifierName(par.Name)));
-				useThisMemberReference |= par.Name == eventName;
-			}
-			var proposedHandlerName = GetNameProposal(eventName);
-			var modifiers = isStatic ? SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)) : SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ProtectedKeyword), SyntaxFactory.Token(SyntaxKind.VirtualKeyword));
-			if (declaringType.Modifiers.Any(m => m.IsKind(SyntaxKind.SealedKeyword))) {
-				modifiers = SyntaxFactory.TokenList();
-			}
-			var parameters = new List<ParameterSyntax>(pars.Select(p => SyntaxFactory.Parameter(SyntaxFactory.Identifier(p.Name)).WithType(ConvertType(model, declaringType.SpanStart, p.Type))));
-			var methodDeclaration = SyntaxFactory.MethodDeclaration (
-				SyntaxFactory.List<AttributeListSyntax>(),
-				modifiers,
-				SyntaxFactory.ParseTypeName("void"),
-				null,
-				SyntaxFactory.Identifier(proposedHandlerName),
-				null,
-				SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters)),
-				SyntaxFactory.List<TypeParameterConstraintClauseSyntax>(),
-				SyntaxFactory.Block(
-					SyntaxFactory.LocalDeclarationStatement(
-						SyntaxFactory.VariableDeclaration(
-							// TODO:
-//						useExplictType ? eventDeclaration.ReturnType.Clone () : new PrimitiveType ("var"), handlerName, 							SyntaxFactory.ParseTypeName("var"),
-							SyntaxFactory.ParseTypeName("var"),
-							SyntaxFactory.SeparatedList(new [] {
-								SyntaxFactory.VariableDeclarator(
-									SyntaxFactory.Identifier(handlerName), 
-									null,
-									// TODO:
-//						useThisMemberReference ?  //						(Expression)new MemberReferenceExpression (new ThisReferenceExpression (), eventName)  //						: new IdentifierExpression (eventName)
-									SyntaxFactory.EqualsValueClause(SyntaxFactory.IdentifierName(eventName))
-								)
-							})
-						)
-					),
-					SyntaxFactory.IfStatement(
-						SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, SyntaxFactory.IdentifierName(handlerName), SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)),
-						SyntaxFactory.ExpressionStatement(SyntaxFactory.InvocationExpression(SyntaxFactory.IdentifierName(handlerName), SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(arguments))))
-					)
-				),
-				null
-			);
-			return methodDeclaration;
-		}
-
-		public static TypeSyntax ConvertType(SemanticModel model, int position, ITypeSymbol type)
-		{
-			return SyntaxFactory.ParseTypeName(type.ToMinimalDisplayString(model, position));
-		}
-
-		static string GetNameProposal(string eventName)
-		{
-			return "On" + char.ToUpper(eventName[0]) + eventName.Substring(1);
-		}
-
-//		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			VariableInitializer initializer;
-//			var eventDeclaration = GetEventDeclaration(context, out initializer);
-//			if (eventDeclaration == null) {
-//				yield break;
-//			}
-//			var type = (TypeDeclaration)eventDeclaration.Parent;
-//			var proposedHandlerName = GetNameProposal(initializer);
-//			if (type.Members.Any(m => m is MethodDeclaration && m.Name == proposedHandlerName)) {
-//				yield break;
-//			}
-//			var resolvedType = context.Resolve(eventDeclaration.ReturnType).Type;
-//			if (resolvedType.Kind == TypeKind.Unknown) {
-//				yield break;
-//			}
-//			var invokeMethod = resolvedType.GetDelegateInvokeMethod();
-//			if (invokeMethod == null) {
-//				yield break;
-//			}
-//			yield return new CodeAction(context.TranslateString("Create event invocator"), script => {
-//				var methodDeclaration = CreateEventInvocator (context, type, eventDeclaration, initializer, invokeMethod, UseExplictType);
-//				script.InsertWithCursor(
-//					context.TranslateString("Create event invocator"),
-//					Script.InsertPosition.After,
-//					methodDeclaration
-//				);
-//			}, initializer);
-//		}
-//
-//		static EventDeclaration GetEventDeclaration (SemanticModel context, out VariableInitializer initializer)
-//		{
-//			var result = context.GetNode<EventDeclaration> ();
-//			if (result == null) {
-//				initializer = null;
-//				return null;
-//			}
-//			initializer = result.Variables.FirstOrDefault (v => v.NameToken.Contains (context.Location));
-//			return initializer != null ? result : null;
-//		}
+		//		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
+		//		{
+		//			VariableInitializer initializer;
+		//			var eventDeclaration = GetEventDeclaration(context, out initializer);
+		//			if (eventDeclaration == null) {
+		//				yield break;
+		//			}
+		//			var type = (TypeDeclaration)eventDeclaration.Parent;
+		//			var proposedHandlerName = GetNameProposal(initializer);
+		//			if (type.Members.Any(m => m is MethodDeclaration && m.Name == proposedHandlerName)) {
+		//				yield break;
+		//			}
+		//			var resolvedType = context.Resolve(eventDeclaration.ReturnType).Type;
+		//			if (resolvedType.Kind == TypeKind.Unknown) {
+		//				yield break;
+		//			}
+		//			var invokeMethod = resolvedType.GetDelegateInvokeMethod();
+		//			if (invokeMethod == null) {
+		//				yield break;
+		//			}
+		//			yield return new CodeAction(context.TranslateString("Create event invocator"), script => {
+		//				var methodDeclaration = CreateEventInvocator (context, type, eventDeclaration, initializer, invokeMethod, UseExplictType);
+		//				script.InsertWithCursor(
+		//					context.TranslateString("Create event invocator"),
+		//					Script.InsertPosition.After,
+		//					methodDeclaration
+		//				);
+		//			}, initializer);
+		//		}
+		//
+		//		static EventDeclaration GetEventDeclaration (SemanticModel context, out VariableInitializer initializer)
+		//		{
+		//			var result = context.GetNode<EventDeclaration> ();
+		//			if (result == null) {
+		//				initializer = null;
+		//				return null;
+		//			}
+		//			initializer = result.Variables.FirstOrDefault (v => v.NameToken.Contains (context.Location));
+		//			return initializer != null ? result : null;
+		//		}
 	}
 }
 

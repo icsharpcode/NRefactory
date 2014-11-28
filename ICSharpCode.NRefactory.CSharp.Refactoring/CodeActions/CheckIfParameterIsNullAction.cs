@@ -38,7 +38,6 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
-using System.Runtime.Remoting.Messaging;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {

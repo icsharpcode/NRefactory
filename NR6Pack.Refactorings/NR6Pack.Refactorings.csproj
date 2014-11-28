@@ -255,6 +255,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\NRefactoryCodeRefactoringProviderAttribute.cs">
       <Link>Common\NRefactoryCodeRefactoringProviderAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\RefactoringHelpers.cs">
+      <Link>Common\RefactoringHelpers.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Refactoring\TypeGuessing.cs">
       <Link>Common\TypeGuessing.cs</Link>
     </Compile>
@@ -283,6 +286,7 @@
       <Link>Common\TypeExtensions.cs</Link>
     </Compile>
     <Compile Include="Common\CodeActionFactory.cs" />
+    <Compile Include="Common\DescriptionAttribute.cs" />
     <Compile Include="Common\DocumentChangeAction.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\NRefactoryCodeAction.cs" />

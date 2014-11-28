@@ -37,11 +37,13 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
-   
+using System.ComponentModel;
+
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Implements an abstract member as a virtual one")]
 	[ExportCodeRefactoringProvider("Make abstract member virtual", LanguageNames.CSharp)]
+	[Description("Make abstract member virtual/non-abstract and vice-versa")]
 	public class AbstractAndVirtualConversionAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

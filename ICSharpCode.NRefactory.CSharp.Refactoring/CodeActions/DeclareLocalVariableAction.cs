@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				t2 => {
 					var resolveResult = model.GetTypeInfo(expr);
 					var guessedType = resolveResult.Type ?? resolveResult.ConvertedType;
-					var name = CreateMethodDeclarationAction.CreateBaseName(expr, guessedType);
+					var name = RefactoringHelpers.CreateBaseName(expr, guessedType);
 //					name = context.GetLocalNameProposal(name, expr.StartLocation);
 					var type = /*context.UseExplicitTypes ? context.CreateShortType(guessedType) :*/ SyntaxFactory.ParseTypeName("var");
 

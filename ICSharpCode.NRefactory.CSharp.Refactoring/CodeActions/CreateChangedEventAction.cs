@@ -23,17 +23,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
-using System.Threading;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
@@ -74,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					"Create changed event",
 					t2 => {
 						var eventDeclaration = CreateChangedEventDeclaration(property);
-						var methodDeclaration = CreateEventInvocatorAction.CreateEventInvocator (
+						var methodDeclaration = RefactoringHelpers.CreateEventInvocator (
 							model,
 							type, 
 							eventDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)),
