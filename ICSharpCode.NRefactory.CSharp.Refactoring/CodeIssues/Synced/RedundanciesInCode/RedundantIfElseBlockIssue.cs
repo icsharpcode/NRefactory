@@ -30,11 +30,12 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-//	[IssueDescription("Redundant 'else' keyword",
-//	                  Description = "Redundant 'else' keyword.",
-//	                  Category = IssueCategories.RedundanciesInCode,
-//	                  Severity = Severity.Warning,
-//	                  AnalysisDisableKeyword = "RedundantIfElseBlock")]
+	[IssueDescription("Redundant 'else' keyword",
+	                  Description = "Redundant 'else' keyword.",
+	                  Category = IssueCategories.RedundanciesInCode,
+	                  Severity = Severity.Warning,
+	                  IsEnabledByDefault = false,
+	                  AnalysisDisableKeyword = "RedundantIfElseBlock")]
 	public class RedundantIfElseBlockIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)

@@ -32,10 +32,11 @@ using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {
-//	[IssueDescription("Code is unreachable",
-//		Description = "Code is unreachable.",
-//		Category = IssueCategories.RedundanciesInCode,
-//		Severity = Severity.Warning)]
+	[IssueDescription("Code is unreachable",
+		Description = "Code is unreachable.",
+		Category = IssueCategories.RedundanciesInCode,
+		IsEnabledByDefault = false,
+		Severity = Severity.Warning)]
 	public class UnreachableCodeIssue : GatherVisitorCodeIssueProvider
 	{
 		protected override IGatherVisitor CreateVisitor(BaseRefactoringContext context)
