@@ -74,9 +74,7 @@
     <Compile Include="..\NR6Pack.Refactorings\Common\NRefactoryCodeAction.cs">
       <Link>Common\Refactorings\NRefactoryCodeAction.cs</Link>
     </Compile>
-    <Compile Include="CodeFixProvider.cs" />
     <Compile Include="Common\GatherVisitorBase.cs" />
-    <Compile Include="DiagnosticAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
