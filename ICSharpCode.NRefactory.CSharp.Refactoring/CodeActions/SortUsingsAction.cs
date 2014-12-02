@@ -52,64 +52,110 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var node = root.FindNode(span);
+			if (node == null)
+				return;
+
+			var usingDirective = node.FirstAncestorOrSelf<SyntaxNode>(n => n is UsingDirectiveSyntax);
+
+			// a CodeAction that doesn't change the document seems to crash VS
+			// so we have to check if the usings are already sorted, and cancel if necessary.
+			if (usingDirective == null || CheckAllSorted(root, model))
+				return;
+
+			context.RegisterRefactoring(
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Sort usings", cancellation => {
+					var newRoot = root;
+					var blocks = EnumerateUsingBlocks(root);
+
+					foreach (var block in blocks) {
+						var originalNodes = block.Select(n => new UsingInfo(n, model)).ToArray();
+
+						newRoot = newRoot.TrackNodes(originalNodes.Select(n => n.Node));
+
+						var sortedNodes = originalNodes.OrderBy(_ => _).ToArray();
+						
+						for (var i = 0; i < originalNodes.Length; ++i) {
+							newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(originalNodes[i].Node), sortedNodes[i].Node);
+						}
+					}
+
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				})
+			);
 		}
-//		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var usingNode = FindUsingNodeAtCursor(context);
-//			if (usingNode == null)
-//				yield break;
-//
-//			yield return new CodeAction(context.TranslateString("Sort usings"), script =>
-//			{
-//				var blocks = EnumerateUsingBlocks(context.RootNode);
-//
-//				foreach (var block in blocks)
-//				{
-//					var originalNodes = block.ToArray();
-//					var sortedNodes = UsingHelper.SortUsingBlock(originalNodes, context).ToArray();
-//
-//					for (var i = 0; i < originalNodes.Length; ++i)
-//						script.Replace(originalNodes[i], sortedNodes[i].Clone());
-//				}
-//			}, usingNode);
-//		}
-//
-//		private static AstNode FindUsingNodeAtCursor(SemanticModel context)
-//		{
-//			// If cursor is inside using declaration
-//			var locationAsIs = context.Location;
-//			// If cursor is at end of line with using declaration
-//			var locationLeft = new TextLocation(locationAsIs.Line, locationAsIs.Column - 1);
-//
-//			var possibleNodes = new[] { locationAsIs, locationLeft }
-//				.Select(_ => context.RootNode.GetNodeAt(_, IsUsingDeclaration));
-//			var usingNode = possibleNodes.Where(_ => _ != null).Distinct().SingleOrDefault();
-//
-//			return usingNode;
-//		}
-//
-//		private static bool IsUsingDeclaration(AstNode node)
-//		{
-//			return node is UsingDeclaration || node is UsingAliasDeclaration;
-//		}
-//
-//		private static IEnumerable<IEnumerable<AstNode>> EnumerateUsingBlocks(AstNode root)
-//		{
-//			var alreadyAddedNodes = new HashSet<AstNode>();
-//
-//			foreach (var child in root.Descendants)
-//				if (IsUsingDeclaration(child) && !alreadyAddedNodes.Contains(child)) {
-//					var blockNodes = EnumerateUsingBlockNodes(child);
-//
-//					alreadyAddedNodes.UnionWith(blockNodes);
-//					yield return blockNodes;
-//				}
-//		}
-//
-//		private static IEnumerable<AstNode> EnumerateUsingBlockNodes(AstNode firstNode)
-//		{
-//			for (var node = firstNode; IsUsingDeclaration(node); node = node.GetNextSibling (n => n.Role != Roles.NewLine))
-//				yield return node;
-//		}
+
+		private static bool CheckAllSorted(SyntaxNode root, SemanticModel model)
+		{
+			var blocks = EnumerateUsingBlocks(root);
+
+			foreach (var block in blocks) {
+				var nodes = block.Select(n => new UsingInfo(n, model)).ToArray();
+				var sorted = nodes.OrderBy(_ => _).ToArray();
+				if (!nodes.SequenceEqual(sorted))
+					return false;
+			}
+
+			return true;
+		}
+
+		private static IEnumerable<IEnumerable<UsingDirectiveSyntax>> EnumerateUsingBlocks(SyntaxNode root)
+		{
+			var alreadyAddedNodes = new HashSet<UsingDirectiveSyntax>();
+
+			foreach (var child in root.DescendantNodes()) {
+				if (child is UsingDirectiveSyntax && !alreadyAddedNodes.Contains(child)) {
+					var blockNodes = child.Parent.ChildNodes().OfType<UsingDirectiveSyntax>().ToArray();
+
+					alreadyAddedNodes.UnionWith(blockNodes);
+					yield return blockNodes;
+				}
+			}
+		}
+
+		private sealed class UsingInfo : IComparable<UsingInfo>
+		{
+			public UsingDirectiveSyntax Node;
+
+			public string Alias;
+			public string Name;
+
+			public bool IsAlias;
+			public bool HasTypesFromOtherAssemblies;
+			public bool IsSystem;
+
+			public UsingInfo(UsingDirectiveSyntax node, SemanticModel context)
+			{
+				Alias = node.Alias?.Name?.Identifier.ValueText;
+				Name = node.Name.ToString();
+				IsAlias = Alias != null;
+
+				var result = context.GetSymbolInfo(node.Name);
+				if (result.Symbol is INamespaceSymbol) {
+					HasTypesFromOtherAssemblies = ((INamespaceSymbol)result.Symbol).ConstituentNamespaces.Select(cn => cn.ContainingAssembly).Any(a => context.Compilation.Assembly != a);
+				}
+
+				IsSystem = HasTypesFromOtherAssemblies && (Name == "System" || Name.StartsWith("System.", StringComparison.Ordinal));
+
+				Node = node;
+			}
+
+			public int CompareTo(UsingInfo y)
+			{
+				UsingInfo x = this;
+				if (x.IsAlias != y.IsAlias)
+					return x.IsAlias ? 1 : -1;
+				else if (x.HasTypesFromOtherAssemblies != y.HasTypesFromOtherAssemblies)
+					return x.HasTypesFromOtherAssemblies ? -1 : 1;
+				else if (x.IsSystem != y.IsSystem)
+					return x.IsSystem ? -1 : 1;
+				else if (x.Alias != y.Alias)
+					return StringComparer.Ordinal.Compare(x.Alias, y.Alias);
+				else if (x.Name != y.Name)
+					return StringComparer.Ordinal.Compare(x.Name, y.Name);
+				else
+					return 0;
+			}
+		}
 	}
 }

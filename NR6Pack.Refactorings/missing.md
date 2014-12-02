@@ -34,7 +34,6 @@
 * PutInsideUsingAction
 * RemoveRedundantCatchTypeAction
 * ReverseDirectionForForLoopAction
-* SortUsingsAction
 * SplitDeclarationListAction
 * SplitStringAction
 * UseStringFormatAction
