@@ -38,11 +38,13 @@ using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 using Microsoft.CodeAnalysis.Formatting;
+using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantArgumentName")]
+	[Description("Redundant explicit argument name specification")]
 	public class RedundantArgumentNameIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantArgumentNameIssue";

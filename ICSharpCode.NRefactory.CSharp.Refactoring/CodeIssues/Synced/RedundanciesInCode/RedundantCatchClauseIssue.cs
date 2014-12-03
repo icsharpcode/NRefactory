@@ -44,6 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantCatchClause")]
+	[Description("Catch clause with a single 'throw' statement is redundant.")]
 	public class RedundantCatchClauseIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantCatchClauseIssue";

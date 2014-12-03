@@ -37,11 +37,13 @@ using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
+	[Description("Condition is always true or false")]
 	public class ConditionIsAlwaysTrueOrFalseIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticIdTrue  = "ConditionIsAlwaysTrueOrFalseIssue.True";

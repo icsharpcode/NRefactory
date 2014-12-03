@@ -45,6 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantArgumentDefaultValue")]
+	[Description("Default argument value is redundant.")]
 	public class RedundantArgumentDefaultValueIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantArgumentDefaultValueIssue";

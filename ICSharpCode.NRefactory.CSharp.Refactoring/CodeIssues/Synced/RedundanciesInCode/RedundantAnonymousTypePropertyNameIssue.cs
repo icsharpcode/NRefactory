@@ -35,11 +35,13 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantAnonymousTypePropertyName")]
+	[Description("Redundant explicit property name")]
 	public class RedundantAnonymousTypePropertyNameIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantAnonymousTypePropertyNameIssue";

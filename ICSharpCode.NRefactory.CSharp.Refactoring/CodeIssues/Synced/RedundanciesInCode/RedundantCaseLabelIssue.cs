@@ -42,6 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantCaseLabel")]
+	[Description("Redundant case label")]
 	public class RedundantCaseLabelIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantCaseLabelIssue";

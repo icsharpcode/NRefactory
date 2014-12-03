@@ -44,6 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBaseQualifier")]
+	[Description("'base.' is redundant and can safely be removed.")]
 	public class RedundantBaseQualifierIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantBaseQualifierIssue";

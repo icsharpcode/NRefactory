@@ -42,6 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoubleNegationOperator")]
+	[Description("Double negation is redundant")]
 	public class DoubleNegationOperatorIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "DoubleNegationOperatorIssue";

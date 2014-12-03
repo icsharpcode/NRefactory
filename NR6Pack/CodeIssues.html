@@ -1,12 +1,11 @@
-﻿<!DOCTYPE html>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html []>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
+  <head>
     <meta charset="utf-8" />
     <title></title>
-</head>
-<body>
-
+  </head>
+  <body>
     <!--
         
         This is used for documentation / public Web sites
@@ -15,12 +14,163 @@
             Format: <description text> (<class name>)
 
     -->
-
-    <h2>Supported Code Issue Fixes</h2>
-
+    <h2>Supported Code Issues and Fixes</h2>
     <ul>
-
+      <li>Removes &amp;#39;internal&amp;#39; modifiers that are not required (RedundantInternalIssue)</li>
+      <li>Removes &amp;#39;private&amp;#39; modifiers that are not required (RedundantPrivateIssue)</li>
+      <li>Call to base member with implicit default parameters (BaseMethodCallWithDefaultParameterIssue)</li>
+      <li>Bitwise operation on enum which has no [Flags] attribute (BitwiseOperatorOnEnumWithoutFlagsIssue)</li>
+      <li>Type check and casts can be replaced with &amp;#39;as&amp;#39; and null check (CanBeReplacedWithTryCastAndCheckForNullIssue)</li>
+      <li>Possible compare of value type with &amp;#39;null&amp;#39; (CompareNonConstrainedGenericWithNullIssue)</li>
+      <li>Comparison of floating point numbers with equality operator (CompareOfFloatsByEqualityOperatorIssue)</li>
+      <li>&amp;#39;?:&amp;#39; expression has identical true and false branches (ConditionalTernaryEqualBranchIssue)</li>
+      <li>Delegate subtraction has unpredictable result (DelegateSubtractionIssue)</li>
+      <li>Warns about calls to virtual member functions occuring in the constructor. (DoNotCallOverridableMethodsInConstructorIssue)</li>
+      <li>A catch clause that catches System.Exception and has an empty body (EmptyGeneralCatchClauseIssue)</li>
+      <li>Comparing equal expression for equality is usually useless (EqualExpressionComparisonIssue)</li>
+      <li>Event unsubscription via anonymous delegate is useless (EventUnsubscriptionViaAnonymousDelegateIssue)</li>
+      <li>&amp;#39;for&amp;#39; loop control variable is never modified (ForControlVariableIsNeverModifiedIssue)</li>
+      <li>The string format index is out of bounds of the passed arguments (FormatStringProblemIssue)</li>
+      <li>Function does not reach its end or a &amp;#39;return&amp;#39; statement by any of possible execution paths. (FunctionNeverReturnsIssue)</li>
+      <li>Local variable has the same name as a member and hides it (LocalVariableHidesMemberIssue)</li>
+      <li>Lowercase &amp;#39;l&amp;#39; is often confused with &amp;#39;1&amp;#39; (LongLiteralEndingLowerLIssue)</li>
+      <li>Member hides static member from outer class (MemberHidesStaticFromOuterClassIssue)</li>
+      <li>Method with optional parameter is hidden by overload (MethodOverloadWithOptionalParameterIssue)</li>
+      <li>Non-readonly field referenced in &amp;#39;GetHashCode()&amp;#39; (NonReadonlyReferencedInGetHashCodeIssue)</li>
+      <li>Cannot resolve symbol in text argument (NotResolvedInTextIssue)</li>
+      <li>Possible unassigned object created by &amp;#39;new&amp;#39; (ObjectCreationAsStatementIssue)</li>
+      <li>Operator Is can be used instead of comparing object GetType() and instances of System.Type object (OperatorIsCanBeUsedIssue)</li>
+      <li>The value of an optional parameter in a method does not match the base method (OptionalParameterHierarchyMismatchIssue)</li>
+      <li>C# doesn&amp;#39;t support optional &amp;#39;ref&amp;#39; or &amp;#39;out&amp;#39; parameters (OptionalParameterRefOutIssue)</li>
+      <li>Parameter has the same name as a member and hides it (ParameterHidesMemberIssue)</li>
+      <li>Parameter name differs in partial method declaration (PartialMethodParameterNameMismatchIssue)</li>
+      <li>Invocation of polymorphic field event leads to unpredictable result since invocation lists are not virtual (PolymorphicFieldLikeEventInvocationIssue)</li>
+      <li>Check if a readonly field is used as assignment target (PossibleAssignmentToReadonlyFieldIssue)</li>
+      <li>Possible multiple enumeration of IEnumerable (PossibleMultipleEnumerationIssue)</li>
+      <li>Warns about static fields in generic types. (StaticFieldInGenericTypeIssue)</li>
+      <li>[ThreadStatic] doesn&amp;#39;t work with instance fields (ThreadStaticAtInstanceFieldIssue)</li>
+      <li>Warns about property or indexer setters and event adders or removers that do not use the value parameter. (ValueParameterNotUsedIssue)</li>
+      <li>Checks for prohibited modifiers (ProhibitedModifiersIssue)</li>
+      <li>CS0183:Given expression is always of the provided type (CS0183ExpressionIsAlwaysOfProvidedTypeIssue)</li>
+      <li>Parameter has no matching param tag in the XML comment (CS1573ParameterHasNoMatchingParamTagIssue)</li>
+      <li>CS1717:Assignment made to same variable (CS1717AssignmentMadeToSameVariableIssue)</li>
+      <li>Unassigned readonly field (UnassignedReadonlyFieldIssue)</li>
+      <li>Non public methods are not found by NUnit (NonPublicMethodWithTestAttributeIssue)</li>
+      <li>Anonymous method or lambda expression can be simplified to method group (ConvertClosureToMethodGroupIssue)</li>
+      <li>&amp;#39;?:&amp;#39; expression can be converted to &amp;#39;??&amp;#39; expression. (ConvertConditionalTernaryToNullCoalescingIssue)</li>
+      <li>Convert &amp;#39;if&amp;#39; to &amp;#39;?:&amp;#39; (ConvertIfStatementToConditionalTernaryExpressionIssue)</li>
+      <li>Convert &amp;#39;if&amp;#39; to &amp;#39;??&amp;#39; (ConvertIfStatementToNullCoalescingExpressionIssue)</li>
+      <li>&amp;#39;if&amp;#39; statement can be re-written as &amp;#39;switch&amp;#39; statement (ConvertIfStatementToSwitchStatementIssue)</li>
+      <li>Convert &amp;#39;Nullable&amp;lt;T&amp;gt;&amp;#39; to the short form &amp;#39;T?&amp;#39; (ConvertNullableToShortFormIssue)</li>
+      <li>Convert property to auto property (ConvertToAutoPropertyIssue)</li>
+      <li>Convert to lambda with expression (ConvertToLambdaExpressionIssue)</li>
+      <li>If all fields, properties and methods members are static, the class can be made static. (ConvertToStaticTypeIssue)</li>
+      <li>Foreach loops are more efficient (ForCanBeConvertedToForeachIssue)</li>
+      <li>If an extension method is called as static method convert it to method syntax (InvokeAsExtensionMethodIssue)</li>
+      <li>Convert &amp;#39;if...return&amp;#39; to &amp;#39;return&amp;#39; (RewriteIfReturnToReturnIssue)</li>
+      <li>Use &amp;#39;var&amp;#39; keyword when possible (SuggestUseVarKeywordEvidentIssue)</li>
+      <li>Suggests using the class declaring a static function when calling it. (AccessToStaticMemberViaDerivedTypeIssue)</li>
+      <li>Base parameter has &amp;#39;params&amp;#39; modifier, but missing in overrider (BaseMemberHasParamsIssue)</li>
+      <li>Convert &amp;#39;if-do-while&amp;#39; to &amp;#39;while&amp;#39; statement (ConvertIfDoToWhileIssue)</li>
+      <li>Convert &amp;#39;if&amp;#39; to &amp;#39;||&amp;#39; expression (ConvertIfToOrExpressionIssue)</li>
+      <li>Convert local variable or field to constant (ConvertToConstantIssue)</li>
+      <li>Empty control statement body (EmptyEmbeddedStatementIssue)</li>
+      <li>Convert field to readonly (FieldCanBeMadeReadOnlyIssue)</li>
+      <li>A member doesn&amp;#39;t use &amp;#39;this&amp;#39; object neither explicit nor implicit. It can be made static. (MemberCanBeMadeStaticIssue)</li>
+      <li>Finds parameters that can be demoted to a base class. (ParameterCanBeDeclaredWithBaseTypeIssue)</li>
+      <li>Possible mistaken call to &amp;#39;object.GetType()&amp;#39; (PossibleMistakenCallToGetTypeIssue)</li>
+      <li>Constructor in abstract class should not be public (PublicConstructorInAbstractClassIssue)</li>
+      <li>Check for reference equality instead (ReferenceEqualsWithValueTypeIssue)</li>
+      <li>Replace with call to FirstOrDefault&amp;lt;T&amp;gt;() (ReplaceWithFirstOrDefaultIssue)</li>
+      <li>Replace with call to LastOrDefault&amp;lt;T&amp;gt;() (ReplaceWithLastOrDefaultIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().Any() (ReplaceWithOfTypeAnyIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().Count() (ReplaceWithOfTypeCountIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().First() (ReplaceWithOfTypeFirstIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().FirstOrDefault() (ReplaceWithOfTypeFirstOrDefaultIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt; (ReplaceWithOfTypeIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().Last() (ReplaceWithOfTypeLastIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().LastOrDefault() (ReplaceWithOfTypeLastOrDefaultIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().LongCount() (ReplaceWithOfTypeLongCountIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().Single() (ReplaceWithOfTypeSingleIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().SingleOrDefault() (ReplaceWithOfTypeSingleOrDefaultIssue)</li>
+      <li>Replace with call to OfType&amp;lt;T&amp;gt;().Where() (ReplaceWithOfTypeWhereIssue)</li>
+      <li>Replace with simple assignment (ReplaceWithSimpleAssignmentIssue)</li>
+      <li>Replace with single call to Any(...) (ReplaceWithSingleCallToAnyIssue)</li>
+      <li>Replace with single call to Count(...) (ReplaceWithSingleCallToCountIssue)</li>
+      <li>Replace with single call to First(...) (ReplaceWithSingleCallToFirstIssue)</li>
+      <li>Replace with single call to FirstOrDefault(...) (ReplaceWithSingleCallToFirstOrDefaultIssue)</li>
+      <li>Replace with single call to Last(...) (ReplaceWithSingleCallToLastIssue)</li>
+      <li>Replace with single call to LastOrDefault(...) (ReplaceWithSingleCallToLastOrDefaultIssue)</li>
+      <li>Replace with single call to LongCount(...) (ReplaceWithSingleCallToLongCountIssue)</li>
+      <li>Replace with single call to Single(...) (ReplaceWithSingleCallToSingleIssue)</li>
+      <li>Replace with single call to SingleOrDefault(...) (ReplaceWithSingleCallToSingleOrDefaultIssue)</li>
+      <li>Uses shorter string.IsNullOrEmpty call instead of a longer condition. (ReplaceWithStringIsNullOrEmptyIssue)</li>
+      <li>Conditional expression can be simplified (SimplifyConditionalTernaryExpressionIssue)</li>
+      <li>Simplify LINQ expression (SimplifyLinqExpressionIssue)</li>
+      <li>Warns when a culture-aware &amp;#39;Compare&amp;#39; call is used by default. (StringCompareIsCultureSpecificIssue)</li>
+      <li>Warns when a culture-aware &amp;#39;string.CompareTo&amp;#39; call is used by default. (StringCompareToIsCultureSpecificIssue)</li>
+      <li>Warns when a culture-aware &amp;#39;EndsWith&amp;#39; call is used by default. (StringEndsWithIsCultureSpecificIssue)</li>
+      <li>Warns when a culture-aware &amp;#39;IndexOf&amp;#39; call is used by default. (StringIndexOfIsCultureSpecificIssue)</li>
+      <li>Warns when a culture-aware &amp;#39;LastIndexOf&amp;#39; call is used by default. (StringLastIndexOfIsCultureSpecificIssue)</li>
+      <li>Warns when a culture-aware &amp;#39;StartsWith&amp;#39; call is used by default. (StringStartsWithIsCultureSpecificIssue)</li>
+      <li>Use array creation expression (UseArrayCreationExpressionIssue)</li>
+      <li>&amp;#39;is&amp;#39; operator can be used (UseIsOperatorIssue)</li>
+      <li>Replace usages of &amp;#39;Count()&amp;#39; with call to &amp;#39;Any()&amp;#39; (UseMethodAnyIssue)</li>
+      <li>Use method IsInstanceOfType (UseMethodIsInstanceOfTypeIssue)</li>
+      <li>When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer. (ArrayCreationCanBeReplacedWithArrayInitializerIssue)</li>
+      <li>Condition is always true or false (ConditionIsAlwaysTrueOrFalseIssue)</li>
+      <li>Finds redundant null coalescing expressions such as expr ?? expr (ConstantNullCoalescingConditionIssue)</li>
+      <li>Double negation is redundant (DoubleNegationOperatorIssue)</li>
+      <li>Empty statement is redundant (EmptyStatementIssue)</li>
+      <li>&amp;#39;true&amp;#39; is redundant as for statement condition (ForStatementConditionIsTrueIssue)</li>
+      <li>Redundant explicit property name (RedundantAnonymousTypePropertyNameIssue)</li>
+      <li>Default argument value is redundant. (RedundantArgumentDefaultValueIssue)</li>
+      <li>Redundant explicit argument name specification (RedundantArgumentNameIssue)</li>
+      <li>Parentheses are redundant if attribute has no arguments. (RedundantAttributeParenthesesIssue)</li>
+      <li>&amp;#39;base.&amp;#39; is redundant and can safely be removed. (RedundantBaseQualifierIssue)</li>
+      <li>Comparison of a boolean value with &amp;#39;true&amp;#39; or &amp;#39;false&amp;#39; constant. (RedundantBoolCompareIssue)</li>
+      <li>Redundant case label (RedundantCaseLabelIssue)</li>
+      <li>Type cast is redundant (RedundantCastIssue)</li>
+      <li>Catch clause with a single &amp;#39;throw&amp;#39; statement is redundant. (RedundantCatchClauseIssue)</li>
+      <li>Check for inequality before assignment is redundant if (x != value) x = value; (RedundantCheckBeforeAssignmentIssue)</li>
+      <li>Redundant comma in array initializer (RedundantCommaInArrayInitializerIssue)</li>
+      <li>When &amp;#39;is&amp;#39; keyword is used, which implicitly check null. (RedundantComparisonWithNullIssue)</li>
+      <li>Explicit delegate creation expression is redundant (RedundantDelegateCreationIssue)</li>
+      <li>Redundant empty &amp;#39;default&amp;#39; switch branch (RedundantEmptyDefaultSwitchBranchIssue)</li>
+      <li>Redundant empty finally block (RedundantEmptyFinallyBlockIssue)</li>
+      <li>Redundant &amp;#39;IEnumerable.Cast&amp;lt;T&amp;gt;&amp;#39; or &amp;#39;IEnumerable.OfType&amp;lt;T&amp;gt;&amp;#39; call (RedundantEnumerableCastCallIssue)</li>
+      <li>Redundant explicit type in array creation (RedundantExplicitArrayCreationIssue)</li>
+      <li>Redundant explicit size in array creation (RedundantExplicitArraySizeIssue)</li>
+      <li>Value types are implicitly convertible to nullables (RedundantExplicitNullableCreationIssue)</li>
+      <li>Type is either mentioned in the base type list of another part or in another base type (RedundantExtendsListEntryIssue)</li>
+      <li>Redundant &amp;#39;else&amp;#39; keyword (RedundantIfElseBlockIssue)</li>
+      <li>Explicit type specification can be removed as it can be implicitly inferred (RedundantLambdaParameterTypeIssue)</li>
+      <li>Redundant lambda signature parentheses (RedundantLambdaSignatureParenthesesIssue)</li>
+      <li>Redundant operand in logical conditional expression (RedundantLogicalConditionalExpressionOperandIssue)</li>
+      <li>Removes namespace usages that are obsolete. (RedundantNameQualifierIssue)</li>
+      <li>When object creation uses object or collection initializer, empty argument list is redundant. (RedundantObjectCreationArgumentListIssue)</li>
+      <li>Redundant empty object or collection initializer. (RedundantObjectOrCollectionInitializerIssue)</li>
+      <li>Redundant &amp;#39;string.ToCharArray()&amp;#39; call (RedundantStringToCharArrayCallIssue)</li>
+      <li>Redundant conditional expression (RedundantTernaryExpressionIssue)</li>
+      <li>Finds value type calls to ToString() which would be generated automatically by the compiler. (RedundantToStringCallForValueTypesIssue)</li>
+      <li>Finds calls to ToString() which would be generated automatically by the compiler. (RedundantToStringCallIssue)</li>
+      <li>Unsafe modifier in redundant in unsafe context or when no unsafe constructs are used. (RedundantUnsafeContextIssue)</li>
+      <li>Using directive is not required and can safely be removed. (RedundantUsingDirectiveIssue)</li>
+      <li>Remove redundant statement (RemoveRedundantOrStatementIssue)</li>
+      <li>Detects when no delegate parameter is used in the anonymous method body. (UnusedAnonymousMethodSignatureIssue)</li>
+      <li>An empty public constructor without paramaters is redundant. (EmptyConstructorIssue)</li>
+      <li>Empty destructor is redundant (EmptyDestructorIssue)</li>
+      <li>Empty namespace declaration is redundant (EmptyNamespaceIssue)</li>
+      <li>The default underlying type of enums is int, so defining it explicitly is redundant. (EnumUnderlyingTypeIsIntIssue)</li>
+      <li>Class is declared partial but has only one part (PartialTypeWithSinglePartIssue)</li>
+      <li>This is generated by the compiler and can be safely removed. (RedundantBaseConstructorCallIssue)</li>
+      <li>Initializing field with default value is redundant. (RedundantDefaultFieldInitializerIssue)</li>
+      <li>The override of a virtual member is redundant because it consists of only a call to the base (RedundantOverridenMemberIssue)</li>
+      <li>&amp;#39;params&amp;#39; is ignored on overrides (RedundantParamsIssue)</li>
+      <li>&amp;#39;sealed&amp;#39; modifier is redundant in sealed classes (SealedMemberInSealedClassIssue)</li>
+      <li>Label is never referenced (UnusedLabelIssue)</li>
+      <li>Parameter is never used (UnusedParameterIssue)</li>
+      <li>Type parameter is never used (UnusedTypeParameterIssue)</li>
     </ul>
-
-</body>
+  </body>
 </html>

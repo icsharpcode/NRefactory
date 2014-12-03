@@ -45,6 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBoolCompare")]
+	[Description("Comparison of a boolean value with 'true' or 'false' constant.")]
 	public class RedundantBoolCompareIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantBoolCompareIssue";

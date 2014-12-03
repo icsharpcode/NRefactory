@@ -825,16 +825,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CodeActions.html" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="missing.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CodeIssues\ConstraintViolations\InconsistentNamingIssue\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CodeIssues.html" />
+    <Content Include="CodeActions.html.template" />
+    <None Include="CodeIssues.html.template" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />

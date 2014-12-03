@@ -1,12 +1,11 @@
-﻿<!DOCTYPE html>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html []>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
+  <head>
     <meta charset="utf-8" />
     <title></title>
-</head>
-<body>
-
+  </head>
+  <body>
     <!--
         
         This is used for documentation / public Web sites
@@ -15,83 +14,80 @@
             Format: <description text> (<class name>)
 
     -->
-
     <h2>Supported Refactorings</h2>
-
     <ul>
-        <li>Make abstract member virtual/non-abstract and vice-versa (AbstractAndVirtualConversionAction)</li>
-        <li>Add another accessor (AddAnotherAccessorAction)</li>
-        <li>Add name for argument (AddArgumentNameAction)</li>
-        <li>Add braces (AddBracesAction)</li>
-        <li>Add type to general catch clause (AddCatchTypeAction)</li>
-        <li>Add one or more optional parameters to an invocation, using their default values (AddOptionalParameterToInvocationAction)</li>
-        <li>Check if parameter is null (CheckIfParameterIsNullAction)</li>
-        <li>Compute constant value (ComputeConstantValueAction)</li>
-        <li>Convert anonymous delegate to lambda (ConvertAnonymousDelegateToLambdaAction)</li>
-        <li>Convert assignment to &#39;if&#39; (ConvertAssignmentToIfAction)</li>
-        <li>Convert &#39;as&#39; to cast. (ConvertAsToCastAction)</li>
-        <li>Replace bitwise flag comparison with call to &#39;Enum.HasFlag&#39; (ConvertBitwiseFlagComparisonToHasFlagsAction)</li>
-        <li>Convert cast to &#39;as&#39;. (ConvertCastToAsAction)</li>
-        <li>Convert dec to hex. (ConvertDecToHexAction)</li>
-        <li>Convert do...while to while (ConvertDoWhileToWhileLoopAction)</li>
-        <li>Convert &#39;==&#39; to &#39;Equals&#39; (ConvertEqualityOperatorToEqualsAction)</li>
-        <li>Convert &#39;Equals&#39; to &#39;==&#39; (ConvertEqualsToEqualityOperatorAction)</li>
-        <li>Convert explicit to implict implementation (ConvertExplicitToImplicitImplementationAction)</li>
-        <li>Convert &#39;foreach&#39; loop to &#39;for&#39; (ConvertForeachToForAction)</li>
-        <li>Convert &#39;for&#39; loop to &#39;while&#39; (ConvertForToWhileAction)</li>
-        <li>Replace &#39;Enum.HasFlag&#39; call with bitwise flag comparison (ConvertHasFlagsToBitwiseFlagComparisonAction)</li>
-        <li>Convert hex to dec. (ConvertHexToDecAction)</li>
-        <li>Convert &#39;if&#39; to &#39;?:&#39; (ConvertIfStatementToConditionalTernaryExpressionAction)</li>
-        <li>Convert &#39;if&#39; to &#39;??&#39; expression (ConvertIfStatementToNullCoalescingExpressionAction)</li>
-        <li>Convert &#39;if&#39; to &#39;return&#39; (ConvertIfStatementToReturnStatementAction)</li>
-        <li>Convert implict to explicit implementation (ConvertImplicitToExplicitImplementationAction)</li>
-        <li>Converts expression of lambda body to statement (ConvertLambdaBodyExpressionToStatementAction)</li>
-        <li>Converts statement of lambda body to expression (ConvertLambdaBodyStatementToExpressionAction)</li>
-        <li>Convert lambda to anonymous delegate (ConvertLambdaToAnonymousDelegateAction)</li>
-        <li>Convert method group to anoymous method (ConvertMethodGroupToAnonymousMethodAction)</li>
-        <li>Convert method group to lambda expression (ConvertMethodGroupToLambdaAction)</li>
-        <li>Convert &#39;*&#39;/&#39;/&#39; to &#39;&lt;&lt;&#39;/&#39;&gt;&gt;&#39; (ConvertMultiplyToShiftAction)</li>
-        <li>Convert &#39;??&#39; to &#39;?:&#39; (ConvertNullCoalescingToConditionalExpressionAction)</li>
-        <li>Convert &#39;return&#39; to &#39;if&#39; (ConvertReturnStatementToIfAction)</li>
-        <li>Convert &#39;&lt;&lt;&#39;/&#39;&gt;&gt;&#39; to &#39;*&#39;/&#39;/&#39; (ConvertShiftToMultiplyAction)</li>
-        <li>Convert &#39;switch&#39; to &#39;if&#39; (ConvertSwitchToIfAction)</li>
-        <li>Convert while loop to do...while (ConvertWhileToDoWhileLoopAction)</li>
-        <li>Create backing store for auto property (CreateBackingStoreAction)</li>
-        <li>Create changed event for property (CreateChangedEventAction)</li>
-        <li>Create custom event implementation (CreateCustomEventImplementationAction)</li>
-        <li>Extension methods must be declared static (CS1105ExtensionMethodMustBeDeclaredStaticAction)</li>
-        <li>Invoke using static method syntax (ExtensionMethodInvocationToStaticMethodInvocationAction)</li>
-        <li>Extract anonymous method (ExtractAnonymousMethodAction)</li>
-        <li>Extract field (ExtractWhileConditionToInternalIfStatementAction)</li>
-        <li>Swap &#39;Equals&#39; target and argument (FlipEqualsTargetAndArgumentAction)</li>
-        <li>Swap left and right arguments (FlipOperatorArgumentsAction)</li>
-        <li>Generate switch labels (GenerateSwitchLabelsAction)</li>
-        <li>Create a backing field for a not implemented property (ImplementNotImplementedProperty)</li>
-        <li>Invert conditional operator (InvertConditionalOperatorAction)</li>
-        <li>Invert if (InvertIfAction)</li>
-        <li>Invert If and Simplify (InvertIfAndSimplify)</li>
-        <li>Invert logical expression (InvertLogicalExpressionAction)</li>
-        <li>Join local variable declaration and assignment (JoinDeclarationAndAssignmentAction)</li>
-        <li>Join string literal (JoinStringAction)</li>
-        <li>Negate &#39;is&#39; expression (NegateIsExpressionAction)</li>
-        <li>Negate a relational expression (NegateRelationalExpressionAction)</li>
-        <li>Remove backing store for property (RemoveBackingStoreAction)</li>
-        <li>Remove braces (RemoveBracesAction)</li>
-        <li>Remove region (RemoveRegionAction)</li>
-        <li>Replace assignment with postfix expression (ReplaceAssignmentWithPostfixExpressionAction)</li>
-        <li>Use string.Empty (ReplaceEmptyStringAction)</li>
-        <li>Replace operator assignment with assignment (ReplaceOperatorAssignmentWithAssignmentAction)</li>
-        <li>Replace postfix expression with assignment (ReplacePostfixExpressionWithAssignmentAction)</li>
-        <li>Replace assignment with operator assignment (ReplaceWithOperatorAssignmentAction)</li>
-        <li>Simplify if flow (SimplifyIfFlowAction)</li>
-        <li>Simplify if flow in loops (SimplifyIfInLoopsFlowAction)</li>
-        <li>Sort usings (SortUsingsAction)</li>
-        <li>Split local variable declaration and assignment (SplitDeclarationAndAssignmentAction)</li>
-        <li>Split &#39;if&#39; statement (SplitIfAction)</li>
-        <li>Use &#39;as&#39; and null check (UseAsAndNullCheckAction)</li>
-        <li>Use explicit type (UseExplicitTypeAction)</li>
-        <li>Use &#39;var&#39; keyword (UseVarKeywordAction)</li>
+      <li>Make abstract member virtual/non-abstract and vice-versa (AbstractAndVirtualConversionAction)</li>
+      <li>Add another accessor (AddAnotherAccessorAction)</li>
+      <li>Add name for argument (AddArgumentNameAction)</li>
+      <li>Add braces (AddBracesAction)</li>
+      <li>Add type to general catch clause (AddCatchTypeAction)</li>
+      <li>Add one or more optional parameters to an invocation, using their default values (AddOptionalParameterToInvocationAction)</li>
+      <li>Check if parameter is null (CheckIfParameterIsNullAction)</li>
+      <li>Compute constant value (ComputeConstantValueAction)</li>
+      <li>Convert anonymous delegate to lambda (ConvertAnonymousDelegateToLambdaAction)</li>
+      <li>Convert assignment to &amp;#39;if&amp;#39; (ConvertAssignmentToIfAction)</li>
+      <li>Convert &amp;#39;as&amp;#39; to cast. (ConvertAsToCastAction)</li>
+      <li>Replace bitwise flag comparison with call to &amp;#39;Enum.HasFlag&amp;#39; (ConvertBitwiseFlagComparisonToHasFlagsAction)</li>
+      <li>Convert cast to &amp;#39;as&amp;#39;. (ConvertCastToAsAction)</li>
+      <li>Convert dec to hex. (ConvertDecToHexAction)</li>
+      <li>Convert do...while to while (ConvertDoWhileToWhileLoopAction)</li>
+      <li>Convert &amp;#39;==&amp;#39; to &amp;#39;Equals&amp;#39; (ConvertEqualityOperatorToEqualsAction)</li>
+      <li>Convert &amp;#39;Equals&amp;#39; to &amp;#39;==&amp;#39; (ConvertEqualsToEqualityOperatorAction)</li>
+      <li>Convert explicit to implict implementation (ConvertExplicitToImplicitImplementationAction)</li>
+      <li>Convert &amp;#39;foreach&amp;#39; loop to &amp;#39;for&amp;#39; (ConvertForeachToForAction)</li>
+      <li>Convert &amp;#39;for&amp;#39; loop to &amp;#39;while&amp;#39; (ConvertForToWhileAction)</li>
+      <li>Replace &amp;#39;Enum.HasFlag&amp;#39; call with bitwise flag comparison (ConvertHasFlagsToBitwiseFlagComparisonAction)</li>
+      <li>Convert hex to dec. (ConvertHexToDecAction)</li>
+      <li>Convert &amp;#39;if&amp;#39; to &amp;#39;?:&amp;#39; (ConvertIfStatementToConditionalTernaryExpressionAction)</li>
+      <li>Convert &amp;#39;if&amp;#39; to &amp;#39;??&amp;#39; expression (ConvertIfStatementToNullCoalescingExpressionAction)</li>
+      <li>Convert &amp;#39;if&amp;#39; to &amp;#39;return&amp;#39; (ConvertIfStatementToReturnStatementAction)</li>
+      <li>Convert implict to explicit implementation (ConvertImplicitToExplicitImplementationAction)</li>
+      <li>Converts expression of lambda body to statement (ConvertLambdaBodyExpressionToStatementAction)</li>
+      <li>Converts statement of lambda body to expression (ConvertLambdaBodyStatementToExpressionAction)</li>
+      <li>Convert lambda to anonymous delegate (ConvertLambdaToAnonymousDelegateAction)</li>
+      <li>Convert method group to anoymous method (ConvertMethodGroupToAnonymousMethodAction)</li>
+      <li>Convert method group to lambda expression (ConvertMethodGroupToLambdaAction)</li>
+      <li>Convert &amp;#39;*&amp;#39;/&amp;#39;/&amp;#39; to &amp;#39;&amp;lt;&amp;lt;&amp;#39;/&amp;#39;&amp;gt;&amp;gt;&amp;#39; (ConvertMultiplyToShiftAction)</li>
+      <li>Convert &amp;#39;??&amp;#39; to &amp;#39;?:&amp;#39; (ConvertNullCoalescingToConditionalExpressionAction)</li>
+      <li>Convert &amp;#39;return&amp;#39; to &amp;#39;if&amp;#39; (ConvertReturnStatementToIfAction)</li>
+      <li>Convert &amp;#39;&amp;lt;&amp;lt;&amp;#39;/&amp;#39;&amp;gt;&amp;gt;&amp;#39; to &amp;#39;*&amp;#39;/&amp;#39;/&amp;#39; (ConvertShiftToMultiplyAction)</li>
+      <li>Convert &amp;#39;switch&amp;#39; to &amp;#39;if&amp;#39; (ConvertSwitchToIfAction)</li>
+      <li>Convert while loop to do...while (ConvertWhileToDoWhileLoopAction)</li>
+      <li>Create backing store for auto property (CreateBackingStoreAction)</li>
+      <li>Create changed event for property (CreateChangedEventAction)</li>
+      <li>Create custom event implementation (CreateCustomEventImplementationAction)</li>
+      <li>Extension methods must be declared static (CS1105ExtensionMethodMustBeDeclaredStaticAction)</li>
+      <li>Invoke using static method syntax (ExtensionMethodInvocationToStaticMethodInvocationAction)</li>
+      <li>Extract anonymous method (ExtractAnonymousMethodAction)</li>
+      <li>Extract field (ExtractWhileConditionToInternalIfStatementAction)</li>
+      <li>Swap &amp;#39;Equals&amp;#39; target and argument (FlipEqualsTargetAndArgumentAction)</li>
+      <li>Swap left and right arguments (FlipOperatorArgumentsAction)</li>
+      <li>Generate switch labels (GenerateSwitchLabelsAction)</li>
+      <li>Create a backing field for a not implemented property (ImplementNotImplementedProperty)</li>
+      <li>Invert conditional operator (InvertConditionalOperatorAction)</li>
+      <li>Invert if (InvertIfAction)</li>
+      <li>Invert If and Simplify (InvertIfAndSimplify)</li>
+      <li>Invert logical expression (InvertLogicalExpressionAction)</li>
+      <li>Join local variable declaration and assignment (JoinDeclarationAndAssignmentAction)</li>
+      <li>Join string literal (JoinStringAction)</li>
+      <li>Negate &amp;#39;is&amp;#39; expression (NegateIsExpressionAction)</li>
+      <li>Negate a relational expression (NegateRelationalExpressionAction)</li>
+      <li>Remove backing store for property (RemoveBackingStoreAction)</li>
+      <li>Remove braces (RemoveBracesAction)</li>
+      <li>Remove region (RemoveRegionAction)</li>
+      <li>Replace assignment with postfix expression (ReplaceAssignmentWithPostfixExpressionAction)</li>
+      <li>Use string.Empty (ReplaceEmptyStringAction)</li>
+      <li>Replace operator assignment with assignment (ReplaceOperatorAssignmentWithAssignmentAction)</li>
+      <li>Replace postfix expression with assignment (ReplacePostfixExpressionWithAssignmentAction)</li>
+      <li>Replace assignment with operator assignment (ReplaceWithOperatorAssignmentAction)</li>
+      <li>Simplify if flow (SimplifyIfFlowAction)</li>
+      <li>Simplify if flow in loops (SimplifyIfInLoopsFlowAction)</li>
+      <li>Sort usings (SortUsingsAction)</li>
+      <li>Split local variable declaration and assignment (SplitDeclarationAndAssignmentAction)</li>
+      <li>Split &amp;#39;if&amp;#39; statement (SplitIfAction)</li>
+      <li>Use &amp;#39;as&amp;#39; and null check (UseAsAndNullCheckAction)</li>
+      <li>Use explicit type (UseExplicitTypeAction)</li>
+      <li>Use &amp;#39;var&amp;#39; keyword (UseVarKeywordAction)</li>
     </ul>
-
-</body>
+  </body>
 </html>

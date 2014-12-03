@@ -45,6 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantAttributeParentheses")]
+	[Description("Parentheses are redundant if attribute has no arguments.")]
 	public class RedundantAttributeParenthesesIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "RedundantAttributeParenthesesIssue";
