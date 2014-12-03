@@ -55,6 +55,7 @@
     <ProjectReference Include="..\NR6Pack.Refactorings\NR6Pack.Refactorings.csproj">
       <Project>{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}</Project>
       <Name>NR6Pack.Refactorings</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
