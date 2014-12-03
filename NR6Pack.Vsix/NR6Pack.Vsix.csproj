@@ -13,8 +13,8 @@
     <ProjectGuid>{99498EF8-C9E0-433B-8D7B-EA8E9E66F0C7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NR6Pack.Refactorings</RootNamespace>
-    <AssemblyName>NR6Pack.Refactorings</AssemblyName>
+    <RootNamespace>NR6Pack</RootNamespace>
+    <AssemblyName>NR6Pack</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
@@ -52,10 +52,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NR6Pack.Refactorings\NR6Pack.Refactorings.csproj">
+    <ProjectReference Include="..\NR6Pack\NR6Pack.csproj">
       <Project>{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}</Project>
-      <Name>NR6Pack.Refactorings</Name>
+      <Name>NR6Pack</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

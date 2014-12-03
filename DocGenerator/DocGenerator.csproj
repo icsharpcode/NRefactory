@@ -96,9 +96,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NR6Pack.Refactorings\NR6Pack.Refactorings.csproj">
+    <ProjectReference Include="..\NR6Pack\NR6Pack.csproj">
       <Project>{9b591cdb-4085-4bff-bc05-6537c6aa7d87}</Project>
-      <Name>NR6Pack.Refactorings</Name>
+      <Name>NR6Pack</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

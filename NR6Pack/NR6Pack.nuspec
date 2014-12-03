@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0"?>
 <package>
   <metadata>
-    <id>NR6Pack.Refactorings</id>
+    <id>NR6Pack</id>
     <version>0.2.0.0</version>
-    <title>NR6Pack.Refactorings</title>
+    <title>NR6Pack</title>
     <authors>IC#Code</authors>
     <owners>IC#Code</owners>
     <licenseUrl>https://visualstudiogallery.msdn.microsoft.com/site/68c1575b-e0bf-420d-a94b-1b0f4bcdcbcc/eula?licenseType=None</licenseUrl>

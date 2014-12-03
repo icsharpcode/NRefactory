@@ -10,8 +10,8 @@
     <ProjectGuid>{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NR6Pack.Refactorings</RootNamespace>
-    <AssemblyName>NR6Pack.Refactorings</AssemblyName>
+    <RootNamespace>NR6Pack</RootNamespace>
+    <AssemblyName>NR6Pack</AssemblyName>
     <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -818,7 +818,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="NR6Pack.Refactorings.nuspec">
+    <None Include="NR6Pack.nuspec">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
