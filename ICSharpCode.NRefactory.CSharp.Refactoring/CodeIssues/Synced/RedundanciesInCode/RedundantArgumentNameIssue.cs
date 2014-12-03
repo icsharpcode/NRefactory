@@ -107,24 +107,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
 			{
 				base.VisitInvocationExpression(node);
+				if (node.ArgumentList == null)
+					return;
 				CheckParameters(semanticModel.GetSymbolInfo(node).Symbol, node.ArgumentList.Arguments);
 			}
 
 			public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
 			{
 				base.VisitElementAccessExpression(node);
+				if (node.ArgumentList == null)
+					return;
 				CheckParameters(semanticModel.GetSymbolInfo(node).Symbol, node.ArgumentList.Arguments);
 			}
 
 			public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
 			{
 				base.VisitObjectCreationExpression(node);
+				if (node.ArgumentList == null)
+					return;
 				CheckParameters(semanticModel.GetSymbolInfo(node).Symbol, node.ArgumentList.Arguments);
 			}
 
 			public override void VisitAttribute(AttributeSyntax node)
 			{
 				base.VisitAttribute(node);
+				if (node.ArgumentList == null)
+					return;
 				CheckParameters(semanticModel.GetSymbolInfo(node).Symbol, node.ArgumentList.Arguments);
 			}
 		}

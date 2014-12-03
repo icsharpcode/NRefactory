@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				if (node.IsKind(SyntaxKind.NameEquals)) {
-					var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+					var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepLeadingTrivia);
 					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant name", document.WithSyntaxRoot(newRoot)), diagnostic);
 				}
 			}

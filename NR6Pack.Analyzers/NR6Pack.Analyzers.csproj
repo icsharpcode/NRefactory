@@ -449,9 +449,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantTernaryExpressionIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantTernaryExpressionIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantThisQualifierIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantThisQualifierIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantToStringCallForValueTypesIssue.cs</Link>
     </Compile>
@@ -481,9 +478,6 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs">
       <Link>CodeIssues\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\LocalVariableNotUsedIssue.cs">
-      <Link>CodeIssues\RedundanciesInDeclaration\LocalVariableNotUsedIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs">
       <Link>CodeIssues\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs</Link>

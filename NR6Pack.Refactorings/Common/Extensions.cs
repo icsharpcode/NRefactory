@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
+	[Flags]
 	enum BindingFlags
 	{
-		Public,
-		NonPublic,
-		Static,
-		Instance
+		Public = 1,
+		NonPublic = 2,
+		Static = 4,
+		Instance = 8
 	}
 
 	static class ReflectionWrappers

@@ -74,10 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.ISymbolExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
 			isOverridableMethod = typeInfo.GetMethod("IsOverridable", new[] { typeof(ISymbol) });
 			isThisParameterMethod = typeInfo.GetMethod("IsThisParameter", new[] { typeof(ISymbol) });
-
-			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Symbols.TypeSymbolExtensions" + ReflectionNamespaces.CACSharpAsmName, true);
-			var typeSymbolType = Type.GetType("Microsoft.CodeAnalysis.CSharp.Symbols.TypeSymbol" + ReflectionNamespaces.CACSharpAsmName, true);
-			isErrorTypeMethod = typeInfo.GetMethod("IsErrorType", new[] { typeSymbolType });
+			isErrorTypeMethod = typeInfo.GetMethod("IsErrorType", new[] { typeof(ISymbol) });
 
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.MemberDeclarationSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			getLocalDeclarationMapMethod = typeInfo.GetMethod("GetLocalDeclarationMap", new[] { typeof(MemberDeclarationSyntax) });
@@ -117,7 +114,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		static ImmutableArray<SyntaxToken> GetLocalDeclarationMap(this MemberDeclarationSyntax member, string localName)
 		{
 			object map = getLocalDeclarationMapMethod.Invoke(null, new object[] { member });
-			return (ImmutableArray<SyntaxToken>)localDeclarationMapIndexer.GetValue(map);
+			return (ImmutableArray<SyntaxToken>)localDeclarationMapIndexer.GetValue(map, new object[] { localName });
 		}
 
 		static IEnumerable<SyntaxNode> GetAncestors(this SyntaxToken node)

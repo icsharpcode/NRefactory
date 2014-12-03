@@ -79,7 +79,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (!node.IsKind(SyntaxKind.EqualsExpression))
 				return;
  
-				if(!(Matches(node.Left, node.Right) || !Matches(node.Right, node.Left)))
+				if(!(Matches(node.Left, node.Right) || Matches(node.Right, node.Left)))
 					return;				
 
 				ITypeSymbol type = semanticModel.GetTypeInfo(node.Left is TypeOfExpressionSyntax ? ((TypeOfExpressionSyntax)node.Left).Type : ((TypeOfExpressionSyntax)

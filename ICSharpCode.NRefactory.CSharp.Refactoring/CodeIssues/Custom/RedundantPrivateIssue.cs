@@ -77,43 +77,53 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			MethodDeclarationSyntax methodNode = node as MethodDeclarationSyntax;
 			if (methodNode != null)
-				return methodNode.WithModifiers(SyntaxFactory.TokenList(methodNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return methodNode.WithModifiers(SyntaxFactory.TokenList(methodNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(methodNode.GetLeadingTrivia());
 
 			FieldDeclarationSyntax fieldNode = node as FieldDeclarationSyntax;
 			if (fieldNode != null)
-				return fieldNode.WithModifiers(SyntaxFactory.TokenList(fieldNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return fieldNode.WithModifiers(SyntaxFactory.TokenList(fieldNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(fieldNode.GetLeadingTrivia());
 
 			PropertyDeclarationSyntax propertyNode = node as PropertyDeclarationSyntax;
 			if (propertyNode != null)
-				return propertyNode.WithModifiers(SyntaxFactory.TokenList(propertyNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return propertyNode.WithModifiers(SyntaxFactory.TokenList(propertyNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(propertyNode.GetLeadingTrivia());
 
 			IndexerDeclarationSyntax indexerNode = node as IndexerDeclarationSyntax;
 			if (indexerNode != null)
-				return indexerNode.WithModifiers(SyntaxFactory.TokenList(indexerNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return indexerNode.WithModifiers(SyntaxFactory.TokenList(indexerNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(indexerNode.GetLeadingTrivia());
 
 			EventDeclarationSyntax eventNode = node as EventDeclarationSyntax;
 			if (eventNode != null)
-				return eventNode.WithModifiers(SyntaxFactory.TokenList(eventNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return eventNode.WithModifiers(SyntaxFactory.TokenList(eventNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(eventNode.GetLeadingTrivia());
 
 			ConstructorDeclarationSyntax ctrNode = node as ConstructorDeclarationSyntax;
 			if (ctrNode != null)
-				return ctrNode.WithModifiers(SyntaxFactory.TokenList(ctrNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return ctrNode.WithModifiers(SyntaxFactory.TokenList(ctrNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(ctrNode.GetLeadingTrivia());
 
 			OperatorDeclarationSyntax opNode = node as OperatorDeclarationSyntax;
 			if (opNode != null)
-				return opNode.WithModifiers(SyntaxFactory.TokenList(opNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return opNode.WithModifiers(SyntaxFactory.TokenList(opNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(opNode.GetLeadingTrivia());
 
 			ClassDeclarationSyntax classNode = node as ClassDeclarationSyntax;
 			if (classNode != null)
-				return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(classNode.GetLeadingTrivia());
 
 			InterfaceDeclarationSyntax interfaceNode = node as InterfaceDeclarationSyntax;
 			if (interfaceNode != null)
-				return interfaceNode.WithModifiers(SyntaxFactory.TokenList(interfaceNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return interfaceNode.WithModifiers(SyntaxFactory.TokenList(interfaceNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(interfaceNode.GetLeadingTrivia());
 
 			StructDeclarationSyntax structNode = node as StructDeclarationSyntax;
 			if (structNode != null)
-				return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(m => !m.IsKind(modifier))));
+				return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					.WithLeadingTrivia(structNode.GetLeadingTrivia());
 
 			return node;
 		}
@@ -224,7 +234,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				var newRoot = root.ReplaceNode((SyntaxNode)node, RedundantPrivateIssue.RemoveModifierFromNode(node, SyntaxKind.PrivateKeyword).WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant 'private' modifier", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

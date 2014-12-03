@@ -134,7 +134,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				var newRoot = root.ReplaceNode((SyntaxNode)node, RemoveInternalModifier(node).WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant 'internal' modifier", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 
@@ -143,23 +143,28 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			Func<SyntaxToken, bool> isNotInternal = (m => !m.IsKind(SyntaxKind.InternalKeyword));
 			var classNode = node as ClassDeclarationSyntax;
 			if (classNode != null)
-				return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(isNotInternal)));
+				return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(isNotInternal)))
+					.WithLeadingTrivia(classNode.GetLeadingTrivia());
 
 			var structNode = node as StructDeclarationSyntax;
 			if (structNode != null)
-				return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(isNotInternal)));
+				return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(isNotInternal)))
+					.WithLeadingTrivia(structNode.GetLeadingTrivia());
 
 			var interNode = node as InterfaceDeclarationSyntax;
 			if (interNode != null)
-				return interNode.WithModifiers(SyntaxFactory.TokenList(interNode.Modifiers.Where(isNotInternal)));
+				return interNode.WithModifiers(SyntaxFactory.TokenList(interNode.Modifiers.Where(isNotInternal)))
+					.WithLeadingTrivia(interNode.GetLeadingTrivia());
 
 			var delegateNode = node as DelegateDeclarationSyntax;
 			if (delegateNode != null)
-				return delegateNode.WithModifiers(SyntaxFactory.TokenList(delegateNode.Modifiers.Where(isNotInternal)));
+				return delegateNode.WithModifiers(SyntaxFactory.TokenList(delegateNode.Modifiers.Where(isNotInternal)))
+					.WithLeadingTrivia(delegateNode.GetLeadingTrivia());
 
 			var enumNode = node as EnumDeclarationSyntax;
 			if (enumNode != null)
-				return enumNode.WithModifiers(SyntaxFactory.TokenList(enumNode.Modifiers.Where(isNotInternal)));
+				return enumNode.WithModifiers(SyntaxFactory.TokenList(enumNode.Modifiers.Where(isNotInternal)))
+					.WithLeadingTrivia(enumNode.GetLeadingTrivia());
 			return node;
 		}
 	}
