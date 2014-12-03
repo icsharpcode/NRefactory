@@ -1,11 +1,11 @@
 ﻿# Automatically update the version in VSIX manifest
-if ($args.Length -lt 2)
+if ($args.Length -lt 1)
 {
 	exit
 }
 
 $debugMode = ($args[0] -eq "Debug")
-$workingDir = $args[1]
+$workingDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $templateFile = (join-path $workingDir "source.extension.template.vsixmanifest")
 $targetFile = (join-path $workingDir "source.extension.vsixmanifest")
 
