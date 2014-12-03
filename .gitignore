@@ -4,6 +4,7 @@ obj
 /lib/*.dll
 /ICSharpCode.NRefactory.Tests/PartCover/*
 _ReSharper*/*
+/NR6Pack.Vsix/source.extension.vsixmanifest
 
 # User-specific folders
 *.sln.ide/
