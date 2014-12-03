@@ -36,6 +36,7 @@ using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp;
+using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {

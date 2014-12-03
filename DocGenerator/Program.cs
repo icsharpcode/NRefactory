@@ -26,7 +26,7 @@ namespace DocGenerator
 			var codeActionsNode = codeActionsDocument.Descendants("{http://www.w3.org/1999/xhtml}ul").First();
 
 			foreach (var codeAction in codeActions) {
-				codeActionsNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0} ({1})", HttpUtility.HtmlEncode(GetActionDescription(codeAction)), codeAction.Name)));
+				codeActionsNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0} ({1})", GetActionDescription(codeAction), codeAction.Name)));
 			}
 
 			codeActionsDocument.Save(@"..\NR6Pack\CodeActions.html");
@@ -35,7 +35,7 @@ namespace DocGenerator
 			var codeIssuesNode = codeIssuesDocument.Descendants("{http://www.w3.org/1999/xhtml}ul").First();
 
 			foreach (var codeIssue in codeIssues) {
-				codeIssuesNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0} ({1})", HttpUtility.HtmlEncode(GetIssueDescription(codeIssue)), codeIssue.Name)));
+				codeIssuesNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0} ({1})", GetIssueDescription(codeIssue), codeIssue.Name)));
 			}
 
 			codeIssuesDocument.Save(@"..\NR6Pack\CodeIssues.html");

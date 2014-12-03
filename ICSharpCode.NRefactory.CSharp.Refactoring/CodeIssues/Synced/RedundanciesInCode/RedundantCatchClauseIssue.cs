@@ -39,6 +39,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.FindSymbols;
+using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
