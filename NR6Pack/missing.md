@@ -1,4 +1,7 @@
-﻿Actions not implemented (and added)
+CodeActions
+===========
+
+Actions not implemented (and added)
 -----------------------------------
 
 * AddExceptionDescriptionAction
@@ -49,3 +52,15 @@ Duplication
 -----------
 
 * ImplementNotImplementedProperty vs. CreateBackingStore
+
+CodeIssues
+==========
+
+Not implemented
+---------------
+
+*Compiler warnings*
+* CS0183ExpressionIsAlwaysOfProvidedTypeIssue
+* CS1573ParameterHasNoMatchingParamTagIssue
+* CS1717AssignmentMadeToSameVariableIssue
+* UnassignedReadonlyFieldIssue
