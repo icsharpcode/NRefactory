@@ -238,41 +238,46 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
-			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as BinaryExpressionSyntax;
 				if (node == null)
 					continue;
+				CodeAction action;
 				var floatType = diagnostic.CustomTags[1];
 				switch (diagnostic.CustomTags[0]) {
 					case "1":
-						result.Add(AddIsNaNIssue(document, semanticModel, root, node, node.Right, floatType));
+						action = AddIsNaNIssue(document, semanticModel, root, node, node.Right, floatType);
 						break;
 					case "2":
-						result.Add(AddIsNaNIssue(document, semanticModel, root, node, node.Left, floatType));
+						action = AddIsNaNIssue(document, semanticModel, root, node, node.Left, floatType);
 						break;
 					case "3":
-						result.Add(AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Right, floatType));
+						action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
 						break;
 					case "4":
-						result.Add(AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Left, floatType));
+						action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
 						break;
 					case "5":
-						result.Add(AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Right, floatType));
+						action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
 						break;
 					case "6":
-						result.Add(AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Left, floatType));
+						action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
 						break;
 					case "7":
-						result.Add(AddIsZeroIssue(document, semanticModel, root, node, node.Right, floatType));
+						action = AddIsZeroIssue(document, semanticModel, root, node, node.Right, floatType);
 						break;
 					case "8":
-						result.Add(AddIsZeroIssue(document, semanticModel, root, node, node.Left, floatType));
+						action = AddIsZeroIssue(document, semanticModel, root, node, node.Left, floatType);
 						break;
 					default:
-						result.Add(AddCompareIssue(document, semanticModel, root, node, floatType));
+						action = AddCompareIssue(document, semanticModel, root, node, floatType);
 
 						break;
+				}
+
+				if (action != null)
+				{
+					context.RegisterFix(action, diagnostic);
 				}
 			}
 		}

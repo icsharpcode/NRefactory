@@ -273,9 +273,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\BitwiseOperatorOnEnumWithoutFlagsIssue.cs">
       <Link>CodeIssues\CodeQuality\BitwiseOperatorOnEnumWithoutFlagsIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\CanBeReplacedWithTryCastAndCheckForNullIssue.cs">
-      <Link>CodeIssues\CodeQuality\CanBeReplacedWithTryCastAndCheckForNullIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\CompareNonConstrainedGenericWithNullIssue.cs">
       <Link>CodeIssues\CodeQuality\CompareNonConstrainedGenericWithNullIssue.cs</Link>
     </Compile>
@@ -294,38 +291,14 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\EmptyGeneralCatchClauseIssue.cs">
       <Link>CodeIssues\CodeQuality\EmptyGeneralCatchClauseIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\EqualExpressionComparisonIssue.cs">
-      <Link>CodeIssues\CodeQuality\EqualExpressionComparisonIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\EventUnsubscriptionViaAnonymousDelegateIssue.cs">
-      <Link>CodeIssues\CodeQuality\EventUnsubscriptionViaAnonymousDelegateIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\ForControlVariableIsNeverModifiedIssue.cs">
-      <Link>CodeIssues\CodeQuality\ForControlVariableIsNeverModifiedIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\FormatStringProblemIssue.cs">
-      <Link>CodeIssues\CodeQuality\FormatStringProblemIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\FunctionNeverReturnsIssue.cs">
       <Link>CodeIssues\CodeQuality\FunctionNeverReturnsIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\LocalVariableHidesMemberIssue.cs">
-      <Link>CodeIssues\CodeQuality\LocalVariableHidesMemberIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\LongLiteralEndingLowerLIssue.cs">
       <Link>CodeIssues\CodeQuality\LongLiteralEndingLowerLIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\MemberHidesStaticFromOuterClassIssue.cs">
-      <Link>CodeIssues\CodeQuality\MemberHidesStaticFromOuterClassIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\MethodOverloadWithOptionalParameterIssue.cs">
-      <Link>CodeIssues\CodeQuality\MethodOverloadWithOptionalParameterIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\NonReadonlyReferencedInGetHashCodeIssue.cs">
       <Link>CodeIssues\CodeQuality\NonReadonlyReferencedInGetHashCodeIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\NotResolvedInTextIssue.cs">
-      <Link>CodeIssues\CodeQuality\NotResolvedInTextIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\ObjectCreationAsStatementIssue.cs">
       <Link>CodeIssues\CodeQuality\ObjectCreationAsStatementIssue.cs</Link>
@@ -333,38 +306,8 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\OperatorIsCanBeUsedIssue.cs">
       <Link>CodeIssues\CodeQuality\OperatorIsCanBeUsedIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\OptionalParameterHierarchyMismatchIssue.cs">
-      <Link>CodeIssues\CodeQuality\OptionalParameterHierarchyMismatchIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\OptionalParameterRefOutIssue.cs">
       <Link>CodeIssues\CodeQuality\OptionalParameterRefOutIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\ParameterHidesMemberIssue.cs">
-      <Link>CodeIssues\CodeQuality\ParameterHidesMemberIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\PartialMethodParameterNameMismatchIssue.cs">
-      <Link>CodeIssues\CodeQuality\PartialMethodParameterNameMismatchIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\PolymorphicFieldLikeEventInvocationIssue.cs">
-      <Link>CodeIssues\CodeQuality\PolymorphicFieldLikeEventInvocationIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\PossibleAssignmentToReadonlyFieldIssue.cs">
-      <Link>CodeIssues\CodeQuality\PossibleAssignmentToReadonlyFieldIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\PossibleMultipleEnumerationIssue.cs">
-      <Link>CodeIssues\CodeQuality\PossibleMultipleEnumerationIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\StaticFieldInGenericTypeIssue.cs">
-      <Link>CodeIssues\CodeQuality\StaticFieldInGenericTypeIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\ThreadStaticAtInstanceFieldIssue.cs">
-      <Link>CodeIssues\CodeQuality\ThreadStaticAtInstanceFieldIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\ValueParameterNotUsedIssue.cs">
-      <Link>CodeIssues\CodeQuality\ValueParameterNotUsedIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CompilerErrors\ProhibitedModifiersIssue.cs">
-      <Link>CodeIssues\CompilerErrors\ProhibitedModifiersIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CompilerWarnings\CS0183ExpressionIsAlwaysOfProvidedTypeIssue.cs">
       <Link>CodeIssues\CompilerWarnings\CS0183ExpressionIsAlwaysOfProvidedTypeIssue.cs</Link>
@@ -387,38 +330,14 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertConditionalTernaryToNullCoalescingIssue.cs">
       <Link>CodeIssues\Opportunities\ConvertConditionalTernaryToNullCoalescingIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionIssue.cs">
-      <Link>CodeIssues\Opportunities\ConvertIfStatementToConditionalTernaryExpressionIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToNullCoalescingExpressionIssue.cs">
-      <Link>CodeIssues\Opportunities\ConvertIfStatementToNullCoalescingExpressionIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToSwitchStatementIssue.cs">
-      <Link>CodeIssues\Opportunities\ConvertIfStatementToSwitchStatementIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertNullableToShortFormIssue.cs">
       <Link>CodeIssues\Opportunities\ConvertNullableToShortFormIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertToAutoPropertyIssue.cs">
-      <Link>CodeIssues\Opportunities\ConvertToAutoPropertyIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertToLambdaExpressionIssue.cs">
-      <Link>CodeIssues\Opportunities\ConvertToLambdaExpressionIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertToStaticTypeIssue.cs">
       <Link>CodeIssues\Opportunities\ConvertToStaticTypeIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ForCanBeConvertedToForeachIssue.cs">
-      <Link>CodeIssues\Opportunities\ForCanBeConvertedToForeachIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\InvokeAsExtensionMethodIssue.cs">
       <Link>CodeIssues\Opportunities\InvokeAsExtensionMethodIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\RewriteIfReturnToReturnIssue.cs">
-      <Link>CodeIssues\Opportunities\RewriteIfReturnToReturnIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\SuggestUseVarKeywordEvidentIssue.cs">
-      <Link>CodeIssues\Opportunities\SuggestUseVarKeywordEvidentIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\AccessToStaticMemberViaDerivedTypeIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\AccessToStaticMemberViaDerivedTypeIssue.cs</Link>
@@ -426,35 +345,14 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\BaseMemberHasParamsIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\BaseMemberHasParamsIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ConvertIfDoToWhileIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ConvertIfDoToWhileIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ConvertIfToOrExpressionIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\ConvertIfToOrExpressionIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ConvertToConstantIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ConvertToConstantIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\EmptyEmbeddedStatementIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\EmptyEmbeddedStatementIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\FieldCanBeMadeReadOnlyIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\FieldCanBeMadeReadOnlyIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\MemberCanBeMadeStaticIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\MemberCanBeMadeStaticIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ParameterCanBeDeclaredWithBaseTypeIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\PossibleMistakenCallToGetTypeIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\PossibleMistakenCallToGetTypeIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\PublicConstructorInAbstractClass.cs">
-      <Link>CodeIssues\PracticesAndImprovements\PublicConstructorInAbstractClass.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReferenceEqualsWithValueTypeIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReferenceEqualsWithValueTypeIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithFirstOrDefaultIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\ReplaceWithFirstOrDefaultIssue.cs</Link>
@@ -473,9 +371,6 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeFirstOrDefaultIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeFirstOrDefaultIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeLastIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeLastIssue.cs</Link>
@@ -525,21 +420,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToSingleOrDefaultIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToSingleOrDefaultIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithStringIsNullOrEmptyIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithStringIsNullOrEmptyIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\SimplifyConditionalTernaryExpressionIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\SimplifyConditionalTernaryExpressionIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\SimplifyLinqExpressionIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\SimplifyLinqExpressionIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringCompareIsCultureSpecificIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\StringCompareIsCultureSpecificIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringCompareToIsCultureSpecificIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\StringCompareToIsCultureSpecificIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs</Link>
     </Compile>
@@ -552,26 +432,11 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringStartsWithIsCultureSpecificIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\StringStartsWithIsCultureSpecificIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseArrayCreationExpressionIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\UseArrayCreationExpressionIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseIsOperatorIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\UseIsOperatorIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseMethodAnyIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\UseMethodAnyIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\UseMethodIsInstanceOfTypeIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\UseMethodIsInstanceOfTypeIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\ConstantNullCoalescingConditionIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\ConstantNullCoalescingConditionIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\DoubleNegationOperatorIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\DoubleNegationOperatorIssue.cs</Link>
@@ -585,9 +450,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantAnonymousTypePropertyNameIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantArgumentDefaultValueIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantArgumentDefaultValueIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantArgumentNameIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantArgumentNameIssue.cs</Link>
     </Compile>
@@ -597,95 +459,23 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBaseQualifierIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantBaseQualifierIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantBoolCompareIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantBoolCompareIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantCaseLabelIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantCaseLabelIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantCastIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantCastIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantCatchClauseIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantCatchClauseIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantCheckBeforeAssignmentIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantCheckBeforeAssignmentIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantCommaInArrayInitializerIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantCommaInArrayInitializerIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantComparisonWithNullIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantComparisonWithNullIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantDelegateCreationIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantDelegateCreationIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantEmptyFinallyBlockIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantEmptyFinallyBlockIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantEnumerableCastCallIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantEnumerableCastCallIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArrayCreationIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantExplicitArrayCreationIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantExplicitArraySizeIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantExplicitArraySizeIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantExplicitNullableCreationIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantExplicitNullableCreationIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantExtendsListEntryIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantExtendsListEntryIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantIfElseBlockIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantIfElseBlockIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantLambdaParameterTypeIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantLambdaParameterTypeIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantLambdaSignatureParenthesesIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantLambdaSignatureParenthesesIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantNameQualifierIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantNameQualifierIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantObjectCreationArgumentListIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantObjectCreationArgumentListIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantObjectOrCollectionInitializerIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantObjectOrCollectionInitializerIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantStringToCharArrayCallIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantStringToCharArrayCallIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantTernaryExpressionIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RedundantTernaryExpressionIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantToStringCallForValueTypesIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantToStringCallIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantToStringCallIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantUnsafeContextIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantUnsafeContextIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RedundantUsingDirectiveIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\RedundantUsingDirectiveIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\RemoveRedundantOrStatementIssue.cs">
       <Link>CodeIssues\RedundanciesInCode\RemoveRedundantOrStatementIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureIssue.cs">
-      <Link>CodeIssues\RedundanciesInCode\UnusedAnonymousMethodSignatureIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EmptyConstructorIssue.cs">
       <Link>CodeIssues\RedundanciesInDeclaration\EmptyConstructorIssue.cs</Link>
@@ -699,32 +489,8 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs">
       <Link>CodeIssues\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs">
-      <Link>CodeIssues\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantBaseConstructorCallIssue.cs">
-      <Link>CodeIssues\RedundanciesInDeclaration\RedundantBaseConstructorCallIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantDefaultFieldInitializerIssue.cs">
-      <Link>CodeIssues\RedundanciesInDeclaration\RedundantDefaultFieldInitializerIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs">
-      <Link>CodeIssues\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\RedundantParamsIssue.cs">
-      <Link>CodeIssues\RedundanciesInDeclaration\RedundantParamsIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs">
       <Link>CodeIssues\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\UnusedLabelIssue.cs">
-      <Link>CodeIssues\RedundanciesInDeclaration\UnusedLabelIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\UnusedParameterIssue.cs">
-      <Link>CodeIssues\RedundanciesInDeclaration\UnusedParameterIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\RedundanciesInDeclaration\UnusedTypeParameterIssue.cs">
-      <Link>CodeIssues\RedundanciesInDeclaration\UnusedTypeParameterIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\NRefactoryCodeDiagnosticAnalyzerAttribute.cs">
       <Link>Common\NRefactoryCodeDiagnosticAnalyzerAttribute.cs</Link>
@@ -828,6 +594,7 @@
     <None Include="missing.md" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="CodeIssues\CompilerErrors\" />
     <Folder Include="CodeIssues\ConstraintViolations\InconsistentNamingIssue\" />
   </ItemGroup>
   <ItemGroup>
