@@ -309,18 +309,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\OptionalParameterRefOutIssue.cs">
       <Link>CodeIssues\CodeQuality\OptionalParameterRefOutIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CompilerWarnings\CS0183ExpressionIsAlwaysOfProvidedTypeIssue.cs">
-      <Link>CodeIssues\CompilerWarnings\CS0183ExpressionIsAlwaysOfProvidedTypeIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CompilerWarnings\CS1573ParameterHasNoMatchingParamTagIssue.cs">
-      <Link>CodeIssues\CompilerWarnings\CS1573ParameterHasNoMatchingParamTagIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CompilerWarnings\CS1717AssignmentMadeToSameVariableIssue.cs">
-      <Link>CodeIssues\CompilerWarnings\CS1717AssignmentMadeToSameVariableIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CompilerWarnings\UnassignedReadonlyFieldIssue.cs">
-      <Link>CodeIssues\CompilerWarnings\UnassignedReadonlyFieldIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\NUnit\NonPublicMethodWithTestAttributeIssue.cs">
       <Link>CodeIssues\NUnit\NonPublicMethodWithTestAttributeIssue.cs</Link>
     </Compile>
@@ -595,6 +583,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CodeIssues\CompilerErrors\" />
+    <Folder Include="CodeIssues\CompilerWarnings\" />
     <Folder Include="CodeIssues\ConstraintViolations\InconsistentNamingIssue\" />
   </ItemGroup>
   <ItemGroup>
