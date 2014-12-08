@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NR6Pack", "NR6Pack\NR6Pack.csproj", "{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NR6Pack.Vsix", "NR6Pack.Vsix\NR6Pack.Vsix.csproj", "{99498EF8-C9E0-433B-8D7B-EA8E9E66F0C7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7FB64621-DF93-48DE-995D-8CB0804F6003} = {7FB64621-DF93-48DE-995D-8CB0804F6003}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.NRefactory6.CSharp", "ICSharpCode.NRefactory.CSharp\ICSharpCode.NRefactory6.CSharp.csproj", "{53DCA265-3C3C-42F9-B647-F72BA678122B}"
 EndProject
