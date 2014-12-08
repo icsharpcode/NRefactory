@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
 	<Metadata>
-		<Identity Id="NR6Pack.Refactorings.Vsix..cd27e59b-5c56-4238-8931-c9bb745a7a7f" Version="0.2.0.%%version%%" Language="en-US" Publisher="IC#Code"/>
+		<Identity Id="NR6Pack.Refactorings.Vsix..cd27e59b-5c56-4238-8931-c9bb745a7a7f" Version="0.3.0.%%version%%" Language="en-US" Publisher="IC#Code"/>
 		<DisplayName>NR6 Pack</DisplayName>
 		<Description xml:space="preserve">Roslyn-based refactorings from the NRefactory OSS library.</Description>
 		<License>license.txt</License>
