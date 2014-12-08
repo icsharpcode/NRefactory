@@ -17,13 +17,17 @@ namespace DocGenerator
 		static void Main(string[] args)
 		{
 			var codeActions = typeof(ICSharpCode.NRefactory6.CSharp.DescriptionAttribute).Assembly.GetTypes()
-				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ExportCodeRefactoringProviderAttribute).FullName));
+				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ExportCodeRefactoringProviderAttribute).FullName))
+				.ToArray();
 
 			var codeIssues = typeof(ICSharpCode.NRefactory6.CSharp.DescriptionAttribute).Assembly.GetTypes()
-				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(DiagnosticAnalyzerAttribute).FullName));
+				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(DiagnosticAnalyzerAttribute).FullName))
+				.ToArray();
 
 			XDocument codeActionsDocument = XDocument.Load(@"..\NR6Pack\CodeActions.html.template");
 			var codeActionsNode = codeActionsDocument.Descendants("{http://www.w3.org/1999/xhtml}ul").First();
+			var codeActionsCountNode = codeActionsDocument.Descendants("{http://www.w3.org/1999/xhtml}p").First();
+			codeActionsCountNode.Value = string.Format("{0} code actions available!", codeIssues.Length);
 
 			foreach (var codeAction in codeActions) {
 				codeActionsNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0} ({1})", GetActionDescription(codeAction), codeAction.Name)));
@@ -33,6 +37,8 @@ namespace DocGenerator
 
 			XDocument codeIssuesDocument = XDocument.Load(@"..\NR6Pack\CodeIssues.html.template");
 			var codeIssuesNode = codeIssuesDocument.Descendants("{http://www.w3.org/1999/xhtml}ul").First();
+			var codeIssuesCountNode = codeIssuesDocument.Descendants("{http://www.w3.org/1999/xhtml}p").First();
+			codeIssuesCountNode.Value = string.Format("{0} code issues available!", codeIssues.Length);
 
 			foreach (var codeIssue in codeIssues) {
 				codeIssuesNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0} ({1})", GetIssueDescription(codeIssue), codeIssue.Name)));
