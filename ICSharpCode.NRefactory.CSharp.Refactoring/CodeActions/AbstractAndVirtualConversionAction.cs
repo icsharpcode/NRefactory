@@ -68,7 +68,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					declaration = token.Parent.Parent.Parent as MemberDeclarationSyntax;
 				}
 			}
-			if (declaration == null || declaration is BaseTypeDeclarationSyntax)
+			if (declaration == null
+				|| declaration is BaseTypeDeclarationSyntax
+				|| declaration is ConstructorDeclarationSyntax
+				|| declaration is DestructorDeclarationSyntax)
 				return;
 			var modifiers = declaration.GetModifiers();
 			if (modifiers.Any(m => m.IsKind(SyntaxKind.OverrideKeyword)))
