@@ -64,7 +64,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="ModifyVsixVersion.ps1" />
+    <None Include="modify-vsix-version.ps1" />
     <None Include="source.extension.template.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
@@ -72,7 +72,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
-    <PreBuildEvent>powershell "$(ProjectDir)ModifyVsixVersion.ps1" $(ConfigurationName)</PreBuildEvent>
+    <PreBuildEvent>powershell "$(ProjectDir)modify-vsix-version.ps1" $(ConfigurationName)</PreBuildEvent>
     <PostBuildEvent>DocGenerator.exe</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
