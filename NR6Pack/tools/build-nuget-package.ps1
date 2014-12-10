@@ -1,7 +1,10 @@
 ﻿# Builds a NuGet package of NR6 Pack project.
+#
 # Command line:
-# build-nuget-package.ps1 <BuildType>
+# build-nuget-package.ps1 [<BuildType>]
 # Example: build-nuget-package.ps1 Debug
+
+# Unspecified <BuildType> assumes 'Release'.
 
 $buildType = 'Release'
 if (($args.Length -gt 0) -and -not [String]::IsNullOrEmpty($args[0]))
