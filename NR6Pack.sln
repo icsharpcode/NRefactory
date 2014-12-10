@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{CF2B2A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocGenerator", "DocGenerator\DocGenerator.csproj", "{7FB64621-DF93-48DE-995D-8CB0804F6003}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NR6Pack.Demonstration", "NR6Pack.Demonstration\NR6Pack.Demonstration.csproj", "{203FF5F7-8F0A-43C5-8BB5-723C492A42DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,14 @@ Global
 		{7FB64621-DF93-48DE-995D-8CB0804F6003}.net_4_5_Release|Any CPU.Build.0 = Release|Any CPU
 		{7FB64621-DF93-48DE-995D-8CB0804F6003}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FB64621-DF93-48DE-995D-8CB0804F6003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{203FF5F7-8F0A-43C5-8BB5-723C492A42DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{203FF5F7-8F0A-43C5-8BB5-723C492A42DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{203FF5F7-8F0A-43C5-8BB5-723C492A42DA}.net_4_5_Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{203FF5F7-8F0A-43C5-8BB5-723C492A42DA}.net_4_5_Debug|Any CPU.Build.0 = Debug|Any CPU
+		{203FF5F7-8F0A-43C5-8BB5-723C492A42DA}.net_4_5_Release|Any CPU.ActiveCfg = Release|Any CPU
+		{203FF5F7-8F0A-43C5-8BB5-723C492A42DA}.net_4_5_Release|Any CPU.Build.0 = Release|Any CPU
+		{203FF5F7-8F0A-43C5-8BB5-723C492A42DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{203FF5F7-8F0A-43C5-8BB5-723C492A42DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
