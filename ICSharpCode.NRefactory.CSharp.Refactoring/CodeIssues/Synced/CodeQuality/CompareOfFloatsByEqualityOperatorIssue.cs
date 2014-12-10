@@ -166,24 +166,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						"NaN doesn't equal to any floating point number including to itself. Use '!IsNaN' instead.";
 					tag = "2";
 				} else if (IsPositiveInfinity(semanticModel, node.Left)) {
-					message = node.IsKind(SyntaxKind.EqualsExpression) ? 
-						"Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method." :
-						"Comparison of floating point numbers with equality operator. Use '!IsNegativeInfinity' method.";
+					message = node.IsKind(SyntaxKind.EqualsExpression) ?
+						"Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method." :
+						"Comparison of floating point numbers with equality operator. Use '!IsPositiveInfinity' method.";
 					tag = "3";
 				} else if (IsPositiveInfinity (semanticModel, node.Right)) {
-					message = node.IsKind(SyntaxKind.EqualsExpression) ? 
-						"Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method." :
-						"Comparison of floating point numbers with equality operator. Use '!IsNegativeInfinity' method.";
+					message = node.IsKind(SyntaxKind.EqualsExpression) ?
+						"Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method." :
+						"Comparison of floating point numbers with equality operator. Use '!IsPositiveInfinity' method.";
 					tag = "4";
 				} else if (IsNegativeInfinity (semanticModel, node.Left)) {
 					message = node.IsKind(SyntaxKind.EqualsExpression) ?
-						"Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method." :
-						"Comparison of floating point numbers with equality operator. Use '!IsPositiveInfinity' method.";
+						"Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method." :
+						"Comparison of floating point numbers with equality operator. Use '!IsNegativeInfinity' method.";
 					tag = "5";
 				} else if (IsNegativeInfinity (semanticModel, node.Right)) {
 					message = node.IsKind(SyntaxKind.EqualsExpression) ?
-						"Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method." :
-						"Comparison of floating point numbers with equality operator. Use '!IsPositiveInfinity' method.";
+						"Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method." :
+						"Comparison of floating point numbers with equality operator. Use '!IsNegativeInfinity' method.";
 					tag = "6";
 				} else if (IsFloatingPoint(semanticModel, node.Left) || IsFloatingPoint(semanticModel, node.Right)) {
 					if (IsConstantInfinity(semanticModel, node.Left) || IsConstantInfinity(semanticModel, node.Right))
