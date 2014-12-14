@@ -17,6 +17,10 @@ namespace NR6Pack.Demonstration
 			// Also other CodeActions: Convert to Equals() call, invert and negate condition etc.
 			bool fiveIsFive = (5 == 5);
 
+            // CodeAction: Conversion of operator assignment ("|=") to assignment with or operator and vice versa
+            bool hasArgs = false;
+            hasArgs |= (args.Length > 0);
+
 			// CodeAction: Use explicit type instead of 'var'
 			var commandLineSwitchParser = new CommandLineSwitchParser();
 			commandLineSwitchParser.Parameters = args;
