@@ -55,10 +55,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var node = token.Parent as AssignmentExpressionSyntax;
 			if (node == null)
 				return;
-			var assignment = CreateAssignment(node).WithAdditionalAnnotations(Formatter.Annotation);
+			var assignment = CreateAssignment(node);
 			if (assignment == null)
 				return;
-			context.RegisterRefactoring(
+			assignment = assignment.WithAdditionalAnnotations(Formatter.Annotation);
+            context.RegisterRefactoring(
 				CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format("Replace with '{0}='", node.Left.ToString()), document.WithSyntaxRoot(
                 root.ReplaceNode((SyntaxNode)node, assignment)))
 			);
