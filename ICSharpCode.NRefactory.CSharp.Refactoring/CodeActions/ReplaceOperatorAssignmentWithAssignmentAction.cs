@@ -58,6 +58,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return;
 			if (node.IsKind(SyntaxKind.SimpleAssignmentExpression))
 				return;
+			var assignment = GetAssignmentOperator(node.CSharpKind());
+			if (assignment == SyntaxKind.None)
+				return;
 
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(
@@ -78,9 +81,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			switch (op) {
 				case SyntaxKind.AndAssignmentExpression:
 					return SyntaxKind.BitwiseAndExpression;
-				case SyntaxKind.BitwiseOrExpression:
+				case SyntaxKind.OrAssignmentExpression:
 					return SyntaxKind.BitwiseOrExpression;
-				case SyntaxKind.ExclusiveOrExpression:
+				case SyntaxKind.ExclusiveOrAssignmentExpression:
 					return SyntaxKind.ExclusiveOrExpression;
 				case SyntaxKind.AddAssignmentExpression:
 					return SyntaxKind.AddExpression;
@@ -97,7 +100,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				case SyntaxKind.RightShiftAssignmentExpression:
 					return SyntaxKind.RightShiftExpression;
 				default:
-					throw new ArgumentOutOfRangeException("op", op.ToString());
+					return SyntaxKind.None;
 			}
 		}
 	}
