@@ -76,7 +76,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var sortedNodes = originalNodes.OrderBy(_ => _).ToArray();
 						
 						for (var i = 0; i < originalNodes.Length; ++i) {
-							newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(originalNodes[i].Node), sortedNodes[i].Node);
+							var replacement = sortedNodes[i].Node
+								.WithTrailingTrivia(originalNodes[i].Node.GetTrailingTrivia())
+								.WithLeadingTrivia(originalNodes[i].Node.GetLeadingTrivia());
+                            newRoot = newRoot.ReplaceNode(newRoot.GetCurrentNode(originalNodes[i].Node), replacement);
 						}
 					}
 

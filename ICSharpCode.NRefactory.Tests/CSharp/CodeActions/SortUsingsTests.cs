@@ -3,7 +3,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[TestFixture, Ignore("Not implemented!")]
+	[TestFixture]
 	public class SortUsingsTests : ContextActionTestBase
 	{
 		[Test]
