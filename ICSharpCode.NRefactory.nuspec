@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>ICSharpCode.NRefactory</id>
-    <version>5.3.0</version>
+    <version>6.0.0-alpha1</version>
     <title>NRefactory</title>
     <authors>Daniel Grunwald, Mike Krüger, Erik Källén</authors>
     <owners>Daniel Grunwald</owners>
@@ -12,29 +12,25 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>NRefactory supports analysis of C# source code: it includes a parser, abstract syntax tree, type system, semantic analysis (resolver), code completion, and several refactorings.</description>
     <!--<releaseNotes></releaseNotes>-->
-    <copyright>Copyright 2010-2013 AlphaSierraPapa</copyright>
+    <copyright>Copyright 2010-2014 AlphaSierraPapa</copyright>
     <tags>C# Parser Semantic Analysis SharpDevelop</tags>
     <dependencies>
-      <dependency id="Mono.Cecil" version="0.9.5.2" />
+      <dependency id="Microsoft.CodeAnalysis.Common" version="1.0.0-beta1-20141031-01" />
+      <dependency id="Microsoft.CodeAnalysis.CSharp" version="1.0.0-beta1-20141031-01" />
+      <dependency id="Microsoft.CodeAnalysis.CSharp.Workspaces" version="1.0.0-beta1-20141031-01" />
+      <dependency id="Microsoft.CodeAnalysis.Workspaces.Common" version="1.0.0-beta1-20141031-01" />
+      <dependency id="Microsoft.Composition" version="1.0.27" />
+      <dependency id="System.Collections.Immutable" version="1.1.32-beta" />
+      <dependency id="System.Reflection.Metadata" version="1.0.17-beta" />
     </dependencies>
   </metadata>
 	<files>
-		<file src="..\bin\Release\ICSharpCode.NRefactory.dll" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.pdb" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.xml" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.Cecil.dll" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.Cecil.pdb" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.Cecil.xml" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.CSharp.dll" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.CSharp.pdb" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.CSharp.xml" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.Xml.dll" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.Xml.pdb" target="lib\Net40" />
-		<file src="..\bin\Release\ICSharpCode.NRefactory.Xml.xml" target="lib\Net40" />
-		<file src="..\ICSharpCode.NRefactory\**\*.cs" target="src\ICSharpCode.NRefactory" />
-		<file src="..\ICSharpCode.NRefactory.Cecil\**\*.cs" target="src\ICSharpCode.NRefactory" />
-		<file src="..\ICSharpCode.NRefactory.CSharp\**\*.cs" target="src\ICSharpCode.NRefactory.CSharp" />
-		<file src="..\ICSharpCode.NRefactory.CSharp\**\*.jay" target="src\ICSharpCode.NRefactory.CSharp" />
-		<file src="..\ICSharpCode.NRefactory.Xml\**\*.cs" target="src\ICSharpCode.NRefactory.Xml" />
+		<file src="bin\Release\ICSharpCode.NRefactory6.CSharp.dll" target="lib\Net45" />
+		<file src="bin\Release\ICSharpCode.NRefactory.CSharp.xml" target="lib\Net45" />
+		<file src="bin\Release\ICSharpCode.NRefactory6.CSharp.Refactoring.dll" target="lib\Net45" />
+		<file src="bin\Release\ICSharpCode.NRefactory.CSharp.Refactoring.xml" target="lib\Net45" />
+		<file src="ICSharpCode.NRefactory.CSharp\**\*.cs" target="src\ICSharpCode.NRefactory.CSharp" />
+		<file src="ICSharpCode.NRefactory.CSharp\**\*.jay" target="src\ICSharpCode.NRefactory.CSharp" />
+		<file src="ICSharpCode.NRefactory.CSharp.Refactoring\**\*.cs" target="src\ICSharpCode.NRefactory.CSharp.Refactoring" />
 	</files>
 </package>
