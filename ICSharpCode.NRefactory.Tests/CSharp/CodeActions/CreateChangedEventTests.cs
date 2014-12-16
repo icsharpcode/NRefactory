@@ -54,6 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
         }
         set {
             test = value;
+            OnTestChanged(System.EventArgs.Empty);
         }
     }
 
@@ -93,6 +94,7 @@ class TestClass
         }
         set {
             test = value;
+            OnTestChanged(EventArgs.Empty);
         }
     }
 
@@ -130,6 +132,7 @@ class TestClass
         }
         set {
             test = value;
+            OnTestChanged(System.EventArgs.Empty);
         }
     }
 
@@ -167,6 +170,7 @@ class TestClass
         }
         set {
             test = value;
+            OnTestChanged(System.EventArgs.Empty);
         }
     }
     void OnTestChanged(System.EventArgs e)
