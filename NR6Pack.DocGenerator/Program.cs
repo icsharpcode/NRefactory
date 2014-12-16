@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Reflection;
 
-namespace DocGenerator
+namespace NR6Pack.DocGenerator
 {
 	class Program
 	{
@@ -27,7 +27,7 @@ namespace DocGenerator
 			XDocument codeActionsDocument = XDocument.Load(@"..\NR6Pack\CodeActions.html.template");
 			var codeActionsNode = codeActionsDocument.Descendants("{http://www.w3.org/1999/xhtml}ul").First();
 			var codeActionsCountNode = codeActionsDocument.Descendants("{http://www.w3.org/1999/xhtml}p").First();
-			codeActionsCountNode.Value = string.Format("{0} code actions available!", codeIssues.Length);
+			codeActionsCountNode.Value = string.Format("{0} code actions available!", codeActions.Length);
 
 			foreach (var codeAction in codeActions) {
 				codeActionsNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0} ({1})", GetActionDescription(codeAction), codeAction.Name)));
@@ -61,7 +61,7 @@ namespace DocGenerator
 			var description = t.GetCustomAttributes(false).OfType<ICSharpCode.NRefactory6.CSharp.DescriptionAttribute>().FirstOrDefault();
 			if (description != null && description.Description.Length > 0)
 				return description.Description;
-            return t.GetField("Description", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null)?.ToString() ?? "";
+			return t.GetField("Description", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null)?.ToString() ?? "";
 		}
 	}
 }

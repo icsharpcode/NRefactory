@@ -7,8 +7,8 @@
     <ProjectGuid>{7FB64621-DF93-48DE-995D-8CB0804F6003}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DocGenerator</RootNamespace>
-    <AssemblyName>DocGenerator</AssemblyName>
+    <RootNamespace>NR6Pack.DocGenerator</RootNamespace>
+    <AssemblyName>NR6Pack.DocGenerator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
