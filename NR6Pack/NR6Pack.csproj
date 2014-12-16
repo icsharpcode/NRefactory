@@ -231,9 +231,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\SimplifyIfInLoopsFlowAction.cs">
       <Link>CodeActions\SimplifyIfInLoopsFlowAction.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\SortUsingsAction.cs">
-      <Link>CodeActions\SortUsingsAction.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\SpecializedCodeAction.cs">
       <Link>CodeActions\SpecializedCodeAction.cs</Link>
     </Compile>
