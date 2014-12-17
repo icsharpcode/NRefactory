@@ -29,6 +29,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("Issue not implemented")]
 	public class ConvertToLambdaExpressionIssueTests : InspectionActionTestBase
 	{
 		[Test]

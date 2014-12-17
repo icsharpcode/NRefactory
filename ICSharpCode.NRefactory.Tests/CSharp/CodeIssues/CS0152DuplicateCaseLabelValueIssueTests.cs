@@ -33,6 +33,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("Issue not implemented")]
 	public class CS0152DuplicateCaseLabelValueIssueTests : InspectionActionTestBase
 	{
 		[Test]

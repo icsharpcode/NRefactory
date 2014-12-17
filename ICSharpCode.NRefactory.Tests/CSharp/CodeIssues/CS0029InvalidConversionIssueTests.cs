@@ -7,6 +7,7 @@ using System;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("Issue not implemented")]
 	public class CS0029InvalidConversionIssueTests : InspectionActionTestBase
 	{
 		[Test]

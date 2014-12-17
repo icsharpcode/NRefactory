@@ -34,6 +34,7 @@ using System.Linq;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("Issue not implemented")]
 	public class CS1729TypeHasNoConstructorWithNArgumentsIssueTests : InspectionActionTestBase
 	{
 

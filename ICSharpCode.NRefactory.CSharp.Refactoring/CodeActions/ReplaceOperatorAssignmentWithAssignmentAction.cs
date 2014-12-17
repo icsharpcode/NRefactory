@@ -68,7 +68,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					DiagnosticSeverity.Info,
 					"Replace with '='",
 					t2 => {
-						var newNode = SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, node.Left, SyntaxFactory.BinaryExpression(GetAssignmentOperator(node.CSharpKind()), node.Left, node.Right));
+						var newNode = SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, node.Left,
+							SyntaxFactory.BinaryExpression(assignment, node.Left.WithoutLeadingTrivia(), node.Right));
 						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}

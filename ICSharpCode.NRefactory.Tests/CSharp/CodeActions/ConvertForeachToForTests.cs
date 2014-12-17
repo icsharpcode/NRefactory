@@ -36,19 +36,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestArray()
 		{
 			string result = RunContextAction(
-				                         new ConvertForeachToForAction(),
-				                         "using System;" + Environment.NewLine +
-				                         "class TestClass" + Environment.NewLine +
-				                         "{" + Environment.NewLine +
-				                         "    void Test (string[] args)" + Environment.NewLine +
-				                         "    {" + Environment.NewLine +
-				                         "        $foreach (var v in args) {" + Environment.NewLine +
-				                         "            Console.WriteLine (v);" + Environment.NewLine +
-				                         "        }" + Environment.NewLine +
-				                         "    }" + Environment.NewLine +
-				                         "}"
-			                         );
-            
+										 new ConvertForeachToForAction(),
+										 "using System;" + Environment.NewLine +
+										 "class TestClass" + Environment.NewLine +
+										 "{" + Environment.NewLine +
+										 "    void Test (string[] args)" + Environment.NewLine +
+										 "    {" + Environment.NewLine +
+										 "        $foreach (var v in args) {" + Environment.NewLine +
+										 "            Console.WriteLine (v);" + Environment.NewLine +
+										 "        }" + Environment.NewLine +
+										 "    }" + Environment.NewLine +
+										 "}"
+									 );
+
 			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
@@ -68,20 +68,20 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestListOfT()
 		{
 			string result = RunContextAction(
-				                         new ConvertForeachToForAction(),
-				                         "using System;" + Environment.NewLine +
-				                         "using System.Collections.Generic;" + Environment.NewLine +
-				                         "class TestClass" + Environment.NewLine +
-				                         "{" + Environment.NewLine +
-				                         "    void Test (List<string> args)" + Environment.NewLine +
-				                         "    {" + Environment.NewLine +
-				                         "        $foreach (var v in args) {" + Environment.NewLine +
-				                         "            Console.WriteLine(v);" + Environment.NewLine +
-				                         "        }" + Environment.NewLine +
-				                         "    }" + Environment.NewLine +
-				                         "}"
-			                         );
-            
+										 new ConvertForeachToForAction(),
+										 "using System;" + Environment.NewLine +
+										 "using System.Collections.Generic;" + Environment.NewLine +
+										 "class TestClass" + Environment.NewLine +
+										 "{" + Environment.NewLine +
+										 "    void Test (List<string> args)" + Environment.NewLine +
+										 "    {" + Environment.NewLine +
+										 "        $foreach (var v in args) {" + Environment.NewLine +
+										 "            Console.WriteLine(v);" + Environment.NewLine +
+										 "        }" + Environment.NewLine +
+										 "    }" + Environment.NewLine +
+										 "}"
+									 );
+
 			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"using System.Collections.Generic;" + Environment.NewLine +
@@ -153,6 +153,34 @@ class Test
 		}
 
 		[Test]
+		public void TestOptimizedForLoopWithComment()
+		{
+			Test<ConvertForeachToForAction>(@"
+class Test
+{
+    void Foo (object[] o)
+    {
+        // Some comment
+        $foreach (var p in o) {
+            System.Console.WriteLine (p);
+        }
+    }
+}", @"
+class Test
+{
+    void Foo (object[] o)
+    {
+        // Some comment
+        for (int i = 0, oLength = o.Length; i < oLength; i++)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+        }
+    }
+}", 1);
+		}
+
+		[Test]
 		public void TestEnumerableConversion()
 		{
 			Test<ConvertForeachToForAction>(@"
@@ -175,6 +203,40 @@ class Test
 {
     public void Foo (IEnumerable<string> bar)
     {
+        for (var i = bar.GetEnumerator(); i.MoveNext();)
+        {
+            var b = i.Current;
+            Console.WriteLine(b);
+        }
+    }
+}");
+		}
+
+		[Test]
+		public void TestEnumerableConversionWithComment()
+		{
+			Test<ConvertForeachToForAction>(@"
+using System;
+using System.Collections.Generic;
+
+class Test
+{
+    public void Foo (IEnumerable<string> bar)
+    {
+        // Some comment
+        $foreach (var b in bar) {
+            Console.WriteLine (b);
+        }
+    }
+}", @"
+using System;
+using System.Collections.Generic;
+
+class Test
+{
+    public void Foo (IEnumerable<string> bar)
+    {
+        // Some comment
         for (var i = bar.GetEnumerator(); i.MoveNext();)
         {
             var b = i.Current;

@@ -75,11 +75,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return rr.Type != null && rr.Type.TypeKind == TypeKind.Delegate;
 			}
 
+			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
+			{
+				base.VisitAssignmentExpression(node);
+				switch (node.CSharpKind())
+				{
+					case SyntaxKind.SubtractAssignmentExpression:
+						if (!IsEvent(node.Left) && IsDelegate(node.Right))
+							AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+						break;
+				}
+			}
+
 			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
 			{
 				base.VisitBinaryExpression(node);
 				switch (node.CSharpKind()) {
-					case SyntaxKind.SubtractAssignmentExpression:
 					case SyntaxKind.SubtractExpression:
 						if (!IsEvent(node.Left) && IsDelegate(node.Right))
 							AddIssue(Diagnostic.Create(Rule, node.GetLocation()));

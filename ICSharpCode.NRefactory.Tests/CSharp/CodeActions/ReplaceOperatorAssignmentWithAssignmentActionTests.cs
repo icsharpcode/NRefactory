@@ -51,5 +51,27 @@ class Test
     }
 }");
 		}
+
+		[Test]
+		public void TestAddWithComment()
+		{
+			Test<ReplaceOperatorAssignmentWithAssignmentAction>(@"
+class Test
+{
+    void Foo (int i)
+    {
+        // Some comment
+        i $+= 1 + 2;
+    }
+}", @"
+class Test
+{
+    void Foo (int i)
+    {
+        // Some comment
+        i = i + 1 + 2;
+    }
+}");
+		}
 	}
 }

@@ -182,9 +182,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 					SyntaxNode newRoot;
 					if (declarationStatement != null) {
-						newRoot = root.ReplaceNode((SyntaxNode)foreachStatement, new [] { declarationStatement.WithAdditionalAnnotations(Formatter.Annotation),  forStatement.WithAdditionalAnnotations(Formatter.Annotation) });
+						newRoot = root.ReplaceNode((SyntaxNode)foreachStatement,
+							new [] {
+								declarationStatement.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(foreachStatement.GetLeadingTrivia()), 
+								forStatement.WithAdditionalAnnotations(Formatter.Annotation)
+							});
 					} else {
-						newRoot = root.ReplaceNode((SyntaxNode)foreachStatement, forStatement.WithAdditionalAnnotations(Formatter.Annotation));
+						newRoot = root.ReplaceNode((SyntaxNode)foreachStatement,
+							forStatement.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(foreachStatement.GetLeadingTrivia()));
 					}
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}
@@ -296,9 +301,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 						SyntaxNode newRoot;
 						if (declarationStatement != null) {
-							newRoot = root.ReplaceNode((SyntaxNode)foreachStatement, new [] { declarationStatement.WithAdditionalAnnotations(Formatter.Annotation),  forStatement.WithAdditionalAnnotations(Formatter.Annotation) });
+							newRoot = root.ReplaceNode((SyntaxNode)foreachStatement,
+								new [] {
+									declarationStatement.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(foreachStatement.GetLeadingTrivia()),
+									forStatement.WithAdditionalAnnotations(Formatter.Annotation)
+								});
 						} else {
-							newRoot = root.ReplaceNode((SyntaxNode)foreachStatement, forStatement.WithAdditionalAnnotations(Formatter.Annotation));
+							newRoot = root.ReplaceNode((SyntaxNode)foreachStatement,
+								forStatement.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(foreachStatement.GetLeadingTrivia()));
 						}
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
