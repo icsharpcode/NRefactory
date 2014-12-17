@@ -1,0 +1,23 @@
+#1 BUILD PACKAGE
+
+Update the ICSharpCode.NRefactory.nuspec with the new version and release information, then:
+
+    nuget.exe pack ICSharpCode.NRefactory.nuspec
+
+If you want to test a pre-release version change the version so the latest digit contains a string:
+
+   1.0.1-alpha
+   1.0.1-alpha.2
+   1.0.1-beta
+   1.0.1-beta.2
+
+
+#2 DEPLOY PACKAGE
+
+    nuget push ICSharpCode.NRefactory.*.nupkg
+
+Ensure that you have configured your api key for nuget.org using a command line similar to:
+
+    nuget setapikey 4003d786-cc37-4004-bfdf-c4f3e8ef9b3a
+
+Your apikey is available from https://www.nuget.org/account
