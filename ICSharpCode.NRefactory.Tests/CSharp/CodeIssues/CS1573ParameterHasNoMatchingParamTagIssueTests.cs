@@ -33,7 +33,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	[Ignore("Issue not implemented")]
+	[Ignore("TODO: Issue not ported yet")]
 	public class CS1573ParameterHasNoMatchingParamTagIssueTests: InspectionActionTestBase
 	{
 		[Test]

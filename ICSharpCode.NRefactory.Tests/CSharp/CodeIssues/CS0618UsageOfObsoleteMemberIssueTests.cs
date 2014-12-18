@@ -29,7 +29,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	[Ignore("Issue not implemented")]
+	[Ignore("TODO: Issue not ported yet")]
 	public class CS0618UsageOfObsoleteMemberIssueTests : InspectionActionTestBase
 	{
 		[Test]

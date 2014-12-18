@@ -32,6 +32,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("TODO: Issue not ported yet")]
 	public class RedundantLambdaParameterTypeTests : InspectionActionTestBase
 	{
 

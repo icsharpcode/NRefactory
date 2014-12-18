@@ -29,6 +29,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("TODO: Issue not ported yet")]
 	public class MemberCanBeMadeStaticIssueTests : InspectionActionTestBase
 	{
 		[Test]
