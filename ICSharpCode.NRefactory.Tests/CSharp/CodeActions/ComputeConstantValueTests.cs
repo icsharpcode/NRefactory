@@ -50,6 +50,29 @@ class TestClass
 	}
 }");
 		}
+
+		[Test]
+		public void Rational1WithComment()
+		{
+			Test<ComputeConstantValueAction>(@"
+class TestClass
+{
+	public void F()
+	{
+        // Some comment
+		int a = 1 $+ 1;
+	}
+}", @"
+class TestClass
+{
+	public void F()
+	{
+        // Some comment
+		int a = 2;
+	}
+}");
+		}
+
 		[Test]
 		public void Rational2()
 		{

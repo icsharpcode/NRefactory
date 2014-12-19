@@ -62,6 +62,36 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 		[Test]
+		public void TestWithComment()
+		{
+			string result = RunContextAction(
+										 new CheckIfParameterIsNullAction(),
+										 "using System;" + Environment.NewLine +
+										 "class TestClass" + Environment.NewLine +
+										 "{" + Environment.NewLine +
+										 "    void Test (string $param)" + Environment.NewLine +
+										 "    {" + Environment.NewLine +
+										 "        // Some comment" + Environment.NewLine +
+										 "        Console.WriteLine (param);" + Environment.NewLine +
+										 "    }" + Environment.NewLine +
+										 "}"
+									 );
+
+			Assert.AreEqual(
+				"using System;" + Environment.NewLine +
+				"class TestClass" + Environment.NewLine +
+				"{" + Environment.NewLine +
+				"    void Test (string param)" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        if (param == null)" + Environment.NewLine +
+				"            throw new ArgumentNullException(\"param\");" + Environment.NewLine +
+				"        // Some comment" + Environment.NewLine +
+				"        Console.WriteLine (param);" + Environment.NewLine +
+				"    }" + Environment.NewLine +
+				"}", result);
+		}
+
+		[Test]
 		public void TestLambda()
 		{
 			Test<CheckIfParameterIsNullAction>(@"class Foo

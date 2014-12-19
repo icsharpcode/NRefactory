@@ -53,6 +53,28 @@ class TestClass
 		}
 
 		[Test]
+		public void TestSimpleWithComment()
+		{
+			Test<AddOptionalParameterToInvocationAction>(@"
+class TestClass
+{
+    public void Foo(string msg = ""Hello"") {}
+    public void Bar() {
+        // Some comment
+        $Foo();
+    }
+}", @"
+class TestClass
+{
+    public void Foo(string msg = ""Hello"") {}
+    public void Bar() {
+        // Some comment
+        Foo(""Hello"");
+    }
+}");
+		}
+
+		[Test]
 		public void TestMultiple1()
 		{
 			Test<AddOptionalParameterToInvocationAction>(@"

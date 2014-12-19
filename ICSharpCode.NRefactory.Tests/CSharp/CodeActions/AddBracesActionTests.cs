@@ -55,6 +55,54 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 		[Test]
+		public void TestAddBracesToIfWithComment()
+		{
+			Test<AddBracesAction>(@"class TestClass
+{
+    void Test()
+    {
+        // Some comment
+        $if (true)
+            Console.WriteLine(""Hello"");
+    }
+}", @"class TestClass
+{
+    void Test()
+    {
+        // Some comment
+        if (true)
+        {
+            Console.WriteLine(""Hello"");
+        }
+    }
+}");
+		}
+
+		[Test]
+		public void TestAddBracesToIfWithCommentInBlock()
+		{
+			Test<AddBracesAction>(@"class TestClass
+{
+    void Test()
+    {
+        $if (true)
+            // Some comment
+            Console.WriteLine(""Hello"");
+    }
+}", @"class TestClass
+{
+    void Test()
+    {
+        if (true)
+        {
+            // Some comment
+            Console.WriteLine(""Hello"");
+        }
+    }
+}");
+		}
+
+		[Test]
 		public void TestAddBracesToElse()
 		{
 			Test<AddBracesAction>(@"class TestClass

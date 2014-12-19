@@ -54,6 +54,30 @@ class TestClass
 		}
 
 		[Test]
+		public void MethodInvocation1WithComment()
+		{
+			Test<AddArgumentNameAction>(@"
+class TestClass
+{
+    public void Foo(int a, int b, float c = 0.1) { }
+    public void F()
+    {
+        // Some comment
+        Foo($1,b: 2);
+    }
+}", @"
+class TestClass
+{
+    public void Foo(int a, int b, float c = 0.1) { }
+    public void F()
+    {
+        // Some comment
+        Foo(a: 1, b: 2);
+    }
+}");
+		}
+
+		[Test]
 		public void MethodInvocation2()
 		{
 			Test<AddArgumentNameAction>(@"
@@ -88,6 +112,26 @@ public class AnyClass
 using System;
 public class AnyClass
 {
+    [Obsolete(message: "" "", error: true)]
+    static void Old() { }
+}");
+		}
+
+		[Test]
+		public void AttributeUsageWithComment()
+		{
+			Test<AddArgumentNameAction>(@"
+using System;
+public class AnyClass
+{
+    // Some comment
+    [Obsolete($"" "", error: true)]
+    static void Old() { }
+}", @"
+using System;
+public class AnyClass
+{
+    // Some comment
     [Obsolete(message: "" "", error: true)]
     static void Old() { }
 }");
