@@ -162,9 +162,6 @@
     <Compile Include="Refactoring\TypeGuessing.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
-  <ItemGroup>
-    <Folder Include="OutputVisitor\" />
-  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
