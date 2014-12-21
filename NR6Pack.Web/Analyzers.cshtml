@@ -1,0 +1,86 @@
+﻿@{
+    Layout = "~/Shared/_Layout.cshtml";  
+    PageData["Title"] = "NR6Pack - Analyzers";
+}
+
+<div class="container">
+
+    <h2>Supported Code Issue Fixes</h2>
+    <p>73 code issues available!</p>
+    <ul>
+      <li>Removes 'internal' modifiers that are not required (RedundantInternalIssue)</li>
+      <li>Removes 'private' modifiers that are not required (RedundantPrivateIssue)</li>
+      <li>Call to base member with implicit default parameters (BaseMethodCallWithDefaultParameterIssue)</li>
+      <li>Bitwise operation on enum which has no [Flags] attribute (BitwiseOperatorOnEnumWithoutFlagsIssue)</li>
+      <li>Possible compare of value type with 'null' (CompareNonConstrainedGenericWithNullIssue)</li>
+      <li>Comparison of floating point numbers with equality operator (CompareOfFloatsByEqualityOperatorIssue)</li>
+      <li>'?:' expression has identical true and false branches (ConditionalTernaryEqualBranchIssue)</li>
+      <li>Delegate subtraction has unpredictable result (DelegateSubtractionIssue)</li>
+      <li>Warns about calls to virtual member functions occuring in the constructor. (DoNotCallOverridableMethodsInConstructorIssue)</li>
+      <li>A catch clause that catches System.Exception and has an empty body (EmptyGeneralCatchClauseIssue)</li>
+      <li>Function does not reach its end or a 'return' statement by any of possible execution paths. (FunctionNeverReturnsIssue)</li>
+      <li>Lowercase 'l' is often confused with '1' (LongLiteralEndingLowerLIssue)</li>
+      <li>Non-readonly field referenced in 'GetHashCode()' (NonReadonlyReferencedInGetHashCodeIssue)</li>
+      <li>Possible unassigned object created by 'new' (ObjectCreationAsStatementIssue)</li>
+      <li>Operator Is can be used instead of comparing object GetType() and instances of System.Type object (OperatorIsCanBeUsedIssue)</li>
+      <li>C# doesn't support optional 'ref' or 'out' parameters (OptionalParameterRefOutIssue)</li>
+      <li>Non public methods are not found by NUnit (NonPublicMethodWithTestAttributeIssue)</li>
+      <li>Anonymous method or lambda expression can be simplified to method group (ConvertClosureToMethodGroupIssue)</li>
+      <li>'?:' expression can be converted to '??' expression. (ConvertConditionalTernaryToNullCoalescingIssue)</li>
+      <li>Convert 'Nullable&lt;T&gt;' to the short form 'T?' (ConvertNullableToShortFormIssue)</li>
+      <li>If all fields, properties and methods members are static, the class can be made static. (ConvertToStaticTypeIssue)</li>
+      <li>If an extension method is called as static method convert it to method syntax (InvokeAsExtensionMethodIssue)</li>
+      <li>Suggests using the class declaring a static function when calling it. (AccessToStaticMemberViaDerivedTypeIssue)</li>
+      <li>Base parameter has 'params' modifier, but missing in overrider (BaseMemberHasParamsIssue)</li>
+      <li>Convert 'if' to '||' expression (ConvertIfToOrExpressionIssue)</li>
+      <li>Empty control statement body (EmptyEmbeddedStatementIssue)</li>
+      <li>Possible mistaken call to 'object.GetType()' (PossibleMistakenCallToGetTypeIssue)</li>
+      <li>Replace with call to FirstOrDefault&lt;T&gt;() (ReplaceWithFirstOrDefaultIssue)</li>
+      <li>Replace with call to LastOrDefault&lt;T&gt;() (ReplaceWithLastOrDefaultIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Any() (ReplaceWithOfTypeAnyIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Count() (ReplaceWithOfTypeCountIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().First() (ReplaceWithOfTypeFirstIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().FirstOrDefault() (ReplaceWithOfTypeFirstOrDefaultIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Last() (ReplaceWithOfTypeLastIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().LastOrDefault() (ReplaceWithOfTypeLastOrDefaultIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().LongCount() (ReplaceWithOfTypeLongCountIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Single() (ReplaceWithOfTypeSingleIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().SingleOrDefault() (ReplaceWithOfTypeSingleOrDefaultIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Where() (ReplaceWithOfTypeWhereIssue)</li>
+      <li>Replace with simple assignment (ReplaceWithSimpleAssignmentIssue)</li>
+      <li>Replace with single call to Any(...) (ReplaceWithSingleCallToAnyIssue)</li>
+      <li>Replace with single call to Count(...) (ReplaceWithSingleCallToCountIssue)</li>
+      <li>Replace with single call to First(...) (ReplaceWithSingleCallToFirstIssue)</li>
+      <li>Replace with single call to FirstOrDefault(...) (ReplaceWithSingleCallToFirstOrDefaultIssue)</li>
+      <li>Replace with single call to Last(...) (ReplaceWithSingleCallToLastIssue)</li>
+      <li>Replace with single call to LastOrDefault(...) (ReplaceWithSingleCallToLastOrDefaultIssue)</li>
+      <li>Replace with single call to LongCount(...) (ReplaceWithSingleCallToLongCountIssue)</li>
+      <li>Replace with single call to Single(...) (ReplaceWithSingleCallToSingleIssue)</li>
+      <li>Replace with single call to SingleOrDefault(...) (ReplaceWithSingleCallToSingleOrDefaultIssue)</li>
+      <li>Warns when a culture-aware 'EndsWith' call is used by default. (StringEndsWithIsCultureSpecificIssue)</li>
+      <li>Warns when a culture-aware 'IndexOf' call is used by default. (StringIndexOfIsCultureSpecificIssue)</li>
+      <li>Warns when a culture-aware 'LastIndexOf' call is used by default. (StringLastIndexOfIsCultureSpecificIssue)</li>
+      <li>Warns when a culture-aware 'StartsWith' call is used by default. (StringStartsWithIsCultureSpecificIssue)</li>
+      <li>When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer. (ArrayCreationCanBeReplacedWithArrayInitializerIssue)</li>
+      <li>Condition is always true or false (ConditionIsAlwaysTrueOrFalseIssue)</li>
+      <li>Double negation is redundant (DoubleNegationOperatorIssue)</li>
+      <li>Empty statement is redundant (EmptyStatementIssue)</li>
+      <li>'true' is redundant as for statement condition (ForStatementConditionIsTrueIssue)</li>
+      <li>Redundant explicit property name (RedundantAnonymousTypePropertyNameIssue)</li>
+      <li>Redundant explicit argument name specification (RedundantArgumentNameIssue)</li>
+      <li>Parentheses are redundant if attribute has no arguments. (RedundantAttributeParenthesesIssue)</li>
+      <li>'base.' is redundant and can safely be removed. (RedundantBaseQualifierIssue)</li>
+      <li>Redundant case label (RedundantCaseLabelIssue)</li>
+      <li>Type cast is redundant (RedundantCastIssue)</li>
+      <li>Redundant empty 'default' switch branch (RedundantEmptyDefaultSwitchBranchIssue)</li>
+      <li>Removes namespace usages that are obsolete. (RedundantNameQualifierIssue)</li>
+      <li>Redundant conditional expression (RedundantTernaryExpressionIssue)</li>
+      <li>Remove redundant statement (RemoveRedundantOrStatementIssue)</li>
+      <li>An empty public constructor without paramaters is redundant. (EmptyConstructorIssue)</li>
+      <li>Empty destructor is redundant (EmptyDestructorIssue)</li>
+      <li>Empty namespace declaration is redundant (EmptyNamespaceIssue)</li>
+      <li>The default underlying type of enums is int, so defining it explicitly is redundant. (EnumUnderlyingTypeIsIntIssue)</li>
+      <li>'sealed' modifier is redundant in sealed classes (SealedMemberInSealedClassIssue)</li>
+    </ul>
+
+</div>

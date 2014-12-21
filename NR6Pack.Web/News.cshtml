@@ -1,0 +1,52 @@
+﻿@{
+    Layout = "~/Shared/_Layout.cshtml";  
+    PageData["Title"] = "NR6Pack - News";
+}
+
+<div class="container">
+
+
+    <h2>News</h2>
+
+    <p>
+        News for the NR6Pack extension are also posted in the <b>Changelog</b> section on the <a href="https://visualstudiogallery.msdn.microsoft.com/68c1575b-e0bf-420d-a94b-1b0f4bcdcbcc">download page in the Visual Studio Gallery</a>.
+    </p> 
+
+    <ul>
+    <li>0.3 - Dec 8th, 2014
+        <ul>
+            <li>Increase # of supported refactorings </li><li>Enable first set of Analyzers </li>
+        </ul>
+    </li>
+    <li>0.2 - Dec 1st, 2014
+        <ul>
+            <li>Increase # of supported refactorings </li><li>Set up automation / testing </li>
+        </ul>
+    </li>
+    <li>0.1 - Nov 17th, 2014
+        <ul>
+            <li>Test version with a single refactoring </li>
+        </ul>
+    </li>
+    </ul>
+    
+    <h2>History</h2>
+    <p>
+        Given that the SharpDevelop team is building an IDE of their own, why are we supporting an IDE other than ours? 
+    </p>
+    <p>
+        NRefactory is a library geared towards anyone that needs IDE services - think code completion, refactoring, code fixes and more. 
+        It started life a very long time ago in SharpDevelop, was at times developed in parallel in MonoDevelop, and roundabout 2010 the two teams 
+        joined forces to bring NRefactory5 to life as a full open source stack of IDE services (MonoDevelop 3 and SharpDevelop 5 ship(ped) with this version). 
+    </p>
+    <p>
+        NR6 is leveraging Roslyn instead of our homegrown stack components to make development easier and faster. 
+        Thus we also re-architected our refactorings around the Roslyn way of doing things, making the new refactorings and analyzers reuseable for anyone that speaks Roslyn.
+        After all, open source isn't about duplicating effort - at least in our book.
+    </p>
+    <p>
+        In effect NR6Pack is merely a repackaged variant of NRefactory 6 refactorings for Visual Studio 2015. It bundles a subset of the refactorings and code issue fixes.
+        We arrived at this subset because you don't need a second rename refactoring when one is already in-box with VS. We cherry picked the things that make sense.
+    </p>
+
+</div>
