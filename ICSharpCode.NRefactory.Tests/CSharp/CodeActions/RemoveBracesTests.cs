@@ -286,6 +286,34 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 		[Test]
+		public void TestDoNotRemoveBracesFromBlockWithVariable()
+		{
+			TestWrongContext<RemoveBracesAction>(@"class TestClass
+{
+    void Test()
+    {
+        $if (true) {
+            double PI = Math.PI;
+        }
+    }
+}");
+		}
+
+		[Test]
+		public void TestDoNotRemoveBracesFromBlockWithLabel()
+		{
+			TestWrongContext<RemoveBracesAction>(@"class TestClass
+{
+    void Test()
+    {
+        $if (true) {
+            here: Console.WriteLine(""Hello"");
+        }
+    }
+}");
+		}
+
+		[Test]
 		public void TestNullNode()
 		{
 			TestWrongContext<RemoveBracesAction>(@"class TestClass

@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			BlockSyntax block = null;
 			if (IsSpecialNode(token, out keyword, out embeddedStatement)) {
 				block = embeddedStatement as BlockSyntax;
-				if (block == null || block.Statements.Count != 1 || block.Statements.First() is VariableDeclarationSyntax)
+				if (block == null || block.Statements.Count != 1 || block.Statements.First() is LabeledStatementSyntax || block.Statements.First() is LocalDeclarationStatementSyntax)
 					return;
 			} 
 
