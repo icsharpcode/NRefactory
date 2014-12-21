@@ -31,7 +31,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	[TestFixture]
 	public class ConvertLamdaToAnonymousDelegateTests : ContextActionTestBase
 	{
-		[Ignore("Failing")]
 		[Test]
 		public void LambdaBlock()
 		{
@@ -40,21 +39,18 @@ class A
 {
     void F ()
     {
-        System.Action<int, int> = (i1, i2) $=> { System.Console.WriteLine (i1); };
+        System.Action<int, int> a = (i1, i2) $=> { System.Console.WriteLine (i1); };
     }
 }", @"
 class A
 {
     void F ()
     {
-        System.Action<int, int> = delegate (int i1, int i2) {
-            System.Console.WriteLine(i1);
-        };
+        System.Action<int, int> a = delegate (int i1, int i2) { System.Console.WriteLine(i1); };
     }
 }");
 		}
 
-		[Ignore("Failing")]
 		[Test]
 		public void LambdaExpression()
 		{
@@ -63,21 +59,21 @@ class A
 {
     void F ()
     {
-        System.Action<int, int> = (i1, i2) $=> System.Console.WriteLine (i1);
+        System.Action<int, int> a = (i1, i2) $=> System.Console.WriteLine (i1);
     }
 }", @"
 class A
 {
     void F ()
     {
-        System.Action<int, int> = delegate (int i1, int i2) {
+        System.Action<int, int> a = delegate (int i1, int i2)
+        {
             System.Console.WriteLine(i1);
         };
     }
 }");
 		}
 
-		[Ignore("Failing")]
 		[Test]
 		public void NonVoidExpressionTest()
 		{
@@ -86,14 +82,15 @@ class A
 {
     void F ()
     {
-        System.Func<int> = () $=> 1;
+        System.Func<int> f = () $=> 1;
     }
 }", @"
 class A
 {
     void F ()
     {
-        System.Func<int> = delegate {
+        System.Func<int> f = delegate
+        {
             return 1;
         };
     }
@@ -108,14 +105,14 @@ class A
 {
     void F ()
     {
-        System.Action = () $=> { System.Console.WriteLine(); };
+        System.Action a = () $=> { System.Console.WriteLine(); };
     }
 }", @"
 class A
 {
     void F ()
     {
-        System.Action = delegate { System.Console.WriteLine(); };
+        System.Action a = delegate { System.Console.WriteLine(); };
     }
 }");
 		}

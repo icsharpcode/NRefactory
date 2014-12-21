@@ -65,8 +65,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		static Document PerformAction(Document document, SyntaxNode root, BinaryExpressionSyntax bop)
 		{
-			var nodeToReplace = bop.SkipParens();
-			var castExpr = (ExpressionSyntax)SyntaxFactory.CastExpression(bop.Right as TypeSyntax, bop.Left).WithLeadingTrivia(bop.GetLeadingTrivia()).WithTrailingTrivia(bop.GetTrailingTrivia());
+			var nodeToReplace = bop.IsParentKind(SyntaxKind.ParenthesizedExpression) ? bop.Parent : bop;
+			var castExpr = (ExpressionSyntax)SyntaxFactory.CastExpression(bop.Right as TypeSyntax, FlipEqualsTargetAndArgumentAction.AddParensIfRequired(bop.Left.WithoutLeadingTrivia().WithoutTrailingTrivia())).WithLeadingTrivia(bop.GetLeadingTrivia()).WithTrailingTrivia(bop.GetTrailingTrivia());
 
 			var newRoot = root.ReplaceNode((SyntaxNode)nodeToReplace, castExpr);
 			return document.WithSyntaxRoot(newRoot);

@@ -55,7 +55,6 @@ class TestClass
 }");
 		}
 
-		[Ignore("Broken due roslyn port")]
 		[Test]
 		public void TestRemoveParentheses ()
 		{
@@ -76,7 +75,6 @@ class TestClass {
 			Test<ConvertAsToCastAction> (input, output);
 		}
 
-		[Ignore("Broken due roslyn port")]
 		[Test]
 		public void TestInsertParentheses ()
 		{
