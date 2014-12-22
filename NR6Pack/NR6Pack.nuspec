@@ -9,10 +9,10 @@
 		<licenseUrl>https://visualstudiogallery.msdn.microsoft.com/site/68c1575b-e0bf-420d-a94b-1b0f4bcdcbcc/eula?licenseType=None</licenseUrl>
 		<projectUrl>https://visualstudiogallery.msdn.microsoft.com/68c1575b-e0bf-420d-a94b-1b0f4bcdcbcc</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<description>Roslyn-based refactorings from the NRefactory OSS library.</description>
+		<description>Roslyn-based analyzers from the NRefactory OSS library for Visual Studio 2015.</description>
 		<releaseNotes>Bugfix release.</releaseNotes>
 		<copyright>Copyright (c) 2014 AlphaSierraPapa</copyright>
-		<tags>VS Roslyn NRefactory</tags>
+		<tags>VS 2015 Roslyn NRefactory Analyzer</tags>
 		<frameworkAssemblies>
 			<frameworkAssembly assemblyName="System" targetFramework="" />
 		</frameworkAssemblies>
