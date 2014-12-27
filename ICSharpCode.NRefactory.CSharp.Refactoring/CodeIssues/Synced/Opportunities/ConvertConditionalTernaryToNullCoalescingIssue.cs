@@ -94,6 +94,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (obj == null)
 					return;
 				if (node.Condition.SkipParens().IsKind(SyntaxKind.NotEqualsExpression)) {
+					if (!CanBeNull(node.WhenTrue))
+						return;
 					if (obj.SkipParens().IsEquivalentTo(node.WhenTrue.SkipParens(), true)) {
 						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 						return;
@@ -104,11 +106,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						return;
 					}
 				} else {
+					if (!CanBeNull(node.WhenFalse))
+						return;
 					if (obj.SkipParens().IsEquivalentTo(node.WhenFalse.SkipParens(), true)) {
 						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 						return;
 					}
 				}
+			}
+
+			bool CanBeNull(ExpressionSyntax expression)
+			{
+				var info = semanticModel.GetTypeInfo(expression, cancellationToken);
+				if (info.ConvertedType.IsReferenceType || info.ConvertedType.IsNullableType())
+					return true;
+				return false;
 			}
 		}
 	}
