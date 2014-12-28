@@ -108,6 +108,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertIfStatementToReturnStatementAction.cs">
       <Link>CodeActions\ConvertIfStatementToReturnStatementAction.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertIfStatementToSwitchStatementAction.cs">
+      <Link>CodeActions\ConvertIfStatementToSwitchStatementAction.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\ConvertImplicitToExplicitImplementationAction.cs">
       <Link>CodeActions\ConvertImplicitToExplicitImplementationAction.cs</Link>
     </Compile>

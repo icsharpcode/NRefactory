@@ -60,7 +60,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					return;
 			}
 
-
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					span, 
