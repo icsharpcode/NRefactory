@@ -50,6 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
 
 			var node = root.FindNode(span) as BinaryExpressionSyntax;
 			if (node == null || !node.OperatorToken.IsKind(SyntaxKind.QuestionQuestionToken))
@@ -60,13 +61,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					span, 
 					DiagnosticSeverity.Info, 
 					"Replace with '?:' expression", t2 => {
+						var left = node.Left;
+						var info = model.GetTypeInfo(left, t2);
+						if (info.ConvertedType.IsNullableType())
+							left = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, FlipEqualsTargetAndArgumentAction.AddParensIfRequired(left), SyntaxFactory.IdentifierName("Value"));
 						var ternary = SyntaxFactory.ConditionalExpression(
 							SyntaxFactory.BinaryExpression(
 								SyntaxKind.NotEqualsExpression, 
 								node.Left, 
 								SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
 							), 
-							node.Left, 
+							left, 
 							node.Right
 						).WithAdditionalAnnotations(Formatter.Annotation);
 						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, (ExpressionSyntax)ternary)));

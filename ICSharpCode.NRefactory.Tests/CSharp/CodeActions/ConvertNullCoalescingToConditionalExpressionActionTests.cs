@@ -52,6 +52,26 @@ class Test
 }
 ");
 		}
+
+		[Test]
+		public void TestNullable()
+		{
+			Test<ConvertNullCoalescingToConditionalExpressionAction>(@"class Test
+{
+    void TestCase()
+    {
+		int? x = null;
+		int y = x $?? 0;
+    }
+}", @"class Test
+{
+    void TestCase()
+    {
+		int? x = null;
+		int y = x != null ? x.Value : 0;
+    }
+}");
+		}
 	}
 }
 
