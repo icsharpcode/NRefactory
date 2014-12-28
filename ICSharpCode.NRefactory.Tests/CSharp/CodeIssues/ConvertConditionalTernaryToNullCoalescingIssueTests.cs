@@ -156,6 +156,53 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 }");
 		}
 
+		[Test]
+		public void TestGenericCastCase()
+		{
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+{
+	void Bar<T>(object o, T b)
+	{
+		T c = o != null ? (T)o : b;
+	}
+}");
+		}
+
+		[Test]
+		public void TestGenericCastCaseWithRefTypeConstraint()
+		{
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+{
+	void Bar<T>(object o, T b) where T : class
+	{
+		T c = $o != null ? (T)o : b$;
+	}
+}", @"class Foo
+{
+	void Bar<T>(object o, T b) where T : class
+	{
+		T c = (T)o ?? b;
+	}
+}");
+		}
+
+		[Test]
+		public void TestGenericCastCaseAsNullable()
+		{
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Foo
+{
+	void Bar<T>(object o, T b)
+	{
+		T? c = $o != null ? (T?)o : b$;
+	}
+}", @"class Foo
+{
+	void Bar<T>(object o, T b)
+	{
+		T? c = (T?)o ?? b;
+	}
+}");
+		}
 	}
 }
 
