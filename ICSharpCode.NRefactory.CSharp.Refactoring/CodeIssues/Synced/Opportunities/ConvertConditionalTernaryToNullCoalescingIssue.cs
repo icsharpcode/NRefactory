@@ -94,21 +94,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (obj == null)
 					return;
 				if (node.Condition.SkipParens().IsKind(SyntaxKind.NotEqualsExpression)) {
-					if (!CanBeNull(node.WhenTrue))
+					var whenTrue = ConvertConditionalTernaryToNullCoalescingFixProvider.UnpackNullableValueAccess(semanticModel, node.WhenTrue, cancellationToken);
+					if (!CanBeNull(whenTrue))
 						return;
-					if (obj.SkipParens().IsEquivalentTo(node.WhenTrue.SkipParens(), true)) {
+					if (obj.SkipParens().IsEquivalentTo(whenTrue.SkipParens(), true)) {
 						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 						return;
 					}
-					var cast = node.WhenTrue as CastExpressionSyntax;
+					var cast = whenTrue as CastExpressionSyntax;
 					if (cast != null && cast.Expression != null && obj.SkipParens().IsEquivalentTo(cast.Expression.SkipParens(), true)) {
 						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 						return;
 					}
 				} else {
-					if (!CanBeNull(node.WhenFalse))
+					var whenFalse = ConvertConditionalTernaryToNullCoalescingFixProvider.UnpackNullableValueAccess(semanticModel, node.WhenFalse, cancellationToken);
+					if (!CanBeNull(whenFalse))
 						return;
-					if (obj.SkipParens().IsEquivalentTo(node.WhenFalse.SkipParens(), true)) {
+					if (obj.SkipParens().IsEquivalentTo(whenFalse.SkipParens(), true)) {
 						AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 						return;
 					}
@@ -140,6 +142,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
@@ -163,12 +166,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						}
 					}
 
+					a = UnpackNullableValueAccess(model, a, token);
+
 					ExpressionSyntax newNode = SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, a, other);
 
 					var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
  				}), diagnostic);
 			}
+		}
+
+		internal static ExpressionSyntax UnpackNullableValueAccess(SemanticModel semanticModel, ExpressionSyntax expression, CancellationToken cancellationToken)
+		{
+			var expr = expression.SkipParens();
+			if (!expr.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+				return expression;
+			var info = semanticModel.GetTypeInfo(((MemberAccessExpressionSyntax)expr).Expression, cancellationToken);
+			if (!info.ConvertedType.IsNullableType())
+				return expression;
+			return ((MemberAccessExpressionSyntax)expr).Expression;
 		}
 	}
 }

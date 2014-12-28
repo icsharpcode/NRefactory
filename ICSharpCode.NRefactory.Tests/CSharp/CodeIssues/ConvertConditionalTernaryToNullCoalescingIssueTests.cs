@@ -203,6 +203,26 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	}
 }");
 		}
+
+		[Test]
+		public void TestNullableValueCase()
+		{
+			Analyze<ConvertConditionalTernaryToNullCoalescingIssue>(@"class Test
+{
+    void TestCase()
+    {
+		int? x = null;
+		int y = $x != null ? x.Value : 0$;
+    }
+}", @"class Test
+{
+    void TestCase()
+    {
+		int? x = null;
+		int y = x ?? 0;
+    }
+}");
+		}
 	}
 }
 
