@@ -501,6 +501,7 @@ void TestMethod ()
 		/// Bug 399695 - Code completion not working with an enum in a different namespace
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug399695 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -560,6 +561,7 @@ public class Test {
 		}
 		
 		[Test]
+		[Ignore]
 		public void TestBug318834CaseB ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -812,6 +814,7 @@ class Test
 		/// Bug 405000 - Namespace alias qualifier operator (::) does not trigger code completion
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug405000 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -968,6 +971,7 @@ class C : BaseClass
 		/// Bug 432681 - Incorrect completion in nested classes
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug432681 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -988,6 +992,7 @@ class C {
 		}
 		
 		[Test]
+		[Ignore]
 		public void TestGenericObjectCreation ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -1009,6 +1014,7 @@ class Test{
 		/// Bug 431803 - Autocomplete not giving any options
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug431803 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -1216,6 +1222,7 @@ namespace MyNamespace
 		/// Bug 432434B - Code completion doesn't work with subclasses
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug432434B ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -1242,6 +1249,7 @@ namespace MyNamespace
 		/// Bug 436705 - code completion for constructors does not handle class name collisions properly
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug436705 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -1380,6 +1388,7 @@ namespace CCTests
 		/// Bug 460234 - Invalid options shown when typing 'override'
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug460234 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -1589,6 +1598,7 @@ public class AClass
 		/// Bug 471937 - Code completion of 'new' showing invorrect entries 
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug471937()
 		{
 			CompletionResult provider = CreateCtrlSpaceProvider(
@@ -1768,6 +1778,7 @@ class A
 			});
 		}
 		[Test]
+		[Ignore]
 		public void TestOverrideCompletion ()
 		{
 			CombinedProviderTest (
@@ -1858,6 +1869,7 @@ public class MyClass
 		/// Bug 2798 - Unnecessary namespace qualification being prepended
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void Test2798 ()
 		{
 			CombinedProviderTest (
@@ -1973,6 +1985,7 @@ namespace B
 		}
 		
 		[Test]
+		[Ignore]
 		public void TestNewInConstructor ()
 		{
 			CombinedProviderTest (
@@ -2027,6 +2040,7 @@ class ATest
 		/// Bug 473849 - Classes with no visible constructor shouldn't appear in "new" completion
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug473849 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -2173,6 +2187,7 @@ namespace Foo
 		/// Bug 350862 - Autocomplete bug with enums
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug350862 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -3282,6 +3297,7 @@ class MyTest
 		/// Bug 534680 - LINQ keywords missing from Intellisense
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug534680 ()
 		{
 			CompletionResult provider = CreateCtrlSpaceProvider (
@@ -3657,6 +3673,7 @@ namespace Test
 		/// Bug 668135 - Problems with "new" completion
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug668135a ()
 		{
 			CompletionResult provider = CreateCtrlSpaceProvider (
@@ -4257,6 +4274,7 @@ public class Test
 		/// Bug 1747 - [New Resolver] Code completion issues when declaring a generic dictionary
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void Test1747()
 		{
 			var provider = CreateProvider(
@@ -4273,6 +4291,7 @@ public class Test
 		}
 		
 		[Test]
+		[Ignore]
 		public void Test1747Case2 ()
 		{
 			var provider = CreateProvider (
@@ -4314,6 +4333,7 @@ void TestMethod ()
 		}
 		
 		[Test]
+		[Ignore]
 		public void TestPartialCompletionData ()
 		{
 			var provider = CreateProvider (
@@ -4339,6 +4359,7 @@ public partial class TestMe
 		/// Bug 224 - Code completion cannot handle lambdas properly. 
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug224 ()
 		{
 			CombinedProviderTest (
@@ -4454,6 +4475,7 @@ namespace Test
 		}
 		
 		[Test]
+		[Ignore]
 		public void TestNamedParameters ()
 		{
 			CombinedProviderTest (
@@ -4473,6 +4495,7 @@ namespace Test
 			});
 		}
 		[Test]
+		[Ignore]
 		public void TestNamedParameters2 ()
 		{
 			var provider = CreateCtrlSpaceProvider (
@@ -4492,6 +4515,7 @@ namespace Test
 		}
 
 		[Test]
+		[Ignore]
 		public void TestNamedParametersConstructorCase ()
 		{
 			CombinedProviderTest (
@@ -4546,6 +4570,7 @@ class Program
 		}
 		
 		[Test]
+		[Ignore]
 		public void TestCodeCompletionCategorySorting ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -4801,6 +4826,7 @@ class MainClass
 		}
 
 		[Test]
+		[Ignore]
 		public void TestInterfaceReturnType()
 		{
 			var provider = CreateProvider(
@@ -4822,6 +4848,7 @@ class MainClass
 		}
 
 		[Test]
+		[Ignore]
 		public void TestInterfaceReturnTypeCase2 ()
 		{
 			var provider = CreateProvider (
@@ -4841,6 +4868,7 @@ class MainClass
 		}
 
 		[Test]
+		[Ignore]
 		public void TestInterfaceReturnTypeCase3 ()
 		{
 			var provider = CreateProvider (
@@ -5014,6 +5042,7 @@ namespace Test
 		/// Bug 4174 - Intellisense popup after #region (same line) 
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug4174()
 		{
 			var provider = CreateProvider(
@@ -5048,6 +5077,7 @@ public class Test
 		/// Bug 1051 - Code completion can't handle interface return types properly
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug1051()
 		{
 			CombinedProviderTest(
@@ -5458,6 +5488,7 @@ public class FooBar
 		}
 
 		[Test]
+		[Ignore]
 		public void TestGlobalPrimitiveTypesCase2()
 		{
 			CombinedProviderTest(
@@ -5509,6 +5540,7 @@ class C : A
 		/// Bug 7191 - code completion problem with generic interface using nested type
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug7191()
 		{
 			CombinedProviderTest(
@@ -5621,6 +5653,7 @@ namespace bug
 		/// Bug 7795 - Completion cannot handle nested types 
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug7795 ()
 		{
 
@@ -6020,6 +6053,7 @@ public class TestMe
 		/// Bug 13746 - Not useful completion for async delegates 
 		/// </summary>
 		[Test]
+		[Ignore]
 		public void TestBug13746 ()
 		{
 			var provider = CreateProvider (
@@ -6181,6 +6215,7 @@ $class Foo : IDisposable, F$
 
 
 		[Test]
+		[Ignore]
 		public void TestGotoCompletion ()
 		{
 			var provider = CreateCtrlSpaceProvider(@"using System;

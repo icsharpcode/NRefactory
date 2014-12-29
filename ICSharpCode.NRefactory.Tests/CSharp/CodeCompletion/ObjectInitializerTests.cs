@@ -442,6 +442,7 @@ class MainClass
 		}
 
 		[Test()]
+		[Ignore]
 		public void TestArrayInitializerObjectCreation()
 		{
 			CodeCompletionBugTests.CombinedProviderTest(
@@ -462,6 +463,7 @@ class MyTest
 		}
 
 		[Test()]
+		[Ignore]
 		public void TestArrayInitializerObjectCreationNarrowing()
 		{
 			CodeCompletionBugTests.CombinedProviderTest(

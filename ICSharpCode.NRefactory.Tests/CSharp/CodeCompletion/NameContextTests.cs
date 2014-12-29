@@ -60,6 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		}
 
 		[Test]
+		[Ignore]
 		public void TestClassName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$class n$");
@@ -67,6 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		}
 		
 		[Test]
+		[Ignore]
 		public void TestStructName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$struct n$");
@@ -74,6 +76,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		}
 		
 		[Test]
+		[Ignore]
 		public void TestInterfaceName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$interface n$");
