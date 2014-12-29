@@ -42,8 +42,8 @@ class TestClass
 	void TestMethod (int i)
 	{
 		switch (i) {
-			case 1:
-			case 2:
+			$case 1:$
+			$case 2:$
 			default:
 				break;
 		}
@@ -60,7 +60,7 @@ class TestClass
 		}
 	}
 }";
-			Test<RedundantCaseLabelIssue> (input, 2, output);
+			Analyze<RedundantCaseLabelIssue> (input, output);
 		}
 
 
@@ -74,7 +74,7 @@ class TestClass
 	{
 		switch (i) {
 			default:
-			case 1:
+			$case 1:$
 				break;
 		}
 	}
@@ -90,7 +90,7 @@ class TestClass
 		}
 	}
 }";
-			Test<RedundantCaseLabelIssue> (input, 1, output);
+			Analyze<RedundantCaseLabelIssue> (input, output);
 		}
 
 

@@ -39,21 +39,21 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Analyze<RedundantInternalIssue>(@"
 namespace Test
 {
-	$internal$ class Foo
-	{
-		internal void Bar(string str)
-		{
-		}
-	}
+    $internal$ class Foo
+    {
+        internal void Bar(string str)
+        {
+        }
+    }
 }", @"
 namespace Test
 {
-	class Foo
-	{
-		internal void Bar(string str)
-		{
-		}
-	}
+    class Foo
+    {
+        internal void Bar(string str)
+        {
+        }
+    }
 }");
 		}
 
@@ -64,21 +64,21 @@ namespace Test
 			Analyze<RedundantInternalIssue>(@"
 namespace Test
 {
-	class Foo
-	{
-		$internal$ class Nested
-		{
-		}
-	}
+    class Foo
+    {
+        $internal$ class Nested
+        {
+        }
+    }
 }", @"
 namespace Test
 {
-	class Foo
-	{
-		class Nested
-		{
-		}
-	}
+    class Foo
+    {
+        class Nested
+        {
+        }
+    }
 }");
 		}
 	}

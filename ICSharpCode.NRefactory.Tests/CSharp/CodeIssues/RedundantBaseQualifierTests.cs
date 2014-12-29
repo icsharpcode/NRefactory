@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<RedundantBaseQualifierIssue>(@"using System;
+			Analyze<RedundantBaseQualifierIssue>(@"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -59,11 +59,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 			public override void method()
 			{
-				base.method1();
+				$base.$method1();
 			}
 		}
 	}
-", 1, @"using System;
+", @"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -190,9 +190,10 @@ class Foo : Base
 		}
 
 		[Test]
+		[Ignore("works, but onflicts with VS 2015 builtin redundancy checker")]
 		public void TestResharperDisableRestore()
 		{
-			Test<RedundantBaseQualifierIssue>(@"using System;
+			Analyze<RedundantBaseQualifierIssue>(@"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -215,14 +216,14 @@ class Foo : Base
 //Resharper disable RedundantBaseQualifier
 				base.a = 1;
 //Resharper restore RedundantBaseQualifier
-				base.a = 1;
+				$base.$a = 1;
 			}
 			public override void print()
 			{
 				base.print1();
 			}
 		}
-	}", 2);
+	}", issueToFix: 2);
 		}
 		
 		[Test]

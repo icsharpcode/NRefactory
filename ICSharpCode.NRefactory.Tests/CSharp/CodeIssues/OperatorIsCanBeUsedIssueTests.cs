@@ -86,7 +86,7 @@ namespace Demo
 		public static void main(string[] args)
 		{
 			int a = 1;
-			if ($a.GetType() == typeof(int)$){
+			if ($a.GetType() == typeof(int)$) {
 			}
 		}
 	}

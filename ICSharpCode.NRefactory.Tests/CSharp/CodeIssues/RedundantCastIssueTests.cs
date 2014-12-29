@@ -41,7 +41,7 @@ class TestClass
 	void TestMethod ()
 	{
 		int i = 0;
-		var i2 = ((int)i);
+		var i2 = ($(int)i$);
 	}
 }";
 			var output = @"
@@ -53,7 +53,7 @@ class TestClass
 		var i2 = i;
 	}
 }";
-			Test<RedundantCastIssue> (input, 1, output);
+			Analyze<RedundantCastIssue> (input, output);
 		}
 
 		[Ignore("Broken due roslyn port.")]
@@ -82,7 +82,7 @@ class TestClass
 		Test (obj);
 	}
 }";
-			Test<RedundantCastIssue> (input, 1, output);
+			Analyze<RedundantCastIssue> (input, output);
 		}
 
 		[Ignore("Broken due roslyn port.")]
@@ -107,7 +107,7 @@ class TestClass
 		a (obj);
 	}
 }";
-			Test<RedundantCastIssue> (input, 1, output);
+			Analyze<RedundantCastIssue> (input, output);
 		}
 
 		[Ignore("Broken due roslyn port.")]
@@ -130,7 +130,7 @@ class TestClass
 		var str = obj.ToString ();
 	}
 }";
-			Test<RedundantCastIssue> (input, 1, output);
+			Analyze<RedundantCastIssue> (input, output);
 		}
 
 		[Test]
@@ -147,7 +147,7 @@ class TestClass
 		(obj as TestClass).Test (0);
 	}
 }";
-			Test<RedundantCastIssue> (input, 0);
+			Analyze<RedundantCastIssue>(input);
 		}
 
 		/// <summary>
@@ -170,7 +170,7 @@ public class TestClass : IDisposable
 	}
 }
 ";
-			Test<RedundantCastIssue> (input, 0);
+			Analyze<RedundantCastIssue> (input);
 		}
 
 		
@@ -191,24 +191,24 @@ public class TestClass
 	}
 }
 ";
-			Test<RedundantCastIssue> (input, 0);
+			Analyze<RedundantCastIssue> (input);
 		}
 
 		[Test]
 		public void TestRedundantConditionalOperator ()
 		{
-			Test<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
+			Analyze<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
 class TestClass
 {
 	void TestMethod (object obj)
-	{	
-		var a = obj != null ? (A)new A () : new A ();
+	{
+		var a = obj != null ? $(A)new A ()$ : new A ();
 	}
 }", @"class A {} class B : A {} class C : A {}
 class TestClass
 {
 	void TestMethod (object obj)
-	{	
+	{
 		var a = obj != null ? new A () : new A ();
 	}
 }");
@@ -231,12 +231,12 @@ class TestClass
 		[Test]
 		public void TestRedundantNullCoalesingOperatior ()
 		{
-			Test<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
+			Analyze<RedundantCastIssue> (@"class A {} class B : A {} class C : A {}
 class TestClass
 {
 	void TestMethod (A obj)
 	{	
-		var a = (A)obj ?? new A ();
+		var a = $(A)obj$ ?? new A ();
 	}
 }", @"class A {} class B : A {} class C : A {}
 class TestClass

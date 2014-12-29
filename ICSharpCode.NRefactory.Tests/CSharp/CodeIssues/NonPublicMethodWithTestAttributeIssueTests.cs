@@ -102,7 +102,7 @@ class Tests
 	}
 }", NUnitClasses + 
 				@"
-[TextFixture]
+[TestFixture]
 class Tests 
 {
 	[Test]

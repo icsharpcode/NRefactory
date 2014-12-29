@@ -74,11 +74,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
 			{
 				base.VisitConditionalExpression(node);
-				if (node.QuestionToken == null)
-					return;
 				var whenTrue = node.WhenTrue as LiteralExpressionSyntax;
 				var whenFalse = node.WhenFalse as LiteralExpressionSyntax;
-				if (whenTrue == null || whenFalse == null || whenTrue.Token == null || whenFalse.Token == null || !(bool)whenTrue.Token.Value || (bool)whenFalse.Token.Value)
+				if (whenTrue == null || whenFalse == null || !(bool)whenTrue.Token.Value || (bool)whenFalse.Token.Value)
 					return;
 
 				AddIssue(Diagnostic.Create(Rule, Location.Create(node.SyntaxTree, new TextSpan(node.QuestionToken.SpanStart, (node.WhenFalse.Span.End - node.QuestionToken.SpanStart)))));
