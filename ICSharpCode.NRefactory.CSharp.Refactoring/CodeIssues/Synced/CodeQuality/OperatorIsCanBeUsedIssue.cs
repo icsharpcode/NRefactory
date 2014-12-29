@@ -77,28 +77,29 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				base.VisitBinaryExpression(node);
 				//a.gettype == typeof(b) or //typeof(b) == a.gettype
 				if (!node.IsKind(SyntaxKind.EqualsExpression))
-				return;
- 
-				if(!(Matches(node.Left, node.Right) || Matches(node.Right, node.Left)))
-					return;				
+					return;
 
-				ITypeSymbol type = semanticModel.GetTypeInfo(node.Left is TypeOfExpressionSyntax ? ((TypeOfExpressionSyntax)node.Left).Type : ((TypeOfExpressionSyntax)
-					node.Right).Type).Type;
+				InvocationExpressionSyntax invocation;
+				TypeOfExpressionSyntax typeOf;
+				if(!Matches(node.Left, node.Right, out invocation, out typeOf) && !Matches(node.Right, node.Left, out invocation, out typeOf))
+					return;
+
+				ITypeSymbol type = semanticModel.GetTypeInfo(typeOf.Type).Type;
 				if (type == null || !type.IsSealed)
 					return;
 
 				AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
 			}
 
-			private bool Matches(ExpressionSyntax member, ExpressionSyntax typeofExpr)
+			private bool Matches(ExpressionSyntax member, ExpressionSyntax typeofExpr, out InvocationExpressionSyntax invoc, out TypeOfExpressionSyntax typeOf)
 			{
-				var invoc = member as InvocationExpressionSyntax;
-				var typeOf = typeofExpr as TypeOfExpressionSyntax;
+				invoc = member as InvocationExpressionSyntax;
+				typeOf = typeofExpr as TypeOfExpressionSyntax;
 				if (invoc == null || typeOf == null)
 					return false;
 
 				var memberAccess = invoc.Expression as MemberAccessExpressionSyntax;
-				return memberAccess == null || memberAccess.Name.Identifier.ValueText != "GetType"; 
+				return memberAccess != null && memberAccess.Name.Identifier.ValueText == "GetType"; 
 			}
 		}
 	}
@@ -135,7 +136,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					b = ((TypeOfExpressionSyntax)node.Left).Type;
 				}
 				var isExpr = SyntaxFactory.BinaryExpression(SyntaxKind.IsExpression, ((MemberAccessExpressionSyntax)a).Expression, b);
-				var newRoot = root.ReplaceNode((SyntaxNode)node, isExpr);
+				var newRoot = root.ReplaceNode((SyntaxNode)node, isExpr.WithAdditionalAnnotations(Formatter.Annotation));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'is' operator", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
