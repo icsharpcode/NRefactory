@@ -118,8 +118,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
 				//replace a conditional Any(x) ? Last(x) : null/default with LastOrDefault(x)
 				var parameterExpr = ((InvocationExpressionSyntax)node.Condition).ArgumentList;
-				var newRoot = root.ReplaceNode((ExpressionSyntax)node, SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-					((InvocationExpressionSyntax)node.Condition).Expression, SyntaxFactory.IdentifierName("LastOrDefault")), parameterExpr));
+				var baseExpression = ((MemberAccessExpressionSyntax)((InvocationExpressionSyntax)node.Condition).Expression).Expression;
+				var newNode = SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, baseExpression,
+					SyntaxFactory.IdentifierName("LastOrDefault")), parameterExpr);
+				var newRoot = root.ReplaceNode((ExpressionSyntax)node, newNode);
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'LastOrDefault<T>()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

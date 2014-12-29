@@ -36,6 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase()
 		{
+#warning remove space before ;
 			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
@@ -48,7 +49,7 @@ class Bar
 {
 	public void FooBar(string[] args)
 	{
-		var first = args.FirstOrDefault();
+		var first = args.FirstOrDefault() ;
 	}
 }");
 		}
@@ -56,6 +57,7 @@ class Bar
 		[Test]
 		public void TestBasicCaseWithExpression()
 		{
+#warning remove space before ;
 			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
@@ -68,7 +70,7 @@ class Bar
 {
 	public void FooBar(string[] args)
 	{
-		args.FirstOrDefault(a => a != null);
+		args.FirstOrDefault(a => a != null) ;
 	}
 }");
 		}
@@ -76,6 +78,7 @@ class Bar
 		[Test]
 		public void TestBasicCaseWithDefault()
 		{
+#warning remove space before ;
 			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
@@ -88,7 +91,7 @@ class Bar
 {
 	public void FooBar<T>(T[] args)
 	{
-		var first = args.FirstOrDefault();
+		var first = args.FirstOrDefault() ;
 	}
 }");
 		}

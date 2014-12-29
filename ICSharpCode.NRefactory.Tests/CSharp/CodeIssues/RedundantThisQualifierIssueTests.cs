@@ -32,6 +32,7 @@ using System.Linq;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("Not used in NR6Pack!")]
 	public class RedundantThisQualifierIssueTests : InspectionActionTestBase
 	{
 		[Test]

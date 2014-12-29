@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitExpressionStatement(ExpressionStatementSyntax node)
 			{
 				base.VisitExpressionStatement(node);
-				var assignment = node.Expression as BinaryExpressionSyntax;
+				var assignment = node.Expression as AssignmentExpressionSyntax;
 				if (assignment == null)
 					return;
 
@@ -86,7 +86,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					return;
 
 				bool isOrWithFalse = assignment.IsKind(SyntaxKind.OrAssignmentExpression) && literalRight.IsKind(SyntaxKind.FalseLiteralExpression);
-				bool isAndWithTrue = (assignment.IsKind(SyntaxKind.AndAssignmentExpression) && literalRight.IsKind(SyntaxKind.TrueLiteralExpression));
+				bool isAndWithTrue = assignment.IsKind(SyntaxKind.AndAssignmentExpression) && literalRight.IsKind(SyntaxKind.TrueLiteralExpression);
 				if (isOrWithFalse || isAndWithTrue)
 					AddIssue(Diagnostic.Create(Rule, assignment.GetLocation()));
 

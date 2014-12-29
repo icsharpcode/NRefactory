@@ -35,6 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTrueFalseCase ()
 		{
+#warning remove space before ; in result
 			Analyze<RedundantTernaryExpressionIssue>(@"
 class Foo
 {

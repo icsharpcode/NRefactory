@@ -118,8 +118,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
 				//replace a conditional Any(x) ? First(x) : null/default with FirstOrDefault(x)
 				var parameterExpr = ((InvocationExpressionSyntax)node.Condition).ArgumentList;
-				var newRoot = root.ReplaceNode((ExpressionSyntax)node, SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-					((InvocationExpressionSyntax)node.Condition).Expression, SyntaxFactory.IdentifierName("FirstOrDefault")), parameterExpr));
+				var baseExpression = ((MemberAccessExpressionSyntax)((InvocationExpressionSyntax)node.Condition).Expression).Expression;
+				var newNode = SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, baseExpression,
+					SyntaxFactory.IdentifierName("FirstOrDefault")), parameterExpr);
+				var newRoot = root.ReplaceNode((ExpressionSyntax)node, newNode);
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'FirstOrDefault<T>()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

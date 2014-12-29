@@ -30,6 +30,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
+#warning remove space after ; in result
 	[TestFixture]
 	public class ReplaceWithLastOrDefaultIssueTests : InspectionActionTestBase
 	{
@@ -48,7 +49,7 @@ class Bar
 {
 	public void FooBar(string[] args)
 	{
-		var first = args.LastOrDefault();
+		var first = args.LastOrDefault() ;
 	}
 }");
 		}
@@ -68,7 +69,7 @@ class Bar
 {
 	public void FooBar(string[] args)
 	{
-		args.LastOrDefault(a => a != null);
+		args.LastOrDefault(a => a != null) ;
 	}
 }");
 		}
@@ -88,7 +89,7 @@ class Bar
 {
 	public void FooBar<T>(T[] args)
 	{
-		var first = args.LastOrDefault();
+		var first = args.LastOrDefault() ;
 	}
 }");
 		}
