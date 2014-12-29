@@ -82,8 +82,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.MemberDeclarationSyntaxExtensions+LocalDeclarationMap" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			localDeclarationMapIndexer = typeInfo.GetProperties().Single(p => p.GetIndexParameters().Any());
 
-			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.CommonSyntaxNodeExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
-			getAncestorsMethod = typeInfo.GetMethods().Single(m => m.Name == "GetAncestors" && !m.IsGenericMethod);
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.CommonSyntaxTokenExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
+			getAncestorsMethod = typeInfo.GetMethods().Single(m => m.Name == "GetAncestors" && m.IsGenericMethod);
 		}
 
 		public static bool IsLeftSideOfDot(this ExpressionSyntax syntax)
@@ -117,9 +117,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return (ImmutableArray<SyntaxToken>)localDeclarationMapIndexer.GetValue(map, new object[] { localName });
 		}
 
-		static IEnumerable<SyntaxNode> GetAncestors(this SyntaxToken node)
+		static IEnumerable<T> GetAncestors<T>(this SyntaxToken token) where T : SyntaxNode
 		{
-			return (IEnumerable<SyntaxNode>)getAncestorsMethod.Invoke(null, new object[] { node });
+			return (IEnumerable<T>)getAncestorsMethod.MakeGenericMethod(typeof(T)).Invoke(null, new object[] { token });
 		}
 
 		public static ExpressionSyntax SkipParens(this ExpressionSyntax expression)
@@ -243,7 +243,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				if (enclosingDeclarationSpace != null && enclosingMemberDeclaration != null) {
 					var locals = enclosingMemberDeclaration.GetLocalDeclarationMap(identifierName.Identifier.ValueText);
 					foreach (var token in locals) {
-						if (token.GetAncestors().Contains(enclosingDeclarationSpace)) {
+						if (token.GetAncestors<SyntaxNode>().Contains(enclosingDeclarationSpace)) {
 							return true;
 						}
 					}
