@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var underlyingType = node.BaseList.Types.FirstOrDefault();
 				if (underlyingType == null)
 					return;
-				var info = semanticModel.GetSymbolInfo(underlyingType);
+				var info = semanticModel.GetSymbolInfo(underlyingType.Type);
 				var type = info.Symbol as ITypeSymbol;
 				if (type != null && type.SpecialType == SpecialType.System_Int32) {
 					VisitLeadingTrivia(node);
