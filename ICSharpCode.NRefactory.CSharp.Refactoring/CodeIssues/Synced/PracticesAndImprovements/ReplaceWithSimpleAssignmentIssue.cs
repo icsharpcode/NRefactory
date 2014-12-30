@@ -72,9 +72,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
+			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
 			{
-				base.VisitBinaryExpression(node);
+				base.VisitAssignmentExpression(node);
 				//ignore non |= and &=
 				if (node.IsKind(SyntaxKind.OrAssignmentExpression)) {
 					LiteralExpressionSyntax right = node.Right as LiteralExpressionSyntax;
@@ -112,10 +112,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as BinaryExpressionSyntax;
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as AssignmentExpressionSyntax;
 				if (node == null)
 					continue;
-				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithOperatorToken(SyntaxFactory.Token(SyntaxKind.EqualsToken)));
+				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithOperatorToken(SyntaxFactory.Token(SyntaxKind.EqualsToken)).WithAdditionalAnnotations(Formatter.Annotation));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '{0}'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
