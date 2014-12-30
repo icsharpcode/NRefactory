@@ -71,87 +71,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			static bool? GetBool(Expression trueExpression)
-//			{
-//				var pExpr = trueExpression as PrimitiveExpression;
-//				if (pExpr == null || !(pExpr.Value is bool))
-//					return null;
-//				return (bool)pExpr.Value;
-//			}
-//
-//			public override void VisitConditionalExpression(ConditionalExpression conditionalExpression)
-//			{
-//				base.VisitConditionalExpression(conditionalExpression);
-//
-//				bool? trueBranch = GetBool(CSharpUtil.GetInnerMostExpression(conditionalExpression.TrueExpression));
-//				bool? falseBranch = GetBool(CSharpUtil.GetInnerMostExpression(conditionalExpression.FalseExpression));
-//
-//				if (trueBranch == falseBranch || 
-//				    trueBranch == true && falseBranch == false) // Handled by RedundantTernaryExpressionIssue
-//					return;
-//
-//				AddIssue(new CodeIssue(
-//					conditionalExpression.QuestionMarkToken.StartLocation,
-//					conditionalExpression.FalseExpression.EndLocation,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString("Simplify conditional expression"),
-//					script => {
-//						if (trueBranch == false && falseBranch == true) {
-//							script.Replace(conditionalExpression, CSharpUtil.InvertCondition(conditionalExpression.Condition));
-//							return;
-//						}
-//						if (trueBranch == true) {
-//							script.Replace(
-//								conditionalExpression,
-//								new BinaryOperatorExpression(
-//									conditionalExpression.Condition.Clone(), 
-//									BinaryOperatorType.ConditionalOr,
-//									conditionalExpression.FalseExpression.Clone()
-//								)
-//							);
-//							return;
-//						}
-//
-//						if (trueBranch == false) {
-//							script.Replace(
-//								conditionalExpression,
-//								new BinaryOperatorExpression(
-//									CSharpUtil.InvertCondition(conditionalExpression.Condition), 
-//									BinaryOperatorType.ConditionalAnd,
-//									conditionalExpression.FalseExpression.Clone()
-//								)
-//							);
-//							return;
-//						}
-//						
-//						if (falseBranch == true) {
-//							script.Replace(
-//								conditionalExpression,
-//								new BinaryOperatorExpression(
-//									CSharpUtil.InvertCondition(conditionalExpression.Condition), 
-//									BinaryOperatorType.ConditionalOr,
-//									conditionalExpression.TrueExpression.Clone()
-//								)
-//							);
-//							return;
-//						}
-//
-//						if (falseBranch == false) {
-//							script.Replace(
-//								conditionalExpression,
-//								new BinaryOperatorExpression(
-//									conditionalExpression.Condition.Clone(), 
-//									BinaryOperatorType.ConditionalAnd,
-//									conditionalExpression.TrueExpression.Clone()
-//								)
-//							);
-//							return;
-//						}
-//
-//						// Should never happen
-//					}
-//				));
-//			}
+			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
+			{
+				base.VisitConditionalExpression(node);
+
+				bool? trueBranch = SimplifyConditionalTernaryExpressionFixProvider.GetBool(node.WhenTrue.SkipParens());
+				bool? falseBranch = SimplifyConditionalTernaryExpressionFixProvider.GetBool(node.WhenFalse.SkipParens());
+
+				if (trueBranch == falseBranch ||
+					trueBranch == true && falseBranch == false)	// Handled by RedundantTernaryExpressionIssue
+					return;
+
+				AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+			}
 		}
 	}
 
@@ -163,6 +95,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return SimplifyConditionalTernaryExpressionIssue.DiagnosticId;
 		}
 
+		internal static bool? GetBool(ExpressionSyntax trueExpression)
+		{
+			var pExpr = trueExpression as LiteralExpressionSyntax;
+			if (pExpr == null || !(pExpr.Token.Value is bool))
+				return null;
+			return (bool)pExpr.Token.Value;
+		}
+
 		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
@@ -171,11 +111,58 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
+
 			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie:true) as ConditionalExpressionSyntax;
+				var newRoot = root;
+
+				bool? trueBranch = GetBool(node.WhenTrue.SkipParens());
+				bool? falseBranch = GetBool(node.WhenFalse.SkipParens());
+
+				if (trueBranch == false && falseBranch == true) {
+					newRoot = newRoot.ReplaceNode(node, CSharpUtil.InvertCondition(node.Condition).WithAdditionalAnnotations(Formatter.Annotation));
+				} else if (trueBranch == true) {
+					newRoot = newRoot.ReplaceNode(
+						(SyntaxNode)node,
+						SyntaxFactory.BinaryExpression(
+							SyntaxKind.LogicalOrExpression,
+							node.Condition,
+							SyntaxFactory.ParseToken(" || "),
+							node.WhenFalse
+						).WithAdditionalAnnotations(Formatter.Annotation)
+					);
+				} else if (trueBranch == false) {
+					newRoot = newRoot.ReplaceNode(
+						(SyntaxNode)node,
+						SyntaxFactory.BinaryExpression(
+							SyntaxKind.LogicalAndExpression,
+							CSharpUtil.InvertCondition(node.Condition),
+							SyntaxFactory.ParseToken(" && "),
+							node.WhenFalse
+						).WithAdditionalAnnotations(Formatter.Annotation)
+					);
+				} else if (falseBranch == true) {
+					newRoot = newRoot.ReplaceNode(
+						(SyntaxNode)node,
+						SyntaxFactory.BinaryExpression(
+							SyntaxKind.LogicalOrExpression,
+							CSharpUtil.InvertCondition(node.Condition),
+							SyntaxFactory.ParseToken(" || "),
+							node.WhenTrue
+						).WithAdditionalAnnotations(Formatter.Annotation)
+					);
+				} else if (falseBranch == false) {
+					newRoot = newRoot.ReplaceNode(
+						(SyntaxNode)node,
+						SyntaxFactory.BinaryExpression(
+							SyntaxKind.LogicalAndExpression,
+							node.Condition,
+							SyntaxFactory.ParseToken(" && "),
+							node.WhenTrue
+						).WithAdditionalAnnotations(Formatter.Annotation)
+					);
+				}
+
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Simplify conditional expression", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

@@ -353,6 +353,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSimpleAssignmentIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSimpleAssignmentIssue.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\SimplifyConditionalTernaryExpressionIssue.cs">
+      <Link>CodeIssues\PracticesAndImprovements\SimplifyConditionalTernaryExpressionIssue.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs</Link>
     </Compile>

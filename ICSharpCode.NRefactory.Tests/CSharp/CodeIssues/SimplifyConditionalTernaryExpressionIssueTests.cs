@@ -30,18 +30,17 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class SimplifyConditionalTernaryExpressionIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestFalseTrueCase ()
 		{
-			Test<SimplifyConditionalTernaryExpressionIssue>(@"
+			Analyze<SimplifyConditionalTernaryExpressionIssue>(@"
 class Foo
 {
 	void Bar ()
 	{
-		var a = 1 < 2 ? false : true;
+		var a = $1 < 2 ? false : true$;
 	}
 }
 ", @"
@@ -58,12 +57,12 @@ class Foo
 		[Test]
 		public void TestFalseTrueCase2 ()
 		{
-			Test<SimplifyConditionalTernaryExpressionIssue>(@"
+			Analyze<SimplifyConditionalTernaryExpressionIssue>(@"
 class Foo
 {
 	void Bar ()
 	{
-		var a = obj is foo ? false : true;
+		var a = $obj is foo ? false : true$;
 	}
 }
 ", @"
@@ -80,12 +79,12 @@ class Foo
 		[Test]
 		public void TestFalseExprCase ()
 		{
-			Test<SimplifyConditionalTernaryExpressionIssue>(@"
+			Analyze<SimplifyConditionalTernaryExpressionIssue>(@"
 class Foo
 {
 	void FooBar (int a, int b, bool c)
 	{
-		Console.WriteLine (a < b ? false : c);
+		Console.WriteLine ($a < b ? false : c$);
 	}
 }
 ", @"
@@ -102,12 +101,12 @@ class Foo
 		[Test]
 		public void TestTrueExprCase ()
 		{
-			Test<SimplifyConditionalTernaryExpressionIssue>(@"
+			Analyze<SimplifyConditionalTernaryExpressionIssue>(@"
 class Foo
 {
 	void FooBar (int a, int b, bool c)
 	{
-		Console.WriteLine (a < b ? true : c);
+		Console.WriteLine ($a < b ? true : c$);
 	}
 }
 ", @"
@@ -124,12 +123,12 @@ class Foo
 		[Test]
 		public void TestExprFalseCase ()
 		{
-			Test<SimplifyConditionalTernaryExpressionIssue>(@"
+			Analyze<SimplifyConditionalTernaryExpressionIssue>(@"
 class Foo
 {
 	void FooBar (int a, int b, bool c)
 	{
-		Console.WriteLine (a < b ? c : false);
+		Console.WriteLine ($a < b ? c : false$);
 	}
 }
 ", @"
@@ -146,12 +145,12 @@ class Foo
 		[Test]
 		public void TestExprTrueCase ()
 		{
-			Test<SimplifyConditionalTernaryExpressionIssue>(@"
+			Analyze<SimplifyConditionalTernaryExpressionIssue>(@"
 class Foo
 {
 	void FooBar (int a, int b, bool c)
 	{
-		Console.WriteLine (a < b ? c : true);
+		Console.WriteLine ($a < b ? c : true$);
 	}
 }
 ", @"
