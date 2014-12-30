@@ -31,12 +31,13 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("TODO: Issue not ported yet")]
 	public class ReplaceWithOfTypeFirstOrDefaultIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestCaseBasic ()
 		{
-			Test<ReplaceWithOfTypeFirstOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeFirstOrDefaultIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
@@ -56,7 +57,7 @@ class Test
 		[Test]
 		public void TestCaseBasicWithFollowUpExpresison ()
 		{
-			Test<ReplaceWithOfTypeFirstOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeFirstOrDefaultIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)

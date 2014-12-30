@@ -14,6 +14,8 @@
     <AssemblyName>NR6Pack</AssemblyName>
     <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -348,65 +350,8 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithLastOrDefaultIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\ReplaceWithLastOrDefaultIssue.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeAny.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeAny.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeCountIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeCountIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeFirstIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeFirstIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeFirstOrDefaultIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeFirstOrDefaultIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeLastIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeLastIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeLastOrDefaultIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeLastOrDefaultIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeLongCountIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeLongCountIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeSingleIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleOrDefaultIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeSingleOrDefaultIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithOfTypeWhereIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithOfTypeWhereIssue.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSimpleAssignmentIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSimpleAssignmentIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToAnyIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToAnyIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToCountIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToCountIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToFirstIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToFirstIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToFirstOrDefaultIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToFirstOrDefaultIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToLastIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToLastIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToLastOrDefaultIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToLastOrDefaultIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToLongCountIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToLongCountIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToSingleIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToSingleIssue.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\ReplaceWithSingleCallToSingleOrDefaultIssue.cs">
-      <Link>CodeIssues\PracticesAndImprovements\ReplaceWithSingleCallToSingleOrDefaultIssue.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\StringEndsWithIsCultureSpecificIssue.cs</Link>
@@ -598,6 +543,13 @@
   <PropertyGroup>
     <PostBuildEvent>powershell $(ProjectDir)tools\build-nuget-package.ps1 $(ConfigurationName)</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

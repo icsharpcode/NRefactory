@@ -32,12 +32,13 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("TODO: Issue not ported yet")]
 	public class ReplaceWithSingleCallToFirstOrDefaultIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestSimpleCase()
 		{
-			Test<ReplaceWithSingleCallToFirstOrDefaultIssue>(@"using System.Linq;
+			Analyze<ReplaceWithSingleCallToFirstOrDefaultIssue>(@"using System.Linq;
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;

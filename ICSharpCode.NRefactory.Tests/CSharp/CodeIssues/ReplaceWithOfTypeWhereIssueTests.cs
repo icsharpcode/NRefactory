@@ -31,12 +31,13 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("TODO: Issue not ported yet")]
 	public class ReplaceWithOfTypeWhereIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestCaseBasicWithFollowUpExpresison ()
 		{
-			Test<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
 class Test
 {
 	public void Foo(object[] obj)
