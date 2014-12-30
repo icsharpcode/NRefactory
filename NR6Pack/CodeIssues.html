@@ -15,7 +15,7 @@
 
     -->
     <h2>Supported Code Issue Fixes</h2>
-    <p>55 code issues available!</p>
+    <p>56 code issues available!</p>
     <ul>
       <li>Removes 'internal' modifiers that are not required (RedundantInternalIssue)</li>
       <li>Removes 'private' modifiers that are not required (RedundantPrivateIssue)</li>
@@ -36,6 +36,7 @@
       <li>Non public methods are not found by NUnit (NonPublicMethodWithTestAttributeIssue)</li>
       <li>Anonymous method or lambda expression can be simplified to method group (ConvertClosureToMethodGroupIssue)</li>
       <li>'?:' expression can be converted to '??' expression. (ConvertConditionalTernaryToNullCoalescingIssue)</li>
+      <li>Convert 'if' to '?:' (ConvertIfStatementToConditionalTernaryExpressionIssue)</li>
       <li>Convert 'Nullable&lt;T&gt;' to the short form 'T?' (ConvertNullableToShortFormIssue)</li>
       <li>If all fields, properties and methods members are static, the class can be made static. (ConvertToStaticTypeIssue)</li>
       <li>If an extension method is called as static method convert it to method syntax (InvokeAsExtensionMethodIssue)</li>

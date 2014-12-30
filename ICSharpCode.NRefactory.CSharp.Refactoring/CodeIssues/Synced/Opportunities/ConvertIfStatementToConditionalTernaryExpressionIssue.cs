@@ -64,40 +64,42 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
-//		public static bool IsComplexExpression(AstNode expr)
-//		{
-//			return expr.StartLocation.Line != expr.EndLocation.Line ||
-//			expr is ConditionalExpression ||
-//			expr is BinaryOperatorExpression;
-//		}
-//
-//		public static bool IsComplexCondition(Expression expr)
-//		{
-//			if (expr.StartLocation.Line != expr.EndLocation.Line)
-//				return true;
-//
-//			if (expr is PrimitiveExpression || expr is IdentifierExpression || expr is MemberReferenceExpression || expr is InvocationExpression)
-//				return false;
-//
-//			var pexpr = expr as ParenthesizedExpression;
-//			if (pexpr != null)
-//				return IsComplexCondition(pexpr.Expression);
-//
-//			var uOp = expr as UnaryOperatorExpression;
-//			if (uOp != null)
-//				return IsComplexCondition(uOp.Expression);
-//
-//			var bop = expr as BinaryOperatorExpression;
-//			if (bop == null)
-//				return true;
-//			return !(bop.Operator == BinaryOperatorType.GreaterThan ||
-//			bop.Operator == BinaryOperatorType.GreaterThanOrEqual ||
-//			bop.Operator == BinaryOperatorType.Equality ||
-//			bop.Operator == BinaryOperatorType.InEquality ||
-//			bop.Operator == BinaryOperatorType.LessThan ||
-//			bop.Operator == BinaryOperatorType.LessThanOrEqual);
-//		}
-//
+		public static bool IsComplexExpression(ExpressionSyntax expr)
+		{
+			var loc = expr.GetLocation().GetLineSpan();
+			return loc.StartLinePosition.Line != loc.EndLinePosition.Line ||
+				expr is ConditionalExpressionSyntax ||
+				expr is BinaryExpressionSyntax;
+		}
+
+		public static bool IsComplexCondition(ExpressionSyntax expr)
+		{
+			var loc = expr.GetLocation().GetLineSpan();
+			if (loc.StartLinePosition.Line != loc.EndLinePosition.Line)
+				return true;
+
+			if (expr is LiteralExpressionSyntax || expr is IdentifierNameSyntax || expr is MemberAccessExpressionSyntax || expr is InvocationExpressionSyntax)
+				return false;
+
+			var pexpr = expr as ParenthesizedExpressionSyntax;
+			if (pexpr != null)
+				return IsComplexCondition(pexpr.Expression);
+
+			var uOp = expr as PrefixUnaryExpressionSyntax;
+			if (uOp != null)
+				return IsComplexCondition(uOp.Operand);
+
+			var bop = expr as BinaryExpressionSyntax;
+			if (bop == null)
+				return true;
+			return !(bop.IsKind(SyntaxKind.GreaterThanExpression) ||
+				bop.IsKind(SyntaxKind.GreaterThanOrEqualExpression) ||
+				bop.IsKind(SyntaxKind.EqualsExpression) ||
+				bop.IsKind(SyntaxKind.NotEqualsExpression) ||
+				bop.IsKind(SyntaxKind.LessThanExpression) ||
+				bop.IsKind(SyntaxKind.LessThanOrEqualExpression));
+		}
+
 		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToConditionalTernaryExpressionIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
@@ -105,24 +107,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-//			{
-//				base.VisitIfElseStatement(ifElseStatement);
-//				Match match;
-//				if (!ConvertIfStatementToConditionalTernaryExpressionAction.GetMatch(ifElseStatement, out match))
-//					return;
-//				var target = match.Get<Expression>("target").Single();
-//				var condition = match.Get<Expression>("condition").Single();
-//				var trueExpr = match.Get<Expression>("expr1").Single();
-//				var falseExpr = match.Get<Expression>("expr2").Single();
-//
-//				if (IsComplexCondition(condition) || IsComplexExpression(trueExpr) || IsComplexExpression(falseExpr))
-//					return;
-//				AddIssue(new CodeIssue(
-//					ifElseStatement.IfToken,
-//					ctx.TranslateString("")
-//				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToConditionalTernaryExpressionAction) } });
-//			}
+			public override void VisitIfStatement(IfStatementSyntax node)
+			{
+				base.VisitIfStatement(node);
+
+				ExpressionSyntax condition, target;
+				AssignmentExpressionSyntax trueAssignment, falseAssignment;
+				if (!ConvertIfStatementToConditionalTernaryExpressionAction.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))
+					return;
+				if (IsComplexCondition(condition) || IsComplexExpression(trueAssignment.Right) || IsComplexExpression(falseAssignment.Right))
+					return;
+
+				AddIssue(Diagnostic.Create(Rule, node.IfKeyword.GetLocation()));
+			}
 		}
 	}
 
@@ -143,10 +140,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as IfStatementSyntax;
+
+				ExpressionSyntax condition, target;
+				AssignmentExpressionSyntax trueAssignment, falseAssignment;
+				if (!ConvertIfStatementToConditionalTernaryExpressionAction.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))
+					return;
+				var newRoot = root.ReplaceNode((SyntaxNode)node,
+					SyntaxFactory.ExpressionStatement(
+						SyntaxFactory.AssignmentExpression(
+							trueAssignment.CSharpKind(),
+							trueAssignment.Left,
+							SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right)
+						)
+					).WithAdditionalAnnotations(Formatter.Annotation)
+				);
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to '?:' expression", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

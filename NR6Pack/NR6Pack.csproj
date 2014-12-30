@@ -320,6 +320,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertConditionalTernaryToNullCoalescingIssue.cs">
       <Link>CodeIssues\Opportunities\ConvertConditionalTernaryToNullCoalescingIssue.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionIssue.cs">
+      <Link>CodeIssues\Opportunities\ConvertIfStatementToConditionalTernaryExpressionIssue.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\Opportunities\ConvertNullableToShortFormIssue.cs">
       <Link>CodeIssues\Opportunities\ConvertNullableToShortFormIssue.cs</Link>
     </Compile>
