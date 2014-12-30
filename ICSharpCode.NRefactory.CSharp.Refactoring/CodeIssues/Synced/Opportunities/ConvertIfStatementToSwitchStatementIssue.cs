@@ -69,27 +69,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
-//
-//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-//			{
-//				base.VisitIfElseStatement(ifElseStatement);
-//
-//				if (ifElseStatement.Parent is IfElseStatement)
-//					return;
-//
-//				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression (ctx, ifElseStatement.Condition);
-//				if (switchExpr == null)
-//					return;
-//				var switchSections = new List<SwitchSection> ();
-//				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, ctx, ifElseStatement, switchExpr))
-//					return;
-//				if (switchSections.Count(s => !s.CaseLabels.Any(l => l.Expression.IsNull)) <= 2)
-//					return;
-//				AddIssue(new CodeIssue(
-//					ifElseStatement.IfToken,
-//					ctx.TranslateString("")) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToSwitchStatementAction) } });
-//
-//			}
+
+			public override void VisitIfStatement(IfStatementSyntax node)
+			{
+				base.VisitIfStatement(node);
+
+				if (node.Parent is IfStatementSyntax || node.Parent is ElseClauseSyntax)
+					return;
+
+				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression(semanticModel, node.Condition);
+				if (switchExpr == null)
+					return;
+				var switchSections = new List<SwitchSectionSyntax>();
+				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, semanticModel, node, switchExpr))
+					return;
+				if (switchSections.Count(s => !s.Labels.OfType<DefaultSwitchLabelSyntax>().Any()) <= 2)
+					return;
+				AddIssue(Diagnostic.Create(Rule, node.IfKeyword.GetLocation()));
+			}
 		}
 	}
 
@@ -108,12 +105,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as IfStatementSyntax;
+
+				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression(semanticModel, node.Condition);
+				if (switchExpr == null)
+					return;
+				var switchSections = new List<SwitchSectionSyntax>();
+				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, semanticModel, node, switchExpr))
+					return;
+				if (switchSections.Count(s => !s.Labels.OfType<DefaultSwitchLabelSyntax>().Any()) <= 2)
+					return;
+
+				var switchStatement = SyntaxFactory.SwitchStatement(switchExpr, new SyntaxList<SwitchSectionSyntax>().AddRange(switchSections));
+				var newRoot = root.ReplaceNode((SyntaxNode)node, switchStatement.WithAdditionalAnnotations(Formatter.Annotation));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to 'switch' statement", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

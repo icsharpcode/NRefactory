@@ -102,6 +102,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			if (expr is LiteralExpressionSyntax)
 				return true;
+			if (expr is DefaultExpressionSyntax)
+				return true;
 			return context.GetConstantValue(expr).HasValue;
 		}
 

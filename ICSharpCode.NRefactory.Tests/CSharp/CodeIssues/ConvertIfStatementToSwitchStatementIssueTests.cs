@@ -30,20 +30,19 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
-	[Ignore("Requires ConvertIfStatementToSwitchStatementAction")]
 	[TestFixture]
 	public class ConvertIfStatementToSwitchStatementIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestBreak ()
 		{
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (int a)
 	{
 		int b;
-		$if (a == 0) {
+		$if$ (a == 0) {
 			b = 0;
 		} else if (a == 1) {
 			b = 1;
@@ -59,12 +58,12 @@ class TestClass
 		[Test]
 		public void TestReturn ()
 		{
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	int TestMethod (int a)
 	{
-		$if (a == 0) {
+		$if$ (a == 0) {
 			int b = 1;
 			return b + 1;
 		} else if (a == 2 || a == 3) {
@@ -81,12 +80,12 @@ class TestClass
 		[Test]
 		public void TestConstantExpression ()
 		{
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	int TestMethod (int? a)
 	{
-		if (a == (1 == 1 ? 11 : 12)) {
+		$if$ (a == (1 == 1 ? 11 : 12)) {
 			return 1;
 		} else if (a == (2 * 3) + 1 || a == 6 / 2) {
 			return 2;
@@ -99,14 +98,14 @@ class TestClass
 }");
 
 
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	const int b = 0;
 	int TestMethod (int a)
 	{
 		const int c = 1;
-		$if (a == b) {
+		$if$ (a == b) {
 			return 1;
 		} else if (a == b + c) {
 			return 0;
@@ -122,12 +121,12 @@ class TestClass
 		[Test]
 		public void TestNestedOr ()
 		{
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	int TestMethod (int a)
 	{
-		$if (a == 0) {
+		$if$ (a == 0) {
 			return 1;
 		} else if ((a == 2 || a == 4) || (a == 3 || a == 5)) {
 			return 2;
@@ -143,12 +142,12 @@ class TestClass
 		[Test]
 		public void TestComplexSwitchExpression ()
 		{
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	int TestMethod (int a, int b)
 	{
-		$if (a + b == 0) {
+		$if$ (a + b == 0) {
 			return 1;
 		} else if (1 == a + b) {
 			return 0;
@@ -170,7 +169,7 @@ class TestClass
 	void TestMethod (int a, int c)
 	{
 		int b;
-		$if (a == 0) {
+		if (a == 0) {
 			b = 0;
 		} else if (a == c) {
 			b = 1;
@@ -187,7 +186,7 @@ class TestClass
 	void TestMethod (int a, int c)
 	{
 		int b;
-		$if (a == c) {
+		if (a == c) {
 			b = 0;
 		} else if (a == 1) {
 			b = 1;
@@ -204,7 +203,7 @@ class TestClass
 	void TestMethod (int a, int c)
 	{
 		int b;
-		$if (a == 0) {
+		if (a == 0) {
 			b = 0;
 		} else if (a == 1) {
 			b = 1;
@@ -226,7 +225,7 @@ class TestClass
 	void TestMethod (int a)
 	{
 		int b;
-		$if (a == 0) {
+		if (a == 0) {
 			b = 0;
 		} else if (a > 4) {
 			b = 1;
@@ -243,7 +242,7 @@ class TestClass
 		public void TestValidType ()
 		{
 			// enum
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 enum TestEnum
 {
 	First,
@@ -254,7 +253,7 @@ class TestClass
 {
 	int TestMethod (TestEnum a)
 	{
-		$if (a == TestEnum.First) {
+		$if$ (a == TestEnum.First) {
 			return 1;
 		} else if (a == TestEnum.Second) {
 			return -1;
@@ -277,17 +276,17 @@ class TestClass
 			TestValidType ("ushort", "0");
 			TestValidType ("uint", "0");
 			TestValidType ("ulong", "0");
-			TestValidType ("bool?", "null");
+			TestValidType ("bool?", "true");
 		}
 
 		void TestValidType (string type, string caseValue)
 		{
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	int TestMethod (" + type + @" a)
 	{
-		$if (a == " + caseValue + @") {
+		$if$ (a == " + caseValue + @") {
 			return 1;
 		} else if (a == default("  + type +  @")) {
 			return -1;
@@ -307,7 +306,7 @@ class TestClass
 	void TestMethod (double a)
 	{
 		int b;
-		$if (a == 0) {
+		if (a == 0) {
 			b = 0;
 		} else {
 			b = 3;
@@ -319,13 +318,13 @@ class TestClass
 		[Test]
 		public void TestNoElse()
 		{
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (int a)
 	{
 		int b;
-		$if (a == 0) {
+		$if$ (a == 0) {
 			b = 0;
 		} else if (a == 1) {
 			b = 1;
@@ -339,13 +338,13 @@ class TestClass
 		[Test]
 		public void TestNestedIf ()
 		{
-			TestIssue<ConvertIfStatementToSwitchStatementIssue> (@"
+			Analyze<ConvertIfStatementToSwitchStatementIssue> (@"
 class TestClass
 {
 	void TestMethod (int a)
 	{
 		int b;
-		$if (a == 0) {
+		$if$ (a == 0) {
 			if (b == 0)
 				return;
 		} else if (a == 2 || a == 3) {
@@ -367,7 +366,7 @@ class TestClass
 	void TestMethod (int a)
 	{
 		int b;
-		$if (a == 0) {
+		if (a == 0) {
 			b = 0;
 		} else if (a == 1) {
 			b = 1;
@@ -384,7 +383,7 @@ class TestClass
 	void TestMethod (int a)
 	{
 		int b;
-		$if (a == 0) {
+		if (a == 0) {
 			b = 0;
 		} else if (a == 1) {
 			b = 1;
