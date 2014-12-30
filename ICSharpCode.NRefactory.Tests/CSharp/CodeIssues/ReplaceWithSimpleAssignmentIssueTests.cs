@@ -39,18 +39,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Analyze<ReplaceWithSimpleAssignmentIssue>(@"
 class Test
 {
-	void Foo (bool b)
-	{
-		$b |= true$;
-	}
+    void Foo (bool b)
+    {
+        $b |= true$;
+    }
 }
 ", @"
 class Test
 {
-	void Foo (bool b)
-	{
-		b = true;
-	}
+    void Foo (bool b)
+    {
+        b = true;
+    }
 }
 ");
 		}
@@ -61,18 +61,18 @@ class Test
 			Analyze<ReplaceWithSimpleAssignmentIssue >(@"
 class Test
 {
-	void Foo (bool b)
-	{
-		$b &= false$;
-	}
+    void Foo (bool b)
+    {
+        $b &= false$;
+    }
 }
 ", @"
 class Test
 {
-	void Foo (bool b)
-	{
-		b = false;
-	}
+    void Foo (bool b)
+    {
+        b = false;
+    }
 }
 ");
 		}
