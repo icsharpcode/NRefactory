@@ -104,7 +104,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
 				if (node == null)
 					continue;
-				var newRoot = root.ReplaceNode((SyntaxNode)node, node.Condition);
+				var newRoot = root.ReplaceNode((SyntaxNode)node, node.Condition.WithAdditionalAnnotations(Formatter.Annotation));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace by condition", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

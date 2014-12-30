@@ -121,7 +121,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var baseExpression = ((MemberAccessExpressionSyntax)((InvocationExpressionSyntax)node.Condition).Expression).Expression;
 				var newNode = SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, baseExpression,
 					SyntaxFactory.IdentifierName("LastOrDefault")), parameterExpr);
-				var newRoot = root.ReplaceNode((ExpressionSyntax)node, newNode);
+				var newRoot = root.ReplaceNode((ExpressionSyntax)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'LastOrDefault<T>()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

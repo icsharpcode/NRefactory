@@ -36,49 +36,46 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestBasicCase()
 		{
-#warning remove space before ;
 			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
-	public void FooBar(string[] args)
-	{
-		var first = $args.Any() ? args.First() : null$;
-	}
+    public void FooBar(string[] args)
+    {
+        var first = $args.Any() ? args.First() : null$;
+    }
 }", @"using System.Linq;
 class Bar
 {
-	public void FooBar(string[] args)
-	{
-		var first = args.FirstOrDefault() ;
-	}
+    public void FooBar(string[] args)
+    {
+        var first = args.FirstOrDefault();
+    }
 }");
 		}
 
 		[Test]
 		public void TestBasicCaseWithExpression()
 		{
-#warning remove space before ;
 			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
-	public void FooBar(string[] args)
-	{
-		$args.Any(a => a != null) ? args.First(a => a != null) : null$;
-	}
+    public void FooBar(string[] args)
+    {
+        $args.Any(a => a != null) ? args.First(a => a != null) : null$;
+    }
 }", @"using System.Linq;
 class Bar
 {
-	public void FooBar(string[] args)
-	{
-		args.FirstOrDefault(a => a != null) ;
-	}
+    public void FooBar(string[] args)
+    {
+        args.FirstOrDefault(a => a != null);
+    }
 }");
 		}
 
 		[Test]
 		public void TestBasicCaseWithDefault()
 		{
-#warning remove space before ;
 			Analyze<ReplaceWithFirstOrDefaultIssue>(@"using System.Linq;
 class Bar
 {
@@ -91,7 +88,7 @@ class Bar
 {
 	public void FooBar<T>(T[] args)
 	{
-		var first = args.FirstOrDefault() ;
+		var first = args.FirstOrDefault();
 	}
 }");
 		}
