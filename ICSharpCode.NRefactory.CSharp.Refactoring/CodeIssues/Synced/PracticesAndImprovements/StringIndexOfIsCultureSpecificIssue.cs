@@ -41,6 +41,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Simplification;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -70,55 +71,39 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			readonly string memberName;
 
+			const string Description = "'IndexOf' is culture-aware and missing a StringComparison argument";
+
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken, string memberName)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
 				this.memberName = memberName;
 			}
 
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//
-//				MemberReferenceExpression mre = invocationExpression.Target as MemberReferenceExpression;
-//				if (mre == null)
-//					return;
-//				if (mre.MemberName != memberName)
-//					return;
-//
-//				var rr = ctx.Resolve(invocationExpression) as InvocationResolveResult;
-//				if (rr == null || rr.IsError) {
-//					// Not an invocation resolve result - e.g. could be a UnknownMemberResolveResult instead
-//					return;
-//				}
-//				if (!(rr.Member.DeclaringTypeDefinition != null && rr.Member.DeclaringTypeDefinition.KnownTypeCode == KnownTypeCode.String)) {
-//					// Not a string operation
-			//					return;		const string Description            = "'IndexOf' is culture-aware and missing a StringComparison argument";
-			
-//				}
-//				IParameter firstParameter = rr.Member.Parameters.FirstOrDefault();
-//				if (firstParameter == null || !firstParameter.Type.IsKnownType(KnownTypeCode.String))
-//					return; // First parameter not a string
-//				IParameter lastParameter = rr.Member.Parameters.Last();
-//				if (lastParameter.Type.Name == "StringComparison")
-//					return; // already specifying a string comparison
-//				AddIssue(new CodeIssue(
-//					invocationExpression.LParToken.StartLocation, 
-//					invocationExpression.RParToken.EndLocation,
-//					string.Format(ctx.TranslateString(""), rr.Member.FullName),
-//					new CodeAction(ctx.TranslateString(""), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
-//					new CodeAction(ctx.TranslateString(""), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
-//				));
-//			}
-//
-//			void AddArgument(Script script, InvocationExpression invocationExpression, string stringComparison)
-//			{
-//				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
-//				var newArgument = astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison);
-//				var copy = (InvocationExpression)invocationExpression.Clone();
-//				copy.Arguments.Add(newArgument);
-//				script.Replace(invocationExpression, copy);
-//			}
+			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
+			{
+				base.VisitInvocationExpression(node);
+
+				MemberAccessExpressionSyntax mre = node.Expression as MemberAccessExpressionSyntax;
+				if (mre == null)
+					return;
+				if (mre.Name.Identifier.ValueText != memberName)
+					return;
+
+				var rr = semanticModel.GetSymbolInfo(node, cancellationToken);
+				if (rr.Symbol == null)
+					return;
+				var symbol = rr.Symbol;
+				if (!(symbol.ContainingType != null && symbol.ContainingType.SpecialType == SpecialType.System_String))
+					return;
+				var parameters = symbol.GetParameters();
+				var firstParameter = parameters.FirstOrDefault();
+				if (firstParameter == null || firstParameter.Type.SpecialType != SpecialType.System_String)
+					return;	// First parameter not a string
+				var lastParameter = parameters.Last();
+				if (lastParameter.Type.Name == "StringComparison")
+					return;	// already specifying a string comparison
+				AddIssue(Diagnostic.Create(Rule, node.GetLocation()));
+			}
 		}
 	}
 
@@ -139,12 +124,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+				var node = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
+				RegisterFix(context, root, diagnostic, node, "Ordinal", cancellationToken);
+				RegisterFix(context, root, diagnostic, node, "CurrentCulture", cancellationToken);
 			}
+		}
+
+		internal static void RegisterFix(CodeFixContext context, SyntaxNode root, Diagnostic diagnostic, InvocationExpressionSyntax invocationExpression, string stringComparison, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var stringComparisonType = SyntaxFactory.ParseTypeName("System.StringComparison").WithAdditionalAnnotations(Simplifier.Annotation);
+			var stringComparisonArgument = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, stringComparisonType, (SimpleNameSyntax)SyntaxFactory.ParseName(stringComparison));
+			var newArguments = invocationExpression.ArgumentList.AddArguments(SyntaxFactory.Argument(stringComparisonArgument));
+			var newInvocation = SyntaxFactory.InvocationExpression(invocationExpression.Expression, newArguments);
+			var newRoot = root.ReplaceNode(invocationExpression, newInvocation.WithAdditionalAnnotations(Formatter.Annotation));
+
+			context.RegisterFix(CodeActionFactory.Create(invocationExpression.Span, diagnostic.Severity, diagnostic.GetMessage(), context.Document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

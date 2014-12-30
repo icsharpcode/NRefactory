@@ -30,26 +30,27 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
+	[Ignore("StringIndexOfIsCultureSpecificIssue is not implemented!")]
 	public class StringStartsWithIsCultureSpecificIssueTest : InspectionActionTestBase
 	{
 		[Test]
 		public void TestStartsWith()
 		{
-			Test<StringStartsWithIsCultureSpecificIssue>(@"
+			Analyze<StringStartsWithIsCultureSpecificIssue>(@"
 public class Test
 {
-	public void Foo (string bar)
-	{
-		bar.StartsWith ("".com"");
-	}
+    public void Foo (string bar)
+    {
+        $bar.StartsWith("".com"")$;
+    }
 }
 ", @"
 public class Test
 {
-	public void Foo (string bar)
-	{
-		bar.StartsWith ("".com"", System.StringComparison.Ordinal);
-	}
+    public void Foo (string bar)
+    {
+        bar.StartsWith ("".com"", System.StringComparison.Ordinal);
+    }
 }
 ");
 		}

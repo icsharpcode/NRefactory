@@ -29,42 +29,41 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class StringIndexOfIsCultureSpecificIssueTest : InspectionActionTestBase
 	{
-		const string stringIndexOfStringCalls = @"using System;
+		const string stringIndexOfStringCalls = @"
 using System.Collections.Generic;
 class Test {
-	public void StringIndexOfStringCalls(List<string> list)
-	{
-		list[0].IndexOf("".com"");
-		list[0].IndexOf("".com"", 0);
-		list[0].IndexOf("".com"", 0, 5);
-		list[0].IndexOf(list[1], 0, 10);
-	}
+    public void StringIndexOfStringCalls(List<string> list)
+    {
+        $list[0].IndexOf("".com"")$;
+        $list[0].IndexOf("".com"", 0)$;
+        $list[0].IndexOf("".com"", 0, 5)$;
+        $list[0].IndexOf(list[1], 0, 10)$;
+    }
 }";
-		const string stringIndexOfStringCallsWithComparison = @"using System;
+		const string stringIndexOfStringCallsWithComparison = @"
 using System.Collections.Generic;
 class Test {
-	public void StringIndexOfStringCalls(List<string> list)
-	{
-		list [0].IndexOf ("".com"", StringComparison.Ordinal);
-		list [0].IndexOf ("".com"", 0, StringComparison.Ordinal);
-		list [0].IndexOf ("".com"", 0, 5, StringComparison.Ordinal);
-		list [0].IndexOf (list [1], 0, 10, StringComparison.Ordinal);
-	}
+    public void StringIndexOfStringCalls(List<string> list)
+    {
+        list[0].IndexOf("".com"", System.StringComparison.Ordinal);
+        list[0].IndexOf("".com"", 0, System.StringComparison.Ordinal);
+        list[0].IndexOf("".com"", 0, 5, System.StringComparison.Ordinal);
+        list[0].IndexOf(list[1], 0, 10, System.StringComparison.Ordinal);
+    }
 }";
 		
 		[Test]
 		public void IndexOfStringCalls()
 		{
-			Test<StringIndexOfIsCultureSpecificIssue>(stringIndexOfStringCalls, 4, stringIndexOfStringCallsWithComparison);
+			Analyze<StringIndexOfIsCultureSpecificIssue>(stringIndexOfStringCalls, stringIndexOfStringCallsWithComparison);
 		}
 		
 		[Test]
 		public void IndexOfStringCallsAlreadyWithComparison()
 		{
-			Test<StringIndexOfIsCultureSpecificIssue>(stringIndexOfStringCallsWithComparison, 0);
+			Analyze<StringIndexOfIsCultureSpecificIssue>(stringIndexOfStringCallsWithComparison);
 		}
 		
 		[Test]
@@ -76,7 +75,7 @@ class Test {
 		text.IndexOf('.');
 	}
 }";
-			Test<StringIndexOfIsCultureSpecificIssue>(program, 0);
+			Analyze<StringIndexOfIsCultureSpecificIssue>(program);
 		}
 		
 		[Test]
@@ -88,7 +87,7 @@ class Test {
 		list.IndexOf("".com"");
 	}
 }";
-			Test<StringIndexOfIsCultureSpecificIssue>(program, 0);
+			Analyze<StringIndexOfIsCultureSpecificIssue>(program);
 		}
 
 

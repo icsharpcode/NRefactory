@@ -36,21 +36,21 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestLastIndexOf()
 		{
-			Test<StringLastIndexOfIsCultureSpecificIssue>(@"
+			Analyze<StringLastIndexOfIsCultureSpecificIssue>(@"
 public class Test
 {
-	public void Foo (string bar)
-	{
-		bar.LastIndexOf ("".com"");
-	}
+    public void Foo (string bar)
+    {
+        $bar.LastIndexOf("".com"")$;
+    }
 }
 ", @"
 public class Test
 {
-	public void Foo (string bar)
-	{
-		bar.LastIndexOf ("".com"", System.StringComparison.Ordinal);
-	}
+    public void Foo (string bar)
+    {
+        bar.LastIndexOf("".com"", System.StringComparison.Ordinal);
+    }
 }
 ");
 		}

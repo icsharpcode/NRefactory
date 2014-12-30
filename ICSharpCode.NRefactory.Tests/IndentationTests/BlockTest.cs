@@ -31,6 +31,7 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 namespace ICSharpCode.NRefactory6.IndentationTests
 {
 	[TestFixture]
+	[Ignore("Broken")]
 	public class BracketsTest
 	{
 		[Test]

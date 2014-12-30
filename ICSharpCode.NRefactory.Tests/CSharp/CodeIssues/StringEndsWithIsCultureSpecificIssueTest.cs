@@ -35,21 +35,21 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestEndsWith()
 		{
-			Test<StringEndsWithIsCultureSpecificIssue>(@"
+			Analyze<StringEndsWithIsCultureSpecificIssue>(@"
 public class Test
 {
-	public void Foo (string bar)
-	{
-		bar.EndsWith ("".com"");
-	}
+    public void Foo (string bar)
+    {
+        $bar.EndsWith("".com"")$;
+    }
 }
 ", @"
 public class Test
 {
-	public void Foo (string bar)
-	{
-		bar.EndsWith ("".com"", System.StringComparison.Ordinal);
-	}
+    public void Foo (string bar)
+    {
+        bar.EndsWith("".com"", System.StringComparison.Ordinal);
+    }
 }
 ");
 		}
