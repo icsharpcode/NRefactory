@@ -54,21 +54,21 @@ class Test
 		}
 
 		[Test]
-		public void TestCaseBasicWithFollowUpExpresison ()
+		public void TestCaseBasicWithFollowUpExpression ()
 		{
 			Analyze<ReplaceWithOfTypeFirstOrDefaultIssue>(@"using System.Linq;
 class Test
 {
     public void Foo(object[] obj)
     {
-        $obj.Select(q => q as Test).FirstOrDefault(q => q != null && Foo(q));
+        $obj.Select(q => q as Test).FirstOrDefault(q => q != null && Foo(q))$;
     }
 }", @"using System.Linq;
 class Test
 {
     public void Foo(object[] obj)
     {
-        obj.OfType<Test>().FirstOrDefault(q => Foo (q));
+        obj.OfType<Test>().FirstOrDefault(q => Foo(q));
     }
 }");
 		}

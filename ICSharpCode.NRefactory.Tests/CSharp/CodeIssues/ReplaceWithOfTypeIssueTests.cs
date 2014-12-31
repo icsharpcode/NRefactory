@@ -35,72 +35,74 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	public class ReplaceWithOfTypeIssueTests : InspectionActionTestBase
 	{
 		[Test]
+		[Ignore("Does this even make sense? There's no SelectNotNull method!")]
 		public void TestCaseSelectNotNull ()
 		{
-			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.SelectNotNull((object o) => o as Test);
-	}
+    public void Foo(object[] obj)
+    {
+        obj.SelectNotNull((object o) => o as Test);
+    }
 }", @"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ();
-	}
+    public void Foo(object[] obj)
+    {
+        obj.OfType<Test> ();
+    }
 }");
-			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.SelectNotNull(o => o as Test);
-	}
+    public void Foo(object[] obj)
+    {
+        obj.SelectNotNull(o => o as Test);
+    }
 }", @"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ();
-	}
+    public void Foo(object[] obj)
+    {
+        obj.OfType<Test> ();
+    }
 }");
 		}
 
 		[Test]
+		[Ignore("Does this even make sense? There's no SelectNotNull method!")]
 		public void TestCaseSelectNotNullWithParentheses ()
 		{
-			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.SelectNotNull(o => ((o as Test)));
-	}
+    public void Foo(object[] obj)
+    {
+        obj.SelectNotNull(o => ((o as Test)));
+    }
 }", @"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ();
-	}
+    public void Foo(object[] obj)
+    {
+        obj.OfType<Test> ();
+    }
 }");
-			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.SelectNotNull(o => o as Test);
-	}
+    public void Foo(object[] obj)
+    {
+        obj.SelectNotNull(o => o as Test);
+    }
 }", @"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ();
-	}
+    public void Foo(object[] obj)
+    {
+        obj.OfType<Test> ();
+    }
 }");
 		}
 
@@ -108,40 +110,41 @@ class Test
 		[Test]
 		public void TestCaseSelectWhereCase1 ()
 		{
-			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.Where(o => o is Test).Select (o => o as Test);
-	}
+    public void Foo(object[] obj)
+    {
+        $obj.Where(o => o is Test).Select(o => o as Test)$;
+    }
 }", @"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ();
-	}
+    public void Foo(object[] obj)
+    {
+        obj.OfType<Test>();
+    }
 }");
-			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
-class Test
-{
-	public void Foo(object[] obj)
-	{
-		obj.SelectNotNull(o => o as Test);
-	}
-}",@"using System.Linq;
-class Test
-{
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ();
-	}
-}");
+//There's no SelectNotNull!
+//			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
+//class Test
+//{
+//    public void Foo(object[] obj)
+//    {
+//        obj.SelectNotNull(o => o as Test);
+//    }
+//}", @"using System.Linq;
+//class Test
+//{
+//    public void Foo(object[] obj)
+//    {
+//        obj.OfType<Test> ();
+//    }
+//}");
 		}
 
 		[Test]
-		public void TestCaseSelectWhereGabage ()
+		public void TestCaseSelectWhereGarbage ()
 		{
 			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
@@ -165,36 +168,38 @@ class Test
 		[Test]
 		public void TestCaseSelectWhereCase2WithParens ()
 		{
-			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
+			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.Where(o => (o is Test)).Select (o => ((Test)(o)));
-	}
+    public void Foo(object[] obj)
+    {
+        $obj.Where(o => (o is Test)).Select (o => ((Test)(o)))$;
+    }
 }", @"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ();
-	}
+    public void Foo(object[] obj)
+    {
+        obj.OfType<Test>();
+    }
 }");
-			Test<ReplaceWithOfTypeIssue>(@"using System.Linq;
-class Test
-{
-	public void Foo(object[] obj)
-	{
-		obj.SelectNotNull(o => o as Test);
-	}
-}", @"using System.Linq;
-class Test
-{
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ();
-	}
-}");
+
+//Does not make sense!
+//			Analyze<ReplaceWithOfTypeIssue>(@"using System.Linq;
+//class Test
+//{
+//	public void Foo(object[] obj)
+//	{
+//		obj.SelectNotNull(o => o as Test);
+//	}
+//}", @"using System.Linq;
+//class Test
+//{
+//	public void Foo(object[] obj)
+//	{
+//		obj.OfType<Test> ();
+//	}
+//}");
 		}
 
 
@@ -208,7 +213,7 @@ class Test
 	public void Foo(object[] obj)
 	{
 		// ReSharper disable once ReplaceWithOfType
-		obj.SelectNotNull((object o) => o as Test);
+		obj.Where(o => o is Test).Select (o => o as Test);
 	}
 }");
 		}

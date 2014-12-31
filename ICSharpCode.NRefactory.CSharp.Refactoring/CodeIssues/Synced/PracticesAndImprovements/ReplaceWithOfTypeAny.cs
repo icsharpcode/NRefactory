@@ -226,6 +226,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitInvocationExpression(InvocationExpressionSyntax anyInvoke)
 			{
 				base.VisitInvocationExpression(anyInvoke);
+
 				var info = semanticModel.GetSymbolInfo(anyInvoke);
 				IMethodSymbol anyResolve = info.Symbol as IMethodSymbol;
 				if (anyResolve == null) {

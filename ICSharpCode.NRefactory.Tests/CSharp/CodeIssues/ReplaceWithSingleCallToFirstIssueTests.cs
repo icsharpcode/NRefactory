@@ -32,7 +32,6 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class ReplaceWithSingleCallToFirstIssueTests : InspectionActionTestBase
 	{
 		[Test]
@@ -40,16 +39,16 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		{
 			Analyze<ReplaceWithSingleCallToFirstIssue>(@"using System.Linq;
 public class CSharpDemo {
-	public void Bla () {
-		int[] arr;
-		var bla = arr.Where (x => x < 4).First ();
-	}
+    public void Bla () {
+        int[] arr;
+        var bla = $arr.Where(x => x < 4).First()$;
+    }
 }", @"using System.Linq;
 public class CSharpDemo {
-	public void Bla () {
-		int[] arr;
-		var bla = arr.First (x => x < 4);
-	}
+    public void Bla () {
+        int[] arr;
+        var bla = arr.First(x => x < 4);
+    }
 }");
 		}
 

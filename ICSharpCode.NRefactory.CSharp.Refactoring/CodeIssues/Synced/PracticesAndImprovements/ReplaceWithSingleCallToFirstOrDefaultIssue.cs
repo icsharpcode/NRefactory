@@ -82,10 +82,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+				var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) as InvocationExpressionSyntax;
+				var newRoot = root.ReplaceNode(node, ReplaceWithSingleCallToAnyIssue.MakeSingleCall(node));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with single call to 'FirstOrDefault'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
