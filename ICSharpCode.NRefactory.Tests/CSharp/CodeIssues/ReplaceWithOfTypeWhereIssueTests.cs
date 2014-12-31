@@ -31,7 +31,6 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class ReplaceWithOfTypeWhereIssueTests : InspectionActionTestBase
 	{
 		[Test]
@@ -40,17 +39,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Analyze<ReplaceWithOfTypeWhereIssue>(@"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.Select (q => q as Test).Where (q => q != null && Foo (q));
-	}
+    public void Foo(object[] obj)
+    {
+        $obj.Select(q => q as Test).Where(q => q != null && Foo(q))$;
+    }
 }", @"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ().Where (q => Foo (q));
-	}
+    public void Foo(object[] obj)
+    {
+        obj.OfType<Test>().Where(q => Foo(q));
+    }
 }");
 		}
 

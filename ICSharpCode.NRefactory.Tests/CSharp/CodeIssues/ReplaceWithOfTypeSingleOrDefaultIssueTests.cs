@@ -31,7 +31,6 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class ReplaceWithOfTypeSingleOrDefaultIssueTests : InspectionActionTestBase
 	{
 		[Test]
@@ -40,17 +39,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Analyze<ReplaceWithOfTypeSingleOrDefaultIssue>(@"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.Select (q => q as Test).SingleOrDefault (q => q != null);
-	}
+    public void Foo(object[] obj)
+    {
+        $obj.Select(q => q as Test).SingleOrDefault(q => q != null)$;
+    }
 }", @"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ().SingleOrDefault ();
-	}
+    public void Foo(object[] obj)
+    {
+        obj.OfType<Test>().SingleOrDefault();
+    }
 }");
 		}
 
@@ -60,17 +59,17 @@ class Test
 			Analyze<ReplaceWithOfTypeSingleOrDefaultIssue>(@"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.Select (q => q as Test).SingleOrDefault (q => q != null && Foo (q));
-	}
+    public void Foo(object[] obj)
+    {
+        $obj.Select(q => q as Test).SingleOrDefault(q => q != null && Foo(q))$;
+    }
 }", @"using System.Linq;
 class Test
 {
-	public void Foo(object[] obj)
-	{
-		obj.OfType<Test> ().SingleOrDefault (q => Foo (q));
-	}
+    public void Foo(object[] obj)
+    {
+        obj.OfType<Test>().SingleOrDefault(q => Foo(q));
+    }
 }");
 		}
 

@@ -235,49 +235,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (anyResolve == null || !HasPredicateVersion(anyResolve))
 					return;
 
-				if (member != "Where") {
-					ExpressionSyntax target, followUp;
-					TypeSyntax type;
-					ParameterSyntax param;
-					if (MatchSelect(anyInvoke, out target, out type, out param, out followUp)) {
-						AddIssue(Diagnostic.Create(Rule, anyInvoke.GetLocation(), member));
-						return;
-					}
+				ExpressionSyntax target, followUp;
+				TypeSyntax type;
+				ParameterSyntax param;
+				if (MatchSelect(anyInvoke, out target, out type, out param, out followUp)) {
+					if (member == "Where" && followUp == null) return;
+					AddIssue(Diagnostic.Create(Rule, anyInvoke.GetLocation(), member));
+					return;
 				}
-
-				//match = selectPatternWithFollowUp.Match(anyInvoke);
-				//if (match.Success)
-				//{
-				//	if (!ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param1"), match.Get("expr1")) ||
-				//		!ReplaceWithOfTypeIssue.CheckParameterMatches(match.Get("param2"), match.Get("expr2")))
-				//		return;
-				//	AddIssue(new CodeIssue(
-				//		anyInvoke,
-				//		string.Format(ctx.TranslateString("Replace with OfType<T>().{0}()"), member),
-				//		string.Format(ctx.TranslateString("Replace with call to OfType<T>().{0}()"), member),
-				//		script =>
-				//		{
-				//			var target = match.Get<Expression>("targetExpr").Single().Clone();
-				//			var type = match.Get<AstType>("type").Single().Clone();
-				//			var lambda = match.Get<LambdaExpression>("lambda").Single();
-				//			script.Replace(
-				//				anyInvoke,
-				//				new InvocationExpression(
-				//					new MemberReferenceExpression(
-				//						new InvocationExpression(new MemberReferenceExpression(target, "OfType", type)),
-				//						member
-				//					),
-				//					new LambdaExpression
-				//					{
-				//						Parameters = { (ParameterDeclaration)lambda.Parameters.First().Clone() },
-				//						Body = match.Get<Expression>("followUpExpr").Single().Clone()
-				//					}
-				//				)
-				//			 );
-				//		}
-				//	));
-				//	return;
-				//}
 			}
 
 			static bool IsQueryExtensionClass(INamedTypeSymbol typeDef)
