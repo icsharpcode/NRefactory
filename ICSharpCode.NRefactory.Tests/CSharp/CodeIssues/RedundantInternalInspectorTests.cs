@@ -66,16 +66,22 @@ namespace Test
 {
     class Foo
     {
-        $internal$ class Nested
+        internal class Nested
         {
         }
     }
-}", @"
+}");
+		}
+
+		[Test]
+		public void TestNestedInPublicClass()
+		{
+			Analyze<RedundantInternalIssue>(@"
 namespace Test
 {
-    class Foo
+    public class Foo
     {
-        class Nested
+        internal class Nested
         {
         }
     }

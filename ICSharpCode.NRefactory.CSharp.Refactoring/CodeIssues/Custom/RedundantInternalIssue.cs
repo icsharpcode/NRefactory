@@ -102,15 +102,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitDelegateDeclaration(DelegateDeclarationSyntax node)
 			{
 				base.VisitDelegateDeclaration(node);
-				//delegates don't inherit from basetypedeclaration for some reason
-				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)))
-					AddIssue(Diagnostic.Create(Rule, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
+				if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)))
+					return;
+				if (node.Parent is BaseTypeDeclarationSyntax)
+					return;
+				AddIssue(Diagnostic.Create(Rule, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
 			}
 
 			public void VisitTypeDeclaration(BaseTypeDeclarationSyntax node)
 			{
-				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)))
-					AddIssue(Diagnostic.Create(Rule, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
+				if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.InternalKeyword)))
+					return;
+				if (node.Parent is BaseTypeDeclarationSyntax)
+					return;
+				AddIssue(Diagnostic.Create(Rule, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
 			}
 		}
 	}
@@ -133,7 +138,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				var newRoot = root.ReplaceNode((SyntaxNode)node, RemoveInternalModifier(node).WithAdditionalAnnotations(Formatter.Annotation));
+				var newRoot = root.ReplaceNode(node, RemoveInternalModifier(node));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant 'internal' modifier", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

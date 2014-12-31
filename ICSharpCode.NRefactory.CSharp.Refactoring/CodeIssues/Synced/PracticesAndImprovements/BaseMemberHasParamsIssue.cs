@@ -119,7 +119,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (!node.IsKind(SyntaxKind.Parameter))
 					continue;
 				var param = (ParameterSyntax)node;
-				var newRoot = root.ReplaceNode((SyntaxNode)node, param.AddModifiers(SyntaxFactory.Token(SyntaxKind.ParamsKeyword)).WithAdditionalAnnotations(Formatter.Annotation));
+				var newRoot = root.ReplaceNode(node, param.AddModifiers(SyntaxFactory.Token(SyntaxKind.ParamsKeyword)).WithAdditionalAnnotations(Formatter.Annotation));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Add 'params' modifier", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
