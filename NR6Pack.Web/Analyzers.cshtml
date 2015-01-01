@@ -6,7 +6,7 @@
 <div class="container">
 
     <h2>Supported Code Issue Fixes</h2>
-    <p>73 code issues available!</p>
+    <p>76 code issues available!</p>
     <ul>
       <li>Removes 'internal' modifiers that are not required (RedundantInternalIssue)</li>
       <li>Removes 'private' modifiers that are not required (RedundantPrivateIssue)</li>
@@ -25,8 +25,9 @@
       <li>Operator Is can be used instead of comparing object GetType() and instances of System.Type object (OperatorIsCanBeUsedIssue)</li>
       <li>C# doesn't support optional 'ref' or 'out' parameters (OptionalParameterRefOutIssue)</li>
       <li>Non public methods are not found by NUnit (NonPublicMethodWithTestAttributeIssue)</li>
-      <li>Anonymous method or lambda expression can be simplified to method group (ConvertClosureToMethodGroupIssue)</li>
       <li>'?:' expression can be converted to '??' expression. (ConvertConditionalTernaryToNullCoalescingIssue)</li>
+      <li>Convert 'if' to '?:' (ConvertIfStatementToConditionalTernaryExpressionIssue)</li>
+      <li>'if' statement can be re-written as 'switch' statement (ConvertIfStatementToSwitchStatementIssue)</li>
       <li>Convert 'Nullable&lt;T&gt;' to the short form 'T?' (ConvertNullableToShortFormIssue)</li>
       <li>If all fields, properties and methods members are static, the class can be made static. (ConvertToStaticTypeIssue)</li>
       <li>If an extension method is called as static method convert it to method syntax (InvokeAsExtensionMethodIssue)</li>
@@ -41,6 +42,7 @@
       <li>Replace with call to OfType&lt;T&gt;().Count() (ReplaceWithOfTypeCountIssue)</li>
       <li>Replace with call to OfType&lt;T&gt;().First() (ReplaceWithOfTypeFirstIssue)</li>
       <li>Replace with call to OfType&lt;T&gt;().FirstOrDefault() (ReplaceWithOfTypeFirstOrDefaultIssue)</li>
+      <li>Replace with call to OfType&lt;T&gt; (ReplaceWithOfTypeIssue)</li>
       <li>Replace with call to OfType&lt;T&gt;().Last() (ReplaceWithOfTypeLastIssue)</li>
       <li>Replace with call to OfType&lt;T&gt;().LastOrDefault() (ReplaceWithOfTypeLastOrDefaultIssue)</li>
       <li>Replace with call to OfType&lt;T&gt;().LongCount() (ReplaceWithOfTypeLongCountIssue)</li>
@@ -57,6 +59,7 @@
       <li>Replace with single call to LongCount(...) (ReplaceWithSingleCallToLongCountIssue)</li>
       <li>Replace with single call to Single(...) (ReplaceWithSingleCallToSingleIssue)</li>
       <li>Replace with single call to SingleOrDefault(...) (ReplaceWithSingleCallToSingleOrDefaultIssue)</li>
+      <li>Conditional expression can be simplified (SimplifyConditionalTernaryExpressionIssue)</li>
       <li>Warns when a culture-aware 'EndsWith' call is used by default. (StringEndsWithIsCultureSpecificIssue)</li>
       <li>Warns when a culture-aware 'IndexOf' call is used by default. (StringIndexOfIsCultureSpecificIssue)</li>
       <li>Warns when a culture-aware 'LastIndexOf' call is used by default. (StringLastIndexOfIsCultureSpecificIssue)</li>
