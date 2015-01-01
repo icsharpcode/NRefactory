@@ -71,12 +71,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
+			bool IsBoolean(LiteralExpressionSyntax expr, out bool value)
+			{
+				value = false;
+				if (expr != null && (expr.Token.Value is bool)) {
+					value = (bool)expr.Token.Value;
+					return true;
+				}
+				return false;
+			}
+
 			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
 			{
 				base.VisitConditionalExpression(node);
-				var whenTrue = node.WhenTrue as LiteralExpressionSyntax;
-				var whenFalse = node.WhenFalse as LiteralExpressionSyntax;
-				if (whenTrue == null || whenFalse == null || !(bool)whenTrue.Token.Value || (bool)whenFalse.Token.Value)
+				bool whenTrue;
+				bool whenFalse;;
+				if (!IsBoolean(node.WhenTrue as LiteralExpressionSyntax, out whenTrue) || !IsBoolean(node.WhenFalse as LiteralExpressionSyntax, out whenFalse))
+					return;
+				if (!whenTrue || whenFalse)
 					return;
 
 				AddIssue(Diagnostic.Create(Rule, Location.Create(node.SyntaxTree, new TextSpan(node.QuestionToken.SpanStart, (node.WhenFalse.Span.End - node.QuestionToken.SpanStart)))));

@@ -130,7 +130,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var n = node == bOp.Left.SkipParens() ? bOp.Right : bOp.Left;
 						var info = semanticModel.GetTypeInfo(n);
 
-						var newRoot = root.ReplaceNode((SyntaxNode)
+						var newRoot = root.ReplaceNode(
 							node,
 							SyntaxFactory.DefaultExpression(
 								SyntaxFactory.ParseTypeName(info.Type.ToMinimalDisplayString(semanticModel, node.SpanStart)))

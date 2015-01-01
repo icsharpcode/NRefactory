@@ -68,6 +68,21 @@ class Foo
 }
 ");
 		}
+
+		[Test]
+		public void TestExceptionCastNotValid()
+		{
+			Analyze<RedundantTernaryExpressionIssue>(@"namespace Test
+{
+    class Foo
+    {
+        internal void Bar(string str)
+        {
+            var description = str.EndsWith(""a"") ? ""Add"" : ""Remove"";
+        }
+	}
+}");
+		}
 	}
 }
 
