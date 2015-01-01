@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as ClassDeclarationSyntax;
 				if (node == null)
 					continue;
-				var sealedMod = node.Modifiers.Where(m => m.IsKind(SyntaxKind.SealedKeyword)).FirstOrDefault();
+				var sealedMod = node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.SealedKeyword));
 				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithModifiers(node.Modifiers.Remove(sealedMod)
 					.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Whitespace(" ")))));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class static", document.WithSyntaxRoot(newRoot)), diagnostic);

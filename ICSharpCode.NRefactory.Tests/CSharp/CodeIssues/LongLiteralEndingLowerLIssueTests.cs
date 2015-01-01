@@ -28,7 +28,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
 	public class LongLiteralEndingLowerLIssueTests : InspectionActionTestBase
