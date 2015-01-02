@@ -223,6 +223,18 @@ struct MutableStruct {
 }");
 		}
 
+		[Test]
+		public void TestPartial ()
+		{
+			TestWrongContext<FieldCanBeMadeReadOnlyIssue>(@"partial class Test
+{
+	object fooBar = new object ();
+	public static void Main (string[] args)
+	{
+		Console.WriteLine (fooBar);
+	}
+}");
+		}
 	}
 }
 
