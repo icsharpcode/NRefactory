@@ -192,6 +192,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 			base.VisitRefTypeExpression(node);
 			Colorize(node.Expression, referenceTypeColor);
 		}
+
+		public override void VisitCompilationUnit(CompilationUnitSyntax node)
+		{
+			var startNode = node.DescendantNodesAndSelf(n => region.Start <= n.SpanStart).FirstOrDefault();
+			if (startNode == node || startNode == null) {
+				base.VisitCompilationUnit(node);
+			} else {
+				this.Visit(startNode);
+			}
+		}
 //		
 //		public override void VisitMemberType(MemberType memberType)
 //		{
@@ -223,13 +233,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 //			VisitChildrenAfter(memberReferenceExpression, memberNameToken);
 //		}
 
-
-		public override void DefaultVisit(SyntaxNode node)
+		public override void Visit(SyntaxNode node)
 		{
-			if (node.Span.End < region.Start || node.Span.Start > region.End)
+			if (node.Span.Start > region.End)
 				return;
-			base.DefaultVisit(node);
+			base.Visit(node);
 		}
+
 		void HighlightStringFormatItems(LiteralExpressionSyntax expr)
 		{
 			if (!expr.Token.IsKind(SyntaxKind.StringLiteralToken))
