@@ -30,20 +30,42 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
-	[Ignore("TODO ast pattern matching")]
+	//[Ignore("TODO ast pattern matching")]
 	[TestFixture]
 	public class ConvertIfToOrExpressionIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestVariableDeclarationCase ()
 		{
-			Test<ConvertIfToOrExpressionIssue>(@"class Foo
+			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
 {
 	int Bar(int o)
 	{
 		bool b = o > 10;
-		if (o < 10)
+		$if$ (o < 10)
 			b = true;
+	}
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10 || o < 10;
+	}
+}");
+		}
+
+		[Test]
+		public void TestVariableDeclarationCaseBlock()
+		{
+			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		$if$ (o < 10)
+		{
+			b = true;
+		}
 	}
 }", @"class Foo
 {
@@ -57,13 +79,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestCommonCase ()
 		{
-			Test<ConvertIfToOrExpressionIssue>(@"class Foo
+			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
 {
 	int Bar(int o)
 	{
 		bool b = o > 10;
 		Console.WriteLine ();
-		if (o < 10)
+		$if$ (o < 10)
 			b = true;
 	}
 }", @"class Foo
@@ -77,15 +99,39 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 }");
 		}
 
-		
+		[Test]
+		public void TestCommonCaseBlock()
+		{
+			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		Console.WriteLine ();
+		$if$ (o < 10)
+		{
+			b = true;
+		}
+	}
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		Console.WriteLine ();
+		b |= o < 10;
+	}
+}");
+		}
+
 		[Test]
 		public void TestConversionBug ()
 		{
-			Test<ConvertIfToOrExpressionIssue>(@"class Foo
+			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
 {
 	public override void VisitComposedType (ComposedType composedType)
 	{
-		if (composedType.PointerRank > 0)
+		$if$ (composedType.PointerRank > 0)
 			unsafeStateStack.Peek ().UseUnsafeConstructs = true;
 	}
 }", @"class Foo
