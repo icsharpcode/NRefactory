@@ -66,14 +66,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
-		//		internal static bool CheckTarget(Expression target, Expression expr)
-		//		{
-		//			return !target.DescendantNodesAndSelf().Any(
-		//				n => (n is IdentifierExpression || n is MemberReferenceExpression) && 
-		//				expr.DescendantNodesAndSelf().Any(n2 => ((INode)n).IsMatch(n2))
-		//			);
-		//		}
-
 		internal static bool MatchIfElseStatement(IfStatementSyntax ifStatement, out ExpressionSyntax assignmentTarget, out SyntaxTriviaList assignmentTrailingTriviaList)
 		{
 			assignmentTarget = null;
@@ -154,24 +146,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 			}
 
-			//			static readonly AstNode ifPattern = 
-			//				new IfElseStatement(
-			//					new AnyNode ("condition"),
-			//					PatternHelper.EmbeddedStatement (
-			//						new AssignmentExpression(
-			//							new AnyNode("target"),
-			//							new PrimitiveExpression (true)
-			//						)
-			//					)
-			//				);
-			//
-			//			static readonly AstNode varDelarationPattern = 
-			//				new VariableDeclarationStatement(new AnyNode("type"), Pattern.AnyString, new AnyNode("initializer"));
-			//
-			//			void AddTo(IfElseStatement ifElseStatement, VariableDeclarationStatement varDeclaration, Expression expr)
-			//			{
-			//			}
-
 			public override void VisitIfStatement(IfStatementSyntax node)
 			{
 				base.VisitIfStatement(node);
@@ -202,67 +176,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					}
 				}
 			}
-
-			//
-			//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-			//			{
-			//				base.VisitIfElseStatement(ifElseStatement);
-			//
-			//				var match = ifPattern.Match(ifElseStatement);
-			//				if (match.Success) {
-			//					var varDeclaration = ifElseStatement.GetPrevSibling(s => s.Role == BlockStatement.StatementRole) as VariableDeclarationStatement;
-			//					var target = match.Get<Expression>("target").Single();
-			//					var match2 = varDelarationPattern.Match(varDeclaration);
-			//					if (match2.Success) {
-			//						if (varDeclaration == null || target == null)
-			//							return;
-			//						var initializer = varDeclaration.Variables.FirstOrDefault();
-			//						if (initializer == null || !(target is IdentifierExpression) || ((IdentifierExpression)target).Identifier != initializer.Name)
-			//							return;
-			//						var expr = match.Get<Expression>("condition").Single();
-			//						if (!CheckTarget(target, expr))
-			//							return;
-			//						AddIssue(new CodeIssue(
-			//							ifElseStatement.IfToken,
-			//							ctx.TranslateString("Convert to '||' expresssion"),
-			//							ctx.TranslateString(""),
-			//							script => {
-			//								var variable = varDeclaration.Variables.First();
-			//								script.Replace(
-			//									varDeclaration, 
-			//									new VariableDeclarationStatement(
-			//									varDeclaration.Type.Clone(),
-			//									variable.Name,
-			//									new BinaryOperatorExpression(variable.Initializer.Clone(), BinaryOperatorType.ConditionalOr, expr.Clone()) 
-			//									)
-			//									);
-			//								script.Remove(ifElseStatement); 
-			//							}
-			//						) { IssueMarker = IssueMarker.DottedLine });
-			//						return;
-			//					} else {
-			//						var expr = match.Get<Expression>("condition").Single();
-			//						if (!CheckTarget(target, expr))
-			//							return;
-			//						AddIssue(new CodeIssue(
-			//							ifElseStatement.IfToken,
-			//							ctx.TranslateString(""),
-			//							ctx.TranslateString("Replace with '|='"),
-			//							script => {
-			//								script.Replace(
-			//									ifElseStatement, 
-			//									new ExpressionStatement(
-			//										new AssignmentExpression(
-			//											target.Clone(),
-			//											AssignmentOperatorType.BitwiseOr,
-			//											expr.Clone()) 
-			//										)
-			//									);
-			//							}
-			//						));
-			//					}
-			//				}
-			//			}
 		}
 	}
 
