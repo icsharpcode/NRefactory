@@ -87,7 +87,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\..\cecil\Test\libs\nunit-2.5.10\nunit.framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -683,6 +683,5 @@
     <None Include="IndentationTests\TestFiles\CSharpParser.cs" />
     <None Include="IndentationTests\TestFiles\TextArea.cs" />
     <None Include="IndentationTests\TestFiles\InheritStatements.cs" />
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>
