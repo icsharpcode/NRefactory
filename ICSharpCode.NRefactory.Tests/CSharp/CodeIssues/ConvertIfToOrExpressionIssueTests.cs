@@ -30,7 +30,6 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
-	//[Ignore("TODO ast pattern matching")]
 	[TestFixture]
 	public class ConvertIfToOrExpressionIssueTests : InspectionActionTestBase
 	{
@@ -120,6 +119,31 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		bool b = o > 10;
 		Console.WriteLine ();
 		b |= o < 10;
+	}
+}");
+		}
+
+		[Test]
+		public void TestCommonCaseWithMemberAssignment()
+		{
+			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
+{
+	int Bar(int o)
+	{
+		SomeType st = new SomeType();
+		st.IsEnabled = o > 10;
+		Console.WriteLine ();
+		$if$ (o < 10)
+			st.IsEnabled = true;
+	}
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		SomeType st = new SomeType();
+		st.IsEnabled = o > 10;
+		Console.WriteLine ();
+		st.IsEnabled |= o < 10;
 	}
 }");
 		}

@@ -30,20 +30,41 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
-	[Ignore("TODO ast pattern matching")]
 	[TestFixture]
 	public class ConvertIfToAndExpressionIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestVariableDeclarationCase ()
 		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
+			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
 {
 	int Bar(int o)
 	{
 		bool b = o > 10;
-		if (o < 10)
+		$if$ (o < 10)
 			b = false;
+	}
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10 && o >= 10;
+	}
+}");
+		}
+
+		[Test]
+		public void TestVariableDeclarationCaseWithBlock()
+		{
+			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		$if$ (o < 10)
+		{
+			b = false;
+		}
 	}
 }", @"class Foo
 {
@@ -57,12 +78,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestComplexVariableDeclarationCase ()
 		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
+			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
 {
 	int Bar(int o)
 	{
 		bool b = o > 10 || o < 10;
-		if (o < 10)
+		$if$ (o < 10)
 			b = false;
 	}
 }", @"class Foo
@@ -77,11 +98,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestConversionBug ()
 		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
+			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
 {
 	public override void VisitComposedType (ComposedType composedType)
 	{
-		if (composedType.PointerRank > 0)
+		$if$ (composedType.PointerRank > 0)
 			unsafeStateStack.Peek ().UseUnsafeConstructs = false;
 	}
 }", @"class Foo
@@ -96,13 +117,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestCommonCase ()
 		{
-			Test<ConvertIfToAndExpressionIssue>(@"class Foo
+			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
 {
 	int Bar(int o)
 	{
 		bool b = o > 10;
 		Console.WriteLine ();
-		if (o < 10)
+		$if$ (o < 10)
 			b = false;
 	}
 }", @"class Foo
@@ -116,6 +137,45 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 }");
 		}
 
+		[Test]
+		public void TestCommonCaseWithBlock()
+		{
+			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		Console.WriteLine ();
+		$if$ (o < 10)
+		{
+			b = false;
+		}
+	}
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		Console.WriteLine ();
+		b &= o >= 10;
+	}
+}");
+		}
+
+		[Test]
+		public void TestNullCheckBug()
+		{
+			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
+{
+	public bool Enabled { get; set; }
+
+	int Bar(Foo fileChangeWatcher)
+	{
+		if (fileChangeWatcher != null)
+			fileChangeWatcher.Enabled = true;
+	}
+}");
+		}
 	}
 }
 

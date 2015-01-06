@@ -66,14 +66,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
-		internal static bool MatchIfElseStatement(IfStatementSyntax ifStatement, out ExpressionSyntax assignmentTarget, out SyntaxTriviaList assignmentTrailingTriviaList)
+		internal static bool MatchIfElseStatement(IfStatementSyntax ifStatement, SyntaxKind assignmentLiteralExpressionType, out ExpressionSyntax assignmentTarget, out SyntaxTriviaList assignmentTrailingTriviaList)
 		{
 			assignmentTarget = null;
 			assignmentTrailingTriviaList = SyntaxFactory.TriviaList(SyntaxFactory.SyntaxTrivia(SyntaxKind.DisabledTextTrivia, ""));
 			var trueExpression = ifStatement.Statement as ExpressionStatementSyntax;
 			if (trueExpression != null)
 			{
-				return CheckForAssignmentOfTrue(trueExpression, out assignmentTarget, out assignmentTrailingTriviaList);
+				return CheckForAssignmentOfLiteral(trueExpression, assignmentLiteralExpressionType, out assignmentTarget, out assignmentTrailingTriviaList);
 			}
 
 			var blockExpression = ifStatement.Statement as BlockSyntax;
@@ -81,13 +81,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			{
 				if (blockExpression.Statements.Count != 1)
 					return false;
-				return CheckForAssignmentOfTrue(blockExpression.Statements[0], out assignmentTarget, out assignmentTrailingTriviaList);
+				return CheckForAssignmentOfLiteral(blockExpression.Statements[0], assignmentLiteralExpressionType, out assignmentTarget, out assignmentTrailingTriviaList);
 			}
 
 			return false;
 		}
 
-		static bool CheckForAssignmentOfTrue(StatementSyntax statement, out ExpressionSyntax assignmentTarget, out SyntaxTriviaList assignmentTrailingTriviaList)
+		internal static bool CheckForAssignmentOfLiteral(StatementSyntax statement, SyntaxKind literalExpressionType, out ExpressionSyntax assignmentTarget, out SyntaxTriviaList assignmentTrailingTriviaList)
 		{
 			assignmentTarget = null;
 			assignmentTrailingTriviaList = SyntaxFactory.TriviaList(SyntaxFactory.SyntaxTrivia(SyntaxKind.DisabledTextTrivia, ""));
@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (assignmentTarget == null)
 				assignmentTarget = assignmentExpression.Left as MemberAccessExpressionSyntax;
 			var rightAssignment = assignmentExpression.Right as LiteralExpressionSyntax;
-			return (assignmentTarget != null) && (rightAssignment != null) && (rightAssignment.IsKind(SyntaxKind.TrueLiteralExpression));
+			return (assignmentTarget != null) && (rightAssignment != null) && (rightAssignment.IsKind(literalExpressionType));
 		}
 
 		internal static LocalDeclarationStatementSyntax FindPreviousVarDeclaration(StatementSyntax statement)
@@ -121,7 +121,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return null;
 		}
 
-		static bool CheckTarget(ExpressionSyntax target, ExpressionSyntax expr)
+		internal static bool CheckTarget(ExpressionSyntax target, ExpressionSyntax expr)
 		{
 			if (target.IsKind(SyntaxKind.IdentifierName))
 				return !expr.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>().Any(n => ((IdentifierNameSyntax)target).Identifier.ValueText == n.Identifier.ValueText);
@@ -139,6 +139,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return false;
 		}
 
+		internal static ExpressionSyntax AddParensToComplexExpression(ExpressionSyntax condition)
+		{
+			var binaryExpression = condition as BinaryExpressionSyntax;
+			if (binaryExpression == null)
+				return condition;
+
+			if (binaryExpression.IsKind(SyntaxKind.LogicalOrExpression)
+				|| binaryExpression.IsKind(SyntaxKind.LogicalAndExpression))
+				return SyntaxFactory.ParenthesizedExpression(binaryExpression.SkipParens());
+
+			return condition;
+		}
+
 		class GatherVisitor : GatherVisitorBase<ConvertIfToOrExpressionIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
@@ -152,7 +165,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 				ExpressionSyntax target;
 				SyntaxTriviaList assignmentTrailingTriviaList;
-				if (MatchIfElseStatement(node, out target, out assignmentTrailingTriviaList))
+				if (MatchIfElseStatement(node, SyntaxKind.TrueLiteralExpression, out target, out assignmentTrailingTriviaList))
 				{
 					var varDeclaration = FindPreviousVarDeclaration(node);
 					if (varDeclaration != null)
@@ -200,7 +213,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as IfStatementSyntax;
 				ExpressionSyntax target;
 				SyntaxTriviaList assignmentTrailingTriviaList;
-				ConvertIfToOrExpressionIssue.MatchIfElseStatement(node, out target, out assignmentTrailingTriviaList);
+				ConvertIfToOrExpressionIssue.MatchIfElseStatement(node, SyntaxKind.TrueLiteralExpression, out target, out assignmentTrailingTriviaList);
 				SyntaxNode newRoot = null;
 				var varDeclaration = ConvertIfToOrExpressionIssue.FindPreviousVarDeclaration(node);
 				if (varDeclaration != null)
@@ -216,7 +229,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 												SyntaxFactory.VariableDeclarator(varDeclarator.Identifier.ValueText)
 													.WithInitializer(
 														SyntaxFactory.EqualsValueClause(
-															SyntaxFactory.BinaryExpression(SyntaxKind.LogicalOrExpression, varDeclarator.Initializer.Value, node.Condition))
+															SyntaxFactory.BinaryExpression(SyntaxKind.LogicalOrExpression, ConvertIfToOrExpressionIssue.AddParensToComplexExpression(varDeclarator.Initializer.Value), ConvertIfToOrExpressionIssue.AddParensToComplexExpression(node.Condition)))
 																.WithAdditionalAnnotations(Formatter.Annotation)
 													)
 											}
@@ -231,8 +244,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						SyntaxFactory.ExpressionStatement(
 							SyntaxFactory.AssignmentExpression(
 								SyntaxKind.OrAssignmentExpression,
-								target,
-								node.Condition.WithLeadingTrivia(assignmentTrailingTriviaList).WithoutTrailingTrivia()
+								ConvertIfToOrExpressionIssue.AddParensToComplexExpression(target),
+								ConvertIfToOrExpressionIssue.AddParensToComplexExpression(node.Condition).WithAdditionalAnnotations(Formatter.Annotation)
 							)
 						).WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia()));
 				}
