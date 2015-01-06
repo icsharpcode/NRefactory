@@ -476,4 +476,18 @@
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
+  <!--Target below is executed only when $(SolutionDir) is not one folder above from this.csproj(so not when used in NRefactory.sln).
+      This is useful when project is included in other solutions then NRefactory.sln(e.g. as git submodule) in IDE project.
+      In that case NuGet restores packages in Packages folder of that solution and not in ..\Packages where this project references expect:
+      <Reference Include="Some.NuGet.Project">
+        <HintPath>..\packages\Some.NuGet.Project\lib\net45\Some.NuGet.Project.dll</HintPath>
+      </Reference>
+  -->
+  <Target Name="RestorePackages" AfterTargets="EnsureNuGetPackageBuildImports">
+    <PropertyGroup>
+      <NuGet>$(SolutionDir)\.nuget\NuGet.exe</NuGet>
+      <NuGet Condition="$(OS)=='Unix'">mono $(NuGet)</NuGet>
+    </PropertyGroup>
+    <Exec Condition="$(SolutionDir) != $([System.IO.Path]::GetFullPath('..'))" Command="$(NuGet) restore -SolutionDirectory .." />
+  </Target>
 </Project>
