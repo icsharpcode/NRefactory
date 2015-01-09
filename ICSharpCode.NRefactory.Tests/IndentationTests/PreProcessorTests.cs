@@ -351,5 +351,23 @@ class Foo
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestNestedPreprocessorCase()
+		{
+			var indent = Helper.CreateEngine(@"
+namespace Foo {
+	#if false
+	class Foo
+	{
+	#if true
+	}
+	#endif
+	#endif
+	$
+}");
+			Assert.AreEqual("\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t", indent.NextLineIndent);
+		}
 	}
 }
