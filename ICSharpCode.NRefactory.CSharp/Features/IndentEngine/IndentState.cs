@@ -1303,6 +1303,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 						{
 							if (!Engine.ifDirectiveEvalResults.Peek())
 							{
+								ExitState();
 								Engine.ifDirectiveEvalResults.Pop();
 								goto case PreProcessorDirective.If;
 							}
@@ -1319,7 +1320,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 						}
 						else
 						{
-							// none if/elif directives were true -> continue with the previous state
+							// none if/elif directives were true -> exit comment state.
+							if (Engine.currentState is PreProcessorCommentState)
+								ExitState();
 						}
 						break;
 					case PreProcessorDirective.Define:
@@ -1338,6 +1341,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 						break;
 					case PreProcessorDirective.Endif:
 						// marks the end of this block
+						if (Engine.currentState is PreProcessorCommentState)
+							ExitState();
 						Engine.ifDirectiveEvalResults.Pop();
 						Engine.ifDirectiveIndents.Pop();
 						break;
@@ -1686,9 +1691,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			if (ch == '#' && Engine.isLineStart)
 			{
-				// TODO: Return back only on #if/#elif/#else/#endif
-				// Ignore any of the other directives (especially #define/#undef)
-				ExitState();
 				ChangeState<PreProcessorState>();
 			}
 		}
