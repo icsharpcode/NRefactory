@@ -101,9 +101,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					if (!variable.Identifier.ValueText.Equals(name))
 						newField = newField.AddDeclarationVariables(variable);
 				}
-				var newRoot = root.ReplaceNode((SyntaxNode)oldField, newField.WithAdditionalAnnotations(Formatter.Annotation));
+				var newRoot = root.ReplaceNode((SyntaxNode)oldField, newField.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(oldField.GetLeadingTrivia()));
 				var oldProperty = newRoot.GetAnnotatedNodes(propAnno).First();
-				newRoot = newRoot.ReplaceNode((SyntaxNode)oldProperty, newProperty.WithAdditionalAnnotations(Formatter.Annotation));
+				newRoot = newRoot.ReplaceNode((SyntaxNode)oldProperty, newProperty.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(oldProperty.GetLeadingTrivia()));
 				return document.WithSyntaxRoot(newRoot);
 			}
 		}

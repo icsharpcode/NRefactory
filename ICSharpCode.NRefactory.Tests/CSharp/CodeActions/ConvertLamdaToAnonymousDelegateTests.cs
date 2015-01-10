@@ -52,6 +52,28 @@ class A
 		}
 
 		[Test]
+		public void LambdaBlockWithComment()
+		{
+			Test<ConvertLambdaToAnonymousDelegateAction>(@"
+class A
+{
+    void F ()
+    {
+		// Some comment
+        System.Action<int, int> a = (i1, i2) $=> { System.Console.WriteLine (i1); };
+    }
+}", @"
+class A
+{
+    void F ()
+    {
+		// Some comment
+        System.Action<int, int> a = delegate (int i1, int i2) { System.Console.WriteLine(i1); };
+    }
+}");
+		}
+
+		[Test]
 		public void LambdaExpression()
 		{
 			Test<ConvertLambdaToAnonymousDelegateAction>(@"
@@ -66,6 +88,31 @@ class A
 {
     void F ()
     {
+        System.Action<int, int> a = delegate (int i1, int i2)
+        {
+            System.Console.WriteLine(i1);
+        };
+    }
+}");
+		}
+
+		[Test]
+		public void LambdaExpressionWithComment()
+		{
+			Test<ConvertLambdaToAnonymousDelegateAction>(@"
+class A
+{
+    void F ()
+    {
+		// Some comment
+        System.Action<int, int> a = (i1, i2) $=> System.Console.WriteLine (i1);
+    }
+}", @"
+class A
+{
+    void F ()
+    {
+		// Some comment
         System.Action<int, int> a = delegate (int i1, int i2)
         {
             System.Console.WriteLine(i1);

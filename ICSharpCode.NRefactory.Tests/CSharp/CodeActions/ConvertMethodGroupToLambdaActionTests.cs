@@ -56,6 +56,56 @@ public class Test
 		}
 
 		[Test]
+		public void TestVoidMethodWithComment1()
+		{
+			Test<ConvertMethodGroupToLambdaAction>(@"
+using System;
+public class Test
+{
+    void Foo ()
+    {
+		// Some comment
+        Action act = $Foo;
+    }
+}
+", @"
+using System;
+public class Test
+{
+    void Foo ()
+    {
+		// Some comment
+        Action act = () => Foo();
+    }
+}
+");
+		}
+
+		[Test]
+		public void TestVoidMethodWithComment2()
+		{
+			Test<ConvertMethodGroupToLambdaAction>(@"
+using System;
+public class Test
+{
+    void Foo ()
+    {
+        Action act = $Foo; // Some comment
+    }
+}
+", @"
+using System;
+public class Test
+{
+    void Foo ()
+    {
+        Action act = () => Foo(); // Some comment
+    }
+}
+");
+		}
+
+		[Test]
 		public void TestParameter()
 		{
 			Test<ConvertMethodGroupToLambdaAction>(@"

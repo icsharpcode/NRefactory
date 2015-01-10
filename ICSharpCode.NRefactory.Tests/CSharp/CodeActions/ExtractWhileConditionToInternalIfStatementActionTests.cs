@@ -68,6 +68,44 @@ public class Main
 		}
 
 		[Test]
+		public void TestBasicCaseWithComment()
+		{
+			Test<ExtractWhileConditionToInternalIfStatementAction>(@"
+public class Main 
+{
+    public int Foo (int i)
+    {
+        // Some comment
+        $while (i < 10)
+        {
+            System.Console.WriteLine(i);
+            i++;
+        }
+
+        return 2;
+    }
+}
+", @"
+public class Main 
+{
+    public int Foo (int i)
+    {
+        // Some comment
+        while (true)
+        {
+            if (i >= 10)
+                break;
+            System.Console.WriteLine(i);
+            i++;
+        }
+
+        return 2;
+    }
+}
+");
+		}
+
+		[Test]
 		public void TestAddBlock()
 		{
 			Test<ExtractWhileConditionToInternalIfStatementAction>(@"

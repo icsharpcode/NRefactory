@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (node == null)
 				return;
 			context.RegisterRefactoring(CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Convert to do...while loop", t2 => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node as StatementSyntax, 
-				SyntaxFactory.DoStatement(node.Statement, node.Condition).WithAdditionalAnnotations(Formatter.Annotation))))));
+				SyntaxFactory.DoStatement(node.Statement, node.Condition).WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(node.GetLeadingTrivia()))))));
 		}
 	}
 }

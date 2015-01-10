@@ -55,6 +55,30 @@ class Foo
 		}
 
 		[Test]
+		public void TestSimpleCaseWithComment()
+		{
+			Test<FlipEqualsTargetAndArgumentAction>(@"
+class Foo
+{
+    public void FooFoo (object x, object y)
+    {
+        // Some comment
+        if (x.$Equals(y))
+            Console.WriteLine (x);
+    }
+}", @"
+class Foo
+{
+    public void FooFoo (object x, object y)
+    {
+        // Some comment
+        if (y.Equals(x))
+            Console.WriteLine (x);
+    }
+}");
+		}
+
+		[Test]
 		public void TestComplexCase()
 		{
 			Test<FlipEqualsTargetAndArgumentAction>(@"

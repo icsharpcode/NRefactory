@@ -56,6 +56,30 @@ class TestClass
 		}
 
 		[Test]
+		public void TestConditionalOperatorWithComment()
+		{
+			Test<ConvertReturnStatementToIfAction>(@"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        // Some comment
+        $return i > 0 ? 1 : 0;
+    }
+}", @"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        // Some comment
+        if (i > 0)
+            return 1;
+        return 0;
+    }
+}");
+		}
+
+		[Test]
 		public void TestNullCoalescingOperator()
 		{
 			Test<ConvertReturnStatementToIfAction>(@"

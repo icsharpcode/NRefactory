@@ -119,25 +119,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var newNode = memberDeclaration;
 						switch (newNode.CSharpKind()) {
 							case SyntaxKind.MethodDeclaration:
-								var method = (MethodDeclarationSyntax)memberDeclaration;
+								var method = (MethodDeclarationSyntax)memberDeclaration.WithoutLeadingTrivia();
 								newNode = method
 									.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
 									.WithExplicitInterfaceSpecifier(null);
 								break;
 							case SyntaxKind.PropertyDeclaration:
-								var property = (PropertyDeclarationSyntax)memberDeclaration;
+								var property = (PropertyDeclarationSyntax)memberDeclaration.WithoutLeadingTrivia();
 								newNode = property
 									.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
 									.WithExplicitInterfaceSpecifier(null);
 								break;
 							case SyntaxKind.IndexerDeclaration:
-								var indexer = (IndexerDeclarationSyntax)memberDeclaration;
+								var indexer = (IndexerDeclarationSyntax)memberDeclaration.WithoutLeadingTrivia();
 								newNode = indexer
 									.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
 									.WithExplicitInterfaceSpecifier(null);
 								break;
 							case SyntaxKind.EventDeclaration:
-								var evt = (EventDeclarationSyntax)memberDeclaration;
+								var evt = (EventDeclarationSyntax)memberDeclaration.WithoutLeadingTrivia();
 								newNode = evt
 									.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
 									.WithExplicitInterfaceSpecifier(null);
@@ -145,7 +145,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						}
 						var newRoot = root.ReplaceNode((SyntaxNode)
 							memberDeclaration,
-							newNode.WithAdditionalAnnotations(Formatter.Annotation)
+							newNode.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(memberDeclaration.GetLeadingTrivia())
 						);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}

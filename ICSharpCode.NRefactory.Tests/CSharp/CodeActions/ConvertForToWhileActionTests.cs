@@ -63,6 +63,70 @@ class Test
 		}
 
 		[Test]
+		public void TestSimpleForWithComment1()
+		{
+			Test<ConvertForToWhileAction>(@"
+class Test
+{
+    void Foo (object[] o)
+    {
+        // Some comment
+        $for (int i = 0, oLength = o.Length; i < oLength; i++)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+        }
+    }
+}", @"
+class Test
+{
+    void Foo (object[] o)
+    {
+        // Some comment
+        int i = 0, oLength = o.Length;
+        while (i < oLength)
+        {
+            var p = o[i];
+            System.Console.WriteLine(p);
+            i++;
+        }
+    }
+}");
+		}
+
+		[Test]
+		public void TestSimpleForWithComment2()
+		{
+			Test<ConvertForToWhileAction>(@"
+class Test
+{
+    void Foo (object[] o)
+    {
+        $for (int i = 0, oLength = o.Length; i < oLength; i++)
+        {
+            // Some comment
+            var p = o[i];
+            System.Console.WriteLine(p);
+        }
+    }
+}", @"
+class Test
+{
+    void Foo (object[] o)
+    {
+        int i = 0, oLength = o.Length;
+        while (i < oLength)
+        {
+            // Some comment
+            var p = o[i];
+            System.Console.WriteLine(p);
+            i++;
+        }
+    }
+}");
+		}
+
+		[Test]
 		public void TestMissingInitializer()
 		{
 			Test<ConvertForToWhileAction>(@"

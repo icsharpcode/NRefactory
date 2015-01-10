@@ -52,6 +52,26 @@ class Foo {
 		}
 
 		[Test]
+		public void TestSimpleWithComment()
+		{
+			Test<ConvertWhileToDoWhileLoopAction>(@"
+class Foo {
+	void Bar(int x) {
+		// Some comment
+		$while (x > 0) x++;
+	}
+}", @"
+class Foo {
+	void Bar(int x) {
+        // Some comment
+        do
+            x++;
+        while (x > 0);
+    }
+}");
+		}
+
+		[Test]
 		public void TestBlock()
 		{
 			Test<ConvertWhileToDoWhileLoopAction>(@"
@@ -62,6 +82,26 @@ class Foo {
 }", @"
 class Foo {
 	void Bar(int x) {
+        do
+        { x++; }
+        while (x > 0);
+    }
+}");
+		}
+
+		[Test]
+		public void TestBlockWithComment()
+		{
+			Test<ConvertWhileToDoWhileLoopAction>(@"
+class Foo {
+	void Bar(int x) {
+		// Some comment
+		$while (x > 0) { x++; }
+	}
+}", @"
+class Foo {
+	void Bar(int x) {
+        // Some comment
         do
         { x++; }
         while (x > 0);

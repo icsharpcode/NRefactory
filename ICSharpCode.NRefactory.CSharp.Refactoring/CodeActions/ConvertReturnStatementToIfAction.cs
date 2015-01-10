@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						}
 
 						var newRoot = root.ReplaceNode((SyntaxNode)node, new SyntaxNode[] { 
-							statement.WithAdditionalAnnotations(Formatter.Annotation),
+							statement.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(node.GetLeadingTrivia()),
 							returnAfter.WithAdditionalAnnotations(Formatter.Annotation)
 						});
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));

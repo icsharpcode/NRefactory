@@ -56,6 +56,81 @@ class TestClass
 }");
 		}
 
+
+		[Test]
+		public void TestReturnWithComment1()
+		{
+			Test<ConvertIfStatementToReturnStatementAction>(@"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        // Some comment
+        $if (i > 0)
+            return 1;
+        else
+            return 0;
+    }
+}", @"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        // Some comment
+        return i > 0 ? 1 : 0;
+    }
+}");
+		}
+
+
+		[Test]
+		public void TestReturnWithComment2()
+		{
+			Test<ConvertIfStatementToReturnStatementAction>(@"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        $if (i > 0)
+            return 1; // Some comment
+        else
+            return 0;
+    }
+}", @"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        return i > 0 ? 1 : 0;
+    }
+}");
+		}
+
+
+		[Test]
+		public void TestReturnWithComment3()
+		{
+			Test<ConvertIfStatementToReturnStatementAction>(@"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        $if (i > 0)
+            // Some comment
+            return 1;
+        else
+            return 0;
+    }
+}", @"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        return i > 0 ? 1 : 0;
+    }
+}");
+		}
+
 		[Test]
 		public void TestIfElseWithBlocks()
 		{

@@ -74,6 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						replaceStatements.Add(SyntaxFactory.ExpressionStatement(init).WithAdditionalAnnotations(Formatter.Annotation));
 					}
 					replaceStatements.Add (whileStatement.WithAdditionalAnnotations(Formatter.Annotation));
+					replaceStatements[0] = replaceStatements[0].WithLeadingTrivia(node.GetLeadingTrivia());
 
 					var newRoot = root.ReplaceNode((SyntaxNode)node, replaceStatements);
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));

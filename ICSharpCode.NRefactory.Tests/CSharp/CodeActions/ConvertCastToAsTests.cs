@@ -68,6 +68,33 @@ class TestClass
 		}
 
 		[Test]
+		public void TestWithComment()
+		{
+			string input = @"
+using System;
+class TestClass
+{
+	void Test (object a)
+	{
+		// Some comment
+		var b = ($Exception)a;
+	}
+}";
+			string output = @"
+using System;
+class TestClass
+{
+	void Test (object a)
+	{
+		// Some comment
+		var b = a as Exception;
+	}
+}";
+
+			Test<ConvertCastToAsAction>(input, output);
+		}
+
+		[Test]
 		public void TestNonReferenceType ()
 		{
 			TestWrongContext<ConvertCastToAsAction> (@"

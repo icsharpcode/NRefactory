@@ -59,6 +59,34 @@ class TestClass
 		}
 
 		[Test]
+		public void TestAssignmentWithComment()
+		{
+			Test<ConvertIfStatementToConditionalTernaryExpressionAction>(@"
+class TestClass
+{
+    void TestMethod(int i)
+    {
+        int a;
+        // Some comment
+        $if (i > 0) {
+            a = 0;
+        } else {
+            a = 1;
+        }
+    }
+}", @"
+class TestClass
+{
+    void TestMethod(int i)
+    {
+        int a;
+        // Some comment
+        a = i > 0 ? 0 : 1;
+    }
+}");
+		}
+
+		[Test]
 		public void TestAddAssignment()
 		{
 			Test<ConvertIfStatementToConditionalTernaryExpressionAction>(@"

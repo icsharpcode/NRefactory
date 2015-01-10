@@ -79,6 +79,53 @@ class TestClass
 		}
 
 		[Test]
+		public void TestBreakWithComment()
+		{
+			Test<ConvertIfStatementToSwitchStatementAction>(@"
+class TestClass
+{
+    void TestMethod (int a)
+    {
+        int b;
+        // Some comment
+        $if (a == 0) {
+            b = 0;
+        } else if (a == 1) {
+            b = 1;
+        } else if (a == 2 || a == 3) {
+            b = 2;
+        } else {
+            b = 3;
+        }
+    }
+}", @"
+class TestClass
+{
+    void TestMethod (int a)
+    {
+        int b;
+        // Some comment
+        switch (a)
+        {
+            case 0:
+                b = 0;
+                break;
+            case 1:
+                b = 1;
+                break;
+            case 2:
+            case 3:
+                b = 2;
+                break;
+            default:
+                b = 3;
+                break;
+        }
+    }
+}");
+		}
+
+		[Test]
 		public void TestReturn ()
 		{
 			Test<ConvertIfStatementToSwitchStatementAction> (@"

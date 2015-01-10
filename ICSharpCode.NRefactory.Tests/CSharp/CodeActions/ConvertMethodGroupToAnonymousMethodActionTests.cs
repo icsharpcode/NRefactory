@@ -59,6 +59,35 @@ public class Test
 		}
 
 		[Test]
+		public void TestVoidMethodWithComment()
+		{
+			Test<ConvertMethodGroupToAnonymousMethodAction>(@"
+using System;
+public class Test
+{
+    void Foo ()
+    {
+		// Some comment
+        Action act = $Foo;
+    }
+}
+", @"
+using System;
+public class Test
+{
+    void Foo ()
+    {
+		// Some comment
+        Action act = delegate
+        {
+            Foo();
+        };
+    }
+}
+");
+		}
+
+		[Test]
 		public void TestParameter()
 		{
 			Test<ConvertMethodGroupToAnonymousMethodAction>(@"

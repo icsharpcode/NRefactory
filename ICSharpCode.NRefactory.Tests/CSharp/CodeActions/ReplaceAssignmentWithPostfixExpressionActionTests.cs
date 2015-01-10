@@ -53,6 +53,28 @@ class Test
 		}
 
 		[Test]
+		public void TestAddWithComment()
+		{
+			Test<ReplaceAssignmentWithPostfixExpressionAction>(@"
+class Test
+{
+	void Foo (int i)
+	{
+        // Some comment
+		i $+= 1;
+	}
+}", @"
+class Test
+{
+	void Foo (int i)
+	{
+        // Some comment
+        i++;
+	}
+}");
+		}
+
+		[Test]
 		public void TestSub()
 		{
 			Test<ReplaceAssignmentWithPostfixExpressionAction>(@"

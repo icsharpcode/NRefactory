@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					t2 => {
 						var op = postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken) ? SyntaxKind.AddAssignmentExpression : SyntaxKind.SubtractAssignmentExpression;
 						var binexp = SyntaxFactory.AssignmentExpression(op, postfix.Operand, SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1)));
-						var newRoot = root.ReplaceNode((SyntaxNode)postfix, binexp.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)postfix, binexp.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(postfix.GetLeadingTrivia()));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)

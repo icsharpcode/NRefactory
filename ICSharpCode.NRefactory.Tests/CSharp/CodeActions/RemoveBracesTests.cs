@@ -59,6 +59,34 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 		[Test]
+		public void TestSimpleBracesWithComment()
+		{
+			string result = RunContextAction(
+										 new RemoveBracesAction(),
+										 "class TestClass" + Environment.NewLine +
+										 "{" + Environment.NewLine +
+										 "    void Test()" + Environment.NewLine +
+										 "    {" + Environment.NewLine +
+										 "        // Some comment" + Environment.NewLine +
+										 "        if (true) ${" + Environment.NewLine +
+										 "            ;" + Environment.NewLine +
+										 "        }" + Environment.NewLine +
+										 "    }" + Environment.NewLine +
+										 "}"
+									 );
+
+			Assert.AreEqual(
+				"class TestClass" + Environment.NewLine +
+				"{" + Environment.NewLine +
+				"    void Test()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        // Some comment" + Environment.NewLine +
+				"        if (true) ;" + Environment.NewLine +
+				"    }" + Environment.NewLine +
+				"}", result);
+		}
+
+		[Test]
 		public void TestTryCatch()
 		{
 			TestWrongContext<RemoveBracesAction>(@"class TestClass

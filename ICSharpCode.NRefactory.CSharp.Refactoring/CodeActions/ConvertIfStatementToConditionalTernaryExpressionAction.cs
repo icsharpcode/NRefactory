@@ -108,7 +108,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 									trueAssignment.Left,
 									SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right)
 								)
-							).WithAdditionalAnnotations(Formatter.Annotation)
+							).WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(node.GetLeadingTrivia())
 						);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}

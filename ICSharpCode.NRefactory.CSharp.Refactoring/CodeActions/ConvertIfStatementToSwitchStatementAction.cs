@@ -71,7 +71,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					"Convert to 'switch'",
 					ct => {
 						var switchStatement = SyntaxFactory.SwitchStatement(switchExpr, new SyntaxList<SwitchSectionSyntax>().AddRange(switchSections));
-						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, switchStatement.WithAdditionalAnnotations(Formatter.Annotation))));
+						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(
+							(SyntaxNode)node, switchStatement
+							.WithLeadingTrivia(node.GetLeadingTrivia())
+							.WithAdditionalAnnotations(Formatter.Annotation))));
 					})
 			);
 		}

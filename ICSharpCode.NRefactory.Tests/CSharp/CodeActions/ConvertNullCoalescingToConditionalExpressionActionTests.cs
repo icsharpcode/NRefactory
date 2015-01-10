@@ -54,6 +54,30 @@ class Test
 		}
 
 		[Test]
+		public void TestSimpleCaseWithComment()
+		{
+			Test<ConvertNullCoalescingToConditionalExpressionAction>(@"
+class Test
+{
+	object Foo(object o, object p)
+	{
+		// Some comment
+		return o $?? p;
+	}
+}
+", @"
+class Test
+{
+	object Foo(object o, object p)
+	{
+		// Some comment
+		return o != null ? o : p;
+	}
+}
+");
+		}
+
+		[Test]
 		public void TestNullable()
 		{
 			Test<ConvertNullCoalescingToConditionalExpressionAction>(@"class Test

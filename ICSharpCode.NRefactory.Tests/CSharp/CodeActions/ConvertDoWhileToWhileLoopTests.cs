@@ -53,6 +53,50 @@ class Foo {
 		}
 
 		[Test]
+		public void TestSimpleWithComment1()
+		{
+			Test<ConvertDoWhileToWhileLoopAction>(@"
+class Foo {
+	void TestMethod() {
+		int x = 1;
+		// Some comment
+		do
+			x++;
+		$while (x != 1);
+	}
+}", @"
+class Foo {
+	void TestMethod() {
+		int x = 1;
+        // Some comment
+        while (x != 1)
+            x++;
+    }
+}");
+		}
+
+		[Test]
+		public void TestSimpleWithComment2()
+		{
+			Test<ConvertDoWhileToWhileLoopAction>(@"
+class Foo {
+	void TestMethod() {
+		int x = 1;
+		do
+			x++; // Some comment
+		$while (x != 1);
+	}
+}", @"
+class Foo {
+	void TestMethod() {
+		int x = 1;
+        while (x != 1)
+            x++; // Some comment
+    }
+}");
+		}
+
+		[Test]
 		public void TestDisabledInContent()
 		{
 			TestWrongContext<ConvertDoWhileToWhileLoopAction>(@"

@@ -58,6 +58,33 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		}
 
 		[Test]
+		public void TestSimpleExpressionWithComment()
+		{
+			string result = RunContextAction(
+				                         new SplitDeclarationAndAssignmentAction(),
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+										 "        // Some comment" + Environment.NewLine +
+										 "        int $myInt = 5 + 3 * (2 - 10);" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+
+			Assert.AreEqual(
+				"class TestClass" + Environment.NewLine +
+				"{" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        // Some comment" + Environment.NewLine +
+				"        int myInt;" + Environment.NewLine +
+				"        myInt = 5 + 3 * (2 - 10);" + Environment.NewLine +
+				"    }" + Environment.NewLine +
+				"}", result);
+		}
+
+		[Test]
 		public void TestVarType()
 		{
 			string result = RunContextAction(

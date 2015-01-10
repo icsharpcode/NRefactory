@@ -97,5 +97,29 @@ class TestClass
 	}
 }");
 		}
+
+		[Test]
+		public void TestExpressionStatementWithComment()
+		{
+			Test<ConvertLambdaBodyStatementToExpressionAction>(@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		// Some comment
+		System.Action<int> f = i $=> {
+			System.Console.Write(i);
+		};
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		// Some comment
+		System.Action<int> f = i => System.Console.Write(i);
+	}
+}");
+		}
 	}
 }

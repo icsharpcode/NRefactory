@@ -66,6 +66,105 @@ class TestClass
 		}
 
 		[Test]
+		public void TestDeclarationWithComment1()
+		{
+			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
+class TestClass
+{
+    void Foo()
+    {
+        return null;
+    }
+
+    void TestMethod()
+    {
+		// Some comment
+        object o = Foo();
+        $if (o == null)
+            o = new object();
+    }
+}", @"
+class TestClass
+{
+    void Foo()
+    {
+        return null;
+    }
+
+    void TestMethod()
+    {
+		// Some comment
+        object o = Foo() ?? new object();
+    }
+}");
+		}
+
+		[Test]
+		public void TestDeclarationWithComment2()
+		{
+			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
+class TestClass
+{
+    void Foo()
+    {
+        return null;
+    }
+
+    void TestMethod()
+    {
+        object o = Foo();
+		// Some comment
+        $if (o == null)
+            o = new object();
+    }
+}", @"
+class TestClass
+{
+    void Foo()
+    {
+        return null;
+    }
+
+    void TestMethod()
+    {
+        object o = Foo() ?? new object();
+    }
+}");
+		}
+
+		[Test]
+		public void TestDeclarationWithComment3()
+		{
+			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"
+class TestClass
+{
+    void Foo()
+    {
+        return null;
+    }
+
+    void TestMethod()
+    {
+        object o = Foo();
+        $if (o == null)
+            o = new object(); // Some comment
+    }
+}", @"
+class TestClass
+{
+    void Foo()
+    {
+        return null;
+    }
+
+    void TestMethod()
+    {
+        object o = Foo() ?? new object();
+    }
+}");
+		}
+
+		[Test]
 		public void TestYodaConditionals()
 		{
 			Test<ConvertIfStatementToNullCoalescingExpressionAction>(@"

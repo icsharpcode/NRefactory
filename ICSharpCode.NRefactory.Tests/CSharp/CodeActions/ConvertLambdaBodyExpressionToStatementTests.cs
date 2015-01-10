@@ -79,6 +79,31 @@ class TestClass
 		}
 
 		[Test]
+		public void TestExprStatementWithComment()
+		{
+			Test<ConvertLambdaBodyExpressionToStatementAction>(@"
+class TestClass
+{
+    void TestMethod ()
+    {
+		// Some comment
+        System.Action<int> f = i $=> i++;
+    }
+}", @"
+class TestClass
+{
+    void TestMethod ()
+    {
+		// Some comment
+        System.Action<int> f = i =>
+        {
+            i++;
+        };
+    }
+}");
+		}
+
+		[Test]
 		public void TestParenthesizedLambdaExprStatement()
 		{
 			Test<ConvertLambdaBodyExpressionToStatementAction>(@"

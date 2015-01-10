@@ -68,6 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var newRoot = root.ReplaceNode((SyntaxNode)
 							node, 
 							SyntaxFactory.WhileStatement(node.Condition, node.Statement)
+							.WithLeadingTrivia(node.GetLeadingTrivia())
 							.WithAdditionalAnnotations(Formatter.Annotation)
 						);
 

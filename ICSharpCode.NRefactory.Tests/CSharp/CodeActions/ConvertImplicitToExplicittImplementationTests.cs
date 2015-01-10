@@ -59,6 +59,64 @@ class TestClass : ITest
 		}
 
 		[Test]
+		public void TestWithXmlDoc()
+		{
+			Test<ConvertImplicitToExplicitImplementationAction>(@"
+interface ITest
+{
+    void Method ();
+}
+class TestClass : ITest
+{
+    /// <summary>
+    /// Some method description.
+    /// </summary>
+    public void $Method()
+    {
+    }
+}", @"
+interface ITest
+{
+    void Method ();
+}
+class TestClass : ITest
+{
+    /// <summary>
+    /// Some method description.
+    /// </summary>
+    void ITest.Method()
+    {
+    }
+}");
+		}
+
+		[Test]
+		public void TestWithInlineComment()
+		{
+			Test<ConvertImplicitToExplicitImplementationAction>(@"
+interface ITest
+{
+    void Method ();
+}
+class TestClass : ITest
+{
+    public void $Method() // Some comment
+    {
+    }
+}", @"
+interface ITest
+{
+    void Method ();
+}
+class TestClass : ITest
+{
+    void ITest.Method() // Some comment
+    {
+    }
+}");
+		}
+
+		[Test]
 		public void TestProperty()
 		{
 			Test<ConvertImplicitToExplicitImplementationAction>(@"

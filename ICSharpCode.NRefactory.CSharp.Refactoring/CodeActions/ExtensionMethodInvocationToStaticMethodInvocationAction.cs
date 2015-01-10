@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					DiagnosticSeverity.Info, 
 					"Convert to static method call", 
 					t2 => {
-						var newRoot = root.ReplaceNode((SyntaxNode)invocation, ToStaticMethodInvocation(model, invocation, memberAccess, invocationRR).WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)invocation, ToStaticMethodInvocation(model, invocation, memberAccess, invocationRR).WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(invocation.GetLeadingTrivia()));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				) 
@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		static SyntaxNode ToStaticMethodInvocation(SemanticModel model, InvocationExpressionSyntax invocation, MemberAccessExpressionSyntax memberAccess, SymbolInfo invocationRR)
 		{
 			var newArgumentList = invocation.ArgumentList.Arguments.ToList();
-			newArgumentList.Insert(0, SyntaxFactory.Argument(memberAccess.Expression));
+			newArgumentList.Insert(0, SyntaxFactory.Argument(memberAccess.Expression.WithoutLeadingTrivia()));
 
 			var newTarget = memberAccess.WithExpression(SyntaxFactory.ParseTypeName(invocationRR.Symbol.ContainingType.ToMinimalDisplayString(model, memberAccess.SpanStart)));
 			return SyntaxFactory.InvocationExpression(newTarget, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>(newArgumentList)));

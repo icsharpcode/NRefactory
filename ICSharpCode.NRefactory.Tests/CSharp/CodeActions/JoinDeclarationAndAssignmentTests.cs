@@ -54,6 +54,29 @@ class TestClass
 		}
 
 		[Test]
+		public void TestWithComment()
+		{
+			Test<JoinDeclarationAndAssignmentAction>(@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		// Some comment
+		int $a;
+		a = 1;
+	}
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		// Some comment
+		int a = 1;
+	}
+}");
+		}
+
+		[Test]
 		public void TestDeclarationList ()
 		{
 			Test<JoinDeclarationAndAssignmentAction> (@"

@@ -56,6 +56,52 @@ class TestClass
 		}
 
 		[Test]
+		public void TestWithComment1()
+		{
+			Test<ConvertAsToCastAction>(@"
+using System;
+class TestClass
+{
+	void Test (object a)
+	{
+		// Some comment
+		var b = a $as Exception;
+	}
+}", @"
+using System;
+class TestClass
+{
+	void Test (object a)
+	{
+		// Some comment
+		var b = (Exception)a;
+	}
+}");
+		}
+
+		[Test]
+		public void TestWithComment2()
+		{
+			Test<ConvertAsToCastAction>(@"
+using System;
+class TestClass
+{
+	void Test (object a)
+	{
+		var b = a $as Exception; // Some comment
+	}
+}", @"
+using System;
+class TestClass
+{
+	void Test (object a)
+	{
+		var b = (Exception)a; // Some comment
+	}
+}");
+		}
+
+		[Test]
 		public void TestRemoveParentheses ()
 		{
 			string input = @"

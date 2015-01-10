@@ -53,6 +53,35 @@ class TestClass
 ");
 		}
 
+		[Test]
+		public void TestSimpleStoreWithXmlDoc()
+		{
+			Test<RemoveBackingStoreAction>(@"
+class TestClass
+{
+    int field;
+
+    /// <summery>
+    /// Description of this field.
+    /// </summary>
+    public int $Field
+    {
+        get { return field; }
+        set { field = value; }
+    }
+}
+", @"
+class TestClass
+{
+
+    /// <summery>
+    /// Description of this field.
+    /// </summary>
+    public int Field { get; set; }
+}
+");
+		}
+
 		/// <summary>
 		/// Bug 3292 -Error in analysis service
 		/// </summary>

@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? "Replace with '{0}++'" : "Replace with '{0}--'",
 					t2 => {
 						var newNode = SyntaxFactory.PostfixUnaryExpression(updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? SyntaxKind.PostIncrementExpression : SyntaxKind.PostDecrementExpression, updatedNode.Left);
-						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(node.GetLeadingTrivia()));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
