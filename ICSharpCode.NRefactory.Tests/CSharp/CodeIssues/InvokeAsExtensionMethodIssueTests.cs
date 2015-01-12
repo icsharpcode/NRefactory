@@ -71,6 +71,40 @@ class C
 		}
 
 		[Test]
+		public void HandlesBasicCaseWithComment()
+		{
+			Analyze<InvokeAsExtensionMethodIssue>(@"
+class A { }
+static class B
+{
+	public static bool Ext (this A a, int i);
+}
+class C
+{
+	void F()
+	{
+		A a = new A();
+		// Some comment
+		B.$Ext$(a, 1);
+	}
+}", @"
+class A { }
+static class B
+{
+	public static bool Ext (this A a, int i);
+}
+class C
+{
+	void F()
+	{
+		A a = new A();
+		// Some comment
+		a.Ext(1);
+	}
+}");
+		}
+
+		[Test]
 		public void HandlesReturnValueUsage()
 		{
 			Analyze<InvokeAsExtensionMethodIssue>(@"

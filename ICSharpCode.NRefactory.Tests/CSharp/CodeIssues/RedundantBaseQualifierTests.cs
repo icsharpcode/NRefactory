@@ -97,38 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Analyze<RedundantBaseQualifierIssue>(@"using System;am : BaseClass
-		{
-			public void method2(int a)
-			{
-				base.a = 1;
-			}
-			public override void method()
-			{
-				base.method1();
-			}
-		}
-	}
-"";
-
-			TestRefactoringContext context;
-			var issues = GetIssues(new RedundantBaseQualifierIssue(), input, out context);
-			Assert.AreEqual(1, issues.Count);
-			CheckFix(context, issues, @""using System;
-	namespace Application
-	{
-		public class BaseClass
-		{
-			public int a;
-			public virtual void method()
-			{
-				Console.Write(Environment.NewLine);
-			}
-			public void method1()
-			{
-				Console.Write(Environment.NewLine);
-			}
-		}
+			Analyze<RedundantBaseQualifierIssue>(@"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -154,7 +123,38 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			}
 			public void method2()
 			{
-				base.method ();
+				$base.$method ();
+			}
+			public new int a;
+		}
+	}
+", @"using System;
+	namespace Application
+	{
+		public class BaseClass
+		{
+			public int a;
+			public int b;
+			public void method()
+			{
+				Console.Write(Environment.NewLine);
+			}
+			public virtual void method1()
+			{
+				Console.Write(Environment.NewLine);
+			}
+		}
+
+		class Program : BaseClass
+		{
+			public new void method(int b)
+			{
+				base.a = 1;
+				base.b = 2;
+			}
+			public void method2()
+			{
+				method ();
 			}
 			public new int a;
 		}

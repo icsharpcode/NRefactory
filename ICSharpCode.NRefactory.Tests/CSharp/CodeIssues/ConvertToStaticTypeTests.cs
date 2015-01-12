@@ -66,6 +66,44 @@ namespace Demo
 		}
 
 		[Test]
+		public void TestInspectorCase1WithXmlDoc()
+		{
+			Analyze<ConvertToStaticTypeIssue>(@"
+using System;
+
+namespace Demo
+{
+	/// <summary>
+	/// Class description.
+	/// </summary>
+	sealed class $TestClass$
+	{
+		static public int A;
+		static public int ReturnAPlusOne()
+		{
+			return A + 1;
+		}
+	}
+}", @"
+using System;
+
+namespace Demo
+{
+	/// <summary>
+	/// Class description.
+	/// </summary>
+	static class TestClass
+	{
+		static public int A;
+		static public int ReturnAPlusOne()
+		{
+			return A + 1;
+		}
+	}
+}");
+		}
+
+		[Test]
 		public void TestInspectorCase2()
 		{
 			Analyze<ConvertToStaticTypeIssue>(@"

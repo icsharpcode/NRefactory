@@ -147,7 +147,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 													)
 											}
 										))
-								).WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
+								).WithLeadingTrivia(varDeclaration.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
 						return null;
 					});
 				}

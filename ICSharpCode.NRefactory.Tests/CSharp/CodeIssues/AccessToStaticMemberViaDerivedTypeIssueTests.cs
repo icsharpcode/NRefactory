@@ -65,6 +65,39 @@ class C
 		}
 
 		[Test]
+		public void MemberInvocationWithComment()
+		{
+			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"
+class A
+{
+	public static void F() { }
+}
+class B : A { }
+class C
+{
+	void Main()
+	{
+		// Some comment
+		$B$.F ();
+	}
+}", @"
+class A
+{
+	public static void F() { }
+}
+class B : A { }
+class C
+{
+	void Main()
+	{
+		// Some comment
+		A.F ();
+	}
+}"
+			);
+		}
+
+		[Test]
 		public void TestDisable()
 		{
 			Analyze<AccessToStaticMemberViaDerivedTypeIssue>(@"

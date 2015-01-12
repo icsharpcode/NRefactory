@@ -57,6 +57,35 @@ namespace Test
 }");
 		}
 
+		[Test]
+		public void TestInspectorCase1WithComment()
+		{
+			Analyze<RedundantInternalIssue>(@"
+namespace Test
+{
+    /// <summary>
+    /// Class description.
+    /// </summary>
+    $internal$ class Foo
+    {
+        internal void Bar(string str)
+        {
+        }
+    }
+}", @"
+namespace Test
+{
+    /// <summary>
+    /// Class description.
+    /// </summary>
+    class Foo
+    {
+        internal void Bar(string str)
+        {
+        }
+    }
+}");
+		}
 
 		[Test]
 		public void TestNestedClass()

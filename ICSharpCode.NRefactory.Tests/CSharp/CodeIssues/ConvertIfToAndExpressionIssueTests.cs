@@ -54,6 +54,28 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestVariableDeclarationCaseAndComment()
+		{
+			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
+{
+	int Bar(int o)
+	{
+		// Some comment
+		bool b = o > 10;
+		$if$ (o < 10)
+			b = false;
+	}
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		// Some comment
+		bool b = o > 10 && o >= 10;
+	}
+}");
+		}
+
+		[Test]
 		public void TestVariableDeclarationCaseWithBlock()
 		{
 			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
@@ -132,6 +154,31 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	{
 		bool b = o > 10;
 		Console.WriteLine ();
+		b &= o >= 10;
+	}
+}");
+		}
+
+		[Test]
+		public void TestCommonCaseWithComment()
+		{
+			Analyze<ConvertIfToAndExpressionIssue>(@"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		Console.WriteLine ();
+		// Some comment
+		$if$ (o < 10)
+			b = false;
+	}
+}", @"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		Console.WriteLine ();
+		// Some comment
 		b &= o >= 10;
 	}
 }");

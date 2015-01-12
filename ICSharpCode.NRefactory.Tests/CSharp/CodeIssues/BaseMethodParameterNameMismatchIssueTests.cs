@@ -60,7 +60,43 @@ class Bar : Foo
 }
 ");
 		}
-	
+
+		[Test]
+		public void TestMethodWithXmlDoc()
+		{
+			Analyze<BaseMethodParameterNameMismatchIssue>(@"
+class Foo
+{
+	public virtual void FooBar (int bar) {}
+}
+
+class Bar : Foo
+{
+	/// <summary>
+	/// Method description
+	/// </summary>
+	public override void FooBar (int $foo$)
+	{
+	}
+}
+", @"
+class Foo
+{
+	public virtual void FooBar (int bar) {}
+}
+
+class Bar : Foo
+{
+	/// <summary>
+	/// Method description
+	/// </summary>
+	public override void FooBar (int bar)
+	{
+	}
+}
+");
+		}
+
 		[Test]
 		public void TestIndexer ()
 		{

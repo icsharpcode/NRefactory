@@ -152,6 +152,44 @@ class Baz : Foo
 		}
 
 		[Test]
+		public void TestMethodWithComment()
+		{
+			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+class Foo
+{
+    public void Bar(int test)
+    {
+    }
+}
+
+class Baz : Foo
+{
+    /// <summary>
+    /// Class description.
+    /// </summary>
+    public void $Bar$(int test)
+    {
+    }
+}", @"
+class Foo
+{
+    public void Bar(int test)
+    {
+    }
+}
+
+class Baz : Foo
+{
+    /// <summary>
+    /// Class description.
+    /// </summary>
+    public new void Bar(int test)
+    {
+    }
+}");
+		}
+
+		[Test]
 		public void TestField()
 		{
 			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"

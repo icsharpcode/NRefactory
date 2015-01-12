@@ -53,7 +53,29 @@ class Foo
 	}
 }");
 		}
-		
+
+		[Test]
+		public void TestInspectorCase1WithComment()
+		{
+			Analyze<RedundantNameQualifierIssue>(@"using System;
+class Foo
+{
+	void Bar (string str)
+	{
+		// Some comment
+		$System.$Console.WriteLine ();
+	}
+}", @"using System;
+class Foo
+{
+	void Bar (string str)
+	{
+		// Some comment
+		Console.WriteLine ();
+	}
+}");
+		}
+
 		[Test]
 		public void TestInspectorCase2 ()
 		{

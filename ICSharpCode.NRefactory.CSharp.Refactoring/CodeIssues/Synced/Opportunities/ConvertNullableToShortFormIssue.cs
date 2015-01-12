@@ -146,7 +146,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var arg = ConvertNullableToShortFormIssue.GetTypeArgument(node);
 
 
-				var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.NullableType(arg).WithAdditionalAnnotations(Formatter.Annotation));
+				var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.NullableType(arg)
+					.WithAdditionalAnnotations(Formatter.Annotation)
+					.WithLeadingTrivia(node.GetLeadingTrivia()));
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Rewrite to '{0}?'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}

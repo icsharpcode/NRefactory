@@ -56,6 +56,34 @@ class Foo
 		}
 
 		[Test]
+		public void TestSimpleCaseWithXmlDoc()
+		{
+			Analyze<ConvertNullableToShortFormIssue>(@"using System;
+
+class Foo
+{
+    /// <summary>
+    /// Method description.
+    /// </summary>
+    $Nullable<int>$ Bar()
+    {
+        return 5;
+    }
+}", @"using System;
+
+class Foo
+{
+    /// <summary>
+    /// Method description.
+    /// </summary>
+    int? Bar()
+    {
+        return 5;
+    }
+}");
+		}
+
+		[Test]
 		public void TestFullyQualifiedNameCase()
 		{
 			Analyze<ConvertNullableToShortFormIssue>(@"class Foo
