@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 		{
 			var policy = formatOptions;
 			if (policy == null) {
-				policy = FormattingOptionsFactory.CreateMono();
+					policy = FormattingOptionsFactory.CreateMono();
 
 //				policy.IndentPreprocessorDirectives = false;
 //				policy.AlignToFirstMethodCallArgument = policy.AlignToFirstIndexerArgument = true;

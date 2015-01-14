@@ -533,6 +533,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			if (Engine.isLineStart)
 			{
+				NextLineIndent.RemoveAlignment();
+				NextLineIndent.PopIf(IndentType.Continuation);
+
 				ThisLineIndent = NextLineIndent.Clone();
 			}
 

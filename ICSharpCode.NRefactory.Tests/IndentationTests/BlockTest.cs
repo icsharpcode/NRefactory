@@ -31,7 +31,6 @@ using Microsoft.CodeAnalysis.CSharp.Formatting;
 namespace ICSharpCode.NRefactory6.IndentationTests
 {
 	[TestFixture]
-	[Ignore("Broken")]
 	public class BracketsTest
 	{
 		[Test]
@@ -72,6 +71,20 @@ namespace Foo {
 			Assert.AreEqual("\t\t\t", indent.ThisLineIndent);
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
+
+		[Test]
+		public void TestBrackets_If_AllmanOpenBrace()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{
+		if (true)
+		{$", FormattingOptionsFactory.CreateAllman());
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
 
 		[Test]
 		public void TestBrackets_If()
@@ -748,6 +761,7 @@ class Foo {
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore]
 		[Test]
 		public void TestBrackets_CustomIndent()
 		{
@@ -766,6 +780,7 @@ class Foo {
 			Assert.AreEqual("\t\t\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore]
 		[Test]
 		public void TestBrackets_CustomIndent2()
 		{
@@ -783,6 +798,7 @@ class Foo {
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore]
 		[Test]
 		public void TestBrackets_CustomIndent3()
 		{
@@ -799,6 +815,7 @@ class Foo {
 			Assert.AreEqual("\t\t", indent.NextLineIndent);
 		}
 
+		[Ignore]
 		[Test]
 		public void TestBrackets_CustomIndent4()
 		{
