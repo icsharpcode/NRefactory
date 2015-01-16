@@ -65,7 +65,7 @@ class Tests
 		}
 
 		[Test]
-		public void TestExplictPrivate()
+		public void TestExplicitPrivate()
 		{
 			Analyze<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
 				@"
@@ -89,7 +89,7 @@ class Tests
 		}
 
 		[Test]
-		public void TestExplictProtected()
+		public void TestExplicitProtected()
 		{
 			Analyze<NonPublicMethodWithTestAttributeIssue>(NUnitClasses + 
 				@"
@@ -112,7 +112,30 @@ class Tests
 }");
 		}
 
-		
+		[Test]
+		public void TestExplicitInternal()
+		{
+			Analyze<NonPublicMethodWithTestAttributeIssue>(NUnitClasses +
+				@"
+[TestFixture]
+class Tests 
+{
+	[Test]
+	internal void $NonPublicMethod$()
+	{
+	}
+}", NUnitClasses +
+				@"
+[TestFixture]
+class Tests 
+{
+	[Test]
+	public void NonPublicMethod()
+	{
+	}
+}");
+		}
+
 		[Test]
 		public void TestDisable()
 		{

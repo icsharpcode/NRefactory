@@ -62,6 +62,25 @@ class TestClass
 		}
 
 		[Test]
+		public void TestIgnoredCase()
+		{
+			Analyze<RedundantAnonymousTypePropertyNameIssue>(@"
+class FooBar
+{
+	public int Foo;
+	public int Bar;
+}
+class TestClass
+{
+	public void Test(FooBar f)
+	{
+		var foo = f.Foo;
+		var n = new { Foo = foo, b = 12 };
+	}
+}");
+		}
+
+		[Test]
 		public void TestDisable()
 		{
 			Analyze<RedundantAnonymousTypePropertyNameIssue>(@"
