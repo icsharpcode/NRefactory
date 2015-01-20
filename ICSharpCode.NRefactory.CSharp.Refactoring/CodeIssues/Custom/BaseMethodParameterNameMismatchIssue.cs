@@ -149,6 +149,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							Rule.DefaultSeverity,
 							Rule.IsEnabledByDefault,
 							4,
+							Rule.Title,
 							Rule.Description,
 							Rule.HelpLink,
 							Location.Create(semanticModel.SyntaxTree, syntaxParams[i].Identifier.Span),
@@ -178,12 +179,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				if (!node.IsKind(SyntaxKind.Parameter))
-					continue;
-				var renamedParameter = ((ParameterSyntax)node).WithIdentifier(SyntaxFactory.Identifier(diagnostic.CustomTags[0]));
-				var newRoot = root.ReplaceNode((SyntaxNode)node, renamedParameter);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Rename to '{0}'", diagnostic.CustomTags[0]), document.WithSyntaxRoot(newRoot)), diagnostic);
+				// TODO: Find a custom tag solution.
+//				var node = root.FindNode(diagnostic.Location.SourceSpan);
+//				if (!node.IsKind(SyntaxKind.Parameter))
+//					continue;
+//				var renamedParameter = ((ParameterSyntax)node).WithIdentifier(SyntaxFactory.Identifier(diagnostic.CustomTags[0]));
+//				var newRoot = root.ReplaceNode((SyntaxNode)node, renamedParameter);
+//				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Rename to '{0}'", diagnostic.CustomTags[0]), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

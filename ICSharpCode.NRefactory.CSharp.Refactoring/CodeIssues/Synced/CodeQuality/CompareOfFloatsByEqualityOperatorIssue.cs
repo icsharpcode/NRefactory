@@ -212,6 +212,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					Rule.DefaultSeverity,
 					Rule.IsEnabledByDefault,
 					4,
+					Rule.Title,
 					Rule.Description,
 					Rule.HelpLink,
 					node.GetLocation(),
@@ -243,42 +244,43 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node == null)
 					continue;
 				CodeAction action;
-				var floatType = diagnostic.CustomTags[1];
-				switch (diagnostic.CustomTags[0]) {
-					case "1":
-						action = AddIsNaNIssue(document, semanticModel, root, node, node.Right, floatType);
-						break;
-					case "2":
-						action = AddIsNaNIssue(document, semanticModel, root, node, node.Left, floatType);
-						break;
-					case "3":
-						action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
-						break;
-					case "4":
-						action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
-						break;
-					case "5":
-						action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
-						break;
-					case "6":
-						action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
-						break;
-					case "7":
-						action = AddIsZeroIssue(document, semanticModel, root, node, node.Right, floatType);
-						break;
-					case "8":
-						action = AddIsZeroIssue(document, semanticModel, root, node, node.Left, floatType);
-						break;
-					default:
-						action = AddCompareIssue(document, semanticModel, root, node, floatType);
-
-						break;
-				}
-
-				if (action != null)
-				{
-					context.RegisterFix(action, diagnostic);
-				}
+				// TODO: Find a custom tag solution.
+//				var floatType = diagnostic.CustomTags[1];
+//				switch (diagnostic.CustomTags[0]) {
+//					case "1":
+//						action = AddIsNaNIssue(document, semanticModel, root, node, node.Right, floatType);
+//						break;
+//					case "2":
+//						action = AddIsNaNIssue(document, semanticModel, root, node, node.Left, floatType);
+//						break;
+//					case "3":
+//						action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
+//						break;
+//					case "4":
+//						action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
+//						break;
+//					case "5":
+//						action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
+//						break;
+//					case "6":
+//						action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
+//						break;
+//					case "7":
+//						action = AddIsZeroIssue(document, semanticModel, root, node, node.Right, floatType);
+//						break;
+//					case "8":
+//						action = AddIsZeroIssue(document, semanticModel, root, node, node.Left, floatType);
+//						break;
+//					default:
+//						action = AddCompareIssue(document, semanticModel, root, node, floatType);
+//
+//						break;
+//				}
+//
+//				if (action != null)
+//				{
+//					context.RegisterFix(action, diagnostic);
+//				}
 			}
 		}
 
