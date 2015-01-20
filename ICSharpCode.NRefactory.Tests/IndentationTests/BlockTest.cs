@@ -85,6 +85,19 @@ class Foo {
 			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
 		}
 
+		[Test]
+		public void TestBrackets_If_MonoOpenBrace()
+		{
+			var indent = Helper.CreateEngine(@"
+class Foo {
+	void Test ()
+	{
+		if (true) {$", FormattingOptionsFactory.CreateMono());
+			Assert.AreEqual("\t\t", indent.ThisLineIndent);
+			Assert.AreEqual("\t\t\t", indent.NextLineIndent);
+		}
+
+
 
 		[Test]
 		public void TestBrackets_If()

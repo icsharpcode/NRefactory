@@ -521,10 +521,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 			var parent = Parent as BracesBodyState;
 			if (parent == null || parent.LastBlockIndent == null || !Engine.EnableCustomIndentLevels)
 			{			
-				if (!Engine.options.GetOption(CSharpFormattingOptions.IndentBlock)) {
-					NextLineIndent.RemoveAlignment();
-					NextLineIndent.PopIf(IndentType.Continuation);
-				}
+				NextLineIndent.RemoveAlignment();
+				NextLineIndent.PopIf(IndentType.Continuation);
 			}
 			else
 			{
