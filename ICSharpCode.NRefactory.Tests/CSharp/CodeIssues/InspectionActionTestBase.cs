@@ -140,6 +140,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 					OnDocumentTextChanged(id, text, PreservationMode.PreserveValue);
 			}
 
+			public override bool CanApplyChange(ApplyChangesKind feature)
+			{
+				return true;
+			}
+
 			public void Open(ProjectInfo projectInfo)
 			{
 				var sInfo = SolutionInfo.Create(
