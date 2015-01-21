@@ -116,13 +116,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 	
 		public CompletionResult GetCompletionData(Document document, SemanticModel semanticModel, int position, bool forceCompletion, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var ctx = SyntaxContext.Create(workspace, document, semanticModel, position, cancellationToken);
-			
-			if (ctx.ContainingTypeDeclaration != null &&
-			    ctx.ContainingTypeDeclaration.IsKind(SyntaxKind.EnumDeclaration)) {
-				return CompletionResult.Empty;
-			}
-			
 			var trivia = semanticModel.SyntaxTree.GetRoot(cancellationToken).FindTrivia(position - 1);
 			// work around for roslyn bug: missing comments after pre processor directives
 			if (trivia.IsKind(SyntaxKind.IfDirectiveTrivia) ||
@@ -159,22 +152,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //				ctx.LeftToken.Parent.Parent.CSharpKind() == SyntaxKind.NamespaceDeclaration) {
 //				return CompletionResult.Empty;
 //			}
-			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
-			if (incompleteMemberSyntax != null) {
-				var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
-				if (mod.IsKind(SyntaxKind.OverrideKeyword))
-					return HandleOverrideContext(ctx, semanticModel);
-			}
-			if (ctx.TargetToken.Parent != null) {
-				incompleteMemberSyntax = ctx.TargetToken.Parent.Parent as IncompleteMemberSyntax;
-				if (incompleteMemberSyntax != null) {
-					var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
-					if (incompleteMemberSyntax.ToString().StartsWith("partial"))
-						return HandlePartialContext(ctx, incompleteMemberSyntax, semanticModel);
-				}
-
-			}
-			
 			var text = document.GetTextAsync(cancellationToken).Result; 
 			char lastLastChar = position >= 2 ? text [position - 2] : '\0';
 			char lastChar = text [position - 1];
@@ -193,6 +170,29 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return CompletionResult.Create(GetXmlDocumentationCompletionData(document, semanticModel, position, trivia));
 				}
 				return CompletionResult.Empty;
+			}
+
+			var ctx = SyntaxContext.Create(workspace, document, semanticModel, position, cancellationToken);
+
+			if (ctx.ContainingTypeDeclaration != null &&
+			    ctx.ContainingTypeDeclaration.IsKind(SyntaxKind.EnumDeclaration)) {
+				return CompletionResult.Empty;
+			}
+
+			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
+			if (incompleteMemberSyntax != null) {
+				var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
+				if (mod.IsKind(SyntaxKind.OverrideKeyword))
+					return HandleOverrideContext(ctx, semanticModel);
+			}
+			if (ctx.TargetToken.Parent != null) {
+				incompleteMemberSyntax = ctx.TargetToken.Parent.Parent as IncompleteMemberSyntax;
+				if (incompleteMemberSyntax != null) {
+					var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
+					if (incompleteMemberSyntax.ToString().StartsWith("partial"))
+						return HandlePartialContext(ctx, incompleteMemberSyntax, semanticModel);
+				}
+
 			}
 
 			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.CSharpKind() == SyntaxKind.ObjectCreationExpression) {

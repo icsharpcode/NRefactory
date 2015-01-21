@@ -300,7 +300,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 								"a.cs",
 								null,
 								SourceCodeKind.Regular,
-								TextLoader.From(TextAndVersion.Create(SourceText.From(parsedText), VersionStamp.Create())) 
+								TextLoader.From(TextAndVersion.Create(SourceText.From(editorText), VersionStamp.Create())) 
 							)
 						},
 						null,
@@ -319,9 +319,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 					Console.WriteLine("----" + inner);
 				Assert.Fail("Error while creating compilation. See output for details."); 
 			}
-			if (!workspace.TryApplyChanges(workspace.CurrentSolution.WithDocumentText(documentId, SourceText.From(editorText)))) {
-				Assert.Fail();
-			}
+//			if (!workspace.TryApplyChanges(workspace.CurrentSolution.WithDocumentText(documentId, SourceText.From(editorText)))) {
+//				Assert.Fail();
+//			}
 			document = workspace.CurrentSolution.GetDocument(documentId);
 			semanticModel = document.GetSemanticModelAsync().Result;
 
