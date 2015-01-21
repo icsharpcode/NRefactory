@@ -76,7 +76,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var type = node.Parent as TypeDeclarationSyntax;
 				if (type == null || !type.Modifiers.Any(m => m.IsKind(SyntaxKind.SealedKeyword)))
 					return false;
-				return semanticModel.GetDeclaredSymbol(node).IsSealed;
+				var symbol = semanticModel.GetDeclaredSymbol(node);
+				if (symbol == null)
+					return false;
+				return symbol.IsSealed;
 			}
 
 			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)

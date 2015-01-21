@@ -56,6 +56,17 @@ sealed class Foo
 		}
 
 		[Test]
+		public void TestFieldDeclaration()
+		{
+			Analyze<SealedMemberInSealedClassIssue>(@"
+public sealed class Foo
+{
+	private int field;
+}
+");
+		}
+
+		[Test]
 		public void TestValid()
 		{
 			Analyze<SealedMemberInSealedClassIssue>(@"
