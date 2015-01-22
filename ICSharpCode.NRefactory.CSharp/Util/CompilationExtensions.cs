@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			if (compilation == null)
 				throw new ArgumentNullException("compilation");
-			return compilation.GlobalNamespace.GetAllTypes(cancellationToken);
+			return compilation.Assembly.GlobalNamespace.GetAllTypes(cancellationToken);
 		}
 		
 		static INamespaceSymbol FindNamespace(INamespaceSymbol globalNamespace, string fullName, CancellationToken cancellationToken = default(CancellationToken))
