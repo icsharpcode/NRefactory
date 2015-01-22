@@ -70,6 +70,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			assignmentTarget = null;
 			assignmentTrailingTriviaList = SyntaxFactory.TriviaList(SyntaxFactory.SyntaxTrivia(SyntaxKind.DisabledTextTrivia, ""));
+
+			if (ifStatement.Else != null)
+				return false;
+
 			var trueExpression = ifStatement.Statement as ExpressionStatementSyntax;
 			if (trueExpression != null)
 			{

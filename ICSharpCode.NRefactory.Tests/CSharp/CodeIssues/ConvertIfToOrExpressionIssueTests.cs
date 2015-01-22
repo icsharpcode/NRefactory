@@ -171,6 +171,27 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		}
 
 		[Test]
+		public void TestCommonCaseWithElse()
+		{
+			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
+{
+	int Bar(int o)
+	{
+		bool b = o > 10;
+		Console.WriteLine ();
+		if (o < 10)
+		{
+			b = true;
+		}
+		else
+		{
+			return 21;
+		}
+	}
+}");
+		}
+
+		[Test]
 		public void TestCommonCaseWithMemberAssignment()
 		{
 			Analyze<ConvertIfToOrExpressionIssue>(@"class Foo
