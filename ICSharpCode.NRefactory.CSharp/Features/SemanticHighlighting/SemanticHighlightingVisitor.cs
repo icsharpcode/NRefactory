@@ -33,8 +33,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 	/// </summary>
 	public abstract class SemanticHighlightingVisitor<TColor> : CSharpSyntaxWalker
 	{
-		protected CancellationToken cancellationToken = default (CancellationToken);
-		
+		protected CancellationToken cancellationToken = default(CancellationToken);
+
 		protected TColor defaultTextColor;
 		protected TColor referenceTypeColor;
 		protected TColor valueTypeColor;
@@ -42,25 +42,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 		protected TColor enumerationTypeColor;
 		protected TColor typeParameterTypeColor;
 		protected TColor delegateTypeColor;
-		
+
 		protected TColor methodCallColor;
 		protected TColor methodDeclarationColor;
-		
+
 		protected TColor eventDeclarationColor;
 		protected TColor eventAccessColor;
-		
+
 		protected TColor propertyDeclarationColor;
 		protected TColor propertyAccessColor;
-		
+
 		protected TColor fieldDeclarationColor;
 		protected TColor fieldAccessColor;
-		
+
 		protected TColor variableDeclarationColor;
 		protected TColor variableAccessColor;
-		
+
 		protected TColor parameterDeclarationColor;
 		protected TColor parameterAccessColor;
-		
+
 		protected TColor valueKeywordColor;
 		protected TColor externAliasKeywordColor;
 		protected TColor varKeywordTypeColor;
@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 		/// 'out' is not colored by semantic highlighting, as syntax highlighting can already detect it as a parameter modifier.
 		/// </remarks>
 		protected TColor parameterModifierColor;
-		
+
 		/// <summary>
 		/// Used for inactive code (excluded by preprocessor or ConditionalAttribute)
 		/// </summary>
@@ -83,158 +83,53 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 
 
 		protected TColor syntaxErrorColor;
-		
+
 		protected TextSpan region;
-		
+
 		protected SemanticModel semanticModel;
 		bool isInAccessorContainingValueParameter;
-		
-		protected abstract void Colorize(TextSpan span, TColor color);
-		
-		protected SemanticHighlightingVisitor(SemanticModel semanticModel)
+
+		protected abstract void Colorize (TextSpan span, TColor color);
+
+		protected SemanticHighlightingVisitor (SemanticModel semanticModel)
 		{
 			this.semanticModel = semanticModel;
 		}
-		
+
 		#region Colorize helper methods
-//		protected void Colorize(Identifier identifier, ResolveResult rr)
-//		{
-//			if (identifier.IsNull)
-//				return;
-//			if (rr.IsError) {
-//		=		Colorize(identifier, syntaxErrorColor);
-//				return;
-//			}
-//			if (rr is TypeResolveResult) {
-//				if (blockDepth > 0 && identifier.Name == "var" && rr.Type.Kind != TypeKind.Null && rr.Type.Name != "var" ) {
-//					Colorize(identifier, varKeywordTypeColor);
-//					return;
-//				}
-//
-//				TColor color;
-//				if (TryGetTypeHighlighting (rr.Type.Kind, out color)) {
-//					Colorize(identifier, color);
-//				}
-//				return;
-//			}
-//			var mrr = rr as MemberResolveResult;
-//			if (mrr != null) {
-//				TColor color;
-//				if (TryGetMemberColor (mrr.Member, out color)) {
-//					Colorize(identifier, color);
-//					return;
-//				}
-//			}
-//			
-//			if (rr is MethodGroupResolveResult) {
-//				Colorize (identifier, methodCallColor);
-//				return;
-//			}
-//			
-//			var localResult = rr as LocalResolveResult;
-//			if (localResult != null) {
-//				if (localResult.Variable is IParameter) {
-//					Colorize (identifier, parameterAccessColor);
-//				} else {
-//					Colorize (identifier, variableAccessColor);
-//				}
-//			}
-//			
-//			
-//			VisitIdentifier(identifier); // un-colorize contextual keywords
-//		}
-		
-		protected void Colorize(SyntaxNode node, TColor color)
+		protected void Colorize (SyntaxNode node, TColor color)
 		{
 			if (node == null)
 				return;
-			Colorize(node.Span, color);
-		}
-		
-		protected void Colorize(SyntaxToken node, TColor color)
-		{
-			Colorize(node.Span, color);
-		}
-		#endregion
-		
-//		/// <summary>"var"
-//		/// Visit all children of <c>node</c> until (but excluding) <c>end</c>.
-//		/// If <c>end</c> is a null node, nothing will be visited.
-//		/// </summary>
-//		protected void VisitChildrenUntil(AstNode node, AstNode end)
-//		{
-//			if (end.IsNull)
-//				return;
-//			Debug.Assert(node == end.Parent);
-//			for (var child = node.FirstChild; child != end; child = child.NextSibling) {
-//				cancellationToken.ThrowIfCancellationRequested();
-//				if (child.StartLocation < regionEnd && child.EndLocation > regionStart)
-//					child.AcceptVisitor(this);
-//			}
-//		}
-		
-//		/// <summary>
-//		/// Visit all children of <c>node</c> after (excluding) <c>start</c>.
-//		/// If <c>start</c> is a null node, all children will be visited.
-//		/// </summary>
-//		protected void VisitChildrenAfter(AstNode node, AstNode start)
-//		{
-//			Debug.Assert(start.IsNull || start.Parent == node);
-//			for (var child = (start.IsNull ? node.FirstChild : start.NextSibling); child != null; child = child.NextSibling) {
-//				cancellationToken.ThrowIfCancellationRequested();
-//				if (child.StartLocation < regionEnd && child.EndLocation > regionStart)
-//					child.AcceptVisitor(this);
-//			}
-//		}
-		
-		public override void VisitRefTypeExpression(Microsoft.CodeAnalysis.CSharp.Syntax.RefTypeExpressionSyntax node)
-		{
-			base.VisitRefTypeExpression(node);
-			Colorize(node.Expression, referenceTypeColor);
+			Colorize (node.Span, color);
 		}
 
-		public override void VisitCompilationUnit(CompilationUnitSyntax node)
+		protected void Colorize (SyntaxToken node, TColor color)
 		{
-			var startNode = node.DescendantNodesAndSelf(n => region.Start <= n.SpanStart).FirstOrDefault();
+			Colorize (node.Span, color);
+		}
+
+		#endregion
+		public override void VisitRefTypeExpression (Microsoft.CodeAnalysis.CSharp.Syntax.RefTypeExpressionSyntax node)
+		{
+			base.VisitRefTypeExpression (node);
+			Colorize (node.Expression, referenceTypeColor);
+		}
+
+		public override void VisitCompilationUnit (CompilationUnitSyntax node)
+		{
+			var startNode = node.DescendantNodesAndSelf (n => region.Start <= n.SpanStart).FirstOrDefault ();
 			if (startNode == node || startNode == null) {
-				base.VisitCompilationUnit(node);
+				base.VisitCompilationUnit (node);
 			} else {
-				this.Visit(startNode);
+				this.Visit (startNode);
 			}
 		}
-//		
-//		public override void VisitMemberType(MemberType memberType)
-//		{
-//			var memberNameToken = mem
 
-//			VisitChildrenUntil(memberType, memberNameToken);
-//			Colorize(memberNameToken, resolver.Resolve(memberType, cancellationToken));
-//			VisitChildrenAfter(memberType, memberNameToken);
-//		}
-//		
-//		public override void VisitIdentifierExpression(IdentifierExpression identifierExpression)
-//		{
-//			var identifier = identifierExpression.IdentifierToken;
-//			VisitChildrenUntil(identifierExpression, identifier);
-//			if (isInAccessorContainingValueParameter && identifierExpression.Identifier == "value") {
-//				Colorize(identifier, valueKeywordColor);
-//			} else {
-//				Colorize(identifier, resolver.Resolve(identifierExpression, cancellationToken));
-//			}
-//			VisitChildrenAfter(identifierExpression, identifier);
-//		}
-//		
-//		public override void VisitMemberReferenceExpression(MemberReferenceExpression memberReferenceExpression)
-//		{
-//			var memberNameToken = memberReferenceExpression.MemberNameToken;
-//			VisitChildrenUntil(memberReferenceExpression, memberNameToken);
-//			ResolveResult rr = resolver.Resolve(memberReferenceExpression, cancellationToken);
-//			Colorize(memberNameToken, rr);
-//			VisitChildrenAfter(memberReferenceExpression, memberNameToken);
-//		}
-
-		public override void Visit(SyntaxNode node)
+		public override void Visit (SyntaxNode node)
 		{
+			if (node.Span.End < region.Start)
+				return;
 			if (node.Span.Start > region.End)
 				return;
 			base.Visit(node);
