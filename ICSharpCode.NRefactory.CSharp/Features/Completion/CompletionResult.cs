@@ -60,6 +60,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			set;
 		}
 
+		/// <summary>
+		/// If true the completion result isn't a continuation and can start anything.
+		/// </summary>
+		public bool InsertTemplatesInList {
+			get;
+			set;
+		}
+
 		public readonly List<IMethodSymbol> PossibleDelegates = new List<IMethodSymbol>();
 
 		#region IReadOnlyList<ICompletionData> implemenation

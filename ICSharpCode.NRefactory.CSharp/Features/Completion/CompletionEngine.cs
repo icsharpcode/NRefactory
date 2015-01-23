@@ -155,6 +155,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var text = document.GetTextAsync(cancellationToken).Result; 
 			char lastLastChar = position >= 2 ? text [position - 2] : '\0';
 			char lastChar = text [position - 1];
+			if (!forceCompletion) {
+				if (lastChar != '.' && 
+					lastChar != '#' && 
+					lastChar != '>' && lastLastChar == '-' &&
+					lastChar != ' ' && lastLastChar != ' ' && lastLastChar != '\t' &&
+					!char.IsLetter(lastChar))
+					return CompletionResult.Empty;
+			}
 
 			if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)) {
 				// should be SyntaxKind.SingleLineDocumentationCommentTrivia - but seems to be broken/not working
@@ -276,6 +284,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 
 			var result = new CompletionResult();
+			if (!ctx.TargetToken.IsKind(SyntaxKind.DotToken) &&
+				!ctx.TargetToken.IsKind(SyntaxKind.UsingKeyword)) {
+				result.InsertTemplatesInList = true;
+			}
 
 			foreach (var handler in handlers)
 				handler.GetCompletionData(result, this, ctx, semanticModel, position, cancellationToken);
@@ -289,6 +301,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					result.AutoSelect = false;
 				}
 			}
+
 			if (ctx.LeftToken.Parent != null &&
 				ctx.LeftToken.Parent.Parent != null &&
 				ctx.TargetToken.Parent != null && !ctx.TargetToken.Parent.IsKind(SyntaxKind.NameEquals) &&
