@@ -163,7 +163,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						).WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia()));
 				}
 
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '&&'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}
