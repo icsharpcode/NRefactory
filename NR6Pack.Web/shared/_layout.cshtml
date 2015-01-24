@@ -1,5 +1,13 @@
 ﻿@{
 }
+@functions
+{
+}
+@helper RenderActiveClassFor(string expectedPath){
+    if (0 == String.Compare(Request.Url.AbsolutePath, expectedPath, true)) {
+        @: class="active"
+    }
+}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -41,11 +49,11 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li> @*class="active"*@
-            <li><a href="Refactorings">Refactorings</a></li>
-            <li><a href="Analyzers">Analyzers</a></li>
-            <li><a href="Videos">Videos</a></li>
-            <li><a href="News">News</a></li>
+            <li @RenderActiveClassFor("/")><a href="/">Home</a></li>
+            <li @RenderActiveClassFor("/Refactorings")><a href="Refactorings">Refactorings</a></li>
+            <li @RenderActiveClassFor("/Analyzers")><a href="Analyzers">Analyzers</a></li>
+            <li @RenderActiveClassFor("/Videos")><a href="Videos">Videos</a></li>
+            <li @RenderActiveClassFor("/News")><a href="News">News</a></li>
             @*<li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
@@ -60,7 +68,7 @@
             </li>*@
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="Contact">Contact</a></li>
+            <li @RenderActiveClassFor("/Contact")><a href="Contact">Contact</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
