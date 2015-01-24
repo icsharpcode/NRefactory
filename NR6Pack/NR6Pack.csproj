@@ -254,6 +254,12 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeActions\UseVarKeywordAction.cs">
       <Link>CodeActions\UseVarKeywordAction.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Custom\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs">
+      <Link>CodeIssues\CS0659OverrideEqualWithoutGetHashCode.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Custom\CompilerErrors\StaticConstructorParameterIssue.cs">
+      <Link>CodeIssues\StaticConstructorParameterIssue.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Custom\ConvertIfToAndExpressionIssue.cs">
       <Link>CodeIssues\PracticesAndImprovements\ConvertIfToAndExpressionIssue.cs</Link>
     </Compile>

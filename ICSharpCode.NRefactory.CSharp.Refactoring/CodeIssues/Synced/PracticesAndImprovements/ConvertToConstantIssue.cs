@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId  = "ConvertToConstantIssue";
 		const string Description            = "Convert local variable or field to constant";
-		const string MessageFormat          = "";
+		const string MessageFormat          = "Convert to constant";
 		const string Category               = IssueCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Convert local variable or field to constant");

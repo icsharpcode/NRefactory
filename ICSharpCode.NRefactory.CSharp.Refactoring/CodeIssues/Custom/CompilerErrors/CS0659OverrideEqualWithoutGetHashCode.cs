@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId = "CS0659ClassOverrideEqualsWithoutGetHashCode";
 		const string Description = "If two objects are equal then they must both have the same hash code";
-		const string MessageFormat = "";
+		const string MessageFormat = "Add 'GetHashCode' method";
 		const string Category = IssueCategories.CompilerWarnings;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "CS0659: Class overrides Object.Equals but not Object.GetHashCode.");

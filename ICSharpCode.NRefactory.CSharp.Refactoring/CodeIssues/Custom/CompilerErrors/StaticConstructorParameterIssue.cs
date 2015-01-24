@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		internal const string DiagnosticId = "StaticConstructorParameterIssue";
 		const string Description = "Static constructor should be parameterless";
-		const string MessageFormat = "";
+		const string MessageFormat = "Remove parameters";
 		const string Category = IssueCategories.CompilerErrors;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Error, true, "Static constructor should be parameterless");
