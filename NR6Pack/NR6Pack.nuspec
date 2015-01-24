@@ -10,7 +10,7 @@
 		<projectUrl>https://visualstudiogallery.msdn.microsoft.com/68c1575b-e0bf-420d-a94b-1b0f4bcdcbcc</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Roslyn-based analyzers from the NRefactory OSS library for Visual Studio 2015.</description>
-		<releaseNotes>Bugfix release.</releaseNotes>
+		<releaseNotes>Now ready for CTP 5, new analyzers, several bug fixes.</releaseNotes>
 		<copyright>Copyright (c) 2014-2015 AlphaSierraPapa</copyright>
 		<tags>VS 2015 Roslyn NRefactory Analyzer</tags>
 		<frameworkAssemblies>
