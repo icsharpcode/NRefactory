@@ -16,5 +16,5 @@ $projectDirectory = ($MyInvocation.MyCommand.Path | split-path -Parent | split-p
 $nuGetBinPath = (join-path $projectDirectory ../Packages/NuGet.CommandLine.2.8.2/tools)
 
 pushd $nuGetBinPath
-./NuGet.exe pack (join-path $projectDirectory NR6Pack.nuspec) -BasePath (join-path $projectDirectory bin/$buildType) -OutputDirectory (join-path $projectDirectory bin/$buildType)
+./NuGet.exe pack (join-path $projectDirectory NR6Pack.nuspec) -NoPackageAnalysis -BasePath (join-path $projectDirectory bin/$buildType) -OutputDirectory (join-path $projectDirectory bin/$buildType)
 popd
