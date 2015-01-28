@@ -51,7 +51,7 @@ class Foo
 	{
 	}
 }
-");
+", expectErrors: true);
 		}
 
 		[Test]

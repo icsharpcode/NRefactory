@@ -860,13 +860,19 @@ namespace Mono.CSharp
 
 		public string GetUsing ()
 		{
+			if (source_file == null || source_file.Usings == null)
+				return string.Empty;
+
 			StringBuilder sb = new StringBuilder ();
 			// TODO:
 			//foreach (object x in ns.using_alias_list)
 			//    sb.AppendFormat ("using {0};\n", x);
 
 			foreach (var ue in source_file.Usings) {
-				sb.AppendFormat ("using {0};", ue.ToString ());
+				if (ue.Alias != null || ue.ResolvedExpression == null)
+					continue;
+
+				sb.AppendFormat("using {0};", ue.ToString ());
 				sb.Append (Environment.NewLine);
 			}
 
@@ -877,7 +883,11 @@ namespace Mono.CSharp
 		{
 			var res = new List<string> ();
 
-			foreach (var ue in source_file.Usings) {
+			if (source_file == null || source_file.Usings == null)
+				return res;
+
+			foreach (var ue in source_file.Usings)
+			{
 				if (ue.Alias != null || ue.ResolvedExpression == null)
 					continue;
 
@@ -1274,7 +1284,7 @@ namespace Mono.CSharp
 
 			if (current_container.Containers != null)
 			{
-				var existing = current_container.Containers.FirstOrDefault (l => l.Basename == tc.Basename);
+				var existing = current_container.Containers.FirstOrDefault (l => l.MemberName.Basename == tc.MemberName.Basename);
 				if (existing != null) {
 					current_container.RemoveContainer (existing);
 					undo_actions.Add (() => current_container.AddTypeContainer (existing));

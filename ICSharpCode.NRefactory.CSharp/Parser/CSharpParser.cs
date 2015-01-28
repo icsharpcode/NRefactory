@@ -136,7 +136,17 @@ namespace ICSharpCode.NRefactory.CSharp
 			void AddTypeArguments(ATypeNameExpression texpr, AstType result)
 			{
 				var unbound = texpr.TypeArguments as UnboundTypeArguments;
-				if (unbound != null) { 
+				if (unbound != null) {
+					TextLocation ll = Convert (texpr.Location);
+					result.AddChild(new CSharpTokenNode(ll, Roles.LChevron), Roles.LChevron);
+					ll = new TextLocation (ll.Line, ll.Column + 1);
+					for (int j = 0; j < unbound.Count; j++) {
+						result.AddChild (new SimpleType (), Roles.TypeArgument);
+						result.AddChild(new CSharpTokenNode(ll, Roles.LChevron), Roles.Comma);
+						ll = new TextLocation (ll.Line, ll.Column + 1);
+					}
+					result.AddChild(new CSharpTokenNode(ll, Roles.RChevron), Roles.RChevron);
+					/*
 					var loc2 = LocationsBag.GetLocations(texpr.TypeArguments);
 					if (loc2 == null)
 						return;
@@ -150,7 +160,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					if (j < loc2.Count) {
 						result.AddChild (new SimpleType (), Roles.TypeArgument);
 						result.AddChild(new CSharpTokenNode(Convert(loc2 [j++]), Roles.RChevron), Roles.RChevron);
-					}
+					}*/
 					return;
 				}
 				if (texpr.TypeArguments == null || texpr.TypeArguments.Args == null)
@@ -448,6 +458,18 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 
 			public override void Visit(UsingNamespace un)
+			{
+				var ud = new UsingDeclaration();
+				var loc = LocationsBag.GetLocations(un);
+				ud.AddChild(new CSharpTokenNode(Convert(un.Location), UsingDeclaration.UsingKeywordRole), UsingDeclaration.UsingKeywordRole);
+				if (un.NamespaceExpression != null)
+					ud.AddChild(ConvertToType(un.NamespaceExpression), UsingDeclaration.ImportRole);
+				if (loc != null)
+					ud.AddChild(new CSharpTokenNode(Convert(loc [0]), Roles.Semicolon), Roles.Semicolon);
+				AddToNamespace(ud);
+			}
+
+			public override void Visit(UsingClause un)
 			{
 				var ud = new UsingDeclaration();
 				var loc = LocationsBag.GetLocations(un);

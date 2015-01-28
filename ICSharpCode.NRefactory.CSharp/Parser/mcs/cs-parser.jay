@@ -266,6 +266,9 @@ namespace Mono.CSharp
 %token ASYNC
 %token AWAIT
 %token INTERR_OPERATOR
+%token WHEN
+%token INTERPOLATED_STRING
+%token INTERPOLATED_STRING_END
 
 /* C# keywords which are not really keywords */
 %token GET
@@ -468,30 +471,49 @@ using_directive
 	;
 
 using_namespace
-	: USING namespace_or_type_expr SEMICOLON 
+	: USING opt_static namespace_or_type_expr SEMICOLON
 	  {
-		var un = new UsingNamespace ((ATypeNameExpression) $2, GetLocation ($1));
-		current_namespace.AddUsing (un);
-		
-		lbag.AddLocation (un, GetLocation ($3));
+		UsingClause uc;
+		if ($2 != null) {
+			if (lang_version <= LanguageVersion.V_5)
+				FeatureIsNotAvailable (GetLocation ($2), "using static");
+
+			uc = new UsingType ((ATypeNameExpression) $3, GetLocation ($1));
+			lbag.AddLocation (uc, GetLocation ($2), GetLocation ($4));
+		} else {
+			uc = new UsingNamespace ((ATypeNameExpression) $3, GetLocation ($1));
+			lbag.AddLocation (uc, GetLocation ($4));
+		}
+
+		current_namespace.AddUsing (uc);
 	  }
-	| USING IDENTIFIER ASSIGN namespace_or_type_expr SEMICOLON
+	| USING opt_static IDENTIFIER ASSIGN namespace_or_type_expr SEMICOLON
 	  {
-		var lt = (LocatedToken) $2;
+		var lt = (LocatedToken) $3;
 		if (lang_version != LanguageVersion.ISO_1 && lt.Value == "global") {
 			report.Warning (440, 2, lt.Location,
 			 "An alias named `global' will not be used when resolving `global::'. The global namespace will be used instead");
 		}
 
-		var un = new UsingAliasNamespace (new SimpleMemberName (lt.Value, lt.Location), (ATypeNameExpression) $4, GetLocation ($1));
+		if ($2 != null) {
+			report.Error (8085, GetLocation ($2), "A `using static' directive cannot be used to declare an alias");
+		}
+
+		var un = new UsingAliasNamespace (new SimpleMemberName (lt.Value, lt.Location), (ATypeNameExpression) $5, GetLocation ($1));
 		current_namespace.AddUsing (un);
-		lbag.AddLocation (un, GetLocation ($3), GetLocation ($5));
+		
+		lbag.AddLocation (un, GetLocation ($4), GetLocation ($6));
 	  }
 	| USING error
 	 {
 		Error_SyntaxError (yyToken);
 		$$ = null;
 	 }
+	;
+
+opt_static
+	:
+	| STATIC
 	;
 
 //
@@ -748,7 +770,9 @@ attribute_section_cont
 	  }
 	| error
 	  {
- 		CheckAttributeTarget (yyToken, GetTokenName (yyToken), GetLocation ($1)); 
+		if (CheckAttributeTarget (yyToken, GetTokenName (yyToken), GetLocation ($1)).Length > 0)
+			Error_SyntaxError (yyToken);
+
  		$$ = null;
 	  }
 	;	
@@ -893,7 +917,7 @@ named_attribute_argument
 	;
 	
 named_argument
-	: identifier_inside_body COLON opt_named_modifier expression_or_error
+	: identifier_inside_body COLON opt_named_modifier named_argument_expr
 	  {
 		if (lang_version <= LanguageVersion.V_3)
 			FeatureIsNotAvailable (GetLocation ($1), "named argument");
@@ -905,6 +929,11 @@ named_argument
 		$$ = new NamedArgument (lt.Value, lt.Location, (Expression) $4, arg_mod);
 		lbag.AddLocation ($$, GetLocation($2));
 	  }
+	;
+
+named_argument_expr
+	: expression_or_error
+//	| declaration_expression
 	;
 	
 opt_named_modifier
@@ -2230,6 +2259,8 @@ operator_declarator
 	: operator_type OPERATOR overloadable_operator OPEN_PARENS
 	  {
 		valid_param_mod = ParameterModifierType.DefaultValue;
+		if ((Operator.OpType) $3 == Operator.OpType.Is)
+			valid_param_mod |= ParameterModifierType.Out;
 	  }
 	  opt_formal_parameter_list CLOSE_PARENS
 	  {
@@ -2254,6 +2285,8 @@ operator_declarator
 				report.Error (1535, loc, "Overloaded unary operator `{0}' takes one parameter",
 					Operator.GetName (op));
 			}
+		} else if (op == Operator.OpType.Is) {
+			// TODO: Special checks for is operator
 		} else {
 			if (p_count == 1) {
 				report.Error (1019, loc, "Overloadable unary operator expected");
@@ -2300,6 +2333,13 @@ overloadable_operator
         | OP_LT { $$ = Operator.OpType.LessThan; savedOperatorLocation = GetLocation ($1); }
         | OP_GE { $$ = Operator.OpType.GreaterThanOrEqual; savedOperatorLocation = GetLocation ($1); }
         | OP_LE { $$ = Operator.OpType.LessThanOrEqual; savedOperatorLocation = GetLocation ($1); }
+	| IS
+	  {
+		if (lang_version != LanguageVersion.Experimental)
+			FeatureIsNotAvailable (GetLocation ($1), "is user operator");
+		savedOperatorLocation = GetLocation ($1);
+		$$ = Operator.OpType.Is;
+	  }
 	;
 
 conversion_operator_declarator
@@ -2403,10 +2443,24 @@ constructor_declarator
 		if (lt.Value != current_container.MemberName.Name) {
 			report.Error (1520, c.Location, "Class, struct, or interface method must have a return type");
 		} else if ((mods & Modifiers.STATIC) != 0) {
+			if (!current_local_parameters.IsEmpty) {
+				report.Error (132, c.Location, "`{0}': The static constructor must be parameterless",
+					c.GetSignatureForError ());
+			}
+
 			if ((mods & Modifiers.AccessibilityMask) != 0){
 				report.Error (515, c.Location,
 					"`{0}': static constructor cannot have an access modifier",
 					c.GetSignatureForError ());
+			}
+		} else {
+			if (current_type.Kind == MemberKind.Struct && current_local_parameters.IsEmpty) {
+				if (lang_version < LanguageVersion.V_6)
+					FeatureIsNotAvailable (GetLocation ($3), "struct parameterless instance constructor");
+
+				if ((mods & Modifiers.PUBLIC) == 0) {
+					report.Error (8075, c.Location, "`{0}': Structs parameterless instance constructor must be public", c.GetSignatureForError ());
+				}
 			}
 		}
 
@@ -2972,9 +3026,8 @@ namespace_or_type_expr
 	  {
 		var lt1 = (LocatedToken) $1;
 		var lt2 = (LocatedToken) $2;
-		var qam = new QualifiedAliasMember (lt1.Value, lt2.Value, (int) $3, lt1.Location);
-		lbag.AddLocation (qam.TypeArguments, Lexer.GenericDimensionLocations);
-		$$ = qam;
+
+		$$ = new QualifiedAliasMember (lt1.Value, lt2.Value, (int) $3, lt1.Location);
 		lbag.AddLocation ($$, GetLocation ($2));
 	  }
 	;
@@ -2990,9 +3043,7 @@ member_name
 	| namespace_or_type_expr DOT IDENTIFIER generic_dimension
 	  {
 		var lt = (LocatedToken) $3;
-		var ma = new MemberAccess ((Expression) $1, lt.Value, (int) $4, lt.Location);
-		lbag.AddLocation (ma.TypeArguments, Lexer.GenericDimensionLocations);
-		$$ = ma;
+		$$ = new MemberAccess ((Expression) $1, lt.Value, (int) $4, lt.Location);
 		lbag.AddLocation ($$, GetLocation ($2));
 	  }
 	;
@@ -3006,9 +3057,7 @@ simple_name_expr
 	| IDENTIFIER generic_dimension
 	  {  
 		var lt = (LocatedToken) $1;
-		var sn = new SimpleName (lt.Value, (int) $2, lt.Location);
-		lbag.AddLocation (sn.TypeArguments, Lexer.GenericDimensionLocations);
-		$$ = sn;
+		$$ = new SimpleName (lt.Value, (int) $2, lt.Location);
 	  }
 	;
 
@@ -3023,7 +3072,7 @@ opt_type_argument_list
 			FeatureIsNotAvailable (GetLocation ($1), "generics");
 		var list = locationListStack.Pop ();
 		list.Add (GetLocation ($1));
-		list.Add (GetLocation ($2));
+		list.Add (GetLocation ($3));
 		lbag.AddLocation ($2, list);
 	
 		$$ = $2;;
@@ -3326,7 +3375,7 @@ integral_type
 
 
 primary_expression
-	: primary_expression_or_type
+	: type_name_expression
 	| literal
 	| array_creation_expression
 	| parenthesized_expression
@@ -3346,9 +3395,10 @@ primary_expression
 	| pointer_member_access
 	| anonymous_method_expression
 	| undocumented_expressions
+	| interpolated_string
 	;
 
-primary_expression_or_type
+type_name_expression
 	: simple_name_expr
 	| IDENTIFIER GENERATE_COMPLETION {
 		var lt = (LocatedToken) $1;
@@ -3366,6 +3416,71 @@ literal
 boolean_literal
 	: TRUE			{ $$ = new BoolLiteral (compiler.BuiltinTypes, true, GetLocation ($1)); }
 	| FALSE			{ $$ = new BoolLiteral (compiler.BuiltinTypes, false, GetLocation ($1)); }
+	;
+
+interpolated_string
+	: INTERPOLATED_STRING interpolations INTERPOLATED_STRING_END
+	  {
+		$$ = new InterpolatedString ((StringLiteral) $1, (List<Expression>) $2, (StringLiteral) $3);
+	  }
+	| INTERPOLATED_STRING_END
+	  {
+		$$ = new InterpolatedString ((StringLiteral) $1, null, null);
+	  }
+	;
+
+interpolations
+	: interpolation
+	  {
+		var list = new List<Expression> ();
+		list.Add ((InterpolatedStringInsert) $1);
+		$$ = list;
+	  }
+	| interpolations INTERPOLATED_STRING interpolation
+	  {
+		var list = (List<Expression>) $1;
+		list.Add ((StringLiteral) $2);
+		list.Add ((InterpolatedStringInsert) $3);
+		$$ = list;
+	  }
+	;
+
+interpolation
+	: expression
+	  {
+		$$ = new InterpolatedStringInsert ((Expression) $1);
+	  }
+	| expression COMMA expression
+	  {
+		$$ = new InterpolatedStringInsert ((Expression) $1) {
+			Alignment = (Expression)$3
+		};
+	  }
+	| expression COLON
+	  {
+		lexer.parsing_interpolation_format = true;
+	  }
+	  LITERAL
+	  {
+		lexer.parsing_interpolation_format = false;
+
+		$$ = new InterpolatedStringInsert ((Expression) $1) {
+			Format = (string)$4
+		};
+	  }
+	| expression COMMA expression COLON
+	  {
+		lexer.parsing_interpolation_format = true;
+	  }
+	  LITERAL
+	  {
+		lexer.parsing_interpolation_format = false;
+
+		$$ = new InterpolatedStringInsert ((Expression) $1) {
+			Alignment = (Expression)$3,
+			Format = (string) $6
+		};
+	  }
 	;
 
 
@@ -3411,9 +3526,7 @@ member_access
 	| primary_expression DOT identifier_inside_body generic_dimension
 	  {
 		var lt = (LocatedToken) $3;
-		var ma = new MemberAccess ((Expression) $1, lt.Value, (int) $4, lt.Location);
-		lbag.AddLocation (ma.TypeArguments, Lexer.GenericDimensionLocations);
-		$$ = ma;
+		$$ = new MemberAccess ((Expression) $1, lt.Value, (int) $4, lt.Location);
 		lbag.AddLocation ($$, GetLocation ($2));
 	  }
 	| primary_expression INTERR_OPERATOR DOT identifier_inside_body opt_type_argument_list
@@ -3455,9 +3568,8 @@ member_access
 	  {
 		var lt1 = (LocatedToken) $1;
 		var lt2 = (LocatedToken) $2;
-		var qam = new QualifiedAliasMember (lt1.Value, lt2.Value, (int) $3, lt1.Location);
-		lbag.AddLocation (qam.TypeArguments, Lexer.GenericDimensionLocations);
-		$$ = qam;
+
+		$$ = new QualifiedAliasMember (lt1.Value, lt2.Value, (int) $3, lt1.Location);
 		lbag.AddLocation ($$, GetLocation ($2));
 	  }
 	| primary_expression DOT GENERATE_COMPLETION {
@@ -3674,10 +3786,18 @@ non_simple_argument
 		$$ = new Argument ((Expression) $2, Argument.AType.Ref);
 		lbag.AddLocation ($$, GetLocation ($1));
 	  }
+	| REF declaration_expression
+	  {
+		$$ = new Argument ((Expression) $2, Argument.AType.Ref);
+	  }
 	| OUT variable_reference 
 	  { 
 		$$ = new Argument ((Expression) $2, Argument.AType.Out);
 		lbag.AddLocation ($$, GetLocation ($1));
+	  }
+	| OUT declaration_expression
+	  {
+		$$ = new Argument ((Expression) $2, Argument.AType.Out);
 	  }
 	| ARGLIST OPEN_PARENS argument_list CLOSE_PARENS
 	  {
@@ -3689,6 +3809,48 @@ non_simple_argument
 		$$ = new Argument (new Arglist (GetLocation ($1)));
 		lbag.AddLocation ($$, GetLocation ($2), GetLocation ($3));
 	  }	  
+	;
+
+declaration_expression
+	: OPEN_PARENS declaration_expression CLOSE_PARENS
+	  {
+		$$ = new ParenthesizedExpression ((Expression) $2, GetLocation ($1));
+		lbag.AddLocation ($$, GetLocation ($1), GetLocation ($3));
+	  }
+/*
+	| CHECKED open_parens_any declaration_expression CLOSE_PARENS
+	  {
+		$$ = new CheckedExpr ((Expression) $3, GetLocation ($1));
+		lbag.AddLocation ($$, GetLocation ($2), GetLocation ($4));
+	  }
+	| UNCHECKED open_parens_any declaration_expression CLOSE_PARENS
+	  {
+		$$ = new UnCheckedExpr ((Expression) $3, GetLocation ($1));
+		lbag.AddLocation ($$, GetLocation ($2), GetLocation ($4));
+	  }
+*/
+	| variable_type identifier_inside_body
+	  {
+		if (lang_version != LanguageVersion.Experimental)
+			FeatureIsNotAvailable (GetLocation ($1), "declaration expression");
+
+		var lt = (LocatedToken) $2;
+		var lv = new LocalVariable (current_block, lt.Value, lt.Location);
+		current_block.AddLocalName (lv);
+		$$ = new DeclarationExpression ((FullNamedExpression) $1, lv);
+	  }
+	| variable_type identifier_inside_body ASSIGN expression
+	  {
+		if (lang_version != LanguageVersion.Experimental)
+			FeatureIsNotAvailable (GetLocation ($1), "declaration expression");
+
+		var lt = (LocatedToken) $2;
+		var lv = new LocalVariable (current_block, lt.Value, lt.Location);
+		current_block.AddLocalName (lv);
+		$$ = new DeclarationExpression ((FullNamedExpression) $1, lv) {
+			Initializer = (Expression) $4
+		};
+	  }
 	;
 
 variable_reference
@@ -4391,7 +4553,7 @@ additive_expression
 	  {
 		$$ = new As ((Expression) $1, (Expression) $3, GetLocation ($2));
 	  }
-	| additive_expression IS is_match_expr opt_identifier
+	| additive_expression IS pattern_type_expr opt_identifier
 	  {
 		var is_expr = new Is ((Expression) $1, (Expression) $3, GetLocation ($2));
 		if ($4 != null) {
@@ -4402,6 +4564,14 @@ additive_expression
 			is_expr.Variable = new LocalVariable (current_block, lt.Value, lt.Location);
 			current_block.AddLocalName (is_expr.Variable);
 		}
+
+		$$ = is_expr;
+	  }
+	| additive_expression IS pattern_expr
+	  {
+		var is_expr = new Is ((Expression) $1, (Expression) $3, GetLocation ($2));
+		if (lang_version != LanguageVersion.Experimental)
+			FeatureIsNotAvailable (GetLocation ($2), "pattern matching");
 
 		$$ = is_expr;
 	  }
@@ -4429,16 +4599,12 @@ additive_expression
 	  }
 	;
 
-is_match_expr
-	: match_type
-	| match_type rank_specifiers
-	  {
-		if ($1 is VarExpr)
-			$1 = new SimpleName ("var", ((VarExpr) $1).Location);
+pattern_type_expr
+	: variable_type
+	;
 
-		$$ = new ComposedCast ((FullNamedExpression) $1, (ComposedTypeSpecifier) $2);
-	  }
-	| literal
+pattern_expr
+	: literal
 	| PLUS prefixed_unary_expression
 	  {
 		$$ = new Unary (Unary.Operator.UnaryPlus, (Expression) $2, GetLocation ($1));
@@ -4447,38 +4613,106 @@ is_match_expr
 	  {
 		$$ = new Unary (Unary.Operator.UnaryNegation, (Expression) $2, GetLocation ($1));
 	  }
+	| sizeof_expression
+	| default_value_expression
+	| OPEN_PARENS_CAST type CLOSE_PARENS prefixed_unary_expression
+	  {
+		$$ = new Cast ((FullNamedExpression) $2, (Expression) $4, GetLocation ($1));
+		lbag.AddLocation ($$, GetLocation ($3));
+	  }
+	| STAR
+	  {
+		$$ = new WildcardPattern (GetLocation ($1));
+	  }
+	| pattern_expr_invocation
+	| pattern_property
 	;
 
-match_type
-	: primary_expression_or_type opt_nullable
+pattern_expr_invocation
+	: type_name_expression OPEN_PARENS opt_pattern_list CLOSE_PARENS
 	  {
-		Expression expr = (Expression) $1;
-		if ($2 == null) {
-			SimpleName sn = expr as SimpleName;
-			if (sn != null && sn.Name == "var")
-				$$ = new VarExpr (sn.Location);
-			else
-				$$ = $1;
-		} else if (expr is ATypeNameExpression) {
-			$$ = new ComposedCast ((ATypeNameExpression)expr, (ComposedTypeSpecifier) $2);
-		} else {
-			Error_ExpectingTypeName (expr);
-			$$ = null;
-		}
+		$$ = new RecursivePattern ((ATypeNameExpression) $1, (Arguments) $3, GetLocation ($2));
 	  }
-	| primary_expression_or_type pointer_stars
-	  {
-		ATypeNameExpression expr = $1 as ATypeNameExpression;
+	;
 
-		if (expr != null) {
-			$$ = new ComposedCast (expr, (ComposedTypeSpecifier) $2);
-		} else {
-			Error_ExpectingTypeName ((Expression)$1);
-			$$ = expr;
+pattern_property
+	: type_name_expression OPEN_BRACE pattern_property_list CLOSE_BRACE
+	  {
+		$$ = new PropertyPattern ((ATypeNameExpression) $1, (List<PropertyPatternMember>) $3, GetLocation ($2));
+	  }
+	;
+
+pattern_property_list
+	: pattern_property_entry
+	  {
+		var list = new List<PropertyPatternMember> ();
+		list.Add ((PropertyPatternMember) $1);
+		$$ = list;
+	  }
+	| pattern_property_list COMMA pattern_property_entry
+	  {
+		var list = (List<PropertyPatternMember>) $1;
+		list.Add ((PropertyPatternMember) $3);
+		$$ = list;
+	  }
+	;
+
+pattern_property_entry
+	: identifier_inside_body IS pattern
+	  {
+		var lt = (LocatedToken) $1;
+		$$ = new PropertyPatternMember (lt.Value, (Expression) $3, lt.Location);
+	  }
+	;
+
+pattern
+	: pattern_expr
+	| pattern_type_expr opt_identifier
+	  {
+	  	if ($2 != null) {
+			var lt = (LocatedToken) $2;
+			var variable = new LocalVariable (current_block, lt.Value, lt.Location);
+			current_block.AddLocalName (variable);
 		}
 	  }
-	| builtin_type_expression
-	| void_invalid
+	;
+
+opt_pattern_list
+	: /* empty */
+	  {
+		$$ = new Arguments (0);
+	  }
+	| pattern_list
+	;
+
+pattern_list
+	: pattern_argument
+	  {
+		Arguments args = new Arguments (4);
+		args.Add ((Argument) $1);
+		$$ = args;
+	  }
+	| pattern_list COMMA pattern_argument
+	  {
+		Arguments args = (Arguments) $1;
+		if (args [args.Count - 1] is NamedArgument && !($3 is NamedArgument))
+			Error_NamedArgumentExpected ((NamedArgument) args [args.Count - 1]);
+
+		args.Add ((Argument) $3);
+		$$ = args;
+	  }
+	;
+
+pattern_argument
+	: pattern
+	  {
+		$$ = new Argument ((Expression) $1);
+	  }
+	| IDENTIFIER COLON pattern
+	  {
+		var lt = (LocatedToken) $1;
+		$$ = new NamedArgument (lt.Value, lt.Location, (Expression) $3);
+	  }
 	;
 
 shift_expression
@@ -4983,7 +5217,7 @@ primary_parameters
 		// Cannot use opt_formal_parameter_list because it can be shared instance for empty parameters
 	  	lbag.AppendToMember (current_container, GetLocation ($1), GetLocation ($3));
 
-		if (lang_version < LanguageVersion.V_6)
+		if (lang_version != LanguageVersion.Experimental)
 			FeatureIsNotAvailable (GetLocation ($1), "primary constructor");
 	  }
 	;
@@ -5572,7 +5806,7 @@ variable_type
  * > The expressions are converted into types during semantic analysis.
  */
 variable_type_simple
-	: primary_expression_or_type opt_nullable
+	: type_name_expression opt_nullable
 	  { 
 		// Ok, the above "primary_expression" is there to get rid of
 		// both reduce/reduce and shift/reduces in the grammar, it should
@@ -5588,30 +5822,20 @@ variable_type_simple
 		// SimpleName is when you have
 		// Blah i;
 		
-		Expression expr = (Expression) $1;
+		var expr = (ATypeNameExpression) $1;
 		if ($2 == null) {
-			SimpleName sn = expr as SimpleName;
-			if (sn != null && sn.Name == "var")
-				$$ = new VarExpr (sn.Location);
+			if (expr.Name == "var" && expr is SimpleName)
+				$$ = new VarExpr (expr.Location);
 			else
 				$$ = $1;
-		} else if (expr is ATypeNameExpression) {
-			$$ = new ComposedCast ((ATypeNameExpression)expr, (ComposedTypeSpecifier) $2);
 		} else {
-			Error_ExpectingTypeName (expr);
-			$$ = null;
+			$$ = new ComposedCast (expr, (ComposedTypeSpecifier) $2);
 		}
 	  }
-	| primary_expression_or_type pointer_stars
+	| type_name_expression pointer_stars
 	  {
-		ATypeNameExpression expr = $1 as ATypeNameExpression;
-
-		if (expr != null) {
-			$$ = new ComposedCast (expr, (ComposedTypeSpecifier) $2);
-		} else {
-			Error_ExpectingTypeName ((Expression)$1);
-			$$ = expr;
-		}
+		var expr = (ATypeNameExpression) $1;
+		$$ = new ComposedCast (expr, (ComposedTypeSpecifier) $2);
 	  }
 	| builtin_type_expression
 	| void_invalid
@@ -5946,6 +6170,18 @@ switch_label
 		Error_SyntaxError (yyToken);
 		$$ = new SwitchLabel ((Expression) $2, GetLocation ($1));
 	  }
+/*	  
+	| CASE pattern_expr_invocation COLON
+	  {
+		if (lang_version != LanguageVersion.Experimental)
+			FeatureIsNotAvailable (GetLocation ($2), "pattern matching");
+
+		$$ = new SwitchLabel ((Expression) $2, GetLocation ($1)) {
+			PatternMatching = true
+		};
+		lbag.AddLocation ($$, GetLocation ($3));
+	  }
+*/
 	| DEFAULT_COLON
 	  {
 		$$ = new SwitchLabel (null, GetLocation ($1));
@@ -6422,8 +6658,9 @@ catch_clause
 
 		lbag.AddLocation (c, GetLocation ($2), GetLocation ($5));
 		$$ = c;
+		lexer.parsing_catch_when = true;
 	  }
-	  opt_catch_filter block_prepared
+	  opt_catch_filter_or_error
 	  {
 	  	((Catch) $6).Filter = (CatchFilterExpression) $7;
 		$$ = $6;
@@ -6439,40 +6676,36 @@ catch_clause
 		
 		$$ = new Catch (null, GetLocation ($1));
 	  }
-	| CATCH open_parens_any type opt_identifier CLOSE_PARENS error
+	;
+
+opt_catch_filter_or_error
+	: opt_catch_filter block_prepared
 	  {
+		$$ = $1;
+	  }
+	| error
+	  {
+		end_block (Location.Null);
 		Error_SyntaxError (yyToken);
-
-		// Required otherwise missing block could not be detected because
-		// start_block is run early
-		var c = new Catch (null, GetLocation ($1));
-		c.TypeExpression = (FullNamedExpression) $3;
-		
-		if ($4 != null) {
-			var lt = (LocatedToken) $4;
-			c.Variable = new LocalVariable (current_block, lt.Value, lt.Location);
-		}
-
-		if ($4 != null) {
-			var lt = (LocatedToken) $4;
-			c.Variable = new LocalVariable (current_block, lt.Value, lt.Location);
-		}
-
-		lbag.AddLocation (c, GetLocation ($2), GetLocation ($5));
-
-		$$ = c;
+		$$ = null;
 	  }
 	;
 
 opt_catch_filter
-	: /* empty */
-	| IF open_parens_any expression CLOSE_PARENS
+	: {
+		lexer.parsing_catch_when = false;
+	  }
+	| WHEN
+	  {
+		lexer.parsing_catch_when = false;
+	  }
+	  open_parens_any expression CLOSE_PARENS
 	  {
 		if (lang_version <= LanguageVersion.V_5)
 			FeatureIsNotAvailable (GetLocation ($1), "exception filter");
 
-	  	$$ = new CatchFilterExpression ((Expression) $3, GetLocation ($1));
-	  	lbag.AddLocation ($$, GetLocation ($2), GetLocation ($4));
+		$$ = new CatchFilterExpression ((Expression) $4, GetLocation ($1));
+		lbag.AddLocation ($$, GetLocation ($3), GetLocation ($5));
 	  }
 	;
 
@@ -8097,7 +8330,13 @@ static string GetTokenName (int token)
 		return ";";
 	case Token.TILDE:
 		return "~";
-		
+	case Token.WHEN:
+		return "when";
+	case Token.INTERPOLATED_STRING_END:
+		return "}";
+	case Token.INTERPOLATED_STRING:
+		return "${";
+
 	case Token.PLUS:
 	case Token.UMINUS:
 	case Token.MINUS:
@@ -8132,6 +8371,7 @@ static string GetTokenName (int token)
 	case Token.OP_AND_ASSIGN:
 	case Token.OP_XOR_ASSIGN:
 	case Token.OP_OR_ASSIGN:
+	case Token.INTERR_OPERATOR:
 		return "<operator>";
 
 	case Token.BOOL:

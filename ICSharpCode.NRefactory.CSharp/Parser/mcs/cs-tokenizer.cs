@@ -236,6 +236,12 @@ namespace Mono.CSharp
 
 		public bool parsing_modifiers;
 
+		public bool parsing_catch_when;
+
+		int parsing_string_interpolation;
+
+		public bool parsing_interpolation_format;
+
 		//
 		// The special characters to inject on streams to run the unit parser
 		// in the special expression mode. Using private characters from
@@ -638,6 +644,9 @@ namespace Mono.CSharp
 			AddKeyword ("async", Token.ASYNC);
 			AddKeyword ("await", Token.AWAIT);
 
+			// Contextual filter catch keyword
+			AddKeyword ("when", Token.WHEN);
+
 			keywords_preprocessor = new KeywordEntry<PreprocessorDirective>[10][];
 
 			AddPreprocessorKeyword ("region", PreprocessorDirective.Region);
@@ -710,6 +719,10 @@ namespace Mono.CSharp
 					token ();
 					res = Token.DEFAULT_COLON;
 				}
+				break;
+			case Token.WHEN:
+				if (current_token != Token.CATCH && !parsing_catch_when)
+					res = -1;
 				break;
 			case Token.WHERE:
 				if (!(handle_where && current_token != Token.COLON) && !query_parsing)
@@ -1048,6 +1061,7 @@ namespace Mono.CSharp
 						case Token.BYTE:
 						case Token.DECIMAL:
 						case Token.BOOL:
+						case Token.STRING:
 							return Token.OPEN_PARENS_CAST;
 						}
 					}
@@ -1152,21 +1166,9 @@ namespace Mono.CSharp
 			return true;
 		}
 
-		Stack<List<Location>> genericDimensionLocations = new Stack<List<Location>> ();
-
-		public List<Location> GenericDimensionLocations {
-			get {
-				if (genericDimensionLocations.Count == 0)
-					return null;
-				return genericDimensionLocations.Pop ();
-			}
-		}
-
 		bool parse_less_than (ref int genericDimension)
 		{
-			genericDimensionLocations.Push (new List<Location> ()); 
-			genericDimensionLocations.Peek ().Add (Location);
-			start:
+		start:
 			int the_token = token ();
 			if (the_token == Token.OPEN_BRACKET) {
 				while (true) {
@@ -1202,64 +1204,50 @@ namespace Mono.CSharp
 				break;
 			case Token.OP_GENERICS_GT:
 				genericDimension = 1;
-				genericDimensionLocations.Peek ().Add (Location);
 				return true;
 			case Token.IN:
 			case Token.OUT:
-				genericDimensionLocations.Pop ();
 				return true;
 			case Token.COMMA:
 				do {
 					++genericDimension;
-					if (genericDimensionLocations.Count > 0)
-						genericDimensionLocations.Peek ().Add (Location);
 					the_token = token ();
 				} while (the_token == Token.COMMA);
 
 				if (the_token == Token.OP_GENERICS_GT) {
 					++genericDimension;
-					if (genericDimensionLocations.Count > 0)
-						genericDimensionLocations.Peek ().Add (Location);
 					return true;
 				}
 
-				genericDimensionLocations.Pop ();
 				return false;
 			default:
-				genericDimensionLocations.Pop ();
 				return false;
 			}
-			again:
+		again:
 			the_token = token ();
-			if (the_token == Token.OP_GENERICS_GT) {
-				genericDimensionLocations.Peek ().Add (Location);
+
+			if (the_token == Token.OP_GENERICS_GT)
 				return true;
-			}
 			else if (the_token == Token.COMMA || the_token == Token.DOT || the_token == Token.DOUBLE_COLON)
 				goto start;
 			else if (the_token == Token.INTERR_NULLABLE || the_token == Token.STAR)
 				goto again;
 			else if (the_token == Token.OP_GENERICS_LT) {
-				if (!parse_less_than (ref genericDimension)) {
-					genericDimensionLocations.Pop ();
+				if (!parse_less_than (ref genericDimension))
 					return false;
-				}
 				goto again;
 			} else if (the_token == Token.OPEN_BRACKET) {
-				rank_specifiers:
+			rank_specifiers:
 				the_token = token ();
 				if (the_token == Token.CLOSE_BRACKET)
 					goto again;
 				else if (the_token == Token.COMMA)
 					goto rank_specifiers;
-				genericDimensionLocations.Pop ();
 				return false;
 			}
 
-			genericDimensionLocations.Pop ();
 			return false;
 		}
-
 
 		public int peek_token ()
 		{
@@ -1309,6 +1297,7 @@ namespace Mono.CSharp
 			int next_token;
 			int parens = 0;
 			int generics = 0;
+			int brackets = 0;
 
 			var nt = xtoken ();
 			switch (nt) {
@@ -1374,6 +1363,11 @@ namespace Mono.CSharp
 					++parens;
 					goto default;
 
+				case Token.OPEN_BRACKET:
+				case Token.OPEN_BRACKET_EXPR:
+					++brackets;
+					goto default;
+
 				case Token.CLOSE_PARENS:
 					--parens;
 					goto default;
@@ -1389,7 +1383,6 @@ namespace Mono.CSharp
 					int interrs = 1;
 					int colons = 0;
 					int braces = 0;
-					int brackets = 0;
 					//
 					// All shorcuts failed, do it hard way
 					//
@@ -2030,7 +2023,7 @@ namespace Mono.CSharp
 			return current_token;
 		}
 
-		int TokenizePreprocessorIdentifier (out int c)
+		int TokenizePreprocessorKeyword (out int c)
 		{
 			int startCol, endLine, endCol;
 			return TokenizePreprocessorIdentifier (out c, out startCol, out endLine, out endCol);
@@ -2159,7 +2152,7 @@ namespace Mono.CSharp
 
 			int c;
 
-			int length = TokenizePreprocessorIdentifier (out c);
+			int length = TokenizePreprocessorKeyword (out c);
 			if (length == line_default.Length) {
 				if (!IsTokenIdentifierEqual (line_default))
 					return false;
@@ -2498,16 +2491,60 @@ namespace Mono.CSharp
 			return string_builder.ToString ();
 		}
 
-		int TokenizePragmaNumber (ref int c)
+		int TokenizePragmaWarningIdentifier (ref int c, ref bool identifier)
 		{
-			number_pos = 0;
 
-			int number;
+			if ((c >= '0' && c <= '9') || is_identifier_start_character (c)) {
+				int number;
 
-			if (c >= '0' && c <= '9') {
-				number = TokenizeNumber (c);
+				if (c >= '0' && c <= '9') {
+					number_pos = 0;
+					number = TokenizeNumber (c);
 
-				c = get_char ();
+					c = get_char ();
+
+					if (c != ' ' && c != '\t' && c != ',' && c != '\n' && c != -1 && c != UnicodeLS && c != UnicodePS) {
+						return ReadPragmaWarningComment (c);
+					}
+				} else {
+					//
+					// LAMESPEC v6: No spec what identifier really is in this context, it seems keywords are allowed too
+					//
+					int pos = 0;
+					number = -1;
+					id_builder [pos++] = (char)c;
+					while (c < MaxIdentifierLength) {
+						c = reader.Read ();
+						id_builder [pos] = (char)c;
+
+						if (c >= '0' && c <= '9') {
+							if (pos == 6 && id_builder [0] == 'C' && id_builder [1] == 'S') {
+								// Recognize CSXXXX as C# XXXX warning
+								number = 0;
+								int pow = 1000;
+								for (int i = 0; i < 4; ++i) {
+									var ch = id_builder [i + 2];
+									if (ch < '0' || ch > '9') {
+										number = -1;
+										break;
+									}
+
+									number += (ch - '0') * pow;
+									pow /= 10;
+								}
+							}
+						} else if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && c != '_') {
+							break;
+						}
+
+						++pos;
+					}
+
+					if (number < 0) {
+						identifier = true;
+						number = pos;
+					}
+				}
 
 				// skip over white space
 				while (c == ' ' || c == '\t')
@@ -2520,19 +2557,25 @@ namespace Mono.CSharp
 				// skip over white space
 				while (c == ' ' || c == '\t')
 					c = get_char ();
-			} else {
-				number = -1;
-				if (c == '/') {
-					ReadSingleLineComment ();
-				} else {
-					Report.Warning (1692, 1, Location, "Invalid number");
 
-					// Read everything till the end of the line or file
-					ReadToEndOfLine ();
-				}
+				return number;
 			}
 
-			return number;
+			return ReadPragmaWarningComment (c);
+		}
+
+		int ReadPragmaWarningComment (int c)
+		{
+			if (c == '/') {
+				ReadSingleLineComment ();
+			} else {
+				Report.Warning (1692, 1, Location, "Invalid number");
+
+				// Read everything till the end of the line or file
+				ReadToEndOfLine ();
+			}
+
+			return -1;
 		}
 
 		void ReadToEndOfLine ()
@@ -2617,10 +2660,8 @@ namespace Mono.CSharp
 							int code;
 							do {
 								var startLoc = loc;
-								#if FULL_AST
-								// int read_start = reader.Position;
-								#endif
-								code = TokenizePragmaNumber (ref c);
+								bool identifier = false;
+								code = TokenizePragmaWarningIdentifier (ref c, ref identifier);
 								if (code > 0) {
 									#if FULL_AST
 									var literal = new IntConstant(context.BuiltinTypes, code, startLoc);
@@ -2628,7 +2669,9 @@ namespace Mono.CSharp
 										pragmaDirective.Codes.Add (literal);
 								//	literal.ParsedValue = reader.ReadChars (read_start, reader.Position + 1);
 									#endif
-									if (disable) {
+									if (identifier) {
+										// no-op, custom warnings cannot occur in mcs
+									} else if (disable) {
 										Report.RegisterWarningRegion (loc).WarningDisable (loc, code, context.Report);
 									} else {
 										Report.RegisterWarningRegion (loc).WarningEnable (loc, code, context);
@@ -3076,7 +3119,7 @@ namespace Mono.CSharp
 			throw new NotImplementedException (directive.ToString ());
 		}
 
-		private int consume_string (bool quoted)
+		int consume_string (bool quoted)
 		{
 			int c;
 			int pos = 0;
@@ -3111,15 +3154,7 @@ namespace Mono.CSharp
 						continue;
 					}
 
-					string s;
-					if (pos == 0)
-						s = string.Empty;
-					else if (pos <= 4)
-						s = InternIdentifier (value_builder, pos);
-					else
-						s = new string (value_builder, 0, pos);
-
-					ILiteralConstant res = new StringLiteral (context.BuiltinTypes, s, start_location);
+					ILiteralConstant res = new StringLiteral (context.BuiltinTypes, CreateStringFromBuilder (pos), start_location);
 					val = res;
 #if FULL_AST
 					res.ParsedValue = quoted ?
@@ -3310,6 +3345,10 @@ namespace Mono.CSharp
 		
 		public int xtoken ()
 		{
+			if (parsing_interpolation_format) {
+				return TokenizeInterpolationFormat ();
+			}
+
 			int d, c;
 
 			// Whether we have seen comments on the current line
@@ -3347,6 +3386,15 @@ namespace Mono.CSharp
 					val = ltb.Create (current_source, ref_line, col);
 					return Token.OPEN_BRACE;
 				case '}':
+					if (parsing_string_interpolation > 0) {
+						if (peek_char () != '}') {
+							--parsing_string_interpolation;
+							return TokenizeInterpolatedString ();
+						}
+
+						continue;
+					}
+
 					val = ltb.Create (current_source, ref_line, col);
 					return Token.CLOSE_BRACE;
 				case '[':
@@ -3571,7 +3619,12 @@ namespace Mono.CSharp
 						return Token.OP_DIV_ASSIGN;
 					}
 					// Handle double-slash comments.
-					if (d == '/') {
+					if (d == '/'){
+						if (parsing_string_interpolation > 0) {
+							Report.Error (8077, Location, "A single-line comment may not be used in an interpolated string");
+							goto case '}';
+						}
+
 						get_char ();
 						if (doc_processing) {
 							if (peek_char () == '/') {
@@ -3780,6 +3833,13 @@ namespace Mono.CSharp
 					return Token.EOF;
 								
 				case '"':
+					if (parsing_string_interpolation > 0) {
+						parsing_string_interpolation = 0;
+						Report.Error (8076, Location, "Missing close delimiter `}' for interpolated expression");
+						val = null;
+						return Token.INTERPOLATED_STRING_END;
+					}
+
 					return consume_string (false);
 
 				case '\'':
@@ -3799,6 +3859,13 @@ namespace Mono.CSharp
 					Report.Error (1646, Location, "Keyword, identifier, or string expected after verbatim specifier: @");
 					return Token.ERROR;
 
+				case '$':
+					if (peek_char () == '"') {
+						get_char ();
+						return TokenizeInterpolatedString ();
+					}
+
+					break;
 				case EvalStatementParserCharacter:
 					return Token.EVAL_STATEMENT_PARSER;
 				case EvalCompilationUnitParserCharacter:
@@ -3922,6 +3989,120 @@ namespace Mono.CSharp
 				return Token.OP_LE;
 			}
 			return Token.OP_LT;
+		}
+
+		int TokenizeInterpolatedString ()
+		{
+			int pos = 0;
+			var start_location = Location;
+
+			while (true) {
+				var ch = get_char ();
+				switch (ch) {
+				case '"':
+					val = new StringLiteral (context.BuiltinTypes, CreateStringFromBuilder (pos), start_location);
+					return Token.INTERPOLATED_STRING_END;
+				case '{':
+					if (peek_char () == '{') {
+						value_builder [pos++] = (char)ch;
+						get_char ();
+						break;
+					}
+
+					++parsing_string_interpolation;
+					val = new StringLiteral (context.BuiltinTypes, CreateStringFromBuilder (pos), start_location);
+					return Token.INTERPOLATED_STRING;
+				case '\\':
+					++col;
+					int surrogate;
+					ch = escape (ch, out surrogate);
+					if (ch == -1)
+						return Token.ERROR;
+
+					if (ch == '{' || ch == '}') {
+						Report.Error (8087, Location, "A `{0}' character may only be escaped by doubling `{0}{0}' in an interpolated string", ((char) ch).ToString ());
+					}
+
+					if (surrogate != 0) {
+						if (pos == value_builder.Length)
+							Array.Resize (ref value_builder, pos * 2);
+
+						value_builder [pos++] = (char)ch;
+						ch = surrogate;
+					}
+
+					break;
+				case -1:
+					return Token.EOF;
+				}
+
+				++col;
+				value_builder[pos++] = (char) ch;
+			}
+		}
+
+		int TokenizeInterpolationFormat ()
+		{
+			int pos = 0;
+			int braces = 0;
+			while (true) {
+				var ch = get_char ();
+				switch (ch) {
+				case '{':
+					++braces;
+					break;
+				case '}':
+					if (braces == 0) {
+						putback_char = ch;
+						if (pos == 0) {
+							Report.Error (8089, Location, "Empty interpolated expression format specifier");
+						} else if (Array.IndexOf (simple_whitespaces, value_builder [pos - 1]) >= 0) {
+							Report.Error (8088, Location, "A interpolated expression format specifier may not contain trailing whitespace");
+						}
+
+						val = CreateStringFromBuilder (pos);
+						return Token.LITERAL;
+					}
+
+					--braces;
+					break;
+				case '\\':
+					++col;
+					int surrogate;
+					ch = escape (ch, out surrogate);
+					if (ch == -1)
+						return Token.ERROR;
+
+					if (ch == '{' || ch == '}') {
+						Report.Error (8087, Location, "A `{0}' character may only be escaped by doubling `{0}{0}' in an interpolated string", ((char) ch).ToString ());
+					}
+
+					if (surrogate != 0) {
+						if (pos == value_builder.Length)
+							Array.Resize (ref value_builder, pos * 2);
+
+						value_builder [pos++] = (char)ch;
+						ch = surrogate;
+					}
+
+					break;
+				case -1:
+					return Token.EOF;
+				}
+
+				++col;
+				value_builder[pos++] = (char) ch;
+			}
+		}
+
+		string CreateStringFromBuilder (int pos)
+		{
+			if (pos == 0)
+				return string.Empty;
+			if (pos <= 4)
+				return InternIdentifier (value_builder, pos);
+
+			return new string (value_builder, 0, pos);
 		}
 
 		//

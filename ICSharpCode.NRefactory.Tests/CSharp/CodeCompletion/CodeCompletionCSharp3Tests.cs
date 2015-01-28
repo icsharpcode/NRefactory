@@ -470,5 +470,33 @@ class A
 ");
 			Assert.IsTrue(provider == null || provider.Count == 0); // <--- here 0 item in the completion list
 		}
+
+		[Test()]
+		public void TestGroovyOperator ()
+		{
+			CompletionDataList provider = CodeCompletionBugTests.CreateProvider (
+				@"using System;
+
+class Test
+{
+	public void TestMethod ()
+	{
+	}
+}
+
+class Program
+{
+	static void Main (string[] args)
+	{
+		var t = new Test[] {};
+		foreach (var loopVar in t) {
+			$loopVar?.$
+		}
+	}
+}
+");
+			Assert.IsNotNull (provider, "provider == null");
+			Assert.IsNotNull (provider.Find ("TestMethod"), "method 'TestMethod' not found.");
+		}
 	}
 }
