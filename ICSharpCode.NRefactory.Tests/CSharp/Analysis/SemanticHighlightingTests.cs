@@ -285,59 +285,6 @@ class Class {
 			TestColor (@"extern $alias FooBar;", externAliasKeywordColor);
 		}
 
-		/// <summary>
-		/// Bug 9539 - Semantic highlighting does not detect invalid type
-		/// </summary>
-		[Test]
-		public void TestBug9539()
-		{
-			string code =@"class C<T>
-		{
-			public class N<U>
-			{
-			}
-		}
-		
-		class A
-		{
-			public static int Main ()
-			{
-				var a = typeof (C<>.$N<,>); // The type is not red even if this linedoes not compile
-				return 0;
-			}
-		}
-";
-			TestColor (code, syntaxErrorColor);
-		}
-		
-		
-		[Test]
-		public void TestTypeLookupError()
-		{
-			string code =@"
-		class A : $FooBar
-		{
-		}
-";
-			TestColor (code, syntaxErrorColor);
-		}
-
-		[Test]
-		public void TestNullTypeError()
-		{
-			string code =@"
-		class A
-		{
-			public static void Main ()
-			{
-				$var a = null;
-			}
-		}
-";
-			TestColor (code, syntaxErrorColor);
-		}
-
-
 		[Test]
 		public void TestVarColorUserTypeCase()
 		{

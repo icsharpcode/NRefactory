@@ -81,9 +81,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 
 		protected TColor stringFormatItemColor;
 
-
-		protected TColor syntaxErrorColor;
-
 		protected TextSpan region;
 
 		protected SemanticModel semanticModel;
@@ -322,11 +319,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				var vds = node.Parent as VariableDeclarationSyntax;
 				if (vds != null && vds.Variables.Count == 1) {
 					var sym = vds.Variables[0].Initializer != null ? vds.Variables[0].Initializer.Value as LiteralExpressionSyntax : null;
-					
-					if (sym != null && sym.Token.IsKind(SyntaxKind.NullKeyword)) {
-						Colorize(node.Span, syntaxErrorColor);
-						return;
-					}
 					if (symbolInfo.Symbol == null || symbolInfo.Symbol.Name != "var") {
 						Colorize(node.Span, varKeywordTypeColor);
 						return;
@@ -381,9 +373,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 		{
 			var symbol = info.Symbol;
 
-			if (info.CandidateReason != CandidateReason.None || symbol == null) {
-				color = syntaxErrorColor;
-				return true;
+			if (symbol == null) {
+				color = default(TColor);
+			return false;
 			}
 			
 			switch (symbol.Kind) {
@@ -434,8 +426,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 							color = enumerationTypeColor;
 							break;
 						case TypeKind.Error:
-							color = syntaxErrorColor;
-							break;
+							color = default(TColor);
+							return false;
 						case TypeKind.Interface:
 							color = interfaceTypeColor;
 							break;
