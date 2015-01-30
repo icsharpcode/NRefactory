@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
 	<Metadata>
-		<Identity Id="NRefactory.Templates.Vsix..b4f76dfb-f88c-45ef-aa00-12ab91ff34fb" Version="1.0" Language="en-US" Publisher="IC#Code" />
+		<Identity Id="NRefactory.VSTemplates.Vsix..b4f76dfb-f88c-45ef-aa00-12ab91ff34fb" Version="1.0" Language="en-US" Publisher="IC#Code" />
 		<DisplayName>NRefactory Issue &amp; Action Templates for Developers</DisplayName>
 		<Description xml:space="preserve">Provides additional class templates for implementation of new NRefactory and NR6Pack actions and issues.</Description>
 		<License>license.txt</License>
