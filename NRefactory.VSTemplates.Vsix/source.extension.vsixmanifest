@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+	<Metadata>
+		<Identity Id="NRefactory.Templates.Vsix..b4f76dfb-f88c-45ef-aa00-12ab91ff34fb" Version="1.0" Language="en-US" Publisher="IC#Code" />
+		<DisplayName>NRefactory Issue &amp; Action Templates for Developers</DisplayName>
+		<Description xml:space="preserve">Provides additional class templates for implementation of new NRefactory and NR6Pack actions and issues.</Description>
+		<License>license.txt</License>
+	</Metadata>
+	<Installation>
+		<InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[14.0]" />
+	</Installation>
+	<Dependencies>
+		<Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+	</Dependencies>
+	<Assets>
+		<Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="NRefactory.VSTemplates" d:TargetPath="|NRefactory.VSTemplates;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates" />
+	</Assets>
+</PackageManifest>
