@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRefactory.VSTemplates", "NRefactory.VSTemplates\NRefactory.VSTemplates.csproj", "{C4F55FC4-3214-405F-9105-363ADBFD8E1F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRefactory.VSTemplates.Vsix", "NRefactory.VSTemplates.Vsix\NRefactory.VSTemplates.Vsix.csproj", "{2DDB7B59-A2E1-4324-80D5-B484EB3EA16E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C4F55FC4-3214-405F-9105-363ADBFD8E1F} = {C4F55FC4-3214-405F-9105-363ADBFD8E1F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
