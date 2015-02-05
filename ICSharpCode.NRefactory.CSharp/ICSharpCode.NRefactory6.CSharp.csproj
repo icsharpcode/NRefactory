@@ -133,7 +133,6 @@
     <Compile Include="Reflection\CSharpSyntaxContext.cs" />
     <Compile Include="Util\CloneableStack.cs" />
     <Compile Include="Util\TypeExtensions.cs" />
-    <Compile Include="Features\Completion\CompletionCategory.cs" />
     <Compile Include="Features\Completion\CompletionResult.cs" />
     <Compile Include="Features\Completion\DisplayFlags.cs" />
     <Compile Include="Features\Completion\ICompletionData.cs" />
@@ -181,6 +180,7 @@
     <Compile Include="Util\7BitEncodedInts.cs" />
     <Compile Include="Refactoring\InsertionAction.cs" />
     <Compile Include="Refactoring\InsertionResult.cs" />
+    <Compile Include="Features\Completion\ICompletionCategory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

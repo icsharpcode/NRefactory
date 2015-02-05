@@ -27,23 +27,11 @@ using System;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	public abstract class CompletionCategory : IComparable<CompletionCategory>
+	public interface ICompletionCategory : IComparable<ICompletionCategory>
 	{
-		public string DisplayText { get; set; }
+		string DisplayText { get; set; }
 		
-		public string Icon { get; set; }
-		
-		protected CompletionCategory ()
-		{
-		}
-		
-		protected CompletionCategory (string displayText, string icon)
-		{
-			this.DisplayText = displayText;
-			this.Icon = icon;
-		}
-		
-		public abstract int CompareTo (CompletionCategory other);
+		string Icon { get; set; }
 	}
 }
 

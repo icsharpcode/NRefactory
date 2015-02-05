@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public interface ICompletionData
 	{
-		CompletionCategory CompletionCategory { get; set; }
+		ICompletionCategory CompletionCategory { get; set; }
 		
 		string DisplayText { get; set; }
 

@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 					overloadedData.Add (data);
 				}
 
-				public CompletionCategory CompletionCategory {
+				public ICompletionCategory CompletionCategory {
 					get;
 					set;
 				}
@@ -4599,7 +4599,7 @@ class Test
 }");
 			Assert.IsNotNull (provider, "provider not found.");
 			
-			var list = new List<CompletionCategory> ();
+			var list = new List<ICompletionCategory> ();
 			
 			for (int i = 0; i < provider.Count; i++) {
 				if (list.Contains (provider [i].CompletionCategory))
