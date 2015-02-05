@@ -318,5 +318,28 @@ class TestClass
     }
 }");
 		}
+
+		[Test]
+		public void TestReplaceMany()
+		{
+			Test<DeclareLocalVariableAction>(@"class TestClass
+{
+    void Test ()
+    {
+        Console.WriteLine (5 + 3);
+        Console.WriteLine (<-5 + 3->);
+        Console.WriteLine (5 + 3);
+    }
+}", @"class TestClass
+{
+    void Test ()
+    {
+        Console.WriteLine (5 + 3);
+        var i = 5 + 3;
+        Console.WriteLine (i);
+        Console.WriteLine (i);
+    }
+}", 1);
+		}
 	}
 }

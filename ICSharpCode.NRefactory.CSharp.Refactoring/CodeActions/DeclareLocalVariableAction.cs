@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var containingBlock = node.Ancestors().FirstOrDefault(a => a is BlockSyntax);
 			List<SyntaxNode> nodeList;
 			if (containingBlock != null) {
-				nodeList = containingBlock.DescendantNodes().Where(n => SyntaxFactory.AreEquivalent(n, node)).ToList();
+				nodeList = containingBlock.DescendantNodes().Where(n => span.Start <= n.SpanStart && SyntaxFactory.AreEquivalent(n, node)).ToList();
 			} else {
 				return;
 			}
