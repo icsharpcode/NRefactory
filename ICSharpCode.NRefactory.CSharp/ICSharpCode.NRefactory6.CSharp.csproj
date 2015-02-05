@@ -179,6 +179,8 @@
     <Compile Include="Util\FastSerializer.cs" />
     <Compile Include="Util\ReferenceComparer.cs" />
     <Compile Include="Util\7BitEncodedInts.cs" />
+    <Compile Include="Refactoring\InsertionAction.cs" />
+    <Compile Include="Refactoring\InsertionResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

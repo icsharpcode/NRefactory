@@ -29,141 +29,141 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[Ignore("Needs insertion cursor mode.")]
 	[TestFixture]
 	public class CreateFieldTests : ContextActionTestBase
 	{
-	[Test()]
-		public void TestWrongContext2 ()
+		[Test()]
+		public void TestWrongContext2()
 		{
-			TestWrongContext<CreateFieldAction> (
+			TestWrongContext<CreateFieldAction>(
 				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		Console.WriteLine ($Foo());" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
+				"class TestClass" + Environment.NewLine +
+				"{" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        Console.WriteLine ($Foo());" + Environment.NewLine +
+				"    }" + Environment.NewLine +
+				"}"
 			);
 		}
 
 		[Test()]
-		public void TestWrongContext3 ()
+		public void TestWrongContext3()
 		{
 			// May be syntactically possible, but very unlikely.
-			TestWrongContext<CreateFieldAction> (
+			TestWrongContext<CreateFieldAction>(
 				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		$foo();" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
+				"class TestClass" + Environment.NewLine +
+				"{" + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        $foo();" + Environment.NewLine +
+				"    }" + Environment.NewLine +
+				"}"
 			);
 		}
 
 		[Test()]
-		public void TestSimpleMethodCall ()
+		public void TestSimpleMethodCall()
 		{
-			string result = RunContextAction (
-				new CreateFieldAction (),
-				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		Console.WriteLine ($foo);" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
-			Console.WriteLine (result);
-			Assert.AreEqual (
+			string result = RunContextAction(
+				                         new CreateFieldAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        Console.WriteLine ($foo);" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+			Console.WriteLine(result);
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	object foo;" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		Console.WriteLine (foo);" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    object foo;" + Environment.NewLine + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        Console.WriteLine (foo);" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
 		[Test()]
-		public void TestAssignment ()
+		public void TestAssignment()
 		{
-			string result = RunContextAction (
-				new CreateFieldAction (),
-				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		$foo = 0x10;" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
+			string result = RunContextAction(
+				                         new CreateFieldAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        $foo = 0x10;" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
 
-			Assert.AreEqual (
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	int foo;" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		foo = 0x10;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    int foo;" + Environment.NewLine + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        foo = 0x10;" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
 		[Test()]
-		public void TestOutParamCall ()
+		public void TestOutParamCall()
 		{
-			string result = RunContextAction (
-				new CreateFieldAction (),
-				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void FooBar(out string par) {}" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		FooBar(out $foo);" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
-			
-			Assert.AreEqual (
+			string result = RunContextAction(
+				                         new CreateFieldAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void FooBar(out string par) {}" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        FooBar(out $foo);" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
+
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	void FooBar(out string par) {}" + Environment.NewLine +
-				"	string foo;" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		FooBar(out foo);" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    void FooBar(out string par) {}" + Environment.NewLine +
+				"    string foo;" + Environment.NewLine + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        FooBar(out foo);" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
 		[Test()]
-		public void TestStaticClassField ()
+		public void TestStaticClassField()
 		{
 			// Not 100% correct input code, but should work in that case as well.
-			Test<CreateFieldAction> (@"static class TestClass
+			Test<CreateFieldAction>(@"static class TestClass
 {
-	public TestClass ()
-	{
-		$foo = 5;
-	}
+    public TestClass ()
+    {
+        $foo = 5;
+    }
 }", @"static class TestClass
 {
-	static int foo;
-	public TestClass ()
-	{
-		foo = 5;
-	}
+    static int foo;
+
+    public TestClass ()
+    {
+        foo = 5;
+    }
 }");
 		}
 
@@ -174,188 +174,195 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 enum AEnum { A }
 class Foo
 {
-	public void Test ()
-	{
-		AEnum e;
-		e.$foo = 2;
-	}
+    public void Test ()
+    {
+        AEnum e;
+        e.$foo = 2;
+    }
 }
 ");
 		}
 
 		[Test()]
-		public void TestThisMemberReferenceCreation ()
+		public void TestThisMemberReferenceCreation()
 		{
-			string result = RunContextAction (
-				new CreateFieldAction (),
-				"using System;" + Environment.NewLine +
-					"class TestClass" + Environment.NewLine +
-					"{" + Environment.NewLine +
-					"	void Test ()" + Environment.NewLine +
-					"	{" + Environment.NewLine +
-					"		this.$foo = 0x10;" + Environment.NewLine +
-					"	}" + Environment.NewLine +
-					"}"
-			);
+			string result = RunContextAction(
+				                         new CreateFieldAction(),
+				                         "using System;" + Environment.NewLine +
+				                         "class TestClass" + Environment.NewLine +
+				                         "{" + Environment.NewLine +
+				                         "    void Test ()" + Environment.NewLine +
+				                         "    {" + Environment.NewLine +
+				                         "        this.$foo = 0x10;" + Environment.NewLine +
+				                         "    }" + Environment.NewLine +
+				                         "}"
+			                         );
 
-			Assert.AreEqual (
+			Assert.AreEqual(
 				"using System;" + Environment.NewLine +
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
-				"	int foo;" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		this.foo = 0x10;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
+				"    int foo;" + Environment.NewLine + Environment.NewLine +
+				"    void Test ()" + Environment.NewLine +
+				"    {" + Environment.NewLine +
+				"        this.foo = 0x10;" + Environment.NewLine +
+				"    }" + Environment.NewLine +
 				"}", result);
 		}
 
 		[Test()]
-		public void TestObjectInitializer ()
+		public void TestObjectInitializer()
 		{
 			// Not 100% correct input code, but should work in that case as well.
-			Test<CreateFieldAction> (@"class TestClass
+			Test<CreateFieldAction>(@"class TestClass
 {
-	void TestMethod ()
-	{
-		new TestClass {
-			$NonExistantProperty = 5
-		};
-	}
+    void TestMethod ()
+    {
+        new TestClass {
+            $NonExistantProperty = 5
+        };
+    }
 }", @"class TestClass
 {
-	int NonExistantProperty;
-	void TestMethod ()
-	{
-		new TestClass {
-			NonExistantProperty = 5
-		};
-	}
+    int NonExistantProperty;
+
+    void TestMethod ()
+    {
+        new TestClass {
+            NonExistantProperty = 5
+        };
+    }
 }");
 		}
 
 		[Test()]
-		public void TestObjectInitializerInStaticMethod ()
+		public void TestObjectInitializerInStaticMethod()
 		{
 			// Not 100% correct input code, but should work in that case as well.
-			Test<CreateFieldAction> (@"class TestClass
+			Test<CreateFieldAction>(@"class TestClass
 {
-	static void TestMethod ()
-	{
-		new TestClass {
-			$NonExistantProperty = 5
-		};
-	}
+    static void TestMethod ()
+    {
+        new TestClass {
+            $NonExistantProperty = 5
+        };
+    }
 }", @"class TestClass
 {
-	int NonExistantProperty;
-	static void TestMethod ()
-	{
-		new TestClass {
-			NonExistantProperty = 5
-		};
-	}
+    int NonExistantProperty;
+
+    static void TestMethod ()
+    {
+        new TestClass {
+            NonExistantProperty = 5
+        };
+    }
 }");
 		}
 
 		[Test]
-		public void TestIf ()
+		public void TestIf()
 		{
-			Test<CreateFieldAction> (@"class TestClass
+			Test<CreateFieldAction>(@"class TestClass
 {
-	void TestMethod ()
-	{
-		if ($NonExistantProperty)
-			;
-	}
+    void TestMethod ()
+    {
+        if ($NonExistantProperty)
+            ;
+    }
 }", @"class TestClass
 {
-	bool NonExistantProperty;
-	void TestMethod ()
-	{
-		if (NonExistantProperty)
-			;
-	}
+    bool NonExistantProperty;
+
+    void TestMethod ()
+    {
+        if (NonExistantProperty)
+            ;
+    }
 }");
 		}
 
 		[Test]
-		public void TestWhile ()
+		public void TestWhile()
 		{
-			Test<CreateFieldAction> (@"class TestClass
+			Test<CreateFieldAction>(@"class TestClass
 {
-	void TestMethod ()
-	{
-		while ($NonExistantProperty)
-			;
-	}
+    void TestMethod ()
+    {
+        while ($NonExistantProperty)
+            ;
+    }
 }", @"class TestClass
 {
-	bool NonExistantProperty;
-	void TestMethod ()
-	{
-		while (NonExistantProperty)
-			;
-	}
+    bool NonExistantProperty;
+
+    void TestMethod ()
+    {
+        while (NonExistantProperty)
+            ;
+    }
 }");
 		}
 
 		[Test]
-		public void TestDoWhile ()
+		public void TestDoWhile()
 		{
-			Test<CreateFieldAction> (@"class TestClass
+			Test<CreateFieldAction>(@"class TestClass
 {
-	void TestMethod ()
-	{
-		do {}
-		while ($NonExistantProperty);
-	}
+    void TestMethod ()
+    {
+        do {}
+        while ($NonExistantProperty);
+    }
 }", @"class TestClass
 {
-	bool NonExistantProperty;
-	void TestMethod ()
-	{
-		do {}
-		while (NonExistantProperty);
-	}
+    bool NonExistantProperty;
+
+    void TestMethod ()
+    {
+        do {}
+        while (NonExistantProperty);
+    }
 }");
 		}
 
 		[Test]
-		public void TestForCondition ()
+		public void TestForCondition()
 		{
-			Test<CreateFieldAction> (@"class TestClass
+			Test<CreateFieldAction>(@"class TestClass
 {
-	void TestMethod ()
-	{
-		for (;$NonExistantProperty;){}
-	}
+    void TestMethod ()
+    {
+        for (;$NonExistantProperty;){}
+    }
 }", @"class TestClass
 {
-	bool NonExistantProperty;
-	void TestMethod ()
-	{
-		for (;NonExistantProperty;){}
-	}
+    bool NonExistantProperty;
+
+    void TestMethod ()
+    {
+        for (;NonExistantProperty;){}
+    }
 }");
 		}
 
 		[Test]
-		public void TestConditionalOperator ()
+		public void TestConditionalOperator()
 		{
-			Test<CreateFieldAction> (@"class TestClass
+			Test<CreateFieldAction>(@"class TestClass
 {
-	void TestMethod ()
-	{
-		var b = $NonExistantProperty ? 1 : 0;
-	}
+    void TestMethod ()
+    {
+        var b = $NonExistantProperty ? 1 : 0;
+    }
 }", @"class TestClass
 {
-	bool NonExistantProperty;
-	void TestMethod ()
-	{
-		var b = NonExistantProperty ? 1 : 0;
-	}
+    bool NonExistantProperty;
+
+    void TestMethod ()
+    {
+        var b = NonExistantProperty ? 1 : 0;
+    }
 }");
 		}
 

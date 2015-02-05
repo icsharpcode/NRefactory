@@ -54,6 +54,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new DocumentChangeAction(textSpan, severity, description, createChangedDocument);
 		}
 
-	
+		public static CodeAction CreateInsertion(TextSpan textSpan, DiagnosticSeverity severity, string description, Func<CancellationToken, Task<InsertionResult>> createInsertion)
+		{
+			if (description == null)
+				throw new ArgumentNullException("description");
+			if (createInsertion == null)
+				throw new ArgumentNullException("createInsertion");
+			return new InsertionAction(textSpan, severity, description, createInsertion);
+		}
 	}
 }

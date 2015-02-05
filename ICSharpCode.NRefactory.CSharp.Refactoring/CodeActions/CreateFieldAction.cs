@@ -51,6 +51,47 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+
+			var node = root.FindNode(span);
+			if (node.IsKind(SyntaxKind.Argument)) {
+				var argumentSyntax = (ArgumentSyntax)node;
+				if (!argumentSyntax.Expression.IsKind(SyntaxKind.IdentifierName))
+					return;
+				node = argumentSyntax.Expression;
+			} else if (node == null || !node.IsKind(SyntaxKind.IdentifierName)) {
+				return;
+			}
+
+			var symbol = model.GetSymbolInfo(node);
+			if (symbol.Symbol != null)
+				return;
+			if (CreateFieldAction.IsInvocationTarget(node)) 
+				return;
+
+			var guessedType = TypeGuessing.GuessAstType(model, node);
+			if (guessedType == null)
+				return;
+			var enclType = model.GetEnclosingNamedType(span.Start, cancellationToken);
+
+			context.RegisterRefactoring(
+				CodeActionFactory.CreateInsertion(
+					span, 
+					DiagnosticSeverity.Error, 
+					"Create field", 
+					t2 => {
+						var decl = SyntaxFactory.FieldDeclaration(
+							SyntaxFactory.VariableDeclaration(
+								guessedType,
+								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(new [] {
+									SyntaxFactory.VariableDeclarator(node.ToString())
+								})
+							)
+						);
+
+						return Task.FromResult(new InsertionResult (context, decl, enclType, enclType.Locations.First ()));
+					}
+				) 
+			);
 		}
 
 		internal static bool IsInvocationTarget(SyntaxNode node)
