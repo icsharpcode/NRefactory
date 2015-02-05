@@ -43,6 +43,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		readonly string title;
 		readonly Func<CancellationToken, Task<InsertionResult>> createInsertion;
 
+		public Func<CancellationToken, Task<InsertionResult>> CreateInsertion {
+			get {
+				return createInsertion;
+			}
+		}
+
 		public override string Title {
 			get {
 				return title;
