@@ -48,14 +48,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var document = context.Document;
 			var span = context.Span;
-			if (span.Length == 0)
-				return;
-			
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			var node = root.FindNode(span);
 
+			var node = root.FindNode(span);
 			if (node.IsKind(SyntaxKind.Argument)) {
 				if (!((ArgumentSyntax)node).Expression.IsKind(SyntaxKind.IdentifierName))
 					return;

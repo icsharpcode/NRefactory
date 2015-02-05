@@ -49,8 +49,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var document = context.Document;
 			var span = context.Span;
-			if (span.Length == 0)
+			if (span.Start == span.End)
 				return;
+
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
