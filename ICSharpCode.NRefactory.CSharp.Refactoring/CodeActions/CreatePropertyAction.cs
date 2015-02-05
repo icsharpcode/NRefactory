@@ -51,6 +51,78 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var cancellationToken = context.CancellationToken;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+
+			var node = root.FindNode(span);
+			INamedTypeSymbol targetType;
+
+			if (node.IsKind(SyntaxKind.Argument)) {
+				var argumentSyntax = (ArgumentSyntax)node;
+				if (!argumentSyntax.Expression.IsKind(SyntaxKind.IdentifierName))
+					return;
+				node = argumentSyntax.Expression;
+			} else if (node == null || !node.IsKind(SyntaxKind.IdentifierName)) {
+				return;
+			}
+
+			var symbol = model.GetSymbolInfo(node);
+			if (symbol.Symbol != null)
+				return;
+			if (CreateFieldAction.IsInvocationTarget(node)) 
+				return;
+
+
+			var enclosingType = model.GetEnclosingNamedType(span.Start, cancellationToken);
+
+
+			targetType = enclosingType;
+			var mref = node.Parent as MemberAccessExpressionSyntax;
+			bool isStatic = false;
+
+			if (mref != null && mref.Name == node) {
+				var target = model.GetTypeInfo(mref.Expression);
+				if (target.Type == null || !target.Type.Locations.First().IsInSource)
+					return;
+
+				targetType = target.Type as INamedTypeSymbol;
+				if (targetType == null || targetType.TypeKind == TypeKind.Enum)
+					return;
+				if (model.GetSymbolInfo(mref.Expression).Symbol is ITypeSymbol)
+					isStatic = true;
+				
+			}
+
+			var guessedType = TypeGuessing.GuessAstType(model, node);
+			if (guessedType == null)
+				return;
+
+			context.RegisterRefactoring(
+				CodeActionFactory.CreateInsertion(
+					span, 
+					DiagnosticSeverity.Error, 
+					"Create property", 
+					t2 => {
+						isStatic |= targetType.IsStatic;
+						if (enclosingType == targetType && ((mref != null && mref.Expression is ThisExpressionSyntax) || mref == null && !(node.Parent.Parent is Microsoft.CodeAnalysis.CSharp.Syntax.InitializerExpressionSyntax))) {
+							var enclosingSymbol = model.GetEnclosingSymbol(span.Start, cancellationToken);
+							if (enclosingSymbol != null && enclosingSymbol.IsStatic)
+								isStatic = true;
+						}
+
+
+						var decl = SyntaxFactory.PropertyDeclaration(guessedType, GetPropertyName(node));
+						decl = decl.WithAccessorList (
+							SyntaxFactory.AccessorList(SyntaxFactory.List<AccessorDeclarationSyntax>(new [] {
+								SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token (SyntaxKind.SemicolonToken)),
+								SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token (SyntaxKind.SemicolonToken))
+							}))
+						);
+
+						if (isStatic)
+							decl = decl.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)));
+						return Task.FromResult(new InsertionResult (context, decl, targetType, targetType.Locations.First ()));
+					}
+				) 
+			);
 		}
 //		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
 //		{
@@ -105,7 +177,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 ////				yield break;
 ////			}
 //
-//			yield return new CodeAction(context.TranslateString("Create property"), script => {
+		//			yield return new CodeAction(context.TranslateString("Create property"), script => {
 //				var decl = new PropertyDeclaration() {
 //					ReturnType = guessedType,
 //					Name = propertyName,
@@ -134,17 +206,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //			}, identifier.GetNodeAt(context.Location) ?? identifier) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 //		}
 //
-//		internal static string GetPropertyName(Expression expr)
-//		{
-//			if (expr is IdentifierExpression) 
-//				return ((IdentifierExpression)expr).Identifier;
-//			if (expr is MemberReferenceExpression) 
-//				return ((MemberReferenceExpression)expr).MemberName;
+		internal static string GetPropertyName(SyntaxNode expr)
+		{
+			if (expr is MemberAccessExpressionSyntax) 
+				return ((MemberAccessExpressionSyntax)expr).Name.ToString ();
 //			if (expr is NamedExpression) 
 //				return ((NamedExpression)expr).Name;
-//
-//			return null;
-//		}
+
+			return expr.ToString ();
+		}
 	}
 }
 

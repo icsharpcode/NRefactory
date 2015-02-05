@@ -35,6 +35,7 @@ using Microsoft.CodeAnalysis.CaseCorrection;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -72,9 +73,37 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var document = insertionResult.Context.Document;
 			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait (false);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait (false);
-			var node = root.FindNode (task.Result.Context.Span).AncestorsAndSelf ().OfType<BaseTypeDeclarationSyntax> ().FirstOrDefault ();
 
-			var newRoot = root.InsertNodesBefore (node.ChildNodes ().First (n => n is MemberDeclarationSyntax && n.Span.End > insertionResult.Context.Span.Start), new [] { insertionResult.Node.WithAdditionalAnnotations (Formatter.Annotation) });
+			var targetType = root.FindNode (task.Result.Location.SourceSpan).AncestorsAndSelf ().OfType<TypeDeclarationSyntax> ().FirstOrDefault ();
+
+			var childNodes = targetType.Members;
+			var memberToInsert = (MemberDeclarationSyntax)insertionResult.Node.WithAdditionalAnnotations (Formatter.Annotation);
+
+			SyntaxNode newRoot;
+			if (childNodes.Count > 0) {
+				newRoot = root.InsertNodesBefore (childNodes.First (n => n.Span.End > insertionResult.Context.Span.Start), new[] {
+					memberToInsert
+				});
+			} else {
+				var newType = targetType;
+
+				var classDecl = targetType as ClassDeclarationSyntax;
+				if (classDecl != null) {
+					newType = classDecl.WithMembers (SyntaxFactory.List(new [] { memberToInsert } ) );
+				}
+
+				var ifaceDecl = targetType as InterfaceDeclarationSyntax;
+				if (ifaceDecl != null) {
+					newType = ifaceDecl.WithMembers (SyntaxFactory.List(new [] { memberToInsert } ) );
+				}
+
+				var structDecl = targetType as StructDeclarationSyntax;
+				if (structDecl != null) {
+					newType = structDecl.WithMembers (SyntaxFactory.List(new [] { memberToInsert } ) );
+				}
+
+				newRoot = root.ReplaceNode (targetType, newType);
+			}
 
 			return document.WithSyntaxRoot (newRoot);
 		}

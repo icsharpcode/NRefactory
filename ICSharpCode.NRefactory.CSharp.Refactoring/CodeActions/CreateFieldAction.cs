@@ -66,7 +66,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return;
 			
 
-			targetType = model.GetEnclosingNamedType(span.Start, cancellationToken);
+			var enclosingType = model.GetEnclosingNamedType(span.Start, cancellationToken);
+			targetType = enclosingType;
 			var mref = node.Parent as MemberAccessExpressionSyntax;
 			if (mref != null && mref.Name == node) {
 				var target = model.GetTypeInfo(mref.Expression);
@@ -89,6 +90,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					"Create field", 
 					t2 => {
 						bool isStatic = targetType.IsStatic;
+						if (enclosingType == targetType && ((mref != null && mref.Expression is ThisExpressionSyntax) || mref == null && !(node.Parent.Parent is Microsoft.CodeAnalysis.CSharp.Syntax.InitializerExpressionSyntax))) {
+							var enclosingSymbol = model.GetEnclosingSymbol(span.Start, cancellationToken);
+							if (enclosingSymbol != null && enclosingSymbol.IsStatic)
+								isStatic = true;
+						}
 
 						var decl = SyntaxFactory.FieldDeclaration(
 							SyntaxFactory.VariableDeclaration(
