@@ -23,20 +23,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
-using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -53,6 +48,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
 			var node = root.FindNode(span);
+			INamedTypeSymbol targetType;
+
 			if (node.IsKind(SyntaxKind.Argument)) {
 				var argumentSyntax = (ArgumentSyntax)node;
 				if (!argumentSyntax.Expression.IsKind(SyntaxKind.IdentifierName))
@@ -67,18 +64,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return;
 			if (CreateFieldAction.IsInvocationTarget(node)) 
 				return;
+			
+
+			targetType = model.GetEnclosingNamedType(span.Start, cancellationToken);
+			var mref = node.Parent as MemberAccessExpressionSyntax;
+			if (mref != null && mref.Name == node) {
+				var target = model.GetTypeInfo(mref.Expression);
+				if (target.Type == null || !target.Type.Locations.First().IsInSource)
+					return;
+				
+				targetType = target.Type as INamedTypeSymbol;
+				if (targetType == null || targetType.TypeKind == TypeKind.Enum || targetType.TypeKind == TypeKind.Interface)
+					return;
+			}
 
 			var guessedType = TypeGuessing.GuessAstType(model, node);
 			if (guessedType == null)
 				return;
-			var enclType = model.GetEnclosingNamedType(span.Start, cancellationToken);
-
+			
 			context.RegisterRefactoring(
 				CodeActionFactory.CreateInsertion(
 					span, 
 					DiagnosticSeverity.Error, 
 					"Create field", 
 					t2 => {
+						bool isStatic = targetType.IsStatic;
+
 						var decl = SyntaxFactory.FieldDeclaration(
 							SyntaxFactory.VariableDeclaration(
 								guessedType,
@@ -88,7 +99,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							)
 						);
 
-						return Task.FromResult(new InsertionResult (context, decl, enclType, enclType.Locations.First ()));
+						if (isStatic)
+							decl = decl.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)));
+						return Task.FromResult(new InsertionResult (context, decl, targetType, targetType.Locations.First ()));
 					}
 				) 
 			);
@@ -99,56 +112,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var invoke = node.Parent as InvocationExpressionSyntax;
 			return invoke != null && invoke.Expression == node;
 		}
-
-//		internal static Expression GetCreatePropertyOrFieldNode(SemanticModel context)
-//		{
-//			return context.GetNode(n => n is IdentifierExpression || n is MemberReferenceExpression || n is NamedExpression) as Expression;
-//		}
-//
-//		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var expr = GetCreatePropertyOrFieldNode(context);
-//			if (expr == null)
-//				yield break;
-//
-//			if (expr is MemberReferenceExpression && !(((MemberReferenceExpression)expr).Target is ThisReferenceExpression))
-//				yield break;
-//
-//			var propertyName = CreatePropertyAction.GetPropertyName(expr);
-//			if (propertyName == null)
-//				yield break;
-//
-//			if (IsInvocationTarget(expr))
-//				yield break;
-//			var statement = expr.GetParent<Statement>();
-//			if (statement == null)
-//				yield break;
-//			if (!(context.Resolve(expr).IsError))
-//				yield break;
-//			var guessedType = TypeGuessing.GuessAstType(context, expr);
-//			if (guessedType == null)
-//				yield break;
-//			var state = context.GetResolverStateBefore(expr);
-//			if (state.CurrentMember == null || state.CurrentTypeDefinition == null)
-//				yield break;
-//			bool isStatic =  !(expr is NamedExpression) && (state.CurrentMember.IsStatic | state.CurrentTypeDefinition.IsStatic);
-//
-////			var service = (NamingConventionService)context.GetService(typeof(NamingConventionService));
-////			if (service != null && !service.IsValidName(identifier.Identifier, AffectedEntity.Field, Modifiers.Private, isStatic)) { 
-////				yield break;
-////			}
-//
-//			yield return new CodeAction(context.TranslateString("Create field"), script => {
-//				var decl = new FieldDeclaration {
-//					ReturnType = guessedType,
-//					Variables = { new VariableInitializer(propertyName) }
-//				};
-//				if (isStatic)
-//					decl.Modifiers |= Modifiers.Static;
-//				script.InsertWithCursor(context.TranslateString("Create field"), Script.InsertPosition.Before, decl);
-//			}, expr.GetNodeAt(context.Location) ?? expr) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
-//		}
-
 	}
 }
-

@@ -158,14 +158,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 //				return new [] { model.Compilation.FindType (KnownTypeCode.Boolean) };
 //			}
 //
-//			var mref = expr as MemberReferenceExpressionSyntax;
-//			if (mref != null) {
-//				// case: guess enum when trying to access not existent enum member
-//				var rr = model.Resolve(mref.Target);
-//				if (!rr.IsError && rr.Type.Kind == TypeKind.Enum)
-//					return new [] { rr.Type };
-//			}
-//
+			var mref = expr.Parent as MemberAccessExpressionSyntax;
+			if (mref != null && mref.Name != expr) {
+				mref = null;
+			}
+			if (mref != null) {
+				// case: guess enum when trying to access not existent enum member
+				var rr = model.GetTypeInfo(mref.Expression);
+				if (rr.Type != null && rr.Type.TypeKind == TypeKind.Enum)
+					return new [] { rr.Type };
+			}
+
 //			if (expr.Parent is ParenthesizedExpressionSyntax || expr.Parent is NamedArgumentExpressionSyntax) {
 //				return GetValidTypes(model, expr.Parent);
 //			}
@@ -227,13 +230,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 //				var cast = (AsExpressionSyntax)expr.Parent;
 //				return new [] { model.Resolve(cast.Type).Type };
 //			}
-//
-//			if (expr.Parent is AssignmentExpressionSyntax) {
-//				var assign = (AssignmentExpressionSyntax)expr.Parent;
-//				var other = assign.Left == expr ? assign.Right : assign.Left;
-//				return new [] { model.Resolve(other).Type };
-//			}
-//
+
+			if (expr.Parent is AssignmentExpressionSyntax || mref != null && mref.Parent is AssignmentExpressionSyntax ) {
+				var assign = expr.Parent as AssignmentExpressionSyntax ?? mref.Parent as AssignmentExpressionSyntax;
+				var other = assign.Left == expr || assign.Left == mref ? assign.Right : assign.Left;
+				return new [] { model.GetTypeInfo(other).Type };
+			}
+
 //			if (expr.Parent is BinaryOperatorExpressionSyntax) {
 //				var assign = (BinaryOperatorExpressionSyntax)expr.Parent;
 //				var other = assign.Left == expr ? assign.Right : assign.Left;
