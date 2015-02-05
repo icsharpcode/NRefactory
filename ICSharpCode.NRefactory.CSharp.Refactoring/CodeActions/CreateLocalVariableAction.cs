@@ -54,9 +54,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			var node = root.FindNode(span);
 			if (node.IsKind(SyntaxKind.Argument)) {
-				if (!((ArgumentSyntax)node).Expression.IsKind(SyntaxKind.IdentifierName))
+				var argumentSyntax = (ArgumentSyntax)node;
+				if (!argumentSyntax.Expression.IsKind(SyntaxKind.IdentifierName))
 					return;
-
+				node = argumentSyntax.Expression;
 			} else if (node == null || !node.IsKind(SyntaxKind.IdentifierName)) {
 				return;
 			}

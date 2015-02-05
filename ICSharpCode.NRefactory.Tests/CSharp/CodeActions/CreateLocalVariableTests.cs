@@ -278,5 +278,32 @@ class Test
     }
 }");
 		}
+
+
+
+		[Test]
+		public void TestWrongContext2()
+		{
+			TestWrongContext<CreateLocalVariableAction>(@"using System;
+		using System.Threading;
+
+		namespace TestConsoleProject
+		{
+			class MainClass
+			{
+				public static void Main (string [] args)
+				{
+					int workerThreads, cpt;
+					ThreadPool.GetMaxThreads(out workerThreads, out cpt);
+					Console.WriteLine ($workerThreads);
+					Console.WriteLine ();
+				}
+			}
+		}");
+		}
+
+
+
+
 	}
 }
