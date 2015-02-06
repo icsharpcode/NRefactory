@@ -46,20 +46,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
 	public class EventUnsubscriptionViaAnonymousDelegateIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "EventUnsubscriptionViaAnonymousDelegateIssue";
-		const string Description            = "Event unsubscription via anonymous delegate is useless";
-		const string MessageFormat          = "Event unsubscription via anonymous delegate is useless";
-		const string Category               = IssueCategories.CodeQualityIssues;
+		internal const string DiagnosticId = "EventUnsubscriptionViaAnonymousDelegateIssue";
+		const string Description = "Event unsubscription via anonymous delegate is useless";
+		const string MessageFormat = "Event unsubscription via anonymous delegate is useless";
+		const string Category = IssueCategories.CodeQualityIssues;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Event unsubscription via anonymous delegate");
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Event unsubscription via anonymous delegate");
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		{
+			get
+			{
 				return ImmutableArray.Create(Rule);
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
@@ -67,50 +69,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		class GatherVisitor : GatherVisitorBase<EventUnsubscriptionViaAnonymousDelegateIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
+				: base(semanticModel, addDiagnostic, cancellationToken)
 			{
 			}
 
-//			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
-//			{
-//				base.VisitAssignmentExpression(assignmentExpression);
-//				if (assignmentExpression.Operator != AssignmentOperatorType.Subtract)
-//					return;
-//				if (!(assignmentExpression.Right is AnonymousMethodExpression || assignmentExpression.Right is LambdaExpression))
-//					return;
-//				var rr = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
-//				if (rr == null || rr.Member.SymbolKind != ICSharpCode.NRefactory.TypeSystem.SymbolKind.Event)
-//					return;
-//				AddIssue(new CodeIssue(
-//					assignmentExpression.OperatorToken,
-//					ctx.TranslateString("Event unsubscription via anonymous delegate is useless")
-//				));
-//			}
-		}
-	}
+			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
+			{
+				base.VisitAssignmentExpression(node);
 
-	[ExportCodeFixProvider(EventUnsubscriptionViaAnonymousDelegateIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class EventUnsubscriptionViaAnonymousDelegateFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return EventUnsubscriptionViaAnonymousDelegateIssue.DiagnosticId;
-		}
-
-		public override async Task ComputeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+				if (!node.IsKind(SyntaxKind.SubtractAssignmentExpression))
+					return;
+				if (!(node.Right.IsKind(SyntaxKind.AnonymousMethodExpression)
+					|| node.Right.IsKind(SyntaxKind.SimpleLambdaExpression)
+					|| node.Right.IsKind(SyntaxKind.ParenthesizedLambdaExpression)))
+					return;
+				var rr = semanticModel.GetSymbolInfo(node.Left);
+				if (rr.Symbol.Kind != SymbolKind.Event)
+					return;
+				AddIssue(Diagnostic.Create(Rule, node.OperatorToken.GetLocation()));
 			}
 		}
 	}

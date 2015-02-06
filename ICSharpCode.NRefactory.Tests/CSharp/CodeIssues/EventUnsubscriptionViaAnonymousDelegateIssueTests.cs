@@ -32,13 +32,12 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class EventUnsubscriptionViaAnonymousDelegateIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestDelegateCase ()
 		{
-			TestIssue<EventUnsubscriptionViaAnonymousDelegateIssue>(@"using System;
+			Analyze<EventUnsubscriptionViaAnonymousDelegateIssue>(@"using System;
 
 class Bar
 {
@@ -46,7 +45,7 @@ class Bar
 
 	void Test ()
 	{
-		Foo -= delegate { };
+		Foo $-=$ delegate { };
 	}
 }");
 		}
@@ -54,7 +53,7 @@ class Bar
 		[Test]
 		public void TestLambdaCase ()
 		{
-			TestIssue<EventUnsubscriptionViaAnonymousDelegateIssue>(@"using System;
+			Analyze<EventUnsubscriptionViaAnonymousDelegateIssue>(@"using System;
 
 class Bar
 {
@@ -62,7 +61,7 @@ class Bar
 
 	void Test ()
 	{
-		Foo -= (s ,e) => { };
+		Foo $-=$ (s ,e) => { };
 	}
 }");
 		}

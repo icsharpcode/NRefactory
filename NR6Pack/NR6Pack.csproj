@@ -302,6 +302,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\EmptyGeneralCatchClauseIssue.cs">
       <Link>CodeIssues\CodeQuality\EmptyGeneralCatchClauseIssue.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\EventUnsubscriptionViaAnonymousDelegateIssue.cs">
+      <Link>CodeIssues\CodeQuality\EventUnsubscriptionViaAnonymousDelegateIssue.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeIssues\Synced\CodeQuality\FunctionNeverReturnsIssue.cs">
       <Link>CodeIssues\CodeQuality\FunctionNeverReturnsIssue.cs</Link>
     </Compile>
