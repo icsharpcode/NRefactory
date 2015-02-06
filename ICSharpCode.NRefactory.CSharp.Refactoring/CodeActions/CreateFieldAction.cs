@@ -107,7 +107,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 						if (isStatic)
 							decl = decl.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)));
-						return Task.FromResult(new InsertionResult (context, decl, targetType, targetType.Locations.First ()));
+						return Task.FromResult(new InsertionResult (context, decl, targetType, InsertionResult.GuessCorrectLocation (context, targetType.Locations)));
 					}
 				) 
 			);

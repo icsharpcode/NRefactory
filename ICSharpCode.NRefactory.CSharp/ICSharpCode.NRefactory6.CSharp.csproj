@@ -181,6 +181,7 @@
     <Compile Include="Refactoring\InsertionAction.cs" />
     <Compile Include="Refactoring\InsertionResult.cs" />
     <Compile Include="Features\Completion\ICompletionCategory.cs" />
+    <Compile Include="Util\ITypeSymbolExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

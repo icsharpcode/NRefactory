@@ -59,6 +59,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			this.Type = type;
 			this.Location = location;
 		}
+
+		public static Location GuessCorrectLocation(CodeRefactoringContext context, System.Collections.Immutable.ImmutableArray<Location> locations)
+		{
+			foreach (var loc in locations) {
+				if (context.Document.FilePath == loc.SourceTree.FilePath)
+					return loc;
+			}
+			return locations [0];
+		}
 	}
 }
 

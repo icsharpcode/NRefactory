@@ -51,209 +51,198 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var document = context.Document;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
-			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait (false);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait (false);
+			var node = root.FindNode(span);
+			if (node.IsKind(SyntaxKind.Argument)) {
+				var argumentSyntax = (ArgumentSyntax)node;
+				if (!argumentSyntax.Expression.IsKind(SyntaxKind.IdentifierName))
+					return;
+				node = argumentSyntax.Expression;
+			} 
+			var ma = node.Parent as MemberAccessExpressionSyntax;
+			if (ma != null) {
+				if (ma.Parent is InvocationExpressionSyntax) {
+					GetActionsFromInvocation(context, model, root, (InvocationExpressionSyntax)ma.Parent);
+					return;
+				}
+				if (ma.Name == node)
+					GetActionsFromMemberReferenceExpression(context, model, root, ma);
+			}
+
+			if (node is IdentifierNameSyntax)
+				GetActionsFromIdentifier(context, model, root, (IdentifierNameSyntax)node);
+
+			if (node.Parent is InvocationExpressionSyntax)
+				GetActionsFromInvocation(context, model, root, (InvocationExpressionSyntax)node.Parent);
 		}
-//		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)
-//		{
-//			var identifier = context.GetNode<IdentifierExpression>();
-//			if (identifier != null && !(identifier.Parent is InvocationExpression && ((InvocationExpression)identifier.Parent).Target == identifier))
-//				return GetActionsFromIdentifier(context, identifier);
-//			
-//			var memberReference = context.GetNode<MemberReferenceExpression>();
-//			if (memberReference != null && !(memberReference.Parent is InvocationExpression && ((InvocationExpression)memberReference.Parent).Target == memberReference))
-//				return GetActionsFromMemberReferenceExpression(context, memberReference);
-//
-//			var invocation = context.GetNode<InvocationExpression>();
-//			if (invocation != null)
-//				return GetActionsFromInvocation(context, invocation);
-//			return;
-//		}
-//
-//		IEnumerable<CodeAction> GetActionsFromMemberReferenceExpression(SemanticModel context, MemberReferenceExpression invocation)
-//		{
+
+		static void GetActionsFromMemberReferenceExpression(CodeRefactoringContext context, SemanticModel model, SyntaxNode root, MemberAccessExpressionSyntax memberAccess)
+		{
 //			if (!(context.Resolve(invocation).IsError)) 
-//					yield break;
+//				return;
 //
-//			var methodName = invocation.MemberName;
-//			var guessedType = TypeGuessing.GuessType(context, invocation);
-//			if (guessedType.Kind != TypeKind.Delegate)
-//					yield break;
-//			var invocationMethod = guessedType.GetDelegateInvokeMethod();
+			var methodName = memberAccess.Name.ToString ();
+			var guessedType = TypeGuessing.GuessType(model, memberAccess);
+			if (guessedType.TypeKind != TypeKind.Delegate)
+				return;
+			
+			var invocationMethod = guessedType.GetDelegateInvokeMethod();
 //			var state = context.GetResolverStateBefore(invocation);
 //			if (state.CurrentTypeDefinition == null)
-//				yield break;
-//			ResolveResult targetResolveResult = context.Resolve(invocation.Target);
-//			bool createInOtherType = !state.CurrentTypeDefinition.Equals(targetResolveResult.Type.GetDefinition());
-//
-//			bool isStatic;
-//			if (createInOtherType) {
-//				if (targetResolveResult.Type.GetDefinition() == null || targetResolveResult.Type.GetDefinition().Region.IsEmpty)
-//					yield break;
-//				isStatic = targetResolveResult is TypeResolveResult;
-//				if (isStatic && targetResolveResult.Type.Kind == TypeKind.Interface || targetResolveResult.Type.Kind == TypeKind.Enum)
-//					yield break;
-//			} else {
-//				if (state.CurrentMember == null)
-//					yield break;
-//				isStatic = state.CurrentMember.IsStatic || state.CurrentTypeDefinition.IsStatic;
-//			}
-//
-////			var service = (NamingConventionService)context.GetService(typeof(NamingConventionService));
-////			if (service != null && !service.IsValidName(methodName, AffectedEntity.Method, Modifiers.Private, isStatic)) { 
-////				yield break;
-////			}
-//
-//			yield return CreateAction(
-//				context, 
-//				invocation,
-//				methodName, 
-//				context.CreateShortType(invocationMethod.ReturnType),
-//				invocationMethod.Parameters.Select(parameter => new ParameterDeclaration(context.CreateShortType(parameter.Type), parameter.Name) { 
-//					ParameterModifier = GetModifiers(parameter)
-//				}),
-//				createInOtherType,
-//				isStatic,
-//				targetResolveResult);
-//		}
-//		
-//		IEnumerable<CodeAction> GetActionsFromIdentifier(SemanticModel context, IdentifierExpression identifier)
-//		{
-//			if (!(context.Resolve(identifier).IsError))
-//				yield break;
-//			var methodName = identifier.Identifier;
-//			var guessedType = TypeGuessing.GuessType(context, identifier);
-//			if (guessedType.Kind != TypeKind.Delegate)
-//				yield break;
-//			var invocationMethod = guessedType.GetDelegateInvokeMethod();
-//			if (invocationMethod == null)
-//				yield break;
-//			var state = context.GetResolverStateBefore(identifier);
-//			if (state.CurrentMember == null || state.CurrentTypeDefinition == null)
-//				yield break;
-//			bool isStatic = state.CurrentMember.IsStatic || state.CurrentTypeDefinition.IsStatic;
-//
+//				return;
+			
+			var targetResolveResult = model.GetTypeInfo (memberAccess.Expression);
+			var enclosingType = model.GetEnclosingNamedType(memberAccess.SpanStart, context.CancellationToken);
+			var enclosingMember = model.GetEnclosingSymbol(memberAccess.SpanStart, context.CancellationToken);
+
+			bool createInOtherType = enclosingType != targetResolveResult.Type;
+
+			bool isStatic;
+			if (createInOtherType) {
+				if (targetResolveResult.Type as INamedTypeSymbol == null || targetResolveResult.Type.Locations.First ().IsInMetadata)
+					return;
+				isStatic = model.GetSymbolInfo(memberAccess.Expression).Symbol is ITypeSymbol;
+				if (isStatic && targetResolveResult.Type.TypeKind == TypeKind.Interface || targetResolveResult.Type.TypeKind == TypeKind.Enum)
+					return;
+			} else {
+				if (enclosingMember == null)
+					return;
+				isStatic = enclosingMember.IsStatic || enclosingType.IsStatic;
+			}
+
 //			var service = (NamingConventionService)context.GetService(typeof(NamingConventionService));
-//			if (service != null && !service.IsValidName(methodName, AffectedEntity.Method, Modifiers.Private, isStatic))
+//			if (service != null && !service.IsValidName(methodName, AffectedEntity.Method, Modifiers.Private, isStatic)) { 
 //				yield break;
-//
-//			yield return CreateAction(
-//				context, 
-//				identifier,
-//				methodName, 
-//				context.CreateShortType(invocationMethod.ReturnType),
-//				invocationMethod.Parameters.Select(parameter => new ParameterDeclaration(context.CreateShortType(parameter.Type), parameter.Name) { 
-//					ParameterModifier = GetModifiers(parameter)
-//				}),
-//				false,
-//				isStatic,
-//				null);
-//		}
-//
-//		IEnumerable<CodeAction> GetActionsFromInvocation(SemanticModel context, InvocationExpression invocation)
-//		{
-//			if (!(context.Resolve(invocation.Target).IsError)) 
-//				yield break;
-//
-//			var methodName = GetMethodName(invocation);
-//			if (methodName == null)
-//				yield break;
-//			var state = context.GetResolverStateBefore(invocation);
-//			if (state.CurrentMember == null || state.CurrentTypeDefinition == null)
-//				yield break;
-//			var guessedType = invocation.Parent is ExpressionStatement ? new PrimitiveType("void") : TypeGuessing.GuessAstType(context, invocation);
-//
-//			bool createInOtherType = false;
-//			ResolveResult targetResolveResult = null;
-//			if (invocation.Target is MemberReferenceExpression) {
-//				targetResolveResult = context.Resolve(((MemberReferenceExpression)invocation.Target).Target);
-//				createInOtherType = !state.CurrentTypeDefinition.Equals(targetResolveResult.Type.GetDefinition());
 //			}
-//
-//			bool isStatic;
-//			if (createInOtherType) {
-//				if (targetResolveResult.Type.GetDefinition() == null || targetResolveResult.Type.GetDefinition().Region.IsEmpty)
-//					yield break;
-//				isStatic = targetResolveResult is TypeResolveResult;
-//				if (isStatic && targetResolveResult.Type.Kind == TypeKind.Interface || targetResolveResult.Type.Kind == TypeKind.Enum)
-//					yield break;
-//			} else {
-//				isStatic = state.CurrentMember.IsStatic || state.CurrentTypeDefinition.IsStatic;
-//			}
-//
-////			var service = (NamingConventionService)context.GetService(typeof(NamingConventionService));
-////			if (service != null && !service.IsValidName(methodName, AffectedEntity.Method, Modifiers.Private, isStatic)) { 
-////				yield break;
-////			}
-//
-//
-//			yield return CreateAction(
-//				context, 
-//				invocation,
-//				methodName, 
-//				guessedType,
-//				GenerateParameters(context, invocation.Arguments),
-//				createInOtherType,
-//				isStatic,
-//				targetResolveResult);
-//		}
-//
-//		static ParameterModifier GetModifiers(IParameter parameter)
-//		{
-//			if (parameter.IsOut)
-//				return ParameterModifier.Out;
-//			if (parameter.IsRef)
-//				return ParameterModifier.Ref;
-//			if (parameter.IsParams)
-//				return ParameterModifier.Params;
-//			return ParameterModifier.None;
-//		}
-//
-//		static CodeAction CreateAction(SemanticModel context, AstNode createFromNode, string methodName, AstType returnType, IEnumerable<ParameterDeclaration> parameters, bool createInOtherType, bool isStatic, ResolveResult targetResolveResult)
-//		{
-//			return new CodeAction(context.TranslateString("Create method"), script => {
-//				var throwStatement = new ThrowStatement();
-//				var decl = new MethodDeclaration {
-//					ReturnType = returnType,
-//					Name = methodName,
-//					Body = new BlockStatement {
-//						throwStatement
-//					}
-//				};
-//				decl.Parameters.AddRange(parameters);
-//				
-//				if (isStatic)
-//					decl.Modifiers |= Modifiers.Static;
-//				
-//				if (createInOtherType) {
-//					if (targetResolveResult.Type.Kind == TypeKind.Interface) {
-//						decl.Body = null;
-//						decl.Modifiers = Modifiers.None;
-//					} else {
-//						decl.Modifiers |= Modifiers.Public;
-//					}
-//
-//					script
-//						.InsertWithCursor(context.TranslateString("Create method"), targetResolveResult.Type.GetDefinition(), (s, c) => {
-//						throwStatement.Expression = new ObjectCreateExpression(c.CreateShortType("System", "NotImplementedException"));
-//						return decl;
-//					})
-//						.ContinueScript(s => s.Select(throwStatement));
-//					return;
-//				} else {
-//					throwStatement.Expression = new ObjectCreateExpression(context.CreateShortType("System", "NotImplementedException"));
-//				}
-//
-//				script
-//					.InsertWithCursor(context.TranslateString("Create method"), Script.InsertPosition.Before, decl)
-//					.ContinueScript(() => script.Select(throwStatement));
-//			}, createFromNode.GetNodeAt(context.Location) ?? createFromNode)  { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
-//		}
-//
-//		public static IEnumerable<ParameterDeclaration> GenerateParameters(SemanticModel context, IEnumerable<Expression> arguments)
-//		{
-//			var nameCounter = new Dictionary<string, int>();
-//			foreach (var argument in arguments) {
+
+			CreateAction(
+				context, 
+				model,
+				memberAccess,
+				methodName, 
+				invocationMethod.ReturnType.GenerateTypeSyntax (),
+				SyntaxFactory.ParameterList (SyntaxFactory.SeparatedList<ParameterSyntax>(invocationMethod.Parameters.Select (p => p.GenerateParameterSyntax ()))),
+				createInOtherType,
+				isStatic,
+				targetResolveResult.Type as INamedTypeSymbol
+			);
+		}
+		
+		static void GetActionsFromIdentifier(CodeRefactoringContext context, SemanticModel model, SyntaxNode root, IdentifierNameSyntax identifier)
+		{
+			var guessedType = TypeGuessing.GuessType(model, identifier);
+			if (guessedType.TypeKind != TypeKind.Delegate)
+				return;
+			var methodName = identifier.ToString();
+			if (methodName == null)
+				return;
+
+			var invocationMethod = guessedType.GetDelegateInvokeMethod();
+			if (invocationMethod == null)
+				return;
+
+			var enclosingType = model.GetEnclosingNamedType(identifier.SpanStart, context.CancellationToken);
+			var enclosingMember = model.GetEnclosingSymbol(identifier.SpanStart, context.CancellationToken);
+			bool isStatic = enclosingMember.IsStatic || enclosingType.IsStatic;;
+
+			CreateAction(
+				context,
+				model, 
+				identifier,
+				methodName, 
+				invocationMethod.ReturnType.GenerateTypeSyntax (),
+				SyntaxFactory.ParameterList (SyntaxFactory.SeparatedList<ParameterSyntax>(invocationMethod.Parameters.Select (p => p.GenerateParameterSyntax ()))),
+				false,
+				isStatic,
+				enclosingType
+			);
+		}
+
+		static void GetActionsFromInvocation(CodeRefactoringContext context, SemanticModel model, SyntaxNode root, InvocationExpressionSyntax invocation)
+		{
+			var methodName = GetMethodName(invocation);
+			if (methodName == null)
+				return;
+			var guessedType = TypeGuessing.GuessAstType(model, invocation);
+
+			bool createInOtherType = false;
+			TypeInfo targetResolveResult;
+			var enclosingType = model.GetEnclosingNamedType(invocation.SpanStart, context.CancellationToken);
+			var enclosingMember = model.GetEnclosingSymbol(invocation.SpanStart, context.CancellationToken);
+			var targetType = enclosingType;
+			if (invocation.Expression is MemberAccessExpressionSyntax) {
+				targetResolveResult = model.GetTypeInfo (((MemberAccessExpressionSyntax)invocation.Expression).Expression);
+				createInOtherType = enclosingType != targetResolveResult.Type;
+				targetType = targetResolveResult.Type as INamedTypeSymbol ?? enclosingType;
+			}
+
+			bool isStatic;
+			if (createInOtherType) {
+				if (targetResolveResult.Type == null || targetResolveResult.Type.Locations.First ().IsInMetadata)
+					return;
+				isStatic = model.GetSymbolInfo (((MemberAccessExpressionSyntax)invocation.Expression).Expression).Symbol is INamedTypeSymbol;
+
+				if (isStatic && targetResolveResult.Type.TypeKind == TypeKind.Interface || targetResolveResult.Type.TypeKind == TypeKind.Enum)
+					return;
+			} else {
+				isStatic = enclosingMember.IsStatic || enclosingType.IsStatic;
+			}
+
+			CreateAction(
+				context,
+				model, 
+				invocation,
+				methodName, 
+				guessedType,
+				GenerateParameters(model, invocation.ArgumentList),
+				createInOtherType,
+				isStatic,
+				targetType);
+		}
+
+		static void CreateAction(CodeRefactoringContext context, SemanticModel model, SyntaxNode invocation, string methodName, TypeSyntax returnType, ParameterListSyntax parameters, bool createInOtherType, bool isStatic, INamedTypeSymbol targetType)
+		{
+			context.RegisterRefactoring(
+				CodeActionFactory.CreateInsertion(
+					context.Span, 
+					DiagnosticSeverity.Error, 
+					"Create method", 
+					t2 => {
+
+						var decl = SyntaxFactory.MethodDeclaration(returnType, methodName);
+						decl = decl.WithParameterList (parameters);
+						if (targetType.TypeKind != TypeKind.Interface) {
+							decl = decl.WithBody(SyntaxFactory.Block (SyntaxFactory.ParseStatement ("throw new System.NotImplementedException();")));
+							var enclosingType = model.GetEnclosingNamedType(invocation.SpanStart, context.CancellationToken);
+							if (enclosingType != targetType) {
+								if (isStatic) {
+									decl = decl.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword)));
+								} else {
+									decl = decl.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)));
+								}
+							} else {
+								if (isStatic)
+									decl = decl.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)));
+							}
+						} else {
+							decl = decl.WithSemicolonToken (SyntaxFactory.Token (SyntaxKind.SemicolonToken));
+						}
+
+						decl = decl.WithAdditionalAnnotations (Simplifier.Annotation, Formatter.Annotation);
+
+						return Task.FromResult(new InsertionResult (context, decl, targetType, InsertionResult.GuessCorrectLocation (context, targetType.Locations)));
+					}
+				) 
+			);
+		}
+
+
+		public static ParameterListSyntax GenerateParameters(SemanticModel model, ArgumentListSyntax argumentList)
+		{
+			var parameters = new List<ParameterSyntax>();
+			var nameCounter = new Dictionary<string, int>();
+			foreach (var argument in argumentList.Arguments) {
 //				var direction = ParameterModifier.None;
 //				AstNode node;
 //				if (argument is DirectionExpression) {
@@ -264,20 +253,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //					node = argument;
 //				}
 //
-//				var resolveResult = context.Resolve(node);
-//				string name = CreateBaseName(argument, resolveResult.Type);
-//				if (!nameCounter.ContainsKey(name)) {
-//					nameCounter [name] = 1;
-//				} else {
-//					nameCounter [name]++;
-//					name += nameCounter [name].ToString();
-//				}
+				var resolveResult = model.GetTypeInfo (argument.Expression);
+
+				string name = CreateBaseName(argument, resolveResult.Type);
+				if (!nameCounter.ContainsKey(name)) {
+					nameCounter [name] = 1;
+				} else {
+					nameCounter [name]++;
+					name += nameCounter [name].ToString();
+				}
 //				var type = resolveResult.Type.Kind == TypeKind.Unknown || resolveResult.Type.Kind == TypeKind.Null ? new PrimitiveType("object") : context.CreateShortType(resolveResult.Type);
-//
-//				yield return new ParameterDeclaration(type, name) { ParameterModifier = direction};
-//			}
-//		}
-//
+
+
+				var param = SyntaxFactory.Parameter(SyntaxFactory.Identifier (name));
+				if (argument.RefOrOutKeyword.IsKind (SyntaxKind.RefKeyword))
+					param = param.WithModifiers(SyntaxFactory.TokenList (SyntaxFactory.Token (SyntaxKind.RefKeyword)));
+				if (argument.RefOrOutKeyword.IsKind (SyntaxKind.OutKeyword))
+					param = param.WithModifiers(SyntaxFactory.TokenList (SyntaxFactory.Token (SyntaxKind.OutKeyword)));
+
+				param = param.WithType(resolveResult.Type != null ? resolveResult.Type.GenerateTypeSyntax () : SyntaxFactory.ParseTypeName ("object"));
+				parameters.Add(param);
+			}
+
+			return SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList<ParameterSyntax>(parameters));
+		}
+
 		static string CreateBaseNameFromString(string str)
 		{
 			if (string.IsNullOrEmpty(str)) {
@@ -392,14 +392,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return string.IsNullOrEmpty(returnType.Name) ? "obj" : returnType.Name;
 		}
 		
-//		string GetMethodName(InvocationExpression invocation)
-//		{
-//			if (invocation.Target is IdentifierExpression)
-//				return ((IdentifierExpression)invocation.Target).Identifier;
-//			if (invocation.Target is MemberReferenceExpression)
-//				return ((MemberReferenceExpression)invocation.Target).MemberName;
-//
-//			return null;
-//		}
+		static string GetMethodName(InvocationExpressionSyntax invocation)
+		{
+			if (invocation.Expression is IdentifierNameSyntax)
+				return invocation.Expression.ToString ();
+			if (invocation.Expression is MemberAccessExpressionSyntax)
+				return ((MemberAccessExpressionSyntax)invocation.Expression).Name.ToString ();
+			return null;
+		}
 	}
 }

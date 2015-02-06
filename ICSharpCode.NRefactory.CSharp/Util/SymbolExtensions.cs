@@ -28,6 +28,8 @@ using Microsoft.CodeAnalysis;
 using System.Linq;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Shared.Utilities;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -213,6 +215,19 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return null;
 		}
 
-
+		public static ParameterSyntax GenerateParameterSyntax (this IParameterSymbol symbol)
+		{
+			var result = SyntaxFactory.Parameter (SyntaxFactory.Identifier (symbol.Name));
+			result = result.WithType (symbol.Type.GenerateTypeSyntax ());
+			if (symbol.IsThis)
+				result = result.WithModifiers(SyntaxFactory.TokenList (SyntaxFactory.Token (SyntaxKind.ThisKeyword)));
+			if (symbol.IsParams)
+				result = result.WithModifiers(SyntaxFactory.TokenList (SyntaxFactory.Token (SyntaxKind.ParamsKeyword)));
+			if (symbol.RefKind == RefKind.Out)
+				result = result.WithModifiers(SyntaxFactory.TokenList (SyntaxFactory.Token (SyntaxKind.OutKeyword)));
+			if (symbol.RefKind == RefKind.Ref)
+				result = result.WithModifiers(SyntaxFactory.TokenList (SyntaxFactory.Token (SyntaxKind.RefKeyword)));
+			return result;
+		}
 	}
 }

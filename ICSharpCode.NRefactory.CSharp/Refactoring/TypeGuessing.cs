@@ -327,7 +327,30 @@ namespace ICSharpCode.NRefactory6.CSharp
 				}
 			}
 
-			return SyntaxFactory.ParseTypeName(resultType.ToMinimalDisplayString(context, expr.SpanStart));
+			return resultType.GenerateTypeSyntax ();
+		}
+
+
+		public static ITypeSymbol GuessType(SemanticModel context, SyntaxNode expr, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var types = GetValidTypes(context, expr,cancellationToken).ToList();
+			/*var typeInference = new TypeInference(context.Compilation);
+			typeInference.Algorithm = TypeInferenceAlgorithm.Improved;
+			var inferedType = typeInference.FindTypeInBounds(type, emptyTypes);*/
+
+			if (types.Count == 0)
+				return context.Compilation.GetTypeSymbol ("System", "Object", 0, cancellationToken);
+
+			var resultType = types[0];
+
+			foreach (var type in types) {
+				if (type.SpecialType == SpecialType.System_Object) {
+					resultType = type;
+					break;
+				}
+			}
+
+			return resultType;
 		}
 
 //		public static ITypeSymbol GuessType(BaseRefactoringContext context, SyntaxNode expr)
