@@ -143,6 +143,44 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 ");
 		}
 
+		[Test]
+		public void DeclareLocalExpressionTest2()
+		{
+			//TestRefactoringContext.UseExplict = true;
+			Test<DeclareLocalVariableAction>(@"using System;
+using System.Threading;
+
+namespace TestConsoleProject
+{
+    class MainClass
+    {
+        public static int Instance => 12;
+
+        public static void Main (string [] args)
+        {
+            Console.WriteLine(<-5  + 3->);
+        }
+    }
+}
+", @"using System;
+using System.Threading;
+
+namespace TestConsoleProject
+{
+    class MainClass
+    {
+        public static int Instance => 12;
+
+        public static void Main (string [] args)
+        {
+            var i = 5 + 3;
+            Console.WriteLine(i);
+        }
+    }
+}
+");
+		}
+
 		/// <summary>
 		/// Bug 693855 - Extracting variable from ELSE IF puts it in the wrong place
 		/// </summary>

@@ -114,14 +114,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						newRoot = root.ReplaceNode((SyntaxNode)replaceNode.Parent, varDecl);
 					} else {
 						var identifierExpression = SyntaxFactory.IdentifierName(name);
-						newRoot = root.ReplaceNode((SyntaxNode)replaceNode, identifierExpression.WithAdditionalAnnotations(Formatter.Annotation));
-
-						var containing = newRoot.FindNode(expr.Span);
-						while (!(containing.Parent is BlockSyntax)) {
-							containing = containing.Parent;
+						var parentStatement = replaceNode.AncestorsAndSelf().FirstOrDefault (n => n is StatementSyntax);
+						while (!(parentStatement.Parent is BlockSyntax)) {
+							parentStatement = parentStatement.Parent;
 						}
-						newRoot = newRoot.InsertNodesBefore(containing, new [] { varDecl });
-//						script.Link(varDecl.Variables.First().NameToken, identifierExpression);
+						var newStatement = parentStatement.ReplaceNode((SyntaxNode)replaceNode, identifierExpression.WithAdditionalAnnotations(Formatter.Annotation));
+						newRoot = root.ReplaceNode (parentStatement, new [] { varDecl, newStatement });
 					}
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}
