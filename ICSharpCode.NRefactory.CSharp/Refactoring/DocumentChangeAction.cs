@@ -32,6 +32,8 @@ using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.CaseCorrection;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis.CodeActions;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
@@ -46,6 +48,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			}
 		}
 
+		public List<SyntaxNode> NodesToRename;
+
 		public DocumentChangeAction(TextSpan textSpan, DiagnosticSeverity severity, string title, Func<CancellationToken, Task<Document>> createChangedDocument) : base(textSpan, severity)
 		{
 			this.title = title;
@@ -54,11 +58,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		protected override Task<Document> GetChangedDocumentAsync(CancellationToken cancellationToken)
 		{
-			return createChangedDocument.Invoke(cancellationToken);
+			var task = createChangedDocument.Invoke (cancellationToken);
+			return task;
 		}
 
 		protected override async Task<Document> PostProcessChangesAsync(Document document, CancellationToken cancellationToken)
 		{
+
 			document = await Simplifier.ReduceAsync(document, Simplifier.Annotation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
 			var options = document.Project.Solution.Workspace.Options;
@@ -70,7 +76,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			options = options.WithChangedOption(CSharpFormattingOptions.SpaceWithinOtherParentheses, false);
 
 			document = await Formatter.FormatAsync(document, Formatter.Annotation, options: options, cancellationToken: cancellationToken).ConfigureAwait(false);
+
 			document = await CaseCorrector.CaseCorrectAsync(document, CaseCorrector.Annotation, cancellationToken).ConfigureAwait(false);
+			var root = await document.GetSyntaxRootAsync (cancellationToken).ConfigureAwait (false);
+			foreach (var snt in root.GetAnnotatedNodesAndTokens (RenameAnnotation.Kind)) {
+				var node = snt.AsNode () ?? snt.AsToken ().Parent;
+				if (node == null)
+					continue;
+				if (NodesToRename == null)
+					NodesToRename = new List<SyntaxNode> ();
+				NodesToRename.Add (node);
+			}
 			return document;
 		}
 	}
