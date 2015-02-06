@@ -142,7 +142,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							SyntaxFactory.VariableDeclaration(
 								type,
 								SyntaxFactory.SeparatedList<VariableDeclaratorSyntax>(new [] {
-									SyntaxFactory.VariableDeclarator(name).WithInitializer(
+									SyntaxFactory.VariableDeclarator(name).WithAdditionalAnnotations(RenameAnnotation.Create ()).WithInitializer(
 										SyntaxFactory.EqualsValueClause(expr.SkipParens())
 									)
 								})
@@ -171,7 +171,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 								containing = containing.Parent;
 							}
 							newRoot = newRoot.InsertNodesBefore(containing, new [] { varDecl });
-//						script.Link(varDecl.Variables.First().NameToken, identifierExpression);
 						}
 
 						for (int i = 1; i < nodeList.Count; i++) {
