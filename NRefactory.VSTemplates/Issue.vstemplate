@@ -9,6 +9,7 @@
 		<RequiredFrameworkVersion>4.5</RequiredFrameworkVersion>
 		<NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
 		<DefaultName>CodeIssue.cs</DefaultName>
+		<AppliesTo>CSharp + MultiTarget</AppliesTo>
 	</TemplateData>
 	<TemplateContent>
 		<References>
