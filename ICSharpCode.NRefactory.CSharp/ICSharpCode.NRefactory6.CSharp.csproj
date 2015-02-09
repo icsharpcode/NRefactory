@@ -182,6 +182,9 @@
     <Compile Include="Refactoring\InsertionResult.cs" />
     <Compile Include="Features\Completion\ICompletionCategory.cs" />
     <Compile Include="Util\ITypeSymbolExtensions.cs" />
+    <Compile Include="Features\Completion\CompletionTriggerReason.cs" />
+    <Compile Include="Features\Completion\CompletionTriggerInfo.cs" />
+    <Compile Include="Features\Completion\CompletionContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

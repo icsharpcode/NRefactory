@@ -339,7 +339,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			var engine = CreateEngine(text, out cursorPosition, out semanticModel, out document, references);
 			if (engineCallback != null)
 				engineCallback(engine);
-			return engine.GetCompletionData (document, semanticModel, cursorPosition, isCtrlSpace);
+			char triggerChar = document.GetTextAsync().Result [cursorPosition];
+			return engine.GetCompletionDataAsync (new CompletionContext (document, cursorPosition, semanticModel), new CompletionTriggerInfo (isCtrlSpace ? CompletionTriggerReason.CompletionCommand : CompletionTriggerReason.CharTyped, triggerChar)).Result;
 
 		}
 

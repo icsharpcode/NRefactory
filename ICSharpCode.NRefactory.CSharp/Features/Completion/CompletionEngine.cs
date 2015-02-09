@@ -33,6 +33,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 using Microsoft.CodeAnalysis.Recommendations;
+using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -113,9 +114,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //			}
 //		}
 		}
-	
-		public CompletionResult GetCompletionData(Document document, SemanticModel semanticModel, int position, bool forceCompletion, CancellationToken cancellationToken = default(CancellationToken))
+
+		public async Task<CompletionResult> GetCompletionDataAsync(CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			if (completionContext == null)
+				throw new ArgumentNullException ("completionContext");
+
+			var document = completionContext.Document;
+			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait(false);
+			var position = completionContext.Position;
+
 			var trivia = semanticModel.SyntaxTree.GetRoot(cancellationToken).FindTrivia(position - 1);
 			// work around for roslyn bug: missing comments after pre processor directives
 			if (trivia.IsKind(SyntaxKind.IfDirectiveTrivia) ||
@@ -155,7 +163,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var text = document.GetTextAsync(cancellationToken).Result; 
 			char lastLastChar = position >= 2 ? text [position - 2] : '\0';
 			char lastChar = text [position - 1];
-			if (!forceCompletion) {
+			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped) {
 				if (lastChar != '.' && 
 					lastChar != '#' && 
 					lastChar != '>' && lastLastChar == '-' &&
@@ -204,11 +212,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 
 			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.CSharpKind() == SyntaxKind.ObjectCreationExpression) {
-				if (lastChar == ' ' || forceCompletion) {
-					return HandleObjectCreationExpression(ctx, semanticModel, position, forceCompletion, cancellationToken);
+				if (lastChar == ' ' || info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand) {
+					return HandleObjectCreationExpression(ctx, semanticModel, position, info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand, cancellationToken);
 				}
 			}
-			if (!forceCompletion && (char.IsLetter(lastLastChar) || lastLastChar == '_') &&
+			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && (char.IsLetter(lastLastChar) || lastLastChar == '_') &&
 			    (char.IsLetterOrDigit(lastChar) || lastChar == '_')) {
 				return CompletionResult.Empty;
 			}
@@ -233,15 +241,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 						handler.GetCompletionData(result2, this, ctx, semanticModel, position, cancellationToken);
 					return result2;
 				}
-				if (ctx.TargetToken.IsKind(SyntaxKind.UsingKeyword))
-					forceCompletion = true;
+//				if (ctx.TargetToken.IsKind(SyntaxKind.UsingKeyword))
+//					forceCompletion = true;
 			}
 			
-			if (!forceCompletion && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')
+			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')
 				return CompletionResult.Empty;
 
 			if (ctx.IsInsideNamingContext (lastChar == ' ' && !char.IsWhiteSpace(lastLastChar))) {
-				if (forceCompletion)
+				if (info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand)
 					return HandleNamingContext(ctx);
 				return CompletionResult.Empty;
 			}
@@ -506,8 +514,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //
 //			return wrapper.Result;
 		}
-
-
 
 		CompletionResult HandleObjectCreationExpression(SyntaxContext ctx, SemanticModel semanticModel, int position, bool isCtrlSpace, CancellationToken cancellationToken)
 		{
