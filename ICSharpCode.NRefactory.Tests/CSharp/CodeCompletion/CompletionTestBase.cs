@@ -48,6 +48,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			}
 		}
 
+		protected void VerifyItemIsAbsent(string input, params string[] items)
+		{
+			var provider = CodeCompletionBugTests.CreateProvider(input.Replace("$$", "$"));
+
+			foreach (var item in provider)
+				Console.WriteLine(item.DisplayText);
+			if (items != null) {
+				foreach (var item in items) {
+					Assert.IsNull(provider.Find(item), "item '" + item + "' found but shouldn't.");	
+				}
+			}
+		}
+
 	}
 
 }

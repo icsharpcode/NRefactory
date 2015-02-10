@@ -49,12 +49,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 	public static class SyntaxExtensions
 	{
 		readonly static MethodInfo canRemoveParenthesesMethod;
-		readonly static MethodInfo isLeftSideOfDotMethod;
-		readonly static MethodInfo isRightSideOfDotMethod;
+//		readonly static MethodInfo isLeftSideOfDotMethod;
+//		readonly static MethodInfo isRightSideOfDotMethod;
 		readonly static MethodInfo getEnclosingNamedTypeMethod;
-		readonly static MethodInfo isOverridableMethod;
-		readonly static MethodInfo isThisParameterMethod;
-		readonly static MethodInfo isErrorTypeMethod;
 		readonly static MethodInfo getLocalDeclarationMapMethod;
 		readonly static PropertyInfo localDeclarationMapIndexer;
 		readonly static MethodInfo getAncestorsMethod;
@@ -64,17 +61,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 			var typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.ParenthesizedExpressionSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			canRemoveParenthesesMethod = typeInfo.GetMethod("CanRemoveParentheses", new[] { typeof(ParenthesizedExpressionSyntax) });
 
-			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.ExpressionSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
-			isLeftSideOfDotMethod = typeInfo.GetMethod("IsLeftSideOfDot", new[] { typeof(ExpressionSyntax) });
-			isRightSideOfDotMethod = typeInfo.GetMethod("IsRightSideOfDot", new[] { typeof(ExpressionSyntax) });
-
+//			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.ExpressionSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
+//			isLeftSideOfDotMethod = typeInfo.GetMethod("IsLeftSideOfDot", new[] { typeof(ExpressionSyntax) });
+//			isRightSideOfDotMethod = typeInfo.GetMethod("IsRightSideOfDot", new[] { typeof(ExpressionSyntax) });
+//
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.SemanticModelExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
 			getEnclosingNamedTypeMethod = typeInfo.GetMethod("GetEnclosingNamedType", new[] { typeof(SemanticModel), typeof(int), typeof(CancellationToken) });
-
-			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.ISymbolExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
-			isOverridableMethod = typeInfo.GetMethod("IsOverridable", new[] { typeof(ISymbol) });
-			isThisParameterMethod = typeInfo.GetMethod("IsThisParameter", new[] { typeof(ISymbol) });
-			isErrorTypeMethod = typeInfo.GetMethod("IsErrorType", new[] { typeof(ISymbol) });
 
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.MemberDeclarationSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			getLocalDeclarationMapMethod = typeInfo.GetMethod("GetLocalDeclarationMap", new[] { typeof(MemberDeclarationSyntax) });
@@ -100,49 +92,27 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			return (SyntaxToken)findTokenOnLeftOfPosition.Invoke(null, new object[] { root, position, includeSkipped, includeDirectives, includeDocumentationComments });
 		}
-		public static SyntaxToken GetPreviousTokenIfTouchingWord(this SyntaxToken token, int position)
-		{
-			return token.IntersectsWith(position) && IsWord(token)
-				? token.GetPreviousToken(includeSkipped: true)
-					: token;
-		}
 
-		public static bool IsWord(SyntaxToken token)
-		{
-			return token.IsKind(SyntaxKind.IdentifierToken)
-				|| SyntaxFacts.IsKeywordKind(token.CSharpKind ())
-				|| SyntaxFacts.IsContextualKeyword(token.CSharpKind ())
-				|| SyntaxFacts.IsPreprocessorKeyword(token.CSharpKind ());
-		}
 
-		public static bool IntersectsWith(this SyntaxToken token, int position)
-		{
-			return token.Span.IntersectsWith(position);
-		}
 
-		public static bool IsLeftSideOfDot(this ExpressionSyntax syntax)
-		{
-			return (bool)isLeftSideOfDotMethod.Invoke(null, new object[] { syntax });
-		}
+//		public static bool IntersectsWith(this SyntaxToken token, int position)
+//		{
+//			return token.Span.IntersectsWith(position);
+//		}
 
-		public static bool IsRightSideOfDot(this ExpressionSyntax syntax)
-		{
-			return (bool)isRightSideOfDotMethod.Invoke(null, new object[] { syntax });
-		}
+//		public static bool IsLeftSideOfDot(this ExpressionSyntax syntax)
+//		{
+//			return (bool)isLeftSideOfDotMethod.Invoke(null, new object[] { syntax });
+//		}
+//
+//		public static bool IsRightSideOfDot(this ExpressionSyntax syntax)
+//		{
+//			return (bool)isRightSideOfDotMethod.Invoke(null, new object[] { syntax });
+//		}
 
 		public static INamedTypeSymbol GetEnclosingNamedType(this SemanticModel semanticModel, int position, CancellationToken cancellationToken)
 		{
 			return (INamedTypeSymbol)getEnclosingNamedTypeMethod.Invoke(null, new object[] { semanticModel, position, cancellationToken });
-		}
-
-		public static bool IsOverridable(this ISymbol symbol)
-		{
-			return (bool)isOverridableMethod.Invoke(null, new object[] { symbol });
-		}
-
-		public static bool IsThisParameter(this ISymbol symbol)
-		{
-			return (bool)isThisParameterMethod.Invoke(null, new object[] { symbol });
 		}
 
 		static ImmutableArray<SyntaxToken> GetLocalDeclarationMap(this MemberDeclarationSyntax member, string localName)
@@ -220,7 +190,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				if (enclosingNamedType != null &&
 				    !enclosingNamedType.IsSealed &&
 				    symbol != null &&
-				    symbol.IsOverridable()) {
+					symbol.IsOverridable()) {
 					return false;
 				}
 			}
@@ -233,7 +203,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		internal static bool IsValidSymbolInfo(ISymbol symbol)
 		{
 			// name bound to only one symbol is valid
-			return symbol != null && !(bool)isErrorTypeMethod.Invoke(null, new object[] { symbol });
+			return symbol != null && !symbol.IsErrorType ();
 		}
 
 		private static bool IsThisOrTypeOrNamespace(MemberAccessExpressionSyntax memberAccess, SemanticModel semanticModel)
@@ -277,7 +247,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				if (enclosingDeclarationSpace != null && enclosingMemberDeclaration != null) {
 					var locals = enclosingMemberDeclaration.GetLocalDeclarationMap(identifierName.Identifier.ValueText);
 					foreach (var token in locals) {
-						if (token.GetAncestors<SyntaxNode>().Contains(enclosingDeclarationSpace)) {
+						if (GetAncestors<SyntaxNode>(token).Contains(enclosingDeclarationSpace)) {
 							return true;
 						}
 					}
@@ -514,6 +484,65 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return evt.ExplicitInterfaceSpecifier;
 			return null;
 		}
+
+		internal static bool IsCSharpKind(int rawKind)
+		{
+			const int FirstVisualBasicKind = (int)SyntaxKind.List + 1;
+			const int FirstCSharpKind = (int)SyntaxKind.TildeToken;
+
+			// not in the range [FirstVisualBasicKind, FirstCSharpKind)
+			return unchecked((uint)(rawKind - FirstVisualBasicKind)) > (FirstCSharpKind - 1 - FirstVisualBasicKind);
+		}
+
+		public static SyntaxKind Kind(this SyntaxToken token)
+		{
+			var rawKind = token.RawKind;
+			return IsCSharpKind(rawKind) ? (SyntaxKind)rawKind : SyntaxKind.None;
+		}
+
+		public static SyntaxKind Kind(this SyntaxTrivia trivia)
+		{
+			var rawKind = trivia.RawKind;
+			return IsCSharpKind(rawKind) ? (SyntaxKind)rawKind : SyntaxKind.None;
+		}
+
+		public static SyntaxKind Kind(this SyntaxNode node)
+		{
+			var rawKind = node.RawKind;
+			return IsCSharpKind(rawKind) ? (SyntaxKind)rawKind : SyntaxKind.None;
+		}
+
+		public static SyntaxKind Kind(this SyntaxNodeOrToken nodeOrToken)
+		{
+			var rawKind = nodeOrToken.RawKind;
+			return IsCSharpKind(rawKind) ? (SyntaxKind)rawKind : SyntaxKind.None;
+		}
+
+		public static bool IsKind(this SyntaxToken token, SyntaxKind kind)
+		{
+			return token.RawKind == (int)kind;
+		}
+
+		public static bool IsKind(this SyntaxTrivia trivia, SyntaxKind kind)
+		{
+			return trivia.RawKind == (int)kind;
+		}
+
+		public static bool IsKind(this SyntaxNode node, SyntaxKind kind)
+		{
+			return node?.RawKind == (int)kind;
+		}
+
+		public static bool IsKind(this SyntaxNodeOrToken nodeOrToken, SyntaxKind kind)
+		{
+			return nodeOrToken.RawKind == (int)kind;
+		}
+
+
+//		public static SyntaxNode GetParent(this SyntaxNode node)
+//		{
+//			return node != null ? node.Parent : null;
+//		}
 	}
 }
 

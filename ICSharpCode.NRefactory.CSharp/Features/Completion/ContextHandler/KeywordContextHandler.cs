@@ -35,18 +35,162 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 using System.Threading.Tasks;
+using ICSharpCode.NRefactory6.CSharp.Completion.KeywordRecommenders;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
+	internal sealed class RecommendedKeyword
+	{
+		public string Keyword { get; private set; }
+		public bool IsIntrinsic { get; private set; }
+		public bool ShouldFormatOnCommit { get; private set; }
 
-//	public class CompletionEngineCache
-//	{
-//		public List<INamespace>  namespaces;
-//		public ICompletionData[] importCompletion;
-//	}
+		public RecommendedKeyword (string keyword, bool isIntrinsic = false, bool shouldFormatOnCommit = false)
+		{
+			this.Keyword = keyword;
+			this.IsIntrinsic = isIntrinsic;
+			this.ShouldFormatOnCommit = shouldFormatOnCommit;
+		}
+		
+	}
+
+	internal interface IKeywordRecommender<TContext>
+	{
+		IEnumerable<RecommendedKeyword> RecommendKeywords(int position, TContext context, CancellationToken cancellationToken);
+	}
 
 	class KeywordContextHandler : CompletionContextHandler
 	{
+		IKeywordRecommender<CSharpSyntaxContext>[] recommender = {
+			new AbstractKeywordRecommender(),
+			new AddKeywordRecommender(),
+			new AliasKeywordRecommender(),
+			new AscendingKeywordRecommender(),
+			new AsKeywordRecommender(),
+			new AssemblyKeywordRecommender(),
+			new AsyncKeywordRecommender(),
+			new AwaitKeywordRecommender(),
+			new BaseKeywordRecommender(),
+			new BoolKeywordRecommender(),
+			new BreakKeywordRecommender(),
+			new ByKeywordRecommender(),
+			new ByteKeywordRecommender(),
+			new CaseKeywordRecommender(),
+			new CatchKeywordRecommender(),
+			new CharKeywordRecommender(),
+			new CheckedKeywordRecommender(),
+			new ChecksumKeywordRecommender(),
+			new ClassKeywordRecommender(),
+			new ConstKeywordRecommender(),
+			new ContinueKeywordRecommender(),
+			new DecimalKeywordRecommender(),
+			new DefaultKeywordRecommender(),
+			new DefineKeywordRecommender(),
+			new DelegateKeywordRecommender(),
+			new DescendingKeywordRecommender(),
+			new DisableKeywordRecommender(),
+			new DoKeywordRecommender(),
+			new DoubleKeywordRecommender(),
+			new DynamicKeywordRecommender(),
+			new ElifKeywordRecommender(),
+			new ElseKeywordRecommender(),
+			new EndIfKeywordRecommender(),
+			new EndRegionKeywordRecommender(),
+			new EnumKeywordRecommender(),
+			new EqualsKeywordRecommender(),
+			new ErrorKeywordRecommender(),
+			new EventKeywordRecommender(),
+			new ExplicitKeywordRecommender(),
+			new ExternKeywordRecommender(),
+			new FalseKeywordRecommender(),
+			new FieldKeywordRecommender(),
+			new FinallyKeywordRecommender(),
+			new FixedKeywordRecommender(),
+			new FloatKeywordRecommender(),
+			new ForEachKeywordRecommender(),
+			new ForKeywordRecommender(),
+			new FromKeywordRecommender(),
+			new GetKeywordRecommender(),
+			new GlobalKeywordRecommender(),
+			new GotoKeywordRecommender(),
+			new GroupKeywordRecommender(),
+			new HiddenKeywordRecommender(),
+			new IfKeywordRecommender(),
+			new ImplicitKeywordRecommender(),
+			new InKeywordRecommender(),
+			new InterfaceKeywordRecommender(),
+			new InternalKeywordRecommender(),
+			new IntKeywordRecommender(),
+			new IntoKeywordRecommender(),
+			new IsKeywordRecommender(),
+			new JoinKeywordRecommender(),
+			new LetKeywordRecommender(),
+			new LineKeywordRecommender(),
+			new LockKeywordRecommender(),
+			new LongKeywordRecommender(),
+			new MethodKeywordRecommender(),
+			new ModuleKeywordRecommender(),
+			new NameOfKeywordRecommender(),
+			new NamespaceKeywordRecommender(),
+			new NewKeywordRecommender(),
+			new NullKeywordRecommender(),
+			new ObjectKeywordRecommender(),
+			new OnKeywordRecommender(),
+			new OperatorKeywordRecommender(),
+			new OrderByKeywordRecommender(),
+			new OutKeywordRecommender(),
+			new OverrideKeywordRecommender(),
+			new ParamKeywordRecommender(),
+			new ParamsKeywordRecommender(),
+			new PartialKeywordRecommender(),
+			new PragmaKeywordRecommender(),
+			new PrivateKeywordRecommender(),
+			new PropertyKeywordRecommender(),
+			new ProtectedKeywordRecommender(),
+			new PublicKeywordRecommender(),
+			new ReadOnlyKeywordRecommender(),
+			new ReferenceKeywordRecommender(),
+			new RefKeywordRecommender(),
+			new RegionKeywordRecommender(),
+			new RemoveKeywordRecommender(),
+			new RestoreKeywordRecommender(),
+			new ReturnKeywordRecommender(),
+			new SByteKeywordRecommender(),
+			new SealedKeywordRecommender(),
+			new SelectKeywordRecommender(),
+			new SetKeywordRecommender(),
+			new ShortKeywordRecommender(),
+			new SizeOfKeywordRecommender(),
+			new StackAllocKeywordRecommender(),
+			new StaticKeywordRecommender(),
+			new StringKeywordRecommender(),
+			new StructKeywordRecommender(),
+			new SwitchKeywordRecommender(),
+			new ThisKeywordRecommender(),
+			new ThrowKeywordRecommender(),
+			new TrueKeywordRecommender(),
+			new TryKeywordRecommender(),
+			new TypeKeywordRecommender(),
+			new TypeOfKeywordRecommender(),
+			new TypeVarKeywordRecommender(),
+			new UIntKeywordRecommender(),
+			new ULongKeywordRecommender(),
+			new UncheckedKeywordRecommender(),
+			new UndefKeywordRecommender(),
+			new UnsafeKeywordRecommender(),
+			new UShortKeywordRecommender(),
+			new UsingKeywordRecommender(),
+			new VarKeywordRecommender(),
+			new VirtualKeywordRecommender(),
+			new VoidKeywordRecommender(),
+			new VolatileKeywordRecommender(),
+			new WarningKeywordRecommender(),
+//			new WhenKeywordRecommender(),
+			new WhereKeywordRecommender(),
+			new WhileKeywordRecommender(),
+			new YieldKeywordRecommender()
+		};
+
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);

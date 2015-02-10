@@ -5,6 +5,7 @@
 //       Mike Krüger <mkrueger@xamarin.com>
 //
 // Copyright (c) 2015 Xamarin Inc. (http://xamarin.com)
+﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +25,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
 using NUnit.Framework;
@@ -52,9 +52,8 @@ public class b : a
 }", "foo");
 		}
 
-//
-//		[WorkItem(543799)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
+
+//		[Test]
 //		public void InheritedParameterDefaultValue1()
 //		{
 //			VerifyItemExists(@"public class a
@@ -67,7 +66,7 @@ public class b : a
 //    override $$
 //}", "foo(int x = 42)", "void a.foo([int x = 42])");
 //		}
-//
+
 //		[WorkItem(543799)]
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void InheritedParameterDefaultValue2()
@@ -561,21 +560,21 @@ public class b : a
 //			VerifyItemIsAbsent(markup, "Foo()", "void Base.Foo()");
 //		}
 //
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotOfferedOnNonVirtual()
-//		{
-//			var markup = @"class Base
-//{
-//    public void Foo();
-//}
-//
-//class SomeClass : Base
-//{
-//    override $$
-//}";
-//
-//			VerifyItemIsAbsent(markup, "Foo()", "void Base.Foo()");
-//		}
+		[Test]
+		public void NotOfferedOnNonVirtual()
+		{
+			var markup = @"class Base
+{
+    public void Foo();
+}
+
+class SomeClass : Base
+{
+    override $$
+}";
+
+			VerifyItemIsAbsent(markup, "Foo", "Base.Foo");
+		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void GenericTypeNameSubstitutedForGenericInDerivedClass1()
