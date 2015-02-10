@@ -105,6 +105,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			data.Add(completionData); 
 		}
 
+		internal void AddRange (IEnumerable<ICompletionData> completionData)
+		{
+			data.AddRange(completionData); 
+		}
+
 		public static CompletionResult Create(IEnumerable<ICompletionData> data)
 		{
 			var result = new CompletionResult();

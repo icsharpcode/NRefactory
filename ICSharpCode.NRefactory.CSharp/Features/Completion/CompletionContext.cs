@@ -17,7 +17,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		SemanticModel semanticModel;
 
-		public async Task<SemanticModel> GetSemanticModelAsync (CancellationToken cancellationToken = default (CancellationToken)) 
+		internal async Task<SemanticModel> GetSemanticModelAsync (CancellationToken cancellationToken = default (CancellationToken)) 
 		{
 			if (semanticModel == null)
 				semanticModel = await document.GetSemanticModelAsync (cancellationToken);
@@ -29,6 +29,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 			get {
 				return position;
 			}
+		}
+
+		SyntaxContext syntaxContext;
+		internal async Task<SyntaxContext> GetSyntaxContextAsync  (Workspace workspace, CancellationToken cancellationToken = default (CancellationToken)) 
+		{
+			if (syntaxContext == null)
+				syntaxContext = SyntaxContext.Create(workspace, document, semanticModel, position, cancellationToken);
+			return syntaxContext;
 		}
 
 		public CompletionContext (Document document, int position, SemanticModel semanticModel  = null)

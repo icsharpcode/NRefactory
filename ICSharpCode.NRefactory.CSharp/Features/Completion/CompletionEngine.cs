@@ -42,6 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		static readonly CompletionContextHandler[] handlers = {
 			new RoslynRecommendationsCompletionContextHandler (),
 			new KeywordContextHandler(),
+			new OverrideContextHandler(),
 			new EnumMemberContextHandler()
 		};
 
@@ -188,7 +189,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return CompletionResult.Empty;
 			}
 
-			var ctx = SyntaxContext.Create(workspace, document, semanticModel, position, cancellationToken);
+			var ctx = await completionContext.GetSyntaxContextAsync (workspace, cancellationToken).ConfigureAwait (false);
 
 			if (ctx.ContainingTypeDeclaration != null &&
 			    ctx.ContainingTypeDeclaration.IsKind(SyntaxKind.EnumDeclaration)) {
@@ -196,11 +197,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 
 			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
-			if (incompleteMemberSyntax != null) {
-				var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
-				if (mod.IsKind(SyntaxKind.OverrideKeyword))
-					return HandleOverrideContext(ctx, semanticModel);
-			}
+
 			if (ctx.TargetToken.Parent != null) {
 				incompleteMemberSyntax = ctx.TargetToken.Parent.Parent as IncompleteMemberSyntax;
 				if (incompleteMemberSyntax != null) {
@@ -237,16 +234,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				var parent = ctx.TargetToken.Parent;
 				if (parent != null && parent.Parent != null && parent.IsKind(SyntaxKind.BaseList) && parent.Parent.IsKind(SyntaxKind.EnumDeclaration)) {
 					var result2 = new CompletionResult();
-					foreach (var handler in handlers)
-						handler.GetCompletionData(result2, this, ctx, semanticModel, position, cancellationToken);
+					foreach (var handler in handlers) {
+						result2.AddRange (handler.GetCompletionDataAsync (result2, this, completionContext, info, cancellationToken).Result);
+					}
 					return result2;
 				}
 //				if (ctx.TargetToken.IsKind(SyntaxKind.UsingKeyword))
 //					forceCompletion = true;
 			}
 			
-			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')
-				return CompletionResult.Empty;
+//			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')
+//				return CompletionResult.Empty;
 
 			if (ctx.IsInsideNamingContext (lastChar == ' ' && !char.IsWhiteSpace(lastLastChar))) {
 				if (info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand)
@@ -288,7 +286,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					ctx.TargetToken.Parent.IsKind(SyntaxKind.CollectionInitializerExpression) ||
 					ctx.TargetToken.Parent.IsKind(SyntaxKind.ObjectInitializerExpression)
 				)) {
-				return HandleObjectInitializer(semanticModel, position, ctx, cancellationToken);
+				return HandleObjectInitializer(completionContext, info, ctx, cancellationToken);
 			}
 
 			var result = new CompletionResult();
@@ -297,8 +295,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				result.InsertTemplatesInList = true;
 			}
 
-			foreach (var handler in handlers)
-				handler.GetCompletionData(result, this, ctx, semanticModel, position, cancellationToken);
+			if (position > 0) {
+				foreach (var handler in handlers) {
+					if (handler.IsTriggerCharacter (text, position - 1)) {
+						var handlerResult = handler.GetCompletionDataAsync (result, this, completionContext, info, cancellationToken).Result;
+						if (handlerResult != null)
+							result.AddRange (handlerResult);
+					}
+				}
+			}
 
 			// prevent auto selection for "<number>." case
 			if (ctx.TargetToken.IsKind(SyntaxKind.DotToken)) {
@@ -387,79 +392,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			result.AddData(factory.CreateGenericData("remove", GenericDataType.Keyword));
 			return result;
 		}
-
-		static ITypeSymbol GetCurrentType(SyntaxContext ctx, SemanticModel semanticModel)
-		{
-			foreach (var f in semanticModel.Compilation.GlobalNamespace.GetMembers()) {
-				foreach (var loc in f.Locations) {
-					if (loc.SourceTree.FilePath == ctx.SyntaxTree.FilePath) {
-						if (loc.SourceSpan == ctx.ContainingTypeDeclaration.Identifier.Span) {
-							return f as ITypeSymbol;
-						}
-					}
-				}
-			}
-			return null;
-		}
-
-		static bool HasOverridden(ISymbol original, ISymbol testSymbol)
-		{
-			if (original.Kind != testSymbol.Kind)
-				return false;
-			switch (testSymbol.Kind) {
-				case SymbolKind.Method:
-					return ((IMethodSymbol)testSymbol).OverriddenMethod == original;
-				case SymbolKind.Property:
-					return ((IPropertySymbol)testSymbol).OverriddenProperty == original;
-				case SymbolKind.Event:
-					return ((IEventSymbol)testSymbol).OverriddenEvent == original;
-			}
-			return false;
-		}
-
-		CompletionResult HandleOverrideContext(SyntaxContext ctx, SemanticModel semanticModel)
-		{
-			var result = new CompletionResult();
-			if (ctx.ContainingTypeDeclaration == null)
-				return result;
-			var curType = GetCurrentType(ctx, semanticModel);
-			if (curType == null)
-				return result;
-			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
-			foreach (var m in curType.BaseType.GetMembers ()) {
-				if (!m.IsOverride && !m.IsVirtual || m.ContainingType == curType)
-					continue;
-				// filter out the "Finalize" methods, because finalizers should be done with destructors.
-				if (m.Kind == SymbolKind.Method && m.Name == "Finalize") {
-					continue;
-				}
-
-				// check if the member is already implemented
-				bool foundMember = curType.GetMembers().Any(cm => HasOverridden (m, cm));
-				if (foundMember)
-					continue;
-
-/*				if (alreadyInserted.Contains(m))
-					continue;
-				alreadyInserted.Add(m);*/
-
-				var data = factory.CreateNewOverrideCompletionData(
-					incompleteMemberSyntax.SpanStart,
-					curType,
-					m
-				);
-				//data.CompletionCategory = col.GetCompletionCategory(m.DeclaringTypeDefinition);
-				result.AddData(data); 
-			}
-			return result;
-		}
-
 		CompletionResult HandlePartialContext(SyntaxContext ctx, IncompleteMemberSyntax incompleteMemberSyntax, SemanticModel semanticModel)
 		{
 			var result = new CompletionResult();
 			if (ctx.ContainingTypeDeclaration == null)
 				return result;
-			var curType = GetCurrentType(ctx, semanticModel);
+			var curType = ctx.GetCurrentType(semanticModel);
 			if (curType == null)
 				return result;
 			foreach (var method in curType.GetMembers().OfType<IMethodSymbol>()) {
@@ -707,8 +645,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				yield return baseMember;
 		}
 
-		CompletionResult HandleObjectInitializer(SemanticModel semanticModel, int position, SyntaxContext ctx, CancellationToken cancellationToken)
+		CompletionResult HandleObjectInitializer(CompletionContext completionContext, CompletionTriggerInfo triggerInfo, SyntaxContext ctx, CancellationToken cancellationToken)
 		{
+			var semanticModel = completionContext.GetSemanticModelAsync (cancellationToken).Result;
+			var position = completionContext.Position;
 			var objectCreationExpression = ctx.TargetToken.Parent.Parent;
 			var info = semanticModel.GetSymbolInfo(objectCreationExpression);
 			var result = new CompletionResult();
@@ -776,7 +716,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return result;
 				if (initializerType.AllInterfaces.Any(i => i == type) && (objectCreationExpression.IsKind(SyntaxKind.ArrayInitializerExpression) || !hasObjectInitializers)) {
 					foreach (var handler in handlers)
-						handler.GetCompletionData(result, this, ctx, semanticModel, position, cancellationToken);
+						result.AddRange (handler.GetCompletionDataAsync (result, this, completionContext, triggerInfo, cancellationToken).Result);
 				}
 			}
 		

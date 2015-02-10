@@ -91,29 +91,24 @@
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp">
       <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.0.0.0-beta2\lib\net45\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp.Desktop">
       <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.0.0.0-beta2\lib\net45\Microsoft.CodeAnalysis.CSharp.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
       <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.Workspaces.1.0.0.0-beta2\lib\net45\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces.Desktop">
       <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.Workspaces.1.0.0.0-beta2\lib\net45\Microsoft.CodeAnalysis.CSharp.Workspaces.Desktop.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.Desktop">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0.0-beta2\lib\net45\Microsoft.CodeAnalysis.Desktop.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.Workspaces">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.1.0.0.0-beta2\lib\net45\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.Workspaces.Desktop">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.1.0.0.0-beta2\lib\net45\Microsoft.CodeAnalysis.Workspaces.Desktop.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
@@ -154,22 +149,6 @@
     <Compile Include="CSharp\CodeIssues\LongLiteralEndingLowerLIssueTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CSharp\CodeIssues\EmptyStatementIssueTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\CodeCompletionAccessibleTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\CodeCompletionBugTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\CodeCompletionCSharp3Tests.cs" />
-    <Compile Include="CSharp\CodeCompletion\CodeCompletionCSharpTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\CodeCompletionOperatorTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\CompletionDataList.cs" />
-    <Compile Include="CSharp\CodeCompletion\DelegateContextTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\DocumentationContextTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\EnumContextTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\FormatItemTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\KeywordTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NameContextTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\ObjectInitializerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PreProcessorTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\TestBase.cs" />
-    <Compile Include="CSharp\CodeCompletion\VariableDeclarationStatementTests.cs" />
     <Compile Include="CSharp\Analysis\SemanticHighlightingTests.cs" />
     <Compile Include="CSharp\ParameterHinting\ParameterHintingTests.cs" />
     <Compile Include="CSharp\CodeActions\UseVarKeywordTests.cs" />
@@ -474,6 +453,24 @@
     <Compile Include="IndentationTests\BlockTest.cs" />
     <Compile Include="IndentationTests\AlignmentTests.cs" />
     <Compile Include="IndentationTests\AllInOneTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionAccessibleTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionBugTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionCSharp3Tests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionCSharpTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionOperatorTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CompletionDataList.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\DelegateContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\DocumentationContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\EnumContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\FormatItemTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\KeywordTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\NameContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\ObjectInitializerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\PreProcessorTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\TestBase.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\VariableDeclarationStatementTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\OverrideCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\CompletionTestBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -498,9 +495,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="CSharp\CodeCompletion\GetCurrentParameterIndexTests.cs" />
-    <None Include="CSharp\CodeCompletion\ImportCompletionTests.cs" />
-    <None Include="CSharp\CodeCompletion\BrowsableAttributeTests.cs" />
     <None Include="IndentationTests\TestFiles\Comments.cs" />
     <None Include="IndentationTests\TestFiles\CSharpParser.cs" />
     <None Include="IndentationTests\TestFiles\IndentEngine.cs" />
@@ -512,6 +506,9 @@
     <None Include="IndentationTests\TestFiles\SwitchCase.cs" />
     <None Include="IndentationTests\TestFiles\TextArea.cs" />
     <None Include="packages.config" />
+    <None Include="CSharp\CodeCompletion\NR5\BrowsableAttributeTests.cs" />
+    <None Include="CSharp\CodeCompletion\NR5\GetCurrentParameterIndexTests.cs" />
+    <None Include="CSharp\CodeCompletion\NR5\ImportCompletionTests.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -538,4 +535,7 @@
     </PropertyGroup>
     <Exec Condition="$(SolutionDir) != $([System.IO.Path]::GetFullPath('..'))" Command="$(NuGet) restore -SolutionDirectory .." />
   </Target>
+  <ItemGroup>
+    <Folder Include="CSharp\CodeCompletion\NR5\" />
+  </ItemGroup>
 </Project>

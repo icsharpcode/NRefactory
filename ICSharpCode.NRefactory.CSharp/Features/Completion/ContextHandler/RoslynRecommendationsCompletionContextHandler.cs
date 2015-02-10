@@ -34,6 +34,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -61,8 +62,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return IsException(type.BaseType);
 		}
 
-		public override void GetCompletionData(CompletionResult result, CompletionEngine engine, SyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken))
+		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
+			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait(false);
+			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait(false);
+			var result = new List<ICompletionData> ();
+
 			var parent = ctx.TargetToken.Parent;
 			bool isInAttribute = parent != null && (parent.IsKind(SyntaxKind.AttributeList) ||
 			                     parent.Parent != null && parent.IsKind(SyntaxKind.QualifiedName) && parent.Parent.IsKind(SyntaxKind.Attribute));
@@ -80,10 +85,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return;
 				}
 				completionDataLookup.Add(key, d); 
-				result.AddData(d);
+				result.Add (d);
 			};
 
-			foreach (var symbol in Recommender.GetRecommendedSymbolsAtPosition(semanticModel, offset, engine.Workspace, null, cancellationToken)) {
+			foreach (var symbol in Recommender.GetRecommendedSymbolsAtPosition(semanticModel, completionContext.Position, engine.Workspace, null, cancellationToken)) {
 				if (symbol.Kind == SymbolKind.NamedType) {
 					if (isInAttribute) {
 						var type = (ITypeSymbol)symbol;
@@ -107,6 +112,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					continue;
 				addData(engine.Factory.CreateSymbolCompletionData(symbol));
 			}
+			return result;
 		}
 	}
 

@@ -84,6 +84,40 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.CommonSyntaxTokenExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
 			getAncestorsMethod = typeInfo.GetMethods().Single(m => m.Name == "GetAncestors" && m.IsGenericMethod);
+
+			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.SyntaxNodeExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
+			findTokenOnLeftOfPosition = typeInfo.GetMethods().Single(m => m.Name == "FindTokenOnLeftOfPosition");
+		}
+
+		readonly static MethodInfo findTokenOnLeftOfPosition;
+
+		public static SyntaxToken FindTokenOnLeftOfPosition(
+			this SyntaxNode root,
+			int position,
+			bool includeSkipped = true,
+			bool includeDirectives = false,
+			bool includeDocumentationComments = false)
+		{
+			return (SyntaxToken)findTokenOnLeftOfPosition.Invoke(null, new object[] { root, position, includeSkipped, includeDirectives, includeDocumentationComments });
+		}
+		public static SyntaxToken GetPreviousTokenIfTouchingWord(this SyntaxToken token, int position)
+		{
+			return token.IntersectsWith(position) && IsWord(token)
+				? token.GetPreviousToken(includeSkipped: true)
+					: token;
+		}
+
+		public static bool IsWord(SyntaxToken token)
+		{
+			return token.IsKind(SyntaxKind.IdentifierToken)
+				|| SyntaxFacts.IsKeywordKind(token.CSharpKind ())
+				|| SyntaxFacts.IsContextualKeyword(token.CSharpKind ())
+				|| SyntaxFacts.IsPreprocessorKeyword(token.CSharpKind ());
+		}
+
+		public static bool IntersectsWith(this SyntaxToken token, int position)
+		{
+			return token.Span.IntersectsWith(position);
 		}
 
 		public static bool IsLeftSideOfDot(this ExpressionSyntax syntax)

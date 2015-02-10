@@ -185,6 +185,8 @@
     <Compile Include="Features\Completion\CompletionTriggerReason.cs" />
     <Compile Include="Features\Completion\CompletionTriggerInfo.cs" />
     <Compile Include="Features\Completion\CompletionContext.cs" />
+    <Compile Include="Features\Completion\ContextHandler\ExternAliasContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\OverrideContextHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

@@ -144,6 +144,22 @@ namespace ICSharpCode.NRefactory6.CSharp
 				inferenceService.InferTypes(semanticModel, position, cancellationToken).ToList()
 			);
 		}
+
+		public ITypeSymbol GetCurrentType(SemanticModel semanticModel)
+		{
+			foreach (var f in semanticModel.Compilation.GlobalNamespace.GetMembers()) {
+				foreach (var loc in f.Locations) {
+					if (loc.SourceTree.FilePath == SyntaxTree.FilePath) {
+						if (loc.SourceSpan == ContainingTypeDeclaration.Identifier.Span) {
+							return f as ITypeSymbol;
+						}
+					}
+				}
+			}
+			return null;
+		}
+
+
 	}
 }
 

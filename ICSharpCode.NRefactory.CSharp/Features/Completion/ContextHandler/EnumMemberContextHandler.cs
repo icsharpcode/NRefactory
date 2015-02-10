@@ -34,6 +34,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -46,21 +47,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 	
 	class EnumMemberContextHandler : CompletionContextHandler
 	{
-		public override void GetCompletionData(CompletionResult result, CompletionEngine engine, SyntaxContext ctx, SemanticModel semanticModel, int offset, CancellationToken cancellationToken = default(CancellationToken))
+		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
+			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait(false);
+			var result = new List<ICompletionData> ();
 			foreach (var type in ctx.InferredTypes) {
 				if (type.TypeKind != TypeKind.Enum)
 					continue;
-				if (string.IsNullOrEmpty(result.DefaultCompletionString))
-					result.DefaultCompletionString = type.Name;
+				if (string.IsNullOrEmpty(completionResult.DefaultCompletionString))
+					completionResult.DefaultCompletionString = type.Name;
 
-				result.AddData(engine.Factory.CreateSymbolCompletionData(type, type.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
+				result.Add (engine.Factory.CreateSymbolCompletionData(type, type.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
 				foreach (IFieldSymbol field in type.GetMembers().OfType<IFieldSymbol>()) {
 					if (field.DeclaredAccessibility == Accessibility.Public && (field.IsConst || field.IsStatic)) {
-						result.AddData(engine.Factory.CreateEnumMemberCompletionData(field));
+						result.Add (engine.Factory.CreateEnumMemberCompletionData(field));
 					}
 				}
 			}
+			return result;
 		}
 	}
 
