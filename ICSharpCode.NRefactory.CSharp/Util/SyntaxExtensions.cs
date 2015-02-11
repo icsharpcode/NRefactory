@@ -77,12 +77,27 @@ namespace ICSharpCode.NRefactory6.CSharp
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.CommonSyntaxTokenExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
 			getAncestorsMethod = typeInfo.GetMethods().Single(m => m.Name == "GetAncestors" && m.IsGenericMethod);
 
-			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.SyntaxNodeExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
-			findTokenOnLeftOfPosition = typeInfo.GetMethods().Single(m => m.Name == "FindTokenOnLeftOfPosition");
 		}
 
-		readonly static MethodInfo findTokenOnLeftOfPosition;
 
+		/// <summary>
+		/// Look inside a trivia list for a skipped token that contains the given position.
+		/// </summary>
+		private static readonly Func<SyntaxTriviaList, int, SyntaxToken> s_findSkippedTokenBackward =
+			(l, p) => FindTokenHelper.FindSkippedTokenBackward(GetSkippedTokens(l), p);
+
+		/// <summary>
+		/// return only skipped tokens
+		/// </summary>
+		private static IEnumerable<SyntaxToken> GetSkippedTokens(SyntaxTriviaList list)
+		{
+			return list.Where(trivia => trivia.RawKind == (int)SyntaxKind.SkippedTokensTrivia)
+				.SelectMany(t => ((SkippedTokensTriviaSyntax)t.GetStructure()).Tokens);
+		}
+
+		/// <summary>
+		/// If the position is inside of token, return that token; otherwise, return the token to the left.
+		/// </summary>
 		public static SyntaxToken FindTokenOnLeftOfPosition(
 			this SyntaxNode root,
 			int position,
@@ -90,7 +105,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 			bool includeDirectives = false,
 			bool includeDocumentationComments = false)
 		{
-			return (SyntaxToken)findTokenOnLeftOfPosition.Invoke(null, new object[] { root, position, includeSkipped, includeDirectives, includeDocumentationComments });
+			var skippedTokenFinder = includeSkipped ? s_findSkippedTokenBackward : (Func<SyntaxTriviaList, int, SyntaxToken>)null;
+
+			return FindTokenHelper.FindTokenOnLeftOfPosition<CompilationUnitSyntax>(
+				root, position, skippedTokenFinder, includeSkipped, includeDirectives, includeDocumentationComments);
 		}
 
 

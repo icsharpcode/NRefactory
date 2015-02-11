@@ -336,6 +336,7 @@
     <Compile Include="Util\ExpressionSyntaxExtensions.cs" />
     <Compile Include="Util\INamespaceOrTypeSymbolExtensions.cs" />
     <Compile Include="Util\NameGenerator.cs" />
+    <Compile Include="Util\FindTokenHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
