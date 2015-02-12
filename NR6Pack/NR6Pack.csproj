@@ -530,12 +530,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SignatureComparer.cs">
       <Link>Common\SignatureComparer.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SymbolExtensions.cs">
-      <Link>Common\SymbolExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SyntaxExtensions.cs">
-      <Link>Common\SyntaxExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\TypeExtensions.cs">
       <Link>Common\TypeExtensions.cs</Link>
     </Compile>
@@ -546,6 +540,8 @@
     <Compile Include="Common\GatherVisitorBase.cs" />
     <Compile Include="Common\NRefactoryCodeAction.cs" />
     <Compile Include="Common\StringExtensions.cs" />
+    <Compile Include="Common\SymbolExtensions.cs" />
+    <Compile Include="Common\SyntaxExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
