@@ -472,6 +472,7 @@
     <Compile Include="CSharp\CodeCompletion\OverrideCompletionHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\CompletionTestBase.cs" />
     <Compile Include="CSharp\CodeCompletion\XmlDocCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\ExplicitInterfaceCompletionHandlerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

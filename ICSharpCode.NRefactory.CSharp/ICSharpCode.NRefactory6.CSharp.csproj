@@ -339,6 +339,7 @@
     <Compile Include="Features\Completion\ContextHandler\XmlDocCommentContextHandler.cs" />
     <Compile Include="Util\DocumentExtensions.cs" />
     <Compile Include="Util\IDocumentExtensions.cs" />
+    <Compile Include="Features\Completion\ContextHandler\ExplicitInterfaceContextHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

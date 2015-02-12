@@ -44,7 +44,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new KeywordContextHandler(),
 			new OverrideContextHandler(),
 			new EnumMemberContextHandler(),
-			new XmlDocCommentContextHandler()
+			new XmlDocCommentContextHandler(),
+			new ExplicitInterfaceContextHandler()
 		};
 
 		readonly ICompletionDataFactory factory;
