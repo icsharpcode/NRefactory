@@ -340,6 +340,11 @@
     <Compile Include="Util\DocumentExtensions.cs" />
     <Compile Include="Util\IDocumentExtensions.cs" />
     <Compile Include="Features\Completion\ContextHandler\ExplicitInterfaceContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\AttributeNamedParameterContextHandler.cs" />
+    <Compile Include="Util\ISymbolExtensions.cs" />
+    <Compile Include="Util\IAssemblySymbolExtensions.cs" />
+    <Compile Include="Util\INamedTypeSymbolExtensions.cs" />
+    <Compile Include="Util\ICompilationExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

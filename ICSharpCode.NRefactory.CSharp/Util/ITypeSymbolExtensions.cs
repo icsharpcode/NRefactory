@@ -41,12 +41,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 	public static class ITypeSymbolExtensions
 	{
 		readonly static MethodInfo generateTypeSyntax;
+		readonly static MethodInfo inheritsFromOrEqualsIgnoringConstructionMethod;
 
 		static ITypeSymbolExtensions()
 		{
 			
 			var typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.ITypeSymbolExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			generateTypeSyntax = typeInfo.GetMethod("GenerateTypeSyntax", new[] { typeof(ITypeSymbol) });
+			inheritsFromOrEqualsIgnoringConstructionMethod = typeInfo.GetMethod("InheritsFromOrEqualsIgnoringConstruction");
 		}
 
 		public static TypeSyntax GenerateTypeSyntax (this ITypeSymbol typeSymbol)
@@ -198,7 +200,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 //			{
 //				cancellationToken.ThrowIfCancellationRequested();
 //				var constructedInterfaceMember = constructedInterface.GetMembers().FirstOrDefault(m =>
-//					SymbolEquivalenceComparer.Instance.Equals(m.OriginalDefinition, originalInterfaceMember));
+		//					SymbolEquivalenceComparer.Instance.Equals(m.OriginalDefinition, originalInterfaceMember));
 //
 //				if (constructedInterfaceMember == null)
 //				{
@@ -334,14 +336,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 //			return type.GetBaseTypesAndThis().Contains(t => SymbolEquivalenceComparer.Instance.Equals(t, baseType));
 //		}
 //
-//		// Determine if "type" inherits from "baseType", ignoring constructed types, and dealing
-//		// only with original types.
-//		public static bool InheritsFromOrEqualsIgnoringConstruction(
-//			this ITypeSymbol type, ITypeSymbol baseType)
-//		{
-//			var originalBaseType = baseType.OriginalDefinition;
-//			return type.GetBaseTypesAndThis().Contains(t => SymbolEquivalenceComparer.Instance.Equals(t.OriginalDefinition, originalBaseType));
-//		}
+		// Determine if "type" inherits from "baseType", ignoring constructed types, and dealing
+		// only with original types.
+		public static bool InheritsFromOrEqualsIgnoringConstruction(
+			this ITypeSymbol type, ITypeSymbol baseType)
+		{
+			return (bool)inheritsFromOrEqualsIgnoringConstructionMethod.Invoke (null, new [] { type, baseType });
+		}
 //
 //		// Determine if "type" inherits from "baseType", ignoring constructed types, and dealing
 //		// only with original types.

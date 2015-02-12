@@ -45,7 +45,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new OverrideContextHandler(),
 			new EnumMemberContextHandler(),
 			new XmlDocCommentContextHandler(),
-			new ExplicitInterfaceContextHandler()
+			new ExplicitInterfaceContextHandler(),
+			new AttributeNamedParameterContextHandler()
 		};
 
 		readonly ICompletionDataFactory factory;
@@ -237,10 +238,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return HandleNamingContext(ctx);
 				return CompletionResult.Empty;
 			}
-			
-			if (ctx.TargetToken.Parent is AttributeArgumentListSyntax) {
-				return HandleAttributeArgumentListSyntax(semanticModel, ctx);
-			}
 
 			if (ctx.TargetToken.Parent is AccessorListSyntax) {
 				if (ctx.TargetToken.Parent.Parent is EventDeclarationSyntax) {
@@ -320,48 +317,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return result;
 		}
 
-		CompletionResult HandleAttributeArgumentListSyntax(SemanticModel semanticModel, SyntaxContext ctx)
-		{
-			var result = new CompletionResult();
-			var node = ctx.TargetToken.Parent.Parent;
-			var typeNameText = node.ToFullString();
-			var idx = typeNameText.IndexOf('(');
-			if (idx >= 0)
-				typeNameText = typeNameText.Substring(0, idx).Trim();
-			var typeSyntax = SyntaxFactory.ParseTypeName(typeNameText);
-			var info = semanticModel.GetSpeculativeTypeInfo(node.SpanStart, typeSyntax, SpeculativeBindingOption.BindAsTypeOrNamespace); 
-			if (info.Type.TypeKind == TypeKind.Error)
-				info = semanticModel.GetSpeculativeTypeInfo(node.SpanStart, SyntaxFactory.ParseTypeName(typeSyntax.ToFullString() + "Attribute"), SpeculativeBindingOption.BindAsTypeOrNamespace); 
-			if (info.Type.TypeKind == TypeKind.Error)
-				return result;
-			var cache = new HashSet<string>();
-			foreach (var member in info.Type.GetMembers()) {
-				var property = member as IPropertySymbol;
-				if (property != null) {
-					var data = factory.CreateSymbolCompletionData(property);
-					data.DisplayFlags |= DisplayFlags.NamedArgument;
-					result.AddData(data);
-					continue;
-				}
-				var field = member as IFieldSymbol;
-				if (field != null) {
-					var data = factory.CreateSymbolCompletionData(field);
-					data.DisplayFlags |= DisplayFlags.NamedArgument;
-					result.AddData(data);
-					continue;
-				}
-				var method = member as IMethodSymbol;
-				if (method != null && method.MethodKind == MethodKind.Constructor) {
-					foreach (var p in method.Parameters) {
-						var data = factory.CreateSymbolCompletionData(p);
-						data.DisplayFlags |= DisplayFlags.NamedArgument;
-						result.AddData(data);
-						AddNamedParameterData(result, cache, p);
-					}
-				}
-			}
-			return result;
-		}
 
 		void AddNamedParameterData(CompletionResult result, HashSet<string> parametersAddedCache, IParameterSymbol p)
 		{

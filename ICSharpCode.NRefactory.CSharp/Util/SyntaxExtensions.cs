@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		readonly static MethodInfo canRemoveParenthesesMethod;
 //		readonly static MethodInfo isLeftSideOfDotMethod;
 //		readonly static MethodInfo isRightSideOfDotMethod;
-		readonly static MethodInfo getEnclosingNamedTypeMethod;
+//		readonly static MethodInfo getEnclosingNamedTypeMethod;
 		readonly static MethodInfo getLocalDeclarationMapMethod;
 		readonly static PropertyInfo localDeclarationMapIndexer;
 		readonly static MethodInfo getAncestorsMethod;
@@ -65,9 +65,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 //			isLeftSideOfDotMethod = typeInfo.GetMethod("IsLeftSideOfDot", new[] { typeof(ExpressionSyntax) });
 //			isRightSideOfDotMethod = typeInfo.GetMethod("IsRightSideOfDot", new[] { typeof(ExpressionSyntax) });
 //
-			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.SemanticModelExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
-			getEnclosingNamedTypeMethod = typeInfo.GetMethod("GetEnclosingNamedType", new[] { typeof(SemanticModel), typeof(int), typeof(CancellationToken) });
-
+//			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.SemanticModelExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
+//			getEnclosingNamedTypeMethod = typeInfo.GetMethod("GetEnclosingNamedType", new[] { typeof(SemanticModel), typeof(int), typeof(CancellationToken) });
+//
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.MemberDeclarationSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			getLocalDeclarationMapMethod = typeInfo.GetMethod("GetLocalDeclarationMap", new[] { typeof(MemberDeclarationSyntax) });
 
@@ -128,11 +128,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 //			return (bool)isRightSideOfDotMethod.Invoke(null, new object[] { syntax });
 //		}
 
-		public static INamedTypeSymbol GetEnclosingNamedType(this SemanticModel semanticModel, int position, CancellationToken cancellationToken)
-		{
-			return (INamedTypeSymbol)getEnclosingNamedTypeMethod.Invoke(null, new object[] { semanticModel, position, cancellationToken });
-		}
-
+//		public static INamedTypeSymbol GetEnclosingNamedType(this SemanticModel semanticModel, int position, CancellationToken cancellationToken)
+//		{
+//			return (INamedTypeSymbol)getEnclosingNamedTypeMethod.Invoke(null, new object[] { semanticModel, position, cancellationToken });
+//		}
+//
 		static ImmutableArray<SyntaxToken> GetLocalDeclarationMap(this MemberDeclarationSyntax member, string localName)
 		{
 			object map = getLocalDeclarationMapMethod.Invoke(null, new object[] { member });
