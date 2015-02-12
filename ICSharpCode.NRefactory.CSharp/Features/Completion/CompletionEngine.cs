@@ -43,7 +43,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new RoslynRecommendationsCompletionContextHandler (),
 			new KeywordContextHandler(),
 			new OverrideContextHandler(),
-			new EnumMemberContextHandler()
+			new EnumMemberContextHandler(),
+			new XmlDocCommentContextHandler()
 		};
 
 		readonly ICompletionDataFactory factory;
@@ -173,22 +174,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return CompletionResult.Empty;
 			}
 
-			if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia)) {
-				// should be SyntaxKind.SingleLineDocumentationCommentTrivia - but seems to be broken/not working
-				// if that works in later version this work around can be removed.
-				if (lastChar == '<' && trivia.ToFullString().StartsWith("///", StringComparison.Ordinal)) {
-					return CompletionResult.Create(GetXmlDocumentationCompletionData(document, semanticModel, position, trivia));
-				}
-				return CompletionResult.Empty;
-			}
-
-			if (trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia)) {
-				if (lastChar == '<') {
-					return CompletionResult.Create(GetXmlDocumentationCompletionData(document, semanticModel, position, trivia));
-				}
-				return CompletionResult.Empty;
-			}
-
 			var ctx = await completionContext.GetSyntaxContextAsync (workspace, cancellationToken).ConfigureAwait (false);
 
 			if (ctx.ContainingTypeDeclaration != null &&
@@ -297,7 +282,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			if (position > 0) {
 				foreach (var handler in handlers) {
-					if (handler.IsTriggerCharacter (text, position - 1)) {
+					if (info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand || handler.IsTriggerCharacter (text, position - 1)) {
 						var handlerResult = handler.GetCompletionDataAsync (result, this, completionContext, info, cancellationToken).Result;
 						if (handlerResult != null)
 							result.AddRange (handlerResult);

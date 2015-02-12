@@ -172,7 +172,6 @@
     <Compile Include="Refactoring\DocumentChangeAction.cs" />
     <Compile Include="Refactoring\NRefactoryCodeAction.cs" />
     <Compile Include="Features\Completion\CompletionEngine_StringFormatting.cs" />
-    <Compile Include="Features\Completion\CompletionEngine_XmlDoc.cs" />
     <Compile Include="Util\SignatureComparer.cs" />
     <Compile Include="Refactoring\TypeGuessing.cs" />
     <Compile Include="Util\FastSerializer.cs" />
@@ -337,6 +336,9 @@
     <Compile Include="Util\INamespaceOrTypeSymbolExtensions.cs" />
     <Compile Include="Util\NameGenerator.cs" />
     <Compile Include="Util\FindTokenHelper.cs" />
+    <Compile Include="Features\Completion\ContextHandler\XmlDocCommentContextHandler.cs" />
+    <Compile Include="Util\DocumentExtensions.cs" />
+    <Compile Include="Util\IDocumentExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

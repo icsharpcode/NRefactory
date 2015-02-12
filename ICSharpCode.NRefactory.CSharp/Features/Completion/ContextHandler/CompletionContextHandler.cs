@@ -27,25 +27,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.CodeAnalysis.Recommendations;
-using Microsoft.CodeAnalysis;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp;
 
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Text;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-
-	//	public class CompletionEngineCache
-	//	{
-	//		public List<INamespace>  namespaces;
-	//		public ICompletionData[] importCompletion;
-	//	}
-
 	abstract class CompletionContextHandler
 	{
 		public abstract Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken = default(CancellationToken));
@@ -101,6 +90,43 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		protected static bool IsOnStartLine(int position, SourceText text, int startLine)
 		{
 			return text.Lines.IndexOf(position) == startLine;
+		}
+
+		protected static TextSpan GetTextChangeSpan(SourceText text, int position)
+		{
+			return GetTextChangeSpan(text, position, IsTextChangeSpanStartCharacter, IsWordCharacter);
+		}
+
+		public static bool IsTextChangeSpanStartCharacter(char ch)
+		{
+			return ch == '@' || IsWordCharacter(ch);
+		}
+
+		public static TextSpan GetTextChangeSpan(SourceText text, int position,
+			Func<char, bool> isWordStartCharacter, Func<char, bool> isWordCharacter)
+		{
+			int start = position;
+			while (start > 0 && isWordStartCharacter(text[start - 1]))
+			{
+				start--;
+			}
+
+			// If we're brought up in the middle of a word, extend to the end of the word as well.
+			// This means that if a user brings up the completion list at the start of the word they
+			// will "insert" the text before what's already there (useful for qualifying existing
+			// text).  However, if they bring up completion in the "middle" of a word, then they will
+			// "overwrite" the text. Useful for correcting misspellings or just replacing unwanted
+			// code with new code.
+			int end = position;
+			if (start != position)
+			{
+				while (end < text.Length && isWordCharacter(text[end]))
+				{
+					end++;
+				}
+			}
+
+			return TextSpan.FromBounds(start, end);
 		}
 	}
 }

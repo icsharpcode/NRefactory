@@ -336,10 +336,15 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			int cursorPosition;
 			SemanticModel semanticModel;
 			Document document;
+			var idx = text.IndexOf("$$");
+			if (idx >= 0) {
+				text = text.Substring(0, idx) + text.Substring(idx + 1);
+				isCtrlSpace = true;
+			}
 			var engine = CreateEngine(text, out cursorPosition, out semanticModel, out document, references);
 			if (engineCallback != null)
 				engineCallback(engine);
-			char triggerChar = document.GetTextAsync().Result [cursorPosition];
+			char triggerChar = cursorPosition > 0 ? document.GetTextAsync().Result [cursorPosition - 1] : '\0';
 			return engine.GetCompletionDataAsync (new CompletionContext (document, cursorPosition, semanticModel), new CompletionTriggerInfo (isCtrlSpace ? CompletionTriggerReason.CompletionCommand : CompletionTriggerReason.CharTyped, triggerChar)).Result;
 
 		}

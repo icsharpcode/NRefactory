@@ -34,10 +34,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
 	public class CompletionTestBase
 	{
+		protected void VerifyItemsExist(string input, params string[] items)
+		{
+			VerifyItemExists(input, items);
+		}
 
 		protected void VerifyItemExists(string input, params string[] items)
 		{
-			var provider = CodeCompletionBugTests.CreateProvider(input.Replace("$$", "$"));
+			var provider = CodeCompletionBugTests.CreateProvider(input);
 
 			foreach (var item in provider)
 				Console.WriteLine(item.DisplayText);
