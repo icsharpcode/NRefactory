@@ -1,5 +1,5 @@
 // 
-// RedundantOverridenMemberIssue.cs
+// RedundantOverriddenMemberIssue.cs
 // 
 // Author:
 //      Ji Kun <jikun.nus@gmail.com>
@@ -44,9 +44,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[DiagnosticAnalyzer]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantOverridenMember")]
-	public class RedundantOverridenMemberIssue : GatherVisitorCodeIssueProvider
+	public class RedundantOverriddenMemberIssue : GatherVisitorCodeIssueProvider
 	{
-		internal const string DiagnosticId  = "RedundantOverridenMemberIssue";
+		internal const string DiagnosticId  = "RedundantOverriddenMemberIssue";
 		const string Description            = "The override of a virtual member is redundant because it consists of only a call to the base";
 		const string MessageFormat          = "Redundant method override";
 		const string Category               = IssueCategories.RedundanciesInDeclarations;
@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantOverridenMemberIssue>
+		class GatherVisitor : GatherVisitorBase<RedundantOverriddenMemberIssue>
 		{
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
@@ -293,12 +293,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		}
 	}
 
-	[ExportCodeFixProvider(RedundantOverridenMemberIssue.DiagnosticId, LanguageNames.CSharp)]
-	public class RedundantOverridenMemberFixProvider : NRefactoryCodeFixProvider
+	[ExportCodeFixProvider(RedundantOverriddenMemberIssue.DiagnosticId, LanguageNames.CSharp)]
+	public class RedundantOverriddenMemberFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
-			yield return RedundantOverridenMemberIssue.DiagnosticId;
+			yield return RedundantOverriddenMemberIssue.DiagnosticId;
+		}
+
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
 		}
 
 		public override async Task ComputeFixesAsync(CodeFixContext context)

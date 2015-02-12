@@ -223,7 +223,7 @@ abstract class TestClass
 		}
 
 		[Test]
-		public void TestIgnoreOverridenMethods ()
+		public void TestIgnoreOverriddenMethods ()
 		{
 			var input = @"
 class TestClass

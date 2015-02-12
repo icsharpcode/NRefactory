@@ -104,11 +104,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeFixProvider(RedundantNameQualifierIssue.DiagnosticId, LanguageNames.CSharp)]
 	public class RedundantNameQualifierCodeFixProvider : NRefactoryCodeFixProvider
 	{
-		#region ICodeFixProvider implementation
-
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
 			yield return RedundantNameQualifierIssue.DiagnosticId;
+		}
+
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
 		}
 
 		public override async Task ComputeFixesAsync(CodeFixContext context)
@@ -141,6 +144,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				}
 			}
 		}
-		#endregion
 	}
 }

@@ -344,6 +344,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertToConstantIssue.DiagnosticId;
 		}
 
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
+		}
+
 		public override async Task ComputeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;

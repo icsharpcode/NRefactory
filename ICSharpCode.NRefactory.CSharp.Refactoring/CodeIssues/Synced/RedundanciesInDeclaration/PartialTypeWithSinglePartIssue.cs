@@ -116,11 +116,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeFixProvider(PartialTypeWithSinglePartIssue.DiagnosticId, LanguageNames.CSharp)]
 	public class PartialTypeWithSinglePartFixProvider : NRefactoryCodeFixProvider
 	{
-		#region ICodeFixProvider implementation
-
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
 			yield return PartialTypeWithSinglePartIssue.DiagnosticId;
+		}
+
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
 		}
 
 		public override async Task ComputeFixesAsync(CodeFixContext context)
@@ -139,6 +142,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove 'partial'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
-		#endregion
 	}
 }

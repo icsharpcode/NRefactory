@@ -184,7 +184,7 @@
     <Compile Include="CSharp\CodeIssues\PartialTypeWithSinglePartIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantBaseConstructorIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantDefaultFieldInitializerIssueTests.cs" />
-    <Compile Include="CSharp\CodeIssues\RedundantOverridenMemberTests.cs" />
+    <Compile Include="CSharp\CodeIssues\RedundantOverriddenMemberTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantParamsIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\SealedMemberInSealedClassIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\UnusedLabelIssueTests.cs" />

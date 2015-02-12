@@ -87,11 +87,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeFixProvider(EmptyStatementIssue.DiagnosticId, LanguageNames.CSharp)]
 	public class EmptyStatementCodeFixProvider : NRefactoryCodeFixProvider
 	{
-		#region ICodeFixProvider implementation
-
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
 			yield return EmptyStatementIssue.DiagnosticId;
+		}
+
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
 		}
 
 		public override async Task ComputeFixesAsync(CodeFixContext context)
@@ -110,6 +113,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				}
 			}
 		}
-		#endregion
 	}
 }
