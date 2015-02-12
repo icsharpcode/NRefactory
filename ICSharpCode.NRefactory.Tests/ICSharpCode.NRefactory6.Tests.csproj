@@ -469,10 +469,21 @@
     <Compile Include="CSharp\CodeCompletion\NR5\PreProcessorTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR5\TestBase.cs" />
     <Compile Include="CSharp\CodeCompletion\NR5\VariableDeclarationStatementTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\OverrideCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\CompletionTestBase.cs" />
-    <Compile Include="CSharp\CodeCompletion\XmlDocCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\ExplicitInterfaceCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\AttributeNamedParameterCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\CompletionTestBase.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\CrefCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\EnumAndCompletionListTagCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ExplicitInterfaceCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ExternAliasCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\KeywordCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\NamedParameterCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ObjectCreationCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ObjectInitializerCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\OverrideCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\PartialCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SpeculativeTCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SymbolCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\XmlDocCompletionHandlerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -539,5 +550,6 @@
   </Target>
   <ItemGroup>
     <Folder Include="CSharp\CodeCompletion\NR5\" />
+    <Folder Include="CSharp\CodeCompletion\PortedRoslynTests\" />
   </ItemGroup>
 </Project>
