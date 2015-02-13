@@ -107,6 +107,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 						return overloadedData.Count > 0;
 					}
 				}
+
+				public ICompletionKeyHandler KeyHandler { get; set; }
+
 				readonly List<ICompletionData> overloadedData = new List<ICompletionData> ();
 				public IEnumerable<ICompletionData> OverloadedData {
 					get {
@@ -137,32 +140,32 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				}
 			}
 
-			ICompletionData ICompletionDataFactory.CreateFormatItemCompletionData(string format, string description, object example)
+			ICompletionData ICompletionDataFactory.CreateFormatItemCompletionData(ICompletionKeyHandler keyHandler, string format, string description, object example)
 			{
 				return new CompletionData (format + " - " + description +":" + example);
 			}
 
-			ICompletionData ICompletionDataFactory.CreateXmlDocCompletionData(string tag, string description, string tagInsertionText)
+			ICompletionData ICompletionDataFactory.CreateXmlDocCompletionData(ICompletionKeyHandler keyHandler, string tag, string description, string tagInsertionText)
 			{
 				return new CompletionData (tag);
 			}
 
-			ICompletionData ICompletionDataFactory.CreateGenericData(string keyword, GenericDataType genericDataType)
+			ICompletionData ICompletionDataFactory.CreateGenericData(ICompletionKeyHandler keyHandler, string keyword, GenericDataType genericDataType)
 			{
 				return new CompletionData(keyword);
 			}
 			
-			ISymbolCompletionData ICompletionDataFactory.CreateEnumMemberCompletionData(IFieldSymbol field)
+			ISymbolCompletionData ICompletionDataFactory.CreateEnumMemberCompletionData(ICompletionKeyHandler keyHandler, IFieldSymbol field)
 			{
 				return new SymbolCompletionData(field, field.ContainingType.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat) + "." + field.Name);
 			}
 
-			public ICompletionData CreateNewOverrideCompletionData (int declarationBegin, ITypeSymbol currentType, ISymbol m)
+			public ICompletionData CreateNewOverrideCompletionData (ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, ISymbol m)
 			{
 				return new OverrideCompletionData(m.Name, declarationBegin);
 			}
 
-			public ICompletionData CreatePartialCompletionData (int declarationBegin, ITypeSymbol currentType, IMethodSymbol method)
+			public ICompletionData CreatePartialCompletionData (ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, IMethodSymbol method)
 			{
 				return new OverrideCompletionData(method.Name, declarationBegin);
 			}
@@ -188,11 +191,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				}
 			}
 
-			ISymbolCompletionData ICompletionDataFactory.CreateSymbolCompletionData(ISymbol symbol)
+			ISymbolCompletionData ICompletionDataFactory.CreateSymbolCompletionData(ICompletionKeyHandler keyHandler, ISymbol symbol)
 			{
 				return new SymbolCompletionData(symbol);
 			}
-			ISymbolCompletionData ICompletionDataFactory.CreateSymbolCompletionData(ISymbol symbol, string text)
+			ISymbolCompletionData ICompletionDataFactory.CreateSymbolCompletionData(ICompletionKeyHandler keyHandler, ISymbol symbol, string text)
 			{
 				return new SymbolCompletionData(symbol, text);
 			}

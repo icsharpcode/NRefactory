@@ -65,6 +65,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			}
 		}
 
+		protected void VerifyNoItemsExist(string input)
+		{
+			var provider = CodeCompletionBugTests.CreateProvider(input.Replace("$$", "$"));
+			if (provider != null && provider.Count > 0) {
+				foreach (var data in provider)
+					Console.WriteLine(data.DisplayText);
+			}
+			Assert.IsTrue(provider == null || provider.Count == 0, "provider should be empty");
+		}
+
+
+
 	}
 
 }

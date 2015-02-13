@@ -40,24 +40,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 	
 	public interface ICompletionDataFactory
 	{
-		ICompletionData CreateGenericData(string data, GenericDataType genericDataType = GenericDataType.Undefined);
+		ICompletionData CreateGenericData(ICompletionKeyHandler keyHandler, string data, GenericDataType genericDataType = GenericDataType.Undefined);
 
-		ICompletionData CreateFormatItemCompletionData(string format, string description, object example);
+		ICompletionData CreateFormatItemCompletionData(ICompletionKeyHandler keyHandler, string format, string description, object example);
 
-		ICompletionData CreateXmlDocCompletionData (string tag, string description = null, string tagInsertionText = null);
+		ICompletionData CreateXmlDocCompletionData (ICompletionKeyHandler keyHandler, string tag, string description = null, string tagInsertionText = null);
 
-		ISymbolCompletionData CreateSymbolCompletionData(ISymbol symbol);
-		ISymbolCompletionData CreateSymbolCompletionData(ISymbol symbol, string text);
+		ISymbolCompletionData CreateSymbolCompletionData(ICompletionKeyHandler keyHandler, ISymbol symbol);
+		ISymbolCompletionData CreateSymbolCompletionData(ICompletionKeyHandler keyHandler, ISymbol symbol, string text);
 
 		/// <summary>
 		/// Creates enum member completion data. 
 		/// Form: Type.Member
 		/// Used for generating enum members Foo.A, Foo.B where the enum 'Foo' is valid.
 		/// </summary>
-		ISymbolCompletionData CreateEnumMemberCompletionData(IFieldSymbol field);
+		ISymbolCompletionData CreateEnumMemberCompletionData(ICompletionKeyHandler keyHandler, IFieldSymbol field);
 
-		ICompletionData CreateNewOverrideCompletionData(int declarationBegin, ITypeSymbol currentType, ISymbol m);
+		ICompletionData CreateNewOverrideCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, ISymbol m);
 
-		ICompletionData CreatePartialCompletionData(int declarationBegin, ITypeSymbol currentType, IMethodSymbol method);
+		ICompletionData CreatePartialCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, IMethodSymbol method);
 	}
 }

@@ -157,7 +157,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				attributeNamedParameters
 					.Where (p => !existingNamedParameters.Contains (p.Name))
 					.Select (p => {
-						var result = engine.Factory.CreateSymbolCompletionData (p);
+						var result = engine.Factory.CreateSymbolCompletionData (this, p);
 						result.DisplayFlags |= DisplayFlags.NamedArgument;
 						return result;
 					});
@@ -177,7 +177,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				from pl in parameterLists
 			 from p in pl
 			 where !existingNamedParameters.Contains (p.Name)
-			 select engine.Factory.CreateGenericData(p.Name + ":", GenericDataType.NamedParameter);
+			 select engine.Factory.CreateGenericData(this, p.Name + ":", GenericDataType.NamedParameter);
 		}
 
 		private bool IsValid(ImmutableArray<IParameterSymbol> parameterList, ISet<string> existingNamedParameters)

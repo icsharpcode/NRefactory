@@ -82,6 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				alreadyInserted.Add(m);*/
 
 				var data = engine.Factory.CreateNewOverrideCompletionData(
+					this,
 					incompleteMemberSyntax.SpanStart,
 					curType,
 					m

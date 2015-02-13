@@ -203,7 +203,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return result;
 			if (ctx.IsIsOrAsTypeContext) {
 				foreach (var kw in primitiveTypesKeywords)
-					result.Add (factory.CreateGenericData(kw, GenericDataType.Keyword));
+					result.Add (factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 				return result;
 			}
 			if (parent != null) {
@@ -223,7 +223,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				    parent.CSharpKind() == SyntaxKind.StructDeclaration ||
 					parent.CSharpKind() == SyntaxKind.InterfaceDeclaration) {
 					foreach (var kw in typeLevelKeywords)
-						result.Add (factory.CreateGenericData(kw, GenericDataType.Keyword));
+						result.Add (factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 					return result;
 				} 
 				if (parent.CSharpKind() == SyntaxKind.EnumDeclaration ||
@@ -237,21 +237,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 			if (parent.IsKind(SyntaxKind.AttributeList)) {
 				if (parent.Parent.Parent == null || parent.Parent.Parent.IsKind(SyntaxKind.CompilationUnit)) {
-					result.Add(factory.CreateGenericData("assembly", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData("module", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData("type", GenericDataType.AttributeTarget));
+					result.Add(factory.CreateGenericData(this, "assembly", GenericDataType.AttributeTarget));
+					result.Add(factory.CreateGenericData(this, "module", GenericDataType.AttributeTarget));
+					result.Add(factory.CreateGenericData(this, "type", GenericDataType.AttributeTarget));
 				} else {
-					result.Add(factory.CreateGenericData("param", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData("field", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData("property", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData("method", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData("event", GenericDataType.AttributeTarget));
+					result.Add(factory.CreateGenericData(this, "param", GenericDataType.AttributeTarget));
+					result.Add(factory.CreateGenericData(this, "field", GenericDataType.AttributeTarget));
+					result.Add(factory.CreateGenericData(this, "property", GenericDataType.AttributeTarget));
+					result.Add(factory.CreateGenericData(this, "method", GenericDataType.AttributeTarget));
+					result.Add(factory.CreateGenericData(this, "event", GenericDataType.AttributeTarget));
 				}
-				result.Add(factory.CreateGenericData("return", GenericDataType.AttributeTarget));
+				result.Add(factory.CreateGenericData(this, "return", GenericDataType.AttributeTarget));
 			}
 			if (ctx.IsInstanceContext) {
 				if (ctx.LeftToken.Parent.Ancestors().Any(a => a is SwitchStatementSyntax || a is BlockSyntax && a.ToFullString().IndexOf("switch", StringComparison.Ordinal) > 0)) {
-					result.Add(factory.CreateGenericData("case", GenericDataType.Keyword));
+					result.Add(factory.CreateGenericData(this, "case", GenericDataType.Keyword));
 				}
 			}
 		
@@ -260,74 +260,74 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				if (forEachStatementSyntax.Type.Span.Length > 0 &&
 					forEachStatementSyntax.Identifier.Span.Length > 0 &&
 					forEachStatementSyntax.InKeyword.Span.Length == 0) {
-					result.Add(factory.CreateGenericData("in", GenericDataType.Keyword));
+					result.Add(factory.CreateGenericData(this, "in", GenericDataType.Keyword));
 					return result;
 				}
 			}
 			if (parent != null && parent.CSharpKind() == SyntaxKind.ArgumentList) {
-				result.Add(factory.CreateGenericData("out", GenericDataType.Keyword));
-				result.Add(factory.CreateGenericData("ref", GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, "out", GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, "ref", GenericDataType.Keyword));
 			} else if (parent != null && parent.CSharpKind() == SyntaxKind.ParameterList) {
-				result.Add(factory.CreateGenericData("out", GenericDataType.Keyword));
-				result.Add(factory.CreateGenericData("ref", GenericDataType.Keyword));
-				result.Add(factory.CreateGenericData("params", GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, "out", GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, "ref", GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, "params", GenericDataType.Keyword));
 				foreach (var kw in primitiveTypesKeywords)
-					result.Add(factory.CreateGenericData(kw, GenericDataType.Keyword));
+					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 
 				if (ctx.IsParameterTypeContext) {
 					bool isFirst = ctx.LeftToken.GetPreviousToken().IsKind(SyntaxKind.OpenParenToken);
 					if (isFirst)
-						result.Add(factory.CreateGenericData("this", GenericDataType.Keyword));
+						result.Add(factory.CreateGenericData(this, "this", GenericDataType.Keyword));
 				}
 
 				return result;
 			} else {
-				result.Add(factory.CreateGenericData("var", GenericDataType.Keyword));
-				result.Add(factory.CreateGenericData("dynamic", GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, "var", GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, "dynamic", GenericDataType.Keyword));
 			}
 
 			if (parent != null && parent.Parent != null && parent.IsKind(SyntaxKind.BaseList) && parent.Parent.IsKind(SyntaxKind.EnumDeclaration)) {
 				foreach (var kw in validEnumBaseTypes)
-					result.Add(factory.CreateGenericData(kw, GenericDataType.Keyword));
+					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 				return result;
 			}
 			if (parent != null &&
 				parent.Parent != null &&
 				parent.Parent.IsKind(SyntaxKind.FromClause)) {
 				foreach (var kw in linqKeywords)
-					result.Add(factory.CreateGenericData(kw, GenericDataType.Keyword));
+					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 			}
 			if (ctx.IsGlobalStatementContext || parent == null || parent is NamespaceDeclarationSyntax) {
 				foreach (var kw in globalLevelKeywords)
-					result.Add(factory.CreateGenericData(kw, GenericDataType.Keyword));
+					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 				return result;
 			} else {
 				foreach (var kw in typeLevelKeywords)
-					result.Add(factory.CreateGenericData(kw, GenericDataType.Keyword));
+					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 			}
 
 			foreach (var kw in primitiveTypesKeywords)
-				result.Add(factory.CreateGenericData(kw, GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 
 			foreach (var kw in statementStartKeywords)
-				result.Add(factory.CreateGenericData(kw, GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 			
 			foreach (var kw in expressionLevelKeywords)
-				result.Add(factory.CreateGenericData(kw, GenericDataType.Keyword));
+				result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
 
 			if (ctx.IsPreProcessorKeywordContext) {
 				foreach (var kw in preprocessorKeywords)
-					result.Add(factory.CreateGenericData (kw, GenericDataType.PreprocessorKeyword));
+					result.Add(factory.CreateGenericData (this, kw, GenericDataType.PreprocessorKeyword));
 			}
 			
 			if (ctx.IsPreProcessorExpressionContext) {
 				var parseOptions = model.SyntaxTree.Options as CSharpParseOptions;
 				foreach (var define in parseOptions.PreprocessorSymbolNames) {
-					result.Add(factory.CreateGenericData (define, GenericDataType.PreprocessorSymbol));
+					result.Add(factory.CreateGenericData (this, define, GenericDataType.PreprocessorSymbol));
 				}
 			}
 			if (parent.IsKind(SyntaxKind.TypeParameterConstraintClause)) {
-				result.Add(factory.CreateGenericData ("new()", GenericDataType.PreprocessorKeyword));
+				result.Add(factory.CreateGenericData (this, "new()", GenericDataType.PreprocessorKeyword));
 			}
 			return result;
 		} 

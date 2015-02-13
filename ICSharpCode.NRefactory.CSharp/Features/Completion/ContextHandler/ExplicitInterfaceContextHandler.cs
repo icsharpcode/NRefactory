@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				var memberCopied = member;
 				var insertionText = displayString;
 
-				completions.Add(engine.Factory.CreateSymbolCompletionData (member)
+				completions.Add(engine.Factory.CreateSymbolCompletionData (this, member)
 
 					/*new SymbolCompletionItem(
 					this,

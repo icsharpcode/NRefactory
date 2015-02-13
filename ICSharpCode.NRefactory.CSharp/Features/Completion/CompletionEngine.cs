@@ -49,6 +49,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new AttributeNamedParameterContextHandler()
 		};
 
+		static readonly ICompletionKeyHandler DefaultKeyHandler = new RoslynRecommendationsCompletionContextHandler ();
+
 		readonly ICompletionDataFactory factory;
 		readonly Workspace workspace;
 
@@ -323,14 +325,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (parametersAddedCache.Contains(p.Name))
 				return;
 			parametersAddedCache.Add(p.Name);
-			result.AddData(Factory.CreateGenericData(p.Name + ":", GenericDataType.NamedParameter));
+			result.AddData(Factory.CreateGenericData(DefaultKeyHandler, p.Name + ":", GenericDataType.NamedParameter));
 		}
 
 		CompletionResult HandleEventAccessorContext()
 		{
 			var result = new CompletionResult();
-			result.AddData(factory.CreateGenericData("add", GenericDataType.Keyword));
-			result.AddData(factory.CreateGenericData("remove", GenericDataType.Keyword));
+			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "add", GenericDataType.Keyword));
+			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "remove", GenericDataType.Keyword));
 			return result;
 		}
 		CompletionResult HandlePartialContext(SyntaxContext ctx, IncompleteMemberSyntax incompleteMemberSyntax, SemanticModel semanticModel)
@@ -345,6 +347,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				// TODO: seems to be broken in roslyn :/
 				if (method.PartialDefinitionPart != null && method.PartialImplementationPart == null) {
 					var data = factory.CreatePartialCompletionData(
+						DefaultKeyHandler, 
 						incompleteMemberSyntax.SpanStart,
 						curType,
 						method
@@ -398,7 +401,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		{
 			var result = new CompletionResult();
 			foreach (var symbol in Recommender.GetRecommendedSymbolsAtPosition(semanticModel, position, Workspace, null, cancellationToken)) {
-				result.AddData(Factory.CreateSymbolCompletionData(symbol));
+				result.AddData(Factory.CreateSymbolCompletionData(DefaultKeyHandler, symbol));
 			}
 			
 			var inferredType = ctx.InferredTypes.FirstOrDefault();
@@ -514,24 +517,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (token.Parent.IsKind(SyntaxKind.PredefinedType)) {			
 				switch (token.CSharpKind()) {
 					case SyntaxKind.ObjectKeyword:
-						result.AddData (Factory.CreateGenericData("o", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData("obj", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "o", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "obj", GenericDataType.NameProposal));
 						return result;
 					case SyntaxKind.BoolKeyword:
-						result.AddData (Factory.CreateGenericData("b", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData("pred", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "b", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "pred", GenericDataType.NameProposal));
 						return result;
 					case SyntaxKind.DoubleKeyword:
 					case SyntaxKind.FloatKeyword:
 					case SyntaxKind.DecimalKeyword:
-						result.AddData (Factory.CreateGenericData("d", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData("f", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData("m", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "d", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "f", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "m", GenericDataType.NameProposal));
 						return result;
 					default:
-						result.AddData (Factory.CreateGenericData("i", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData("j", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData("k", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "i", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "j", GenericDataType.NameProposal));
+						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "k", GenericDataType.NameProposal));
 						return result;
 				}
 			}
@@ -549,7 +552,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					}
 					possibleName.Append(names [j]);
 				}
-				result.AddData (Factory.CreateGenericData(possibleName.ToString(), GenericDataType.NameProposal));
+				result.AddData (Factory.CreateGenericData(DefaultKeyHandler, possibleName.ToString(), GenericDataType.NameProposal));
 			}
 			return result;
 		}
@@ -559,18 +562,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var result = new CompletionResult();
 			result.DefaultCompletionString = "return";
 
-			result.AddData(factory.CreateGenericData("break", GenericDataType.Keyword));
-			result.AddData(factory.CreateGenericData("return", GenericDataType.Keyword));
+			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "break", GenericDataType.Keyword));
+			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "return", GenericDataType.Keyword));
 			return result;
 		}
 		
 		CompletionResult HandlePropertyAccessorContext(bool isInsideAccessorDeclaration)
 		{
 			var result = new CompletionResult();
-			result.AddData(factory.CreateGenericData("get", GenericDataType.Keyword));
-			result.AddData(factory.CreateGenericData("set", GenericDataType.Keyword));
+			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "get", GenericDataType.Keyword));
+			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "set", GenericDataType.Keyword));
 			foreach (var accessorModifier in new [] { "public", "internal", "protected", "private", "async" }) {
-				result.AddData(factory.CreateGenericData(accessorModifier, GenericDataType.Keyword));
+				result.AddData(factory.CreateGenericData(DefaultKeyHandler, accessorModifier, GenericDataType.Keyword));
 			}
 			return result;
 		}
@@ -631,7 +634,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 							continue;
 
 						if (semanticModel.IsAccessible(position, f)) {
-							result.AddData(factory.CreateSymbolCompletionData(m));
+							result.AddData(factory.CreateSymbolCompletionData(DefaultKeyHandler, m));
 							/*var data = contextList.AddMember(m);
 							if (data != null)
 								data.DisplayFlags |= DisplayFlags.NamedArgument;*/
@@ -643,7 +646,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 						if (p == null || p.SetMethod == null)
 							continue;
 						if (semanticModel.IsAccessible(position, p.SetMethod)) {
-							result.AddData(factory.CreateSymbolCompletionData(p));
+							result.AddData(factory.CreateSymbolCompletionData(DefaultKeyHandler, p));
 						}
 						/*
 							var data = contextList.AddMember(m);

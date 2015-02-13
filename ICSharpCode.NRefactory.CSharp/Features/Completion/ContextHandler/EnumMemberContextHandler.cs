@@ -47,6 +47,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 	
 	class EnumMemberContextHandler : CompletionContextHandler
 	{
+		public override bool IsCommitCharacter (ICompletionData completionItem, char ch, string textTypedSoFar)
+		{
+			// Only commit on dot.
+			return ch == '.';
+		}
+
+
+
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait(false);
@@ -57,10 +65,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				if (string.IsNullOrEmpty(completionResult.DefaultCompletionString))
 					completionResult.DefaultCompletionString = type.Name;
 
-				result.Add (engine.Factory.CreateSymbolCompletionData(type, type.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
+				result.Add (engine.Factory.CreateSymbolCompletionData(this, type, type.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
 				foreach (IFieldSymbol field in type.GetMembers().OfType<IFieldSymbol>()) {
 					if (field.DeclaredAccessibility == Accessibility.Public && (field.IsConst || field.IsStatic)) {
-						result.Add (engine.Factory.CreateEnumMemberCompletionData(field));
+						result.Add (engine.Factory.CreateEnumMemberCompletionData(this, field));
 					}
 				}
 			}

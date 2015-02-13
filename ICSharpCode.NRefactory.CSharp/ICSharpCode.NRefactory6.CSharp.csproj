@@ -345,6 +345,7 @@
     <Compile Include="Util\IAssemblySymbolExtensions.cs" />
     <Compile Include="Util\INamedTypeSymbolExtensions.cs" />
     <Compile Include="Util\ICompilationExtensions.cs" />
+    <Compile Include="Features\Completion\ICompletionKeyHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

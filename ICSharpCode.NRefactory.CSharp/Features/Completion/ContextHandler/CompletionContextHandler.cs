@@ -35,7 +35,7 @@ using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	abstract class CompletionContextHandler
+	abstract class CompletionContextHandler : ICompletionKeyHandler
 	{
 		public abstract Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -48,6 +48,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		public virtual bool IsCommitCharacter (ICompletionData completionItem, char ch, string textTypedSoFar)
 		{
 			return csharpCommitChars.Contains (ch);
+		}
+
+		public virtual bool SendEnterThroughToEditor(ICompletionData completionItem, string textTypedSoFar)
+		{
+			return string.Compare (completionItem.DisplayText, textTypedSoFar, StringComparison.OrdinalIgnoreCase) == 0;
+		}
+
+		public virtual bool IsFilterCharacter(ICompletionData completionItem, char ch, string textTypedSoFar)
+		{
+			return false;
 		}
 
 		public virtual bool IsTriggerCharacter (SourceText text, int position)
@@ -63,7 +73,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		internal static bool IsTriggerAfterSpaceOrStartOfWordCharacter(SourceText text, int characterPosition)
 		{
 			var ch = text[characterPosition];
-			Console.WriteLine ("ch: " + ((int)ch) +"/"+ IsStartingNewWord(text, characterPosition));
 			return ch == ' ' || IsStartingNewWord(text, characterPosition);
 		}
 

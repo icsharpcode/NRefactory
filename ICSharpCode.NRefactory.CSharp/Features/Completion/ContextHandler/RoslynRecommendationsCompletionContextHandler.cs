@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					if (isInAttribute) {
 						var type = (ITypeSymbol)symbol;
 						if (IsAttribute(type)) {
-							addData(engine.Factory.CreateSymbolCompletionData(symbol, type.Name.Substring(0, type.Name.Length - "Attribute".Length)));
+							addData(engine.Factory.CreateSymbolCompletionData(this, symbol, type.Name.Substring(0, type.Name.Length - "Attribute".Length)));
 						}
 					}
 					if (isInBaseList) {
@@ -110,7 +110,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				
 				if (isInUsingDirective && symbol.Kind != SymbolKind.Namespace)
 					continue;
-				addData(engine.Factory.CreateSymbolCompletionData(symbol));
+				addData(engine.Factory.CreateSymbolCompletionData(this, symbol));
 			}
 			return result;
 		}

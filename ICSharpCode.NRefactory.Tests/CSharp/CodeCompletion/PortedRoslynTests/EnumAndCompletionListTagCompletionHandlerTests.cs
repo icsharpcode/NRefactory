@@ -9,33 +9,28 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 	[TestFixture]
 	public class EnumAndCompletionListTagCompletionProviderTests : CompletionTestBase
 	{
-//		internal override ICompletionProvider CreateCompletionProvider()
-//		{
-//			return new EnumAndCompletionListTagCompletionProvider();
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NullableEnum()
-//		{
-//			var markup = @"class Program
-//{
-//    static void Main(string[] args)
-//    {
-//        Colors? d = $$
-//        Colors c = Colors.Blue;
-//    }
-//}
-// 
-//enum Colors
-//{
-//    Red,
-//    Blue,
-//    Green,
-//}
-//";
-//			VerifyItemExists(markup, "Colors");
-//		}
-//
+		[Test]
+		public void NullableEnum()
+		{
+			var markup = @"class Program
+{
+    static void Main(string[] args)
+    {
+        Colors? d = $$
+        Colors c = Colors.Blue;
+    }
+}
+ 
+enum Colors
+{
+    Red,
+    Blue,
+    Green,
+}
+";
+			VerifyItemExists(markup, "Colors");
+		}
+
 //		[Fact]
 //		[WorkItem(545678)]
 //		[Trait(Traits.Feature, Traits.Features.Completion)]
@@ -137,27 +132,26 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //				hideAdvancedMembers: false);
 //		}
 //
-//		[WorkItem(8540099)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotInComment()
-//		{
-//			var markup = @"class Program
-//{
-//    static void Main(string[] args)
-//    {
-//        Colors c = // $$
-//    }
-//}
-// 
-//enum Colors
-//{
-//    Red,
-//    Blue,
-//    Green,
-//}
-//";
-//			VerifyNoItemsExist(markup);
-//		}
+		[Test]
+		public void NotInComment()
+		{
+			var markup = @"class Program
+{
+    static void Main(string[] args)
+    {
+        Colors c = // $$
+    }
+}
+ 
+enum Colors
+{
+    Red,
+    Blue,
+    Green,
+}
+";
+			VerifyNoItemsExist(markup);
+		}
 //
 //		[WorkItem(827897)]
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]

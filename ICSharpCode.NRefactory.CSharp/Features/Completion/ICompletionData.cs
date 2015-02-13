@@ -35,7 +35,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		string DisplayText { get; set; }
 
 		DisplayFlags DisplayFlags { get; set; }
-		
+
+		ICompletionKeyHandler KeyHandler { get; }
+
 		bool HasOverloads { 
 			get;
 		}

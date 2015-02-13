@@ -72,56 +72,56 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 		IEnumerable<ICompletionData> GenerateNumberFormatitems(bool isFloatingPoint)
 		{
-			yield return factory.CreateFormatItemCompletionData("D", "decimal", 123);
-			yield return factory.CreateFormatItemCompletionData("D5", "decimal", 123);
-			yield return factory.CreateFormatItemCompletionData("C", "currency", 123);
-			yield return factory.CreateFormatItemCompletionData("C0", "currency", 123);
-			yield return factory.CreateFormatItemCompletionData("E", "exponential", 1.23E4);
-			yield return factory.CreateFormatItemCompletionData("E2", "exponential", 1.234);
-			yield return factory.CreateFormatItemCompletionData("e2", "exponential", 1.234);
-			yield return factory.CreateFormatItemCompletionData("F", "fixed-point", 123.45);
-			yield return factory.CreateFormatItemCompletionData("F1", "fixed-point", 123.45);
-			yield return factory.CreateFormatItemCompletionData("G", "general", 1.23E+56);
-			yield return factory.CreateFormatItemCompletionData("g2", "general", 1.23E+56);
-			yield return factory.CreateFormatItemCompletionData("N", "number", 12345.68);
-			yield return factory.CreateFormatItemCompletionData("N1", "number", 12345.68);
-			yield return factory.CreateFormatItemCompletionData("P", "percent", 12.34);
-			yield return factory.CreateFormatItemCompletionData("P1", "percent", 12.34);
-			yield return factory.CreateFormatItemCompletionData("R", "round-trip", 0.1230000001);
-			yield return factory.CreateFormatItemCompletionData("X", "hexadecimal", 1234);
-			yield return factory.CreateFormatItemCompletionData("x8", "hexadecimal", 1234);
-			yield return factory.CreateFormatItemCompletionData("0000", "custom", 123);
-			yield return factory.CreateFormatItemCompletionData("####", "custom", 123);
-			yield return factory.CreateFormatItemCompletionData("##.###", "custom", 1.23);
-			yield return factory.CreateFormatItemCompletionData("##.000", "custom", 1.23);
-			yield return factory.CreateFormatItemCompletionData("## 'items'", "custom", 12);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "D", "decimal", 123);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "D5", "decimal", 123);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "C", "currency", 123);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "C0", "currency", 123);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "E", "exponential", 1.23E4);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "E2", "exponential", 1.234);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "e2", "exponential", 1.234);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "F", "fixed-point", 123.45);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "F1", "fixed-point", 123.45);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "G", "general", 1.23E+56);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "g2", "general", 1.23E+56);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "N", "number", 12345.68);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "N1", "number", 12345.68);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "P", "percent", 12.34);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "P1", "percent", 12.34);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "R", "round-trip", 0.1230000001);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "X", "hexadecimal", 1234);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "x8", "hexadecimal", 1234);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "0000", "custom", 123);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "####", "custom", 123);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "##.###", "custom", 1.23);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "##.000", "custom", 1.23);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "## 'items'", "custom", 12);
 		}
 
 		IEnumerable<ICompletionData> GenerateDateTimeFormatitems()
 		{
-			yield return factory.CreateFormatItemCompletionData("D", "long date", curDate);
-			yield return factory.CreateFormatItemCompletionData("d", "short date", curDate);
-			yield return factory.CreateFormatItemCompletionData("F", "full date long", curDate);
-			yield return factory.CreateFormatItemCompletionData("f", "full date short", curDate);
-			yield return factory.CreateFormatItemCompletionData("G", "general long", curDate);
-			yield return factory.CreateFormatItemCompletionData("g", "general short", curDate);
-			yield return factory.CreateFormatItemCompletionData("M", "month", curDate);
-			yield return factory.CreateFormatItemCompletionData("O", "ISO 8601", curDate);
-			yield return factory.CreateFormatItemCompletionData("R", "RFC 1123", curDate);
-			yield return factory.CreateFormatItemCompletionData("s", "sortable", curDate);
-			yield return factory.CreateFormatItemCompletionData("T", "long time", curDate);
-			yield return factory.CreateFormatItemCompletionData("t", "short time", curDate);
-			yield return factory.CreateFormatItemCompletionData("U", "universal full", curDate);
-			yield return factory.CreateFormatItemCompletionData("u", "universal sortable", curDate);
-			yield return factory.CreateFormatItemCompletionData("Y", "year month", curDate);
-			yield return factory.CreateFormatItemCompletionData("yy-MM-dd", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("yyyy MMMMM dd", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("yy-MMM-dd ddd", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("yyyy-M-d dddd", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("hh:mm:ss t z", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("hh:mm:ss tt zz", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("HH:mm:ss tt zz", "custom", curDate);
-			yield return factory.CreateFormatItemCompletionData("HH:m:s tt zz", "custom", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "D", "long date", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "d", "short date", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "F", "full date long", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "f", "full date short", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "G", "general long", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "g", "general short", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "M", "month", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "O", "ISO 8601", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "R", "RFC 1123", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "s", "sortable", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "T", "long time", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "t", "short time", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "U", "universal full", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "u", "universal sortable", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "Y", "year month", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "yy-MM-dd", "custom", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "yyyy MMMMM dd", "custom", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "yy-MMM-dd ddd", "custom", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "yyyy-M-d dddd", "custom", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "hh:mm:ss t z", "custom", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "hh:mm:ss tt zz", "custom", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "HH:mm:ss tt zz", "custom", curDate);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "HH:m:s tt zz", "custom", curDate);
 
 		}
 
@@ -136,27 +136,27 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 		IEnumerable<ICompletionData> GenerateEnumFormatitems()
 		{
-			yield return factory.CreateFormatItemCompletionData("G", "string value", TestEnum.EnumCaseName);
-			yield return factory.CreateFormatItemCompletionData("F", "flags value", TestEnum.Flags);
-			yield return factory.CreateFormatItemCompletionData("D", "integer value", TestEnum.Flags);
-			yield return factory.CreateFormatItemCompletionData("X", "hexadecimal", TestEnum.Flags);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "G", "string value", TestEnum.EnumCaseName);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "F", "flags value", TestEnum.Flags);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "D", "integer value", TestEnum.Flags);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "X", "hexadecimal", TestEnum.Flags);
 		}
 
 		IEnumerable<ICompletionData> GenerateTimeSpanFormatitems()
 		{
-			yield return factory.CreateFormatItemCompletionData("c", "invariant", new TimeSpan(0, 1, 23, 456));
-			yield return factory.CreateFormatItemCompletionData("G", "general long", new TimeSpan(0, 1, 23, 456));
-			yield return factory.CreateFormatItemCompletionData("g", "general short", new TimeSpan(0, 1, 23, 456));
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "c", "invariant", new TimeSpan(0, 1, 23, 456));
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "G", "general long", new TimeSpan(0, 1, 23, 456));
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "g", "general short", new TimeSpan(0, 1, 23, 456));
 		}
 
 		static Guid defaultGuid = Guid.NewGuid();
 
 		IEnumerable<ICompletionData> GenerateGuidFormatitems()
 		{
-			yield return factory.CreateFormatItemCompletionData("N", "digits", defaultGuid);
-			yield return factory.CreateFormatItemCompletionData("D", "hypens", defaultGuid);
-			yield return factory.CreateFormatItemCompletionData("B", "braces", defaultGuid);
-			yield return factory.CreateFormatItemCompletionData("P", "parentheses", defaultGuid);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "N", "digits", defaultGuid);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "D", "hypens", defaultGuid);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "B", "braces", defaultGuid);
+			yield return factory.CreateFormatItemCompletionData(DefaultKeyHandler, "P", "parentheses", defaultGuid);
 		}
 
 		CompletionResult GetFormatCompletionForType(ITypeSymbol type)

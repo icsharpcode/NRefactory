@@ -217,6 +217,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			RemoveExistingTags(trivia, typeParameters, x => AttributeSelector(x, "typeparam"));
 
 			items.AddRange(typeParameters.Select(t => engine.Factory.CreateXmlDocCompletionData (
+				this,
 				FormatParameter("typeparam", t))));
 			return items;
 		}
@@ -247,8 +248,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			RemoveExistingTags(trivia, typeParameters, x => AttributeSelector(x, "typeparam"));
 
-			items.AddRange(typeParameters.Select(t => engine.Factory.CreateXmlDocCompletionData("typeparam", null, "name$" + t)));
-			items.Add(engine.Factory.CreateXmlDocCompletionData("value"));
+			items.AddRange(typeParameters.Select(t => engine.Factory.CreateXmlDocCompletionData(this, "typeparam", null, "name$" + t)));
+			items.Add(engine.Factory.CreateXmlDocCompletionData(this, "value"));
 			return items;
 		}
 
@@ -274,11 +275,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				// We're writing the name of a paramref or typeparamref
 				if (parentElementName == "paramref")
 				{
-					items.AddRange(parameters.Select(p => engine.Factory.CreateXmlDocCompletionData (p)));
+					items.AddRange(parameters.Select(p => engine.Factory.CreateXmlDocCompletionData (this, p)));
 				}
 				else if (parentElementName == "typeparamref")
 				{
-					items.AddRange(typeParameters.Select(t => engine.Factory.CreateXmlDocCompletionData (t)));
+					items.AddRange(typeParameters.Select(t => engine.Factory.CreateXmlDocCompletionData (this, t)));
 				}
 
 				return items;
@@ -304,12 +305,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 			}
 
-			items.AddRange(parameters.Select(p => engine.Factory.CreateXmlDocCompletionData (FormatParameter("param", p))));
-			items.AddRange(typeParameters.Select(t => engine.Factory.CreateXmlDocCompletionData (FormatParameter("typeparam", t))));
+			items.AddRange(parameters.Select(p => engine.Factory.CreateXmlDocCompletionData (this, FormatParameter("param", p))));
+			items.AddRange(typeParameters.Select(t => engine.Factory.CreateXmlDocCompletionData (this, FormatParameter("typeparam", t))));
 
 			if (returns && !symbol.ReturnsVoid)
 			{
-				items.Add(engine.Factory.CreateXmlDocCompletionData ("returns"));
+				items.Add(engine.Factory.CreateXmlDocCompletionData (this, "returns"));
 			}
 
 			return items;
@@ -346,18 +347,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (_tagMap.ContainsKey(n))
 			{
 				var value = _tagMap[n];
-				return engine.Factory.CreateXmlDocCompletionData (n, null, value [0] + "$" + value [1]);
+				return engine.Factory.CreateXmlDocCompletionData (this, n, null, value [0] + "$" + value [1]);
 			}
-			return engine.Factory.CreateXmlDocCompletionData (n);
+			return engine.Factory.CreateXmlDocCompletionData (this, n);
 		}
 
 		protected IEnumerable<ICompletionData> GetAttributeItem(CompletionEngine engine, string n, TextSpan span)
 		{
-			var items = _attributeMap.Where(x => x[0] == n).Select(x => engine.Factory.CreateXmlDocCompletionData(x[1],null, x[2] + "$" + x[3]));
+			var items = _attributeMap.Where(x => x[0] == n).Select(x => engine.Factory.CreateXmlDocCompletionData(this, x[1],null, x[2] + "$" + x[3]));
 			if (items.Any ())
 				return items;
 			
-			return new [] { engine.Factory.CreateXmlDocCompletionData (n) };
+			return new [] { engine.Factory.CreateXmlDocCompletionData (this, n) };
 		}
 
 		protected IEnumerable<ICompletionData> GetAlwaysVisibleItems(CompletionEngine engine, TextSpan filterSpan)
