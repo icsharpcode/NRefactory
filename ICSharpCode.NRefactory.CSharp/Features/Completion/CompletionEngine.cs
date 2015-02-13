@@ -48,7 +48,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new ExplicitInterfaceContextHandler(),
 			new AttributeNamedParameterContextHandler(),
 			new NamedParameterContextHandler(),
-			new SpeculativeTContextHandler()
+			new SpeculativeTContextHandler(),
+			new SnippetContextHandler()
 		};
 
 		static readonly ICompletionKeyHandler DefaultKeyHandler = new RoslynRecommendationsCompletionContextHandler ();
@@ -277,10 +278,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 
 			var result = new CompletionResult();
-			if (!ctx.TargetToken.IsKind(SyntaxKind.DotToken) &&
-				!ctx.TargetToken.IsKind(SyntaxKind.UsingKeyword)) {
-				result.InsertTemplatesInList = true;
-			}
 
 			if (position > 0) {
 				foreach (var handler in handlers) {
@@ -3172,7 +3169,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 
 */
-	}
 
+		public static Func<CancellationToken, Task<IEnumerable<ICompletionData>>> SnippetCallback;
+	}
 }
 

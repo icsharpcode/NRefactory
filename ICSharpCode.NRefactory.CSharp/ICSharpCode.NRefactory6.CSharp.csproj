@@ -348,6 +348,7 @@
     <Compile Include="Features\Completion\ICompletionKeyHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\NamedParameterContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\SpeculativeTContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\SnippetContextHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
