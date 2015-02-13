@@ -128,6 +128,7 @@ enum Name : $b$
 			});
 		}
 
+		[Ignore("Not supported anymore")]
 		[Test()]
 		public void TestEnumBaseTypesAutoPopup()
 		{

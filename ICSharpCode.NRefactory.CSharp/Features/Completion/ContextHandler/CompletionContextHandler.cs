@@ -32,6 +32,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 using Microsoft.CodeAnalysis.Text;
 using System.Threading.Tasks;
+using System.Security.Policy;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -136,6 +137,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 
 			return TextSpan.FromBounds(start, end);
+		}
+
+		protected class UnionCompletionItemComparer : IEqualityComparer<ICompletionData>
+		{
+			public static UnionCompletionItemComparer Instance = new UnionCompletionItemComparer();
+
+			public bool Equals(ICompletionData x, ICompletionData y)
+			{
+				return x.DisplayText == y.DisplayText;
+			}
+
+			public int GetHashCode(ICompletionData obj)
+			{
+				return obj.DisplayText.GetHashCode();
+			}
 		}
 	}
 }

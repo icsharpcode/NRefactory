@@ -47,7 +47,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new XmlDocCommentContextHandler(),
 			new ExplicitInterfaceContextHandler(),
 			new AttributeNamedParameterContextHandler(),
-			new NamedParameterContextHandler()
+			new NamedParameterContextHandler(),
+			new SpeculativeTContextHandler()
 		};
 
 		static readonly ICompletionKeyHandler DefaultKeyHandler = new RoslynRecommendationsCompletionContextHandler ();

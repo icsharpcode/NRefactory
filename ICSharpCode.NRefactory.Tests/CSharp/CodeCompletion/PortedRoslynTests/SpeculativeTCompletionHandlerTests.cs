@@ -32,142 +32,142 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //			VerifySendEnterThroughToEnter("T", "T", sendThroughEnterEnabled: false, expected: false);
 //			VerifySendEnterThroughToEnter("T", "T", sendThroughEnterEnabled: true, expected: true);
 //		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InClass()
-//		{
-//			var markup = @"
-//class C
-//{
-//    $$
-//}";
-//
-//			VerifyItemExists(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InInterface()
-//		{
-//			var markup = @"
-//interface I
-//{
-//    $$
-//}";
-//
-//			VerifyItemExists(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InStruct()
-//		{
-//			var markup = @"
-//struct S
-//{
-//    $$
-//}";
-//
-//			VerifyItemExists(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotInNamespace()
-//		{
-//			var markup = @"
-//namespace N
-//{
-//    $$
-//}";
-//
-//			VerifyItemIsAbsent(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotInEnum()
-//		{
-//			var markup = @"
-//enum E
-//{
-//    $$
-//}";
-//
-//			VerifyItemIsAbsent(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void AfterDelegate()
-//		{
-//			var markup = @"
-//class C
-//{
-//    delegate $$
-//}";
-//
-//			VerifyItemExists(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotAfterVoid()
-//		{
-//			var markup = @"
-//class C
-//{
-//    void $$
-//}";
-//
-//			VerifyItemIsAbsent(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotAfterInt()
-//		{
-//			var markup = @"
-//class C
-//{
-//    int $$
-//}";
-//
-//			VerifyItemIsAbsent(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InGeneric()
-//		{
-//			var markup = @"
-//using System;
-//class C
-//{
-//    Func<$$
-//}";
-//
-//			VerifyItemExists(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InNestedGeneric1()
-//		{
-//			var markup = @"
-//using System;
-//class C
-//{
-//    Func<Func<$$
-//}";
-//
-//			VerifyItemExists(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InNestedGeneric2()
-//		{
-//			var markup = @"
-//using System;
-//class C
-//{
-//    Func<Func<int,$$
-//}";
-//
-//			VerifyItemExists(markup, "T");
-//		}
-//
+
+		[Test]
+		public void InClass()
+		{
+			var markup = @"
+class C
+{
+    $$
+}";
+
+			VerifyItemExists(markup, "T");
+		}
+
+		[Test]
+		public void InInterface()
+		{
+			var markup = @"
+interface I
+{
+    $$
+}";
+
+			VerifyItemExists(markup, "T");
+		}
+
+		[Test]
+		public void InStruct()
+		{
+			var markup = @"
+struct S
+{
+    $$
+}";
+
+			VerifyItemExists(markup, "T");
+		}
+
+		[Test]
+		public void NotInNamespace()
+		{
+			var markup = @"
+namespace N
+{
+    $$
+}";
+
+			VerifyItemIsAbsent(markup, "T");
+		}
+
+		[Test]
+		public void NotInEnum()
+		{
+			var markup = @"
+enum E
+{
+    $$
+}";
+
+			VerifyItemIsAbsent(markup, "T");
+		}
+
+		[Test]
+		public void AfterDelegate()
+		{
+			var markup = @"
+class C
+{
+    delegate $$
+}";
+
+			VerifyItemExists(markup, "T");
+		}
+
+		[Test]
+		public void NotAfterVoid()
+		{
+			var markup = @"
+class C
+{
+    void $$
+}";
+
+			VerifyItemIsAbsent(markup, "T");
+		}
+
+		[Test]
+		public void NotAfterInt()
+		{
+			var markup = @"
+class C
+{
+    int $$
+}";
+
+			VerifyItemIsAbsent(markup, "T");
+		}
+
+		[Test]
+		public void InGeneric()
+		{
+			var markup = @"
+using System;
+class C
+{
+    Func<$$
+}";
+
+			VerifyItemExists(markup, "T");
+		}
+
+		[Test]
+		public void InNestedGeneric1()
+		{
+			var markup = @"
+using System;
+class C
+{
+    Func<Func<$$
+}";
+
+			VerifyItemExists(markup, "T");
+		}
+
+		[Test]
+		public void InNestedGeneric2()
+		{
+			var markup = @"
+using System;
+class C
+{
+    Func<Func<int,$$
+}";
+
+			VerifyItemExists(markup, "T");
+		}
+
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void InScript()
 //		{
@@ -224,60 +224,60 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //
 //			VerifyItemExists(markup, "T", expectedDescriptionOrNull: null, sourceCodeKind: SourceCodeKind.Script);
 //		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotInComment()
-//		{
-//			var markup = @"
-//class C
-//{
-//    // $$
-//}";
-//
-//			VerifyItemIsAbsent(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotInXmlDocComment()
-//		{
-//			var markup = @"
-//class C
-//{
-//    /// <summary>
-//    /// $$
-//    /// </summary>
-//    void Foo() { }
-//}";
-//
-//			VerifyItemIsAbsent(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void AfterAsyncTask()
-//		{
-//			var markup = @"
-//using System.Threading.Tasks;
-//class Program
-//{
-//    async Task<$$
-//}";
-//
-//			VerifyItemExists(markup, "T");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotAfterAsync()
-//		{
-//			var markup = @"
-//using System.Threading.Tasks;
-//class Program
-//{
-//    async $$
-//}";
-//
-//			VerifyItemIsAbsent(markup, "T");
-//		}
-//
+
+		[Test]
+		public void NotInComment()
+		{
+			var markup = @"
+class C
+{
+    // $$
+}";
+
+			VerifyItemIsAbsent(markup, "T");
+		}
+
+		[Test]
+		public void NotInXmlDocComment()
+		{
+			var markup = @"
+class C
+{
+    /// <summary>
+    /// $$
+    /// </summary>
+    void Foo() { }
+}";
+
+			VerifyItemIsAbsent(markup, "T");
+		}
+
+		[Test]
+		public void AfterAsyncTask()
+		{
+			var markup = @"
+using System.Threading.Tasks;
+class Program
+{
+    async Task<$$
+}";
+
+			VerifyItemExists(markup, "T");
+		}
+
+		[Test]
+		public void NotAfterAsync()
+		{
+			var markup = @"
+using System.Threading.Tasks;
+class Program
+{
+    async $$
+}";
+
+			VerifyItemIsAbsent(markup, "T");
+		}
+
 //		[WorkItem(968256)]
 //		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
 //		public void UnionOfItemsFromBothContexts()
@@ -307,18 +307,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //			VerifyItemInLinkedFiles(markup, "T", null);
 //		}
 //
-//		[WorkItem(1020654)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void AfterAsyncTaskWithBraceCompletion()
-//		{
-//			var markup = @"
-//using System.Threading.Tasks;
-//class Program
-//{
-//    async Task<$$>
-//}";
-//
-//			VerifyItemExists(markup, "T");
-//		}
+		[Test]
+		public void AfterAsyncTaskWithBraceCompletion()
+		{
+			var markup = @"
+using System.Threading.Tasks;
+class Program
+{
+    async Task<$$>
+}";
+
+			VerifyItemExists(markup, "T");
+		}
 	}
 }

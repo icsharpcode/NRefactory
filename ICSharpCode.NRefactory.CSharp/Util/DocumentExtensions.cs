@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.LanguageServices;
 using Microsoft.CodeAnalysis.SemanticModelWorkspaceService;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis;
+using System;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -80,5 +81,34 @@ namespace ICSharpCode.NRefactory6.CSharp
 //
 //			return GetSemanticModelForNodeAsync(semanticModelService, syntaxFactService, document, node, node.FullSpan, cancellationToken);
 		}
+
+		public static async Task<IEnumerable<T>> GetUnionResultsFromDocumentAndLinks<T>(
+			this Document document,
+			IEqualityComparer<T> comparer,
+			Func<Document, CancellationToken, Task<IEnumerable<T>>> getItemsWorker,
+			CancellationToken cancellationToken)
+		{
+			var linkedDocumentIds = document.GetLinkedDocumentIds();
+			var itemsForCurrentContext = await getItemsWorker(document, cancellationToken).ConfigureAwait(false) ?? SpecializedCollections.EmptyEnumerable<T>();
+			if (!linkedDocumentIds.Any())
+			{
+				return itemsForCurrentContext;
+			}
+
+			ISet<T> totalItems = itemsForCurrentContext.ToSet(comparer);
+			foreach (var linkedDocumentId in linkedDocumentIds)
+			{
+				var linkedDocument = document.Project.Solution.GetDocument(linkedDocumentId);
+				var items = await getItemsWorker(linkedDocument, cancellationToken).ConfigureAwait(false);
+				if (items != null)
+				{
+					foreach (var item in items)
+						totalItems.Add (item);
+				}
+			}
+
+			return totalItems;
+		}
+
 	}
 }
