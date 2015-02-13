@@ -46,7 +46,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new EnumMemberContextHandler(),
 			new XmlDocCommentContextHandler(),
 			new ExplicitInterfaceContextHandler(),
-			new AttributeNamedParameterContextHandler()
+			new AttributeNamedParameterContextHandler(),
+			new NamedParameterContextHandler()
 		};
 
 		static readonly ICompletionKeyHandler DefaultKeyHandler = new RoslynRecommendationsCompletionContextHandler ();
@@ -318,16 +319,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			
 			return result;
 		}
-
-
-		void AddNamedParameterData(CompletionResult result, HashSet<string> parametersAddedCache, IParameterSymbol p)
-		{
-			if (parametersAddedCache.Contains(p.Name))
-				return;
-			parametersAddedCache.Add(p.Name);
-			result.AddData(Factory.CreateGenericData(DefaultKeyHandler, p.Name + ":", GenericDataType.NamedParameter));
-		}
-
 		CompletionResult HandleEventAccessorContext()
 		{
 			var result = new CompletionResult();

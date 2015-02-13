@@ -190,27 +190,27 @@ enum Colors
 //			VerifyItemExists(markup, "DayOfWeek");
 //		}
 //
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NoCompletionListTag()
-//		{
-//			var markup =
-//				@"using System;
-//using System.Threading.Tasks;
-//
-//class C
-//{
-//    
-//}
-//
-//class Program
-//{
-//    void Foo()
-//    {
-//        C c = $$
-//    }
-//}";
-//			VerifyNoItemsExist(markup);
-//		}
+		[Test]
+		public void NoCompletionListTag()
+		{
+			var markup =
+				@"using System;
+using System.Threading.Tasks;
+
+class C
+{
+    
+}
+
+class Program
+{
+    void Foo()
+    {
+        C c = $$
+    }
+}";
+			VerifyNoItemsExist(markup);
+		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void CompletionList()
@@ -331,87 +331,83 @@ enum Colors
 //			VerifyNoItemsExist(markup);
 //		}
 //
-//		[WorkItem(828196)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void SuggestAlias()
-//		{
-//			var markup = @"
-//using D = System.Globalization.DigitShapes; 
-//class Program
-//{
-//    static void Main(string[] args)
-//    {
-//        D d=  $$
-//    }
-//}";
-//			VerifyItemExists(markup, "D");
-//		}
-//
-//		[WorkItem(828196)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void SuggestAlias2()
-//		{
-//			var markup = @"
-//namespace N
-//{
-//using D = System.Globalization.DigitShapes; 
-//
-//class Program
-//{
-//    static void Main(string[] args)
-//    {
-//        D d=  $$
-//    }
-//}
-//}
-//";
-//			VerifyItemExists(markup, "D");
-//		}
-//
-//		[WorkItem(828196)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void SuggestAlias3()
-//		{
-//			var markup = @"
-//namespace N
-//{
-//using D = System.Globalization.DigitShapes; 
-//
-//class Program
-//{
-//    private void Foo(System.Globalization.DigitShapes shape)
-//    {
-//    }
-//
-//    static void Main(string[] args)
-//    {
-//        Foo($$
-//    }
-//}
-//}
-//";
-//			VerifyItemExists(markup, "D");
-//		}
-//
-//		[WorkItem(828196)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotInParameterNameContext()
-//		{
-//			var markup = @"
-//enum E
-//{
-//    a
-//}
-//
-//class C
-//{
-//    void foo(E first, E second) 
-//    {
-//        foo(first: E.a, $$
-//    }
-//}
-//";
-//			VerifyItemIsAbsent(markup, "E");
-//		}
+		[Test]
+		public void SuggestAlias()
+		{
+			var markup = @"
+using D = System.Globalization.DigitShapes; 
+class Program
+{
+    static void Main(string[] args)
+    {
+        D d=  $$
+    }
+}";
+			VerifyItemExists(markup, "D");
+		}
+
+		[Test]
+		public void SuggestAlias2()
+		{
+			var markup = @"
+namespace N
+{
+using D = System.Globalization.DigitShapes; 
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        D d=  $$
+    }
+}
+}
+";
+			VerifyItemExists(markup, "D");
+		}
+
+		[Test]
+		public void SuggestAlias3()
+		{
+			var markup = @"
+namespace N
+{
+using D = System.Globalization.DigitShapes; 
+
+class Program
+{
+    private void Foo(System.Globalization.DigitShapes shape)
+    {
+    }
+
+    static void Main(string[] args)
+    {
+        Foo($$
+    }
+}
+}
+";
+			VerifyItemExists(markup, "D");
+		}
+
+		[Test]
+		public void NotInParameterNameContext()
+		{
+			var markup = @"
+enum E
+{
+    a
+}
+
+class C
+{
+    void foo(E first, E second) 
+    {
+        foo(first: E.a, $$
+    }
+}
+";
+			VerifyItemIsAbsent(markup, "E");
+		}
 	}
 }

@@ -13,38 +13,32 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //		{
 //			return new NamedParameterCompletionProvider();
 //		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
+
+//		[Test]
 //		public void SendEnterThroughToEditorTest()
 //		{
 //			VerifySendEnterThroughToEnter("foo:", "foo:", sendThroughEnterEnabled: false, expected: false);
 //			VerifySendEnterThroughToEnter("foo:", "foo:", sendThroughEnterEnabled: true, expected: true);
 //		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void CommitCharacterTest()
-//		{
-//			TestCommonIsCommitCharacter();
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InObjectCreation()
-//		{
-//			var markup = @"
-//class Foo
-//{
-//    public Foo(int a = 42)
-//    { }
-//
-//    void Bar()
-//    {
-//        var b = new Foo($$
-//    }
-//}";
-//
-//			VerifyItemExists(markup, "a:");
-//		}
-//
+
+		[Test]
+		public void InObjectCreation()
+		{
+			var markup = @"
+class Foo
+{
+    public Foo(int a = 42)
+    { }
+
+    void Bar()
+    {
+        var b = new Foo($$
+    }
+}";
+
+			VerifyItemExists(markup, "a:");
+		}
+
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void InBaseConstructor()
 //		{
