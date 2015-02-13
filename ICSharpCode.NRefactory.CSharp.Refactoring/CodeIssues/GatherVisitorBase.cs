@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 	/// <summary>
 	/// A base class for writing issue provider visitor implementations.
 	/// </summary>
-	class GatherVisitorBase<T> : CSharpSyntaxWalker where T : GatherVisitorCodeIssueProvider
+	public class GatherVisitorBase<T> : CSharpSyntaxWalker where T : GatherVisitorCodeIssueProvider
 	{
 		/// <summary>
 		/// The issue provider. May be <c>null</c> if none was specified.
