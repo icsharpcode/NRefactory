@@ -51,8 +51,7 @@ public class b : a
     override $$
 }", "foo");
 		}
-
-
+			
 //		[Test]
 //		public void InheritedParameterDefaultValue1()
 //		{
@@ -81,230 +80,230 @@ public class b : a
 //    override $$
 //}", "foo(int x, int y = 42)", "void a.foo(int x, [int y = 42])");
 //		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InheritedAbstractPublicMethod()
-//		{
-//			VerifyItemExists(@"
-//public class a
-//{
-//    public abstract void foo();
-//}
-//
-//public class b : a
-//{
-//    override $$
-//}", "foo()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotPrivateInheritedMethod()
-//		{
-//			VerifyItemIsAbsent(@"
-//public class a
-//{
-//    private virtual void foo() { }
-//}
-//
-//public class b : a
-//{
-//    override $$
-//}", "foo()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void MatchReturnType()
-//		{
-//			var markup = @"
-//public class a
-//{
-//    public virtual void foo() { }
-//
-//    public virtual string bar() {return null;}
-//}
-//
-//public class b : a
-//{
-//    override void $$
-//}";
-//			VerifyItemIsAbsent(markup, "bar()");
-//			VerifyItemExists(markup, "foo()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InvalidReturnType()
-//		{
-//			var markup = @"
-//public class a
-//{
-//    public virtual void foo() { }
-//
-//    public virtual string bar() {return null;}
-//}
-//
-//public class b : a
-//{
-//    override badtype $$
-//}";
-//
-//			VerifyItemExists(markup, "foo()");
-//			VerifyItemExists(markup, "bar()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotAlreadyImplementedMethods()
-//		{
-//			VerifyItemIsAbsent(@"
-//public class a
-//{
-//    protected virtual void foo() { }
-//
-//    protected virtual string bar() {return null;}
-//}
-//
-//public class b : a
-//{
-//    protected override foo(){ }
-//
-//    override $$
-//}", "foo()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotSealed()
-//		{
-//			VerifyItemIsAbsent(@"
-//public class a
-//{
-//    protected sealed void foo() { }
-//}
-//
-//public class b : a
-//{
-//    public override $$
-//}", "foo()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void ShowEvent()
-//		{
-//			VerifyItemExists(@"
-//using System;
-//public class a
-//{
-//    public virtual event EventHandler foo;
-//}
-//
-//public class b : a
-//{
-//    public override $$
-//}", "foo");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotIfTokensAfterPosition()
-//		{
-//			VerifyNoItemsExist(@"
-//public class a
-//{
-//    public virtual void foo() { }
-//}
-//
-//public class b : a
-//{
-//    public override $$ void
-//}");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotIfNameAfterPosition()
-//		{
-//			VerifyNoItemsExist(@"
-//public class a
-//{
-//    public virtual void foo() { }
-//}
-//
-//public class b : a
-//{
-//    public override void $$ bar
-//}");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotIfStatic()
-//		{
-//			VerifyNoItemsExist(@"
-//public class a
-//{
-//    public virtual void foo() { }
-//}
-//
-//public class b : a
-//{
-//    public static override $$ 
-//}");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void AfterSingleLineMethodDeclaration()
-//		{
-//			VerifyNoItemsExist(@"
-//public class a
-//{
-//    public virtual void foo() { }
-//}
-//
-//public class b : a
-//{
-//    void bar() { } override $$
-//}");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void SuggestProperty()
-//		{
-//			VerifyItemExists(@"
-//public class a
-//{
-//    public virtual int foo { }
-//}
-//
-//public class b : a
-//{
-//     override $$
-//}", "foo");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotSuggestSealed()
-//		{
-//			VerifyItemIsAbsent(@"
-//public class a
-//{
-//    public sealed int foo { }
-//}
-//
-//public class b : a
-//{
-//     override $$
-//}", "foo");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void GatherModifiers()
-//		{
-//			VerifyItemExists(@"
-//public class a
-//{
-//    public abstract extern unsafe int foo { }
-//}
-//
-//public class b : a
-//{
-//     override $$
-//}", "foo");
-//		}
+
+		[Test]
+		public void InheritedAbstractPublicMethod()
+		{
+			VerifyItemExists(@"
+public class a
+{
+    public abstract void foo();
+}
+
+public class b : a
+{
+    override $$
+}", "foo");
+		}
+
+		[Test]
+		public void NotPrivateInheritedMethod()
+		{
+			VerifyItemIsAbsent(@"
+public class a
+{
+    private virtual void foo() { }
+}
+
+public class b : a
+{
+    override $$
+}", "foo");
+		}
+
+		[Test]
+		public void MatchReturnType()
+		{
+			var markup = @"
+public class a
+{
+    public virtual void foo() { }
+
+    public virtual string bar() {return null;}
+}
+
+public class b : a
+{
+    override void $$
+}";
+			VerifyItemIsAbsent(markup, "bar");
+			VerifyItemExists(markup, "foo");
+		}
+
+		[Test]
+		public void InvalidReturnType()
+		{
+			var markup = @"
+public class a
+{
+    public virtual void foo() { }
+
+    public virtual string bar() {return null;}
+}
+
+public class b : a
+{
+    override badtype $$
+}";
+
+			VerifyItemExists(markup, "foo");
+			VerifyItemExists(markup, "bar");
+		}
+
+		[Test]
+		public void NotAlreadyImplementedMethods()
+		{
+			VerifyItemIsAbsent(@"
+public class a
+{
+    protected virtual void foo() { }
+
+    protected virtual string bar() {return null;}
+}
+
+public class b : a
+{
+    protected override foo(){ }
+
+    override $$
+}", "foo");
+		}
+
+		[Test]
+		public void NotSealed()
+		{
+			VerifyItemIsAbsent(@"
+public class a
+{
+    protected sealed void foo() { }
+}
+
+public class b : a
+{
+    public override $$
+}", "foo");
+		}
+
+		[Test]
+		public void ShowEvent()
+		{
+			VerifyItemExists(@"
+using System;
+public class a
+{
+    public virtual event EventHandler foo;
+}
+
+public class b : a
+{
+    public override $$
+}", "foo");
+		}
+
+		[Test]
+		public void NotIfTokensAfterPosition()
+		{
+			VerifyNoItemsExist(@"
+public class a
+{
+    public virtual void foo() { }
+}
+
+public class b : a
+{
+    public override $$ void
+}");
+		}
+
+		[Test]
+		public void NotIfNameAfterPosition()
+		{
+			VerifyNoItemsExist(@"
+public class a
+{
+    public virtual void foo() { }
+}
+
+public class b : a
+{
+    public override void $$ bar
+}");
+		}
+
+		[Test]
+		public void NotIfStatic()
+		{
+			VerifyNoItemsExist(@"
+public class a
+{
+    public virtual void foo() { }
+}
+
+public class b : a
+{
+    public static override $$ 
+}");
+		}
+
+		[Test]
+		public void AfterSingleLineMethodDeclaration()
+		{
+			VerifyNoItemsExist(@"
+public class a
+{
+    public virtual void foo() { }
+}
+
+public class b : a
+{
+    void bar() { } override $$
+}");
+		}
+
+		[Test]
+		public void SuggestProperty()
+		{
+			VerifyItemExists(@"
+public class a
+{
+    public virtual int foo { }
+}
+
+public class b : a
+{
+     override $$
+}", "foo");
+		}
+
+		[Test]
+		public void NotSuggestSealed()
+		{
+			VerifyItemIsAbsent(@"
+public class a
+{
+    public sealed int foo { }
+}
+
+public class b : a
+{
+     override $$
+}", "foo");
+		}
+
+		[Test]
+		public void GatherModifiers()
+		{
+			VerifyItemExists(@"
+public class a
+{
+    public abstract extern unsafe int foo { }
+}
+
+public class b : a
+{
+     override $$
+}", "foo");
+		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void IgnorePartial()
@@ -320,157 +319,157 @@ public class b : a
 //     override partial $$
 //}");
 //		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void IgnoreSealed()
-//		{
-//			VerifyItemIsAbsent(@"
-//public class a
-//{
-//    public virtual sealed int foo() { }
-//}
-//
-//public class b : a
-//{
-//     override $$
-//}", "foo()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void IgnoreIfTokenAfter()
-//		{
-//			VerifyNoItemsExist(@"
-//public class a
-//{
-//    public virtual int foo() { }
-//}
-//
-//public class b : a
-//{
-//     override $$ int
-//}");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void SuggestAfterUnsafeAbstractExtern()
-//		{
-//			VerifyItemExists(@"
-//public class a
-//{
-//    public virtual int foo() { }
-//}
-//
-//public class b : a
-//{
-//     unsafe abstract extern override $$
-//}", "foo()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void SuggestAfterSealed()
-//		{
-//			VerifyItemExists(@"
-//public class a
-//{
-//    public virtual int foo() { }
-//}
-//
-//public class b : a
-//{
-//     sealed override $$
-//}", "foo()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NoAccessibility()
-//		{
-//			var markup = @"
-//public class a
-//{
-//    public virtual int foo() { }
-//    protected virtual int bar() { }
-//}
-//
-//public class b : a
-//{
-//     override $$
-//}";
-//
-//			VerifyItemExists(markup, "foo()");
-//			VerifyItemExists(markup, "bar()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void FilterAccessibility()
-//		{
-//			var markup = @"
-//public class a
-//{
-//    public virtual int foo() { }
-//    protected virtual int bar() { }
-//    internal virtual int far() { }
-//    private virtual int bor() { }
-//}
-//
-//public class b : a
-//{
-//     override internal $$
-//}";
-//
-//			VerifyItemIsAbsent(markup, "foo()");
-//			VerifyItemIsAbsent(markup, "bar()");
-//			VerifyItemIsAbsent(markup, "bor()");
-//
-//			VerifyItemExists(markup, "far()");
-//
-//			VerifyItemExists(@"
-//public class a
-//{
-//    public virtual int foo() { }
-//    protected virtual int bar() { }
-//    internal virtual int far() { }
-//    private virtual int bor() { }
-//}
-//
-//public class b : a
-//{
-//     override protected $$
-//}", "bar()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void FilterPublicInternal()
-//		{
-//			var protectedinternal = @"
-//public class a
-//{
-//    protected internal virtual void foo() { }
-//    public virtual void bar() { }
-//}
-//
-//public class b : a
-//{
-//     protected internal override $$
-//}";
-//
-//			VerifyItemIsAbsent(protectedinternal, "bar()");
-//			VerifyItemExists(protectedinternal, "foo()");
-//
-//			var internalprotected = @"
-//public class a
-//{
-//    protected internal virtual void foo() { }
-//    public virtual void bar() { }
-//}
-//
-//public class b : a
-//{
-//     internal protected override $$ 
-//}";
-//
-//			VerifyItemIsAbsent(internalprotected, "bar()");
-//			VerifyItemExists(internalprotected, "foo()");
-//		}
+
+		[Test]
+		public void IgnoreSealed()
+		{
+			VerifyItemIsAbsent(@"
+public class a
+{
+    public virtual sealed int foo() { }
+}
+
+public class b : a
+{
+     override $$
+}", "foo");
+		}
+
+		[Test]
+		public void IgnoreIfTokenAfter()
+		{
+			VerifyNoItemsExist(@"
+public class a
+{
+    public virtual int foo() { }
+}
+
+public class b : a
+{
+     override $$ int
+}");
+		}
+
+		[Test]
+		public void SuggestAfterUnsafeAbstractExtern()
+		{
+			VerifyItemExists(@"
+public class a
+{
+    public virtual int foo() { }
+}
+
+public class b : a
+{
+     unsafe abstract extern override $$
+}", "foo");
+		}
+
+		[Test]
+		public void SuggestAfterSealed()
+		{
+			VerifyItemExists(@"
+public class a
+{
+    public virtual int foo() { }
+}
+
+public class b : a
+{
+     sealed override $$
+}", "foo");
+		}
+
+		[Test]
+		public void NoAccessibility()
+		{
+			var markup = @"
+public class a
+{
+    public virtual int foo() { }
+    protected virtual int bar() { }
+}
+
+public class b : a
+{
+     override $$
+}";
+
+			VerifyItemExists(markup, "foo");
+			VerifyItemExists(markup, "bar");
+		}
+
+		[Test]
+		public void FilterAccessibility()
+		{
+			var markup = @"
+public class a
+{
+    public virtual int foo() { }
+    protected virtual int bar() { }
+    internal virtual int far() { }
+    private virtual int bor() { }
+}
+
+public class b : a
+{
+     override internal $$
+}";
+
+			VerifyItemIsAbsent(markup, "foo");
+			VerifyItemIsAbsent(markup, "bar");
+			VerifyItemIsAbsent(markup, "bor");
+
+			VerifyItemExists(markup, "far");
+
+			VerifyItemExists(@"
+public class a
+{
+    public virtual int foo() { }
+    protected virtual int bar() { }
+    internal virtual int far() { }
+    private virtual int bor() { }
+}
+
+public class b : a
+{
+     override protected $$
+}", "bar");
+		}
+
+		[Test]
+		public void FilterPublicInternal()
+		{
+			var protectedinternal = @"
+public class a
+{
+    protected internal virtual void foo() { }
+    public virtual void bar() { }
+}
+
+public class b : a
+{
+     protected internal override $$
+}";
+
+			VerifyItemIsAbsent(protectedinternal, "bar");
+			VerifyItemExists(protectedinternal, "foo");
+
+			var internalprotected = @"
+public class a
+{
+    protected internal virtual void foo() { }
+    public virtual void bar() { }
+}
+
+public class b : a
+{
+     internal protected override $$ 
+}";
+
+			VerifyItemIsAbsent(internalprotected, "bar");
+			VerifyItemExists(internalprotected, "foo");
+		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void VerifySignatureFormat()

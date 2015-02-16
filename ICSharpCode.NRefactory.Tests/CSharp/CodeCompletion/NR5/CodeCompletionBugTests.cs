@@ -316,6 +316,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			Compilation compilation;
 			try {
 				compilation = project.GetCompilationAsync().Result;
+				var service = new CSharpCodeGenerationService(workspace);
+
+				var ts = compilation.GetTypeSymbol("System", "Object", 0);
+				foreach (var member in ts.GetMembers ()) {
+					var method = member as IMethodSymbol;
+					if (method == null)
+						continue;
+					var node = service.CreateMethodDeclaration(method, CodeGenerationDestination.Unspecified);
+				}
+
+
 			} catch (AggregateException e) {
 				Console.WriteLine(e.InnerException);
 				foreach (var inner in e.InnerExceptions)
@@ -327,6 +338,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //			}
 			document = workspace.CurrentSolution.GetDocument(documentId);
 			semanticModel = document.GetSemanticModelAsync().Result;
+
 
 //			engine.AutomaticallyAddImports = true;
 //			engine.EolMarker = Environment.NewLine;

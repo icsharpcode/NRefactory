@@ -484,6 +484,7 @@
     <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SpeculativeTCompletionHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SymbolCompletionHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\XmlDocCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\OverrideCompletionProviderTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -551,5 +552,6 @@
   <ItemGroup>
     <Folder Include="CSharp\CodeCompletion\NR5\" />
     <Folder Include="CSharp\CodeCompletion\PortedRoslynTests\" />
+    <Folder Include="CSharp\CodeCompletion\NR6\" />
   </ItemGroup>
 </Project>

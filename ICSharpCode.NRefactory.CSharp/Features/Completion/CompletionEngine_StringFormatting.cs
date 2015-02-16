@@ -57,7 +57,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var text = document.GetTextAsync().Result;
 			while (o > 0) {
 				char ch = text[o];
-				Console.WriteLine("char:"+ch);
 				if (ch == '{')
 					return number;
 				if (!char.IsDigit(ch))

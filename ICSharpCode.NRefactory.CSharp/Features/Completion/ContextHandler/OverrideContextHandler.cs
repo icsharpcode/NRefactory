@@ -34,6 +34,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp;
+using System;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -44,56 +45,97 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return IsTriggerAfterSpaceOrStartOfWordCharacter (text, position);
 		}
 
-		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
+		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
-			var result = new List<ICompletionData> ();
+			var document = completionContext.Document;
+			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
+			var tree = await document.GetSyntaxTreeAsync (cancellationToken).ConfigureAwait (false);
+			var text = await document.GetTextAsync (cancellationToken).ConfigureAwait (false);
 
-			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
-			if (incompleteMemberSyntax != null) {
-				var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
-				if (!mod.IsKind(SyntaxKind.OverrideKeyword))
-					return result;
-			} else {
+			var result = new List<ICompletionData> ();
+			var startLineNumber = text.Lines.IndexOf (completionContext.Position);
+
+			// modifiers* override modifiers* type? |
+			Accessibility seenAccessibility;
+			DeclarationModifiers modifiers;
+			var token = tree.FindTokenOnLeftOfPosition(completionContext.Position, cancellationToken);
+			var startToken = token.GetPreviousTokenIfTouchingWord(completionContext.Position);
+			ITypeSymbol returnType;
+			SyntaxToken tokenBeforeReturnType;
+			bool hasReturnType = TryDetermineReturnType (startToken, semanticModel, cancellationToken, out returnType, out tokenBeforeReturnType);
+
+			if (!TryDetermineModifiers(ref tokenBeforeReturnType, text, startLineNumber, out seenAccessibility, out modifiers) ||
+				!TryCheckForTrailingTokens (tree, text, startLineNumber, completionContext.Position, cancellationToken)) {
 				return result;
 			}
 
-			if (ctx.ContainingTypeDeclaration == null)
+			ISet<ISymbol> overridableMembers;
+			if (!TryDetermineOverridableMembers(semanticModel, tokenBeforeReturnType, seenAccessibility, out overridableMembers, cancellationToken)) {
 				return result;
-			var curType = ctx.GetCurrentType(await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false));
-			if (curType == null)
-				return result;
-			
-			foreach (var m in curType.BaseType.GetMembers ()) {
-				if (!m.IsOverride && !m.IsVirtual || m.ContainingType == curType)
-					continue;
-				// filter out the "Finalize" methods, because finalizers should be done with destructors.
-				if (m.Kind == SymbolKind.Method && m.Name == "Finalize") {
-					continue;
-				}
+			}
 
-				// check if the member is already implemented
-				bool foundMember = curType.GetMembers().Any(cm => HasOverridden (m, cm));
-				if (foundMember)
-					continue;
+			if (returnType != null) {
+				overridableMembers = FilterOverrides (overridableMembers, returnType);
+			}
 
-				/*				if (alreadyInserted.Contains(m))
-					continue;
-				alreadyInserted.Add(m);*/
+			var curType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol>(startToken.SpanStart, cancellationToken);
 
-				var data = engine.Factory.CreateNewOverrideCompletionData(
+			foreach (var m in overridableMembers) {
+				var data = engine.Factory.CreateNewOverrideCompletionData (
 					this,
-					incompleteMemberSyntax.SpanStart,
+					startToken.SpanStart,
 					curType,
 					m
 				);
-				//data.CompletionCategory = col.GetCompletionCategory(m.DeclaringTypeDefinition);
 				result.Add (data); 
 			}
 			return result;
 		}
 
-		static bool HasOverridden(ISymbol original, ISymbol testSymbol)
+		static ISet<ISymbol> FilterOverrides(ISet<ISymbol> members, ITypeSymbol returnType)
+		{
+			var filteredMembers = new HashSet<ISymbol>(
+				from m in members
+				where m.GetReturnType ().ToString () ==  returnType.ToString ()
+				select m);
+
+			// Don't filter by return type if we would then have nothing to show.
+			// This way, the user gets completion even if they speculatively typed the wrong return type
+			if (filteredMembers.Count > 0)
+			{
+				members = filteredMembers;
+			}
+
+			return members;
+		}
+
+		static bool TryDetermineReturnType(SyntaxToken startToken, SemanticModel semanticModel, CancellationToken cancellationToken, out ITypeSymbol returnType, out SyntaxToken nextToken)
+		{
+			nextToken = startToken;
+			returnType = null;
+			if (startToken.Parent is TypeSyntax)
+			{
+				var typeSyntax = (TypeSyntax)startToken.Parent;
+
+				// 'partial' is actually an identifier.  If we see it just bail.  This does mean
+				// we won't handle overrides that actually return a type called 'partial'.  And
+				// not a single tear was shed.
+				if (typeSyntax is IdentifierNameSyntax &&
+					((IdentifierNameSyntax)typeSyntax).Identifier.IsKindOrHasMatchingText(SyntaxKind.PartialKeyword))
+				{
+					return false;
+				}
+
+				returnType = semanticModel.GetTypeInfo(typeSyntax, cancellationToken).Type;
+				nextToken = typeSyntax.GetFirstToken().GetPreviousToken();
+			}
+
+			return true;
+		}
+
+
+		static bool HasOverridden (ISymbol original, ISymbol testSymbol)
 		{
 			if (original.Kind != testSymbol.Kind)
 				return false;
@@ -108,6 +150,200 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return false;
 		}
 
+		public static bool IsOverridable(ISymbol member, INamedTypeSymbol containingType)
+		{
+			if (member.IsAbstract || member.IsVirtual || member.IsOverride) {
+				if (member.IsSealed) {
+					return false;
+				}
+
+				if (!member.IsAccessibleWithin(containingType)) {
+					return false;
+				}
+
+				switch (member.Kind) {
+				case SymbolKind.Event:
+					return true;
+				case SymbolKind.Method:
+					return ((IMethodSymbol)member).MethodKind == MethodKind.Ordinary;
+				case SymbolKind.Property:
+					return !((IPropertySymbol)member).IsWithEvents;
+				}
+			}
+			return false;
+		}
+
+		static bool TryDetermineOverridableMembers(SemanticModel semanticModel, SyntaxToken startToken, Accessibility seenAccessibility, out ISet<ISymbol> overridableMembers, CancellationToken cancellationToken)
+		{
+			var result = new HashSet<ISymbol>();
+			var containingType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol>(startToken.SpanStart, cancellationToken);
+			if (containingType != null && !containingType.IsScriptClass && !containingType.IsImplicitClass)
+			{
+				if (containingType.TypeKind == TypeKind.Class || containingType.TypeKind == TypeKind.Struct)
+				{
+					var baseTypes = containingType.GetBaseTypes().Reverse();
+					foreach (var type in baseTypes)
+					{
+						cancellationToken.ThrowIfCancellationRequested();
+
+						// Prefer overrides in derived classes
+						RemoveOverriddenMembers(result, type, cancellationToken);
+
+						// Retain overridable methods
+						AddOverridableMembers(result, containingType, type, cancellationToken);
+					}
+					// Don't suggest already overridden members
+					RemoveOverriddenMembers(result, containingType, cancellationToken);
+				}
+			}
+
+			// Filter based on accessibility
+			if (seenAccessibility != Accessibility.NotApplicable)
+			{
+				result.RemoveWhere(m => m.DeclaredAccessibility != seenAccessibility);
+			}
+
+			overridableMembers = result;
+			return overridableMembers.Count > 0;
+		}
+
+		static void AddOverridableMembers(HashSet<ISymbol> result, INamedTypeSymbol containingType, INamedTypeSymbol type, CancellationToken cancellationToken)
+		{
+			foreach (var member in type.GetMembers())
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+
+				if (IsOverridable(member, containingType))
+				{
+					result.Add(member);
+				}
+			}
+		}
+
+		static void RemoveOverriddenMembers(HashSet<ISymbol> result, INamedTypeSymbol containingType, CancellationToken cancellationToken)
+		{
+			foreach (var member in containingType.GetMembers())
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				var overriddenMember = member.OverriddenMember();
+				if (overriddenMember != null)
+				{
+					result.Remove(overriddenMember);
+				}
+			}
+		}
+
+
+		static bool TryCheckForTrailingTokens (SyntaxTree tree, SourceText text, int startLineNumber, int position, CancellationToken cancellationToken)
+		{
+			var root = tree.GetRoot (cancellationToken);
+			var token = root.FindToken (position);
+
+			// Don't want to offer Override completion if there's a token after the current
+			// position.
+			if (token.SpanStart > position) {
+				return false;
+			}
+
+			// If the next token is also on our line then we don't want to offer completion.
+			if (IsOnStartLine (text, startLineNumber, token.GetNextToken ().SpanStart)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		static bool IsOnStartLine (SourceText text, int startLineNumber, int position)
+		{
+			return text.Lines.IndexOf (position) == startLineNumber;
+		}
+	
+		static bool TryDetermineModifiers(ref SyntaxToken startToken, SourceText text, int startLine, out Accessibility seenAccessibility, out DeclarationModifiers modifiers)
+		{
+			var token = startToken;
+			modifiers = new DeclarationModifiers();
+			seenAccessibility = Accessibility.NotApplicable;
+			var overrideToken = default(SyntaxToken);
+			bool isUnsafe = false;
+			bool isSealed = false;
+			bool isAbstract = false;
+
+			while (IsOnStartLine(token.SpanStart, text, startLine) && !token.IsKind(SyntaxKind.None))
+			{
+				switch (token.Kind())
+				{
+				case SyntaxKind.UnsafeKeyword:
+					isUnsafe = true;
+					break;
+				case SyntaxKind.OverrideKeyword:
+					overrideToken = token;
+					break;
+				case SyntaxKind.SealedKeyword:
+					isSealed = true;
+					break;
+				case SyntaxKind.AbstractKeyword:
+					isAbstract = true;
+					break;
+				case SyntaxKind.ExternKeyword:
+					break;
+
+				// Filter on the most recently typed accessibility; keep the first one we see
+				case SyntaxKind.PublicKeyword:
+					if (seenAccessibility == Accessibility.NotApplicable)
+					{
+						seenAccessibility = Accessibility.Public;
+					}
+
+					break;
+				case SyntaxKind.InternalKeyword:
+					if (seenAccessibility == Accessibility.NotApplicable)
+					{
+						seenAccessibility = Accessibility.Internal;
+					}
+
+					// If we see internal AND protected, filter for protected internal
+					if (seenAccessibility == Accessibility.Protected)
+					{
+						seenAccessibility = Accessibility.ProtectedOrInternal;
+					}
+
+					break;
+				case SyntaxKind.ProtectedKeyword:
+					if (seenAccessibility == Accessibility.NotApplicable)
+					{
+						seenAccessibility = Accessibility.Protected;
+					}
+
+					// If we see protected AND internal, filter for protected internal
+					if (seenAccessibility == Accessibility.Internal)
+					{
+						seenAccessibility = Accessibility.ProtectedOrInternal;
+					}
+
+					break;
+				default:
+					// Anything else and we bail.
+					return false;
+				}
+
+				var previousToken = token.GetPreviousToken();
+
+				// We want only want to consume modifiers
+				if (previousToken.IsKind(SyntaxKind.None) || !IsOnStartLine(previousToken.SpanStart, text, startLine))
+				{
+					break;
+				}
+
+				token = previousToken;
+			}
+
+			startToken = token;
+			modifiers = new DeclarationModifiers ()
+				.WithIsUnsafe (isUnsafe)
+				.WithIsAbstract (isAbstract)
+				.WithIsOverride (true)
+				.WithIsSealed (isSealed);
+			return overrideToken.IsKind(SyntaxKind.OverrideKeyword) && IsOnStartLine(overrideToken.Parent.SpanStart, text, startLine);
+		}
 	}
 }
-

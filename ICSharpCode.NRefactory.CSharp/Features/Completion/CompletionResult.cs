@@ -94,8 +94,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		
 		internal void AddData (ICompletionData completionData)
 		{
-			Console.WriteLine ("add :" + completionData.DisplayText);
-			Console.WriteLine ("----" + Environment.StackTrace);
 			data.Add(completionData); 
 		}
 

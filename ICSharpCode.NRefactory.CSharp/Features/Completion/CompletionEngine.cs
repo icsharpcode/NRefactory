@@ -238,11 +238,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && lastChar != '#' && lastChar != '.' && !(lastChar == '>' && lastLastChar == '-') && !char.IsLetter(lastChar) && lastChar != '_')
 //				return CompletionResult.Empty;
 
-			if (ctx.IsInsideNamingContext (lastChar == ' ' && !char.IsWhiteSpace(lastLastChar))) {
-				if (info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand)
-					return HandleNamingContext(ctx);
-				return CompletionResult.Empty;
-			}
+//			if (ctx.IsInsideNamingContext (lastChar == ' ' && !char.IsWhiteSpace(lastLastChar))) {
+//				if (info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand)
+//					return HandleNamingContext(ctx);
+//				return CompletionResult.Empty;
+//			}
 
 			if (ctx.TargetToken.Parent is AccessorListSyntax) {
 				if (ctx.TargetToken.Parent.Parent is EventDeclarationSyntax) {
