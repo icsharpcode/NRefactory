@@ -14,7 +14,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //			return new PartialCompletionProvider(TestWaitIndicator.Default);
 //		}
 //
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
+//		[Test]
 //		public void NoPartialMethods1()
 //		{
 //			var text = @"class c
@@ -23,43 +23,43 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //}";
 //			VerifyNoItemsExist(text);
 //		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NoPartialMethods2()
-//		{
-//			var text = @"class c
-//{
-//    private void foo() { };
-//
-//    partial void $$
-//}";
-//			VerifyNoItemsExist(text);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void PartialMethodInPartialClass()
-//		{
-//			var text = @"partial class c
-//{
-//    partial void foo();
-//
-//    partial void $$
-//}";
-//			VerifyItemExists(text, "foo()");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void PartialMethodInPartialGenericClass()
-//		{
-//			var text = @"partial class c<T>
-//{
-//    partial void foo(T bar);
-//
-//    partial void $$
-//}";
-//			VerifyItemExists(text, "foo(T bar)");
-//		}
-//
+
+		[Test]
+		public void NoPartialMethods2()
+		{
+			var text = @"class c
+{
+    private void foo() { };
+
+    partial void $$
+}";
+			VerifyNoItemsExist(text);
+		}
+
+		[Test]
+		public void PartialMethodInPartialClass()
+		{
+			var text = @"partial class c
+{
+    partial void foo();
+
+    partial void $$
+}";
+			VerifyItemExists(text, "foo");
+		}
+
+		[Test]
+		public void PartialMethodInPartialGenericClass()
+		{
+			var text = @"partial class c<T>
+{
+    partial void foo(T bar);
+
+    partial void $$
+}";
+			VerifyItemExists(text, "foo");
+		}
+
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void PartialMethodInPartialStruct()
 //		{

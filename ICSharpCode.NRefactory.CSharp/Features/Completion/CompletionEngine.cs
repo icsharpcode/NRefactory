@@ -43,6 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new RoslynRecommendationsCompletionContextHandler (),
 			new KeywordContextHandler(),
 			new OverrideContextHandler(),
+			new PartialContextHandler(),
 			new EnumMemberContextHandler(),
 			new XmlDocCommentContextHandler(),
 			new ExplicitInterfaceContextHandler(),
@@ -188,18 +189,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return CompletionResult.Empty;
 			}
 
-			var incompleteMemberSyntax = ctx.TargetToken.Parent as IncompleteMemberSyntax;
-
-			if (ctx.TargetToken.Parent != null) {
-				incompleteMemberSyntax = ctx.TargetToken.Parent.Parent as IncompleteMemberSyntax;
-				if (incompleteMemberSyntax != null) {
-					var mod = incompleteMemberSyntax.Modifiers.LastOrDefault();
-					if (incompleteMemberSyntax.ToString().StartsWith("partial"))
-						return HandlePartialContext(ctx, incompleteMemberSyntax, semanticModel);
-				}
-
-			}
-
 			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.CSharpKind() == SyntaxKind.ObjectCreationExpression) {
 				if (lastChar == ' ' || info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand) {
 					return HandleObjectCreationExpression(ctx, semanticModel, position, info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand, cancellationToken);
@@ -323,67 +312,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "add", GenericDataType.Keyword));
 			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "remove", GenericDataType.Keyword));
 			return result;
-		}
-		CompletionResult HandlePartialContext(SyntaxContext ctx, IncompleteMemberSyntax incompleteMemberSyntax, SemanticModel semanticModel)
-		{
-			var result = new CompletionResult();
-			if (ctx.ContainingTypeDeclaration == null)
-				return result;
-			var curType = ctx.GetCurrentType(semanticModel);
-			if (curType == null)
-				return result;
-			foreach (var method in curType.GetMembers().OfType<IMethodSymbol>()) {
-				// TODO: seems to be broken in roslyn :/
-				if (method.PartialDefinitionPart != null && method.PartialImplementationPart == null) {
-					var data = factory.CreatePartialCompletionData(
-						DefaultKeyHandler, 
-						incompleteMemberSyntax.SpanStart,
-						curType,
-						method
-					);
-					//data.CompletionCategory = col.GetCompletionCategory(m.DeclaringTypeDefinition);
-					result.AddData(data); 
-				}
-			}
-
-			return result;
-//			var wrapper = new CompletionDataWrapper(this);
-//			int declarationBegin = offset;
-//			int j = declarationBegin;
-//			for (int i = 0; i < 3; i++) {
-//				switch (GetPreviousToken(ref j, true)) {
-//					case "public":
-//					case "protected":
-//					case "private":
-//					case "internal":
-//					case "sealed":
-//					case "override":
-//					case "partial":
-//					case "async":
-//						declarationBegin = j;
-//						break;
-//					case "static":
-//						return null; // don't add override completion for static members
-//				}
-//			}
-//
-//			var methods = new List<IUnresolvedMethod>();
-//
-//			foreach (var part in type.Parts) {
-//				foreach (var method in part.Methods) {
-//					if (method.BodyRegion.IsEmpty) {
-//						if (GetImplementation(type, method) != null) {
-//							continue;
-//						}
-//						methods.Add(method);
-//					}
-//				}	
-//			}
-//
-//			foreach (var method in methods) {
-//			} 
-//
-//			return wrapper.Result;
 		}
 
 		CompletionResult HandleObjectCreationExpression(SyntaxContext ctx, SemanticModel semanticModel, int position, bool isCtrlSpace, CancellationToken cancellationToken)
