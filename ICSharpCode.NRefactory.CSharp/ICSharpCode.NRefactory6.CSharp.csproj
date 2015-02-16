@@ -351,6 +351,7 @@
     <Compile Include="Features\Completion\ContextHandler\SnippetContextHandler.cs" />
     <Compile Include="Util\CSharpCodeGenerationService.cs" />
     <Compile Include="Features\Completion\ContextHandler\PartialContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\ObjectInitializerContextHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

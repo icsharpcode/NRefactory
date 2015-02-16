@@ -13,128 +13,128 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //		{
 //			return new ObjectInitializerCompletionProvider();
 //		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NothingToInitialize()
-//		{
-//			var markup = @"
-//class c { }
-//
-//class d
-//{
-//    void foo()
-//    {
-//       c foo = new c { $$
-//    }
-//}";
-//
-//			VerifyNoItemsExist(markup);
+
+		[Test]
+		public void NothingToInitialize()
+		{
+			var markup = @"
+class c { }
+
+class d
+{
+    void foo()
+    {
+       c foo = new c { $$
+    }
+}";
+
+			VerifyNoItemsExist(markup);
+			// VerifyExclusive(markup, true);
+		}
+
+		[Test]
+		public void OneItem1()
+		{
+			var markup = @"
+class c { public int value { set; get; }}
+
+class d
+{
+    void foo()
+    {
+       c foo = new c { v$$
+    }
+}";
+
+			VerifyItemExists(markup, "value");
+			VerifyItemIsAbsent(markup, "<value>k__BackingField");
 //			VerifyExclusive(markup, true);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void OneItem1()
-//		{
-//			var markup = @"
-//class c { public int value {set; get; }}
-//
-//class d
-//{
-//    void foo()
-//    {
-//       c foo = new c { v$$
-//    }
-//}";
-//
-//			VerifyItemExists(markup, "value");
-//			VerifyItemIsAbsent(markup, "<value>k__BackingField");
+		}
+
+		[Test]
+		public void ShowWithEqualsSign()
+		{
+			var markup = @"
+class c { public int value {set; get; }}
+
+class d
+{
+    void foo()
+    {
+       c foo = new c { v$$=
+    }
+}";
+
+			VerifyItemExists(markup, "value");
+			VerifyItemIsAbsent(markup, "<value>k__BackingField");
 //			VerifyExclusive(markup, true);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void ShowWithEqualsSign()
-//		{
-//			var markup = @"
-//class c { public int value {set; get; }}
-//
-//class d
-//{
-//    void foo()
-//    {
-//       c foo = new c { v$$=
-//    }
-//}";
-//
-//			VerifyItemExists(markup, "value");
-//			VerifyItemIsAbsent(markup, "<value>k__BackingField");
+		}
+
+		[Test]
+		public void OneItem2()
+		{
+			var markup = @"
+class c
+{
+    public int value {set; get; }
+
+    void foo()
+    {
+       c foo = new c { v$$
+    }
+}";
+
+			VerifyItemExists(markup, "value");
+			VerifyItemIsAbsent(markup, "<value>k__BackingField");
 //			VerifyExclusive(markup, true);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void OneItem2()
-//		{
-//			var markup = @"
-//class c
-//{
-//    public int value {set; get; }
-//
-//    void foo()
-//    {
-//       c foo = new c { v$$
-//    }
-//}";
-//
-//			VerifyItemExists(markup, "value");
-//			VerifyItemIsAbsent(markup, "<value>k__BackingField");
+		}
+
+		[Test]
+		public void FieldAndProperty()
+		{
+			var markup = @"
+class c 
+{ 
+    public int value {set; get; }
+    public int otherValue;
+}
+
+class d
+{
+    void foo()
+    {
+       c foo = new c { v$$
+    }
+}";
+
+			VerifyItemExists(markup, "value");
+			VerifyItemExists(markup, "otherValue");
 //			VerifyExclusive(markup, true);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void FieldAndProperty()
-//		{
-//			var markup = @"
-//class c 
-//{ 
-//    public int value {set; get; }
-//    public int otherValue;
-//}
-//
-//class d
-//{
-//    void foo()
-//    {
-//       c foo = new c { v$$
-//    }
-//}";
-//
-//			VerifyItemExists(markup, "value");
-//			VerifyItemExists(markup, "otherValue");
+		}
+
+		[Test]
+		public void HidePreviouslyTyped()
+		{
+			var markup = @"
+class c 
+{ 
+    public int value {set; get; }
+    public int otherValue;
+}
+
+class d
+{
+    void foo()
+    {
+       c foo = new c { value = 3, o$$
+    }
+}";
+
+			VerifyItemIsAbsent(markup, "value");
 //			VerifyExclusive(markup, true);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void HidePreviouslyTyped()
-//		{
-//			var markup = @"
-//class c 
-//{ 
-//    public int value {set; get; }
-//    public int otherValue;
-//}
-//
-//class d
-//{
-//    void foo()
-//    {
-//       c foo = new c { value = 3, o$$
-//    }
-//}";
-//
-//			VerifyItemIsAbsent(markup, "value");
-//			VerifyExclusive(markup, true);
-//			VerifyItemExists(markup, "otherValue");
-//		}
-//
+			VerifyItemExists(markup, "otherValue");
+		}
+
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void NotInEqualsValue()
 //		{

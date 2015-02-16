@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			// Only inside classes and structs
 			if (enclosingSymbol == null || !(enclosingSymbol.TypeKind == TypeKind.Struct || enclosingSymbol.TypeKind == TypeKind.Class))
 			{
-				return null;
+				return Enumerable.Empty<ICompletionData> ();
 			}
 
 			var symbols = semanticModel.LookupSymbols(position, container: enclosingSymbol)

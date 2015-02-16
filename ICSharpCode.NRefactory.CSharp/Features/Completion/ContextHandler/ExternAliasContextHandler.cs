@@ -41,4 +41,3 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		}
 	}
 }
-

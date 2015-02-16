@@ -306,7 +306,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return types;
 		}
 
-		static readonly CSharpTypeInferenceService typeInferenceService = new CSharpTypeInferenceService ();
+		internal static readonly CSharpTypeInferenceService typeInferenceService = new CSharpTypeInferenceService ();
 
 		public static TypeSyntax GuessAstType(SemanticModel context, SyntaxNode expr, CancellationToken cancellationToken = default(CancellationToken))
 		{
