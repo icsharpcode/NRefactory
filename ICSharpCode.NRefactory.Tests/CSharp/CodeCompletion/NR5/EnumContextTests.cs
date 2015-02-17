@@ -41,9 +41,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 @"enum Name {
 	$p$
 }
-", provider => {
-				Assert.AreEqual (0, provider.Count);
-			});
+", AssertEmpty);
 		}
 		
 		[Test()]

@@ -52,7 +52,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new SpeculativeTContextHandler(),
 			new SnippetContextHandler(),
 			new ObjectInitializerContextHandler(),
-			new FormatItemContextHandler()
+			new FormatItemContextHandler(),
+			new SpeculativeNameContextHandler()
 		};
 
 		static readonly ICompletionKeyHandler DefaultKeyHandler = new RoslynRecommendationsCompletionContextHandler ();
@@ -163,12 +164,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return result2;
 				}
 			}
-			
-//			if (ctx.IsInsideNamingContext (lastChar == ' ' && !char.IsWhiteSpace(lastLastChar))) {
-//				if (info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand)
-//					return HandleNamingContext(ctx);
-//				return CompletionResult.Empty;
-//			}
 
 			if (ctx.TargetToken.Parent is AccessorListSyntax) {
 				if (ctx.TargetToken.Parent.Parent is EventDeclarationSyntax) {
@@ -345,58 +340,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return result;
 		}
 
-		CompletionResult HandleNamingContext(SyntaxContext ctx)
-		{
-			var result = new CompletionResult();
-			var token = ctx.TargetToken;
-
-			if (token.Parent.IsKind(SyntaxKind.IdentifierName)) {
-				var prev = ctx.TargetToken.GetPreviousToken();
-				if (prev.Parent.IsKind(SyntaxKind.IdentifierName))
-					token = prev;
-			}
-			if (token.Parent.IsKind(SyntaxKind.PredefinedType)) {			
-				switch (token.CSharpKind()) {
-					case SyntaxKind.ObjectKeyword:
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "o", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "obj", GenericDataType.NameProposal));
-						return result;
-					case SyntaxKind.BoolKeyword:
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "b", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "pred", GenericDataType.NameProposal));
-						return result;
-					case SyntaxKind.DoubleKeyword:
-					case SyntaxKind.FloatKeyword:
-					case SyntaxKind.DecimalKeyword:
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "d", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "f", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "m", GenericDataType.NameProposal));
-						return result;
-					default:
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "i", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "j", GenericDataType.NameProposal));
-						result.AddData (Factory.CreateGenericData(DefaultKeyHandler, "k", GenericDataType.NameProposal));
-						return result;
-				}
-			}
-			var names = WordParser.BreakWords(token.ToFullString().Trim());
-
-			var possibleName = new StringBuilder();
-			for (int i = 0; i < names.Count; i++) {
-				possibleName.Length = 0;
-				for (int j = i; j < names.Count; j++) {
-					if (string.IsNullOrEmpty(names [j])) {
-						continue;
-					}
-					if (j == i) { 
-						names [j] = Char.ToLower(names [j] [0]) + names [j].Substring(1);
-					}
-					possibleName.Append(names [j]);
-				}
-				result.AddData (Factory.CreateGenericData(DefaultKeyHandler, possibleName.ToString(), GenericDataType.NameProposal));
-			}
-			return result;
-		}
 
 		CompletionResult HandleYieldStatementExpression()
 		{

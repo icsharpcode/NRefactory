@@ -352,6 +352,7 @@
     <Compile Include="Features\Completion\ContextHandler\PartialContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\ObjectInitializerContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\FormatItemContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\SpeculativeNameContextHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
