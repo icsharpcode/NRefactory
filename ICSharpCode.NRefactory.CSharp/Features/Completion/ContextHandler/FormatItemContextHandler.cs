@@ -52,12 +52,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 
 			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.Parent != null && 
-				ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.Argument)) {
+			    ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.Argument)) {
 
 				if (ctx.TargetToken.Parent == null || !ctx.TargetToken.Parent.IsKind(SyntaxKind.StringLiteralExpression) ||
-					ctx.TargetToken.Parent.Parent == null || !ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.Argument) ||
-					ctx.TargetToken.Parent.Parent.Parent == null || !ctx.TargetToken.Parent.Parent.Parent.IsKind(SyntaxKind.ArgumentList) ||
-					ctx.TargetToken.Parent.Parent.Parent.Parent == null || !ctx.TargetToken.Parent.Parent.Parent.Parent.IsKind(SyntaxKind.InvocationExpression)) {
+				    ctx.TargetToken.Parent.Parent == null || !ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.Argument) ||
+				    ctx.TargetToken.Parent.Parent.Parent == null || !ctx.TargetToken.Parent.Parent.Parent.IsKind(SyntaxKind.ArgumentList) ||
+				    ctx.TargetToken.Parent.Parent.Parent.Parent == null || !ctx.TargetToken.Parent.Parent.Parent.Parent.IsKind(SyntaxKind.InvocationExpression)) {
 					return Enumerable.Empty<ICompletionData> ();
 				}
 				var formatArgument = GetFormatItemNumber(document, position);
@@ -181,6 +181,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 		IEnumerable<ICompletionData> GetFormatCompletionForType(CompletionEngine engine, ITypeSymbol type)
 		{
+			if (type == null) {
+				return GenerateNumberFormatitems (engine, false)
+					.Concat (GenerateDateTimeFormatitems (engine))
+					.Concat (GenerateTimeSpanFormatitems (engine))
+					.Concat (GenerateEnumFormatitems (engine))
+					.Concat (GenerateGuidFormatitems (engine));
+			}
+
 			switch (type.ToString()) {
 				case "long":
 				case "System.Int64":
@@ -198,48 +206,48 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				case "System.Byte":
 				case "sbyte":
 				case "System.SByte":
-					return GenerateNumberFormatitems(engine, false);
+				return GenerateNumberFormatitems(engine, false);
 				case "float":
 				case "System.Single":
 				case "double":
 				case "System.Double":
 				case "decimal":
 				case "System.Decimal":
-					return GenerateNumberFormatitems(engine, true);
+				return GenerateNumberFormatitems(engine, true);
 				case "System.Enum":
-					return GenerateEnumFormatitems(engine);
+				return GenerateEnumFormatitems(engine);
 				case "System.DateTime":
-					return GenerateDateTimeFormatitems(engine);
+				return GenerateDateTimeFormatitems(engine);
 				case "System.TimeSpan":
-					return GenerateTimeSpanFormatitems(engine);
+				return GenerateTimeSpanFormatitems(engine);
 				case "System.Guid":
-					return GenerateGuidFormatitems(engine);
+				return GenerateGuidFormatitems(engine);
 			}
 			return CompletionResult.Empty;
 		}
 
 		IEnumerable<ICompletionData> GetFormatCompletionData(CompletionEngine engine, SemanticModel semanticModel, InvocationExpressionSyntax invocationExpression, int formatArgument, ISymbol symbol)
 		{
-			if (symbol.Kind != SymbolKind.Method)
-				return Enumerable.Empty<ICompletionData> ();
-			var method = symbol as IMethodSymbol;
-			if (method == null)
-				return Enumerable.Empty<ICompletionData> ();
-			if (method.Name == "ToString") {
-				return GetFormatCompletionForType(engine, method.ContainingType);
+			var ma = invocationExpression.Expression as MemberAccessExpressionSyntax;
+
+			if (ma != null && ma.Name.ToString () == "ToString") {
+				return GetFormatCompletionForType(engine, symbol != null ? symbol.ContainingType : null);
 			} else {
+				var method = symbol as IMethodSymbol;
+				if (method == null)
+					return Enumerable.Empty<ICompletionData> ();
+
 				ExpressionSyntax fmtArgumets;
 				IList<ExpressionSyntax> args;
 				if (FormatStringHelper.TryGetFormattingParameters(semanticModel, invocationExpression, out fmtArgumets, out args, null)) {
+					ITypeSymbol type = null;
 					if (formatArgument  + 1< args.Count) {
 						var invokeArgument = semanticModel.GetSymbolInfo(args[formatArgument + 1]);
-						return GetFormatCompletionForType(engine, invokeArgument.Symbol.GetReturnType());
+						if (invokeArgument.Symbol != null)
+							type = invokeArgument.Symbol.GetReturnType();
 					}
-					return GenerateNumberFormatitems(engine, false)
-						.Concat(GenerateDateTimeFormatitems(engine))
-						.Concat(GenerateTimeSpanFormatitems(engine))
-						.Concat(GenerateEnumFormatitems(engine))
-						.Concat(GenerateGuidFormatitems(engine));
+
+					return GetFormatCompletionForType(engine, type);
 				}
 			}
 			return Enumerable.Empty<ICompletionData> ();
