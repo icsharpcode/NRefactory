@@ -71,13 +71,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				IsStartingNewWord (text, position);
 		}
 
-		internal static bool IsTriggerAfterSpaceOrStartOfWordCharacter(SourceText text, int characterPosition)
+		internal protected static bool IsTriggerAfterSpaceOrStartOfWordCharacter(SourceText text, int characterPosition)
 		{
 			var ch = text[characterPosition];
 			return ch == ' ' || IsStartingNewWord(text, characterPosition);
 		}
 
-		internal static bool IsStartingNewWord (SourceText text, int position)
+		internal protected static bool IsStartingNewWord (SourceText text, int position)
 		{
 			var ch = text [position];
 			if (!SyntaxFacts.IsIdentifierStartCharacter (ch))
@@ -92,7 +92,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return true;
 		}
 
-		static bool IsWordCharacter (char ch)
+		protected static bool IsWordCharacter (char ch)
 		{
 			return SyntaxFacts.IsIdentifierStartCharacter (ch) || SyntaxFacts.IsIdentifierPartCharacter (ch);
 		}

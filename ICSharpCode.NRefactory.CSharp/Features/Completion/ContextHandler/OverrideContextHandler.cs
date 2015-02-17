@@ -38,7 +38,7 @@ using System;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	class OverrideContextHandler : CompletionContextHandler
+	public class OverrideContextHandler : CompletionContextHandler
 	{
 		public override bool IsTriggerCharacter (SourceText text, int position)
 		{
@@ -53,7 +53,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var tree = await document.GetSyntaxTreeAsync (cancellationToken).ConfigureAwait (false);
 			var text = await document.GetTextAsync (cancellationToken).ConfigureAwait (false);
 
-			var result = new List<ICompletionData> ();
 			var startLineNumber = text.Lines.IndexOf (completionContext.Position);
 
 			// modifiers* override modifiers* type? |
@@ -66,34 +65,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			TryDetermineReturnType (startToken, semanticModel, cancellationToken, out returnType, out tokenBeforeReturnType);
 
 			if (!TryDetermineModifiers(ref tokenBeforeReturnType, text, startLineNumber, out seenAccessibility, out modifiers) ||
-				!TryCheckForTrailingTokens (tree, text, startLineNumber, completionContext.Position, cancellationToken)) {
-				return result;
+			    !TryCheckForTrailingTokens (tree, text, startLineNumber, completionContext.Position, cancellationToken)) {
+				return Enumerable.Empty<ICompletionData> ();
 			}
 
+			return CreateCompletionData (engine, semanticModel, returnType, seenAccessibility, startToken, tokenBeforeReturnType, cancellationToken);
+		}
+
+		protected virtual IEnumerable<ICompletionData> CreateCompletionData (CompletionEngine engine, SemanticModel semanticModel, ITypeSymbol returnType, Accessibility seenAccessibility, SyntaxToken startToken, SyntaxToken tokenBeforeReturnType, CancellationToken cancellationToken)
+		{
+			var result = new List<ICompletionData> ();
 			ISet<ISymbol> overridableMembers;
-			if (!TryDetermineOverridableMembers(semanticModel, tokenBeforeReturnType, seenAccessibility, out overridableMembers, cancellationToken)) {
+			if (!TryDetermineOverridableMembers (semanticModel, tokenBeforeReturnType, seenAccessibility, out overridableMembers, cancellationToken)) {
 				return result;
 			}
-
 			if (returnType != null) {
 				overridableMembers = FilterOverrides (overridableMembers, returnType);
 			}
-
-			var curType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol>(startToken.SpanStart, cancellationToken);
-
+			var curType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol> (startToken.SpanStart, cancellationToken);
 			foreach (var m in overridableMembers) {
-				var data = engine.Factory.CreateNewOverrideCompletionData (
-					this,
-					startToken.SpanStart,
-					curType,
-					m
-				);
-				result.Add (data); 
+				var data = engine.Factory.CreateNewOverrideCompletionData (this, startToken.SpanStart, curType, m);
+				result.Add (data);
 			}
 			return result;
 		}
 
-		static ISet<ISymbol> FilterOverrides(ISet<ISymbol> members, ITypeSymbol returnType)
+		protected static ISet<ISymbol> FilterOverrides(ISet<ISymbol> members, ITypeSymbol returnType)
 		{
 			var filteredMembers = new HashSet<ISymbol>(
 				from m in members
@@ -122,7 +119,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				// we won't handle overrides that actually return a type called 'partial'.  And
 				// not a single tear was shed.
 				if (typeSyntax is IdentifierNameSyntax &&
-					((IdentifierNameSyntax)typeSyntax).Identifier.IsKindOrHasMatchingText(SyntaxKind.PartialKeyword))
+				    ((IdentifierNameSyntax)typeSyntax).Identifier.IsKindOrHasMatchingText(SyntaxKind.PartialKeyword))
 				{
 					return false;
 				}
@@ -140,11 +137,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (original.Kind != testSymbol.Kind)
 				return false;
 			switch (testSymbol.Kind) {
-			case SymbolKind.Method:
+				case SymbolKind.Method:
 				return ((IMethodSymbol)testSymbol).OverriddenMethod == original;
-			case SymbolKind.Property:
+				case SymbolKind.Property:
 				return ((IPropertySymbol)testSymbol).OverriddenProperty == original;
-			case SymbolKind.Event:
+				case SymbolKind.Event:
 				return ((IEventSymbol)testSymbol).OverriddenEvent == original;
 			}
 			return false;
@@ -162,11 +159,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 
 				switch (member.Kind) {
-				case SymbolKind.Event:
+					case SymbolKind.Event:
 					return true;
-				case SymbolKind.Method:
+					case SymbolKind.Method:
 					return ((IMethodSymbol)member).MethodKind == MethodKind.Ordinary;
-				case SymbolKind.Property:
+					case SymbolKind.Property:
 					return !((IPropertySymbol)member).IsWithEvents;
 				}
 			}
@@ -220,7 +217,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 		}
 
-		static void RemoveOverriddenMembers(HashSet<ISymbol> result, INamedTypeSymbol containingType, CancellationToken cancellationToken)
+		protected static void RemoveOverriddenMembers(HashSet<ISymbol> result, INamedTypeSymbol containingType, CancellationToken cancellationToken)
 		{
 			foreach (var member in containingType.GetMembers())
 			{
@@ -257,7 +254,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		{
 			return text.Lines.IndexOf (position) == startLineNumber;
 		}
-	
+
 		static bool TryDetermineModifiers(ref SyntaxToken startToken, SourceText text, int startLine, out Accessibility seenAccessibility, out DeclarationModifiers modifiers)
 		{
 			var token = startToken;
@@ -272,57 +269,57 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			{
 				switch (token.Kind())
 				{
-				case SyntaxKind.UnsafeKeyword:
-					isUnsafe = true;
+					case SyntaxKind.UnsafeKeyword:
+						       isUnsafe = true;
 					break;
-				case SyntaxKind.OverrideKeyword:
-					overrideToken = token;
+					case SyntaxKind.OverrideKeyword:
+						       overrideToken = token;
 					break;
-				case SyntaxKind.SealedKeyword:
-					isSealed = true;
+					case SyntaxKind.SealedKeyword:
+						       isSealed = true;
 					break;
-				case SyntaxKind.AbstractKeyword:
-					isAbstract = true;
+					case SyntaxKind.AbstractKeyword:
+						       isAbstract = true;
 					break;
-				case SyntaxKind.ExternKeyword:
+					case SyntaxKind.ExternKeyword:
 					break;
 
-				// Filter on the most recently typed accessibility; keep the first one we see
-				case SyntaxKind.PublicKeyword:
-					if (seenAccessibility == Accessibility.NotApplicable)
-					{
-						seenAccessibility = Accessibility.Public;
-					}
+						// Filter on the most recently typed accessibility; keep the first one we see
+					case SyntaxKind.PublicKeyword:
+						       if (seenAccessibility == Accessibility.NotApplicable)
+						{
+							seenAccessibility = Accessibility.Public;
+						}
 
 					break;
-				case SyntaxKind.InternalKeyword:
-					if (seenAccessibility == Accessibility.NotApplicable)
-					{
-						seenAccessibility = Accessibility.Internal;
-					}
+					case SyntaxKind.InternalKeyword:
+						       if (seenAccessibility == Accessibility.NotApplicable)
+						{
+							seenAccessibility = Accessibility.Internal;
+						}
 
-					// If we see internal AND protected, filter for protected internal
-					if (seenAccessibility == Accessibility.Protected)
-					{
-						seenAccessibility = Accessibility.ProtectedOrInternal;
-					}
-
-					break;
-				case SyntaxKind.ProtectedKeyword:
-					if (seenAccessibility == Accessibility.NotApplicable)
-					{
-						seenAccessibility = Accessibility.Protected;
-					}
-
-					// If we see protected AND internal, filter for protected internal
-					if (seenAccessibility == Accessibility.Internal)
-					{
-						seenAccessibility = Accessibility.ProtectedOrInternal;
-					}
+						// If we see internal AND protected, filter for protected internal
+						if (seenAccessibility == Accessibility.Protected)
+						{
+							seenAccessibility = Accessibility.ProtectedOrInternal;
+						}
 
 					break;
-				default:
-					// Anything else and we bail.
+					case SyntaxKind.ProtectedKeyword:
+						       if (seenAccessibility == Accessibility.NotApplicable)
+						{
+							seenAccessibility = Accessibility.Protected;
+						}
+
+						// If we see protected AND internal, filter for protected internal
+						if (seenAccessibility == Accessibility.Internal)
+						{
+							seenAccessibility = Accessibility.ProtectedOrInternal;
+						}
+
+					break;
+					default:
+						// Anything else and we bail.
 					return false;
 				}
 
