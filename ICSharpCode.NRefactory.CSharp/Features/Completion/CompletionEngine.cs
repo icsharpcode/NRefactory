@@ -51,7 +51,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new NamedParameterContextHandler(),
 			new SpeculativeTContextHandler(),
 			new SnippetContextHandler(),
-			new ObjectInitializerContextHandler()
+			new ObjectInitializerContextHandler(),
+			new FormatItemContextHandler()
 		};
 
 		static readonly ICompletionKeyHandler DefaultKeyHandler = new RoslynRecommendationsCompletionContextHandler ();
@@ -143,11 +144,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && (char.IsLetter(lastLastChar) || lastLastChar == '_') &&
 			    (char.IsLetterOrDigit(lastChar) || lastChar == '_')) {
 				return CompletionResult.Empty;
-			}
-
-			if ((lastChar == '"' || lastChar == ':') && ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.Parent != null && 
-				ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.Argument)) {
-				return HandleStringFormatItems(document, semanticModel, position, ctx);
 			}
 
 			if (lastChar == ' ' && !char.IsWhiteSpace(lastLastChar)) {

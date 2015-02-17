@@ -51,6 +51,7 @@ class Foo {
 }");
 		}
 
+		[Ignore("broken")]
 		[Test]
 		public void TestSimpleWithComment()
 		{
@@ -89,6 +90,7 @@ class Foo {
 }");
 		}
 
+		[Ignore("broken")]
 		[Test]
 		public void TestBlockWithComment()
 		{

@@ -78,6 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 }");
 		}
 
+		[Ignore("broken")]
 		[Test]
 		public void TestAddBracesToIfWithCommentInBlock()
 		{
