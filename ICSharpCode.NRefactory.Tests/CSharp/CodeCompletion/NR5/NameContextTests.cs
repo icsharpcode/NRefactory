@@ -32,13 +32,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 	[TestFixture]
 	public class NameContextTests : TestBase
 	{
-		[Ignore("broken")]
 		[Test]
 		public void TestNamespaceName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$namespace n$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			AssertEmpty(provider);
 		}
+
 		[Test]
 		public void TestNamespaceNameCase2 ()
 		{
@@ -61,23 +61,22 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		}
 
 		[Test]
-		[Ignore]
 		public void TestClassName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$class n$");
 			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
 		}
-		
+
+
 		[Test]
-		[Ignore]
 		public void TestStructName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$struct n$");
-			Assert.IsTrue (provider == null || provider.Count == 0, "provider should be empty.");
+			AssertEmpty(provider);
+
 		}
 		
 		[Test]
-		[Ignore]
 		public void TestInterfaceName ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$interface n$");
@@ -208,10 +207,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		/// <summary>
 		/// Bug 11609 - Completion engine offers namespaces when user types anonymous method parameter name
 		/// </summary>
+		[Ignore("there may be keywords there as/is")]
 		[Test]
 		public void TestBug11609 ()
 		{
-			CodeCompletionBugTests.CombinedProviderTest (@"using System;
+			CodeCompletionBugTests.CombinedProviderTest(@"using System;
 
 namespace MyApplication
 {
@@ -226,7 +226,7 @@ namespace MyApplication
         {}
     }
 }
-", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
+", AssertEmpty);
 		}
 
 		/// <summary>
@@ -254,6 +254,7 @@ namespace MyApplication
 			});
 		}
 
+		[Ignore("there may be keywords there as/is")]
 		[Test]
 		public void TestLambda ()
 		{
@@ -269,7 +270,7 @@ class Foo
 		$Foo((File f$
 	}
 }
-", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
+", AssertEmpty);
 		}
 
 		/// <summary>

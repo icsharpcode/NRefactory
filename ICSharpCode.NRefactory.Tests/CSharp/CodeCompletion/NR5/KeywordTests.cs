@@ -307,12 +307,10 @@ class Test
 				Assert.IsNotNull (provider.Find ("foreach"), "keyword 'foreach' not found.");
 				
 				Assert.IsNotNull (provider.Find ("goto"), "keyword 'goto' not found.");
-				Assert.IsNotNull (provider.Find ("break"), "keyword 'break' not found.");
-				Assert.IsNotNull (provider.Find ("continue"), "keyword 'continue' not found.");
+
 				Assert.IsNotNull (provider.Find ("return"), "keyword 'return' not found.");
 				Assert.IsNotNull (provider.Find ("throw"), "keyword 'throw' not found.");
 				
-				Assert.IsNotNull (provider.Find ("fixed"), "keyword 'fixed' not found.");
 				Assert.IsNotNull (provider.Find ("using"), "keyword 'using' not found.");
 				Assert.IsNotNull (provider.Find ("lock"), "keyword 'lock' not found.");
 				
@@ -324,7 +322,7 @@ class Test
 				Assert.IsNotNull (provider.Find ("typeof"), "keyword 'typeof' not found.");
 				Assert.IsNotNull (provider.Find ("sizeof"), "keyword 'sizeof' not found.");
 				
-				Assert.IsNotNull (provider.Find ("from"), "keyword 'from' not found.");
+//				Assert.IsNotNull (provider.Find ("from"), "keyword 'from' not found.");
 				Assert.IsNotNull (provider.Find ("yield"), "keyword 'yield' not found.");
 				
 				Assert.IsNotNull (provider.Find ("new"), "keyword 'new' not found.");
@@ -522,7 +520,6 @@ class Test : A
 		}
 
 		[Test]
-		[Ignore("provider cannot find \"FooBar\"")]
 		public void PartialCompletionDeclarationBeginTest ()
 		{
 			var start = @"partial class A { partial void FooBar (); }

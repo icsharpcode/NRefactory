@@ -39,6 +39,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 		readonly CSharpSyntaxContext ctx;
 		readonly List<ITypeSymbol> inferredTypes;
 
+		public CSharpSyntaxContext CSharpSyntaxContext {
+			get {
+				return ctx;
+			}
+		}
+
 		public List<ITypeSymbol> InferredTypes {
 			get {
 				return inferredTypes;

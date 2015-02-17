@@ -63,6 +63,16 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		{
 			System.Diagnostics.Debug.Listeners.Remove (listener);
 		}
+
+		public void AssertEmpty(ICSharpCode.NRefactory6.CSharp.Completion.CompletionResult provider)
+		{
+			var isEmpty = provider == null || provider.Count == 0;
+			if (!isEmpty) {
+				Console.WriteLine("provider contained: ");
+				foreach (var data in provider)
+					Console.WriteLine(data.DisplayText);
+			}
+			Assert.IsTrue(isEmpty, "provider should be empty.");
+		}
 	}
-	
 }

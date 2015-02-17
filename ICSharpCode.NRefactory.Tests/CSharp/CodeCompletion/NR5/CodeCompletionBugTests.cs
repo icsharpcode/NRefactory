@@ -5892,7 +5892,7 @@ public class Testing
 	} 
 }
 
-", provider => Assert.IsNotNull(provider.Find("new()")));
+", provider => Assert.IsNotNull(provider.Find("new")));
 		}
 
 		/// <summary>

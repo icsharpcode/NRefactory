@@ -196,247 +196,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
 			var model = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var result = new List<ICompletionData> ();
-
-			var factory = engine.Factory;
-			var parent = ctx.TargetToken.Parent;
-			if (parent != null && parent.IsKind(SyntaxKind.ArrayRankSpecifier))
-				return result;
-			if (ctx.IsIsOrAsTypeContext) {
-				foreach (var kw in primitiveTypesKeywords)
-					result.Add (factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-				return result;
-			}
-			if (parent != null) {
-				if (parent.CSharpKind() == SyntaxKind.IdentifierName) {
-					if (ctx.LeftToken.Parent.CSharpKind() == SyntaxKind.IdentifierName &&
-					    parent.Parent != null && parent.Parent.CSharpKind() == SyntaxKind.ParenthesizedExpression ||
-					    ctx.LeftToken.Parent.CSharpKind() == SyntaxKind.CatchDeclaration)
-						return result;
-				}
-				if (parent.CSharpKind() == SyntaxKind.NamespaceDeclaration) {
-					var decl = parent as NamespaceDeclarationSyntax;
-					if (decl.OpenBraceToken.Span.Length > 0 &&
-					    decl.OpenBraceToken.SpanStart > ctx.TargetToken.SpanStart)
-						return result;
-				}
-				if (parent.CSharpKind() == SyntaxKind.ClassDeclaration ||
-				    parent.CSharpKind() == SyntaxKind.StructDeclaration ||
-					parent.CSharpKind() == SyntaxKind.InterfaceDeclaration) {
-					foreach (var kw in typeLevelKeywords)
-						result.Add (factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-					return result;
-				} 
-				if (parent.CSharpKind() == SyntaxKind.EnumDeclaration ||
-				    parent.CSharpKind() == SyntaxKind.DelegateDeclaration ||
-				    parent.CSharpKind() == SyntaxKind.PredefinedType ||
-				    parent.CSharpKind() == SyntaxKind.TypeParameterList ||
-				    parent.CSharpKind() == SyntaxKind.QualifiedName ||
-				    parent.CSharpKind() == SyntaxKind.SimpleMemberAccessExpression) {
-					return result;
-				}
-			}
-			if (parent.IsKind(SyntaxKind.AttributeList)) {
-				if (parent.Parent.Parent == null || parent.Parent.Parent.IsKind(SyntaxKind.CompilationUnit)) {
-					result.Add(factory.CreateGenericData(this, "assembly", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData(this, "module", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData(this, "type", GenericDataType.AttributeTarget));
-				} else {
-					result.Add(factory.CreateGenericData(this, "param", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData(this, "field", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData(this, "property", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData(this, "method", GenericDataType.AttributeTarget));
-					result.Add(factory.CreateGenericData(this, "event", GenericDataType.AttributeTarget));
-				}
-				result.Add(factory.CreateGenericData(this, "return", GenericDataType.AttributeTarget));
-			}
-			if (ctx.IsInstanceContext) {
-				if (ctx.LeftToken.Parent.Ancestors().Any(a => a is SwitchStatementSyntax || a is BlockSyntax && a.ToFullString().IndexOf("switch", StringComparison.Ordinal) > 0)) {
-					result.Add(factory.CreateGenericData(this, "case", GenericDataType.Keyword));
+	
+			foreach (var r in recommender) {
+				var recommended = r.RecommendKeywords (completionContext.Position, ctx.CSharpSyntaxContext, cancellationToken);
+				if (recommended == null)
+					continue;
+				foreach (var kw in recommended) {
+					result.Add (engine.Factory.CreateGenericData (this, kw.Keyword, GenericDataType.Keyword));
 				}
 			}
 		
-			var forEachStatementSyntax = parent as ForEachStatementSyntax;
-			if (forEachStatementSyntax != null) {
-				if (forEachStatementSyntax.Type.Span.Length > 0 &&
-					forEachStatementSyntax.Identifier.Span.Length > 0 &&
-					forEachStatementSyntax.InKeyword.Span.Length == 0) {
-					result.Add(factory.CreateGenericData(this, "in", GenericDataType.Keyword));
-					return result;
-				}
-			}
-			if (parent != null && parent.CSharpKind() == SyntaxKind.ArgumentList) {
-				result.Add(factory.CreateGenericData(this, "out", GenericDataType.Keyword));
-				result.Add(factory.CreateGenericData(this, "ref", GenericDataType.Keyword));
-			} else if (parent != null && parent.CSharpKind() == SyntaxKind.ParameterList) {
-				result.Add(factory.CreateGenericData(this, "out", GenericDataType.Keyword));
-				result.Add(factory.CreateGenericData(this, "ref", GenericDataType.Keyword));
-				result.Add(factory.CreateGenericData(this, "params", GenericDataType.Keyword));
-				foreach (var kw in primitiveTypesKeywords)
-					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-
-				if (ctx.IsParameterTypeContext) {
-					bool isFirst = ctx.LeftToken.GetPreviousToken().IsKind(SyntaxKind.OpenParenToken);
-					if (isFirst)
-						result.Add(factory.CreateGenericData(this, "this", GenericDataType.Keyword));
-				}
-
-				return result;
-			} else {
-				result.Add(factory.CreateGenericData(this, "var", GenericDataType.Keyword));
-				result.Add(factory.CreateGenericData(this, "dynamic", GenericDataType.Keyword));
-			}
-
-			if (parent != null && parent.Parent != null && parent.IsKind(SyntaxKind.BaseList) && parent.Parent.IsKind(SyntaxKind.EnumDeclaration)) {
-				foreach (var kw in validEnumBaseTypes)
-					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-				return result;
-			}
-			if (parent != null &&
-				parent.Parent != null &&
-				parent.Parent.IsKind(SyntaxKind.FromClause)) {
-				foreach (var kw in linqKeywords)
-					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-			}
-			if (ctx.IsGlobalStatementContext || parent == null || parent is NamespaceDeclarationSyntax) {
-				foreach (var kw in globalLevelKeywords)
-					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-				return result;
-			} else {
-				foreach (var kw in typeLevelKeywords)
-					result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-			}
-
-			foreach (var kw in primitiveTypesKeywords)
-				result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-
-			foreach (var kw in statementStartKeywords)
-				result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-			
-			foreach (var kw in expressionLevelKeywords)
-				result.Add(factory.CreateGenericData(this, kw, GenericDataType.Keyword));
-
-			if (ctx.IsPreProcessorKeywordContext) {
-				foreach (var kw in preprocessorKeywords)
-					result.Add(factory.CreateGenericData (this, kw, GenericDataType.PreprocessorKeyword));
-			}
-			
+//			if (ctx.IsPreProcessorKeywordContext) {
+//				foreach (var kw in preprocessorKeywords)
+//					result.Add(factory.CreateGenericData (this, kw, GenericDataType.PreprocessorKeyword));
+//			}
+//			
 			if (ctx.IsPreProcessorExpressionContext) {
 				var parseOptions = model.SyntaxTree.Options as CSharpParseOptions;
 				foreach (var define in parseOptions.PreprocessorSymbolNames) {
-					result.Add(factory.CreateGenericData (this, define, GenericDataType.PreprocessorSymbol));
+					result.Add(engine.Factory.CreateGenericData (this, define, GenericDataType.PreprocessorSymbol));
 				}
 			}
-			if (parent.IsKind(SyntaxKind.TypeParameterConstraintClause)) {
-				result.Add(factory.CreateGenericData (this, "new()", GenericDataType.PreprocessorKeyword));
-			}
+//			if (parent.IsKind(SyntaxKind.TypeParameterConstraintClause)) {
+//				result.Add(factory.CreateGenericData (this, "new()", GenericDataType.PreprocessorKeyword));
+//			}
 			return result;
 		} 
-		
-		static readonly string[] preprocessorKeywords = {
-			"else",
-			"elif",
-			"endif",
-			"define",
-			"undef",
-			"warning",
-			"error",
-			"pragma",
-			"line",
-			"line hidden",
-			"line default",
-			"region",
-			"endregion"
-		};
-
-		static readonly string[] validEnumBaseTypes = {
-			"byte",
-			"sbyte",
-			"short",
-			"int",
-			"long",
-			"ushort",
-			"uint",
-			"ulong"
-		};
-
-		static readonly string[] expressionLevelKeywords = {
-			"as",
-			"is",
-			"else",
-			"out",
-			"ref",
-			"null",
-			"delegate",
-			"default",
-			"true",
-			"false"
-		};
-
-		static readonly string[] primitiveTypesKeywords = {
-			"void",
-			"object",
-			"bool",
-			"byte",
-			"sbyte",
-			"char",
-			"short",
-			"int",
-			"long",
-			"ushort",
-			"uint",
-			"ulong",
-			"float",
-			"double",
-			"decimal",
-			"string"
-		};
-
-		static readonly string[] statementStartKeywords = { 
-			"base", "new", "sizeof", "this", 
-			"true", "false", "typeof", "checked", "unchecked", "from", "break", "checked",
-			"unchecked", "const", "continue", "do", "finally", "fixed", "for", "foreach",
-			"goto", "if", "lock", "return", "stackalloc", "switch", "throw", "try", "unsafe", 
-			"using", "while", "yield",
-			"catch"
-		};
-
-		static readonly string[] globalLevelKeywords = {
-			"namespace", "using", "extern", "public", "internal", 
-			"class", "interface", "struct", "enum", "delegate",
-			"abstract", "sealed", "static", "unsafe", "partial"
-		};
-
-		static readonly string[] typeLevelKeywords = {
-			"public", "internal", "protected", "private", "async",
-			"class", "interface", "struct", "enum", "delegate",
-			"abstract", "sealed", "static", "unsafe", "partial",
-			"const", "event", "extern", "fixed", "new", 
-			"operator", "explicit", "implicit", 
-			"override", "readonly", "virtual", "volatile"
-		};
-
-		static readonly string[] linqKeywords = {
-			"from",
-			"where",
-			"select",
-			"group",
-			"into",
-			"orderby",
-			"join",
-			"let",
-			"in",
-			"on",
-			"equals",
-			"by",
-			"ascending",
-			"descending"
-		};
-
-		static readonly string[] parameterTypePredecessorKeywords = {
-			"out",
-			"ref",
-			"params"
-		};
 	}
-
 }
