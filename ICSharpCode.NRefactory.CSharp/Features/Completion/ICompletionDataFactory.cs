@@ -59,5 +59,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		ICompletionData CreateNewOverrideCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, ISymbol m);
 
 		ICompletionData CreatePartialCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, IMethodSymbol method);
+
+		/// <summary>
+		/// Creates the event creation completion data.
+		/// </summary>
+		ICompletionData CreateNewMethodDelegate (ITypeSymbol delegateType, string varName, INamedTypeSymbol curType);
+
+		ICompletionData CreateAnonymousMethod (ICompletionKeyHandler keyHandler, string displayText, string description, string textBeforeCaret, string textAfterCaret);
 	}
 }

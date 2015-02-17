@@ -76,7 +76,6 @@ public class Test
 		/// Bug 5207 - [regression] delegate completion like event completion 
 		/// </summary>
 		[Test]
-		[Ignore]
 		public void TestBug5207()
 		{
 			// note 'string bar = new Test ().ToString ()' would be valid.
@@ -94,13 +93,16 @@ public class Test
 }
 ", provider => {
 				Assert.IsFalse(provider.AutoSelect);
-				Assert.IsNotNull(provider.Find("(arg1, arg2)"));
+				foreach (var a in provider) {
+					System.Console.WriteLine (a.DisplayText);
+				}
+						
+				Assert.IsNotNull(provider.Find("(arg1, arg2) =>"));
 			});
 		}
 
 
 		[Test]
-		[Ignore]
 		public void TestRefOutParams()
 		{
 			CodeCompletionBugTests.CombinedProviderTest(
@@ -118,8 +120,10 @@ public class Test
 }
 ", provider => {
 				Assert.IsFalse(provider.AutoSelect);
-				Assert.IsNotNull(provider.Find("(out int foo, ref int bar, object[] additional)"));
-				Assert.IsNull(provider.Find("(foo, bar, additional)"));
+//				foreach (var a in provider)
+//					System.Console.WriteLine (a.DisplayText);
+				Assert.IsNotNull(provider.Find("(out int foo, ref int bar, object[] additional) =>"));
+				Assert.IsNull(provider.Find("(foo, bar, additional) =>"));
 			});
 		}
 

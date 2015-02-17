@@ -199,6 +199,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			{
 				return new SymbolCompletionData(symbol, text);
 			}
+
+			ICompletionData ICompletionDataFactory.CreateNewMethodDelegate(ITypeSymbol delegateType, string varName, INamedTypeSymbol curType)
+			{
+				return new CompletionData (varName);
+			}
+
+
+			ICompletionData ICompletionDataFactory.CreateAnonymousMethod(ICompletionKeyHandler keyHandler, string displayText, string description, string textBeforeCaret, string textAfterCaret)
+			{
+				return new CompletionData (displayText);
+			}
+
 		}
 //
 //		public static void CreateCompilation (string parsedText, out IProjectContent pctx, out SyntaxTree syntaxTree, out CSharpUnresolvedFile unresolvedFile, bool expectErrors, params IUnresolvedAssembly[] references)

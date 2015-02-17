@@ -53,7 +53,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new SnippetContextHandler(),
 			new ObjectInitializerContextHandler(),
 			new FormatItemContextHandler(),
-			new SpeculativeNameContextHandler()
+			new SpeculativeNameContextHandler(),
+			new DelegateCreationContextHandler()
 		};
 
 		static readonly ICompletionKeyHandler DefaultKeyHandler = new RoslynRecommendationsCompletionContextHandler ();
@@ -225,6 +226,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			
 			return result;
 		}
+
 		CompletionResult HandleEventAccessorContext()
 		{
 			var result = new CompletionResult();
