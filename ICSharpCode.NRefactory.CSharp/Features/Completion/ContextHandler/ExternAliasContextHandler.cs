@@ -30,15 +30,43 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	class ExternAliasContextHandler : CompletionContextHandler
 	{
-
-		public override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
+		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
-			return Task.FromResult (Enumerable.Empty<ICompletionData> ());
+			var document = completionContext.Document;
+			var position = completionContext.Position;
+
+			var tree = await document.GetSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
+
+			if (tree.IsInNonUserCode(position, cancellationToken))
+				return Enumerable.Empty<ICompletionData> ();
+
+			var targetToken = tree.FindTokenOnLeftOfPosition(position, cancellationToken).GetPreviousTokenIfTouchingWord(position);
+			if (targetToken.IsKind(SyntaxKind.AliasKeyword) && targetToken.Parent.IsKind(SyntaxKind.ExternAliasDirective))
+			{
+				var compilation = await document.GetCSharpCompilationAsync(cancellationToken).ConfigureAwait(false);
+				var aliases = compilation.ExternalReferences.Where(r => r.Properties.Aliases != null).SelectMany(r => r.Properties.Aliases).ToSet();
+
+				if (aliases.Any())
+				{
+					var root = await tree.GetRootAsync(cancellationToken).ConfigureAwait(false);
+					var usedAliases = root.ChildNodes().OfType<ExternAliasDirectiveSyntax>().Where(e => !e.Identifier.IsMissing).Select(e => e.Identifier.ValueText);
+					foreach (var used in usedAliases) {
+						aliases.Remove (used); 
+					}
+					aliases.Remove(MetadataReferenceProperties.GlobalAlias);
+					return aliases.Select (e => engine.Factory.CreateGenericData (this, e, GenericDataType.Undefined));
+				}
+			}
+
+			return Enumerable.Empty<ICompletionData> ();
 		}
 	}
 }
