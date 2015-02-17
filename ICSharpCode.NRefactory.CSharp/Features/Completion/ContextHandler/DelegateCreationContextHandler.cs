@@ -60,6 +60,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			SymbolDisplayParameterOptions.IncludeName |
 			SymbolDisplayParameterOptions.IncludeParamsRefOut);
 
+		public override bool IsTriggerCharacter (SourceText text, int position)
+		{
+			var ch = text[position];
+			return ch =='(' || ch =='[' || ch == ',' || IsTriggerAfterSpaceOrStartOfWordCharacter (text, position);
+		}
 
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
