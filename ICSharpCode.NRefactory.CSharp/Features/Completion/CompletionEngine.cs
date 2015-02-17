@@ -158,7 +158,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				var parent = ctx.TargetToken.Parent;
 				if (parent != null && parent.Parent != null && parent.IsKind(SyntaxKind.BaseList) && parent.Parent.IsKind(SyntaxKind.EnumDeclaration)) {
 					var result2 = new CompletionResult();
-					foreach (var handler in handlers) {
+					foreach (var handler in handlers.Concat (completionContext.AdditionalContextHandlers)) {
 						result2.AddRange (handler.GetCompletionDataAsync (result2, this, completionContext, info, cancellationToken).Result);
 					}
 					return result2;
@@ -189,7 +189,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var result = new CompletionResult();
 
 			if (position > 0) {
-				foreach (var handler in handlers) {
+				foreach (var handler in handlers.Concat (completionContext.AdditionalContextHandlers)) {
 					if (info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand || handler.IsTriggerCharacter (text, position - 1)) {
 						var handlerResult = handler.GetCompletionDataAsync (result, this, completionContext, info, cancellationToken).Result;
 						if (handlerResult != null)

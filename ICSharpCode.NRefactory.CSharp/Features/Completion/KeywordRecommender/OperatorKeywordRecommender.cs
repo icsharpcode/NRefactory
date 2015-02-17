@@ -9,12 +9,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion.KeywordRecommenders
 {
     internal class OperatorKeywordRecommender : AbstractSyntacticSingleKeywordRecommender
     {
-        private static readonly ISet<SyntaxKind> s_validMemberModifiers = new HashSet<SyntaxKind>(SyntaxFacts.EqualityComparer)
-            {
-                SyntaxKind.StaticKeyword,
-                SyntaxKind.PublicKeyword,
-                SyntaxKind.ExternKeyword,
-            };
+//        private static readonly ISet<SyntaxKind> s_validMemberModifiers = new HashSet<SyntaxKind>(SyntaxFacts.EqualityComparer)
+//            {
+//                SyntaxKind.StaticKeyword,
+//                SyntaxKind.PublicKeyword,
+//                SyntaxKind.ExternKeyword,
+//            };
 
         public OperatorKeywordRecommender()
             : base(SyntaxKind.OperatorKeyword)

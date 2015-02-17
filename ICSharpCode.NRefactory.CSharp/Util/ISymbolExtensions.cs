@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 //			Contract.Requires(within is INamedTypeSymbol || within is IAssemblySymbol);
 
 			failedThroughTypeCheck = false;
-			var withinAssembly = (within as IAssemblySymbol) ?? ((INamedTypeSymbol)within).ContainingAssembly;
+			// var withinAssembly = (within as IAssemblySymbol) ?? ((INamedTypeSymbol)within).ContainingAssembly;
 
 			switch (symbol.Kind)
 			{

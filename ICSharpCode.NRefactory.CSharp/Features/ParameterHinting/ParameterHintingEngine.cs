@@ -207,7 +207,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (type == null)
 				return ParameterHintingResult.Empty;
 			
-			if (type.TypeKind == TypeKind.ArrayType)
+			if (type.TypeKind == TypeKind.Array)
 				result.AddData(factory.CreateArrayDataProvider((IArrayTypeSymbol)type));
 			
 			return result;

@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 		protected TextSpan region;
 
 		protected SemanticModel semanticModel;
-		bool isInAccessorContainingValueParameter;
+		// bool isInAccessorContainingValueParameter;
 
 		protected abstract void Colorize (TextSpan span, TColor color);
 
@@ -318,7 +318,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				}
 				var vds = node.Parent as VariableDeclarationSyntax;
 				if (vds != null && vds.Variables.Count == 1) {
-					var sym = vds.Variables[0].Initializer != null ? vds.Variables[0].Initializer.Value as LiteralExpressionSyntax : null;
+					// var sym = vds.Variables[0].Initializer != null ? vds.Variables[0].Initializer.Value as LiteralExpressionSyntax : null;
 					if (symbolInfo.Symbol == null || symbolInfo.Symbol.Name != "var") {
 						Colorize(node.Span, varKeywordTypeColor);
 						return;
@@ -459,7 +459,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				color = variableDeclarationColor;
 
 			foreach (var declarations in node.Variables) {
-				var info = semanticModel.GetTypeInfo(declarations, cancellationToken); 
+				// var info = semanticModel.GetTypeInfo(declarations, cancellationToken); 
 				Colorize(declarations.Identifier, color);
 			}
 		}

@@ -1843,8 +1843,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 		private static bool IsNotNullableReplacable(this NameSyntax name, TypeSyntax reducedName)
 		{
 			var isNotNullableReplacable = false;
-			var isLeftSideOfDot = name.IsLeftSideOfDot();
-			var isRightSideOfDot = name.IsRightSideOfDot();
+			// var isLeftSideOfDot = name.IsLeftSideOfDot();
+			// var isRightSideOfDot = name.IsRightSideOfDot();
 
 			if (reducedName.Kind() == SyntaxKind.NullableType)
 			{

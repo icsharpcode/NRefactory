@@ -145,39 +145,39 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return false;
 		}
 
-		private async Task<IEnumerable<ICompletionData>> GetNameEqualsItemsAsync(CompletionEngine engine, Workspace workspace, SemanticModel semanticModel,
+		private Task<IEnumerable<ICompletionData>> GetNameEqualsItemsAsync(CompletionEngine engine, Workspace workspace, SemanticModel semanticModel,
 			int position, SyntaxToken token, AttributeSyntax attributeSyntax, ISet<string> existingNamedParameters,
 			CancellationToken cancellationToken)
 		{
 			var attributeNamedParameters = GetAttributeNamedParameters(semanticModel, position, attributeSyntax, cancellationToken);
-			var unspecifiedNamedParameters = attributeNamedParameters.Where(p => !existingNamedParameters.Contains(p.Name));
+			// var unspecifiedNamedParameters = attributeNamedParameters.Where(p => !existingNamedParameters.Contains(p.Name));
 
-			var text = await semanticModel.SyntaxTree.GetTextAsync(cancellationToken).ConfigureAwait(false);
-			return
+			// var text = await semanticModel.SyntaxTree.GetTextAsync(cancellationToken).ConfigureAwait(false);
+			return Task.FromResult ( 
 				attributeNamedParameters
 					.Where (p => !existingNamedParameters.Contains (p.Name))
 					.Select (p => {
 						var result = engine.Factory.CreateSymbolCompletionData (this, p);
 						result.DisplayFlags |= DisplayFlags.NamedArgument;
-						return result;
-					});
+						return (ICompletionData)result;
+				}));
 
 
 		}
 
-		private async Task<IEnumerable<ICompletionData>> GetNameColonItemsAsync(
+		private Task<IEnumerable<ICompletionData>> GetNameColonItemsAsync(
 			CompletionEngine engine, Workspace workspace, SemanticModel semanticModel, int position, SyntaxToken token, AttributeSyntax attributeSyntax, ISet<string> existingNamedParameters,
 			CancellationToken cancellationToken)
 		{
 			var parameterLists = GetParameterLists(semanticModel, position, attributeSyntax, cancellationToken);
 			parameterLists = parameterLists.Where(pl => IsValid(pl, existingNamedParameters));
 
-			var text = await semanticModel.SyntaxTree.GetTextAsync(cancellationToken).ConfigureAwait(false);
-			return
+			// var text = await semanticModel.SyntaxTree.GetTextAsync(cancellationToken).ConfigureAwait(false);
+			return Task.FromResult ( 
 				from pl in parameterLists
 			 from p in pl
 			 where !existingNamedParameters.Contains (p.Name)
-			 select engine.Factory.CreateGenericData(this, p.Name + ":", GenericDataType.NamedParameter);
+				select engine.Factory.CreateGenericData(this, p.Name + ":", GenericDataType.NamedParameter));
 		}
 
 		private bool IsValid(ImmutableArray<IParameterSymbol> parameterList, ISet<string> existingNamedParameters)

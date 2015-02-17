@@ -65,6 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		///     An instance of <see cref="IStateMachineIndentEngine"/> to which the
 		///     logic for indentation will be delegated.
 		/// </param>
+		/// <param name = "options"></param>
 		public TextPasteIndentEngine(IStateMachineIndentEngine decoratedEngine, OptionSet options)
 		{
 			this.engine = decoratedEngine;

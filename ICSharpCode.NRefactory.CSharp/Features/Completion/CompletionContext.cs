@@ -2,6 +2,10 @@
 using Microsoft.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections;
+using System.Collections.Generic;
+using ICSharpCode.NRefactory6.CSharp.Completion;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -32,11 +36,22 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 		SyntaxContext syntaxContext;
-		internal async Task<SyntaxContext> GetSyntaxContextAsync  (Workspace workspace, CancellationToken cancellationToken = default (CancellationToken)) 
+		internal Task<SyntaxContext> GetSyntaxContextAsync  (Workspace workspace, CancellationToken cancellationToken = default (CancellationToken)) 
 		{
 			if (syntaxContext == null)
 				syntaxContext = SyntaxContext.Create(workspace, document, semanticModel, position, cancellationToken);
-			return syntaxContext;
+			return Task.FromResult (syntaxContext);
+		}
+
+		IEnumerable<CompletionContextHandler> additionalContextHandlers;
+
+		public IEnumerable<CompletionContextHandler> AdditionalContextHandlers {
+			get {
+				return additionalContextHandlers ?? Enumerable.Empty<CompletionContextHandler> ();
+			}
+			set {
+				additionalContextHandlers = value;
+			}
 		}
 
 		public CompletionContext (Document document, int position, SemanticModel semanticModel  = null)

@@ -36,7 +36,7 @@ using System.Security.Policy;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	abstract class CompletionContextHandler : ICompletionKeyHandler
+	public abstract class CompletionContextHandler : ICompletionKeyHandler
 	{
 		public abstract Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken = default(CancellationToken));
 

@@ -1372,10 +1372,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 					ThisLineIndent = Parent.ThisLineIndent.Clone();
 				}
 			}
-			else
-			{
-				ThisLineIndent = new Indent(Engine.options);
-			}
+//			else
+//			{
+//				ThisLineIndent = new Indent(Engine.options);
+//			}
 
 			NextLineIndent = Parent.NextLineIndent.Clone();
 		}

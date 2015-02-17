@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
+			// var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
 			var document = completionContext.Document;
 			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var tree = await document.GetSyntaxTreeAsync (cancellationToken).ConfigureAwait (false);
@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var startToken = token.GetPreviousTokenIfTouchingWord(completionContext.Position);
 			ITypeSymbol returnType;
 			SyntaxToken tokenBeforeReturnType;
-			bool hasReturnType = TryDetermineReturnType (startToken, semanticModel, cancellationToken, out returnType, out tokenBeforeReturnType);
+			TryDetermineReturnType (startToken, semanticModel, cancellationToken, out returnType, out tokenBeforeReturnType);
 
 			if (!TryDetermineModifiers(ref tokenBeforeReturnType, text, startLineNumber, out seenAccessibility, out modifiers) ||
 				!TryCheckForTrailingTokens (tree, text, startLineNumber, completionContext.Position, cancellationToken)) {

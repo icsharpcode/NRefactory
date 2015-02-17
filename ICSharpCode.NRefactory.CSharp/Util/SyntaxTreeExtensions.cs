@@ -2690,7 +2690,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 						if (type.IsParentKind(SyntaxKind.VariableDeclaration) &&
 							type.Parent.IsParentKind(SyntaxKind.LocalDeclarationStatement))
 						{
-							var declStatement = type.Parent.Parent as LocalDeclarationStatementSyntax;
+							// var declStatement = type.Parent.Parent as LocalDeclarationStatementSyntax;
 
 							// note, this doesn't apply for cases where we know it 
 							// absolutely is not multiplcation or a conditional expression.

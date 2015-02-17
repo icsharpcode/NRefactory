@@ -29,15 +29,16 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	class ExternAliasContextHandler : CompletionContextHandler
 	{
 
-		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
+		public override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
-			return null;
+			return Task.FromResult (Enumerable.Empty<ICompletionData> ());
 		}
 	}
 }

@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return Enumerable.Empty<ICompletionData>();
 			}
 
-			var span = new TextSpan(position, 0);
+			// var span = new TextSpan(position, 0);
 //			var semanticModel = await document.GetCSharpSemanticModelForSpanAsync(span, cancellationToken).ConfigureAwait(false);
 			if (syntaxTree.IsPreProcessorDirectiveContext(position, cancellationToken))
 			{

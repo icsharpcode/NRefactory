@@ -76,18 +76,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return Enumerable.Empty<ICompletionData> ();
 		}
 
-		private async Task<IEnumerable<ICompletionData>> GetCompletionsOffOfExplicitInterfaceAsync(
+		private Task<IEnumerable<ICompletionData>> GetCompletionsOffOfExplicitInterfaceAsync(
 			CompletionEngine engine, Document document, SemanticModel semanticModel, int position, NameSyntax name, CancellationToken cancellationToken)
 		{
 			// Bind the interface name which is to the left of the dot
 			var syntaxTree = semanticModel.SyntaxTree;
 			var nameBinding = semanticModel.GetSymbolInfo(name, cancellationToken);
-			var context = CSharpSyntaxContext.CreateContext(document.Project.Solution.Workspace, semanticModel, position, cancellationToken);
+			// var context = CSharpSyntaxContext.CreateContext(document.Project.Solution.Workspace, semanticModel, position, cancellationToken);
 
 			var symbol = nameBinding.Symbol as ITypeSymbol;
 			if (symbol == null || symbol.TypeKind != TypeKind.Interface)
 			{
-				return Enumerable.Empty<ICompletionData> ();
+				return Task.FromResult (Enumerable.Empty<ICompletionData> ());
 			}
 
 			var members = semanticModel.LookupSymbols (
@@ -99,29 +99,29 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			// We're going to create a entry for each one, including the signature
 			var completions = new List<ICompletionData>();
 
-			var signatureDisplayFormat =
-				new SymbolDisplayFormat(
-					genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
-					memberOptions:
-					SymbolDisplayMemberOptions.IncludeParameters,
-					parameterOptions:
-					SymbolDisplayParameterOptions.IncludeName |
-					SymbolDisplayParameterOptions.IncludeType |
-					SymbolDisplayParameterOptions.IncludeParamsRefOut,
-					miscellaneousOptions:
-					SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers |
-					SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
+//			var signatureDisplayFormat =
+//				new SymbolDisplayFormat(
+//					genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
+//					memberOptions:
+//					SymbolDisplayMemberOptions.IncludeParameters,
+//					parameterOptions:
+//					SymbolDisplayParameterOptions.IncludeName |
+//					SymbolDisplayParameterOptions.IncludeType |
+//					SymbolDisplayParameterOptions.IncludeParamsRefOut,
+//					miscellaneousOptions:
+//					SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers |
+//					SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
 
 			var namePosition = name.SpanStart;
 
-			var text = await context.SyntaxTree.GetTextAsync(cancellationToken).ConfigureAwait(false);
-			var textChangeSpan = GetTextChangeSpan(text, context.Position);
+			// var text = await context.SyntaxTree.GetTextAsync(cancellationToken).ConfigureAwait(false);
+			// var textChangeSpan = GetTextChangeSpan(text, context.Position);
 
 			foreach (var member in members)
 			{
-				var displayString = member.ToMinimalDisplayString(semanticModel, namePosition, signatureDisplayFormat);
-				var memberCopied = member;
-				var insertionText = displayString;
+				// var displayString = member.ToMinimalDisplayString(semanticModel, namePosition, signatureDisplayFormat);
+				// var memberCopied = member;
+				// var insertionText = displayString;
 
 				completions.Add(engine.Factory.CreateSymbolCompletionData (this, member)
 
@@ -135,7 +135,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					context: context) */);
 			}
 
-			return completions;
+			return Task.FromResult ((IEnumerable<ICompletionData>)completions);
 		}
 
 //		public override TextChange GetTextChange(CompletionItem selectedItem, char? ch = default(char), string textTypedSoFar = null)

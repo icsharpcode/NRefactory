@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				.Where(p => !existingNamedParameters.Contains(p.Name))
 				.Distinct(this);
 
-			var text = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
+			// var text = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
 
 			return unspecifiedParameters
 				.Select(p => engine.Factory.CreateGenericData(this, p.Name + ":", GenericDataType.NamedParameter));

@@ -80,8 +80,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			uninitializedMembers = uninitializedMembers.Where (m => m.IsEditorBrowsable ());
 
-			var text = await semanticModel.SyntaxTree.GetTextAsync(cancellationToken).ConfigureAwait(false);
-			var changes = GetTextChangeSpan(text, position);
+			// var text = await semanticModel.SyntaxTree.GetTextAsync(cancellationToken).ConfigureAwait(false);
+			// var changes = GetTextChangeSpan(text, position);
 			var list = new List<ICompletionData> ();
 
 			// Return the members
