@@ -191,7 +191,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var curType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol> (position, cancellationToken);
 
 			completionList.Add (
-				engine.Factory.CreateNewMethodDelegate (delegateType, varName, curType)
+				engine.Factory.CreateNewMethodDelegate (this, delegateType, varName, curType)
 			);
 		}
 	}
