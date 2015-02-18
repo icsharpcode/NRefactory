@@ -228,6 +228,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				method.PartialImplementationPart == null;
 		}
 
+
 		public override void VisitExternAliasDirective(ExternAliasDirectiveSyntax node)
 		{
 			base.VisitExternAliasDirective(node);
@@ -506,6 +507,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 		public override void VisitBlock(Microsoft.CodeAnalysis.CSharp.Syntax.BlockSyntax node)
 		{
 			blockDepth++;
+			cancellationToken.ThrowIfCancellationRequested ();
 			base.VisitBlock(node);
 			blockDepth--;
 		}
