@@ -143,6 +143,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		static readonly CSharpTypeInferenceService inferenceService = new CSharpTypeInferenceService ();
 
+		public static CSharpTypeInferenceService InferenceService {
+			get {
+				return inferenceService;
+			}
+		}
+
 		public static SyntaxContext Create(Workspace workspace, Document document, SemanticModel semanticModel, int position, CancellationToken cancellationToken)
 		{
 			return new SyntaxContext(

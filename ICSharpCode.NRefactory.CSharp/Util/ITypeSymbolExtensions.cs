@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -537,32 +538,32 @@ namespace ICSharpCode.NRefactory6.CSharp
 //			return typeSymbol.Accept(MinimalAccessibilityVisitor.Instance);
 //		}
 
-//		public static bool ContainsAnonymousType(this ITypeSymbol symbol)
-//		{
-//			return symbol.TypeSwitch(
-//				(IArrayTypeSymbol a) => ContainsAnonymousType(a.ElementType),
-//				(IPointerTypeSymbol p) => ContainsAnonymousType(p.PointedAtType),
-//				(INamedTypeSymbol n) => ContainsAnonymousType(n),
-//				_ => false);
-//		}
-//
-//		private static bool ContainsAnonymousType(INamedTypeSymbol type)
-//		{
-//			if (type.IsAnonymousType)
-//			{
-//				return true;
-//			}
-//
-//			foreach (var typeArg in type.GetAllTypeArguments())
-//			{
-//				if (ContainsAnonymousType(typeArg))
-//				{
-//					return true;
-//				}
-//			}
-//
-//			return false;
-//		}
+		public static bool ContainsAnonymousType(this ITypeSymbol symbol)
+		{
+			return symbol.TypeSwitch(
+				(IArrayTypeSymbol a) => ContainsAnonymousType(a.ElementType),
+				(IPointerTypeSymbol p) => ContainsAnonymousType(p.PointedAtType),
+				(INamedTypeSymbol n) => ContainsAnonymousType(n),
+				_ => false);
+		}
+
+		private static bool ContainsAnonymousType(INamedTypeSymbol type)
+		{
+			if (type.IsAnonymousType)
+			{
+				return true;
+			}
+
+			foreach (var typeArg in type.GetAllTypeArguments())
+			{
+				if (ContainsAnonymousType(typeArg))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
 
 		public static string CreateParameterName(this ITypeSymbol type, bool capitalize = false)
 		{
@@ -823,6 +824,39 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return type.IsValueType && type.TypeKind == TypeKind.Enum;
 		}
 
+
+		public static async Task<ISymbol> FindApplicableAlias(this ITypeSymbol type, int position, SemanticModel semanticModel, CancellationToken cancellationToken)
+		{
+			if (semanticModel.IsSpeculativeSemanticModel)
+			{
+				position = semanticModel.OriginalPositionForSpeculation;
+				semanticModel = semanticModel.ParentModel;
+			}
+
+			var root = await semanticModel.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
+
+			IEnumerable<UsingDirectiveSyntax> applicableUsings = GetApplicableUsings(position, root as CompilationUnitSyntax);
+			foreach (var applicableUsing in applicableUsings)
+			{
+				var alias = semanticModel.GetOriginalSemanticModel().GetDeclaredSymbol(applicableUsing, cancellationToken) as IAliasSymbol;
+
+				if (alias != null && alias.Target == type)
+				{
+					return alias;
+				}
+			}
+
+			return null;
+		}
+
+		private static IEnumerable<UsingDirectiveSyntax> GetApplicableUsings(int position, SyntaxNode root)
+		{
+			var namespaceUsings = root.FindToken(position).Parent.GetAncestors<NamespaceDeclarationSyntax>().SelectMany(n => n.Usings);
+			var allUsings = root is CompilationUnitSyntax
+				? ((CompilationUnitSyntax)root).Usings.Concat(namespaceUsings)
+				: namespaceUsings;
+			return allUsings.Where(u => u.Alias != null);
+		}
 	}
 }
 

@@ -200,7 +200,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				return new SymbolCompletionData(symbol, text);
 			}
 
-			ICompletionData ICompletionDataFactory.CreateNewMethodDelegate(ITypeSymbol delegateType, string varName, INamedTypeSymbol curType)
+			ICompletionData ICompletionDataFactory.CreateNewMethodDelegate(ICompletionKeyHandler keyHandler, ITypeSymbol delegateType, string varName, INamedTypeSymbol curType)
 			{
 				return new CompletionData (varName);
 			}

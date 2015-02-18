@@ -354,6 +354,7 @@
     <Compile Include="Features\Completion\ContextHandler\FormatItemContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\SpeculativeNameContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\DelegateCreationContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\ObjectCreationContextHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
