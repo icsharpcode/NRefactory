@@ -524,11 +524,17 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\CSharpUtil.cs">
       <Link>Common\CSharpUtil.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\EnumerableExtensions.cs">
+      <Link>Common\EnumerableExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\NamespaceExtensions.cs">
       <Link>Common\NamespaceExtensions.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SignatureComparer.cs">
       <Link>Common\SignatureComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SpecializedCollections.cs">
+      <Link>Common\SpecializedCollections.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\TypeExtensions.cs">
       <Link>Common\TypeExtensions.cs</Link>
