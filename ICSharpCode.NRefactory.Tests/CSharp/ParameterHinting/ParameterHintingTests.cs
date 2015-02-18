@@ -371,7 +371,7 @@ class AClass
 		public void Test1760 ()
 		{
 			var provider = CreateProvider (
-@"
+				@"
 class TestClass
 {
 	public static void Main (string[] args)
@@ -382,7 +382,7 @@ class TestClass
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.AreEqual (1, provider.Count);
 		}
-		
+
 		[Test]
 		public void TestSecondIndexerParameter ()
 		{
@@ -1214,5 +1214,22 @@ class MyTest
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.AreEqual (3, provider.Count);
 		}
+
+		[Test]
+		public void TestWriteLine ()
+		{
+			var provider = CreateProvider (
+				@"using System;
+class TestClass
+{
+	public static void Main (string[] args)
+	{
+		Console.WriteLine ($$);
+	}
+}");
+			Assert.IsNotNull (provider, "provider was not created.");
+			Assert.AreEqual (19, provider.Count);
+		}
+
 	}
 }

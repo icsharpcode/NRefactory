@@ -58,6 +58,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait(false);
+			var model = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var result = new List<ICompletionData> ();
 			foreach (var type in ctx.InferredTypes) {
 				if (type.TypeKind != TypeKind.Enum)
@@ -65,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				if (string.IsNullOrEmpty(completionResult.DefaultCompletionString))
 					completionResult.DefaultCompletionString = type.Name;
 
-				result.Add (engine.Factory.CreateSymbolCompletionData(this, type, type.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
+				result.Add (engine.Factory.CreateSymbolCompletionData(this, type, type.ToMinimalDisplayString(model, completionContext.Position, SymbolDisplayFormat.CSharpErrorMessageFormat)));
 				foreach (IFieldSymbol field in type.GetMembers().OfType<IFieldSymbol>()) {
 					if (field.DeclaredAccessibility == Accessibility.Public && (field.IsConst || field.IsStatic)) {
 						result.Add (engine.Factory.CreateEnumMemberCompletionData(this, field));
