@@ -31,6 +31,7 @@ using System.Threading;
 using System.CodeDom;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -49,8 +50,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			this.factory = factory;
 		}
 		
-		public ParameterHintingResult GetParameterDataProvider(Document document, SemanticModel semanticModel, int position, CancellationToken cancellationToken = default(CancellationToken))
+		public async Task<ParameterHintingResult> GetParameterDataProviderAsync(Document document, SemanticModel semanticModel, int position, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			var tree = await document.GetSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
+			if (tree.IsInNonUserCode(position, cancellationToken))
+				return ParameterHintingResult.Empty;
+			var tokenLeftOfPosition = tree.FindTokenOnLeftOfPosition (position, cancellationToken);
+
+			if (tokenLeftOfPosition.IsKind (SyntaxKind.LessThanToken)) {
+				var startToken = tokenLeftOfPosition.GetPreviousToken();
+				return HandleTypeParameterCase(semanticModel, startToken.Parent, cancellationToken);
+			}
+		
 			var context = SyntaxContext.Create(workspace, document, semanticModel, position, cancellationToken);
 			var targetParent = context.TargetToken.Parent;
 			var node = targetParent.Parent;
@@ -60,12 +71,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					targetParent = context.LeftToken.GetPreviousToken().Parent;
 					node = targetParent.Parent;
 					if (node.CSharpKind() == SyntaxKind.LessThanExpression) {
-						return HandlePossibleTypeParameterCase(semanticModel, (BinaryExpressionSyntax)node, cancellationToken);
+						return HandleTypeParameterCase(semanticModel, ((BinaryExpressionSyntax)node).Left, cancellationToken);
+
 					}
 				}
 				return ParameterHintingResult.Empty;
 			}
-			
+			if (node.IsKind (SyntaxKind.Argument))
+				node = node.Parent.Parent;
 			switch (node.CSharpKind()) {
 				case SyntaxKind.Attribute:
 					return HandleAttribute(semanticModel, node, cancellationToken);					
@@ -75,77 +88,105 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				case SyntaxKind.ObjectCreationExpression:
 					return HandleObjectCreationExpression(semanticModel, node, cancellationToken);
 				case SyntaxKind.InvocationExpression:
-					return HandleInvocationExpression(semanticModel, node, cancellationToken);
+				return HandleInvocationExpression(semanticModel, (InvocationExpressionSyntax)node, cancellationToken);
 				case SyntaxKind.ElementAccessExpression:
-					return HandleElementAccessExpression(semanticModel, node, cancellationToken);
-			}
-			switch (targetParent.CSharpKind()) {
-				case SyntaxKind.LessThanExpression:
-					return HandlePossibleTypeParameterCase(semanticModel, (BinaryExpressionSyntax)targetParent, cancellationToken);
-				case SyntaxKind.TypeArgumentList:
-					return HandlePossibleTypeParameterCase(semanticModel, (TypeArgumentListSyntax)targetParent, cancellationToken);
+				return HandleElementAccessExpression(semanticModel, (ElementAccessExpressionSyntax)node, cancellationToken);
 			}
 			return ParameterHintingResult.Empty;
 		}
 
-		ParameterHintingResult HandleInvocationExpression(SemanticModel semanticModel, SyntaxNode node, CancellationToken cancellationToken)
+		ParameterHintingResult HandleInvocationExpression(SemanticModel semanticModel, InvocationExpressionSyntax node, CancellationToken cancellationToken)
 		{
 			var info = semanticModel.GetSymbolInfo(node, cancellationToken);
 			var result = new ParameterHintingResult(node.SpanStart);
-			
-			var resolvedMethod = info.Symbol as IMethodSymbol;
-			if (resolvedMethod != null)
-				result.AddData(factory.CreateMethodDataProvider(resolvedMethod));
-			result.AddRange(info.CandidateSymbols.OfType<IMethodSymbol>().Select (m => factory.CreateMethodDataProvider(m)));
-			return result;
-		}
 
-		ParameterHintingResult HandlePossibleTypeParameterCase(SemanticModel semanticModel, BinaryExpressionSyntax node, CancellationToken cancellationToken)
-		{
-			var info = semanticModel.GetSymbolInfo(node.Left, cancellationToken);
-			var result = new ParameterHintingResult(node.SpanStart);
-			var resolvedMethod = info.Symbol as IMethodSymbol;
-			if (resolvedMethod != null)
-				result.AddData(factory.CreateTypeParameterDataProvider(resolvedMethod));
-			result.AddRange(info.CandidateSymbols.OfType<IMethodSymbol>().Select (m => factory.CreateTypeParameterDataProvider(m)));
-			if (result.Count > 0)
+			// TODO: Proper extension method detection.
+			if (info.CandidateReason == CandidateReason.OverloadResolutionFailure) {
+				var methods = info.CandidateSymbols.OfType<IMethodSymbol> ().ToList ();
+				if (methods.Any (m => m.IsExtensionMethod)) {
+					result.AddRange (methods.Select (m => factory.CreateMethodDataProvider (m)));
+					return result;
+				}
+			}
+
+			var targetTypeInfo = semanticModel.GetTypeInfo (node.Expression);
+			if (targetTypeInfo.Type != null && targetTypeInfo.Type.TypeKind == TypeKind.Delegate) {
+				result.AddData (factory.CreateMethodDataProvider (targetTypeInfo.Type.GetDelegateInvokeMethod ()));
 				return result;
-			
-			var resolvedType = info.Symbol as INamedTypeSymbol;
-			if (resolvedType != null)
-				result.AddData(factory.CreateTypeParameterDataProvider(resolvedType));
-			result.AddRange(info.CandidateSymbols.OfType<INamedTypeSymbol>().Select (m => factory.CreateTypeParameterDataProvider(m)));
+			}
 
+			var within = semanticModel.GetEnclosingNamedTypeOrAssembly(node.SpanStart, cancellationToken);
+			ITypeSymbol type;
+			var ma = node.Expression as MemberAccessExpressionSyntax;
+			string name = null;
+			bool staticLookup = false;
+			if (ma != null) {
+				staticLookup = semanticModel.GetSymbolInfo (ma.Expression).Symbol is ITypeSymbol;
+				type = semanticModel.GetTypeInfo (ma.Expression).Type; 
+				name = ma.Name.ToString ();
+			} else {
+				type = within as ITypeSymbol;
+				name = node.Expression.ToString ();
+				var sym = semanticModel.GetEnclosingSymbol (node.SpanStart, cancellationToken); 
+				staticLookup = sym.IsStatic;
+			}
+
+			if (type == null) {
+				var resolvedMethod = info.Symbol as IMethodSymbol;
+				if (resolvedMethod != null)
+					result.AddData (factory.CreateMethodDataProvider (resolvedMethod));
+			}
+			var filterMethod = new HashSet<IMethodSymbol> ();
+			var addedMethods = new List<IMethodSymbol> ();
+			for (;type != null; type = type.BaseType) {
+				foreach (var method in type.GetMembers ().OfType<IMethodSymbol> ().Where (m => m.Name == name)) {
+					if (staticLookup && !method.IsStatic)
+						continue;
+					if (method.OverriddenMethod != null)
+						filterMethod.Add (method.OverriddenMethod);
+					if (filterMethod.Contains (method))
+						continue;
+					if (addedMethods.Any (added => SignatureComparer.HaveSameSignature (method, added, true)))
+						continue;
+
+					if (method.IsAccessibleWithin (within)) {
+						addedMethods.Add (method); 
+						result.AddData (factory.CreateMethodDataProvider (method));
+					}
+				}
+			}
 			return result;
 		}
-		
-		ParameterHintingResult HandlePossibleTypeParameterCase(SemanticModel semanticModel, TypeArgumentListSyntax node, CancellationToken cancellationToken)
+
+		ParameterHintingResult HandleTypeParameterCase(SemanticModel semanticModel, SyntaxNode node, CancellationToken cancellationToken)
 		{
-			var info = semanticModel.GetSymbolInfo(node.Parent, cancellationToken);
 			var result = new ParameterHintingResult(node.SpanStart);
-			
-			var resolvedType = info.Symbol as INamedTypeSymbol;
-			if (resolvedType != null)
-				result.AddData(factory.CreateTypeParameterDataProvider(resolvedType));
-			result.AddRange(info.CandidateSymbols.OfType<INamedTypeSymbol>().Select (m => factory.CreateTypeParameterDataProvider(m)));
+			string typeName;
+			var gns = node as GenericNameSyntax;
+			if (gns != null) {
+				typeName = gns.Identifier.ToString ();
+			} else {
+				typeName = node.ToString ();
+			}
 
+			foreach (var cand in semanticModel.LookupSymbols (node.SpanStart).OfType<INamedTypeSymbol> ()) {
+				if (cand.TypeParameters.Length == 0)
+					continue;
+				if (cand.Name == typeName || cand.GetFullName () == typeName)
+					result.AddData(factory.CreateTypeParameterDataProvider(cand));
+			}
+
+			if (result.Count == 0) {
+				foreach (var cand in semanticModel.LookupSymbols (node.SpanStart).OfType<IMethodSymbol> ()) {
+					if (cand.TypeParameters.Length == 0)
+						continue;
+					if (cand.Name == typeName)
+						result.AddData (factory.CreateTypeParameterDataProvider (cand));
+				}
+			}
 			return result;
 		}
-
-		
-		ParameterHintingResult HandlePossibleTypeParameterCase(SemanticModel semanticModel, PredefinedTypeSyntax node, CancellationToken cancellationToken)
-		{
-			var info = semanticModel.GetSymbolInfo(node, cancellationToken);
-			var result = new ParameterHintingResult(node.SpanStart);
 			
-			var resolvedType = info.Symbol as INamedTypeSymbol;
-			if (resolvedType != null)
-				result.AddData(factory.CreateTypeParameterDataProvider(resolvedType));
-			result.AddRange(info.CandidateSymbols.OfType<INamedTypeSymbol>().Select (m => factory.CreateTypeParameterDataProvider(m)));
-
-			return result;
-		}
-		
 		ParameterHintingResult HandleAttribute(SemanticModel semanticModel, SyntaxNode node, CancellationToken cancellationToken)
 		{
 			var info = semanticModel.GetSymbolInfo(node, cancellationToken);
@@ -169,47 +210,33 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return result;
 		}
 		
-		ParameterHintingResult HandleElementAccessExpression(SemanticModel semanticModel, SyntaxNode node, CancellationToken cancellationToken)
+		ParameterHintingResult HandleElementAccessExpression(SemanticModel semanticModel, ElementAccessExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			var info = semanticModel.GetSymbolInfo(node, cancellationToken);
-			var result = new ParameterHintingResult(node.SpanStart);
-			
-			// Check for indexers
-			var resolvedConstructor = info.Symbol as IPropertySymbol;
-			if (resolvedConstructor != null)
-				result.AddData(factory.CreateIndexerParameterDataProvider(resolvedConstructor, node));
-			result.AddRange(info.CandidateSymbols.OfType<IPropertySymbol>().Select (m => factory.CreateIndexerParameterDataProvider(m, node)));
-			if (result.Count > 0)
-				return result;
-			
-			// Array case ?
-			var elementeAccess = node as ElementAccessExpressionSyntax;
-			if (elementeAccess == null)
-				return ParameterHintingResult.Empty;
-			
-			var elementInfo = semanticModel.GetSymbolInfo(elementeAccess.Expression, cancellationToken);
-			ITypeSymbol type = null;
-			
-			switch (elementInfo.Symbol.Kind) {
-				case SymbolKind.Local:
-					type = ((ILocalSymbol)elementInfo.Symbol).Type;
-					break;
-				case SymbolKind.Parameter:
-					type = ((IParameterSymbol)elementInfo.Symbol).Type;
-					break;
-				case SymbolKind.Field:
-					type = ((IFieldSymbol)elementInfo.Symbol).Type;
-					break;
-				case SymbolKind.Property:
-					type = ((IPropertySymbol)elementInfo.Symbol).Type;
-					break;
-			}
+			var within = semanticModel.GetEnclosingNamedTypeOrAssembly(node.SpanStart, cancellationToken);
+
+			var targetTypeInfo = semanticModel.GetTypeInfo (node.Expression);
+			ITypeSymbol type = targetTypeInfo.Type;
 			if (type == null)
 				return ParameterHintingResult.Empty;
-			
-			if (type.TypeKind == TypeKind.Array)
-				result.AddData(factory.CreateArrayDataProvider((IArrayTypeSymbol)type));
-			
+
+			var result = new ParameterHintingResult(node.SpanStart);
+			if (type.TypeKind == TypeKind.Array) {
+				result.AddData (factory.CreateArrayDataProvider ((IArrayTypeSymbol)type));
+				return result;
+			}
+
+			var addedProperties = new List<IPropertySymbol> ();
+			for (;type != null; type = type.BaseType) {
+				foreach (var indexer in type.GetMembers ().OfType<IPropertySymbol> ().Where (p => p.IsIndexer)) {
+					if (addedProperties.Any (added => SignatureComparer.HaveSameSignature (indexer, added, true)))
+						continue;
+
+					if (indexer.IsAccessibleWithin (within)) {
+						addedProperties.Add (indexer); 
+						result.AddData (factory.CreateIndexerParameterDataProvider (indexer, node));
+					}
+				}
+			}
 			return result;
 		}
 		
@@ -217,22 +244,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		{
 			var info = semanticModel.GetSymbolInfo(node, cancellationToken);
 			var result = new ParameterHintingResult(node.SpanStart);
-			var resolvedConstructor = info.Symbol as IMethodSymbol;
-			if (resolvedConstructor != null)
-				result.AddData(factory.CreateConstructorProvider(resolvedConstructor));
-			result.AddRange(info.CandidateSymbols.OfType<IMethodSymbol>().Select (m => factory.CreateConstructorProvider(m)));
-			
-			// work around for adding implicitly declared constructors for structs
-			foreach (var d in result) {
-				var method = (IMethodSymbol)d.Symbol;
-				if (method.ContainingType.TypeKind == TypeKind.Struct) {
-					foreach (IMethodSymbol c in method.ContainingType.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.Constructor)) {
-						if (c.IsImplicitlyDeclared) {
-							result.AddData(factory.CreateConstructorProvider(c));
-							break;
-						}
+			var within = semanticModel.GetEnclosingNamedTypeOrAssembly(node.SpanStart, cancellationToken);
+
+			var targetTypeInfo = semanticModel.GetTypeInfo (node);
+			if (targetTypeInfo.Type != null) {
+				foreach (IMethodSymbol c in targetTypeInfo.Type.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.Constructor)) {
+					if (c.IsAccessibleWithin (within)) {
+						result.AddData(factory.CreateConstructorProvider(c));
 					}
-					break;
 				}
 			}
 			return result;

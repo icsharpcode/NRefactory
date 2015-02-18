@@ -36,6 +36,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Text;
+using System;
 
 namespace ICSharpCode.NRefactory6.CSharp.ParameterHinting
 {
@@ -153,13 +154,12 @@ namespace ICSharpCode.NRefactory6.CSharp.ParameterHinting
 			var document = workspace.CurrentSolution.GetDocument(documentId);
 			var semanticModel = document.GetSemanticModelAsync().Result;
 			
-			return engine.GetParameterDataProvider(document, semanticModel, cursorPosition);
+			return engine.GetParameterDataProviderAsync(document, semanticModel, cursorPosition).Result;
 		}
 		
 		/// <summary>
 		/// Bug 427448 - Code Completion: completion of constructor parameters not working
 		/// </summary>
-		[Ignore("Roslyn problem")]
 		[Test]
 		public void TestBug427448 ()
 		{
@@ -575,7 +575,6 @@ namespace Test
 			Assert.AreEqual (2, provider.Count);
 		}
 		
-		[Ignore("Roslyn bug...")]
 		[Test]
 		public void TestTypeParameter ()
 		{
@@ -595,8 +594,7 @@ namespace Test
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.AreEqual (16, provider.Count);
 		}
-		
-		[Ignore("Roslyn bug...")]
+
 		[Test]
 		public void TestSecondTypeParameter ()
 		{
@@ -699,7 +697,6 @@ class TestClass
 			Assert.AreEqual (1, provider.Count);
 		}
 		
-		[Ignore("Roslyn problem...")]
 		[Test]
 		public void TestTypeParameterInBaseType ()
 		{
@@ -711,7 +708,7 @@ namespace Test
 	$class A : Tuple<$
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
-			Assert.AreEqual (16, provider.Count);
+			Assert.AreEqual (8, provider.Count);
 		}
 		
 		
@@ -774,7 +771,6 @@ namespace Test
 		/// <summary>
 		/// Bug 3645 - [New Resolver]Parameter completion shows all static and non-static overloads
 		/// </summary>
-		[Ignore("Roslyn problem")]
 		[Test]
 		public void TestBug3645 ()
 		{
@@ -930,7 +926,6 @@ class TestClass
 		/// <summary>
 		/// Bug 9301 - Inaccessible indexer overload in completion 
 		/// </summary>
-		[Ignore("Roslyn problem")]
 		[Test]
 		public void TestBug9301()
 		{
@@ -1032,6 +1027,7 @@ class Test
 			Assert.AreEqual (2, provider[0].ParameterCount);
 		}
 
+		[Ignore("fixme")]
 		[Test]
 		public void TypeArgumentsInIncompleteMethodCall ()
 		{
@@ -1166,6 +1162,57 @@ class MyTest
 }");
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.Greater (provider.Count, 1);
+		}
+
+		[Test]
+		public void TestMethodOverloads ()
+		{
+			var provider = CreateProvider(@"class TestClass
+{
+	public int TestMe () { return 0; } 
+	public int TestMe (int x) { return 0; } 
+	public int TestMe (int x, int y) { return 0; } 
+	public void Test ()
+	{
+		$TestMe ($
+	}
+}");
+			Assert.IsNotNull (provider, "provider was not created.");
+			Assert.AreEqual (3, provider.Count);
+		}
+
+		[Test]
+		public void TestMethodOverloads2 ()
+		{
+			var provider = CreateProvider(@"class TestClass
+{
+	public int TestMe () { return 0; } 
+	public int TestMe (int x) { return 0; } 
+	public int TestMe (int x, int y) { return 0; } 
+	public void Test ()
+	{
+		$TestMe (1, $
+	}
+}");
+			Assert.IsNotNull(provider, "provider was not created.");
+			Assert.AreEqual(3, provider.Count);
+		}
+
+		[Test]
+		public void TestMethodOverloads3 ()
+		{
+			var provider = CreateProvider (@"class TestClass
+{
+	public int TestMe () { return 0; } 
+	public int TestMe (int x) { return 0; } 
+	public int TestMe (int x, int y) { return 0; } 
+	public void Test ()
+	{
+		$TestMe (1, 2$
+	}
+}");
+			Assert.IsNotNull (provider, "provider was not created.");
+			Assert.AreEqual (3, provider.Count);
 		}
 	}
 }
