@@ -51,9 +51,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
+			var model = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var list = new List<ICompletionData> ();
 			foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, completionContext.Position, cancellationToken)) {
-				var symbolCompletionData = engine.Factory.CreateSymbolCompletionData (this, symbol);
+				var symbolCompletionData = engine.Factory.CreateSymbolCompletionData (this, symbol, symbol.ToMinimalDisplayString(model, completionContext.Position, SymbolDisplayFormat.CSharpErrorMessageFormat));
 				list.Add (symbolCompletionData);
 				if (string.IsNullOrEmpty (result.DefaultCompletionString))
 					result.DefaultCompletionString = symbolCompletionData.DisplayText;
