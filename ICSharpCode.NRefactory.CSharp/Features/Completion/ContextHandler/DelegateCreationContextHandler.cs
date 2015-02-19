@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 	class DelegateCreationContextHandler : CompletionContextHandler
 	{
 		static readonly SymbolDisplayFormat NameFormat =
-			new SymbolDisplayFormat(
+			new SymbolDisplayFormat (
 				globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
 				typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
 				propertyStyle: SymbolDisplayPropertyStyle.NameOnly,
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers |
 				SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
 
-		internal static readonly SymbolDisplayFormat overrideNameFormat = NameFormat.WithParameterOptions(
+		internal static readonly SymbolDisplayFormat overrideNameFormat = NameFormat.WithParameterOptions (
 			SymbolDisplayParameterOptions.IncludeDefaultValue |
 			SymbolDisplayParameterOptions.IncludeExtensionThis |
 			SymbolDisplayParameterOptions.IncludeType |
@@ -63,8 +63,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 		public override bool IsTriggerCharacter (SourceText text, int position)
 		{
-			var ch = text[position];
-			return ch =='(' || ch =='[' || ch == ',' || IsTriggerAfterSpaceOrStartOfWordCharacter (text, position);
+			var ch = text [position];
+			return ch == '(' || ch == '[' || ch == ',' || IsTriggerAfterSpaceOrStartOfWordCharacter (text, position);
 		}
 
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
@@ -72,9 +72,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var document = completionContext.Document;
 			var position = completionContext.Position;
 
-			var tree = await document.GetSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
-			var model = await document.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false); 
-			if (tree.IsInNonUserCode(position, cancellationToken))
+			var tree = await document.GetSyntaxTreeAsync (cancellationToken).ConfigureAwait (false);
+			var model = await document.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
+			if (tree.IsInNonUserCode (position, cancellationToken))
 				return Enumerable.Empty<ICompletionData> ();
 
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
@@ -93,10 +93,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return list;
 		}
 
-		void AddDelegateHandlers(List<ICompletionData> completionList, SemanticModel semanticModel, CompletionEngine engine, CompletionResult result, ITypeSymbol delegateType, int position, string optDelegateName, CancellationToken cancellationToken)
+		void AddDelegateHandlers (List<ICompletionData> completionList, SemanticModel semanticModel, CompletionEngine engine, CompletionResult result, ITypeSymbol delegateType, int position, string optDelegateName, CancellationToken cancellationToken)
 		{
-			var delegateMethod = delegateType.GetDelegateInvokeMethod();
-			result.PossibleDelegates.Add(delegateMethod);
+			var delegateMethod = delegateType.GetDelegateInvokeMethod ();
+			result.PossibleDelegates.Add (delegateMethod);
 
 			var thisLineIndent = "";
 			string EolMarker = "\n";
@@ -105,100 +105,102 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			string delegateEndString = EolMarker + thisLineIndent + "}" + (addSemicolon ? ";" : "");
 			//bool containsDelegateData = completionList.Result.Any(d => d.DisplayText.StartsWith("delegate("));
-			if (addDefault && completionList.Count == 0) {
-				completionList.Add (
-					engine.Factory.CreateAnonymousMethod (
-						this,
-						"delegate",
-						"Creates anonymous delegate.",
-						"delegate {" + EolMarker + thisLineIndent, 
-						delegateEndString
-					)
+			ICompletionData item;
+			if (addDefault) {
+				item = engine.Factory.CreateAnonymousMethod (
+					this,
+					"delegate",
+					"Creates anonymous delegate.",
+					"delegate {" + EolMarker + thisLineIndent,
+					delegateEndString
 				);
+				if (!completionList.Any (i => i.DisplayText == item.DisplayText))
+					completionList.Add (item);
 
 				//if (LanguageVersion.Major >= 5)
-				completionList.Add (
-					engine.Factory.CreateAnonymousMethod (
-						this,
-						"async delegate",
-						"Creates anonymous async delegate.",
-						"async delegate {" + EolMarker + thisLineIndent, 
-						delegateEndString
-					)
+
+				item = engine.Factory.CreateAnonymousMethod (
+					this,
+					"async delegate",
+					"Creates anonymous async delegate.",
+					"async delegate {" + EolMarker + thisLineIndent,
+					delegateEndString
 				);
+				if (!completionList.Any (i => i.DisplayText == item.DisplayText))
+					completionList.Add (item);
 			}
 
-			var sb = new StringBuilder("(");
-			var sbWithoutTypes = new StringBuilder("(");
+			var sb = new StringBuilder ("(");
+			var sbWithoutTypes = new StringBuilder ("(");
 			for (int k = 0; k < delegateMethod.Parameters.Length; k++) {
 				if (k > 0) {
-					sb.Append(", ");
-					sbWithoutTypes.Append(", ");
+					sb.Append (", ");
+					sbWithoutTypes.Append (", ");
 				}
-				sb.Append (delegateMethod.Parameters [k].ToMinimalDisplayString (semanticModel, position, overrideNameFormat)); 
-				sbWithoutTypes.Append(delegateMethod.Parameters [k].Name);
+				sb.Append (delegateMethod.Parameters [k].ToMinimalDisplayString (semanticModel, position, overrideNameFormat));
+				sbWithoutTypes.Append (delegateMethod.Parameters [k].Name);
 			}
 
-			sb.Append(")");
-			sbWithoutTypes.Append(")");
-			var signature = sb.ToString()
+			sb.Append (")");
+			sbWithoutTypes.Append (")");
+			var signature = sb.ToString ()
 				.Replace (", params ", ", ")
 				.Replace ("(params ", "(");
 
 			if (completionList.All (data => data.DisplayText != signature)) {
-
-				completionList.Add (
-					engine.Factory.CreateAnonymousMethod (
-						this,
-						signature + " =>", 
-						"Creates typed lambda expression.",
-						signature + " => ", 
-						(addSemicolon ? ";" : "")
-					)
+				item = engine.Factory.CreateAnonymousMethod (
+					this,
+					signature + " =>",
+					"Creates typed lambda expression.",
+					signature + " => ",
+					(addSemicolon ? ";" : "")
 				);
+				if (!completionList.Any (i => i.DisplayText == item.DisplayText))
+					completionList.Add (item);
 
 				// if (LanguageVersion.Major >= 5) {
 
-				completionList.Add (
-					engine.Factory.CreateAnonymousMethod (
-						this,
-						"async " + signature + " =>",
-						"Creates typed async lambda expression.",
-						"async " + signature + " => ", 
-						(addSemicolon ? ";" : "")
-					)
+				item = engine.Factory.CreateAnonymousMethod (
+					this,
+					"async " + signature + " =>",
+					"Creates typed async lambda expression.",
+					"async " + signature + " => ",
+					(addSemicolon ? ";" : "")
 				);
+				if (!completionList.Any (i => i.DisplayText == item.DisplayText))
+					completionList.Add (item);
 
 				var signatureWithoutTypes = sbWithoutTypes.ToString ();
 				if (!delegateMethod.Parameters.Any (p => p.RefKind != RefKind.None) && completionList.All (data => data.DisplayText != signatureWithoutTypes)) {
-					completionList.Add (
-						engine.Factory.CreateAnonymousMethod (
-							this,
-							signatureWithoutTypes + " =>",
-							"Creates typed lambda expression.",
-							signatureWithoutTypes + " => ", 
-							(addSemicolon ? ";" : "")
-						)
+					item = engine.Factory.CreateAnonymousMethod (
+						this,
+						signatureWithoutTypes + " =>",
+						"Creates typed lambda expression.",
+						signatureWithoutTypes + " => ",
+						(addSemicolon ? ";" : "")
 					);
+					if (!completionList.Any (i => i.DisplayText == item.DisplayText))
+						completionList.Add (item);
+
 					//if (LanguageVersion.Major >= 5) {
-					completionList.Add (
-						engine.Factory.CreateAnonymousMethod (
-							this,
-							"async " + signatureWithoutTypes + " =>",
-							"Creates typed async lambda expression.",
-							"async " + signatureWithoutTypes + " => ", 
-							(addSemicolon ? ";" : "")
-						)
+					item = engine.Factory.CreateAnonymousMethod (
+						this,
+						"async " + signatureWithoutTypes + " =>",
+						"Creates typed async lambda expression.",
+						"async " + signatureWithoutTypes + " => ",
+						(addSemicolon ? ";" : "")
 					);
+					if (!completionList.Any (i => i.DisplayText == item.DisplayText))
+						completionList.Add (item);
+
 					//}
 				}
 			}
 			string varName = optDelegateName ?? "Handle" + delegateType.Name;
 			var curType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol> (position, cancellationToken);
-
-			completionList.Add (
-				engine.Factory.CreateNewMethodDelegate (this, delegateType, varName, curType)
-			);
+			item = engine.Factory.CreateNewMethodDelegate (this, delegateType, varName, curType);
+			if (!completionList.Any (i => i.DisplayText == item.DisplayText))
+				completionList.Add (item);
 		}
 	}
 }
