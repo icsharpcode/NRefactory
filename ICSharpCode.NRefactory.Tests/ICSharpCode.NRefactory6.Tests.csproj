@@ -486,6 +486,7 @@
     <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\XmlDocCompletionHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\OverrideCompletionProviderTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\DelegateCreationContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\PartialCompletionHandlerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -494,7 +495,7 @@
         <Policies>
           <TextStylePolicy TabsToSpaces="False" EolMarker="Unix" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/plain" />
           <TextStylePolicy FileWidth="120" TabsToSpaces="False" EolMarker="Unix" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/x-csharp" />
-          <CSharpFormattingPolicy IndentSwitchBody="True" BeforeMethodDeclarationParentheses="False" BeforeMethodCallParentheses="False" BeforeConstructorDeclarationParentheses="False" BeforeDelegateDeclarationParentheses="False" NewParentheses="False" inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp" />
+          <CSharpFormattingPolicy inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp" />
         </Policies>
       </Properties>
     </MonoDevelop>

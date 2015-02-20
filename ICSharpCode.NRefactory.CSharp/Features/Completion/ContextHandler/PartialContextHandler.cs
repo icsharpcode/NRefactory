@@ -49,24 +49,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		{
 			var document = completionContext.Document;
 			var position = completionContext.Position;
-			var tree = await document.GetSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
+			var tree = await document.GetSyntaxTreeAsync (cancellationToken).ConfigureAwait (false);
 
 			DeclarationModifiers modifiers;
 			SyntaxToken token;
-			if (!IsPartialCompletionContext(tree, position, cancellationToken, out modifiers, out token)) {
-				return Enumerable.Empty<ICompletionData> ();
-			}
 
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-			var enclosingSymbol = semanticModel.GetEnclosingSymbol(position, cancellationToken) as INamedTypeSymbol;
+			var semanticModel = await document.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
+			var enclosingSymbol = semanticModel.GetEnclosingSymbol (position, cancellationToken) as INamedTypeSymbol;
 
 			// Only inside classes and structs
-			if (enclosingSymbol == null || !(enclosingSymbol.TypeKind == TypeKind.Struct || enclosingSymbol.TypeKind == TypeKind.Class))
-			{
+			if (enclosingSymbol == null || !(enclosingSymbol.TypeKind == TypeKind.Struct || enclosingSymbol.TypeKind == TypeKind.Class)) {
 				return Enumerable.Empty<ICompletionData> ();
 			}
 
-			var symbols = semanticModel.LookupSymbols(position, container: enclosingSymbol)
+			if (!IsPartialCompletionContext (tree, position, cancellationToken, out modifiers, out token)) {
+				if (enclosingSymbol != null && (token.IsKind (SyntaxKind.OpenBraceToken) || token.IsKind (SyntaxKind.CloseBraceToken) || token.IsKind (SyntaxKind.SemicolonToken))) {
+					return CreateCompletionData (engine, semanticModel, position, enclosingSymbol, token, false, cancellationToken);
+				}
+				return Enumerable.Empty<ICompletionData> ();
+			}
+
+			return CreateCompletionData (engine, semanticModel, position, enclosingSymbol, token, true, cancellationToken);
+		}
+
+		protected virtual IEnumerable<ICompletionData> CreateCompletionData (CompletionEngine engine, SemanticModel semanticModel, int position, INamedTypeSymbol enclosingType, SyntaxToken token, bool afterPartialKeyword, CancellationToken cancellationToken)
+		{
+			var symbols = semanticModel.LookupSymbols(position, container: enclosingType)
 				.OfType<IMethodSymbol>()
 				.Where(m => IsPartial(m) && m.PartialImplementationPart == null);
 
@@ -76,8 +84,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				var data = engine.Factory.CreatePartialCompletionData (
 					this,
 					token.SpanStart,
-					enclosingSymbol,
-					m
+					enclosingType,
+					m,
+					afterPartialKeyword
 				);
 				list.Add (data); 
 			}

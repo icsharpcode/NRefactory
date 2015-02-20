@@ -63,16 +63,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			ITypeSymbol returnType;
 			SyntaxToken tokenBeforeReturnType;
 			TryDetermineReturnType (startToken, semanticModel, cancellationToken, out returnType, out tokenBeforeReturnType);
+			if (returnType == null) {
+				var enclosingType = semanticModel.GetEnclosingSymbol (completionContext.Position, cancellationToken) as INamedTypeSymbol;
+				if (enclosingType != null && (startToken.IsKind (SyntaxKind.OpenBraceToken) || startToken.IsKind (SyntaxKind.CloseBraceToken) || startToken.IsKind (SyntaxKind.SemicolonToken))) {
+					return CreateCompletionData (engine, semanticModel, returnType, Accessibility.NotApplicable, startToken, tokenBeforeReturnType, false, cancellationToken);
+				}
+			}
 
 			if (!TryDetermineModifiers(ref tokenBeforeReturnType, text, startLineNumber, out seenAccessibility, out modifiers) ||
 			    !TryCheckForTrailingTokens (tree, text, startLineNumber, completionContext.Position, cancellationToken)) {
 				return Enumerable.Empty<ICompletionData> ();
 			}
 
-			return CreateCompletionData (engine, semanticModel, returnType, seenAccessibility, startToken, tokenBeforeReturnType, cancellationToken);
+			return CreateCompletionData (engine, semanticModel, returnType, seenAccessibility, startToken, tokenBeforeReturnType, true, cancellationToken);
 		}
 
-		protected virtual IEnumerable<ICompletionData> CreateCompletionData (CompletionEngine engine, SemanticModel semanticModel, ITypeSymbol returnType, Accessibility seenAccessibility, SyntaxToken startToken, SyntaxToken tokenBeforeReturnType, CancellationToken cancellationToken)
+		protected virtual IEnumerable<ICompletionData> CreateCompletionData (CompletionEngine engine, SemanticModel semanticModel, ITypeSymbol returnType, Accessibility seenAccessibility, SyntaxToken startToken, SyntaxToken tokenBeforeReturnType, bool afterKeyword, CancellationToken cancellationToken)
 		{
 			var result = new List<ICompletionData> ();
 			ISet<ISymbol> overridableMembers;
@@ -84,7 +90,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 			var curType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol> (startToken.SpanStart, cancellationToken);
 			foreach (var m in overridableMembers) {
-				var data = engine.Factory.CreateNewOverrideCompletionData (this, startToken.SpanStart, curType, m);
+				var data = engine.Factory.CreateNewOverrideCompletionData (this, startToken.SpanStart, curType, m, afterKeyword);
 				result.Add (data);
 			}
 			return result;

@@ -56,9 +56,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		/// </summary>
 		ISymbolCompletionData CreateEnumMemberCompletionData(ICompletionKeyHandler keyHandler, IFieldSymbol field);
 
-		ICompletionData CreateNewOverrideCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, ISymbol m);
+		ICompletionData CreateNewOverrideCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, ISymbol m, bool afterOverrideKeyword);
 
-		ICompletionData CreatePartialCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, IMethodSymbol method);
+		ICompletionData CreatePartialCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, IMethodSymbol method, bool afterPartialKeyword);
 
 		/// <summary>
 		/// Creates the event creation completion data.

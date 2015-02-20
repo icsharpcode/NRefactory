@@ -1,5 +1,5 @@
 ﻿//
-// OverrideCompletionHandlerTests.cs
+// PartialCompletionProviderTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,7 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Completion;
@@ -32,21 +31,18 @@ using ICSharpCode.NRefactory6.CSharp.Completion;
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.NR6
 {
 	[TestFixture]
-	public class OverrideCompletionProviderTests : CompletionTestBase
+	public class PartialCompletionProviderTests : CompletionTestBase
 	{
 		[Test]
-		public void InheritedVirtualPublicMethod()
+		public void SimplePartial()
 		{
-			VerifyItemExists(@"
-public class a
+			var text = @"partial class c
 {
-    public virtual void foo() { }
-}
+    partial void foo();
 
-public class b : a
-{
     $$
-}", "foo");
+}";
+			VerifyItemExists(text, "foo");
 		}
 	}
 }
