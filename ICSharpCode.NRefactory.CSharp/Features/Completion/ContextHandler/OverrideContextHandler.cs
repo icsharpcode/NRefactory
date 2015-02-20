@@ -59,26 +59,27 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			Accessibility seenAccessibility;
 			DeclarationModifiers modifiers;
 			var token = tree.FindTokenOnLeftOfPosition(completionContext.Position, cancellationToken);
-			var startToken = token.GetPreviousTokenIfTouchingWord(completionContext.Position);
+            var position = completionContext.Position;
+            var startToken = token.GetPreviousTokenIfTouchingWord(position);
 			ITypeSymbol returnType;
 			SyntaxToken tokenBeforeReturnType;
 			TryDetermineReturnType (startToken, semanticModel, cancellationToken, out returnType, out tokenBeforeReturnType);
 			if (returnType == null) {
-				var enclosingType = semanticModel.GetEnclosingSymbol (completionContext.Position, cancellationToken) as INamedTypeSymbol;
+				var enclosingType = semanticModel.GetEnclosingSymbol (position, cancellationToken) as INamedTypeSymbol;
 				if (enclosingType != null && (startToken.IsKind (SyntaxKind.OpenBraceToken) || startToken.IsKind (SyntaxKind.CloseBraceToken) || startToken.IsKind (SyntaxKind.SemicolonToken))) {
-					return CreateCompletionData (engine, semanticModel, returnType, Accessibility.NotApplicable, startToken, tokenBeforeReturnType, false, cancellationToken);
+					return CreateCompletionData (engine, semanticModel, position, returnType, Accessibility.NotApplicable, startToken, tokenBeforeReturnType, false, cancellationToken);
 				}
 			}
 
 			if (!TryDetermineModifiers(ref tokenBeforeReturnType, text, startLineNumber, out seenAccessibility, out modifiers) ||
-			    !TryCheckForTrailingTokens (tree, text, startLineNumber, completionContext.Position, cancellationToken)) {
+			    !TryCheckForTrailingTokens (tree, text, startLineNumber, position, cancellationToken)) {
 				return Enumerable.Empty<ICompletionData> ();
 			}
 
-			return CreateCompletionData (engine, semanticModel, returnType, seenAccessibility, startToken, tokenBeforeReturnType, true, cancellationToken);
+			return CreateCompletionData (engine, semanticModel, position, returnType, seenAccessibility, startToken, tokenBeforeReturnType, true, cancellationToken);
 		}
 
-		protected virtual IEnumerable<ICompletionData> CreateCompletionData (CompletionEngine engine, SemanticModel semanticModel, ITypeSymbol returnType, Accessibility seenAccessibility, SyntaxToken startToken, SyntaxToken tokenBeforeReturnType, bool afterKeyword, CancellationToken cancellationToken)
+		protected virtual IEnumerable<ICompletionData> CreateCompletionData (CompletionEngine engine, SemanticModel semanticModel, int position, ITypeSymbol returnType, Accessibility seenAccessibility, SyntaxToken startToken, SyntaxToken tokenBeforeReturnType, bool afterKeyword, CancellationToken cancellationToken)
 		{
 			var result = new List<ICompletionData> ();
 			ISet<ISymbol> overridableMembers;
@@ -88,9 +89,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (returnType != null) {
 				overridableMembers = FilterOverrides (overridableMembers, returnType);
 			}
-			var curType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol> (startToken.SpanStart, cancellationToken);
+			var curType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol> (position, cancellationToken);
+			var declarationBegin = afterKeyword ? startToken.SpanStart : position;
 			foreach (var m in overridableMembers) {
-				var data = engine.Factory.CreateNewOverrideCompletionData (this, startToken.SpanStart, curType, m, afterKeyword);
+				var data = engine.Factory.CreateNewOverrideCompletionData (this, declarationBegin, curType, m, afterKeyword);
 				result.Add (data);
 			}
 			return result;

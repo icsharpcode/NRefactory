@@ -80,10 +80,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			var list = new List<ICompletionData> ();
 
+			var declarationBegin = afterPartialKeyword ? token.SpanStart : position;
 			foreach (var m in symbols) {
-				var data = engine.Factory.CreatePartialCompletionData (
+                var data = engine.Factory.CreatePartialCompletionData (
 					this,
-					token.SpanStart,
+					declarationBegin,
 					enclosingType,
 					m,
 					afterPartialKeyword
