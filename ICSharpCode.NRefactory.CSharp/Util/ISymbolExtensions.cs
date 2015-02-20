@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
@@ -455,6 +456,16 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 
 			return false;
+		}
+
+		public static bool IsDefinedInMetadata(this ISymbol symbol)
+		{
+			return symbol.Locations.Any (loc => loc.IsInMetadata);
+		}
+
+		public static bool IsDefinedInSource(this ISymbol symbol)
+		{
+			return symbol.Locations.All (loc => loc.IsInSource);
 		}
 	}
 }
