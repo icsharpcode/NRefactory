@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				if (leftSymbol.Symbol == symbolInfo.Symbol) {
 					var type = model.GetTypeInfo (isExpr.Right).Type;
 					if (type != null) {
-						Analyze (engine, isExpr.Left, type, within, list, addedSymbols, cancellationToken);
+						Analyze (engine, ma.Expression, type, within, list, addedSymbols, cancellationToken);
 					}
 				}
 			}
