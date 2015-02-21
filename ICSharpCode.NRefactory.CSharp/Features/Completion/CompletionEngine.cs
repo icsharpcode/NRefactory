@@ -55,7 +55,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new FormatItemContextHandler(),
 			new SpeculativeNameContextHandler(),
 			new DelegateCreationContextHandler(),
-			new ObjectCreationContextHandler()
+			new ObjectCreationContextHandler(),
+			new SenderContextHandler()
 		};
 
 		static readonly ICompletionKeyHandler DefaultKeyHandler = new RoslynRecommendationsCompletionContextHandler ();
@@ -179,7 +180,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 
 			// case lambda parameter (n1, $
-			if (ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.Parent != null &&
+			if (ctx.TargetToken.IsKind (SyntaxKind.CommaToken) &&
+				ctx.TargetToken.Parent != null && ctx.TargetToken.Parent.Parent != null &&
 				ctx.TargetToken.Parent.Parent.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) 
 				return CompletionResult.Empty;
 

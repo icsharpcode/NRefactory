@@ -53,8 +53,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return ch == '.';
 		}
 
-
-
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait(false);

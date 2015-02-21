@@ -205,6 +205,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				return new SymbolCompletionData(symbol, text);
 			}
 
+			ICompletionData ICompletionDataFactory.CreateCastCompletionData (ICompletionKeyHandler keyHandler, ISymbol member, SyntaxNode nodeToCast, ITypeSymbol targetType)
+			{
+				return new SymbolCompletionData(member);
+			}
+
 			ICompletionData ICompletionDataFactory.CreateNewMethodDelegate(ICompletionKeyHandler keyHandler, ITypeSymbol delegateType, string varName, INamedTypeSymbol curType)
 			{
 				return new CompletionData (varName);

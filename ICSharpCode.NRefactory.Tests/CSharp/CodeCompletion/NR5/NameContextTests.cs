@@ -290,7 +290,7 @@ class Foo
 		$new Action<int, int> ((x, y$
 	}
 }
-", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
+", AssertEmpty);
 
 		}
 
@@ -308,7 +308,7 @@ class Foo
 		new Action<int, int> ((x$, y$)
 	}
 }
-", provider => Assert.AreEqual(0, provider.Count, "provider needs to be empty"));
+", AssertEmpty);
 
 		}
 

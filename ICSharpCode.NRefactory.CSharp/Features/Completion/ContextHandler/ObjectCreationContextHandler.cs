@@ -55,6 +55,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			var newExpression = GetObjectCreationNewExpression (ctx.SyntaxTree, completionContext.Position, cancellationToken);
 			if (newExpression == null) {
+				if (ctx.SyntaxTree.IsInNonUserCode(completionContext.Position, cancellationToken) ||
+					ctx.SyntaxTree.IsPreProcessorDirectiveContext(completionContext.Position, cancellationToken))
+					return Enumerable.Empty<ICompletionData> ();
+
 				foreach (var inferredType in SyntaxContext.InferenceService.InferTypes (ctx.CSharpSyntaxContext.SemanticModel, completionContext.Position, cancellationToken)) {
 					foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, inferredType, completionContext.Position - 1, cancellationToken)) {
 						var symbolCompletionData = engine.Factory.CreateObjectCreation (this, symbol, completionContext.Position, false);

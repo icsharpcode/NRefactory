@@ -68,5 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		ICompletionData CreateAnonymousMethod (ICompletionKeyHandler keyHandler, string displayText, string description, string textBeforeCaret, string textAfterCaret);
 
 		ICompletionData CreateObjectCreation (ICompletionKeyHandler keyHandler, ISymbol symbol, int declarationBegin, bool afterKeyword);
+
+		ICompletionData CreateCastCompletionData (ICompletionKeyHandler keyHandler, ISymbol member, SyntaxNode nodeToCast, ITypeSymbol targetType);
 	}
 }

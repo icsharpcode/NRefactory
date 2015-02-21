@@ -1,5 +1,5 @@
 ﻿//
-// PartialCompletionProviderTests.cs
+// SenderContextHandlerTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,18 +31,27 @@ using ICSharpCode.NRefactory6.CSharp.Completion;
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.NR6
 {
 	[TestFixture]
-	public class PartialCompletionProviderTests : CompletionTestBase
+	public class SenderContextHandlerTests: CompletionTestBase
 	{
 		[Test]
-		public void SimplePartial()
+		public void TestSimple()
 		{
-			var text = @"partial class c
-{
-    partial void foo();
+			VerifyItemExists (@"
+using System;
 
-    $$
-}";
-			VerifyItemExists(text, "partial foo");
+class FooBar
+{
+	public event EventHandler Foo;
+
+	public int  Bar { get; set; }
+
+	public static void Test (FooBar fb)
+	{
+		fb.Foo += (sender, e) => sender.$$;
+	}
+}
+", "Bar");
 		}
 	}
 }
+

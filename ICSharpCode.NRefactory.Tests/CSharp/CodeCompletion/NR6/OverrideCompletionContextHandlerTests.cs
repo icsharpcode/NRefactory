@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory6.CSharp.Completion;
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.NR6
 {
 	[TestFixture]
-	public class OverrideCompletionProviderTests : CompletionTestBase
+	public class OverrideCompletionContextHandlerTests : CompletionTestBase
 	{
 		[Test]
 		public void InheritedVirtualPublicMethod()

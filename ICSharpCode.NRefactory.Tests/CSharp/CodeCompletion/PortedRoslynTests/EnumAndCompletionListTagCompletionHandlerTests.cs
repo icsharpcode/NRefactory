@@ -190,27 +190,27 @@ enum Colors
 //			VerifyItemExists(markup, "DayOfWeek");
 //		}
 //
-		[Test]
-		public void NoCompletionListTag()
-		{
-			var markup =
-				@"using System;
-using System.Threading.Tasks;
-
-class C
-{
-    
-}
-
-class Program
-{
-    void Foo()
-    {
-        C c = $$
-    }
-}";
-			VerifyNoItemsExist(markup);
-		}
+//		[Test]
+//		public void NoCompletionListTag()
+//		{
+//			var markup =
+//				@"using System;
+//using System.Threading.Tasks;
+//
+//class C
+//{
+//    
+//}
+//
+//class Program
+//{
+//    void Foo()
+//    {
+//        C c = $$
+//    }
+//}";
+//			VerifyNoItemsExist(markup);
+//		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void CompletionList()

@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var span = new TextSpan(position, 0);
 			var semanticModel = await document.GetCSharpSemanticModelForSpanAsync(span, cancellationToken).ConfigureAwait(false);
 			var syntaxTree = semanticModel.SyntaxTree;
-		//	var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
+			//	var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
 
 			if (syntaxTree.IsInNonUserCode(position, cancellationToken) ||
 				syntaxTree.IsPreProcessorDirectiveContext(position, cancellationToken))
