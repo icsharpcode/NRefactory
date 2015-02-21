@@ -242,7 +242,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		
 		ParameterHintingResult HandleObjectCreationExpression (SemanticModel semanticModel, SyntaxNode node, CancellationToken cancellationToken)
 		{
-			var info = semanticModel.GetSymbolInfo(node, cancellationToken);
+			// var info = semanticModel.GetSymbolInfo(node, cancellationToken);
 			var result = new ParameterHintingResult(node.SpanStart);
 			var within = semanticModel.GetEnclosingNamedTypeOrAssembly(node.SpanStart, cancellationToken);
 

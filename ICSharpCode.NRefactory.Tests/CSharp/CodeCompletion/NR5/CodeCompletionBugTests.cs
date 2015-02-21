@@ -160,14 +160,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				return new SymbolCompletionData(field, field.ContainingType.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat) + "." + field.Name);
 			}
 
-			public ICompletionData CreateNewOverrideCompletionData (ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, ISymbol m)
+			public ICompletionData CreateNewOverrideCompletionData (ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, ISymbol m, bool afterKeyword)
 			{
-				return new OverrideCompletionData(m.Name, declarationBegin);
+				return new OverrideCompletionData(afterKeyword ? m.Name : "override " + m.Name, declarationBegin);
 			}
 
-			public ICompletionData CreatePartialCompletionData (ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, IMethodSymbol method)
+			public ICompletionData CreatePartialCompletionData (ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, IMethodSymbol method, bool afterKeyword)
 			{
-				return new OverrideCompletionData(method.Name, declarationBegin);
+				return new OverrideCompletionData(afterKeyword ? method.Name : "partial " + method.Name, declarationBegin);
+			}
+
+			public ICompletionData CreateObjectCreation (ICompletionKeyHandler keyHandler, ISymbol symbol, int declarationBegin, bool afterKeyword)
+			{
+				return new CompletionData(afterKeyword ? symbol.ToDisplayString () : "new " + symbol.ToDisplayString ());
 			}
 
 			class SymbolCompletionData : CompletionData, ISymbolCompletionData

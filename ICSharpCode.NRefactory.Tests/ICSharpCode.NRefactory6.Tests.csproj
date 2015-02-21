@@ -486,7 +486,8 @@
     <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\XmlDocCompletionHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\OverrideCompletionProviderTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\DelegateCreationContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\PartialCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\PartialCompletionProviderTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\ObjectCreationCompletionContextHandlerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

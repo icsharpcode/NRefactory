@@ -70,10 +70,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				IsLegalFieldOrProperty(m) &&
 				!m.IsImplicitlyDeclared);
 
-			foreach (var m in members) {
-				Console.WriteLine (m.Name + ":"+  IsInitializable(m, initializedType) + "/"+ m.CanBeReferencedByName +"/"+ IsLegalFieldOrProperty (m));
-			}
-
 			// Filter out those members that have already been typed
 			var alreadyTypedMembers = GetInitializedMembers(semanticModel.SyntaxTree, position, cancellationToken);
 			var uninitializedMembers = members.Where(m => !alreadyTypedMembers.Contains(m.Name));

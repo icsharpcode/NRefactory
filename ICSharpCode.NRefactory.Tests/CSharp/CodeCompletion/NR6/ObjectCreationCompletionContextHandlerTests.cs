@@ -1,5 +1,5 @@
 ﻿//
-// OverrideCompletionHandlerTests.cs
+// ObjectCreationCompletionContextHandlerTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,7 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Completion;
@@ -32,21 +31,19 @@ using ICSharpCode.NRefactory6.CSharp.Completion;
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.NR6
 {
 	[TestFixture]
-	public class OverrideCompletionProviderTests : CompletionTestBase
+	public class ObjectCreationCompletionContextHandlerTests : CompletionTestBase
 	{
 		[Test]
-		public void InheritedVirtualPublicMethod()
+		public void SimpleTest()
 		{
 			VerifyItemExists(@"
-public class a
+class C
 {
-    public virtual void foo() { }
-}
-
-public class b : a
-{
-    $$
-}", "override foo");
+    void M()
+    {
+        C x = $$
+    }
+}", "new C");
 		}
 	}
 }

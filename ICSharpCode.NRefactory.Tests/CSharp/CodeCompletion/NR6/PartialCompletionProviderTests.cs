@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.NR6
 
     $$
 }";
-			VerifyItemExists(text, "foo");
+			VerifyItemExists(text, "partial foo");
 		}
 	}
 }

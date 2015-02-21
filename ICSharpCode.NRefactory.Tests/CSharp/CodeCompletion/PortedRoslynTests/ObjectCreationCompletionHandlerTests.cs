@@ -13,20 +13,20 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //		{
 //			return new ObjectCreationCompletionProvider();
 //		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InObjectCreation()
-//		{
-//			var markup = @"
-//class MyGeneric<T> { }
-//
-//void foo()
-//{
-//   MyGeneric<string> foo = new $$
-//}";
-//
-//			VerifyItemExists(markup, "MyGeneric<string>");
-//		}
+
+		[Test]
+		public void InObjectCreation()
+		{
+			var markup = @"
+class MyGeneric<T> { }
+
+void foo()
+{
+   MyGeneric<string> foo = new $$
+}";
+
+			VerifyItemExists(markup, "MyGeneric<string>");
+		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void NotInAnonymouTypeObjectCreation1()
@@ -42,59 +42,56 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //
 //			VerifyItemIsAbsent(markup, "<anonymous type: string Foo, int Bar>");
 //		}
-//
-//		[WorkItem(854497)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void NotVoid()
-//		{
-//			var markup = @"
-//class C
-//{
-//    void M()
-//    {
-//        var x = new $$
-//    }
-//}";
-//
-//			VerifyItemIsAbsent(markup, "void");
-//		}
-//
-//		[WorkItem(827897)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InYieldReturn()
-//		{
-//			var markup =
-//				@"using System;
-//using System.Collections.Generic;
-//
-//class Program
-//{
-//    IEnumerable<FieldAccessException> M()
-//    {
-//        yield return new $$
-//    }
-//}";
-//			VerifyItemExists(markup, "FieldAccessException");
-//		}
-//
-//		[WorkItem(827897)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InAsyncMethodReturnStatement()
-//		{
-//			var markup =
-//				@"using System;
-//using System.Threading.Tasks;
-//
-//class Program
-//{
-//    async Task<FieldAccessException> M()
-//    {
-//        await Task.Delay(1);
-//        return new $$
-//    }
-//}";
-//			VerifyItemExists(markup, "FieldAccessException");
-//		}
+
+		[Test]
+		public void NotVoid()
+		{
+			var markup = @"
+class C
+{
+    void M()
+    {
+        var x = new $$
+    }
+}";
+
+			VerifyItemIsAbsent(markup, "void");
+		}
+
+		[Test]
+		public void InYieldReturn()
+		{
+			var markup =
+				@"using System;
+using System.Collections.Generic;
+
+class Program
+{
+    IEnumerable<FieldAccessException> M()
+    {
+        yield return new $$
+    }
+}";
+			VerifyItemExists(markup, "FieldAccessException");
+		}
+
+		[Test]
+		public void InAsyncMethodReturnStatement()
+		{
+			var markup =
+				@"using System;
+using System.Threading.Tasks;
+
+class Program
+{
+    async Task<FieldAccessException> M()
+    {
+        await Task.Delay(1);
+        return new $$
+    }
+}";
+			VerifyItemExists(markup, "FieldAccessException");
+		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void IsCommitCharacterTest()
@@ -136,43 +133,41 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //			VerifySendEnterThroughToEnter("Foo", "Foo", sendThroughEnterEnabled: false, expected: false);
 //			VerifySendEnterThroughToEnter("Foo", "Foo", sendThroughEnterEnabled: true, expected: true);
 //		}
-//
-//		[WorkItem(828196)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void SuggestAlias()
-//		{
-//			var markup = @"
-//using D = System.Globalization.DigitShapes; 
-//class Program
-//{
-//    static void Main(string[] args)
-//    {
-//        D d=  new $$
-//    }
-//}";
-//			VerifyItemExists(markup, "D");
-//		}
-//
-//		[WorkItem(828196)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void SuggestAlias2()
-//		{
-//			var markup = @"
-//namespace N
-//{
-//using D = System.Globalization.DigitShapes; 
-//class Program
-//{
-//    static void Main(string[] args)
-//    {
-//        D d=  new $$
-//    }
-//}
-//}
-//
-//";
-//			VerifyItemExists(markup, "D");
-//		}
+
+		[Test]
+		public void SuggestAlias()
+		{
+			var markup = @"
+using D = System.Globalization.DigitShapes; 
+class Program
+{
+    static void Main(string[] args)
+    {
+        D d=  new $$
+    }
+}";
+			VerifyItemExists(markup, "D");
+		}
+
+		[Test]
+		public void SuggestAlias2()
+		{
+			var markup = @"
+namespace N
+{
+using D = System.Globalization.DigitShapes; 
+class Program
+{
+    static void Main(string[] args)
+    {
+        D d=  new $$
+    }
+}
+}
+
+";
+			VerifyItemExists(markup, "D");
+		}
 //
 //		[WorkItem(1075275)]
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]

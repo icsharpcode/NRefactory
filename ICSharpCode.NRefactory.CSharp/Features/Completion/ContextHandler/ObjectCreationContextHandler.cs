@@ -51,10 +51,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
-			var model = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var list = new List<ICompletionData> ();
-			foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, completionContext.Position, cancellationToken)) {
-				var symbolCompletionData = engine.Factory.CreateSymbolCompletionData (this, symbol, symbol.ToMinimalDisplayString(model, completionContext.Position, SymbolDisplayFormat.CSharpErrorMessageFormat));
+
+			var newExpression = GetObjectCreationNewExpression (ctx.SyntaxTree, completionContext.Position, cancellationToken);
+			if (newExpression == null) {
+				foreach (var inferredType in SyntaxContext.InferenceService.InferTypes (ctx.CSharpSyntaxContext.SemanticModel, completionContext.Position, cancellationToken)) {
+					foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, inferredType, completionContext.Position - 1, cancellationToken)) {
+						var symbolCompletionData = engine.Factory.CreateObjectCreation (this, symbol, completionContext.Position, false);
+						list.Add (symbolCompletionData);
+						if (string.IsNullOrEmpty (result.DefaultCompletionString))
+							result.DefaultCompletionString = symbolCompletionData.DisplayText;
+					}	
+				}
+				return list;
+			}
+
+			var type = SyntaxContext.InferenceService.InferType (ctx.CSharpSyntaxContext.SemanticModel, newExpression, objectAsDefault: false, cancellationToken: cancellationToken);
+
+			foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, type, completionContext.Position, cancellationToken)) {
+				var symbolCompletionData = engine.Factory.CreateObjectCreation (this, symbol, newExpression.SpanStart, true);
 				list.Add (symbolCompletionData);
 				if (string.IsNullOrEmpty (result.DefaultCompletionString))
 					result.DefaultCompletionString = symbolCompletionData.DisplayText;
@@ -63,17 +78,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		}
 
 
-		async Task<IEnumerable<ISymbol>> GetPreselectedSymbolsWorker2 (CSharpSyntaxContext context, int position, CancellationToken cancellationToken)
+		static Task<IEnumerable<ISymbol>> GetPreselectedSymbolsWorker2 (CSharpSyntaxContext context, ITypeSymbol type, CancellationToken cancellationToken)
 		{
-			var newExpression = this.GetObjectCreationNewExpression (context.SyntaxTree, position, cancellationToken);
-			if (newExpression == null) {
-				return Enumerable.Empty<ISymbol> ();
-			}
-
-			var typeInferenceService = SyntaxContext.InferenceService;
-			var type = typeInferenceService.InferType (
-				           context.SemanticModel, newExpression, objectAsDefault: false, cancellationToken: cancellationToken);
-
 			// Unwrap an array type fully.  We only want to offer the underlying element type in the
 			// list of completion items.
 			bool isArray = false;
@@ -83,7 +89,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 
 			if (type == null) {
-				return Enumerable.Empty<ISymbol> ();
+				return Task.FromResult (Enumerable.Empty<ISymbol> ());
 			}
 
 			// Unwrap nullable
@@ -92,15 +98,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 
 			if (type.SpecialType == SpecialType.System_Void) {
-				return Enumerable.Empty<ISymbol> ();
+				return Task.FromResult (Enumerable.Empty<ISymbol> ());
 			}
 
 			if (type.ContainsAnonymousType ()) {
-				return Enumerable.Empty<ISymbol> ();
+				return Task.FromResult (Enumerable.Empty<ISymbol> ());
 			}
 
 			if (!type.CanBeReferencedByName) {
-				return Enumerable.Empty<ISymbol> ();
+				return Task.FromResult (Enumerable.Empty<ISymbol> ());
 			}
 
 			// Normally the user can't say things like "new IList".  Except for "IList[] x = new |".
@@ -111,12 +117,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				    type.TypeKind == TypeKind.Pointer ||
 				    type.TypeKind == TypeKind.Dynamic ||
 				    type.IsAbstract) {
-					return Enumerable.Empty<ISymbol> ();
+					return Task.FromResult (Enumerable.Empty<ISymbol> ());
 				}
 
 				if (type.TypeKind == TypeKind.TypeParameter &&
 				    !((ITypeParameterSymbol)type).HasConstructorConstraint) {
-					return Enumerable.Empty<ISymbol> ();
+					return Task.FromResult (Enumerable.Empty<ISymbol> ());
 				}
 			}
 
@@ -125,12 +131,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //				return SpecializedTasks.EmptyEnumerable<ISymbol>();
 //			}
 //
-			return SpecializedCollections.SingletonEnumerable ((ISymbol)type);
+			return Task.FromResult (SpecializedCollections.SingletonEnumerable ((ISymbol)type));
 		}
 
-		async Task<IEnumerable<ISymbol>> GetPreselectedSymbolsWorker (CSharpSyntaxContext context, int position, CancellationToken cancellationToken)
+		static async Task<IEnumerable<ISymbol>> GetPreselectedSymbolsWorker (CSharpSyntaxContext context, ITypeSymbol inferredType, int position, CancellationToken cancellationToken)
 		{
-			var result = await GetPreselectedSymbolsWorker2 (context, position, cancellationToken).ConfigureAwait (false);
+			var result = await GetPreselectedSymbolsWorker2 (context, inferredType, cancellationToken).ConfigureAwait (false);
 			if (result.Any ()) {
 				var type = (ITypeSymbol)result.Single ();
 				var alias = await type.FindApplicableAlias (position, context.SemanticModel, cancellationToken).ConfigureAwait (false);
@@ -142,8 +148,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return result;
 		}
 
-
-		SyntaxNode GetObjectCreationNewExpression (SyntaxTree tree, int position, CancellationToken cancellationToken)
+		static SyntaxNode GetObjectCreationNewExpression (SyntaxTree tree, int position, CancellationToken cancellationToken)
 		{
 			if (tree != null) {
 				if (!tree.IsInNonUserCode (position, cancellationToken)) {
