@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 				foreach (var inferredType in SyntaxContext.InferenceService.InferTypes (ctx.CSharpSyntaxContext.SemanticModel, completionContext.Position, cancellationToken)) {
 					foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, inferredType, completionContext.Position - 1, cancellationToken)) {
-						var symbolCompletionData = engine.Factory.CreateObjectCreation (this, symbol, completionContext.Position, false);
+						var symbolCompletionData = engine.Factory.CreateObjectCreation (this, inferredType, symbol, completionContext.Position, false);
 						list.Add (symbolCompletionData);
 						if (string.IsNullOrEmpty (result.DefaultCompletionString))
 							result.DefaultCompletionString = symbolCompletionData.DisplayText;
@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var type = SyntaxContext.InferenceService.InferType (ctx.CSharpSyntaxContext.SemanticModel, newExpression, objectAsDefault: false, cancellationToken: cancellationToken);
 
 			foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, type, completionContext.Position, cancellationToken)) {
-				var symbolCompletionData = engine.Factory.CreateObjectCreation (this, symbol, newExpression.SpanStart, true);
+				var symbolCompletionData = engine.Factory.CreateObjectCreation (this, type, symbol, newExpression.SpanStart, true);
 				list.Add (symbolCompletionData);
 				if (string.IsNullOrEmpty (result.DefaultCompletionString))
 					result.DefaultCompletionString = symbolCompletionData.DisplayText;

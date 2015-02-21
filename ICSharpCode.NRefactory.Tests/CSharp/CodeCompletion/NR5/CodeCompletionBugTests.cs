@@ -170,7 +170,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				return new OverrideCompletionData(afterKeyword ? method.Name : "partial " + method.Name, declarationBegin);
 			}
 
-			public ICompletionData CreateObjectCreation (ICompletionKeyHandler keyHandler, ISymbol symbol, int declarationBegin, bool afterKeyword)
+			public ICompletionData CreateObjectCreation (ICompletionKeyHandler keyHandler, ITypeSymbol type, ISymbol symbol, int declarationBegin, bool afterKeyword)
 			{
 				return new CompletionData(afterKeyword ? symbol.ToDisplayString () : "new " + symbol.ToDisplayString ());
 			}
