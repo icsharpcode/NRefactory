@@ -63,8 +63,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, inferredType, completionContext.Position - 1, cancellationToken)) {
 						var symbolCompletionData = engine.Factory.CreateObjectCreation (this, inferredType, symbol, completionContext.Position, false);
 						list.Add (symbolCompletionData);
-						if (string.IsNullOrEmpty (result.DefaultCompletionString))
-							result.DefaultCompletionString = symbolCompletionData.DisplayText;
 					}	
 				}
 				return list;
