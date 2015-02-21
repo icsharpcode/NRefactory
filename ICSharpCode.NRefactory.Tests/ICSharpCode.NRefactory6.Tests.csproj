@@ -488,7 +488,8 @@
     <Compile Include="CSharp\CodeCompletion\NR6\ObjectCreationCompletionContextHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\OverrideCompletionContextHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\PartialCompletionContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\SenderContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\CastCompletionContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\SenderCompletionContextHandlerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

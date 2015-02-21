@@ -1,5 +1,5 @@
 ﻿//
-// SenderContextHandler.cs
+// SenderCompletionContextHandler.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -35,7 +35,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	public class SenderContextHandler : CompletionContextHandler
+	public class SenderCompletionContextHandler : CompletionContextHandler
 	{
 		public override async Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
@@ -59,18 +59,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return Enumerable.Empty<ICompletionData> ();
 			var list = new List<ICompletionData> ();
 			var within = model.GetEnclosingNamedTypeOrAssembly(position, cancellationToken);
+			var addedSymbols = new HashSet<string> ();
+
 			foreach (var ano in ma.AncestorsAndSelf ().OfType<AnonymousMethodExpressionSyntax> ()) {
-				Analyze (engine, model, ma.Expression, within, list, ano.ParameterList, symbolInfo.Symbol, cancellationToken);
+				Analyze (engine, model, ma.Expression, within, list, ano.ParameterList, symbolInfo.Symbol, addedSymbols, cancellationToken);
 			}
 
 			foreach (var ano in ma.AncestorsAndSelf ().OfType<ParenthesizedLambdaExpressionSyntax> ()) {
-				Analyze (engine, model, ma.Expression, within, list, ano.ParameterList, symbolInfo.Symbol, cancellationToken);
+				Analyze (engine, model, ma.Expression, within, list, ano.ParameterList, symbolInfo.Symbol, addedSymbols, cancellationToken);
 			}
 
 			return list;
 		}
 
-		void Analyze (CompletionEngine engine,SemanticModel model, SyntaxNode node, ISymbol within, List<ICompletionData> list, ParameterListSyntax parameterList, ISymbol symbol, CancellationToken cancellationToken)
+		void Analyze (CompletionEngine engine,SemanticModel model, SyntaxNode node, ISymbol within, List<ICompletionData> list, ParameterListSyntax parameterList, ISymbol symbol, HashSet<string> addedSymbols, CancellationToken cancellationToken)
 		{
 			var type = CheckParameterList (model, parameterList, symbol, cancellationToken);
 			if (type == null)
@@ -83,7 +85,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 						continue;
 					if (member.IsOrdinaryMethod () || member.Kind == SymbolKind.Field || member.Kind == SymbolKind.Property) {
 						if (member.IsAccessibleWithin (within)) {
-							list.Add (engine.Factory.CreateCastCompletionData(this, member, node, startType));
+							var completionData = engine.Factory.CreateCastCompletionData(this, member, node, startType);
+							if (addedSymbols.Contains (completionData.DisplayText))
+								continue;
+							addedSymbols.Add (completionData.DisplayText);
+							list.Add (completionData);
 						}
 					}
 				}

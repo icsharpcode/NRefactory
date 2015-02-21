@@ -146,6 +146,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static ExpressionSyntax SkipParens(this ExpressionSyntax expression)
 		{
+			if (expression == null)
+				return null;
 			while (expression != null && expression.IsKind(SyntaxKind.ParenthesizedExpression)) {
 				expression = ((ParenthesizedExpressionSyntax)expression).Expression;
 			}

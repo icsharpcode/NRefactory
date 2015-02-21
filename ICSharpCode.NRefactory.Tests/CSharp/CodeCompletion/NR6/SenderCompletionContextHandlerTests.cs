@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory6.CSharp.Completion;
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.NR6
 {
 	[TestFixture]
-	public class SenderContextHandlerTests: CompletionTestBase
+	public class SenderCompletionContextHandlerTests: CompletionTestBase
 	{
 		[Test]
 		public void TestSimple()
