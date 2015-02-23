@@ -66,6 +66,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					list.Add (engine.Factory.CreateGenericData(this, "b", GenericDataType.NameProposal));
 					list.Add (engine.Factory.CreateGenericData(this, "pred", GenericDataType.NameProposal));
 					return list;
+				case SyntaxKind.CharKeyword:
+		       		list.Add (engine.Factory.CreateGenericData(this, "c", GenericDataType.NameProposal));
+					list.Add (engine.Factory.CreateGenericData(this, "ch", GenericDataType.NameProposal));
+					return list;
 				case SyntaxKind.StringKeyword:
 					list.Add (engine.Factory.CreateGenericData(this, "str", GenericDataType.NameProposal));
 					return list;
@@ -105,8 +109,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 		bool IsLocal (SyntaxNode tokenParent)
 		{
-			if ((tokenParent.IsKind (SyntaxKind.GenericName) || tokenParent.IsKind (SyntaxKind.IdentifierName)) &&
-				tokenParent.Parent.IsKind (SyntaxKind.ExpressionStatement))
+			if ((tokenParent.IsKind (SyntaxKind.GenericName) || tokenParent.IsKind (SyntaxKind.IdentifierName) || tokenParent.IsKind (SyntaxKind.PredefinedType)) &&
+			    (tokenParent.Parent.IsKind (SyntaxKind.ExpressionStatement) || tokenParent.Parent.IsKind (SyntaxKind.VariableDeclaration)))
 				return true;
 			return false;
 		}

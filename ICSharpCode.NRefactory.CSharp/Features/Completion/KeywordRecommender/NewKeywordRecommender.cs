@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion.KeywordRecommenders
 {
-    internal class NewKeywordRecommender : AbstractSyntacticSingleKeywordRecommender
+	internal class NewKeywordRecommender : AbstractSyntacticSingleKeywordRecommender
     {
         private static readonly ISet<SyntaxKind> s_validMemberModifiers = new HashSet<SyntaxKind>(SyntaxFacts.EqualityComparer)
             {
@@ -48,7 +48,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion.KeywordRecommenders
         {
         }
 
-        protected override bool IsValidContext(int position, CSharpSyntaxContext context, CancellationToken cancellationToken)
+		protected override bool IsValidContext(int position, CSharpSyntaxContext context, CancellationToken cancellationToken)
+		{
+			return IsValid (position, context, cancellationToken);
+		}
+
+		public bool IsValid(int position, CSharpSyntaxContext context, CancellationToken cancellationToken)
         {
             return
                 IsNewConstraintContext(context, cancellationToken) ||

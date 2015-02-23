@@ -38,6 +38,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	class ObjectCreationContextHandler : CompletionContextHandler
 	{
+		// static readonly ICSharpCode.NRefactory6.CSharp.Completion.KeywordRecommenders.NewKeywordRecommender nkr = new ICSharpCode.NRefactory6.CSharp.Completion.KeywordRecommenders.NewKeywordRecommender ();
+
 		public override bool IsTriggerCharacter (Microsoft.CodeAnalysis.Text.SourceText text, int position)
 		{
 			return IsTriggerAfterSpaceOrStartOfWordCharacter (text, position);
@@ -59,6 +61,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					ctx.SyntaxTree.IsPreProcessorDirectiveContext(completionContext.Position, cancellationToken))
 					return Enumerable.Empty<ICompletionData> ();
 
+//				if (!nkr.IsValid (completionContext.Position, ctx.CSharpSyntaxContext, cancellationToken))
+//					return Enumerable.Empty<ICompletionData> ();
+
+				var tokenOnLeftOfPosition = ctx.SyntaxTree.FindTokenOnLeftOfPosition (completionContext.Position, cancellationToken);
+				if (!tokenOnLeftOfPosition.IsKind (SyntaxKind.EqualsToken) && !tokenOnLeftOfPosition.Parent.IsKind (SyntaxKind.EqualsValueClause))
+					return Enumerable.Empty<ICompletionData> ();
+	
 				foreach (var inferredType in SyntaxContext.InferenceService.InferTypes (ctx.CSharpSyntaxContext.SemanticModel, completionContext.Position, cancellationToken)) {
 					foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, inferredType, completionContext.Position - 1, cancellationToken)) {
 						var symbolCompletionData = engine.Factory.CreateObjectCreation (this, inferredType, symbol, completionContext.Position, false);

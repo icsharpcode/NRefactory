@@ -129,6 +129,28 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.NR6
 }");
 			Assert.IsNotNull (provider.Find ("str"), "should contain 'str'");
 		}
+
+		[Test]
+		public void TestCharSpecialType()
+		{
+			var provider = CodeCompletionBugTests.CreateCtrlSpaceProvider (
+		@"using System.Collections.Generic;
+
+class MainClass
+{
+	void Bar (object o)
+	{
+		// MainClass mc = new 
+
+		char $
+	}
+}");
+			AssertExists (provider, "ch");
+			AssertExists (provider, "c");
+		}
+
+
+
 	}
 }
 

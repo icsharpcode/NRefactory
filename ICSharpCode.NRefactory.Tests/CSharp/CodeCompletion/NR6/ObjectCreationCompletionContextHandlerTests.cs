@@ -46,5 +46,21 @@ class C
     }
 }", "new C");
 		}
+
+
+		[Test]
+		public void TestNoPopupInComparsion()
+		{
+			VerifyNoItemsExist(@"
+using System.Collections.Generic;
+
+class MainClass
+{
+	void Bar (string str)
+	{
+		if (str == $$
+	}
+}");
+		}
 	}
 }
