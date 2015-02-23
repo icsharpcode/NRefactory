@@ -1231,5 +1231,21 @@ class TestClass
 			Assert.AreEqual (19, provider.Count);
 		}
 
+		[Test]
+		public void TestExtensionMethods ()
+		{
+			var provider = CreateProvider (
+				@"using System;
+using System.Linq;
+class TestClass
+{
+	public static void Main (string[] args)
+	{
+		Console.WriteLine ($args.Any($);
+	}
+}");
+			Assert.IsNotNull (provider, "provider was not created.");
+			Assert.AreEqual (1, provider.Count);
+		}
 	}
 }

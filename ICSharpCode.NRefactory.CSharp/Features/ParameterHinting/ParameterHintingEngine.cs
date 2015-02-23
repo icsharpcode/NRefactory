@@ -88,9 +88,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				case SyntaxKind.ObjectCreationExpression:
 					return HandleObjectCreationExpression(semanticModel, node, cancellationToken);
 				case SyntaxKind.InvocationExpression:
-				return HandleInvocationExpression(semanticModel, (InvocationExpressionSyntax)node, cancellationToken);
+					return HandleInvocationExpression(semanticModel, (InvocationExpressionSyntax)node, cancellationToken);
 				case SyntaxKind.ElementAccessExpression:
-				return HandleElementAccessExpression(semanticModel, (ElementAccessExpressionSyntax)node, cancellationToken);
+					return HandleElementAccessExpression(semanticModel, (ElementAccessExpressionSyntax)node, cancellationToken);
 			}
 			return ParameterHintingResult.Empty;
 		}
@@ -99,15 +99,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		{
 			var info = semanticModel.GetSymbolInfo(node, cancellationToken);
 			var result = new ParameterHintingResult(node.SpanStart);
-
-			// TODO: Proper extension method detection.
-			if (info.CandidateReason == CandidateReason.OverloadResolutionFailure) {
-				var methods = info.CandidateSymbols.OfType<IMethodSymbol> ().ToList ();
-				if (methods.Any (m => m.IsExtensionMethod)) {
-					result.AddRange (methods.Select (m => factory.CreateMethodDataProvider (m)));
-					return result;
-				}
-			}
 
 			var targetTypeInfo = semanticModel.GetTypeInfo (node.Expression);
 			if (targetTypeInfo.Type != null && targetTypeInfo.Type.TypeKind == TypeKind.Delegate) {
@@ -130,14 +121,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				var sym = semanticModel.GetEnclosingSymbol (node.SpanStart, cancellationToken); 
 				staticLookup = sym.IsStatic;
 			}
-
-			if (type == null) {
-				var resolvedMethod = info.Symbol as IMethodSymbol;
-				if (resolvedMethod != null)
-					result.AddData (factory.CreateMethodDataProvider (resolvedMethod));
-			}
-			var filterMethod = new HashSet<IMethodSymbol> ();
 			var addedMethods = new List<IMethodSymbol> ();
+
+			var filterMethod = new HashSet<IMethodSymbol> ();
 			for (;type != null; type = type.BaseType) {
 				foreach (var method in type.GetMembers ().OfType<IMethodSymbol> ().Where (m => m.Name == name)) {
 					if (staticLookup && !method.IsStatic)
@@ -154,6 +140,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 						result.AddData (factory.CreateMethodDataProvider (method));
 					}
 				}
+			}
+			if (!addedMethods.Contains (info.Symbol))
+				result.AddData (factory.CreateMethodDataProvider ((IMethodSymbol)info.Symbol));
+			foreach (var candidate in info.CandidateSymbols) {
+				if (!addedMethods.Contains (candidate))
+					result.AddData (factory.CreateMethodDataProvider ((IMethodSymbol)candidate));
 			}
 			return result;
 		}
