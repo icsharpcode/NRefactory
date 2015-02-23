@@ -392,7 +392,6 @@ class Test : TestBase
 ", inactiveCodeColor);
 		}
 
-		[Ignore("Fixme !")]
 		[Test]
 		public void TestInactivePartialCall()
 		{

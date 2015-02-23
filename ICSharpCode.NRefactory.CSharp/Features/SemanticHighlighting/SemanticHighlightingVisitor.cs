@@ -165,7 +165,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 		{
 			var symbolInfo = semanticModel.GetSymbolInfo(node.Expression, cancellationToken);
 			
-			if (IsInactiveConditional (symbolInfo.Symbol) || IsEmptyPartialMethod(symbolInfo.Symbol)) {
+			if (IsInactiveConditional (symbolInfo.Symbol) || IsEmptyPartialMethod(symbolInfo.Symbol, cancellationToken)) {
 				// mark the whole invocation statement as inactive code
 				Colorize(node.Span, inactiveCodeColor);
 				return;
@@ -218,16 +218,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 			return false;
 		}
 
-		static bool IsEmptyPartialMethod(ISymbol member)
+		static bool IsEmptyPartialMethod(ISymbol member, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var method = member as IMethodSymbol;
-			if (method == null)
+			if (method == null || method.IsDefinedInMetadata ())
 				return false;
-			return method != null && 
-				method.PartialDefinitionPart != null &&
-				method.PartialImplementationPart == null;
-		}
+			foreach (var r in method.DeclaringSyntaxReferences) {
+				var node = r.GetSyntax (cancellationToken) as MethodDeclarationSyntax;
+				if (node == null)
+					continue;
+				if (node.Body != null || !node.Modifiers.Any(m => m.IsKind (SyntaxKind.PartialKeyword)))
+					return false;
+			}
 
+			return true;
+		}
 
 		public override void VisitExternAliasDirective(ExternAliasDirectiveSyntax node)
 		{
