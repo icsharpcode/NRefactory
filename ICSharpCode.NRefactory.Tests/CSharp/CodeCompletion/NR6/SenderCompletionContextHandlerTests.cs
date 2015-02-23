@@ -27,11 +27,12 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Completion;
+using ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.NR6
 {
 	[TestFixture]
-	public class SenderCompletionContextHandlerTests: CompletionTestBase
+	public class SenderCompletionContextHandlerTests : CompletionTestBase
 	{
 		[Test]
 		public void TestSimple()

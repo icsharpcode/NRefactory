@@ -4,7 +4,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Completion;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 {
 	[TestFixture]
 	public class ExternAliasCompletionProviderTests : CompletionTestBase

@@ -85,6 +85,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			foreach (var type in ctx.InferredTypes) {
 				if (type.TypeKind != TypeKind.Delegate)
 					continue;
+				Console.WriteLine ("inferred type: " + type);
 				AddDelegateHandlers (list, model, engine, result, type, position, null, cancellationToken);
 			}
 			if (list.Count > 0) {

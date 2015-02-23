@@ -74,5 +74,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			}
 			Assert.IsTrue(isEmpty, "provider should be empty.");
 		}
+
+		protected static void AssertExists (ICSharpCode.NRefactory6.CSharp.Completion.CompletionResult provider, string testClass)
+		{
+			Assert.IsNotNull (provider.Find (testClass), "should contain '" + testClass + "");
+		}
+
+
 	}
 }

@@ -32,6 +32,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using System.Text;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -46,17 +47,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return Enumerable.Empty<ICompletionData>();
 
 			var token = tree.FindTokenOnLeftOfPosition(completionContext.Position, cancellationToken);
-
-
+			var semanticModel = await completionContext.Document.GetSemanticModelAsync (cancellationToken).ConfigureAwait(false);
+			var parent = token.Parent.AncestorsAndSelf ().OfType<GenericNameSyntax> ().FirstOrDefault () ?? token.Parent;
+			if (!parent.Parent.IsKind (SyntaxKind.IncompleteMember) &&
+				!IsLocal(parent) &&
+				!parent.Parent.IsKind (SyntaxKind.Parameter)) {
+				return Enumerable.Empty<ICompletionData>();
+			}
 			var list = new List<ICompletionData> ();
 
-			if (token.Parent.IsKind(SyntaxKind.IdentifierName)) {
-				var prev = token.GetPreviousToken();
-				if (prev.Parent.IsKind(SyntaxKind.IdentifierName))
-					token = prev;
-			}
-
-			if (token.Parent.IsKind(SyntaxKind.PredefinedType)) {			
+			if (parent.IsKind(SyntaxKind.PredefinedType)) {			
 				switch (token.CSharpKind()) {
 				case SyntaxKind.ObjectKeyword:
 					list.Add (engine.Factory.CreateGenericData(this, "o", GenericDataType.NameProposal));
@@ -65,6 +65,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				case SyntaxKind.BoolKeyword:
 					list.Add (engine.Factory.CreateGenericData(this, "b", GenericDataType.NameProposal));
 					list.Add (engine.Factory.CreateGenericData(this, "pred", GenericDataType.NameProposal));
+					return list;
+				case SyntaxKind.StringKeyword:
+					list.Add (engine.Factory.CreateGenericData(this, "str", GenericDataType.NameProposal));
 					return list;
 				case SyntaxKind.DoubleKeyword:
 				case SyntaxKind.FloatKeyword:
@@ -79,11 +82,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					list.Add (engine.Factory.CreateGenericData(this, "k", GenericDataType.NameProposal));
 					return list;
 				}
-			}
-			if (token.Parent.IsKind (SyntaxKind.IdentifierName)) {
-
-				var names = WordParser.BreakWords (token.ToFullString ().Trim ());
-
+			} else {
+				var gns = parent as GenericNameSyntax;
+				var names = WordParser.BreakWords (gns != null ? gns.Identifier.ToString () : token.ToString ().Trim ());
 				var possibleName = new StringBuilder ();
 				for (int i = 0; i < names.Count; i++) {
 					possibleName.Length = 0;
@@ -102,5 +103,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return list;
 		}
 
+		bool IsLocal (SyntaxNode tokenParent)
+		{
+			if ((tokenParent.IsKind (SyntaxKind.GenericName) || tokenParent.IsKind (SyntaxKind.IdentifierName)) &&
+				tokenParent.Parent.IsKind (SyntaxKind.ExpressionStatement))
+				return true;
+			return false;
+		}
 	}
 }

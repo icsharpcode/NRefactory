@@ -18,6 +18,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <UseMSBuildEngine>False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugType>Full</DebugType>
@@ -489,6 +490,7 @@
     <Compile Include="CSharp\CodeCompletion\NR6\PartialCompletionContextHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\CastCompletionContextHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\SenderCompletionContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\SpeculativeNameContextHandlerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

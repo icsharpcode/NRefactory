@@ -980,15 +980,15 @@ class C : BaseClass
 		public void TestBug431797A ()
 		{
 			CompletionResult provider = CreateCtrlSpaceProvider (
-@"public class Test
+				@"public class Test
 {
 	private List<string> strings;
 	$public $
 }");
-		
+
 			Assert.IsNotNull (provider, "provider not found.");
 			Assert.IsNull (provider.Find ("strings"), "should not contain 'strings'");
-		}
+					}
 		
 		/// <summary>
 		/// Bug 431797 - Code completion showing invalid options
@@ -5894,7 +5894,7 @@ public class Testing
     } 
 }
 
-", provider => Assert.IsTrue(provider == null || provider.Count == 0));
+", AssertEmpty);
 		}
 
 		/// <summary>
