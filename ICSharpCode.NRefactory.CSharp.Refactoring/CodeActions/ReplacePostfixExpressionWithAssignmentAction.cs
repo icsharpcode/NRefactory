@@ -39,7 +39,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replace postfix expression with assignment")]
-	[ExportCodeRefactoringProvider("Replace postfix expression with assignment", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace postfix expression with assignment")]
 	public class ReplacePostfixExpressionWithAssignmentAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

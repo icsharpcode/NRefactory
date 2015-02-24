@@ -41,7 +41,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Add an exception description to the xml documentation")]
-	[ExportCodeRefactoringProvider("Add an exception description to the xml documentation", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Add an exception description to the xml documentation")]
 	public class AddExceptionDescriptionAction : SpecializedCodeAction<ThrowStatementSyntax>
 	{
 //		static AstNode SearchInsertionNode (AstNode entity)

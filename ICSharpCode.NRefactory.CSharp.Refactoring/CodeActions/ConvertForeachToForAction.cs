@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Converts a foreach loop to for.
 	/// </summary>
 	[NRefactoryCodeRefactoringProvider(Description = "Works on 'foreach' loops that allow direct access to its elements")]
-	[ExportCodeRefactoringProvider("Convert 'foreach' loop to 'for'", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert 'foreach' loop to 'for'")]
 	public class ConvertForeachToForAction : CodeRefactoringProvider
 	{
 		static readonly string[] VariableNames = { "i", "j", "k", "l", "n", "m", "x", "y", "z"};

@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Found method without return type")]
-	[ExportCodeRefactoringProvider("Class, struct or interface method must have a return type", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Class, struct or interface method must have a return type")]
 	public class CS1520MethodMustHaveAReturnTypeAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

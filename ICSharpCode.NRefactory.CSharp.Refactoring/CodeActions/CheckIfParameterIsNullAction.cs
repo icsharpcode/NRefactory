@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Checks function parameter is not null")]
-	[ExportCodeRefactoringProvider("Check if parameter is null", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Check if parameter is null")]
 	/// <summary>
 	/// Creates a 'if (param == null) throw new System.ArgumentNullException ();' contruct for a parameter.
 	/// </summary>

@@ -43,7 +43,7 @@ using System.Text;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Creates a method declaration out of an invocation")]
-	[ExportCodeRefactoringProvider("Create method", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Create method")]
 	public class CreateMethodDeclarationAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

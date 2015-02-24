@@ -41,7 +41,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert LINQ query to fluent syntax")]
-	[ExportCodeRefactoringProvider("Convert LINQ query to fluent syntax", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert LINQ query to fluent syntax")]
 	public class LinqFluentToQueryAction : SpecializedCodeAction<InvocationExpressionSyntax>
 	{
 //		static readonly List<string> LinqQueryMethods = new List<string>() {

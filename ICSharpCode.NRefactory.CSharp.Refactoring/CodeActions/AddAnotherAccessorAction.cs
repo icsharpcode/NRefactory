@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Add another accessor to a property declaration that has only one.
 	/// </summary>
 	[NRefactoryCodeRefactoringProvider(Description = "Adds second accessor to a property.")]
-	[ExportCodeRefactoringProvider("Add another accessor", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Add another accessor")]
 	public class AddAnotherAccessorAction : CodeRefactoringProvider
 	{
 		public static BlockSyntax GetNotImplementedBlock()

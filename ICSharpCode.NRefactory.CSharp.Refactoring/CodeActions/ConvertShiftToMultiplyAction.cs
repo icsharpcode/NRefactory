@@ -41,7 +41,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert '<<'/'>>' to '*'/'/'")]
-	[ExportCodeRefactoringProvider("Convert '<<'/'>>' to '*'/'/'", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert '<<'/'>>' to '*'/'/'")]
 	public class ConvertShiftToMultiplyAction : SpecializedCodeAction<BinaryExpressionSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)

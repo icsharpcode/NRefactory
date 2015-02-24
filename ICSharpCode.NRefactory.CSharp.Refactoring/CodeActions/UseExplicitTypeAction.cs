@@ -38,7 +38,7 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts local variable declaration to be explicit typed.")]
-	[ExportCodeRefactoringProvider("Use explicit type", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use explicit type")]
 	public class UseExplicitTypeAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

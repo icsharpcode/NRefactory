@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 
 	[NRefactoryCodeRefactoringProvider(Description = "Removes redundant braces around a statement.")]
-	[ExportCodeRefactoringProvider("Remove braces", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Remove braces")]
 	public class RemoveBracesAction : CodeRefactoringProvider
 	{
 

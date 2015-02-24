@@ -40,7 +40,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Inverts if and simplify branching")]
-	[ExportCodeRefactoringProvider("Invert If and Simplify", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Invert If and Simplify")]
 	public class InvertIfAndSimplify : CodeRefactoringProvider
 	{
 		// if (condition) {CodeBlock();}else { return|break|continue;} 

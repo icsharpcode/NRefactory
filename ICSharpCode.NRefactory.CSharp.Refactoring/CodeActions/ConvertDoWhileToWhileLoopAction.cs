@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Note that this action will often change the semantics of the code.
 	/// </summary>
 	[NRefactoryCodeRefactoringProvider(Description = "Converts a do...while to a while loop (changing semantics)")]
-	[ExportCodeRefactoringProvider("Convert do...while to while", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert do...while to while")]
 	public class ConvertDoWhileToWhileLoopAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

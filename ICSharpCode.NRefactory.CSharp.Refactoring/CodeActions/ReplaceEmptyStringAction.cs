@@ -38,7 +38,7 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replaces \"\" with 'string.Empty'.")]
-	[ExportCodeRefactoringProvider("Use string.Empty", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use string.Empty")]
 	public class ReplaceEmptyStringAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

@@ -36,7 +36,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "")]
-	[ExportCodeRefactoringProvider("", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="")]
 	/// <summary>
 	/// 1) When a type cannot be resolved, offers to add a using declaration
 	/// or to replace it with the fully qualified type name.

@@ -36,7 +36,7 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Creates a field for a undefined variable.")]
-	[ExportCodeRefactoringProvider("Create field", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Create field")]
 	public class CreateFieldAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

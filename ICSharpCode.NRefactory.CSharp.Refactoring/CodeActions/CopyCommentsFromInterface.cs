@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	// TODO: Why only methods ?
 	[NRefactoryCodeRefactoringProvider(Description = "Copies documented comments from interface to implementing methods")]
-	[ExportCodeRefactoringProvider("Copy comments from interface", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Copy comments from interface")]
 	public class CopyCommentsFromInterface: SpecializedCodeAction <MethodDeclarationSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, MethodDeclarationSyntax node, CancellationToken cancellationToken)

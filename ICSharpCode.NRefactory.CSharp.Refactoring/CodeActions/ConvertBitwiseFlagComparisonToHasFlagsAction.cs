@@ -39,7 +39,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replace bitwise flag comparison with call to 'Enum.HasFlag'")]
-	[ExportCodeRefactoringProvider("Replace bitwise flag comparison with call to 'Enum.HasFlag'", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace bitwise flag comparison with call to 'Enum.HasFlag'")]
 	public class ConvertBitwiseFlagComparisonToHasFlagsAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

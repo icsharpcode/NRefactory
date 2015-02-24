@@ -39,7 +39,7 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts local variable declaration to be implicit typed.")]
-	[ExportCodeRefactoringProvider("Use 'var' keyword", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use 'var' keyword")]
 	public class UseVarKeywordAction : CodeRefactoringProvider
 	{
 		internal static VariableDeclarationSyntax GetVariableDeclarationStatement(SyntaxNode token)

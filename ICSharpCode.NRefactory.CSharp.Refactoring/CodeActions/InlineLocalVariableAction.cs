@@ -44,7 +44,7 @@ using System.Reflection;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Inlines a local variable")]
-	[ExportCodeRefactoringProvider("Inline local variable", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Inline local variable")]
 	public class InlineLocalVariableAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

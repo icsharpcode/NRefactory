@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Converts a cast expression to an 'as' expression
 	/// </summary>
 	[NRefactoryCodeRefactoringProvider(Description = "Convert cast to 'as'.")]
-	[ExportCodeRefactoringProvider("Convert cast to 'as'.", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert cast to 'as'.")]
 	public class ConvertCastToAsAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

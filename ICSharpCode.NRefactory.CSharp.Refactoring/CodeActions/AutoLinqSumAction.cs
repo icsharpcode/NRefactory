@@ -41,7 +41,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts a loop to a Linq expression")]
-	[ExportCodeRefactoringProvider("Convert loop to Linq expression", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert loop to Linq expression")]
 	public class AutoLinqSumAction : CodeRefactoringProvider
 	{
 		// Disabled for nullables, since int? x = 3; x += null; has result x = null,
