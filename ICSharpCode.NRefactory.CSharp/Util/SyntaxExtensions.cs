@@ -504,40 +504,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return evt.ExplicitInterfaceSpecifier;
 			return null;
 		}
-
-		internal static bool IsCSharpKind(int rawKind)
-		{
-			const int FirstVisualBasicKind = (int)SyntaxKind.List + 1;
-			const int FirstCSharpKind = (int)SyntaxKind.TildeToken;
-
-			// not in the range [FirstVisualBasicKind, FirstCSharpKind)
-			return unchecked((uint)(rawKind - FirstVisualBasicKind)) > (FirstCSharpKind - 1 - FirstVisualBasicKind);
-		}
-
-		public static SyntaxKind Kind(this SyntaxToken token)
-		{
-			var rawKind = token.RawKind;
-			return IsCSharpKind(rawKind) ? (SyntaxKind)rawKind : SyntaxKind.None;
-		}
-
-		public static SyntaxKind Kind(this SyntaxTrivia trivia)
-		{
-			var rawKind = trivia.RawKind;
-			return IsCSharpKind(rawKind) ? (SyntaxKind)rawKind : SyntaxKind.None;
-		}
-
-		public static SyntaxKind Kind(this SyntaxNode node)
-		{
-			var rawKind = node.RawKind;
-			return IsCSharpKind(rawKind) ? (SyntaxKind)rawKind : SyntaxKind.None;
-		}
-
-		public static SyntaxKind Kind(this SyntaxNodeOrToken nodeOrToken)
-		{
-			var rawKind = nodeOrToken.RawKind;
-			return IsCSharpKind(rawKind) ? (SyntaxKind)rawKind : SyntaxKind.None;
-		}
-
 		public static bool IsKind(this SyntaxToken token, SyntaxKind kind)
 		{
 			return token.RawKind == (int)kind;
