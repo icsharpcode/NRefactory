@@ -50,8 +50,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ParameterSyntax node, CancellationToken cancellationToken)
 		{
-//			if (!node..NameToken.Contains(context.Location))
-//				return null;
+			if (!node.Identifier.Span.Contains(span))
+				return Enumerable.Empty<CodeAction>();
 			var parameter = node;
 			var bodyStatement = parameter.Parent.Parent.ChildNodes().OfType<BlockSyntax>().FirstOrDefault();
 			if (bodyStatement == null)
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (type == null || type.IsValueType || HasNullCheck(semanticModel, parameterSymbol, bodyStatement)) 
 				return Enumerable.Empty<CodeAction>();
 			return new [] { CodeActionFactory.Create(
-				node.Span,
+				node.Identifier.Span,
 				DiagnosticSeverity.Info,
 				"Add null check for parameter",
 				t2 => {

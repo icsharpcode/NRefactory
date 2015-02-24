@@ -92,9 +92,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			return GetActions(new T(), input, out workspace, out doc);
 		}
 
-		static string ParseText(string input, out TextSpan span)
+		static string ParseText(string input, out TextSpan selectedSpan, out TextSpan markedSpan)
 		{
 			int start = -1, end = -1;
+			int start2 = -1, end2 = -1;
 			var result = new StringBuilder(input.Length);
 			int upper = input.Length - 1;
 			for (int i = 0; i < upper; i++) {
@@ -113,6 +114,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 					i++;
 					continue;
 				}
+
+				if (ch == '-' && input [i + 1] == '[') {
+					start2 = result.Length;
+					i++;
+					continue;
+				}
+				if (ch == ']' && input [i + 1] == '-') {
+					end2 = result.Length;
+					i++;
+					continue;
+				}
 				result.Append(ch);
 			}
 
@@ -125,14 +137,16 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				}
 			}
 
-			span = TextSpan.FromBounds(start, end);
+			selectedSpan = TextSpan.FromBounds(start, end);
+			markedSpan = start2 < 0 ? new TextSpan (0, 0) : TextSpan.FromBounds(start2, end2);
 			return result.ToString();
 		}
 
-		static List<Microsoft.CodeAnalysis.CodeActions.CodeAction> GetActions(CodeRefactoringProvider action, string input, out InspectionActionTestBase.TestWorkspace workspace, out Document doc)
+		static List<CodeAction> GetActions(CodeRefactoringProvider action, string input, out InspectionActionTestBase.TestWorkspace workspace, out Document doc)
 		{
-			TextSpan span;
-			string text = ParseText(input, out span);
+			TextSpan selectedSpan;
+			TextSpan markedSpan;
+			string text = ParseText(input, out selectedSpan, out markedSpan);
 			workspace = new InspectionActionTestBase.TestWorkspace();
 			var projectId = ProjectId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
@@ -176,8 +190,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			);
 			doc = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
 			var actions = new List<CodeAction>();
-			var context = new CodeRefactoringContext(doc, span, a => actions.Add(a), default(CancellationToken));
+			var context = new CodeRefactoringContext (doc, selectedSpan, actions.Add, default(CancellationToken));
 			action.ComputeRefactoringsAsync(context).Wait();
+			if (markedSpan.Start > 0) {
+				foreach (var nra in actions.OfType<NRefactoryCodeAction> ()) {
+					Assert.AreEqual (markedSpan, nra.TextSpan, "Activation span does not match.");
+				}
+			}
 			return actions;
 		}
 
@@ -185,7 +204,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		                                          int actionIndex = 0, bool expectErrors = false)
 		{
 			Document doc;
-			ICSharpCode.NRefactory6.CSharp.CodeIssues.InspectionActionTestBase.TestWorkspace workspace;
+			InspectionActionTestBase.TestWorkspace workspace;
 			var actions = GetActions(action, input, out workspace, out doc);
 			if (actions.Count < actionIndex)
 				Console.WriteLine ("invalid input is:" + input);

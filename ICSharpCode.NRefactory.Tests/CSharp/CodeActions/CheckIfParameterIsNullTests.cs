@@ -121,7 +121,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
     void Test ()
     {
-        var lambda = delegate(object $sender, object e) {
+        var lambda = delegate(object $-[sender]-, object e) {
         };
     }
 }", @"class Foo
@@ -150,6 +150,18 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
     }
 }");
 		}
+
+		[Test]
+		public void TestPopupOnlyOnName()
+		{
+			TestWrongContext<CheckIfParameterIsNullAction>(@"class Foo
+{
+	void Test ($string param)
+	{
+	}
+}");
+		}
+
 
 	}
 }
