@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class CompilationExtensions
 	{
-		public static IEnumerable<INamedTypeSymbol> GetAllTypes(this Compilation compilation, CancellationToken cancellationToken = default(CancellationToken))
+		public static IEnumerable<INamedTypeSymbol> GetAllTypesInMainAssembly(this Compilation compilation, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (compilation == null)
 				throw new ArgumentNullException("compilation");
