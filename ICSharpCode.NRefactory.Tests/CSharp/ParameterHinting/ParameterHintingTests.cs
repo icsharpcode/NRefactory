@@ -867,6 +867,7 @@ public class B
   }
 }
 ");
+	
 			Assert.IsNotNull (provider, "provider was not created.");
 			Assert.AreEqual (1, provider.Count);
 		}

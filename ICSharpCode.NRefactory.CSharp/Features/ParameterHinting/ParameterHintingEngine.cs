@@ -122,7 +122,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				staticLookup = sym.IsStatic;
 			}
 			var addedMethods = new List<IMethodSymbol> ();
-
 			var filterMethod = new HashSet<IMethodSymbol> ();
 			for (;type != null; type = type.BaseType) {
 				foreach (var method in type.GetMembers ().OfType<IMethodSymbol> ().Where (m => m.Name == name)) {
@@ -134,17 +133,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 						continue;
 					if (addedMethods.Any (added => SignatureComparer.HaveSameSignature (method, added, true)))
 						continue;
-
 					if (method.IsAccessibleWithin (within)) {
 						addedMethods.Add (method); 
 						result.AddData (factory.CreateMethodDataProvider (method));
 					}
 				}
 			}
-			if (!addedMethods.Contains (info.Symbol))
-				result.AddData (factory.CreateMethodDataProvider ((IMethodSymbol)info.Symbol));
+			if (info.Symbol != null && !addedMethods.Contains (info.Symbol)) {
+				if (!staticLookup || info.Symbol.IsStatic)
+					result.AddData (factory.CreateMethodDataProvider ((IMethodSymbol)info.Symbol));
+			}
 			foreach (var candidate in info.CandidateSymbols) {
-				if (!addedMethods.Contains (candidate))
+				if (staticLookup && !candidate.IsStatic)
+					continue;
+				
+				if (!addedMethods.Contains (candidate) && candidate.IsAccessibleWithin (within))
 					result.AddData (factory.CreateMethodDataProvider ((IMethodSymbol)candidate));
 			}
 			return result;

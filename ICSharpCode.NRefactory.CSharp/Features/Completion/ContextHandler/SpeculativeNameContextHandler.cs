@@ -49,9 +49,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var token = tree.FindTokenOnLeftOfPosition(completionContext.Position, cancellationToken);
 			var semanticModel = await completionContext.Document.GetSemanticModelAsync (cancellationToken).ConfigureAwait(false);
 			var parent = token.Parent.AncestorsAndSelf ().OfType<GenericNameSyntax> ().FirstOrDefault () ?? token.Parent;
+
 			if (!parent.Parent.IsKind (SyntaxKind.IncompleteMember) &&
 				!IsLocal(parent) &&
-				!parent.Parent.IsKind (SyntaxKind.Parameter)) {
+				!parent.Parent.IsKind (SyntaxKind.Parameter) &&
+				!parent.Parent.IsKind (SyntaxKind.ForEachStatement)) {
 				return Enumerable.Empty<ICompletionData>();
 			}
 			var list = new List<ICompletionData> ();
