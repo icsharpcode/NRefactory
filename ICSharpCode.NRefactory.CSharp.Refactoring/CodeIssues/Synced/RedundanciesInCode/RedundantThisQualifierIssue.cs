@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// <summary>
 	/// Finds redundant this usages.
 	/// </summary>
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantThisQualifier")]
 	public class RedundantThisQualifierIssue : GatherVisitorCodeIssueProvider
 	{
@@ -110,7 +110,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantThisQualifierIssue.EverywhereElse;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						token.Name
 						.WithLeadingTrivia(token.GetLeadingTrivia())
 						.WithTrailingTrivia(token.GetTrailingTrivia()));
-					context.RegisterFix(CodeActionFactory.Create(token.Span, diagnostic.Severity, "Remove 'this.'", document.WithSyntaxRoot(newRoot)), diagnostic);
+					context.RegisterCodeFix(CodeActionFactory.Create(token.Span, diagnostic.Severity, "Remove 'this.'", document.WithSyntaxRoot(newRoot)), diagnostic);
 				}
 			}
 		}

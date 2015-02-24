@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithLastOrDefault")]
 	public class ReplaceWithLastOrDefaultIssue : GatherVisitorCodeIssueProvider
 	{
@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ReplaceWithLastOrDefaultIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var newNode = SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, baseExpression,
 					SyntaxFactory.IdentifierName("LastOrDefault")), parameterExpr);
 				var newRoot = root.ReplaceNode((ExpressionSyntax)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'LastOrDefault<T>()'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'LastOrDefault<T>()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

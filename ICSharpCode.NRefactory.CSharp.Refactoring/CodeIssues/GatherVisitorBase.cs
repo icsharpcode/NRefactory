@@ -262,7 +262,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public override void VisitTrivia(SyntaxTrivia trivia)
 		{
-			switch (trivia.CSharpKind()) {
+			switch (trivia.Kind()) {
 				case SyntaxKind.SingleLineCommentTrivia:
 					var txt = trivia.ToString();
 					if (string.IsNullOrEmpty(txt))

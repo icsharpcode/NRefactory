@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UseMethodAny")]
 	public class UseMethodAnyIssue : GatherVisitorCodeIssueProvider
 	{
@@ -186,7 +186,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return UseMethodAnyIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -200,7 +200,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
 				// "Replace with call to '!Any()'"
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with call to 'Any()'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with call to 'Any()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

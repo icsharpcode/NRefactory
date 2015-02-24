@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
 	public class NonPublicMethodWithTestAttributeIssue : GatherVisitorCodeIssueProvider
 	{
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return NonPublicMethodWithTestAttributeIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -134,7 +134,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					.AddRange(node.Modifiers.ToArray().Where(m => !isModifierToRemove(m)))))
 					.WithReturnType(node.ReturnType.WithoutLeadingTrivia());
                 var newRoot = root.ReplaceNode((SyntaxNode)node, newMethod);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make method public", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make method public", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

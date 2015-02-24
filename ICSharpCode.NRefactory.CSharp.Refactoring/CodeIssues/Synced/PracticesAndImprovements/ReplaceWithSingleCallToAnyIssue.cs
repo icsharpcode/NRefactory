@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToAny")]
 	public class ReplaceWithSingleCallToAnyIssue : GatherVisitorCodeIssueProvider
 	{
@@ -195,7 +195,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ReplaceWithSingleCallToAnyIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -207,7 +207,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie:true) as InvocationExpressionSyntax;
 				var newRoot = root.ReplaceNode(node, ReplaceWithSingleCallToAnyIssue.MakeSingleCall(node));
 				var member = ((MemberAccessExpressionSyntax)node.Expression).Name;
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace with single call to '{0}'", member.Identifier.ValueText), document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace with single call to '{0}'", member.Identifier.ValueText), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

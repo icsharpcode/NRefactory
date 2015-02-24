@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (binOp == null)
 				return;
 
-			if (binOp.Ancestors().OfType<BinaryExpressionSyntax>().Any(b => !b.OperatorToken.IsKind(binOp.OperatorToken.CSharpKind())))
+			if (binOp.Ancestors().OfType<BinaryExpressionSyntax>().Any(b => !b.OperatorToken.IsKind(binOp.OperatorToken.Kind())))
 				return;
 
 			if (binOp.IsKind(SyntaxKind.LogicalAndExpression)) {

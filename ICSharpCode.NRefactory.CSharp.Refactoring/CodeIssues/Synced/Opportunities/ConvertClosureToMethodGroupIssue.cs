@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertClosureToMethodGroup")]
 	public class ConvertClosureToMethodGroupIssue : GatherVisitorCodeIssueProvider
 	{
@@ -211,7 +211,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertClosureToMethodGroupIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -223,7 +223,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				if (!node.IsKind(SyntaxKind.BaseList))
 					continue;
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with method group", token => {
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with method group", token => {
 					var c1 = node as AnonymousMethodExpressionSyntax;
 					var c2 = node as ParenthesizedLambdaExpressionSyntax;
 					var c3 = node as SimpleLambdaExpressionSyntax;

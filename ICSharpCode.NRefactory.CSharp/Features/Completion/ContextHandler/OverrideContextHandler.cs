@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			// modifiers* override modifiers* type? |
 			Accessibility seenAccessibility;
-			DeclarationModifiers modifiers;
+			//DeclarationModifiers modifiers;
 			var token = tree.FindTokenOnLeftOfPosition(completionContext.Position, cancellationToken);
             var position = completionContext.Position;
             var startToken = token.GetPreviousTokenIfTouchingWord(position);
@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 			}
 
-			if (!TryDetermineModifiers(ref tokenBeforeReturnType, text, startLineNumber, out seenAccessibility, out modifiers) ||
+			if (!TryDetermineModifiers(ref tokenBeforeReturnType, text, startLineNumber, out seenAccessibility/*, out modifiers*/) ||
 			    !TryCheckForTrailingTokens (tree, text, startLineNumber, position, cancellationToken)) {
 				return Enumerable.Empty<ICompletionData> ();
 			}
@@ -263,10 +263,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return text.Lines.IndexOf (position) == startLineNumber;
 		}
 
-		static bool TryDetermineModifiers(ref SyntaxToken startToken, SourceText text, int startLine, out Accessibility seenAccessibility, out DeclarationModifiers modifiers)
+		static bool TryDetermineModifiers(ref SyntaxToken startToken, SourceText text, int startLine, out Accessibility seenAccessibility/*, out DeclarationModifiers modifiers*/)
 		{
 			var token = startToken;
-			modifiers = new DeclarationModifiers();
+			//modifiers = new DeclarationModifiers();
 			seenAccessibility = Accessibility.NotApplicable;
 			var overrideToken = default(SyntaxToken);
 			bool isUnsafe = false;
@@ -343,11 +343,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 
 			startToken = token;
-			modifiers = new DeclarationModifiers ()
+		/*	modifiers = new DeclarationModifiers ()
 				.WithIsUnsafe (isUnsafe)
 				.WithIsAbstract (isAbstract)
 				.WithIsOverride (true)
-				.WithIsSealed (isSealed);
+				.WithIsSealed (isSealed);*/
 			return overrideToken.IsKind(SyntaxKind.OverrideKeyword) && IsOnStartLine(overrideToken.Parent.SpanStart, text, startLine);
 		}
 	}

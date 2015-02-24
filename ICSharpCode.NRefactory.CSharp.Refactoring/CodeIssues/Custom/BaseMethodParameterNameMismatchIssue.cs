@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class BaseMethodParameterNameMismatchIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "BaseMethodParameterNameMismatchIssue";
@@ -151,7 +151,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							4,
 							Rule.Title,
 							Rule.Description,
-							Rule.HelpLink,
+							Rule.HelpLinkUri,
 							Location.Create(semanticModel.SyntaxTree, syntaxParams[i].Identifier.Span),
 							null,
 							new [] { baseArg.Name }
@@ -170,7 +170,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return BaseMethodParameterNameMismatchIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -184,7 +184,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					continue;
 				var renamedParameter = ((ParameterSyntax)node).WithIdentifier(SyntaxFactory.Identifier(diagnostic.Descriptor.CustomTags.First()));
 				var newRoot = root.ReplaceNode((SyntaxNode)node, renamedParameter);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Rename to '{0}'", diagnostic.Descriptor.CustomTags.First()), document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Rename to '{0}'", diagnostic.Descriptor.CustomTags.First()), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

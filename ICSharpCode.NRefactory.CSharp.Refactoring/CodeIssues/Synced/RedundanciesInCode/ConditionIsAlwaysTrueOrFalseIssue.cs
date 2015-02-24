@@ -41,7 +41,7 @@ using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
 	[Description("Condition is always true or false")]
 	public class ConditionIsAlwaysTrueOrFalseIssue : GatherVisitorCodeIssueProvider
@@ -150,7 +150,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdFalse;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -164,7 +164,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					SyntaxFactory.LiteralExpression(diagnostic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression) 
 					.WithLeadingTrivia(node.GetLeadingTrivia())
 					.WithTrailingTrivia(node.GetTrailingTrivia()));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? "Replace with 'true'" : "Replace with 'false'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? "Replace with 'true'" : "Replace with 'false'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 		#endregion

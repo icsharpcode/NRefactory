@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
 	public class ConvertIfStatementToConditionalTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
@@ -131,7 +131,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertIfStatementToConditionalTernaryExpressionIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -149,13 +149,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var newRoot = root.ReplaceNode((SyntaxNode)node,
 					SyntaxFactory.ExpressionStatement(
 						SyntaxFactory.AssignmentExpression(
-							trueAssignment.CSharpKind(),
+							trueAssignment.Kind(),
 							trueAssignment.Left,
 							SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right)
 						)
 					).WithAdditionalAnnotations(Formatter.Annotation)
 				);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to '?:' expression", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to '?:' expression", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

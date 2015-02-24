@@ -40,7 +40,7 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyConstructor")]
 	public class EmptyConstructorIssue : GatherVisitorCodeIssueProvider
 	{
@@ -118,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return EmptyConstructorIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -131,7 +131,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (!node.IsKind(SyntaxKind.ConstructorDeclaration))
 					continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant constructor", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant constructor", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 		#endregion

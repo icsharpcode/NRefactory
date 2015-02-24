@@ -39,7 +39,7 @@ using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantAnonymousTypePropertyName")]
 	[Description("Redundant explicit property name")]
 	public class RedundantAnonymousTypePropertyNameIssue : GatherVisitorCodeIssueProvider
@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantAnonymousTypePropertyNameIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -109,7 +109,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				if (node.IsKind(SyntaxKind.NameEquals)) {
 					var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepLeadingTrivia);
-					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant name", document.WithSyntaxRoot(newRoot)), diagnostic);
+					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant name", document.WithSyntaxRoot(newRoot)), diagnostic);
 				}
 			}
 		}

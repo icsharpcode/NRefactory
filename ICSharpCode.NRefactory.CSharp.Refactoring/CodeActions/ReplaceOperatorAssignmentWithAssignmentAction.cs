@@ -58,7 +58,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return;
 			if (node.IsKind(SyntaxKind.SimpleAssignmentExpression))
 				return;
-			var assignment = GetAssignmentOperator(node.CSharpKind());
+			var assignment = GetAssignmentOperator(node.Kind());
 			if (assignment == SyntaxKind.None)
 				return;
 

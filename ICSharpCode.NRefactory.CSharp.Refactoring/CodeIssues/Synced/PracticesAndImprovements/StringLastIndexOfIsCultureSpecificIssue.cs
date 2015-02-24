@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringLastIndexOfIsCultureSpecific")]
 	public class StringLastIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return StringLastIndexOfIsCultureSpecificIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;

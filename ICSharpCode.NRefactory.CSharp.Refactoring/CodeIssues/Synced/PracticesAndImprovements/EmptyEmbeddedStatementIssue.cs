@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyEmbeddedStatement")]
 	public class EmptyEmbeddedStatementIssue : GatherVisitorCodeIssueProvider
 	{
@@ -114,7 +114,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return EmptyEmbeddedStatementIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan);
 				if (!node.IsKind(SyntaxKind.EmptyStatement))
 					continue;
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '{}'", token => {
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '{}'", token => {
 					var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.Block().WithAdditionalAnnotations(Formatter.Annotation));
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}), diagnostic);

@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			expr = null;
 			token = default(SyntaxToken);
 			var bOp = root.FindNode(span).SkipArgument () as BinaryExpressionSyntax;
-			if (bOp != null && bOp.OperatorToken.Span.Contains(span) && CSharpUtil.IsRelationalOperator (bOp.CSharpKind())) {
+			if (bOp != null && bOp.OperatorToken.Span.Contains(span) && CSharpUtil.IsRelationalOperator (bOp.Kind())) {
 				expr = bOp;
 				token = bOp.OperatorToken;
 				return true;

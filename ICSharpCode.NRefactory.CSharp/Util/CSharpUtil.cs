@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var bOp = (BinaryExpressionSyntax)condition;
 
 				if (bOp.IsKind(SyntaxKind.LogicalAndExpression) || bOp.IsKind(SyntaxKind.LogicalOrExpression))
-					return SyntaxFactory.BinaryExpression(NegateConditionOperator(bOp.CSharpKind()), InvertCondition(bOp.Left), InvertCondition(bOp.Right));
+					return SyntaxFactory.BinaryExpression(NegateConditionOperator(bOp.Kind()), InvertCondition(bOp.Left), InvertCondition(bOp.Right));
 
 				if (bOp.IsKind(SyntaxKind.EqualsExpression) ||
 					bOp.IsKind(SyntaxKind.NotEqualsExpression) ||
@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 					bOp.IsKind(SyntaxKind.GreaterThanOrEqualExpression) ||
 					bOp.IsKind(SyntaxKind.LessThanExpression) ||
 					bOp.IsKind(SyntaxKind.LessThanOrEqualExpression)) 
-					return SyntaxFactory.BinaryExpression(NegateRelationalOperator(bOp.CSharpKind()), bOp.Left, bOp.Right);
+					return SyntaxFactory.BinaryExpression(NegateRelationalOperator(bOp.Kind()), bOp.Left, bOp.Right);
 
 				return SyntaxFactory.PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, SyntaxFactory.ParenthesizedExpression(condition));
 			}
@@ -81,9 +81,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 
 			if (condition is LiteralExpressionSyntax) {
-				if (condition.CSharpKind() == SyntaxKind.TrueLiteralExpression)
+				if (condition.Kind() == SyntaxKind.TrueLiteralExpression)
 					return SyntaxFactory.LiteralExpression(SyntaxKind.FalseLiteralExpression); 
-				if (condition.CSharpKind() == SyntaxKind.FalseLiteralExpression)
+				if (condition.Kind() == SyntaxKind.FalseLiteralExpression)
 					return SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression); 
 			}
 

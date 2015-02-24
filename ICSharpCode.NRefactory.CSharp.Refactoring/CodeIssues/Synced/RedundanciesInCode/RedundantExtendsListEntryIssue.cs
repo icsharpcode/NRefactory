@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// <summary>
 	/// Type is either mentioned in the base type list of other part, or it is interface and appears as other's type base and contains no explicit implementation.
 	/// </summary>
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantExtendsListEntry")]
 	public class RedundantExtendsListEntryIssue : GatherVisitorCodeIssueProvider
 	{
@@ -174,7 +174,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantExtendsListEntryIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -187,7 +187,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant base type reference", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant base type reference", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	} 

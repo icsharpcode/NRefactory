@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// <summary>
 	/// Finds redundant namespace usages.
 	/// </summary>
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantNameQualifier")]
 	public class RedundantNameQualifierIssue : GatherVisitorCodeIssueProvider
 	{
@@ -111,7 +111,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantNameQualifierIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -127,7 +127,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						memberAccess.Name
 						.WithLeadingTrivia(memberAccess.GetLeadingTrivia())
 						.WithTrailingTrivia(memberAccess.GetTrailingTrivia()));
-					context.RegisterFix(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)), diagnostic);
+					context.RegisterCodeFix(CodeActionFactory.Create(memberAccess.Span, DiagnosticSeverity.Info, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)), diagnostic);
 					continue;
 				}
 
@@ -137,7 +137,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						qualifiedName.Right
 						.WithLeadingTrivia(qualifiedName.GetLeadingTrivia())
 						.WithTrailingTrivia(qualifiedName.GetTrailingTrivia()));
-					context.RegisterFix(CodeActionFactory.Create(qualifiedName.Span, diagnostic.Severity, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)), diagnostic);
+					context.RegisterCodeFix(CodeActionFactory.Create(qualifiedName.Span, diagnostic.Severity, "Remove redundant qualifier", document.WithSyntaxRoot(newRoot)), diagnostic);
 				}
 			}
 		}

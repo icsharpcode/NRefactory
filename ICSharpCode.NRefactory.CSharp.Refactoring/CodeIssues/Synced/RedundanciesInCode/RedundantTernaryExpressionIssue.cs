@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantTernaryExpression")]
 	public class RedundantTernaryExpressionIssue : GatherVisitorCodeIssueProvider
 	{
@@ -104,7 +104,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantTernaryExpressionIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -117,7 +117,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node == null)
 					continue;
 				var newRoot = root.ReplaceNode((SyntaxNode)node, node.Condition.WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace by condition", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace by condition", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

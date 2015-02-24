@@ -39,7 +39,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ArrayCreationCanBeReplacedWithArrayInitializer")]
 	public class ArrayCreationCanBeReplacedWithArrayInitializerIssue : GatherVisitorCodeIssueProvider
 	{
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ArrayCreationCanBeReplacedWithArrayInitializerIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
 				var sourceSpan = diagnostic.Location.SourceSpan;
-				context.RegisterFix(CodeActionFactory.Create(sourceSpan, diagnostic.Severity, "Use array initializer", document.WithText(text.Replace(sourceSpan, ""))), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(sourceSpan, diagnostic.Severity, "Use array initializer", document.WithText(text.Replace(sourceSpan, ""))), diagnostic);
 			}
 		}
 		#endregion

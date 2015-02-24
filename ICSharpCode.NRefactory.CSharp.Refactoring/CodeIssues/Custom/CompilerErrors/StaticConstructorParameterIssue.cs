@@ -46,7 +46,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class StaticConstructorParameterIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId = "StaticConstructorParameterIssue";
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return StaticConstructorParameterIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node == null)
 					continue;
 				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithParameterList(SyntaxFactory.ParameterList().WithTrailingTrivia(node.ParameterList.GetTrailingTrivia())));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

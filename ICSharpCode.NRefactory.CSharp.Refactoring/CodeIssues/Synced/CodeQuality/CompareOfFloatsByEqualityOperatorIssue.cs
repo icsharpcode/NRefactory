@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CompareOfFloatsByEqualityOperator")]
 	public class CompareOfFloatsByEqualityOperatorIssue : GatherVisitorCodeIssueProvider
 	{
@@ -214,7 +214,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					4,
 					Rule.Title,
 					Rule.Description,
-					Rule.HelpLink,
+					Rule.HelpLinkUri,
 					node.GetLocation(),
 					null,
 					new[] { tag , floatType}
@@ -231,7 +231,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CompareOfFloatsByEqualityOperatorIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -279,7 +279,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 				if (action != null)
 				{
-					context.RegisterFix(action, diagnostic);
+					context.RegisterCodeFix(action, diagnostic);
 				}
 			}
 		}

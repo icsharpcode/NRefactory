@@ -41,7 +41,7 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
 	public class EnumUnderlyingTypeIsIntIssue : GatherVisitorCodeIssueProvider
 	{
@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return EnumUnderlyingTypeIsIntIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -119,7 +119,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					node.Parent.RemoveNode(node, SyntaxRemoveOptions.KeepExteriorTrivia)
 					.WithAdditionalAnnotations(Formatter.Annotation)
 				);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant ': int'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant ': int'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 		#endregion

@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "InvokeAsExtensionMethod")]
 	public class InvokeAsExtensionMethodIssue : GatherVisitorCodeIssueProvider
 	{
@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return InvokeAsExtensionMethodIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithArgumentList(node.ArgumentList.WithArguments(node.ArgumentList.Arguments.RemoveAt(0)))
 					.WithExpression(((MemberAccessExpressionSyntax)node.Expression).WithExpression(node.ArgumentList.Arguments.First().Expression))
 					.WithLeadingTrivia(node.GetLeadingTrivia()));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to extension method call", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to extension method call", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

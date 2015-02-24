@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "OperatorIsCanBeUsed")]
 	public class OperatorIsCanBeUsedIssue : GatherVisitorCodeIssueProvider
 	{
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return OperatorIsCanBeUsedIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -137,7 +137,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				}
 				var isExpr = SyntaxFactory.BinaryExpression(SyntaxKind.IsExpression, ((MemberAccessExpressionSyntax)a).Expression, b);
 				var newRoot = root.ReplaceNode((SyntaxNode)node, isExpr.WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'is' operator", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'is' operator", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

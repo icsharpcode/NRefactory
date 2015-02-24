@@ -41,7 +41,7 @@ using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantCast")]
 	[Description("Type cast is redundant")]
 	public class RedundantCastIssue : GatherVisitorCodeIssueProvider
@@ -279,7 +279,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantCastIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -295,7 +295,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					while (outerTypeCastNode.Parent is ParenthesizedExpressionSyntax)
 						outerTypeCastNode = outerTypeCastNode.Parent;
 					var newRoot = root.ReplaceNode((SyntaxNode)outerTypeCastNode, ca.Expression.SkipParens());
-					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Remove cast to '{0}'", ca.Type), document.WithSyntaxRoot(newRoot)), diagnostic);
+					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Remove cast to '{0}'", ca.Type), document.WithSyntaxRoot(newRoot)), diagnostic);
 				}
 			}
 		}

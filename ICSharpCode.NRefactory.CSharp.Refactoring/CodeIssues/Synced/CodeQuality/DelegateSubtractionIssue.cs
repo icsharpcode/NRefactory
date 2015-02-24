@@ -34,7 +34,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DelegateSubtraction")]
 	public class DelegateSubtractionIssue : GatherVisitorCodeIssueProvider
 	{
@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
 			{
 				base.VisitAssignmentExpression(node);
-				switch (node.CSharpKind())
+				switch (node.Kind())
 				{
 					case SyntaxKind.SubtractAssignmentExpression:
 						if (!IsEvent(node.Left) && IsDelegate(node.Right))
@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
 			{
 				base.VisitBinaryExpression(node);
-				switch (node.CSharpKind()) {
+				switch (node.Kind()) {
 					case SyntaxKind.SubtractExpression:
 						if (!IsEvent(node.Left) && IsDelegate(node.Right))
 							AddIssue(Diagnostic.Create(Rule, node.GetLocation()));

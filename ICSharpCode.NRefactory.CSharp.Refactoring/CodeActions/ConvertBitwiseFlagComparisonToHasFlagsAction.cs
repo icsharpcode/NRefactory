@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var left = boP.Left.SkipParens();
 			var right = boP.Right.SkipParens();
 
-			testFlagset = boP.CSharpKind() != SyntaxKind.EqualsExpression;
+			testFlagset = boP.Kind() != SyntaxKind.EqualsExpression;
 			flagsExpression = targetExpression = null;
 
 			BinaryExpressionSyntax primExp;
@@ -149,7 +149,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			var left = boP.Left.SkipParens();
 			var right = boP.Right.SkipParens();
-			testFlagset = boP.CSharpKind() == SyntaxKind.EqualsExpression;
+			testFlagset = boP.Kind() == SyntaxKind.EqualsExpression;
 			flagsExpression = targetExpression = null;
 
 			ExpressionSyntax primExp;

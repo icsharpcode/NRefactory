@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseMemberHasParams")]
 	public class BaseMemberHasParamsIssue : GatherVisitorCodeIssueProvider
 	{
@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return BaseMemberHasParamsIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					continue;
 				var param = (ParameterSyntax)node;
 				var newRoot = root.ReplaceNode(node, param.AddModifiers(SyntaxFactory.Token(SyntaxKind.ParamsKeyword)).WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Add 'params' modifier", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Add 'params' modifier", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// <summary>
 	/// Finds redundant base qualifier 
 	/// </summary>
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBaseQualifier")]
 	[Description("'base.' is redundant and can safely be removed.")]
 	public class RedundantBaseQualifierIssue : GatherVisitorCodeIssueProvider
@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantBaseQualifierIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -113,7 +113,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						parentMa.Name
 						.WithLeadingTrivia(parentMa.GetLeadingTrivia())
 						.WithTrailingTrivia(parentMa.GetTrailingTrivia()));
-					context.RegisterFix(CodeActionFactory.Create(parentMa.Span, diagnostic.Severity, "Remove 'base.'", document.WithSyntaxRoot(newRoot)), diagnostic);
+					context.RegisterCodeFix(CodeActionFactory.Create(parentMa.Span, diagnostic.Severity, "Remove 'base.'", document.WithSyntaxRoot(newRoot)), diagnostic);
 				}
 			}
 		}

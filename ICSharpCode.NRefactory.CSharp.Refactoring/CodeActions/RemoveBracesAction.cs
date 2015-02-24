@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (node is BlockSyntax) {
 				node = node.Parent;
 			}
-			switch (node.CSharpKind())  {
+			switch (node.Kind())  {
 				case SyntaxKind.IfStatement:
 					keyword = "if";
 					embeddedStatement = ((IfStatementSyntax)node).Statement;

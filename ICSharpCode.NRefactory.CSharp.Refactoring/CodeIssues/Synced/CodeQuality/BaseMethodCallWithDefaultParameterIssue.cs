@@ -35,7 +35,7 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseMethodCallWithDefaultParameter")]
 	public class BaseMethodCallWithDefaultParameterIssue : GatherVisitorCodeIssueProvider
 	{

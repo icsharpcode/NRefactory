@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "OptionalParameterRefOut")]
 	public class OptionalParameterRefOutIssue : GatherVisitorCodeIssueProvider
 	{
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	//		yield return OptionalParameterRefOutIssue.DiagnosticId;
 	//	}
 
-	//	public override async Task ComputeFixesAsync(CodeFixContext context)
+	//	public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 	//	{
 	//		var document = context.Document;
 	//		var cancellationToken = context.CancellationToken;
@@ -109,7 +109,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	//		var result = new List<CodeAction>();
 	//		foreach (var diagnostic in diagnostics) {
 	//			var node = root.FindNode(diagnostic.Location.SourceSpan);
-	//			context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document), diagnostic);
+	//			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document), diagnostic);
 	//		}
 	//	}
 	//}

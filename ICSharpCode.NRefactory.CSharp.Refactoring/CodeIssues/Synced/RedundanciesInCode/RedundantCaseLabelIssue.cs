@@ -41,7 +41,7 @@ using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantCaseLabel")]
 	[Description("Redundant case label")]
 	public class RedundantCaseLabelIssue : GatherVisitorCodeIssueProvider
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantCaseLabelIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as CaseSwitchLabelSyntax;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
 
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Remove 'case {0}'", node.Value), document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Remove 'case {0}'", node.Value), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

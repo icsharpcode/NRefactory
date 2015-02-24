@@ -45,7 +45,7 @@ using Microsoft.CodeAnalysis.Simplification;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
 	public class StringIndexOfIsCultureSpecificIssue : GatherVisitorCodeIssueProvider
 	{
@@ -115,7 +115,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return StringIndexOfIsCultureSpecificIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -138,7 +138,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var newInvocation = SyntaxFactory.InvocationExpression(invocationExpression.Expression, newArguments);
 			var newRoot = root.ReplaceNode(invocationExpression, newInvocation.WithAdditionalAnnotations(Formatter.Annotation));
 
-			context.RegisterFix(CodeActionFactory.Create(invocationExpression.Span, diagnostic.Severity, diagnostic.GetMessage(), context.Document.WithSyntaxRoot(newRoot)), diagnostic);
+			context.RegisterCodeFix(CodeActionFactory.Create(invocationExpression.Span, diagnostic.Severity, diagnostic.GetMessage(), context.Document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

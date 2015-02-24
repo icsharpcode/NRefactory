@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ConstantConditionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "ConstantConditionIssue";
@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					4,
 					Rule.Title,
 					Rule.Description,
-					Rule.HelpLink,
+					Rule.HelpLinkUri,
 					condition.GetLocation(),
 					null,
 					new [] { value.ToString() } 
@@ -147,7 +147,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConstantConditionIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -169,7 +169,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 				if (conditionalExpr != null)
 				{
-					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace '?:' with '{0}' branch", valueStr), token =>
+					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace '?:' with '{0}' branch", valueStr), token =>
 					{
 						var replaceWith = value ? conditionalExpr.WhenTrue : conditionalExpr.WhenFalse;
 						var newRoot = root.ReplaceNode((SyntaxNode)conditionalExpr, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
@@ -178,7 +178,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				}
 				else if (ifElseStatement != null)
 				{
-					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace 'if' with '{0}' branch", valueStr), token =>
+					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace 'if' with '{0}' branch", valueStr), token =>
 					{
 						var list = new List<SyntaxNode>();
 						StatementSyntax branch;
@@ -212,7 +212,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				}
 				else
 				{
-					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace expression with '{0}'", valueStr), token =>
+					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace expression with '{0}'", valueStr), token =>
 					{
 						var replaceWith = SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
 						var newRoot = root.ReplaceNode((SyntaxNode)node, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));

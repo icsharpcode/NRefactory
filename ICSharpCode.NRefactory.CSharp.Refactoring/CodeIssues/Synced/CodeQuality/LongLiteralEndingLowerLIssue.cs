@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "LongLiteralEndingLowerL")]
 	public class LongLiteralEndingLowerLIssue : GatherVisitorCodeIssueProvider
 	{
@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return LongLiteralEndingLowerLIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -124,7 +124,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					newLong = long.Parse(newLiteral); //just in case
 
 				var newRoot = root.ReplaceNode((SyntaxNode)node, ((LiteralExpressionSyntax)node).WithToken(SyntaxFactory.Literal(newLiteral, newLong)));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make suffix upper case", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make suffix upper case", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

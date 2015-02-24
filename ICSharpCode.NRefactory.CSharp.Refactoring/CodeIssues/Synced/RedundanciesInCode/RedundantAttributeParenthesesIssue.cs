@@ -44,7 +44,7 @@ using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantAttributeParentheses")]
 	[Description("Parentheses are redundant if attribute has no arguments.")]
 	public class RedundantAttributeParenthesesIssue : GatherVisitorCodeIssueProvider
@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantAttributeParenthesesIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node == null)
 					continue;
 				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithArgumentList(null));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

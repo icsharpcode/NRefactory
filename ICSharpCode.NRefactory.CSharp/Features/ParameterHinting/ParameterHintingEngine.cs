@@ -67,10 +67,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var node = targetParent.Parent;
 			// case: identifier<arg1,|
 			if (node == null) {
-				if (context.LeftToken.CSharpKind() == SyntaxKind.CommaToken) {
+				if (context.LeftToken.Kind() == SyntaxKind.CommaToken) {
 					targetParent = context.LeftToken.GetPreviousToken().Parent;
 					node = targetParent.Parent;
-					if (node.CSharpKind() == SyntaxKind.LessThanExpression) {
+					if (node.Kind() == SyntaxKind.LessThanExpression) {
 						return HandleTypeParameterCase(semanticModel, ((BinaryExpressionSyntax)node).Left, cancellationToken);
 
 					}
@@ -79,7 +79,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 			if (node.IsKind (SyntaxKind.Argument))
 				node = node.Parent.Parent;
-			switch (node.CSharpKind()) {
+			switch (node.Kind()) {
 				case SyntaxKind.Attribute:
 					return HandleAttribute(semanticModel, node, cancellationToken);					
 				case SyntaxKind.ThisConstructorInitializer:

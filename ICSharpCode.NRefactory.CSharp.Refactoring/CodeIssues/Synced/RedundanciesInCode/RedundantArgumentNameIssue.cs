@@ -42,7 +42,7 @@ using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantArgumentName")]
 	[Description("Redundant explicit argument name specification")]
 	public class RedundantArgumentNameIssue : GatherVisitorCodeIssueProvider
@@ -150,7 +150,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantArgumentNameIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -175,7 +175,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					}
 					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.Argument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
 
-					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
+					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
 					continue;
 				}
 				var attrListSyntax = node.Parent.Parent as AttributeArgumentListSyntax;
@@ -193,7 +193,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					}
 					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.AttributeArgument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
 
-					context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
+					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
 					continue;
 				}
 			}

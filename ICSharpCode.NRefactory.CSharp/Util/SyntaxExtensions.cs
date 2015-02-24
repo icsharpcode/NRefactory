@@ -204,7 +204,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return false;
 			}
 
-			if (memberAccess.Expression.CSharpKind() == SyntaxKind.BaseExpression) {
+			if (memberAccess.Expression.Kind() == SyntaxKind.BaseExpression) {
 				var enclosingNamedType = semanticModel.GetEnclosingNamedType(memberAccess.SpanStart, cancellationToken);
 				var symbol = semanticModel.GetSymbolInfo(memberAccess.Name).Symbol;
 				if (enclosingNamedType != null &&
@@ -228,15 +228,15 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		private static bool IsThisOrTypeOrNamespace(MemberAccessExpressionSyntax memberAccess, SemanticModel semanticModel)
 		{
-			if (memberAccess.Expression.CSharpKind() == SyntaxKind.ThisExpression) {
+			if (memberAccess.Expression.Kind() == SyntaxKind.ThisExpression) {
 				var previousToken = memberAccess.Expression.GetFirstToken().GetPreviousToken();
 
 				var symbol = semanticModel.GetSymbolInfo(memberAccess.Name).Symbol;
 
-				if (previousToken.CSharpKind() == SyntaxKind.OpenParenToken &&
+				if (previousToken.Kind() == SyntaxKind.OpenParenToken &&
 				    previousToken.IsParentKind(SyntaxKind.ParenthesizedExpression) &&
 				    !previousToken.Parent.IsParentKind(SyntaxKind.ParenthesizedExpression) &&
-				    ((ParenthesizedExpressionSyntax)previousToken.Parent).Expression.CSharpKind() == SyntaxKind.SimpleMemberAccessExpression &&
+				    ((ParenthesizedExpressionSyntax)previousToken.Parent).Expression.Kind() == SyntaxKind.SimpleMemberAccessExpression &&
 				    symbol != null && symbol.Kind == SymbolKind.Method) {
 					return false;
 				}
@@ -260,7 +260,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		private static bool WillConflictWithExistingLocal(ExpressionSyntax expression, ExpressionSyntax simplifiedNode)
 		{
-			if (simplifiedNode.CSharpKind() == SyntaxKind.IdentifierName && !SyntaxFacts.IsInNamespaceOrTypeContext(expression)) {
+			if (simplifiedNode.Kind() == SyntaxKind.IdentifierName && !SyntaxFacts.IsInNamespaceOrTypeContext(expression)) {
 				var identifierName = (IdentifierNameSyntax)simplifiedNode;
 				var enclosingDeclarationSpace = FindImmediatelyEnclosingLocalVariableDeclarationSpace(expression);
 				var enclosingMemberDeclaration = expression.FirstAncestorOrSelf<MemberDeclarationSyntax>();
@@ -280,7 +280,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		private static SyntaxNode FindImmediatelyEnclosingLocalVariableDeclarationSpace(SyntaxNode syntax)
 		{
 			for (var declSpace = syntax; declSpace != null; declSpace = declSpace.Parent) {
-				switch (declSpace.CSharpKind()) {
+				switch (declSpace.Kind()) {
 				// These are declaration-space-defining syntaxes, by the spec:
 					case SyntaxKind.MethodDeclaration:
 					case SyntaxKind.IndexerDeclaration:
@@ -331,10 +331,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 			if (IsNameOrMemberAccessButNoExpression(newExpression)) {
 				var nextToken = parent.Parent.GetLastToken().GetNextToken();
 
-				return nextToken.CSharpKind() == SyntaxKind.OpenParenToken ||
-				nextToken.CSharpKind() == SyntaxKind.TildeToken ||
-				nextToken.CSharpKind() == SyntaxKind.ExclamationToken ||
-				(SyntaxFacts.IsKeywordKind(nextToken.CSharpKind()) && !(nextToken.CSharpKind() == SyntaxKind.AsKeyword || nextToken.CSharpKind() == SyntaxKind.IsKeyword));
+				return nextToken.Kind() == SyntaxKind.OpenParenToken ||
+				nextToken.Kind() == SyntaxKind.TildeToken ||
+				nextToken.Kind() == SyntaxKind.ExclamationToken ||
+				(SyntaxFacts.IsKeywordKind(nextToken.Kind()) && !(nextToken.Kind() == SyntaxKind.AsKeyword || nextToken.Kind() == SyntaxKind.IsKeyword));
 			}
 
 			return false;
@@ -371,7 +371,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			var constructor = memberAccess.Ancestors().OfType<ConstructorDeclarationSyntax>().SingleOrDefault();
 
-			if (constructor == null || constructor.Parent.CSharpKind() != SyntaxKind.StructDeclaration) {
+			if (constructor == null || constructor.Parent.Kind() != SyntaxKind.StructDeclaration) {
 				return false;
 			}
 
@@ -414,7 +414,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		private static bool IsNullableTypeInPointerExpression(ExpressionSyntax expression, ExpressionSyntax simplifiedNode)
 		{
 			// Note: nullable type syntax is not allowed in pointer type syntax
-			if (simplifiedNode.CSharpKind() == SyntaxKind.NullableType &&
+			if (simplifiedNode.Kind() == SyntaxKind.NullableType &&
 				simplifiedNode.DescendantNodes().Any(n => n is PointerTypeSyntax))
 			{
 				return true;
@@ -458,9 +458,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 			// var isLeftSideOfDot = name.IsLeftSideOfDot();
 			// var isRightSideOfDot = name.IsRightSideOfDot();
 
-			if (reducedName.CSharpKind() == SyntaxKind.NullableType)
+			if (reducedName.Kind() == SyntaxKind.NullableType)
 			{
-				if (((NullableTypeSyntax)reducedName).ElementType.CSharpKind() == SyntaxKind.OmittedTypeArgument)
+				if (((NullableTypeSyntax)reducedName).ElementType.Kind() == SyntaxKind.OmittedTypeArgument)
 				{
 					isNotNullableReplacable = true;
 				}

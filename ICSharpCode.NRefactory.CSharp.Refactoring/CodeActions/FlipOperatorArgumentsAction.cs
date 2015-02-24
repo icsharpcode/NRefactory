@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					DiagnosticSeverity.Info,
 					string.Format("Flip '{0}' operator arguments", binop.OperatorToken),
 					t2 => {
-						var newBinop = SyntaxFactory.BinaryExpression(binop.CSharpKind(), binop.Right, binop.Left)
+						var newBinop = SyntaxFactory.BinaryExpression(binop.Kind(), binop.Right, binop.Left)
 							.WithAdditionalAnnotations(Formatter.Annotation);
 						var newRoot = root.ReplaceNode((SyntaxNode)binop, newBinop);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));

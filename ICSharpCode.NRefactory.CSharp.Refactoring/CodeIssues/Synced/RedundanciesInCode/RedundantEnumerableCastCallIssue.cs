@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	// OfType -> Underline (+suggest to compare to null)
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEnumerableCastCall")]
 	public class RedundantEnumerableCastCallIssue : GatherVisitorCodeIssueProvider
 	{
@@ -138,7 +138,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantEnumerableCastCallIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -151,7 +151,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove 'Cast<T>' call", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove 'Cast<T>' call", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

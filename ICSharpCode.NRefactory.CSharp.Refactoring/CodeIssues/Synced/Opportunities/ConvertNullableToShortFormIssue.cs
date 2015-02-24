@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertNullableToShortForm")]
 	public class ConvertNullableToShortFormIssue : GatherVisitorCodeIssueProvider
 	{
@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertNullableToShortFormIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -149,7 +149,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.NullableType(arg)
 					.WithAdditionalAnnotations(Formatter.Annotation)
 					.WithLeadingTrivia(node.GetLeadingTrivia()));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Rewrite to '{0}?'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Rewrite to '{0}?'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

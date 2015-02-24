@@ -87,11 +87,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return SyntaxFactory.IfStatement(
 				conditional.Condition, 
 				SyntaxFactory.ExpressionStatement(
-					SyntaxFactory.AssignmentExpression(expr.CSharpKind(), expr.Left, conditional.WhenTrue)
+					SyntaxFactory.AssignmentExpression(expr.Kind(), expr.Left, conditional.WhenTrue)
 				),
 				SyntaxFactory.ElseClause(
 					SyntaxFactory.ExpressionStatement(
-						SyntaxFactory.AssignmentExpression(expr.CSharpKind(), expr.Left, conditional.WhenFalse)
+						SyntaxFactory.AssignmentExpression(expr.Kind(), expr.Left, conditional.WhenFalse)
 					)
 				)
 			);
@@ -100,8 +100,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		static IfStatementSyntax CreateForNullCoalescingExpression(AssignmentExpressionSyntax expr, BinaryExpressionSyntax bOp)
 		{
 			return SyntaxFactory.IfStatement(SyntaxFactory.BinaryExpression(SyntaxKind.NotEqualsExpression, bOp.Left, SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), 
-				SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(expr.CSharpKind(), expr.Left, bOp.Left)),
-				SyntaxFactory.ElseClause(SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(expr.CSharpKind(), expr.Left, bOp.Right))));
+				SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(expr.Kind(), expr.Left, bOp.Left)),
+				SyntaxFactory.ElseClause(SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(expr.Kind(), expr.Left, bOp.Right))));
 		}
 	}
 }

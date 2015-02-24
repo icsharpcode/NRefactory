@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(PragmaWarning = 1717, AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorCodeIssueProvider
 	{
@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CS0659ClassOverrideEqualsWithoutGetHashCode.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -117,7 +117,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					.WithBody(SyntaxFactory.Block(
 					SyntaxFactory.ReturnStatement().WithExpression(SyntaxFactory.ParseExpression("base.GetHashCode()")))).WithAdditionalAnnotations(Formatter.Annotation);
 				var newRoot = root.InsertNodesAfter(node, new List<SyntaxNode>() { hashCode });
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

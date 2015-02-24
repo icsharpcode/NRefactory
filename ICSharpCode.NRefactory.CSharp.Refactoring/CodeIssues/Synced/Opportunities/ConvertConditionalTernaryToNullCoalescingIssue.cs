@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// Checks for "a != null ? a : other"<expr>
 	/// Converts to: "a ?? other"<expr>
 	/// </summary>
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
 	public class ConvertConditionalTernaryToNullCoalescingIssue : GatherVisitorCodeIssueProvider
 	{
@@ -135,7 +135,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertConditionalTernaryToNullCoalescingIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -148,7 +148,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
 				if (node == null)
 					continue;
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:'  operator with '??", token => {
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:'  operator with '??", token => {
 					ExpressionSyntax a, other;
 					if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
 						a = node.WhenFalse;

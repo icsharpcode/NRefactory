@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithOfType.Count")]
 	public class ReplaceWithOfTypeCountIssue : GatherVisitorCodeIssueProvider
 	{
@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ReplaceWithOfTypeCountIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) as InvocationExpressionSyntax;
 				var newRoot = root.ReplaceNode(node, ReplaceWithOfTypeAnyIssue.MakeOfTypeCall(node));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with call to OfType<T>().Count()", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with call to OfType<T>().Count()", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

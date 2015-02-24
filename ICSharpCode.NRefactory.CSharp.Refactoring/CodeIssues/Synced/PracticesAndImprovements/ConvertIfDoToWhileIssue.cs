@@ -42,7 +42,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfDoToWhile")]
 	public class ConvertIfDoToWhileIssue : GatherVisitorCodeIssueProvider
 	{
@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertIfDoToWhileIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -118,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node == null)
 					continue;
 
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'while'", token => {
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'while'", token => {
 					var newNode = SyntaxFactory.WhileStatement(
 						node.Condition,
 						ConvertIfDoToWhileIssue.GetEmbeddedDoStatement(node.Statement).Statement

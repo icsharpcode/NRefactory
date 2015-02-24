@@ -816,9 +816,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static bool IsWord(this SyntaxToken token)
 		{
 			return token.IsKind(SyntaxKind.IdentifierToken)
-				|| SyntaxFacts.IsKeywordKind(token.CSharpKind ())
-				|| SyntaxFacts.IsContextualKeyword(token.CSharpKind ())
-				|| SyntaxFacts.IsPreprocessorKeyword(token.CSharpKind ());
+				|| SyntaxFacts.IsKeywordKind(token.Kind())
+				|| SyntaxFacts.IsContextualKeyword(token.Kind())
+				|| SyntaxFacts.IsPreprocessorKeyword(token.Kind());
 		}
 
 		public static SyntaxToken GetNextNonZeroWidthTokenOrEndOfFile(this SyntaxToken token)

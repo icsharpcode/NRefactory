@@ -34,7 +34,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
 	public class DoNotCallOverridableMethodsInConstructorIssue : GatherVisitorCodeIssueProvider
 	{
@@ -226,7 +226,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	//				//if (!node.IsKind(SyntaxKind.BaseList))
 	//				//	continue;
 	//				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-	//				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class '{0}' sealed", document.WithSyntaxRoot(newRoot)), diagnostic);
+	//				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class '{0}' sealed", document.WithSyntaxRoot(newRoot)), diagnostic);
 	//			}
 	//			return result;
 	//		}

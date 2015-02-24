@@ -41,7 +41,7 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class ConditionalTernaryEqualBranchIssue : GatherVisitorCodeIssueProvider
 	{
@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConditionalTernaryEqualBranchIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -100,7 +100,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
 				if (node == null)
 					continue;
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:' with branch", token => {
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:' with branch", token => {
 					var newRoot = root.ReplaceNode((SyntaxNode)node, node.WhenTrue.WithAdditionalAnnotations(Formatter.Annotation));
 					return Task.FromResult(document.WithSyntaxRoot(newRoot));
 				}), diagnostic);

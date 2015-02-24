@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UseArrayCreationExpression")]
 	public class UseArrayCreationExpressionIssue : GatherVisitorCodeIssueProvider
 	{
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return UseArrayCreationExpressionIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//if (!node.IsKind(SyntaxKind.BaseList))
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'new'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'new'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

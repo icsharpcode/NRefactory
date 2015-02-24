@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSimpleAssignment")]
 	public class ReplaceWithSimpleAssignmentIssue : GatherVisitorCodeIssueProvider
 	{
@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ReplaceWithSimpleAssignmentIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node == null)
 					continue;
 				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithOperatorToken(SyntaxFactory.Token(SyntaxKind.EqualsToken)).WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '{0}'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '{0}'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

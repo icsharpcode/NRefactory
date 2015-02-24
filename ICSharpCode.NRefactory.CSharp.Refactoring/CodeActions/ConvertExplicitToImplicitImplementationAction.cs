@@ -117,7 +117,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					"Convert explict to implicit implementation", 
 					t2 => {
 						var newNode = memberDeclaration;
-						switch (newNode.CSharpKind()) {
+						switch (newNode.Kind()) {
 							case SyntaxKind.MethodDeclaration:
 								var method = (MethodDeclarationSyntax)memberDeclaration.WithoutLeadingTrivia();
 								newNode = method

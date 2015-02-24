@@ -44,7 +44,7 @@ using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CSharpWarnings::CS0108", PragmaWarning = 108)]
 	public class CS0108UseNewKeywordIfHidingIntendedIssue : GatherVisitorCodeIssueProvider
 	{
@@ -253,7 +253,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CS0108UseNewKeywordIfHidingIntendedIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -267,15 +267,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan);
-
-				context.RegisterFix(CodeActionFactory.Create(
+				context.RegisterCodeFix(CodeActionFactory.Create(
 					node.Span,
 					diagnostic.Severity,
 					"Add new modifier to method",
 					token =>
 					{
 						SyntaxNode newRoot;
-						if (node.CSharpKind() != SyntaxKind.VariableDeclarator)
+						if (node.Kind() != SyntaxKind.VariableDeclarator)
 							newRoot = root.ReplaceNode((SyntaxNode)node, AddNewModifier(node));
 						else //this one wants to be awkward - you can't add modifiers to a variable declarator
                         {
@@ -293,7 +292,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		private SyntaxNode AddNewModifier(SyntaxNode node)
 		{
 			SyntaxToken newToken = SyntaxFactory.Token(SyntaxKind.NewKeyword);
-			switch (node.CSharpKind()) {
+			switch (node.Kind()) {
 				//couldn't find a common base
 				case SyntaxKind.IndexerDeclaration:
 					var indexer = (IndexerDeclarationSyntax)node;

@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToStaticType")]
 	public class ConvertToStaticTypeIssue : GatherVisitorCodeIssueProvider
 	{
@@ -104,7 +104,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return ConvertToStaticTypeIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithModifiers(node.Modifiers.Remove(sealedMod)
 					.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Whitespace(" "))))
 					.WithLeadingTrivia(node.GetLeadingTrivia()));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class static", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class static", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

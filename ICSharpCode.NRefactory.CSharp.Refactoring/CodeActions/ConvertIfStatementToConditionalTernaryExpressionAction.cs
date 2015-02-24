@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			whenTrue = whenTrueExprStatement.Expression as AssignmentExpressionSyntax;
 			whenFalse = whenFalseExprStatement.Expression as AssignmentExpressionSyntax;
-			if (whenTrue == null || whenFalse == null || whenTrue.CSharpKind() != whenFalse.CSharpKind() ||
+			if (whenTrue == null || whenFalse == null || whenTrue.Kind() != whenFalse.Kind() ||
 				!whenTrue.Left.IsEquivalentTo(whenFalse.Left))
 				return false;
 
@@ -104,7 +104,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var newRoot = root.ReplaceNode((SyntaxNode)node, 
 							SyntaxFactory.ExpressionStatement(
 								SyntaxFactory.AssignmentExpression(
-									trueAssignment.CSharpKind(),
+									trueAssignment.Kind(),
 									trueAssignment.Left,
 									SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right)
 								)

@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		internal static ExpressionSyntax GetOuterLeft(BinaryExpressionSyntax bop)
 		{
 			var leftBop = bop.Left as BinaryExpressionSyntax;
-			if (leftBop != null && bop.OperatorToken.IsKind(leftBop.OperatorToken.CSharpKind()))
+			if (leftBop != null && bop.OperatorToken.IsKind(leftBop.OperatorToken.Kind()))
 				return GetOuterLeft(leftBop);
 			return bop.Left;
 		}
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 		internal static SyntaxKind GetAssignmentOperator(SyntaxToken token)
 		{
-			switch (token.CSharpKind()) {
+			switch (token.Kind()) {
 				case SyntaxKind.AmpersandToken:
 					return SyntaxKind.AndAssignmentExpression;
 				case SyntaxKind.BarToken:

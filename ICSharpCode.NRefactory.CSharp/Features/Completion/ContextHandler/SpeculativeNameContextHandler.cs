@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var list = new List<ICompletionData> ();
 
 			if (parent.IsKind(SyntaxKind.PredefinedType)) {			
-				switch (token.CSharpKind()) {
+				switch (token.Kind()) {
 				case SyntaxKind.ObjectKeyword:
 					list.Add (engine.Factory.CreateGenericData(this, "o", GenericDataType.NameProposal));
 					list.Add (engine.Factory.CreateGenericData(this, "obj", GenericDataType.NameProposal));

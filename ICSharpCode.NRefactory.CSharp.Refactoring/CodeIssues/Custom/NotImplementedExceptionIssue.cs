@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// This inspector just shows that there is a not implemented exception. It doesn't offer a fix.
 	/// Should only be shown in overview bar, no underlining.
 	/// </summary>
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class NotImplementedExceptionIssue : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId  = "NotImplementedExceptionIssue";

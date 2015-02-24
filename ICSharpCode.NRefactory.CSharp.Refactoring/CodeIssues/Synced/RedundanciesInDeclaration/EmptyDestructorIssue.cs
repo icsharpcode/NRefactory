@@ -39,7 +39,7 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyDestructor")]
 	public class EmptyDestructorIssue : GatherVisitorCodeIssueProvider
 	{
@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return EmptyDestructorIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -115,7 +115,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (!node.IsKind(SyntaxKind.DestructorDeclaration))
 					continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant destructor", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant destructor", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 		#endregion

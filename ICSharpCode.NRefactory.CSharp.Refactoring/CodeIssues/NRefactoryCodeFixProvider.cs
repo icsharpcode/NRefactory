@@ -47,9 +47,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 	{
 		protected abstract IEnumerable<string> InternalGetFixableDiagnosticIds();
 
-		public override ImmutableArray<string> GetFixableDiagnosticIds()
-		{
-			return ImmutableArray<string>.Empty.AddRange(InternalGetFixableDiagnosticIds());
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray<string>.Empty.AddRange(InternalGetFixableDiagnosticIds());
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider ()

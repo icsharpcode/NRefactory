@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var position = completionContext.Position;
 			var tree = await document.GetSyntaxTreeAsync (cancellationToken).ConfigureAwait (false);
 
-			DeclarationModifiers modifiers;
+			//DeclarationModifiers modifiers;
 			SyntaxToken token;
 
 			var semanticModel = await document.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return Enumerable.Empty<ICompletionData> ();
 			}
 
-			if (!IsPartialCompletionContext (tree, position, cancellationToken, out modifiers, out token)) {
+			if (!IsPartialCompletionContext (tree, position, cancellationToken/*, out modifiers*/, out token)) {
 				if (enclosingSymbol != null && (token.IsKind (SyntaxKind.OpenBraceToken) || token.IsKind (SyntaxKind.CloseBraceToken) || token.IsKind (SyntaxKind.SemicolonToken))) {
 					return CreateCompletionData (engine, semanticModel, position, enclosingSymbol, token, false, cancellationToken);
 				}
@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			var declarationBegin = afterPartialKeyword ? token.SpanStart : position - 1;
 			foreach (var m in symbols) {
-                var data = engine.Factory.CreatePartialCompletionData (
+				var data = engine.Factory.CreatePartialCompletionData (
 					this,
 					declarationBegin,
 					enclosingType,
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return declarations.Any(d => d.Body == null && d.Modifiers.Any(SyntaxKind.PartialKeyword));
 		}
 
-		static bool IsPartialCompletionContext(SyntaxTree tree, int position, CancellationToken cancellationToken, out DeclarationModifiers modifiers, out SyntaxToken token)
+		static bool IsPartialCompletionContext(SyntaxTree tree, int position, CancellationToken cancellationToken, /*out DeclarationModifiers modifiers, */out SyntaxToken token)
 		{
 			var touchingToken = tree.FindTokenOnLeftOfPosition(position, cancellationToken);
 			var targetToken = touchingToken.GetPreviousTokenIfTouchingWord(position);
@@ -124,19 +124,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			token = targetToken;
 
-			modifiers = default(DeclarationModifiers);
+			//modifiers = default(DeclarationModifiers);
 
 			if (targetToken.IsKind(SyntaxKind.VoidKeyword, SyntaxKind.PartialKeyword) ||
 				(targetToken.Kind() == SyntaxKind.IdentifierToken && targetToken.HasMatchingText(SyntaxKind.PartialKeyword)))
 			{
-				return !IsOnSameLine(touchingToken.GetNextToken(), touchingToken, text) &&
-					VerifyModifiers(tree, position, cancellationToken, out modifiers);
+				return !IsOnSameLine (touchingToken.GetNextToken (), touchingToken, text) &&
+				VerifyModifiers (tree, position, cancellationToken/*, out modifiers*/);
 			}
 
 			return false;
 		}
 
-		static bool VerifyModifiers(SyntaxTree tree, int position, CancellationToken cancellationToken, out DeclarationModifiers modifiers)
+		static bool VerifyModifiers(SyntaxTree tree, int position, CancellationToken cancellationToken/*, out DeclarationModifiers modifiers*/)
 		{
 			var touchingToken = tree.FindTokenOnLeftOfPosition(position, cancellationToken);
 			var token = touchingToken.GetPreviousToken();
@@ -148,7 +148,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			{
 				if (token.IsKind(SyntaxKind.ExternKeyword, SyntaxKind.PublicKeyword, SyntaxKind.ProtectedKeyword, SyntaxKind.InternalKeyword))
 				{
-					modifiers = default(DeclarationModifiers);
+					//modifiers = default(DeclarationModifiers);
 					return false;
 				}
 
@@ -162,9 +162,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				token = token.GetPreviousToken();
 			}
 
-			modifiers = new DeclarationModifiers()
+			/*modifiers = new DeclarationModifiers()
 				.WithPartial(true)
-				.WithAsync (foundAsync);
+				.WithAsync (foundAsync);*/
 			return foundPartial;
 		}
 

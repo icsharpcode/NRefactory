@@ -36,7 +36,7 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
 	public class BitwiseOperatorOnEnumWithoutFlagsIssue : GatherVisitorCodeIssueProvider
 	{
@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
 			{
 				base.VisitAssignmentExpression(node);
-				switch (node.CSharpKind())  {
+				switch (node.Kind())  {
 					case SyntaxKind.OrAssignmentExpression:
 					case SyntaxKind.AndAssignmentExpression:
 					case SyntaxKind.ExclusiveOrAssignmentExpression:
@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
 			{
 				base.VisitBinaryExpression(node);
-				switch (node.CSharpKind())  {
+				switch (node.Kind())  {
 					case SyntaxKind.BitwiseAndExpression:
 					case SyntaxKind.BitwiseOrExpression:
 					case SyntaxKind.ExclusiveOrExpression:

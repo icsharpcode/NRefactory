@@ -41,7 +41,7 @@ using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoubleNegationOperator")]
 	[Description("Double negation is redundant")]
 	public class DoubleNegationOperatorIssue : GatherVisitorCodeIssueProvider
@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return DoubleNegationOperatorIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (innerUnaryOperatorExpr == null)
 					continue;
 				var newRoot = root.ReplaceNode((SyntaxNode)node, innerUnaryOperatorExpr.Operand.SkipParens());
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, node.IsKind(SyntaxKind.LogicalNotExpression) ? "Remove '!!'" : "Remove '~~'", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, node.IsKind(SyntaxKind.LogicalNotExpression) ? "Remove '!!'" : "Remove '~~'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 		#endregion

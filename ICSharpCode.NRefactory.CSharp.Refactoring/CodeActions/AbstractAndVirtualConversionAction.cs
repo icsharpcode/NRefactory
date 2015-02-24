@@ -204,7 +204,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (property != null) {
 				var accessors = new List<AccessorDeclarationSyntax> ();
 				foreach (var accessor in property.AccessorList.Accessors) {
-					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), accessor.AttributeLists, accessor.Modifiers, CreateNotImplementedBody()));
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.Kind(), accessor.AttributeLists, accessor.Modifiers, CreateNotImplementedBody()));
 				}
 				return SyntaxFactory.PropertyDeclaration(
 					property.AttributeLists,
@@ -221,7 +221,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (indexer != null) {
 				var accessors = new List<AccessorDeclarationSyntax> ();
 				foreach (var accessor in indexer.AccessorList.Accessors) {
-					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), accessor.AttributeLists, accessor.Modifiers, CreateNotImplementedBody()));
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.Kind(), accessor.AttributeLists, accessor.Modifiers, CreateNotImplementedBody()));
 				}
 				return SyntaxFactory.IndexerDeclaration(
 					indexer.AttributeLists,
@@ -237,7 +237,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (evt != null) {
 				var accessors = new List<AccessorDeclarationSyntax> ();
 				foreach (var accessor in evt.AccessorList.Accessors) {
-					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), CreateNotImplementedBody()));
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.Kind(), CreateNotImplementedBody()));
 				}
 				return SyntaxFactory.EventDeclaration(
 					evt.AttributeLists,
@@ -313,7 +313,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (property != null) {
 				var accessors = new List<AccessorDeclarationSyntax> ();
 				foreach (var accessor in property.AccessorList.Accessors) {
-					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), accessor.AttributeLists, accessor.Modifiers, accessor.Keyword, null, SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.Kind(), accessor.AttributeLists, accessor.Modifiers, accessor.Keyword, null, SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
 				}
 				return SyntaxFactory.PropertyDeclaration(
 					property.AttributeLists,
@@ -330,7 +330,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (indexer != null) {
 				var accessors = new List<AccessorDeclarationSyntax> ();
 				foreach (var accessor in indexer.AccessorList.Accessors) {
-					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.CSharpKind(), accessor.AttributeLists, accessor.Modifiers, accessor.Keyword, null, SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
+					accessors.Add(SyntaxFactory.AccessorDeclaration(accessor.Kind(), accessor.AttributeLists, accessor.Modifiers, accessor.Keyword, null, SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
 				}
 				return SyntaxFactory.IndexerDeclaration(
 					indexer.AttributeLists,

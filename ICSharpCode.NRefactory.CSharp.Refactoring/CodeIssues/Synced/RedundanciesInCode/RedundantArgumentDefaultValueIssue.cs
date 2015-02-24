@@ -44,7 +44,7 @@ using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantArgumentDefaultValue")]
 	[Description("Default argument value is redundant.")]
 	public class RedundantArgumentDefaultValueIssue : GatherVisitorCodeIssueProvider
@@ -156,7 +156,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantArgumentDefaultValueIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -170,7 +170,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				//	continue;
 				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
 				 
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant arguments", document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant arguments", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

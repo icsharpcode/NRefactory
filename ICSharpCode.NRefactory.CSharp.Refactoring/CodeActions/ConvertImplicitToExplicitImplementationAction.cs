@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var newNode = memberDeclaration;
 						var nameSpecifier = SyntaxFactory.ExplicitInterfaceSpecifier(SyntaxFactory.ParseName(implementingInterface.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)))
 							.WithAdditionalAnnotations(Simplifier.Annotation);
-						switch (newNode.CSharpKind()) {
+						switch (newNode.Kind()) {
 							case SyntaxKind.MethodDeclaration:
 								var method = (MethodDeclarationSyntax)memberDeclaration;
 								newNode = method

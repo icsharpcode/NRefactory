@@ -39,7 +39,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "AccessToStaticMemberViaDerivedType")]
 	public class AccessToStaticMemberViaDerivedTypeIssue : GatherVisitorCodeIssueProvider
 	{
@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return AccessToStaticMemberViaDerivedTypeIssue.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -142,7 +142,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				var typeInfo = semanticModel.GetSymbolInfo(node.Parent);
 				var newType = typeInfo.Symbol.ContainingType.ToMinimalDisplayString(semanticModel, node.SpanStart);
 				var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.ParseTypeName(newType).WithLeadingTrivia(node.GetLeadingTrivia()));
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Use base qualifier '{0}'", newType), document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Use base qualifier '{0}'", newType), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}
