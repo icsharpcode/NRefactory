@@ -263,86 +263,77 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			var syntaxTree = CSharpSyntaxTree.ParseText(text.ToString());
 
 			Compilation compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
-// TODO: Broken due roslyn update.
-//			AnalyzerOptions options = new AnalyzerOptions(System.Collections.Immutable.ImmutableDictionary<string, string>.Empty);
-//			var diagnostics = new List<Diagnostic>();
-//
-//			var driver = AnalyzerDriver<SyntaxKind>.Create (
-//				compilation,
-//				System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()),
-//				options,
-//				out compilation,
-//				CancellationToken.None
-//			);
-////			compilation = compilation.WithEventQueue(driver.CompilationEventQueue);
-//			compilation.GetDiagnostics().Count();
-//			diagnostics.AddRange(driver.GetDiagnosticsAsync().Result); 
-//
-//			if (expectedDiagnosics.Count != diagnostics.Count) {
-//				foreach (var diag in diagnostics) {
-//					Console.WriteLine(diag.Id + "/" + diag.GetMessage());
-//				}
-//				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count + " was " + diagnostics.Count);
-//			}
-//
-//			for (int i = 0; i < expectedDiagnosics.Count; i++) {
-//				var d = diagnostics [i];
-//				var wholeSpan = GetWholeSpan(d);
-//				if (wholeSpan != expectedDiagnosics [i]) {
-//					Assert.Fail("Diagnostic " + i +" span mismatch expected: " + expectedDiagnosics[i] + " but was " + wholeSpan);
-//				}
-//				if (diagnosticCheck != null)
-//					diagnosticCheck (i, d);
-//			}
-//
-//			if (output == null)
-//				return;
-//
-//			var workspace = new TestWorkspace();
-//			var projectId = ProjectId.CreateNewId();
-//			var documentId = DocumentId.CreateNewId(projectId);
-//			workspace.Open(ProjectInfo.Create(
-//				projectId,
-//				VersionStamp.Create(),
-//				"a", "a.exe", LanguageNames.CSharp, null, null, null, null,
-//				new [] {
-//					DocumentInfo.Create(
-//						documentId, 
-//						"a.cs",
-//						null,
-//						SourceCodeKind.Regular,
-//						TextLoader.From(TextAndVersion.Create(SourceText.From(text.ToString()), VersionStamp.Create())))
-//				}
-//			)); 
-//			if (issueToFix < 0) {
-//				diagnostics.Reverse();
-//				foreach (var v in diagnostics) {
-//					RunFix(workspace, projectId, documentId, v);
-//				}
-//			} else {
-//				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
-//			}
-//
-//			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
-//			if (output != txt) {
-//				Console.WriteLine("expected:");
-//				Console.WriteLine(output);
-//				Console.WriteLine("got:");
-//				Console.WriteLine(txt);
-//				Console.WriteLine("-----Mismatch:");
-//				for (int i = 0; i < txt.Length; i++) {
-//					if (i >= output.Length) {
-//						Console.Write("#");
-//						continue;
-//					}
-//					if (txt[i] != output[i]) {
-//						Console.Write("#");
-//						continue;
-//					}
-//					Console.Write(txt[i]);
-//				}
-//				Assert.Fail();
-//			}
+
+			var diagnostics = new List<Diagnostic>();
+
+			var compilationWithAnalyzers = compilation.WithAnalyzers (System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()));
+			diagnostics.AddRange(compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync ().Result); 
+
+			if (expectedDiagnosics.Count != diagnostics.Count) {
+				foreach (var diag in diagnostics) {
+					Console.WriteLine(diag.Id + "/" + diag.GetMessage());
+				}
+				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count + " was " + diagnostics.Count);
+			}
+
+			for (int i = 0; i < expectedDiagnosics.Count; i++) {
+				var d = diagnostics [i];
+				var wholeSpan = GetWholeSpan(d);
+				if (wholeSpan != expectedDiagnosics [i]) {
+					Assert.Fail("Diagnostic " + i +" span mismatch expected: " + expectedDiagnosics[i] + " but was " + wholeSpan);
+				}
+				if (diagnosticCheck != null)
+					diagnosticCheck (i, d);
+			}
+
+			if (output == null)
+				return;
+
+			var workspace = new TestWorkspace();
+			var projectId = ProjectId.CreateNewId();
+			var documentId = DocumentId.CreateNewId(projectId);
+			workspace.Open(ProjectInfo.Create(
+				projectId,
+				VersionStamp.Create(),
+				"a", "a.exe", LanguageNames.CSharp, null, null, null, null,
+				new [] {
+					DocumentInfo.Create(
+						documentId, 
+						"a.cs",
+						null,
+						SourceCodeKind.Regular,
+						TextLoader.From(TextAndVersion.Create(SourceText.From(text.ToString()), VersionStamp.Create())))
+				}
+			)); 
+			if (issueToFix < 0) {
+				diagnostics.Reverse();
+				foreach (var v in diagnostics) {
+					RunFix(workspace, projectId, documentId, v);
+				}
+			} else {
+				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
+			}
+
+			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
+			if (output != txt) {
+				Console.WriteLine("expected:");
+				Console.WriteLine(output);
+				Console.WriteLine("got:");
+				Console.WriteLine(txt);
+				Console.WriteLine("-----Mismatch:");
+				for (int i = 0; i < txt.Length; i++) {
+					if (i >= output.Length) {
+						Console.Write("#");
+						continue;
+					}
+					if (txt[i] != output[i]) {
+						Console.Write("#");
+						continue;
+					}
+					Console.Write(txt[i]);
+				}
+				Assert.Fail();
+			}
 		}
 
 		protected static void AnalyzeWithRule<T>(string input, string ruleId, string output = null, int issueToFix = -1, int actionToRun = 0, Action<int, Diagnostic> diagnosticCheck = null) where T : DiagnosticAnalyzer, new()
@@ -370,71 +361,64 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 			Compilation compilation = CreateCompilationWithMscorlib(new [] { syntaxTree });
 
 			var diagnostics = new List<Diagnostic>();
-// TODO: Broken due roslyn update.
-//			AnalyzerOptions options = new AnalyzerOptions(System.Collections.Immutable.ImmutableDictionary<string, string>.Empty);
-//			var driver = AnalyzerDriver<SyntaxKind>.Create(
-//				compilation,
-//				System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()),
-//				options,
-//				out compilation,
-//				CancellationToken.None
-//			);
-//			diagnostics.AddRange(driver.GetDiagnosticsAsync().Result); 
-//
-//			if (expectedDiagnosics.Count != diagnostics.Count) {
-//				Console.WriteLine("Diagnostics: " + diagnostics.Count);
-//				foreach (var diag in diagnostics) {
-//					Console.WriteLine(diag.Id +"/"+ diag.GetMessage());
-//				}
-//				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count + " but was:" + diagnostics.Count);
-//			}
-//
-//			for (int i = 0; i < expectedDiagnosics.Count; i++) {
-//				var d = diagnostics [i];
-//				var wholeSpan = GetWholeSpan(d);
-//				if (wholeSpan != expectedDiagnosics [i]) {
-//					Assert.Fail("Diagnostic " + i +" span mismatch expected: " + expectedDiagnosics[i] + " but was " + wholeSpan);
-//				}
-//				if (diagnosticCheck != null)
-//					diagnosticCheck (i, d);
-//			}
-//
-//			if (output == null)
-//				return;
-//
-//			var workspace = new TestWorkspace();
-//			var projectId = ProjectId.CreateNewId();
-//			var documentId = DocumentId.CreateNewId(projectId);
-//			workspace.Open(ProjectInfo.Create(
-//				projectId,
-//				VersionStamp.Create(),
-//				"", "", LanguageNames.CSharp, null, null, null, null,
-//				new [] {
-//					DocumentInfo.Create(
-//						documentId, 
-//						"a.cs",
-//						null,
-//						SourceCodeKind.Regular,
-//						TextLoader.From(TextAndVersion.Create(SourceText.From(text.ToString()), VersionStamp.Create())))
-//				}
-//			)); 
-//			if (issueToFix < 0) {
-//				diagnostics.Reverse();
-//				foreach (var v in diagnostics) {
-//					RunFix(workspace, projectId, documentId, v);
-//				}
-//			} else {
-//				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
-//			}
-//
-//			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
-//			if (output != txt) {
-//				Console.WriteLine("expected:");
-//				Console.WriteLine(output);
-//				Console.WriteLine("got:");
-//				Console.WriteLine(txt);
-//				Assert.Fail();
-//			}
+			var compilationWithAnalyzers = compilation.WithAnalyzers (System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()));
+			diagnostics.AddRange(compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync ().Result); 
+
+
+			if (expectedDiagnosics.Count != diagnostics.Count) {
+				Console.WriteLine("Diagnostics: " + diagnostics.Count);
+				foreach (var diag in diagnostics) {
+					Console.WriteLine(diag.Id +"/"+ diag.GetMessage());
+				}
+				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count + " but was:" + diagnostics.Count);
+			}
+
+			for (int i = 0; i < expectedDiagnosics.Count; i++) {
+				var d = diagnostics [i];
+				var wholeSpan = GetWholeSpan(d);
+				if (wholeSpan != expectedDiagnosics [i]) {
+					Assert.Fail("Diagnostic " + i +" span mismatch expected: " + expectedDiagnosics[i] + " but was " + wholeSpan);
+				}
+				if (diagnosticCheck != null)
+					diagnosticCheck (i, d);
+			}
+
+			if (output == null)
+				return;
+
+			var workspace = new TestWorkspace();
+			var projectId = ProjectId.CreateNewId();
+			var documentId = DocumentId.CreateNewId(projectId);
+			workspace.Open(ProjectInfo.Create(
+				projectId,
+				VersionStamp.Create(),
+				"", "", LanguageNames.CSharp, null, null, null, null,
+				new [] {
+					DocumentInfo.Create(
+						documentId, 
+						"a.cs",
+						null,
+						SourceCodeKind.Regular,
+						TextLoader.From(TextAndVersion.Create(SourceText.From(text.ToString()), VersionStamp.Create())))
+				}
+			)); 
+			if (issueToFix < 0) {
+				diagnostics.Reverse();
+				foreach (var v in diagnostics) {
+					RunFix(workspace, projectId, documentId, v);
+				}
+			} else {
+				RunFix(workspace, projectId, documentId, diagnostics.ElementAt(issueToFix), actionToRun);
+			}
+
+			var txt = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId).GetTextAsync().Result.ToString();
+			if (output != txt) {
+				Console.WriteLine("expected:");
+				Console.WriteLine(output);
+				Console.WriteLine("got:");
+				Console.WriteLine(txt);
+				Assert.Fail();
+			}
 		}
 	}
 }

@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 		}
 		protected override void Colorize(TextSpan span, FieldInfo color)
 		{
-			throw new NotImplementedException ();
+			throw new NotSupportedException ();
 		}
 
 		[SetUp]
