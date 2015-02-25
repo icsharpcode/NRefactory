@@ -315,7 +315,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 						),
 						new CSharpParseOptions (
 							LanguageVersion.CSharp6,
-							DocumentationMode.None,
+							DocumentationMode.Parse,
 							SourceCodeKind.Regular,
 							ImmutableArray.Create("DEBUG", "TEST")
 						),

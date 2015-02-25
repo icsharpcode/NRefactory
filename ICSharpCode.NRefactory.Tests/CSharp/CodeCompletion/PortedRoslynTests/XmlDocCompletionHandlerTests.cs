@@ -32,7 +32,6 @@ using ICSharpCode.NRefactory6.CSharp.Completion;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 {
-	[Ignore("broken")]
 	[TestFixture]
 	public class XmlDocumentationCommentCompletionProviderTests : CompletionTestBase
 	{
@@ -46,187 +45,187 @@ public class foo
     public void bar() { }
 }", "see", "seealso", "![CDATA[", "!--");
 		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void AlwaysVisibleAtAnyLevelItems2()
-//		{
-//			VerifyItemsExist(@"
-//public class foo
-//{
-//    /// <summary> $$ </summary>
-//    public void bar() { }
-//}", "see", "seealso", "![CDATA[", "!--");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void AlwaysVisibleNotTopLevelItems1()
-//		{
-//			VerifyItemsExist(@"
-//public class foo
-//{
-//    /// <summary> $$ </summary>
-//    public void bar() { }
-//}", "c", "code", "list", "para", "paramref", "typeparamref");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void AlwaysVisibleNotTopLevelItems2()
-//		{
-//			VerifyItemsAbsent(@"
-//public class foo
-//{
-//    /// $$ 
-//    public void bar() { }
-//}", "c", "code", "list", "para", "paramref", "typeparamref");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void AlwaysVisibleTopLevelOnlyItems1()
-//		{
-//			VerifyItemsExist(@"
-//public class foo
-//{
-//    /// $$ 
-//    public void bar() { }
-//}", "exception", "include", "permission");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void AlwaysVisibleTopLevelOnlyItems2()
-//		{
-//			VerifyItemsAbsent(@"
-//public class foo
-//{
-//    /// <summary> $$ </summary>
-//    public void bar() { }
-//}", "exception", "include", "permission");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void TopLevelSingleUseItems1()
-//		{
-//			VerifyItemsExist(@"
-//public class foo
-//{
-//    ///  $$
-//    public void bar() { }
-//}", "example", "remarks", "summary");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void TopLevelSingleUseItems2()
-//		{
-//			VerifyItemsAbsent(@"
-//public class foo
-//{
-//    ///  <summary> $$ </summary>
-//    public void bar() { }
-//}", "example", "remarks", "summary");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void TopLevelSingleUseItems3()
-//		{
-//			VerifyItemsAbsent(@"
-//public class foo
-//{
-//    ///  <summary> $$ </summary>
-//    /// <example></example>
-//    /// <remarks></remarks>
-//    
-//    public void bar() { }
-//}", "example", "remarks", "summary");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void OnlyInListItems()
-//		{
-//			VerifyItemsAbsent(@"
-//public class foo
-//{
-//    ///  <summary> $$ </summary>
-//    /// <example></example>
-//    /// <remarks></remarks>
-//    
-//    public void bar() { }
-//}", "listheader", "item", "term", "description");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void OnlyInListItems2()
-//		{
-//			VerifyItemsAbsent(@"
-//public class foo
-//{
-//    ///   $$ 
-//    
-//    public void bar() { }
-//}", "listheader", "item", "term", "description");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void OnlyInListItems3()
-//		{
-//			VerifyItemsExist(@"
-//public class foo
-//{
-//    ///   <list>$$</list>
-//    
-//    public void bar() { }
-//}", "listheader", "item", "term", "description");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void OnlyInListItems4()
-//		{
-//			VerifyItemsExist(@"
-//public class foo
-//{
-//    ///   <list><$$</list>
-//    
-//    public void bar() { }
-//}", "listheader", "item", "term", "description");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void ListHeaderItems()
-//		{
-//			VerifyItemsExist(@"
-//public class foo
-//{
-//    ///  <summary>
-//    ///  <list><listheader> $$ </listheader></list>
-//    ///  </summary>
-//    /// <example></example>
-//    /// <remarks></remarks>
-//    
-//    public void bar() { }
-//}", "term", "description");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void VoidMethodDeclarationItems()
-//		{
-//			VerifyItemIsAbsent(@"
-//public class foo
-//{
-//    
-//    /// $$
-//    public void bar() { }
-//}", "returns");
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void MethodReturns()
-//		{
-//			VerifyItemExists(@"
-//public class foo
-//{
-//    
-//    /// $$
-//    public int bar() { }
-//}", "returns");
-//		}
+
+		[Test]
+		public void AlwaysVisibleAtAnyLevelItems2()
+		{
+			VerifyItemsExist(@"
+public class foo
+{
+    /// <summary> $$ </summary>
+    public void bar() { }
+}", "see", "seealso", "![CDATA[", "!--");
+		}
+
+		[Test]
+		public void AlwaysVisibleNotTopLevelItems1()
+		{
+			VerifyItemsExist(@"
+public class foo
+{
+    /// <summary> $$ </summary>
+    public void bar() { }
+}", "c", "code", "list", "para", "paramref", "typeparamref");
+		}
+
+		[Test]
+		public void AlwaysVisibleNotTopLevelItems2()
+		{
+			VerifyItemsAbsent(@"
+public class foo
+{
+    /// $$ 
+    public void bar() { }
+}", "c", "code", "list", "para", "paramref", "typeparamref");
+		}
+
+		[Test]
+		public void AlwaysVisibleTopLevelOnlyItems1()
+		{
+			VerifyItemsExist(@"
+public class foo
+{
+    /// $$ 
+    public void bar() { }
+}", "exception", "include", "permission");
+		}
+
+		[Test]
+		public void AlwaysVisibleTopLevelOnlyItems2()
+		{
+			VerifyItemsAbsent(@"
+public class foo
+{
+    /// <summary> $$ </summary>
+    public void bar() { }
+}", "exception", "include", "permission");
+		}
+
+		[Test]
+		public void TopLevelSingleUseItems1()
+		{
+			VerifyItemsExist(@"
+public class foo
+{
+    ///  $$
+    public void bar() { }
+}", "example", "remarks", "summary");
+		}
+
+		[Test]
+		public void TopLevelSingleUseItems2()
+		{
+			VerifyItemsAbsent(@"
+public class foo
+{
+    ///  <summary> $$ </summary>
+    public void bar() { }
+}", "example", "remarks", "summary");
+		}
+
+		[Test]
+		public void TopLevelSingleUseItems3()
+		{
+			VerifyItemsAbsent(@"
+public class foo
+{
+    ///  <summary> $$ </summary>
+    /// <example></example>
+    /// <remarks></remarks>
+    
+    public void bar() { }
+}", "example", "remarks", "summary");
+		}
+
+		[Test]
+		public void OnlyInListItems()
+		{
+			VerifyItemsAbsent(@"
+public class foo
+{
+    ///  <summary> $$ </summary>
+    /// <example></example>
+    /// <remarks></remarks>
+    
+    public void bar() { }
+}", "listheader", "item", "term", "description");
+		}
+
+		[Test]
+		public void OnlyInListItems2()
+		{
+			VerifyItemsAbsent(@"
+public class foo
+{
+    ///   $$ 
+    
+    public void bar() { }
+}", "listheader", "item", "term", "description");
+		}
+
+		[Test]
+		public void OnlyInListItems3()
+		{
+			VerifyItemsExist(@"
+public class foo
+{
+    ///   <list>$$</list>
+    
+    public void bar() { }
+}", "listheader", "item", "term", "description");
+		}
+
+		[Test]
+		public void OnlyInListItems4()
+		{
+			VerifyItemsExist(@"
+public class foo
+{
+    ///   <list><$$</list>
+    
+    public void bar() { }
+}", "listheader", "item", "term", "description");
+		}
+
+		[Test]
+		public void ListHeaderItems()
+		{
+			VerifyItemsExist(@"
+public class foo
+{
+    ///  <summary>
+    ///  <list><listheader> $$ </listheader></list>
+    ///  </summary>
+    /// <example></example>
+    /// <remarks></remarks>
+    
+    public void bar() { }
+}", "term", "description");
+		}
+
+		[Test]
+		public void VoidMethodDeclarationItems()
+		{
+			VerifyItemIsAbsent(@"
+public class foo
+{
+    
+    /// $$
+    public void bar() { }
+}", "returns");
+		}
+
+		[Test]
+		public void MethodReturns()
+		{
+			VerifyItemExists(@"
+public class foo
+{
+    
+    /// $$
+    public int bar() { }
+}", "returns");
+		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void MethodParamTypeParam()

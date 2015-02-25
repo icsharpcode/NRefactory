@@ -54,6 +54,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 
 		protected void VerifyItemIsAbsent(string input, params string[] items)
 		{
+			VerifyItemsAbsent (input, items);
+		}
+		protected void VerifyItemsAbsent(string input, params string[] items)
+		{
 			var provider = CodeCompletionBugTests.CreateProvider(input.Replace("$$", "$"));
 
 			foreach (var item in provider)
