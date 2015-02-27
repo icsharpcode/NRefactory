@@ -357,6 +357,13 @@
     <Compile Include="Features\Completion\ContextHandler\CastCompletionContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\SenderCompletionContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\PartialOverrideContextHandler.cs" />
+    <Compile Include="Features\Formatter\FormattingRangeHelper.cs" />
+    <Compile Include="Util\ValueTuple.cs" />
+    <Compile Include="Util\ValueTuple`2.cs" />
+    <Compile Include="Util\Hash.cs" />
+    <Compile Include="Features\Formatter\FormattingHelpers.cs" />
+    <Compile Include="Features\Formatter\CommonFormattingHelpers.cs" />
+    <Compile Include="Features\Formatter\CSharpEditorFormattingService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
