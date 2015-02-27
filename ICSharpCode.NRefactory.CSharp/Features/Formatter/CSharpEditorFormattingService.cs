@@ -63,82 +63,82 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public bool SupportsFormattingOnTypedCharacter(Document document, char ch)
 		{
 			var optionsService = document.Project.Solution.Workspace.Options;
-//			if ((ch == '}' && !optionsService.GetOption(FeatureOnOffOptions.AutoFormattingOnCloseBrace, document.Project.Language)) ||
-//				(ch == ';' && !optionsService.GetOption(FeatureOnOffOptions.AutoFormattingOnSemicolon, document.Project.Language)))
-//			{
-//				return false;
-//			}
+			//			if ((ch == '}' && !optionsService.GetOption(FeatureOnOffOptions.AutoFormattingOnCloseBrace, document.Project.Language)) ||
+			//				(ch == ';' && !optionsService.GetOption(FeatureOnOffOptions.AutoFormattingOnSemicolon, document.Project.Language)))
+			//			{
+			//				return false;
+			//			}
 
 			return _supportedChars.Contains(ch);
 		}
 
-//		public async Task<IList<TextChange>> GetFormattingChangesAsync(Document document, TextSpan? textSpan, CancellationToken cancellationToken)
-//		{
-//			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-//
-//			var span = textSpan.HasValue ? textSpan.Value : new TextSpan(0, root.FullSpan.Length);
-//			var formattingSpan = CommonFormattingHelpers.GetFormattingSpan(root, span);
-//			return Formatter.GetFormattedTextChanges(root, new TextSpan[] { formattingSpan }, document.Project.Solution.Workspace, cancellationToken: cancellationToken);
-//		}
-//
-//		public async Task<IList<TextChange>> GetFormattingChangesOnPasteAsync(Document document, TextSpan textSpan, CancellationToken cancellationToken)
-//		{
-//			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-//			var formattingSpan = CommonFormattingHelpers.GetFormattingSpan(root, textSpan);
-//			var service = document.GetLanguageService<ISyntaxFormattingService>();
-//			if (service == null)
-//			{
-//				return SpecializedCollections.EmptyList<TextChange>();
-//			}
-//
-//			var rules = new List<IFormattingRule>() { new PasteFormattingRule() };
-//			rules.AddRange(service.GetDefaultFormattingRules());
-//
-//			return Formatter.GetFormattedTextChanges(root, new[] { formattingSpan }, document.Project.Solution.Workspace, rules: rules, cancellationToken: cancellationToken);
-//		}
-//
-//		private IEnumerable<IFormattingRule> GetFormattingRules(Document document, int position)
-//		{
-//			var workspace = document.Project.Solution.Workspace;
-//			var formattingRuleFactory = workspace.Services.GetService<IHostDependentFormattingRuleFactoryService>();
-//			return formattingRuleFactory.CreateRule(document, position).Concat(Formatter.GetDefaultFormattingRules(document));
-//		}
-//
-//		public async Task<IList<TextChange>> GetFormattingChangesOnReturnAsync(Document document, int caretPosition, CancellationToken cancellationToken)
-//		{
-//			var formattingRules = this.GetFormattingRules(document, caretPosition);
-//
-//			// first, find the token user just typed.
-//			SyntaxToken token = await GetTokenBeforeTheCaretAsync(document, caretPosition, cancellationToken).ConfigureAwait(false);
-//
-//			if (token.IsMissing)
-//			{
-//				return null;
-//			}
-//
-//			string text = null;
-//			if (IsInvalidToken(token, ref text))
-//			{
-//				return null;
-//			}
-//
-//			// Check to see if the token is ')' and also the parent is a using statement. If not, bail
-//			if (TokenShouldNotFormatOnReturn(token))
-//			{
-//				return null;
-//			}
-//
-//			// if formatting range fails, do format token one at least
-//			var changes = await FormatRangeAsync(document, token, formattingRules, cancellationToken).ConfigureAwait(false);
-//			if (changes.Count > 0)
-//			{
-//				return changes;
-//			}
-//
-//			// if we can't, do normal smart indentation
-//			return await FormatTokenAsync(document, token, formattingRules, cancellationToken).ConfigureAwait(false);
-//		}
-//
+		//		public async Task<IList<TextChange>> GetFormattingChangesAsync(Document document, TextSpan? textSpan, CancellationToken cancellationToken)
+		//		{
+		//			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+		//
+		//			var span = textSpan.HasValue ? textSpan.Value : new TextSpan(0, root.FullSpan.Length);
+		//			var formattingSpan = CommonFormattingHelpers.GetFormattingSpan(root, span);
+		//			return Formatter.GetFormattedTextChanges(root, new TextSpan[] { formattingSpan }, document.Project.Solution.Workspace, cancellationToken: cancellationToken);
+		//		}
+		//
+		//		public async Task<IList<TextChange>> GetFormattingChangesOnPasteAsync(Document document, TextSpan textSpan, CancellationToken cancellationToken)
+		//		{
+		//			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+		//			var formattingSpan = CommonFormattingHelpers.GetFormattingSpan(root, textSpan);
+		//			var service = document.GetLanguageService<ISyntaxFormattingService>();
+		//			if (service == null)
+		//			{
+		//				return SpecializedCollections.EmptyList<TextChange>();
+		//			}
+		//
+		//			var rules = new List<IFormattingRule>() { new PasteFormattingRule() };
+		//			rules.AddRange(service.GetDefaultFormattingRules());
+		//
+		//			return Formatter.GetFormattedTextChanges(root, new[] { formattingSpan }, document.Project.Solution.Workspace, rules: rules, cancellationToken: cancellationToken);
+		//		}
+		//
+		//		private IEnumerable<IFormattingRule> GetFormattingRules(Document document, int position)
+		//		{
+		//			var workspace = document.Project.Solution.Workspace;
+		//			var formattingRuleFactory = workspace.Services.GetService<IHostDependentFormattingRuleFactoryService>();
+		//			return formattingRuleFactory.CreateRule(document, position).Concat(Formatter.GetDefaultFormattingRules(document));
+		//		}
+		//
+		//		public async Task<IList<TextChange>> GetFormattingChangesOnReturnAsync(Document document, int caretPosition, CancellationToken cancellationToken)
+		//		{
+		//			var formattingRules = this.GetFormattingRules(document, caretPosition);
+		//
+		//			// first, find the token user just typed.
+		//			SyntaxToken token = await GetTokenBeforeTheCaretAsync(document, caretPosition, cancellationToken).ConfigureAwait(false);
+		//
+		//			if (token.IsMissing)
+		//			{
+		//				return null;
+		//			}
+		//
+		//			string text = null;
+		//			if (IsInvalidToken(token, ref text))
+		//			{
+		//				return null;
+		//			}
+		//
+		//			// Check to see if the token is ')' and also the parent is a using statement. If not, bail
+		//			if (TokenShouldNotFormatOnReturn(token))
+		//			{
+		//				return null;
+		//			}
+		//
+		//			// if formatting range fails, do format token one at least
+		//			var changes = await FormatRangeAsync(document, token, formattingRules, cancellationToken).ConfigureAwait(false);
+		//			if (changes.Count > 0)
+		//			{
+		//				return changes;
+		//			}
+		//
+		//			// if we can't, do normal smart indentation
+		//			return await FormatTokenAsync(document, token, formattingRules, cancellationToken).ConfigureAwait(false);
+		//		}
+		//
 		public static bool TokenShouldNotFormatOnReturn(SyntaxToken token)
 		{
 			return !token.IsKind(SyntaxKind.CloseParenToken) || !token.Parent.IsKind(SyntaxKind.UsingStatement);
@@ -150,44 +150,44 @@ namespace ICSharpCode.NRefactory6.CSharp
 				(token.IsKind(SyntaxKind.ColonToken) && !(token.Parent.IsKind(SyntaxKind.LabeledStatement) || token.Parent.IsKind(SyntaxKind.CaseSwitchLabel) || token.Parent.IsKind(SyntaxKind.DefaultSwitchLabel)));
 		}
 
-//		public async Task<IList<TextChange>> GetFormattingChangesAsync(Document document, char typedChar, int caretPosition, CancellationToken cancellationToken)
-//		{
-//			var formattingRules = this.GetFormattingRules(document, caretPosition);
-//
-//			// first, find the token user just typed.
-//			SyntaxToken token = await GetTokenBeforeTheCaretAsync(document, caretPosition, cancellationToken).ConfigureAwait(false);
-//
-//			if (token.IsMissing ||
-//				!ValidSingleOrMultiCharactersTokenKind(typedChar, token.Kind()) ||
-//				token.IsKind(SyntaxKind.EndOfFileToken, SyntaxKind.None))
-//			{
-//				return null;
-//			}
-//
-//			var service = document.GetLanguageService<ISyntaxFactsService>();
-//			if (service != null && service.IsInNonUserCode(token.SyntaxTree, caretPosition, cancellationToken))
-//			{
-//				return null;
-//			}
-//
-//			// Check to see if any of the below. If not, bail.
-//			// case 1: The token is ')' and the parent is an using statement.
-//			// case 2: The token is ':' and the parent is either labelled statement or case switch or default switch
-//			if (TokenShouldNotFormatOnTypeChar(token))
-//			{
-//				return null;
-//			}
-//
-//			// if formatting range fails, do format token one at least
-//			var changes = await FormatRangeAsync(document, token, formattingRules, cancellationToken).ConfigureAwait(false);
-//			if (changes.Count > 0)
-//			{
-//				return changes;
-//			}
-//
-//			// if we can't, do normal smart indentation
-//			return await FormatTokenAsync(document, token, formattingRules, cancellationToken).ConfigureAwait(false);
-//		}
+		//		public async Task<IList<TextChange>> GetFormattingChangesAsync(Document document, char typedChar, int caretPosition, CancellationToken cancellationToken)
+		//		{
+		//			var formattingRules = this.GetFormattingRules(document, caretPosition);
+		//
+		//			// first, find the token user just typed.
+		//			SyntaxToken token = await GetTokenBeforeTheCaretAsync(document, caretPosition, cancellationToken).ConfigureAwait(false);
+		//
+		//			if (token.IsMissing ||
+		//				!ValidSingleOrMultiCharactersTokenKind(typedChar, token.Kind()) ||
+		//				token.IsKind(SyntaxKind.EndOfFileToken, SyntaxKind.None))
+		//			{
+		//				return null;
+		//			}
+		//
+		//			var service = document.GetLanguageService<ISyntaxFactsService>();
+		//			if (service != null && service.IsInNonUserCode(token.SyntaxTree, caretPosition, cancellationToken))
+		//			{
+		//				return null;
+		//			}
+		//
+		//			// Check to see if any of the below. If not, bail.
+		//			// case 1: The token is ')' and the parent is an using statement.
+		//			// case 2: The token is ':' and the parent is either labelled statement or case switch or default switch
+		//			if (TokenShouldNotFormatOnTypeChar(token))
+		//			{
+		//				return null;
+		//			}
+		//
+		//			// if formatting range fails, do format token one at least
+		//			var changes = await FormatRangeAsync(document, token, formattingRules, cancellationToken).ConfigureAwait(false);
+		//			if (changes.Count > 0)
+		//			{
+		//				return changes;
+		//			}
+		//
+		//			// if we can't, do normal smart indentation
+		//			return await FormatTokenAsync(document, token, formattingRules, cancellationToken).ConfigureAwait(false);
+		//		}
 
 		public static async Task<SyntaxToken> GetTokenBeforeTheCaretAsync(Document document, int caretPosition, CancellationToken cancellationToken)
 		{
@@ -199,67 +199,67 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return token;
 		}
 
-//		private async Task<IList<TextChange>> FormatTokenAsync(Document document, SyntaxToken token, IEnumerable<IFormattingRule> formattingRules, CancellationToken cancellationToken)
-//		{
-//			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-//			var formatter = CreateSmartTokenFormatter(document.Project.Solution.Workspace.Options, formattingRules, root);
-//			var changes = formatter.FormatToken(document.Project.Solution.Workspace, token, cancellationToken);
-//			return changes;
-//		}
-//
-//		private ISmartTokenFormatter CreateSmartTokenFormatter(OptionSet optionSet, IEnumerable<IFormattingRule> formattingRules, SyntaxNode root)
-//		{
-//			return new SmartTokenFormatter(optionSet, formattingRules, (CompilationUnitSyntax)root);
-//		}
-//
-//		private async Task<IList<TextChange>> FormatRangeAsync(
-//			Document document, SyntaxToken endToken, IEnumerable<IFormattingRule> formattingRules,
-//			CancellationToken cancellationToken)
-//		{
-//			if (!IsEndToken(endToken))
-//			{
-//				return SpecializedCollections.EmptyList<TextChange>();
-//			}
-//
-//			var tokenRange = FormattingRangeHelper.FindAppropriateRange(endToken);
-//			if (tokenRange == null || tokenRange.Value.Item1.Equals(tokenRange.Value.Item2))
-//			{
-//				return SpecializedCollections.EmptyList<TextChange>();
-//			}
-//
-//			if (IsInvalidTokenKind(tokenRange.Value.Item1) || IsInvalidTokenKind(tokenRange.Value.Item2))
-//			{
-//				return SpecializedCollections.EmptyList<TextChange>();
-//			}
-//
-//			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-//			var formatter = new SmartTokenFormatter(document.Project.Solution.Workspace.Options, formattingRules, (CompilationUnitSyntax)root);
-//
-//			var changes = formatter.FormatRange(document.Project.Solution.Workspace, tokenRange.Value.Item1, tokenRange.Value.Item2, cancellationToken);
-//			return changes;
-//		}
-//
-//		private bool IsEndToken(SyntaxToken endToken)
-//		{
-//			if (endToken.IsKind(SyntaxKind.OpenBraceToken))
-//			{
-//				return false;
-//			}
-//
-//			return true;
-//		}
-//
-//		private bool ValidSingleOrMultiCharactersTokenKind(char typedChar, SyntaxKind kind)
-//		{
-//			ImmutableHashSet<SyntaxKind> set;
-//			if (!_multiWordsMap.TryGetValue(typedChar, out set))
-//			{
-//				// all single char token is valid
-//				return true;
-//			}
-//
-//			return set.Contains(kind);
-//		}
+		//		private async Task<IList<TextChange>> FormatTokenAsync(Document document, SyntaxToken token, IEnumerable<IFormattingRule> formattingRules, CancellationToken cancellationToken)
+		//		{
+		//			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+		//			var formatter = CreateSmartTokenFormatter(document.Project.Solution.Workspace.Options, formattingRules, root);
+		//			var changes = formatter.FormatToken(document.Project.Solution.Workspace, token, cancellationToken);
+		//			return changes;
+		//		}
+		//
+		//		private ISmartTokenFormatter CreateSmartTokenFormatter(OptionSet optionSet, IEnumerable<IFormattingRule> formattingRules, SyntaxNode root)
+		//		{
+		//			return new SmartTokenFormatter(optionSet, formattingRules, (CompilationUnitSyntax)root);
+		//		}
+		//
+		//		private async Task<IList<TextChange>> FormatRangeAsync(
+		//			Document document, SyntaxToken endToken, IEnumerable<IFormattingRule> formattingRules,
+		//			CancellationToken cancellationToken)
+		//		{
+		//			if (!IsEndToken(endToken))
+		//			{
+		//				return SpecializedCollections.EmptyList<TextChange>();
+		//			}
+		//
+		//			var tokenRange = FormattingRangeHelper.FindAppropriateRange(endToken);
+		//			if (tokenRange == null || tokenRange.Value.Item1.Equals(tokenRange.Value.Item2))
+		//			{
+		//				return SpecializedCollections.EmptyList<TextChange>();
+		//			}
+		//
+		//			if (IsInvalidTokenKind(tokenRange.Value.Item1) || IsInvalidTokenKind(tokenRange.Value.Item2))
+		//			{
+		//				return SpecializedCollections.EmptyList<TextChange>();
+		//			}
+		//
+		//			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+		//			var formatter = new SmartTokenFormatter(document.Project.Solution.Workspace.Options, formattingRules, (CompilationUnitSyntax)root);
+		//
+		//			var changes = formatter.FormatRange(document.Project.Solution.Workspace, tokenRange.Value.Item1, tokenRange.Value.Item2, cancellationToken);
+		//			return changes;
+		//		}
+		//
+		//		private bool IsEndToken(SyntaxToken endToken)
+		//		{
+		//			if (endToken.IsKind(SyntaxKind.OpenBraceToken))
+		//			{
+		//				return false;
+		//			}
+		//
+		//			return true;
+		//		}
+		//
+		public bool ValidSingleOrMultiCharactersTokenKind(char typedChar, SyntaxKind kind)
+		{
+			ImmutableHashSet<SyntaxKind> set;
+			if (!_multiWordsMap.TryGetValue(typedChar, out set))
+			{
+				// all single char token is valid
+				return true;
+			}
+
+			return set.Contains(kind);
+		}
 
 		public bool IsInvalidToken(char typedChar, SyntaxToken token)
 		{
@@ -272,7 +272,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return text[0] != typedChar;
 		}
 
-		private bool IsInvalidToken(SyntaxToken token, ref string text)
+		public bool IsInvalidToken(SyntaxToken token, ref string text)
 		{
 			if (IsInvalidTokenKind(token))
 			{

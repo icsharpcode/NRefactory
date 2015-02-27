@@ -57,6 +57,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return;
 
 			var result = model.GetSymbolInfo(switchStatement.Expression);
+			if (result.Symbol == null)
+				return;
 			var resultType = result.Symbol.GetReturnType();
 			if (resultType.TypeKind != TypeKind.Enum)
 				return;
