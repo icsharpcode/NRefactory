@@ -302,6 +302,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CS1573ParameterHasNoMatchingParamTagIssue.DiagnosticId;
 		}
 
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
+		}
+
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;

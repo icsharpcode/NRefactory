@@ -96,11 +96,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeFixProvider(DoubleNegationOperatorIssue.DiagnosticId, LanguageNames.CSharp)]
 	public class DoubleNegationOperatorFixProvider : NRefactoryCodeFixProvider
 	{
-		#region ICodeFixProvider implementation
-
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
 			yield return DoubleNegationOperatorIssue.DiagnosticId;
+		}
+
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
 		}
 
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -123,7 +126,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, node.IsKind(SyntaxKind.LogicalNotExpression) ? "Remove '!!'" : "Remove '~~'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
-		#endregion
 	}
 
 }

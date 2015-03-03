@@ -253,6 +253,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CS0108UseNewKeywordIfHidingIntendedIssue.DiagnosticId;
 		}
 
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
+		}
+
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
@@ -275,14 +280,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					{
 						SyntaxNode newRoot;
 						if (node.Kind() != SyntaxKind.VariableDeclarator)
-							newRoot = root.ReplaceNode((SyntaxNode)node, AddNewModifier(node));
+							newRoot = root.ReplaceNode(node, AddNewModifier(node));
 						else //this one wants to be awkward - you can't add modifiers to a variable declarator
                         {
 							SyntaxNode declaringNode = node.Parent.Parent;
 							if (declaringNode is FieldDeclarationSyntax)
-								newRoot = root.ReplaceNode((SyntaxNode)node.Parent.Parent, (node.Parent.Parent as FieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
+								newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as FieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
 							else //it's an event declaration
-								newRoot = root.ReplaceNode((SyntaxNode)node.Parent.Parent, (node.Parent.Parent as EventFieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
+								newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as EventFieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
 						}
 						return Task.FromResult(document.WithSyntaxRoot(newRoot.WithAdditionalAnnotations(Formatter.Annotation)));
 					}), diagnostic);

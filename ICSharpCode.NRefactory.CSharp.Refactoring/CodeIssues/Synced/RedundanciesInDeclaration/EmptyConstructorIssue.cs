@@ -111,11 +111,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeFixProvider(EmptyConstructorIssue.DiagnosticId, LanguageNames.CSharp)]
 	public class EmptyConstructorFixProvider : NRefactoryCodeFixProvider
 	{
-		#region ICodeFixProvider implementation
-
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
 			yield return EmptyConstructorIssue.DiagnosticId;
+		}
+
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
 		}
 
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -134,6 +137,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant constructor", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
-		#endregion
 	}
 }

@@ -103,6 +103,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return RedundantExplicitArraySizeIssue.DiagnosticId;
 		}
 
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
+		}
+
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;

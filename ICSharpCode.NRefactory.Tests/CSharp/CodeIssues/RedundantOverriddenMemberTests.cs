@@ -1,5 +1,5 @@
 // 
-// RedundantOverridenMemberTests.cs
+// RedundantOverriddenMemberTests.cs
 //  
 // Author:
 //       Ji Kun <jikun.nus@gmail.com>
@@ -32,12 +32,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet")]
-	public class RedundantOverridenMemberTests : InspectionActionTestBase
+	public class RedundantOverriddenMemberTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<RedundantOverridenMemberIssue>(@"namespace Demo
+			Test<RedundantOverriddenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperDisable()
 		{
-			Analyze<RedundantOverridenMemberIssue>(@"namespace Demo
+			Analyze<RedundantOverriddenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -95,7 +95,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Analyze<RedundantOverridenMemberIssue>(@"namespace Demo
+			Analyze<RedundantOverriddenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -118,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase3()
 		{
-			Analyze<RedundantOverridenMemberIssue>(@"namespace Demo
+			Analyze<RedundantOverriddenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -140,7 +140,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase4()
 		{
-			Test<RedundantOverridenMemberIssue>(
+			Test<RedundantOverriddenMemberIssue>(
 				@"namespace Demo
 {
 	public class BaseClass
@@ -180,7 +180,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase5()
 		{
-			Test<RedundantOverridenMemberIssue>(
+			Test<RedundantOverriddenMemberIssue>(
 				@"namespace Application
 {
 	public class SampleCollection<T>
@@ -222,7 +222,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase6()
 		{
-			Test<RedundantOverridenMemberIssue>(
+			Test<RedundantOverriddenMemberIssue>(
 				@"using System;
 using System.IO;
 
@@ -303,7 +303,7 @@ class C : A
 		[Test]
 		public void TestRedundantEvent()
 		{
-			Test<RedundantOverridenMemberIssue>(@"namespace Demo
+			Test<RedundantOverriddenMemberIssue>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -341,14 +341,14 @@ class C : A
 		public override event EventHandler FooBar { add { base.FooBar += value; } remove { base.FooBar2 -= value; } }
 	}
 }";
-			Analyze<RedundantOverridenMemberIssue>(input);
+			Analyze<RedundantOverriddenMemberIssue>(input);
 		}
 
 
 		[Test]
 		public void TestGetHashCode()
 		{
-			Analyze<RedundantOverridenMemberIssue>(@"
+			Analyze<RedundantOverriddenMemberIssue>(@"
 class Bar
 {
 	public override bool Equals (object obj)
@@ -367,7 +367,7 @@ class Bar
 		[Test]
 		public void TestRedundantGetHashCode()
 		{
-			TestIssue<RedundantOverridenMemberIssue>(@"
+			TestIssue<RedundantOverriddenMemberIssue>(@"
 class Bar
 {
 	public override int GetHashCode ()
@@ -381,7 +381,7 @@ class Bar
 		[Test]
 		public void TestPropertyBug()
 		{
-			Analyze<RedundantOverridenMemberIssue>(@"
+			Analyze<RedundantOverriddenMemberIssue>(@"
 class BaseFoo
 {
 	public virtual int Foo { get; set; }

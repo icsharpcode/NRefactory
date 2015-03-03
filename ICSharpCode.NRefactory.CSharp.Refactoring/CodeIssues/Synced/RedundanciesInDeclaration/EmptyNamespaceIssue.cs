@@ -96,11 +96,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeFixProvider(EmptyNamespaceIssue.DiagnosticId, LanguageNames.CSharp)]
 	public class EmptyNamespaceFixProvider : NRefactoryCodeFixProvider
 	{
-		#region ICodeFixProvider implementation
-
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
 			yield return EmptyNamespaceIssue.DiagnosticId;
+		}
+
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
 		}
 
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -124,6 +127,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant namespace", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
-		#endregion
 	}
 }

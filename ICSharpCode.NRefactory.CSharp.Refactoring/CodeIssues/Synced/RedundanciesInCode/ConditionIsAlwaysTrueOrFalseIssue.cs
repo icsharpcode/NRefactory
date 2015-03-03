@@ -142,12 +142,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[ExportCodeFixProvider("Value of the expression can be determined at compile time", LanguageNames.CSharp)]
 	public class ConditionIsAlwaysTrueOrFalseFixProvider : NRefactoryCodeFixProvider
 	{
-		#region ICodeFixProvider implementation
-
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
 			yield return ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue;
 			yield return ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdFalse;
+		}
+
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
 		}
 
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -167,6 +170,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.Id == ConditionIsAlwaysTrueOrFalseIssue.DiagnosticIdTrue ? "Replace with 'true'" : "Replace with 'false'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
-		#endregion
 	}
 }

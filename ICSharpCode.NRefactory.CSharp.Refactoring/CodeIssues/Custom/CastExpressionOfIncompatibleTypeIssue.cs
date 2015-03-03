@@ -107,6 +107,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			yield return CastExpressionOfIncompatibleTypeIssue.DiagnosticId;
 		}
+		
+		// TODO : not sure if this makes sense
+		// Test and enable or add comment with reason
+		//public override FixAllProvider GetFixAllProvider()
+		//{
+		//	return WellKnownFixAllProviders.BatchFixer;
+		//}
 
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{

@@ -95,6 +95,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return SimplifyConditionalTernaryExpressionIssue.DiagnosticId;
 		}
 
+		public override FixAllProvider GetFixAllProvider()
+		{
+			return WellKnownFixAllProviders.BatchFixer;
+		}
+
 		internal static bool? GetBool(ExpressionSyntax trueExpression)
 		{
 			var pExpr = trueExpression as LiteralExpressionSyntax;

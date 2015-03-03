@@ -231,6 +231,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return CompareOfFloatsByEqualityOperatorIssue.DiagnosticId;
 		}
 
+		// Does not make sense here, because the fixes produce code that is not compilable
+		//public override FixAllProvider GetFixAllProvider()
+		//{
+		//	return WellKnownFixAllProviders.BatchFixer;
+		//}
+
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;

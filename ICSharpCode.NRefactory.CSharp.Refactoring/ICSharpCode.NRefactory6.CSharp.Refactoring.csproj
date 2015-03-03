@@ -187,7 +187,7 @@
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantBaseConstructorCallIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantDefaultFieldInitializerIssue.cs" />
-    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverridenMemberIssue.cs" />
+    <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantOverriddenMemberIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\RedundantParamsIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassIssue.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInDeclaration\UnusedLabelIssue.cs" />
