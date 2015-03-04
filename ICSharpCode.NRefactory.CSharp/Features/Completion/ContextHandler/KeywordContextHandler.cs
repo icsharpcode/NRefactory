@@ -195,6 +195,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
 			var model = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
+			if (ctx.CSharpSyntaxContext.IsInNonUserCode) {
+				return Enumerable.Empty<ICompletionData> ();
+			}
 			var result = new List<ICompletionData> ();
 	
 			foreach (var r in recommender) {
