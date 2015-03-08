@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "<DESCRIPTION>")]
-	[ExportCodeRefactoringProvider("<NAME>", LanguageNames.CSharp)]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = "<NAME>")]
 	public class $safeitemrootname$ : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)

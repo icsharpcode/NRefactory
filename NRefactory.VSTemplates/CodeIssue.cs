@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[DiagnosticAnalyzer]
+	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class $safeitemrootname$ : GatherVisitorCodeIssueProvider
 	{
 		internal const string DiagnosticId = "$safeitemrootname$";
@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			yield return $safeitemrootname$.DiagnosticId;
 		}
 
-		public override async Task ComputeFixesAsync(CodeFixContext context)
+		public override async Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
 			var document = context.Document;
 			var cancellationToken = context.CancellationToken;
@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				// var newRoot = root.ReplaceNode(node, ...);
 				var newRoot = root; // TODO Remove this
 
-				context.RegisterFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}
