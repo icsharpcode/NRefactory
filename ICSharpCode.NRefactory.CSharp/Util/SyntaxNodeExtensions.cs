@@ -1218,17 +1218,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 		}
 
-//		/// <summary>
-//		/// Look inside a trivia list for a skipped token that contains the given position.
-//		/// </summary>
-//		private static readonly Func<SyntaxTriviaList, int, SyntaxToken> s_findSkippedTokenForward =
-//			(l, p) => FindTokenHelper.FindSkippedTokenForward(GetSkippedTokens(l), p);
-//
-//		/// <summary>
-//		/// Look inside a trivia list for a skipped token that contains the given position.
-//		/// </summary>
-//		private static readonly Func<SyntaxTriviaList, int, SyntaxToken> s_findSkippedTokenBackward =
-//			(l, p) => FindTokenHelper.FindSkippedTokenBackward(GetSkippedTokens(l), p);
+		/// <summary>
+		/// Look inside a trivia list for a skipped token that contains the given position.
+		/// </summary>
+		private static readonly Func<SyntaxTriviaList, int, SyntaxToken> s_findSkippedTokenForward =
+			(l, p) => FindTokenHelper.FindSkippedTokenForward(GetSkippedTokens(l), p);
+
+		/// <summary>
+		/// Look inside a trivia list for a skipped token that contains the given position.
+		/// </summary>
+		private static readonly Func<SyntaxTriviaList, int, SyntaxToken> s_findSkippedTokenBackward =
+			(l, p) => FindTokenHelper.FindSkippedTokenBackward(GetSkippedTokens(l), p);
 
 		/// <summary>
 		/// return only skipped tokens
@@ -1239,21 +1239,21 @@ namespace ICSharpCode.NRefactory6.CSharp
 				.SelectMany(t => ((SkippedTokensTriviaSyntax)t.GetStructure()).Tokens);
 		}
 
-//		/// <summary>
-//		/// If the position is inside of token, return that token; otherwise, return the token to the right.
-//		/// </summary>
-//		public static SyntaxToken FindTokenOnRightOfPosition(
-//			this SyntaxNode root,
-//			int position,
-//			bool includeSkipped = true,
-//			bool includeDirectives = false,
-//			bool includeDocumentationComments = false)
-//		{
-//			var skippedTokenFinder = includeSkipped ? s_findSkippedTokenForward : (Func<SyntaxTriviaList, int, SyntaxToken>)null;
-//
-//			return FindTokenHelper.FindTokenOnRightOfPosition<CompilationUnitSyntax>(
-//				root, position, skippedTokenFinder, includeSkipped, includeDirectives, includeDocumentationComments);
-//		}
+		/// <summary>
+		/// If the position is inside of token, return that token; otherwise, return the token to the right.
+		/// </summary>
+		public static SyntaxToken FindTokenOnRightOfPosition(
+			this SyntaxNode root,
+			int position,
+			bool includeSkipped = true,
+			bool includeDirectives = false,
+			bool includeDocumentationComments = false)
+		{
+			var skippedTokenFinder = includeSkipped ? s_findSkippedTokenForward : (Func<SyntaxTriviaList, int, SyntaxToken>)null;
+
+			return FindTokenHelper.FindTokenOnRightOfPosition<CompilationUnitSyntax>(
+				root, position, skippedTokenFinder, includeSkipped, includeDirectives, includeDocumentationComments);
+		}
 
 //		/// <summary>
 //		/// If the position is inside of token, return that token; otherwise, return the token to the left.

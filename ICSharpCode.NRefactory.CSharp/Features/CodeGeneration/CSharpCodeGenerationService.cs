@@ -24,26 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Reflection;
+using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis;
+using System.Threading;
+using System.Reflection;
 
-namespace ICSharpCode.NRefactory6.CSharp
+namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 {
-	public enum CodeGenerationDestination
-	{
-		Unspecified = 0,
-		CompilationUnit = 1,
-		Namespace = 2,
-		ClassType = 3,
-		EnumType = 4,
-		InterfaceType = 5,
-		ModuleType = 6,
-		StructType = 7,
-	}
+
 
 	public class CSharpCodeGenerationService
 	{
 		readonly static Type typeInfo;
+		readonly object instance;
 
 		readonly static MethodInfo createEventDeclarationMethod;
 		readonly static MethodInfo createFieldDeclaration;
@@ -52,18 +45,24 @@ namespace ICSharpCode.NRefactory6.CSharp
 		readonly static MethodInfo createNamedTypeDeclaration;
 		readonly static MethodInfo createNamespaceDeclaration;
 
-		readonly object instance;
-
 		static CSharpCodeGenerationService ()
 		{
 			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.CodeGeneration.CSharpCodeGenerationService" + ReflectionNamespaces.CSWorkspacesAsmName, true);
-
+			addMethod = typeInfo.GetMethod ("AddMethod", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
 			createEventDeclarationMethod = typeInfo.GetMethod ("CreateEventDeclaration", BindingFlags.Instance | BindingFlags.Public);
 			createFieldDeclaration = typeInfo.GetMethod ("CreateFieldDeclaration", BindingFlags.Instance | BindingFlags.Public);
 			createMethodDeclaration = typeInfo.GetMethod ("CreateMethodDeclaration", BindingFlags.Instance | BindingFlags.Public);
 			createPropertyDeclaration = typeInfo.GetMethod ("CreatePropertyDeclaration", BindingFlags.Instance | BindingFlags.Public);
 			createNamedTypeDeclaration = typeInfo.GetMethod ("CreateNamedTypeDeclaration", BindingFlags.Instance | BindingFlags.Public);
 			createNamespaceDeclaration = typeInfo.GetMethod ("CreateNamespaceDeclaration", BindingFlags.Instance | BindingFlags.Public);
+
+		}
+
+		public CSharpCodeGenerationService(HostLanguageServices languageServices)
+		{
+			instance = Activator.CreateInstance (typeInfo, new object[] {
+				languageServices
+			});
 		}
 
 		public CSharpCodeGenerationService (Workspace workspace)
@@ -72,6 +71,18 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			this.instance = Activator.CreateInstance (typeInfo, new [] { csharpLanguageServices });
 		}
+
+
+		static MethodInfo addMethod;
+
+		/// <summary>
+		/// Adds a method into destination.
+		/// </summary>
+		public TDeclarationNode AddMethod<TDeclarationNode>(TDeclarationNode destination, IMethodSymbol method, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken)) where TDeclarationNode : SyntaxNode
+		{
+			return (TDeclarationNode)addMethod.MakeGenericMethod (typeof (TDeclarationNode)).Invoke (instance, new object[] { destination, method, options, cancellationToken });
+		}
+
 
 		/// <summary>
 		/// Returns a newly created event declaration node from the provided event.
@@ -120,6 +131,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			return (SyntaxNode)createNamespaceDeclaration.Invoke (instance, new object[] { @namespace, destination, null });
 		}
+
 	}
 }
 

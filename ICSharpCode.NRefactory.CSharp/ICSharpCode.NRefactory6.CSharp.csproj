@@ -348,7 +348,6 @@
     <Compile Include="Features\Completion\ContextHandler\NamedParameterContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\SpeculativeTContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\SnippetContextHandler.cs" />
-    <Compile Include="Util\CSharpCodeGenerationService.cs" />
     <Compile Include="Features\Completion\ContextHandler\ObjectInitializerContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\FormatItemContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\SpeculativeNameContextHandler.cs" />
@@ -364,6 +363,50 @@
     <Compile Include="Features\Formatter\FormattingHelpers.cs" />
     <Compile Include="Features\Formatter\CommonFormattingHelpers.cs" />
     <Compile Include="Features\Formatter\CSharpEditorFormattingService.cs" />
+    <Compile Include="Features\ExtractMethod\AbstractExtractMethodService.cs" />
+    <Compile Include="Features\ExtractMethod\AbstractSyntaxTriviaService.cs" />
+    <Compile Include="Features\ExtractMethod\AbstractSyntaxTriviaService.Result.cs" />
+    <Compile Include="Features\ExtractMethod\Enums.cs" />
+    <Compile Include="Features\ExtractMethod\Extensions.cs" />
+    <Compile Include="Features\ExtractMethod\ExtractMethodMatrix.cs" />
+    <Compile Include="Features\ExtractMethod\ExtractMethodOptions.cs" />
+    <Compile Include="Features\ExtractMethod\ExtractMethodResult.cs" />
+    <Compile Include="Features\ExtractMethod\ExtractMethodService.cs" />
+    <Compile Include="Features\ExtractMethod\FailedExtractMethodResult.cs" />
+    <Compile Include="Features\ExtractMethod\IExtractMethodService.cs" />
+    <Compile Include="Features\ExtractMethod\InsertionPoint.cs" />
+    <Compile Include="Features\ExtractMethod\ISyntaxTriviaService.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.Analyzer.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.Analyzer.SymbolMapBuilder.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.AnalyzerResult.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.CodeGenerator.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.GeneratedCode.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.TriviaResult.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.TypeParameterCollector.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.VariableInfo.cs" />
+    <Compile Include="Features\ExtractMethod\MethodExtractor.VariableSymbol.cs" />
+    <Compile Include="Features\ExtractMethod\OperationStatus.cs" />
+    <Compile Include="Features\ExtractMethod\OperationStatus_Statics.cs" />
+    <Compile Include="Features\ExtractMethod\OperationStatus`1.cs" />
+    <Compile Include="Features\ExtractMethod\ParameterStyle.cs" />
+    <Compile Include="Features\ExtractMethod\ReturnStyle.cs" />
+    <Compile Include="Features\ExtractMethod\SelectionResult.cs" />
+    <Compile Include="Features\ExtractMethod\SelectionValidator.cs" />
+    <Compile Include="Features\ExtractMethod\SelectionValidator.NullSelectionResult.cs" />
+    <Compile Include="Features\ExtractMethod\SimpleExtractMethodResult.cs" />
+    <Compile Include="Features\ExtractMethod\UniqueNameGenerator.cs" />
+    <Compile Include="Features\ExtractMethod\VariableStyle.cs" />
+    <Compile Include="Util\SyntacticDocument.cs" />
+    <Compile Include="Util\SemanticDocument.cs" />
+    <Compile Include="Util\IDictionaryExtensions.cs" />
+    <Compile Include="Util\SymbolKeyExtensions.cs" />
+    <Compile Include="Util\SymbolKeyResolutionExtensions.cs" />
+    <Compile Include="Util\CSharpSyntaxFactsService.cs" />
+    <Compile Include="Util\CodeGenerationSymbolFactory.cs" />
+    <Compile Include="Features\CodeGeneration\CodeGenerationOptions.cs" />
+    <Compile Include="Features\CodeGeneration\CSharpCodeGenerationService.cs" />
+    <Compile Include="Features\CodeGeneration\CodeGenerationDestination.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -380,6 +423,9 @@
   </ProjectExtensions>
   <ItemGroup>
     <Folder Include="Util\ContextQuery\" />
+    <Folder Include="Features\ExtractMethod\" />
+    <Folder Include="Features\ExtractMethod\CSharp\" />
+    <Folder Include="Features\CodeGeneration\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />
