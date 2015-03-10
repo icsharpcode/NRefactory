@@ -13,6 +13,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		readonly static Type typeInfo;
 		readonly object instance;
 
+		internal object Instance {
+			get {
+				return instance;
+			}
+		}
+
 		static CodeGenerationOptions ()
 		{
 			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CodeGeneration.CodeGenerationOptions" + ReflectionNamespaces.WorkspacesAsmName, true);

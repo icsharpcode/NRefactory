@@ -18,13 +18,15 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.SymbolKey" + ReflectionNamespaces.WorkspacesAsmName, true);
 			resolveMethod = typeInfo.GetMethod ("Resolve", BindingFlags.Instance | BindingFlags.Public);
-
+			createMethod = typeInfo.GetMethod ("Create", BindingFlags.Static | BindingFlags.NonPublic);
 		}
 
 		SymbolKey (object instance)
 		{
 			this.instance = instance;
 		}
+
+		static MethodInfo createMethod;
 
 		/// <summary>
 		/// <para>
@@ -64,8 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		internal static SymbolKey Create(ISymbol symbol, Compilation compilation = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var method = typeInfo.GetMethod ("Create", BindingFlags.Static | BindingFlags.Public);
-			var instance = method.Invoke (null, new object[] { symbol, compilation, cancellationToken });
+			var instance = createMethod.Invoke (null, new object[] { symbol, compilation, cancellationToken });
 			return new SymbolKey (instance);
 		}
 

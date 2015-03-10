@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public TDeclarationNode AddMethod<TDeclarationNode>(TDeclarationNode destination, IMethodSymbol method, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken)) where TDeclarationNode : SyntaxNode
 		{
-			return (TDeclarationNode)addMethod.MakeGenericMethod (typeof (TDeclarationNode)).Invoke (instance, new object[] { destination, method, options, cancellationToken });
+			return (TDeclarationNode)addMethod.MakeGenericMethod (typeof (TDeclarationNode)).Invoke (instance, new object[] { destination, method, options != null ? options.Instance : null, cancellationToken });
 		}
 
 
