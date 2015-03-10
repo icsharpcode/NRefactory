@@ -407,6 +407,28 @@
     <Compile Include="Features\CodeGeneration\CodeGenerationOptions.cs" />
     <Compile Include="Features\CodeGeneration\CSharpCodeGenerationService.cs" />
     <Compile Include="Features\CodeGeneration\CodeGenerationDestination.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpExtractMethodService.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.Analyzer.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.CallSiteContainerRewriter.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.ExpressionCodeGenerator.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.MultipleStatementsCodeGenerator.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.SingleStatementCodeGenerator.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.FormattingProvider.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.PostProcessor.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.TriviaResult.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionResult.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionResult.ExpressionResult.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionResult.StatementResult.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionValidator.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionValidator.Validator.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpSyntaxTriviaService.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\CSharpSyntaxTriviaServiceFactory.cs" />
+    <Compile Include="Features\ExtractMethod\CSharp\Extensions.cs" />
+    <Compile Include="Util\AnnotationTable.cs" />
+    <Compile Include="Util\SyntaxListExtension.cs" />
+    <Compile Include="Features\CodeGeneration\SyntaxAnnotationExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

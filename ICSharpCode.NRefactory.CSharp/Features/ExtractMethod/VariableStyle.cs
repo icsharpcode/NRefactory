@@ -2,7 +2,7 @@
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal class VariableStyle
+	public class VariableStyle
     {
         public ParameterStyle ParameterStyle { get; private set; }
         public ReturnStyle ReturnStyle { get; private set; }

@@ -4,7 +4,7 @@ using System;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal enum DeclarationBehavior
+	public enum DeclarationBehavior
     {
         None,
         Delete,
@@ -14,14 +14,14 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
         SplitOut
     }
 
-    internal enum ReturnBehavior
+	public enum ReturnBehavior
     {
         None,
         Initialization,
         Assignment
     }
 
-    internal enum ParameterBehavior
+	public enum ParameterBehavior
     {
         None,
         Input,
@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
     /// status code for extract method operations
     /// </summary>
     [Flags]
-    internal enum OperationStatusFlag
+	public enum OperationStatusFlag
     {
         None = 0x0,
 

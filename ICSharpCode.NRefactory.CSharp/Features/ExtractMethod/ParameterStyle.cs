@@ -2,7 +2,7 @@
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal class ParameterStyle
+    public class ParameterStyle
     {
         public ParameterBehavior ParameterBehavior { get; private set; }
         public DeclarationBehavior DeclarationBehavior { get; private set; }

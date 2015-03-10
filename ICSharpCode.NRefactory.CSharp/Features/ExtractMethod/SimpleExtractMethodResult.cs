@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal class SimpleExtractMethodResult : ExtractMethodResult
+    public class SimpleExtractMethodResult : ExtractMethodResult
     {
         public SimpleExtractMethodResult(
             OperationStatus status,

@@ -9,7 +9,7 @@ using Roslyn.Utilities;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	internal class SyntacticDocument
+	public class SyntacticDocument
 	{
 		public readonly Document Document;
 		public readonly SourceText Text;

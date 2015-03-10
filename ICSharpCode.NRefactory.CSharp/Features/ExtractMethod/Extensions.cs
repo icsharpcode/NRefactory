@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal static class Extensions
+	static partial class Extensions
     {
         public static bool Succeeded(this OperationStatus status)
         {

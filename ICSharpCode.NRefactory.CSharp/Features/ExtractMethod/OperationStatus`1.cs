@@ -5,7 +5,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
     /// <summary>
     /// operation status paired with data
     /// </summary>
-    internal class OperationStatus<T>
+	public class OperationStatus<T>
     {
         public OperationStatus(OperationStatus status, T data)
         {

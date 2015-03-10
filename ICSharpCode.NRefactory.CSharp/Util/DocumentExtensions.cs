@@ -110,5 +110,28 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return totalItems;
 		}
 
+		public static bool ShouldHideAdvancedMembers(this Document document)
+		{
+			return false;
+//			var service = document.Project.Solution.Workspace.Services.GetService<IOptionService>();
+//			return service.GetOption(CompletionOptions.HideAdvancedMembers, document.Project.Language);
+		}
+
+		public static async Task<Document> ReplaceNodeAsync<TNode>(this Document document, TNode oldNode, TNode newNode, CancellationToken cancellationToken) where TNode : SyntaxNode
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+			var newRoot = root.ReplaceNode(oldNode, newNode);
+			return document.WithSyntaxRoot(newRoot);
+		}
+
+		public static async Task<Document> ReplaceNodesAsync(this Document document,
+			IEnumerable<SyntaxNode> nodes,
+			Func<SyntaxNode, SyntaxNode, SyntaxNode> computeReplacementNode,
+			CancellationToken cancellationToken)
+		{
+			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+			var newRoot = root.ReplaceNodes(nodes, computeReplacementNode);
+			return document.WithSyntaxRoot(newRoot);
+		}
 	}
 }

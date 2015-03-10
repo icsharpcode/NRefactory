@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal abstract partial class MethodExtractor
+    public abstract partial class MethodExtractor
     {
         protected readonly SelectionResult OriginalSelectionResult;
 
@@ -158,7 +158,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
             return Tuple.Create(true, status);
         }
 
-        internal static string MakeMethodName(string prefix, string originalName)
+        public static string MakeMethodName(string prefix, string originalName)
         {
             var startingWithLetter = originalName.SkipWhile(c => !char.IsLetter(c)).ToArray();
             var name = startingWithLetter.Length == 0 ? originalName : new string(startingWithLetter);

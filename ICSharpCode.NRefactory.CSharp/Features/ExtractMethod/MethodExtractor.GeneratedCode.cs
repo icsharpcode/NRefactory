@@ -5,9 +5,9 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal abstract partial class MethodExtractor
+    public abstract partial class MethodExtractor
     {
-        internal class GeneratedCode
+		public class GeneratedCode
         {
             public GeneratedCode(
                 OperationStatus status,

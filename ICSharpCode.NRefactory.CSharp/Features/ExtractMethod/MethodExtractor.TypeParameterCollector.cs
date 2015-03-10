@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal abstract partial class MethodExtractor
+    public abstract partial class MethodExtractor
     {
         protected class TypeParameterCollector : SymbolVisitor
         {

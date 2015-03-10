@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-	internal class ExtractMethodResult
+	public class ExtractMethodResult
 	{
 		/// <summary>
 		/// True if the extract method operation succeeded.
@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 		/// </summary>
 		public SyntaxToken InvocationNameToken { get; }
 
-		internal ExtractMethodResult(
+		public ExtractMethodResult(
 			OperationStatusFlag status,
 			IEnumerable<string> reasons,
 			Document document,
@@ -59,8 +59,8 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 		}
 
 		/// <summary>
-		/// internal status of result. more fine grained reason why it is failed. 
+		/// public status of result. more fine grained reason why it is failed. 
 		/// </summary>
-		internal OperationStatusFlag Status { get; }
+		public OperationStatusFlag Status { get; }
 	}
 }

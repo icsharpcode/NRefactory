@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal enum TriviaLocation
+	public enum TriviaLocation
     {
         BeforeBeginningOfSpan = 0,
         AfterBeginningOfSpan,
@@ -15,25 +15,25 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
         AfterEndOfSpan
     }
 
-    internal struct PreviousNextTokenPair
+	public struct PreviousNextTokenPair
     {
         public SyntaxToken PreviousToken { get; set; }
         public SyntaxToken NextToken { get; set; }
     }
 
-    internal struct LeadingTrailingTriviaPair
+	public struct LeadingTrailingTriviaPair
     {
         public IEnumerable<SyntaxTrivia> LeadingTrivia { get; set; }
         public IEnumerable<SyntaxTrivia> TrailingTrivia { get; set; }
     }
 
-    internal delegate SyntaxToken AnnotationResolver(SyntaxNode root, TriviaLocation location, SyntaxAnnotation annotation);
-    internal delegate IEnumerable<SyntaxTrivia> TriviaResolver(TriviaLocation location, PreviousNextTokenPair tokenPair, Dictionary<SyntaxToken, LeadingTrailingTriviaPair> triviaMap);
+	public delegate SyntaxToken AnnotationResolver(SyntaxNode root, TriviaLocation location, SyntaxAnnotation annotation);
+	public delegate IEnumerable<SyntaxTrivia> TriviaResolver(TriviaLocation location, PreviousNextTokenPair tokenPair, Dictionary<SyntaxToken, LeadingTrailingTriviaPair> triviaMap);
 
     /// <summary>
     /// contains information to restore trivia later on to the annotated tree
     /// </summary>
-    internal interface ITriviaSavedResult
+	public interface ITriviaSavedResult
     {
         /// <summary>
         /// root node of the annotated tree.
@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
     /// <summary>
     /// syntax trivia related services
     /// </summary>
-    internal interface ISyntaxTriviaService : ILanguageService
+	public interface ISyntaxTriviaService : ILanguageService
     {
         /// <summary>
         /// save trivia around span and let user restore trivia later

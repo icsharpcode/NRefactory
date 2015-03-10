@@ -12,7 +12,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
     /// <summary>
     /// clean up this code when we do selection validator work.
     /// </summary>
-    internal abstract class SelectionResult
+	public abstract class SelectionResult
     {
         protected SelectionResult(OperationStatus status)
         {

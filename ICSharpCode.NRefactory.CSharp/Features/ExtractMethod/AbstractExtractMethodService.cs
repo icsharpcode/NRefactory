@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal abstract class AbstractExtractMethodService<TValidator, TExtractor, TResult> : IExtractMethodService
+    public abstract class AbstractExtractMethodService<TValidator, TExtractor, TResult> : IExtractMethodService
         where TValidator : SelectionValidator
         where TExtractor : MethodExtractor
         where TResult : SelectionResult

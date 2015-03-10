@@ -6,7 +6,7 @@ using Roslyn.Utilities;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal class ExtractMethodMatrix
+    public class ExtractMethodMatrix
     {
         private static readonly Dictionary<Key, VariableStyle> s_matrix;
 

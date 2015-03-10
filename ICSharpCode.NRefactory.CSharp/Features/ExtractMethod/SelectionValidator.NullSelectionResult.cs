@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    internal partial class SelectionValidator
+	public partial class SelectionValidator
     {
         // null object
         protected class NullSelectionResult : SelectionResult

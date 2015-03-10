@@ -29,6 +29,7 @@ using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis.Editing;
 
 
 namespace ICSharpCode.NRefactory6.CSharp
@@ -46,8 +47,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 			isCodeGenerationSymbolMethod = typeInfo.GetMethod ("IsCodeGenerationSymbol", BindingFlags.Static | BindingFlags.Public);
 			createParameterSymbolMethod = typeInfo.GetMethods ().First (m => m.Name == "CreateParameterSymbol" && m.GetParameters ().Length == 8);
 			createTypeParameterSymbolMethod = typeInfo.GetMethod ("CreateTypeParameterSymbol", BindingFlags.Static | BindingFlags.Public);
-
 			createTypeParameterMethod = typeInfo.GetMethod ("CreateTypeParameter", BindingFlags.Static | BindingFlags.Public);
+			createMethodSymbolMethod = typeInfo.GetMethod ("CreateMethodSymbol", BindingFlags.Static | BindingFlags.Public);
 		}
 
 		static readonly MethodInfo isCodeGenerationSymbolMethod;
@@ -80,6 +81,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static ITypeParameterSymbol CreateTypeParameter(IList<AttributeData> attributes, VarianceKind varianceKind, string name, ImmutableArray<ITypeSymbol> constraintTypes, bool hasConstructorConstraint = false, bool hasReferenceConstraint = false, bool hasValueConstraint = false, int ordinal = 0)
 		{
 			return (ITypeParameterSymbol)createTypeParameterSymbolMethod.Invoke (null, new object[] { attributes, varianceKind, name, constraintTypes, hasConstructorConstraint, hasReferenceConstraint, hasValueConstraint, ordinal});
+		}
+
+		static MethodInfo createMethodSymbolMethod;
+
+		public static IMethodSymbol CreateMethodSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol returnType, IMethodSymbol explicitInterfaceSymbol, string name, IList<ITypeParameterSymbol> typeParameters, IList<IParameterSymbol> parameters, IList<SyntaxNode> statements = null, IList<SyntaxNode> handlesExpressions = null, IList<AttributeData> returnTypeAttributes = null, MethodKind methodKind = MethodKind.Ordinary)
+		{
+			return (IMethodSymbol)createMethodSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, returnType, explicitInterfaceSymbol, name, typeParameters, parameters, statements, handlesExpressions, returnTypeAttributes, methodKind });
 		}
 
 	}
