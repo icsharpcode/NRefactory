@@ -38,6 +38,7 @@ using Microsoft.CodeAnalysis.Text;
 using ICSharpCode.NRefactory6.CSharp.CodeIssues;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Collections.Immutable;
+using ICSharpCode.NRefactory6.CSharp.CodeGeneration;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 {
