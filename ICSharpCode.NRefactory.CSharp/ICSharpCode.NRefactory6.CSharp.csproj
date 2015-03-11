@@ -429,6 +429,7 @@
     <Compile Include="Util\AnnotationTable.cs" />
     <Compile Include="Util\SyntaxListExtension.cs" />
     <Compile Include="Features\CodeGeneration\SyntaxAnnotationExtensions.cs" />
+    <Compile Include="Util\SimpleNameSyntaxExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
