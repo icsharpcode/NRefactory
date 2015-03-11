@@ -167,11 +167,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 //				((ObjectCreationExpressionSyntax)node.Parent).Type == node;
 //		}
 //
-//		public bool IsAttributeName(SyntaxNode node)
-//		{
-//			return SyntaxFacts.IsAttributeName(node);
-//		}
-//
+		public static bool IsAttributeName(this SyntaxNode node)
+		{
+			return SyntaxFacts.IsAttributeName(node);
+		}
+
 //		public bool IsInvocationExpression(SyntaxNode node)
 //		{
 //			return node is InvocationExpressionSyntax;
@@ -546,18 +546,18 @@ namespace ICSharpCode.NRefactory6.CSharp
 //				((MemberAccessExpressionSyntax)node).Kind() == SyntaxKind.PointerMemberAccessExpression;
 //		}
 //
-//		public void GetNameAndArityOfSimpleName(SyntaxNode node, out string name, out int arity)
-//		{
-//			name = null;
-//			arity = 0;
-//
-//			var simpleName = node as SimpleNameSyntax;
-//			if (simpleName != null)
-//			{
-//				name = simpleName.Identifier.ValueText;
-//				arity = simpleName.Arity;
-//			}
-//		}
+		public static void GetNameAndArityOfSimpleName(this SyntaxNode node, out string name, out int arity)
+		{
+			name = null;
+			arity = 0;
+
+			var simpleName = node as SimpleNameSyntax;
+			if (simpleName != null)
+			{
+				name = simpleName.Identifier.ValueText;
+				arity = simpleName.Arity;
+			}
+		}
 //
 //		public SyntaxNode GetExpressionOfMemberAccessExpression(SyntaxNode node)
 //		{

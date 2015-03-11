@@ -179,7 +179,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 			bool isStatic;
 			if (createInOtherType) {
-				if (targetResolveResult.Type == null || targetResolveResult.Type.Locations.First ().IsInMetadata)
+				if (targetResolveResult.Type == null || !targetResolveResult.Type.Locations.Any() || targetResolveResult.Type.Locations.First ().IsInMetadata)
 					return;
 				isStatic = model.GetSymbolInfo (((MemberAccessExpressionSyntax)invocation.Expression).Expression).Symbol is INamedTypeSymbol;
 
