@@ -63,7 +63,6 @@ Issues not implemented
 
 * CanBeReplacedWithTryCastAndCheckForNullIssue
 * EqualExpressionComparisonIssue
-* EventUnsubscriptionViaAnonymousDelegateIssue
 * ForControlVariableIsNeverModifiedIssue
 * FormatStringProblemIssue
 * LocalVariableHidesMemberIssue
@@ -93,7 +92,6 @@ Issues not implemented
 
 *Opportunities*
 
-* ConvertIfStatementToConditionalTernaryExpressionIssue
 * ConvertIfStatementToNullCoalescingExpressionIssue
 * ConvertIfStatementToSwitchStatementIssue
 * ConvertToAutoPropertyIssue
@@ -104,7 +102,6 @@ Issues not implemented
 
 *Practices and Improvements*
 
-* ConvertIfToOrExpressionIssue
 * ConvertToConstantIssue
 * FieldCanBeMadeReadOnlyIssue
 * MemberCanBeMadeStaticIssue
