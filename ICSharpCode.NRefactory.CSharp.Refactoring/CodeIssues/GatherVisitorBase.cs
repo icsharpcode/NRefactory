@@ -301,8 +301,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			if (suppressMessageCheckId == null)
 				return;
-			var resolveResult = semanticModel.GetSymbolInfo(node);
-			if (resolveResult.Symbol.Name == "SuppressMessageAttribute" && resolveResult.Symbol.ContainingNamespace.GetFullName() == "System.Diagnostics.CodeAnalysis") {
+			var symbol = semanticModel.GetSymbolInfo(node).Symbol;
+			if (symbol != null && symbol.Name == "SuppressMessageAttribute" && symbol.ContainingNamespace.GetFullName() == "System.Diagnostics.CodeAnalysis") {
 				if (node.ArgumentList.Arguments.Count < 2)
 					return;
 				var category = node.ArgumentList.Arguments.First();
