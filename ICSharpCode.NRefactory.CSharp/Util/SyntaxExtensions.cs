@@ -504,26 +504,26 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return evt.ExplicitInterfaceSpecifier;
 			return null;
 		}
-		public static bool IsKind(this SyntaxToken token, SyntaxKind kind)
-		{
-			return token.RawKind == (int)kind;
-		}
-
-		public static bool IsKind(this SyntaxTrivia trivia, SyntaxKind kind)
-		{
-			return trivia.RawKind == (int)kind;
-		}
-
-		public static bool IsKind(this SyntaxNode node, SyntaxKind kind)
-		{
-			return node?.RawKind == (int)kind;
-		}
-
-		public static bool IsKind(this SyntaxNodeOrToken nodeOrToken, SyntaxKind kind)
-		{
-			return nodeOrToken.RawKind == (int)kind;
-		}
-
+//		public static bool IsKind(this SyntaxToken token, SyntaxKind kind)
+//		{
+//			return token.RawKind == (int)kind;
+//		}
+//
+//		public static bool IsKind(this SyntaxTrivia trivia, SyntaxKind kind)
+//		{
+//			return trivia.RawKind == (int)kind;
+//		}
+//
+//		public static bool IsKind(this SyntaxNode node, SyntaxKind kind)
+//		{
+//			return node?.RawKind == (int)kind;
+//		}
+//
+//		public static bool IsKind(this SyntaxNodeOrToken nodeOrToken, SyntaxKind kind)
+//		{
+//			return nodeOrToken.RawKind == (int)kind;
+//		}
+//
 
 //		public static SyntaxNode GetParent(this SyntaxNode node)
 //		{

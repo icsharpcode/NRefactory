@@ -4,6 +4,7 @@ using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion.KeywordRecommenders
 {

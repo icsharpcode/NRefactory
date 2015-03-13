@@ -7,8 +7,9 @@ using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
+using Microsoft.CodeAnalysis;
 
-namespace Microsoft.CodeAnalysis.CSharp.Extensions
+namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static class SyntaxListExtensions
 	{

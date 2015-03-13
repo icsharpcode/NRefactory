@@ -481,57 +481,5 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 	}
 
-	class SpeculationAnalyzer
-	{
-		readonly static Type typeInfo;
-		readonly static MethodInfo symbolsForOriginalAndReplacedNodesAreCompatibleMethod;
-		readonly static MethodInfo replacementChangesSemanticsMethod;
-		readonly object instance;
-
-		static SpeculationAnalyzer ()
-		{
-			Type[] abstractSpeculationAnalyzerGenericParams = new[] {
-				Type.GetType ("Microsoft.CodeAnalysis.SyntaxNode" + ReflectionNamespaces.CAAsmName, true),
-				Type.GetType ("Microsoft.CodeAnalysis.CSharp.Syntax.ExpressionSyntax" + ReflectionNamespaces.CACSharpAsmName, true),
-				Type.GetType ("Microsoft.CodeAnalysis.CSharp.Syntax.TypeSyntax" + ReflectionNamespaces.CACSharpAsmName, true),
-				Type.GetType ("Microsoft.CodeAnalysis.CSharp.Syntax.AttributeSyntax" + ReflectionNamespaces.CACSharpAsmName, true),
-				Type.GetType ("Microsoft.CodeAnalysis.CSharp.Syntax.ArgumentSyntax" + ReflectionNamespaces.CACSharpAsmName, true),
-				Type.GetType ("Microsoft.CodeAnalysis.CSharp.Syntax.ForEachStatementSyntax" + ReflectionNamespaces.CACSharpAsmName, true),
-				Type.GetType ("Microsoft.CodeAnalysis.CSharp.Syntax.ThrowStatementSyntax" + ReflectionNamespaces.CACSharpAsmName, true),
-				Type.GetType ("Microsoft.CodeAnalysis.SemanticModel" + ReflectionNamespaces.CAAsmName, true)
-			};
-			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.Shared.Utilities.AbstractSpeculationAnalyzer`8" + ReflectionNamespaces.WorkspacesAsmName, true)
-				.MakeGenericType (abstractSpeculationAnalyzerGenericParams);
-
-			symbolsForOriginalAndReplacedNodesAreCompatibleMethod = typeInfo.GetMethod ("SymbolsForOriginalAndReplacedNodesAreCompatible", BindingFlags.Public | BindingFlags.Instance);
-			replacementChangesSemanticsMethod = typeInfo.GetMethod ("ReplacementChangesSemantics", BindingFlags.Public | BindingFlags.Instance);
-
-			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.Utilities.SpeculationAnalyzer" + ReflectionNamespaces.CSWorkspacesAsmName, true);
-		}
-
-		public SpeculationAnalyzer (ExpressionSyntax expression, ExpressionSyntax newExpression, SemanticModel semanticModel, CancellationToken cancellationToken, bool skipVerificationForReplacedNode = false, bool failOnOverloadResolutionFailuresInOriginalCode = false)
-		{
-			instance = Activator.CreateInstance (typeInfo, new object[] {
-				expression,
-				newExpression,
-				semanticModel,
-				cancellationToken,
-				skipVerificationForReplacedNode,
-				failOnOverloadResolutionFailuresInOriginalCode
-			});
-		}
-
-		public bool SymbolsForOriginalAndReplacedNodesAreCompatible ()
-		{
-			return (bool)symbolsForOriginalAndReplacedNodesAreCompatibleMethod.Invoke (instance, new object[0]);
-		}
-
-		public bool ReplacementChangesSemantics ()
-		{
-			return (bool)replacementChangesSemanticsMethod.Invoke (instance, new object[0]);
-		}
-
-
-	}
 
 }

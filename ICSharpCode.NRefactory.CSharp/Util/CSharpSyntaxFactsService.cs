@@ -153,25 +153,25 @@ namespace ICSharpCode.NRefactory6.CSharp
 //			info = default(ExternalSourceInfo);
 //			return false;
 //		}
-//
-//		public bool IsRightSideOfQualifiedName(SyntaxNode node)
-//		{
-//			var name = node as SimpleNameSyntax;
-//			return name.IsRightSideOfQualifiedName();
-//		}
-//
-//		public bool IsMemberAccessExpressionName(SyntaxNode node)
-//		{
-//			var name = node as SimpleNameSyntax;
-//			return name.IsMemberAccessExpressionName();
-//		}
-//
-//		public bool IsObjectCreationExpressionType(SyntaxNode node)
-//		{
-//			return node.IsParentKind(SyntaxKind.ObjectCreationExpression) &&
-//				((ObjectCreationExpressionSyntax)node.Parent).Type == node;
-//		}
-//
+
+		public static bool IsRightSideOfQualifiedName(this SyntaxNode node)
+		{
+			var name = node as SimpleNameSyntax;
+			return name.IsRightSideOfQualifiedName();
+		}
+
+		public static bool IsMemberAccessExpressionName(this SyntaxNode node)
+		{
+			var name = node as SimpleNameSyntax;
+			return name.IsMemberAccessExpressionName();
+		}
+
+		public static bool IsObjectCreationExpressionType(this SyntaxNode node)
+		{
+			return node.IsParentKind(SyntaxKind.ObjectCreationExpression) &&
+				((ObjectCreationExpressionSyntax)node.Parent).Type == node;
+		}
+
 		public static bool IsAttributeName(this SyntaxNode node)
 		{
 			return SyntaxFacts.IsAttributeName(node);
@@ -203,12 +203,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 //		{
 //			return node is SkippedTokensTriviaSyntax;
 //		}
-//
-//		public bool HasIncompleteParentMember(SyntaxNode node)
-//		{
-//			return node.IsParentKind(SyntaxKind.IncompleteMember);
-//		}
-//
+
+		public static bool HasIncompleteParentMember(this SyntaxNode node)
+		{
+			return node.IsParentKind(SyntaxKind.IncompleteMember);
+		}
+
 //		public SyntaxToken GetIdentifierOfGenericName(SyntaxNode genericName)
 //		{
 //			var csharpGenericName = genericName as GenericNameSyntax;
@@ -563,34 +563,30 @@ namespace ICSharpCode.NRefactory6.CSharp
 				arity = simpleName.Arity;
 			}
 		}
-//
-//		public SyntaxNode GetExpressionOfMemberAccessExpression(SyntaxNode node)
-//		{
-//			if (node.IsKind(SyntaxKind.MemberBindingExpression))
-//			{
-//				if (node.IsParentKind(SyntaxKind.ConditionalAccessExpression))
-//				{
-//					return GetExpressionOfConditionalMemberAccessExpression(node.Parent);
-//				}
-//				if (node.IsParentKind(SyntaxKind.InvocationExpression) &&
-//					node.Parent.IsParentKind(SyntaxKind.ConditionalAccessExpression))
-//				{
-//					return GetExpressionOfConditionalMemberAccessExpression(node.Parent.Parent);
-//				}
-//			}
-//
-//			return (node as MemberAccessExpressionSyntax)?.Expression;
-//		}
-//
-//		public SyntaxNode GetExpressionOfConditionalMemberAccessExpression(SyntaxNode node)
-//		{
-//			return (node as ConditionalAccessExpressionSyntax)?.Expression;
-//		}
-//
-//		public bool IsInStaticContext(SyntaxNode node)
-//		{
-//			return node.IsInStaticContext();
-//		}
+
+		public static SyntaxNode GetExpressionOfMemberAccessExpression(this SyntaxNode node)
+		{
+			if (node.IsKind(SyntaxKind.MemberBindingExpression))
+			{
+				if (node.IsParentKind(SyntaxKind.ConditionalAccessExpression))
+				{
+					return GetExpressionOfConditionalMemberAccessExpression(node.Parent);
+				}
+				if (node.IsParentKind(SyntaxKind.InvocationExpression) &&
+					node.Parent.IsParentKind(SyntaxKind.ConditionalAccessExpression))
+				{
+					return GetExpressionOfConditionalMemberAccessExpression(node.Parent.Parent);
+				}
+			}
+
+			return (node as MemberAccessExpressionSyntax)?.Expression;
+		}
+
+		public static SyntaxNode GetExpressionOfConditionalMemberAccessExpression(this SyntaxNode node)
+		{
+			return (node as ConditionalAccessExpressionSyntax)?.Expression;
+		}
+
 //
 //		public bool IsInNamespaceOrTypeContext(SyntaxNode node)
 //		{

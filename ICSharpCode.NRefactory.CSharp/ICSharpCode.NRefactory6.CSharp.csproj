@@ -431,6 +431,16 @@
     <Compile Include="Features\CodeGeneration\SyntaxAnnotationExtensions.cs" />
     <Compile Include="Util\SimpleNameSyntaxExtensions.cs" />
     <Compile Include="Util\DeclaredSymbolInfo.cs" />
+    <Compile Include="Util\CompilationUnitSyntaxExtensions.cs" />
+    <Compile Include="Util\UsingsAndExternAliasesDirectiveComparer.cs" />
+    <Compile Include="Util\TokenComparer.cs" />
+    <Compile Include="Util\NameSyntaxComparer.cs" />
+    <Compile Include="Util\TypeSyntaxComparer.cs" />
+    <Compile Include="Util\NamespaceDeclarationSyntaxExtensions.cs" />
+    <Compile Include="Util\SymbolEquivalenceComparer.cs" />
+    <Compile Include="Util\IParameterSymbolExtensions.cs" />
+    <Compile Include="Util\PredefinedOperator.cs" />
+    <Compile Include="Util\SpeculationAnalyzer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
