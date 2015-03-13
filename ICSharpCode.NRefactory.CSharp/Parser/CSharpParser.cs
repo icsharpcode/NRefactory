@@ -966,7 +966,9 @@ namespace ICSharpCode.NRefactory.CSharp
 					newOperator.AddChild(new CSharpTokenNode(Convert(location [3]), Roles.RPar), Roles.RPar);
 				
 				if (o.Block != null) {
-					newOperator.AddChild((BlockStatement)o.Block.Accept(this), Roles.Body);
+					var blockStatement = o.Block.Accept(this) as BlockStatement;
+					if (blockStatement != null)
+						newOperator.AddChild(blockStatement, Roles.Body);
 				} else {
 					if (location != null && location.Count >= 5)
 						newOperator.AddChild(new CSharpTokenNode(Convert(location [4]), Roles.Semicolon), Roles.Semicolon);
@@ -1086,11 +1088,12 @@ namespace ICSharpCode.NRefactory.CSharp
 				AddConstraints(newMethod, m.CurrentTypeParameters);
 				
 				if (m.Block != null) {
-					var bodyBlock = (BlockStatement)m.Block.Accept(this);
+					var bodyBlock = m.Block.Accept(this) as BlockStatement;
 //					if (m.Block is ToplevelBlock) {
 //						newMethod.AddChild (bodyBlock.FirstChild.NextSibling, Roles.Body);
 //					} else {
-					newMethod.AddChild(bodyBlock, Roles.Body);
+					if (bodyBlock != null)
+						newMethod.AddChild(bodyBlock, Roles.Body);
 //					}
 				} else if (location != null) {
 					if (location.Count < 3) {
@@ -1267,8 +1270,11 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 				}
 				
-				if (c.Block != null)
-					newConstructor.AddChild((BlockStatement)c.Block.Accept(this), Roles.Body);
+				if (c.Block != null) {
+					var blockStatement = c.Block.Accept(this) as BlockStatement;
+					if (blockStatement != null)
+						newConstructor.AddChild(blockStatement, Roles.Body);
+				}
 				typeStack.Peek().AddChild(newConstructor, Roles.TypeMemberRole);
 			}
 
@@ -1289,9 +1295,11 @@ namespace ICSharpCode.NRefactory.CSharp
 						newDestructor.AddChild(new CSharpTokenNode(Convert(location [2]), Roles.RPar), Roles.RPar);
 				}
 				
-				if (d.Block != null)
-					newDestructor.AddChild((BlockStatement)d.Block.Accept(this), Roles.Body);
-				
+				if (d.Block != null) {
+					var blockStatement = d.Block.Accept(this) as BlockStatement;
+					if (blockStatement != null)
+						newDestructor.AddChild(blockStatement, Roles.Body);
+				}
 				typeStack.Peek().AddChild(newDestructor, Roles.TypeMemberRole);
 			}
 
@@ -3285,8 +3293,11 @@ namespace ICSharpCode.NRefactory.CSharp
 						result.AddChild(new CSharpTokenNode(Convert(location [l++]), Roles.RPar), Roles.RPar);
 					}
 				}
-				if (anonymousMethodExpression.Block != null)
-					result.AddChild((BlockStatement)anonymousMethodExpression.Block.Accept(this), Roles.Body);
+				if (anonymousMethodExpression.Block != null) {
+					var blockStatement = anonymousMethodExpression.Block.Accept(this) as BlockStatement;
+					if (blockStatement != null)
+						result.AddChild(blockStatement, Roles.Body);
+				}
 				return result;
 			}
 
