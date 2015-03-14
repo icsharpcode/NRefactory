@@ -441,6 +441,10 @@
     <Compile Include="Util\IParameterSymbolExtensions.cs" />
     <Compile Include="Util\PredefinedOperator.cs" />
     <Compile Include="Util\SpeculationAnalyzer.cs" />
+    <Compile Include="Features\GotoDefinition\GotoDefinitionHelpers.cs" />
+    <Compile Include="Features\GotoDefinition\GotoDefinitionService.cs" />
+    <Compile Include="Util\GeneratedCodeRecognitionService.cs" />
+    <Compile Include="Util\CommonLocationExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -460,6 +464,7 @@
     <Folder Include="Features\ExtractMethod\" />
     <Folder Include="Features\ExtractMethod\CSharp\" />
     <Folder Include="Features\CodeGeneration\" />
+    <Folder Include="Features\GotoDefinition\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />

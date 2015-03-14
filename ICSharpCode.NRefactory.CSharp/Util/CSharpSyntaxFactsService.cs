@@ -637,23 +637,23 @@ namespace ICSharpCode.NRefactory6.CSharp
 //				identifier.Parent.IsParentKind(SyntaxKind.AttributeArgument);
 //		}
 //
-//		public SyntaxNode GetContainingTypeDeclaration(SyntaxNode root, int position)
-//		{
-//			if (root == null)
-//			{
-//				throw new ArgumentNullException("root");
-//			}
-//
-//			if (position < 0 || position > root.Span.End)
-//			{
-//				throw new ArgumentOutOfRangeException("position");
-//			}
-//
-//			return root
-//				.FindToken(position)
-//				.GetAncestors<SyntaxNode>()
-//				.FirstOrDefault(n => n is BaseTypeDeclarationSyntax || n is DelegateDeclarationSyntax);
-//		}
+		public static SyntaxNode GetContainingTypeDeclaration(this SyntaxNode root, int position)
+		{
+			if (root == null)
+			{
+				throw new ArgumentNullException("root");
+			}
+
+			if (position < 0 || position > root.Span.End)
+			{
+				throw new ArgumentOutOfRangeException("position");
+			}
+
+			return root
+				.FindToken(position)
+				.GetAncestors<SyntaxNode>()
+				.FirstOrDefault(n => n is BaseTypeDeclarationSyntax || n is DelegateDeclarationSyntax);
+		}
 //
 //		public SyntaxNode GetContainingVariableDeclaratorOfFieldDeclaration(SyntaxNode node)
 //		{
