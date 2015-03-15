@@ -445,6 +445,14 @@
     <Compile Include="Features\GotoDefinition\GotoDefinitionService.cs" />
     <Compile Include="Util\GeneratedCodeRecognitionService.cs" />
     <Compile Include="Util\CommonLocationExtensions.cs" />
+    <Compile Include="Features\GenerateFromMembers\GenerateConstructor\GenerateConstructorResult.cs" />
+    <Compile Include="Features\GenerateFromMembers\GenerateConstructor\AbstractGenerateConstructorService.cs" />
+    <Compile Include="Features\GenerateFromMembers\AbstractGenerateFromMembersService.cs" />
+    <Compile Include="Features\GenerateFromMembers\AbstractCodeRefactoringResult.cs" />
+    <Compile Include="Refactoring\CodeRefactoring.cs" />
+    <Compile Include="Util\ICodeDefinitionFactoryExtensions.cs" />
+    <Compile Include="Features\GenerateFromMembers\GenerateConstructor\CSharpGenerateConstructorService.cs" />
+    <Compile Include="Features\GenerateFromMembers\GenerateFromMembersHelpers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -465,6 +473,8 @@
     <Folder Include="Features\ExtractMethod\CSharp\" />
     <Folder Include="Features\CodeGeneration\" />
     <Folder Include="Features\GotoDefinition\" />
+    <Folder Include="Features\GenerateFromMembers\" />
+    <Folder Include="Features\GenerateFromMembers\GenerateConstructor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />

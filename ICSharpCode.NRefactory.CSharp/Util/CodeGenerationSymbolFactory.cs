@@ -49,7 +49,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 			createTypeParameterSymbolMethod = typeInfo.GetMethod ("CreateTypeParameterSymbol", BindingFlags.Static | BindingFlags.Public);
 			createTypeParameterMethod = typeInfo.GetMethod ("CreateTypeParameter", BindingFlags.Static | BindingFlags.Public);
 			createMethodSymbolMethod = typeInfo.GetMethod ("CreateMethodSymbol", BindingFlags.Static | BindingFlags.Public);
+			createConstructorSymbolMethod = typeInfo.GetMethod ("CreateConstructorSymbol", BindingFlags.Static | BindingFlags.Public);
 		}
+
 
 		static readonly MethodInfo isCodeGenerationSymbolMethod;
 		/// <summary>
@@ -89,6 +91,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			return (IMethodSymbol)createMethodSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, returnType, explicitInterfaceSymbol, name, typeParameters, parameters, statements, handlesExpressions, returnTypeAttributes, methodKind });
 		}
+
+		static MethodInfo createConstructorSymbolMethod;
+
+		public static IMethodSymbol CreateConstructorSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, string typeName, IList<IParameterSymbol> parameters, IList<SyntaxNode> statements = null, IList<SyntaxNode> baseConstructorArguments = null, IList<SyntaxNode> thisConstructorArguments = null)
+		{
+			return (IMethodSymbol)createConstructorSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, typeName, parameters, statements, baseConstructorArguments, thisConstructorArguments });	
+		}
+
 
 	}
 }

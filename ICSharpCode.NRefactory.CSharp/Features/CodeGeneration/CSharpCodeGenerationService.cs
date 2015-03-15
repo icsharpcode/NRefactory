@@ -28,6 +28,8 @@ using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis;
 using System.Threading;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 {
@@ -44,6 +46,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		readonly static MethodInfo createPropertyDeclaration;
 		readonly static MethodInfo createNamedTypeDeclaration;
 		readonly static MethodInfo createNamespaceDeclaration;
+		readonly static MethodInfo addMethodAsync;
+		readonly static MethodInfo addMembersAsync;
 
 		static CSharpCodeGenerationService ()
 		{
@@ -55,6 +59,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 			createPropertyDeclaration = typeInfo.GetMethod ("CreatePropertyDeclaration", BindingFlags.Instance | BindingFlags.Public);
 			createNamedTypeDeclaration = typeInfo.GetMethod ("CreateNamedTypeDeclaration", BindingFlags.Instance | BindingFlags.Public);
 			createNamespaceDeclaration = typeInfo.GetMethod ("CreateNamespaceDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			addMethodAsync = typeInfo.GetMethod ("AddMethodAsync", BindingFlags.Instance | BindingFlags.Public);
+			addMembersAsync = typeInfo.GetMethod ("AddMembersAsync", BindingFlags.Instance | BindingFlags.Public);
 
 		}
 
@@ -130,6 +136,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		public SyntaxNode CreateNamespaceDeclaration(INamespaceSymbol @namespace, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
 			return (SyntaxNode)createNamespaceDeclaration.Invoke (instance, new object[] { @namespace, destination, null });
+		}
+
+		public Task<Document> AddMethodAsync(Solution solution, INamedTypeSymbol destination, IMethodSymbol method, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return (Task<Document>)addMethodAsync.Invoke (instance, new object[] { solution, destination, method, options, cancellationToken });
+		}
+
+		/// <summary>
+		/// Adds all the provided members into destination.
+		/// </summary>
+		public Task<Document> AddMembersAsync(Solution solution, INamedTypeSymbol destination, IEnumerable<ISymbol> members, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return (Task<Document>)addMembersAsync.Invoke (instance, new object[] { solution, destination, members, options, cancellationToken });
 		}
 
 	}
