@@ -124,7 +124,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateFromMembers.GenerateConstructor
 					var parameters = _state.Parameters.Select(p => p.ToDisplayString(SimpleFormat));
 					var parameterString = string.Join(", ", parameters);
 
-					return string.Format("Generate delegating constructor '{0}({1})'",
+					return string.Format(Resources.GenerateDelegatingConstructor,
 						_state.ContainingType.Name, parameterString);
 				}
 			}
@@ -183,6 +183,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateFromMembers.GenerateConstructor
 				return result;
 			}
 
+
 			public override string Title
 			{
 				get
@@ -192,16 +193,23 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateFromMembers.GenerateConstructor
 
 					if (_state.DelegatedConstructor == null)
 					{
-						return string.Format("Generate constructor '{0}({1})'",
+						return string.Format(Resources.GenerateConstructor,
 							_state.ContainingType.Name, parameterString);
 					}
 					else
 					{
-						return string.Format("Generate field assigning constructor '{0}({1})'",
+						return string.Format(Resources.GenerateFieldAssigningConstructor,
 							_state.ContainingType.Name, parameterString);
 					}
 				}
 			}
+		}
+
+		public static class Resources 
+		{
+			public static string GenerateConstructor = "Generate constructor '{0}({1})'";
+			public static string GenerateFieldAssigningConstructor = "Generate field assigning constructor '{0}({1})'";
+			public static string GenerateDelegatingConstructor = "Generate delegating constructor '{0}({1})'";
 		}
 
 		private class State

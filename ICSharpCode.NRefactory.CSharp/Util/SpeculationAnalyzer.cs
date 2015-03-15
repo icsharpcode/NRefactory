@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			replacementChangesSemanticsMethod = typeInfo.GetMethod ("ReplacementChangesSemantics", BindingFlags.Public | BindingFlags.Instance);
 
 			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.Utilities.SpeculationAnalyzer" + ReflectionNamespaces.CSWorkspacesAsmName, true);
-			createSpeculativeSemanticModelForNodeMethod =  typeInfo.GetMethod ("CreateSpeculativeSemanticModelForNode", BindingFlags.Public | BindingFlags.Instance);
+			createSpeculativeSemanticModelForNodeMethod =  typeInfo.GetMethod ("CreateSpeculativeSemanticModelForNode", BindingFlags.Public | BindingFlags.Static, null, new [] {typeof (SyntaxNode), typeof (SyntaxNode), typeof (SemanticModel)}, null);
 
 				
 		}

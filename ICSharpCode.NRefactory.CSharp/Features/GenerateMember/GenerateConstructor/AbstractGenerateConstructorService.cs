@@ -20,6 +20,10 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateConstructor
 		where TArgumentSyntax : SyntaxNode
 		where TAttributeArgumentSyntax : SyntaxNode
 	{
+		public static class Resources {
+			public static string GenerateNewConstructorIn = "Generate constructor in '{0}'";
+		}
+
 		protected AbstractGenerateConstructorService()
 		{
 		}
@@ -85,11 +89,12 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateConstructor
 			{
 				get
 				{
-					return string.Format("Generate method '{1}.{0}'",
+					return string.Format(Resources.GenerateNewConstructorIn,
 						_state.TypeToGenerateIn.Name);
 				}
 			}
 		}
+
 		protected abstract bool IsConversionImplicit(Compilation compilation, ITypeSymbol sourceType, ITypeSymbol targetType);
 
 		internal abstract IMethodSymbol GetDelegatingConstructor(State state, SemanticDocument document, int argumentCount, INamedTypeSymbol namedType, ISet<IMethodSymbol> candidates, CancellationToken cancellationToken);

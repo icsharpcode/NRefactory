@@ -151,7 +151,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public Task<Document> AddMembersAsync(Solution solution, INamedTypeSymbol destination, IEnumerable<ISymbol> members, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addMembersAsync.Invoke (instance, new object[] { solution, destination, members, options, cancellationToken });
+			return (Task<Document>)addMembersAsync.Invoke (instance, new object[] { solution, destination, members, options != null ? options.Instance : null, cancellationToken });
 		}
 
 
