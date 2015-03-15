@@ -453,6 +453,9 @@
     <Compile Include="Util\ICodeDefinitionFactoryExtensions.cs" />
     <Compile Include="Features\GenerateFromMembers\GenerateConstructor\CSharpGenerateConstructorService.cs" />
     <Compile Include="Features\GenerateFromMembers\GenerateFromMembersHelpers.cs" />
+    <Compile Include="Features\GenerateMember\GenerateConstructor\AbstractGenerateConstructorService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateConstructor\GenerateConstructorHelpers.cs" />
+    <Compile Include="Features\GenerateMember\GenerateConstructor\CSharpGenerateConstructorService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -475,6 +478,8 @@
     <Folder Include="Features\GotoDefinition\" />
     <Folder Include="Features\GenerateFromMembers\" />
     <Folder Include="Features\GenerateFromMembers\GenerateConstructor\" />
+    <Folder Include="Features\GenerateMember\" />
+    <Folder Include="Features\GenerateMember\GenerateConstructor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />

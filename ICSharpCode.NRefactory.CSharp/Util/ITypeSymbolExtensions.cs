@@ -50,6 +50,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 			generateTypeSyntax = typeInfo.GetMethod("GenerateTypeSyntax", new[] { typeof(ITypeSymbol) });
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.ITypeSymbolExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
 			inheritsFromOrEqualsIgnoringConstructionMethod = typeInfo.GetMethod("InheritsFromOrEqualsIgnoringConstruction");
+			removeUnavailableTypeParametersMethod = typeInfo.GetMethod("RemoveUnavailableTypeParameters");
+			removeUnnamedErrorTypesMethod = typeInfo.GetMethod("RemoveUnnamedErrorTypes");
 		}
 
 		public static TypeSyntax GenerateTypeSyntax (this ITypeSymbol typeSymbol)
@@ -405,23 +407,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			return false;
 		}
+		readonly static MethodInfo removeUnavailableTypeParametersMethod;
 
-//		public static ITypeSymbol RemoveUnavailableTypeParameters(
-//			this ITypeSymbol type,
-//			Compilation compilation,
-//			IEnumerable<ITypeParameterSymbol> availableTypeParameters)
-//		{
-//			return type?.RemoveUnavailableTypeParameters(compilation, availableTypeParameters.Select(t => t.Name).ToSet());
-//		}
-//
-//		private static ITypeSymbol RemoveUnavailableTypeParameters(
-//			this ITypeSymbol type,
-//			Compilation compilation,
-//			ISet<string> availableTypeParameterNames)
-//		{
-//			return type?.Accept(new UnavailableTypeParameterRemover(compilation, availableTypeParameterNames));
-//		}
-//
+		public static ITypeSymbol RemoveUnavailableTypeParameters(
+			this ITypeSymbol type,
+			Compilation compilation,
+			IEnumerable<ITypeParameterSymbol> availableTypeParameters)
+		{
+			return (ITypeSymbol)removeUnavailableTypeParametersMethod.Invoke (null, new object[] { type, compilation, availableTypeParameters });
+		}
+
+
 		public static ITypeSymbol RemoveAnonymousTypes(
 			this ITypeSymbol type,
 			Compilation compilation)
@@ -504,13 +500,15 @@ namespace ICSharpCode.NRefactory6.CSharp
 //			return type?.Accept(new ReplaceTypeParameterBasedOnTypeConstraintVisitor(compilation, availableTypeParameters.Select(t => t.Name).ToSet(), solution, cancellationToken));
 //		}
 //
-//		public static ITypeSymbol RemoveUnnamedErrorTypes(
-//			this ITypeSymbol type,
-//			Compilation compilation)
-//		{
-//			return type?.Accept(new UnnamedErrorTypeRemover(compilation));
-//		}
-//
+		readonly static MethodInfo removeUnnamedErrorTypesMethod;
+		public static ITypeSymbol RemoveUnnamedErrorTypes(
+			this ITypeSymbol type,
+			Compilation compilation)
+		{
+			return (ITypeSymbol)removeUnnamedErrorTypesMethod.Invoke (null, new object[] { type, compilation });
+		}
+
+
 //		public static IList<ITypeParameterSymbol> GetReferencedMethodTypeParameters(
 //			this ITypeSymbol type, IList<ITypeParameterSymbol> result = null)
 //		{

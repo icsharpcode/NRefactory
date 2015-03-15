@@ -63,6 +63,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 			replacementChangesSemanticsMethod = typeInfo.GetMethod ("ReplacementChangesSemantics", BindingFlags.Public | BindingFlags.Instance);
 
 			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.Utilities.SpeculationAnalyzer" + ReflectionNamespaces.CSWorkspacesAsmName, true);
+			createSpeculativeSemanticModelForNodeMethod =  typeInfo.GetMethod ("CreateSpeculativeSemanticModelForNode", BindingFlags.Public | BindingFlags.Instance);
+
+				
 		}
 
 		public SpeculationAnalyzer (ExpressionSyntax expression, ExpressionSyntax newExpression, SemanticModel semanticModel, CancellationToken cancellationToken, bool skipVerificationForReplacedNode = false, bool failOnOverloadResolutionFailuresInOriginalCode = false)
@@ -85,6 +88,25 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public bool ReplacementChangesSemantics ()
 		{
 			return (bool)replacementChangesSemanticsMethod.Invoke (instance, new object[0]);
+		}
+
+		readonly static MethodInfo createSpeculativeSemanticModelForNodeMethod;
+
+		public static SemanticModel CreateSpeculativeSemanticModelForNode(SyntaxNode originalNode, SyntaxNode nodeToSpeculate, SemanticModel semanticModel)
+		{
+			return (SemanticModel)createSpeculativeSemanticModelForNodeMethod.Invoke (null, new object[] {originalNode, nodeToSpeculate, semanticModel });
+		}
+
+		public static bool CanSpeculateOnNode(SyntaxNode node)
+		{
+			return (node is StatementSyntax && node.Kind() != SyntaxKind.Block) ||
+				node is TypeSyntax ||
+				node is CrefSyntax ||
+				node.Kind() == SyntaxKind.Attribute ||
+				node.Kind() == SyntaxKind.ThisConstructorInitializer ||
+				node.Kind() == SyntaxKind.BaseConstructorInitializer ||
+				node.Kind() == SyntaxKind.EqualsValueClause ||
+				node.Kind() == SyntaxKind.ArrowExpressionClause;
 		}
 
 	}

@@ -49,6 +49,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		readonly static MethodInfo addMethodAsync;
 		readonly static MethodInfo addMembersAsync;
 
+		readonly static MethodInfo canAddTo1, canAddTo2;
+
 		static CSharpCodeGenerationService ()
 		{
 			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.CodeGeneration.CSharpCodeGenerationService" + ReflectionNamespaces.CSWorkspacesAsmName, true);
@@ -61,7 +63,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 			createNamespaceDeclaration = typeInfo.GetMethod ("CreateNamespaceDeclaration", BindingFlags.Instance | BindingFlags.Public);
 			addMethodAsync = typeInfo.GetMethod ("AddMethodAsync", BindingFlags.Instance | BindingFlags.Public);
 			addMembersAsync = typeInfo.GetMethod ("AddMembersAsync", BindingFlags.Instance | BindingFlags.Public);
-
+			canAddTo1 = typeInfo.GetMethod ("CanAddTo", new [] {typeof(ISymbol), typeof(Solution), typeof(CancellationToken) });
+			canAddTo2 = typeInfo.GetMethod ("CanAddTo", new [] {typeof(SyntaxNode), typeof(Solution), typeof(CancellationToken) });
 		}
 
 		public CSharpCodeGenerationService(HostLanguageServices languageServices)
@@ -149,6 +152,23 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		public Task<Document> AddMembersAsync(Solution solution, INamedTypeSymbol destination, IEnumerable<ISymbol> members, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			return (Task<Document>)addMembersAsync.Invoke (instance, new object[] { solution, destination, members, options, cancellationToken });
+		}
+
+
+		/// <summary>
+		/// <c>true</c> if destination is a location where other symbols can be added to.
+		/// </summary>
+		public bool CanAddTo(ISymbol destination, Solution solution, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return (bool)canAddTo1.Invoke (instance, new object[] { destination, solution, cancellationToken });
+		}
+
+		/// <summary>
+		/// <c>true</c> if destination is a location where other symbols can be added to.
+		/// </summary>
+		public bool CanAddTo(SyntaxNode destination, Solution solution, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return (bool)canAddTo2.Invoke (instance, new object[] { destination, solution, cancellationToken });
 		}
 
 	}
