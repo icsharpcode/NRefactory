@@ -251,7 +251,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateConstructor
 					_document.Project.Solution,
 					_state.TypeToGenerateIn,
 					members,
-					new CodeGenerationOptions(_state.Token.GetLocation()),
+					new CodeGenerationOptions(_state.Token.GetLocation(), generateDefaultAccessibility: false),
 					_cancellationToken)
 					.ConfigureAwait(false);
 
@@ -286,7 +286,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateConstructor
 					_document.Project.Solution,
 					_state.TypeToGenerateIn,
 					members,
-					new CodeGenerationOptions(_state.Token.GetLocation()),
+					new CodeGenerationOptions(_state.Token.GetLocation(), generateDefaultAccessibility: false),
 					_cancellationToken)
 					.ConfigureAwait(false);
 

@@ -109,7 +109,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateFromMembers.GenerateConstructor
 						parameters: _state.Parameters,
 						statements: statements,
 						thisConstructorArguments: thisConstructorArguments),
-					new CodeGenerationOptions(contextLocation: syntaxTree.GetLocation(_state.TextSpan)),
+					new CodeGenerationOptions(contextLocation: syntaxTree.GetLocation(_state.TextSpan), generateDefaultAccessibility: false),
 					cancellationToken: cancellationToken)
 					.ConfigureAwait(false);
 
@@ -176,7 +176,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateFromMembers.GenerateConstructor
 					_document.Project.Solution,
 					_state.ContainingType,
 					members,
-					new CodeGenerationOptions(contextLocation: syntaxTree.GetLocation(_state.TextSpan)),
+					new CodeGenerationOptions(contextLocation: syntaxTree.GetLocation(_state.TextSpan), generateDefaultAccessibility: false),
 					cancellationToken)
 					.ConfigureAwait(false);
 

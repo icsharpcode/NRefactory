@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
                 var result = this.GenerateMethodDefinition(cancellationToken);
                 var newContainer = codeGenerationService.AddMethod(
                     destination, result.Data,
-                    new CodeGenerationOptions(afterThisLocation: previousMemberNode.GetLocation(), generateDefaultAccessibility: true, generateMethodBodies: true),
+					new CodeGenerationOptions(afterThisLocation: previousMemberNode.GetLocation(), generateDefaultAccessibility: false, generateMethodBodies: true),
                     cancellationToken);
 
                 var newDocument = callSiteDocument.Document.WithSyntaxRoot(newCallSiteRoot.ReplaceNode(destination, newContainer));
