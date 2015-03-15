@@ -65,6 +65,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 			addMembersAsync = typeInfo.GetMethod ("AddMembersAsync", BindingFlags.Instance | BindingFlags.Public);
 			canAddTo1 = typeInfo.GetMethod ("CanAddTo", new [] {typeof(ISymbol), typeof(Solution), typeof(CancellationToken) });
 			canAddTo2 = typeInfo.GetMethod ("CanAddTo", new [] {typeof(SyntaxNode), typeof(Solution), typeof(CancellationToken) });
+
+			addFieldAsync = typeInfo.GetMethod ("AddFieldAsync", BindingFlags.Instance | BindingFlags.Public);
+			addStatements = typeInfo.GetMethod ("AddStatements", BindingFlags.Instance | BindingFlags.Public);
 		}
 
 		public CSharpCodeGenerationService(HostLanguageServices languageServices)
@@ -74,13 +77,26 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 			});
 		}
 
-		public CSharpCodeGenerationService (Workspace workspace)
+		public CSharpCodeGenerationService (Workspace workspace, string language)
 		{
-			var csharpLanguageServices = workspace.Services.GetLanguageServices (LanguageNames.CSharp);
+			var languageService = workspace.Services.GetLanguageServices (language);
 
-			this.instance = Activator.CreateInstance (typeInfo, new [] { csharpLanguageServices });
+			this.instance = Activator.CreateInstance (typeInfo, new [] { languageService });
 		}
 
+		public CSharpCodeGenerationService (Workspace workspace) : this (workspace, LanguageNames.CSharp)
+		{
+		}
+
+		static MethodInfo addStatements;
+		public TDeclarationNode AddStatements<TDeclarationNode>(
+			TDeclarationNode destinationMember,
+			IEnumerable<SyntaxNode> statements,
+			CodeGenerationOptions options,
+			CancellationToken cancellationToken)
+		{
+			return (TDeclarationNode)addStatements.MakeGenericMethod (typeof (TDeclarationNode)).Invoke (instance, new object[] { destinationMember, statements, options != null ? options.Instance : null, cancellationToken });
+		}
 
 		static MethodInfo addMethod;
 
@@ -143,7 +159,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 
 		public Task<Document> AddMethodAsync(Solution solution, INamedTypeSymbol destination, IMethodSymbol method, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addMethodAsync.Invoke (instance, new object[] { solution, destination, method, options, cancellationToken });
+			return (Task<Document>)addMethodAsync.Invoke (instance, new object[] { solution, destination, method, options != null ? options.Instance : null, cancellationToken });
 		}
 
 		/// <summary>
@@ -152,6 +168,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		public Task<Document> AddMembersAsync(Solution solution, INamedTypeSymbol destination, IEnumerable<ISymbol> members, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			return (Task<Document>)addMembersAsync.Invoke (instance, new object[] { solution, destination, members, options != null ? options.Instance : null, cancellationToken });
+		}
+
+		static MethodInfo addFieldAsync;
+
+		public Task<Document> AddFieldAsync(Solution solution, INamedTypeSymbol destination, IFieldSymbol field, CodeGenerationOptions options, CancellationToken cancellationToken)
+		{
+			return (Task<Document>)addFieldAsync.Invoke (instance, new object[] { solution, destination, field, options != null ? options.Instance : null, cancellationToken });
 		}
 
 

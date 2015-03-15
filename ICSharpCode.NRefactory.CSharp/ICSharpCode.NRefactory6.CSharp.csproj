@@ -456,6 +456,26 @@
     <Compile Include="Features\GenerateMember\GenerateConstructor\AbstractGenerateConstructorService.cs" />
     <Compile Include="Features\GenerateMember\GenerateConstructor\GenerateConstructorHelpers.cs" />
     <Compile Include="Features\GenerateMember\GenerateConstructor\CSharpGenerateConstructorService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateEnumMember\AbstractGenerateEnumMemberService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateEnumMember\CSharpGenerateEnumMemberService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateDefaultConstructors\AbstractGenerateDefaultConstructorsService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateDefaultConstructors\GenerateDefaultConstructorsResult.cs" />
+    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\AbstractGenerateConversionService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\AbstractGenerateMethodService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\AbstractGenerateParameterizedMemberService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\MethodGenerationKind.cs" />
+    <Compile Include="Features\GenerateMember\GenerateVariable\AbstractGenerateVariableService.cs" />
+    <Compile Include="Features\GenerateMember\AbstractGenerateMemberService.cs" />
+    <Compile Include="Features\GenerateMember\AbstractCodeRefactoringResult.cs" />
+    <Compile Include="Features\CodeGeneration\CodeGenerator.cs" />
+    <Compile Include="Util\EnumValueUtilities.cs" />
+    <Compile Include="Resources.cs" />
+    <Compile Include="Util\IMethodSymbolExtensions.cs" />
+    <Compile Include="Util\CommonAccessibilityUtilities.cs" />
+    <Compile Include="Util\ITypeParameterSymbolExtensions.cs" />
+    <Compile Include="Features\CodeGeneration\CodeGenerationHelpers.cs" />
+    <Compile Include="Util\TypeGenerator.cs" />
+    <Compile Include="Features\CodeGeneration\CodeGenerationTypeParameterSymbol.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -480,6 +500,10 @@
     <Folder Include="Features\GenerateFromMembers\GenerateConstructor\" />
     <Folder Include="Features\GenerateMember\" />
     <Folder Include="Features\GenerateMember\GenerateConstructor\" />
+    <Folder Include="Features\GenerateMember\GenerateEnumMember\" />
+    <Folder Include="Features\GenerateMember\GenerateDefaultConstructors\" />
+    <Folder Include="Features\GenerateMember\GenerateParameterizedMember\" />
+    <Folder Include="Features\GenerateMember\GenerateVariable\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />

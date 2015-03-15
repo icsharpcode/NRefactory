@@ -1,0 +1,54 @@
+﻿//
+// Resources.cs
+//
+// Author:
+//       Mike Krüger <mkrueger@xamarin.com>
+//
+// Copyright (c) 2015 Xamarin Inc. (http://xamarin.com)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+using System;
+
+namespace ICSharpCode.NRefactory6.CSharp
+{
+	public static class Resources 
+	{
+		public static string GenerateConstructor = "Generate constructor '{0}({1})'";
+		public static string GenerateFieldAssigningConstructor = "Generate field assigning constructor '{0}({1})'";
+		public static string GenerateDelegatingConstructor = "Generate delegating constructor '{0}({1})'";
+
+		public static string GenerateEnumMemberIn = "Generate enum member '{0}' in '{1}'";
+		public static string GenerateNewConstructorIn = "Generate constructor in '{0}'";
+
+		public static string GenerateAbstractMethod = "Generate abstract method '{0}' in '{1}'";
+		public static string GenerateAbstractProperty = "Generate abstract property &apos;{0}&apos; in &apos;{1}&apos";
+		public static string GeneratePropertyIn = "Generate property '{1}.{0}'";
+		public static string GenerateMethodIn = "Generate method '{1}.{0}'";
+
+		public static string GenerateAll = "Generate all";
+
+		public static string GenerateConstantIn = "Generate constant '{0}' in '{1}'";
+		public static string GenerateReadonlyProperty = "Generate read-only property '{1}.{0}'";
+		public static string GenerateReadonlyField = "Generate read-only field '{1}.{0}'";
+		public static string GenerateFieldIn = "Generate field '{0}' in '{1}'";
+		public static string GenerateLocal = "Generate local '{0}'";
+	}
+
+}
+

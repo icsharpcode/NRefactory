@@ -26,6 +26,7 @@
 using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Editing;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -466,6 +467,18 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static bool IsDefinedInSource(this ISymbol symbol)
 		{
 			return symbol.Locations.All (loc => loc.IsInSource);
+		}
+
+		public static DeclarationModifiers GetSymbolModifiers(this ISymbol symbol)
+		{
+			// ported from roslyn source - why they didn't use DeclarationModifiers.From (symbol) ?
+			return DeclarationModifiers.None
+				.WithIsStatic (symbol.IsStatic)
+				.WithIsAbstract (symbol.IsAbstract)
+				.WithIsUnsafe (symbol.IsUnsafe ())
+				.WithIsVirtual (symbol.IsVirtual)
+				.WithIsOverride (symbol.IsOverride)
+				.WithIsSealed (symbol.IsSealed);
 		}
 	}
 }

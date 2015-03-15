@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeGeneration;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Roslyn.Utilities;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -495,5 +496,21 @@ namespace ICSharpCode.NRefactory6.CSharp
 //
 //			return currentSymbol;
 //		}
+	
+		public static bool LastEnumValueHasInitializer(this INamedTypeSymbol namedTypeSymbol)
+		{
+			var enumDecl = namedTypeSymbol.DeclaringSyntaxReferences.Select(r => r.GetSyntax()).OfType<EnumDeclarationSyntax>().FirstOrDefault();
+			if (enumDecl != null)
+			{
+				var lastMember = enumDecl.Members.LastOrDefault();
+				if (lastMember != null)
+				{
+					return lastMember.EqualsValue != null;
+				}
+			}
+
+			return false;
+		}
+
 	}
 }

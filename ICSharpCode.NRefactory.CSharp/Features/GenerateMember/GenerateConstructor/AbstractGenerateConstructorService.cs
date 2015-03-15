@@ -20,9 +20,6 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateConstructor
 		where TArgumentSyntax : SyntaxNode
 		where TAttributeArgumentSyntax : SyntaxNode
 	{
-		public static class Resources {
-			public static string GenerateNewConstructorIn = "Generate constructor in '{0}'";
-		}
 
 		protected AbstractGenerateConstructorService()
 		{

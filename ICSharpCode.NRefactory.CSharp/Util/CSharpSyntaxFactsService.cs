@@ -533,24 +533,24 @@ namespace ICSharpCode.NRefactory6.CSharp
 //
 //			return false;
 //		}
-//
-//		public bool IsMemberAccessExpression(SyntaxNode node)
-//		{
-//			return node is MemberAccessExpressionSyntax &&
-//				((MemberAccessExpressionSyntax)node).Kind() == SyntaxKind.SimpleMemberAccessExpression;
-//		}
-//
-//		public bool IsConditionalMemberAccessExpression(SyntaxNode node)
-//		{
-//			return node is ConditionalAccessExpressionSyntax;
-//		}
-//
-//		public bool IsPointerMemberAccessExpression(SyntaxNode node)
-//		{
-//			return node is MemberAccessExpressionSyntax &&
-//				((MemberAccessExpressionSyntax)node).Kind() == SyntaxKind.PointerMemberAccessExpression;
-//		}
-//
+
+		public static bool IsMemberAccessExpression(this SyntaxNode node)
+		{
+			return node is MemberAccessExpressionSyntax &&
+				((MemberAccessExpressionSyntax)node).Kind() == SyntaxKind.SimpleMemberAccessExpression;
+		}
+
+		public static bool IsConditionalMemberAccessExpression(this SyntaxNode node)
+		{
+			return node is ConditionalAccessExpressionSyntax;
+		}
+
+		public static bool IsPointerMemberAccessExpression(this SyntaxNode node)
+		{
+			return node is MemberAccessExpressionSyntax &&
+				((MemberAccessExpressionSyntax)node).Kind() == SyntaxKind.PointerMemberAccessExpression;
+		}
+
 		public static void GetNameAndArityOfSimpleName(this SyntaxNode node, out string name, out int arity)
 		{
 			name = null;
@@ -587,12 +587,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return (node as ConditionalAccessExpressionSyntax)?.Expression;
 		}
 
-//
-//		public bool IsInNamespaceOrTypeContext(SyntaxNode node)
-//		{
-//			return SyntaxFacts.IsInNamespaceOrTypeContext(node as ExpressionSyntax);
-//		}
-//
+
+		public static bool IsInNamespaceOrTypeContext(this SyntaxNode node)
+		{
+			return SyntaxFacts.IsInNamespaceOrTypeContext(node as ExpressionSyntax);
+		}
+
 //		public SyntaxNode GetExpressionOfArgument(SyntaxNode node)
 //		{
 //			return ((ArgumentSyntax)node).Expression;
@@ -607,36 +607,36 @@ namespace ICSharpCode.NRefactory6.CSharp
 //		{
 //			return (node as ExpressionSyntax).IsInConstantContext();
 //		}
-//
-//		public bool IsInConstructor(SyntaxNode node)
-//		{
-//			return node.GetAncestor<ConstructorDeclarationSyntax>() != null;
-//		}
-//
+
+		public static bool IsInConstructor(this SyntaxNode node)
+		{
+			return node.GetAncestor<ConstructorDeclarationSyntax>() != null;
+		}
+
 //		public bool IsUnsafeContext(SyntaxNode node)
 //		{
 //			return node.IsUnsafeContext();
 //		}
-//
-//		public SyntaxNode GetNameOfAttribute(SyntaxNode node)
-//		{
-//			return ((AttributeSyntax)node).Name;
-//		}
-//
-//		public bool IsAttribute(SyntaxNode node)
-//		{
-//			return node is AttributeSyntax;
-//		}
-//
-//		public bool IsAttributeNamedArgumentIdentifier(SyntaxNode node)
-//		{
-//			var identifier = node as IdentifierNameSyntax;
-//			return
-//				identifier != null &&
-//				identifier.IsParentKind(SyntaxKind.NameEquals) &&
-//				identifier.Parent.IsParentKind(SyntaxKind.AttributeArgument);
-//		}
-//
+
+		public static SyntaxNode GetNameOfAttribute(this SyntaxNode node)
+		{
+			return ((AttributeSyntax)node).Name;
+		}
+
+		public static bool IsAttribute(this SyntaxNode node)
+		{
+			return node is AttributeSyntax;
+		}
+
+		public static bool IsAttributeNamedArgumentIdentifier(this SyntaxNode node)
+		{
+			var identifier = node as IdentifierNameSyntax;
+			return
+				identifier != null &&
+				identifier.IsParentKind(SyntaxKind.NameEquals) &&
+				identifier.Parent.IsParentKind(SyntaxKind.AttributeArgument);
+		}
+
 		public static SyntaxNode GetContainingTypeDeclaration(this SyntaxNode root, int position)
 		{
 			if (root == null)
@@ -671,20 +671,20 @@ namespace ICSharpCode.NRefactory6.CSharp
 //		{
 //			return node.FindTokenOnRightOfPosition(position, includeSkipped, includeDirectives, includeDocumentationComments);
 //		}
-//
-//		public bool IsObjectCreationExpression(SyntaxNode node)
-//		{
-//			return node is ObjectCreationExpressionSyntax;
-//		}
-//
-//		public bool IsObjectInitializerNamedAssignmentIdentifier(SyntaxNode node)
-//		{
-//			var identifier = node as IdentifierNameSyntax;
-//			return
-//				identifier != null &&
-//				identifier.IsLeftSideOfAssignExpression() &&
-//				identifier.Parent.IsParentKind(SyntaxKind.ObjectInitializerExpression);
-//		}
+
+		public static bool IsObjectCreationExpression(this SyntaxNode node)
+		{
+			return node is ObjectCreationExpressionSyntax;
+		}
+
+		public static bool IsObjectInitializerNamedAssignmentIdentifier(this SyntaxNode node)
+		{
+			var identifier = node as IdentifierNameSyntax;
+			return
+				identifier != null &&
+				identifier.IsLeftSideOfAssignExpression() &&
+				identifier.Parent.IsParentKind(SyntaxKind.ObjectInitializerExpression);
+		}
 //
 //		public bool IsElementAccessExpression(SyntaxNode node)
 //		{

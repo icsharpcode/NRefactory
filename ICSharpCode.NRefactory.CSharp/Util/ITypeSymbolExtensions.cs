@@ -52,6 +52,21 @@ namespace ICSharpCode.NRefactory6.CSharp
 			inheritsFromOrEqualsIgnoringConstructionMethod = typeInfo.GetMethod("InheritsFromOrEqualsIgnoringConstruction");
 			removeUnavailableTypeParametersMethod = typeInfo.GetMethod("RemoveUnavailableTypeParameters");
 			removeUnnamedErrorTypesMethod = typeInfo.GetMethod("RemoveUnnamedErrorTypes");
+			replaceTypeParametersBasedOnTypeConstraintsMethod = typeInfo.GetMethod("ReplaceTypeParametersBasedOnTypeConstraints");
+			substituteTypesMethod = typeInfo.GetMethod("SubstituteTypes", new Type[] {typeof (ITypeSymbol), typeof (IDictionary<,>), typeof(Compilation) } );
+			foreach (var m in typeInfo.GetMethods (BindingFlags.Public | BindingFlags.Static)) { 
+				if (m.Name != "SubstituteTypes")
+					continue;
+				var parameters = m.GetParameters ();
+				if (parameters.Length != 3 || parameters[2].Name != "typeGenerator")
+					continue;
+				substituteTypesMethod2 = typeInfo.GetMethod ("SubstituteTypes", new Type[] {
+					typeof(ITypeSymbol),
+					typeof(IDictionary<,>),
+					typeof(Compilation)
+				});
+				break;
+			}
 		}
 
 		public static TypeSyntax GenerateTypeSyntax (this ITypeSymbol typeSymbol)
@@ -489,17 +504,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 		}
 
-//
-//		public static ITypeSymbol ReplaceTypeParametersBasedOnTypeConstraints(
-//			this ITypeSymbol type,
-//			Compilation compilation,
-//			IEnumerable<ITypeParameterSymbol> availableTypeParameters,
-//			Solution solution,
-//			CancellationToken cancellationToken)
-//		{
-//			return type?.Accept(new ReplaceTypeParameterBasedOnTypeConstraintVisitor(compilation, availableTypeParameters.Select(t => t.Name).ToSet(), solution, cancellationToken));
-//		}
-//
+		readonly static MethodInfo replaceTypeParametersBasedOnTypeConstraintsMethod;
+		public static ITypeSymbol ReplaceTypeParametersBasedOnTypeConstraints(
+			this ITypeSymbol type,
+			Compilation compilation,
+			IEnumerable<ITypeParameterSymbol> availableTypeParameters,
+			Solution solution,
+			CancellationToken cancellationToken)
+		{
+			return (ITypeSymbol)replaceTypeParametersBasedOnTypeConstraintsMethod.Invoke (null, new object[] { type, compilation, availableTypeParameters, solution, cancellationToken});
+		}
+
 		readonly static MethodInfo removeUnnamedErrorTypesMethod;
 		public static ITypeSymbol RemoveUnnamedErrorTypes(
 			this ITypeSymbol type,
@@ -509,42 +524,119 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 
-//		public static IList<ITypeParameterSymbol> GetReferencedMethodTypeParameters(
-//			this ITypeSymbol type, IList<ITypeParameterSymbol> result = null)
-//		{
-//			result = result ?? new List<ITypeParameterSymbol>();
-//			type?.Accept(new CollectTypeParameterSymbolsVisitor(result, onlyMethodTypeParameters: true));
-//			return result;
-//		}
-//
-//		public static IList<ITypeParameterSymbol> GetReferencedTypeParameters(
-//			this ITypeSymbol type, IList<ITypeParameterSymbol> result = null)
-//		{
-//			result = result ?? new List<ITypeParameterSymbol>();
-//			type?.Accept(new CollectTypeParameterSymbolsVisitor(result, onlyMethodTypeParameters: false));
-//			return result;
-//		}
-//
-//		public static ITypeSymbol SubstituteTypes<TType1, TType2>(
-//			this ITypeSymbol type,
-//			IDictionary<TType1, TType2> mapping,
-//			Compilation compilation)
-//			where TType1 : ITypeSymbol
-//			where TType2 : ITypeSymbol
-//		{
-//			return type.SubstituteTypes(mapping, new CompilationTypeGenerator(compilation));
-//		}
-//
-//		public static ITypeSymbol SubstituteTypes<TType1, TType2>(
-//			this ITypeSymbol type,
-//			IDictionary<TType1, TType2> mapping,
-//			ITypeGenerator typeGenerator)
-//			where TType1 : ITypeSymbol
-//			where TType2 : ITypeSymbol
-//		{
-//			return type?.Accept(new SubstituteTypesVisitor<TType1, TType2>(mapping, typeGenerator));
-//		}
-//
+		public static IList<ITypeParameterSymbol> GetReferencedMethodTypeParameters(
+			this ITypeSymbol type, IList<ITypeParameterSymbol> result = null)
+		{
+			result = result ?? new List<ITypeParameterSymbol>();
+			type?.Accept(new CollectTypeParameterSymbolsVisitor(result, onlyMethodTypeParameters: true));
+			return result;
+		}
+
+		public static IList<ITypeParameterSymbol> GetReferencedTypeParameters(
+			this ITypeSymbol type, IList<ITypeParameterSymbol> result = null)
+		{
+			result = result ?? new List<ITypeParameterSymbol>();
+			type?.Accept(new CollectTypeParameterSymbolsVisitor(result, onlyMethodTypeParameters: false));
+			return result;
+		}
+
+		private class CollectTypeParameterSymbolsVisitor : SymbolVisitor
+		{
+			private readonly HashSet<ISymbol> _visited = new HashSet<ISymbol>();
+			private readonly bool _onlyMethodTypeParameters;
+			private readonly IList<ITypeParameterSymbol> _typeParameters;
+
+			public CollectTypeParameterSymbolsVisitor(
+				IList<ITypeParameterSymbol> typeParameters,
+				bool onlyMethodTypeParameters)
+			{
+				_onlyMethodTypeParameters = onlyMethodTypeParameters;
+				_typeParameters = typeParameters;
+			}
+
+			public override void DefaultVisit(ISymbol node)
+			{
+				throw new NotImplementedException();
+			}
+
+			public override void VisitDynamicType(IDynamicTypeSymbol symbol)
+			{
+			}
+
+			public override void VisitArrayType(IArrayTypeSymbol symbol)
+			{
+				if (!_visited.Add(symbol))
+				{
+					return;
+				}
+
+				symbol.ElementType.Accept(this);
+			}
+
+			public override void VisitNamedType(INamedTypeSymbol symbol)
+			{
+				if (_visited.Add(symbol))
+				{
+					foreach (var child in symbol.GetAllTypeArguments())
+					{
+						child.Accept(this);
+					}
+				}
+			}
+
+			public override void VisitPointerType(IPointerTypeSymbol symbol)
+			{
+				if (!_visited.Add(symbol))
+				{
+					return;
+				}
+
+				symbol.PointedAtType.Accept(this);
+			}
+
+			public override void VisitTypeParameter(ITypeParameterSymbol symbol)
+			{
+				if (_visited.Add(symbol))
+				{
+					if (symbol.TypeParameterKind == TypeParameterKind.Method || !_onlyMethodTypeParameters)
+					{
+						if (!_typeParameters.Contains(symbol))
+						{
+							_typeParameters.Add(symbol);
+						}
+					}
+
+					foreach (var constraint in symbol.ConstraintTypes)
+					{
+						constraint.Accept(this);
+					}
+				}
+			}
+		}
+
+		readonly static MethodInfo substituteTypesMethod;
+		public static ITypeSymbol SubstituteTypes<TType1, TType2>(
+			this ITypeSymbol type,
+			IDictionary<TType1, TType2> mapping,
+			Compilation compilation)
+			where TType1 : ITypeSymbol
+			where TType2 : ITypeSymbol
+		{
+			return (ITypeSymbol)substituteTypesMethod.MakeGenericMethod (typeof(TType1), typeof(TType2)).Invoke (null, new object[] { type, mapping, compilation });
+		}
+
+		readonly static MethodInfo substituteTypesMethod2;
+		public static ITypeSymbol SubstituteTypes<TType1, TType2>(
+			this ITypeSymbol type,
+			IDictionary<TType1, TType2> mapping,
+			TypeGenerator typeGenerator)
+			where TType1 : ITypeSymbol
+			where TType2 : ITypeSymbol
+		{
+			return (ITypeSymbol)substituteTypesMethod2.MakeGenericMethod (typeof(TType1), typeof(TType2)).Invoke (null, new object[] { type, mapping, typeGenerator.Instance });
+		}
+
+
 		public static bool IsUnexpressableTypeParameterConstraint(this ITypeSymbol typeSymbol)
 		{
 			if (typeSymbol.IsSealed || typeSymbol.IsValueType)
@@ -596,11 +688,62 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return false;
 		}
 
-//		public static Accessibility DetermineMinimalAccessibility(this ITypeSymbol typeSymbol)
-//		{
-//			return typeSymbol.Accept(MinimalAccessibilityVisitor.Instance);
-//		}
+		public static Accessibility DetermineMinimalAccessibility(this ITypeSymbol typeSymbol)
+		{
+			return typeSymbol.Accept(MinimalAccessibilityVisitor.Instance);
+		}
+		private class MinimalAccessibilityVisitor : SymbolVisitor<Accessibility>
+		{
+			public static readonly SymbolVisitor<Accessibility> Instance = new MinimalAccessibilityVisitor();
 
+			public override Accessibility DefaultVisit(ISymbol node)
+			{
+				throw new NotImplementedException();
+			}
+
+			public override Accessibility VisitAlias(IAliasSymbol symbol)
+			{
+				return symbol.Target.Accept(this);
+			}
+
+			public override Accessibility VisitArrayType(IArrayTypeSymbol symbol)
+			{
+				return symbol.ElementType.Accept(this);
+			}
+
+			public override Accessibility VisitDynamicType(IDynamicTypeSymbol symbol)
+			{
+				return Accessibility.Public;
+			}
+
+			public override Accessibility VisitNamedType(INamedTypeSymbol symbol)
+			{
+				var accessibility = symbol.DeclaredAccessibility;
+
+				foreach (var arg in symbol.TypeArguments)
+				{
+					accessibility = CommonAccessibilityUtilities.Minimum(accessibility, arg.Accept(this));
+				}
+
+				if (symbol.ContainingType != null)
+				{
+					accessibility = CommonAccessibilityUtilities.Minimum(accessibility, symbol.ContainingType.Accept(this));
+				}
+
+				return accessibility;
+			}
+
+			public override Accessibility VisitPointerType(IPointerTypeSymbol symbol)
+			{
+				return symbol.PointedAtType.Accept(this);
+			}
+
+			public override Accessibility VisitTypeParameter(ITypeParameterSymbol symbol)
+			{
+				// TODO(cyrusn): Do we have to consider the constraints?
+				return Accessibility.Public;
+			}
+		}
 		public static bool ContainsAnonymousType(this ITypeSymbol symbol)
 		{
 			return symbol.TypeSwitch(
@@ -709,178 +852,178 @@ namespace ICSharpCode.NRefactory6.CSharp
 					.Any(m => m.Parameters.Any());
 		}
 
-//		public static INamedTypeSymbol GetDelegateType(this ITypeSymbol typeSymbol, Compilation compilation)
-//		{
-//			if (typeSymbol != null)
-//			{
-//				var expressionOfT = compilation.ExpressionOfTType();
-//				if (typeSymbol.OriginalDefinition.Equals(expressionOfT))
-//				{
-//					var typeArgument = ((INamedTypeSymbol)typeSymbol).TypeArguments[0];
-//					return typeArgument as INamedTypeSymbol;
-//				}
-//
-//				if (typeSymbol.IsDelegateType())
-//				{
-//					return typeSymbol as INamedTypeSymbol;
-//				}
-//			}
-//
-//			return null;
-//		}
-//
-//		public static IEnumerable<T> GetAccessibleMembersInBaseTypes<T>(this ITypeSymbol containingType, ISymbol within) where T : class, ISymbol
-//		{
-//			if (containingType == null)
-//			{
-//				return SpecializedCollections.EmptyEnumerable<T>();
-//			}
-//
-//			var types = containingType.GetBaseTypes();
-//			return types.SelectMany(x => x.GetMembers().OfType<T>().Where(m => m.IsAccessibleWithin(within)));
-//		}
-//
-//		public static IEnumerable<T> GetAccessibleMembersInThisAndBaseTypes<T>(this ITypeSymbol containingType, ISymbol within) where T : class, ISymbol
-//		{
-//			if (containingType == null)
-//			{
-//				return SpecializedCollections.EmptyEnumerable<T>();
-//			}
-//
-//			var types = containingType.GetBaseTypesAndThis();
-//			return types.SelectMany(x => x.GetMembers().OfType<T>().Where(m => m.IsAccessibleWithin(within)));
-//		}
+		public static INamedTypeSymbol GetDelegateType(this ITypeSymbol typeSymbol, Compilation compilation)
+		{
+			if (typeSymbol != null)
+			{
+				var expressionOfT = compilation.ExpressionOfTType();
+				if (typeSymbol.OriginalDefinition.Equals(expressionOfT))
+				{
+					var typeArgument = ((INamedTypeSymbol)typeSymbol).TypeArguments[0];
+					return typeArgument as INamedTypeSymbol;
+				}
 
-//		public static bool? AreMoreSpecificThan(this IList<ITypeSymbol> t1, IList<ITypeSymbol> t2)
-//		{
-//			if (t1.Count != t2.Count)
-//			{
-//				return null;
-//			}
-//
-//			// For t1 to be more specific than t2, it has to be not less specific in every member,
-//			// and more specific in at least one.
-//
-//			bool? result = null;
-//			for (int i = 0; i < t1.Count; ++i)
-//			{
-//				var r = t1[i].IsMoreSpecificThan(t2[i]);
-//				if (r == null)
-//				{
-//					// We learned nothing. Do nothing.
-//				}
-//				else if (result == null)
-//				{
-//					// We have found the first more specific type. See if
-//					// all the rest on this side are not less specific.
-//					result = r;
-//				}
-//				else if (result != r)
-//				{
-//					// We have more specific types on both left and right, so we 
-//					// cannot succeed in picking a better type list. Bail out now.
-//					return null;
-//				}
-//			}
-//
-//			return result;
-//		}
+				if (typeSymbol.IsDelegateType())
+				{
+					return typeSymbol as INamedTypeSymbol;
+				}
+			}
 
-//		private static bool? IsMoreSpecificThan(this ITypeSymbol t1, ITypeSymbol t2)
-//		{
-//			// SPEC: A type parameter is less specific than a non-type parameter. 
-//
-//			var isTypeParameter1 = t1 is ITypeParameterSymbol;
-//			var isTypeParameter2 = t2 is ITypeParameterSymbol;
-//
-//			if (isTypeParameter1 && !isTypeParameter2)
-//			{
-//				return false;
-//			}
-//
-//			if (!isTypeParameter1 && isTypeParameter2)
-//			{
-//				return true;
-//			}
-//
-//			if (isTypeParameter1)
-//			{
-//				Debug.Assert(isTypeParameter2);
-//				return null;
-//			}
-//
-//			if (t1.TypeKind != t2.TypeKind)
-//			{
-//				return null;
-//			}
-//
-//			// There is an identity conversion between the types and they are both substitutions on type parameters.
-//			// They had better be the same kind.
-//
-//			// UNDONE: Strip off the dynamics.
-//
-//			// SPEC: An array type is more specific than another
-//			// SPEC: array type (with the same number of dimensions) 
-//			// SPEC: if the element type of the first is
-//			// SPEC: more specific than the element type of the second.
-//
-//			if (t1 is IArrayTypeSymbol)
-//			{
-//				var arr1 = (IArrayTypeSymbol)t1;
-//				var arr2 = (IArrayTypeSymbol)t2;
-//
-//				// We should not have gotten here unless there were identity conversions
-//				// between the two types.
-//
-//				return arr1.ElementType.IsMoreSpecificThan(arr2.ElementType);
-//			}
-//
-//			// SPEC EXTENSION: We apply the same rule to pointer types. 
-//
-//			if (t1 is IPointerTypeSymbol)
-//			{
-//				var p1 = (IPointerTypeSymbol)t1;
-//				var p2 = (IPointerTypeSymbol)t2;
-//				return p1.PointedAtType.IsMoreSpecificThan(p2.PointedAtType);
-//			}
-//
-//			// SPEC: A constructed type is more specific than another
-//			// SPEC: constructed type (with the same number of type arguments) if at least one type
-//			// SPEC: argument is more specific and no type argument is less specific than the
-//			// SPEC: corresponding type argument in the other. 
-//
-//			var n1 = t1 as INamedTypeSymbol;
-//			var n2 = t2 as INamedTypeSymbol;
-//
-//			if (n1 == null)
-//			{
-//				return null;
-//			}
-//
-//			// We should not have gotten here unless there were identity conversions between the
-//			// two types.
-//
-//			var allTypeArgs1 = n1.GetAllTypeArguments().ToList();
-//			var allTypeArgs2 = n2.GetAllTypeArguments().ToList();
-//
-//			return allTypeArgs1.AreMoreSpecificThan(allTypeArgs2);
-//		}
-//
-//		public static bool IsOrDerivesFromExceptionType(this ITypeSymbol type, Compilation compilation)
-//		{
-//			if (type != null)
-//			{
-//				foreach (var baseType in type.GetBaseTypesAndThis())
-//				{
-//					if (baseType.Equals(compilation.ExceptionType()))
-//					{
-//						return true;
-//					}
-//				}
-//			}
-//
-//			return false;
-//		}
+			return null;
+		}
+
+		public static IEnumerable<T> GetAccessibleMembersInBaseTypes<T>(this ITypeSymbol containingType, ISymbol within) where T : class, ISymbol
+		{
+			if (containingType == null)
+			{
+				return SpecializedCollections.EmptyEnumerable<T>();
+			}
+
+			var types = containingType.GetBaseTypes();
+			return types.SelectMany(x => x.GetMembers().OfType<T>().Where(m => m.IsAccessibleWithin(within)));
+		}
+
+		public static IEnumerable<T> GetAccessibleMembersInThisAndBaseTypes<T>(this ITypeSymbol containingType, ISymbol within) where T : class, ISymbol
+		{
+			if (containingType == null)
+			{
+				return SpecializedCollections.EmptyEnumerable<T>();
+			}
+
+			var types = containingType.GetBaseTypesAndThis();
+			return types.SelectMany(x => x.GetMembers().OfType<T>().Where(m => m.IsAccessibleWithin(within)));
+		}
+
+		public static bool? AreMoreSpecificThan(this IList<ITypeSymbol> t1, IList<ITypeSymbol> t2)
+		{
+			if (t1.Count != t2.Count)
+			{
+				return null;
+			}
+
+			// For t1 to be more specific than t2, it has to be not less specific in every member,
+			// and more specific in at least one.
+
+			bool? result = null;
+			for (int i = 0; i < t1.Count; ++i)
+			{
+				var r = t1[i].IsMoreSpecificThan(t2[i]);
+				if (r == null)
+				{
+					// We learned nothing. Do nothing.
+				}
+				else if (result == null)
+				{
+					// We have found the first more specific type. See if
+					// all the rest on this side are not less specific.
+					result = r;
+				}
+				else if (result != r)
+				{
+					// We have more specific types on both left and right, so we 
+					// cannot succeed in picking a better type list. Bail out now.
+					return null;
+				}
+			}
+
+			return result;
+		}
+
+		private static bool? IsMoreSpecificThan(this ITypeSymbol t1, ITypeSymbol t2)
+		{
+			// SPEC: A type parameter is less specific than a non-type parameter. 
+
+			var isTypeParameter1 = t1 is ITypeParameterSymbol;
+			var isTypeParameter2 = t2 is ITypeParameterSymbol;
+
+			if (isTypeParameter1 && !isTypeParameter2)
+			{
+				return false;
+			}
+
+			if (!isTypeParameter1 && isTypeParameter2)
+			{
+				return true;
+			}
+
+			if (isTypeParameter1)
+			{
+				Debug.Assert(isTypeParameter2);
+				return null;
+			}
+
+			if (t1.TypeKind != t2.TypeKind)
+			{
+				return null;
+			}
+
+			// There is an identity conversion between the types and they are both substitutions on type parameters.
+			// They had better be the same kind.
+
+			// UNDONE: Strip off the dynamics.
+
+			// SPEC: An array type is more specific than another
+			// SPEC: array type (with the same number of dimensions) 
+			// SPEC: if the element type of the first is
+			// SPEC: more specific than the element type of the second.
+
+			if (t1 is IArrayTypeSymbol)
+			{
+				var arr1 = (IArrayTypeSymbol)t1;
+				var arr2 = (IArrayTypeSymbol)t2;
+
+				// We should not have gotten here unless there were identity conversions
+				// between the two types.
+
+				return arr1.ElementType.IsMoreSpecificThan(arr2.ElementType);
+			}
+
+			// SPEC EXTENSION: We apply the same rule to pointer types. 
+
+			if (t1 is IPointerTypeSymbol)
+			{
+				var p1 = (IPointerTypeSymbol)t1;
+				var p2 = (IPointerTypeSymbol)t2;
+				return p1.PointedAtType.IsMoreSpecificThan(p2.PointedAtType);
+			}
+
+			// SPEC: A constructed type is more specific than another
+			// SPEC: constructed type (with the same number of type arguments) if at least one type
+			// SPEC: argument is more specific and no type argument is less specific than the
+			// SPEC: corresponding type argument in the other. 
+
+			var n1 = t1 as INamedTypeSymbol;
+			var n2 = t2 as INamedTypeSymbol;
+
+			if (n1 == null)
+			{
+				return null;
+			}
+
+			// We should not have gotten here unless there were identity conversions between the
+			// two types.
+
+			var allTypeArgs1 = n1.GetAllTypeArguments().ToList();
+			var allTypeArgs2 = n2.GetAllTypeArguments().ToList();
+
+			return allTypeArgs1.AreMoreSpecificThan(allTypeArgs2);
+		}
+
+		public static bool IsOrDerivesFromExceptionType(this ITypeSymbol type, Compilation compilation)
+		{
+			if (type != null)
+			{
+				foreach (var baseType in type.GetBaseTypesAndThis())
+				{
+					if (baseType.Equals(compilation.ExceptionType()))
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
 
 		public static bool IsEnumType(this ITypeSymbol type)
 		{
@@ -919,6 +1062,16 @@ namespace ICSharpCode.NRefactory6.CSharp
 				? ((CompilationUnitSyntax)root).Usings.Concat(namespaceUsings)
 				: namespaceUsings;
 			return allUsings.Where(u => u.Alias != null);
+		}
+
+		public static ITypeSymbol RemoveNullableIfPresent(this ITypeSymbol symbol)
+		{
+			if (symbol.IsNullable())
+			{
+				return symbol.GetTypeArguments().Single();
+			}
+
+			return symbol;
 		}
 	}
 }

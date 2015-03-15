@@ -49,7 +49,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 			createTypeParameterSymbolMethod = typeInfo.GetMethod ("CreateTypeParameterSymbol", BindingFlags.Static | BindingFlags.Public);
 			createTypeParameterMethod = typeInfo.GetMethod ("CreateTypeParameter", BindingFlags.Static | BindingFlags.Public);
 			createMethodSymbolMethod = typeInfo.GetMethod ("CreateMethodSymbol", BindingFlags.Static | BindingFlags.Public);
+			createMethodSymbolMethod2 = typeInfo.GetMethod ("CreateMethodSymbol", BindingFlags.Static | BindingFlags.NonPublic);
 			createConstructorSymbolMethod = typeInfo.GetMethod ("CreateConstructorSymbol", BindingFlags.Static | BindingFlags.Public);
+			createAccessorSymbolMethod = typeInfo.GetMethod ("CreateAccessorSymbol", BindingFlags.Static | BindingFlags.Public);
+			createPropertySymbolMethod = typeInfo.GetMethod ("CreatePropertySymbol", BindingFlags.Static | BindingFlags.Public);
+			createFieldSymbolMethod = typeInfo.GetMethod ("CreateFieldSymbol", BindingFlags.Static | BindingFlags.Public);
+			createPointerTypeSymbolMethod = typeInfo.GetMethod ("CreatePointerTypeSymbol", BindingFlags.Static | BindingFlags.Public);
+			createArrayTypeSymbolMethod = typeInfo.GetMethod ("CreateArrayTypeSymbol", BindingFlags.Static | BindingFlags.Public);
 		}
 
 
@@ -86,19 +92,57 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 		static MethodInfo createMethodSymbolMethod;
-
 		public static IMethodSymbol CreateMethodSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol returnType, IMethodSymbol explicitInterfaceSymbol, string name, IList<ITypeParameterSymbol> typeParameters, IList<IParameterSymbol> parameters, IList<SyntaxNode> statements = null, IList<SyntaxNode> handlesExpressions = null, IList<AttributeData> returnTypeAttributes = null, MethodKind methodKind = MethodKind.Ordinary)
 		{
 			return (IMethodSymbol)createMethodSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, returnType, explicitInterfaceSymbol, name, typeParameters, parameters, statements, handlesExpressions, returnTypeAttributes, methodKind });
 		}
 
-		static MethodInfo createConstructorSymbolMethod;
+		static MethodInfo createMethodSymbolMethod2;
+		public static IMethodSymbol CreateMethodSymbol(INamedTypeSymbol containingType, IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol returnType, IMethodSymbol explicitInterfaceSymbol, string name, IList<ITypeParameterSymbol> typeParameters, IList<IParameterSymbol> parameters, IList<SyntaxNode> statements = null, IList<SyntaxNode> handlesExpressions = null, IList<AttributeData> returnTypeAttributes = null, MethodKind methodKind = MethodKind.Ordinary)
+		{
+			return (IMethodSymbol)createMethodSymbolMethod2.Invoke (null, new object[] { containingType, attributes, accessibility, modifiers, returnType, explicitInterfaceSymbol, name, typeParameters, parameters, statements, null, returnTypeAttributes, methodKind });
 
+		}
+
+		static MethodInfo createPointerTypeSymbolMethod;
+		public static IPointerTypeSymbol CreatePointerTypeSymbol(ITypeSymbol pointedAtType)
+		{
+			return (IPointerTypeSymbol)createPointerTypeSymbolMethod.Invoke (null, new object[] { pointedAtType });
+		}
+
+		static MethodInfo createArrayTypeSymbolMethod;
+		public static IArrayTypeSymbol CreateArrayTypeSymbol(ITypeSymbol elementType, int rank = 1)
+		{
+			return (IArrayTypeSymbol)createArrayTypeSymbolMethod.Invoke (null, new object[] { elementType, rank });
+		}
+
+		static MethodInfo createConstructorSymbolMethod;
 		public static IMethodSymbol CreateConstructorSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, string typeName, IList<IParameterSymbol> parameters, IList<SyntaxNode> statements = null, IList<SyntaxNode> baseConstructorArguments = null, IList<SyntaxNode> thisConstructorArguments = null)
 		{
 			return (IMethodSymbol)createConstructorSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, typeName, parameters, statements, baseConstructorArguments, thisConstructorArguments });	
 		}
 
+		static MethodInfo createAccessorSymbolMethod;
+		public static IMethodSymbol CreateAccessorSymbol(IList<AttributeData> attributes, Accessibility accessibility, IList<SyntaxNode> statements)
+		{
+			return (IMethodSymbol)createAccessorSymbolMethod.Invoke (null, new object[] { attributes, accessibility, statements });	
+		}
 
+		static MethodInfo createPropertySymbolMethod;
+
+		/// <summary>
+		/// Creates a property symbol that can be used to describe a property declaration.
+		/// </summary>
+		public static IPropertySymbol CreatePropertySymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol type, IPropertySymbol explicitInterfaceSymbol, string name, IList<IParameterSymbol> parameters, IMethodSymbol getMethod, IMethodSymbol setMethod, bool isIndexer = false)
+		{
+			return (IPropertySymbol)createPropertySymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, type, explicitInterfaceSymbol, name, parameters, getMethod, setMethod, isIndexer });	
+		}
+
+		static MethodInfo createFieldSymbolMethod;
+
+		public static IFieldSymbol CreateFieldSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol type, string name, bool hasConstantValue = false, object constantValue = null, SyntaxNode initializer = null)
+		{
+			return (IFieldSymbol)createFieldSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, type, name, hasConstantValue, constantValue, initializer });	
+		}
 	}
 }

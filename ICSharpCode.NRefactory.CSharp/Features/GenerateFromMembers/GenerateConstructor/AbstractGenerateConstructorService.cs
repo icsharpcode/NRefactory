@@ -205,12 +205,6 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateFromMembers.GenerateConstructor
 			}
 		}
 
-		public static class Resources 
-		{
-			public static string GenerateConstructor = "Generate constructor '{0}({1})'";
-			public static string GenerateFieldAssigningConstructor = "Generate field assigning constructor '{0}({1})'";
-			public static string GenerateDelegatingConstructor = "Generate delegating constructor '{0}({1})'";
-		}
 
 		private class State
 		{

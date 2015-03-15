@@ -453,6 +453,33 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 
+		public INamedTypeSymbol InferDelegateType(
+			SemanticModel semanticModel,
+			SyntaxNode expression,
+			CancellationToken cancellationToken)
+		{
+			var type = this.InferType(semanticModel, expression, objectAsDefault: false, cancellationToken: cancellationToken);
+			return type.GetDelegateType(semanticModel.Compilation);
+		}
+
+
+		public ITypeSymbol InferType(
+			SemanticModel semanticModel,
+			int position,
+			bool objectAsDefault,
+			CancellationToken cancellationToken)
+		{
+			var types = this.InferTypes(semanticModel, position, cancellationToken)
+				.WhereNotNull();
+
+			if (!types.Any())
+			{
+				return objectAsDefault ? semanticModel.Compilation.ObjectType : null;
+			}
+
+			return types.FirstOrDefault();
+		}
+
 	}
 
 	class CaseCorrector
