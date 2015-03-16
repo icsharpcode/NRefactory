@@ -811,79 +811,79 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 		}
 
-//		public static ITypeSymbol ConvertToType(
-//			this ISymbol symbol,
-//			Compilation compilation,
-//			bool extensionUsedAsInstance = false)
-//		{
-//			var type = symbol as ITypeSymbol;
-//			if (type != null)
-//			{
-//				return type;
-//			}
-//
-//			var method = (IMethodSymbol)symbol;
-//			if (method != null && !method.Parameters.Any(p => p.RefKind != RefKind.None))
-//			{
-//				// Convert the symbol to Func<...> or Action<...>
-//				if (method.ReturnsVoid)
-//				{
-//					var count = extensionUsedAsInstance ? method.Parameters.Length - 1 : method.Parameters.Length;
-//					var skip = extensionUsedAsInstance ? 1 : 0;
-//					count = Math.Max(0, count);
-//					if (count == 0)
-//					{
-//						// Action
-//						return compilation.ActionType();
-//					}
-//					else
-//					{
-//						// Action<TArg1, ..., TArgN>
-//						var actionName = "System.Action`" + count;
-//						var actionType = compilation.GetTypeByMetadataName(actionName);
-//
-//						if (actionType != null)
-//						{
-//							var types = method.Parameters
-//								.Skip(skip)
-//								.Select(p =>
-//									(object)p.Type == null ?
-//									compilation.GetSpecialType(SpecialType.System_Object) :
-//									p.Type)
-//								.ToArray();
-//							return actionType.Construct(types);
-//						}
-//					}
-//				}
-//				else
-//				{
-//					// Func<TArg1,...,TArgN,TReturn>
-//					//
-//					// +1 for the return type.
-//					var count = extensionUsedAsInstance ? method.Parameters.Length - 1 : method.Parameters.Length;
-//					var skip = extensionUsedAsInstance ? 1 : 0;
-//					var functionName = "System.Func`" + (count + 1);
-//					var functionType = compilation.GetTypeByMetadataName(functionName);
-//
-//					if (functionType != null)
-//					{
-//						var types = method.Parameters
-//							.Skip(skip)
-//							.Select(p => p.Type)
-//							.Concat(method.ReturnType)
-//							.Select(t =>
-//								(object)t == null ?
-//								compilation.GetSpecialType(SpecialType.System_Object) :
-//								t)
-//							.ToArray();
-//						return functionType.Construct(types);
-//					}
-//				}
-//			}
-//
-//			// Otherwise, just default to object.
-//			return compilation.ObjectType;
-//		}
+		public static ITypeSymbol ConvertToType(
+			this ISymbol symbol,
+			Compilation compilation,
+			bool extensionUsedAsInstance = false)
+		{
+			var type = symbol as ITypeSymbol;
+			if (type != null)
+			{
+				return type;
+			}
+
+			var method = (IMethodSymbol)symbol;
+			if (method != null && !method.Parameters.Any(p => p.RefKind != RefKind.None))
+			{
+				// Convert the symbol to Func<...> or Action<...>
+				if (method.ReturnsVoid)
+				{
+					var count = extensionUsedAsInstance ? method.Parameters.Length - 1 : method.Parameters.Length;
+					var skip = extensionUsedAsInstance ? 1 : 0;
+					count = Math.Max(0, count);
+					if (count == 0)
+					{
+						// Action
+						return compilation.ActionType();
+					}
+					else
+					{
+						// Action<TArg1, ..., TArgN>
+						var actionName = "System.Action`" + count;
+						var actionType = compilation.GetTypeByMetadataName(actionName);
+
+						if (actionType != null)
+						{
+							var types = method.Parameters
+								.Skip(skip)
+								.Select(p =>
+									(object)p.Type == null ?
+									compilation.GetSpecialType(SpecialType.System_Object) :
+									p.Type)
+								.ToArray();
+							return actionType.Construct(types);
+						}
+					}
+				}
+				else
+				{
+					// Func<TArg1,...,TArgN,TReturn>
+					//
+					// +1 for the return type.
+					var count = extensionUsedAsInstance ? method.Parameters.Length - 1 : method.Parameters.Length;
+					var skip = extensionUsedAsInstance ? 1 : 0;
+					var functionName = "System.Func`" + (count + 1);
+					var functionType = compilation.GetTypeByMetadataName(functionName);
+
+					if (functionType != null)
+					{
+						var types = method.Parameters
+							.Skip(skip)
+							.Select(p => p.Type)
+							.Concat(method.ReturnType)
+							.Select(t =>
+								(object)t == null ?
+								compilation.GetSpecialType(SpecialType.System_Object) :
+								t)
+							.ToArray();
+						return functionType.Construct(types);
+					}
+				}
+			}
+
+			// Otherwise, just default to object.
+			return compilation.ObjectType;
+		}
 
 		public static bool IsDeprecated(this ISymbol symbol)
 		{

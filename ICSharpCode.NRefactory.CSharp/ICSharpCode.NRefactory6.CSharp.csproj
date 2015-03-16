@@ -476,6 +476,13 @@
     <Compile Include="Features\CodeGeneration\CodeGenerationHelpers.cs" />
     <Compile Include="Util\TypeGenerator.cs" />
     <Compile Include="Features\CodeGeneration\CodeGenerationTypeParameterSymbol.cs" />
+    <Compile Include="Features\GenerateMember\GenerateDefaultConstructors\CSharpGenerateDefaultConstructorsService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpCommonGenerationServiceMethods.cs" />
+    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateConversionService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateMethodService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateParameterizedMemberService.cs" />
+    <Compile Include="Features\GenerateMember\GenerateVariable\CSharpGenerateVariableService.cs" />
+    <Compile Include="Util\ArgumentSyntaxExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

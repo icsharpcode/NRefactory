@@ -164,13 +164,13 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateConstructor
 		protected override ITypeSymbol GetArgumentType(
 			SemanticModel semanticModel, ArgumentSyntax argument, CancellationToken cancellationToken)
 		{
-			return semanticModel.GetTypeInfo(argument.Expression, cancellationToken).Type;
+			return semanticModel.GetType(argument.Expression, cancellationToken);
 		}
 
 		protected override ITypeSymbol GetAttributeArgumentType(
 			SemanticModel semanticModel, AttributeArgumentSyntax argument, CancellationToken cancellationToken)
 		{
-			return semanticModel.GetTypeInfo(argument.Expression, cancellationToken).Type;
+			return semanticModel.GetType(argument.Expression, cancellationToken);
 		}
 
 		protected override bool IsConversionImplicit(Compilation compilation, ITypeSymbol sourceType, ITypeSymbol targetType)

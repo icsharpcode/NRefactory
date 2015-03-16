@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateDefaultConstructors
 {
-	internal abstract partial class AbstractGenerateDefaultConstructorsService<TService>
+	public abstract partial class AbstractGenerateDefaultConstructorsService<TService>
 		where TService : AbstractGenerateDefaultConstructorsService<TService>
 	{
 		protected AbstractGenerateDefaultConstructorsService()
