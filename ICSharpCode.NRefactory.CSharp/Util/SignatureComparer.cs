@@ -26,6 +26,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			haveSameSignature3Method = typeInfo.GetMethod("HaveSameSignature", new[] { typeof(ISymbol), typeof(ISymbol), typeof(bool) });
 			haveSameSignature4Method = typeInfo.GetMethod("HaveSameSignature", new[] { typeof(IMethodSymbol), typeof(IMethodSymbol), typeof(bool), typeof(bool), typeof(bool) });
 			haveSameSignature5Method = typeInfo.GetMethod("HaveSameSignature", new[] { typeof(IList<IParameterSymbol>), typeof(IList<IParameterSymbol>), typeof(bool), typeof(bool) });
+			haveSameSignatureAndConstraintsAndReturnTypeAndAccessorsMethod = typeInfo.GetMethod ("HaveSameSignatureAndConstraintsAndReturnTypeAndAccessors", BindingFlags.Public | BindingFlags.Instance);
 		}
 
 		public static bool HaveSameSignature (IList<IParameterSymbol> parameters1, IList<IParameterSymbol> parameters2)
@@ -51,6 +52,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static bool HaveSameSignature (IList<IParameterSymbol> parameters1, IList<IParameterSymbol> parameters2, bool compareParameterName, bool isCaseSensitive)
 		{
 			return (bool)haveSameSignature5Method.Invoke(instance, new object[] { parameters1, parameters2, compareParameterName, isCaseSensitive });
+		}
+
+		readonly static MethodInfo haveSameSignatureAndConstraintsAndReturnTypeAndAccessorsMethod;
+		public static bool HaveSameSignatureAndConstraintsAndReturnTypeAndAccessors(ISymbol symbol1, ISymbol symbol2, bool caseSensitive)
+		{
+			return (bool)haveSameSignatureAndConstraintsAndReturnTypeAndAccessorsMethod.Invoke(instance, new object[] { symbol1, symbol2, caseSensitive });
 		}
 	}
 }

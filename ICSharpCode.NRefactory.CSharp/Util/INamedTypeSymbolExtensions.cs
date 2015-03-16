@@ -220,146 +220,146 @@ namespace ICSharpCode.NRefactory6.CSharp
 				(IPropertySymbol property) => property.ExplicitInterfaceImplementations.Length > 0);
 		}
 
-//		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembers(
-//			this INamedTypeSymbol classOrStructType,
-//			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
-//			CancellationToken cancellationToken)
-//		{
-//			return classOrStructType.GetAllUnimplementedMembers(
-//				interfacesOrAbstractClasses,
-//				IsImplemented,
-//				ImplementationExists,
-//				GetMembers,
-//				allowReimplementation: false,
-//				cancellationToken: cancellationToken);
-//		}
-//
-//		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembersInThis(
-//			this INamedTypeSymbol classOrStructType,
-//			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
-//			CancellationToken cancellationToken)
-//		{
-//			return classOrStructType.GetAllUnimplementedMembers(
-//				interfacesOrAbstractClasses,
-//				IsImplemented,
-//				(t, m) =>
-//				{
-//					var implementation = classOrStructType.FindImplementationForInterfaceMember(m);
-//					return implementation != null && implementation.ContainingType == classOrStructType;
-//				},
-//				GetMembers,
-//				allowReimplementation: true,
-//				cancellationToken: cancellationToken);
-//		}
-//
-//		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembersInThis(
-//			this INamedTypeSymbol classOrStructType,
-//			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
-//			Func<INamedTypeSymbol, ISymbol, ImmutableArray<ISymbol>> interfaceMemberGetter,
-//			CancellationToken cancellationToken)
-//		{
-//			return classOrStructType.GetAllUnimplementedMembers(
-//				interfacesOrAbstractClasses,
-//				IsImplemented,
-//				(t, m) =>
-//				{
-//					var implementation = classOrStructType.FindImplementationForInterfaceMember(m);
-//					return implementation != null && implementation.ContainingType == classOrStructType;
-//				},
-//				interfaceMemberGetter,
-//				allowReimplementation: true,
-//				cancellationToken: cancellationToken);
-//		}
-//
-//		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembers(
-//			this INamedTypeSymbol classOrStructType,
-//			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
-//			Func<INamedTypeSymbol, ISymbol, ImmutableArray<ISymbol>> interfaceMemberGetter,
-//			CancellationToken cancellationToken)
-//		{
-//			return classOrStructType.GetAllUnimplementedMembers(
-//				interfacesOrAbstractClasses,
-//				IsImplemented,
-//				ImplementationExists,
-//				interfaceMemberGetter,
-//				allowReimplementation: false,
-//				cancellationToken: cancellationToken);
-//		}
-//
-//		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedExplicitMembers(
-//			this INamedTypeSymbol classOrStructType,
-//			IEnumerable<INamedTypeSymbol> interfaces,
-//			CancellationToken cancellationToken)
-//		{
-//			return classOrStructType.GetAllUnimplementedMembers(
-//				interfaces,
-//				IsExplicitlyImplemented,
-//				ImplementationExists,
-//				GetMembers,
-//				allowReimplementation: false,
-//				cancellationToken: cancellationToken);
-//		}
+		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembers(
+			this INamedTypeSymbol classOrStructType,
+			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
+			CancellationToken cancellationToken)
+		{
+			return classOrStructType.GetAllUnimplementedMembers(
+				interfacesOrAbstractClasses,
+				IsImplemented,
+				ImplementationExists,
+				GetMembers,
+				allowReimplementation: false,
+				cancellationToken: cancellationToken);
+		}
 
-//		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedExplicitMembers(
-//			this INamedTypeSymbol classOrStructType,
-//			IEnumerable<INamedTypeSymbol> interfaces,
-//			Func<INamedTypeSymbol, ISymbol, ImmutableArray<ISymbol>> interfaceMemberGetter,
-//			CancellationToken cancellationToken)
-//		{
-//			return classOrStructType.GetAllUnimplementedMembers(
-//				interfaces,
-//				IsExplicitlyImplemented,
-//				ImplementationExists,
-//				interfaceMemberGetter,
-//				allowReimplementation: false,
-//				cancellationToken: cancellationToken);
-//		}
-//
-//		private static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembers(
-//			this INamedTypeSymbol classOrStructType,
-//			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
-//			Func<INamedTypeSymbol, ISymbol, Func<INamedTypeSymbol, ISymbol, bool>, CancellationToken, bool> isImplemented,
-//			Func<INamedTypeSymbol, ISymbol, bool> isValidImplementation,
-//			Func<INamedTypeSymbol, ISymbol, ImmutableArray<ISymbol>> interfaceMemberGetter,
-//			bool allowReimplementation,
-//			CancellationToken cancellationToken)
-//		{
-////			Contract.ThrowIfNull(classOrStructType);
-////			Contract.ThrowIfNull(interfacesOrAbstractClasses);
-////			Contract.ThrowIfNull(isImplemented);
-//
-//			if (classOrStructType.TypeKind != TypeKind.Class && classOrStructType.TypeKind != TypeKind.Struct)
-//			{
-//				return SpecializedCollections.EmptyList<Tuple<INamedTypeSymbol, IList<ISymbol>>>();
-//			}
-//
-//			if (!interfacesOrAbstractClasses.Any())
-//			{
-//				return SpecializedCollections.EmptyList<Tuple<INamedTypeSymbol, IList<ISymbol>>>();
-//			}
-//
-//			if (!interfacesOrAbstractClasses.All(i => i.TypeKind == TypeKind.Interface) &&
-//				!interfacesOrAbstractClasses.All(i => i.IsAbstractClass()))
-//			{
-//				return SpecializedCollections.EmptyList<Tuple<INamedTypeSymbol, IList<ISymbol>>>();
-//			}
-//
-//			var typesToImplement = GetTypesToImplement(classOrStructType, interfacesOrAbstractClasses, allowReimplementation, cancellationToken);
-//			return typesToImplement.Select(s => Tuple.Create(s, GetUnimplementedMembers(classOrStructType, s, isImplemented, isValidImplementation, interfaceMemberGetter, cancellationToken)))
-//				.Where(t => t.Item2.Count > 0)
-//				.ToList();
-//		}
+		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembersInThis(
+			this INamedTypeSymbol classOrStructType,
+			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
+			CancellationToken cancellationToken)
+		{
+			return classOrStructType.GetAllUnimplementedMembers(
+				interfacesOrAbstractClasses,
+				IsImplemented,
+				(t, m) =>
+				{
+					var implementation = classOrStructType.FindImplementationForInterfaceMember(m);
+					return implementation != null && implementation.ContainingType == classOrStructType;
+				},
+				GetMembers,
+				allowReimplementation: true,
+				cancellationToken: cancellationToken);
+		}
 
-//		private static IList<INamedTypeSymbol> GetTypesToImplement(
-//			INamedTypeSymbol classOrStructType,
-//			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
-//			bool allowReimplementation,
-//			CancellationToken cancellationToken)
-//		{
-//			return interfacesOrAbstractClasses.First().TypeKind == TypeKind.Interface
-//				? GetInterfacesToImplement(classOrStructType, interfacesOrAbstractClasses, allowReimplementation, cancellationToken)
-//					: GetAbstractClassesToImplement(classOrStructType, interfacesOrAbstractClasses, cancellationToken);
-//		}
+		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembersInThis(
+			this INamedTypeSymbol classOrStructType,
+			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
+			Func<INamedTypeSymbol, ISymbol, ImmutableArray<ISymbol>> interfaceMemberGetter,
+			CancellationToken cancellationToken)
+		{
+			return classOrStructType.GetAllUnimplementedMembers(
+				interfacesOrAbstractClasses,
+				IsImplemented,
+				(t, m) =>
+				{
+					var implementation = classOrStructType.FindImplementationForInterfaceMember(m);
+					return implementation != null && implementation.ContainingType == classOrStructType;
+				},
+				interfaceMemberGetter,
+				allowReimplementation: true,
+				cancellationToken: cancellationToken);
+		}
+
+		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembers(
+			this INamedTypeSymbol classOrStructType,
+			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
+			Func<INamedTypeSymbol, ISymbol, ImmutableArray<ISymbol>> interfaceMemberGetter,
+			CancellationToken cancellationToken)
+		{
+			return classOrStructType.GetAllUnimplementedMembers(
+				interfacesOrAbstractClasses,
+				IsImplemented,
+				ImplementationExists,
+				interfaceMemberGetter,
+				allowReimplementation: false,
+				cancellationToken: cancellationToken);
+		}
+
+		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedExplicitMembers(
+			this INamedTypeSymbol classOrStructType,
+			IEnumerable<INamedTypeSymbol> interfaces,
+			CancellationToken cancellationToken)
+		{
+			return classOrStructType.GetAllUnimplementedMembers(
+				interfaces,
+				IsExplicitlyImplemented,
+				ImplementationExists,
+				GetMembers,
+				allowReimplementation: false,
+				cancellationToken: cancellationToken);
+		}
+
+		public static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedExplicitMembers(
+			this INamedTypeSymbol classOrStructType,
+			IEnumerable<INamedTypeSymbol> interfaces,
+			Func<INamedTypeSymbol, ISymbol, ImmutableArray<ISymbol>> interfaceMemberGetter,
+			CancellationToken cancellationToken)
+		{
+			return classOrStructType.GetAllUnimplementedMembers(
+				interfaces,
+				IsExplicitlyImplemented,
+				ImplementationExists,
+				interfaceMemberGetter,
+				allowReimplementation: false,
+				cancellationToken: cancellationToken);
+		}
+
+		private static IList<Tuple<INamedTypeSymbol, IList<ISymbol>>> GetAllUnimplementedMembers(
+			this INamedTypeSymbol classOrStructType,
+			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
+			Func<INamedTypeSymbol, ISymbol, Func<INamedTypeSymbol, ISymbol, bool>, CancellationToken, bool> isImplemented,
+			Func<INamedTypeSymbol, ISymbol, bool> isValidImplementation,
+			Func<INamedTypeSymbol, ISymbol, ImmutableArray<ISymbol>> interfaceMemberGetter,
+			bool allowReimplementation,
+			CancellationToken cancellationToken)
+		{
+//			Contract.ThrowIfNull(classOrStructType);
+//			Contract.ThrowIfNull(interfacesOrAbstractClasses);
+//			Contract.ThrowIfNull(isImplemented);
+
+			if (classOrStructType.TypeKind != TypeKind.Class && classOrStructType.TypeKind != TypeKind.Struct)
+			{
+				return SpecializedCollections.EmptyList<Tuple<INamedTypeSymbol, IList<ISymbol>>>();
+			}
+
+			if (!interfacesOrAbstractClasses.Any())
+			{
+				return SpecializedCollections.EmptyList<Tuple<INamedTypeSymbol, IList<ISymbol>>>();
+			}
+
+			if (!interfacesOrAbstractClasses.All(i => i.TypeKind == TypeKind.Interface) &&
+				!interfacesOrAbstractClasses.All(i => i.IsAbstractClass()))
+			{
+				return SpecializedCollections.EmptyList<Tuple<INamedTypeSymbol, IList<ISymbol>>>();
+			}
+
+			var typesToImplement = GetTypesToImplement(classOrStructType, interfacesOrAbstractClasses, allowReimplementation, cancellationToken);
+			return typesToImplement.Select(s => Tuple.Create(s, GetUnimplementedMembers(classOrStructType, s, isImplemented, isValidImplementation, interfaceMemberGetter, cancellationToken)))
+				.Where(t => t.Item2.Count > 0)
+				.ToList();
+		}
+
+		private static IList<INamedTypeSymbol> GetTypesToImplement(
+			INamedTypeSymbol classOrStructType,
+			IEnumerable<INamedTypeSymbol> interfacesOrAbstractClasses,
+			bool allowReimplementation,
+			CancellationToken cancellationToken)
+		{
+			return interfacesOrAbstractClasses.First().TypeKind == TypeKind.Interface
+				? GetInterfacesToImplement(classOrStructType, interfacesOrAbstractClasses, allowReimplementation, cancellationToken)
+					: GetAbstractClassesToImplement(classOrStructType, interfacesOrAbstractClasses, cancellationToken);
+		}
 
 		private static IList<INamedTypeSymbol> GetAbstractClassesToImplement(
 			INamedTypeSymbol classOrStructType,
@@ -371,29 +371,30 @@ namespace ICSharpCode.NRefactory6.CSharp
 				.ToList();
 		}
 
-//		private static IList<INamedTypeSymbol> GetInterfacesToImplement(
-//			INamedTypeSymbol classOrStructType,
-//			IEnumerable<INamedTypeSymbol> interfaces,
-//			bool allowReimplementation,
-//			CancellationToken cancellationToken)
-//		{
-//			// We need to not only implement the specified interface, but also everything it
-//			// inherits from.
-//			cancellationToken.ThrowIfCancellationRequested();
-//			var interfacesToImplement = new List<INamedTypeSymbol>(
-//				interfaces.SelectMany(i => i.GetAllInterfacesIncludingThis()).Distinct());
-//
-//			// However, there's no need to reimplement any interfaces that our base types already
-//			// implement.  By definition they must contain all the necessary methods.
-//			var baseType = classOrStructType.BaseType;
-//			var alreadyImplementedInterfaces = baseType == null || allowReimplementation
-//				? SpecializedCollections.EmptyEnumerable<INamedTypeSymbol>()
-//				: baseType.AllInterfaces;
-//
-//			cancellationToken.ThrowIfCancellationRequested();
-//			interfacesToImplement.RemoveRange(alreadyImplementedInterfaces);
-//			return interfacesToImplement;
-//		}
+		private static IList<INamedTypeSymbol> GetInterfacesToImplement(
+			INamedTypeSymbol classOrStructType,
+			IEnumerable<INamedTypeSymbol> interfaces,
+			bool allowReimplementation,
+			CancellationToken cancellationToken)
+		{
+			// We need to not only implement the specified interface, but also everything it
+			// inherits from.
+			cancellationToken.ThrowIfCancellationRequested();
+			var interfacesToImplement = new List<INamedTypeSymbol>(
+				interfaces.SelectMany(i => i.GetAllInterfacesIncludingThis()).Distinct());
+
+			// However, there's no need to reimplement any interfaces that our base types already
+			// implement.  By definition they must contain all the necessary methods.
+			var baseType = classOrStructType.BaseType;
+			var alreadyImplementedInterfaces = baseType == null || allowReimplementation
+				? SpecializedCollections.EmptyEnumerable<INamedTypeSymbol>()
+				: baseType.AllInterfaces;
+
+			cancellationToken.ThrowIfCancellationRequested();
+			foreach (var i in alreadyImplementedInterfaces)
+				interfacesToImplement.Remove (i);
+			return interfacesToImplement;
+		}
 
 		private static IList<ISymbol> GetUnimplementedMembers(
 			this INamedTypeSymbol classOrStructType,

@@ -483,6 +483,8 @@
     <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateParameterizedMemberService.cs" />
     <Compile Include="Features\GenerateMember\GenerateVariable\CSharpGenerateVariableService.cs" />
     <Compile Include="Util\ArgumentSyntaxExtensions.cs" />
+    <Compile Include="Features\GenerateType\TypeKindOptions.cs" />
+    <Compile Include="Features\GenerateType\GenerateTypeOptionsResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -511,10 +513,25 @@
     <Folder Include="Features\GenerateMember\GenerateDefaultConstructors\" />
     <Folder Include="Features\GenerateMember\GenerateParameterizedMember\" />
     <Folder Include="Features\GenerateMember\GenerateVariable\" />
+    <Folder Include="Features\GenerateType\" />
+    <Folder Include="Features\ImplementInterface\" />
+    <Folder Include="Features\ImplementAbstractClass\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />
     <None Include="packages.config" />
+    <None Include="Features\GenerateType\AbstractGenerateTypeService.cs" />
+    <None Include="Features\GenerateType\GenerateTypeDialogOptions.cs" />
+    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.cs" />
+    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction.cs" />
+    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Method.cs" />
+    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Property.cs" />
+    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.DisposePatternCodeAction.cs" />
+    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.State.cs" />
+    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Conflicts.cs" />
+    <None Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.cs" />
+    <None Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.Editor.cs" />
+    <None Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.State.cs" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

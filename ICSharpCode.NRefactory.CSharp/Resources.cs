@@ -48,6 +48,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static string GenerateReadonlyField = "Generate read-only field '{1}.{0}'";
 		public static string GenerateFieldIn = "Generate field '{0}' in '{1}'";
 		public static string GenerateLocal = "Generate local '{0}'";
+
+		public static string ImplementInterface = "Implement interface";
+		public static string ImplementInterfaceAbstractly = "Implement interface abstractly";
+		public static string ImplementInterfaceExplicitly = "Implement interface explicitly";
+		public static string ImplementInterfaceExplicitlyWithDisposePattern = "Implement interface explicitly with Dispose pattern";
+		public static string ImplementInterfaceThrough = "Implement interface through &apos;{0}&apos";
+		public static string ImplementInterfaceWithDisposePattern = "Implement interface with Dispose pattern";
 	}
 
 }
