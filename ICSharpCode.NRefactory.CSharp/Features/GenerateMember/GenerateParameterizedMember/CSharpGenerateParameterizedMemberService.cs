@@ -20,7 +20,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateParameterizedMem
 	internal abstract class CSharpGenerateParameterizedMemberService<TService> : AbstractGenerateParameterizedMemberService<TService, SimpleNameSyntax, ExpressionSyntax, InvocationExpressionSyntax>
 		where TService : AbstractGenerateParameterizedMemberService<TService, SimpleNameSyntax, ExpressionSyntax, InvocationExpressionSyntax>
 	{
-		internal partial class InvocationExpressionInfo : AbstractInvocationInfo
+		internal protected partial class InvocationExpressionInfo : AbstractInvocationInfo
 		{
 			private readonly InvocationExpressionSyntax _invocationExpression;
 

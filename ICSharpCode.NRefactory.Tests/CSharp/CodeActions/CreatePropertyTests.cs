@@ -144,7 +144,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 
 		public void TestCreateProperty(string input, string output)
 		{
-			string result = RunContextAction(new CreatePropertyAction(), CreateMethodDeclarationTests.HomogenizeEol(input));
+			string result = RunContextAction(new CreatePropertyAction(), HomogenizeEol(input));
 			bool passed = result == output;
 			if (!passed) {
 				Console.WriteLine("-----------Expected:");
@@ -152,7 +152,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				Console.WriteLine("-----------Got:");
 				Console.WriteLine(result);
 			}
-			Assert.AreEqual(CreateMethodDeclarationTests.HomogenizeEol(output), result);
+			Assert.AreEqual(HomogenizeEol(output), result);
 		}
 
 		[Test()]

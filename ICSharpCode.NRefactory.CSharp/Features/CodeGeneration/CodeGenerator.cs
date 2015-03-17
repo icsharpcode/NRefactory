@@ -49,20 +49,20 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static Task<Document> AddFieldDeclarationAsync(Solution solution, INamedTypeSymbol destination, IFieldSymbol field, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addPropertyDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, field, options, cancellationToken });
+			return (Task<Document>)addPropertyDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, field, options != null ? options.Instance : null, cancellationToken });
 		}
 
 
 		readonly static MethodInfo addPropertyDeclarationAsyncMethod;
 		public static Task<Document> AddPropertyDeclarationAsync(Solution solution, INamedTypeSymbol destination, IPropertySymbol property, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addPropertyDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, property, options, cancellationToken });
+			return (Task<Document>)addPropertyDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, property, options != null ? options.Instance : null, cancellationToken });
 		}
 
 		readonly static MethodInfo addMethodDeclarationAsyncMethod;
 		public static Task<Document> AddMethodDeclarationAsync(Solution solution, INamedTypeSymbol destination, IMethodSymbol method, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addMethodDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, method, options, cancellationToken });
+			return (Task<Document>)addMethodDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, method, options != null ? options.Instance : null, cancellationToken });
 		}
 
 		public static Task<Document> AddMemberDeclarationsAsync(Solution solution, INamedTypeSymbol destination, IEnumerable<ISymbol> members, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))

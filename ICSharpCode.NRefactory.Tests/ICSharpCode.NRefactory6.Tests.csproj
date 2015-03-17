@@ -384,12 +384,10 @@
     <Compile Include="CSharp\CodeActions\CreateClassDeclarationTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateCustomEventImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateDelegateTests.cs" />
-    <Compile Include="CSharp\CodeActions\CreateEnumValueTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateEventInvocatorTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateFieldTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateIndexerTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateLocalVariableTests.cs" />
-    <Compile Include="CSharp\CodeActions\CreateMethodDeclarationTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateOverloadWithoutParameterTests.cs" />
     <Compile Include="CSharp\CodeActions\CreatePropertyTests.cs" />
     <Compile Include="CSharp\CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticActionTests.cs" />

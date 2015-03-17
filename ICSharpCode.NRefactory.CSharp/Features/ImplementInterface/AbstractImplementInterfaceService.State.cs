@@ -11,7 +11,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Features.ImplementInterface
 {
 	public abstract partial class AbstractImplementInterfaceService
     {
-        internal class State
+		internal protected class State
         {
             public SyntaxNode Location { get; }
             public SyntaxNode ClassOrStructDecl { get; }

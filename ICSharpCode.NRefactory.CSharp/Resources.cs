@@ -55,6 +55,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static string ImplementInterfaceExplicitlyWithDisposePattern = "Implement interface explicitly with Dispose pattern";
 		public static string ImplementInterfaceThrough = "Implement interface through &apos;{0}&apos";
 		public static string ImplementInterfaceWithDisposePattern = "Implement interface with Dispose pattern";
+
+		public static string ImplicitConversionDisplayText = "Generate implicit conversion operator in '{0}'";
+		public static string ExplicitConversionDisplayText = "Generate explicit conversion operator in '{0}'";
 	}
 
 }

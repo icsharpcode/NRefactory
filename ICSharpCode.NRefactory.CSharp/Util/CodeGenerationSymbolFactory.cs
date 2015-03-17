@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			createTypeParameterSymbolMethod = typeInfo.GetMethod ("CreateTypeParameterSymbol", BindingFlags.Static | BindingFlags.Public);
 			createTypeParameterMethod = typeInfo.GetMethod ("CreateTypeParameter", BindingFlags.Static | BindingFlags.Public);
 			createMethodSymbolMethod = typeInfo.GetMethod ("CreateMethodSymbol", BindingFlags.Static | BindingFlags.Public);
-			createMethodSymbolMethod2 = typeInfo.GetMethod ("CreateMethodSymbol", BindingFlags.Static | BindingFlags.NonPublic);
+			createMethodSymbolMethod2 = typeInfo.GetMethod ("CreateMethodSymbol", BindingFlags.Static | BindingFlags.NonPublic, null, new [] { typeof(INamedTypeSymbol), typeof(IList<AttributeData>), typeof(Accessibility), typeof(DeclarationModifiers), typeof(ITypeSymbol), typeof(IMethodSymbol) , typeof(string), typeof(IList<ITypeParameterSymbol>), typeof(IList<IParameterSymbol>), typeof(IList<SyntaxNode>), typeof(IList<SyntaxNode>), typeof(IList<AttributeData>), typeof(MethodKind) }, null);
 			createConstructorSymbolMethod = typeInfo.GetMethod ("CreateConstructorSymbol", BindingFlags.Static | BindingFlags.Public);
 			createAccessorSymbolMethod = typeInfo.GetMethod ("CreateAccessorSymbol", BindingFlags.Static | BindingFlags.Public);
 			createPropertySymbolMethod = typeInfo.GetMethod ("CreatePropertySymbol", BindingFlags.Static | BindingFlags.Public);
@@ -101,7 +101,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static IMethodSymbol CreateMethodSymbol(INamedTypeSymbol containingType, IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol returnType, IMethodSymbol explicitInterfaceSymbol, string name, IList<ITypeParameterSymbol> typeParameters, IList<IParameterSymbol> parameters, IList<SyntaxNode> statements = null, IList<SyntaxNode> handlesExpressions = null, IList<AttributeData> returnTypeAttributes = null, MethodKind methodKind = MethodKind.Ordinary)
 		{
 			return (IMethodSymbol)createMethodSymbolMethod2.Invoke (null, new object[] { containingType, attributes, accessibility, modifiers, returnType, explicitInterfaceSymbol, name, typeParameters, parameters, statements, null, returnTypeAttributes, methodKind });
-
 		}
 
 		static MethodInfo createPointerTypeSymbolMethod;

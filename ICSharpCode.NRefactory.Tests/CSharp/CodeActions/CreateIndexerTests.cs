@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	{
 		public void TestCreateIndexer (string input, string output)
 		{
-			string result = RunContextAction (new CreateIndexerAction (), CreateMethodDeclarationTests.HomogenizeEol (input));
+			string result = RunContextAction (new CreateIndexerAction (), HomogenizeEol (input));
 			bool passed = result == output;
 			if (!passed) {
 				Console.WriteLine ("-----------Expected:");
@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				Console.WriteLine ("-----------Got:");
 				Console.WriteLine (result);
 			}
-			Assert.AreEqual (CreateMethodDeclarationTests.HomogenizeEol (output), result);
+			Assert.AreEqual (HomogenizeEol (output), result);
 		}	
 	
 

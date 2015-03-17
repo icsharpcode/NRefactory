@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			var typeInfo = Type.GetType("Microsoft.CodeAnalysis.CSharp.Extensions.ITypeSymbolExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			generateTypeSyntax = typeInfo.GetMethod("GenerateTypeSyntax", new[] { typeof(ITypeSymbol) });
-			containingTypesOrSelfHasUnsafeKeywordMethod = typeInfo.GetMethod("GenerateTypeSyntax", BindingFlags.Public | BindingFlags.Static);
+			containingTypesOrSelfHasUnsafeKeywordMethod = typeInfo.GetMethod("ContainingTypesOrSelfHasUnsafeKeyword", BindingFlags.Public | BindingFlags.Static);
 
 			typeInfo = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.ITypeSymbolExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
 			inheritsFromOrEqualsIgnoringConstructionMethod = typeInfo.GetMethod("InheritsFromOrEqualsIgnoringConstruction");

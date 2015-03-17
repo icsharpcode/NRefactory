@@ -2,7 +2,7 @@
 
 namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateParameterizedMember
 {
-	internal enum MethodGenerationKind
+	public enum MethodGenerationKind
 	{
 		Member,
 		ImplicitConversion,

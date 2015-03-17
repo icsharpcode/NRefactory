@@ -15,7 +15,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateParameterizedMember
 {
-	internal abstract partial class AbstractGenerateParameterizedMemberService<TService, TSimpleNameSyntax, TExpressionSyntax, TInvocationExpressionSyntax> :
+	public abstract partial class AbstractGenerateParameterizedMemberService<TService, TSimpleNameSyntax, TExpressionSyntax, TInvocationExpressionSyntax> :
 	AbstractGenerateMemberService<TSimpleNameSyntax, TExpressionSyntax>
 		where TService : AbstractGenerateParameterizedMemberService<TService, TSimpleNameSyntax, TExpressionSyntax, TInvocationExpressionSyntax>
 		where TSimpleNameSyntax : TExpressionSyntax
@@ -79,7 +79,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateParameterizedMem
 				}
 			}
 		}
-		internal abstract class AbstractInvocationInfo : SignatureInfo
+		internal protected abstract class AbstractInvocationInfo : SignatureInfo
 		{
 			protected abstract bool IsIdentifierName();
 
@@ -231,7 +231,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateParameterizedMem
 						_document.Project.Solution,
 						_state.TypeToGenerateIn,
 						property,
-						new CodeGenerationOptions(afterThisLocation: _state.IdentifierToken.GetLocation()),
+						new CodeGenerationOptions(afterThisLocation: _state.IdentifierToken.GetLocation(), generateDefaultAccessibility: false),
 						cancellationToken)
 						.ConfigureAwait(false);
 
@@ -245,7 +245,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateParameterizedMem
 						_document.Project.Solution,
 						_state.TypeToGenerateIn,
 						method,
-						new CodeGenerationOptions(afterThisLocation: _state.Location),
+						new CodeGenerationOptions(afterThisLocation: _state.Location, generateDefaultAccessibility: false),
 						cancellationToken)
 						.ConfigureAwait(false);
 
@@ -311,7 +311,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateParameterizedMem
 			}
 		}
 
-		internal abstract class SignatureInfo
+		internal protected abstract class SignatureInfo
 		{
 			protected readonly SemanticDocument Document;
 			protected readonly State State;
@@ -505,7 +505,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateParameterizedMem
 			}
 		}
 
-		internal abstract class State
+		internal protected abstract class State
 		{
 			public INamedTypeSymbol ContainingType { get; protected set; }
 			public INamedTypeSymbol TypeToGenerateIn { get; protected set; }
