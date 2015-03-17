@@ -503,6 +503,9 @@
     <Compile Include="Features\ImplementAbstractClass\CSharpImplementAbstractClassService.cs" />
     <Compile Include="Features\ImplementInterface\CSharpImplementInterfaceService.cs" />
     <Compile Include="Util\TypeDeclarationSyntaxExtensions.cs" />
+    <Compile Include="Util\CodeRefactoringContextExtensions.cs" />
+    <Compile Include="Util\ImmutableArrayExtensions.cs" />
+    <Compile Include="Util\SyntaxTriviaListExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -538,6 +541,10 @@
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />
     <None Include="packages.config" />
+    <None Include="Features\EncapsulateField\AbstractEncapsulateFieldRefactoringProvider.cs" />
+    <None Include="Features\EncapsulateField\AbstractEncapsulateFieldService.cs" />
+    <None Include="Features\EncapsulateField\EncapsulateFieldCodeAction.cs" />
+    <None Include="Features\EncapsulateField\EncapsulateFieldResult.cs" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

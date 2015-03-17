@@ -17,11 +17,40 @@ using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
+using System;
+using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static partial class ExpressionSyntaxExtensions
 	{
+		static ExpressionSyntaxExtensions ()
+		{
+			var typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.Extensions.ExpressionSyntaxExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
+			castIfPossibleMethod = typeInfo.GetMethod ("CastIfPossible", BindingFlags.Static | BindingFlags.Public);
+		}
+
+		static MethodInfo castIfPossibleMethod;
+
+		public static ExpressionSyntax CastIfPossible(
+			this ExpressionSyntax expression,
+			ITypeSymbol targetType,
+			int position,
+			SemanticModel semanticModel,
+			out bool wasCastAdded)
+		{
+			var arguments = new object[] {
+				expression,
+				targetType,
+				position,
+				semanticModel,
+				false
+			};
+			var result = (ExpressionSyntax)castIfPossibleMethod.Invoke (null, arguments);
+			wasCastAdded = (bool)arguments[4];
+			return result;
+		}
+
 		public static ExpressionSyntax WalkUpParentheses(this ExpressionSyntax expression)
 		{
 			while (expression.IsParentKind(SyntaxKind.ParenthesizedExpression))
@@ -78,60 +107,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 					.WithAdditionalAnnotations(Simplifier.Annotation);
 		}
 
-//		/// <summary>
-//		/// Adds to <paramref name="targetType"/> if it does not contain an anonymous
-//		/// type and binds to the same type at the given <paramref name="position"/>.
-//		/// </summary>
-//		public static ExpressionSyntax CastIfPossible(
-//			this ExpressionSyntax expression,
-//			ITypeSymbol targetType,
-//			int position,
-//			SemanticModel semanticModel,
-//			out bool wasCastAdded)
-//		{
-//			wasCastAdded = false;
-//
-//			if (targetType.ContainsAnonymousType())
-//			{
-//				return expression;
-//			}
-//
-//			if (targetType.Kind == SymbolKind.DynamicType)
-//			{
-//				targetType = semanticModel.Compilation.GetSpecialType(SpecialType.System_Object);
-//			}
-//
-//			var typeSyntax = targetType.GenerateTypeSyntax();
-//			var type = semanticModel.GetSpeculativeTypeInfo(
-//				position,
-//				typeSyntax,
-//				SpeculativeBindingOption.BindAsTypeOrNamespace).Type;
-//
-//			if (!targetType.Equals(type))
-//			{
-//				return expression;
-//			}
-//
-//			var castExpression = expression.Cast(targetType);
-//
-//			// Ensure that inserting the cast doesn't change the semantics.
-//			var specAnalyzer = new SpeculationAnalyzer(expression, castExpression, semanticModel, CancellationToken.None);
-//			var speculativeSemanticModel = specAnalyzer.SpeculativeSemanticModel;
-//			if (speculativeSemanticModel == null)
-//			{
-//				return expression;
-//			}
-//
-//			var speculatedCastExpression = (CastExpressionSyntax)specAnalyzer.ReplacedExpression;
-//			if (!speculatedCastExpression.IsUnnecessaryCast(speculativeSemanticModel, CancellationToken.None))
-//			{
-//				return expression;
-//			}
-//
-//			wasCastAdded = true;
-//			return castExpression;
-//		}
-//
+
 		public static bool IsQualifiedCrefName(this ExpressionSyntax expression)
 		{
 			return expression.IsParentKind(SyntaxKind.NameMemberCref) && expression.Parent.IsParentKind(SyntaxKind.QualifiedCref);
