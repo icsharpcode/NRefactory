@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class SyntaxTriviaListExtensions
+	internal static class SyntaxTriviaListExtensions
 	{
 		public static bool Any(this SyntaxTriviaList triviaList, params SyntaxKind[] kinds)
 		{
