@@ -20,7 +20,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			createFieldDelegatingConstructorMethod = typeInfo.GetMethod ("CreateFieldDelegatingConstructor", BindingFlags.Static | BindingFlags.Public);
 			createFieldsForParametersMethod = typeInfo.GetMethod ("CreateFieldsForParameters", BindingFlags.Static | BindingFlags.Public);
 			createAssignmentStatementMethod = typeInfo.GetMethod ("CreateAssignmentStatements", BindingFlags.Static | BindingFlags.Public);
-			createThrowNotImplementedStatementBlockMethod = typeInfo.GetMethod ("CreateThrowNotImplementedStatementBlock", BindingFlags.Static | BindingFlags.Public);
+			createThrowNotImplementStatementMethod = typeInfo.GetMethod ("CreateThrowNotImplementStatement", new [] { typeof (SyntaxGenerator), typeof(Compilation) });
 
 		}
 
@@ -32,12 +32,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 
-		static MethodInfo createThrowNotImplementedStatementBlockMethod;
+		static MethodInfo createThrowNotImplementStatementMethod;
 		public static SyntaxNode CreateThrowNotImplementStatement(
 			this SyntaxGenerator codeDefinitionFactory,
 			Compilation compilation)
 		{
-			return (SyntaxNode)createThrowNotImplementedStatementBlockMethod.Invoke (null, new object[] { codeDefinitionFactory, compilation });
+			return (SyntaxNode)createThrowNotImplementStatementMethod.Invoke (null, new object[] { codeDefinitionFactory, compilation });
 		}
 
 
