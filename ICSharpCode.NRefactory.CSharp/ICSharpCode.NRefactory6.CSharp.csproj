@@ -506,6 +506,7 @@
     <Compile Include="Util\CodeRefactoringContextExtensions.cs" />
     <Compile Include="Util\ImmutableArrayExtensions.cs" />
     <Compile Include="Util\SyntaxTriviaListExtensions.cs" />
+    <Compile Include="Util\CodeFixContextExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
