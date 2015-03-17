@@ -487,16 +487,16 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return type.GetMembers();
 		}
 
-//		public static INamespaceOrTypeSymbol GenerateRootNamespaceOrType(this INamedTypeSymbol namedType, string[] containers)
-//		{
-//			INamespaceOrTypeSymbol currentSymbol = namedType;
-//			for (int i = containers.Length - 1; i >= 0; i--)
-//			{
-//				currentSymbol = CodeGenerationSymbolFactory.CreateNamespaceSymbol(containers[i], members: new[] { currentSymbol });
-//			}
-//
-//			return currentSymbol;
-//		}
+		public static INamespaceOrTypeSymbol GenerateRootNamespaceOrType(this INamedTypeSymbol namedType, string[] containers)
+		{
+			INamespaceOrTypeSymbol currentSymbol = namedType;
+			for (int i = containers.Length - 1; i >= 0; i--)
+			{
+				currentSymbol = CodeGenerationSymbolFactory.CreateNamespaceSymbol(containers[i], members: new[] { currentSymbol });
+			}
+
+			return currentSymbol;
+		}
 	
 		public static bool LastEnumValueHasInitializer(this INamedTypeSymbol namedTypeSymbol)
 		{

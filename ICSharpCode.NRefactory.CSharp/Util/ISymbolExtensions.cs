@@ -27,6 +27,7 @@ using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -480,6 +481,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 				.WithIsOverride (symbol.IsOverride)
 				.WithIsSealed (symbol.IsSealed);
 		}
+
+		public static IEnumerable<SyntaxReference> GetDeclarations(this ISymbol symbol)
+		{
+			return symbol != null
+				? symbol.DeclaringSyntaxReferences.AsEnumerable()
+					: SpecializedCollections.EmptyEnumerable<SyntaxReference>();
+		}
+
 	}
 }
 

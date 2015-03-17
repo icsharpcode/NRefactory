@@ -46,34 +46,34 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			return token.IsKind(SyntaxKind.IdentifierToken);
 		}
-//
-//		public bool IsGlobalNamespaceKeyword(SyntaxToken token)
-//		{
-//			return token.IsKind(SyntaxKind.GlobalKeyword);
-//		}
-//
-//		public bool IsVerbatimIdentifier(SyntaxToken token)
-//		{
-//			return token.IsVerbatimIdentifier();
-//		}
-//
-//		public bool IsOperator(SyntaxToken token)
-//		{
-//			var kind = token.Kind();
-//
-//			return
-//				(SyntaxFacts.IsAnyUnaryExpression(kind) &&
-//					(token.Parent is PrefixUnaryExpressionSyntax || token.Parent is PostfixUnaryExpressionSyntax)) ||
-//				(SyntaxFacts.IsBinaryExpression(kind) && token.Parent is BinaryExpressionSyntax) ||
-//				(SyntaxFacts.IsAssignmentExpressionOperatorToken(kind) && token.Parent is AssignmentExpressionSyntax);
-//		}
-//
-//		public bool IsKeyword(SyntaxToken token)
-//		{
-//			var kind = (SyntaxKind)token.RawKind;
-//			return
-//				SyntaxFacts.IsKeywordKind(kind); // both contextual and reserved keywords
-//		}
+
+		public static bool IsGlobalNamespaceKeyword(this SyntaxToken token)
+		{
+			return token.IsKind(SyntaxKind.GlobalKeyword);
+		}
+
+		public static bool IsVerbatimIdentifier(this SyntaxToken token)
+		{
+			return token.IsVerbatimIdentifier();
+		}
+
+		public static bool IsOperator(this SyntaxToken token)
+		{
+			var kind = token.Kind();
+
+			return
+				(SyntaxFacts.IsAnyUnaryExpression(kind) &&
+					(token.Parent is PrefixUnaryExpressionSyntax || token.Parent is PostfixUnaryExpressionSyntax)) ||
+				(SyntaxFacts.IsBinaryExpression(kind) && token.Parent is BinaryExpressionSyntax) ||
+				(SyntaxFacts.IsAssignmentExpressionOperatorToken(kind) && token.Parent is AssignmentExpressionSyntax);
+		}
+
+		public static bool IsKeyword(this SyntaxToken token)
+		{
+			var kind = (SyntaxKind)token.RawKind;
+			return
+				SyntaxFacts.IsKeywordKind(kind); // both contextual and reserved keywords
+		}
 //
 //		public bool IsContextualKeyword(SyntaxToken token)
 //		{
@@ -593,20 +593,20 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return SyntaxFacts.IsInNamespaceOrTypeContext(node as ExpressionSyntax);
 		}
 
-//		public SyntaxNode GetExpressionOfArgument(SyntaxNode node)
-//		{
-//			return ((ArgumentSyntax)node).Expression;
-//		}
-//
-//		public RefKind GetRefKindOfArgument(SyntaxNode node)
-//		{
-//			return (node as ArgumentSyntax).GetRefKind();
-//		}
-//
-//		public bool IsInConstantContext(SyntaxNode node)
-//		{
-//			return (node as ExpressionSyntax).IsInConstantContext();
-//		}
+		public static SyntaxNode GetExpressionOfArgument(this SyntaxNode node)
+		{
+			return ((ArgumentSyntax)node).Expression;
+		}
+
+		public static RefKind GetRefKindOfArgument(this SyntaxNode node)
+		{
+			return (node as ArgumentSyntax).GetRefKind();
+		}
+
+		public static bool IsInConstantContext(this SyntaxNode node)
+		{
+			return (node as ExpressionSyntax).IsInConstantContext();
+		}
 
 		public static bool IsInConstructor(this SyntaxNode node)
 		{

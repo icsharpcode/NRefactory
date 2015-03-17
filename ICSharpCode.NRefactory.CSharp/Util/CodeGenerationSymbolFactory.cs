@@ -56,8 +56,40 @@ namespace ICSharpCode.NRefactory6.CSharp
 			createFieldSymbolMethod = typeInfo.GetMethod ("CreateFieldSymbol", BindingFlags.Static | BindingFlags.Public);
 			createPointerTypeSymbolMethod = typeInfo.GetMethod ("CreatePointerTypeSymbol", BindingFlags.Static | BindingFlags.Public);
 			createArrayTypeSymbolMethod = typeInfo.GetMethod ("CreateArrayTypeSymbol", BindingFlags.Static | BindingFlags.Public);
+			createNamespaceSymbolMethod = typeInfo.GetMethod ("CreateNamespaceSymbol", BindingFlags.Static | BindingFlags.Public);
+			createNamedTypeSymbolMethod = typeInfo.GetMethod ("CreateNamedTypeSymbol", BindingFlags.Static | BindingFlags.Public);
+			createDelegateTypeSymbolMethod = typeInfo.GetMethod ("CreateDelegateTypeSymbol", BindingFlags.Static | BindingFlags.Public);
+			createAttributeDataMethod = typeInfo.GetMethod ("CreateAttributeData", BindingFlags.Static | BindingFlags.Public);
 		}
 
+		static MethodInfo createAttributeDataMethod;
+
+		public static AttributeData CreateAttributeData(
+			INamedTypeSymbol attributeClass,
+			ImmutableArray<TypedConstant> constructorArguments = default(ImmutableArray<TypedConstant>),
+			ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments = default(ImmutableArray<KeyValuePair<string, TypedConstant>>))
+		{
+			return (AttributeData)createAttributeDataMethod.Invoke (null, new object[] { attributeClass, constructorArguments, namedArguments });
+		}
+
+		static MethodInfo createNamedTypeSymbolMethod;
+		public static INamedTypeSymbol CreateNamedTypeSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, TypeKind typeKind, string name, IList<ITypeParameterSymbol> typeParameters = null, INamedTypeSymbol baseType = null, IList<INamedTypeSymbol> interfaces = null, SpecialType specialType = SpecialType.None, IList<ISymbol> members = null)
+		{
+			return (INamedTypeSymbol)createNamedTypeSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, typeKind, name, typeParameters, baseType, interfaces,  specialType, members });
+		}
+
+		static MethodInfo createDelegateTypeSymbolMethod;
+		public static INamedTypeSymbol CreateDelegateTypeSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol returnType, string name, IList<ITypeParameterSymbol> typeParameters = null, IList<IParameterSymbol> parameters = null)
+		{
+			return (INamedTypeSymbol)createDelegateTypeSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, returnType, name, typeParameters, parameters });
+		}
+
+		static MethodInfo createNamespaceSymbolMethod;
+
+		public static INamespaceSymbol CreateNamespaceSymbol(string name, IList<ISymbol> imports = null, IList<INamespaceOrTypeSymbol> members = null)
+		{
+			return (INamespaceSymbol)createNamespaceSymbolMethod.Invoke (null, new object[] { name, imports, members });
+		}
 
 		static readonly MethodInfo isCodeGenerationSymbolMethod;
 		/// <summary>

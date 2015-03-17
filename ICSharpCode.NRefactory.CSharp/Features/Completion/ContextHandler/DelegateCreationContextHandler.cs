@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	class DelegateCreationContextHandler : CompletionContextHandler
 	{
-		static readonly SymbolDisplayFormat NameFormat =
+		internal static readonly SymbolDisplayFormat NameFormat =
 			new SymbolDisplayFormat (
 				globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
 				typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,

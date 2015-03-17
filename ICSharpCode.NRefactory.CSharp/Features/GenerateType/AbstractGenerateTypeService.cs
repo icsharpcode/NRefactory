@@ -14,6 +14,10 @@ using Microsoft.CodeAnalysis.LanguageServices;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Shared.Utilities;
 using Roslyn.Utilities;
+using ICSharpCode.NRefactory6.CSharp.CodeGeneration;
+using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 {
@@ -132,15 +136,14 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 
 			// Only allow if the containing namespace is one that can be generated
 			// into.  
-			var declarationService = document.Project.LanguageServices.GetService<ISymbolDeclarationService> ();
-			var decl = declarationService.GetDeclarations (containingNamespace)
+			var decl = containingNamespace.GetDeclarations ()
 				.Where (r => r.SyntaxTree == node.SyntaxTree)
 				.Select (r => r.GetSyntax (cancellationToken))
 				.FirstOrDefault (node.GetAncestorsOrThis<SyntaxNode> ().Contains);
 
 			return
 				decl != null &&
-			document.Project.LanguageServices.GetService<ICodeGenerationService> ().CanAddTo (decl, document.Project.Solution, cancellationToken);
+				new CSharpCodeGenerationService (document.Project.Solution.Workspace).CanAddTo (decl, document.Project.Solution, cancellationToken);
 		}
 
 		private bool IsGeneratingIntoContainingNamespace (
@@ -266,10 +269,10 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 
 		protected bool GeneratedTypesMustBePublic (Project project)
 		{
-			var projectInfoService = project.Solution.Workspace.Services.GetService<IProjectInfoService> ();
-			if (projectInfoService != null) {
-				return projectInfoService.GeneratedTypesMustBePublic (project);
-			}
+//			var projectInfoService = project.Solution.Workspace.Services.GetService<IProjectInfoService> ();
+//			if (projectInfoService != null) {
+//				return projectInfoService.GeneratedTypesMustBePublic (project);
+//			}
 
 			return false;
 		}
@@ -306,11 +309,11 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				var finalName = GetTypeName (state);
 
 				if (inNewFile) {
-					return string.Format (FeaturesResources.GenerateForInNewFile,
+					return string.Format (Resources.GenerateForInNewFile,
 						state.IsStruct ? "struct" : state.IsInterface ? "interface" : "class",
 						state.Name, destination);
 				} else {
-					return string.Format (FeaturesResources.GenerateForIn,
+					return string.Format (Resources.GenerateForIn,
 						state.IsStruct ? "struct" : state.IsInterface ? "interface" : "class",
 						state.Name, destination);
 				}
@@ -320,7 +323,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 			{
 				var semanticDocument = await SemanticDocument.CreateAsync (_document, cancellationToken).ConfigureAwait (false);
 
-				var editor = new Editor (_service, semanticDocument, _state, _intoNamespace, _inNewFile, cancellationToken: cancellationToken);
+				var editor = new Editor ( _service, semanticDocument, _state, _intoNamespace, _inNewFile, cancellationToken: cancellationToken);
 
 				return await editor.GetOperationsAsync ().ConfigureAwait (false);
 			}
@@ -328,7 +331,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 			public override string Title {
 				get {
 					if (_intoNamespace) {
-						var namespaceToGenerateIn = string.IsNullOrEmpty (_state.NamespaceToGenerateInOpt) ? FeaturesResources.GlobalNamespace : _state.NamespaceToGenerateInOpt;
+						var namespaceToGenerateIn = string.IsNullOrEmpty (_state.NamespaceToGenerateInOpt) ? Resources.GlobalNamespace : _state.NamespaceToGenerateInOpt;
 						return FormatDisplayText (_state, _inNewFile, namespaceToGenerateIn);
 					} else {
 						return FormatDisplayText (_state, inNewFile: false, destination: _state.TypeToGenerateInOpt.Name);
@@ -358,7 +361,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 
 			public override string Title {
 				get {
-					return FeaturesResources.GenerateNewType;
+					return Resources.GenerateNewType;
 				}
 			}
 
@@ -370,19 +373,94 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 
 			public override object GetOptions (CancellationToken cancellationToken)
 			{
-				var generateTypeOptionsService = _document.Project.Solution.Workspace.Services.GetService<IGenerateTypeOptionsService> ();
-				var notificationService = _document.Project.Solution.Workspace.Services.GetService<INotificationService> ();
-				var projectManagementService = _document.Project.Solution.Workspace.Services.GetService<IProjectManagementService> ();
-				var syntaxFactsService = _document.Project.LanguageServices.GetService<ISyntaxFactsService> ();
 				var typeKindValue = GetTypeKindOption (_state);
 				var isPublicOnlyAccessibility = IsPublicOnlyAccessibility (_state, _document.Project);
-				return generateTypeOptionsService.GetGenerateTypeOptions (
+
+				// TODO : Callback
+				return new GenerateTypeOptionsResult (
+					isPublicOnlyAccessibility ? Accessibility.Public : Accessibility.Internal,
+					TypeKind.Class,
 					_state.Name,
-					new GenerateTypeDialogOptions (isPublicOnlyAccessibility, typeKindValue, _state.IsAttribute),
+					_document.Project,
+					true,
+					_state.Name + ".cs",
+					null,
+					null,
 					_document,
-					notificationService,
-					projectManagementService,
-					syntaxFactsService);
+					false
+				);
+				/*
+				//				return generateTypeOptionsService.GetGenerateTypeOptions (
+//					_state.Name,
+					//					new GenerateTypeDialogOptions (isPublicOnlyAccessibility, typeKindValue, _state.IsAttribute),
+//					_document,
+//					notificationService,
+//					projectManagementService,
+//					syntaxFactsService);
+				private class VisualStudioGenerateTypeOptionsService : IGenerateTypeOptionsService
+				{
+					private bool _isNewFile = false;
+					private string _accessSelectString = "";
+					private string _typeKindSelectString = "";
+
+					private IGeneratedCodeRecognitionService _generatedCodeService;
+
+					public VisualStudioGenerateTypeOptionsService(IGeneratedCodeRecognitionService generatedCodeService)
+					{
+						_generatedCodeService = generatedCodeService;
+					}
+
+					public GenerateTypeOptionsResult GetGenerateTypeOptions(
+						string typeName,
+						GenerateTypeDialogOptions generateTypeDialogOptions,
+						Document document,
+						INotificationService notificationService,
+						IProjectManagementService projectManagementService,
+						ISyntaxFactsService syntaxFactsService)
+					{
+						var viewModel = new GenerateTypeDialogViewModel(
+							document,
+							notificationService,
+							projectManagementService,
+							syntaxFactsService,
+							_generatedCodeService,
+							generateTypeDialogOptions,
+							typeName,
+							document.Project.Language == LanguageNames.CSharp ? ".cs" : ".vb",
+							_isNewFile,
+							_accessSelectString,
+							_typeKindSelectString);
+
+						var dialog = new GenerateTypeDialog(viewModel);
+						var result = dialog.ShowModal();
+
+						if (result.HasValue && result.Value)
+						{
+							// Retain choice
+							_isNewFile = viewModel.IsNewFile;
+							_accessSelectString = viewModel.SelectedAccessibilityString;
+							_typeKindSelectString = viewModel.SelectedTypeKindString;
+
+							return new GenerateTypeOptionsResult(
+								accessibility: viewModel.SelectedAccessibility,
+								typeKind: viewModel.SelectedTypeKind,
+								typeName: viewModel.TypeName,
+								project: viewModel.SelectedProject,
+								isNewFile: viewModel.IsNewFile,
+								newFileName: viewModel.FileName.Trim(),
+								folders: viewModel.Folders,
+								fullFilePath: viewModel.FullFilePath,
+								existingDocument: viewModel.SelectedDocument,
+								areFoldersValidIdentifiers: viewModel.AreFoldersValidIdentifiers);
+						}
+						else
+						{
+							return GenerateTypeOptionsResult.Cancelled;
+						}
+					}
+				}
+
+				*/
 			}
 
 			private bool IsPublicOnlyAccessibility (State state, Project project)
@@ -460,7 +538,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 		{
 			private TService _service;
 			private TargetProjectChangeInLanguage _targetProjectChangeInLanguage = TargetProjectChangeInLanguage.NoChange;
-			private AbstractGenerateTypeService _targetLanguageService;
+			AbstractGenerateTypeService<TService, TSimpleNameSyntax, TObjectCreationExpressionSyntax, TExpressionSyntax, TTypeDeclarationSyntax, TArgumentSyntax>  _targetLanguageService;
 
 			private readonly SemanticDocument _document;
 			private readonly State _state;
@@ -469,6 +547,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 			private readonly bool _fromDialog;
 			private readonly GenerateTypeOptionsResult _generateTypeOptionsResult;
 			private readonly CancellationToken _cancellationToken;
+
 
 			public Editor (
 				TService service,
@@ -539,18 +618,18 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				} else {
 					var namedType = GenerateNamedType (_generateTypeOptionsResult);
 
-					// Honor the options from the dialog
-					// Check to see if the type is requested to be generated in cross language Project
-					// e.g.: C# -> VB or VB -> C#
-					if (_document.Project.Language != _generateTypeOptionsResult.Project.Language) {
-						_targetProjectChangeInLanguage =
-							_generateTypeOptionsResult.Project.Language == LanguageNames.CSharp
-							? TargetProjectChangeInLanguage.VisualBasicToCSharp
-							: TargetProjectChangeInLanguage.CSharpToVisualBasic;
-
-						// Get the cross language service
-						_targetLanguageService = _generateTypeOptionsResult.Project.LanguageServices.GetService<IGenerateTypeService> ();
-					}
+//					// Honor the options from the dialog
+//					// Check to see if the type is requested to be generated in cross language Project
+//					// e.g.: C# -> VB or VB -> C#
+//					if (_document.Project.Language != _generateTypeOptionsResult.Project.Language) {
+//						_targetProjectChangeInLanguage =
+//							_generateTypeOptionsResult.Project.Language == LanguageNames.CSharp
+//							? TargetProjectChangeInLanguage.VisualBasicToCSharp
+//							: TargetProjectChangeInLanguage.CSharpToVisualBasic;
+//
+//						// Get the cross language service
+//						_targetLanguageService = _generateTypeOptionsResult.Project.LanguageServices.GetService<IGenerateTypeService> ();
+//					}
 
 					if (_generateTypeOptionsResult.IsNewFile) {
 						return await GetGenerateInNewFileOperationsAsync (
@@ -601,14 +680,13 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				// If the target Project is VB then we have to check if the RootNamespace of the VB project is the parent most namespace of the type being generated
 				// True, Remove the RootNamespace
 				// False, Add Global to the Namespace
-				Contract.Assert (targetProject.Language == LanguageNames.VisualBasic);
-				IGenerateTypeService targetLanguageService = null;
-				if (_document.Project.Language == LanguageNames.VisualBasic) {
-					targetLanguageService = _service;
-				} else {
-					Debug.Assert (_targetLanguageService != null);
-					targetLanguageService = _targetLanguageService;
-				}
+				//Contract.Assert (targetProject.Language == LanguageNames.VisualBasic);
+				var targetLanguageService = _targetLanguageService;
+//				if (_document.Project.Language == LanguageNames.VisualBasic) {
+//					targetLanguageService = _service;
+//				} else {
+//					targetLanguageService = _targetLanguageService;
+//				}
 
 				var rootNamespace = targetLanguageService.GetRootNamespace (targetProject.CompilationOptions).Trim ();
 				if (!string.IsNullOrWhiteSpace (rootNamespace)) {
@@ -874,8 +952,9 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 						rootNamespaceOfTheProjectGeneratedInto = _targetLanguageService.GetRootNamespace (_generateTypeOptionsResult.Project.CompilationOptions).Trim ();
 					}
 
-					var projectManagementService = _document.Project.Solution.Workspace.Services.GetService<IProjectManagementService> ();
-					var defaultNamespace = projectManagementService.GetDefaultNamespace (targetProject, targetProject.Solution.Workspace);
+					// TODO : Default namespace support
+					//var projectManagementService = _document.Project.Solution.Workspace.Services.GetService<IProjectManagementService> ();
+					var defaultNamespace = "";// projectManagementService.GetDefaultNamespace (targetProject, targetProject.Solution.Workspace);
 
 					// Case 1 : If the type is generated into the same C# project or
 					// Case 2 : If the type is generated from a C# project to a C# Project
@@ -912,8 +991,6 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 								rootNamespaceOfTheProjectGeneratedInto + "." + includeUsingsOrImports;
 						}
 					}
-
-					Contract.Assert (includeUsingsOrImports != null);
 				}
 
 				return Tuple.Create (containers, includeUsingsOrImports);
@@ -947,12 +1024,12 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				return typeSymbol.RemoveUnnamedErrorTypes (compilation);
 			}
 
-			private ICodeGenerationService GetCodeGenerationService ()
+			private CSharpCodeGenerationService GetCodeGenerationService ()
 			{
 				var language = _state.TypeToGenerateInOpt == null
 					? _state.SimpleName.Language
 					: _state.TypeToGenerateInOpt.Language;
-				return _document.Project.Solution.Workspace.Services.GetLanguageServices (language).GetService<ICodeGenerationService> ();
+				return new CSharpCodeGenerationService(_document.Project.Solution.Workspace, language);
 			}
 
 			private bool TryFindMatchingField (
@@ -1162,10 +1239,9 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 
 			private void AddProperties (IList<ISymbol> members)
 			{
-				var typeInference = _document.Project.LanguageServices.GetService<ITypeInferenceService> ();
 				foreach (var property in _state.PropertiesToGenerate) {
 					IPropertySymbol generatedProperty;
-					if (_service.TryGenerateProperty (property, _document.SemanticModel, typeInference, _cancellationToken, out generatedProperty)) {
+					if (_service.TryGenerateProperty (property, _document.SemanticModel, _cancellationToken, out generatedProperty)) {
 						members.Add (generatedProperty);
 					}
 				}
@@ -1190,7 +1266,6 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				IList<TArgumentSyntax> argumentList, IList<ISymbol> members, GenerateTypeOptionsResult options = null)
 			{
 				var factory = _document.Project.LanguageServices.GetService<SyntaxGenerator> ();
-				var syntaxFactsService = _document.Project.LanguageServices.GetService<ISyntaxFactsService> ();
 
 				var availableTypeParameters = _service.GetAvailableTypeParameters (_state, _document.SemanticModel, _intoNamespace, _cancellationToken);
 				var parameterTypes = GetArgumentTypes (argumentList);
@@ -1200,9 +1275,8 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				var parameterToExistingFieldMap = new Dictionary<string, ISymbol> ();
 				var parameterToNewFieldMap = new Dictionary<string, string> ();
 
-				var syntaxFacts = _document.Project.LanguageServices.GetService<ISyntaxFactsService> ();
 				for (var i = 0; i < parameterNames.Count; i++) {
-					var refKind = syntaxFacts.GetRefKindOfArgument (argumentList [i]);
+					var refKind = argumentList [i].GetRefKindOfArgument ();
 
 					var parameterName = parameterNames [i];
 					var parameterType = (ITypeSymbol)parameterTypes [i];
@@ -1225,8 +1299,9 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 
 				// Empty Constructor for Struct is not allowed
 				if (!(parameters.Count == 0 && options != null && (options.TypeKind == TypeKind.Struct || options.TypeKind == TypeKind.Structure))) {
-					members.AddRange (factory.CreateFieldDelegatingConstructor (
-						DetermineName (), null, parameters, parameterToExistingFieldMap, parameterToNewFieldMap, _cancellationToken));
+					var symbols = factory.CreateFieldDelegatingConstructor (DetermineName (), null, parameters, parameterToExistingFieldMap, parameterToNewFieldMap, _cancellationToken);
+					foreach (var c in symbols)
+						members.Add (c);
 				}
 			}
 
@@ -1245,7 +1320,8 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 						parameters: c.Parameters,
 						statements: null,
 						baseConstructorArguments: c.Parameters.Length == 0 ? null : factory.CreateArguments (c.Parameters)));
-				members.AddRange (constructors);
+				foreach (var c in constructors)
+					members.Add (c);
 			}
 
 			private IList<AttributeData> DetermineAttributes ()
@@ -1395,7 +1471,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 
 			private State (Compilation compilation)
 			{
-				Compilation = compilation;
+				this.Compilation = compilation;
 			}
 
 			public static State Generate (
@@ -1425,11 +1501,10 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				this.SimpleName = (TSimpleNameSyntax)node;
 				string name;
 				int arity;
-				var syntaxFacts = document.Project.LanguageServices.GetService<ISyntaxFactsService> ();
-				syntaxFacts.GetNameAndArityOfSimpleName (this.SimpleName, out name, out arity);
+				this.SimpleName.GetNameAndArityOfSimpleName (out name, out arity);
 
 				this.Name = name;
-				this.NameIsVerbatim = syntaxFacts.IsVerbatimIdentifier (this.SimpleName.GetFirstToken ());
+				this.NameIsVerbatim = this.SimpleName.GetFirstToken ().IsVerbatimIdentifier ();
 				if (string.IsNullOrWhiteSpace (this.Name)) {
 					return false;
 				}
@@ -1451,12 +1526,11 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 					return false;
 				}
 
-				var semanticFacts = document.Project.LanguageServices.GetService<ISemanticFactsService> ();
-				if (!semanticFacts.IsTypeContext (semanticModel, this.NameOrMemberAccessExpression.SpanStart, cancellationToken) &&
-				   !semanticFacts.IsExpressionContext (semanticModel, this.NameOrMemberAccessExpression.SpanStart, cancellationToken) &&
-				   !semanticFacts.IsStatementContext (semanticModel, this.NameOrMemberAccessExpression.SpanStart, cancellationToken) &&
-				   !semanticFacts.IsNameOfContext (semanticModel, this.NameOrMemberAccessExpression.SpanStart, cancellationToken) &&
-				   !semanticFacts.IsNamespaceContext (semanticModel, this.NameOrMemberAccessExpression.SpanStart, cancellationToken)) {
+				if (!semanticModel.IsTypeContext (this.NameOrMemberAccessExpression.SpanStart, cancellationToken) &&
+					!semanticModel.IsExpressionContext (this.NameOrMemberAccessExpression.SpanStart, cancellationToken) &&
+					!semanticModel.IsStatementContext (this.NameOrMemberAccessExpression.SpanStart, cancellationToken) &&
+					!semanticModel.IsNameOfContext (this.NameOrMemberAccessExpression.SpanStart, cancellationToken) &&
+					!semanticModel.IsNamespaceContext (this.NameOrMemberAccessExpression.SpanStart, cancellationToken)) {
 					return false;
 				}
 
@@ -1521,18 +1595,16 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				// then we don't really want to infer a base type for 'Foo'.
 
 				// However, there are a few other cases were we can infer a base type.
-				var syntaxFacts = document.Project.LanguageServices.GetService<ISyntaxFactsService> ();
 				if (service.IsInCatchDeclaration (this.NameOrMemberAccessExpression)) {
 					this.BaseTypeOrInterfaceOpt = document.SemanticModel.Compilation.ExceptionType ();
-				} else if (syntaxFacts.IsAttributeName (this.NameOrMemberAccessExpression)) {
+				} else if (NameOrMemberAccessExpression.IsAttributeName ()) {
 					this.BaseTypeOrInterfaceOpt = document.SemanticModel.Compilation.AttributeType ();
 				} else if (
 					service.IsArrayElementType (this.NameOrMemberAccessExpression) ||
 					service.IsInVariableTypeContext (this.NameOrMemberAccessExpression) ||
 					this.ObjectCreationExpressionOpt != null) {
 					var expr = this.ObjectCreationExpressionOpt ?? this.NameOrMemberAccessExpression;
-					var typeInference = document.Project.LanguageServices.GetService<ITypeInferenceService> ();
-					var baseType = typeInference.InferType (document.SemanticModel, expr, objectAsDefault: true, cancellationToken: cancellationToken) as INamedTypeSymbol;
+					var baseType = TypeGuessing.typeInferenceService.InferType (document.SemanticModel, expr, objectAsDefault: true, cancellationToken: cancellationToken) as INamedTypeSymbol;
 					SetBaseType (baseType);
 				}
 			}
@@ -1668,7 +1740,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 					var symbol = leftSideInfo.Symbol;
 
 					if (symbol is INamespaceSymbol) {
-						this.NamespaceToGenerateInOpt = symbol.ToNameDisplayString ();
+						this.NamespaceToGenerateInOpt = symbol.ToDisplayString (ICSharpCode.NRefactory6.CSharp.Completion.DelegateCreationContextHandler.NameFormat);
 						return true;
 					} else if (symbol is INamedTypeSymbol) {
 						// TODO: Code coverage

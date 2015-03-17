@@ -485,6 +485,10 @@
     <Compile Include="Util\ArgumentSyntaxExtensions.cs" />
     <Compile Include="Features\GenerateType\TypeKindOptions.cs" />
     <Compile Include="Features\GenerateType\GenerateTypeOptionsResult.cs" />
+    <Compile Include="Features\GenerateType\AbstractGenerateTypeService.cs" />
+    <Compile Include="Features\GenerateType\GenerateTypeDialogOptions.cs" />
+    <Compile Include="Util\TaskExtensions.cs" />
+    <Compile Include="Util\CSharpSemanticFactsService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -520,8 +524,6 @@
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />
     <None Include="packages.config" />
-    <None Include="Features\GenerateType\AbstractGenerateTypeService.cs" />
-    <None Include="Features\GenerateType\GenerateTypeDialogOptions.cs" />
     <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.cs" />
     <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction.cs" />
     <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Method.cs" />

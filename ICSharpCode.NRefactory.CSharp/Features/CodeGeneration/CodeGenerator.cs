@@ -43,7 +43,31 @@ namespace ICSharpCode.NRefactory6.CSharp
 			addPropertyDeclarationAsyncMethod = typeInfo.GetMethod ("AddPropertyDeclarationAsync", BindingFlags.Static | BindingFlags.Public);
 			addMethodDeclarationAsyncMethod = typeInfo.GetMethod ("AddMethodDeclarationAsync", BindingFlags.Static | BindingFlags.Public);
 			addFieldDeclarationAsyncMethod = typeInfo.GetMethod ("AddFieldDeclarationAsync", BindingFlags.Static | BindingFlags.Public);
+			addNamespaceOrTypeDeclarationAsyncMethod = typeInfo.GetMethod ("AddNamespaceOrTypeDeclarationAsync", BindingFlags.Static | BindingFlags.Public);
+			addNamedTypeDeclarationAsyncMethod1 = typeInfo.GetMethod ("AddNamedTypeDeclarationAsync", new [] { typeof(Solution), typeof(INamedTypeSymbol), typeof(INamedTypeSymbol), typeof(CodeGenerationOptions), typeof(CancellationToken) });
+			addNamedTypeDeclarationAsyncMethod2 = typeInfo.GetMethod ("AddNamedTypeDeclarationAsync", new [] { typeof(Solution), typeof(INamespaceSymbol), typeof(INamedTypeSymbol), typeof(CodeGenerationOptions), typeof(CancellationToken) });
 		}
+
+		static MethodInfo addNamedTypeDeclarationAsyncMethod1;
+
+		public static Task<Document> AddNamedTypeDeclarationAsync(Solution solution, INamedTypeSymbol destination, INamedTypeSymbol namedType, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return (Task<Document>)addNamedTypeDeclarationAsyncMethod1.Invoke (null, new object[] { solution, destination, namedType, options != null ? options.Instance : null, cancellationToken });
+		}
+
+		static MethodInfo addNamedTypeDeclarationAsyncMethod2;
+		public static Task<Document> AddNamedTypeDeclarationAsync(Solution solution, INamespaceSymbol destination, INamedTypeSymbol namedType, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return (Task<Document>)addNamedTypeDeclarationAsyncMethod2.Invoke (null, new object[] { solution, destination, namedType, options != null ? options.Instance : null, cancellationToken });
+		}
+
+		static MethodInfo addNamespaceOrTypeDeclarationAsyncMethod;
+
+		public static Task<Document> AddNamespaceOrTypeDeclarationAsync(Solution solution, INamespaceSymbol destination, INamespaceOrTypeSymbol namespaceOrType, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return (Task<Document>)addNamespaceOrTypeDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, namespaceOrType, options != null ? options.Instance : null, cancellationToken });
+		}
+
 
 		readonly static MethodInfo addFieldDeclarationAsyncMethod;
 

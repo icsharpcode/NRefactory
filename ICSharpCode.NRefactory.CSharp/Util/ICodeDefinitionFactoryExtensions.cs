@@ -106,5 +106,21 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			return factory.Argument(parameter.RefKind, factory.IdentifierName(parameter.Name));
 		}
+
+		public static IMethodSymbol CreateBaseDelegatingConstructor(
+			this SyntaxGenerator factory,
+			IMethodSymbol constructor,
+			string typeName)
+		{
+			return CodeGenerationSymbolFactory.CreateConstructorSymbol(
+				attributes: null,
+				accessibility: Accessibility.Public,
+				modifiers: new DeclarationModifiers(),
+				typeName: typeName,
+				parameters: constructor.Parameters,
+				statements: null,
+				baseConstructorArguments: constructor.Parameters.Length == 0 ? null : factory.CreateArguments(constructor.Parameters));
+		}
+
 	}
 }

@@ -58,6 +58,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static string ImplicitConversionDisplayText = "Generate implicit conversion operator in '{0}'";
 		public static string ExplicitConversionDisplayText = "Generate explicit conversion operator in '{0}'";
+
+		public static string GenerateForIn = "Generate {0} for '{1}' in '{2}'";
+		public static string GenerateForInNewFile = "Generate {0} for '{1}' in '{2}' (new file)";
+		public static string GlobalNamespace = "Global Namespace";
+		public static string GenerateNewType = "Generate new type...";
 	}
 
 }

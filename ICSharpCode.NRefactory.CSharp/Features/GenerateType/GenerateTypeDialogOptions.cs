@@ -20,7 +20,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 			bool isAttribute = false)
 		{
 			IsPublicOnlyAccessibility = isPublicOnlyAccessibility;
-			TypeKindOptions = typeKindOptions;
+			this.TypeKindOptions = typeKindOptions;
 			IsAttribute = isAttribute;
 		}
 	}
