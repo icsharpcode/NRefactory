@@ -55,18 +55,18 @@ namespace ICSharpCode.NRefactory6.CSharp
 			removeUnavailableTypeParametersMethod = typeInfo.GetMethod("RemoveUnavailableTypeParameters");
 			removeUnnamedErrorTypesMethod = typeInfo.GetMethod("RemoveUnnamedErrorTypes");
 			replaceTypeParametersBasedOnTypeConstraintsMethod = typeInfo.GetMethod("ReplaceTypeParametersBasedOnTypeConstraints");
-			substituteTypesMethod = typeInfo.GetMethod("SubstituteTypes", new Type[] {typeof (ITypeSymbol), typeof (IDictionary<,>), typeof(Compilation) } );
 			foreach (var m in typeInfo.GetMethods (BindingFlags.Public | BindingFlags.Static)) { 
 				if (m.Name != "SubstituteTypes")
 					continue;
 				var parameters = m.GetParameters ();
-				if (parameters.Length != 3 || parameters[2].Name != "typeGenerator")
+				if (parameters.Length != 3)
 					continue;
-				substituteTypesMethod2 = typeInfo.GetMethod ("SubstituteTypes", new Type[] {
-					typeof(ITypeSymbol),
-					typeof(IDictionary<,>),
-					typeof(Compilation)
-				});
+
+				if (parameters [2].Name == "typeGenerator") {
+					substituteTypesMethod2 = m;
+				} else if (parameters [2].Name == "compilation"){
+					substituteTypesMethod = m;
+				}
 				break;
 			}
 		}
@@ -632,6 +632,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 			where TType1 : ITypeSymbol
 			where TType2 : ITypeSymbol
 		{
+			if (type == null)
+				throw new ArgumentNullException ("type");
 			return (ITypeSymbol)substituteTypesMethod.MakeGenericMethod (typeof(TType1), typeof(TType2)).Invoke (null, new object[] { type, mapping, compilation });
 		}
 

@@ -198,7 +198,7 @@ namespace Microsoft.CodeAnalysis.GenerateMember.GenerateVariable
 							parameters: _state.Parameters,
 							getMethod: getAccessor,
 							setMethod: setAccessor),
-						new CodeGenerationOptions(contextLocation: _state.IdentifierToken.GetLocation()),
+						new CodeGenerationOptions(contextLocation: _state.IdentifierToken.GetLocation(), generateDefaultAccessibility: false),
 						cancellationToken: cancellationToken)
 						.ConfigureAwait(false);
 
@@ -217,7 +217,7 @@ namespace Microsoft.CodeAnalysis.GenerateMember.GenerateVariable
 							DeclarationModifiers.None.WithIsStatic(_state.IsStatic).WithIsReadOnly (_isReadonly).WithIsUnsafe(generateUnsafe),
 							type: _state.TypeMemberType,
 							name: _state.IdentifierToken.ValueText),
-						new CodeGenerationOptions(contextLocation: _state.IdentifierToken.GetLocation()),
+						new CodeGenerationOptions(contextLocation: _state.IdentifierToken.GetLocation(), generateDefaultAccessibility: false),
 						cancellationToken: cancellationToken)
 						.ConfigureAwait(false);
 

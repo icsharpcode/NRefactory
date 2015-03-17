@@ -81,7 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateMember.GenerateEnumMember
 						name: _state.IdentifierToken.ValueText,
 						hasConstantValue: value != null,
 						constantValue: value),
-					new CodeGenerationOptions(contextLocation: _state.IdentifierToken.GetLocation()),
+					new CodeGenerationOptions(contextLocation: _state.IdentifierToken.GetLocation(), generateDefaultAccessibility: false),
 					cancellationToken)
 					.ConfigureAwait(false);
 

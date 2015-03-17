@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static Task<Document> AddFieldDeclarationAsync(Solution solution, INamedTypeSymbol destination, IFieldSymbol field, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addPropertyDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, field, options != null ? options.Instance : null, cancellationToken });
+			return (Task<Document>)addFieldDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, field, options != null ? options.Instance : null, cancellationToken });
 		}
 
 

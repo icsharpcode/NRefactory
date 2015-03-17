@@ -380,11 +380,8 @@
     <Compile Include="CodeActions\CreateCustomEventImplementationAction.cs" />
     <Compile Include="CodeActions\CreateDelegateAction.cs" />
     <Compile Include="CodeActions\CreateEventInvocatorAction.cs" />
-    <Compile Include="CodeActions\CreateFieldAction.cs" />
     <Compile Include="CodeActions\CreateIndexerAction.cs" />
-    <Compile Include="CodeActions\CreateLocalVariableAction.cs" />
     <Compile Include="CodeActions\CreateOverloadWithoutParameterAction.cs" />
-    <Compile Include="CodeActions\CreatePropertyAction.cs" />
     <Compile Include="CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs" />
     <Compile Include="CodeActions\CS1520MethodMustHaveAReturnTypeAction.cs" />
     <Compile Include="CodeActions\DeclareLocalVariableAction.cs" />

@@ -771,7 +771,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 					                    newSolution,
 					                    enclosingNamespace,
 					                    rootNamespaceOrType,
-					                    new CodeGenerationOptions (newSemanticModel.SyntaxTree.GetLocation (new TextSpan ())),
+					                    new CodeGenerationOptions (newSemanticModel.SyntaxTree.GetLocation (new TextSpan ()), generateDefaultAccessibility: false),
 					                    _cancellationToken).ConfigureAwait (false);
 
 				// containers is determined to be
@@ -853,7 +853,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 					                    solution,
 					                    enclosingNamespace,
 					                    namedType,
-					                    new CodeGenerationOptions (afterThisLocation: _document.SyntaxTree.GetLocation (_state.SimpleName.Span)),
+					                    new CodeGenerationOptions (afterThisLocation: _document.SyntaxTree.GetLocation (_state.SimpleName.Span), generateDefaultAccessibility: false),
 					                    _cancellationToken)
 					.ConfigureAwait (false);
 
@@ -896,7 +896,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 					                    solution,
 					                    enclosingNamespaceGeneratedTypeToAddAndLocation.Item1,
 					                    enclosingNamespaceGeneratedTypeToAddAndLocation.Item2,
-					                    new CodeGenerationOptions (afterThisLocation: enclosingNamespaceGeneratedTypeToAddAndLocation.Item3),
+					                    new CodeGenerationOptions (afterThisLocation: enclosingNamespaceGeneratedTypeToAddAndLocation.Item3, generateDefaultAccessibility: false),
 					                    _cancellationToken)
 					.ConfigureAwait (false);
 				var newRoot = await codeGenResult.GetSyntaxRootAsync (_cancellationToken).ConfigureAwait (false);
@@ -1004,7 +1004,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 					                    solution,
 					                    _state.TypeToGenerateInOpt,
 					                    namedType,
-					                    new CodeGenerationOptions (contextLocation: _state.SimpleName.GetLocation ()),
+					                    new CodeGenerationOptions (contextLocation: _state.SimpleName.GetLocation (), generateDefaultAccessibility: false),
 					                    _cancellationToken)
 					.ConfigureAwait (false);
 
