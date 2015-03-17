@@ -393,9 +393,6 @@
     <Compile Include="CodeActions\GenerateGetterAction.cs" />
     <Compile Include="CodeActions\GeneratePropertyAction.cs" />
     <Compile Include="CodeActions\GenerateSwitchLabelsAction.cs" />
-    <Compile Include="CodeActions\ImplementAbstractMembersAction.cs" />
-    <Compile Include="CodeActions\ImplementInterfaceAction.cs" />
-    <Compile Include="CodeActions\ImplementInterfaceExplicitAction.cs" />
     <Compile Include="CodeActions\ImplementNotImplementedProperty.cs" />
     <Compile Include="CodeActions\InlineLocalVariableAction.cs" />
     <Compile Include="CodeActions\InsertAnonymousMethodSignatureAction.cs" />
