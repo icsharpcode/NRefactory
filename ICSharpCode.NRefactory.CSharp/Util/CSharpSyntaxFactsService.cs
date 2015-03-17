@@ -685,11 +685,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 				identifier.IsLeftSideOfAssignExpression() &&
 				identifier.Parent.IsParentKind(SyntaxKind.ObjectInitializerExpression);
 		}
-//
-//		public bool IsElementAccessExpression(SyntaxNode node)
-//		{
-//			return node.Kind() == SyntaxKind.ElementAccessExpression;
-//		}
+
+		public static bool IsElementAccessExpression(this SyntaxNode node)
+		{
+			return node.Kind() == SyntaxKind.ElementAccessExpression;
+		}
 //
 //		public SyntaxNode ConvertToSingleLine(SyntaxNode node)
 //		{
@@ -700,12 +700,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 //		{
 //			return name.ToIdentifierToken();
 //		}
-//
-//		public SyntaxNode Parenthesize(SyntaxNode expression, bool includeElasticTrivia)
-//		{
-//			return ((ExpressionSyntax)expression).Parenthesize(includeElasticTrivia);
-//		}
-//
+
+		public static SyntaxNode Parenthesize(this SyntaxNode expression, bool includeElasticTrivia=true)
+		{
+			return ((ExpressionSyntax)expression).Parenthesize(includeElasticTrivia);
+		}
+
 //		public bool IsIndexerMemberCRef(SyntaxNode node)
 //		{
 //			return node.Kind() == SyntaxKind.IndexerMemberCref;

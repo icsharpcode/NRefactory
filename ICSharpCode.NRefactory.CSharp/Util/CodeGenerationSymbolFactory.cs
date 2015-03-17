@@ -60,7 +60,151 @@ namespace ICSharpCode.NRefactory6.CSharp
 			createNamedTypeSymbolMethod = typeInfo.GetMethod ("CreateNamedTypeSymbol", BindingFlags.Static | BindingFlags.Public);
 			createDelegateTypeSymbolMethod = typeInfo.GetMethod ("CreateDelegateTypeSymbol", BindingFlags.Static | BindingFlags.Public);
 			createAttributeDataMethod = typeInfo.GetMethod ("CreateAttributeData", BindingFlags.Static | BindingFlags.Public);
+			createEventSymbol = typeInfo.GetMethod ("CreateEventSymbol", BindingFlags.Static | BindingFlags.Public);
+
+			createPropertySymbolMethod2 = typeInfo.GetMethod ("CreatePropertySymbol", BindingFlags.Static | BindingFlags.NonPublic, null, new [] { 
+				typeof(INamedTypeSymbol),
+				typeof(IList<AttributeData>),
+				typeof(Accessibility),
+				typeof(DeclarationModifiers),
+				typeof(ITypeSymbol),
+				typeof(IPropertySymbol),
+				typeof(string),
+				typeof(IList<IParameterSymbol>),
+				typeof(IMethodSymbol),
+				typeof(IMethodSymbol),
+				typeof(bool),
+				typeof(SyntaxNode) 
+			}, null);
+
 		}
+
+		static MethodInfo createPropertySymbolMethod2;
+
+		public static IPropertySymbol CreatePropertySymbol(
+			INamedTypeSymbol containingType,
+			IList<AttributeData> attributes,
+			Accessibility accessibility,
+			DeclarationModifiers modifiers,
+			ITypeSymbol type,
+			IPropertySymbol explicitInterfaceSymbol,
+			string name,
+			IList<IParameterSymbol> parameters,
+			IMethodSymbol getMethod,
+			IMethodSymbol setMethod,
+			bool isIndexer = false,
+			SyntaxNode initializer = null)
+		{
+			return (IPropertySymbol)createPropertySymbolMethod2.Invoke (null, new object[] { containingType,
+				attributes,
+				accessibility,
+				modifiers,
+				type,
+				explicitInterfaceSymbol,
+				name,
+				parameters,
+				getMethod,
+				setMethod,
+				isIndexer,
+				initializer 
+			});	
+		}
+
+
+		static MethodInfo createEventSymbol;
+
+		public static IEventSymbol CreateEventSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol type, IEventSymbol explicitInterfaceSymbol, string name, IMethodSymbol addMethod = null, IMethodSymbol removeMethod = null, IMethodSymbol raiseMethod = null, IList<IParameterSymbol> parameterList = null)
+		{
+			return (IEventSymbol)createEventSymbol.Invoke (null, new object[] { attributes, accessibility, modifiers, type, explicitInterfaceSymbol, name, addMethod, removeMethod, raiseMethod, parameterList });
+		}
+
+		public static IEventSymbol CreateEventSymbol(
+			IEventSymbol @event,
+			IList<AttributeData> attributes = null,
+			Accessibility? accessibility = null,
+			DeclarationModifiers? modifiers = null,
+			IEventSymbol explicitInterfaceSymbol = null,
+			string name = null,
+			IMethodSymbol addMethod = null,
+			IMethodSymbol removeMethod = null)
+		{
+			return CodeGenerationSymbolFactory.CreateEventSymbol(
+				attributes,
+				accessibility ?? @event.DeclaredAccessibility,
+				modifiers ?? @event.GetSymbolModifiers(),
+				@event.Type,
+				explicitInterfaceSymbol,
+				name ?? @event.Name,
+				addMethod,
+				removeMethod);
+		}
+
+		internal static IMethodSymbol CreateMethodSymbol(
+			IMethodSymbol method,
+			IList<AttributeData> attributes = null,
+			Accessibility? accessibility = null,
+			DeclarationModifiers? modifiers = null,
+			IMethodSymbol explicitInterfaceSymbol = null,
+			string name = null,
+			IList<SyntaxNode> statements = null)
+		{
+			return CodeGenerationSymbolFactory.CreateMethodSymbol(
+				attributes,
+				accessibility ?? method.DeclaredAccessibility,
+				modifiers ?? method.GetSymbolModifiers(),
+				method.ReturnType,
+				explicitInterfaceSymbol,
+				name ?? method.Name,
+				method.TypeParameters,
+				method.Parameters,
+				statements,
+				returnTypeAttributes: method.GetReturnTypeAttributes());
+		}
+
+		internal static IPropertySymbol CreatePropertySymbol(
+			IPropertySymbol property,
+			IList<AttributeData> attributes = null,
+			Accessibility? accessibility = null,
+			DeclarationModifiers? modifiers = null,
+			IPropertySymbol explicitInterfaceSymbol = null,
+			string name = null,
+			bool? isIndexer = null,
+			IMethodSymbol getMethod = null,
+			IMethodSymbol setMethod = null)
+		{
+			return CodeGenerationSymbolFactory.CreatePropertySymbol(
+				attributes,
+				accessibility ?? property.DeclaredAccessibility,
+				modifiers ?? property.GetSymbolModifiers(),
+				property.Type,
+				explicitInterfaceSymbol,
+				name ?? property.Name,
+				property.Parameters,
+				getMethod,
+				setMethod,
+				isIndexer ?? property.IsIndexer);
+		}
+
+		internal static IMethodSymbol CreateAccessorSymbol(
+			IMethodSymbol accessor,
+			IList<AttributeData> attributes = null,
+			Accessibility? accessibility = null,
+			IMethodSymbol explicitInterfaceSymbol = null,
+			IList<SyntaxNode> statements = null)
+		{
+			return CodeGenerationSymbolFactory.CreateMethodSymbol(
+				attributes,
+				accessibility ?? accessor.DeclaredAccessibility,
+				accessor.GetSymbolModifiers().WithIsAbstract(statements == null),
+				accessor.ReturnType,
+				explicitInterfaceSymbol ?? accessor.ExplicitInterfaceImplementations.FirstOrDefault(),
+				accessor.Name,
+				accessor.TypeParameters,
+				accessor.Parameters,
+				statements,
+				returnTypeAttributes: accessor.GetReturnTypeAttributes());
+		}
+
 
 		static MethodInfo createAttributeDataMethod;
 

@@ -15,7 +15,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeGeneration;
 
 namespace ICSharpCode.NRefactory6.CSharp.Features.ImplementAbstractClass
 {
-	internal partial class AbstractImplementAbstractClassService
+	public partial class AbstractImplementAbstractClassService
 	{
 		private partial class Editor
 		{
@@ -116,7 +116,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Features.ImplementAbstractClass
 					method,
 					accessibility: accessibility,
 					modifiers: modifiers,
-					statements: throwingBody);
+					statements: new [] { throwingBody });
 			}
 
 			private IPropertySymbol GenerateProperty(

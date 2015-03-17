@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Features.ImplementAbstractClass
 {
-	internal partial class AbstractImplementAbstractClassService
+	public partial class AbstractImplementAbstractClassService
 	{
 		private class State
 		{

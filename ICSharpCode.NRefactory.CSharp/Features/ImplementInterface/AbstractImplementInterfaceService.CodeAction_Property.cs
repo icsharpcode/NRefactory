@@ -15,7 +15,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Features.ImplementInterface
 {
 	public abstract partial class AbstractImplementInterfaceService
     {
-        internal partial class ImplementInterfaceCodeAction
+		internal partial class ImplementInterfaceCodeAction
         {
             private ISymbol GenerateProperty(
                 Compilation compilation,
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Features.ImplementInterface
                 var parameterNames = NameGenerator.EnsureUniqueness(
                     property.Parameters.Select(p => p.Name).ToList(), isCaseSensitive: true);
 
-                var updatedProperty = property.RenameParameters(parameterNames);
+				var updatedProperty = property.RenameParameters(parameterNames);
 
                 updatedProperty = updatedProperty.RemoveAttributeFromParameters(comAliasNameAttribute);
 

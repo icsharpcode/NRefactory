@@ -86,11 +86,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Features.ImplementInterface
                 {
                     if (Explicitly)
                     {
-                        return FeaturesResources.ImplementInterfaceExplicitlyWithDisposePattern;
+                        return Resources.ImplementInterfaceExplicitlyWithDisposePattern;
                     }
                     else
                     {
-                        return FeaturesResources.ImplementInterfaceWithDisposePattern;
+                        return Resources.ImplementInterfaceWithDisposePattern;
                     }
                 }
             }

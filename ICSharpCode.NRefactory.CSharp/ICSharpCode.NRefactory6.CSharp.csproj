@@ -489,6 +489,17 @@
     <Compile Include="Features\GenerateType\GenerateTypeDialogOptions.cs" />
     <Compile Include="Util\TaskExtensions.cs" />
     <Compile Include="Util\CSharpSemanticFactsService.cs" />
+    <Compile Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.cs" />
+    <Compile Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.Editor.cs" />
+    <Compile Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.State.cs" />
+    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.cs" />
+    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction.cs" />
+    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Method.cs" />
+    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Property.cs" />
+    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.DisposePatternCodeAction.cs" />
+    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.State.cs" />
+    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Conflicts.cs" />
+    <Compile Include="Util\IPropertySymbolExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -524,16 +535,6 @@
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />
     <None Include="packages.config" />
-    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.cs" />
-    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction.cs" />
-    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Method.cs" />
-    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Property.cs" />
-    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.DisposePatternCodeAction.cs" />
-    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.State.cs" />
-    <None Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Conflicts.cs" />
-    <None Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.cs" />
-    <None Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.Editor.cs" />
-    <None Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.State.cs" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
