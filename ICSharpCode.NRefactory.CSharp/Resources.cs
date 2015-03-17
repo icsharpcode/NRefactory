@@ -63,6 +63,15 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static string GenerateForInNewFile = "Generate {0} for '{1}' in '{2}' (new file)";
 		public static string GlobalNamespace = "Global Namespace";
 		public static string GenerateNewType = "Generate new type...";
+		public static string ToDetectRedundantCalls = "To detect redundant calls";
+
+		public static string DisposeManagedStateTodo = "TODO: dispose managed state (managed objects).";
+		public static string FreeUnmanagedResourcesTodo = "TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.";
+		public static string SetLargeFieldsToNullTodo = "TODO: set large fields to null.";
+		public static string OverrideAFinalizerTodo = "TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.";
+		public static string DoNotChangeThisCodeUseDispose = "Do not change this code. Put cleanup code in Dispose(bool disposing) above.";
+		public static string ThisCodeAddedToCorrectlyImplementDisposable = "This code added to correctly implement the disposable pattern.";
+		public static string UncommentTheFollowingIfFinalizerOverriddenTodo = "TODO: uncomment the following line if the finalizer is overridden above.";
 	}
 
 }

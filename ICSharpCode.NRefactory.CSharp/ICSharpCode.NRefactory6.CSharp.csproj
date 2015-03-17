@@ -500,6 +500,9 @@
     <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.State.cs" />
     <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Conflicts.cs" />
     <Compile Include="Util\IPropertySymbolExtensions.cs" />
+    <Compile Include="Features\ImplementAbstractClass\CSharpImplementAbstractClassService.cs" />
+    <Compile Include="Features\ImplementInterface\CSharpImplementInterfaceService.cs" />
+    <Compile Include="Util\TypeDeclarationSyntaxExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
