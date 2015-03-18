@@ -70,12 +70,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			var parent = ctx.TargetToken.Parent;
 			bool isInAttribute = parent != null && (parent.IsKind (SyntaxKind.AttributeList) ||
-								 parent.Parent != null && parent.IsKind (SyntaxKind.QualifiedName) && parent.Parent.IsKind (SyntaxKind.Attribute));
+			                                        parent.Parent != null && parent.IsKind (SyntaxKind.QualifiedName) && parent.Parent.IsKind (SyntaxKind.Attribute));
 			bool isInBaseList = parent != null && parent.IsKind (SyntaxKind.BaseList);
 			bool isInUsingDirective = parent != null && parent.Parent != null && parent.Parent.IsKind (SyntaxKind.UsingDirective);
 			var completionDataLookup = new Dictionary<Tuple<string, SymbolKind>, ISymbolCompletionData> ();
 			bool isInCatchTypeExpression = parent.IsKind (SyntaxKind.CatchDeclaration) ||
-				parent.IsKind (SyntaxKind.QualifiedName) && parent != null && parent.Parent.IsKind (SyntaxKind.CatchDeclaration);
+			                                     parent.IsKind (SyntaxKind.QualifiedName) && parent != null && parent.Parent.IsKind (SyntaxKind.CatchDeclaration);
 
 			Action<ISymbolCompletionData> addData = d => {
 				var key = Tuple.Create (d.DisplayText, d.Symbol.Kind);
@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				result.Add (d);
 			};
 
-			var completionCategoryLookup = new Dictionary<ITypeSymbol, ICompletionCategory> ();
+			var completionCategoryLookup = new Dictionary<string, ICompletionCategory> ();
 			foreach (var symbol in Recommender.GetRecommendedSymbolsAtPosition (semanticModel, completionContext.Position, engine.Workspace, null, cancellationToken)) {
 				if (symbol.Kind == SymbolKind.NamedType) {
 					if (isInAttribute) {
@@ -115,8 +115,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				var categorySymbol = (ISymbol)symbol.ContainingType ?? symbol.ContainingNamespace;
 				if (categorySymbol != null) {
 					ICompletionCategory category;
-					if (completionCategoryLookup.TryGetValue (symbol.ContainingType, out category)) {
-						completionCategoryLookup [symbol.ContainingType] = category = engine.Factory.CreateCompletionDataCategory (categorySymbol);
+					var key = categorySymbol.ToDisplayString ();
+					if (!completionCategoryLookup.TryGetValue (key, out category)) {
+						completionCategoryLookup [key] = category = engine.Factory.CreateCompletionDataCategory (categorySymbol);
 					}
 					newData.CompletionCategory = category;
 				}

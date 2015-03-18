@@ -222,6 +222,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				return new CompletionData (displayText);
 			}
 
+
+			ICompletionCategory ICompletionDataFactory.CreateCompletionDataCategory (ISymbol forSymbol)
+			{
+				return null;
+			}
+
+
 		}
 //
 //		public static void CreateCompilation (string parsedText, out IProjectContent pctx, out SyntaxTree syntaxTree, out CSharpUnresolvedFile unresolvedFile, bool expectErrors, params IUnresolvedAssembly[] references)

@@ -27,7 +27,7 @@ using System;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	public interface ICompletionCategory : IComparable<ICompletionCategory>
+	public interface ICompletionCategory
 	{
 		string DisplayText { get; set; }
 		
