@@ -9,11 +9,13 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.ExtractMethod
 {
-    public static class ExtractMethodService
+	public static class ExtractMethodService
     {
+		readonly static CSharpExtractMethodService service = new CSharpExtractMethodService ();
+
         public static Task<ExtractMethodResult> ExtractMethodAsync(Document document, TextSpan textSpan, OptionSet options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return document.GetLanguageService<IExtractMethodService>().ExtractMethodAsync(document, textSpan, options, cancellationToken);
+            return service.ExtractMethodAsync(document, textSpan, options, cancellationToken);
         }
     }
 }
