@@ -63,21 +63,21 @@ Issues not implemented
 
 * CanBeReplacedWithTryCastAndCheckForNullIssue
 * EqualExpressionComparisonIssue
-* ForControlVariableIsNeverModifiedIssue
+* **ForControlVariableIsNeverModifiedIssue**
 * FormatStringProblemIssue
 * LocalVariableHidesMemberIssue
 * MemberHidesStaticFromOuterClassIssue
 * MethodOverloadWithOptionalParameterIssue
-* NotResolvedInTextIssue
-* OptionalParameterHierarchyMismatchIssue
+* **NotResolvedInTextIssue**
+* **OptionalParameterHierarchyMismatchIssue**
 * ParameterHidesMemberIssue
 * PartialMethodParameterNameMismatchIssue
 * PolymorphicFieldLikeEventInvocationIssue
 * PossibleAssignmentToReadonlyFieldIssue
-* PossibleMultipleEnumerationIssue
+* **PossibleMultipleEnumerationIssue**
 * StaticFieldInGenericTypeIssue
 * ThreadStaticAtInstanceFieldIssue
-* ValueParameterNotUsedIssue
+* **ValueParameterNotUsedIssue**
 
 *Compiler Errors*
 
@@ -114,31 +114,31 @@ Issues not implemented
 * ReplaceWithStringIsNullOrEmptyIssue
 * SimplifyConditionalTernaryExpressionIssue
 * SimplifyLinqExpressionIssue
-* StringCompareIsCultureSpecificIssue
-* StringCompareToIsCultureSpecificIssue
-* StringIndexOfIsCultureSpecificIssue
-* UseArrayCreationExpressionIssue
+* **StringCompareIsCultureSpecificIssue**
+* **StringCompareToIsCultureSpecificIssue**
+* **StringIndexOfIsCultureSpecificIssue**
+* **UseArrayCreationExpressionIssue**
 * UseIsOperatorIssue
-* UseMethodAnyIssue
+* **UseMethodAnyIssue**
 * UseMethodIsInstanceOfTypeIssue
 
 *Redundancies in Code*
 
-* ConstantNullCoalescingConditionIssue
+* **ConstantNullCoalescingConditionIssue**
 * RedundantArgumentDefaultValueIssue
 * RedundantBoolCompareIssue
-* RedundantCatchClauseIssue
+* **RedundantCatchClauseIssue**
 * RedundantCheckBeforeAssignmentIssue
 * RedundantCommaInArrayInitializerIssue
 * RedundantComparisonWithNullIssue
 * RedundantDelegateCreationIssue
-* RedundantEmptyFinallyBlockIssue
+* **RedundantEmptyFinallyBlockIssue**
 * RedundantEnumerableCastCallIssue
 * RedundantExplicitArrayCreationIssue
 * RedundantExplicitArraySizeIssue
 * RedundantExplicitNullableCreationIssue
 * RedundantExtendsListEntryIssue
-* RedundantIfElseBlockIssue
+* **RedundantIfElseBlockIssue**
 * RedundantLambdaParameterTypeIssue
 * RedundantLambdaSignatureParenthesesIssue
 * RedundantLogicalConditionalExpressionOperandIssue
@@ -149,7 +149,7 @@ Issues not implemented
 * RedundantToStringCallIssue
 * RedundantUnsafeContextIssue
 * RedundantUsingDirectiveIssue
-* UnusedAnonymousMethodSignatureIssue
+* **UnusedAnonymousMethodSignatureIssue**
 
 *Redundancies in Declaration*
 
@@ -160,7 +160,7 @@ Issues not implemented
 * RedundantParamsIssue
 * UnusedLabelIssue
 * UnusedParameterIssue
-* UnusedTypeParameterIssue
+* **UnusedTypeParameterIssue**
 
 Duplication
 -----------
