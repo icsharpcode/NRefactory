@@ -393,7 +393,6 @@
     <Compile Include="CodeActions\GeneratePropertyAction.cs" />
     <Compile Include="CodeActions\GenerateSwitchLabelsAction.cs" />
     <Compile Include="CodeActions\ImplementNotImplementedProperty.cs" />
-    <Compile Include="CodeActions\InlineLocalVariableAction.cs" />
     <Compile Include="CodeActions\InsertAnonymousMethodSignatureAction.cs" />
     <Compile Include="CodeActions\IntroduceConstantAction.cs" />
     <Compile Include="CodeActions\IntroduceFormatItemAction.cs" />
