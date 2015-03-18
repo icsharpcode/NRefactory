@@ -61,11 +61,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			symbolsForOriginalAndReplacedNodesAreCompatibleMethod = typeInfo.GetMethod ("SymbolsForOriginalAndReplacedNodesAreCompatible", BindingFlags.Public | BindingFlags.Instance);
 			replacementChangesSemanticsMethod = typeInfo.GetMethod ("ReplacementChangesSemantics", BindingFlags.Public | BindingFlags.Instance);
+			symbolInfosAreCompatibleMethod = typeInfo.GetMethod ("SymbolInfosAreCompatible", BindingFlags.Public | BindingFlags.Static);
 
 			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.Utilities.SpeculationAnalyzer" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			createSpeculativeSemanticModelForNodeMethod =  typeInfo.GetMethod ("CreateSpeculativeSemanticModelForNode", BindingFlags.Public | BindingFlags.Static, null, new [] {typeof (SyntaxNode), typeof (SyntaxNode), typeof (SemanticModel)}, null);
-
-				
 		}
 
 		public SpeculationAnalyzer (ExpressionSyntax expression, ExpressionSyntax newExpression, SemanticModel semanticModel, CancellationToken cancellationToken, bool skipVerificationForReplacedNode = false, bool failOnOverloadResolutionFailuresInOriginalCode = false)
@@ -78,6 +77,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 				skipVerificationForReplacedNode,
 				failOnOverloadResolutionFailuresInOriginalCode
 			});
+		}
+
+		static MethodInfo symbolInfosAreCompatibleMethod;
+
+		public static bool SymbolInfosAreCompatible(SymbolInfo originalSymbolInfo, SymbolInfo newSymbolInfo, bool performEquivalenceCheck, bool requireNonNullSymbols = false)
+		{
+			return (bool)symbolInfosAreCompatibleMethod.Invoke (null, new object[] { originalSymbolInfo, newSymbolInfo, performEquivalenceCheck, requireNonNullSymbols } );
 		}
 
 		public bool SymbolsForOriginalAndReplacedNodesAreCompatible ()
