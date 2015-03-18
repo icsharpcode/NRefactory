@@ -114,7 +114,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary
 		public SyntaxNode CreateEventDeclaration(IEventSymbol @event, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createEventDeclarationMethod.Invoke (instance, new object[] { @event, destination, null });
+			return (SyntaxNode)createEventDeclarationMethod.Invoke (instance, new object[] { @event, (int)destination, null });
 		}
 
 		/// <summary>
@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreateFieldDeclaration(IFieldSymbol field, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createFieldDeclaration.Invoke (instance, new object[] { @field, destination, null });
+			return (SyntaxNode)createFieldDeclaration.Invoke (instance, new object[] { @field, (int)destination, null });
 		}
 
 		/// <summary>
@@ -130,7 +130,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreateMethodDeclaration(IMethodSymbol method, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createMethodDeclaration.Invoke (instance, new object[] { @method, destination, null });
+			return (SyntaxNode)createMethodDeclaration.Invoke (instance, new object[] { @method, (int)destination, null });
 		}
 
 		/// <summary>
@@ -138,7 +138,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreatePropertyDeclaration(IPropertySymbol property, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createPropertyDeclaration.Invoke (instance, new object[] { @property, destination, null });
+			return (SyntaxNode)createPropertyDeclaration.Invoke (instance, new object[] { @property, (int)destination, null });
 		}
 
 		/// <summary>
@@ -146,7 +146,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreateNamedTypeDeclaration(INamedTypeSymbol namedType, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createNamedTypeDeclaration.Invoke (instance, new object[] { @namedType, destination, null });
+			return (SyntaxNode)createNamedTypeDeclaration.Invoke (instance, new object[] { @namedType, (int)destination, null });
 		}
 
 		/// <summary>
@@ -154,7 +154,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreateNamespaceDeclaration(INamespaceSymbol @namespace, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createNamespaceDeclaration.Invoke (instance, new object[] { @namespace, destination, null });
+			return (SyntaxNode)createNamespaceDeclaration.Invoke (instance, new object[] { @namespace, (int)destination, null });
 		}
 
 		public Task<Document> AddMethodAsync(Solution solution, INamedTypeSymbol destination, IMethodSymbol method, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
