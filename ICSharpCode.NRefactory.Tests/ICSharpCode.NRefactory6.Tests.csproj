@@ -389,7 +389,6 @@
     <Compile Include="CSharp\CodeActions\CreateOverloadWithoutParameterTests.cs" />
     <Compile Include="CSharp\CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticActionTests.cs" />
     <Compile Include="CSharp\CodeActions\CS1520MethodMustHaveAReturnTypeTests.cs" />
-    <Compile Include="CSharp\CodeActions\DeclareLocalVariableTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtractAnonymousMethodTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtractFieldTests.cs" />

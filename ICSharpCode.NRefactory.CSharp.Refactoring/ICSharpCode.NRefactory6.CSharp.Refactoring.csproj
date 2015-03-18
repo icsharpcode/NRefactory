@@ -384,7 +384,6 @@
     <Compile Include="CodeActions\CreateOverloadWithoutParameterAction.cs" />
     <Compile Include="CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs" />
     <Compile Include="CodeActions\CS1520MethodMustHaveAReturnTypeAction.cs" />
-    <Compile Include="CodeActions\DeclareLocalVariableAction.cs" />
     <Compile Include="CodeActions\ExtensionMethodInvocationToStaticMethodInvocationAction.cs" />
     <Compile Include="CodeActions\ExtractAnonymousMethodAction.cs" />
     <Compile Include="CodeActions\ExtractFieldAction.cs" />
@@ -445,7 +444,7 @@
       <Properties>
         <Policies>
           <TextStylePolicy FileWidth="120" TabsToSpaces="False" EolMarker="Unix" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/x-csharp" />
-          <CSharpFormattingPolicy IndentSwitchBody="True" BeforeMethodDeclarationParentheses="False" BeforeMethodCallParentheses="False" BeforeConstructorDeclarationParentheses="False" BeforeDelegateDeclarationParentheses="False" NewParentheses="False" SpacesBeforeBrackets="False" inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp" />
+          <CSharpFormattingPolicy inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp" />
         </Policies>
       </Properties>
     </MonoDevelop>
