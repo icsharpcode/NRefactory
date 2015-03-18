@@ -28,7 +28,8 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
-	public enum GenericDataType {
+	public enum GenericDataType
+	{
 		AttributeTarget,
 		Undefined,
 		Keyword,
@@ -37,28 +38,28 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		NameProposal,
 		NamedParameter
 	}
-	
+
 	public interface ICompletionDataFactory
 	{
-		ICompletionData CreateGenericData(ICompletionKeyHandler keyHandler, string data, GenericDataType genericDataType = GenericDataType.Undefined);
+		ICompletionData CreateGenericData (ICompletionKeyHandler keyHandler, string data, GenericDataType genericDataType = GenericDataType.Undefined);
 
-		ICompletionData CreateFormatItemCompletionData(ICompletionKeyHandler keyHandler, string format, string description, object example);
+		ICompletionData CreateFormatItemCompletionData (ICompletionKeyHandler keyHandler, string format, string description, object example);
 
 		ICompletionData CreateXmlDocCompletionData (ICompletionKeyHandler keyHandler, string tag, string description = null, string tagInsertionText = null);
 
-		ISymbolCompletionData CreateSymbolCompletionData(ICompletionKeyHandler keyHandler, ISymbol symbol);
-		ISymbolCompletionData CreateSymbolCompletionData(ICompletionKeyHandler keyHandler, ISymbol symbol, string text);
+		ISymbolCompletionData CreateSymbolCompletionData (ICompletionKeyHandler keyHandler, ISymbol symbol);
+		ISymbolCompletionData CreateSymbolCompletionData (ICompletionKeyHandler keyHandler, ISymbol symbol, string text);
 
 		/// <summary>
 		/// Creates enum member completion data. 
 		/// Form: Type.Member
 		/// Used for generating enum members Foo.A, Foo.B where the enum 'Foo' is valid.
 		/// </summary>
-		ISymbolCompletionData CreateEnumMemberCompletionData(ICompletionKeyHandler keyHandler, IFieldSymbol field);
+		ISymbolCompletionData CreateEnumMemberCompletionData (ICompletionKeyHandler keyHandler, IFieldSymbol field);
 
-		ICompletionData CreateNewOverrideCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, ISymbol m, bool afterKeyword);
+		ICompletionData CreateNewOverrideCompletionData (ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, ISymbol m, bool afterKeyword);
 
-		ICompletionData CreatePartialCompletionData(ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, IMethodSymbol method, bool afterKeyword);
+		ICompletionData CreatePartialCompletionData (ICompletionKeyHandler keyHandler, int declarationBegin, ITypeSymbol currentType, IMethodSymbol method, bool afterKeyword);
 
 		/// <summary>
 		/// Creates the event creation completion data.
@@ -70,5 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		ICompletionData CreateObjectCreation (ICompletionKeyHandler keyHandler, ITypeSymbol typeToCreate, ISymbol symbol, int declarationBegin, bool afterKeyword);
 
 		ICompletionData CreateCastCompletionData (ICompletionKeyHandler keyHandler, ISymbol member, SyntaxNode nodeToCast, ITypeSymbol targetType);
+
+		ICompletionCategory CreateCompletionDataCategory (ISymbol forSymbol);
 	}
 }
