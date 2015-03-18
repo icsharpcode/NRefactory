@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static string GenerateNewConstructorIn = "Generate constructor in '{0}'";
 
 		public static string GenerateAbstractMethod = "Generate abstract method '{0}' in '{1}'";
-		public static string GenerateAbstractProperty = "Generate abstract property &apos;{0}&apos; in &apos;{1}&apos";
+		public static string GenerateAbstractProperty = "Generate abstract property '{0}' in '{1}&apos";
 		public static string GeneratePropertyIn = "Generate property '{1}.{0}'";
 		public static string GenerateMethodIn = "Generate method '{1}.{0}'";
 
@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static string ImplementInterfaceAbstractly = "Implement interface abstractly";
 		public static string ImplementInterfaceExplicitly = "Implement interface explicitly";
 		public static string ImplementInterfaceExplicitlyWithDisposePattern = "Implement interface explicitly with Dispose pattern";
-		public static string ImplementInterfaceThrough = "Implement interface through &apos;{0}&apos";
+		public static string ImplementInterfaceThrough = "Implement interface through '{0}&apos";
 		public static string ImplementInterfaceWithDisposePattern = "Implement interface with Dispose pattern";
 
 		public static string ImplicitConversionDisplayText = "Generate implicit conversion operator in '{0}'";
@@ -72,6 +72,19 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static string DoNotChangeThisCodeUseDispose = "Do not change this code. Put cleanup code in Dispose(bool disposing) above.";
 		public static string ThisCodeAddedToCorrectlyImplementDisposable = "This code added to correctly implement the disposable pattern.";
 		public static string UncommentTheFollowingIfFinalizerOverriddenTodo = "TODO: uncomment the following line if the finalizer is overridden above.";
+
+
+		public static string IntroduceConstantFor = "Introduce constant for '{0}'";
+		public static string IntroduceConstantForAllOccurrences = "Introduce constant for all occurrences of '{0}'";
+		public static string IntroduceFieldFor = "Introduce field for '{0}'";
+		public static string IntroduceFieldForAllOccurrences = "Introduce field for all occurrences of '{0}'";
+		public static string IntroduceLocalConstantFor = "Introduce local constant for '{0}'";
+		public static string IntroduceLocalConstantForAll = "Introduce local constant for all occurrences of '{0}'";
+		public static string IntroduceLocalFor = "Introduce local for '{0}'";
+		public static string IntroduceLocalForAllOccurrences = "Introduce local for all occurrences of '{0}'";
+		public static string IntroduceQueryVariableFor = "Introduce query variable for '{0}'";
+		public static string IntroduceQueryVariableForAll = "Introduce query variable for all occurrences of '{0}'";
+
 	}
 
 }

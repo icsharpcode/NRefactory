@@ -507,6 +507,27 @@
     <Compile Include="Util\ImmutableArrayExtensions.cs" />
     <Compile Include="Util\SyntaxTriviaListExtensions.cs" />
     <Compile Include="Util\CodeFixContextExtensions.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.cs" />
+    <Compile Include="Features\IntroduceVariable\IntroduceVariableResult.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.AbstractIntroduceVariableCodeAction.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Query.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Parameter.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Field.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_ConstructorInitializer.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Block.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Attribute.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.IntroduceVariableAllOccurrenceCodeAction.cs" />
+    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.CodeAction.cs" />
+    <Compile Include="Util\SemanticMap.cs" />
+    <Compile Include="Util\SemanticEquivalence.cs" />
+    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService.cs" />
+    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService.Rewriter.cs" />
+    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceField.cs" />
+    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceLocal.cs" />
+    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceQueryLocal.cs" />
+    <Compile Include="Util\CommonSyntaxNodeOrTokenExtensions.cs" />
+    <Compile Include="Util\QueryExpressionSyntaxExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -538,6 +559,7 @@
     <Folder Include="Features\GenerateType\" />
     <Folder Include="Features\ImplementInterface\" />
     <Folder Include="Features\ImplementAbstractClass\" />
+    <Folder Include="Features\IntroduceVariable\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />

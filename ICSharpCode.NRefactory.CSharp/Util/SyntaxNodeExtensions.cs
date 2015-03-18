@@ -45,10 +45,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 {
 	public static partial class SyntaxNodeExtensions
 	{
-//		public static IEnumerable<SyntaxNodeOrToken> DepthFirstTraversal(this SyntaxNode node)
-//		{
-//			return CommonSyntaxNodeOrTokenExtensions.DepthFirstTraversal(node);
-//		}
+		public static IEnumerable<SyntaxNodeOrToken> DepthFirstTraversal(this SyntaxNode node)
+		{
+			return CommonSyntaxNodeOrTokenExtensions.DepthFirstTraversal(node);
+		}
 
 		public static IEnumerable<SyntaxNode> GetAncestors(this SyntaxNode node)
 		{
@@ -898,17 +898,46 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return node.WithLeadingTrivia(leadingTrivia).WithTrailingTrivia(trailingTrivia);
 		}
 
-//		public static TNode ConvertToSingleLine<TNode>(this TNode node)
-//			where TNode : SyntaxNode
-//		{
-//			if (node == null)
-//			{
-//				return node;
-//			}
-//
-//			var rewriter = new SingleLineRewriter();
-//			return (TNode)rewriter.Visit(node);
-//		}
+		public static TNode ConvertToSingleLine<TNode>(this TNode node)
+			where TNode : SyntaxNode
+		{
+			if (node == null)
+			{
+				return node;
+			}
+
+			var rewriter = new SingleLineRewriter();
+			return (TNode)rewriter.Visit(node);
+		}
+
+		internal class SingleLineRewriter : CSharpSyntaxRewriter
+        {
+            private bool _lastTokenEndedInWhitespace;
+
+            public override SyntaxToken VisitToken(SyntaxToken token)
+            {
+                if (_lastTokenEndedInWhitespace)
+                {
+                    token = token.WithLeadingTrivia(Enumerable.Empty<SyntaxTrivia>());
+                }
+                else if (token.LeadingTrivia.Count > 0)
+                {
+                    token = token.WithLeadingTrivia(SyntaxFactory.Space);
+                }
+
+                if (token.TrailingTrivia.Count > 0)
+                {
+                    token = token.WithTrailingTrivia(SyntaxFactory.Space);
+                    _lastTokenEndedInWhitespace = true;
+                }
+                else
+                {
+                    _lastTokenEndedInWhitespace = false;
+                }
+
+                return token;
+            }
+        }
 
 		public static bool IsAnyArgumentList(this SyntaxNode node)
 		{

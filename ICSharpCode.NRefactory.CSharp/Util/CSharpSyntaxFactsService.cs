@@ -690,12 +690,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			return node.Kind() == SyntaxKind.ElementAccessExpression;
 		}
-//
-//		public SyntaxNode ConvertToSingleLine(SyntaxNode node)
-//		{
-//			return node.ConvertToSingleLine();
-//		}
-//
+
 //		public SyntaxToken ToIdentifierToken(string name)
 //		{
 //			return name.ToIdentifierToken();

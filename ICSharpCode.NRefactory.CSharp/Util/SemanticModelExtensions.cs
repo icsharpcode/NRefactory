@@ -457,10 +457,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return type.GetAncestorsOrThis<TypeSyntax>().Last();
 		}
 
-//		public static SemanticMap GetSemanticMap(this SemanticModel semanticModel, SyntaxNode node, CancellationToken cancellationToken)
-//		{
-//			return SemanticMap.From(semanticModel, node, cancellationToken);
-//		}
+		public static SemanticMap GetSemanticMap(this SemanticModel semanticModel, SyntaxNode node, CancellationToken cancellationToken)
+		{
+			return SemanticMap.From(semanticModel, node, cancellationToken);
+		}
 
 		/// <summary>
 		/// Gets semantic information, such as type, symbols, and diagnostics, about the parent of a token.
