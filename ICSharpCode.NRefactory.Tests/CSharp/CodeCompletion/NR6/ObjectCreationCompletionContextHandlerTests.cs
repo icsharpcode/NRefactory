@@ -48,19 +48,34 @@ class C
 		}
 
 
-		[Test]
-		public void TestNoPopupInComparsion()
-		{
-			VerifyNoItemsExist(@"
-using System.Collections.Generic;
+//		[Test]
+//		public void TestNoPopupInComparsion()
+//		{
+//			VerifyNoItemsExist(@"
+//using System.Collections.Generic;
 
-class MainClass
+//class MainClass
+//{
+//	void Bar (string str)
+//	{
+//		if (str == $$
+//	}
+//}");
+//		}
+
+		[Test]
+		public void TestAfterNew()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (@"using System;
+
+class C
 {
-	void Bar (string str)
-	{
-		if (str == $$
-	}
+    void M()
+    {
+        $new $
+    }
 }");
+			Assert.IsNotNull (provider.Find ("C"), "class 'C' not found.");
 		}
 	}
 }

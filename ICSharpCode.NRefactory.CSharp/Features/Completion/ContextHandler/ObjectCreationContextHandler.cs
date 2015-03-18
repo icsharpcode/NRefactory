@@ -159,7 +159,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return result;
 		}
 
-		static SyntaxNode GetObjectCreationNewExpression (SyntaxTree tree, int position, CancellationToken cancellationToken)
+		internal static SyntaxNode GetObjectCreationNewExpression (SyntaxTree tree, int position, CancellationToken cancellationToken)
 		{
 			if (tree != null) {
 				if (!tree.IsInNonUserCode (position, cancellationToken)) {

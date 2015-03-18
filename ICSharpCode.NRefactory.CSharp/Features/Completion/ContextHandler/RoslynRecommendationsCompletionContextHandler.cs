@@ -35,6 +35,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -53,6 +54,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return type.Name.EndsWith ("Attribute", StringComparison.Ordinal);
 		}
 
+		public override bool IsTriggerCharacter (SourceText text, int position)
+		{
+			var ch = text [position];
+			return ch == '.' || ch == ' ' || // simple member access
+				ch == '#' || // pre processor directives 
+				ch == '>' && position >= 1 && text [position - 1] == '-' || // pointer member access
+				ch == ':' && position >= 1 && text [position - 1] == ':' || // alias name
+				IsStartingNewWord (text, position);
+		}
+
 		bool IsException (ITypeSymbol type)
 		{
 			if (type == null)
@@ -67,6 +78,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
 			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var result = new List<ICompletionData> ();
+			if (info.TriggerCharacter == ' ') {
+				var newExpression = ObjectCreationContextHandler.GetObjectCreationNewExpression (ctx.SyntaxTree, completionContext.Position, cancellationToken);
+				if (newExpression == null && info.CompletionTriggerReason == CompletionTriggerReason.CharTyped)
+					return Enumerable.Empty<ICompletionData> ();
+			}
+
 
 			var parent = ctx.TargetToken.Parent;
 			bool isInAttribute = parent != null && (parent.IsKind (SyntaxKind.AttributeList) ||
@@ -112,15 +129,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				if (isInUsingDirective && symbol.Kind != SymbolKind.Namespace)
 					continue;
 				var newData = engine.Factory.CreateSymbolCompletionData (this, symbol);
-				var categorySymbol = (ISymbol)symbol.ContainingType ?? symbol.ContainingNamespace;
-				if (categorySymbol != null) {
-					ICompletionCategory category;
-					var key = categorySymbol.ToDisplayString ();
-					if (!completionCategoryLookup.TryGetValue (key, out category)) {
-						completionCategoryLookup [key] = category = engine.Factory.CreateCompletionDataCategory (categorySymbol);
-					}
-					newData.CompletionCategory = category;
-				}
+				//				var categorySymbol = (ISymbol)symbol.ContainingType ?? symbol.ContainingNamespace;
+				//				if (categorySymbol != null) {
+				//					ICompletionCategory category;
+				//					var key = categorySymbol.ToDisplayString ();
+				//					if (!completionCategoryLookup.TryGetValue (key, out category)) {
+				//						completionCategoryLookup [key] = category = engine.Factory.CreateCompletionDataCategory (categorySymbol);
+				//					}
+				//					newData.CompletionCategory = category;
+				//				}
 				addData (newData);
 			}
 			return result;
