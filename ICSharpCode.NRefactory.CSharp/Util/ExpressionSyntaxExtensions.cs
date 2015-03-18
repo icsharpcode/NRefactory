@@ -29,7 +29,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		static ExpressionSyntaxExtensions ()
 		{
 			var typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.Extensions.ExpressionSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
-			castIfPossibleMethod = typeInfo.GetMethod ("CreateFieldDelegatingConstructor", BindingFlags.Static | BindingFlags.Public);
+			castIfPossibleMethod = typeInfo.GetMethod ("CastIfPossible", BindingFlags.Static | BindingFlags.Public);
 		}
 
 		/// <summary>
