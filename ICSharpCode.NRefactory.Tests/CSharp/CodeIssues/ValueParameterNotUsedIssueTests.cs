@@ -31,13 +31,12 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class ValueParameterNotUsedIssueTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestPropertySetter()
 		{
-			TestIssue<ValueParameterNotUsedIssue>(@"class A
+			Analyze<ValueParameterNotUsedIssue>(@"class A
 {
 	int Property1
 	{
@@ -47,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 	}
 	int Property2
 	{
-		set {
+		$set$ {
 		}
 	}
 }");
@@ -79,11 +78,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestMatchingIndexerSetter()
 		{
-			TestIssue<ValueParameterNotUsedIssue>(@"class A
+			Analyze<ValueParameterNotUsedIssue>(@"class A
 {
 	A this[int index]
 	{
-		set {
+		$set$ {
 		}
 	}
 }");
@@ -92,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestMatchingEventAdder()
 		{
-			TestIssue<ValueParameterNotUsedIssue>(@"class A	
+			Analyze<ValueParameterNotUsedIssue>(@"class A	
 {
 	delegate void TestEventHandler ();
 	TestEventHandler eventTested;
@@ -101,7 +100,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		add {
 			eventTested += value;
 		}
-		remove {
+		$remove$ {
 		}
 	}
 }");
