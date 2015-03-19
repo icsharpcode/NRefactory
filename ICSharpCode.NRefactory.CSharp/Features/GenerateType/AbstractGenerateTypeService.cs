@@ -816,7 +816,7 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 					documentName,
 					containers,
 					sourceCodeKind,
-					filePath: Path.Combine (Path.GetDirectoryName (generatingDocument.FilePath), documentName + Path.GetExtension (documentName))
+					filePath: Path.Combine (Path.GetDirectoryName (generatingDocument.FilePath), documentName)
 				));
 
 				updatedSolution = updatedSolution.WithDocumentSyntaxRoot (documentId, root, PreservationMode.PreserveIdentity);
