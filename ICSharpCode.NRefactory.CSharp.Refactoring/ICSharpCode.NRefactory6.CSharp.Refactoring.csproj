@@ -376,7 +376,6 @@
     <Compile Include="CodeActions\CopyCommentsFromInterface.cs" />
     <Compile Include="CodeActions\CreateBackingStoreAction.cs" />
     <Compile Include="CodeActions\CreateChangedEventAction.cs" />
-    <Compile Include="CodeActions\CreateClassDeclarationAction.cs" />
     <Compile Include="CodeActions\CreateCustomEventImplementationAction.cs" />
     <Compile Include="CodeActions\CreateDelegateAction.cs" />
     <Compile Include="CodeActions\CreateEventInvocatorAction.cs" />

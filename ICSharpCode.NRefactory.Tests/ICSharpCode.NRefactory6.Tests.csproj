@@ -381,7 +381,6 @@
     <Compile Include="CSharp\CodeActions\CopyCommentsFromIntefaceTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateBackingStoreTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateChangedEventTests.cs" />
-    <Compile Include="CSharp\CodeActions\CreateClassDeclarationTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateCustomEventImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateDelegateTests.cs" />
     <Compile Include="CSharp\CodeActions\CreateEventInvocatorTests.cs" />
