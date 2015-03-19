@@ -44,8 +44,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 			addMethodDeclarationAsyncMethod = typeInfo.GetMethod ("AddMethodDeclarationAsync", BindingFlags.Static | BindingFlags.Public);
 			addFieldDeclarationAsyncMethod = typeInfo.GetMethod ("AddFieldDeclarationAsync", BindingFlags.Static | BindingFlags.Public);
 			addNamespaceOrTypeDeclarationAsyncMethod = typeInfo.GetMethod ("AddNamespaceOrTypeDeclarationAsync", BindingFlags.Static | BindingFlags.Public);
-			addNamedTypeDeclarationAsyncMethod1 = typeInfo.GetMethod ("AddNamedTypeDeclarationAsync", new [] { typeof(Solution), typeof(INamedTypeSymbol), typeof(INamedTypeSymbol), typeof(CodeGenerationOptions), typeof(CancellationToken) });
-			addNamedTypeDeclarationAsyncMethod2 = typeInfo.GetMethod ("AddNamedTypeDeclarationAsync", new [] { typeof(Solution), typeof(INamespaceSymbol), typeof(INamedTypeSymbol), typeof(CodeGenerationOptions), typeof(CancellationToken) });
+			addNamedTypeDeclarationAsyncMethod1 = typeInfo.GetMethod ("AddNamedTypeDeclarationAsync", new [] { typeof(Solution), typeof(INamedTypeSymbol), typeof(INamedTypeSymbol), CodeGenerationOptions.typeInfo, typeof(CancellationToken) });
+			addNamedTypeDeclarationAsyncMethod2 = typeInfo.GetMethod ("AddNamedTypeDeclarationAsync", new [] { typeof(Solution), typeof(INamespaceSymbol), typeof(INamedTypeSymbol), CodeGenerationOptions.typeInfo, typeof(CancellationToken) });
 		}
 
 		static MethodInfo addNamedTypeDeclarationAsyncMethod1;

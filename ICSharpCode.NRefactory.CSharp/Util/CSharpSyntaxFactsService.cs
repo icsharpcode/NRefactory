@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static bool IsVerbatimIdentifier(this SyntaxToken token)
 		{
-			return token.IsVerbatimIdentifier();
+			return token.IsKind(SyntaxKind.IdentifierToken) && token.Text.Length > 0 && token.Text[0] == '@';
 		}
 
 		public static bool IsOperator(this SyntaxToken token)

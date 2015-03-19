@@ -10,7 +10,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 {
 	public class CodeGenerationOptions
 	{
-		readonly static Type typeInfo;
+		internal readonly static Type typeInfo;
 		readonly object instance;
 
 		internal object Instance {
