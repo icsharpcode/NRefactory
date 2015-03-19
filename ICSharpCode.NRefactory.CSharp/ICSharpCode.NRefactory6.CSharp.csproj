@@ -528,6 +528,7 @@
     <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceQueryLocal.cs" />
     <Compile Include="Util\CommonSyntaxNodeOrTokenExtensions.cs" />
     <Compile Include="Util\QueryExpressionSyntaxExtensions.cs" />
+    <Compile Include="Features\GenerateType\CSharpGenerateTypeService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
