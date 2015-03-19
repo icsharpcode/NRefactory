@@ -18,6 +18,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeGeneration;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.FindSymbols;
+using System.IO;
 
 namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 {
@@ -811,10 +812,12 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				var documentId = DocumentId.CreateNewId (projectToBeUpdated.Id, documentName);
 
 				var updatedSolution = projectToBeUpdated.Solution.AddDocument (DocumentInfo.Create (
-					                      documentId,
-					                      documentName,
-					                      containers,
-					                      sourceCodeKind));
+					documentId,
+					documentName,
+					containers,
+					sourceCodeKind,
+					filePath: Path.Combine (Path.GetDirectoryName (generatingDocument.FilePath), documentName + Path.GetExtension (documentName))
+				));
 
 				updatedSolution = updatedSolution.WithDocumentSyntaxRoot (documentId, root, PreservationMode.PreserveIdentity);
 
