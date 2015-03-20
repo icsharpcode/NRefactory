@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void Rational1()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -54,7 +54,7 @@ class TestClass
 		[Test]
 		public void Rational1WithComment()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -76,7 +76,7 @@ class TestClass
 		[Test]
 		public void Rational2()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -95,7 +95,7 @@ class TestClass
 		[Test]
 		public void Rational3()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -114,7 +114,7 @@ class TestClass
 		[Test]
 		public void Rational4()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -133,7 +133,7 @@ class TestClass
 		[Test]
 		public void Rational5()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -152,7 +152,7 @@ class TestClass
 		[Test]
 		public void Rational6()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -172,7 +172,7 @@ class TestClass
 		[Test]
 		public void Bool1()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -192,7 +192,7 @@ class TestClass
 		[Test]
 		public void Bool2()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -212,7 +212,7 @@ class TestClass
 		[Test]
 		public void Bool3()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -232,7 +232,7 @@ class TestClass
 		[Test]
 		public void String1()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -252,7 +252,7 @@ class TestClass
 		[Test]
 		public void UseConstant()
 		{
-			Test<ComputeConstantValueAction>(@"
+			Test<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	const double pi = 3.141;
@@ -275,7 +275,7 @@ class TestClass
 		[Test]
 		public void Invalid()
 		{
-			TestWrongContext<ComputeConstantValueAction>(@"
+			TestWrongContext<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()
@@ -290,7 +290,7 @@ class TestClass
 		[Test]
 		public void TestWrongHotSpot()
 		{
-			TestWrongContext<ComputeConstantValueAction>(@"
+			TestWrongContext<ComputeConstantValueCodeRefactoringProvider>(@"
 class TestClass
 {
 	public void F()

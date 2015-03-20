@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddSet()
 		{
-			Test<AddAnotherAccessorAction>(@"
+			Test<AddAnotherAccessorCodeRefactoringProvider>(@"
 class TestClass
 {
     int field;
@@ -69,7 +69,7 @@ class TestClass
 		[Test]
 		public void TestAddSet_ReadOnlyField()
 		{
-			Test<AddAnotherAccessorAction>(@"
+			Test<AddAnotherAccessorCodeRefactoringProvider>(@"
 class TestClass
 {
     readonly int field;
@@ -102,7 +102,7 @@ class TestClass
 		[Test]
 		public void TestAddGet()
 		{
-			Test<AddAnotherAccessorAction>(@"
+			Test<AddAnotherAccessorCodeRefactoringProvider>(@"
 class TestClass
 {
     int field;
@@ -131,11 +131,10 @@ class TestClass
 }");
 		}
 
-		[Ignore("broken")]
 		[Test]
 		public void TestAddGetWithComment()
 		{
-			Test<AddAnotherAccessorAction>(@"
+			Test<AddAnotherAccessorCodeRefactoringProvider>(@"
 class TestClass
 {
     int field;
@@ -168,7 +167,7 @@ class TestClass
 		[Test]
 		public void TestAutoProperty()
 		{
-			Test<AddAnotherAccessorAction>(@"
+			Test<AddAnotherAccessorCodeRefactoringProvider>(@"
 class TestClass
 {
     string $Test 
@@ -188,7 +187,7 @@ class TestClass
 		[Test]
 		public void TestAutoPropertyWithComment()
 		{
-			Test<AddAnotherAccessorAction>(@"
+			Test<AddAnotherAccessorCodeRefactoringProvider>(@"
 class TestClass
 {
     string $Test 

@@ -77,11 +77,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				if (node.Parent is IfStatementSyntax || node.Parent is ElseClauseSyntax)
 					return;
 
-				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression(semanticModel, node.Condition);
+				var switchExpr = ConvertIfStatementToSwitchStatementCodeRefactoringProvider.GetSwitchExpression(semanticModel, node.Condition);
 				if (switchExpr == null)
 					return;
 				var switchSections = new List<SwitchSectionSyntax>();
-				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, semanticModel, node, switchExpr))
+				if (!ConvertIfStatementToSwitchStatementCodeRefactoringProvider.CollectSwitchSections(switchSections, semanticModel, node, switchExpr))
 					return;
 				if (switchSections.Count(s => !s.Labels.OfType<DefaultSwitchLabelSyntax>().Any()) <= 2)
 					return;
@@ -115,11 +115,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as IfStatementSyntax;
 
-				var switchExpr = ConvertIfStatementToSwitchStatementAction.GetSwitchExpression(semanticModel, node.Condition);
+				var switchExpr = ConvertIfStatementToSwitchStatementCodeRefactoringProvider.GetSwitchExpression(semanticModel, node.Condition);
 				if (switchExpr == null)
 					return;
 				var switchSections = new List<SwitchSectionSyntax>();
-				if (!ConvertIfStatementToSwitchStatementAction.CollectSwitchSections(switchSections, semanticModel, node, switchExpr))
+				if (!ConvertIfStatementToSwitchStatementCodeRefactoringProvider.CollectSwitchSections(switchSections, semanticModel, node, switchExpr))
 					return;
 				if (switchSections.Count(s => !s.Labels.OfType<DefaultSwitchLabelSyntax>().Any()) <= 2)
 					return;

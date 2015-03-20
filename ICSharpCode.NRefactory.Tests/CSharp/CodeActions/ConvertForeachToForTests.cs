@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestArray()
 		{
 			string result = RunContextAction(
-										 new ConvertForeachToForAction(),
+										 new ConvertForeachToForCodeRefactoringProvider(),
 										 "using System;" + Environment.NewLine +
 										 "class TestClass" + Environment.NewLine +
 										 "{" + Environment.NewLine +
@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestListOfT()
 		{
 			string result = RunContextAction(
-										 new ConvertForeachToForAction(),
+										 new ConvertForeachToForCodeRefactoringProvider(),
 										 "using System;" + Environment.NewLine +
 										 "using System.Collections.Generic;" + Environment.NewLine +
 										 "class TestClass" + Environment.NewLine +
@@ -104,7 +104,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestBug9876()
 		{
-			Test<ConvertForeachToForAction>(@"class TestClass
+			Test<ConvertForeachToForCodeRefactoringProvider>(@"class TestClass
 {
     void TestMethod ()
     {
@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestOptimizedForLoop()
 		{
-			Test<ConvertForeachToForAction>(@"
+			Test<ConvertForeachToForCodeRefactoringProvider>(@"
 class Test
 {
     void Foo (object[] o)
@@ -155,7 +155,7 @@ class Test
 		[Test]
 		public void TestOptimizedForLoopWithComment()
 		{
-			Test<ConvertForeachToForAction>(@"
+			Test<ConvertForeachToForCodeRefactoringProvider>(@"
 class Test
 {
     void Foo (object[] o)
@@ -183,7 +183,7 @@ class Test
 		[Test]
 		public void TestEnumerableConversion()
 		{
-			Test<ConvertForeachToForAction>(@"
+			Test<ConvertForeachToForCodeRefactoringProvider>(@"
 using System;
 using System.Collections.Generic;
 
@@ -215,7 +215,7 @@ class Test
 		[Test]
 		public void TestEnumerableConversionWithComment()
 		{
-			Test<ConvertForeachToForAction>(@"
+			Test<ConvertForeachToForCodeRefactoringProvider>(@"
 using System;
 using System.Collections.Generic;
 

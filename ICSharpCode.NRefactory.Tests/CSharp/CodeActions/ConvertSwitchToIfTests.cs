@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestReturn()
 		{
-			Test<ConvertSwitchToIfAction>(@"
+			Test<ConvertSwitchToIfCodeRefactoringProvider>(@"
 class TestClass
 {
     int TestMethod (int a)
@@ -82,7 +82,7 @@ class TestClass
 		[Test]
 		public void TestWithoutDefault()
 		{
-			Test<ConvertSwitchToIfAction>(@"
+			Test<ConvertSwitchToIfCodeRefactoringProvider>(@"
 class TestClass
 {
     int TestMethod(int a)
@@ -123,7 +123,7 @@ class TestClass
 		[Test]
 		public void TestBreak()
 		{
-			Test<ConvertSwitchToIfAction>(@"
+			Test<ConvertSwitchToIfCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod(int a)
@@ -168,7 +168,7 @@ class TestClass
 		[Test]
 		public void TestOperatorPriority()
 		{
-			Test<ConvertSwitchToIfAction>(@"
+			Test<ConvertSwitchToIfCodeRefactoringProvider>(@"
 class TestClass
 {
     int TestMethod(int a)
@@ -206,7 +206,7 @@ class TestClass
 		[Test]
 		public void TestEmptySwitch()
 		{
-			TestWrongContext<ConvertSwitchToIfAction>(@"
+			TestWrongContext<ConvertSwitchToIfCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod (int a)
@@ -221,7 +221,7 @@ class TestClass
 		[Test]
 		public void TestSwitchWithDefaultOnly()
 		{
-			TestWrongContext<ConvertSwitchToIfAction>(@"
+			TestWrongContext<ConvertSwitchToIfCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod (int a)
@@ -239,7 +239,7 @@ class TestClass
 		[Test]
 		public void TestNonTrailingBreak()
 		{
-			TestWrongContext<ConvertSwitchToIfAction>(@"
+			TestWrongContext<ConvertSwitchToIfCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod (int a, int b)

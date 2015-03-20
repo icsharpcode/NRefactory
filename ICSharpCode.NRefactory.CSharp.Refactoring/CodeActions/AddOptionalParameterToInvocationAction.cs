@@ -135,7 +135,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		{
 			ExpressionSyntax defaultValue;
 			if (parameterToAdd.HasExplicitDefaultValue) {
-				defaultValue = ComputeConstantValueAction.GetLiteralExpression(parameterToAdd.ExplicitDefaultValue);
+				defaultValue = ComputeConstantValueCodeRefactoringProvider.GetLiteralExpression(parameterToAdd.ExplicitDefaultValue);
 			} else {
 				return invocationExpression;
 			}

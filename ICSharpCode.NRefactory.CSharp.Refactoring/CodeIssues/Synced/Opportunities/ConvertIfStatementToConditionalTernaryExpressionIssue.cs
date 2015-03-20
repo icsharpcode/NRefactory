@@ -113,7 +113,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 				ExpressionSyntax condition, target;
 				AssignmentExpressionSyntax trueAssignment, falseAssignment;
-				if (!ConvertIfStatementToConditionalTernaryExpressionAction.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))
+				if (!ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))
 					return;
 				if (IsComplexCondition(condition) || IsComplexExpression(trueAssignment.Right) || IsComplexExpression(falseAssignment.Right))
 					return;
@@ -149,7 +149,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 
 				ExpressionSyntax condition, target;
 				AssignmentExpressionSyntax trueAssignment, falseAssignment;
-				if (!ConvertIfStatementToConditionalTernaryExpressionAction.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))
+				if (!ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))
 					return;
 				var newRoot = root.ReplaceNode((SyntaxNode)node,
 					SyntaxFactory.ExpressionStatement(

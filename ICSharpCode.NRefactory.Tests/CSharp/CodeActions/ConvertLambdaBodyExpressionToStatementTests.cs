@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestReturn()
 		{
-			Test<ConvertLambdaBodyExpressionToStatementAction>(@"
+			Test<ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod ()
@@ -58,7 +58,7 @@ class TestClass
 		[Test]
 		public void TestExprStatement()
 		{
-			Test<ConvertLambdaBodyExpressionToStatementAction>(@"
+			Test<ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod ()
@@ -81,7 +81,7 @@ class TestClass
 		[Test]
 		public void TestExprStatementWithComment()
 		{
-			Test<ConvertLambdaBodyExpressionToStatementAction>(@"
+			Test<ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod ()
@@ -106,7 +106,7 @@ class TestClass
 		[Test]
 		public void TestParenthesizedLambdaExprStatement()
 		{
-			Test<ConvertLambdaBodyExpressionToStatementAction>(@"
+			Test<ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod ()
@@ -129,7 +129,7 @@ class TestClass
 		[Test]
 		public void TestWrongContext()
 		{
-			TestWrongContext<ConvertLambdaBodyExpressionToStatementAction>(@"
+			TestWrongContext<ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod ()
@@ -145,7 +145,7 @@ class TestClass
 		[Test]
 		public void TestParenthesis()
 		{
-			Test<ConvertLambdaBodyExpressionToStatementAction>(@"
+			Test<ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod ()
@@ -167,7 +167,7 @@ class TestClass
 		[Test]
 		public void TestInvocation()
 		{
-			Test<ConvertLambdaBodyExpressionToStatementAction>(@"
+			Test<ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void Test (int k, System.Func<int, int> f) { }
@@ -184,7 +184,7 @@ class TestClass
         Test (1, i => { return i + 1; });
     }
 }");
-			Test<ConvertLambdaBodyExpressionToStatementAction>(@"
+			Test<ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void Test2 (System.Action<int> a) { }

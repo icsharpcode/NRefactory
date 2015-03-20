@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void MethodInvocation1()
 		{
-			Test<AddArgumentNameAction>(@"
+			Test<AddNameToArgumentCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(int a, int b, float c = 0.1) { }
@@ -56,7 +56,7 @@ class TestClass
 		[Test]
 		public void MethodInvocation1WithComment()
 		{
-			Test<AddArgumentNameAction>(@"
+			Test<AddNameToArgumentCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(int a, int b, float c = 0.1) { }
@@ -80,7 +80,7 @@ class TestClass
 		[Test]
 		public void MethodInvocation2()
 		{
-			Test<AddArgumentNameAction>(@"
+			Test<AddNameToArgumentCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(int a, int b, float c = 0.1) { }
@@ -102,7 +102,7 @@ class TestClass
 		[Test]
 		public void AttributeUsage()
 		{
-			Test<AddArgumentNameAction>(@"
+			Test<AddNameToArgumentCodeRefactoringProvider>(@"
 using System;
 public class AnyClass
 {
@@ -120,7 +120,7 @@ public class AnyClass
 		[Test]
 		public void AttributeUsageWithComment()
 		{
-			Test<AddArgumentNameAction>(@"
+			Test<AddNameToArgumentCodeRefactoringProvider>(@"
 using System;
 public class AnyClass
 {
@@ -140,7 +140,7 @@ public class AnyClass
 		[Test]
 		public void AttributeNamedArgument()
 		{
-			Test<AddArgumentNameAction>(@"
+			Test<AddNameToArgumentCodeRefactoringProvider>(@"
 class MyAttribute : System.Attribute
 {
     public string Name1 { get; set; }
@@ -184,7 +184,7 @@ public class Test
 		[Test]
 		public void AttributeNamedArgumentInvalidCase()
 		{
-			TestWrongContext<AddArgumentNameAction>(@"
+			TestWrongContext<AddNameToArgumentCodeRefactoringProvider>(@"
 class MyAttribute : System.Attribute
 {
     public string Name1 { get; set; }
@@ -209,7 +209,7 @@ public class Test
 		[Test]
 		public void IndexerInvocation()
 		{
-			Test<AddArgumentNameAction>(@"
+			Test<AddNameToArgumentCodeRefactoringProvider>(@"
 public class TestClass
 {
     public int this[int i, int j]
@@ -248,7 +248,7 @@ internal class Test
 		public void TestParamsInvalidContext()
 		{
 
-			TestWrongContext<AddArgumentNameAction>(@"
+			TestWrongContext<AddNameToArgumentCodeRefactoringProvider>(@"
 class TestClass
 {
     public void F()

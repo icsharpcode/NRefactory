@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestMethod()
 		{
-			Test<ConvertExplicitToImplicitImplementationAction>(@"
+			Test<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 interface ITest
 {
     void Method();
@@ -61,7 +61,7 @@ class TestClass : ITest
 		[Test]
 		public void TestMethodWithXmlDoc()
 		{
-			Test<ConvertExplicitToImplicitImplementationAction>(@"
+			Test<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 interface ITest
 {
     void Method();
@@ -93,7 +93,7 @@ class TestClass : ITest
 		[Test]
 		public void TestMethodWithInlineComment()
 		{
-			Test<ConvertExplicitToImplicitImplementationAction>(@"
+			Test<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 interface ITest
 {
     void Method();
@@ -119,7 +119,7 @@ class TestClass : ITest
 		[Test]
 		public void TestExistingMethod()
 		{
-			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+			TestWrongContext<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 interface ITest
 {
     void Method ();
@@ -138,7 +138,7 @@ class TestClass : ITest
 		[Test]
 		public void TestProperty()
 		{
-			Test<ConvertExplicitToImplicitImplementationAction>(@"
+			Test<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 interface ITest
 {
     int Prop { get; set; }
@@ -168,7 +168,7 @@ class TestClass : ITest
 		[Test]
 		public void TestExistingProperty()
 		{
-			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+			TestWrongContext<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 interface ITest
 {
     int Prop { get; set; }
@@ -191,7 +191,7 @@ class TestClass : ITest
 		[Test]
 		public void TestEvent()
 		{
-			Test<ConvertExplicitToImplicitImplementationAction>(@"
+			Test<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 using System;
 
 interface ITest
@@ -225,7 +225,7 @@ class TestClass : ITest
 		[Test]
 		public void TestExistingEvent()
 		{
-			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+			TestWrongContext<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 using System;
 
 interface ITest
@@ -246,7 +246,7 @@ class TestClass : ITest
 		[Test]
 		public void TestIndexer()
 		{
-			Test<ConvertExplicitToImplicitImplementationAction>(@"
+			Test<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 interface ITest
 {
     int this[int i] { get; }
@@ -274,7 +274,7 @@ class TestClass : ITest
 		[Test]
 		public void TestExistingIndexer()
 		{
-			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+			TestWrongContext<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 interface ITest
 {
     int this[int i] { get; }
@@ -296,7 +296,7 @@ class TestClass : ITest
 		[Test]
 		public void TestNonExplitiImplementation()
 		{
-			TestWrongContext<ConvertExplicitToImplicitImplementationAction>(@"
+			TestWrongContext<ConvertExplicitToImplicitImplementationCodeRefactoringProvider>(@"
 class TestClass
 {
     void $Method ()

@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestFirst ()
 		{
 			string result = RunContextAction (
-				new IntroduceFormatItemAction (),
+				new AddNewFormatItemCodeRefactoringProvider (),
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
 				"	void Test ()" + Environment.NewLine +
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestSecond ()
 		{
 			string result = RunContextAction (
-				new IntroduceFormatItemAction (),
+				new AddNewFormatItemCodeRefactoringProvider (),
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
 				"	void Test ()" + Environment.NewLine +

@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		
 		public void Test (CodeRefactoringProvider provider, string input, string output, int action = 0, bool expectErrors = false)
 		{
-			string result = RunContextAction (provider, HomogenizeEol (input), action, expectErrors);
+			string result = HomogenizeEol (RunContextAction (provider, HomogenizeEol (input), action, expectErrors));
 			bool passed = result == output;
 			if (!passed) {
 				Console.WriteLine ("-----------Expected:");
@@ -171,7 +171,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				),
 				new CSharpParseOptions (
 					LanguageVersion.CSharp6,
-					DocumentationMode.None,
+					DocumentationMode.Diagnose,
 					SourceCodeKind.Regular,
 					ImmutableArray.Create("DEBUG", "TEST")
 				),

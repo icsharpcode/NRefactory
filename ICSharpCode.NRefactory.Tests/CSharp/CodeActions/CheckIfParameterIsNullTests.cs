@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void Test()
 		{
 			string result = RunContextAction(
-				                         new CheckIfParameterIsNullAction(),
+				                         new CheckIfParameterIsNullCodeRefactoringProvider(),
 				                         "using System;" + Environment.NewLine +
 				                         "class TestClass" + Environment.NewLine +
 				                         "{" + Environment.NewLine +
@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestWithComment()
 		{
 			string result = RunContextAction(
-										 new CheckIfParameterIsNullAction(),
+										 new CheckIfParameterIsNullCodeRefactoringProvider(),
 										 "using System;" + Environment.NewLine +
 										 "class TestClass" + Environment.NewLine +
 										 "{" + Environment.NewLine +
@@ -95,7 +95,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestLambda()
 		{
-			Test<CheckIfParameterIsNullAction>(@"class Foo
+			Test<CheckIfParameterIsNullCodeRefactoringProvider>(@"class Foo
 {
     void Test ()
     {
@@ -117,7 +117,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAnonymousMethod()
 		{
-			Test<CheckIfParameterIsNullAction>(@"class Foo
+			Test<CheckIfParameterIsNullCodeRefactoringProvider>(@"class Foo
 {
     void Test ()
     {
@@ -139,7 +139,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestNullCheckAlreadyThere()
 		{
-			TestWrongContext<CheckIfParameterIsNullAction>(@"class Foo
+			TestWrongContext<CheckIfParameterIsNullCodeRefactoringProvider>(@"class Foo
 {
     void Test ()
     {
@@ -154,7 +154,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestPopupOnlyOnName()
 		{
-			TestWrongContext<CheckIfParameterIsNullAction>(@"class Foo
+			TestWrongContext<CheckIfParameterIsNullCodeRefactoringProvider>(@"class Foo
 {
 	void Test ($string param)
 	{
