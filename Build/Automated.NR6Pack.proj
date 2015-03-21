@@ -1,0 +1,81 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="go">
+	<!-- This file is called by the build server. -->
+	<!-- Expected properties:
+		ArtefactsOutputDir : full path of directory to write the build artefacts to.
+		TestReportsDir     : full path of directory to write CC.net report files to
+	-->
+	<PropertyGroup>
+		<ProjectDir Condition=" '$(ProjectDir)' == '' ">$(MSBuildProjectDirectory)\..</ProjectDir>
+
+		<SharpDevelopSrc>$(ProjectDir)\src</SharpDevelopSrc>
+		<NRefactoryBin>$(ProjectDir)\bin</NRefactoryBin>
+		<NUnitToolPath>$(MSBuildProjectDirectory)\Tools\NUnit</NUnitToolPath>
+		<NUnitTempToolPath>$(NRefactoryBin)\Tools\x86NUnit</NUnitTempToolPath>
+		
+		<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\Tools\MSBuildCommunityTasks</MSBuildCommunityTasksPath>
+		
+		<!-- TODO: this can be only a temporary fix to grab msbuild 14.0 -->
+		<MSBuild14>C:\Program Files (x86)\MSBuild\14.0\Bin</MSBuild14> <!-- old code below: $(MSBuildBinPath)\..\v4.0.30319 -->
+		<MSBuildExecutable>&quot;$(MSBuild14)\msbuild.exe&quot;</MSBuildExecutable>
+		
+		<BuildProperties>/p:Configuration=Release &quot;/p:Platform=Any CPU&quot;</BuildProperties>
+		<BuildProperties>$(BuildProperties) &quot;/p:BranchName=$(BranchName)&quot;</BuildProperties>
+		<BuildProperties>$(BuildProperties) $(AdditionalBuildProperties)</BuildProperties>
+	</PropertyGroup>
+	
+	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
+	
+	<Target Name="go">
+		<Error Text="ArtefactsOutputDir not set" Condition="'$(ArtefactsOutputDir)' == ''"/>
+		<Error Text="TestReportsDir not set" Condition="'$(TestReportsDir)' == ''"/>
+		
+		<Message Text="ArtefactsOutputDir=$(ArtefactsOutputDir)" Importance="high"/>
+		<Message Text="BuildProperties=$(BuildProperties)" Importance="high"/>
+		
+		<CallTarget Targets="clean1"/>
+		
+		<CallTarget Targets="build"/>
+		<CallTarget Targets="rununittests"/>
+		
+		<CallTarget Targets="clean2"/>
+	</Target>
+	
+	<Target Name="build">
+		<Exec WorkingDirectory="$(ProjectDir)"
+		      Command="$(MSBuildExecutable) NR6Pack.sln $(BuildProperties)"/>
+	</Target>
+	
+	<Target Name="rununittests">
+		<CreateItem Include="$(NRefactoryBin)\Release\**\*.Tests.dll;">
+			<Output TaskParameter="Include" ItemName="UnitTestAssemblies"/>
+		</CreateItem>
+		
+		<!-- HACK: we cannot make the NUnit task run the x86 version; so instead we make a copy
+			of NUnit and rename nunit-console-x86 to nunit-console
+		-->
+		<CreateItem Include="$(NUnitToolPath)\lib\*.dll">
+			<Output TaskParameter="Include" ItemName="NUnitLibFiles"/>
+		</CreateItem>
+		<Copy SourceFiles="@(NUnitLibFiles)" DestinationFolder="$(NUnitTempToolPath)\lib"/>
+		<Copy SourceFiles="$(NUnitToolPath)\nunit.framework.dll" DestinationFolder="$(NUnitTempToolPath)"/>
+		<Copy SourceFiles="$(NUnitToolPath)\nunit-console-x86.exe" DestinationFiles="$(NUnitTempToolPath)\nunit-console.exe"/>
+		<Copy SourceFiles="$(NUnitToolPath)\nunit-console-x86.exe.config" DestinationFiles="$(NUnitTempToolPath)\nunit-console.exe.config"/>
+		
+		<!-- the %() portion is important; otherwise a single NUnit-console process is used for all tests -->
+		<NUnit Assemblies="@(UnitTestAssemblies)"
+		       OutputXmlFile="$(TestReportsDir)\%(UnitTestAssemblies.FileName).xml"
+		       WorkingDirectory="$(NRefactoryBin)\Release"
+		       ToolPath="$(NUnitTempToolPath)"/>
+	</Target>
+	
+	<!-- Yes, apparently we really need two identical clean tasks. MSBuild won't run the same task twice. -->
+	<Target Name="clean1">
+		<Exec WorkingDirectory="$(ProjectDir)"
+		      Command="$(MSBuildExecutable) NR6Pack.sln /t:Clean $(BuildProperties)"/>
+	</Target>
+	<Target Name="clean2">
+		<Exec WorkingDirectory="$(ProjectDir)"
+		      Command="$(MSBuildExecutable) NR6Pack.sln /t:Clean $(BuildProperties)"/>
+	</Target>
+	
+</Project>
