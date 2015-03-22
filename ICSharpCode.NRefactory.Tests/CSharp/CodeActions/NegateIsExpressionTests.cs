@@ -1,5 +1,5 @@
 //
-// ConvertShiftToMultiplyActionTests.cs
+// NegateIsExpressionActionTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -29,47 +29,48 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ConvertShiftToMultiplyActionTests : ContextActionTestBase
+	public class NegateIsExpressionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestShiftLeft()
+		public void TestSimpleCase ()
 		{
-			Test<ConvertShiftToMultiplyAction>(@"
+			Test<NegateIsExpressionCodeRefactoringProvider> (@"
 class TestClass
 {
-	int TestMethod (int i)
+	void Test (object x)
 	{
-		return i $<< 8;
+		var b = x $is TestClass;
 	}
 }", @"
 class TestClass
 {
-	int TestMethod (int i)
+	void Test (object x)
 	{
-		return i * 256;
+		var b = !(x is TestClass);
 	}
 }");
 		}
 
 		[Test]
-		public void TestShiftRight()
+		public void TestReverse ()
 		{
-			Test<ConvertShiftToMultiplyAction>(@"
+			Test<NegateIsExpressionCodeRefactoringProvider> (@"
 class TestClass
 {
-	int TestMethod (int i)
+	void Test (object x)
 	{
-		return i $>> 4;
+		var b = !(x $is TestClass);
 	}
 }", @"
 class TestClass
 {
-	int TestMethod (int i)
+	void Test (object x)
 	{
-		return i / 16;
+		var b = x is TestClass;
 	}
 }");
 		}
+
 	}
 }
 

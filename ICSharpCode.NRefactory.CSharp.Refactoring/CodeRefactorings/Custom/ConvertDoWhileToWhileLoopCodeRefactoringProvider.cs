@@ -1,10 +1,10 @@
 //
-// ConvertShiftToMultiplyAction.cs
+// ConvertDoWhileToWhileLoopAction.cs
 //
 // Author:
-//       Mike Krüger <mkrueger@xamarin.com>
+//       Luís Reis <luiscubal@gmail.com>
 //
-// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2013 Luís Reis
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,31 +40,49 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert '<<'/'>>' to '*'/'/'")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert '<<'/'>>' to '*'/'/'")]
-	public class ConvertShiftToMultiplyAction : SpecializedCodeRefactoringProvider<BinaryExpressionSyntax>
+	/// <summary>
+	/// Convert do...while to while. For instance, { do x++; while (Foo(x)); } becomes { while(Foo(x)) x++; }.
+	/// Note that this action will often change the semantics of the code.
+	/// </summary>
+	[NRefactoryCodeRefactoringProvider(Description = "Converts a do...while to a while loop (changing semantics)")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert do...while to while")]
+	public class ConvertDoWhileToWhileLoopCodeRefactoringProvider : CodeRefactoringProvider
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
+		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
-			if (!node.OperatorToken.Span.Contains(span) || !(node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken) || node.OperatorToken.IsKind(SyntaxKind.GreaterThanGreaterThanToken)))
-				return Enumerable.Empty<CodeAction>();
+			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
+			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
+			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
-			var rightSide = node.Right as LiteralExpressionSyntax;
-			if (rightSide == null || !(rightSide.Token.Value is int))
-				return Enumerable.Empty<CodeAction>();
-			bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken);
-			return new[] {
+			var node = root.FindNode(span) as DoStatementSyntax;
+			if (node == null)
+				return;
+			context.RegisterRefactoring(
 				CodeActionFactory.Create(
-					span,
-					DiagnosticSeverity.Info,
-					isLeftShift ? "Replace with '*'" : "Replace with '/'",
+					span, 
+					DiagnosticSeverity.Info, 
+					"To 'while { ... }'", 
 					t2 => {
-						var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.MultiplyExpression : SyntaxKind.DivideExpression, node.Left,
-							SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1 << (int)rightSide.Token.Value))).WithAdditionalAnnotations(Formatter.Annotation));
+						var newRoot = root.ReplaceNode((SyntaxNode)
+							node, 
+							SyntaxFactory.WhileStatement(node.Condition, node.Statement)
+							.WithLeadingTrivia(node.GetLeadingTrivia())
+							.WithAdditionalAnnotations(Formatter.Annotation)
+						);
+
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			};
+			);
 		}
 	}
 }
+

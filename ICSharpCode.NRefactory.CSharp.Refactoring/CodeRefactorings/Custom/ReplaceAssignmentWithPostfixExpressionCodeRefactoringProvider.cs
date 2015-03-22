@@ -1,10 +1,10 @@
 //
-// SimplifyIfInLoopsFlowAction.cs
+// ReplaceAssignmentWithPostfixExpressionAction.cs
 //
 // Author:
-//      Ciprian Khlud <ciprian.mustiata@yahoo.com>
+//       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2013 Ciprian Khlud <ciprian.mustiata@yahoo.com>
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -40,70 +40,51 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Inverts if and reduces branching")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Simplify if flow in loops")]
-	public class SimplifyIfInLoopsFlowAction : CodeRefactoringProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Replace assignment with postfix expression")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace assignment with postfix expression")]
+	public class ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			var ifStatement = GetIfElseStatement(root, span);
-			if (ifStatement == null)
+			var token = root.FindToken(span.Start);
+
+			var node = token.Parent as AssignmentExpressionSyntax;
+			if (node == null || !node.OperatorToken.Span.Contains(span))
+				return;
+
+			var updatedNode = ReplaceWithOperatorAssignmentCodeRefactoringProvider.CreateAssignment(node) ?? node;
+
+			if ((!updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) && !updatedNode.IsKind(SyntaxKind.SubtractAssignmentExpression)))
+				return;
+
+			var rightLiteral = updatedNode.Right as LiteralExpressionSyntax;
+			if (rightLiteral == null || ((int)rightLiteral.Token.Value) != 1)
 				return;
 
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(
-					ifStatement.Span,
+					token.Span,
 					DiagnosticSeverity.Info,
-					"Simplify if in loops",
+					updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? "To '{0}++'" : "To '{0}--'",
 					t2 => {
-						var mergedIfStatement = SyntaxFactory.IfStatement(CSharpUtil.InvertCondition(ifStatement.Condition), SyntaxFactory.ContinueStatement())
-							.WithAdditionalAnnotations(Formatter.Annotation);
-						var newRoot = root.ReplaceNode((SyntaxNode)ifStatement, new SyntaxNode[] { mergedIfStatement }.Concat(GetStatements(ifStatement.Statement)));
+						var newNode = SyntaxFactory.PostfixUnaryExpression(updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? SyntaxKind.PostIncrementExpression : SyntaxKind.PostDecrementExpression, updatedNode.Left);
+						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(node.GetLeadingTrivia()));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
 			);
 		}
-
-		internal static IEnumerable<SyntaxNode> GetStatements(StatementSyntax statement)
-		{
-			var blockSyntax = statement as BlockSyntax;
-			if (blockSyntax != null) {
-				foreach (var stmt in blockSyntax.Statements)
-					yield return stmt.WithAdditionalAnnotations(Formatter.Annotation);
-			} else {
-				yield return statement.WithAdditionalAnnotations(Formatter.Annotation);
-			}
-		}
-
-		static IfStatementSyntax GetIfElseStatement(SyntaxNode root, TextSpan span)
-		{
-			var result = root.FindNode(span) as IfStatementSyntax;
-			if (result == null)
-				return null;
-			if (!result.IfKeyword.Span.Contains(span) ||
-				result.Statement == null ||
-				result.Else != null)
-				return null;
-
-			var parentBlock = result.Parent as BlockSyntax;
-			if (parentBlock == null)
-				return null;
-
-			if (!(parentBlock.Parent is WhileStatementSyntax || 
-				parentBlock.Parent is ForEachStatementSyntax || 
-				parentBlock.Parent is ForStatementSyntax))
-				return null;
-
-			int i = parentBlock.Statements.IndexOf(result);
-			if (i + 1 >= parentBlock.Statements.Count)
-				return result;
-			return null;
-		}
 	}
 }
+

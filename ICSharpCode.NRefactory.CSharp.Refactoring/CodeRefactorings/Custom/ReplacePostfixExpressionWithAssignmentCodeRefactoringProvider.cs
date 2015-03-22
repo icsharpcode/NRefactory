@@ -1,5 +1,5 @@
 //
-// ReplaceOperatorAssignmentWithAssignmentAction.cs
+// ReplacePostfixExpressionWithAssignmentAction.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -35,75 +34,46 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Replace operator assignment with assignment")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace operator assignment with assignment")]
-	public class ReplaceOperatorAssignmentWithAssignmentAction : CodeRefactoringProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Replace postfix expression with assignment")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace postfix expression with assignment")]
+	public class ReplacePostfixExpressionWithAssignmentCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
 
-			var node = token.Parent as AssignmentExpressionSyntax;
-			if (node == null || !node.OperatorToken.Span.Contains(span))
-				return;
-			if (node.IsKind(SyntaxKind.SimpleAssignmentExpression))
-				return;
-			var assignment = GetAssignmentOperator(node.Kind());
-			if (assignment == SyntaxKind.None)
+			var postfix = token.Parent.Parent as PostfixUnaryExpressionSyntax;
+			if (postfix == null || !(postfix.IsKind(SyntaxKind.PostIncrementExpression) || postfix.IsKind(SyntaxKind.PostDecrementExpression)))
 				return;
 
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"Replace with '='",
+					string.Format(postfix.IsKind(SyntaxKind.PostIncrementExpression)  ? "Replace '{0}++' with '{0} += 1'" : "Replace '{0}--' with '{0} -= 1'", postfix.Operand.ToString()),
 					t2 => {
-						var newNode = SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, node.Left,
-							SyntaxFactory.BinaryExpression(assignment, node.Left.WithoutLeadingTrivia(), node.Right));
-						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
+						var op = postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken) ? SyntaxKind.AddAssignmentExpression : SyntaxKind.SubtractAssignmentExpression;
+						var binexp = SyntaxFactory.AssignmentExpression(op, postfix.Operand, SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1)));
+						var newRoot = root.ReplaceNode((SyntaxNode)postfix, binexp.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(postfix.GetLeadingTrivia()));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
 			);
 		}
-
-		static SyntaxKind GetAssignmentOperator(SyntaxKind op)
-		{
-			switch (op) {
-				case SyntaxKind.AndAssignmentExpression:
-					return SyntaxKind.BitwiseAndExpression;
-				case SyntaxKind.OrAssignmentExpression:
-					return SyntaxKind.BitwiseOrExpression;
-				case SyntaxKind.ExclusiveOrAssignmentExpression:
-					return SyntaxKind.ExclusiveOrExpression;
-				case SyntaxKind.AddAssignmentExpression:
-					return SyntaxKind.AddExpression;
-				case SyntaxKind.SubtractAssignmentExpression:
-					return SyntaxKind.SubtractExpression;
-				case SyntaxKind.MultiplyAssignmentExpression:
-					return SyntaxKind.MultiplyExpression;
-				case SyntaxKind.DivideAssignmentExpression:
-					return SyntaxKind.DivideExpression;
-				case SyntaxKind.ModuloAssignmentExpression:
-					return SyntaxKind.ModuloExpression;
-				case SyntaxKind.LeftShiftAssignmentExpression:
-					return SyntaxKind.LeftShiftExpression;
-				case SyntaxKind.RightShiftAssignmentExpression:
-					return SyntaxKind.RightShiftExpression;
-				default:
-					return SyntaxKind.None;
-			}
-		}
 	}
 }
-

@@ -329,14 +329,11 @@
     <Compile Include="CodeActions\AddOptionalParameterToInvocationAction.cs" />
     <Compile Include="CodeActions\AutoLinqSumAction.cs" />
     <Compile Include="CodeActions\ChangeAccessModifierAction.cs" />
-    <Compile Include="CodeActions\ConvertDoWhileToWhileLoopAction.cs" />
     <Compile Include="CodeActions\ConvertAssignmentToIfAction.cs" />
-    <Compile Include="CodeActions\ConvertForToWhileAction.cs" />
     <Compile Include="CodeActions\ConvertIfStatementToNullCoalescingExpressionAction.cs" />
     <Compile Include="CodeActions\ConvertIfStatementToReturnStatementAction.cs" />
     <Compile Include="CodeActions\ConvertMultiplyToShiftAction.cs" />
     <Compile Include="CodeActions\ConvertReturnStatementToIfAction.cs" />
-    <Compile Include="CodeActions\ConvertShiftToMultiplyAction.cs" />
     <Compile Include="CodeActions\ConvertWhileToDoWhileLoopAction.cs" />
     <Compile Include="CodeActions\CopyCommentsFromInterface.cs" />
     <Compile Include="CodeActions\CreateChangedEventAction.cs" />
@@ -351,24 +348,14 @@
     <Compile Include="CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs" />
     <Compile Include="CodeActions\GenerateGetterAction.cs" />
     <Compile Include="CodeActions\GeneratePropertyAction.cs" />
-    <Compile Include="CodeActions\GenerateSwitchLabelsAction.cs" />
     <Compile Include="CodeActions\IntroduceConstantAction.cs" />
-    <Compile Include="CodeActions\InvertIfAndSimplify.cs" />
-    <Compile Include="CodeActions\InvertLogicalExpressionAction.cs" />
     <Compile Include="CodeActions\IterateViaForeachAction.cs" />
     <Compile Include="CodeActions\LinqFluentToQueryAction.cs" />
     <Compile Include="CodeActions\LinqQueryToFluentAction.cs" />
     <Compile Include="CodeActions\MergeNestedIfAction.cs" />
     <Compile Include="CodeActions\MoveToOuterScopeAction.cs" />
-    <Compile Include="CodeActions\NegateIsExpressionAction.cs" />
     <Compile Include="CodeActions\PutInsideUsingAction.cs" />
-    <Compile Include="CodeActions\ReplaceAssignmentWithPostfixExpressionAction.cs" />
-    <Compile Include="CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs" />
-    <Compile Include="CodeActions\ReplacePostfixExpressionWithAssignmentAction.cs" />
-    <Compile Include="CodeActions\ReplaceWithOperatorAssignmentAction.cs" />
     <Compile Include="CodeActions\ReverseDirectionForForLoopAction.cs" />
-    <Compile Include="CodeActions\SimplifyIfFlowAction.cs" />
-    <Compile Include="CodeActions\SimplifyIfInLoopsFlowAction.cs" />
     <Compile Include="CodeActions\SortUsingsAction.cs" />
     <Compile Include="CodeActions\SplitStringAction.cs" />
     <Compile Include="CodeActions\UseStringFormatAction.cs" />
@@ -439,6 +426,16 @@
     <Compile Include="CodeRefactorings\Synced\UseAsAndNullCheckCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\UseSystemStringEmptyCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\UseSystemEnvironmentNewLineCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ConvertForToWhileCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ConvertDoWhileToWhileLoopCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\NegateIsExpressionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\InvertLogicalExpressionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\GenerateSwitchLabelsCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ReplacePostfixExpressionWithAssignmentCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ReplaceWithOperatorAssignmentCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ConvertShiftToMultiplyCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ReplaceOperatorAssignmentWithAssignmentCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

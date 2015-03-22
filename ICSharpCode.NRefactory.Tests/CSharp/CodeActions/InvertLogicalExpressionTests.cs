@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
         [Test]
         public void ConditionlAnd()
         {
-            Test<InvertLogicalExpressionAction>(@"
+            Test<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class TestClass
 {
     public void F()
@@ -62,7 +62,7 @@ class TestClass
         [Test]
         public void ConditionlAndReverse()
         {
-            Test<InvertLogicalExpressionAction>(@"
+            Test<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class TestClass
 {
     public void F()
@@ -90,7 +90,7 @@ class TestClass
         [Test]
         public void ConditionlOr()
         {
-            Test<InvertLogicalExpressionAction>(@"
+            Test<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class TestClass
 {
     public void F()
@@ -118,7 +118,7 @@ class TestClass
         [Test]
         public void ConditionlOrReverse()
         {
-            Test<InvertLogicalExpressionAction>(@"
+            Test<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class TestClass
 {
     public void F()
@@ -147,7 +147,7 @@ class TestClass
         [Test]
         public void ConditionlAnd2()
         {
-            Test<InvertLogicalExpressionAction>(@"
+            Test<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class TestClass
 {
     public void F()
@@ -175,7 +175,7 @@ class TestClass
         [Test]
         public void ConditionlOr2()
         {
-            Test<InvertLogicalExpressionAction>(@"
+            Test<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class TestClass
 {
     public void F()
@@ -203,7 +203,7 @@ class TestClass
         [Test]
         public void Equals()
         {
-            Test<InvertLogicalExpressionAction>(@"
+            Test<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class TestClass
 {
     public void F()
@@ -231,7 +231,7 @@ class TestClass
         [Test]
         public void EqualsReverse()
         {
-            Test<InvertLogicalExpressionAction>(@"
+            Test<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class TestClass
 {
     public void F()
@@ -260,7 +260,7 @@ class TestClass
         [Test]
         public void TestNullCoalescing()
         {
-            TestWrongContext<InvertLogicalExpressionAction>(@"
+            TestWrongContext<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class Foo
 {
     void Bar (object i, object j)
@@ -275,7 +275,7 @@ class Foo
         [Test]
         public void TestUnaryExpression()
         {
-            Test<InvertLogicalExpressionAction>(@"
+            Test<InvertLogicalExpressionCodeRefactoringProvider>(@"
 class Foo
 {
     void Bar (bool a, bool b)

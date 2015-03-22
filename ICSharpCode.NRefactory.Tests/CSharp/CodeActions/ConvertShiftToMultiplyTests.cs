@@ -1,10 +1,10 @@
 //
-// SimplifyIfFlowTests.cs
+// ConvertShiftToMultiplyActionTests.cs
 //
 // Author:
-//      Ciprian Khlud <ciprian.mustiata@yahoo.com>
+//       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2013 Ciprian Khlud <ciprian.mustiata@yahoo.com>
+// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -29,31 +29,47 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class SimplifyIfFlowTests : ContextActionTestBase
+	public class ConvertShiftToMultiplyTests : ContextActionTestBase
 	{
 		[Test]
-		public void Test()
+		public void TestShiftLeft()
 		{
-			Test<SimplifyIfFlowAction>(
-				@"class TestClass
+			Test<ConvertShiftToMultiplyCodeRefactoringProvider>(@"
+class TestClass
 {
-    void Test ()
-    {
-        $if (true) {
-            Case1();
-        }
-    }
-}",
-				@"class TestClass
+	int TestMethod (int i)
+	{
+		return i $<< 8;
+	}
+}", @"
+class TestClass
 {
-    void Test ()
-    {
-        if (false)
-            return;
-        Case1();
-    }
-}"
-			);
+	int TestMethod (int i)
+	{
+		return i * 256;
+	}
+}");
+		}
+
+		[Test]
+		public void TestShiftRight()
+		{
+			Test<ConvertShiftToMultiplyCodeRefactoringProvider>(@"
+class TestClass
+{
+	int TestMethod (int i)
+	{
+		return i $>> 4;
+	}
+}", @"
+class TestClass
+{
+	int TestMethod (int i)
+	{
+		return i / 16;
+	}
+}");
 		}
 	}
 }
+

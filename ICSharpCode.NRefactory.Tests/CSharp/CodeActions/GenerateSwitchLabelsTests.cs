@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void Test()
 		{
-			Test<GenerateSwitchLabelsAction>(@"
+			Test<GenerateSwitchLabelsCodeRefactoringProvider>(@"
 using System;
 
 class TestClass
@@ -72,7 +72,7 @@ class TestClass
 		[Test]
 		public void TestAddMissing()
 		{
-			Test<GenerateSwitchLabelsAction>(@"
+			Test<GenerateSwitchLabelsCodeRefactoringProvider>(@"
 using System;
 
 class Foo

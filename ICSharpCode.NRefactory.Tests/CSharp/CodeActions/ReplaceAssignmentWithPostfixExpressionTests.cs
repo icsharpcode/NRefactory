@@ -1,5 +1,5 @@
 //
-// NegateIsExpressionActionTests.cs
+// ReplaceAssignmentWithPostfixExpressionActionTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,50 +23,95 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using System;
 using NUnit.Framework;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class NegateIsExpressionActionTests : ContextActionTestBase
+	public class ReplaceAssignmentWithPostfixExpressionTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestSimpleCase ()
+		public void TestAdd()
 		{
-			Test<NegateIsExpressionAction> (@"
-class TestClass
+			Test<ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider>(@"
+class Test
 {
-	void Test (object x)
+	void Foo (int i)
 	{
-		var b = x $is TestClass;
+		i $+= 1;
 	}
 }", @"
-class TestClass
+class Test
 {
-	void Test (object x)
+	void Foo (int i)
 	{
-		var b = !(x is TestClass);
+        i++;
+	}
+}");
+		}
+
+		[Ignore("broken")]
+		[Test]
+		public void TestAddWithComment()
+		{
+			Test<ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider>(@"
+class Test
+{
+	void Foo (int i)
+	{
+        // Some comment
+		i $+= 1;
+	}
+}", @"
+class Test
+{
+	void Foo (int i)
+	{
+        // Some comment
+        i++;
 	}
 }");
 		}
 
 		[Test]
-		public void TestReverse ()
+		public void TestSub()
 		{
-			Test<NegateIsExpressionAction> (@"
-class TestClass
+			Test<ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider>(@"
+class Test
 {
-	void Test (object x)
+	void Foo (int i)
 	{
-		var b = !(x $is TestClass);
+		i $-= 1;
 	}
 }", @"
-class TestClass
+class Test
 {
-	void Test (object x)
+	void Foo (int i)
 	{
-		var b = x is TestClass;
+        i--;
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestAddCase2()
+		{
+			Test<ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider>(@"
+class Test
+{
+	void Foo (int i)
+	{
+		i $= i + 1;
+	}
+}", @"
+class Test
+{
+	void Foo (int i)
+	{
+        i++;
 	}
 }");
 		}

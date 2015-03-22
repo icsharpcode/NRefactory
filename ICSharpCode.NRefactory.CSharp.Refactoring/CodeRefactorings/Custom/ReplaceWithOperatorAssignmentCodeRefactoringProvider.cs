@@ -42,16 +42,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replace assignment with operator assignment")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace assignment with operator assignment")]
-	public class ReplaceWithOperatorAssignmentAction : CodeRefactoringProvider
+	public class ReplaceWithOperatorAssignmentCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
+			if (!token.IsKind (SyntaxKind.EqualsToken))
+				return;
 			var node = token.Parent as AssignmentExpressionSyntax;
 			if (node == null)
 				return;
@@ -60,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return;
 			assignment = assignment.WithAdditionalAnnotations(Formatter.Annotation);
             context.RegisterRefactoring(
-				CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format("Replace with '{0}='", node.Left.ToString()), document.WithSyntaxRoot(
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format("To '{0}='", node.Left.ToString()), document.WithSyntaxRoot(
                 root.ReplaceNode((SyntaxNode)node, assignment)))
 			);
 		}
@@ -114,7 +122,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					return SyntaxKind.None;
 			}
 		}
-
 	}
 }
-

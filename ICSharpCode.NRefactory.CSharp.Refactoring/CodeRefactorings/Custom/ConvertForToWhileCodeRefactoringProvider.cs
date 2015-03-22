@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Works on 'for' loops")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert 'for' loop to 'while'")]
-	public class ConvertForToWhileAction : SpecializedCodeRefactoringProvider<ForStatementSyntax>
+	public class ConvertForToWhileCodeRefactoringProvider : SpecializedCodeRefactoringProvider<ForStatementSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ForStatementSyntax node, CancellationToken cancellationToken)
 		{
@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			return new [] { CodeActionFactory.Create(
 				node.Span,
 				DiagnosticSeverity.Info,
-				"Convert to 'while'",
+				"To 'while'",
 				t2 => {
 					var statements = new List<StatementSyntax>();
 					var blockSyntax = node.Statement as BlockSyntax;

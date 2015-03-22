@@ -30,12 +30,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ReplaceWithOperatorAssignmentActionTests : ContextActionTestBase
+	public class ReplaceWithOperatorAssignmentTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestAdd()
 		{
-			Test<ReplaceWithOperatorAssignmentAction>(@"
+			Test<ReplaceWithOperatorAssignmentCodeRefactoringProvider>(@"
 class Test
 {
 	void Foo (int i)

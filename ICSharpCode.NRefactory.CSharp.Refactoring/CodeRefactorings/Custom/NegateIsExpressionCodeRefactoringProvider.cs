@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Negate an is expression")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Negate 'is' expression")]
-	public class NegateIsExpressionAction : SpecializedCodeRefactoringProvider<BinaryExpressionSyntax>
+	public class NegateIsExpressionCodeRefactoringProvider : SpecializedCodeRefactoringProvider<BinaryExpressionSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{

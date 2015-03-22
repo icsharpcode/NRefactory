@@ -1,5 +1,5 @@
 //
-// ReplaceAssignmentWithPostfixExpressionActionTests.cs
+// ReplacePostfixExpressionWithAssignmentActionTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,6 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
@@ -30,24 +31,24 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ReplaceAssignmentWithPostfixExpressionActionTests : ContextActionTestBase
+	public class ReplacePostfixExpressionWithAssignmentTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestAdd()
 		{
-			Test<ReplaceAssignmentWithPostfixExpressionAction>(@"
+			Test<ReplacePostfixExpressionWithAssignmentCodeRefactoringProvider>(@"
 class Test
 {
 	void Foo (int i)
 	{
-		i $+= 1;
+		$i++;
 	}
 }", @"
 class Test
 {
 	void Foo (int i)
 	{
-        i++;
+        i += 1;
 	}
 }");
 		}
@@ -56,13 +57,13 @@ class Test
 		[Test]
 		public void TestAddWithComment()
 		{
-			Test<ReplaceAssignmentWithPostfixExpressionAction>(@"
+			Test<ReplacePostfixExpressionWithAssignmentCodeRefactoringProvider>(@"
 class Test
 {
 	void Foo (int i)
 	{
         // Some comment
-		i $+= 1;
+		$i++;
 	}
 }", @"
 class Test
@@ -70,7 +71,7 @@ class Test
 	void Foo (int i)
 	{
         // Some comment
-        i++;
+        i += 1;
 	}
 }");
 		}
@@ -78,44 +79,22 @@ class Test
 		[Test]
 		public void TestSub()
 		{
-			Test<ReplaceAssignmentWithPostfixExpressionAction>(@"
+			Test<ReplacePostfixExpressionWithAssignmentCodeRefactoringProvider>(@"
 class Test
 {
 	void Foo (int i)
 	{
-		i $-= 1;
+		$i--;
 	}
 }", @"
 class Test
 {
 	void Foo (int i)
 	{
-        i--;
+        i -= 1;
 	}
 }");
 		}
-
-
-		[Test]
-		public void TestAddCase2()
-		{
-			Test<ReplaceAssignmentWithPostfixExpressionAction>(@"
-class Test
-{
-	void Foo (int i)
-	{
-		i $= i + 1;
-	}
-}", @"
-class Test
-{
-	void Foo (int i)
-	{
-        i++;
-	}
-}");
-		}
-
 	}
 }
 

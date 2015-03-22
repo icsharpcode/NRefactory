@@ -346,14 +346,12 @@
     <Compile Include="CSharp\CodeActions\ConvertExplicitToImplicitImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertAssignmentToIfActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertForeachToForTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertForToWhileActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertIfStatementToNullCoalescingExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertIfStatementToReturnStatementActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertImplicitToExplicittImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertLambdaBodyExpressionToStatementTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertMultiplyToShiftActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertReturnStatementToIfActionTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertShiftToMultiplyActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertSwitchToIfTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertWhileToDoWhileLoopTests.cs" />
     <Compile Include="CSharp\CodeActions\CopyCommentsFromBaseTests.cs" />
@@ -375,7 +373,6 @@
     <Compile Include="CSharp\CodeActions\InsertAnonymousMethodSignatureTests.cs" />
     <Compile Include="CSharp\CodeActions\IntroduceConstantTests.cs" />
     <Compile Include="CSharp\CodeActions\IntroduceFormatItemTests.cs" />
-    <Compile Include="CSharp\CodeActions\InvertIfAndSimplifyTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertIfTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\IterateViaForeachTests.cs" />
@@ -384,15 +381,8 @@
     <Compile Include="CSharp\CodeActions\LinqQueryToFluentTests.cs" />
     <Compile Include="CSharp\CodeActions\MergeNestedIfTests.cs" />
     <Compile Include="CSharp\CodeActions\MoveToOuterScopeTests.cs" />
-    <Compile Include="CSharp\CodeActions\NegateIsExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\PutInsideUsingTests.cs" />
-    <Compile Include="CSharp\CodeActions\ReplaceAssignmentWithPostfixExpressionActionTests.cs" />
-    <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentActionTests.cs" />
-    <Compile Include="CSharp\CodeActions\ReplacePostfixExpressionWithAssignmentActionTests.cs" />
-    <Compile Include="CSharp\CodeActions\ReplaceWithOperatorAssignmentActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReverseDirectionForForLoopTests.cs" />
-    <Compile Include="CSharp\CodeActions\SimplifyIfFlowInLoopsTests.cs" />
-    <Compile Include="CSharp\CodeActions\SimplifyIfFlowTests.cs" />
     <Compile Include="CSharp\CodeActions\SortUsingsTests.cs" />
     <Compile Include="CSharp\CodeActions\SplitStringTests.cs" />
     <Compile Include="CSharp\CodeActions\UseStringFormatTests.cs" />
@@ -483,6 +473,13 @@
     <Compile Include="CSharp\CodeActions\UseAsAndNullCheckTests.cs" />
     <Compile Include="CSharp\CodeActions\UseSystemStringEmptyTests.cs" />
     <Compile Include="CSharp\CodeActions\UseSystemEnvironmentNewLineTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertForToWhileTests.cs" />
+    <Compile Include="CSharp\CodeActions\NegateIsExpressionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplacePostfixExpressionWithAssignmentTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceWithOperatorAssignmentTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceAssignmentWithPostfixExpressionTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertShiftToMultiplyTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

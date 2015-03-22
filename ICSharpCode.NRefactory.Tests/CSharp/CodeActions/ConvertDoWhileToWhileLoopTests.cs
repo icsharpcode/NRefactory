@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestSimple()
 		{
-			Test<ConvertDoWhileToWhileLoopAction>(@"
+			Test<ConvertDoWhileToWhileLoopCodeRefactoringProvider>(@"
 class Foo {
 	void TestMethod() {
 		int x = 1;
@@ -52,11 +52,10 @@ class Foo {
 }");
 		}
 
-		[Ignore("broken")]
 		[Test]
 		public void TestSimpleWithComment1()
 		{
-			Test<ConvertDoWhileToWhileLoopAction>(@"
+			Test<ConvertDoWhileToWhileLoopCodeRefactoringProvider>(@"
 class Foo {
 	void TestMethod() {
 		int x = 1;
@@ -76,11 +75,10 @@ class Foo {
 }");
 		}
 
-		[Ignore("broken")]
 		[Test]
 		public void TestSimpleWithComment2()
 		{
-			Test<ConvertDoWhileToWhileLoopAction>(@"
+			Test<ConvertDoWhileToWhileLoopCodeRefactoringProvider>(@"
 class Foo {
 	void TestMethod() {
 		int x = 1;
@@ -101,7 +99,7 @@ class Foo {
 		[Test]
 		public void TestDisabledInContent()
 		{
-			TestWrongContext<ConvertDoWhileToWhileLoopAction>(@"
+			TestWrongContext<ConvertDoWhileToWhileLoopCodeRefactoringProvider>(@"
 class Foo {
 	void TestMethod() {
 		int x = 1;

@@ -30,12 +30,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ConvertForToWhileActionTests  : ContextActionTestBase
+	public class ConvertForToWhileTests  : ContextActionTestBase
 	{
 		[Test]
 		public void TestSimpleFor()
 		{
-			Test<ConvertForToWhileAction>(@"
+			Test<ConvertForToWhileCodeRefactoringProvider>(@"
 class Test
 {
     void Foo (object[] o)
@@ -65,7 +65,7 @@ class Test
 		[Test]
 		public void TestSimpleForWithComment1()
 		{
-			Test<ConvertForToWhileAction>(@"
+			Test<ConvertForToWhileCodeRefactoringProvider>(@"
 class Test
 {
     void Foo (object[] o)
@@ -98,7 +98,7 @@ class Test
 		[Test]
 		public void TestSimpleForWithComment2()
 		{
-			Test<ConvertForToWhileAction>(@"
+			Test<ConvertForToWhileCodeRefactoringProvider>(@"
 class Test
 {
     void Foo (object[] o)
@@ -130,7 +130,7 @@ class Test
 		[Test]
 		public void TestMissingInitializer()
 		{
-			Test<ConvertForToWhileAction>(@"
+			Test<ConvertForToWhileCodeRefactoringProvider>(@"
 class Test
 {
     void Foo ()
@@ -159,7 +159,7 @@ class Test
 		[Test]
 		public void TestMissingCondition()
 		{
-			Test<ConvertForToWhileAction>(@"
+			Test<ConvertForToWhileCodeRefactoringProvider>(@"
 class Test
 {
     void Foo (object[] o)
@@ -189,7 +189,7 @@ class Test
 		[Test]
 		public void TestInfiniteLoop()
 		{
-			Test<ConvertForToWhileAction>(@"
+			Test<ConvertForToWhileCodeRefactoringProvider>(@"
 class Test
 {
     void Foo (object[] o)
@@ -217,7 +217,7 @@ class Test
 		[Test]
 		public void TestMultipleInitializersAndIterators()
 		{
-			Test<ConvertForToWhileAction>(@"
+			Test<ConvertForToWhileCodeRefactoringProvider>(@"
 class Test
 {
     void Foo (object[] o)

@@ -42,17 +42,27 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Creates switch lables for enumerations")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Generate switch labels")]
-	public class GenerateSwitchLabelsAction : CodeRefactoringProvider
+	public class GenerateSwitchLabelsCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
-			var switchStatement = root.FindNode(span) as SwitchStatementSyntax;
+			var token = root.FindToken (span.Start);
+			if (!token.IsKind (SyntaxKind.SwitchKeyword))
+				return;
+
+			var switchStatement = token.Parent as SwitchStatementSyntax;
 			if (switchStatement == null)
 				return;
 
@@ -78,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							SyntaxFactory.IdentifierName("ArgumentOutOfRangeException")).WithArgumentList(SyntaxFactory.ArgumentList())))));
 				var newRoot = root.ReplaceNode((SyntaxNode)switchStatement, switchStatement.WithSections(sections).WithAdditionalAnnotations(Formatter.Annotation));
 				context.RegisterRefactoring(
-					CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Create switch labels", document.WithSyntaxRoot(newRoot))
+					CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Generate switch labels", document.WithSyntaxRoot(newRoot))
 				);
 			} else {
 				List<IFieldSymbol> fields = new List<IFieldSymbol>();

@@ -1,5 +1,5 @@
 //
-// ReplacePostfixExpressionWithAssignmentActionTests.cs
+// ReplaceOperatorAssignmentWithAssignmentActionTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
@@ -31,70 +30,48 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ReplacePostfixExpressionWithAssignmentActionTests : ContextActionTestBase
+	public class ReplaceOperatorAssignmentWithAssignmentTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestAdd()
 		{
-			Test<ReplacePostfixExpressionWithAssignmentAction>(@"
+			Test<ReplaceOperatorAssignmentWithAssignmentCodeRefactoringProvider>(@"
 class Test
 {
-	void Foo (int i)
-	{
-		$i++;
-	}
+    void Foo (int i)
+    {
+        i $+= 1 + 2;
+    }
 }", @"
 class Test
 {
-	void Foo (int i)
-	{
-        i += 1;
-	}
+    void Foo (int i)
+    {
+        i = i + 1 + 2;
+    }
 }");
 		}
 
-		[Ignore("broken")]
 		[Test]
 		public void TestAddWithComment()
 		{
-			Test<ReplacePostfixExpressionWithAssignmentAction>(@"
+			Test<ReplaceOperatorAssignmentWithAssignmentCodeRefactoringProvider>(@"
 class Test
 {
-	void Foo (int i)
-	{
+    void Foo (int i)
+    {
         // Some comment
-		$i++;
-	}
+        i $+= 1 + 2;
+    }
 }", @"
 class Test
 {
-	void Foo (int i)
-	{
+    void Foo (int i)
+    {
         // Some comment
-        i += 1;
-	}
-}");
-		}
-
-		[Test]
-		public void TestSub()
-		{
-			Test<ReplacePostfixExpressionWithAssignmentAction>(@"
-class Test
-{
-	void Foo (int i)
-	{
-		$i--;
-	}
-}", @"
-class Test
-{
-	void Foo (int i)
-	{
-        i -= 1;
-	}
+        i = i + 1 + 2;
+    }
 }");
 		}
 	}
 }
-

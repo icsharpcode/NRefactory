@@ -1,5 +1,5 @@
 //
-// ReplacePostfixExpressionWithAssignmentAction.cs
+// ConvertShiftToMultiplyAction.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,6 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -34,40 +35,36 @@ using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Replace postfix expression with assignment")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace postfix expression with assignment")]
-	public class ReplacePostfixExpressionWithAssignmentAction : CodeRefactoringProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Convert '<<'/'>>' to '*'/'/'")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert '<<'/'>>' to '*'/'/'")]
+	public class ConvertShiftToMultiplyCodeRefactoringProvider : SpecializedCodeRefactoringProvider<BinaryExpressionSyntax>
 	{
-		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{
-			var document = context.Document;
-			var span = context.Span;
-			var cancellationToken = context.CancellationToken;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
-			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			var token = root.FindToken(span.Start);
+			if (!node.OperatorToken.Span.Contains(span) || !(node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken) || node.OperatorToken.IsKind(SyntaxKind.GreaterThanGreaterThanToken)))
+				return Enumerable.Empty<CodeAction>();
 
-			var postfix = token.Parent.Parent as PostfixUnaryExpressionSyntax;
-			if (postfix == null || !(postfix.IsKind(SyntaxKind.PostIncrementExpression) || postfix.IsKind(SyntaxKind.PostDecrementExpression)))
-				return;
-
-			context.RegisterRefactoring(
+			var rightSide = node.Right as LiteralExpressionSyntax;
+			if (rightSide == null || !(rightSide.Token.Value is int))
+				return Enumerable.Empty<CodeAction>();
+			bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.LessThanLessThanToken);
+			return new[] {
 				CodeActionFactory.Create(
-					token.Span,
+					span,
 					DiagnosticSeverity.Info,
-					string.Format(postfix.IsKind(SyntaxKind.PostIncrementExpression)  ? "Replace '{0}++' with '{0} += 1'" : "Replace '{0}--' with '{0} -= 1'", postfix.Operand.ToString()),
+					isLeftShift ? "To '*'" : "To '/'",
 					t2 => {
-						var op = postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken) ? SyntaxKind.AddAssignmentExpression : SyntaxKind.SubtractAssignmentExpression;
-						var binexp = SyntaxFactory.AssignmentExpression(op, postfix.Operand, SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1)));
-						var newRoot = root.ReplaceNode((SyntaxNode)postfix, binexp.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(postfix.GetLeadingTrivia()));
+						var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.MultiplyExpression : SyntaxKind.DivideExpression, node.Left,
+							SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1 << (int)rightSide.Token.Value))).WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
 					}
 				)
-			);
+			};
 		}
 	}
 }

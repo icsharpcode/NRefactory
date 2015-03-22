@@ -42,13 +42,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Inverts a logical expression")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Invert logical expression")]
-	public class InvertLogicalExpressionAction : CodeRefactoringProvider
+	public class InvertLogicalExpressionCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			ExpressionSyntax expr;
