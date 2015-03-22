@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (property == null || !property.Identifier.Span.Contains(span))
 				return;
 
-			var field = RemoveBackingStoreAction.GetBackingField(model, property);
+			var field = ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider.GetBackingField(model, property);
 			if (field == null)
 				return;
 			var type = property.Parent as TypeDeclarationSyntax;

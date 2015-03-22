@@ -30,12 +30,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class RemoveBackingStoreTests : ContextActionTestBase
+	public class ReplacePropertyWithBackingFieldWithAutoPropertyTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestSimpleStore()
 		{
-			Test<RemoveBackingStoreAction>(@"
+			Test<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(@"
 class TestClass
 {
     int field;
@@ -56,7 +56,7 @@ class TestClass
 		[Test]
 		public void TestSimpleStoreWithXmlDoc()
 		{
-			Test<RemoveBackingStoreAction>(@"
+			Test<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(@"
 class TestClass
 {
     int field;
@@ -88,7 +88,7 @@ class TestClass
 		[Test]
 		public void TestBug3292()
 		{
-			TestWrongContext<RemoveBackingStoreAction>(
+			TestWrongContext<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
 				"	int field;" + Environment.NewLine +
@@ -105,7 +105,7 @@ class TestClass
 		[Test()]
 		public void TestBug3292Case2()
 		{
-			TestWrongContext<RemoveBackingStoreAction>(
+			TestWrongContext<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
 				"	int field;" + Environment.NewLine +
@@ -123,7 +123,7 @@ class TestClass
 		[Test]
 		public void TestWrongLocation()
 		{
-			TestWrongContext<RemoveBackingStoreAction>(@"class TestClass
+			TestWrongContext<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(@"class TestClass
 {
 	string test;
 	public $string Test {
@@ -136,7 +136,7 @@ class TestClass
 	}
 }");
 
-			TestWrongContext<RemoveBackingStoreAction>(@"class TestClass
+			TestWrongContext<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(@"class TestClass
 {
 	string test;
 	public string $FooBar.Test {
@@ -149,7 +149,7 @@ class TestClass
 	}
 }");
 
-			TestWrongContext<RemoveBackingStoreAction>(@"class TestClass
+			TestWrongContext<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(@"class TestClass
 {
 	string test;
 	public string Test ${
@@ -169,7 +169,7 @@ class TestClass
 		[Test]
 		public void TestBug16108Case1()
 		{
-			TestWrongContext<RemoveBackingStoreAction>(@"
+			TestWrongContext<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(@"
 class MyClass
 {
     [DebuggerHiddenAttribute]
@@ -188,7 +188,7 @@ class MyClass
 		[Test]
 		public void TestBug16108Case2()
 		{
-			TestWrongContext<RemoveBackingStoreAction>(@"
+			TestWrongContext<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(@"
 class MyClass
 {
     int a = 4;
@@ -207,7 +207,7 @@ class MyClass
 		[Test]
 		public void TestBug16447()
 		{
-			Test<RemoveBackingStoreAction>(@"
+			Test<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(@"
 public class Foo
 {
 	int _bpm = 120, _index = 1, _count;
@@ -221,6 +221,34 @@ public class Foo
 {
     int _bpm = 120, _index = 1;
     int Count { get; set; }
+}
+");
+		}
+
+
+		[Test]
+		public void TestUnimplementedComputedProperty()
+		{
+			Test<ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider>(@"
+class TestClass
+{
+    public int $Field
+    {
+        get
+        {
+            throw new System.NotImplementedException();
+        }
+
+        set
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+}
+", @"
+class TestClass
+{
+    public int Field { get; set; }
 }
 ");
 		}

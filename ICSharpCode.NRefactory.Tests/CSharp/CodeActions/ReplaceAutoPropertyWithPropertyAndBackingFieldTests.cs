@@ -110,6 +110,43 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	}
 }");
 		}
+
+
+		[Test]
+		public void TestUnimplementedComputedProperty()
+		{
+			Test<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
+{
+	string $Test 
+    {
+        get
+        {
+            throw new System.NotImplementedException();
+        }
+
+        set
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+}", @"class TestClass
+{
+    string test;
+
+    string Test
+    {
+        get
+        {
+            return test;
+        }
+
+        set
+        {
+            test = value;
+        }
+    }
+}");
+		}
 	}
 }
 

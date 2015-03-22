@@ -157,7 +157,6 @@
     <Compile Include="CSharp\CodeActions\ConvertHexToDecTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertDecToHexTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertAsToCastTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertCastToAsTests.cs" />
     <Compile Include="CSharp\CodeActions\RemoveBracesTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceEmptyStringTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsActionTests.cs" />
@@ -394,7 +393,6 @@
     <Compile Include="CSharp\CodeActions\MoveToOuterScopeTests.cs" />
     <Compile Include="CSharp\CodeActions\NegateIsExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\PutInsideUsingTests.cs" />
-    <Compile Include="CSharp\CodeActions\RemoveBackingStoreTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceAssignmentWithPostfixExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplacePostfixExpressionWithAssignmentActionTests.cs" />
@@ -482,6 +480,8 @@
     <Compile Include="CSharp\CodeActions\AddBracesTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceAutoPropertyWithPropertyAndBackingFieldTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertAutoPropertyToPropertyTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceDirectCastWithSafeCastTest.cs" />
+    <Compile Include="CSharp\CodeActions\ReplacePropertyWithBackingFieldWithAutoPropertyTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

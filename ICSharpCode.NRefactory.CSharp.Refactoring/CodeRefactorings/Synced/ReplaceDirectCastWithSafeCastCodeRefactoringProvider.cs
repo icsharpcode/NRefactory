@@ -45,13 +45,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// </summary>
 	[NRefactoryCodeRefactoringProvider(Description = "Convert cast to 'as'.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert cast to 'as'.")]
-	public class ConvertCastToAsAction : CodeRefactoringProvider
+	public class ReplaceDirectCastWithSafeCastCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
@@ -61,7 +67,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var type = model.GetTypeInfo(castExpression.Type).Type;
 			if (type == null || type.IsValueType && !type.IsNullableType())
 				return;
-			context.RegisterRefactoring(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert cast to 'as'", t2 => Task.FromResult(PerformAction (document, root, castExpression))));
+			context.RegisterRefactoring(
+				CodeActionFactory.Create(
+					token.Span, 
+					DiagnosticSeverity.Info, 
+					"Convert cast to 'as'", 
+					t2 => Task.FromResult(PerformAction (document, root, castExpression))
+				)
+			);
 
 //			// only works on reference and nullable types
 //			var type = context.ResolveType (node.Type);

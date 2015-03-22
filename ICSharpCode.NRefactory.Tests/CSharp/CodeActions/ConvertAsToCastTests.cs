@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void Test ()
 		{
-			Test<ConvertAsToCastAction> (@"
+			Test<ConvertAsToCastCodeRefactoringProvider> (@"
 using System;
 class TestClass
 {
@@ -58,7 +58,7 @@ class TestClass
 		[Test]
 		public void TestWithComment1()
 		{
-			Test<ConvertAsToCastAction>(@"
+			Test<ConvertAsToCastCodeRefactoringProvider>(@"
 using System;
 class TestClass
 {
@@ -82,7 +82,7 @@ class TestClass
 		[Test]
 		public void TestWithComment2()
 		{
-			Test<ConvertAsToCastAction>(@"
+			Test<ConvertAsToCastCodeRefactoringProvider>(@"
 using System;
 class TestClass
 {
@@ -118,7 +118,7 @@ class TestClass {
 		var b = 1 + (TestClass)o;
 	}
 }";
-			Test<ConvertAsToCastAction> (input, output);
+			Test<ConvertAsToCastCodeRefactoringProvider> (input, output);
 		}
 
 		[Test]
@@ -138,7 +138,7 @@ class TestClass {
 		var b = (TestClass)(1 + o);
 	}
 }";
-			Test<ConvertAsToCastAction> (input, output);
+			Test<ConvertAsToCastCodeRefactoringProvider> (input, output);
 		}
 	}
 }

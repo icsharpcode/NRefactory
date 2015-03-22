@@ -141,8 +141,6 @@
     <Compile Include="CodeActions\UseVarKeywordAction.cs" />
     <Compile Include="NRefactoryCodeRefactoringProviderAttribute.cs" />
     <Compile Include="CodeActions\UseExplicitTypeAction.cs" />
-    <Compile Include="CodeActions\ConvertAsToCastAction.cs" />
-    <Compile Include="CodeActions\ConvertCastToAsAction.cs" />
     <Compile Include="CodeActions\ReplaceEmptyStringAction.cs" />
     <Compile Include="CodeActions\ConvertHasFlagsToBitwiseFlagComparisonAction.cs" />
     <Compile Include="CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs" />
@@ -371,7 +369,6 @@
     <Compile Include="CodeActions\MoveToOuterScopeAction.cs" />
     <Compile Include="CodeActions\NegateIsExpressionAction.cs" />
     <Compile Include="CodeActions\PutInsideUsingAction.cs" />
-    <Compile Include="CodeActions\RemoveBackingStoreAction.cs" />
     <Compile Include="CodeActions\ReplaceAssignmentWithPostfixExpressionAction.cs" />
     <Compile Include="CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs" />
     <Compile Include="CodeActions\ReplacePostfixExpressionWithAssignmentAction.cs" />
@@ -438,6 +435,9 @@
     <Compile Include="CodeRefactorings\Custom\RemoveBracesCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ConvertAutoPropertyToPropertyCodeRefactoringProvider.cs" />
+    <Compile Include="CodeActions\ConvertAsToCastCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ReplaceDirectCastWithSafeCastCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

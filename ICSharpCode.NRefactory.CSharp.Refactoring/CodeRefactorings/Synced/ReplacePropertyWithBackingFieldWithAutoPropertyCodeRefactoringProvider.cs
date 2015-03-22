@@ -40,23 +40,44 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Removes the backing store of a property and creates an auto property")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Remove backing store for property")]
-	public class RemoveBackingStoreAction : CodeRefactoringProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Replace property that uses a backing field with auto-property")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace property that uses a backing field with auto-property")]
+	public class ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
 			SyntaxToken token = root.FindToken(span.Start);
+			if (!token.IsKind (SyntaxKind.IdentifierToken))
+				return;
 			var property = token.Parent as PropertyDeclarationSyntax;
 			if (property == null || !property.Identifier.Span.Contains(span))
 				return;
-
+			if (IsEmptyComputedProperty(property)) {
+				context.RegisterRefactoring(
+					CodeActionFactory.Create(
+						token.Span, 
+						DiagnosticSeverity.Info, 
+						"Convert to auto-property", 
+						t2 => {
+							var newRoot = root.ReplaceNode(property, CreateNewProperty (property).WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(property.GetLeadingTrivia()));
+							return Task.FromResult (document.WithSyntaxRoot(newRoot));
+						}
+					)
+				);
+				return;
+			}
 			var field = GetBackingField(model, property);
 			if (!IsValidField(field, property.Parent as TypeDeclarationSyntax))
 				return;
@@ -64,12 +85,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			//variable declarator->declaration->field declaration
 			var backingFieldNode = root.FindNode(field.Locations.First().SourceSpan).Ancestors().OfType<FieldDeclarationSyntax>().First();
 
-			// create new auto property
-			var accessorDeclList = new SyntaxList<AccessorDeclarationSyntax>()
-				.Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)))
-				.Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
-			var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(accessorDeclList))
-				.WithTrailingTrivia(property.GetTrailingTrivia()).WithAdditionalAnnotations(Formatter.Annotation);
 
 			var propertyAnnotation = new SyntaxAnnotation();
 			var fieldAnnotation = new SyntaxAnnotation();
@@ -79,9 +94,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			root = root.ReplaceNode((SyntaxNode)root.FindNode(backingFieldNode.Span), backingFieldNode.WithAdditionalAnnotations(fieldAnnotation));
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to auto property", 
-                PerformAction(document, model, root, field.Name, newProperty, propertyAnnotation, fieldAnnotation))
+				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to auto-property", 
+					PerformAction(document, model, root, field.Name, CreateNewProperty (property), propertyAnnotation, fieldAnnotation))
 			);
+		}
+
+		static bool IsEmptyComputedProperty (PropertyDeclarationSyntax property)
+		{
+			var getter = property.AccessorList.Accessors.FirstOrDefault(a => a.IsKind(SyntaxKind.GetAccessorDeclaration));
+			var setter = property.AccessorList.Accessors.FirstOrDefault(a => a.IsKind(SyntaxKind.SetAccessorDeclaration));
+			return getter != null && setter != null && IsNotImplemented (getter.Body) && IsNotImplemented (setter.Body);
+		}
+		static bool IsNotImplemented (BlockSyntax body)
+		{
+			if (body == null || body.Statements.Count != 1)
+				return false;
+			return body.Statements[0] is ThrowStatementSyntax;
+		}
+
+
+		static PropertyDeclarationSyntax CreateNewProperty (PropertyDeclarationSyntax property)
+		{
+			// create new auto property
+			var accessorDeclList = new SyntaxList<AccessorDeclarationSyntax> ().Add (SyntaxFactory.AccessorDeclaration (SyntaxKind.GetAccessorDeclaration).WithSemicolonToken (SyntaxFactory.Token (SyntaxKind.SemicolonToken))).Add (SyntaxFactory.AccessorDeclaration (SyntaxKind.SetAccessorDeclaration).WithSemicolonToken (SyntaxFactory.Token (SyntaxKind.SemicolonToken)));
+			var newProperty = property.WithAccessorList (SyntaxFactory.AccessorList (accessorDeclList)).WithTrailingTrivia (property.GetTrailingTrivia ()).WithAdditionalAnnotations (Formatter.Annotation);
+			return newProperty;
 		}
 
 		private Document PerformAction(Document document, SemanticModel model, SyntaxNode root, String name,

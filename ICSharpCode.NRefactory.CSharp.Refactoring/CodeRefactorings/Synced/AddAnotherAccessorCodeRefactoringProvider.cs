@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					//get;
 					accessor = accessor.WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
 				} else {
-					var getField = RemoveBackingStoreAction.ScanGetter (model, getter);
+					var getField = ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider.ScanGetter (model, getter);
 					if (getField == null && getter.Body == null) {
 						//get;
 						accessor = accessor.WithSemicolonToken (SyntaxFactory.Token (SyntaxKind.SemicolonToken)).WithTrailingTrivia (getter.GetTrailingTrivia ());
@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					//set;
 					accessor = accessor.WithSemicolonToken (SyntaxFactory.Token (SyntaxKind.SemicolonToken));
 				} else {
-					var setField = RemoveBackingStoreAction.ScanSetter (model, setter);
+					var setField = ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider.ScanSetter (model, setter);
 					if (setField == null && setter.Body == null) {
 						//set;
 						accessor = accessor.WithSemicolonToken (SyntaxFactory.Token (SyntaxKind.SemicolonToken)).WithTrailingTrivia (setter.GetTrailingTrivia ());

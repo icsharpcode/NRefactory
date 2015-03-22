@@ -40,8 +40,8 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert auto-property to property with default body")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert auto-property to property with default body")]
+	[NRefactoryCodeRefactoringProvider(Description = "Replace auto-property with property that uses a backing field")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace auto-property with property that uses a backing field")]
 	public class ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (property == null || !property.Identifier.Span.Contains(span))
 				return;
 
-			if (property.AccessorList.Accessors.Any(b => b.Body != null)) //ignore properties with >=1 accessor body
+			if (property.AccessorList.Accessors.Any(b => !IsEmptyOrNotImplemented (b.Body))) //ignore properties with >=1 accessor body
 				return;
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(
@@ -104,6 +104,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						})));
 					})
 			);
+		}
+
+		static bool IsEmptyOrNotImplemented (BlockSyntax body)
+		{
+			if (body == null)
+				return true;
+			if (body.Statements.Count != 1)
+				return false;
+			return body.Statements[0] is ThrowStatementSyntax;
 		}
 
 		public static string GetNameProposal(string name, SemanticModel model, SyntaxNode node)
