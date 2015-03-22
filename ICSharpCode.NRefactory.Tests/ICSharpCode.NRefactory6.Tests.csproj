@@ -374,7 +374,6 @@
     <Compile Include="CSharp\CodeActions\CreateOverloadWithoutParameterTests.cs" />
     <Compile Include="CSharp\CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticActionTests.cs" />
     <Compile Include="CSharp\CodeActions\CS1520MethodMustHaveAReturnTypeTests.cs" />
-    <Compile Include="CSharp\CodeActions\ExtensionMethodInvocationToStaticMethodInvocationTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtractAnonymousMethodTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtractFieldTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtractWhileConditionToInternalIfStatementActionTests.cs" />
@@ -389,17 +388,14 @@
     <Compile Include="CSharp\CodeActions\InvertIfTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\IterateViaForeachTests.cs" />
-    <Compile Include="CSharp\CodeActions\JoinDeclarationAndAssignmentTests.cs" />
     <Compile Include="CSharp\CodeActions\JoinStringTests.cs" />
     <Compile Include="CSharp\CodeActions\LinqFluentToQueryTests.cs" />
     <Compile Include="CSharp\CodeActions\LinqQueryToFluentTests.cs" />
     <Compile Include="CSharp\CodeActions\MergeNestedIfTests.cs" />
     <Compile Include="CSharp\CodeActions\MoveToOuterScopeTests.cs" />
     <Compile Include="CSharp\CodeActions\NegateIsExpressionActionTests.cs" />
-    <Compile Include="CSharp\CodeActions\NegateRelationalExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\PutInsideUsingTests.cs" />
     <Compile Include="CSharp\CodeActions\RemoveBackingStoreTests.cs" />
-    <Compile Include="CSharp\CodeActions\RemoveRegionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceAssignmentWithPostfixExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplacePostfixExpressionWithAssignmentActionTests.cs" />
@@ -481,6 +477,10 @@
     <Compile Include="CSharp\CodeActions\FlipOperatorArguments.cs" />
     <Compile Include="CSharp\CodeActions\FlipRelationalOperatorArgumentsTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertConditionalOperatorTests.cs" />
+    <Compile Include="CSharp\CodeActions\InvokeAsStaticMethodTests.cs" />
+    <Compile Include="CSharp\CodeActions\JoinLocalVariableDeclarationAndAssignmentTests.cs" />
+    <Compile Include="CSharp\CodeActions\NegateLogicalExpressionTests.cs" />
+    <Compile Include="CSharp\CodeActions\RemoveRegionEndRegionDirectivesTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -30,13 +30,13 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ExtensionMethodInvocationToStaticMethodInvocationTests : ContextActionTestBase
+	public class InvokeAsStaticMethodTests : ContextActionTestBase
 	{
 
 		[Test]
 		public void HandlesBasicCase()
 		{
-			Test<ExtensionMethodInvocationToStaticMethodInvocationAction>(@"
+			Test<InvokeAsStaticMethodCodeRefactoringProvider>(@"
 class A { }
 static class B
 {
@@ -68,7 +68,7 @@ class C
 		[Test]
 		public void HandlesBasicCaseWithComment()
 		{
-			Test<ExtensionMethodInvocationToStaticMethodInvocationAction>(@"
+			Test<InvokeAsStaticMethodCodeRefactoringProvider>(@"
 class A { }
 static class B
 {
@@ -102,7 +102,7 @@ class C
 		[Test]
 		public void HandlesReturnValueUsage()
 		{
-			Test<ExtensionMethodInvocationToStaticMethodInvocationAction>(@"
+			Test<InvokeAsStaticMethodCodeRefactoringProvider>(@"
 class A { }
 static class B
 {
@@ -142,7 +142,7 @@ class C
 		[Test]
 		public void IgnoresStaticMethodCalls()
 		{
-			TestWrongContext<ExtensionMethodInvocationToStaticMethodInvocationAction>(@"
+			TestWrongContext<InvokeAsStaticMethodCodeRefactoringProvider>(@"
 class A { }
 static class B
 {
@@ -160,7 +160,7 @@ class C
 		[Test]
 		public void IgnoresRegularMemberMethodCalls()
 		{
-			TestWrongContext<ExtensionMethodInvocationToStaticMethodInvocationAction>(@"
+			TestWrongContext<InvokeAsStaticMethodCodeRefactoringProvider>(@"
 class A
 {
     public void Ext (int i);

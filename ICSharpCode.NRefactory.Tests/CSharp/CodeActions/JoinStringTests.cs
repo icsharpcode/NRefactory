@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 	{
 		public void Test(string input, string output)
 		{
-			Test<JoinStringAction>(@"
+			Test<JoinStringCodeRefactoringProvider>(@"
 class TestClass
 {
 	string TestMethod (string arg)
@@ -66,7 +66,7 @@ class TestClass
 
 		public void TestWrongContext(string input)
 		{
-			TestWrongContext<JoinStringAction>(@"
+			TestWrongContext<JoinStringCodeRefactoringProvider>(@"
 class TestClass
 {
 	string TestMethod ()

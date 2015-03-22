@@ -1,10 +1,10 @@
+﻿// 
+// NegateRelationalExpressionTests.cs
 // 
-// RemoveRegionTests.cs
-//  
 // Author:
-//       Mike Krüger <mkrueger@xamarin.com>
+//      Mansheng Yang <lightyang0@gmail.com>
 // 
-// Copyright (c) 2012 Xamarin Inc.
+// Copyright (c) 2012 Mansheng Yang <lightyang0@gmail.com>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,72 +24,91 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[Ignore("Roslyn bug!")]
 	[TestFixture]
-	public class RemoveRegionTests : ContextActionTestBase
+	public class NegateLogicalExpressionTests : ContextActionTestBase
 	{
-		[Test]
-		public void TestSimpleRegion ()
+		public void Test(string op, string negatedOp)
 		{
-			Test<RemoveRegionAction> (@"class TestClass{
-#region$ Foo
-	void Test ()
-	{
-	}
-#endregion
-}", @"class TestClass{
-	void Test ()
-	{
-	}
-}");
-		}
-		
-		[Test]
-		public void TestNestedRegion ()
-		{
-			Test<RemoveRegionAction> (@"class TestClass
-{
-	#region$ Foo
-	void Test ()
-	{
-		#region Nested
-		Foo ();
-		#endregion
-	}
-	#endregion
-}", @"class TestClass
+			Test<NegateLogicalExpressionCodeRefactoringProvider> (@"
+class TestClass
 {
 	void Test ()
 	{
-		#region Nested
-		Foo ();
-		#endregion
+		var b = 1 $" + op + @" 2;
+	}
+}", @"
+class TestClass
+{
+	void Test ()
+	{
+		var b = 1 " + negatedOp + @" 2;
 	}
 }");
 		}
-	
 
 		[Test]
-		public void TestEndRegion ()
+		public void TestEquality ()
 		{
-			Test<RemoveRegionAction> (@"class TestClass{
-#region Foo
-	void Test ()
+			Test ("==", "!=");
+		}
+
+		[Test]
+		public void TestInEquality ()
+		{
+			Test ("!=", "==");
+		}
+
+		[Test]
+		public void TestGreaterThan ()
+		{
+			Test (">", "<=");
+		}
+
+		[Test]
+		public void TestGreaterThanOrEqual ()
+		{
+			Test (">=", "<");
+		}
+
+		[Test]
+		public void TestLessThan ()
+		{
+			Test ("<", ">=");
+		}
+
+		[Test]
+		public void TestLessThanOrEqual ()
+		{
+			Test ("<=", ">");
+		}
+
+		[Test]
+		public void TestUnaryOperator ()
+		{
+			Test<NegateLogicalExpressionCodeRefactoringProvider> (
+				@"
+class Foo 
+{
+	void Bar ()
 	{
+		var cond = $!(1 < 2);
 	}
-$#endregion
-}", @"class TestClass{
-	void Test ()
+}
+", @"
+class Foo 
+{
+	void Bar ()
 	{
+		var cond = 1 < 2;
 	}
-}");
+}
+");
+
 		}
 	}
 }
-

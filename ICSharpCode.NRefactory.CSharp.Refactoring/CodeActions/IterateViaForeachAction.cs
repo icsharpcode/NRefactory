@@ -41,7 +41,7 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Iterates an IEnumerable with a foreach loop")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Iterate via foreach")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Iterate via 'foreach'")]
 	public class IterateViaForeachAction : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
@@ -81,7 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 //			var usingStatement = initializer.Parent.Parent as UsingStatement;
 //			if (usingStatement == null)
 //				return null;
-//			return new CodeAction(context.TranslateString("Iterate via foreach"), script => {
+//			return new CodeAction(context.TranslateString("Iterate via 'foreach'"), script => {
 //				var iterator = MakeForeach(new IdentifierExpression(initializer.Name), elementType, context);
 //				if (usingStatement.EmbeddedStatement is EmptyStatement) {
 //					var blockStatement = new BlockStatement();

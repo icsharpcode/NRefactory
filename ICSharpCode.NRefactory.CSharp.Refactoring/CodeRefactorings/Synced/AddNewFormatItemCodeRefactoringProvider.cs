@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
 				return;
 			var span = context.Span;
-			if (!span.IsEmpty)
+			if (span.IsEmpty)
 				return;
 			var cancellationToken = context.CancellationToken;
 			if (cancellationToken.IsCancellationRequested)

@@ -40,15 +40,21 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Converts the call into static method call syntax")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Invoke using static method syntax")]
-	public class ExtensionMethodInvocationToStaticMethodInvocationAction : CodeRefactoringProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Converts invocation of extension method into a static method call")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Invoke as static method")]
+	public class InvokeAsStaticMethodCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
@@ -72,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Convert to static method call", 
+					"To static invocation", 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)invocation, ToStaticMethodInvocation(model, invocation, memberAccess, invocationRR).WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(invocation.GetLeadingTrivia()));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));

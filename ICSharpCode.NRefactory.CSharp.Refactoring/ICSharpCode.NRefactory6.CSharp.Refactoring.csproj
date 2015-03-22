@@ -356,7 +356,6 @@
     <Compile Include="CodeActions\CreateOverloadWithoutParameterAction.cs" />
     <Compile Include="CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs" />
     <Compile Include="CodeActions\CS1520MethodMustHaveAReturnTypeAction.cs" />
-    <Compile Include="CodeActions\ExtensionMethodInvocationToStaticMethodInvocationAction.cs" />
     <Compile Include="CodeActions\ExtractAnonymousMethodAction.cs" />
     <Compile Include="CodeActions\ExtractFieldAction.cs" />
     <Compile Include="CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs" />
@@ -368,17 +367,13 @@
     <Compile Include="CodeActions\InvertIfAndSimplify.cs" />
     <Compile Include="CodeActions\InvertLogicalExpressionAction.cs" />
     <Compile Include="CodeActions\IterateViaForeachAction.cs" />
-    <Compile Include="CodeActions\JoinDeclarationAndAssignmentAction.cs" />
-    <Compile Include="CodeActions\JoinStringAction.cs" />
     <Compile Include="CodeActions\LinqFluentToQueryAction.cs" />
     <Compile Include="CodeActions\LinqQueryToFluentAction.cs" />
     <Compile Include="CodeActions\MergeNestedIfAction.cs" />
     <Compile Include="CodeActions\MoveToOuterScopeAction.cs" />
     <Compile Include="CodeActions\NegateIsExpressionAction.cs" />
-    <Compile Include="CodeActions\NegateRelationalExpressionAction.cs" />
     <Compile Include="CodeActions\PutInsideUsingAction.cs" />
     <Compile Include="CodeActions\RemoveBackingStoreAction.cs" />
-    <Compile Include="CodeActions\RemoveRegionAction.cs" />
     <Compile Include="CodeActions\ReplaceAssignmentWithPostfixExpressionAction.cs" />
     <Compile Include="CodeActions\ReplaceOperatorAssignmentWithAssignmentAction.cs" />
     <Compile Include="CodeActions\ReplacePostfixExpressionWithAssignmentAction.cs" />
@@ -437,6 +432,11 @@
     <Compile Include="CodeRefactorings\Synced\InvertConditionalOperatorCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\InvertIfCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\RemoveCatchExceptionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\InvokeAsStaticMethodCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\JoinLocalVariableDeclarationAndAssignmentCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\JoinStringCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\NegateLogicalExpressionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\RemoveRegionEndRegionDirectivesCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

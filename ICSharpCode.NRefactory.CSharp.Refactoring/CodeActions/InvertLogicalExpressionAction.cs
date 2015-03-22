@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			ExpressionSyntax expr;
 			SyntaxToken token;
-			if (!NegateRelationalExpressionAction.GetRelationalExpression (root, span, out expr, out token))
+			if (!NegateLogicalExpressionCodeRefactoringProvider.GetRelationalExpression (root, span, out expr, out token))
 				return;
 			if (expr.IsKind(SyntaxKind.LogicalNotExpression)) {
 				context.RegisterRefactoring(

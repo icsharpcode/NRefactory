@@ -30,12 +30,12 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class JoinDeclarationAndAssignmentTests : ContextActionTestBase
+	public class JoinLocalVariableDeclarationAndAssignmentTests : ContextActionTestBase
 	{
 		[Test]
 		public void Test ()
 		{
-			Test<JoinDeclarationAndAssignmentAction> (@"
+			Test<JoinLocalVariableDeclarationAndAssignmentCodeRefactoringProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -56,7 +56,7 @@ class TestClass
 		[Test]
 		public void TestWithComment()
 		{
-			Test<JoinDeclarationAndAssignmentAction>(@"
+			Test<JoinLocalVariableDeclarationAndAssignmentCodeRefactoringProvider>(@"
 class TestClass
 {
 	void TestMethod ()
@@ -79,7 +79,7 @@ class TestClass
 		[Test]
 		public void TestDeclarationList ()
 		{
-			Test<JoinDeclarationAndAssignmentAction> (@"
+			Test<JoinLocalVariableDeclarationAndAssignmentCodeRefactoringProvider> (@"
 class TestClass
 {
 	void TestMethod ()
