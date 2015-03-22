@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestSimpleBraces()
 		{
 			string result = RunContextAction(
-				                         new RemoveBracesAction(),
+				                         new RemoveBracesCodeRefactoringProvider(),
 				                         "class TestClass" + Environment.NewLine +
 				                         "{" + Environment.NewLine +
 				                         "    void Test()" + Environment.NewLine +
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestSimpleBracesWithComment()
 		{
 			string result = RunContextAction(
-										 new RemoveBracesAction(),
+										 new RemoveBracesCodeRefactoringProvider(),
 										 "class TestClass" + Environment.NewLine +
 										 "{" + Environment.NewLine +
 										 "    void Test()" + Environment.NewLine +
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestTryCatch()
 		{
-			TestWrongContext<RemoveBracesAction>(@"class TestClass
+			TestWrongContext<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestTryCatchCatch()
 		{
-			TestWrongContext<RemoveBracesAction>(@"class TestClass
+			TestWrongContext<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -113,7 +113,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestTryCatchFinally()
 		{
-			TestWrongContext<RemoveBracesAction>(@"class TestClass
+			TestWrongContext<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestSwitchCatch()
 		{
-			TestWrongContext<RemoveBracesAction>(@"class TestClass
+			TestWrongContext<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -138,7 +138,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestMethodDeclaration()
 		{
-			TestWrongContext<RemoveBracesAction>(@"class TestClass
+			TestWrongContext<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     ${
@@ -150,7 +150,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveBracesFromIf()
 		{
-			Test<RemoveBracesAction>(@"class TestClass
+			Test<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -170,7 +170,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveBracesFromElse()
 		{
-			Test<RemoveBracesAction>(@"class TestClass
+			Test<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -195,7 +195,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveBracesFromDoWhile()
 		{
-			Test<RemoveBracesAction>(@"class TestClass
+			Test<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -216,7 +216,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveBracesFromForeach()
 		{
-			Test<RemoveBracesAction>(@"class TestClass
+			Test<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -236,7 +236,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveBracesFromFor()
 		{
-			Test<RemoveBracesAction>(@"class TestClass
+			Test<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -256,7 +256,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveBracesFromLock()
 		{
-			Test<RemoveBracesAction>(@"class TestClass
+			Test<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -276,7 +276,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveBracesFromUsing()
 		{
-			Test<RemoveBracesAction>(@"class TestClass
+			Test<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -296,7 +296,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestRemoveBracesFromWhile()
 		{
-			Test<RemoveBracesAction>(@"class TestClass
+			Test<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -316,7 +316,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestDoNotRemoveBracesFromBlockWithVariable()
 		{
-			TestWrongContext<RemoveBracesAction>(@"class TestClass
+			TestWrongContext<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -330,7 +330,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestDoNotRemoveBracesFromBlockWithLabel()
 		{
-			TestWrongContext<RemoveBracesAction>(@"class TestClass
+			TestWrongContext<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -344,7 +344,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestNullNode()
 		{
-			TestWrongContext<RemoveBracesAction>(@"class TestClass
+			TestWrongContext<RemoveBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {

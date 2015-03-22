@@ -30,12 +30,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class AddBracesActionTests : ContextActionTestBase
+	public class AddBracesTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestAddBracesToIf()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddBracesToIfWithComment()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddBracesToIfWithCommentInBlock()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddBracesToElse()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -134,7 +134,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddBracesToDoWhile()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -158,7 +158,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddBracesToForeach()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -180,7 +180,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddBracesToFor()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -202,7 +202,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddBracesToLock()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -224,7 +224,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddBracesToUsing()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -246,7 +246,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestAddBracesToWhile()
 		{
-			Test<AddBracesAction>(@"class TestClass
+			Test<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -268,7 +268,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestBlockAlreadyInserted()
 		{
-			TestWrongContext<AddBracesAction>(@"class TestClass
+			TestWrongContext<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {
@@ -283,7 +283,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestNullNode()
 		{
-			TestWrongContext<AddBracesAction>(@"class TestClass
+			TestWrongContext<AddBracesCodeRefactoringProvider>(@"class TestClass
 {
     void Test()
     {

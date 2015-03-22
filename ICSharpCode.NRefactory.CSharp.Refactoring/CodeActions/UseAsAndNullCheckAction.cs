@@ -118,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					DiagnosticSeverity.Info, 
 					"Use 'as' and check for null",
 					t2 => {
-						var varName = ConvertAutoPropertyToPropertyCodeRefactoringProvider.GetNameProposal(RefactoringHelpers.GuessNameFromType(rr.Type), ctx, isExpression);
+						var varName = ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider.GetNameProposal(RefactoringHelpers.GuessNameFromType(rr.Type), ctx, isExpression);
 
 						var varDec = SyntaxFactory.LocalDeclarationStatement(
 							SyntaxFactory.VariableDeclaration(
@@ -199,7 +199,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 					DiagnosticSeverity.Info, 
 					"Use 'as' and check for null",
 					t2 => {
-						var varName = ConvertAutoPropertyToPropertyCodeRefactoringProvider.GetNameProposal(RefactoringHelpers.GuessNameFromType(rr.Type), ctx, condition);
+						var varName = ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider.GetNameProposal(RefactoringHelpers.GuessNameFromType(rr.Type), ctx, condition);
 
 						var varDec = SyntaxFactory.LocalDeclarationStatement(
 							SyntaxFactory.VariableDeclaration(

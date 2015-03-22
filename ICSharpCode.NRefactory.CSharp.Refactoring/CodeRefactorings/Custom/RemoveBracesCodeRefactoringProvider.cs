@@ -40,17 +40,21 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-
 	[NRefactoryCodeRefactoringProvider(Description = "Removes redundant braces around a statement.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Remove braces")]
-	public class RemoveBracesAction : CodeRefactoringProvider
+	public class RemoveBracesCodeRefactoringProvider : CodeRefactoringProvider
 	{
-
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);

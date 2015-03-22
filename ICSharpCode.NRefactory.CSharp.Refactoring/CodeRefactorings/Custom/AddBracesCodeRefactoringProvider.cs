@@ -42,19 +42,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Removes redundant braces around a statement.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Add braces")]
-	public class AddBracesAction : CodeRefactoringProvider
+	public class AddBracesCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
 			string keyword;
 			StatementSyntax embeddedStatement;
-			if (!RemoveBracesAction.IsSpecialNode(token, out keyword, out embeddedStatement))
+			if (!RemoveBracesCodeRefactoringProvider.IsSpecialNode(token, out keyword, out embeddedStatement))
 				return;
 			if (embeddedStatement is BlockSyntax)
 				return;

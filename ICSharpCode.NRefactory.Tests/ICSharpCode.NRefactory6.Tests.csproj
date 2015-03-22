@@ -158,7 +158,6 @@
     <Compile Include="CSharp\CodeActions\ConvertDecToHexTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertAsToCastTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertCastToAsTests.cs" />
-    <Compile Include="CSharp\CodeActions\AddBracesActionTests.cs" />
     <Compile Include="CSharp\CodeActions\RemoveBracesTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceEmptyStringTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsActionTests.cs" />
@@ -463,7 +462,6 @@
     <Compile Include="CSharp\CodeActions\ConvertEqualityOperatorToEqualsTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertEqualityOperatorToReferenceEqualsTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertAnonymousMethodToLambdaTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertAutoPropertyToPropertyTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertCoalescingToConditionalExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertEqualsToEqualityOperatorTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertReferenceEqualsToEqualityOperatorTests.cs" />
@@ -481,6 +479,9 @@
     <Compile Include="CSharp\CodeActions\JoinLocalVariableDeclarationAndAssignmentTests.cs" />
     <Compile Include="CSharp\CodeActions\NegateLogicalExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\RemoveRegionEndRegionDirectivesTests.cs" />
+    <Compile Include="CSharp\CodeActions\AddBracesTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceAutoPropertyWithPropertyAndBackingFieldTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertAutoPropertyToPropertyTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

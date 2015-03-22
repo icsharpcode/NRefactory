@@ -143,8 +143,6 @@
     <Compile Include="CodeActions\UseExplicitTypeAction.cs" />
     <Compile Include="CodeActions\ConvertAsToCastAction.cs" />
     <Compile Include="CodeActions\ConvertCastToAsAction.cs" />
-    <Compile Include="CodeActions\AddBracesAction.cs" />
-    <Compile Include="CodeActions\RemoveBracesAction.cs" />
     <Compile Include="CodeActions\ReplaceEmptyStringAction.cs" />
     <Compile Include="CodeActions\ConvertHasFlagsToBitwiseFlagComparisonAction.cs" />
     <Compile Include="CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs" />
@@ -404,7 +402,6 @@
     <Compile Include="CodeRefactorings\Synced\CheckIfParameterIsNullCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ComputeConstantValueCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ConvertAnonymousMethodToLambdaCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\Synced\ConvertAutoPropertyToPropertyCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ConvertCoalescingToConditionalExpressionCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ConvertDecToHexCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ConvertEqualityOperatorToEqualsCodeRefactoringProvider.cs" />
@@ -437,6 +434,10 @@
     <Compile Include="CodeRefactorings\Synced\JoinStringCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\NegateLogicalExpressionCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\RemoveRegionEndRegionDirectivesCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\AddBracesCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\RemoveBracesCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertAutoPropertyToPropertyCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

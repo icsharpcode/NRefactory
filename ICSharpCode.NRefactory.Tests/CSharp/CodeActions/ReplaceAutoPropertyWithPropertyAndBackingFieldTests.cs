@@ -1,10 +1,10 @@
-﻿//
-// ConvertAutoPropertyToPropertyTests.cs
+//
+// CreateBackingStoreTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2012 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,56 +31,83 @@ using System.Text;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ConvertAutoPropertyToPropertyTests : ContextActionTestBase
+	public class ReplaceAutoPropertyWithPropertyAndBackingFieldTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestSimpleProperty()
+		public void TestSimpleStore()
 		{
-			Test<ConvertAutoPropertyToPropertyCodeRefactoringProvider>(@"class TestClass
+			Test<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
 {
 	string $Test { get; set; }
 }", @"class TestClass
 {
+    string test;
+
     string Test
     {
         get
         {
-            throw new System.NotImplementedException();
+            return test;
         }
 
         set
         {
-            throw new System.NotImplementedException();
+            test = value;
         }
     }
 }");
 		}
 
-		[Ignore()]
 		[Test]
-		public void TestSimplify()
+		public void TestStaticStore()
 		{
-			Test<ConvertAutoPropertyToPropertyCodeRefactoringProvider>(@"
-using Sytem;
-class TestClass
+			Test<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
 {
-	string $Test { get; set; }
-}", @"
-using Sytem;
-class TestClass
+	public static string $Test { get; set; }
+}", @"class TestClass
 {
-    string Test
+    static string test;
+
+    public static string Test
     {
         get
         {
-            throw new NotImplementedException();
+            return test;
         }
 
         set
         {
-            throw new NotImplementedException();
+            test = value;
         }
     }
+}");
+		}
+
+		[Test]
+		public void TestWrongLocation()
+		{
+			TestWrongContext<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
+{
+	public $string Test {
+		get;
+		set;
+	}
+}");
+
+			TestWrongContext<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
+{
+	public string $FooBar.Test {
+		get;
+		set;
+	}
+}");
+
+			TestWrongContext<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
+{
+	public string Test ${
+		get;
+		set;
+	}
 }");
 		}
 	}
