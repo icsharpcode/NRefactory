@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Splits string literal into two")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Split string literal")]
-	public class SplitStringAction : SpecializedCodeAction<LiteralExpressionSyntax>
+	public class SplitStringAction : SpecializedCodeRefactoringProvider<LiteralExpressionSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, LiteralExpressionSyntax node, CancellationToken cancellationToken)
 		{

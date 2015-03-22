@@ -40,13 +40,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replace bitwise flag comparison with call to 'Enum.HasFlag'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace bitwise flag comparison with call to 'Enum.HasFlag'")]
-	public class ConvertBitwiseFlagComparisonToHasFlagsAction : CodeRefactoringProvider
+	public class ConvertBitwiseFlagComparisonToHasFlagsCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
@@ -65,7 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return;
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Replace with 'Enum.HasFlag'", t2 => Task.FromResult(PerformAction (document, root, boP, flagsExpression, targetExpression, testFlagset)))
+				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "To 'Enum.HasFlag'", t2 => Task.FromResult(PerformAction (document, root, boP, flagsExpression, targetExpression, testFlagset)))
 			);
 		}
 

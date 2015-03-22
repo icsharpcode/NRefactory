@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Join local variable declaration and assignment")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Join local variable declaration and assignment")]
-	public class JoinLocalVariableDeclarationAndAssignmentCodeRefactoringProvider : SpecializedCodeAction<VariableDeclaratorSyntax>
+	public class JoinLocalVariableDeclarationAndAssignmentCodeRefactoringProvider : SpecializedCodeRefactoringProvider<VariableDeclaratorSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, VariableDeclaratorSyntax node, CancellationToken cancellationToken)
 		{

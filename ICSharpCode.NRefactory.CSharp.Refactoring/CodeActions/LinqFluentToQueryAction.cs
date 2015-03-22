@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert LINQ query to fluent syntax")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert LINQ query to fluent syntax")]
-	public class LinqFluentToQueryAction : SpecializedCodeAction<InvocationExpressionSyntax>
+	public class LinqFluentToQueryAction : SpecializedCodeRefactoringProvider<InvocationExpressionSyntax>
 	{
 //		static readonly List<string> LinqQueryMethods = new List<string>() {
 //			"Select", "SelectMany", "GroupBy",

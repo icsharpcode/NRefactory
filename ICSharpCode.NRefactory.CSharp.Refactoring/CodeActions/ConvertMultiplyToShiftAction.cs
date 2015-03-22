@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert '*'/'/' to '<<'/'>>'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert '*'/'/' to '<<'/'>>'")]
-	public class ConvertMultiplyToShiftAction : SpecializedCodeAction<BinaryExpressionSyntax>
+	public class ConvertMultiplyToShiftAction : SpecializedCodeRefactoringProvider<BinaryExpressionSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
 		{

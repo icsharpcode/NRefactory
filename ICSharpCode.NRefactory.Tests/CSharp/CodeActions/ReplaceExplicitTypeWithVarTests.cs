@@ -31,12 +31,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class UseVarKeywordTests : ContextActionTestBase
+	public class ReplaceExplicitTypeWithVarTests : ContextActionTestBase
 	{
 		[Test]
 		public void SimpleVarDeclaration ()
 		{
-			string result = RunContextAction (new UseVarKeywordAction (),
+			string result = RunContextAction (new ReplaceExplicitTypeWithVarCodeRefactoringProvider (),
 @"class TestClass
 {
 	void Test ()
@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void AlreadyAVar ()
 		{
-			TestWrongContext(new UseVarKeywordAction (),
+			TestWrongContext(new ReplaceExplicitTypeWithVarCodeRefactoringProvider (),
 				@"class TestClass
 {
 	void Test ()
@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void AlreadyAVarInForeach ()
 		{
-			TestWrongContext(new UseVarKeywordAction (),
+			TestWrongContext(new ReplaceExplicitTypeWithVarCodeRefactoringProvider (),
 				@"class TestClass
 {
 	void Test ()
@@ -83,7 +83,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void ForeachDeclaration ()
 		{
-			string result = RunContextAction (new UseVarKeywordAction (),
+			string result = RunContextAction (new ReplaceExplicitTypeWithVarCodeRefactoringProvider (),
 				@"class TestClass
 {
 	void Test ()
@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestInvalidLocationBug ()
 		{
-			TestWrongContext(new UseVarKeywordAction (),
+			TestWrongContext(new ReplaceExplicitTypeWithVarCodeRefactoringProvider (),
 				@"class TestClass
 {
 	$void Test ()

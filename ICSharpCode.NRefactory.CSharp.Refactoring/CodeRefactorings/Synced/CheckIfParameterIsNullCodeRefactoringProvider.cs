@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// <summary>
 	/// Creates a 'if (param == null) throw new System.ArgumentNullException ();' contruct for a parameter.
 	/// </summary>
-	public class CheckIfParameterIsNullCodeRefactoringProvider : SpecializedCodeAction<ParameterSyntax>
+	public class CheckIfParameterIsNullCodeRefactoringProvider : SpecializedCodeRefactoringProvider<ParameterSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ParameterSyntax node, CancellationToken cancellationToken)
 		{

@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Split variable declaration with multiple variables into declarations with a single variable")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Split declaration list")]
-	public class SplitDeclarationListAction : CodeRefactoringProvider
+	public class SplitVariableIntoSeveralOnesCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{

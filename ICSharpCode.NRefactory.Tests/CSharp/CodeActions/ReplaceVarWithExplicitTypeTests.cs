@@ -30,12 +30,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class UseExplicitTypeTests : ContextActionTestBase
+	public class ReplaceVarWithExplicitTypeTests : ContextActionTestBase
 	{
 		[Test()]
 		public void SimpleVarDeclaration ()
 		{
-			string result = RunContextAction (new UseExplicitTypeAction (),
+			string result = RunContextAction (new ReplaceVarWithExplicitTypeCodeRefactoringProvider (),
 @"class TestClass
 {
 	void Test ()
@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void ForeachDeclaration ()
 		{
-			string result = RunContextAction (new UseExplicitTypeAction (),
+			string result = RunContextAction (new ReplaceVarWithExplicitTypeCodeRefactoringProvider (),
 @"class TestClass
 {
 	void Test ()
@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void SimpleAnonymousTypeDeclaration ()
 		{
-			TestWrongContext(new UseExplicitTypeAction(), @"class TestClass
+			TestWrongContext(new ReplaceVarWithExplicitTypeCodeRefactoringProvider(), @"class TestClass
 {
 	void Test()
 	{
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void ForeachAnonymousTypeDeclaration ()
 		{
-			TestWrongContext(new UseExplicitTypeAction(), @"class TestClass
+			TestWrongContext(new ReplaceVarWithExplicitTypeCodeRefactoringProvider(), @"class TestClass
 {
 	void Test()
 	{
@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void TestAnonymousArrayType ()
 		{
-			TestWrongContext(new UseExplicitTypeAction(), @"class TestClass
+			TestWrongContext(new ReplaceVarWithExplicitTypeCodeRefactoringProvider(), @"class TestClass
 {
 	void Test()
 	{
@@ -117,7 +117,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test()]
 		public void TestAnonymousGenericType ()
 		{
-			TestWrongContext(new UseExplicitTypeAction(), @"class TestClass
+			TestWrongContext(new ReplaceVarWithExplicitTypeCodeRefactoringProvider(), @"class TestClass
 {
 	T MakeList<T> (T value) { return new List<T> () { value }; }
 

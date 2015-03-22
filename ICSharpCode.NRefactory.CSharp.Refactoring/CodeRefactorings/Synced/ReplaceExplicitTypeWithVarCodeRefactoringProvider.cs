@@ -38,9 +38,9 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Converts local variable declaration to be implicit typed.")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use 'var' keyword")]
-	public class UseVarKeywordAction : CodeRefactoringProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Replaces explicit type specification with 'var'")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace type with 'var'")]
+	public class ReplaceExplicitTypeWithVarCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		internal static VariableDeclarationSyntax GetVariableDeclarationStatement(SyntaxNode token)
 		{
@@ -57,8 +57,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var parseOptions = root.SyntaxTree.Options as CSharpParseOptions;
 			if (parseOptions != null && parseOptions.LanguageVersion < LanguageVersion.CSharp3)
@@ -81,7 +87,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				CodeActionFactory.Create(
 					token.Span, 
 					DiagnosticSeverity.Info, 
-					"Use 'var' keyword", 
+					"To 'var'", 
 					t2 => Task.FromResult(PerformAction(document, root, type))
 				)
 			);

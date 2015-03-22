@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "put IDisposable inside 'using' construct")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="put inside 'using'")]
-	public class PutInsideUsingAction : SpecializedCodeAction <VariableDeclaratorSyntax>
+	public class PutInsideUsingAction : SpecializedCodeRefactoringProvider <VariableDeclaratorSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, VariableDeclaratorSyntax node, CancellationToken cancellationToken)
 		{

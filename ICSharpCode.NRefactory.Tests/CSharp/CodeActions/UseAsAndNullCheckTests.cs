@@ -29,14 +29,14 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[TestFixture]//, Ignore("Not implemented!")]
-	public class UseAsAndNullCheckActionTests : ContextActionTestBase
+	[TestFixture]
+	public class UseAsAndNullCheckTests : ContextActionTestBase
 	{
 
 		[Test]
 		public void EmptyCase()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -64,7 +64,7 @@ class Bar
 		[Test]
 		public void SimpleCase()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -96,7 +96,7 @@ class Bar
 		[Test]
 		public void NegatedCase()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -126,7 +126,7 @@ class Bar
 		[Test]
 		public void NegatedEmbeddedCase()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -162,7 +162,7 @@ class Bar
 		[Test]
 		public void ComplexCase()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public IDisposable Baz (object foo)
@@ -199,7 +199,7 @@ class Bar
 		[Test]
 		public void IfElseCase()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -234,7 +234,7 @@ class Bar
 		[Test]
 		public void NestedIf()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -273,7 +273,7 @@ class Bar
 		[Test]
 		public void TestNegatedCaseWithReturn()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -302,7 +302,7 @@ class Bar
 		[Test]
 		public void TestNegatedCaseWithBreak()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -335,7 +335,7 @@ class Bar
 		[Test]
 		public void TestCaseWithContinue()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -375,7 +375,7 @@ class Bar
 		[Test]
 		public void ConditionalCase()
 		{
-			Test<UseAsAndNullCheckAction>(@"
+			Test<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public Bar Baz (object foo)
@@ -404,7 +404,7 @@ class Bar
 		[Test]
 		public void InvalidCase()
 		{
-			TestWrongContext<UseAsAndNullCheckAction>(@"
+			TestWrongContext<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public int Baz (object foo)
@@ -422,7 +422,7 @@ class Bar
 		[Test]
 		public void InvalidCase2()
 		{
-			TestWrongContext<UseAsAndNullCheckAction>(@"
+			TestWrongContext<UseAsAndNullCheckCodeRefactoringProvider>(@"
 class Bar
 {
     public int Baz (object foo)

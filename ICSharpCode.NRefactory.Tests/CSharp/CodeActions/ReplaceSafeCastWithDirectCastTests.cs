@@ -31,12 +31,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ConvertAsToCastTests : ContextActionTestBase
+	public class ReplaceSafeCastWithDirectCastTests : ContextActionTestBase
 	{
 		[Test]
 		public void Test ()
 		{
-			Test<ConvertAsToCastCodeRefactoringProvider> (@"
+			Test<ReplaceSafeCastWithDirectCastCodeRefactoringProvider> (@"
 using System;
 class TestClass
 {
@@ -58,7 +58,7 @@ class TestClass
 		[Test]
 		public void TestWithComment1()
 		{
-			Test<ConvertAsToCastCodeRefactoringProvider>(@"
+			Test<ReplaceSafeCastWithDirectCastCodeRefactoringProvider>(@"
 using System;
 class TestClass
 {
@@ -82,7 +82,7 @@ class TestClass
 		[Test]
 		public void TestWithComment2()
 		{
-			Test<ConvertAsToCastCodeRefactoringProvider>(@"
+			Test<ReplaceSafeCastWithDirectCastCodeRefactoringProvider>(@"
 using System;
 class TestClass
 {
@@ -118,7 +118,7 @@ class TestClass {
 		var b = 1 + (TestClass)o;
 	}
 }";
-			Test<ConvertAsToCastCodeRefactoringProvider> (input, output);
+			Test<ReplaceSafeCastWithDirectCastCodeRefactoringProvider> (input, output);
 		}
 
 		[Test]
@@ -138,7 +138,7 @@ class TestClass {
 		var b = (TestClass)(1 + o);
 	}
 }";
-			Test<ConvertAsToCastCodeRefactoringProvider> (input, output);
+			Test<ReplaceSafeCastWithDirectCastCodeRefactoringProvider> (input, output);
 		}
 	}
 }

@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Splits local variable declaration and assignment")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Split local variable declaration and assignment")]
-	public class SplitDeclarationAndAssignmentAction : SpecializedCodeAction<VariableDeclaratorSyntax>
+	public class SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider : SpecializedCodeRefactoringProvider<VariableDeclaratorSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, VariableDeclaratorSyntax node, CancellationToken cancellationToken)
 		{
@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Split local variable declaration and assignment", 
+					"Split declaration and assignment", 
 					t2 => {
 						SyntaxNode newRoot;
 						if (forStmt != null) {

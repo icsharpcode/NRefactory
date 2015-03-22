@@ -30,13 +30,13 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class SplitDeclarationAndAssignmentTests : ContextActionTestBase
+	public class SplitLocalVariableDeclarationAndAssignmentTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestSimpleExpression()
 		{
 			string result = RunContextAction(
-				                         new SplitDeclarationAndAssignmentAction(),
+				                         new SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider(),
 				                         "class TestClass" + Environment.NewLine +
 				                         "{" + Environment.NewLine +
 				                         "    void Test ()" + Environment.NewLine +
@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestSimpleExpressionWithComment()
 		{
 			string result = RunContextAction(
-				                         new SplitDeclarationAndAssignmentAction(),
+				                         new SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider(),
 				                         "class TestClass" + Environment.NewLine +
 				                         "{" + Environment.NewLine +
 				                         "    void Test ()" + Environment.NewLine +
@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestVarType()
 		{
 			string result = RunContextAction(
-				                         new SplitDeclarationAndAssignmentAction(),
+				                         new SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider(),
 				                         "class TestClass" + Environment.NewLine +
 				                         "{" + Environment.NewLine +
 				                         "    void Test ()" + Environment.NewLine +
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void TestForStatement()
 		{
 			string result = RunContextAction(
-				                         new SplitDeclarationAndAssignmentAction(),
+				                         new SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider(),
 				                         "class TestClass" + Environment.NewLine +
 				                         "{" + Environment.NewLine +
 				                         "    void Test ()" + Environment.NewLine +
@@ -135,7 +135,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestPopupAtAssign()
 		{
-			Test<SplitDeclarationAndAssignmentAction>(@"class Test
+			Test<SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider>(@"class Test
 {
     public static void Main (string[] args)
     {
@@ -154,7 +154,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestPopupAtBeginningOfExpression()
 		{
-			Test<SplitDeclarationAndAssignmentAction>(@"class Test
+			Test<SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider>(@"class Test
 {
     public static void Main (string[] args)
     {
@@ -173,7 +173,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestMultipleInitializers()
 		{
-			Test<SplitDeclarationAndAssignmentAction>(@"class Test
+			Test<SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider>(@"class Test
 {
     public static void Main (string[] args)
     {
@@ -194,7 +194,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestHideInExpression()
 		{
-			TestWrongContext<SplitDeclarationAndAssignmentAction>(@"class Test
+			TestWrongContext<SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider>(@"class Test
 {
     public static void Main (string[] args)
     {
@@ -206,7 +206,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestLocalConstants()
 		{
-			TestWrongContext<SplitDeclarationAndAssignmentAction>(@"class Test
+			TestWrongContext<SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider>(@"class Test
 {
     public static void Main (string[] args)
     {

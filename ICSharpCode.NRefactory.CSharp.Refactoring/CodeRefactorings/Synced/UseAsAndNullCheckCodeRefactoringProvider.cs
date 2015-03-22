@@ -41,14 +41,20 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts a 'is' into an 'as' and null check")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use 'as' and null check")]
-	public class UseAsAndNullCheckAction : CodeRefactoringProvider
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use 'as' and check for null")]
+	public class UseAsAndNullCheckCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var isExpression = root.FindNode(span) as BinaryExpressionSyntax;

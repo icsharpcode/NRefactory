@@ -1,10 +1,10 @@
-//
-// ConvertHasFlagsToBitwiseFlagComparisonActionTests.cs
+﻿//
+// SplitIfWithOrConditionInTwoTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2015 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,116 +23,116 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ConvertHasFlagsToBitwiseFlagComparisonActionTests : ContextActionTestBase
+	public class SplitIfWithOrConditionInTwoTests : ContextActionTestBase
 	{
+		
 		[Test]
-		public void TestSimpleHasFlag ()
+		public void TestOrSimple()
 		{
-			Test<ConvertHasFlagsToBitwiseFlagComparisonAction>(@"
-[Flags]
-enum Foo
+			Test<SplitIfWithOrConditionInTwoCodeRefactoringProvider>(@"
+class Test
 {
-	A, B
-}
-
-class FooBar
-{
-	public void Bar (Foo f)
+	void Foo (bool a, bool b)
 	{
-		Console.WriteLine (f.$HasFlag (Foo.A));
+		if (a $|| b) {
+			return;
+		}
 	}
 }
 ", @"
-[Flags]
-enum Foo
+class Test
 {
-	A, B
-}
-
-class FooBar
-{
-	public void Bar (Foo f)
+	void Foo (bool a, bool b)
 	{
-		Console.WriteLine ((f & Foo.A) != 0);
-	}
+        if (a)
+        {
+            return;
+        }
+        else if (b)
+        {
+            return;
+        }
+    }
 }
 ");
 		}
 
 		[Test]
-		public void TestNegatedSimpleHasFlag ()
+		public void TestOrIfElse()
 		{
-			Test<ConvertHasFlagsToBitwiseFlagComparisonAction>(@"
-[Flags]
-enum Foo
+			Test<SplitIfWithOrConditionInTwoCodeRefactoringProvider>(@"
+class Test
 {
-	A, B
-}
-
-class FooBar
-{
-	public void Bar (Foo f)
+	void Foo (bool a, bool b)
 	{
-		Console.WriteLine (!f.$HasFlag (Foo.A));
+		if (a $|| b) {
+			return;
+		} else {
+			Something ();
+		}
 	}
 }
 ", @"
-[Flags]
-enum Foo
+class Test
 {
-	A, B
-}
-
-class FooBar
-{
-	public void Bar (Foo f)
+	void Foo (bool a, bool b)
 	{
-		Console.WriteLine ((f & Foo.A) == 0);
-	}
+        if (a)
+        {
+            return;
+        }
+        else if (b)
+        {
+            return;
+        }
+        else
+        {
+            Something();
+        }
+    }
 }
 ");
 		}
-
+			
 
 		[Test]
-		public void TestMultipleFlagsCase2 ()
+		public void TestAndOr()
 		{
-			Test<ConvertHasFlagsToBitwiseFlagComparisonAction>(@"
-[Flags]
-enum Foo
+			Test<SplitIfWithOrConditionInTwoCodeRefactoringProvider>(@"
+class Test
 {
-	A, B
-}
-
-class FooBar
-{
-	public void Bar (Foo f)
+	void Foo (bool a, bool b)
 	{
-		Console.WriteLine (f.$HasFlag (Foo.A | Foo.B));
+		if (!b $|| a && b) {
+			return;
+		}
 	}
 }
 ", @"
-[Flags]
-enum Foo
+class Test
 {
-	A, B
-}
-
-class FooBar
-{
-	public void Bar (Foo f)
+	void Foo (bool a, bool b)
 	{
-		Console.WriteLine ((f & (Foo.A & Foo.B)) != 0);
-	}
+        if (!b)
+        {
+            return;
+        }
+        else if (a && b)
+        {
+            return;
+        }
+    }
 }
 ");
 		}
 	}
+
+
 }
 

@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts an anonymous method expression into a lambda expression")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert anonymous method to lambda expression")]
-	public class ConvertAnonymousMethodToLambdaCodeRefactoringProvider : SpecializedCodeAction<AnonymousMethodExpressionSyntax>
+	public class ConvertAnonymousMethodToLambdaCodeRefactoringProvider : SpecializedCodeRefactoringProvider<AnonymousMethodExpressionSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, AnonymousMethodExpressionSyntax node, CancellationToken cancellationToken)
 		{

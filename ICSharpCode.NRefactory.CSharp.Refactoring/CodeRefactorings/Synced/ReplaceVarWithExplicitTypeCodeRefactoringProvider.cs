@@ -38,18 +38,24 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts local variable declaration to be explicit typed.")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use explicit type")]
-	public class UseExplicitTypeAction : CodeRefactoringProvider
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replaces 'var' with explicit type specification")]
+	public class ReplaceVarWithExplicitTypeCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
-			var varDecl = UseVarKeywordAction.GetVariableDeclarationStatement(token.Parent);
+			var varDecl = ReplaceExplicitTypeWithVarCodeRefactoringProvider.GetVariableDeclarationStatement(token.Parent);
 			ITypeSymbol type;
 			TypeSyntax typeSyntax;
 			if (varDecl != null) {
@@ -59,7 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				type = model.GetTypeInfo(v.Initializer.Value).Type;
 				typeSyntax = varDecl.Type;
 			} else {
-				var foreachStatement = UseVarKeywordAction.GetForeachStatement(token.Parent);
+				var foreachStatement = ReplaceExplicitTypeWithVarCodeRefactoringProvider.GetForeachStatement(token.Parent);
 				if (foreachStatement == null) {
 					return;
 				}
@@ -76,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"Use explicit type", 
+					"To explicit type", 
 					t2 => Task.FromResult(PerformAction (document, model, root, type, typeSyntax))
 				)
 			);

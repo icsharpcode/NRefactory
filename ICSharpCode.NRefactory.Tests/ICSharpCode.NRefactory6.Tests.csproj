@@ -151,16 +151,11 @@
     <Compile Include="CSharp\CodeIssues\EmptyStatementIssueTests.cs" />
     <Compile Include="CSharp\Analysis\SemanticHighlightingTests.cs" />
     <Compile Include="CSharp\ParameterHinting\ParameterHintingTests.cs" />
-    <Compile Include="CSharp\CodeActions\UseVarKeywordTests.cs" />
     <Compile Include="CSharp\CodeActions\ContextActionTestBase.cs" />
-    <Compile Include="CSharp\CodeActions\UseExplicitTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertHexToDecTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertDecToHexTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertAsToCastTests.cs" />
     <Compile Include="CSharp\CodeActions\RemoveBracesTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceEmptyStringTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsActionTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonActionTests.cs" />
     <Compile Include="CSharp\CodeIssues\ForStatementConditionIsTrueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantThisQualifierIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\InspectionActionTestBase.cs" />
@@ -401,11 +396,7 @@
     <Compile Include="CSharp\CodeActions\SimplifyIfFlowInLoopsTests.cs" />
     <Compile Include="CSharp\CodeActions\SimplifyIfFlowTests.cs" />
     <Compile Include="CSharp\CodeActions\SortUsingsTests.cs" />
-    <Compile Include="CSharp\CodeActions\SplitDeclarationAndAssignmentTests.cs" />
-    <Compile Include="CSharp\CodeActions\SplitDeclarationListTests.cs" />
-    <Compile Include="CSharp\CodeActions\SplitIfActionTests.cs" />
     <Compile Include="CSharp\CodeActions\SplitStringTests.cs" />
-    <Compile Include="CSharp\CodeActions\UseAsAndNullCheckActionTests.cs" />
     <Compile Include="CSharp\CodeActions\UseStringFormatTests.cs" />
     <Compile Include="IndentationTests\TextPasteIndentEngineTests.cs" />
     <Compile Include="IndentationTests\StringTests.cs" />
@@ -482,6 +473,16 @@
     <Compile Include="CSharp\CodeActions\ConvertAutoPropertyToPropertyTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceDirectCastWithSafeCastTest.cs" />
     <Compile Include="CSharp\CodeActions\ReplacePropertyWithBackingFieldWithAutoPropertyTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceSafeCastWithDirectCastTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceExplicitTypeWithVarTests.cs" />
+    <Compile Include="CSharp\CodeActions\ReplaceVarWithExplicitTypeTests.cs" />
+    <Compile Include="CSharp\CodeActions\SplitIfWithAndConditionInTwoTests.cs" />
+    <Compile Include="CSharp\CodeActions\SplitIfWithOrConditionInTwoTests.cs" />
+    <Compile Include="CSharp\CodeActions\SplitLocalVariableDeclarationAndAssignmentTests.cs" />
+    <Compile Include="CSharp\CodeActions\SplitVariableIntoSeveralOnesTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsTests.cs" />
+    <Compile Include="CSharp\CodeActions\UseAsAndNullCheckTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

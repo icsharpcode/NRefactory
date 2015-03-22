@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Add an exception description to the xml documentation")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Add an exception description to the xml documentation")]
-	public class AddExceptionDescriptionCodeRefactoringProvider : SpecializedCodeAction<ThrowStatementSyntax>
+	public class AddExceptionDescriptionCodeRefactoringProvider : SpecializedCodeRefactoringProvider<ThrowStatementSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions (Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ThrowStatementSyntax node, CancellationToken cancellationToken)
 		{

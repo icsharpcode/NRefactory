@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var op = GetAssignmentOperator(bop.OperatorToken);
 			if (op == SyntaxKind.None)
 				return null;
-			return SyntaxFactory.AssignmentExpression(op, node.Left, SplitIfAction.GetRightSide(outerLeft.Parent as BinaryExpressionSyntax));
+			return SyntaxFactory.AssignmentExpression(op, node.Left, SplitIfWithAndConditionInTwoCodeRefactoringProvider.GetRightSide(outerLeft.Parent as BinaryExpressionSyntax));
 		}
 
 		internal static SyntaxKind GetAssignmentOperator(SyntaxToken token)

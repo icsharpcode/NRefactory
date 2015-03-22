@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Merge two nested 'if' statements")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Merge nested 'if'")]
-	public class MergeNestedIfAction : SpecializedCodeAction<IfStatementSyntax>
+	public class MergeNestedIfAction : SpecializedCodeRefactoringProvider<IfStatementSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, IfStatementSyntax node, CancellationToken cancellationToken)
 		{

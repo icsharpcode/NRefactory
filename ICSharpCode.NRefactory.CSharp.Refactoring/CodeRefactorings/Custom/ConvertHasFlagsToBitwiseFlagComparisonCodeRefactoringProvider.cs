@@ -40,13 +40,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Replace 'Enum.HasFlag' call with bitwise flag comparison")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace 'Enum.HasFlag' call with bitwise flag comparison")]
-	public class ConvertHasFlagsToBitwiseFlagComparisonAction : CodeRefactoringProvider
+	public class ConvertHasFlagsToBitwiseFlagComparisonCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var node = root.FindToken(span.Start).Parent;
@@ -62,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return;
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, "Replace with bitwise flag comparison", t2 => Task.FromResult(PerformAction(document, root, invocationNode)))
+				CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, "To bitwise flag comparison", t2 => Task.FromResult(PerformAction(document, root, invocationNode)))
 			);
 		}
 
@@ -72,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (!arg.DescendantNodesAndSelf().OfType<BinaryExpressionSyntax> ().All(bop => bop.IsKind(SyntaxKind.BitwiseOrExpression)))
 				return document;
 
-			arg = ConvertBitwiseFlagComparisonToHasFlagsAction.MakeFlatExpression(arg, SyntaxKind.BitwiseAndExpression);
+			arg = ConvertBitwiseFlagComparisonToHasFlagsCodeRefactoringProvider.MakeFlatExpression(arg, SyntaxKind.BitwiseAndExpression);
 			if (arg is BinaryExpressionSyntax)
 				arg = SyntaxFactory.ParenthesizedExpression (arg);
 
