@@ -155,7 +155,6 @@
     <Compile Include="CSharp\CodeActions\ConvertHexToDecTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertDecToHexTests.cs" />
     <Compile Include="CSharp\CodeActions\RemoveBracesTests.cs" />
-    <Compile Include="CSharp\CodeActions\ReplaceEmptyStringTests.cs" />
     <Compile Include="CSharp\CodeIssues\ForStatementConditionIsTrueTests.cs" />
     <Compile Include="CSharp\CodeIssues\RedundantThisQualifierIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\InspectionActionTestBase.cs" />
@@ -483,6 +482,8 @@
     <Compile Include="CSharp\CodeActions\ConvertHasFlagsToBitwiseFlagComparisonTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertBitwiseFlagComparisonToHasFlagsTests.cs" />
     <Compile Include="CSharp\CodeActions\UseAsAndNullCheckTests.cs" />
+    <Compile Include="CSharp\CodeActions\UseSystemStringEmptyTests.cs" />
+    <Compile Include="CSharp\CodeActions\UseSystemEnvironmentNewLineTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

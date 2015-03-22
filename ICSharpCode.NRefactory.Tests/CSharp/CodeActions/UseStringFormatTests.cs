@@ -96,10 +96,10 @@ class TestClass
 }");
 		}
 
-        [Test]
-        public void TestFormatString ()
-        {
-            Test<UseStringFormatAction>(@"
+		[Test]
+		public void TestFormatString ()
+		{
+			Test<UseStringFormatAction>(@"
 class TestClass
 {
 	void TestMethod ()
@@ -116,12 +116,12 @@ class TestClass
 		string res = string.Format (""A test number: {0:N2}"", i);
 	}
 }");
-        }
+		}
 
-        [Test]
-        public void TestFormatBracesRegular()
-        {
-            Test<UseStringFormatAction>(@"
+		[Test]
+		public void TestFormatBracesRegular()
+		{
+			Test<UseStringFormatAction>(@"
 class TestClass
 {
 	void TestMethod ()
@@ -138,9 +138,9 @@ class TestClass
 		string res = string.Format (""A test number: {{{0}}}"", i);
 	}
 }");
-        }
+		}
 
-        /*
+		/*
         [Test]
         public void TestFormatBracesWithFormat()
         {
@@ -164,10 +164,10 @@ class TestClass
         }
          */
 
-        [Test]
-        public void TestUnnecessaryStringFormat()
-        {
-            Test<UseStringFormatAction>(@"
+		[Test]
+		public void TestUnnecessaryStringFormat()
+		{
+			Test<UseStringFormatAction>(@"
 class TestClass
 {
 	void TestMethod ()
@@ -182,12 +182,12 @@ class TestClass
 		string res = ""String 1String 2"";
 	}
 }");
-        }
+		}
 
-        [Test]
-        public void TestUnnecessaryToString()
-        {
-            Test<UseStringFormatAction>(@"
+		[Test]
+		public void TestUnnecessaryToString()
+		{
+			Test<UseStringFormatAction>(@"
 class TestClass
 {
 	void TestMethod ()
@@ -204,8 +204,8 @@ class TestClass
 		string res = string.Format (""String 1{0}"", i);
 	}
 }");
-        }
-		
+		}
+
 		[Test]
 		public void EscapeBraces ()
 		{
@@ -227,7 +227,7 @@ class TestClass
 	}
 }");
 		}
-		
+
 		[Test]
 		public void QuotesMixedVerbatim ()
 		{

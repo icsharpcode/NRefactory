@@ -139,7 +139,6 @@
     <Compile Include="CodeIssues\IssueMarker.cs" />
     <Compile Include="CodeIssues\DiagnosticFactory.cs" />
     <Compile Include="NRefactoryCodeRefactoringProviderAttribute.cs" />
-    <Compile Include="CodeActions\ReplaceEmptyStringAction.cs" />
     <Compile Include="CodeIssues\Synced\RedundanciesInCode\ForStatementConditionIsTrueIssue.cs" />
     <Compile Include="NRefactoryCodeDiagnosticAnalyzerAttribute.cs" />
     <Compile Include="CodeIssues\GatherVisitorBase.cs" />
@@ -439,6 +438,8 @@
     <Compile Include="CodeRefactorings\Custom\ConvertBitwiseFlagComparisonToHasFlagsCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\SpecializedCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\UseAsAndNullCheckCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\UseSystemStringEmptyCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\UseSystemEnvironmentNewLineCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
