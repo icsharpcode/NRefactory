@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void Test()
 		{
 			string result = RunContextAction(
-				                         new InvertIfAction(),
+				                         new InvertIfCodeRefactoringProvider(),
 				                         "class TestClass" + Environment.NewLine +
 				                         "{" + Environment.NewLine +
 				                         "    void Test ()" + Environment.NewLine +

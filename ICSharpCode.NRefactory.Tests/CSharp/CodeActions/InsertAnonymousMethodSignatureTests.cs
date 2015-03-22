@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		public void Test()
 		{
 			string result = RunContextAction(
-				                         new InsertAnonymousMethodSignatureAction(),
+				                         new InsertAnonymousMethodSignatureCodeRefactoringProvider(),
 				                         "using System;" + Environment.NewLine +
 				                         "class TestClass" + Environment.NewLine +
 				                         "{" + Environment.NewLine +

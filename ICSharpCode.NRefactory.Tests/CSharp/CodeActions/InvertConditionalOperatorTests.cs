@@ -30,12 +30,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class InvertConditionalOperatorActionTests : ContextActionTestBase
+	public class InvertConditionalOperatorTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestCase1()
 		{
-			Test<InvertConditionalOperatorAction>(@"
+			Test<InvertConditionalOperatorCodeRefactoringProvider>(@"
 class Foo
 {
 	void Bar (int i, int j)
@@ -57,7 +57,7 @@ class Foo
 		[Test]
 		public void TestConditionStart()
 		{
-			Test<InvertConditionalOperatorAction>(@"
+			Test<InvertConditionalOperatorCodeRefactoringProvider>(@"
 class Foo
 {
 	void Bar (int i, int j)
@@ -79,7 +79,7 @@ class Foo
 		[Test]
 		public void TestTrueStart()
 		{
-			Test<InvertConditionalOperatorAction>(@"
+			Test<InvertConditionalOperatorCodeRefactoringProvider>(@"
 class Foo
 {
 	void Bar (int i, int j)
@@ -101,7 +101,7 @@ class Foo
 		[Test]
 		public void TestFalseStart()
 		{
-			Test<InvertConditionalOperatorAction>(@"
+			Test<InvertConditionalOperatorCodeRefactoringProvider>(@"
 class Foo
 {
 	void Bar (int i, int j)
@@ -123,7 +123,7 @@ class Foo
 		[Test]
 		public void TestPopupLocations()
 		{
-			TestWrongContext<InvertConditionalOperatorAction>(@"
+			TestWrongContext<InvertConditionalOperatorCodeRefactoringProvider>(@"
 class Foo
 {
 	void Bar (int i, int j)
@@ -132,7 +132,7 @@ class Foo
 	}
 }
 ");
-			TestWrongContext<InvertConditionalOperatorAction>(@"
+			TestWrongContext<InvertConditionalOperatorCodeRefactoringProvider>(@"
 class Foo
 {
 	void Bar (int i, int j)
@@ -142,7 +142,7 @@ class Foo
 }
 ");
 
-			TestWrongContext<InvertConditionalOperatorAction>(@"
+			TestWrongContext<InvertConditionalOperatorCodeRefactoringProvider>(@"
 class Foo
 {
 	void Bar (int i, int j)

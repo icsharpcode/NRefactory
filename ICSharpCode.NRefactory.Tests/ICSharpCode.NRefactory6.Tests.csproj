@@ -385,7 +385,6 @@
     <Compile Include="CSharp\CodeActions\InsertAnonymousMethodSignatureTests.cs" />
     <Compile Include="CSharp\CodeActions\IntroduceConstantTests.cs" />
     <Compile Include="CSharp\CodeActions\IntroduceFormatItemTests.cs" />
-    <Compile Include="CSharp\CodeActions\InvertConditionalOperatorActionTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertIfAndSimplifyTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertIfTests.cs" />
     <Compile Include="CSharp\CodeActions\InvertLogicalExpressionTests.cs" />
@@ -481,6 +480,7 @@
     <Compile Include="CSharp\CodeActions\FlipEqualsTargetAndArgumentTests.cs" />
     <Compile Include="CSharp\CodeActions\FlipOperatorArguments.cs" />
     <Compile Include="CSharp\CodeActions\FlipRelationalOperatorArgumentsTests.cs" />
+    <Compile Include="CSharp\CodeActions\InvertConditionalOperatorTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

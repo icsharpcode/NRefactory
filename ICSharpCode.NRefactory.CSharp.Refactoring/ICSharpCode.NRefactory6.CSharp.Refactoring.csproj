@@ -364,10 +364,7 @@
     <Compile Include="CodeActions\GeneratePropertyAction.cs" />
     <Compile Include="CodeActions\GenerateSwitchLabelsAction.cs" />
     <Compile Include="CodeActions\ImplementNotImplementedProperty.cs" />
-    <Compile Include="CodeActions\InsertAnonymousMethodSignatureAction.cs" />
     <Compile Include="CodeActions\IntroduceConstantAction.cs" />
-    <Compile Include="CodeActions\InvertConditionalOperatorAction.cs" />
-    <Compile Include="CodeActions\InvertIfAction.cs" />
     <Compile Include="CodeActions\InvertIfAndSimplify.cs" />
     <Compile Include="CodeActions\InvertLogicalExpressionAction.cs" />
     <Compile Include="CodeActions\IterateViaForeachAction.cs" />
@@ -404,39 +401,42 @@
     <Compile Include="CodeIssues\Synced\ConstraintViolations\InconsistentNamingIssue\DefaultRules.cs" />
     <Compile Include="CodeIssues\Synced\ConstraintViolations\InconsistentNamingIssue\Modifiers.cs" />
     <Compile Include="CodeIssues\Synced\ConstraintViolations\InconsistentNamingIssue\InconsistentNamingIssue.cs" />
-    <Compile Include="CodeRefactorings\AddExceptionDescriptionCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\AddNewFormatItemCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\AddNameToArgumentCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\CheckIfParameterIsNullCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\AddCatchExceptionCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\RemoveCatchExceptionCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\AddAnotherAccessorCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ComputeConstantValueCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertEqualityOperatorToEqualsCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertEqualityOperatorToReferenceEqualsCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertAnonymousMethodToLambdaCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertAutoPropertyToPropertyCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertCoalescingToConditionalExpressionCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertEqualsToEqualityOperatorCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertReferenceEqualsToEqualityOperatorCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertExplicitToImplicitImplementationCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertLambdaStatementToExpressionCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertForeachToForCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertIfStatementToSwitchStatementCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertImplicitToExplicitImplementationCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertLambdaToAnonymousMethodCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertMethodGroupToAnonymousMethodCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertMethodGroupToLambdaCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertSwitchToIfCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertDecToHexCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\ConvertHexToDecCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\CopyCommentsFromBaseCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\CreateEventInvocatorCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\FlipEqualsTargetAndArgumentCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\FlipOperatorOperandsCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\FlipRelationalOperatorArgumentsCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\AddAnotherAccessorCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\AddCatchExceptionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\AddExceptionDescriptionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\AddNameToArgumentCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\AddNewFormatItemCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\CheckIfParameterIsNullCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ComputeConstantValueCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertAnonymousMethodToLambdaCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertAutoPropertyToPropertyCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertCoalescingToConditionalExpressionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertDecToHexCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertEqualityOperatorToEqualsCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertEqualityOperatorToReferenceEqualsCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertEqualsToEqualityOperatorCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertExplicitToImplicitImplementationCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertForeachToForCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertHexToDecCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertIfStatementToSwitchStatementCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertImplicitToExplicitImplementationCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertLambdaStatementToExpressionCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertLambdaToAnonymousMethodCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertMethodGroupToAnonymousMethodCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertMethodGroupToLambdaCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertReferenceEqualsToEqualityOperatorCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertSwitchToIfCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\CopyCommentsFromBaseCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\CreateEventInvocatorCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\FlipEqualsTargetAndArgumentCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\FlipOperatorOperandsCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\FlipRelationalOperatorArgumentsCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\InsertAnonymousMethodSignatureCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\InvertConditionalOperatorCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\InvertIfCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\RemoveCatchExceptionCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -483,4 +483,9 @@
     </PropertyGroup>
     <Exec Condition="$(SolutionDir) != $([System.IO.Path]::GetFullPath('..'))" Command="$(NuGet) restore -SolutionDirectory .." />
   </Target>
+  <ItemGroup>
+    <Folder Include="CodeRefactorings\Synced\" />
+    <Folder Include="CodeRefactorings\Uncategorized\" />
+    <Folder Include="CodeRefactorings\Custom\" />
+  </ItemGroup>
 </Project>

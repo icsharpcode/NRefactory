@@ -1,5 +1,5 @@
 ﻿// 
-// FlipOperatorArguments.cs
+// InsertAnonymousMethodSignature.cs
 //  
 // Author:
 //       Mike Krüger <mkrueger@novell.com>
@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -39,38 +38,53 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Flip an operator operands.")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Flip an operator operands")]
-	public class FlipOperatorArgumentsCodeRefactoringProvider : CodeRefactoringProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Inserts a signature to parameterless anonymous methods")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Insert anonymous method signature")]
+	public class InsertAnonymousMethodSignatureCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			var binop = root.FindToken(span.Start).Parent as BinaryExpressionSyntax;
-
-			if (binop == null || !binop.OperatorToken.Span.Contains(span))
+			var anonymousMethodExpression = root.FindNode(span) as AnonymousMethodExpressionSyntax;
+			if (anonymousMethodExpression == null || !anonymousMethodExpression.DelegateKeyword.Span.Contains(span) || anonymousMethodExpression.ParameterList != null)
 				return;
 
-			if (binop.IsKind (SyntaxKind.EqualsExpression) || binop.IsKind (SyntaxKind.NotEqualsExpression)) {
-				context.RegisterRefactoring (
-					CodeActionFactory.Create (
-						binop.OperatorToken.Span,
-						DiagnosticSeverity.Info,
-						string.Format ("Flip '{0}' operands", binop.OperatorToken),
-						t2 => {
-							var newBinop = SyntaxFactory.BinaryExpression (binop.Kind (), binop.Right, binop.Left)
-								.WithAdditionalAnnotations (Formatter.Annotation);
-							var newRoot = root.ReplaceNode ((SyntaxNode)binop, newBinop);
-							return Task.FromResult (document.WithSyntaxRoot (newRoot));
+			context.RegisterRefactoring(
+				CodeActionFactory.Create(
+					anonymousMethodExpression.Span,
+					DiagnosticSeverity.Info,
+					"Insert signature",
+					t2 => {
+						var typeInfo = model.GetTypeInfo(anonymousMethodExpression);
+						var type = typeInfo.ConvertedType ?? typeInfo.Type;
+						if (type == null)
+							return Task.FromResult(document);
+						var method = type.GetDelegateInvokeMethod();
+
+						if (method == null)
+							return Task.FromResult(document);
+						var parameters = new List<ParameterSyntax> ();
+
+						foreach (var param in method.Parameters) {
+							var t = SyntaxFactory.ParseTypeName(param.Type.ToMinimalDisplayString(model, anonymousMethodExpression.SpanStart));
+							parameters.Add(SyntaxFactory.Parameter(SyntaxFactory.Identifier(param.Name)).WithType(t));
 						}
-					)
-				);
-				return;
-			}
+
+						var newRoot = root.ReplaceNode((SyntaxNode)anonymousMethodExpression, anonymousMethodExpression.WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters))).WithAdditionalAnnotations(Formatter.Annotation));
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
+			);
 		}
 	}
 }

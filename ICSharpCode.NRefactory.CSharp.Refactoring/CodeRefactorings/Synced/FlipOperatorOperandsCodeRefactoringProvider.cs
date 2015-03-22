@@ -1,5 +1,5 @@
 ﻿// 
-// InvertIf.cs
+// FlipOperatorArguments.cs
 //  
 // Author:
 //       Mike Krüger <mkrueger@novell.com>
@@ -23,6 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -33,54 +34,49 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Inverts an 'if ... else' expression")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Invert if")]
-	public class InvertIfAction : CodeRefactoringProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Flip an operator operands.")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Flip an operator operands")]
+	public class FlipOperatorArgumentsCodeRefactoringProvider : CodeRefactoringProvider
 	{
-		// TODO: Invert if without else
-		// ex. if (cond) DoSomething () == if (!cond) return; DoSomething ()
-		// beware of loop contexts return should be continue then.
-
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			var ifStatement = GetIfElseStatement(root, span);
-			if (ifStatement == null)
-				return;
-			context.RegisterRefactoring(
-				CodeActionFactory.Create(
-					span, 
-					DiagnosticSeverity.Info, 
-					"Invert if", 
-					t2 => {
-						var newRoot = root.ReplaceNode((SyntaxNode)
-							ifStatement,
-							ifStatement
-							.WithCondition(CSharpUtil.InvertCondition(ifStatement.Condition))
-							.WithStatement(ifStatement.Else.Statement)
-							.WithElse(ifStatement.Else.WithStatement(ifStatement.Statement))
-							.WithAdditionalAnnotations(Formatter.Annotation)
-						);
-						return Task.FromResult(document.WithSyntaxRoot(newRoot));
-					}
-				) 
-			);
-		}
+			var binop = root.FindToken(span.Start).Parent as BinaryExpressionSyntax;
 
-		static IfStatementSyntax GetIfElseStatement(SyntaxNode root, TextSpan span)
-		{
-			var result = root.FindNode(span) as IfStatementSyntax;
-			if (result == null || !result.IfKeyword.Span.Contains(span) || result.Else == null)
-				return null;
-			return result;
+			if (binop == null || !binop.OperatorToken.Span.Contains(span))
+				return;
+
+			if (binop.IsKind (SyntaxKind.EqualsExpression) || binop.IsKind (SyntaxKind.NotEqualsExpression)) {
+				context.RegisterRefactoring (
+					CodeActionFactory.Create (
+						binop.OperatorToken.Span,
+						DiagnosticSeverity.Info,
+						string.Format ("Flip '{0}' operands", binop.OperatorToken),
+						t2 => {
+							var newBinop = SyntaxFactory.BinaryExpression (binop.Kind (), binop.Right, binop.Left)
+								.WithAdditionalAnnotations (Formatter.Annotation);
+							var newRoot = root.ReplaceNode ((SyntaxNode)binop, newBinop);
+							return Task.FromResult (document.WithSyntaxRoot (newRoot));
+						}
+					)
+				);
+				return;
+			}
 		}
 	}
 }
