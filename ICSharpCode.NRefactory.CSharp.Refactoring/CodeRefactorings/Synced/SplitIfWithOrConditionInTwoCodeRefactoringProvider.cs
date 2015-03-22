@@ -40,7 +40,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Split 'if' with '||' condition in two 'if' statements")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Split 'if' with '||' condition in two 'if' statements")]

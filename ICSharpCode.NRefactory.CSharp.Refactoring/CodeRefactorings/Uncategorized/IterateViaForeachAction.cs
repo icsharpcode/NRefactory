@@ -38,7 +38,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Iterates an IEnumerable with a foreach loop")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Iterate via 'foreach'")]

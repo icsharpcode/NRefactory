@@ -26,9 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class ForStatementConditionIsTrueTests : InspectionActionTestBase
@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Analyze<ForStatementConditionIsTrueIssue>(@"using System;
+			Analyze<ForStatementConditionIsTrueAnalyzer>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -67,7 +67,7 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Analyze<ForStatementConditionIsTrueIssue>(@"using System;
+			Analyze<ForStatementConditionIsTrueAnalyzer>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -97,7 +97,7 @@ namespace resharper_test
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			Analyze<ForStatementConditionIsTrueIssue>(@"using System;
+			Analyze<ForStatementConditionIsTrueAnalyzer>(@"using System;
 namespace resharper_test
 {
 	public class baseClass

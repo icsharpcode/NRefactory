@@ -32,7 +32,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using System.Xml;
 
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Copies comments from base to overriding members/types")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Copy comments from base")]

@@ -38,7 +38,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts '==' to call to 'object.ReferenceEquals()'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert '==' to 'object.ReferenceEquals()'")]

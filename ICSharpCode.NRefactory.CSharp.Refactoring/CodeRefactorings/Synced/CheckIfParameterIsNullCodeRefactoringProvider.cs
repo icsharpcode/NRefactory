@@ -39,7 +39,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Checks function parameter is not null")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Check if parameter is null")]

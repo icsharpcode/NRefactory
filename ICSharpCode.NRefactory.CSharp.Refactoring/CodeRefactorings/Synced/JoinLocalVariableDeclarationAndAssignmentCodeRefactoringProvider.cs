@@ -36,7 +36,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Join local variable declaration and assignment")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Join local variable declaration and assignment")]

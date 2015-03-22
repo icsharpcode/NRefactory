@@ -39,7 +39,7 @@ using System.Text;
 using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis.CodeActions;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	public class InspectionActionTestBase
     {
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 				systemXmlLinq
 			};
 
-			foreach (var provider in typeof(IssueCategories).Assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false).Length > 0)) {
+			foreach (var provider in typeof(DiagnosticAnalyzerCategories).Assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false).Length > 0)) {
 				var attr = (ExportCodeFixProviderAttribute)provider.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false) [0];
 				var codeFixProvider = (CodeFixProvider)Activator.CreateInstance(provider);
 				foreach (var id in codeFixProvider.FixableDiagnosticIds) {

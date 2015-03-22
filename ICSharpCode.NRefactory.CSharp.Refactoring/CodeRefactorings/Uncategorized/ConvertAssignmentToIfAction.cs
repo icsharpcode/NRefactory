@@ -36,7 +36,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert assignment to 'if'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert assignment to 'if'")]

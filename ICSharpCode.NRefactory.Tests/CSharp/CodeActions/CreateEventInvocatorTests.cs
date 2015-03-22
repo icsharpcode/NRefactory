@@ -31,7 +31,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[TestFixture]
 	public class CreateEventInvocatorTests : ContextActionTestBase

@@ -36,7 +36,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Add one or more optional parameters to an invocation")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Add one or more optional parameters to an invocation, using their default values")]

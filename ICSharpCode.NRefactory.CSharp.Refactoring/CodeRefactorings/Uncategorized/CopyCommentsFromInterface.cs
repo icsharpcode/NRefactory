@@ -38,7 +38,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	// TODO: Why only methods ?
 	[NRefactoryCodeRefactoringProvider(Description = "Copies documented comments from interface to implementing methods")]

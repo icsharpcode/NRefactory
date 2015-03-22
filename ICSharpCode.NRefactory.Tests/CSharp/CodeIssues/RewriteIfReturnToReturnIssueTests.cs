@@ -1,5 +1,5 @@
 //
-// RewriteIfReturnToReturnIssueTests.cs
+// RewriteIfReturnToReturnTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class RewriteIfReturnToReturnIssueTests : InspectionActionTestBase
+	public class RewriteIfReturnToReturnTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestIfElse ()

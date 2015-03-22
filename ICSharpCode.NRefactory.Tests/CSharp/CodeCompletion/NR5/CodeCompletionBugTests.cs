@@ -35,7 +35,7 @@ using ICSharpCode.NRefactory6.CSharp.Completion;
 using NUnit.Framework;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using ICSharpCode.NRefactory6.CSharp.CodeIssues;
+using ICSharpCode.NRefactory6.CSharp.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Collections.Immutable;
 using ICSharpCode.NRefactory6.CSharp.CodeGeneration;

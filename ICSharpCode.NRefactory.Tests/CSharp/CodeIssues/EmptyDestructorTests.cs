@@ -26,14 +26,14 @@
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	public class EmptyDestructorTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestBasicCase()
 		{
-			Analyze<EmptyDestructorIssue>(@"
+			Analyze<EmptyDestructorAnalyzer>(@"
 class Foo
 {
 	$~Foo()
@@ -48,7 +48,7 @@ class Foo
 		[Test]
 		public void TestCaseWithNesting()
 		{
-			Analyze<EmptyDestructorIssue>(@"
+			Analyze<EmptyDestructorAnalyzer>(@"
 class Foo
 {
 	$~Foo()
@@ -66,7 +66,7 @@ class Foo
 		[Test]
 		public void TestDisabledForNonEmpty()
 		{
-			Analyze<EmptyDestructorIssue>(@"
+			Analyze<EmptyDestructorAnalyzer>(@"
 class Foo
 {
 	~Foo()
@@ -79,7 +79,7 @@ class Foo
 		[Test]
 		public void TestDisable()
 		{
-			Analyze<EmptyDestructorIssue>(@"
+			Analyze<EmptyDestructorAnalyzer>(@"
 class Foo
 {
 	// ReSharper disable once EmptyDestructor

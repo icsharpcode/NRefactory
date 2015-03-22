@@ -25,10 +25,10 @@
 // THE SOFTWARE.
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class CS1105ExtensionMethodMustBeDeclaredStaticActionTests : ContextActionTestBase

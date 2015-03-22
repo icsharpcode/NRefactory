@@ -27,9 +27,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet")]
@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			TestIssue<SuggestUseVarKeywordEvidentIssue>(@"class Foo
+			TestIssue<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
 {
 	void Bar (object o)
 	{
@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestV2 ()
 		{
-			Analyze<SuggestUseVarKeywordEvidentIssue>(@"class Foo
+			Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
 {
 	void Bar (object o)
 	{

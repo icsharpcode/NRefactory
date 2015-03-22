@@ -31,7 +31,7 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Completion;
 using System.Linq;
 using ICSharpCode.NRefactory6.CSharp.CodeCompletion;
-using ICSharpCode.NRefactory6.CSharp.CodeIssues;
+using ICSharpCode.NRefactory6.CSharp.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Collections.Immutable;

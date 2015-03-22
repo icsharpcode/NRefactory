@@ -1,5 +1,5 @@
 //
-// DuplicateExpressionsInConditionsIssueTests.cs
+// DuplicateExpressionsInConditionsTests.cs
 //
 // Author:
 //       Ciprian Khlud <ciprian.mustiata@yahoo.com>
@@ -31,7 +31,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {	
 	[TestFixture]
-	public class DuplicateExpressionsInConditionsIssueTests : InspectionActionTestBase
+	public class DuplicateExpressionsInConditionsTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestSimple ()

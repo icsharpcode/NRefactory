@@ -38,7 +38,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using ICSharpCode.NRefactory6.CSharp;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	/// <summary>
 	/// Converts a cast expression to an 'as' expression

@@ -1,5 +1,5 @@
 ﻿// 
-// RedundantAssignmentIssueTests.cs
+// RedundantAssignmentTests.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -27,11 +27,11 @@
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet")]
-	public class RedundantAssignmentIssueTests : InspectionActionTestBase
+	public class RedundantAssignmentTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestVariableInitializerNotUsed()
@@ -51,7 +51,7 @@ class TestClass
 	{
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 1, output);
+			Test<RedundantAssignmentAnalyzer>(input, 1, output);
 		}
 
 		[Test]
@@ -72,7 +72,7 @@ class TestClass
 	{
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 1, output);
+			Test<RedundantAssignmentAnalyzer>(input, 1, output);
 		}
 
 		[Test]
@@ -99,7 +99,7 @@ class TestClass
 		return j;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 1, output);
+			Test<RedundantAssignmentAnalyzer>(input, 1, output);
 		}
 
 		[Test]
@@ -124,7 +124,7 @@ class TestClass
 		return j;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 1, output);
+			Test<RedundantAssignmentAnalyzer>(input, 1, output);
 		}
 
 		[Test]
@@ -148,7 +148,7 @@ class TestClass
 		return j;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 1, output);
+			Test<RedundantAssignmentAnalyzer>(input, 1, output);
 		}
 
 		[Test]
@@ -182,7 +182,7 @@ class TestClass
 		return i;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 1, output);
+			Test<RedundantAssignmentAnalyzer>(input, 1, output);
 		}
 
 		[Test]
@@ -203,7 +203,7 @@ class TestClass
 		return i;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -217,7 +217,7 @@ class TestClass
 		i = 0;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -233,7 +233,7 @@ class TestClass
 		return i;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -252,7 +252,7 @@ class TestClass
 		return i;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -267,7 +267,7 @@ class TestClass
 		return j > 0 ? i : 0;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -289,7 +289,7 @@ class TestClass
 		if (x > 1) ;
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -309,7 +309,7 @@ class TestClass
 		}
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -330,7 +330,7 @@ class TestClass
 		}
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -351,7 +351,7 @@ class TestClass
 		}
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -372,7 +372,7 @@ class TestClass
         Test (a);
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -393,7 +393,7 @@ class TestClass
         Test (a);
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -409,7 +409,7 @@ class TestClass
 		}
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, 0);
+			Test<RedundantAssignmentAnalyzer>(input, 0);
 		}
 
 		[Test]
@@ -433,7 +433,7 @@ class TestClass
 		Func ();
 	}
 }";
-			Test<RedundantAssignmentIssue>(input, output);
+			Test<RedundantAssignmentAnalyzer>(input, output);
 		}
 
         [Test]
@@ -460,7 +460,7 @@ class TestClass
         a = 2;
 	}
 }";
-            Test<RedundantAssignmentIssue>(input, 2, output, 0);
+            Test<RedundantAssignmentAnalyzer>(input, 2, output, 0);
         }
 
 
@@ -470,7 +470,7 @@ class TestClass
 		[Test]
 		public void TestBug11795 ()
 		{
-			Analyze<RedundantAssignmentIssue>(@"
+			Analyze<RedundantAssignmentAnalyzer>(@"
 using System;
 using System.Text.RegularExpressions;
 using System.IO;
@@ -501,7 +501,7 @@ public class Test
 		[Test]
 		public void TestBug14929 ()
 		{
-			Analyze<RedundantAssignmentIssue>(@"
+			Analyze<RedundantAssignmentAnalyzer>(@"
 using system;
 
 public class Test
@@ -526,7 +526,7 @@ public class Test
 		[Test]
 		public void TestMultipleVariableInitializers()
 		{
-			Test<RedundantAssignmentIssue>(@"using System;
+			Test<RedundantAssignmentAnalyzer>(@"using System;
 public class MyClass
 {
 	public static void Main ()

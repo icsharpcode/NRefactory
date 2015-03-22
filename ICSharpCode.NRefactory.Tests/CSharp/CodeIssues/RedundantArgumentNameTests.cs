@@ -25,7 +25,7 @@
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class RedundantArgumentNameTests : InspectionActionTestBase
@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void MethodInvocation1()
 		{
-			Analyze<RedundantArgumentNameIssue>(@"
+			Analyze<RedundantArgumentNameAnalyzer>(@"
 class TestClass
 {
 	public void Foo(int a, int b, double c = 0.1){}
@@ -57,7 +57,7 @@ class TestClass
 		[Test]
 		public void MethodInvocation2()
 		{
-			Analyze<RedundantArgumentNameIssue>(@"
+			Analyze<RedundantArgumentNameAnalyzer>(@"
 class TestClass
 {
 	public void Foo(int a, int b, double c = 0.1){}
@@ -81,7 +81,7 @@ class TestClass
 		[Test]
 		public void MethodInvocation3()
 		{
-			Analyze<RedundantArgumentNameIssue>(@"
+			Analyze<RedundantArgumentNameAnalyzer>(@"
 class TestClass
 {
 	public void Foo(int a, int b, double c = 0.1){}
@@ -106,7 +106,7 @@ class TestClass
 		[Test]
 		public void MethodInvocation4()
 		{
-			Analyze<RedundantArgumentNameIssue>(@"
+			Analyze<RedundantArgumentNameAnalyzer>(@"
 class TestClass
 {
 	public void Foo (int a = 2, int b = 3, int c = 4, int d = 5, int e = 5)
@@ -136,7 +136,7 @@ class TestClass
 		[Test]
 		public void IndexerExpression() 
 		{
-			Analyze<RedundantArgumentNameIssue>(@"
+			Analyze<RedundantArgumentNameAnalyzer>(@"
 public class TestClass
 {
 	public int this[int i, int j]
@@ -176,7 +176,7 @@ internal class Test
 		[Test]
 		public void TestAttributes()
 		{
-			Analyze<RedundantArgumentNameIssue>(@"using System;
+			Analyze<RedundantArgumentNameAnalyzer>(@"using System;
 class MyAttribute : Attribute
 {
 	public MyAttribute(int x, int y) {}
@@ -204,7 +204,7 @@ class TestClass
 		[Test]
 		public void TestObjectCreation()
 		{
-			Analyze<RedundantArgumentNameIssue>(@"
+			Analyze<RedundantArgumentNameAnalyzer>(@"
 class TestClass
 {
 	public TestClass (int x, int y)
@@ -235,7 +235,7 @@ class TestClass
 		[Test]
 		public void Invalid()
 		{
-			Analyze<RedundantArgumentNameIssue>(@"
+			Analyze<RedundantArgumentNameAnalyzer>(@"
 public class TestClass
 {
 	public int this[int i, int j , int k]

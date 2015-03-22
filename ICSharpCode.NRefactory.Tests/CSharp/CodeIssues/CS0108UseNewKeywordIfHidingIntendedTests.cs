@@ -25,10 +25,10 @@
 // THE SOFTWARE.
 
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeIssues;
+using ICSharpCode.NRefactory6.CSharp.Diagnostics;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class CS0108UseNewKeywordIfHidingIntendedTests : InspectionActionTestBase
@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void IgnoreNonDerivedClass()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public void $Bar()
@@ -48,7 +48,7 @@ class Foo
 		[Test]
 		public void IgnoreNonHidingMethod()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public void Bar()
@@ -67,7 +67,7 @@ class Baz : Foo
 		[Test]
 		public void IgnoreDifferentMethodSignature()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public void Bar(int foo)
@@ -86,7 +86,7 @@ class Baz : Foo
 		[Test]
 		public void IgnoreOverridingMethod()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public virtual void Bar()
@@ -105,7 +105,7 @@ class Baz : Foo
 		[Test]
 		public void IgnoreAbstractImplementingMethod()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public abstract void Bar();
@@ -122,7 +122,7 @@ class Baz : Foo
 		[Test]
 		public void TestMethod()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public void Bar(int test)
@@ -154,7 +154,7 @@ class Baz : Foo
 		[Test]
 		public void TestMethodWithComment()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public void Bar(int test)
@@ -192,7 +192,7 @@ class Baz : Foo
 		[Test]
 		public void TestField()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public int bar;
@@ -216,7 +216,7 @@ class Baz : Foo
 		[Test]
 		public void TestProperty()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public int Bar { get; set; }
@@ -240,7 +240,7 @@ class Baz : Foo
 		[Test]
 		public void TestType()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public class Bar
@@ -272,7 +272,7 @@ class Baz : Foo
 		[Test]
 		public void TestIndexer()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     protected int thing;
@@ -340,7 +340,7 @@ class Baz : Foo
 		[Test]
 		public void TestStruct()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public struct Bar
@@ -372,7 +372,7 @@ class Baz : Foo
 		[Test]
 		public void TestEnum()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public enum Bar
@@ -406,7 +406,7 @@ class Baz : Foo
 		[Test]
 		public void TestInterface()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public interface Bar
@@ -438,7 +438,7 @@ class Baz : Foo
 		[Test]
 		public void TestDelegate()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public delegate int Bar(int a, bool b);
@@ -462,7 +462,7 @@ class Baz : Foo
 		[Test]
 		public void TestEvent()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 public delegate int Test(bool a);
 
 class Foo
@@ -489,7 +489,7 @@ class Baz : Foo
 		[Test]
 		public void FurtherUpInheritanceTree()
 		{
-			Analyze<CS0108UseNewKeywordIfHidingIntendedIssue>(@"
+			Analyze<CS0108UseNewKeywordIfHidingIntendedAnalyzer>(@"
 class Foo
 {
     public void Bar(int testParam)

@@ -27,7 +27,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class RedundantBaseQualifierTests : InspectionActionTestBase
@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Analyze<RedundantBaseQualifierIssue>(@"using System;
+			Analyze<RedundantBaseQualifierAnalyzer>(@"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Analyze<RedundantBaseQualifierIssue>(@"using System;
+			Analyze<RedundantBaseQualifierAnalyzer>(@"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -165,7 +165,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void ComplexTests ()
 		{
-			Analyze<RedundantBaseQualifierIssue>(@"
+			Analyze<RedundantBaseQualifierAnalyzer>(@"
 
 class Base {
 	public int a;
@@ -193,7 +193,7 @@ class Foo : Base
 		[Ignore("works, but onflicts with VS 2015 builtin redundancy checker")]
 		public void TestResharperDisableRestore()
 		{
-			Analyze<RedundantBaseQualifierIssue>(@"using System;
+			Analyze<RedundantBaseQualifierAnalyzer>(@"using System;
 	namespace Application
 	{
 		public class BaseClass
@@ -233,7 +233,7 @@ class Foo : Base
 {
 	int a = base.a;
 }";
-			Analyze<RedundantBaseQualifierIssue>(input);
+			Analyze<RedundantBaseQualifierAnalyzer>(input);
 		}
 	}
 }

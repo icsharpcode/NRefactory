@@ -27,7 +27,7 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[TestFixture, Ignore("Not implemented!")]
 	public class IterateViaForeachTests : ContextActionTestBase

@@ -26,7 +26,7 @@
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class CallToObjectEqualsViaBaseTests : InspectionActionTestBase
@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void SimpleCase()
 		{
-			Analyze<CallToObjectEqualsViaBaseIssue>(@"
+			Analyze<CallToObjectEqualsViaBaseAnalyzer>(@"
 class Foo
 {
 	Foo()
@@ -54,7 +54,7 @@ class Foo
 		[Test]
 		public void NonObjectBase()
 		{
-			Analyze<CallToObjectEqualsViaBaseIssue>(@"
+			Analyze<CallToObjectEqualsViaBaseAnalyzer>(@"
 class Foo
 {
 }
@@ -80,7 +80,7 @@ class Bar : Foo
 		[Test]
 		public void IgnoresCallsToOtherObjects()
 		{
-			Analyze<CallToObjectEqualsViaBaseIssue>(@"
+			Analyze<CallToObjectEqualsViaBaseAnalyzer>(@"
 class Foo
 {
 }

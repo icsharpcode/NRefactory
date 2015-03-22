@@ -39,7 +39,7 @@ using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.FindSymbols;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts 'catch (Exception)' clause to 'catch'.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = "'catch (Exception)' to 'catch'")]

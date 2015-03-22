@@ -1,5 +1,5 @@
 //
-// LoopCanBeConvertedToQueryIssueTests.cs
+// LoopCanBeConvertedToQueryTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[Ignore]
 	[TestFixture]
-	public class LoopCanBeConvertedToQueryIssueTests : InspectionActionTestBase
+	public class LoopCanBeConvertedToQueryTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestCount()

@@ -1,5 +1,5 @@
 //
-// DuplicateBodyMethodIssueTests.cs
+// DuplicateBodyMethodTests.cs
 //
 // Author:
 //       Ciprian Khlud <ciprian.mustiata@yahoo.com>
@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[Ignore]
 	[TestFixture]
-	public class DuplicateBodyMethodIssueTests : InspectionActionTestBase
+	public class DuplicateBodyMethodTests : InspectionActionTestBase
 	{
 		
 		[Test]

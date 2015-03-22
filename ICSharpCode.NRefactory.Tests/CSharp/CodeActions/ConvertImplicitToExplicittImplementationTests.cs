@@ -27,7 +27,7 @@
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[TestFixture]
 	public class ConvertImplicitToExplicittImplementationTests : ContextActionTestBase

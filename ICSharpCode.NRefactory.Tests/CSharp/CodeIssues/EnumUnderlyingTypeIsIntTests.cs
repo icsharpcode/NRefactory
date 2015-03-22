@@ -24,11 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class EnumUnderlyingTypeIsIntTests : InspectionActionTestBase
@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestCase()
 		{
-			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
+			Analyze<EnumUnderlyingTypeIsIntAnalyzer>(@"
 public enum Foo $: int$
 {
     Bar
@@ -50,7 +50,7 @@ public enum Foo
 		[Test]
 		public void TestDisable()
 		{
-			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
+			Analyze<EnumUnderlyingTypeIsIntAnalyzer>(@"
 // ReSharper disable once EnumUnderlyingTypeIsInt
 public enum Foo : int
 {
@@ -62,7 +62,7 @@ public enum Foo : int
 		[Test]
 		public void TestNestedCase()
 		{
-			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
+			Analyze<EnumUnderlyingTypeIsIntAnalyzer>(@"
 class Outer
 {
     public enum Foo $: int$
@@ -82,7 +82,7 @@ class Outer
 		[Test]
 		public void TestDisabledForNoUnderlyingType()
 		{
-			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
+			Analyze<EnumUnderlyingTypeIsIntAnalyzer>(@"
 public enum Foo
 {
     Bar
@@ -92,7 +92,7 @@ public enum Foo
 		[Test]
 		public void TestDisabledForOtherTypes()
 		{
-			Analyze<EnumUnderlyingTypeIsIntIssue>(@"
+			Analyze<EnumUnderlyingTypeIsIntAnalyzer>(@"
 public enum Foo : byte
 {
     Bar

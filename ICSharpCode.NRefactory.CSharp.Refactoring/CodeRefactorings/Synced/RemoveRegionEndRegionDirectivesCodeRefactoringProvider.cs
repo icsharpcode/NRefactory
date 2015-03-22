@@ -33,7 +33,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Removes a pre processor #region/#endregion directives")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Remove #region/#endregion directives")]

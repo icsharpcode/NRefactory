@@ -1,5 +1,5 @@
 //
-// SimplifyLinqExpressionIssueTests.cs
+// SimplifyLinqExpressionTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -30,7 +30,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class SimplifyLinqExpressionIssueTests : InspectionActionTestBase
+	public class SimplifyLinqExpressionTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestNotAny ()

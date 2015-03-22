@@ -24,7 +24,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class ExplicitConversionInForEachIssueTests : InspectionActionTestBase
+	public class ExplicitConversionInForEachTests : InspectionActionTestBase
 	{
 		[Test]
 		public void NoWarningOnNonGenericCollection ()

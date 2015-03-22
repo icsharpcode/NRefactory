@@ -1,5 +1,5 @@
 // 
-// ReplaceWithSingleCallToAnyIssueTests.cs
+// ReplaceWithSingleCallToAnyTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeActions;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-    public class ReplaceWithSingleCallToAnyIssueTests : InspectionActionTestBase
+    public class ReplaceWithSingleCallToAnyTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestWhereAnyCase1 ()

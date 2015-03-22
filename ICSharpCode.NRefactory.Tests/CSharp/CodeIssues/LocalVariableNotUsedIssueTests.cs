@@ -1,5 +1,5 @@
 ﻿// 
-// LocalVariableNotUsedIssueTests.cs
+// LocalVariableNotUsedTests.cs
 // 
 // Author:
 //      Mansheng Yang <lightyang0@gmail.com>
@@ -27,11 +27,11 @@
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet.")]
-	public class LocalVariableNotUsedIssueTests : InspectionActionTestBase
+	public class LocalVariableNotUsedTests : InspectionActionTestBase
 	{
 
 		[Test]
@@ -50,7 +50,7 @@ class TestClass {
 	{
 	}
 }";
-			Test<LocalVariableNotUsedIssue> (input, 1, output);
+			Test<LocalVariableNotUsedAnalyzer> (input, 1, output);
 			var input2 = @"
 class TestClass {
 	void TestMethod ()
@@ -67,7 +67,7 @@ class TestClass {
 		j = 1;
 	}
 }";
-			Test<LocalVariableNotUsedIssue> (input2, 1, output2);
+			Test<LocalVariableNotUsedAnalyzer> (input2, 1, output2);
 		}
 
 		[Test]
@@ -88,8 +88,8 @@ class TestClass {
 		i = 0;
 	}
 }";
-			Test<LocalVariableNotUsedIssue> (input1, 0);
-			Test<LocalVariableNotUsedIssue> (input2, 0);
+			Test<LocalVariableNotUsedAnalyzer> (input1, 0);
+			Test<LocalVariableNotUsedAnalyzer> (input2, 0);
 		}
 
 		[Test]
@@ -104,7 +104,7 @@ class TestClass {
 		}
 	}
 }";
-			Test<LocalVariableNotUsedIssue> (input, 1);
+			Test<LocalVariableNotUsedAnalyzer> (input, 1);
 
 		}
 
@@ -122,7 +122,7 @@ class TestClass {
 		}
 	}
 }";
-			Test<LocalVariableNotUsedIssue> (input, 0);
+			Test<LocalVariableNotUsedAnalyzer> (input, 0);
 		}
 
 	}

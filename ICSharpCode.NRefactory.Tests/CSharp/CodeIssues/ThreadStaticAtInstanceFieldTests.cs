@@ -26,9 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet")]
@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<ThreadStaticAtInstanceFieldIssue>(@"using System;
+			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"using System;
 class Foo
 {
 	[ThreadStatic]
@@ -52,7 +52,7 @@ class Foo
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Test<ThreadStaticAtInstanceFieldIssue>(@"using System;
+			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"using System;
 class Foo
 {
 	[Serializable, ThreadStatic]
@@ -68,7 +68,7 @@ class Foo
 		[Test]
 		public void TestInspectorCase3()
 		{
-			Test<ThreadStaticAtInstanceFieldIssue>(@"class Foo
+			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"class Foo
 {
 	[System.ThreadStatic, System.Serializable]
 	int bar;
@@ -84,7 +84,7 @@ class Foo
 		[Test]
 		public void TestResharperSuppression()
 		{
-			Analyze<ThreadStaticAtInstanceFieldIssue>(@"using System;
+			Analyze<ThreadStaticAtInstanceFieldAnalyzer>(@"using System;
 class Foo
 {
 // ReSharper disable once ThreadStaticAtInstanceField
@@ -98,7 +98,7 @@ class Foo
 		[Test]
 		public void InstanceField()
 		{
-			Test<ThreadStaticAtInstanceFieldIssue>(@"
+			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"
 using System;
 class TestClass
 {
@@ -115,7 +115,7 @@ class TestClass
 		[Test]
 		public void InstanceFieldWithMultiAttributeSection()
 		{
-			Test<ThreadStaticAtInstanceFieldIssue>(@"
+			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"
 using System;
 class TestClass
 {
@@ -133,7 +133,7 @@ class TestClass
 		[Test]
 		public void StaticField()
 		{
-			Analyze<ThreadStaticAtInstanceFieldIssue>(@"
+			Analyze<ThreadStaticAtInstanceFieldAnalyzer>(@"
 using System;
 class TestClass
 {

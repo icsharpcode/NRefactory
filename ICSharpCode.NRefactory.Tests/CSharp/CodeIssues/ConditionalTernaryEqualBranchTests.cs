@@ -26,9 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class ConditionalTernaryEqualBranchTests : InspectionActionTestBase
@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1 ()
 		{
-			Analyze<ConditionalTernaryEqualBranchIssue>(@"class Foo
+			Analyze<ConditionalTernaryEqualBranchAnalyzer>(@"class Foo
 {
 	void Bar (string str)
 	{
@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestMoreComplexBranch ()
 		{
-			Analyze<ConditionalTernaryEqualBranchIssue>(@"class Foo
+			Analyze<ConditionalTernaryEqualBranchAnalyzer>(@"class Foo
 {
 	void Bar (string str)
 	{
@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestNotEqualBranches ()
 		{
-			Analyze<ConditionalTernaryEqualBranchIssue>(@"class Foo
+			Analyze<ConditionalTernaryEqualBranchAnalyzer>(@"class Foo
 {
 	void Bar (string str)
 	{
@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperSuppression ()
 		{
-			Analyze<ConditionalTernaryEqualBranchIssue>(@"class Foo
+			Analyze<ConditionalTernaryEqualBranchAnalyzer>(@"class Foo
 {
 	void Bar (string str)
 	{
@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
         [Test]
         public void Test()
         {
-			Analyze<ConditionalTernaryEqualBranchIssue>(@"
+			Analyze<ConditionalTernaryEqualBranchAnalyzer>(@"
 class TestClass
 {
 	void TestMethod (int i)

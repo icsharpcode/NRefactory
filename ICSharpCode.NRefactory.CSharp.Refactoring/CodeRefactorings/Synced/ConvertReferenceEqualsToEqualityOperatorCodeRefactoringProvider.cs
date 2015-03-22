@@ -33,7 +33,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts 'ReferenceEquals' call to '==' or '!='")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert 'ReferenceEquals' call to '==' or '!='")]

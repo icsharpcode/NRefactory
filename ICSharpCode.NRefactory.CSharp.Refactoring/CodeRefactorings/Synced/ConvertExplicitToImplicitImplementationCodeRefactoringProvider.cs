@@ -36,7 +36,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Convert explicit implementation of an interface member to implicit implementation")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert explicit to implict implementation")]

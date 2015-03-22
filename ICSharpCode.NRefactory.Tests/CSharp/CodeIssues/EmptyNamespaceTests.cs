@@ -25,17 +25,17 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	public class EmptyNamespaceTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestBasicCase()
 		{
-			Analyze<EmptyNamespaceIssue>(@"
+			Analyze<EmptyNamespaceAnalyzer>(@"
 $namespace Foo
 {
 }$", @"");
@@ -44,7 +44,7 @@ $namespace Foo
 		[Test]
 		public void TestCaseWithRegions()
 		{
-			Analyze<EmptyNamespaceIssue>(@"
+			Analyze<EmptyNamespaceAnalyzer>(@"
 $namespace Foo
 {
 	#region Bar
@@ -55,7 +55,7 @@ $namespace Foo
 		[Test]
 		public void TestCaseWithUsing()
 		{
-			Analyze<EmptyNamespaceIssue>(@"
+			Analyze<EmptyNamespaceAnalyzer>(@"
 $namespace Foo
 {
 	using System;
@@ -65,7 +65,7 @@ $namespace Foo
 		[Test]
 		public void TestCaseWithNesting()
 		{
-			Analyze<EmptyNamespaceIssue>(@"
+			Analyze<EmptyNamespaceAnalyzer>(@"
 namespace Foo
 {
 	$namespace Bar
@@ -80,7 +80,7 @@ namespace Foo
 		[Test]
 		public void TestDisabledForNonEmpty()
 		{
-			Analyze<EmptyNamespaceIssue>(@"
+			Analyze<EmptyNamespaceAnalyzer>(@"
 namespace Foo
 {
 	class Bar
@@ -92,7 +92,7 @@ namespace Foo
 		[Test]
 		public void TestDisabledForRegionsWithClasses()
 		{
-			Analyze<EmptyNamespaceIssue>(@"
+			Analyze<EmptyNamespaceAnalyzer>(@"
 namespace Foo
 {
 	#region Baz
@@ -106,7 +106,7 @@ namespace Foo
 		[Test]
 		public void TestDisable()
 		{
-			Analyze<EmptyNamespaceIssue>(@"// ReSharper disable once EmptyNamespace
+			Analyze<EmptyNamespaceAnalyzer>(@"// ReSharper disable once EmptyNamespace
 namespace Foo
 {
 }");

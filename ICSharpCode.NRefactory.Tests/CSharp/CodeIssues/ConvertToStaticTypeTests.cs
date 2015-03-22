@@ -26,9 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class ConvertToStaticTypeTests : InspectionActionTestBase
@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Analyze<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeAnalyzer>(@"
 using System;
 
 namespace Demo
@@ -68,7 +68,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase1WithXmlDoc()
 		{
-			Analyze<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeAnalyzer>(@"
 using System;
 
 namespace Demo
@@ -106,7 +106,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Analyze<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeAnalyzer>(@"
 using System;
 
 namespace Demo
@@ -126,7 +126,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase3()
 		{
-			Analyze<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeAnalyzer>(@"
 using System;
 
 namespace Demo
@@ -146,7 +146,7 @@ namespace Demo
 		[Test]
 		public void TestInspectorCase4()
 		{
-			Analyze<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeAnalyzer>(@"
 using System;
 
 namespace Demo
@@ -168,7 +168,7 @@ namespace Demo
 		[Test]
 		public void TestEntryPoint()
 		{
-			Analyze<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeAnalyzer>(@"
 using System;
 
 namespace Demo
@@ -188,7 +188,7 @@ namespace Demo
 		[Test]
 		public void TestAbstract()
 		{
-			Analyze<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeAnalyzer>(@"
 using System;
 
 namespace Demo
@@ -208,7 +208,7 @@ namespace Demo
 		[Test]
 		public void TestResharperDisable()
 		{
-			Analyze<ConvertToStaticTypeIssue>(@"using System;
+			Analyze<ConvertToStaticTypeAnalyzer>(@"using System;
 
 namespace Demo
 {
@@ -233,7 +233,7 @@ namespace Demo
 		[Test]
 		public void TestBug16844()
 		{
-			Analyze<ConvertToStaticTypeIssue>(@"
+			Analyze<ConvertToStaticTypeAnalyzer>(@"
 class ShouldBeStatic
 {
     static void Func ()

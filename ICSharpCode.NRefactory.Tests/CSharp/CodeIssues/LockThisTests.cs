@@ -26,7 +26,7 @@
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet")]
@@ -56,7 +56,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -87,7 +87,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -116,7 +116,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -143,7 +143,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -176,7 +176,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -209,7 +209,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -236,7 +236,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -275,7 +275,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 2, output, 0);
+			Test<LockThisAnalyzer> (input, 2, output, 0);
 		}
 		[Test]
 		public void TestFixMixedLocks ()
@@ -315,7 +315,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -333,7 +333,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 0);
+			Test<LockThisAnalyzer> (input, 0);
 		}
 
 		[Test]
@@ -366,7 +366,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue>(input, 1, output);
+			Test<LockThisAnalyzer>(input, 1, output);
 		}
 
 		[Test]
@@ -396,7 +396,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -426,7 +426,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -457,7 +457,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -474,7 +474,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 0);
+			Test<LockThisAnalyzer> (input, 0);
 		}
 
 		[Test]
@@ -495,7 +495,7 @@ abstract class TestClass
 	public abstract void TestMethod ();
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -527,7 +527,7 @@ abstract class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 2, output, 0);
+			Test<LockThisAnalyzer> (input, 2, output, 0);
 		}
 
 		[Test]
@@ -563,7 +563,7 @@ abstract class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 2, output, 0);
+			Test<LockThisAnalyzer> (input, 2, output, 0);
 		}
 
 		[Test]
@@ -599,7 +599,7 @@ abstract class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 2, output, 0);
+			Test<LockThisAnalyzer> (input, 2, output, 0);
 		}
 
 		[Test]
@@ -629,7 +629,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -663,7 +663,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 
 		[Test]
@@ -705,7 +705,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 2, output, 0);
+			Test<LockThisAnalyzer> (input, 2, output, 0);
 		}
 
 		[Test]
@@ -737,7 +737,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisIssue> (input, 1, output);
+			Test<LockThisAnalyzer> (input, 1, output);
 		}
 	}
 }

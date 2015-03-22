@@ -1,5 +1,5 @@
 //
-// EmptyStatementIssueTests.cs
+// EmptyStatementTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -27,15 +27,15 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	public class EmptyStatementIssueTests : InspectionActionTestBase
+	public class EmptyStatementTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestBasicCase()
 		{
-			Analyze<EmptyStatementIssue>(@"
+			Analyze<EmptyStatementAnalyzer>(@"
 class Test
 {
 	public void Foo ()
@@ -56,7 +56,7 @@ class Test
 		[Test]
 		public void TestDisable()
 		{
-			Analyze<EmptyStatementIssue>(@"
+			Analyze<EmptyStatementAnalyzer>(@"
 class Test
 {
 	public void Foo ()
@@ -71,7 +71,7 @@ class Test
 		[Test]
 		public void TestEmbeddedStatements()
 		{
-			Analyze<EmptyStatementIssue>(@"
+			Analyze<EmptyStatementAnalyzer>(@"
 class Test
 {
 	public void Foo ()
@@ -88,7 +88,7 @@ class Test
 		[Test]
 		public void TestInvalidCase()
 		{
-			Analyze<EmptyStatementIssue>(@"
+			Analyze<EmptyStatementAnalyzer>(@"
 class Test
 {
 	public void Foo ()

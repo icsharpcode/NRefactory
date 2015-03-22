@@ -1,5 +1,5 @@
 //
-// PartOfBodyCanBeConvertedToQueryIssueTests.cs
+// PartOfBodyCanBeConvertedToQueryTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[Ignore]
 	[TestFixture]
-	public class PartOfBodyCanBeConvertedToQueryIssueTests : InspectionActionTestBase
+	public class PartOfBodyCanBeConvertedToQueryTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestWhere()

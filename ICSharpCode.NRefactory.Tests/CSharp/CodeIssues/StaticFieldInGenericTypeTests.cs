@@ -25,11 +25,11 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 
 	[TestFixture]
@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void GenericClass()
 		{
-			TestIssue<StaticFieldInGenericTypeIssue>(@"
+			TestIssue<StaticFieldInGenericTypeAnalyzer>(@"
 class Foo<T>
 {
 	static string Data;
@@ -50,7 +50,7 @@ class Foo<T>
 		[Test]
 		public void GenericClassWithGenericField()
 		{
-			Analyze<StaticFieldInGenericTypeIssue>(@"
+			Analyze<StaticFieldInGenericTypeAnalyzer>(@"
 class Foo<T>
 {
 	static System.Collections.Generic.IList<T> Cache;
@@ -60,7 +60,7 @@ class Foo<T>
 		[Test]
 		public void GenericClassWithMultipleGenericFields()
 		{
-			TestIssue<StaticFieldInGenericTypeIssue>(@"
+			TestIssue<StaticFieldInGenericTypeAnalyzer>(@"
 class Foo<T1, T2>
 {
 	static System.Collections.Generic.IList<T1> Cache;
@@ -70,7 +70,7 @@ class Foo<T1, T2>
 		[Test]
 		public void NestedGenericClassWithGenericField()
 		{
-			TestIssue<StaticFieldInGenericTypeIssue>(@"
+			TestIssue<StaticFieldInGenericTypeAnalyzer>(@"
 class Foo<T1>
 {
 	class Bar<T2>
@@ -83,7 +83,7 @@ class Foo<T1>
 		[Test]
 		public void NonGenericClass()
 		{
-			Analyze<StaticFieldInGenericTypeIssue>(@"
+			Analyze<StaticFieldInGenericTypeAnalyzer>(@"
 class Foo
 {
 	static string Data;
@@ -93,7 +93,7 @@ class Foo
 		[Test]
 		public void NonStaticField()
 		{
-			Analyze<StaticFieldInGenericTypeIssue>(@"
+			Analyze<StaticFieldInGenericTypeAnalyzer>(@"
 class Foo<T>
 {
 	string Data;
@@ -103,7 +103,7 @@ class Foo<T>
 		[Test]
 		public void TestMicrosoftSuppressMessage()
 		{
-			TestIssue<StaticFieldInGenericTypeIssue>(@"using System.Diagnostics.CodeAnalysis;
+			TestIssue<StaticFieldInGenericTypeAnalyzer>(@"using System.Diagnostics.CodeAnalysis;
 
 class Foo<T>
 {
@@ -117,7 +117,7 @@ class Foo<T>
 		[Test]
 		public void TestAssemblyMicrosoftSuppressMessage()
 		{
-			Analyze<StaticFieldInGenericTypeIssue>(@"using System.Diagnostics.CodeAnalysis;
+			Analyze<StaticFieldInGenericTypeAnalyzer>(@"using System.Diagnostics.CodeAnalysis;
 
 [assembly:SuppressMessage(""Microsoft.Design"", ""CA1000:DoNotDeclareStaticMembersOnGenericTypes"")]
 
@@ -139,7 +139,7 @@ class Foo<T>
     // ReSharper disable once StaticFieldInGenericType
 	static string Data;
 }";
-			Analyze<StaticFieldInGenericTypeIssue>(input);
+			Analyze<StaticFieldInGenericTypeAnalyzer>(input);
         }
 
 	}

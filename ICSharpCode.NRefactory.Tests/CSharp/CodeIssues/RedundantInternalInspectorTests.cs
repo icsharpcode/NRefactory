@@ -26,9 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class RedundantInternalInspectorTests : InspectionActionTestBase
@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Analyze<RedundantInternalIssue>(@"
+			Analyze<RedundantInternalAnalyzer>(@"
 namespace Test
 {
     $internal$ class Foo
@@ -60,7 +60,7 @@ namespace Test
 		[Test]
 		public void TestInspectorCase1WithComment()
 		{
-			Analyze<RedundantInternalIssue>(@"
+			Analyze<RedundantInternalAnalyzer>(@"
 namespace Test
 {
     /// <summary>
@@ -90,7 +90,7 @@ namespace Test
 		[Test]
 		public void TestNestedClass()
 		{
-			Analyze<RedundantInternalIssue>(@"
+			Analyze<RedundantInternalAnalyzer>(@"
 namespace Test
 {
     class Foo
@@ -105,7 +105,7 @@ namespace Test
 		[Test]
 		public void TestNestedInPublicClass()
 		{
-			Analyze<RedundantInternalIssue>(@"
+			Analyze<RedundantInternalAnalyzer>(@"
 namespace Test
 {
     public class Foo

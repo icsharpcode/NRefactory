@@ -25,19 +25,19 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet")]
-	public class ParameterCanBeDeclaredWithBaseTypeIssueTests : InspectionActionTestBase
+	public class ParameterCanBeDeclaredWithBaseTypeTests : InspectionActionTestBase
 	{
 		[Test]
 		public void BasicTest()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class A
 {
 	public virtual void Foo() {}
@@ -73,7 +73,7 @@ class C
 		[Test]
 		public void IgnoresUnusedParameters()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class A
 {
 	void F(A a1)
@@ -85,7 +85,7 @@ class A
 		[Test]
 		public void IgnoresDirectionalParameters()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 interface IA
 {
 }
@@ -101,7 +101,7 @@ class A : IA
 		[Test]
 		public void IgnoresOverrides()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 interface IA
 {
 	void Foo();
@@ -130,7 +130,7 @@ class TestClass : TestBase
 		[Test]
 		public void IgnoresOverridables()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 interface IA
 {
 	void Foo();
@@ -152,7 +152,7 @@ class TestClass
 		[Test]
 		public void HandlesNeededProperties()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 interface IA
 {
 	void Foo(string s);
@@ -174,7 +174,7 @@ class TestClass
 		[Test]
 		public void InterfaceTest()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 interface IA
 {
 	void Foo();
@@ -212,7 +212,7 @@ class C
 		[Test]
 		public void RespectsExpectedTypeInIfStatement()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class C
 {
 	void F (bool b, bool c)
@@ -226,7 +226,7 @@ class C
 		[Test]
 		public void MultipleInterfaceTest()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 interface IA1
 {
 	void Foo();
@@ -302,7 +302,7 @@ class E : D, IC
 		[Test]
 		public void FindsTopInterface()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(baseInput + @"
 class Test
 {
 	void F(E e)
@@ -322,7 +322,7 @@ class Test
 		[Test]
 		public void DoesNotChangeOverload()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(baseInput + @"
 class Test
 {
 	void F(IB b)
@@ -343,7 +343,7 @@ class Test
 		[Test]
 		public void AssignmentToExplicitlyTypedVariable()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(baseInput + @"
 class Test
 {
 	void F(IB b)
@@ -358,7 +358,7 @@ class Test
 		[Test]
 		public void GenericMethod()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(baseInput + @"
 class Test
 {
 	void F(IB b)
@@ -375,7 +375,7 @@ class Test
 		[Test]
 		public void VariableDeclarationWithTypeInference()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(baseInput + @"
 class Test
 {
 	void Foo (IB b)
@@ -393,7 +393,7 @@ class Test
 		[Test]
 		public void RespectsOutgoingCallsTypeRestrictions()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(baseInput + @"
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(baseInput + @"
 class Test
 {
 	void F(E e)
@@ -423,7 +423,7 @@ class Test
 		[Test]
 		public void AccountsForNonInvocationMethodGroupUsageInMethodCall()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 delegate void FooDelegate (string s);
 interface IBase
 {
@@ -450,7 +450,7 @@ class TestClass
 		[Test]
 		public void AccountsForNonInvocationMethodGroupUsageInVariableDeclaration()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 delegate void FooDelegate (string s);
 interface IBase
 {
@@ -473,7 +473,7 @@ class TestClass
 		[Test]
 		public void AccountsForNonInvocationMethodGroupUsageInAssignmentExpression()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 delegate void FooDelegate (string s);
 interface IBase
 {
@@ -498,7 +498,7 @@ class TestClass
 		[Test]
 		public void AccountsForIndexers()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class TestClass
 {
 	void Write(string[] s)
@@ -520,7 +520,7 @@ class TestClass
 		[Test]
 		public void AccountsForArrays()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class TestClass
 {
 	void Write(string[] s)
@@ -538,7 +538,7 @@ class TestClass
 		[Test]
 		public void LimitsParamsParametersToArrays()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class TestClass
 {
 	void Write(params string[] s)
@@ -551,7 +551,7 @@ class TestClass
 		[Test]
 		public void DoesNotSuggestProgramEntryPointChanges()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class TestClass
 {
 	public static void Main (string[] args)
@@ -565,7 +565,7 @@ class TestClass
 		[Test]
 		public void IgnoresImplicitInterfaceImplementations()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 interface IHasFoo
 {
 	void Foo (string s);
@@ -582,7 +582,7 @@ class TestClass : IHasFoo
 		[Test]
 		public void IgnoresEnumParameters()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 enum ApplicableValues
 {
 	None,
@@ -600,7 +600,7 @@ class TestClass
 		[Test]
 		public void CallToOverriddenMember()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class TestBase
 {
 	public virtual void Foo()
@@ -640,7 +640,7 @@ class Test : TestBase
 		[Test]
 		public void CallToShadowingMember()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class TestBase
 {
 	public virtual void Foo()
@@ -663,7 +663,7 @@ class Test : TestBase
 		[Test]
 		public void CallToShadowingMember2()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class TestBaseBase
 {
 	public virtual void Foo()
@@ -715,7 +715,7 @@ class Test : TestBase
 		[Test]
 		public void CallToShadowingMemberWithBaseInterface()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 interface IFoo
 {
 	void Foo();
@@ -778,7 +778,7 @@ class Test : TestBase
 		[Test]
 		public void TestBug9617()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"class Test
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"class Test
 {
 	object Foo (object[] arr)
 	{
@@ -796,7 +796,7 @@ class Test : TestBase
 		[Test]
 		public void TestBug9617Case2()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"class Test
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"class Test
 {
 	int Foo (int[] arr)
 	{
@@ -814,7 +814,7 @@ class Test : TestBase
 		[Test]
 		public void DoNotDemoteStringComparisonToReferenceComparison_WithinLambda()
 		{
-			Test<ParameterCanBeDeclaredWithBaseTypeIssue>(@"using System; using System.Linq; using System.Collections.Generic;
+			Test<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"using System; using System.Linq; using System.Collections.Generic;
 class Test
 {
 	IEnumerable<User> users;
@@ -832,7 +832,7 @@ class User {
 		[Test]
 		public void TestMicrosoftSuppressMessage()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 class A
 {
 	public virtual void Foo() {}
@@ -854,7 +854,7 @@ class C
 		[Test]
 		public void TestDisableAll()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"// ReSharper disable All
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"// ReSharper disable All
 
 class A
 {
@@ -880,7 +880,7 @@ class C
 		[Test]
 		public void TestBug14099()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"
 using System;
 
 public class Test
@@ -897,7 +897,7 @@ public class Test
 		[Test]
 		public void TestPreferGenerics()
 		{
-			Analyze<ParameterCanBeDeclaredWithBaseTypeIssue>(@"using System.Collections.Generic;
+			Analyze<ParameterCanBeDeclaredWithBaseTypeAnalyzer>(@"using System.Collections.Generic;
 
 class Test
 {

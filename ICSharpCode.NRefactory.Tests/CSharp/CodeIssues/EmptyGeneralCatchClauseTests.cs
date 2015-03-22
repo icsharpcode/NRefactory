@@ -26,9 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class EmptyGeneralCatchClauseTests : InspectionActionTestBase
@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Analyze<EmptyGeneralCatchClauseIssue>(@"using System;
+			Analyze<EmptyGeneralCatchClauseAnalyzer>(@"using System;
 	using System.IO;
 	namespace Application
 	{
@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Analyze<EmptyGeneralCatchClauseIssue>(@"using System;
+			Analyze<EmptyGeneralCatchClauseAnalyzer>(@"using System;
 	using System.IO;
 	namespace Application
 	{
@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			Analyze<EmptyGeneralCatchClauseIssue>(@"using System;
+			Analyze<EmptyGeneralCatchClauseAnalyzer>(@"using System;
 	using System.IO;
 	namespace Application
 	{

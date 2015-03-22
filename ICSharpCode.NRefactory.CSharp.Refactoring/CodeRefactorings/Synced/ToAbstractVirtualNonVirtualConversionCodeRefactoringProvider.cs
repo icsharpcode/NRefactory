@@ -39,7 +39,7 @@ using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 using System.ComponentModel;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Implements an abstract member as a virtual one")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Make abstract member virtual")]

@@ -33,14 +33,14 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.CSharp;
-using ICSharpCode.NRefactory6.CSharp.CodeIssues;
+using ICSharpCode.NRefactory6.CSharp.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 using Microsoft.CodeAnalysis.CodeActions;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	public abstract class ContextActionTestBase
 	{
@@ -221,7 +221,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		protected void TestWrongContext (CodeRefactoringProvider action, string input)
 		{
 			Document doc;
-			ICSharpCode.NRefactory6.CSharp.CodeIssues.InspectionActionTestBase.TestWorkspace workspace;
+			ICSharpCode.NRefactory6.CSharp.Diagnostics.InspectionActionTestBase.TestWorkspace workspace;
 			var actions = GetActions(action, input, out workspace, out doc);
 			Assert.IsTrue (actions == null || actions.Count == 0, action.GetType () + " shouldn't be valid there.");
 		}

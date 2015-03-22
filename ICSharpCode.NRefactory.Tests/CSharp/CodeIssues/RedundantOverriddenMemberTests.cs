@@ -26,9 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet")]
@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<RedundantOverriddenMemberIssue>(@"namespace Demo
+			Test<RedundantOverriddenMemberAnalyzer>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestResharperDisable()
 		{
-			Analyze<RedundantOverriddenMemberIssue>(@"namespace Demo
+			Analyze<RedundantOverriddenMemberAnalyzer>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -95,7 +95,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Analyze<RedundantOverriddenMemberIssue>(@"namespace Demo
+			Analyze<RedundantOverriddenMemberAnalyzer>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -118,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase3()
 		{
-			Analyze<RedundantOverriddenMemberIssue>(@"namespace Demo
+			Analyze<RedundantOverriddenMemberAnalyzer>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -140,7 +140,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase4()
 		{
-			Test<RedundantOverriddenMemberIssue>(
+			Test<RedundantOverriddenMemberAnalyzer>(
 				@"namespace Demo
 {
 	public class BaseClass
@@ -180,7 +180,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase5()
 		{
-			Test<RedundantOverriddenMemberIssue>(
+			Test<RedundantOverriddenMemberAnalyzer>(
 				@"namespace Application
 {
 	public class SampleCollection<T>
@@ -222,7 +222,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestTestInspectorCase6()
 		{
-			Test<RedundantOverriddenMemberIssue>(
+			Test<RedundantOverriddenMemberAnalyzer>(
 				@"using System;
 using System.IO;
 
@@ -303,7 +303,7 @@ class C : A
 		[Test]
 		public void TestRedundantEvent()
 		{
-			Test<RedundantOverriddenMemberIssue>(@"namespace Demo
+			Test<RedundantOverriddenMemberAnalyzer>(@"namespace Demo
 {
 	public class BaseClass
 	{
@@ -341,14 +341,14 @@ class C : A
 		public override event EventHandler FooBar { add { base.FooBar += value; } remove { base.FooBar2 -= value; } }
 	}
 }";
-			Analyze<RedundantOverriddenMemberIssue>(input);
+			Analyze<RedundantOverriddenMemberAnalyzer>(input);
 		}
 
 
 		[Test]
 		public void TestGetHashCode()
 		{
-			Analyze<RedundantOverriddenMemberIssue>(@"
+			Analyze<RedundantOverriddenMemberAnalyzer>(@"
 class Bar
 {
 	public override bool Equals (object obj)
@@ -367,7 +367,7 @@ class Bar
 		[Test]
 		public void TestRedundantGetHashCode()
 		{
-			TestIssue<RedundantOverriddenMemberIssue>(@"
+			TestIssue<RedundantOverriddenMemberAnalyzer>(@"
 class Bar
 {
 	public override int GetHashCode ()
@@ -381,7 +381,7 @@ class Bar
 		[Test]
 		public void TestPropertyBug()
 		{
-			Analyze<RedundantOverriddenMemberIssue>(@"
+			Analyze<RedundantOverriddenMemberAnalyzer>(@"
 class BaseFoo
 {
 	public virtual int Foo { get; set; }

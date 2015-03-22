@@ -26,9 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet")]
@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<RedundantCheckBeforeAssignmentIssue>(@"using System;
+			Test<RedundantCheckBeforeAssignmentAnalyzer>(@"using System;
 class baseClass
 {
 	public void method()
@@ -64,7 +64,7 @@ class baseClass
 		[Test]
 		public void TestInspectorCase2()
 		{
-			TestIssue<RedundantCheckBeforeAssignmentIssue>(@"using System;
+			TestIssue<RedundantCheckBeforeAssignmentAnalyzer>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -83,7 +83,7 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase3()
 		{
-			Analyze<RedundantCheckBeforeAssignmentIssue>(@"using System;
+			Analyze<RedundantCheckBeforeAssignmentAnalyzer>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -106,7 +106,7 @@ namespace resharper_test
 		[Test]
 		public void TestInspectorCase4()
 		{
-			Analyze<RedundantCheckBeforeAssignmentIssue>(@"using System;
+			Analyze<RedundantCheckBeforeAssignmentAnalyzer>(@"using System;
 namespace resharper_test
 {
 	public class baseClass
@@ -129,7 +129,7 @@ namespace resharper_test
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			Analyze<RedundantCheckBeforeAssignmentIssue>(@"using System;
+			Analyze<RedundantCheckBeforeAssignmentAnalyzer>(@"using System;
 namespace resharper_test
 {
 	public class baseClass

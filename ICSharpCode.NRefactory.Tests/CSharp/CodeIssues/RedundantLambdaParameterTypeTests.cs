@@ -27,9 +27,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	[Ignore("TODO: Issue not ported yet")]
@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void SimpleCase()
 		{
-			Test<RedundantLambdaParameterTypeIssue>(@"
+			Test<RedundantLambdaParameterTypeAnalyzer>(@"
 class Program
 {
 	public delegate int IncreaseByANumber(int j);
@@ -65,7 +65,7 @@ class Program
 		[Test]
 		public void MultipleCases()
 		{
-			Test<RedundantLambdaParameterTypeIssue>(@"
+			Test<RedundantLambdaParameterTypeAnalyzer>(@"
 class Program
 {
 	public delegate int MultipleIncreaseByANumber(int i, string j, int l);
@@ -91,7 +91,7 @@ class Program
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Test<RedundantLambdaParameterTypeIssue>(@"
+			Test<RedundantLambdaParameterTypeAnalyzer>(@"
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,7 +131,7 @@ namespace application
 		[Test]
 		public void TestInspectorCase3()
 		{
-			Analyze<RedundantLambdaParameterTypeIssue>(@"using System;
+			Analyze<RedundantLambdaParameterTypeAnalyzer>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -154,7 +154,7 @@ namespace application
 		[Test]
 		public void TestInvalidContext()
 		{
-			Analyze<RedundantLambdaParameterTypeIssue>(@"using System;
+			Analyze<RedundantLambdaParameterTypeAnalyzer>(@"using System;
 		using System.Collections.Generic;
 		using System.Linq;
 
@@ -176,7 +176,7 @@ namespace application
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			Analyze<RedundantLambdaParameterTypeIssue>(@"using System;
+			Analyze<RedundantLambdaParameterTypeAnalyzer>(@"using System;
 		using System.Collections.Generic;
 		using System.Linq;
 

@@ -1,5 +1,5 @@
 //
-// RedundantTypeArgumentsOfMethodIssueTests.cs
+// RedundantTypeArgumentsOfMethodTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -32,7 +32,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[Ignore]
 	[TestFixture]
-	public class RedundantTypeArgumentsOfMethodIssueTests : InspectionActionTestBase
+	public class RedundantTypeArgumentsOfMethodTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestSimpleCase ()

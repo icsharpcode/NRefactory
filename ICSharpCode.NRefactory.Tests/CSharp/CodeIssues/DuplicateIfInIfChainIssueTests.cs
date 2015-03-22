@@ -1,5 +1,5 @@
 //
-// DuplicateIfInIfChainIssueTests.cs
+// DuplicateIfInIfChainTests.cs
 //
 // Author:
 //       Ciprian Khlud <ciprian.mustiata@yahoo.com>
@@ -29,7 +29,7 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[TestFixture]
-	public class DuplicateIfInIfChainIssueTests : InspectionActionTestBase
+	public class DuplicateIfInIfChainTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestSimple()

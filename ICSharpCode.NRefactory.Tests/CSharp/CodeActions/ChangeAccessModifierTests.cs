@@ -28,7 +28,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeActions
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[TestFixture]
 	public class ChangeAccessModifierTests : ContextActionTestBase

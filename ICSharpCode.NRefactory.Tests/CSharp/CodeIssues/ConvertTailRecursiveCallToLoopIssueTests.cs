@@ -1,5 +1,5 @@
 //
-// ConvertTailRecursiveCallToLoopIssueTests.cs
+// ConvertTailRecursiveCallToLoopTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 {
 	[Ignore]
 	[TestFixture]
-	public class ConvertTailRecursiveCallToLoopIssueTests : InspectionActionTestBase
+	public class ConvertTailRecursiveCallToLoopTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestBasicCase ()

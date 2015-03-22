@@ -36,7 +36,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Use System.Environment.NewLine instead of \"\n\", \"\r\" or \"\r\n\" literal")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use System.Environment.NewLine")]

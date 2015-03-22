@@ -41,7 +41,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Splits local variable declaration and assignment")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Split local variable declaration and assignment")]

@@ -26,9 +26,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeActions;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
 	public class NonReadonlyReferencedInGetHashCodeTests : InspectionActionTestBase
@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeIssues
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeAnalyzer>(@"using System;
 public class TestClass1
 {
 	public int a = 1;
@@ -59,7 +59,7 @@ public class TestClass2
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeAnalyzer>(@"using System;
 public class TestClass1
 {
 	public int a = 1;
@@ -80,7 +80,7 @@ public class TestClass2
 		[Test]
 		public void TestInspectorCase3()
 		{
-			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeAnalyzer>(@"using System;
 public class TestClass1
 {
 	public int a = 1;
@@ -101,7 +101,7 @@ public class TestClass2
 		[Test]
 		public void TestInspectorCase4()
 		{
-			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"
+			Analyze<NonReadonlyReferencedInGetHashCodeAnalyzer>(@"
 public class Test1
 {
 	public int a = 1;
@@ -138,7 +138,7 @@ public class Test3
 		[Test]
 		public void TestResharperDisableRestore()
 		{
-			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeAnalyzer>(@"using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -169,7 +169,7 @@ namespace resharper_test
 		[Test]
 		public void TestConst()
 		{
-			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeAnalyzer>(@"using System;
 public class TestClass1
 {
 	public const int a = 1;
@@ -185,7 +185,7 @@ public class TestClass1
 		[Test]
 		public void TestReadOnly()
 		{
-			Analyze<NonReadonlyReferencedInGetHashCodeIssue>(@"using System;
+			Analyze<NonReadonlyReferencedInGetHashCodeAnalyzer>(@"using System;
 public class TestClass1
 {
 	public readonly int a = 1;

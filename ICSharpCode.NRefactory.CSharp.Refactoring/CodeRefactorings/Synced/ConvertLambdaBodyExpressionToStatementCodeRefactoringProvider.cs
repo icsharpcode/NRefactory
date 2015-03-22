@@ -39,7 +39,7 @@ using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Formatting;
 using System.Security.Principal;
 
-namespace ICSharpCode.NRefactory6.CSharp.Refactoring
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Converts expression of lambda body to statement")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Converts expression of lambda body to statement")]
