@@ -529,6 +529,11 @@
     <Compile Include="Util\CommonSyntaxNodeOrTokenExtensions.cs" />
     <Compile Include="Util\QueryExpressionSyntaxExtensions.cs" />
     <Compile Include="Features\GenerateType\CSharpGenerateTypeService.cs" />
+    <Compile Include="Features\OrganizeImports\CSharpOrganizeImportsService.cs" />
+    <Compile Include="Features\OrganizeImports\CSharpOrganizeImportsService.Rewriter.cs" />
+    <Compile Include="Util\UsingsAndExternAliasesOrganizer.cs" />
+    <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.cs" />
+    <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.Rewriter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -561,6 +566,8 @@
     <Folder Include="Features\ImplementInterface\" />
     <Folder Include="Features\ImplementAbstractClass\" />
     <Folder Include="Features\IntroduceVariable\" />
+    <Folder Include="Features\OrganizeImports\" />
+    <Folder Include="Features\RemoveUnnecessaryImports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />

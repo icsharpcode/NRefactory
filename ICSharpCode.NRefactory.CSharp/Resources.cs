@@ -85,7 +85,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static string IntroduceQueryVariableFor = "Introduce query variable for '{0}'";
 		public static string IntroduceQueryVariableForAll = "Introduce query variable for all occurrences of '{0}'";
 
+		public static string OrganizeUsingsWithAccelerator = "_Organize Usings";
+		public static string RemoveAndSortUsingsWithAccelerator = "Remove _and Sort Usings";
+		public static string SortUsingsWithAccelerator = "_Sort Usings";
+		public static string RemoveUnnecessaryUsingsWithAccelerator = "_Remove Unnecessary Usings";
 	}
-
 }
 
