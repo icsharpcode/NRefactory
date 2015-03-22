@@ -39,9 +39,9 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Swaps left and right arguments.")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Swap left and right arguments")]
-	public class FlipOperatorArgumentsAction : CodeRefactoringProvider
+	[NRefactoryCodeRefactoringProvider(Description = "Flip an operator operands.")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Flip an operator operands")]
+	public class FlipOperatorArgumentsCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
@@ -55,22 +55,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			if (binop == null || !binop.OperatorToken.Span.Contains(span))
 				return;
 
-			if (!binop.OperatorToken.IsKind(SyntaxKind.EqualsEqualsToken) && !binop.OperatorToken.IsKind(SyntaxKind.ExclamationEqualsToken))
+			if (binop.IsKind (SyntaxKind.EqualsExpression) || binop.IsKind (SyntaxKind.NotEqualsExpression)) {
+				context.RegisterRefactoring (
+					CodeActionFactory.Create (
+						binop.OperatorToken.Span,
+						DiagnosticSeverity.Info,
+						string.Format ("Flip '{0}' operands", binop.OperatorToken),
+						t2 => {
+							var newBinop = SyntaxFactory.BinaryExpression (binop.Kind (), binop.Right, binop.Left)
+								.WithAdditionalAnnotations (Formatter.Annotation);
+							var newRoot = root.ReplaceNode ((SyntaxNode)binop, newBinop);
+							return Task.FromResult (document.WithSyntaxRoot (newRoot));
+						}
+					)
+				);
 				return;
-
-			context.RegisterRefactoring(
-				CodeActionFactory.Create(
-					binop.OperatorToken.Span,
-					DiagnosticSeverity.Info,
-					string.Format("Flip '{0}' operator arguments", binop.OperatorToken),
-					t2 => {
-						var newBinop = SyntaxFactory.BinaryExpression(binop.Kind(), binop.Right, binop.Left)
-							.WithAdditionalAnnotations(Formatter.Annotation);
-						var newRoot = root.ReplaceNode((SyntaxNode)binop, newBinop);
-						return Task.FromResult(document.WithSyntaxRoot(newRoot));
-					}
-				)
-			);
+			}
 		}
 	}
 }

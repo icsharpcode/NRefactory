@@ -31,34 +31,51 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class FlipOperatorArgumentsTests : ContextActionTestBase
+	public class FlipOperatorArguments : ContextActionTestBase
 	{
-		[Test()]
-		public void Test ()
+		[Test]
+		public void TestEquals()
 		{
-			string result = RunContextAction (
-				new FlipOperatorArgumentsAction (),
-				"using System;" + Environment.NewLine +
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		if (a $!= b)" + Environment.NewLine +
-				"			;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}"
-			);
-			
-			Assert.AreEqual (
-				"using System;" + Environment.NewLine +
-				"class TestClass" + Environment.NewLine +
-				"{" + Environment.NewLine +
-				"	void Test ()" + Environment.NewLine +
-				"	{" + Environment.NewLine +
-				"		if (b != a)" + Environment.NewLine +
-				"			;" + Environment.NewLine +
-				"	}" + Environment.NewLine +
-				"}", result);
+			Test<FlipOperatorArgumentsCodeRefactoringProvider>(@"
+class Foo
+{
+    public void FooFoo (int x, int y)
+    {
+        if (x $== y))
+            Console.WriteLine (x);
+    }
+}", @"
+class Foo
+{
+    public void FooFoo (int x, int y)
+    {
+        if (y == x))
+            Console.WriteLine (x);
+    }
+}");
+		}
+
+
+		[Test]
+		public void TestNotEquals()
+		{
+			Test<FlipOperatorArgumentsCodeRefactoringProvider>(@"
+class Foo
+{
+    public void FooFoo (int x, int y)
+    {
+        if (x $!= y))
+            Console.WriteLine (x);
+    }
+}", @"
+class Foo
+{
+    public void FooFoo (int x, int y)
+    {
+        if (y != x))
+            Console.WriteLine (x);
+    }
+}");
 		}
 	}
 }

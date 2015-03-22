@@ -30,12 +30,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class FlipEqualsTargetAndArgumentActionTests : ContextActionTestBase
+	public class FlipEqualsTargetAndArgumentTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestSimpleCase()
 		{
-			Test<FlipEqualsTargetAndArgumentAction>(@"
+			Test<FlipEqualsTargetAndArgumentCodeRefactoringProvider>(@"
 class Foo
 {
     public void FooFoo (object x, object y)
@@ -57,7 +57,7 @@ class Foo
 		[Test]
 		public void TestSimpleCaseWithComment()
 		{
-			Test<FlipEqualsTargetAndArgumentAction>(@"
+			Test<FlipEqualsTargetAndArgumentCodeRefactoringProvider>(@"
 class Foo
 {
     public void FooFoo (object x, object y)
@@ -81,7 +81,7 @@ class Foo
 		[Test]
 		public void TestComplexCase()
 		{
-			Test<FlipEqualsTargetAndArgumentAction>(@"
+			Test<FlipEqualsTargetAndArgumentCodeRefactoringProvider>(@"
 class Foo
 {
     public void FooFoo (object x, object y)
@@ -103,7 +103,7 @@ class Foo
 		[Test]
 		public void TestRemoveParens()
 		{
-			Test<FlipEqualsTargetAndArgumentAction>(@"
+			Test<FlipEqualsTargetAndArgumentCodeRefactoringProvider>(@"
 class Foo
 {
     public void FooFoo (object x, object y)
@@ -125,7 +125,7 @@ class Foo
 		[Test]
 		public void TestUnaryOperatorCase()
 		{
-			Test<FlipEqualsTargetAndArgumentAction>(@"
+			Test<FlipEqualsTargetAndArgumentCodeRefactoringProvider>(@"
 class Foo
 {
     public void FooFoo (object x, bool y)
@@ -147,7 +147,7 @@ class Foo
 		[Test]
 		public void TestNullCase()
 		{
-			TestWrongContext<FlipEqualsTargetAndArgumentAction>(@"
+			TestWrongContext<FlipEqualsTargetAndArgumentCodeRefactoringProvider>(@"
 class Foo
 {
     public void FooFoo (object x, object y)
@@ -161,7 +161,7 @@ class Foo
 		[Test]
 		public void TestStaticCase()
 		{
-			TestWrongContext<FlipEqualsTargetAndArgumentAction>(@"
+			TestWrongContext<FlipEqualsTargetAndArgumentCodeRefactoringProvider>(@"
 class Foo
 {
     public static bool Equals (object a) { return false; }
@@ -177,7 +177,7 @@ class Foo
 		[Test]
 		public void TestCaretLocation()
 		{
-			TestWrongContext<FlipEqualsTargetAndArgumentAction>(@"
+			TestWrongContext<FlipEqualsTargetAndArgumentCodeRefactoringProvider>(@"
 class Foo
 {
     public void FooFoo (object x, object y)
@@ -186,7 +186,7 @@ class Foo
             Console.WriteLine (x);
     }
 }");
-			TestWrongContext<FlipEqualsTargetAndArgumentAction>(@"
+			TestWrongContext<FlipEqualsTargetAndArgumentCodeRefactoringProvider>(@"
 class Foo
 {
     public void FooFoo (object x, object y)

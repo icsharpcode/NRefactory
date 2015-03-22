@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 						var left = node.Left;
 						var info = model.GetTypeInfo(left, t2);
 						if (info.ConvertedType.IsNullableType())
-							left = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, FlipEqualsTargetAndArgumentAction.AddParensIfRequired(left), SyntaxFactory.IdentifierName("Value"));
+							left = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, FlipEqualsTargetAndArgumentCodeRefactoringProvider.AddParensIfRequired(left), SyntaxFactory.IdentifierName("Value"));
 						var ternary = SyntaxFactory.ConditionalExpression(
 							SyntaxFactory.BinaryExpression(
 								SyntaxKind.NotEqualsExpression, 

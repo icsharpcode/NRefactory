@@ -145,7 +145,6 @@
     <Compile Include="CodeActions\ConvertCastToAsAction.cs" />
     <Compile Include="CodeActions\AddBracesAction.cs" />
     <Compile Include="CodeActions\RemoveBracesAction.cs" />
-    <Compile Include="CodeActions\FlipOperatorArgumentsAction.cs" />
     <Compile Include="CodeActions\ReplaceEmptyStringAction.cs" />
     <Compile Include="CodeActions\ConvertHasFlagsToBitwiseFlagComparisonAction.cs" />
     <Compile Include="CodeActions\ConvertBitwiseFlagComparisonToHasFlagsAction.cs" />
@@ -361,7 +360,6 @@
     <Compile Include="CodeActions\ExtractAnonymousMethodAction.cs" />
     <Compile Include="CodeActions\ExtractFieldAction.cs" />
     <Compile Include="CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs" />
-    <Compile Include="CodeActions\FlipEqualsTargetAndArgumentAction.cs" />
     <Compile Include="CodeActions\GenerateGetterAction.cs" />
     <Compile Include="CodeActions\GeneratePropertyAction.cs" />
     <Compile Include="CodeActions\GenerateSwitchLabelsAction.cs" />
@@ -436,6 +434,9 @@
     <Compile Include="CodeRefactorings\ConvertHexToDecCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\CopyCommentsFromBaseCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\CreateEventInvocatorCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\FlipEqualsTargetAndArgumentCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\FlipOperatorOperandsCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\FlipRelationalOperatorArgumentsCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
