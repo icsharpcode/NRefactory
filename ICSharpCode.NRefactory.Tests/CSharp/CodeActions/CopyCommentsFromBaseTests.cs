@@ -29,139 +29,248 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[TestFixture, Ignore("Not implemented!")]
+	[TestFixture]
 	public class CopyCommentsFromBaseTest : ContextActionTestBase
 	{
-		[Test()]
-		public void TestMultiString()
+		[Test]
+		public void TestCopyMethodMultiString ()
 		{
-			
-			Test<CopyCommentsFromBase>(@"
+            
+			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 namespace TestNS
 {
-	class TestClass
-	{
-		///ssss
-		///ssss
-		public virtual void Test()
-		{
-			int a;
-		}
-	}
-	class DerivdedClass : TestClass
-	{
-		public override void $Test()
-		{
-			string str = string.Empty;
-		}
-	}
+    class TestClass
+    {
+        ///<summary>ssss
+        ///ssss</summary>
+        public virtual void Test()
+        {
+            int a;
+        }
+    }
+    class DerivdedClass : TestClass
+    {
+        public override void $Test()
+        {
+            string str = string.Empty;
+        }
+    }
 }", @"
 namespace TestNS
 {
-	class TestClass
-	{
-		///ssss
-		///ssss
-		public virtual void Test()
-		{
-			int a;
-		}
-	}
-	class DerivdedClass : TestClass
-	{
-		///ssss
-		///ssss
-		public override void Test()
-		{
-			string str = string.Empty;
-		}
-	}
+    class TestClass
+    {
+        ///<summary>ssss
+        ///ssss</summary>
+        public virtual void Test()
+        {
+            int a;
+        }
+    }
+    class DerivdedClass : TestClass
+    {
+        /// <summary>ssss
+        /// ssss</summary>
+        public override void Test()
+        {
+            string str = string.Empty;
+        }
+    }
 }");
 		}
-		
-		[Test()]
-		public void TestSingleString()
+
+		[Test]
+		public void TestCopyMethodSingleString ()
 		{
-			
-			Test<CopyCommentsFromBase>(@"
+
+			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 namespace TestNS
 {
-	class TestClass
-	{
-		///ssss
-		public virtual void Test()
-		{
-			int a;
-		}
-	}
-	class DerivdedClass : TestClass
-	{
-		public override void $Test()
-		{
-			string str = string.Empty;
-		}
-	}
+    class TestClass
+    {
+        ///ssss
+        public virtual void Test()
+        {
+            int a;
+        }
+    }
+    class DerivdedClass : TestClass
+    {
+        public override void $Test()
+        {
+            string str = string.Empty;
+        }
+    }
 }", @"
 namespace TestNS
 {
-	class TestClass
-	{
-		///ssss
-		public virtual void Test()
-		{
-			int a;
-		}
-	}
-	class DerivdedClass : TestClass
-	{
-		///ssss
-		public override void Test()
-		{
-			string str = string.Empty;
-		}
-	}
+    class TestClass
+    {
+        ///ssss
+        public virtual void Test()
+        {
+            int a;
+        }
+    }
+    class DerivdedClass : TestClass
+    {
+        /// ssss
+        public override void Test()
+        {
+            string str = string.Empty;
+        }
+    }
 }");
 		}
-		
-		[Test()]
-		public void TestAbstractClassString()
+
+		[Test]
+		public void TestCopyMethodAbstractClassString ()
 		{
-			
-			Test<CopyCommentsFromBase>(@"
+            
+			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 namespace TestNS
 {
-	abstract class TestClass
-	{
-		///ssss
-		///ssss
-		public abstract void Test();
-	}
-	class DerivdedClass : TestClass
-	{
-		public override void $Test()
-		{
-			string str = string.Empty;
-		}
-	}
+    abstract class TestClass
+    {
+        ///ssss
+        ///ssss
+        public abstract void Test();
+    }
+    class DerivdedClass : TestClass
+    {
+        public override void $Test()
+        {
+            string str = string.Empty;
+        }
+    }
 }", @"
 namespace TestNS
 {
-	abstract class TestClass
-	{
-		///ssss
-		///ssss
-		public abstract void Test();
-	}
-	class DerivdedClass : TestClass
-	{
-		///ssss
-		///ssss
-		public override void Test()
-		{
-			string str = string.Empty;
-		}
-	}
+    abstract class TestClass
+    {
+        ///ssss
+        ///ssss
+        public abstract void Test();
+    }
+    class DerivdedClass : TestClass
+    {
+        /// ssss
+        /// ssss
+        public override void Test()
+        {
+            string str = string.Empty;
+        }
+    }
 }");
 		}
+	
+	
+		[Test]
+		public void TestCopyProperty ()
+		{
+
+			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
+namespace TestNS
+{
+    class TestClass
+    {
+        /// <summary>
+        /// FooBar
+        /// </summary>
+        public virtual int Test { get; set; }
+    }
+    class DerivdedClass : TestClass
+    {
+        public override int $Test { get; set; }
+    }
+}", @"
+namespace TestNS
+{
+    class TestClass
+    {
+        /// <summary>
+        /// FooBar
+        /// </summary>
+        public virtual int Test { get; set; }
+    }
+    class DerivdedClass : TestClass
+    {
+        /// <summary>
+        /// FooBar
+        /// </summary>
+        public override int Test { get; set; }
+    }
+}");
+		}
+
+		[Test]
+		public void TestCopyType ()
+		{
+
+			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
+/// <summary>
+/// FooBar
+/// </summary>
+class Base 
+{
+}
+
+class $TestClass : Base
+{
+}
+", @"
+/// <summary>
+/// FooBar
+/// </summary>
+class Base 
+{
+}
+
+/// <summary>
+/// FooBar
+/// </summary>
+class TestClass : Base
+{
+}
+");
+		}
+
+
+		[Test]
+		public void TestSkipExisting ()
+		{
+			TestWrongContext <CopyCommentsFromBaseCodeRefactoringProvider> (@"
+/// <summary>
+/// FooBar
+/// </summary>
+class Base 
+{
+}
+
+/// <summary>
+/// FooBar
+/// </summary>
+class $TestClass : Base
+{
+}
+");
+		}
+
+		[Test]
+		public void TestSkipEmpty ()
+		{
+			TestWrongContext <CopyCommentsFromBaseCodeRefactoringProvider> (@"
+class Base 
+{
+}
+
+class $TestClass : Base
+{
+}
+");
+		}
+
+
+
 	}
 }

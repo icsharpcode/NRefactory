@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace ICSharpCode.NRefactory6
 {
@@ -359,6 +361,30 @@ namespace ICSharpCode.NRefactory6
 			default:
 				throw new ArgumentOutOfRangeException ();
 			}
+		}
+
+		public static string[] SplitLines (string text)
+		{
+			var result = new List<string> ();
+			var sb = new StringBuilder ();
+
+			int length;
+			UnicodeNewline type;
+
+			for (int i = 0; i < text.Length; i++) {
+				char ch = text [i];
+				if (TryGetDelimiterLengthAndType (ch, out length, out type, () => i < text.Length - 1 ? text [i + 1] : '\0')) {
+					result.Add (sb.ToString ());
+					sb.Length = 0;
+					i += length - 1;
+					continue;
+				}
+				sb.Append (ch);
+			}
+			if (sb.Length > 0)
+				result.Add (sb.ToString ());
+
+			return result.ToArray ();
 		}
 	}
 }

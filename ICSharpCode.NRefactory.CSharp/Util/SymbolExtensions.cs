@@ -380,6 +380,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			case SymbolKind.Property:
 				return ((IPropertySymbol)symbol).OverriddenProperty;
+			
+			case SymbolKind.NamedType:
+				return ((INamedTypeSymbol)symbol).BaseType;
 			}
 
 			return null;

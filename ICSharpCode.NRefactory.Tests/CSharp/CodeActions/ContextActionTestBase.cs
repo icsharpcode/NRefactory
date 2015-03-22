@@ -171,7 +171,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 				),
 				new CSharpParseOptions (
 					LanguageVersion.CSharp6,
-					DocumentationMode.Diagnose,
+					DocumentationMode.Diagnose | DocumentationMode.Parse,
 					SourceCodeKind.Regular,
 					ImmutableArray.Create("DEBUG", "TEST")
 				),

@@ -349,7 +349,6 @@
     <Compile Include="CodeActions\ConvertReturnStatementToIfAction.cs" />
     <Compile Include="CodeActions\ConvertShiftToMultiplyAction.cs" />
     <Compile Include="CodeActions\ConvertWhileToDoWhileLoopAction.cs" />
-    <Compile Include="CodeActions\CopyCommentsFromBase.cs" />
     <Compile Include="CodeActions\CopyCommentsFromInterface.cs" />
     <Compile Include="CodeActions\CreateChangedEventAction.cs" />
     <Compile Include="CodeActions\CreateCustomEventImplementationAction.cs" />
@@ -436,6 +435,7 @@
     <Compile Include="CodeRefactorings\ConvertSwitchToIfCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\ConvertDecToHexCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\ConvertHexToDecCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\CopyCommentsFromBaseCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

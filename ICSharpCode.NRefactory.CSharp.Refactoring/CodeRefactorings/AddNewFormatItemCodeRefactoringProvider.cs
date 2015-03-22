@@ -52,11 +52,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
-			var span = context.Span;
-			if (span.Start == span.End)
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
 				return;
-
+			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
