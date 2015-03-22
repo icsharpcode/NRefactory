@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseObjectEqualsIsObjectEquals")]
 	public class CallToObjectEqualsViaBaseAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CallToObjectEqualsViaBaseAnalyzer.;
+		internal const string DiagnosticId  = "CallToObjectEqualsViaBaseAnalyzer";
 		const string Description            = "Finds potentially erroneous calls to Object.Equals.";
 		const string MessageFormat          = "Call to base.Equals resolves to Object.Equals, which is reference equality";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

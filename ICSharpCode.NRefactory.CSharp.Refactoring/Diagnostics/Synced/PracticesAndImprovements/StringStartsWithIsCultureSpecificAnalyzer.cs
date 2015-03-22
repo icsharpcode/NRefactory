@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringStartsWithIsCultureSpecific")]
 	public class StringStartsWithIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringStartsWithIsCultureSpecificAnalyzer.;
+		internal const string DiagnosticId  = "StringStartsWithIsCultureSpecificAnalyzer";
 		const string Description            = "Warns when a culture-aware 'StartsWith' call is used by default.";
 		const string MessageFormat          = "'IndexOf' is culture-aware and missing a StringComparison argument";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

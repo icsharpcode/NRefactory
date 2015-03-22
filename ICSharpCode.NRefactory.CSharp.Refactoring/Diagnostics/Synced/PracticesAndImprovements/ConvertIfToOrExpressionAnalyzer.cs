@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfToOrExpression")]
 	public class ConvertIfToOrExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "ConvertIfToOrExpressionAnalyzer.;
+		internal const string DiagnosticId = "ConvertIfToOrExpressionAnalyzer";
 		const string Description = "Convert 'if' to '||' expression";
 		const string MessageFormat = "{0}";
 		const string Category = DiagnosticAnalyzerCategories.PracticesAndImprovements;

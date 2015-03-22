@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
 	public class EventUnsubscriptionViaAnonymousDelegateAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "EventUnsubscriptionViaAnonymousDelegateAnalyzer.;
+		internal const string DiagnosticId = "EventUnsubscriptionViaAnonymousDelegateAnalyzer";
 		const string Description = "Event unsubscription via anonymous delegate is useless";
 		const string MessageFormat = "Event unsubscription via anonymous delegate is useless";
 		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;

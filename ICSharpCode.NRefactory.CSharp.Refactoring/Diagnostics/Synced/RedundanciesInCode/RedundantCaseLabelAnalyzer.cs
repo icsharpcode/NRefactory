@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("Redundant case label")]
 	public class RedundantCaseLabelAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantCaseLabelAnalyzer.;
+		internal const string DiagnosticId  = "RedundantCaseLabelAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'case' label is redundant.", "Redundant case label", Category, DiagnosticSeverity.Warning, true, "Redundant 'case' label");

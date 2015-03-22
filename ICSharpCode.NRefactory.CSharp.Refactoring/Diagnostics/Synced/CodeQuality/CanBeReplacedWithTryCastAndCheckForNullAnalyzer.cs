@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CanBeReplacedWithTryCastAndCheckForNull")]
 	public class CanBeReplacedWithTryCastAndCheckForNullAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CanBeReplacedWithTryCastAndCheckForNullAnalyzer.;
+		internal const string DiagnosticId  = "CanBeReplacedWithTryCastAndCheckForNullAnalyzer";
 		const string Description            = "Type check and casts can be replaced with 'as' and null check";
 		const string MessageFormat          = "Type check and casts can be replaced with 'as' and null check";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

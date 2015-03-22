@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CSharpWarnings::CS1573", PragmaWarning = 1573)]
 	public class CS1573ParameterHasNoMatchingParamTagAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CS1573ParameterHasNoMatchingParamTagAnalyzer.;
+		internal const string DiagnosticId  = "CS1573ParameterHasNoMatchingParamTagAnalyzer";
 		const string Description            = "Parameter has no matching param tag in the XML comment";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerWarnings;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantExplicitArrayCreation")]
 	public class RedundantExplicitArrayCreationAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantExplicitArrayCreationAnalyzer.;
+		internal const string DiagnosticId  = "RedundantExplicitArrayCreationAnalyzer";
 		const string Description            = "Redundant explicit type in array creation";
 		const string MessageFormat          = "Redundant explicit array type specification";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

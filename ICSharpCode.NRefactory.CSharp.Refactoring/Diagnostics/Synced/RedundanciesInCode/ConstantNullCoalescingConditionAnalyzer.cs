@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer (AnalysisDisableKeyword = "ConstantNullCoalescingCondition")]
 	public class ConstantNullCoalescingConditionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConstantNullCoalescingConditionAnalyzer.;
+		internal const string DiagnosticId  = "ConstantNullCoalescingConditionAnalyzer";
 		const string Description = "Finds redundant null coalescing expressions such as expr ?? expr";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 

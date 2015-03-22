@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
 	public class StringIndexOfIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringIndexOfIsCultureSpecificAnalyzer.;
+		internal const string DiagnosticId  = "StringIndexOfIsCultureSpecificAnalyzer";
 		const string Description            = "Warns when a culture-aware 'IndexOf' call is used by default.";
 		const string MessageFormat          = "'IndexOf' is culture-aware and missing a StringComparison argument";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

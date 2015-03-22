@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class LockThisAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "LockThisAnalyzer.;
+		internal const string DiagnosticId  = "LockThisAnalyzer";
 		const string Description            = "Warns about using lock (this) or MethodImplOptions.Synchronized.";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithOfType")]
 	public class ReplaceWithOfTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithOfTypeAnalyzer.;
+		internal const string DiagnosticId  = "ReplaceWithOfTypeAnalyzer";
 		const string Description            = "Replace with call to OfType<T>";
 		const string MessageFormat          = "Replace with OfType<T>()";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

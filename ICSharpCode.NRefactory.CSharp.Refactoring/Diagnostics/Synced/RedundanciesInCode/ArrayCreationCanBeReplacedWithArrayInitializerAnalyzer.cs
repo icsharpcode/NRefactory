@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ArrayCreationCanBeReplacedWithArrayInitializer")]
 	public class ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer.;
+		internal const string DiagnosticId  = "ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer";
 		const string Description            = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.";
 		const string MessageFormat          = "Redundant array creation expression";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

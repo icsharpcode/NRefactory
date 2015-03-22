@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSimpleAssignment")]
 	public class ReplaceWithSimpleAssignmentAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithSimpleAssignmentAnalyzer.;
+		internal const string DiagnosticId  = "ReplaceWithSimpleAssignmentAnalyzer";
 		const string Description            = "Replace with simple assignment";
 		const string MessageFormat          = "Replace with simple assignment";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

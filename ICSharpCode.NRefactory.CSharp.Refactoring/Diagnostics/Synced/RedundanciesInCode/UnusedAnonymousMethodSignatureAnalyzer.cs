@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnusedAnonymousMethodSignature")]
 	public class UnusedAnonymousMethodSignatureAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "UnusedAnonymousMethodSignatureAnalyzer.;
+		internal const string DiagnosticId  = "UnusedAnonymousMethodSignatureAnalyzer";
 		const string Description            = "Detects when no delegate parameter is used in the anonymous method body.";
 		const string MessageFormat          = "Specifying signature is redundant because no parameter is used";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ParameterHidesMember")]
 	public class ParameterHidesMemberAnalyzer : VariableHidesMemberAnalyzer
 	{
-		internal const string DiagnosticId = "ParameterHidesMemberAnalyzer.;
+		internal const string DiagnosticId = "ParameterHidesMemberAnalyzer";
 		const string Description = "Parameter has the same name as a member and hides it";
 		const string MessageFormat = "";
 		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;

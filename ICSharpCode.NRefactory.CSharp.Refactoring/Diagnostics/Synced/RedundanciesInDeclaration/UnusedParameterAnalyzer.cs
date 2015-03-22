@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnusedParameter")]
 	public class UnusedParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "UnusedParameterAnalyzer.;
+		internal const string DiagnosticId  = "UnusedParameterAnalyzer";
 		const string Description            = "Parameter is never used";
 		const string MessageFormat          = "Parameter is never used";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

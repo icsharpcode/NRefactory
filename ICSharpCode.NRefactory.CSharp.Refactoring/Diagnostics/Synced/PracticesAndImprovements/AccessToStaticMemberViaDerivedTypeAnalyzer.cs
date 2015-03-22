@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "AccessToStaticMemberViaDerivedType")]
 	public class AccessToStaticMemberViaDerivedTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "AccessToStaticMemberViaDerivedTypeAnalyzer.;
+		internal const string DiagnosticId  = "AccessToStaticMemberViaDerivedTypeAnalyzer";
 		const string Description            = "Suggests using the class declaring a static function when calling it.";
 		const string MessageFormat          = "Static method invoked via derived type";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

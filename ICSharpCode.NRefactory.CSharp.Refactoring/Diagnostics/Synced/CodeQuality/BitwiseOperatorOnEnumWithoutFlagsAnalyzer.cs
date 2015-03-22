@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
 	public class BitwiseOperatorOnEnumWithoutFlagsAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "BitwiseOperatorOnEnumWithoutFlagsAnalyzer.;
+		internal const string DiagnosticId  = "BitwiseOperatorOnEnumWithoutFlagsAnalyzer";
 		const string Description            = "Bitwise operation on enum which has no [Flags] attribute";
 		const string MessageFormat          = "Bitwise operation on enum not marked with [Flags] attribute";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

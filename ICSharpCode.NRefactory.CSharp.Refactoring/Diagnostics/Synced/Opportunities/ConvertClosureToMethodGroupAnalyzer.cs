@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertClosureToMethodGroup")]
 	public class ConvertClosureToMethodGroupAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertClosureToMethodGroupAnalyzer.;
+		internal const string DiagnosticId  = "ConvertClosureToMethodGroupAnalyzer";
 		const string Description            = "Anonymous method or lambda expression can be simplified to method group";
 		const string MessageFormat          = "{0}"; // "Anonymous method can be simplified to method group" / "Lambda expression can be simplified to method group"
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

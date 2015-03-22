@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PublicConstructorInAbstractClass")]
 	public class PublicConstructorInAbstractClassAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "PublicConstructorInAbstractClassAnalyzer.;
+		internal const string DiagnosticId = "PublicConstructorInAbstractClassAnalyzer";
 		const string Description = "Constructor in abstract class should not be public";
 		const string MessageFormat = "Constructor in abstract class should not be public";
 		const string Category = DiagnosticAnalyzerCategories.PracticesAndImprovements;

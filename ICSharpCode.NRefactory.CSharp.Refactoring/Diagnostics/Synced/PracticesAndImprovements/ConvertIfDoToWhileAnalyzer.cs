@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfDoToWhile")]
 	public class ConvertIfDoToWhileAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertIfDoToWhileAnalyzer.;
+		internal const string DiagnosticId  = "ConvertIfDoToWhileAnalyzer";
 		const string Description            = "Convert 'if-do-while' to 'while' statement";
 		const string MessageFormat          = "Statement can be simplified to 'while' statement";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

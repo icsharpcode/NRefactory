@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		// and
 		// CS0266: Cannot implicitly convert type 'type1' to 'type2'. An explicit conversion exists (are you missing a cast?)
 		
-		internal const string DiagnosticId  = "CS0029InvalidConversionAnalyzer.;
+		internal const string DiagnosticId  = "CS0029InvalidConversionAnalyzer";
 		const string Description            = "This error occurs when trying to assign a value of an incompatible type.";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerErrors;

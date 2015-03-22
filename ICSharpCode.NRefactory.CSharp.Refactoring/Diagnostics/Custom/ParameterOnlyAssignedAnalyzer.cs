@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ParameterOnlyAssignedAnalyzer : VariableOnlyAssignedAnalyzer
 	{
-		internal const string DiagnosticId  = "ParameterOnlyAssignedAnalyzer.;
+		internal const string DiagnosticId  = "ParameterOnlyAssignedAnalyzer";
 		const string Description            = "Parameter is assigned but its value is never used";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

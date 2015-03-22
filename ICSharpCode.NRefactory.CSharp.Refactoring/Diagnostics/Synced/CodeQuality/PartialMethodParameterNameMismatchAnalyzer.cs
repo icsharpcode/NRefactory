@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PartialMethodParameterNameMismatch")]
 	public class PartialMethodParameterNameMismatchAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PartialMethodParameterNameMismatchAnalyzer.;
+		internal const string DiagnosticId  = "PartialMethodParameterNameMismatchAnalyzer";
 		const string Description            = "Parameter name differs in partial method declaration";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

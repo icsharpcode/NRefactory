@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ProhibitedModifiersAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ProhibitedModifiersAnalyzer.;
+		internal const string DiagnosticId  = "ProhibitedModifiersAnalyzer";
 		const string Description            = "Checks for prohibited modifiers";
 		const string MessageFormat          = "Static constructors can't have any other modifier";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerErrors;

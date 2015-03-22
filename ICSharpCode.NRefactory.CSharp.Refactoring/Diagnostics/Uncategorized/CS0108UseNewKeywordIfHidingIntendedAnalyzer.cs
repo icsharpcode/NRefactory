@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CSharpWarnings::CS0108", PragmaWarning = 108)]
 	public class CS0108UseNewKeywordIfHidingIntendedAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "CS0108UseNewKeywordIfHidingIntendedAnalyzer.;
+		internal const string DiagnosticId = "CS0108UseNewKeywordIfHidingIntendedAnalyzer";
 		const string Description = "CS0108:member1 hides inherited member member2";
 		const string MessageFormat = "member1 hides inherited member member2. Use the new keyword if hiding was intended.";
 		const string Category = DiagnosticAnalyzerCategories.CompilerWarnings;

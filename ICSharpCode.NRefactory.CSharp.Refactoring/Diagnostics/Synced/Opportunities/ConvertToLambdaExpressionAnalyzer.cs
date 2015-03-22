@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToLambdaExpression")]
 	public class ConvertToLambdaExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertToLambdaExpressionAnalyzer.;
+		internal const string DiagnosticId  = "ConvertToLambdaExpressionAnalyzer";
 		const string Description            = "Convert to lambda with expression";
 		const string MessageFormat          = "Can be converted to expression";
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantIfElseBlock")]
 	public class RedundantIfElseBlockAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantIfElseBlockAnalyzer.;
+		internal const string DiagnosticId  = "RedundantIfElseBlockAnalyzer";
 		const string Description            = "Redundant 'else' keyword";
 		const string MessageFormat          = "Redundant 'else' keyword";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PossibleAssignmentToReadonlyField")]
 	public class PossibleAssignmentToReadonlyFieldAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PossibleAssignmentToReadonlyFieldAnalyzer.;
+		internal const string DiagnosticId  = "PossibleAssignmentToReadonlyFieldAnalyzer";
 		const string Description            = "Check if a readonly field is used as assignment target";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

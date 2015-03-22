@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("'true' is redundant as for statement condition")]
 	public class ForStatementConditionIsTrueAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ForStatementConditionIsTrueAnalyzer.;
+		internal const string DiagnosticId  = "ForStatementConditionIsTrueAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "true is redundant as for statement condition, thus can be safely ommited", "'true' is redundant as for statement condition", Category, DiagnosticSeverity.Warning, true, "'true' is redundant as for statement condition");

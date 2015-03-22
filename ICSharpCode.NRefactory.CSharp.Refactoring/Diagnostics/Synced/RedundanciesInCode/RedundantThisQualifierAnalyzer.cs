@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantThisQualifier")]
 	public class RedundantThisQualifierAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantThisQualifierAnalyzer.;
+		internal const string DiagnosticId  = "RedundantThisQualifierAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		public const string InsideConstructors = DiagnosticId +".InsideConstructors";

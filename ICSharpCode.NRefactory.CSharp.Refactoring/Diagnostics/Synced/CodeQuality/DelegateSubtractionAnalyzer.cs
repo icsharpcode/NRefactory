@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DelegateSubtraction")]
 	public class DelegateSubtractionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "DelegateSubtractionAnalyzer.;
+		internal const string DiagnosticId  = "DelegateSubtractionAnalyzer";
 		const string Description            = "Delegate subtraction has unpredictable result";
 		const string MessageFormat          = "Delegate subtraction has unpredictable result";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

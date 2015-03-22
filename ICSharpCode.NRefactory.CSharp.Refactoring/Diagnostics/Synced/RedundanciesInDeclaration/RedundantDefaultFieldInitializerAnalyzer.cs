@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantDefaultFieldInitializer")]
 	public class RedundantDefaultFieldInitializerAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantDefaultFieldInitializerAnalyzer.;
+		internal const string DiagnosticId  = "RedundantDefaultFieldInitializerAnalyzer";
 		const string Description            = "Initializing field with default value is redundant.";
 		const string MessageFormat          = "Initializing field by default value is redundant";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

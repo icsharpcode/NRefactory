@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CompareOfFloatsByEqualityOperator")]
 	public class CompareOfFloatsByEqualityOperatorAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CompareOfFloatsByEqualityOperatorAnalyzer.;
+		internal const string DiagnosticId  = "CompareOfFloatsByEqualityOperatorAnalyzer";
 		const string Description            = "Comparison of floating point numbers with equality operator";
 		const string MessageFormat          = "{0}";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class XmlDocAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "XmlDocAnalyzer.;
+		internal const string DiagnosticId  = "XmlDocAnalyzer";
 		const string Description            = "Validate Xml docs";
 		const string MessageFormat          = "{0}";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerWarnings;

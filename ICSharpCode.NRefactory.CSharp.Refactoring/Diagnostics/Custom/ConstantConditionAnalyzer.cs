@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ConstantConditionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConstantConditionAnalyzer.;
+		internal const string DiagnosticId  = "ConstantConditionAnalyzer";
 		const string Description            = "Condition is always 'true' or always 'false'";
 		const string MessageFormat          = "Condition is always '{0}'";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

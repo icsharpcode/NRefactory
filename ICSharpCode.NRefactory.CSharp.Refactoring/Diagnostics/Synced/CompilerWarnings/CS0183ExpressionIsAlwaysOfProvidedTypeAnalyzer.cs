@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CSharpWarnings::CS0183", PragmaWarning = 183)]
 	public class CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer.;
+		internal const string DiagnosticId  = "CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer";
 		const string Description            = "CS0183:Given expression is always of the provided type";
 		const string MessageFormat          = "Given expression is always of the provided type. Consider comparing with 'null' instead";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerWarnings;

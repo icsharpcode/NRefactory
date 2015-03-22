@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
 	public class NonPublicMethodWithTestAttributeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "NonPublicMethodWithTestAttributeAnalyzer.;
+		internal const string DiagnosticId  = "NonPublicMethodWithTestAttributeAnalyzer";
 		const string Description            = "Non public methods are not found by NUnit";
 		const string MessageFormat          = "NUnit test methods should be public";
 		const string Category               = DiagnosticAnalyzerCategories.NUnit;

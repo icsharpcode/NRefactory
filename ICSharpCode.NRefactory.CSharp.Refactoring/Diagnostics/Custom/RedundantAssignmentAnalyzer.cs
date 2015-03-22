@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class RedundantAssignmentAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantAssignmentAnalyzer.;
+		internal const string DiagnosticId  = "RedundantAssignmentAnalyzer";
 		const string Description            = "Value assigned to a variable or parameter is not used in all execution path";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

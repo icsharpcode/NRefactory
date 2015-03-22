@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantCheckBeforeAssignment")]
 	public class RedundantCheckBeforeAssignmentAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantCheckBeforeAssignmentAnalyzer.;
+		internal const string DiagnosticId  = "RedundantCheckBeforeAssignmentAnalyzer";
 		const string Description   = "Check for inequality before assignment is redundant if (x != value) x = value;";
 		const string MessageFormat = "Redundant condition check before assignment";
 		const string Category      = DiagnosticAnalyzerCategories.RedundanciesInCode;

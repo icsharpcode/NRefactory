@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantExtendsListEntry")]
 	public class RedundantExtendsListEntryAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantExtendsListEntryAnalyzer.;
+		internal const string DiagnosticId  = "RedundantExtendsListEntryAnalyzer";
 		const string Description            = "Type is either mentioned in the base type list of another part or in another base type";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 

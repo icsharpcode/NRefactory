@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConditionalTernaryEqualBranch")]
 	public class ConditionalTernaryEqualBranchAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConditionalTernaryEqualBranchAnalyzer.;
+		internal const string DiagnosticId  = "ConditionalTernaryEqualBranchAnalyzer";
 		const string Description            = "'?:' expression has identical true and false branches";
 		const string MessageFormat          = "'?:' expression has identical true and false branches";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UseMethodAny")]
 	public class UseMethodAnyAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "UseMethodAnyAnalyzer.;
+		internal const string DiagnosticId  = "UseMethodAnyAnalyzer";
 		const string Description            = "Replace usages of 'Count()' with call to 'Any()'";
 		const string MessageFormat          = "Use '{0}' for increased performance";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

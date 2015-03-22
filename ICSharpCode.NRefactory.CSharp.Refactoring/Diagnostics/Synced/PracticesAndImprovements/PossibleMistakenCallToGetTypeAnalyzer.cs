@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PossibleMistakenCallToGetType")]
 	public class PossibleMistakenCallToGetTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PossibleMistakenCallToGetTypeAnalyzer.;
+		internal const string DiagnosticId  = "PossibleMistakenCallToGetTypeAnalyzer";
 		const string Description            = "Possible mistaken call to 'object.GetType()'";
 		const string MessageFormat          = "Possible mistaken call to 'object.GetType()'";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

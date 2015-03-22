@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("Default argument value is redundant.")]
 	public class RedundantArgumentDefaultValueAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantArgumentDefaultValueAnalyzer.;
+		internal const string DiagnosticId  = "RedundantArgumentDefaultValueAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "The parameter is optional with the same default value", "{0}", Category, DiagnosticSeverity.Warning, true, "Redundant argument with default value");

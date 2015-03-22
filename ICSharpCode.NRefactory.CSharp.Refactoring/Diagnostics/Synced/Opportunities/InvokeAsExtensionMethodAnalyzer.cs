@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "InvokeAsExtensionMethod")]
 	public class InvokeAsExtensionMethodAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "InvokeAsExtensionMethodAnalyzer.;
+		internal const string DiagnosticId = "InvokeAsExtensionMethodAnalyzer";
 		const string Description = "If an extension method is called as static method convert it to method syntax";
 		const string MessageFormat = "Convert static method call to extension method call";
 		const string Category = DiagnosticAnalyzerCategories.Opportunities;

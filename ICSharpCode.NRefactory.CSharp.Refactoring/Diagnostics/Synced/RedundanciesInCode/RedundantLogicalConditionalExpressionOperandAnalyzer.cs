@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantLogicalConditionalExpressionOperand")]
 	public class RedundantLogicalConditionalExpressionOperandAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantLogicalConditionalExpressionOperandAnalyzer.;
+		internal const string DiagnosticId  = "RedundantLogicalConditionalExpressionOperandAnalyzer";
 		const string Description            = "Redundant operand in logical conditional expression";
 		const string MessageFormat          = "Redundant operand in logical conditional expression";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

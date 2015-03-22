@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEmptyObjectOrCollectionInitializer")]
 	public class RedundantObjectOrCollectionInitializerAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantObjectOrCollectionInitializerAnalyzer.;
+		internal const string DiagnosticId  = "RedundantObjectOrCollectionInitializerAnalyzer";
 		const string Description            = "Redundant empty object or collection initializer.";
 		const string MessageFormat          = "Empty object or collection initializer is redundant";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

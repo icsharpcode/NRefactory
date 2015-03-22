@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class BaseMethodParameterNameMismatchAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "BaseMethodParameterNameMismatchAnalyzer.;
+		internal const string DiagnosticId  = "BaseMethodParameterNameMismatchAnalyzer";
 		const string Description            = "Parameter name differs in base declaration";
 		const string MessageFormat          = "Parameter name differs in base declaration";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

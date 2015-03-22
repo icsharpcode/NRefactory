@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("Comparison of a boolean value with 'true' or 'false' constant.")]
 	public class RedundantBoolCompareAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantBoolCompareAnalyzer.;
+		internal const string DiagnosticId  = "RedundantBoolCompareAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Comparison of a boolean value with 'true' or 'false' constant.", "Comparison with '{0}' is redundant", Category, DiagnosticSeverity.Warning, true, "Comparison of boolean with 'true' or 'false'");

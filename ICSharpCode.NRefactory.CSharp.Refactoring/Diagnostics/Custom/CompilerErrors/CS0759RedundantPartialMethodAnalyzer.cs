@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class CS0759RedundantPartialMethodAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CS0759RedundantPartialMethodAnalyzer.;
+		internal const string DiagnosticId  = "CS0759RedundantPartialMethodAnalyzer";
 		const string Description            = "A partial method must have a defining declaration that defines the signature (name, return type and parameters) of the method. The implementation or method body is optional.";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerErrors;

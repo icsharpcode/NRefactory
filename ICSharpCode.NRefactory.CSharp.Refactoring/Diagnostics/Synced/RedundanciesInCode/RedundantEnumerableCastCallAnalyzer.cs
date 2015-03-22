@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEnumerableCastCall")]
 	public class RedundantEnumerableCastCallAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantEnumerableCastCallAnalyzer.;
+		internal const string DiagnosticId  = "RedundantEnumerableCastCallAnalyzer";
 		const string Description = "Redundant 'IEnumerable.Cast<T>' or 'IEnumerable.OfType<T>' call";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 

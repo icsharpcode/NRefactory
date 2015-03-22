@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("Redundant explicit argument name specification")]
 	public class RedundantArgumentNameAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantArgumentNameAnalyzer.;
+		internal const string DiagnosticId  = "RedundantArgumentNameAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Redundant explicit argument name specification", "Redundant argument name specification", Category, DiagnosticSeverity.Warning, true, "Redundant explicit argument name specification");

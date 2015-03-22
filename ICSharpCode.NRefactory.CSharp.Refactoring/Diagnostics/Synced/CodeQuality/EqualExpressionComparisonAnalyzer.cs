@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EqualExpressionComparison")]
 	public class EqualExpressionComparisonAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EqualExpressionComparisonAnalyzer.;
+		internal const string DiagnosticId  = "EqualExpressionComparisonAnalyzer";
 		const string Description            = "Comparing equal expression for equality is usually useless";
 		const string MessageFormat          = "Equal expression comparison";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

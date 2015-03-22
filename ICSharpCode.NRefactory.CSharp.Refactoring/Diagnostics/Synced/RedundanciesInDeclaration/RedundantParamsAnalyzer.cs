@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantParams")]
 	public class RedundantParamsAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantParamsAnalyzer.;
+		internal const string DiagnosticId  = "RedundantParamsAnalyzer";
 		const string Description            = "'params' is ignored on overrides";
 		const string MessageFormat          = "'params' is always ignored in overrides";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

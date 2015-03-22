@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class StaticEventSubscriptionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StaticEventSubscriptionAnalyzer.;
+		internal const string DiagnosticId  = "StaticEventSubscriptionAnalyzer";
 		const string Description            = "Checks if static events are removed";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToSingle")]
 	public class ReplaceWithSingleCallToSingleAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithSingleCallToSingleAnalyzer.;
+		internal const string DiagnosticId  = "ReplaceWithSingleCallToSingleAnalyzer";
 		const string Description            = "Replace with single call to Single(...)";
 		const string MessageFormat          = "Redundant Where() call with predicate followed by Single()";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

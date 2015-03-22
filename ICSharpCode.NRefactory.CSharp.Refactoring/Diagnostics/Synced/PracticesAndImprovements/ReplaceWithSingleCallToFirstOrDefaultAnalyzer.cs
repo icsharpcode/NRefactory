@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToFirstOrDefault")]
 	public class ReplaceWithSingleCallToFirstOrDefaultAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithSingleCallToFirstOrDefaultAnalyzer.;
+		internal const string DiagnosticId  = "ReplaceWithSingleCallToFirstOrDefaultAnalyzer";
 		const string Description            = "Replace with single call to FirstOrDefault(...)";
 		const string MessageFormat          = "Redundant Where() call with predicate followed by FirstOrDefault()";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithOfType.LongCount")]
 	public class ReplaceWithOfTypeLongCountAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithOfTypeLongCountAnalyzer.;
+		internal const string DiagnosticId  = "ReplaceWithOfTypeLongCountAnalyzer";
 		const string Description            = "Replace with call to OfType<T>().LongCount()";
 		const string MessageFormat          = "Replace with OfType<T>().LongCount()";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

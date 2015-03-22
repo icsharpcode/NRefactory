@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "MemberHidesStaticFromOuterClass")]
 	public class MemberHidesStaticFromOuterClassAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "MemberHidesStaticFromOuterClassAnalyzer.;
+		internal const string DiagnosticId  = "MemberHidesStaticFromOuterClassAnalyzer";
 		const string Description            = "Member hides static member from outer class";
 		const string MessageFormat          = "{0} '{1}' hides {2} from outer class";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

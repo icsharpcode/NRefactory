@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyEmbeddedStatement")]
 	public class EmptyEmbeddedStatementAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EmptyEmbeddedStatementAnalyzer.;
+		internal const string DiagnosticId  = "EmptyEmbeddedStatementAnalyzer";
 		const string Description            = "Empty control statement body";
 		const string MessageFormat          = "';' should be avoided. Use '{{}}' instead";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

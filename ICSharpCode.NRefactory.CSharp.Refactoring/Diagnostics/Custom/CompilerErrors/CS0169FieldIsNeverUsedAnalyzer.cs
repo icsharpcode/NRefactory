@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(PragmaWarning = 169)]
 	public class CS0169FieldIsNeverUsedAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CS0169FieldIsNeverUsedAnalyzer.;
+		internal const string DiagnosticId  = "CS0169FieldIsNeverUsedAnalyzer";
 		const string Description            = "CS0169: Field is never used";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerWarnings;

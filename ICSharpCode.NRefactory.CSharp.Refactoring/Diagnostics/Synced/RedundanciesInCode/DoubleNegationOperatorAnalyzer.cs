@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("Double negation is redundant")]
 	public class DoubleNegationOperatorAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "DoubleNegationOperatorAnalyzer.;
+		internal const string DiagnosticId  = "DoubleNegationOperatorAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Double negation is meaningless", "Double negation is redundant", Category, DiagnosticSeverity.Warning, true, "Double negation operator");

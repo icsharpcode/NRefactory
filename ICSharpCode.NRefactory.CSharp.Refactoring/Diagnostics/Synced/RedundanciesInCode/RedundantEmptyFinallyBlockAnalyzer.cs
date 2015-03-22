@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEmptyFinallyBlock")]
 	public class RedundantEmptyFinallyBlockAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantEmptyFinallyBlockAnalyzer.;
+		internal const string DiagnosticId  = "RedundantEmptyFinallyBlockAnalyzer";
 		const string Description            = "Redundant empty finally block";
 		const string MessageFormat          = "Redundant empty finally block";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

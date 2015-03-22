@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "FunctionNeverReturns")]
 	public class FunctionNeverReturnsAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "FunctionNeverReturnsAnalyzer.;
+		internal const string DiagnosticId  = "FunctionNeverReturnsAnalyzer";
 		const string Description            = "Function does not reach its end or a 'return' statement by any of possible execution paths.";
 		const string MessageFormat          = "{0} never reaches its end or a 'return' statement.";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

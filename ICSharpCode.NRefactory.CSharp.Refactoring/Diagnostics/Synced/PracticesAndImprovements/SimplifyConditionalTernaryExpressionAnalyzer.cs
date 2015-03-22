@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SimplifyConditionalTernaryExpression")]
 	public class SimplifyConditionalTernaryExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "SimplifyConditionalTernaryExpressionAnalyzer.;
+		internal const string DiagnosticId  = "SimplifyConditionalTernaryExpressionAnalyzer";
 		const string Description            = "Conditional expression can be simplified";
 		const string MessageFormat          = "Simplify conditional expression";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

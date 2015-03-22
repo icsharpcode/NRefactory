@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEmptyDefaultSwitchBranch")]
 	public class RedundantEmptyDefaultSwitchBranchAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantEmptyDefaultSwitchBranchAnalyzer.;
+		internal const string DiagnosticId  = "RedundantEmptyDefaultSwitchBranchAnalyzer";
 		const string Description            = "Redundant empty 'default' switch branch";
 		const string MessageFormat          = "Redundant empty 'default' switch branch";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToLongCount")]
 	public class ReplaceWithSingleCallToLongCountAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithSingleCallToLongCountAnalyzer.;
+		internal const string DiagnosticId  = "ReplaceWithSingleCallToLongCountAnalyzer";
 		const string Description            = "Replace with single call to LongCount(...)";
 		const string MessageFormat          = "Redundant Where() call with predicate followed by LongCount()";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

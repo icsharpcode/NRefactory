@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantUnsafeContext")]
 	public class RedundantUnsafeContextAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantUnsafeContextAnalyzer.;
+		internal const string DiagnosticId  = "RedundantUnsafeContextAnalyzer";
 		const string Description            = "Unsafe modifier in redundant in unsafe context or when no unsafe constructs are used.";
 		const string MessageFormat          = "'unsafe' modifier is redundant.";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

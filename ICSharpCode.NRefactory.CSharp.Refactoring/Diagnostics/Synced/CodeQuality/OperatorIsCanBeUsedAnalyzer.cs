@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "OperatorIsCanBeUsed")]
 	public class OperatorIsCanBeUsedAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "OperatorIsCanBeUsedAnalyzer.;
+		internal const string DiagnosticId  = "OperatorIsCanBeUsedAnalyzer";
 		const string Description            = "Operator Is can be used instead of comparing object GetType() and instances of System.Type object";
 		const string MessageFormat          = "Operator 'is' can be used";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertNullableToShortForm")]
 	public class ConvertNullableToShortFormAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertNullableToShortFormAnalyzer.;
+		internal const string DiagnosticId  = "ConvertNullableToShortFormAnalyzer";
 		const string Description            = "Convert 'Nullable<T>' to the short form 'T?'";
 		const string MessageFormat          = "Nullable type can be simplified.";
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

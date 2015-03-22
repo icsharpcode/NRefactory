@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ConvertIfToAndExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "ConvertIfToAndExpressionAnalyzer.;
+		internal const string DiagnosticId = "ConvertIfToAndExpressionAnalyzer";
 		const string Description = "Convert 'if' to '&&' expression";
 		const string MessageFormat = "{0}";
 		const string Category = DiagnosticAnalyzerCategories.PracticesAndImprovements;

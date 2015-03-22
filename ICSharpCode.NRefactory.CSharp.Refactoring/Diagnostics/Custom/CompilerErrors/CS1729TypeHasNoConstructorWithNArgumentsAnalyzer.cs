@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class CS1729TypeHasNoConstructorWithNArgumentsAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CS1729TypeHasNoConstructorWithNArgumentsAnalyzer.;
+		internal const string DiagnosticId  = "CS1729TypeHasNoConstructorWithNArgumentsAnalyzer";
 		const string Description            = "CS1729: Class does not contain a 0 argument constructor";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerErrors;

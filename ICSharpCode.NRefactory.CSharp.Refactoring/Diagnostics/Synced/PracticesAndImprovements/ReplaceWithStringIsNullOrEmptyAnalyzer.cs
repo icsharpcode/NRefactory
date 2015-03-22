@@ -113,7 +113,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //			)
 //		};
 
-		internal const string DiagnosticId  = "ReplaceWithStringIsNullOrEmptyAnalyzer.;
+		internal const string DiagnosticId  = "ReplaceWithStringIsNullOrEmptyAnalyzer";
 		const string Description            = "Uses shorter string.IsNullOrEmpty call instead of a longer condition.";
 		const string MessageFormat          = "Expression can be replaced with '{0}'";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SimplifyLinqExpression")]
 	public class SimplifyLinqExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "SimplifyLinqExpressionAnalyzer.;
+		internal const string DiagnosticId  = "SimplifyLinqExpressionAnalyzer";
 		const string Description            = "Simplify LINQ expression";
 		const string MessageFormat          = "Simplify LINQ expression";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

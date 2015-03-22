@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(SuppressMessageCategory = "Microsoft.Design", SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes", AnalysisDisableKeyword = "StaticFieldInGenericType")]
 	public class StaticFieldInGenericTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StaticFieldInGenericTypeAnalyzer.;
+		internal const string DiagnosticId  = "StaticFieldInGenericTypeAnalyzer";
 		const string Description            = "Warns about static fields in generic types.";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

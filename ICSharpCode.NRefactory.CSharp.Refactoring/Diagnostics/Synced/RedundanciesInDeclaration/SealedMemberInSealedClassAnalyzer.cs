@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SealedMemberInSealedClass")]
 	public class SealedMemberInSealedClassAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "SealedMemberInSealedClassAnalyzer.;
+		internal const string DiagnosticId  = "SealedMemberInSealedClassAnalyzer";
 		const string Description            = "'sealed' modifier is redundant in sealed classes";
 		const string MessageFormat          = "Keyword 'sealed' is redundant in sealed classes.";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RemoveRedundantOrStatement")]
 	public class RemoveRedundantOrStatementAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "RemoveRedundantOrStatementAnalyzer.;
+		internal const string DiagnosticId = "RemoveRedundantOrStatementAnalyzer";
 		const string Description = "Remove redundant statement";
 		const string MessageFormat = "Statement is redundant";
 		const string Category = DiagnosticAnalyzerCategories.RedundanciesInCode;

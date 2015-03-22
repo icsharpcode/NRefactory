@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyConstructor")]
 	public class EmptyConstructorAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EmptyConstructorAnalyzer.;
+		internal const string DiagnosticId  = "EmptyConstructorAnalyzer";
 		const string Description            = "An empty public constructor without paramaters is redundant.";
 		const string MessageFormat          = "Empty constructor is redundant.";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

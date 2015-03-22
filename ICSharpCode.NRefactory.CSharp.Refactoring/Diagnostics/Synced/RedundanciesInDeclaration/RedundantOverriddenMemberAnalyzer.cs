@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantOverridenMember")]
 	public class RedundantOverriddenMemberAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantOverriddenMemberAnalyzer.;
+		internal const string DiagnosticId  = "RedundantOverriddenMemberAnalyzer";
 		const string Description            = "The override of a virtual member is redundant because it consists of only a call to the base";
 		const string MessageFormat          = "Redundant method override";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CSharpWarnings::CS1717", PragmaWarning = 1717)]
 	public class CS1717AssignmentMadeToSameVariableAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CS1717AssignmentMadeToSameVariableAnalyzer.;
+		internal const string DiagnosticId  = "CS1717AssignmentMadeToSameVariableAnalyzer";
 		const string Description            = "CS1717:Assignment made to same variable";
 		const string MessageFormat          = "CS1717:Assignment made to same variable";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerWarnings;

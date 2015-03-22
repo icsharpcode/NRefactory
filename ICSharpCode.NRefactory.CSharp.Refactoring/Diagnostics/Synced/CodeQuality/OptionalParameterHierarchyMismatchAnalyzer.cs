@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "OptionalParameterHierarchyMismatch")]
 	public class OptionalParameterHierarchyMismatchAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "OptionalParameterHierarchyMismatchAnalyzer.;
+		internal const string DiagnosticId  = "OptionalParameterHierarchyMismatchAnalyzer";
 		const string Description            = "The value of an optional parameter in a method does not match the base method";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

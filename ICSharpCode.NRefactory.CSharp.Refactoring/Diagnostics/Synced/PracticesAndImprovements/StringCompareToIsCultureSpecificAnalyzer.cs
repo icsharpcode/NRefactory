@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringCompareToIsCultureSpecific")]
 	public class StringCompareToIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringCompareToIsCultureSpecificAnalyzer.;
+		internal const string DiagnosticId  = "StringCompareToIsCultureSpecificAnalyzer";
 		const string Description            = "Warns when a culture-aware 'string.CompareTo' call is used by default.";
 		const string MessageFormat          = "'string.CompareTo' is culture-aware";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

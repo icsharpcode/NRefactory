@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CheckNamespace")]
 	public class CheckNamespaceAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CheckNamespaceAnalyzer.; // elcvelcevc
+		internal const string DiagnosticId  = "CheckNamespaceAnalyzer"; // elcvelcevc
 		const string Description            = "Check if a namespace corresponds to a file location";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

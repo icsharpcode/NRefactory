@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringEndsWithIsCultureSpecific")]
 	public class StringEndsWithIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringEndsWithIsCultureSpecificAnalyzer.;
+		internal const string DiagnosticId  = "StringEndsWithIsCultureSpecificAnalyzer";
 		const string Description            = "Warns when a culture-aware 'EndsWith' call is used by default.";
 		const string MessageFormat          = "'IndexOf' is culture-aware and missing a StringComparison argument";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

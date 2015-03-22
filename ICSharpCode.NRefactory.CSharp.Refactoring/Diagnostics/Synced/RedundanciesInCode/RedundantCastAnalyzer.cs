@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("Type cast is redundant")]
 	public class RedundantCastAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantCastAnalyzer.;
+		internal const string DiagnosticId  = "RedundantCastAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Type cast can be safely removed.", "Type cast is redundant", Category, DiagnosticSeverity.Warning, true, "Redundant cast");

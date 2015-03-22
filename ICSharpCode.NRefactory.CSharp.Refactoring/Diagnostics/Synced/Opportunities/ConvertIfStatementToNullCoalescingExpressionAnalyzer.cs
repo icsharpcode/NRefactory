@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
 	public class ConvertIfStatementToNullCoalescingExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertIfStatementToNullCoalescingExpressionAnalyzer.;
+		internal const string DiagnosticId  = "ConvertIfStatementToNullCoalescingExpressionAnalyzer";
 		const string Description            = "Convert 'if' to '??'";
 		const string MessageFormat          = "Convert to '??' expresssion";
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

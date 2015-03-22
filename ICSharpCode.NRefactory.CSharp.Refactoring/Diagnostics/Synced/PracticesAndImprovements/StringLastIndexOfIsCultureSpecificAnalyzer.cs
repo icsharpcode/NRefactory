@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringLastIndexOfIsCultureSpecific")]
 	public class StringLastIndexOfIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringLastIndexOfIsCultureSpecificAnalyzer.;
+		internal const string DiagnosticId  = "StringLastIndexOfIsCultureSpecificAnalyzer";
 		const string Description            = "Warns when a culture-aware 'LastIndexOf' call is used by default.";
 		const string MessageFormat          = "'IndexOf' is culture-aware and missing a StringComparison argument";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

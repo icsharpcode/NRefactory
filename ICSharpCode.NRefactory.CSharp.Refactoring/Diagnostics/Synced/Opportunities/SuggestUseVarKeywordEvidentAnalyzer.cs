@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "SuggestUseVarKeywordEvidentAnalyzer.;
+		internal const string DiagnosticId  = "SuggestUseVarKeywordEvidentAnalyzer";
 		const string Description            = "Use 'var' keyword when possible";
 		const string MessageFormat          = "Use 'var' keyword";
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

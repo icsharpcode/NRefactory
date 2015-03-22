@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ObjectCreationAsStatement")]
 	public class ObjectCreationAsStatementAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ObjectCreationAsStatementAnalyzer.;
+		internal const string DiagnosticId  = "ObjectCreationAsStatementAnalyzer";
 		const string Description            = "Possible unassigned object created by 'new'";
 		const string MessageFormat          = "Possible unassigned object created by 'new' expression";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

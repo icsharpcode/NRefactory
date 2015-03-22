@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "FormatStringProblem")]
 	public class FormatStringProblemAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "FormatStringProblemAnalyzer.;
+		internal const string DiagnosticId  = "FormatStringProblemAnalyzer";
 		const string Description            = "The string format index is out of bounds of the passed arguments";
 		const string MessageFormat          = "The index '{0}' is out of bounds of the passed arguments";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

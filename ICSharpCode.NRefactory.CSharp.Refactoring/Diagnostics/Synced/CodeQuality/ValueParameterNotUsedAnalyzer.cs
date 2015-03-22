@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ValueParameterNotUsed")]
 	public class ValueParameterNotUsedAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "ValueParameterNotUsedAnalyzer.;
+		internal const string DiagnosticId = "ValueParameterNotUsedAnalyzer";
 		const string Description = "Warns about property or indexer setters and event adders or removers that do not use the value parameter.";
 		const string MessageFormat = "Setter doesn't use the 'value' parameter.";
 		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;

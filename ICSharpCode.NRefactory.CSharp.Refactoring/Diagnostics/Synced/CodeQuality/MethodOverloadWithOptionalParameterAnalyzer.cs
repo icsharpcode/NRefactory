@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "MethodOverloadWithOptionalParameter")]
 	public class MethodOverloadWithOptionalParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "MethodOverloadWithOptionalParameterAnalyzer.;
+		internal const string DiagnosticId  = "MethodOverloadWithOptionalParameterAnalyzer";
 		const string Description            = "Method with optional parameter is hidden by overload";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

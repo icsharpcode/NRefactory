@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	{
 		//static FindReferences refFinder = new FindReferences();
 
-		internal const string DiagnosticId  = "UnusedTypeParameterAnalyzer.;
+		internal const string DiagnosticId  = "UnusedTypeParameterAnalyzer";
 		const string Description            = "Type parameter is never used";
 		const string MessageFormat          = "Type parameter '{0}' is never used";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

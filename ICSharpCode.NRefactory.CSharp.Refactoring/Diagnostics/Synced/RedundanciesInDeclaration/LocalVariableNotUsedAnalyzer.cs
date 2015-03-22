@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer( AnalysisDisableKeyword = "UnusedVariable.Compiler", PragmaWarning = 163)]
 	public class LocalVariableNotUsedAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "LocalVariableNotUsedAnalyzer.;
+		internal const string DiagnosticId  = "LocalVariableNotUsedAnalyzer";
 		const string Description            = "Local variable is never used";
 		const string MessageFormat          = "Local variable is never used";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

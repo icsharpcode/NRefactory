@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyDestructor")]
 	public class EmptyDestructorAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EmptyDestructorAnalyzer.;
+		internal const string DiagnosticId  = "EmptyDestructorAnalyzer";
 		const string Description            = "Empty destructor is redundant";
 		const string MessageFormat          = "Empty destructor is redundant";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

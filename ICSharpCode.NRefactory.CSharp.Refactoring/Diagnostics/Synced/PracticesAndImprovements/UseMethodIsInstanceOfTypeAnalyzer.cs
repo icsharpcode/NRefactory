@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UseMethodIsInstanceOfType")]
 	public class UseMethodIsInstanceOfTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "UseMethodIsInstanceOfTypeAnalyzer.;
+		internal const string DiagnosticId  = "UseMethodIsInstanceOfTypeAnalyzer";
 		const string Description            = "Use method IsInstanceOfType";
 		const string MessageFormat          = "Use method IsInstanceOfType (...)";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

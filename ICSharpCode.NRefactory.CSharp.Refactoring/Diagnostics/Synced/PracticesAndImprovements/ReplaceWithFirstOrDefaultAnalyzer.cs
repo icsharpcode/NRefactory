@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithFirstOrDefault")]
 	public class ReplaceWithFirstOrDefaultAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithFirstOrDefaultAnalyzer.;
+		internal const string DiagnosticId  = "ReplaceWithFirstOrDefaultAnalyzer";
 		const string Description            = "Replace with call to FirstOrDefault<T>()";
 		const string MessageFormat          = "Expression can be simlified to 'FirstOrDefault<T>()'";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

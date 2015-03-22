@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ForCanBeConvertedToForeach")]
 	public class ForCanBeConvertedToForeachAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ForCanBeConvertedToForeachAnalyzer.;
+		internal const string DiagnosticId  = "ForCanBeConvertedToForeachAnalyzer";
 		const string Description            = "Foreach loops are more efficient";
 		const string MessageFormat          = "'for' loop can be converted to 'foreach'";
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

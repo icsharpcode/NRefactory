@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			this.tryResolve = tryResolve;
 		}
 
-		internal const string DiagnosticId  = "ParameterCanBeDeclaredWithBaseTypeAnalyzer.;
+		internal const string DiagnosticId  = "ParameterCanBeDeclaredWithBaseTypeAnalyzer";
 		const string Description            = "Finds parameters that can be demoted to a base class.";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

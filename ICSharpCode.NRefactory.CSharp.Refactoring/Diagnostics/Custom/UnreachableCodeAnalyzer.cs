@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class UnreachableCodeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "UnreachableCodeAnalyzer.;
+		internal const string DiagnosticId  = "UnreachableCodeAnalyzer";
 		const string Description            = "Code is unreachable";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

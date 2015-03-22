@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantToStringCall")]
 	public class RedundantToStringCallAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantToStringCallAnalyzer.;
+		internal const string DiagnosticId  = "RedundantToStringCallAnalyzer";
 		const string Description            = "Finds calls to ToString() which would be generated automatically by the compiler.";
 		const string MessageFormat          = "Redundant 'ToString()' call";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

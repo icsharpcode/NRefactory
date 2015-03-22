@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UseArrayCreationExpression")]
 	public class UseArrayCreationExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "UseArrayCreationExpressionAnalyzer.;
+		internal const string DiagnosticId  = "UseArrayCreationExpressionAnalyzer";
 		const string Description            = "Use array creation expression";
 		const string MessageFormat          = "Use array create expression";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

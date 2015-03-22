@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NonReadonlyReferencedInGetHashCode")]
 	public class NonReadonlyReferencedInGetHashCodeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{	
-		internal const string DiagnosticId  = "NonReadonlyReferencedInGetHashCodeAnalyzer.;
+		internal const string DiagnosticId  = "NonReadonlyReferencedInGetHashCodeAnalyzer";
 		const string Description            = "Non-readonly field referenced in 'GetHashCode()'";
 		const string MessageFormat          = "Non-readonly field referenced in 'GetHashCode()'";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToLast")]
 	public class ReplaceWithSingleCallToLastAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithSingleCallToLastAnalyzer.;
+		internal const string DiagnosticId  = "ReplaceWithSingleCallToLastAnalyzer";
 		const string Description            = "Replace with single call to Last(...)";
 		const string MessageFormat          = "Redundant Where() call with predicate followed by Last()";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

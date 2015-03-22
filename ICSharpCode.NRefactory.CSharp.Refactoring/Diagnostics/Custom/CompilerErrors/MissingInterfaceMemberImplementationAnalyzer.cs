@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class MissingInterfaceMemberImplementationAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "MissingInterfaceMemberImplementationAnalyzer.;
+		internal const string DiagnosticId  = "MissingInterfaceMemberImplementationAnalyzer";
 		const string Description            = "Searches for missing interface implementations";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerErrors;

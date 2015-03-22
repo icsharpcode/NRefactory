@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class StaticConstructorParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "StaticConstructorParameterAnalyzer.;
+		internal const string DiagnosticId = "StaticConstructorParameterAnalyzer";
 		const string Description = "Static constructor should be parameterless";
 		const string MessageFormat = "Remove parameters";
 		const string Category = DiagnosticAnalyzerCategories.CompilerErrors;

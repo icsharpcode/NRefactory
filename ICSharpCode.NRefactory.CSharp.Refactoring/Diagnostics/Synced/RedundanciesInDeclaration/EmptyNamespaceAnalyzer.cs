@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyNamespace")]
 	public class EmptyNamespaceAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EmptyNamespaceAnalyzer.;
+		internal const string DiagnosticId  = "EmptyNamespaceAnalyzer";
 		const string Description            = "Empty namespace declaration is redundant";
 		const string MessageFormat          = "Empty namespace declaration is redundant";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

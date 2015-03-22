@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantCommaInArrayInitializer")]
 	public class RedundantCommaInArrayInitializerAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantCommaInArrayInitializerAnalyzer.;
+		internal const string DiagnosticId  = "RedundantCommaInArrayInitializerAnalyzer";
 		const string Description            = "Redundant comma in array initializer";
 		const string MessageFormat          = "Redundant comma in {0}";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

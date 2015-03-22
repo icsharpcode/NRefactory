@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "FieldCanBeMadeReadOnly.Local")]
 	public class FieldCanBeMadeReadOnlyAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "FieldCanBeMadeReadOnlyAnalyzer.;
+		internal const string DiagnosticId  = "FieldCanBeMadeReadOnlyAnalyzer";
 		const string Description            = "Convert field to readonly";
 		const string MessageFormat          = "Convert field to readonly";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantExplicitNullableCreation")]
 	public class RedundantExplicitNullableCreationAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantExplicitNullableCreationAnalyzer.;
+		internal const string DiagnosticId  = "RedundantExplicitNullableCreationAnalyzer";
 		const string Description            = "Value types are implicitly convertible to nullables";
 		const string MessageFormat          = "Redundant explicit nullable type creation";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

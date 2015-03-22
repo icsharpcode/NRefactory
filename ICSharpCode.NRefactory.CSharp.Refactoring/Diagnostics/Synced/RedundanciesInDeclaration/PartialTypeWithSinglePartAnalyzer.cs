@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PartialTypeWithSinglePart")]
 	public class PartialTypeWithSinglePartAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PartialTypeWithSinglePartAnalyzer.;
+		internal const string DiagnosticId  = "PartialTypeWithSinglePartAnalyzer";
 		const string Description            = "Class is declared partial but has only one part";
 		const string MessageFormat          = "Partial class with single part";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

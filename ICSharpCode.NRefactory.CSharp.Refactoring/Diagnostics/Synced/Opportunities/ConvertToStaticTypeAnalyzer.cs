@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToStaticType")]
 	public class ConvertToStaticTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "ConvertToStaticTypeAnalyzer.;
+		internal const string DiagnosticId = "ConvertToStaticTypeAnalyzer";
 		const string Description = "If all fields, properties and methods members are static, the class can be made static.";
 		const string MessageFormat = "This class is recommended to be defined as static";
 		const string Category = DiagnosticAnalyzerCategories.Opportunities;

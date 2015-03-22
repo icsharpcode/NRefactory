@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfStatementToConditionalTernaryExpression")]
 	public class ConvertIfStatementToConditionalTernaryExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertIfStatementToConditionalTernaryExpressionAnalyzer.;
+		internal const string DiagnosticId  = "ConvertIfStatementToConditionalTernaryExpressionAnalyzer";
 		const string Description            = "Convert 'if' to '?:'";
 		const string MessageFormat          = "Convert to '?:' expression";
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

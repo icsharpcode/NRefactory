@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("Empty statement is redundant")]
 	public class EmptyStatementAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EmptyStatementAnalyzer.;
+		internal const string DiagnosticId  = "EmptyStatementAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Empty statement is redundant", "Empty statement is redundant", Category, DiagnosticSeverity.Warning, true, "Empty statement is redundant");

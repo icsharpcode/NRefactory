@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToConstant.Local")]
 	public class ConvertToConstantAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertToConstantAnalyzer.;
+		internal const string DiagnosticId  = "ConvertToConstantAnalyzer";
 		const string Description            = "Convert local variable or field to constant";
 		const string MessageFormat          = "Convert to constant";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

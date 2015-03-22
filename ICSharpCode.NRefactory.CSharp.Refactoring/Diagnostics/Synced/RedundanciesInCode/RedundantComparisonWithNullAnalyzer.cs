@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantComparisonWithNull")]
 	public class RedundantComparisonWithNullAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantComparisonWithNullAnalyzer.;
+		internal const string DiagnosticId  = "RedundantComparisonWithNullAnalyzer";
 		const string Description            = "When 'is' keyword is used, which implicitly check null.";
 		const string MessageFormat          = "Redundant comparison with 'null'";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

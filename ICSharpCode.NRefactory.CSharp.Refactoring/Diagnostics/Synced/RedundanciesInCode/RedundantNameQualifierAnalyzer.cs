@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantNameQualifier")]
 	public class RedundantNameQualifierAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantNameQualifierAnalyzer.;
+		internal const string DiagnosticId  = "RedundantNameQualifierAnalyzer";
 
 		const string Description = "Removes namespace usages that are obsolete.";
 		const string MessageFormat = "Qualifier is redundant";

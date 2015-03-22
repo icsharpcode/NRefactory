@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PolymorphicFieldLikeEventInvocation")]
 	public class PolymorphicFieldLikeEventInvocationAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PolymorphicFieldLikeEventInvocationAnalyzer.;
+		internal const string DiagnosticId  = "PolymorphicFieldLikeEventInvocationAnalyzer";
 		const string Description            = "Invocation of polymorphic field event leads to unpredictable result since invocation lists are not virtual";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

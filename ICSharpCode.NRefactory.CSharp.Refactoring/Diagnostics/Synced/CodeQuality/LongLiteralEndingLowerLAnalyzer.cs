@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "LongLiteralEndingLowerL")]
 	public class LongLiteralEndingLowerLAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "LongLiteralEndingLowerLAnalyzer.;
+		internal const string DiagnosticId = "LongLiteralEndingLowerLAnalyzer";
 		const string Description = "Lowercase 'l' is often confused with '1'";
 		const string MessageFormat = "Long literal ends with 'l' instead of 'L'";
 		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;

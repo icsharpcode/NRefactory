@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantDelegateCreation")]
 	public class RedundantDelegateCreationAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantDelegateCreationAnalyzer.;
+		internal const string DiagnosticId  = "RedundantDelegateCreationAnalyzer";
 		const string Description            = "Explicit delegate creation expression is redundant";
 		const string MessageFormat          = "Redundant explicit delegate declaration";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

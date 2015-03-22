@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class CastExpressionOfIncompatibleTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CastExpressionOfIncompatibleTypeAnalyzer.;
+		internal const string DiagnosticId  = "CastExpressionOfIncompatibleTypeAnalyzer";
 		const string Description            = "Type cast expression of incompatible type";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

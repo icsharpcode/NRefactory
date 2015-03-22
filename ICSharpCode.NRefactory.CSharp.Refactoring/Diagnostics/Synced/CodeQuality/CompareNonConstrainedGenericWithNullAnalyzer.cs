@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CompareNonConstrainedGenericWithNull")]
 	public class CompareNonConstrainedGenericWithNullAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CompareNonConstrainedGenericWithNullAnalyzer.;
+		internal const string DiagnosticId  = "CompareNonConstrainedGenericWithNullAnalyzer";
 		const string Description            = "Possible compare of value type with 'null'";
 		const string MessageFormat          = "Possible compare of value type with 'null'";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

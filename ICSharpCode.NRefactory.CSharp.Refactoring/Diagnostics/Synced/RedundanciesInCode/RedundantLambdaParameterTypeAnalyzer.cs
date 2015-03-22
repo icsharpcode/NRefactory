@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantLambdaParameterType")]
 	public class RedundantLambdaParameterTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantLambdaParameterTypeAnalyzer.;
+		internal const string DiagnosticId  = "RedundantLambdaParameterTypeAnalyzer";
 		const string Description            = "Explicit type specification can be removed as it can be implicitly inferred";
 		const string MessageFormat          = "Redundant lambda explicit type specification";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

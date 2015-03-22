@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
 	public class EmptyGeneralCatchClauseAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "EmptyGeneralCatchClauseAnalyzer.;
+		internal const string DiagnosticId = "EmptyGeneralCatchClauseAnalyzer";
 		const string Description = "A catch clause that catches System.Exception and has an empty body";
 		const string MessageFormat = "Empty general catch clause suppresses any error";
 		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;

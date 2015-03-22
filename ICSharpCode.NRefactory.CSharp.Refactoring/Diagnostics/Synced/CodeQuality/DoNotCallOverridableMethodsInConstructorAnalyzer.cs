@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
 	public class DoNotCallOverridableMethodsInConstructorAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "DoNotCallOverridableMethodsInConstructorAnalyzer.;
+		internal const string DiagnosticId = "DoNotCallOverridableMethodsInConstructorAnalyzer";
 		const string Description = "Warns about calls to virtual member functions occuring in the constructor.";
 		const string MessageFormat = "Virtual member call in constructor";
 		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;

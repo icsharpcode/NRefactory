@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnusedLabel", PragmaWarning = 164)]
 	public class UnusedLabelAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "UnusedLabelAnalyzer.;
+		internal const string DiagnosticId  = "UnusedLabelAnalyzer";
 		const string Description            = "Label is never referenced";
 		const string MessageFormat          = "Label is unused";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

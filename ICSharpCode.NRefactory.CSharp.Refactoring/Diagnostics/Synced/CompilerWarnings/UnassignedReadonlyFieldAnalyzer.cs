@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnassignedReadonlyField.Compiler", PragmaWarning = 649)]
 	public class UnassignedReadonlyFieldAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "UnassignedReadonlyFieldAnalyzer.;
+		internal const string DiagnosticId  = "UnassignedReadonlyFieldAnalyzer";
 		const string Description            = "Unassigned readonly field";
 		const string MessageFormat          = "Readonly field is never assigned";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerWarnings;

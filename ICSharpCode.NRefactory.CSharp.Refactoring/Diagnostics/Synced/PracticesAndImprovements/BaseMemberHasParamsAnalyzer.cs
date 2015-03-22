@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseMemberHasParams")]
 	public class BaseMemberHasParamsAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "BaseMemberHasParamsAnalyzer.;
+		internal const string DiagnosticId  = "BaseMemberHasParamsAnalyzer";
 		const string Description            = "Base parameter has 'params' modifier, but missing in overrider";
 		const string MessageFormat          = "Base method '{0}' has a 'params' modifier";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

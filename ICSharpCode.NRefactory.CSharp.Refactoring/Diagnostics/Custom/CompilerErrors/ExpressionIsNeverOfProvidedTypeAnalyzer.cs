@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ExpressionIsNeverOfProvidedTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ExpressionIsNeverOfProvidedTypeAnalyzer.;
+		internal const string DiagnosticId  = "ExpressionIsNeverOfProvidedTypeAnalyzer";
 		const string Description            = "CS0184:Given expression is never of the provided type";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerWarnings;

@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NotResolvedInText")]
 	public class NotResolvedInTextAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "NotResolvedInTextAnalyzer.;
+		internal const string DiagnosticId  = "NotResolvedInTextAnalyzer";
 		const string Description            = "Cannot resolve symbol in text argument";
 		const string MessageFormat          = "The parameter '{0}' can't be resolved";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantUsingDirective")]
 	public class RedundantUsingDirectiveAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantUsingDirectiveAnalyzer.;
+		internal const string DiagnosticId  = "RedundantUsingDirectiveAnalyzer";
 		const string Description            = "Using directive is not required and can safely be removed.";
 		const string MessageFormat          = "Using directive is not used by code and can be removed safely.";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

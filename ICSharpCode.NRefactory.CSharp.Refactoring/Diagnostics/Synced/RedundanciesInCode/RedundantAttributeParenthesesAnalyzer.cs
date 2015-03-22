@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("Parentheses are redundant if attribute has no arguments.")]
 	public class RedundantAttributeParenthesesAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantAttributeParenthesesAnalyzer.;
+		internal const string DiagnosticId  = "RedundantAttributeParenthesesAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Parentheses are redundant if attribute has no arguments.", "Parentheses are redundant if attribute has no arguments", Category, DiagnosticSeverity.Warning, true, "Parentheses are redundant if attribute has no arguments");

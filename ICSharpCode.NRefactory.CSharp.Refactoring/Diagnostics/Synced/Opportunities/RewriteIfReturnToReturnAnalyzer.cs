@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class RewriteIfReturnToReturnAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RewriteIfReturnToReturnAnalyzer.;
+		internal const string DiagnosticId  = "RewriteIfReturnToReturnAnalyzer";
 		const string Description            = "Convert 'if...return' to 'return'";
 		const string MessageFormat          = "Convert to 'return' statement";
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseMethodCallWithDefaultParameter")]
 	public class BaseMethodCallWithDefaultParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "BaseMethodCallWithDefaultParameterAnalyzer.;
+		internal const string DiagnosticId  = "BaseMethodCallWithDefaultParameterAnalyzer";
 		const string Description            = "Call to base member with implicit default parameters";
 		const string MessageFormat          = "Call to base member with implicit default parameters";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

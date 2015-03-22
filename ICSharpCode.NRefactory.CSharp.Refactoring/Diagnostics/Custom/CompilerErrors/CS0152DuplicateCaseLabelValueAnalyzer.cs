@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class CS0152DuplicateCaseLabelValueAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CS0152DuplicateCaseLabelValueAnalyzer.;
+		internal const string DiagnosticId  = "CS0152DuplicateCaseLabelValueAnalyzer";
 		const string Description            = "A case label value is duplicate";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerErrors;

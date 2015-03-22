@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ConvertIfStatementToSwitchStatementAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertIfStatementToSwitchStatementAnalyzer.;
+		internal const string DiagnosticId  = "ConvertIfStatementToSwitchStatementAnalyzer";
 		const string Description            = "'if' statement can be re-written as 'switch' statement";
 		const string MessageFormat          = "Convert to 'switch' statement";
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

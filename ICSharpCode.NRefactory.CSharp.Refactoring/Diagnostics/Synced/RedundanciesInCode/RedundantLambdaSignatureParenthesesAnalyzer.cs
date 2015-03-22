@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantLambdaSignatureParentheses")]
 	public class RedundantLambdaSignatureParenthesesAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantLambdaSignatureParenthesesAnalyzer.;
+		internal const string DiagnosticId  = "RedundantLambdaSignatureParenthesesAnalyzer";
 		const string Description            = "Redundant lambda signature parentheses";
 		const string MessageFormat          = "Redundant lambda signature parentheses";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;

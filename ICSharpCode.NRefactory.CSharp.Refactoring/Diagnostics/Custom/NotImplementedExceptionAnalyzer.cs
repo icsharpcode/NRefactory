@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class NotImplementedExceptionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "NotImplementedExceptionAnalyzer.;
+		internal const string DiagnosticId  = "NotImplementedExceptionAnalyzer";
 		const string Description            = "Shows NotImplementedException throws in the quick task bar";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.Notifications;

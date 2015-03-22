@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[Description("Catch clause with a single 'throw' statement is redundant.")]
 	public class RedundantCatchClauseAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantCatchClauseAnalyzer.;
+		internal const string DiagnosticId  = "RedundantCatchClauseAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Catch clause with a single 'throw' statement is redundant.", "{0}", Category, DiagnosticSeverity.Info, true, "Redundant catch clause");

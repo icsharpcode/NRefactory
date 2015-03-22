@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class NegativeRelationalExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "NegativeRelationalExpressionAnalyzer.;
+		internal const string DiagnosticId  = "NegativeRelationalExpressionAnalyzer";
 		const string Description            = "Simplify negative relational expression";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

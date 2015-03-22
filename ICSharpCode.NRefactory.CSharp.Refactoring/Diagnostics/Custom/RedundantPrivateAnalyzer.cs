@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// </summary>
 	public class RedundantPrivateAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "RedundantPrivateAnalyzer.;
+		internal const string DiagnosticId = "RedundantPrivateAnalyzer";
 		const string Description = "Removes 'private' modifiers that are not required";
 		const string MessageFormat = "";
 		const string Category = DiagnosticAnalyzerCategories.RedundanciesInCode;

@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "LocalVariableHidesMember")]
 	public class LocalVariableHidesMemberAnalyzer : VariableHidesMemberAnalyzer
 	{
-		internal const string DiagnosticId  = "LocalVariableHidesMemberAnalyzer.;
+		internal const string DiagnosticId  = "LocalVariableHidesMemberAnalyzer";
 		const string Description            = "Local variable has the same name as a member and hides it";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

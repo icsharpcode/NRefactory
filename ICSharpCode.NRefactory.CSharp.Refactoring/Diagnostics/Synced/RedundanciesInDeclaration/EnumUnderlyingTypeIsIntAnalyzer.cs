@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
 	public class EnumUnderlyingTypeIsIntAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EnumUnderlyingTypeIsIntAnalyzer.;
+		internal const string DiagnosticId  = "EnumUnderlyingTypeIsIntAnalyzer";
 		const string Description            = "The default underlying type of enums is int, so defining it explicitly is redundant.";
 		const string MessageFormat          = "Default underlying type of enums is already int";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;

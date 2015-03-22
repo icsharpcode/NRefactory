@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PossibleMultipleEnumeration")]
 	public class PossibleMultipleEnumerationAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PossibleMultipleEnumerationAnalyzer.;
+		internal const string DiagnosticId  = "PossibleMultipleEnumerationAnalyzer";
 		const string Description            = "Possible multiple enumeration of IEnumerable";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

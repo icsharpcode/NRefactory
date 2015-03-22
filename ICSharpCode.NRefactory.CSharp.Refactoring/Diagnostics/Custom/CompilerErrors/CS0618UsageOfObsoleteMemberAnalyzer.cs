@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(PragmaWarning = 618)]
 	public class CS0618UsageOfObsoleteMemberAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CS0618UsageOfObsoleteMemberAnalyzer.;
+		internal const string DiagnosticId  = "CS0618UsageOfObsoleteMemberAnalyzer";
 		const string Description            = "CS0618: Member is obsolete";
 		const string MessageFormat          = "";
 		const string Category               = DiagnosticAnalyzerCategories.CompilerWarnings;

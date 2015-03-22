@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "OptionalParameterRefOut")]
 	public class OptionalParameterRefOutAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "OptionalParameterRefOutAnalyzer.;
+		internal const string DiagnosticId  = "OptionalParameterRefOutAnalyzer";
 		const string Description            = "C# doesn't support optional 'ref' or 'out' parameters";
 		const string MessageFormat          = "C# doesn't support optional 'ref' or 'out' parameters";
 		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;

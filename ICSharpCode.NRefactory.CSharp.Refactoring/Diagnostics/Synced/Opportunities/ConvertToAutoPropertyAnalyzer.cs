@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToAutoProperty")]
 	public class ConvertToAutoPropertyAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertToAutoPropertyAnalyzer.;
+		internal const string DiagnosticId  = "ConvertToAutoPropertyAnalyzer";
 		const string Description            = "Convert property to auto property";
 		const string MessageFormat          = "Convert to auto property";
 		const string Category               = DiagnosticAnalyzerCategories.Opportunities;

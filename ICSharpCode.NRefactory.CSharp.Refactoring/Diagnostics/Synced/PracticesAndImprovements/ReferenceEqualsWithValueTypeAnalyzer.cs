@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReferenceEqualsWithValueType")]
 	public class ReferenceEqualsWithValueTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReferenceEqualsWithValueTypeAnalyzer.;
+		internal const string DiagnosticId  = "ReferenceEqualsWithValueTypeAnalyzer";
 		const string Description            = "Check for reference equality instead";
 		const string MessageFormat          = "'Object.ReferenceEquals' is always false because it is called with value type";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;

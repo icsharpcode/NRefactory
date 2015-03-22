@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEmptyObjectCreationArgumentList")]
 	public class RedundantObjectCreationArgumentListAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantObjectCreationArgumentListAnalyzer.;
+		internal const string DiagnosticId  = "RedundantObjectCreationArgumentListAnalyzer";
 		const string Description            = "When object creation uses object or collection initializer, empty argument list is redundant.";
 		const string MessageFormat          = "Empty argument list is redundant";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
