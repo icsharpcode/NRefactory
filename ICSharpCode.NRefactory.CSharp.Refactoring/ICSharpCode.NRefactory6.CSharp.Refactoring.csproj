@@ -325,16 +325,13 @@
     <Compile Include="CodeIssues\Custom\CompilerErrors\ExpressionIsNeverOfProvidedTypeIssue.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\MissingInterfaceMemberImplementationIssue.cs" />
     <Compile Include="CodeIssues\Custom\CompilerErrors\StaticConstructorParameterIssue.cs" />
-    <Compile Include="CodeActions\AbstractAndVirtualConversionAction.cs" />
     <Compile Include="CodeActions\AddOptionalParameterToInvocationAction.cs" />
     <Compile Include="CodeActions\AutoLinqSumAction.cs" />
     <Compile Include="CodeActions\ChangeAccessModifierAction.cs" />
     <Compile Include="CodeActions\ConvertAssignmentToIfAction.cs" />
     <Compile Include="CodeActions\ConvertIfStatementToNullCoalescingExpressionAction.cs" />
     <Compile Include="CodeActions\ConvertIfStatementToReturnStatementAction.cs" />
-    <Compile Include="CodeActions\ConvertMultiplyToShiftAction.cs" />
     <Compile Include="CodeActions\ConvertReturnStatementToIfAction.cs" />
-    <Compile Include="CodeActions\ConvertWhileToDoWhileLoopAction.cs" />
     <Compile Include="CodeActions\CopyCommentsFromInterface.cs" />
     <Compile Include="CodeActions\CreateChangedEventAction.cs" />
     <Compile Include="CodeActions\CreateCustomEventImplementationAction.cs" />
@@ -345,7 +342,6 @@
     <Compile Include="CodeActions\CS1520MethodMustHaveAReturnTypeAction.cs" />
     <Compile Include="CodeActions\ExtractAnonymousMethodAction.cs" />
     <Compile Include="CodeActions\ExtractFieldAction.cs" />
-    <Compile Include="CodeActions\ExtractWhileConditionToInternalIfStatementAction.cs" />
     <Compile Include="CodeActions\GenerateGetterAction.cs" />
     <Compile Include="CodeActions\GeneratePropertyAction.cs" />
     <Compile Include="CodeActions\IntroduceConstantAction.cs" />
@@ -436,6 +432,10 @@
     <Compile Include="CodeRefactorings\Custom\ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Custom\ConvertShiftToMultiplyCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Custom\ReplaceOperatorAssignmentWithAssignmentCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ConvertMultiplyToShiftCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ConvertWhileToDoWhileLoopCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

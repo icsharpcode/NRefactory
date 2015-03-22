@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void TestSimple()
 		{
-			Test<ConvertWhileToDoWhileLoopAction>(@"
+			Test<ConvertWhileToDoWhileLoopCodeRefactoringProvider>(@"
 class Foo {
 	void Bar(int x) {
 		$while (x > 0) x++;
@@ -51,11 +51,10 @@ class Foo {
 }");
 		}
 
-		[Ignore("broken")]
 		[Test]
 		public void TestSimpleWithComment()
 		{
-			Test<ConvertWhileToDoWhileLoopAction>(@"
+			Test<ConvertWhileToDoWhileLoopCodeRefactoringProvider>(@"
 class Foo {
 	void Bar(int x) {
 		// Some comment
@@ -75,7 +74,7 @@ class Foo {
 		[Test]
 		public void TestBlock()
 		{
-			Test<ConvertWhileToDoWhileLoopAction>(@"
+			Test<ConvertWhileToDoWhileLoopCodeRefactoringProvider>(@"
 class Foo {
 	void Bar(int x) {
 		$while (x > 0) { x++; }
@@ -90,11 +89,10 @@ class Foo {
 }");
 		}
 
-		[Ignore("broken")]
 		[Test]
 		public void TestBlockWithComment()
 		{
-			Test<ConvertWhileToDoWhileLoopAction>(@"
+			Test<ConvertWhileToDoWhileLoopCodeRefactoringProvider>(@"
 class Foo {
 	void Bar(int x) {
 		// Some comment
@@ -114,7 +112,7 @@ class Foo {
 		[Test]
 		public void TestDisabledOutOfToken()
 		{
-			TestWrongContext<ConvertWhileToDoWhileLoopAction>(@"
+			TestWrongContext<ConvertWhileToDoWhileLoopCodeRefactoringProvider>(@"
 class Foo {
 	void Bar(int x) {
 		while (x > 0) $x++;

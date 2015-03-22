@@ -30,12 +30,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class AbstractAndVirtualConversionActionTests : ContextActionTestBase
+	public class ToAbstractVirtualNonVirtualConversionTests : ContextActionTestBase
 	{
 		[Test]
 		public void VirtualToNonVirtualTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"class Test
 {
     public $virtual void Foo()
@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void VirtualToAbstractTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"abstract class Test
 {
     public $virtual void Foo()
@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void VirtualIndexerToAbstractTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"abstract class MainClass
 {
     public virtual int $this[int i] {
@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void NonVirtualStaticToVirtualTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"class Test
 {
     public static void $Foo()
@@ -101,7 +101,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void NonVirtualToVirtualTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"class Test
 {
     public void $Foo()
@@ -118,7 +118,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 		[Test]
 		public void InvalidPrivateImplementationTypeTest()
 		{
-			TestWrongContext<AbstractAndVirtualConversionAction>(
+			TestWrongContext<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"using System;
 class Test : IDisposable
 {
@@ -131,7 +131,7 @@ class Test : IDisposable
 		[Test]
 		public void AbstractToNonAbstractTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"abstract class Test
 {
     public $abstract void Foo();
@@ -147,7 +147,7 @@ class Test : IDisposable
 		[Test]
 		public void AbstractToVirtualTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"abstract class Test
 {
     public $abstract void Foo();
@@ -163,7 +163,7 @@ class Test : IDisposable
 		[Test]
 		public void AbstractPropertyToNonAbstractTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"abstract class Test
 {
     public abstract int $Foo
@@ -191,7 +191,7 @@ class Test : IDisposable
 		[Test]
 		public void AbstractEventToNonAbstractTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"using System;
 abstract class Test
 {
@@ -206,7 +206,7 @@ abstract class Test
 		[Test]
 		public void NonAbstractToAbstractTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"abstract class Test
 {
     public void $Foo()
@@ -222,7 +222,7 @@ abstract class Test
 		[Test]
 		public void NonAbstractEventToAbstractTest()
 		{
-			Test<AbstractAndVirtualConversionAction>(
+			Test<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"abstract class Test
 {
     public event EventHandler $Foo  {
@@ -243,7 +243,7 @@ abstract class Test
 		[Test]
 		public void InvalidLocalContext()
 		{
-			TestWrongContext<AbstractAndVirtualConversionAction>(
+			TestWrongContext<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"using System;
 class Test
 {
@@ -258,7 +258,7 @@ class Test
 		[Test]
 		public void InvalidOverrideTest()
 		{
-			TestWrongContext<AbstractAndVirtualConversionAction>(
+			TestWrongContext<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				@"using System;
 class Test
 {
@@ -271,7 +271,7 @@ class Test
 		[Test]
 		public void InvalidMethodTest()
 		{
-			var actions = GetActions<AbstractAndVirtualConversionAction>(
+			var actions = GetActions<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
 				                       @"using System;
 abstract class Test
 {

@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	[NRefactoryCodeRefactoringProvider(Description = "Implements an abstract member as a virtual one")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Make abstract member virtual")]
 	[Description("Make abstract member virtual/non-abstract and vice-versa")]
-	public class AbstractAndVirtualConversionAction : CodeRefactoringProvider
+	public class ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{

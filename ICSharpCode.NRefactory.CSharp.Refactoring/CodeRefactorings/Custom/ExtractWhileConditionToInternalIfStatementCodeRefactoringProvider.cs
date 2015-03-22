@@ -1,5 +1,5 @@
 //
-// ConvertMultiplyToShiftAction.cs
+// ExtractWhileConditionToInternalIfStatementAction.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,7 +23,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
 using System.Linq;
 using System.Threading;
@@ -41,35 +40,41 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert '*'/'/' to '<<'/'>>'")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert '*'/'/' to '<<'/'>>'")]
-	public class ConvertMultiplyToShiftAction : SpecializedCodeRefactoringProvider<BinaryExpressionSyntax>
+	[NRefactoryCodeRefactoringProvider(Description = "Extracts a field from a local variable declaration")]
+	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Extract field")]
+	public class ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider : SpecializedCodeRefactoringProvider<WhileStatementSyntax>
 	{
-		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, BinaryExpressionSyntax node, CancellationToken cancellationToken)
+		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, WhileStatementSyntax node, CancellationToken cancellationToken)
 		{
-			if (!node.OperatorToken.Span.Contains(span) || !(node.OperatorToken.IsKind(SyntaxKind.AsteriskToken) || node.OperatorToken.IsKind(SyntaxKind.SlashToken)))
-				return Enumerable.Empty<CodeAction>();
-			var rightSide = node.Right as LiteralExpressionSyntax;
-			if (rightSide == null || !(rightSide.Token.Value is int))
+			if (!node.WhileKeyword.Span.Contains(span) || node.Statement == null || node.Condition == null)
 				return Enumerable.Empty<CodeAction>();
 
-			int value = (int)rightSide.Token.Value;
-			int log2 = (int)Math.Log(value, 2);
-			if (value != 1 << log2)
-				return Enumerable.Empty<CodeAction>();
+			return new[] {
+				CodeActionFactory.Create(
+					span, 
+					DiagnosticSeverity.Info, 
+					"Extract condition to internal 'if' statement", 
+					t2 => {
+						var ifStmt = SyntaxFactory.IfStatement(
+							CSharpUtil.InvertCondition(node.Condition),
+							SyntaxFactory.BreakStatement()
+						);
 
-			bool isLeftShift = node.OperatorToken.IsKind(SyntaxKind.AsteriskToken);
-
-			return new[] { CodeActionFactory.Create(
-				span, 
-				DiagnosticSeverity.Info, 
-				isLeftShift ? "Replace with '<<'" : "Replace with '>>'", 
-				t2 => {
-					var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.LeftShiftExpression : SyntaxKind.RightShiftExpression, node.Left,
-						SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(log2))).WithAdditionalAnnotations(Formatter.Annotation));
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}
-			)
+						var statements = new List<StatementSyntax> ();
+						statements.Add(ifStmt);
+						var existingBlock = node.Statement as BlockSyntax;
+						if (existingBlock != null) {
+							statements.AddRange(existingBlock.Statements);
+						} else if (!node.Statement.IsKind(SyntaxKind.EmptyStatement)){
+							statements.Add(node.Statement);
+						}
+						var newNode = node.WithCondition(SyntaxFactory.LiteralExpression(SyntaxKind.TrueLiteralExpression))
+							.WithStatement(SyntaxFactory.Block(statements))
+							.WithAdditionalAnnotations(Formatter.Annotation);
+						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode);
+						return Task.FromResult(document.WithSyntaxRoot(newRoot));
+					}
+				)
 			};
 		}
 	}

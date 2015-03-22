@@ -334,7 +334,6 @@
     <Compile Include="CSharp\CodeIssues\ExpressionIsNeverOfProvidedTypeIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\MissingInterfaceMemberImplementationIssueTests.cs" />
     <Compile Include="CSharp\CodeIssues\StaticConstructorParameterIssueTests.cs" />
-    <Compile Include="CSharp\CodeActions\AbstractAndVirtualConversionActionTests.cs" />
     <Compile Include="CSharp\CodeActions\AddAnotherAccessorTests.cs" />
     <Compile Include="CSharp\CodeActions\AddArgumentNameTests.cs" />
     <Compile Include="CSharp\CodeActions\AddOptionalParameterToInvocationTests.cs" />
@@ -350,7 +349,6 @@
     <Compile Include="CSharp\CodeActions\ConvertIfStatementToReturnStatementActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertImplicitToExplicittImplementationTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertLambdaBodyExpressionToStatementTests.cs" />
-    <Compile Include="CSharp\CodeActions\ConvertMultiplyToShiftActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertReturnStatementToIfActionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertSwitchToIfTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertWhileToDoWhileLoopTests.cs" />
@@ -366,7 +364,6 @@
     <Compile Include="CSharp\CodeActions\CS1520MethodMustHaveAReturnTypeTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtractAnonymousMethodTests.cs" />
     <Compile Include="CSharp\CodeActions\ExtractFieldTests.cs" />
-    <Compile Include="CSharp\CodeActions\ExtractWhileConditionToInternalIfStatementActionTests.cs" />
     <Compile Include="CSharp\CodeActions\GenerateGetterTests.cs" />
     <Compile Include="CSharp\CodeActions\GeneratePropertyTests.cs" />
     <Compile Include="CSharp\CodeActions\GenerateSwitchLabelsTests.cs" />
@@ -480,6 +477,9 @@
     <Compile Include="CSharp\CodeActions\ReplaceAssignmentWithPostfixExpressionTests.cs" />
     <Compile Include="CSharp\CodeActions\ConvertShiftToMultiplyTests.cs" />
     <Compile Include="CSharp\CodeActions\ReplaceOperatorAssignmentWithAssignmentTests.cs" />
+    <Compile Include="CSharp\CodeActions\ConvertMultiplyToShiftTests.cs" />
+    <Compile Include="CSharp\CodeActions\ExtractWhileConditionToInternalIfStatementTests.cs" />
+    <Compile Include="CSharp\CodeActions\ToAbstractVirtualNonVirtualConversionTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -29,12 +29,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ExtractWhileConditionToInternalIfStatementActionTests : ContextActionTestBase
+	public class ExtractWhileConditionToInternalIfStatementTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestBasicCase()
 		{
-			Test<ExtractWhileConditionToInternalIfStatementAction>(@"
+			Test<ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider>(@"
 public class Main 
 {
     public int Foo (int i)
@@ -70,7 +70,7 @@ public class Main
 		[Test]
 		public void TestBasicCaseWithComment()
 		{
-			Test<ExtractWhileConditionToInternalIfStatementAction>(@"
+			Test<ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider>(@"
 public class Main 
 {
     public int Foo (int i)
@@ -108,7 +108,7 @@ public class Main
 		[Test]
 		public void TestAddBlock()
 		{
-			Test<ExtractWhileConditionToInternalIfStatementAction>(@"
+			Test<ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider>(@"
 public class Main 
 {
     public int Foo (int i)
@@ -140,7 +140,7 @@ public class Main
 		[Test]
 		public void TestRemoveEmptyStatement()
 		{
-			Test<ExtractWhileConditionToInternalIfStatementAction>(@"
+			Test<ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider>(@"
 public class Main 
 {
     public int Foo (int i)

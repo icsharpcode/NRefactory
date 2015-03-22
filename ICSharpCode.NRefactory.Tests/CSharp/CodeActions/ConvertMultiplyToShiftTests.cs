@@ -30,12 +30,12 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
 	[TestFixture]
-	public class ConvertMultiplyToShiftActionTests : ContextActionTestBase
+	public class ConvertMultiplyToShiftTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestMultiply()
 		{
-			Test<ConvertMultiplyToShiftAction>(@"
+			Test<ConvertMultiplyToShiftCodeRefactoringProvider>(@"
 class TestClass
 {
 	int TestMethod (int i)
@@ -55,7 +55,7 @@ class TestClass
 		[Test]
 		public void TestDivide()
 		{
-			Test<ConvertMultiplyToShiftAction>(@"
+			Test<ConvertMultiplyToShiftCodeRefactoringProvider>(@"
 class TestClass
 {
 	int TestMethod (int i)
@@ -75,7 +75,7 @@ class TestClass
 		[Test]
 		public void TestInvaid()
 		{
-			TestWrongContext<ConvertMultiplyToShiftAction>(@"
+			TestWrongContext<ConvertMultiplyToShiftCodeRefactoringProvider>(@"
 class TestClass
 {
 	int TestMethod (int i)

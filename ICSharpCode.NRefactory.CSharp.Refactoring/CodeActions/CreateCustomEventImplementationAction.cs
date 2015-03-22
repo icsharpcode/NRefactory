@@ -97,8 +97,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							null,
 							variableDeclarator.Identifier,
 							SyntaxFactory.AccessorList(SyntaxFactory.List<AccessorDeclarationSyntax>(new [] {
-								SyntaxFactory.AccessorDeclaration(SyntaxKind.AddAccessorDeclaration, AbstractAndVirtualConversionAction.CreateNotImplementedBody()),
-								SyntaxFactory.AccessorDeclaration(SyntaxKind.RemoveAccessorDeclaration, AbstractAndVirtualConversionAction.CreateNotImplementedBody())
+								SyntaxFactory.AccessorDeclaration(SyntaxKind.AddAccessorDeclaration, ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider.CreateNotImplementedBody()),
+								SyntaxFactory.AccessorDeclaration(SyntaxKind.RemoveAccessorDeclaration, ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider.CreateNotImplementedBody())
 							}))
 						);
 
