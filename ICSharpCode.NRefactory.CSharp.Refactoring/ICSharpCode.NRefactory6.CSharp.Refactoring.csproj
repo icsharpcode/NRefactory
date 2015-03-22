@@ -352,7 +352,6 @@
     <Compile Include="CodeActions\GenerateGetterAction.cs" />
     <Compile Include="CodeActions\GeneratePropertyAction.cs" />
     <Compile Include="CodeActions\GenerateSwitchLabelsAction.cs" />
-    <Compile Include="CodeActions\ImplementNotImplementedProperty.cs" />
     <Compile Include="CodeActions\IntroduceConstantAction.cs" />
     <Compile Include="CodeActions\InvertIfAndSimplify.cs" />
     <Compile Include="CodeActions\InvertLogicalExpressionAction.cs" />

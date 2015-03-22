@@ -147,6 +147,99 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
     }
 }");
 		}
+
+		[Test]
+		public void TestGetter()
+		{
+			Test<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
+{
+    string $Test { get { throw new System.NotImplementedException (); } }
+}", @"class TestClass
+{
+    readonly string test;
+
+    string Test
+    {
+        get
+        {
+            return test;
+        }
+    }
+}");
+		}
+
+		[Test]
+		public void TestGetterAndSetter()
+		{
+			Test<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
+{
+    string $Test {
+        get {
+            throw new System.NotImplementedException ();
+        }
+        set {
+            throw new System.NotImplementedException ();
+        }
+    }
+}", @"class TestClass
+{
+    string test;
+
+    string Test
+    {
+        get
+        {
+            return test;
+        }
+
+        set
+        {
+            test = value;
+        }
+    }
+}");
+		}
+
+
+		[Test]
+		public void TestWrongLocation2()
+		{
+			TestWrongContext<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
+{
+    public $string Test {
+        get {
+            throw new System.NotImplementedException ();
+        }
+        set {
+            throw new System.NotImplementedException ();
+        }
+    }
+}");
+
+			TestWrongContext<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
+{
+    public string $FooBar.Test {
+        get {
+            throw new System.NotImplementedException ();
+        }
+        set {
+            throw new System.NotImplementedException ();
+        }
+    }
+}");
+
+			TestWrongContext<ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider>(@"class TestClass
+{
+    public string Test ${
+        get {
+            throw new System.NotImplementedException ();
+        }
+        set {
+            throw new System.NotImplementedException ();
+        }
+    }
+}");
+		}
 	}
 }
 

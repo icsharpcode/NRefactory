@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 				return;
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(
-					property.Identifier.Span, 
+					property.Identifier.Span,
 					DiagnosticSeverity.Info, 
 					"To property with backing field",
 					t2 => {
@@ -77,26 +77,38 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 							SyntaxFactory.VariableDeclaration(
 								property.Type,
 								SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(SyntaxFactory.VariableDeclarator(name)))
-						).WithModifiers(!property.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) ? 
+						).WithModifiers(!property.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) ?
 							SyntaxFactory.TokenList() :
 							SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)))
 						.WithAdditionalAnnotations(Formatter.Annotation);
 
 						//create our new property
 						var fieldExpression = name == "value" ? 
-							(ExpressionSyntax)SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(), SyntaxFactory.IdentifierName("value")) : 
+							(ExpressionSyntax)SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(), SyntaxFactory.IdentifierName("value")) :
 							SyntaxFactory.IdentifierName(name);
+						
+						var newPropAnno = new SyntaxAnnotation ();
+						var syntaxList = new SyntaxList<AccessorDeclarationSyntax> ();
+						var hasSetter = property.AccessorList.Accessors.Any(acc => acc.IsKind(SyntaxKind.SetAccessorDeclaration));
+						var hasGetter = property.AccessorList.Accessors.Any(acc => acc.IsKind(SyntaxKind.GetAccessorDeclaration));
 
-						var getBody = SyntaxFactory.Block(SyntaxFactory.ReturnStatement(fieldExpression));
-						var getter = SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration, getBody);
+						if (hasGetter) {
+							var getBody = SyntaxFactory.Block (SyntaxFactory.ReturnStatement (fieldExpression));
+							var getter = SyntaxFactory.AccessorDeclaration (SyntaxKind.GetAccessorDeclaration, getBody);
+							syntaxList = syntaxList.Add (getter);
+							if (!hasSetter)
+								backingStore = backingStore.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword)));
+						}
 
-						var setBody = SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, fieldExpression,
-							             SyntaxFactory.IdentifierName("value"))));
-						var setter = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration, setBody);
-
-						var newPropAnno = new SyntaxAnnotation();
-						var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(new SyntaxList<AccessorDeclarationSyntax>().Add(getter).Add(setter)))
-							.WithAdditionalAnnotations(newPropAnno, Formatter.Annotation);
+						if (hasSetter) {
+							var setBody = SyntaxFactory.Block(SyntaxFactory.ExpressionStatement(
+								SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, fieldExpression,
+								                                   SyntaxFactory.IdentifierName("value"))));
+							var setter = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration, setBody);
+							syntaxList = syntaxList.Add (setter);
+						}
+						var newProperty = property.WithAccessorList (SyntaxFactory.AccessorList (syntaxList))
+							.WithAdditionalAnnotations (newPropAnno, Formatter.Annotation);
 
 						var newRoot = root.ReplaceNode((SyntaxNode)property, newProperty);
 						return Task.FromResult(document.WithSyntaxRoot(newRoot.InsertNodesBefore(newRoot.GetAnnotatedNodes(newPropAnno).First(), new List<SyntaxNode>() {
