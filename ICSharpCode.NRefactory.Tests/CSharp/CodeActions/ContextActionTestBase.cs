@@ -66,15 +66,15 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			return sb.ToString ();
 		}
 
-		public void Test<T> (string input, string output, int action = 0, bool expectErrors = false)
+		public void Test<T> (string input, string output, int action = 0, bool expectErrors = false, CSharpParseOptions parseOptions = null)
 			where T : CodeRefactoringProvider, new ()
 		{
-			Test(new T(), input, output, action, expectErrors);
+			Test(new T(), input, output, action, expectErrors, parseOptions);
 		}
 		
-		public void Test (CodeRefactoringProvider provider, string input, string output, int action = 0, bool expectErrors = false)
+		public void Test (CodeRefactoringProvider provider, string input, string output, int action = 0, bool expectErrors = false, CSharpParseOptions parseOptions = null)
 		{
-			string result = HomogenizeEol (RunContextAction (provider, HomogenizeEol (input), action, expectErrors));
+			string result = HomogenizeEol (RunContextAction (provider, HomogenizeEol (input), action, expectErrors, parseOptions));
 			bool passed = result == output;
 			if (!passed) {
 				Console.WriteLine ("-----------Expected:");
@@ -142,7 +142,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			return result.ToString();
 		}
 
-		static List<CodeAction> GetActions(CodeRefactoringProvider action, string input, out InspectionActionTestBase.TestWorkspace workspace, out Document doc)
+		static List<CodeAction> GetActions(CodeRefactoringProvider action, string input, out InspectionActionTestBase.TestWorkspace workspace, out Document doc, CSharpParseOptions parseOptions = null)
 		{
 			TextSpan selectedSpan;
 			TextSpan markedSpan;
@@ -150,6 +150,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			workspace = new InspectionActionTestBase.TestWorkspace();
 			var projectId = ProjectId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
+			if (parseOptions == null) {
+				parseOptions = new CSharpParseOptions (
+					LanguageVersion.CSharp6,
+					DocumentationMode.Diagnose | DocumentationMode.Parse,
+					SourceCodeKind.Regular,
+					ImmutableArray.Create ("DEBUG", "TEST")
+				);
+			}
 			workspace.Options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInControlBlocks, false);
 			workspace.Open(ProjectInfo.Create(
 				projectId,
@@ -169,12 +177,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 					false,
 					true
 				),
-				new CSharpParseOptions (
-					LanguageVersion.CSharp6,
-					DocumentationMode.Diagnose | DocumentationMode.Parse,
-					SourceCodeKind.Regular,
-					ImmutableArray.Create("DEBUG", "TEST")
-				),
+				parseOptions,
 				new [] {
 					DocumentInfo.Create(
 						documentId,
@@ -200,12 +203,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 			return actions;
 		}
 
-		protected string RunContextAction (CodeRefactoringProvider action, string input,
-		                                          int actionIndex = 0, bool expectErrors = false)
+		protected string RunContextAction (CodeRefactoringProvider action, string input, int actionIndex = 0, bool expectErrors = false, CSharpParseOptions parseOptions = null)
 		{
 			Document doc;
 			InspectionActionTestBase.TestWorkspace workspace;
-			var actions = GetActions(action, input, out workspace, out doc);
+			var actions = GetActions(action, input, out workspace, out doc, parseOptions);
 			if (actions.Count < actionIndex)
 				Console.WriteLine ("invalid input is:" + input);
 			var a = actions[actionIndex];

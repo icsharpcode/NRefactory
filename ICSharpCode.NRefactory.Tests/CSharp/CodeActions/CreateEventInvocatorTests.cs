@@ -27,73 +27,145 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
+using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeActions
 {
-	[Ignore("Needs insertion cursor mode.")]
 	[TestFixture]
 	public class CreateEventInvocatorTests : ContextActionTestBase
 	{
-		[Test()]
+		[Test]
 		public void TestSimpleCase ()
 		{
-			Test<CreateEventInvocatorAction> (@"using System;
+			Test<CreateEventInvocatorCodeRefactoringProvider> (@"using System;
 class TestClass
 {
-	public event EventHandler $Tested;
+    public event EventHandler $Tested;
 }", @"using System;
 class TestClass
 {
-	protected virtual void OnTested (EventArgs e)
-	{
-		var handler = Tested;
-		if (handler != null)
-			handler (this, e);
-	}
-	public event EventHandler Tested;
+    protected virtual void OnTested(EventArgs e)
+    {
+        Tested?.Invoke(this, e);
+    }
+
+    public event EventHandler Tested;
 }");
 		}
 
-		[Test()]
+		[Test]
+		public void Test_CSharp5_SimpleCase ()
+		{
+			var parseOptions = new CSharpParseOptions (
+				                            LanguageVersion.CSharp5,
+				                            DocumentationMode.Diagnose | DocumentationMode.Parse,
+				                            SourceCodeKind.Regular,
+				                            ImmutableArray.Create ("DEBUG", "TEST")
+			                            );
+			Test<CreateEventInvocatorCodeRefactoringProvider> (@"using System;
+class TestClass
+{
+    public event EventHandler $Tested;
+}", @"using System;
+class TestClass
+{
+    protected virtual void OnTested(EventArgs e)
+    {
+        var handler = Tested;
+        if (handler != null)
+            handler(this, e);
+    }
+
+    public event EventHandler Tested;
+}", parseOptions: parseOptions);
+		}
+
+		[Test]
+		public void Test_CSharp5_NameClash ()
+		{
+			var parseOptions = new CSharpParseOptions (
+				                            LanguageVersion.CSharp5,
+				                            DocumentationMode.Diagnose | DocumentationMode.Parse,
+				                            SourceCodeKind.Regular,
+				                            ImmutableArray.Create ("DEBUG", "TEST")
+			                            );
+			Test<CreateEventInvocatorCodeRefactoringProvider> (@"using System;
+class TestClass
+{
+    public event EventHandler $e;
+}", @"using System;
+class TestClass
+{
+    protected virtual void OnE(EventArgs e)
+    {
+        var handler = this.e;
+        if (handler != null)
+            handler(this, e);
+    }
+
+    public event EventHandler e;
+}", parseOptions: parseOptions);
+		}
+
+		[Test]
 		public void TestNameClash ()
 		{
-			Test<CreateEventInvocatorAction> (@"using System;
+			Test<CreateEventInvocatorCodeRefactoringProvider> (@"using System;
 class TestClass
 {
-	public event EventHandler $e;
+    public event EventHandler $e;
 }", @"using System;
 class TestClass
 {
-	protected virtual void OnE (EventArgs e)
-	{
-		var handler = this.e;
-		if (handler != null)
-			handler (this, e);
-	}
-	public event EventHandler e;
+    protected virtual void OnE(EventArgs e)
+    {
+        this.e?.Invoke(this, e);
+    }
+
+    public event EventHandler e;
 }");
 		}
 
-		[Test()]
+		[Test]
 		public void TestStaticEvent ()
 		{
-			Test<CreateEventInvocatorAction> (@"using System;
+			Test<CreateEventInvocatorCodeRefactoringProvider> (@"using System;
 class TestClass
 {
-	public static event EventHandler $Tested;
+    public static event EventHandler $Tested;
 }", @"using System;
 class TestClass
 {
-	static void OnTested (EventArgs e)
-	{
-		var handler = Tested;
-		if (handler != null)
-			handler (null, e);
-	}
-	public static event EventHandler Tested;
+    static void OnTested(EventArgs e)
+    {
+        Tested?.Invoke(null, e);
+    }
+
+    public static event EventHandler Tested;
 }");
 		}
 
+
+		[Test]
+		public void TestStaticNameClash ()
+		{
+			Test<CreateEventInvocatorCodeRefactoringProvider> (@"using System;
+class TestClass
+{
+    public static event EventHandler $e;
+}", @"using System;
+class TestClass
+{
+    static void OnE(EventArgs e)
+    {
+        TestClass.e?.Invoke(null, e);
+    }
+
+    public static event EventHandler e;
+}");
+		}
 
 	}
 }

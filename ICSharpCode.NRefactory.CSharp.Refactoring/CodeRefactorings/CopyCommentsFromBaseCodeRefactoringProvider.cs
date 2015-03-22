@@ -36,7 +36,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Copies comments from base to overriding members/types")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Copy comments from base")]
-	public class CopyCommentsFromBaseCodeRefactoringProvider: CodeRefactoringProvider
+	public class CopyCommentsFromBaseCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 			var token = root.FindToken (span.Start);
 			if (!token.IsKind (SyntaxKind.IdentifierToken))
 				return;
-			
+
 			var node = token.Parent as MemberDeclarationSyntax;
 			if (node == null)
 				return;

@@ -353,7 +353,6 @@
     <Compile Include="CodeActions\CreateChangedEventAction.cs" />
     <Compile Include="CodeActions\CreateCustomEventImplementationAction.cs" />
     <Compile Include="CodeActions\CreateDelegateAction.cs" />
-    <Compile Include="CodeActions\CreateEventInvocatorAction.cs" />
     <Compile Include="CodeActions\CreateIndexerAction.cs" />
     <Compile Include="CodeActions\CreateOverloadWithoutParameterAction.cs" />
     <Compile Include="CodeActions\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs" />
@@ -436,6 +435,7 @@
     <Compile Include="CodeRefactorings\ConvertDecToHexCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\ConvertHexToDecCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\CopyCommentsFromBaseCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\CreateEventInvocatorCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
