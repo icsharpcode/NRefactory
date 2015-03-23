@@ -439,6 +439,8 @@
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\ConvertIfDoToWhileAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\BaseMemberHasParamsAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\AccessToStaticMemberViaDerivedTypeAnalyzer.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertStatementBodyToExpressionBodyCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertExpressionBodyToStatementBodyCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -480,6 +480,8 @@
     <Compile Include="CSharp\Diagnostics\UseMethodIsInstanceOfTypeTests.cs" />
     <Compile Include="CSharp\Diagnostics\ValueParameterNotUsedTests.cs" />
     <Compile Include="CSharp\Diagnostics\XmlDocTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\ConvertStatementBodyToExpressionBodyTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\ConvertExpressionBodyToStatementBodyTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
