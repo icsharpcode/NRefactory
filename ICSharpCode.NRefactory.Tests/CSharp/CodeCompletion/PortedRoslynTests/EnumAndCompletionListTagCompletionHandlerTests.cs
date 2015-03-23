@@ -152,25 +152,24 @@ enum Colors
 ";
 			VerifyNoItemsExist(markup);
 		}
-//
-//		[WorkItem(827897)]
-//		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
-//		public void InYieldReturn()
-//		{
-//			var markup =
-//				@"using System;
-//using System.Collections.Generic;
-//
-//class Program
-//{
-//    IEnumerable<DayOfWeek> M()
-//    {
-//        yield return $$
-//    }
-//}";
-//			VerifyItemExists(markup, "DayOfWeek");
-//		}
-//
+
+		[Test]
+		public void InYieldReturn()
+		{
+			var markup =
+				@"using System;
+using System.Collections.Generic;
+
+class Program
+{
+    IEnumerable<DayOfWeek> M()
+    {
+        yield return $$
+    }
+}";
+			VerifyItemExists(markup, "DayOfWeek");
+		}
+
 //		[WorkItem(827897)]
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]
 //		public void InAsyncMethodReturnStatement()

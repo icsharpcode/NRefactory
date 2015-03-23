@@ -77,7 +77,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 
 		protected static void AssertExists (ICSharpCode.NRefactory6.CSharp.Completion.CompletionResult provider, string testClass)
 		{
-			Assert.IsNotNull (provider.Find (testClass), "should contain '" + testClass + "");
+			var data = provider.Find (testClass);
+			if (data == null) {
+				Console.WriteLine("provider contained: ");
+				foreach (var dp in provider)
+					Console.WriteLine(dp.DisplayText);
+			}
+			Assert.IsNotNull (data, "should contain '" + testClass + "");
 		}
 
 

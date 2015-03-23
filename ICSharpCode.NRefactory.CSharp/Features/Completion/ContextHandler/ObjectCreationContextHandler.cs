@@ -69,6 +69,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					return Enumerable.Empty<ICompletionData> ();
 	
 				foreach (var inferredType in SyntaxContext.InferenceService.InferTypes (ctx.CSharpSyntaxContext.SemanticModel, completionContext.Position, cancellationToken)) {
+					if (inferredType.IsEnumType () || inferredType.IsInterfaceType () || inferredType.IsAbstract)
+						continue;
 					foreach (var symbol in await GetPreselectedSymbolsWorker(ctx.CSharpSyntaxContext, inferredType, completionContext.Position - 1, cancellationToken)) {
 						var symbolCompletionData = engine.Factory.CreateObjectCreation (this, inferredType, symbol, completionContext.Position, false);
 						list.Add (symbolCompletionData);
