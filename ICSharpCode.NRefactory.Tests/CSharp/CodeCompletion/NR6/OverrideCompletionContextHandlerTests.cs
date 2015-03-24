@@ -49,5 +49,21 @@ public class b : a
     $$
 }", "override foo");
 		}
+
+		[Test]
+		public void DontShowUpInProperty()
+		{
+			VerifyItemIsAbsent(@"
+public class a
+{
+    public virtual void foo() { }
+}
+
+public class b : a
+{
+	public int Foo {
+    	override $$
+}", "foo");
+		}
 	}
 }

@@ -59,6 +59,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			Accessibility seenAccessibility;
 			//DeclarationModifiers modifiers;
 			var token = tree.FindTokenOnLeftOfPosition(completionContext.Position, cancellationToken);
+			if (token.Parent == null)
+				return Enumerable.Empty<ICompletionData> ();
+
+			var parentMember = token.Parent.AncestorsAndSelf ().OfType<MemberDeclarationSyntax> ().FirstOrDefault (m => !m.IsKind (SyntaxKind.IncompleteMember));
+
+			if (!(parentMember is BaseTypeDeclarationSyntax) &&
+
+				/* May happen in case: 
+				 * 
+				 * override $
+				 * public override string Foo () {} 
+				 */
+				!(token.IsKind (SyntaxKind.OverrideKeyword) && token.Span.Start <= parentMember.Span.Start))
+				return Enumerable.Empty<ICompletionData> ();
+
             var position = completionContext.Position;
             var startToken = token.GetPreviousTokenIfTouchingWord(position);
 			ITypeSymbol returnType;
