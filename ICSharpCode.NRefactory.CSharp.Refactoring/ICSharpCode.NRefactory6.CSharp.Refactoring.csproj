@@ -441,6 +441,11 @@
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\AccessToStaticMemberViaDerivedTypeAnalyzer.cs" />
     <Compile Include="CodeRefactorings\Synced\ConvertStatementBodyToExpressionBodyCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ConvertExpressionBodyToStatementBodyCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\CheckArrayIndexValueCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\CheckCollectionIndexValueCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\CheckStringIndexValueCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\CheckStringBuilderIndexValueCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\CheckDictionaryKeyValueCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

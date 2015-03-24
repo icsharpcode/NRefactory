@@ -482,6 +482,12 @@
     <Compile Include="CSharp\Diagnostics\XmlDocTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertStatementBodyToExpressionBodyTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertExpressionBodyToStatementBodyTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\CheckArrayIndexValueTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\CheckCollectionIndexValueTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\CheckStringIndexValueTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\CheckStringBuilderIndexValueTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\CheckDictionaryKeyValueTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\ImportStaticClassWithUsingTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
