@@ -104,81 +104,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait(false);
 			var position = completionContext.Position;
 
-			var trivia = semanticModel.SyntaxTree.GetRoot(cancellationToken).FindTrivia(position - 1);
-			// work around for roslyn bug: missing comments after pre processor directives
-			if (trivia.IsKind(SyntaxKind.IfDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.EndIfDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.DefineDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.ElseDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.RegionDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.EndRegionDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.ErrorDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.LineDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.PragmaChecksumDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.PragmaWarningDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.UndefDirectiveTrivia) ||
-				trivia.IsKind(SyntaxKind.WarningDirectiveTrivia)) {
-				if (trivia.ToFullString().IndexOf("//", StringComparison.Ordinal) >= 0)
-					return CompletionResult.Empty;
-			}
-
-			var text = document.GetTextAsync(cancellationToken).Result; 
-			char lastLastChar = position >= 2 ? text [position - 2] : '\0';
-			char lastChar = text [position - 1];
-			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped) {
-				if (lastChar != '.' && 
-					lastChar != '#' && 
-					lastChar != '>' && lastLastChar == '-' &&
-					lastChar != ' ' && lastLastChar != ' ' && lastLastChar != '\t' &&
-					!char.IsLetter(lastChar))
-					return CompletionResult.Empty;
-			}
-
+			var text = await document.GetTextAsync (cancellationToken).ConfigureAwait (false);
 			var ctx = await completionContext.GetSyntaxContextAsync (workspace, cancellationToken).ConfigureAwait (false);
-
-			if (ctx.ContainingTypeDeclaration != null &&
-			    ctx.ContainingTypeDeclaration.IsKind(SyntaxKind.EnumDeclaration)) {
-				return CompletionResult.Empty;
-			}
-
-			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && (char.IsLetter(lastLastChar) || lastLastChar == '_') &&
-			    (char.IsLetterOrDigit(lastChar) || lastChar == '_')) {
-				return CompletionResult.Empty;
-			}
-
-			if (lastChar == ' ' && !char.IsWhiteSpace(lastLastChar)) {
-				var str = ctx.TargetToken.ToFullString().Trim();
-				switch (str) {
-					case "yield":
-						return HandleYieldStatementExpression();
-				}
-
-				// auto popup enum base types
-				var parent = ctx.TargetToken.Parent;
-				if (parent != null && parent.Parent != null && parent.IsKind(SyntaxKind.BaseList) && parent.Parent.IsKind(SyntaxKind.EnumDeclaration)) {
-					var result2 = new CompletionResult();
-					foreach (var handler in handlers.Concat (completionContext.AdditionalContextHandlers)) {
-						result2.AddRange (handler.GetCompletionDataAsync (result2, this, completionContext, info, cancellationToken).Result);
-					}
-					return result2;
-				}
-			}
-
-			if (ctx.TargetToken.Parent is AccessorListSyntax) {
-				if (ctx.TargetToken.Parent.Parent is EventDeclarationSyntax) {
-					return HandleEventAccessorContext();
-				}
-				if (ctx.TargetToken.Parent.Parent is PropertyDeclarationSyntax ||
-					ctx.TargetToken.Parent.Parent is IndexerDeclarationSyntax) {
-					return HandlePropertyAccessorContext(false);
-				}
-			}
-			if (ctx.TargetToken.Parent is AccessorDeclarationSyntax) {
-				if (ctx.TargetToken.Parent.Parent.Parent is PropertyDeclarationSyntax ||
-					ctx.TargetToken.Parent.Parent.Parent is IndexerDeclarationSyntax) {
-					return HandlePropertyAccessorContext(true);
-				}
-			}
 
 			// case lambda parameter (n1, $
 			if (ctx.TargetToken.IsKind (SyntaxKind.CommaToken) &&
@@ -197,6 +124,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 					}
 				}
 			}
+
 			// prevent auto selection for "<number>." case
 			if (ctx.TargetToken.IsKind(SyntaxKind.DotToken)) {
 				var accessExpr = ctx.TargetToken.Parent as MemberAccessExpressionSyntax;
@@ -223,35 +151,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 			}
 			
-			return result;
-		}
-
-		CompletionResult HandleEventAccessorContext()
-		{
-			var result = new CompletionResult();
-			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "add", GenericDataType.Keyword));
-			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "remove", GenericDataType.Keyword));
-			return result;
-		}
-
-		CompletionResult HandleYieldStatementExpression()
-		{
-			var result = new CompletionResult();
-			result.DefaultCompletionString = "return";
-
-			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "break", GenericDataType.Keyword));
-			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "return", GenericDataType.Keyword));
-			return result;
-		}
-		
-		CompletionResult HandlePropertyAccessorContext(bool isInsideAccessorDeclaration)
-		{
-			var result = new CompletionResult();
-			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "get", GenericDataType.Keyword));
-			result.AddData(factory.CreateGenericData(DefaultKeyHandler, "set", GenericDataType.Keyword));
-			foreach (var accessorModifier in new [] { "public", "internal", "protected", "private", "async" }) {
-				result.AddData(factory.CreateGenericData(DefaultKeyHandler, accessorModifier, GenericDataType.Keyword));
-			}
 			return result;
 		}
 

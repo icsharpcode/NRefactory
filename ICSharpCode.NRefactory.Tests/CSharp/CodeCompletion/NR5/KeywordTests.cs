@@ -151,7 +151,7 @@ class Test
 		$g$
 }
 ", provider => {
-				Assert.IsNotNull (provider.Find ("public"), "keyword 'public' not found.");
+				Assert.IsNotNull (provider.Find ("protected"), "keyword 'protected' not found.");
 				Assert.IsNotNull (provider.Find ("get"), "keyword 'get' not found.");
 				Assert.IsNotNull (provider.Find ("set"), "keyword 'set' not found.");
 			});
@@ -167,7 +167,7 @@ class Test
 		$g$
 }
 ", provider => {
-				Assert.IsNotNull (provider.Find ("public"), "keyword 'public' not found.");
+				Assert.IsNotNull (provider.Find ("protected"), "keyword 'protected' not found.");
 				Assert.IsNotNull (provider.Find ("get"), "keyword 'get' not found.");
 				Assert.IsNotNull (provider.Find ("set"), "keyword 'set' not found.");
 			});
@@ -199,7 +199,6 @@ class Test
 		$g$
 }
 ", (provider) => {
-				Assert.AreEqual (2, provider.Count);
 				Assert.IsNotNull (provider.Find ("add"), "keyword 'add' not found.");
 				Assert.IsNotNull (provider.Find ("remove"), "keyword 'remove' not found.");
 			});
