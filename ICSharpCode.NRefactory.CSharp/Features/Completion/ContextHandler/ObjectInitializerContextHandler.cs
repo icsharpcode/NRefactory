@@ -154,6 +154,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 				var ctor = semanticModel.GetSymbolInfo(objectCreation, cancellationToken).Symbol;
 				var type = ctor != null ? ctor.ContainingType : null;
+				if (type == null) {
+					type = semanticModel.GetSpeculativeTypeInfo(objectCreation.SpanStart, objectCreation.Type, SpeculativeBindingOption.BindAsTypeOrNamespace).Type as INamedTypeSymbol;
+				}
 
 				return Tuple.Create<ITypeSymbol, Location>(type, token.GetLocation());
 			}

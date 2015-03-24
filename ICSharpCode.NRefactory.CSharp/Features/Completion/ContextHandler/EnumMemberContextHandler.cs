@@ -57,7 +57,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait(false);
 			var model = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
+			var tree = await completionContext.Document.GetSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
+			if (tree.IsInNonUserCode(completionContext.Position, cancellationToken))
+				return Enumerable.Empty<ICompletionData> ();
+
+			var token = tree.FindTokenOnLeftOfPosition(completionContext.Position, cancellationToken);
+			if (token.IsMandatoryNamedParameterPosition())
+				return Enumerable.Empty<ICompletionData> ();
+
 			var result = new List<ICompletionData> ();
+
 			foreach (var type in ctx.InferredTypes) {
 				if (type.TypeKind != TypeKind.Enum)
 					continue;

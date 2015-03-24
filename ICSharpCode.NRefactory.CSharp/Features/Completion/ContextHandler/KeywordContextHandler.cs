@@ -36,6 +36,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 using System.Threading.Tasks;
 using ICSharpCode.NRefactory6.CSharp.Completion.KeywordRecommenders;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -61,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 	class KeywordContextHandler : CompletionContextHandler
 	{
-		IKeywordRecommender<CSharpSyntaxContext>[] recommender = {
+		static readonly IKeywordRecommender<CSharpSyntaxContext>[] recommender = {
 			new AbstractKeywordRecommender(),
 			new AddKeywordRecommender(),
 			new AliasKeywordRecommender(),
@@ -191,6 +192,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new YieldKeywordRecommender()
 		};
 
+		public override bool IsTriggerCharacter (SourceText text, int position)
+		{
+			var ch = text [position];
+			return ch == ' ' || base.IsTriggerCharacter (text, position);
+		}
+
+
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
@@ -198,6 +206,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (ctx.CSharpSyntaxContext.IsInNonUserCode) {
 				return Enumerable.Empty<ICompletionData> ();
 			}
+
+			if (info.TriggerCharacter == ' ' && info.CompletionTriggerReason == CompletionTriggerReason.CharTyped) {
+				if (!ctx.CSharpSyntaxContext.IsEnumBaseListContext)
+					return Enumerable.Empty<ICompletionData> ();
+			}
+
 			var result = new List<ICompletionData> ();
 	
 			foreach (var r in recommender) {

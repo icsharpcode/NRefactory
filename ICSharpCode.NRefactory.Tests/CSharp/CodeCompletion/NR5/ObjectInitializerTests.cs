@@ -98,7 +98,6 @@ class MyTest
 		/// <summary>
 		/// Bug 487236 - Object initializer completion uses wrong type
 		/// </summary>
-		[Ignore("Broken in roslyn context handler")]
 		[Test()]
 		public void TestBug487236B ()
 		{
@@ -526,7 +525,6 @@ class MyTest
 			);
 		}
 
-		[Ignore("broken")]
 		[Test()]
 		public void TestArrayInitializersForbiddenInObjectCreation()
 		{
@@ -551,7 +549,6 @@ class MyTest
 		/// <summary>
 		/// Bug 5126 - Multiple projects including the same files don't update their typesystem properly
 		/// </summary>
-		[Ignore("broken")]
 		[Test()]
 		public void TestBug5126()
 		{
@@ -637,22 +634,21 @@ class C : S
 		/// <summary>
 		/// Bug 9910 - Completion not working in object initializer
 		/// </summary>
-		[Ignore("broken in roslyn ?")]
 		[Test]
 		public void TestBug9910()
 		{
 			var provider = CodeCompletionBugTests.CreateCtrlSpaceProvider(
 				@"class Test 
 {
-    Test(int i) { }
-    Test(char c) { }
+    public Test(int i) { }
+    public Test(char c) { }
 
     public static void Main(string [] args)
     {
     }
 
-    int fld;
-    int fld2;
+    public int fld;
+    public int fld2;
 }
 
 class Foo
@@ -664,8 +660,6 @@ class Foo
         };
     }
 }
-
-
 ");
 			Assert.IsNotNull(provider.Find("fld"), "'fld' not found.");
 			Assert.IsNotNull(provider.Find("fld2"), "'fld2' not found.");

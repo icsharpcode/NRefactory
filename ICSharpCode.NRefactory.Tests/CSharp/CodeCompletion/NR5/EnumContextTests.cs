@@ -126,8 +126,7 @@ enum Name : $b$
 			});
 		}
 
-		[Ignore("Not supported anymore")]
-		[Test()]
+		[Test]
 		public void TestEnumBaseTypesAutoPopup()
 		{
 			string[] integralTypes = { "byte", "sbyte", "short", "int", "long", "ushort", "uint", "ulong" };

@@ -406,7 +406,7 @@ class C
     }
 }
 ";
-			VerifyItemIsAbsent(markup, "E");
+			VerifyItemIsAbsent(markup, "E.a");
 		}
 	}
 }

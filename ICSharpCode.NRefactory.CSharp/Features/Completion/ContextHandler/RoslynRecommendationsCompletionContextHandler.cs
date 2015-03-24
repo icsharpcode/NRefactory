@@ -129,15 +129,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				if (isInUsingDirective && symbol.Kind != SymbolKind.Namespace)
 					continue;
 				var newData = engine.Factory.CreateSymbolCompletionData (this, symbol);
-				//				var categorySymbol = (ISymbol)symbol.ContainingType ?? symbol.ContainingNamespace;
-				//				if (categorySymbol != null) {
-				//					ICompletionCategory category;
-				//					var key = categorySymbol.ToDisplayString ();
-				//					if (!completionCategoryLookup.TryGetValue (key, out category)) {
-				//						completionCategoryLookup [key] = category = engine.Factory.CreateCompletionDataCategory (categorySymbol);
-				//					}
-				//					newData.CompletionCategory = category;
-				//				}
+				var categorySymbol = (ISymbol)symbol.ContainingType ?? symbol.ContainingNamespace;
+				if (categorySymbol != null) {
+					ICompletionCategory category;
+					var key = categorySymbol.ToDisplayString ();
+					if (!completionCategoryLookup.TryGetValue (key, out category)) {
+						completionCategoryLookup [key] = category = engine.Factory.CreateCompletionDataCategory (categorySymbol);
+					}
+					newData.CompletionCategory = category;
+				}
 				addData (newData);
 			}
 			return result;

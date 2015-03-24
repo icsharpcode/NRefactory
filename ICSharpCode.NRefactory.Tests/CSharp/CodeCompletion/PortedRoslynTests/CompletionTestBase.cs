@@ -29,6 +29,7 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Completion;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 {
@@ -36,36 +37,38 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 	{
 		protected void VerifyItemsExist(string input, params string[] items)
 		{
-			VerifyItemExists(input, items);
-		}
-
-		protected void VerifyItemExists(string input, params string[] items)
-		{
-			var provider = CodeCompletionBugTests.CreateProvider(input);
-
-			foreach (var item in provider)
-				Console.WriteLine(item.DisplayText);
-			if (items != null) {
-				foreach (var item in items) {
-					Assert.IsNotNull(provider.Find(item), "item '" + item + "' not found.");	
-				}
+			foreach (var item in items) {
+				VerifyItemExists(input, item);
 			}
 		}
 
-		protected void VerifyItemIsAbsent(string input, params string[] items)
+		protected void VerifyItemExists(string input, string expectedItem, string expectedDescriptionOrNull = null, SourceCodeKind? sourceCodeKind = null, bool usePreviousCharAsTrigger = false, bool experimental = false, int? glyph = null)
 		{
-			VerifyItemsAbsent (input, items);
+			var provider = usePreviousCharAsTrigger ? CodeCompletionBugTests.CreateProvider(input) : CodeCompletionBugTests.CreateCtrlSpaceProvider(input.Replace("$$", "$"));
+
+			if (provider.Find (expectedItem) == null) {
+				foreach (var item in provider)
+					Console.WriteLine (item.DisplayText);
+			}
+
+			Assert.IsNotNull(provider.Find(expectedItem), "item '" + expectedItem + "' not found.");	
 		}
+
+		protected void VerifyItemIsAbsent(string input, string expectedItem, string expectedDescriptionOrNull = null, SourceCodeKind? sourceCodeKind = null, bool usePreviousCharAsTrigger = false, bool experimental = false)
+		{
+			var provider = usePreviousCharAsTrigger ? CodeCompletionBugTests.CreateProvider(input) : CodeCompletionBugTests.CreateCtrlSpaceProvider(input.Replace("$$", "$"));
+
+			if (provider.Find (expectedItem) != null) {
+				foreach (var item in provider)
+					Console.WriteLine (item.DisplayText);
+			}
+			Assert.IsNull(provider.Find(expectedItem), "item '" + expectedItem + "' found but shouldn't.");	
+		}
+
 		protected void VerifyItemsAbsent(string input, params string[] items)
 		{
-			var provider = CodeCompletionBugTests.CreateProvider(input.Replace("$$", "$"));
-
-			foreach (var item in provider)
-				Console.WriteLine(item.DisplayText);
-			if (items != null) {
-				foreach (var item in items) {
-					Assert.IsNull(provider.Find(item), "item '" + item + "' found but shouldn't.");	
-				}
+			foreach (var item in items) {
+				VerifyItemIsAbsent(input, item);
 			}
 		}
 

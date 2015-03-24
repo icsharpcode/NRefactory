@@ -223,9 +223,49 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			}
 
 
+			class TestCategory : ICompletionCategory, IComparable<ICompletionCategory>
+			{
+				string text;
+
+				public TestCategory (string text)
+				{
+					this.text = text;
+				}
+
+				#region IComparable implementation
+				public int CompareTo (ICompletionCategory other)
+				{
+					return text.CompareTo (other.DisplayText);
+				}
+				#endregion				
+
+				#region ICompletionCategory implementation
+				string ICompletionCategory.DisplayText {
+					get {
+						return text;
+					}
+					set {
+						text = value;
+					}
+				}
+				string ICompletionCategory.Icon {
+					get {
+						return "";
+					}
+					set {
+					}
+				}
+				#endregion
+
+				public override string ToString ()
+				{
+					return string.Format ("[TestCategory: text={0}]", text);
+				}
+			}
+
 			ICompletionCategory ICompletionDataFactory.CreateCompletionDataCategory (ISymbol forSymbol)
 			{
-				return null;
+				return new TestCategory(forSymbol.ToDisplayString ());
 			}
 
 
@@ -1042,7 +1082,6 @@ class C {
 		}
 		
 		[Test]
-		[Ignore]
 		public void TestGenericObjectCreation ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -2027,7 +2066,6 @@ namespace B
 		}
 		
 		[Test]
-		[Ignore]
 		public void TestNewInConstructor ()
 		{
 			CombinedProviderTest (
@@ -4513,7 +4551,6 @@ namespace Test
 		}
 		
 		[Test]
-		[Ignore]
 		public void TestNamedParameters ()
 		{
 			CombinedProviderTest (
@@ -4532,8 +4569,8 @@ namespace Test
 				Assert.IsNotNull (provider.Find ("foo:"), "'foo:' not found.");
 			});
 		}
+
 		[Test]
-		[Ignore]
 		public void TestNamedParameters2 ()
 		{
 			var provider = CreateCtrlSpaceProvider (
@@ -4553,7 +4590,6 @@ namespace Test
 		}
 
 		[Test]
-		[Ignore]
 		public void TestNamedParametersConstructorCase ()
 		{
 			CombinedProviderTest (
@@ -4566,8 +4602,8 @@ namespace Test
         $new MyClass(b$
     }
 }", provider => {
-				Assert.IsNotNull (provider.Find ("bar"), "'bar' not found.");
-				Assert.IsNotNull (provider.Find ("foo"), "'foo' not found.");
+				Assert.IsNotNull (provider.Find ("bar:"), "'bar:' not found.");
+				Assert.IsNotNull (provider.Find ("foo:"), "'foo:' not found.");
 			});
 		}
 		
@@ -4608,7 +4644,6 @@ class Program
 		}
 		
 		[Test]
-		[Ignore]
 		public void TestCodeCompletionCategorySorting ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -4640,6 +4675,7 @@ class Test
 			var list = new List<ICompletionCategory> ();
 			
 			for (int i = 0; i < provider.Count; i++) {
+				Console.WriteLine (provider [i].DisplayText + "/"+ provider [i].CompletionCategory);
 				if (list.Contains (provider [i].CompletionCategory))
 					continue;
 				list.Add (provider [i].CompletionCategory);
@@ -4647,10 +4683,10 @@ class Test
 			Assert.AreEqual (4, list.Count);
 			
 			list.Sort ();
-			Assert.AreEqual ("CClass", list [0].DisplayText);
+			Assert.AreEqual ("AClass", list [0].DisplayText);
 			Assert.AreEqual ("BClass", list [1].DisplayText);
-			Assert.AreEqual ("AClass", list [2].DisplayText);
-			Assert.AreEqual ("System.Object", list [3].DisplayText);
+			Assert.AreEqual ("CClass", list [2].DisplayText);
+			Assert.AreEqual ("object", list [3].DisplayText);
 		}
 		
 		[Test]
@@ -6005,7 +6041,6 @@ public class Test
 			Assert.IsTrue(provider == null || provider.Count == 0);
 		}
 
-		[Ignore("Parser bug")]
 		[Test]
 		public void TestBugWithLambdaParameter()
 		{
@@ -6133,7 +6168,6 @@ class Testm
 			});
 		}
 
-		[Ignore]
 		[Test]
 		public void TestComplexIntersectionTypeProblem ()
 		{

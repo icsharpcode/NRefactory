@@ -488,6 +488,7 @@
     <Compile Include="CSharp\CodeRefactorings\CheckStringBuilderIndexValueTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CheckDictionaryKeyValueTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ImportStaticClassWithUsingTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\EnumMemberContextHandlerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
