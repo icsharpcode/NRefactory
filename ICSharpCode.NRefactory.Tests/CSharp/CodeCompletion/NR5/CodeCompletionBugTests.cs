@@ -156,7 +156,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				return new CompletionData(keyword);
 			}
 			
-			ISymbolCompletionData ICompletionDataFactory.CreateEnumMemberCompletionData(ICompletionKeyHandler keyHandler, IFieldSymbol field)
+			ISymbolCompletionData ICompletionDataFactory.CreateEnumMemberCompletionData(ICompletionKeyHandler keyHandler, ISymbol alias, IFieldSymbol field)
 			{
 				return new SymbolCompletionData(field, field.ContainingType.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat) + "." + field.Name);
 			}
@@ -424,7 +424,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			var idx = text.IndexOf("$$");
 			if (idx >= 0) {
 				text = text.Substring(0, idx) + text.Substring(idx + 1);
-				isCtrlSpace = true;
 			}
 			var engine = CreateEngine(text, out cursorPosition, out semanticModel, out document, references);
 			if (engineCallback != null)

@@ -35,6 +35,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Options;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -53,6 +55,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return ch == '.';
 		}
 
+		public override bool IsTriggerCharacter(SourceText text, int position)
+		{
+			// Bring up on space or at the start of a word, or after a ( or [.
+			//
+			// Note: we don't want to bring this up after traditional enum operators like & or |.
+			// That's because we don't like the experience where the enum appears directly after the
+			// operator.  Instead, the user normally types <space> and we will bring up the list
+			// then.
+			var ch = text[position];
+			return
+				ch == ' ' ||
+				ch == '[' ||
+				ch == '(' ||
+				(/*options.GetOption(CompletionOptions.TriggerOnTypingLetters, LanguageNames.CSharp) && CompletionUtilities.*/IsStartingNewWord(text, position));
+		}
+
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait(false);
@@ -64,19 +82,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var token = tree.FindTokenOnLeftOfPosition(completionContext.Position, cancellationToken);
 			if (token.IsMandatoryNamedParameterPosition())
 				return Enumerable.Empty<ICompletionData> ();
-
 			var result = new List<ICompletionData> ();
 
-			foreach (var type in ctx.InferredTypes) {
+			foreach (var _type in ctx.InferredTypes) {
+				var type = _type;
+				if (type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T) {
+					type = type.GetTypeArguments().FirstOrDefault();
+					if (type == null)
+						continue;
+				}
+
 				if (type.TypeKind != TypeKind.Enum)
 					continue;
+				if (!type.IsEditorBrowsable ())
+					continue;
+
+				// Does type have any aliases?
+				ISymbol alias = await type.FindApplicableAlias(completionContext.Position, model, cancellationToken).ConfigureAwait(false);
+
 				if (string.IsNullOrEmpty(completionResult.DefaultCompletionString))
 					completionResult.DefaultCompletionString = type.Name;
 
 				result.Add (engine.Factory.CreateSymbolCompletionData(this, type, type.ToMinimalDisplayString(model, completionContext.Position, SymbolDisplayFormat.CSharpErrorMessageFormat)));
 				foreach (IFieldSymbol field in type.GetMembers().OfType<IFieldSymbol>()) {
 					if (field.DeclaredAccessibility == Accessibility.Public && (field.IsConst || field.IsStatic)) {
-						result.Add (engine.Factory.CreateEnumMemberCompletionData(this, field));
+						result.Add (engine.Factory.CreateEnumMemberCompletionData(this, alias, field));
 					}
 				}
 			}
