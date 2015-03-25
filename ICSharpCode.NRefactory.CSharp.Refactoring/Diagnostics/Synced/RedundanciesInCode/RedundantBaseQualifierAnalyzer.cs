@@ -36,7 +36,6 @@ using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp;
-using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -45,7 +44,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBaseQualifier")]
-	[Description("'base.' is redundant and can safely be removed.")]
 	public class RedundantBaseQualifierAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "RedundantBaseQualifierAnalyzer";

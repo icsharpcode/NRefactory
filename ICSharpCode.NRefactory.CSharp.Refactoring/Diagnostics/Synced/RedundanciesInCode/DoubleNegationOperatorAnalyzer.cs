@@ -35,21 +35,18 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoubleNegationOperator")]
-	[Description("Double negation is redundant")]
 	public class DoubleNegationOperatorAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "DoubleNegationOperatorAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Double negation is meaningless", "Double negation is redundant", Category, DiagnosticSeverity.Warning, true, "Double negation operator");
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId,  "Double negation is redundant", "Double negation is meaningless", Category, DiagnosticSeverity.Warning, true, "Double negation operator");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

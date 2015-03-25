@@ -35,23 +35,20 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
-	[Description("Condition is always true or false")]
 	public class ConditionIsAlwaysTrueOrFalseAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticIdTrue  = "ConditionIsAlwaysTrueOrFalseAnalyzer.True";
 		internal const string DiagnosticIdFalse = "ConditionIsAlwaysTrueOrFalseAnalyzer.False";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, "Value of the expression is always 'true'", "Expression is always 'true'", Category, DiagnosticSeverity.Warning, true, "Expression is always 'true' or always 'false'");
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, "Value of the expression is always 'false'", "Expression is always 'false'", Category, DiagnosticSeverity.Warning, true, "Expression is always 'true' or always 'false'");
+		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, "Expression is always 'true'", "Value of the expression is always 'true'", Category, DiagnosticSeverity.Warning, true, "Expression is always 'true' or always 'false'");
+		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, "Expression is always 'false'", "Value of the expression is always 'false'", Category, DiagnosticSeverity.Warning, true, "Expression is always 'true' or always 'false'");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {

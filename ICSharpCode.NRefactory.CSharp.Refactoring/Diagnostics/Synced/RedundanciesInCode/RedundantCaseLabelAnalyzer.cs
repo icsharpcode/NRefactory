@@ -37,19 +37,17 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantCaseLabel")]
-	[Description("Redundant case label")]
 	public class RedundantCaseLabelAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "RedundantCaseLabelAnalyzer";
 		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'case' label is redundant.", "Redundant case label", Category, DiagnosticSeverity.Warning, true, "Redundant 'case' label");
+		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId,  "Redundant case label", "'case' label is redundant.", Category, DiagnosticSeverity.Warning, true, "Redundant 'case' label");
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
 			get {
